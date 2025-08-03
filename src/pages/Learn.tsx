@@ -75,9 +75,9 @@ const LearnPage = () => {
   return (
     <AdminCourseProvider>
       <Layout>
-        <div className="container mx-auto pb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">LEARN</h1>
+        <div className="w-full max-w-full px-2 sm:px-4 pb-4 sm:pb-8">
+          <div className="flex justify-between items-center mb-3 sm:mb-6">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">LEARN</h1>
           </div>
           
           <LearnDashboard 
@@ -88,7 +88,7 @@ const LearnPage = () => {
             activeSubcategory={activeSubcategory}
           />
           
-          <div className="mt-6">
+          <div className="mt-3 sm:mt-6">
             <LearnCourses 
               activeCategory={activeCategory} 
               activeSubcategory={activeSubcategory}

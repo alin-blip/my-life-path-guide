@@ -86,8 +86,8 @@ export const LearnCourses: React.FC<LearnCoursesProps> = ({ activeCategory, acti
 
   return (
     <div>
-      <div className="flex justify-between items-center mt-8 mb-6">
-        <h2 className="text-xl font-medium pl-1">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 mt-4 mb-3 sm:mt-8 sm:mb-6">
+        <h2 className="text-lg sm:text-xl font-medium pl-1">
           {getTranslatedText('resourcesTitle', 'Available Resources', 'Resurse disponibile')}
         </h2>
         <Button 
@@ -103,16 +103,18 @@ export const LearnCourses: React.FC<LearnCoursesProps> = ({ activeCategory, acti
             }
             setShowUploadModal(true);
           }}
-          className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs sm:text-sm px-3 py-2 sm:px-4"
         >
           {isStripeConnected ? (
-            getTranslatedText('uploadCourse', 'Upload New Course', 'Încarcă un curs nou')
+            <span className="hidden sm:inline">{getTranslatedText('uploadCourse', 'Upload New Course', 'Încarcă un curs nou')}</span>
           ) : (
-            <span className="flex items-center gap-2">
-              <BadgeDollarSign className="h-4 w-4" />
-              {getTranslatedText('connectStripe', 'Connect Stripe to Upload', 'Conectează Stripe pentru încărcare')}
+            <span className="flex items-center gap-1 sm:gap-2">
+              <BadgeDollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">{getTranslatedText('connectStripe', 'Connect Stripe to Upload', 'Conectează Stripe pentru încărcare')}</span>
+              <span className="sm:hidden">Connect Stripe</span>
             </span>
           )}
+          <span className="sm:hidden">{isStripeConnected ? 'Upload' : ''}</span>
         </Button>
       </div>
       
