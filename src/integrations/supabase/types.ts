@@ -44,6 +44,148 @@ export type Database = {
         }
         Relationships: []
       }
+      course_modules: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          order_index: number
+          pdf_url: string | null
+          text_content: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          order_index?: number
+          pdf_url?: string | null
+          text_content?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          order_index?: number
+          pdf_url?: string | null
+          text_content?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_submodules: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          module_id: string
+          order_index: number
+          pdf_url: string | null
+          text_content: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          module_id: string
+          order_index?: number
+          pdf_url?: string | null
+          text_content?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          module_id?: string
+          order_index?: number
+          pdf_url?: string | null
+          text_content?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_submodules_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          difficulty_level: string
+          estimated_duration: number | null
+          id: string
+          is_published: boolean
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty_level?: string
+          estimated_duration?: number | null
+          id?: string
+          is_published?: boolean
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty_level?: string
+          estimated_duration?: number | null
+          id?: string
+          is_published?: boolean
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       daily_progress: {
         Row: {
           created_at: string
@@ -335,15 +477,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -470,6 +642,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const

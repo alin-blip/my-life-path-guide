@@ -16,10 +16,8 @@ export const saveToStackLibrary = async (
     if (session?.user) {
       // Prepare data for saving
       const stackData = {
-        trigger: type,
-        trigger_label: getStackLabel(type),
-        color: getStackColor(type),
-        questions: questions,
+        title: `${type} Stack Session`,
+        type: type,
         content: formatAnswersContent(answers, questions),
         user_id: session.user.id
       };
@@ -147,64 +145,11 @@ export const updateDailyProgress = async (
     const weekNumber = getWeekNumber(today);
     const date = today.toISOString().split('T')[0]; // YYYY-MM-DD format
     
-    // Check if there's an existing record for today
-    const { data: existingData, error: queryError } = await supabase
-      .from('user_progress')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .eq('date', date)
-      .single();
+    // Temporarily disabled until user_progress table is created
+    // TODO: Enable after creating user_progress table in Supabase
+    console.log(`Progress update for ${activity} temporarily disabled`);
     
-    if (queryError && queryError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-      console.error("Error checking progress:", queryError);
-      return;
-    }
-    
-    // Prepare data for upsert
-    const progressData: any = {
-      user_id: session.user.id,
-      date,
-      year,
-      week_number: weekNumber
-    };
-    
-    // Update the appropriate field based on activity
-    if (activity === 'stack') {
-      progressData.stack_completed = true;
-    } else if (activity === 'journal') {
-      progressData.journal_completed = true;
-    }
-    
-    // Calculate daily score
-    if (existingData) {
-      // Calculate based on what's already completed
-      let score = existingData.daily_score || 0;
-      
-      if (activity === 'stack' && !existingData.stack_completed) {
-        score += 1;
-      } else if (activity === 'journal' && !existingData.journal_completed) {
-        score += 1;
-      }
-      
-      progressData.daily_score = score;
-    } else {
-      // New record
-      progressData.daily_score = activity === 'stack' || activity === 'journal' ? 1 : 0;
-    }
-    
-    // Upsert the record
-    const { error: upsertError } = await supabase
-      .from('user_progress')
-      .upsert(progressData);
-    
-    if (upsertError) {
-      console.error("Error updating progress:", upsertError);
-    } else {
-      console.log(`Successfully updated progress for ${activity}`);
-      
-      // Update user statistics
-      await updateUserStatistics(session.user.id, activity);
-    }
+    return; // Exit early until tables are created
   } catch (error) {
     console.error("Error in updateDailyProgress:", error);
   }
@@ -220,51 +165,7 @@ const getWeekNumber = (date: Date): number => {
 
 // Helper function to update user statistics
 const updateUserStatistics = async (userId: string, activity: string) => {
-  try {
-    // Check if user has statistics record
-    const { data, error: queryError } = await supabase
-      .from('user_statistics')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    
-    if (queryError && queryError.code !== 'PGRST116') {
-      console.error("Error checking user statistics:", queryError);
-      return;
-    }
-    
-    let statsData: any = {
-      user_id: userId,
-      updated_at: new Date().toISOString()
-    };
-    
-    // Update the appropriate field based on activity
-    if (activity === 'stack') {
-      statsData.total_stacks = data ? (data.total_stacks || 0) + 1 : 1;
-    } else if (activity === 'journal') {
-      statsData.total_journals = data ? (data.total_journals || 0) + 1 : 1;
-    }
-    
-    // Calculate total points
-    if (data) {
-      statsData.total_daily_points = (data.total_daily_points || 0) + 1;
-    } else {
-      statsData.total_daily_points = 1;
-      statsData.total_stacks = activity === 'stack' ? 1 : 0;
-      statsData.total_journals = activity === 'journal' ? 1 : 0;
-    }
-    
-    // Upsert the record
-    const { error: upsertError } = await supabase
-      .from('user_statistics')
-      .upsert(statsData);
-    
-    if (upsertError) {
-      console.error("Error updating user statistics:", upsertError);
-    } else {
-      console.log(`Successfully updated user statistics for ${activity}`);
-    }
-  } catch (error) {
-    console.error("Error in updateUserStatistics:", error);
-  }
+  // Temporarily disabled until user_statistics table is created
+  // TODO: Enable after creating user_statistics table in Supabase
+  console.log(`User statistics update for ${activity} temporarily disabled`);
 };

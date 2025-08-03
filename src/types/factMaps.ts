@@ -30,6 +30,7 @@ export interface FactMapItem {
   createdAt: string;
   updatedAt: string;
   items: FactMapGoal[];
+  userId?: string;
 }
 
 // This interface maps to what we get from Supabase
@@ -51,7 +52,7 @@ export function formatForSupabase(map: FactMapItem): {
   created_at: string;
   updated_at: string;
   items: any;
-  user_id?: string | null;
+  user_id: string;
 } {
   // Serialize FactMapGoal items to plain objects
   const serializedItems = map.items.map(item => ({
@@ -73,7 +74,8 @@ export function formatForSupabase(map: FactMapItem): {
     category: map.category,
     created_at: map.createdAt,
     updated_at: map.updatedAt,
-    items: serializedItems
+    items: serializedItems,
+    user_id: map.userId || '' // Ensure user_id is always provided
   };
 }
 
