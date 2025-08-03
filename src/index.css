@@ -1,0 +1,156 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Fixed sidebar styles */
+.sidebar-item {
+  @apply flex items-center gap-3 px-3 py-2 text-sm text-white/80 rounded-md transition-colors hover:text-white hover:bg-gray-800;
+}
+
+.sidebar-item.active {
+  @apply bg-gradient-to-r from-warrior-accent to-warrior-accent/70 text-white font-medium;
+}
+
+/* Animation for confetti */
+@keyframes float {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-float {
+  animation: float 5s linear forwards;
+}
+
+/* Animation for pulses */
+@keyframes glow {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.5); 
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.9); 
+  }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Progress line animation */
+@keyframes progress-line {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.animate-progress-line {
+  animation: progress-line 1s ease-out forwards;
+}
+
+/* Circle fill animation */
+@keyframes circle-fill {
+  from { stroke-dasharray: 0 100; }
+  to { stroke-dasharray: var(--fill-percentage) 100; }
+}
+
+.animate-circle-fill {
+  animation: circle-fill 1s ease-out forwards;
+}
+
+/* Fix for sidebar layout */
+.sidebar-wrapper {
+  width: 280px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
+}
+
+/* Circle progress animation */
+@keyframes circle-progress {
+  from { transform: rotate(-90deg); }
+  to { transform: rotate(270deg); }
+}
+
+.circle-progress-animation {
+  animation: circle-progress 1.5s ease-out forwards;
+}
+
+/* Progress bar transition */
+.progress-bar-transition {
+  transition: width 0.4s ease-in-out;
+}

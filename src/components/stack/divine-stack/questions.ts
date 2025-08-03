@@ -1,0 +1,24 @@
+
+export const getQuestions = () => {
+  return [
+    "Ce titlu vei da acestui stack?",
+    "Pe cine sau ce Stackuiesti?",
+    "De ce te-a determinat {peCine} să te rogi în acest moment?",
+    "Care este povestea pe care ți-o spui, creată de acest declanșator, despre {peCine} și situație?",
+    "Descrie sentimentele într-un singur cuvânt care apar pentru tine când îți spui acea poveste?",
+    "Doamne vreau sa stii ca: Categoria sau situatia 1:",
+    "Doamne vreau sa stii ca: Categoria sau situatia 2:",
+    "Doamne vreau sa stii ca: Categoria sau situatia 3:",
+    "Doamne vreau sa stii ca: Categoria sau situatia 4:",
+    "Doamne, ce este aici si vrei sa vad?",
+    "Doamne, ce este aici de auzit?",
+    "Doamne, ce vrei sa simt?",
+    "Doamne ce vrei sa stiu?",
+    "Ce vrei sa fac doamne?",
+    "Care este lecția singulară de viață pe care o iei din acest stack de rugăciuni?",
+    "Care este cea mai semnificativă revelație sau înțelegere cu care pleci din acest stack de rugăciuni și de ce simți așa?",
+    "Ce acțiuni imediate ești hotărât să întreprinzi după ce ai terminat acest teanc de rugăciuni?",
+    "Vrei să adaugi la hot list?",
+    "Mai multe acțiuni?"
+  ];
+};

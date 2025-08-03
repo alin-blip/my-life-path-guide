@@ -1,0 +1,533 @@
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+type Language = 'en' | 'ro';
+
+type Translations = {
+  [key: string]: {
+    [key: string]: string;
+  };
+};
+
+// All translations for the app
+const translations: Translations = {
+  en: {
+    // Auth page
+    "becomeTheWarrior": "Become the Warrior",
+    "youWereMeantToBe": "you were meant to be",
+    "transformYourLife": "Transform your life with purpose and discipline. Our platform helps you build habits, track progress, and connect with like-minded warriors.",
+    "dailyStackSystem": "Daily Stack System",
+    "buildPowerfulHabits": "Build powerful habits through daily reflection and action",
+    "warriorTribe": "Warrior Tribe",
+    "connectWithWarriors": "Connect with warriors who challenge and support your growth",
+    "growthTracking": "Growth Tracking",
+    "visualizeYourProgress": "Visualize your progress with powerful analytics",
+    
+    // Coaching
+    "coaching": "COACHING",
+    "coachingDescription": "Take a moment to reflect and get guidance through our AI coaching system",
+    "prayerStackTitle": "What are you going to title this conversation with God?",
+    "whatAreYouGoingToTitleThisCoaching": "What are you going to title this coaching session?",
+    "whoOrWhatAreYouStacking": "Who or what are you focusing on?",
+    "whyHasThisTriggeredYou": "In this moment, why has this triggered you to pray?",
+    "whatIsTheStory": "What is the story you're telling yourself, created by your trigger \"this trigger\", about this situation?",
+    "describeSingleWordFeelings": "Describe the single word feelings that arise for you when you tell yourself that story?",
+    "iWantGodToKnow": "Lord, I want to know",
+    "dearGod": "Dear GOD,",
+    "singularLesson": "What is the singular lesson on life you are taking from this coaching session?",
+    "significantRevelation": "What is the most significant revelation or insight you are leaving this coaching session with, and why do you feel that way?",
+    "immediateActions": "What immediate actions are you committed to taking leaving this session?",
+    
+    // Common
+    "language": "Language",
+    "english": "English",
+    "romanian": "Romanian",
+    
+    // Common UI elements
+    "dashboard": "DASHBOARD",
+    "stack": "COACHING",
+    "triggers": "Triggers",
+    "selectTrigger": "Select a trigger",
+    "newStack": "New Session",
+    "startStack": "Start a Session",
+    "startStackDesc": "Select a trigger from the left to begin your daily reflection. This practice helps you process your emotions and experiences.",
+    "power": "POWER",
+    "production": "PRODUCTION",
+    "stackCompleted": "Session Completed",
+    "reflectionSaved": "Your reflection has been saved",
+    "startNewStack": "Start New Session",
+    "typeResponse": "Type your response...",
+    "stackHistory": "Session History",
+    "noStackHistory": "No session history yet",
+    "completed": "Completed",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    
+    // Trigger responses
+    "reflectExperience": "Let's reflect on your experience.",
+    "thankYouReflection": "Thank you for your reflection. Your insights have been saved to your COACHING.",
+    
+    // Button actions
+    "view": "VIEW",
+    "send": "Send",
+    
+    // Admin panel
+    "toolsManagement": "Tools Management",
+    "addNewTool": "Add New Tool",
+    "searchTools": "Search tools...",
+    "isActive": "Active",
+    "inactive": "Inactive",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "launchTool": "Launch Tool",
+    "launching": "Launching",
+    "noToolsFound": "No tools found",
+    "tryAdjusting": "Try adjusting your search or filters.",
+    
+    // Core navigation
+    "goToDashboard": "Go to Dashboard",
+    "continue": "Continue",
+    "backToDashboard": "Back to Dashboard",
+    "core": "CORE",
+    
+    // Core 4 activities
+    "fitness": "FITNESS",
+    "fuel": "FUEL",
+    "meditation": "MEDITATION",
+    "memoirs": "MEMOIRS",
+    "person1": "PERSON 1",
+    "person2": "PERSON 2",
+    "discover": "DISCOVER",
+    "declare": "DECLARE",
+    "thisWeek": "THIS WEEK",
+    "body": "BODY",
+    "being": "BEING",
+    "balance": "BALANCE",
+    "business": "BUSINESS",
+    "share": "SHARE",
+    "activityCompleted": "{activity} completed!",
+    "activityIncomplete": "{activity} marked incomplete",
+    "greatJob": "Great job! Your Core 4 progress has been updated.",
+    "progressUpdated": "Your progress has been updated.",
+    
+    // Dashboard specific
+    "trackActivities": "Track Activities",
+    "myDaily": "MY DAILY",
+    "myWeekly": "MY WEEKLY",
+    "myQuarterly": "MY QUARTERLY",
+    "theMemory": "THE MEMORY",
+    "theScore": "THE SCORE",
+    "theStreaks": "THE STREAKS",
+    "theTotal": "THE TOTAL",
+    "door": "DOOR",
+    "game": "GAME",
+    "myMissions": "MY MISSIONS",
+    "warriorBody": "Warrior Body",
+    "meditationWarrior": "Meditation Warrior",
+    "soulmateFamily": "Soul mate Family",
+    "buildingKingdom": "Building the Kingdom",
+    "noStackCompletedYet": "You haven't completed your daily stack yet.",
+    "beginNow": "Begin now",
+    "gratefulMessage": "I'm grateful for this new opportunity to grow.",
+    "noDoorTasksYet": "You haven't set Domino Door tasks yet.",
+    "noTaskSet": "No task set",
+    "setTasks": "Set Tasks",
+    "viewCoreDetails": "View Core Details",
+    
+    // Door specific translations
+    "doorTitle": "DOOR",
+    "doorPlanningSystem": "Weekly Planning System",
+    "ideaList": "IDEA LIST",
+    "hotList": "HOT LIST", 
+    "weeklyGoal": "WEEKLY GOAL",
+    "dominoDoor": "DOMINO DOOR",
+    "weeklyMassiveGoal": "WEEKLY MASSIVE GOAL",
+    "tasks": "TASKS",
+    "todoList": "TO DO LIST",
+    "doList": "DO LIST",
+    "monday": "Monday",
+    "tuesday": "Tuesday", 
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "mondayShort": "Mon",
+    "tuesdayShort": "Tue",
+    "wednesdayShort": "Wed", 
+    "thursdayShort": "Thu",
+    "fridayShort": "Fri",
+    "saturdayShort": "Sat",
+    "sundayShort": "Sun",
+    "noGoalSelected": "No goal selected yet",
+    "dragGoalToSet": "Drag an item from the idea list to set your weekly massive goal",
+    "mainGoal": "Main Goal:",
+    "keyPoints": "Key Points:",
+    "keyPoint": "Key point",
+    "noTasksForDay": "No tasks for this day",
+    "dragItemsHere": "Drag items here from your IDEA list",
+    "yourIdeaListEmpty": "Your idea list is empty",
+    "addNewItemsToStart": "Add new items to get started",
+    "addNewIdea": "Add New Idea",
+    "addItem": "Add Item",
+    "searchItems": "Search items...",
+    "searchIdeas": "Search ideas...",
+    "normal": "Normal",
+    "important": "Important",
+    "urgent": "Urgent",
+    "urgentImportant": "Urgent & Important",
+    "moveBackToIdeaList": "Move back to Idea List",
+    "moveBackToHotList": "Move back to Hot List",
+    "keyPointLabel": "Key Point",
+    "todayLabel": "Today",
+    "weekLabel": "Week",
+    "autoSaveInfo": "Your weekly planning is saved automatically",
+    "enterNewIdea": "Enter your new idea...",
+    "selectPriority": "Select priority",
+    "deleteIdea": "Delete idea",
+    "editIdea": "Edit idea",
+    "weekly": "Weekly",
+    "planning": "Planning",
+    
+    // Fact Maps
+    "backToFactMaps": "Back to Fact Maps",
+    "mapOrGoalNotFound": "Map or goal not found",
+    "enterYourAnswer": "Enter your answer here...",
+    "characters": "Characters",
+    "previous": "Previous",
+    "next": "Next",
+    "reset": "Reset",
+    "save": "Save",
+    "success": "Success",
+    "answersSaved": "Your answers have been saved.",
+    "stackShared": "Stack Shared",
+    "linkCopiedToClipboard": "Link copied to clipboard",
+    "savedToLibrary": "Saved to Library",
+    "savedToLibraryDesc": "Your stack has been saved to your library",
+    "stackLibrary": "Stack Library",
+    "all": "All",
+    "shared": "Shared",
+    "noStacksInLibrary": "You don't have any stacks in your library yet",
+    "createYourFirstStack": "Create Your First Stack",
+    "errorSaving": "Error Saving",
+    "startOver": "Start Over",
+    "actionDescription": "Action description",
+    "addAction": "Add Action",
+    "actionAdded": "Action Added",
+    "actionAddedDesc": "Your action has been added successfully",
+    "reminderSet": "Reminder Set",
+    "reminderSetDesc": "You will be reminded about this action",
+    "actions": "Actions",
+    "coaching_completed": "Coaching Completed",
+    "coaching_completed_desc": "Your coaching session has been saved",
+    "startNew": "Start New",
+    "noCoachingHistoryYet": "No coaching history yet",
+    
+    // Divine Coaching specific
+    "whatAreYouGoingToTitleThisDivineCoaching": "What are you going to title this Divine coaching session?",
+    "whoOrWhatAreYouStackingDivine": "Who or what are you stacking?",
+    "whyHasThisTriggeredYouToPray": "In this moment, why has this triggered you to pray?",
+    "whatIsTheStoryDivineTrigger": "What is the story you're telling yourself, created by this trigger, about this and the situation?",
+    "describeSingleWordFeelingsDivine": "Describe the single word feelings that arise for you when you tell yourself that story?",
+    "godIsListening": "God is listening what do you have to say?",
+    "iWantGODToKnow1": "Lord, I want to know:",
+    "iWantGODToKnow2": "Lord, I want to know:",
+    "iWantGODToKnow3": "Lord, I want to know:",
+    "iWantGODToKnow4": "Lord, I want to know:",
+    "dearGODWhatDoYouWantMeToSee": "Dear GOD, What do you want me to see here?",
+    "whatDoYouWantMeToHear": "What do you want me to hear?",
+    "whatDoYouWantMeToLearn": "What do you want me to learn?",
+    "whatDoYouWantMeToFeel": "What do you want me to feel?",
+    "whatDoYouWantMeToKnow": "What do you want me to know?",
+    "whatDoYouWantMeToDo": "What do you want me to do?",
+    "godHeardYou": "God wants you to:",
+    "singularLessonDivine": "What is the singular lesson on life you are taking from this Divine coaching session?",
+    "howDoesThisLessonApplyToBody": "How does this lesson apply to your Body?",
+    "howDoesThisLessonApplyToBeing": "How does this lesson apply to your Being?",
+    "howDoesThisLessonApplyToBalance": "How does this lesson apply to your Balance?",
+    "howDoesThisLessonApplyToBusiness": "How does this lesson apply to your Business?",
+    "significantRevelationDivine": "What is the most significant revelation or insight you are leaving this Divine coaching session with, and why do you feel that way?",
+    "immediateActionsDivine": "What immediate actions are you committed to taking leaving this session?",
+    "doYouWantToAddToHotList": "Do you want to add this to hot list?",
+    "isThereAnythingElseToAddToHotList": "Is there anything else you want to add to hot list?"
+  },
+  ro: {
+    // Auth page
+    "becomeTheWarrior": "Devino Războinicul",
+    "youWereMeantToBe": "care ai fost menit să fii",
+    "transformYourLife": "Transformă-ți viața cu scop și disciplină. Platforma noastră te ajută să îți construiești obiceiuri, să îți urmărești progresul și să te conectezi cu războinici care gândesc la fel.",
+    "dailyStackSystem": "Sistemul Zilnic Stack",
+    "buildPowerfulHabits": "Construiește obiceiuri puternice prin reflecție și acțiune zilnică",
+    "warriorTribe": "Tribul Războinicilor",
+    "connectWithWarriors": "Conectează-te cu războinici care îți provoacă și susțin creșterea",
+    "growthTracking": "Urmărirea Creșterii",
+    "visualizeYourProgress": "Vizualizează-ți progresul cu analize puternice",
+    
+    // Coaching
+    "coaching": "COACHING",
+    "coachingDescription": "Ia-ți un moment pentru a reflecta și a primi îndrumare prin sistemul nostru de coaching cu AI",
+    "prayerStackTitle": "Ce titlu vei da acestei conversații cu Dumnezeu?",
+    "whatAreYouGoingToTitleThisCoaching": "Ce titlu vei da acestei sesiuni de coaching?",
+    "whoOrWhatAreYouStacking": "Pe cine sau ce te concentrezi?",
+    "whyHasThisTriggeredYou": "În acest moment, de ce te-a declanșat să te rogi?",
+    "whatIsTheStory": "Care este povestea pe care ți-o spui, creată de declanșatorul tău \"this trigger\", despre această situație?",
+    "describeSingleWordFeelings": "Descrie sentimentele într-un singur cuvânt care apar pentru tine când îți spui acea poveste?",
+    "iWantGodToKnow": "Doamne, vreau să știu",
+    "dearGod": "Dragă DOAMNE,",
+    "singularLesson": "Care este lecția singulară despre viață pe care o iei din această sesiune de coaching?",
+    "significantRevelation": "Care este cea mai semnificativă revelație sau insight cu care pleci din această sesiune de coaching și de ce te simți așa?",
+    "immediateActions": "Ce acțiuni imediate te angajezi să faci când părăsești această sesiune?",
+    
+    // Common
+    "language": "Limbă",
+    "english": "Engleză",
+    "romanian": "Română",
+    
+    // Common UI elements
+    "dashboard": "PANOU DE CONTROL",
+    "stack": "COACHING",
+    "triggers": "Declanșatori",
+    "selectTrigger": "Selectează un declanșator",
+    "newStack": "Sesiune Nouă",
+    "startStack": "Începe o Sesiune",
+    "startStackDesc": "Selectează un declanșator din stânga pentru a începe reflecția zilnică. Această practică te ajută să procesezi emoțiile și experiențele tale.",
+    "power": "PUTERE",
+    "production": "PRODUCȚIE",
+    "stackCompleted": "Sesiune Finalizată",
+    "reflectionSaved": "Reflecția ta a fost salvată",
+    "startNewStack": "Începe o Sesiune Nouă",
+    "typeResponse": "Scrie răspunsul tău...",
+    "stackHistory": "Istoric Sesiuni",
+    "noStackHistory": "Încă nu există istoric sesiuni",
+    "completed": "Finalizat",
+    "today": "Astăzi",
+    "yesterday": "Ieri",
+    
+    // Trigger responses
+    "reflectExperience": "Să reflectăm asupra experienței tale.",
+    "thankYouReflection": "Îți mulțumim pentru reflecția ta. Ideile tale au fost salvate în secțiunea COACHING.",
+    
+    // Button actions
+    "view": "VIZUALIZEAZĂ",
+    "send": "Trimite",
+    
+    // Admin panel
+    "toolsManagement": "Gestionare Instrumente",
+    "addNewTool": "Adaugă Instrument Nou",
+    "searchTools": "Caută instrumente...",
+    "isActive": "Activ",
+    "inactive": "Inactiv",
+    "deactivate": "Dezactivează",
+    "activate": "Activează",
+    "launchTool": "Lansează Instrumentul",
+    "launching": "Se lansează",
+    "noToolsFound": "Nu s-au găsit instrumente",
+    "tryAdjusting": "Încearcă să ajustezi căutarea sau filtrele.",
+    
+    // Core navigation
+    "goToDashboard": "Mergi la Panoul de Control",
+    "continue": "Continuă",
+    "backToDashboard": "Înapoi la Panoul de Control",
+    "core": "NUCLEU",
+    
+    // Core 4 activities
+    "fitness": "FITNESS",
+    "fuel": "ALIMENTAȚIE",
+    "meditation": "MEDITAȚIE",
+    "memoirs": "MEMORII",
+    "person1": "PERSOANA 1",
+    "person2": "PERSOANA 2",
+    "discover": "DESCOPERĂ",
+    "declare": "DECLARĂ",
+    "thisWeek": "ACEASTĂ SĂPTĂMÂNĂ",
+    "body": "CORP",
+    "being": "FIINȚĂ",
+    "balance": "ECHILIBRU",
+    "business": "AFACERI",
+    "share": "DISTRIBUIE",
+    "activityCompleted": "{activity} finalizat!",
+    "activityIncomplete": "{activity} marcat ca nefinalizat",
+    "greatJob": "Bună treabă! Progresul tău Core 4 a fost actualizat.",
+    "progressUpdated": "Progresul tău a fost actualizat.",
+    
+    // Dashboard specific
+    "trackActivities": "Urmărește Activitățile",
+    "myDaily": "ACTIVITĂȚILE MELE ZILNICE",
+    "myWeekly": "ACTIVITĂȚILE MELE SĂPTĂMÂNALE",
+    "myQuarterly": "ACTIVITĂȚILE MELE TRIMESTRIALE",
+    "theMemory": "MEMORIA",
+    "theScore": "SCORUL",
+    "theStreaks": "SERIILE",
+    "theTotal": "TOTALUL",
+    "door": "UȘA",
+    "game": "JOC",
+    "myMissions": "MISIUNILE MELE",
+    "warriorBody": "Corp de Războinic",
+    "meditationWarrior": "Războinic Meditativ",
+    "soulmateFamily": "Familie Sufletească",
+    "buildingKingdom": "Construirea Regatului",
+    "noStackCompletedYet": "Nu ai finalizat încă stack-ul zilnic.",
+    "beginNow": "Începe acum",
+    "gratefulMessage": "Sunt recunoscător pentru această nouă oportunitate de a crește.",
+    "noDoorTasksYet": "Nu ai setat încă sarcini Domino pentru Ușă.",
+    "noTaskSet": "Nicio sarcină setată",
+    "setTasks": "Setează Sarcini",
+    "viewCoreDetails": "Vezi Detaliile Core",
+    
+    // Door specific translations
+    "doorTitle": "UȘA",
+    "doorPlanningSystem": "Sistem de Planificare Săptămânală",
+    "ideaList": "LISTA DE IDEI",
+    "hotList": "LISTA FIERBINTE",
+    "weeklyGoal": "OBIECTIV SĂPTĂMÂNAL",
+    "dominoDoor": "UȘA DOMINO",
+    "weeklyMassiveGoal": "OBIECTIV MASIV SĂPTĂMÂNAL",
+    "tasks": "SARCINI",
+    "todoList": "LISTA DE ACTIVITĂȚI",
+    "doList": "LISTA DE FĂCUT",
+    "monday": "Luni",
+    "tuesday": "Marți",
+    "wednesday": "Miercuri",
+    "thursday": "Joi",
+    "friday": "Vineri",
+    "saturday": "Sâmbătă",
+    "sunday": "Duminică",
+    "mondayShort": "Lun",
+    "tuesdayShort": "Mar",
+    "wednesdayShort": "Mie",
+    "thursdayShort": "Joi",
+    "fridayShort": "Vin",
+    "saturdayShort": "Sâm",
+    "sundayShort": "Dum",
+    "noGoalSelected": "Niciun obiectiv selectat încă",
+    "dragGoalToSet": "Trage un element din lista de idei pentru a-ți seta obiectivul masiv săptămânal",
+    "mainGoal": "Obiectiv Principal:",
+    "keyPoints": "Puncte Cheie:",
+    "keyPoint": "Punct cheie",
+    "noTasksForDay": "Nu există sarcini pentru această zi",
+    "dragItemsHere": "Trage elemente aici din lista ta de IDEI",
+    "yourIdeaListEmpty": "Lista ta de idei este goală",
+    "addNewItemsToStart": "Adaugă elemente noi pentru a începe",
+    "addNewIdea": "Adaugă Idee Nouă",
+    "addItem": "Adaugă Element",
+    "searchItems": "Caută elemente...",
+    "searchIdeas": "Caută idei...",
+    "normal": "Normal",
+    "important": "Important",
+    "urgent": "Urgent",
+    "urgentImportant": "Urgent și Important",
+    "moveBackToIdeaList": "Mută înapoi în Lista de Idei",
+    "moveBackToHotList": "Mută înapoi în Lista Fierbinte",
+    "keyPointLabel": "Punct Cheie",
+    "todayLabel": "Astăzi",
+    "weekLabel": "Săptămâna",
+    "autoSaveInfo": "Planificarea săptămânală este salvată automat",
+    "enterNewIdea": "Introdu ideea ta nouă...",
+    "selectPriority": "Selectează prioritatea",
+    "deleteIdea": "Șterge ideea",
+    "editIdea": "Editează ideea",
+    "weekly": "Săptămânal",
+    "planning": "Planificare",
+    
+    // Fact Maps
+    "backToFactMaps": "Înapoi la Hărțile de Fapte",
+    "mapOrGoalNotFound": "Harta sau obiectivul nu a fost găsit",
+    "enterYourAnswer": "Introduceți răspunsul dvs. aici...",
+    "characters": "Caractere",
+    "previous": "Anterior",
+    "next": "Următorul",
+    "reset": "Resetează",
+    "save": "Salvează",
+    "success": "Succes",
+    "answersSaved": "Răspunsurile tale au fost salvate.",
+    "stackShared": "Stack Partajat",
+    "linkCopiedToClipboard": "Link copiat în clipboard",
+    "savedToLibrary": "Salvat în Bibliotecă",
+    "savedToLibraryDesc": "Stack-ul tău a fost salvat în bibliotecă",
+    "stackLibrary": "Biblioteca de Stack-uri",
+    "all": "Toate",
+    "shared": "Partajat",
+    "noStacksInLibrary": "Nu ai încă stack-uri în bibliotecă",
+    "createYourFirstStack": "Creează Primul Tău Stack",
+    "errorSaving": "Eroare la Salvare",
+    "startOver": "Începe din nou",
+    "actionDescription": "Descriere acțiune",
+    "addAction": "Adaugă Acțiune",
+    "actionAdded": "Acțiune Adăugată",
+    "actionAddedDesc": "Acțiunea ta a fost adăugată cu succes",
+    "reminderSet": "Reminder Setat",
+    "reminderSetDesc": "Vei fi amintit despre această acțiune",
+    "actions": "Acțiuni",
+    "coaching_completed": "Coaching Finalizat",
+    "coaching_completed_desc": "Sesiunea ta de coaching a fost salvată",
+    "startNew": "Începe Nou",
+    "noCoachingHistoryYet": "Încă nu există istoric de coaching",
+    
+    // Divine Coaching specific
+    "whatAreYouGoingToTitleThisDivineCoaching": "Ce titlu vei da acestei sesiuni de coaching divin?",
+    "whoOrWhatAreYouStackingDivine": "Pe cine sau ce te concentrezi?",
+    "whyHasThisTriggeredYouToPray": "În acest moment, de ce te-a declanșat să te rogi?",
+    "whatIsTheStoryDivineTrigger": "Care este povestea pe care ți-o spui, creată de acest declanșator, despre aceasta și situație?",
+    "describeSingleWordFeelingsDivine": "Descrie sentimentele într-un singur cuvânt care apar pentru tine când îți spui acea poveste?",
+    "godIsListening": "Dumnezeu ascultă, ce ai de spus?",
+    "iWantGODToKnow1": "Doamne, vreau să știu:",
+    "iWantGODToKnow2": "Doamne, vreau să știu:",
+    "iWantGODToKnow3": "Doamne, vreau să știu:",
+    "iWantGODToKnow4": "Doamne, vreau să știu:",
+    "dearGODWhatDoYouWantMeToSee": "Dragă DOAMNE, Ce vrei să văd aici?",
+    "whatDoYouWantMeToHear": "Ce vrei să aud?",
+    "whatDoYouWantMeToLearn": "Ce vrei să învăț?",
+    "whatDoYouWantMeToFeel": "Ce vrei să simt?",
+    "whatDoYouWantMeToKnow": "Ce vrei să știu?",
+    "whatDoYouWantMeToDo": "Ce vrei să fac?",
+    "godHeardYou": "Dumnezeu vrea ca tu să:",
+    "singularLessonDivine": "Care este lecția singulară despre viață pe care o iei din această sesiune de coaching divin?",
+    "howDoesThisLessonApplyToBody": "Cum se aplică această lecție Corpului tău?",
+    "howDoesThisLessonApplyToBeing": "Cum se aplică această lecție Ființei tale?",
+    "howDoesThisLessonApplyToBalance": "Cum se aplică această lecție Echilibrului tău?",
+    "howDoesThisLessonApplyToBusiness": "Cum se aplică această lecție Afacerii tale?",
+    "significantRevelationDivine": "Care este cea mai semnificativă revelație sau insight cu care pleci din această sesiune de coaching divin și de ce te simți așa?",
+    "immediateActionsDivine": "Ce acțiuni imediate te angajezi să faci când părăsești această sesiune?",
+    "doYouWantToAddToHotList": "Vrei să adaugi asta la lista fierbinte?",
+    "isThereAnythingElseToAddToHotList": "Mai este ceva ce vrei să adaugi la lista fierbinte?"
+  }
+};
+
+const LanguageContext = createContext<{
+  language: Language;
+  setLanguage: (language: Language) => void;
+  t: (key: string) => string;
+}>({
+  language: 'en',
+  setLanguage: () => {},
+  t: (key: string) => key,
+});
+
+export const LanguageProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  // Initialize with language from localStorage, defaulting to 'en'
+  const initialLanguage = () => {
+    const savedLanguage = localStorage.getItem('language') as Language;
+    return (savedLanguage === 'en' || savedLanguage === 'ro') ? savedLanguage : 'en';
+  };
+  
+  const [language, setLanguage] = useState<Language>(initialLanguage);
+
+  // Whenever language changes, save it to localStorage
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
+
+  const t = (key: string): string => {
+    return translations[language][key] || translations['en'][key] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+export const useLanguage = () => useContext(LanguageContext);

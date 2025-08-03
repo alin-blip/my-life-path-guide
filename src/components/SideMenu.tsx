@@ -1,0 +1,196 @@
+
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { 
+  Home, 
+  User, 
+  BookOpen, 
+  MessageSquare, 
+  Users, 
+  Layers, 
+  Box, 
+  Flag, 
+  FileText, 
+  Settings, 
+  HelpCircle,
+  Shield,
+  ChevronDown,
+  ChevronRight,
+  Heart,
+  Activity,
+  Angry,
+  Briefcase,
+  UsersRound,
+  Clock,
+  Map,
+  Headphones,
+  BookOpen as BookOpenIcon,
+  Pencil,
+  Target
+} from 'lucide-react';
+
+interface SideMenuProps {
+  isCollapsed: boolean;
+}
+
+interface MenuItem {
+  title: string;
+  icon: React.ElementType;
+  path: string;
+  notification?: number;
+  subItems?: MenuItem[];
+  hidden?: boolean;
+}
+
+export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed }) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(['community', 'introspecție']);
+
+  const toggleExpand = (title: string) => {
+    setExpandedMenus(prev => 
+      prev.includes(title) 
+        ? prev.filter(item => item !== title) 
+        : [...prev, title]
+    );
+  };
+
+  const menuItems: MenuItem[] = [
+    { title: 'My Daily', icon: Home, path: '/dashboard' },
+    { title: 'Learn', icon: BookOpen, path: '/learn' },
+    { 
+      title: 'Introspecție', 
+      icon: Layers, 
+      path: '/stack',
+      subItems: [
+        { title: 'Stack de Furie', icon: Angry, path: '/stack?type=anger' },
+        { title: 'Stack de Rugăciune', icon: Heart, path: '/stack?type=divine-prayer' },
+        { title: 'Stack de Deblocare', icon: Headphones, path: '/stack?type=ai-live' },
+        { title: 'Jurnal', icon: Pencil, path: '/journal' },
+      ]
+    },
+    { title: 'Core 4', icon: Box, path: '/core', hidden: true },
+    { title: 'Daily 4', icon: Clock, path: '/daily-four', hidden: true },
+    { title: 'To do list', icon: Flag, path: '/door' },
+    { title: 'Obiective', icon: Target, path: '/game' },
+    { 
+      title: 'Community', 
+      icon: UsersRound, 
+      path: '/chat', 
+      subItems: [
+        { title: 'Chat', icon: MessageSquare, path: '/chat' },
+        { title: 'Tribe', icon: Users, path: '/tribe' },
+      ] 
+    },
+    { title: 'Notes', icon: FileText, path: '/notes' },
+    { title: 'Library', icon: BookOpenIcon, path: '/library' },
+    { title: 'Admin', icon: Shield, path: '/admin' },
+  ];
+
+  return (
+    <div className="h-full bg-warrior-DEFAULT border-r border-warrior-muted/20 flex flex-col overflow-hidden">
+      <div className="p-4 border-b border-warrior-muted/20">
+        <div className="flex items-center justify-center md:justify-start gap-3">
+          <div className="bg-warrior-accent rounded-md p-1.5">
+            <span className="font-display font-bold text-white text-sm">H</span>
+          </div>
+          {!isCollapsed && (
+            <h1 className="font-display font-bold text-lg text-white">HAVE IT ALL</h1>
+          )}
+        </div>
+      </div>
+      
+      <div className="flex-1 overflow-y-auto py-4 px-2">
+        <nav>
+          <ul className="space-y-1">
+            {menuItems.filter(item => !item.hidden).map((item) => (
+              <li key={item.path}>
+                {item.subItems ? (
+                  <div>
+                    <button
+                      className={`sidebar-item w-full flex items-center ${
+                        currentPath === item.path || 
+                        (item.subItems && item.subItems.some(subItem => currentPath === subItem.path)) 
+                          ? 'active' : ''
+                      } ${isCollapsed ? 'justify-center' : ''}`}
+                      onClick={() => {
+                        if (!isCollapsed) {
+                          toggleExpand(item.title.toLowerCase());
+                        }
+                      }}
+                    >
+                      <Link to={item.path} className="flex items-center w-full">
+                        <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                        {!isCollapsed && (
+                          <>
+                            <span className="text-sm ml-3">{item.title}</span>
+                          </>
+                        )}
+                      </Link>
+                      {!isCollapsed && (
+                        <div className="ml-auto">
+                          {expandedMenus.includes(item.title.toLowerCase()) 
+                            ? <ChevronDown className="w-4 h-4" /> 
+                            : <ChevronRight className="w-4 h-4" />}
+                        </div>
+                      )}
+                    </button>
+                    
+                    {!isCollapsed && expandedMenus.includes(item.title.toLowerCase()) && (
+                      <ul className="ml-6 mt-1 space-y-1">
+                        {item.subItems.map((subItem) => (
+                          <li key={subItem.path}>
+                            <Link
+                              to={subItem.path}
+                              className={`sidebar-item ${
+                                currentPath === subItem.path ? 'active' : ''
+                              }`}
+                            >
+                              <subItem.icon className="w-4 h-4" />
+                              <span className="text-sm">{subItem.title}</span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    to={item.path}
+                    className={`sidebar-item ${currentPath === item.path ? 'active' : ''} ${
+                      isCollapsed ? 'justify-center' : ''
+                    }`}
+                  >
+                    <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                    {!isCollapsed && (
+                      <span className="text-sm">{item.title}</span>
+                    )}
+                    {!isCollapsed && item.notification && (
+                      <div className="ml-auto bg-warrior-accent text-white text-xs py-0.5 px-1.5 rounded-full">
+                        {item.notification > 99 ? '99+' : item.notification}
+                      </div>
+                    )}
+                    {isCollapsed && item.notification && (
+                      <div className="absolute top-0 right-0 bg-warrior-accent w-2 h-2 rounded-full"></div>
+                    )}
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+      
+      <div className="p-2 border-t border-warrior-muted/20">
+        <Link to="/settings" className={`sidebar-item ${currentPath === '/settings' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
+          <Settings className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+          {!isCollapsed && <span className="text-sm">Settings</span>}
+        </Link>
+        <Link to="/support" className={`sidebar-item mt-1 ${currentPath === '/support' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
+          <HelpCircle className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+          {!isCollapsed && <span className="text-sm">Support</span>}
+        </Link>
+      </div>
+    </div>
+  );
+};

@@ -1,0 +1,5 @@
+
+project_id = "rwmtuyivzacrioyerpgn"
+
+[functions.process-referral]
+verify_jwt = true
