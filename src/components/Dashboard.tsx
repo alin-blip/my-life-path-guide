@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Heart, Brain, Briefcase, Video, Text, AudioLines, Image as ImageIcon, ArrowRight, RefreshCw, Compass, DollarSign, Users, Clock, Award, AlertTriangle, Check } from 'lucide-react';
@@ -19,6 +19,7 @@ import { MonthlyMission, MissionCategory } from '@/types/mission';
 import { supabase } from '@/integrations/supabase/client';
 
 export const Dashboard: React.FC = () => {
+  const isMobile = useIsMobile();
   const {
     language,
     t
@@ -216,56 +217,56 @@ export const Dashboard: React.FC = () => {
     return [{
       id: 'fitness',
       title: language === 'en' ? 'FITNESS' : 'FITNESS',
-      icon: <Activity className="h-6 w-6 text-white" />,
+      icon: <Activity className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: coreData[selectedDay]?.['fitness'] || false,
       color: 'bg-blue-600',
       category: 'body'
     }, {
       id: 'fuel',
       title: language === 'en' ? 'FUEL' : 'ALIMENTAȚIE',
-      icon: <Activity className="h-6 w-6 text-white" />,
+      icon: <Activity className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: coreData[selectedDay]?.['fuel'] || false,
       color: 'bg-blue-600',
       category: 'body'
     }, {
       id: 'person1',
       title: language === 'en' ? 'PERSON 1' : 'PERSOANA 1',
-      icon: <Users className="h-6 w-6 text-white" />,
+      icon: <Users className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: coreData[selectedDay]?.['person1'] || false,
       color: 'bg-blue-600',
       category: 'balance'
     }, {
       id: 'person2',
       title: language === 'en' ? 'PERSON 2' : 'PERSOANA 2',
-      icon: <Users className="h-6 w-6 text-white" />,
+      icon: <Users className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: coreData[selectedDay]?.['person2'] || false,
       color: 'bg-blue-600',
       category: 'balance'
     }, {
       id: 'meditation',
       title: language === 'en' ? 'MEDITATION' : 'MEDITAȚIE',
-      icon: <Heart className="h-6 w-6 text-white" />,
+      icon: <Heart className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: coreData[selectedDay]?.['meditation'] || false,
       color: 'bg-blue-600',
       category: 'being'
     }, {
       id: 'memoirs',
       title: language === 'en' ? 'MEMOIRS' : 'MEMORII',
-      icon: <Book className="h-6 w-6 text-white" />,
+      icon: <Book className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: coreData[selectedDay]?.['memoirs'] || false,
       color: 'bg-blue-600',
       category: 'being'
     }, {
       id: 'discover',
       title: language === 'en' ? 'DISCOVER' : 'DESCOPERĂ',
-      icon: <Compass className="h-6 w-6 text-white" />,
+      icon: <Compass className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: coreData[selectedDay]?.['discover'] || false,
       color: 'bg-blue-600',
       category: 'business'
     }, {
       id: 'declare',
       title: language === 'en' ? 'DECLARE' : 'DECLARĂ',
-      icon: <DollarSign className="h-6 w-6 text-white" />,
+      icon: <DollarSign className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: coreData[selectedDay]?.['declare'] || false,
       color: 'bg-blue-600',
       category: 'business'
@@ -276,25 +277,25 @@ export const Dashboard: React.FC = () => {
     return [{
       id: 'video',
       title: 'VIDEO',
-      icon: <Video className="h-6 w-6 text-white" />,
+      icon: <Video className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'video')?.completed || false,
       color: 'bg-blue-600'
     }, {
       id: 'text',
       title: 'TEXT',
-      icon: <Text className="h-6 w-6 text-white" />,
+      icon: <Text className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'text')?.completed || false,
       color: 'bg-blue-600'
     }, {
       id: 'audio',
       title: 'AUDIO',
-      icon: <AudioLines className="h-6 w-6 text-white" />,
+      icon: <AudioLines className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'audio')?.completed || false,
       color: 'bg-blue-600'
     }, {
       id: 'image',
       title: 'IMAGE',
-      icon: <ImageIcon className="h-6 w-6 text-white" />,
+      icon: <ImageIcon className={`h-4 w-4 sm:h-6 sm:w-6 text-white`} />,
       completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'image')?.completed || false,
       color: 'bg-blue-600'
     }];
@@ -446,7 +447,7 @@ export const Dashboard: React.FC = () => {
   const coreToDaily = hasStack ? coreProgress : 0;
   const dailyToDoor = hasStack && coreProgress > 0 ? dailyProgress : 0;
 
-  return <div className="container mx-auto py-8 px-4 bg-gradient-to-b from-[#0B0D17] to-[#111827]">
+  return <div className="w-full max-w-full py-4 px-2 sm:px-4 sm:py-8 bg-gradient-to-b from-[#0B0D17] to-[#111827] overflow-hidden min-w-0">
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
           <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
           <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 animate-pulse"></div>
@@ -468,7 +469,7 @@ export const Dashboard: React.FC = () => {
         </div>}
       
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+        <h1 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
           {language === 'en' ? 'My Daily' : 'Zilnica mea'}
         </h1>
         
@@ -476,20 +477,20 @@ export const Dashboard: React.FC = () => {
       
       <QuoteDisplay appName="GODDESS" />
       
-      <div className="mb-8 bg-[#1A1F2C] p-4 rounded-lg">
-        <h2 className="text-lg font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+      <div className="mb-6 sm:mb-8 bg-[#1A1F2C] p-3 sm:p-4 rounded-lg">
+        <h2 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
           {language === 'en' ? 'Goddess Journey' : 'Călătoria Zeitei'}
         </h2>
-        <div className="flex items-center justify-between">
+        <div className={`flex ${isMobile ? 'flex-col space-y-4' : 'items-center justify-between'}`}>
           <div className="flex flex-col items-center z-10 relative">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative
+            <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center relative
             ${hasStack ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-gray-600 bg-gray-800/50 text-gray-400'}`} style={{
             border: hasStack ? '4px solid #22c55e' : '4px solid rgba(75, 85, 99, 0.6)',
             boxShadow: hasStack ? '0 0 15px rgba(34, 197, 94, 0.5)' : 'none'
           }}>
               {hasStack ? <>
-                  <Book className="w-8 h-8" />
-                  <Check className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white rounded-full p-1" />
+                  <Book className="w-6 h-6 sm:w-8 sm:h-8" />
+                  <Check className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 text-white rounded-full p-1" />
                 </> : <Button className="absolute inset-0 m-auto rounded-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-800 text-white text-xs flex items-center justify-center" style={{
               width: 'calc(100% - 8px)',
               height: 'calc(100% - 8px)'
@@ -500,16 +501,18 @@ export const Dashboard: React.FC = () => {
             <span className="mt-2 text-xs text-center text-gray-300">STACK</span>
           </div>
           
-          <div className="flex-grow mx-2 relative">
-            <div className="h-2 bg-gray-700 rounded-full w-full relative overflow-hidden">
-              <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-1000 ease-in-out ${hasStack ? 'animate-progress-line' : ''}`} style={{
-              width: `${stackToCoreLine}%`
-            }}></div>
+          {!isMobile && (
+            <div className="flex-grow mx-2 relative">
+              <div className="h-2 bg-gray-700 rounded-full w-full relative overflow-hidden">
+                <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-1000 ease-in-out ${hasStack ? 'animate-progress-line' : ''}`} style={{
+                width: `${stackToCoreLine}%`
+              }}></div>
+              </div>
             </div>
-          </div>
+          )}
           
           <div className="flex flex-col items-center z-10">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative
+            <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center relative
             ${hasCompletedCore ? 'bg-blue-500/20 text-blue-400' : hasStack ? 'bg-blue-800/20 text-blue-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
             border: '4px solid transparent',
             backgroundClip: 'padding-box',
@@ -521,22 +524,24 @@ export const Dashboard: React.FC = () => {
               background: hasStack ? `conic-gradient(#3b82f6 ${coreProgress}%, rgba(75, 85, 99, 0.6) 0%)` : 'rgba(75, 85, 99, 0.6)',
               clipPath: 'circle(50%)'
             }}></div>
-              <Activity className="w-8 h-8 relative z-10" />
-              {hasCompletedCore && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white rounded-full p-1 z-20" />}
+              <Activity className="w-6 h-6 sm:w-8 sm:h-8 relative z-10" />
+              {hasCompletedCore && <Check className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-blue-500 text-white rounded-full p-1 z-20" />}
             </div>
             <span className="mt-2 text-xs text-center text-gray-300">CORE</span>
           </div>
           
-          <div className="flex-grow mx-2 relative">
-            <div className="h-2 bg-gray-700 rounded-full w-full relative overflow-hidden">
-              <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-in-out ${coreProgress > 0 ? 'animate-progress-line' : ''}`} style={{
-              width: `${coreToDaily}%`
-            }}></div>
+          {!isMobile && (
+            <div className="flex-grow mx-2 relative">
+              <div className="h-2 bg-gray-700 rounded-full w-full relative overflow-hidden">
+                <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-in-out ${coreProgress > 0 ? 'animate-progress-line' : ''}`} style={{
+                width: `${coreToDaily}%`
+              }}></div>
+              </div>
             </div>
-          </div>
+          )}
           
           <div className="flex flex-col items-center z-10">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative
+            <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center relative
             ${hasCompletedDailyFour ? 'bg-purple-500/20 text-purple-400' : hasCompletedCore ? 'bg-purple-800/20 text-purple-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
             border: '4px solid transparent',
             backgroundClip: 'padding-box',
@@ -547,22 +552,24 @@ export const Dashboard: React.FC = () => {
               background: coreProgress > 0 ? `conic-gradient(#a855f7 ${dailyProgress}%, rgba(75, 85, 99, 0.6) 0%)` : 'rgba(75, 85, 99, 0.6)',
               clipPath: 'circle(50%)'
             }}></div>
-              <Video className="w-8 h-8 relative z-10" />
-              {hasCompletedDailyFour && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 text-white rounded-full p-1 z-20" />}
+              <Video className="w-6 h-6 sm:w-8 sm:h-8 relative z-10" />
+              {hasCompletedDailyFour && <Check className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-purple-500 text-white rounded-full p-1 z-20" />}
             </div>
             <span className="mt-2 text-xs text-center text-gray-300">DAILY</span>
           </div>
           
-          <div className="flex-grow mx-2 relative">
-            <div className="h-2 bg-gray-700 rounded-full w-full relative overflow-hidden">
-              <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000 ease-in-out ${dailyProgress > 0 ? 'animate-progress-line' : ''}`} style={{
-              width: `${dailyToDoor}%`
-            }}></div>
+          {!isMobile && (
+            <div className="flex-grow mx-2 relative">
+              <div className="h-2 bg-gray-700 rounded-full w-full relative overflow-hidden">
+                <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000 ease-in-out ${dailyProgress > 0 ? 'animate-progress-line' : ''}`} style={{
+                width: `${dailyToDoor}%`
+              }}></div>
+              </div>
             </div>
-          </div>
+          )}
           
           <div className="flex flex-col items-center z-10">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative
+            <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center relative
             ${hasCompletedDoor ? 'bg-pink-500/20 text-pink-400' : hasCompletedDailyFour ? 'bg-pink-800/20 text-pink-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
             border: '4px solid transparent',
             backgroundClip: 'padding-box',
@@ -573,8 +580,8 @@ export const Dashboard: React.FC = () => {
               background: dailyProgress > 0 ? `conic-gradient(#ec4899 ${doorProgress}%, rgba(75, 85, 99, 0.6) 0%)` : 'rgba(75, 85, 99, 0.6)',
               clipPath: 'circle(50%)'
             }}></div>
-              <ListTodo className="w-8 h-8 relative z-10" />
-              {hasCompletedDoor && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white rounded-full p-1 z-20" />}
+              <ListTodo className="w-6 h-6 sm:w-8 sm:h-8 relative z-10" />
+              {hasCompletedDoor && <Check className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-pink-500 text-white rounded-full p-1 z-20" />}
             </div>
             <span className="mt-2 text-xs text-center text-gray-300">DOOR</span>
           </div>
@@ -582,265 +589,162 @@ export const Dashboard: React.FC = () => {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 bg-[#1A1F2C]">
-          <TabsTrigger value="goddess-tools" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-feminine-primary data-[state=active]:to-feminine-purple">
+        <TabsList className="grid grid-cols-2 w-full sm:w-[400px] mb-4 bg-[#1A1F2C]">
+          <TabsTrigger value="goddess-tools" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-feminine-primary data-[state=active]:to-feminine-purple text-xs sm:text-sm">
             {language === 'en' ? 'Goddess Tools' : 'Unelte Zeițe'}
           </TabsTrigger>
-          <TabsTrigger value="courses" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600">
+          <TabsTrigger value="courses" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 text-xs sm:text-sm">
             {language === 'en' ? 'Courses' : 'Cursuri'}
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="goddess-tools" className="space-y-6">
-          <div className="mb-8">
-            
-            
-            
-            
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg uppercase text-indigo-500 font-extrabold">{language === 'en' ? 'CORE & DAILY ACTIVITIES' : 'CORE & DAILY FOUR'}</h3>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-blue-900/50 to-blue-800/30 p-4 rounded-lg backdrop-blur-sm">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">{language === 'en' ? 'THE CORE' : 'CORE'}</h3>
-                      <Button variant="outline" className="bg-blue-600/20 border-blue-500/50 hover:bg-blue-700/30 text-white" onClick={() => navigateTo('/core')}>
-                        {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
-                      </Button>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2">
-                      {coreItems.map(item => {
-                      const isCompleted = coreData[selectedDay]?.[item.id] || false;
-                      return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
-                            border ${isCompleted ? 'border-blue-400/50' : 'border-blue-900/50'} 
-                            shadow-md p-3 flex flex-col items-center justify-center cursor-pointer 
-                            transition-colors duration-200 hover:shadow-blue-500/10`} onClick={() => handleToggleCoreActivity(item.id)}>
-                            <div className="relative flex items-center justify-center">
-                              {item.icon}
-                              {isCompleted && <div className="absolute -top-1 -right-1">
-                                  <CheckCircle2 className="w-3 h-3 text-green-400" />
-                                </div>}
-                            </div>
-                            <div className="mt-2 text-xs text-center text-white font-medium">{item.title}</div>
-                          </Card>;
-                    })}
-                    </div>
+        <TabsContent value="goddess-tools" className="space-y-4 sm:space-y-6">
+          <div className="mb-6 sm:mb-8">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:gap-8 mb-8 sm:mb-12 relative overflow-hidden">
+              {/* Stack and Journal Column */}
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-[#1C1E33] rounded-lg p-4 sm:p-6 border border-[#30336B]">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-white">{t('stackAndJournal')}</h3>
+                    <Circle className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />
                   </div>
-                </div>
-                
-                <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/30 p-4 rounded-lg backdrop-blur-sm py-[49px] my-[7px]">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">{language === 'en' ? 'DAILY FOUR' : 'DAILY FOUR'}</h3>
-                      <Button variant="outline" className="bg-purple-600/20 border-purple-500/50 hover:bg-purple-700/30 text-white" onClick={() => navigateTo('/daily-four')}>
-                        {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
-                      </Button>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2 mb-4">
-                      {dailyFourItems.map(item => {
-                      const isCompleted = item.completed;
-                      return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
-                            border ${isCompleted ? 'border-purple-400/50' : 'border-purple-900/50'} 
-                            shadow-md p-3 flex flex-col items-center justify-center cursor-pointer
-                            transition-colors duration-200 hover:shadow-purple-500/10`} onClick={() => handleToggleDailyActivity(item.id)}>
-                            <div className="relative flex items-center justify-center">
-                              {item.icon}
-                              {isCompleted && <div className="absolute -top-1 -right-1">
-                                  <CheckCircle2 className="w-3 h-3 text-green-400" />
-                                </div>}
-                            </div>
-                            <div className="mt-2 text-xs text-center text-white font-medium">{item.title}</div>
-                          </Card>;
-                    })}
-                    </div>
-                    
-                    <h3 className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-300 mb-2">{language === 'en' ? 'WEEKLY TWO' : 'WEEKLY TWO'}</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      {weeklyItems.map(item => {
-                      const isCompleted = item.completed;
-                      return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-pink-600 to-pink-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
-                            border ${isCompleted ? 'border-pink-400/50' : 'border-pink-900/50'} 
-                            shadow-md p-3 flex items-center justify-center cursor-pointer
-                            transition-colors duration-200 hover:shadow-pink-500/10`} onClick={() => handleToggleWeeklyActivity(item.id)}>
-                            <div className="relative flex items-center justify-center">
-                              <div className="text-xs text-center text-white font-medium">{item.title}</div>
-                              {isCompleted && <div className="absolute -top-1 -right-1">
-                                  <CheckCircle2 className="w-3 h-3 text-green-400" />
-                                </div>}
-                            </div>
-                          </Card>;
-                    })}
-                    </div>
+                  <div className="space-y-3">
+                    <Button 
+                      onClick={() => navigateTo('/stack')}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 sm:py-3 text-sm sm:text-base"
+                    >
+                      <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                      {language === 'en' ? 'Complete Stack' : 'Completează Stack'}
+                    </Button>
+                    <Button 
+                      onClick={() => navigateTo('/journal')}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 sm:py-3 text-sm sm:text-base"
+                    >
+                      <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                      {language === 'en' ? 'Write in Journal' : 'Scrie în Jurnal'}
+                    </Button>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">{language === 'en' ? 'HIT LIST' : 'LISTA HIT'}</h3>
-                </div>
-                <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-green-500/20 shadow-lg shadow-green-500/5 hover:shadow-green-500/10 transition-all duration-300">
-                  <CardContent className="p-4">
-                    <div className="space-y-2">
-                      {hitList.filter(item => item.day === activeDay).length > 0 ? hitList.filter(item => item.day === activeDay).map(item => <div key={item.id} className={`flex items-center p-2 rounded-md transition-all duration-200 ${item.completed ? 'bg-green-500/10' : getPriorityColor(item.priority)}`}>
-                            <Button variant="ghost" size="sm" className={`w-6 h-6 rounded-full mr-3 p-0 flex items-center justify-center ${item.completed ? 'bg-green-500 text-white' : 'bg-transparent border border-gray-400 text-gray-400'}`} onClick={() => toggleHitListItemCompletion(item.id)}>
-                              {item.completed && <CheckCircle2 className="w-3 h-3" />}
-                            </Button>
-                            <span className={`flex-grow ${item.completed ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
-                              {item.text}
-                            </span>
-                            {!item.completed && getPriorityIcon(item.priority)}
-                          </div>) : <div className="text-center text-gray-500 py-4">
-                          <p>{language === 'en' ? 'No HIT items for today' : 'Nu există elemente HIT pentru astăzi'}</p>
-                        </div>}
-                    </div>
-                    <div className="mt-6 flex justify-end">
-                      <Button variant="outline" onClick={() => navigateTo('/door')} className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0">
-                        {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
               
-              <div>
-                <MonthlyObjectives />
+              {/* Goddess Journey Progress */}
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-[#1C1E33] rounded-lg p-4 sm:p-6 border border-[#30336B]">
+                  <h3 className="text-lg sm:text-xl font-bold text-center text-white mb-4 sm:mb-6">GODDESS JOURNEY</h3>
+                  
+                  <div className="relative flex flex-col lg:flex-col items-center space-y-4 lg:space-y-8 lg:space-x-0">
+                    {/* Stack Progress Circle */}
+                    <div className="relative">
+                      <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 flex items-center justify-center ${hasStack ? 'border-green-500 bg-green-500/20' : 'border-gray-500 bg-gray-500/10'}`}>
+                        <Circle className={`w-4 h-4 sm:w-6 sm:h-6 ${hasStack ? 'text-green-500' : 'text-gray-500'}`} />
+                      </div>
+                      <span className="absolute -bottom-5 sm:-bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-white font-medium whitespace-nowrap">STACK</span>
+                    </div>
+
+                    {/* Connection Line */}
+                    <div className="w-1 h-8 sm:h-12 bg-gray-600 relative">
+                      <div 
+                        className="absolute top-0 left-0 w-full bg-gradient-to-b from-green-500 to-blue-500 transition-all duration-1000 ease-in-out"
+                        style={{ height: `${stackToCoreLine}%` }}
+                      />
+                    </div>
+
+                    {/* Core Progress Circle */}
+                    <div className="relative">
+                      <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 flex items-center justify-center ${hasCompletedCore ? 'border-blue-500 bg-blue-500/20' : 'border-gray-500 bg-gray-500/10'}`}>
+                        <Circle className={`w-4 h-4 sm:w-6 sm:h-6 ${hasCompletedCore ? 'text-blue-500' : 'text-gray-500'}`} />
+                      </div>
+                      <span className="absolute -bottom-5 sm:-bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-white font-medium whitespace-nowrap">CORE</span>
+                    </div>
+
+                    {/* Connection Line */}
+                    <div className="w-1 h-8 sm:h-12 bg-gray-600 relative">
+                      <div 
+                        className="absolute top-0 left-0 w-full bg-gradient-to-b from-blue-500 to-purple-500 transition-all duration-1000 ease-in-out"
+                        style={{ height: `${coreToDaily}%` }}
+                      />
+                    </div>
+
+                    {/* Daily Four Progress Circle */}
+                    <div className="relative">
+                      <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 flex items-center justify-center ${hasCompletedDailyFour ? 'border-purple-500 bg-purple-500/20' : 'border-gray-500 bg-gray-500/10'}`}>
+                        <Circle className={`w-4 h-4 sm:w-6 sm:h-6 ${hasCompletedDailyFour ? 'text-purple-500' : 'text-gray-500'}`} />
+                      </div>
+                      <span className="absolute -bottom-5 sm:-bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-white font-medium whitespace-nowrap">DAILY</span>
+                    </div>
+
+                    {/* Connection Line */}
+                    <div className="w-1 h-8 sm:h-12 bg-gray-600 relative">
+                      <div 
+                        className="absolute top-0 left-0 w-full bg-gradient-to-b from-purple-500 to-pink-500 transition-all duration-1000 ease-in-out"
+                        style={{ height: `${dailyToDoor}%` }}
+                      />
+                    </div>
+
+                    {/* Door Progress Circle */}
+                    <div className="relative">
+                      <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 flex items-center justify-center ${hasCompletedDoor ? 'border-pink-500 bg-pink-500/20' : 'border-gray-500 bg-gray-500/10'}`}>
+                        <Circle className={`w-4 h-4 sm:w-6 sm:h-6 ${hasCompletedDoor ? 'text-pink-500' : 'text-gray-500'}`} />
+                      </div>
+                      <span className="absolute -bottom-5 sm:-bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-white font-medium whitespace-nowrap">DOOR</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Weekly Statistics */}
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-[#1C1E33] rounded-lg p-4 sm:p-6 border border-[#30336B]">
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-4">Weekly Stats</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-300">Score</span>
+                      <span className="text-lg font-bold text-yellow-400">{coreScore + dailyFourScore + doorScore}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-300">Streak</span>
+                      <span className="text-lg font-bold text-green-400">{Math.max(streaks.core, streaks.dailyFour)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-300">Total</span>
+                      <span className="text-lg font-bold text-blue-400">{totals.core + totals.dailyFour + totals.door}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           
           <div>
-            <h2 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
               {language === 'en' ? 'My Weekly' : 'Săptămânal'}
             </h2>
             
-            <div className="grid grid-cols-1 gap-6 mb-8">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-6 sm:mb-8">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-bold text-white uppercase">{language === 'en' ? 'THE SCORE' : 'SCORUL'}</h3>
+                <h3 className="text-base sm:text-lg font-bold text-white uppercase">{language === 'en' ? 'THE SCORE' : 'SCORUL'}</h3>
                 <div className="flex-grow mx-4">
                   <div className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 h-1 w-full rounded-full"></div>
                 </div>
-                <h3 className="text-lg font-bold text-white uppercase">{language === 'en' ? 'THE STREAKS' : 'SERIILE'}</h3>
+                <h3 className="text-base sm:text-lg font-bold text-white uppercase">{language === 'en' ? 'THE STREAKS' : 'SERIILE'}</h3>
                 <div className="flex-grow mx-4">
                   <div className="bg-gradient-to-r from-purple-500/30 to-pink-500/30 h-1 w-full rounded-full"></div>
                 </div>
-                <h3 className="text-lg font-bold text-white uppercase">{language === 'en' ? 'THE TOTAL' : 'TOTALUL'}</h3>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-blue-500/20 shadow-lg hover:shadow-blue-500/10 transition-all duration-300 p-4">
-                  <div className="flex flex-col items-center">
-                    <h3 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">
-                      {coreScore + dailyFourScore + weeklyTwoScore + doorScore}
-                    </h3>
-                    <div className="mt-6 space-y-2 w-full">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Circle className="w-3 h-3 mr-2 text-blue-500 fill-blue-500" />
-                          <span className="text-sm text-gray-300">STACK</span>
-                        </div>
-                        <span className="text-sm text-gray-300">0</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Circle className="w-3 h-3 mr-2 text-purple-500 fill-purple-500" />
-                          <span className="text-sm text-gray-300">CORE</span>
-                        </div>
-                        <span className="text-sm text-gray-300">{coreScore}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Circle className="w-3 h-3 mr-2 text-amber-500 fill-amber-500" />
-                          <span className="text-sm text-gray-300">DAILY</span>
-                        </div>
-                        <span className="text-sm text-gray-300">{dailyFourScore + weeklyTwoScore}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Circle className="w-3 h-3 mr-2 text-green-500 fill-green-500" />
-                          <span className="text-sm text-gray-300">DOOR</span>
-                        </div>
-                        <span className="text-sm text-gray-300">{doorScore}</span>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-                
-                <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-purple-500/20 shadow-lg hover:shadow-purple-500/10 transition-all duration-300 p-4">
-                  <div className="grid grid-cols-4 gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 border-4 border-blue-500/50 rounded-full flex items-center justify-center">
-                        <span className="text-xl font-bold text-blue-400">{streaks.stack}</span>
-                      </div>
-                      <span className="mt-2 text-xs text-center text-gray-300">STACK</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 border-4 border-purple-500/50 rounded-full flex items-center justify-center">
-                        <span className="text-xl font-bold text-purple-400">{streaks.core}</span>
-                      </div>
-                      <span className="mt-2 text-xs text-center text-gray-300">CORE</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 border-4 border-pink-500/50 rounded-full flex items-center justify-center">
-                        <span className="text-xl font-bold text-pink-400">{streaks.dailyFour}</span>
-                      </div>
-                      <span className="mt-2 text-xs text-center text-gray-300">DAILY</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 border-4 border-green-500/50 rounded-full flex items-center justify-center">
-                        <span className="text-xl font-bold text-green-400">{streaks.door}</span>
-                      </div>
-                      <span className="mt-2 text-xs text-center text-gray-300">DOOR</span>
-                    </div>
-                  </div>
-                </Card>
-                
-                <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-pink-500/20 shadow-lg hover:shadow-pink-500/10 transition-all duration-300 p-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className="flex items-center space-x-3">
-                        <Circle className="w-4 h-4 text-blue-500 fill-blue-500" />
-                        <span className="text-sm text-gray-300">STACK</span>
-                      </div>
-                      <span className="mt-2 text-2xl font-bold text-blue-400">{totals.stack}</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="flex items-center space-x-3">
-                        <Circle className="w-4 h-4 text-purple-500 fill-purple-500" />
-                        <span className="text-sm text-gray-300">CORE</span>
-                      </div>
-                      <span className="mt-2 text-2xl font-bold text-purple-400">{totals.core}</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="flex items-center space-x-3">
-                        <Circle className="w-4 h-4 text-amber-500 fill-amber-500" />
-                        <span className="text-sm text-gray-300">DAILY</span>
-                      </div>
-                      <span className="mt-2 text-2xl font-bold text-amber-400">{totals.dailyFour}</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="flex items-center space-x-3">
-                        <Circle className="w-4 h-4 text-green-500 fill-green-500" />
-                        <span className="text-sm text-gray-300">DOOR</span>
-                      </div>
-                      <span className="mt-2 text-2xl font-bold text-green-400">{totals.door}</span>
-                    </div>
-                  </div>
-                </Card>
+                <h3 className="text-base sm:text-lg font-bold text-white uppercase">{language === 'en' ? 'THE TOTALS' : 'TOTALURILE'}</h3>
               </div>
             </div>
+            
+            <WeeklyProgress />
           </div>
         </TabsContent>
         
-        <TabsContent value="courses">
-          <LearnDashboard onCategorySelect={handleLearnCategorySelect} activeCategory={activeLearnCategory} categoryCounts={categoryCounts} onSubcategorySelect={handleLearnSubcategorySelect} activeSubcategory={activeLearnSubcategory} />
+        <TabsContent value="courses" className="space-y-4 sm:space-y-6">
+          <LearnDashboard 
+            onCategorySelect={handleLearnCategorySelect}
+            onSubcategorySelect={handleLearnSubcategorySelect}
+            activeCategory={activeLearnCategory}
+            activeSubcategory={activeLearnSubcategory}
+          />
         </TabsContent>
       </Tabs>
     </div>;
