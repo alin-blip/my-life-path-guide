@@ -7,6 +7,15 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+  const navigate = useNavigate();
   const { language } = useLanguage();
 
   return (

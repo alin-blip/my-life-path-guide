@@ -14,6 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
+      anger_stack_sessions: {
+        Row: {
+          answers: Json
+          completed: boolean
+          created_at: string
+          id: string
+          session_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          completed?: boolean
+          created_at?: string
+          id?: string
+          session_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed?: boolean
+          created_at?: string
+          id?: string
+          session_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_progress: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          tasks_completed: number | null
+          total_tasks: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          notes?: string | null
+          tasks_completed?: number | null
+          total_tasks?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          tasks_completed?: number | null
+          total_tasks?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      divine_coaching_sessions: {
+        Row: {
+          answers: Json
+          completed: boolean
+          created_at: string
+          id: string
+          session_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          completed?: boolean
+          created_at?: string
+          id?: string
+          session_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed?: boolean
+          created_at?: string
+          id?: string
+          session_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fact_maps: {
         Row: {
           category: string
@@ -38,6 +131,42 @@ export type Database = {
           created_at?: string
           id?: string
           items?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      hot_list_items: {
+        Row: {
+          completed: boolean
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: number | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: number | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: number | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -78,6 +207,33 @@ export type Database = {
           name?: string
           questions?: Json
           start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notes: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          title?: string
           updated_at?: string
           user_id?: string
         }
@@ -141,6 +297,39 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stack_library: {
+        Row: {
+          completed: boolean
+          content: Json
+          created_at: string
+          id: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          content?: Json
+          created_at?: string
+          id?: string
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          content?: Json
+          created_at?: string
+          id?: string
+          title?: string
+          type?: string
           updated_at?: string
           user_id?: string
         }
