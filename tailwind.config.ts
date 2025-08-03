@@ -67,28 +67,24 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				warrior: {
-					DEFAULT: '#1e293b',
-					foreground: '#f8fafc',
-					accent: '#3b82f6',
-					'accent-hover': '#2563eb',
-					secondary: '#1e1e2e',
-					muted: '#334155',
-					purple: {
-						light: '#9b87f5',
-						DEFAULT: '#7E69AB',
-						dark: '#6E59A5',
-					},
-					blue: {
-						light: '#33C3F0',
-						DEFAULT: '#0EA5E9',
-						dark: '#1A1F2C',
-					},
-					pink: {
-						DEFAULT: '#D946EF',
-						light: '#D6BCFA',
-					},
-					orange: '#F97316',
+				goddess: {
+					DEFAULT: 'hsl(var(--goddess-primary))',
+					secondary: 'hsl(var(--goddess-secondary))',
+					sacred: 'hsl(var(--sacred-pink))',
+					divine: 'hsl(var(--divine-purple))',
+					moon: 'hsl(var(--moon-silver))',
+					gold: 'hsl(var(--goddess-gold))',
+				},
+				feminine: {
+					primary: '#E91E63',
+					secondary: '#F06292',
+					accent: '#C2185B',
+					light: '#F8BBD9',
+					dark: '#AD1457',
+					purple: '#9C27B0',
+					pink: '#E91E63',
+					rose: '#F48FB1',
+					magenta: '#E91E63',
 				}
 			},
 			borderRadius: {
@@ -150,12 +146,15 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'perspective-gradient': 'linear-gradient(90deg, hsla(221, 45%, 73%, 1) 0%, hsla(220, 78%, 29%, 1) 100%)',
-				'clarity-gradient': 'linear-gradient(90deg, hsla(39, 100%, 77%, 1) 0%, hsla(22, 90%, 57%, 1) 100%)',
-				'strength-gradient': 'linear-gradient(90deg, hsla(139, 70%, 75%, 1) 0%, hsla(63, 90%, 76%, 1) 100%)',
-				'focus-gradient': 'linear-gradient(90deg, hsla(186, 33%, 94%, 1) 0%, hsla(216, 41%, 79%, 1) 100%)',
-				'gratitude-gradient': 'linear-gradient(90deg, hsla(277, 75%, 84%, 1) 0%, hsla(297, 50%, 51%, 1) 100%)',
-				'divine-gradient': 'linear-gradient(to right, #ee9ca7, #ffdde1)',
+				'goddess-gradient': 'var(--goddess-gradient)',
+				'sacred-gradient': 'var(--sacred-gradient)',
+				'divine-gradient': 'var(--divine-gradient)',
+				'moon-gradient': 'var(--moon-gradient)',
+				'feminine-power': 'linear-gradient(135deg, #E91E63, #9C27B0)',
+				'sacred-body': 'linear-gradient(135deg, #FF6B9D, #F06292)',
+				'divine-being': 'linear-gradient(135deg, #9C27B0, #673AB7)',
+				'sacred-balance': 'linear-gradient(135deg, #E91E63, #FF6B9D)',
+				'queens-empire': 'linear-gradient(135deg, #FF9800, #FFB74D)',
 			},
 		}
 	},

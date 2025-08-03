@@ -5,63 +5,85 @@
  
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
- 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
- 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
- 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
- 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
- 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
- 
+    --background: 340 20% 8%;
+    --foreground: 340 5% 95%;
+
+    --card: 340 15% 12%;
+    --card-foreground: 340 5% 95%;
+
+    --popover: 340 15% 12%;
+    --popover-foreground: 340 5% 95%;
+
+    --primary: 320 85% 60%;
+    --primary-foreground: 340 20% 8%;
+
+    --secondary: 315 25% 20%;
+    --secondary-foreground: 340 5% 95%;
+
+    --muted: 315 15% 15%;
+    --muted-foreground: 340 10% 70%;
+
+    --accent: 300 80% 70%;
+    --accent-foreground: 340 20% 8%;
+
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
- 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --destructive-foreground: 340 5% 95%;
+
+    --border: 315 20% 20%;
+    --input: 315 20% 18%;
+    --ring: 320 85% 60%;
+
+    /* Feminine Power Colors */
+    --goddess-primary: 320 85% 60%;
+    --goddess-secondary: 315 70% 75%;
+    --sacred-pink: 340 85% 65%;
+    --divine-purple: 280 85% 70%;
+    --moon-silver: 220 15% 85%;
+    --goddess-gold: 45 85% 70%;
+    
+    /* Sacred Gradients */
+    --goddess-gradient: linear-gradient(135deg, hsl(320, 85%, 60%), hsl(280, 85%, 70%));
+    --sacred-gradient: linear-gradient(135deg, hsl(340, 85%, 65%), hsl(320, 85%, 60%));
+    --divine-gradient: linear-gradient(135deg, hsl(280, 85%, 70%), hsl(260, 80%, 75%));
+    --moon-gradient: linear-gradient(135deg, hsl(220, 15%, 85%), hsl(240, 20%, 90%));
   }
  
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
- 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
- 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
- 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
- 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
- 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
- 
+    --background: 340 20% 8%;
+    --foreground: 340 5% 95%;
+
+    --card: 340 15% 12%;
+    --card-foreground: 340 5% 95%;
+
+    --popover: 340 15% 12%;
+    --popover-foreground: 340 5% 95%;
+
+    --primary: 320 85% 60%;
+    --primary-foreground: 340 20% 8%;
+
+    --secondary: 315 25% 20%;
+    --secondary-foreground: 340 5% 95%;
+
+    --muted: 315 15% 15%;
+    --muted-foreground: 340 10% 70%;
+
+    --accent: 300 80% 70%;
+    --accent-foreground: 340 20% 8%;
+
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
- 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --destructive-foreground: 340 5% 95%;
+
+    --border: 315 20% 20%;
+    --input: 315 20% 18%;
+    --ring: 320 85% 60%;
+
+    /* Feminine Power Colors */
+    --goddess-primary: 320 85% 60%;
+    --goddess-secondary: 315 70% 75%;
+    --sacred-pink: 340 85% 65%;
+    --divine-purple: 280 85% 70%;
+    --moon-silver: 220 15% 85%;
+    --goddess-gold: 45 85% 70%;
   }
 }
  
@@ -80,7 +102,7 @@
 }
 
 .sidebar-item.active {
-  @apply bg-gradient-to-r from-warrior-accent to-warrior-accent/70 text-white font-medium;
+  @apply bg-gradient-to-r from-primary to-accent text-white font-medium;
 }
 
 /* Animation for confetti */

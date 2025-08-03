@@ -29,52 +29,52 @@ export const MissionCategorySelector: React.FC<MissionCategorySelectorProps> = (
     <div className="text-white">
       <h3 className="text-xl font-bold mb-6 text-center">
         {isImpossibleGame 
-          ? (language === 'en' ? 'Select Impossible Game Category' : 'Selectează Categoria Jocului Imposibil') 
-          : (language === 'en' ? 'Select Mission Category' : 'Selectează Categoria Misiunii')}
+          ? (language === 'en' ? 'Select Your Divine Awakening Focus' : 'Selectează Focusul Trezirii Divine') 
+          : (language === 'en' ? 'Choose Your Sacred Circle' : 'Alege Cercul Tău Sacru')}
       </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Button 
-          className="flex flex-col items-center justify-center bg-blue-900/50 hover:bg-blue-900/70 p-8 rounded-lg"
+          className="flex flex-col items-center justify-center bg-gradient-to-br from-feminine-primary/40 to-feminine-rose/40 hover:from-feminine-primary/60 hover:to-feminine-rose/60 p-8 rounded-lg border border-feminine-primary/30"
           onClick={() => handleCategorySelect('body')}
         >
-          <div className="text-2xl mb-2">🏋️</div>
-          <div className="font-bold text-xl">{language === 'en' ? 'BODY' : 'CORP'}</div>
+          <div className="text-3xl mb-2">🌺</div>
+          <div className="font-bold text-xl">{language === 'en' ? 'SACRED VESSEL' : 'VAS SACRU'}</div>
           <div className="text-sm mt-2 text-gray-300">
-            {language === 'en' ? 'Physical Health & Fitness' : 'Sănătate Fizică și Fitness'}
+            {language === 'en' ? 'Sacred Body & Divine Energy' : 'Corp Sacru și Energie Divină'}
           </div>
         </Button>
         
         <Button 
-          className="flex flex-col items-center justify-center bg-blue-900/50 hover:bg-blue-900/70 p-8 rounded-lg"
+          className="flex flex-col items-center justify-center bg-gradient-to-br from-feminine-purple/40 to-purple-700/40 hover:from-feminine-purple/60 hover:to-purple-700/60 p-8 rounded-lg border border-feminine-purple/30"
           onClick={() => handleCategorySelect('being')}
         >
-          <div className="text-2xl mb-2">🧠</div>
-          <div className="font-bold text-xl">{language === 'en' ? 'BEING' : 'FIINȚĂ'}</div>
+          <div className="text-3xl mb-2">🧘‍♀️</div>
+          <div className="font-bold text-xl">{language === 'en' ? 'DIVINE CONNECTION' : 'CONEXIUNE DIVINĂ'}</div>
           <div className="text-sm mt-2 text-gray-300">
-            {language === 'en' ? 'Mental & Spiritual Growth' : 'Creștere Mentală și Spirituală'}
+            {language === 'en' ? 'Inner Goddess & Spiritual Awakening' : 'Zeița Interioară și Trezirea Spirituală'}
           </div>
         </Button>
         
         <Button 
-          className="flex flex-col items-center justify-center bg-blue-900/50 hover:bg-blue-900/70 p-8 rounded-lg"
+          className="flex flex-col items-center justify-center bg-gradient-to-br from-pink-600/40 to-feminine-primary/40 hover:from-pink-600/60 hover:to-feminine-primary/60 p-8 rounded-lg border border-pink-500/30"
           onClick={() => handleCategorySelect('balance')}
         >
-          <div className="text-2xl mb-2">❤️</div>
-          <div className="font-bold text-xl">{language === 'en' ? 'BALANCE' : 'ECHILIBRU'}</div>
+          <div className="text-3xl mb-2">💖</div>
+          <div className="font-bold text-xl">{language === 'en' ? 'SACRED RELATIONSHIPS' : 'RELAȚII SACRE'}</div>
           <div className="text-sm mt-2 text-gray-300">
-            {language === 'en' ? 'Relationships & Connections' : 'Relații și Conexiuni'}
+            {language === 'en' ? 'Divine Love & Sacred Sisterhood' : 'Iubire Divină și Sororitate Sacrată'}
           </div>
         </Button>
         
         <Button 
-          className="flex flex-col items-center justify-center bg-blue-900/50 hover:bg-blue-900/70 p-8 rounded-lg"
+          className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-600/40 to-orange-600/40 hover:from-yellow-600/60 hover:to-orange-600/60 p-8 rounded-lg border border-yellow-500/30"
           onClick={() => handleCategorySelect('business')}
         >
-          <div className="text-2xl mb-2">💰</div>
-          <div className="font-bold text-xl">{language === 'en' ? 'BUSINESS' : 'AFACERE'}</div>
+          <div className="text-3xl mb-2">👑</div>
+          <div className="font-bold text-xl">{language === 'en' ? "QUEEN'S EMPIRE" : 'IMPERIUL REGINEI'}</div>
           <div className="text-sm mt-2 text-gray-300">
-            {language === 'en' ? 'Career & Financial Growth' : 'Creștere Profesională și Financiară'}
+            {language === 'en' ? 'Feminine Leadership & Abundant Queendom' : 'Leadership Feminin și Împărăție Abundentă'}
           </div>
         </Button>
       </div>

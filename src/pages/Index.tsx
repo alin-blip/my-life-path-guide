@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Calendar, FileText, Users, Brain, Target, Heart, Dumbbell, Briefcase } from "lucide-react";
+import { Calendar, FileText, Users, Brain, Target, Heart, Crown, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -10,7 +10,7 @@ const Index = () => {
   const { language } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-b from-purple-900/90 via-pink-900/80 to-purple-900/90">
       {/* Language Selector */}
       <div className="absolute top-6 right-6 z-10">
         <LanguageSelector />
@@ -20,127 +20,127 @@ const Index = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center mb-6">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-full p-4">
-              <span className="font-bold text-white text-3xl">H</span>
+            <div className="bg-gradient-to-r from-feminine-primary to-feminine-purple rounded-full p-4">
+              <Crown className="w-8 h-8 text-white" />
             </div>
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            {language === 'en' ? 'HAVE IT ALL Lifestyle Accelerator' : 'Acceleratorul HAVE IT ALL Lifestyle'}
+            {language === 'en' ? 'Unleash Your Feminine Power' : 'Eliberează-ți Puterea Feminină'}
           </h1>
           
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
             {language === 'en' 
-              ? 'Transform your body, relationships, and business. Build an extraordinary life with the proven HAVE IT ALL system.' 
-              : 'Transformă-ți corpul, relațiile și afacerea. Construiește o viață extraordinară cu sistemul HAVE IT ALL dovedit.'}
+              ? 'Awaken your divine feminine essence. Transform your Sacred Vessel, Sacred Relationships, Divine Connection, and Queen\'s Empire with proven feminine empowerment rituals.' 
+              : 'Trezește-ți esența feminină divină. Transformă-ți Vasul Sacru, Relațiile Sacre, Conexiunea Divină și Imperiul Reginei cu ritualuri dovedite de împuternicire feminină.'}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
               onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold"
+              className="bg-gradient-to-r from-feminine-primary to-feminine-purple hover:from-feminine-accent hover:to-feminine-purple text-white px-8 py-4 text-lg font-semibold"
             >
-              {language === 'en' ? 'Start Your Journey' : 'Începe Călătoria'}
+              {language === 'en' ? 'Awaken Your Power' : 'Trezește-ți Puterea'}
             </Button>
             
             <Button 
               size="lg" 
               variant="outline"
               onClick={() => navigate('/auth')}
-              className="border-gray-600 text-white hover:bg-gray-800 px-8 py-4 text-lg"
+              className="border-feminine-secondary text-white hover:bg-feminine-primary/20 px-8 py-4 text-lg"
             >
-              {language === 'en' ? 'Learn More' : 'Află Mai Mult'}
+              {language === 'en' ? 'Discover Your Goddess' : 'Descoperă-ți Zeița'}
             </Button>
           </div>
         </div>
 
-        {/* Core 4 Features */}
+        {/* Sacred Circle Features */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          <div className="bg-gradient-to-br from-red-900/40 to-red-700/40 p-6 rounded-xl border border-red-500/20">
-            <Dumbbell className="w-12 h-12 text-red-400 mb-4" />
+          <div className="bg-gradient-to-br from-feminine-primary/40 to-feminine-rose/40 p-6 rounded-xl border border-feminine-primary/30">
+            <div className="text-4xl mb-4">🌺</div>
             <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Body' : 'Corp'}
+              {language === 'en' ? 'Sacred Vessel' : 'Vas Sacru'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Optimize your physical health and energy' 
-                : 'Optimizează-ți sănătatea fizică și energia'}
+                ? 'Honor your body through intuitive nutrition and sacred movement' 
+                : 'Onorează-ți corpul prin nutriție intuitivă și mișcare sacrată'}
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-900/40 to-blue-700/40 p-6 rounded-xl border border-blue-500/20">
-            <Brain className="w-12 h-12 text-blue-400 mb-4" />
+          <div className="bg-gradient-to-br from-feminine-purple/40 to-purple-700/40 p-6 rounded-xl border border-feminine-purple/30">
+            <div className="text-4xl mb-4">🧘‍♀️</div>
             <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Being' : 'Ființă'}
+              {language === 'en' ? 'Divine Connection' : 'Conexiune Divină'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Develop spiritual connection and clarity' 
-                : 'Dezvoltă conexiunea spirituală și claritatea'}
+                ? 'Awaken your inner wisdom and spiritual feminine power' 
+                : 'Trezește-ți înțelepciunea interioară și puterea spirituală feminină'}
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-green-900/40 to-green-700/40 p-6 rounded-xl border border-green-500/20">
-            <Heart className="w-12 h-12 text-green-400 mb-4" />
+          <div className="bg-gradient-to-br from-pink-600/40 to-feminine-primary/40 p-6 rounded-xl border border-pink-500/30">
+            <div className="text-4xl mb-4">💖</div>
             <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Balance' : 'Echilibru'}
+              {language === 'en' ? 'Sacred Relationships' : 'Relații Sacre'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Build deeper relationships and connections' 
-                : 'Construiește relații și conexiuni mai profunde'}
+                ? 'Cultivate divine connections and sacred sisterhood' 
+                : 'Cultivă conexiuni divine și sororitatea sacrată'}
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-900/40 to-purple-700/40 p-6 rounded-xl border border-purple-500/20">
-            <Briefcase className="w-12 h-12 text-purple-400 mb-4" />
+          <div className="bg-gradient-to-br from-yellow-600/40 to-orange-600/40 p-6 rounded-xl border border-yellow-500/30">
+            <Crown className="w-12 h-12 text-yellow-400 mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Business' : 'Afacere'}
+              {language === 'en' ? "Queen's Empire" : 'Imperiul Reginei'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Scale your income and financial freedom' 
-                : 'Crește-ți venitul și libertatea financiară'}
+                ? 'Build your abundant queendom with feminine leadership' 
+                : 'Construiește-ți împărăția abundentă cu leadership feminin'}
             </p>
           </div>
         </div>
 
-        {/* Tools Section */}
+        {/* Sacred Tools Section */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
-          <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
-            <Target className="w-10 h-10 text-blue-400 mb-4" />
+          <div className="bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 p-6 rounded-xl border border-feminine-primary/30">
+            <Sparkles className="w-10 h-10 text-feminine-primary mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">
-              {language === 'en' ? 'Stack System' : 'Sistemul Stack'}
+              {language === 'en' ? 'Sacred Rituals' : 'Ritualuri Sacre'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Daily mental training to overcome limiting beliefs' 
-                : 'Antrenament mental zilnic pentru a depăși convingerile limitative'}
+                ? 'Transform limiting beliefs through divine feminine practices' 
+                : 'Transformă convingerile limitative prin practici feminine divine'}
             </p>
           </div>
 
-          <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
-            <Calendar className="w-10 h-10 text-green-400 mb-4" />
+          <div className="bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 p-6 rounded-xl border border-feminine-primary/30">
+            <div className="text-3xl mb-4">🌙</div>
             <h3 className="text-lg font-semibold text-white mb-2">
-              {language === 'en' ? 'Core 4 Tracking' : 'Urmărirea Core 4'}
+              {language === 'en' ? 'Sacred Circle Tracking' : 'Urmărirea Cercului Sacru'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Track your daily progress across all life domains' 
-                : 'Urmărește progresul zilnic în toate domeniile vieții'}
+                ? 'Honor your natural cycles and track your goddess journey' 
+                : 'Onorează-ți ciclurile naturale și urmărește călătoria zeiței'}
             </p>
           </div>
 
-          <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
-            <FileText className="w-10 h-10 text-purple-400 mb-4" />
+          <div className="bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 p-6 rounded-xl border border-feminine-primary/30">
+            <div className="text-3xl mb-4">🦋</div>
             <h3 className="text-lg font-semibold text-white mb-2">
-              {language === 'en' ? 'Journey Mapping' : 'Maparea Călătoriei'}
+              {language === 'en' ? 'Goddess Awakening Map' : 'Harta Trezirii Zeiței'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Plan and execute your impossible goals' 
-                : 'Planifică și execută obiectivele tale imposibile'}
+                ? 'Manifest your divine feminine destiny and impossible dreams' 
+                : 'Manifestă-ți destinul feminin divin și visurile imposibile'}
             </p>
           </div>
         </div>
@@ -148,19 +148,19 @@ const Index = () => {
         {/* CTA Section */}
         <div className="text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
-            {language === 'en' ? 'Ready to Transform Your Life?' : 'Gata să îți Transformi Viața?'}
+            {language === 'en' ? 'Ready to Unleash Your Divine Feminine Power?' : 'Gata să îți Eliberezi Puterea Feminină Divină?'}
           </h2>
           <p className="text-gray-300 mb-8">
             {language === 'en' 
-              ? 'Join thousands who have already started their transformation journey with the HAVE IT ALL Lifestyle.' 
-              : 'Alătură-te miilor care și-au început deja călătoria de transformare cu HAVE IT ALL Lifestyle.'}
+              ? 'Join the Sacred Circle of empowered women who have awakened their goddess within through the Femeia Eliberată program.' 
+              : 'Alătură-te Cercului Sacru de femei împuternicite care și-au trezit zeița din interior prin programul Femeia Eliberată.'}
           </p>
           <Button 
             size="lg" 
             onClick={() => navigate('/auth')}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 text-xl font-semibold"
+            className="bg-gradient-to-r from-feminine-primary to-feminine-purple hover:from-feminine-accent hover:to-feminine-purple text-white px-12 py-4 text-xl font-semibold"
           >
-            {language === 'en' ? 'Begin Your Transformation' : 'Începe Transformarea'}
+            {language === 'en' ? 'Awaken Your Goddess' : 'Trezește-ți Zeița'}
           </Button>
         </div>
       </div>
