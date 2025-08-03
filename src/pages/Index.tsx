@@ -1,13 +1,16 @@
 
 import { Button } from "@/components/ui/button";
-import { Calendar, FileText, Users, Brain, Target, Heart, Crown, Sparkles } from "lucide-react";
+import { Crown, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { language } = useLanguage();
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
@@ -15,8 +18,6 @@ const Index = () => {
       navigate('/dashboard');
     }
   }, [user, navigate]);
-  const navigate = useNavigate();
-  const { language } = useLanguage();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900/90 via-pink-900/80 to-purple-900/90">

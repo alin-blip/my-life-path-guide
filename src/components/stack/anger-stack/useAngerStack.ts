@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
 import { AngerStackProps, AngerStackState, UseAngerStackReturn, AngerStackAnswer } from './types';
 import { getQuestions } from './questions';
@@ -12,6 +13,7 @@ import { updateDailyProgress, saveToStackLibrary } from '@/utils/stackProgress';
 export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStackReturn => {
   const { toast } = useToast();
   const { language } = useLanguage();
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<AngerStackAnswer>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,12 +76,11 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
       // Convert answers to a format that matches the Json type
       const answersJson = JSON.parse(JSON.stringify(answers)) as Json;
       
-      const { error } = await supabase.from('anger_stack_sessions').insert({
+      const { error } = await supabase.from('anger_stack_sessions').upsert({
         session_id: sessionId,
-        step_number: questionIndex,
-        question: rawQuestions[questionIndex],
-        answer: answer,
+        user_id: user?.id,
         answers: answersJson,
+        completed: false
       });
 
       if (error) {
@@ -186,12 +187,11 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
       // Convert answers to a format that matches the Json type
       const answersJson = JSON.parse(JSON.stringify(answers)) as Json;
       
-      supabase.from('anger_stack_sessions').insert({
+      supabase.from('anger_stack_sessions').upsert({
         session_id: sessionId,
-        step_number: rawQuestions.length,
-        question: "COMPLETE",
-        answer: "Session completed",
+        user_id: user?.id,
         answers: answersJson,
+        completed: true
       }).then(({ error }) => {
         if (error) {
           console.error("Error saving complete session to Supabase:", error);
