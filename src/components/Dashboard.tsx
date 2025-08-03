@@ -446,7 +446,7 @@ export const Dashboard: React.FC = () => {
   const coreToDaily = hasStack ? coreProgress : 0;
   const dailyToDoor = hasStack && coreProgress > 0 ? dailyProgress : 0;
 
-  return <div className="container mx-auto py-8 px-4 bg-gradient-to-b from-[#0B0D17] to-[#111827]">
+  return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4 bg-gradient-to-b from-[#0B0D17] to-[#111827]">
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
           <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
           <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 animate-pulse"></div>
@@ -467,8 +467,8 @@ export const Dashboard: React.FC = () => {
             </div>)}
         </div>}
       
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+      <div className="flex justify-between items-center mb-4 md:mb-6">
+        <h1 className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
           {language === 'en' ? 'My Daily' : 'Zilnica mea'}
         </h1>
         
@@ -476,28 +476,28 @@ export const Dashboard: React.FC = () => {
       
       <QuoteDisplay appName="GODDESS" />
       
-      <div className="mb-8 bg-[#1A1F2C] p-4 rounded-lg">
-        <h2 className="text-lg font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+      <div className="mb-6 md:mb-8 bg-[#1A1F2C] p-3 md:p-4 rounded-lg">
+        <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
           {language === 'en' ? 'Goddess Journey' : 'Călătoria Zeitei'}
         </h2>
         <div className="flex items-center justify-between">
           <div className="flex flex-col items-center z-10 relative">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative
+            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
             ${hasStack ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-gray-600 bg-gray-800/50 text-gray-400'}`} style={{
-            border: hasStack ? '4px solid #22c55e' : '4px solid rgba(75, 85, 99, 0.6)',
+            border: hasStack ? '3px solid #22c55e' : '3px solid rgba(75, 85, 99, 0.6)',
             boxShadow: hasStack ? '0 0 15px rgba(34, 197, 94, 0.5)' : 'none'
           }}>
               {hasStack ? <>
-                  <Book className="w-8 h-8" />
-                  <Check className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white rounded-full p-1" />
+                  <Book className="w-5 h-5 md:w-8 md:h-8" />
+                  <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 text-white rounded-full p-1" />
                 </> : <Button className="absolute inset-0 m-auto rounded-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-800 text-white text-xs flex items-center justify-center" style={{
-              width: 'calc(100% - 8px)',
-              height: 'calc(100% - 8px)'
+              width: 'calc(100% - 6px)',
+              height: 'calc(100% - 6px)'
             }} onClick={() => navigateTo('/stack')}>
                   {language === 'en' ? 'START' : 'START'}
                 </Button>}
             </div>
-            <span className="mt-2 text-xs text-center text-gray-300">STACK</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">STACK</span>
           </div>
           
           <div className="flex-grow mx-2 relative">
@@ -509,22 +509,22 @@ export const Dashboard: React.FC = () => {
           </div>
           
           <div className="flex flex-col items-center z-10">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative
+            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
             ${hasCompletedCore ? 'bg-blue-500/20 text-blue-400' : hasStack ? 'bg-blue-800/20 text-blue-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
-            border: '4px solid transparent',
+            border: '3px solid transparent',
             backgroundClip: 'padding-box',
             boxShadow: hasCompletedCore ? '0 0 15px rgba(59, 130, 246, 0.5)' : 'none',
             position: 'relative'
           }}>
               {/* The circular progress track */}
-              <div className="absolute inset-[-4px] rounded-full z-0" style={{
+              <div className="absolute inset-[-3px] rounded-full z-0" style={{
               background: hasStack ? `conic-gradient(#3b82f6 ${coreProgress}%, rgba(75, 85, 99, 0.6) 0%)` : 'rgba(75, 85, 99, 0.6)',
               clipPath: 'circle(50%)'
             }}></div>
-              <Activity className="w-8 h-8 relative z-10" />
-              {hasCompletedCore && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 text-white rounded-full p-1 z-20" />}
+              <Activity className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
+              {hasCompletedCore && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-blue-500 text-white rounded-full p-1 z-20" />}
             </div>
-            <span className="mt-2 text-xs text-center text-gray-300">CORE</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">CORE</span>
           </div>
           
           <div className="flex-grow mx-2 relative">
@@ -536,21 +536,21 @@ export const Dashboard: React.FC = () => {
           </div>
           
           <div className="flex flex-col items-center z-10">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative
+            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
             ${hasCompletedDailyFour ? 'bg-purple-500/20 text-purple-400' : hasCompletedCore ? 'bg-purple-800/20 text-purple-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
-            border: '4px solid transparent',
+            border: '3px solid transparent',
             backgroundClip: 'padding-box',
             boxShadow: hasCompletedDailyFour ? '0 0 15px rgba(168, 85, 247, 0.5)' : 'none'
           }}>
               {/* The circular progress track */}
-              <div className="absolute inset-[-4px] rounded-full z-0" style={{
+              <div className="absolute inset-[-3px] rounded-full z-0" style={{
               background: coreProgress > 0 ? `conic-gradient(#a855f7 ${dailyProgress}%, rgba(75, 85, 99, 0.6) 0%)` : 'rgba(75, 85, 99, 0.6)',
               clipPath: 'circle(50%)'
             }}></div>
-              <Video className="w-8 h-8 relative z-10" />
-              {hasCompletedDailyFour && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 text-white rounded-full p-1 z-20" />}
+              <Video className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
+              {hasCompletedDailyFour && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-purple-500 text-white rounded-full p-1 z-20" />}
             </div>
-            <span className="mt-2 text-xs text-center text-gray-300">DAILY</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">DAILY</span>
           </div>
           
           <div className="flex-grow mx-2 relative">
@@ -562,21 +562,21 @@ export const Dashboard: React.FC = () => {
           </div>
           
           <div className="flex flex-col items-center z-10">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative
+            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
             ${hasCompletedDoor ? 'bg-pink-500/20 text-pink-400' : hasCompletedDailyFour ? 'bg-pink-800/20 text-pink-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
-            border: '4px solid transparent',
+            border: '3px solid transparent',
             backgroundClip: 'padding-box',
             boxShadow: hasCompletedDoor ? '0 0 15px rgba(236, 72, 153, 0.5)' : 'none'
           }}>
               {/* The circular progress track */}
-              <div className="absolute inset-[-4px] rounded-full z-0" style={{
+              <div className="absolute inset-[-3px] rounded-full z-0" style={{
               background: dailyProgress > 0 ? `conic-gradient(#ec4899 ${doorProgress}%, rgba(75, 85, 99, 0.6) 0%)` : 'rgba(75, 85, 99, 0.6)',
               clipPath: 'circle(50%)'
             }}></div>
-              <ListTodo className="w-8 h-8 relative z-10" />
-              {hasCompletedDoor && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white rounded-full p-1 z-20" />}
+              <ListTodo className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
+              {hasCompletedDoor && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-pink-500 text-white rounded-full p-1 z-20" />}
             </div>
-            <span className="mt-2 text-xs text-center text-gray-300">DOOR</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">DOOR</span>
           </div>
         </div>
       </div>
@@ -602,30 +602,30 @@ export const Dashboard: React.FC = () => {
                 <h3 className="text-lg uppercase text-indigo-500 font-extrabold">{language === 'en' ? 'CORE & DAILY ACTIVITIES' : 'CORE & DAILY FOUR'}</h3>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
                 <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-blue-900/50 to-blue-800/30 p-4 rounded-lg backdrop-blur-sm">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">{language === 'en' ? 'THE CORE' : 'CORE'}</h3>
-                      <Button variant="outline" className="bg-blue-600/20 border-blue-500/50 hover:bg-blue-700/30 text-white" onClick={() => navigateTo('/core')}>
+                  <div className="bg-gradient-to-r from-blue-900/50 to-blue-800/30 p-3 md:p-4 rounded-lg backdrop-blur-sm">
+                    <div className="flex justify-between items-center mb-3 md:mb-4">
+                      <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">{language === 'en' ? 'THE CORE' : 'CORE'}</h3>
+                      <Button variant="outline" className="bg-blue-600/20 border-blue-500/50 hover:bg-blue-700/30 text-white text-xs md:text-sm" onClick={() => navigateTo('/core')}>
                         {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
                       </Button>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-1.5 md:gap-2">
                       {coreItems.map(item => {
                       const isCompleted = coreData[selectedDay]?.[item.id] || false;
                       return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
                             border ${isCompleted ? 'border-blue-400/50' : 'border-blue-900/50'} 
-                            shadow-md p-3 flex flex-col items-center justify-center cursor-pointer 
+                            shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
                             transition-colors duration-200 hover:shadow-blue-500/10`} onClick={() => handleToggleCoreActivity(item.id)}>
                             <div className="relative flex items-center justify-center">
-                              {item.icon}
+                              <Activity className="h-4 w-4 md:h-6 md:w-6 text-white" />
                               {isCompleted && <div className="absolute -top-1 -right-1">
-                                  <CheckCircle2 className="w-3 h-3 text-green-400" />
+                                  <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
                                 </div>}
                             </div>
-                            <div className="mt-2 text-xs text-center text-white font-medium">{item.title}</div>
+                            <div className="mt-1 md:mt-2 text-xs text-center text-white font-medium">{item.title}</div>
                           </Card>;
                     })}
                     </div>
@@ -633,44 +633,44 @@ export const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/30 p-4 rounded-lg backdrop-blur-sm py-[49px] my-[7px]">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">{language === 'en' ? 'DAILY FOUR' : 'DAILY FOUR'}</h3>
-                      <Button variant="outline" className="bg-purple-600/20 border-purple-500/50 hover:bg-purple-700/30 text-white" onClick={() => navigateTo('/daily-four')}>
+                  <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/30 p-3 md:p-4 rounded-lg backdrop-blur-sm">
+                    <div className="flex justify-between items-center mb-3 md:mb-4">
+                      <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">{language === 'en' ? 'DAILY FOUR' : 'DAILY FOUR'}</h3>
+                      <Button variant="outline" className="bg-purple-600/20 border-purple-500/50 hover:bg-purple-700/30 text-white text-xs md:text-sm" onClick={() => navigateTo('/daily-four')}>
                         {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
                       </Button>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-2 mb-4">
+                    <div className="grid grid-cols-2 gap-1.5 md:gap-2 mb-3 md:mb-4">
                       {dailyFourItems.map(item => {
                       const isCompleted = item.completed;
                       return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
                             border ${isCompleted ? 'border-purple-400/50' : 'border-purple-900/50'} 
-                            shadow-md p-3 flex flex-col items-center justify-center cursor-pointer
+                            shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer
                             transition-colors duration-200 hover:shadow-purple-500/10`} onClick={() => handleToggleDailyActivity(item.id)}>
                             <div className="relative flex items-center justify-center">
-                              {item.icon}
+                              <Video className="h-4 w-4 md:h-6 md:w-6 text-white" />
                               {isCompleted && <div className="absolute -top-1 -right-1">
-                                  <CheckCircle2 className="w-3 h-3 text-green-400" />
+                                  <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
                                 </div>}
                             </div>
-                            <div className="mt-2 text-xs text-center text-white font-medium">{item.title}</div>
+                            <div className="mt-1 md:mt-2 text-xs text-center text-white font-medium">{item.title}</div>
                           </Card>;
                     })}
                     </div>
                     
-                    <h3 className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-300 mb-2">{language === 'en' ? 'WEEKLY TWO' : 'WEEKLY TWO'}</h3>
-                    <div className="grid grid-cols-2 gap-2">
+                    <h3 className="text-xs md:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-300 mb-2">{language === 'en' ? 'WEEKLY TWO' : 'WEEKLY TWO'}</h3>
+                    <div className="grid grid-cols-2 gap-1.5 md:gap-2">
                       {weeklyItems.map(item => {
                       const isCompleted = item.completed;
                       return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-pink-600 to-pink-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
                             border ${isCompleted ? 'border-pink-400/50' : 'border-pink-900/50'} 
-                            shadow-md p-3 flex items-center justify-center cursor-pointer
+                            shadow-md p-2 md:p-3 flex items-center justify-center cursor-pointer
                             transition-colors duration-200 hover:shadow-pink-500/10`} onClick={() => handleToggleWeeklyActivity(item.id)}>
                             <div className="relative flex items-center justify-center">
                               <div className="text-xs text-center text-white font-medium">{item.title}</div>
                               {isCompleted && <div className="absolute -top-1 -right-1">
-                                  <CheckCircle2 className="w-3 h-3 text-green-400" />
+                                  <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
                                 </div>}
                             </div>
                           </Card>;
@@ -681,13 +681,13 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mb-6 md:mb-8">
               <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">{language === 'en' ? 'HIT LIST' : 'LISTA HIT'}</h3>
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">{language === 'en' ? 'HIT LIST' : 'LISTA HIT'}</h3>
                 </div>
                 <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-green-500/20 shadow-lg shadow-green-500/5 hover:shadow-green-500/10 transition-all duration-300">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 md:p-4">
                     <div className="space-y-2">
                       {hitList.filter(item => item.day === activeDay).length > 0 ? hitList.filter(item => item.day === activeDay).map(item => <div key={item.id} className={`flex items-center p-2 rounded-md transition-all duration-200 ${item.completed ? 'bg-green-500/10' : getPriorityColor(item.priority)}`}>
                             <Button variant="ghost" size="sm" className={`w-6 h-6 rounded-full mr-3 p-0 flex items-center justify-center ${item.completed ? 'bg-green-500 text-white' : 'bg-transparent border border-gray-400 text-gray-400'}`} onClick={() => toggleHitListItemCompletion(item.id)}>
@@ -716,26 +716,26 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
           
-          <div>
-            <h2 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-              {language === 'en' ? 'My Weekly' : 'Săptămânal'}
-            </h2>
-            
-            <div className="grid grid-cols-1 gap-6 mb-8">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-bold text-white uppercase">{language === 'en' ? 'THE SCORE' : 'SCORUL'}</h3>
-                <div className="flex-grow mx-4">
-                  <div className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 h-1 w-full rounded-full"></div>
-                </div>
-                <h3 className="text-lg font-bold text-white uppercase">{language === 'en' ? 'THE STREAKS' : 'SERIILE'}</h3>
-                <div className="flex-grow mx-4">
-                  <div className="bg-gradient-to-r from-purple-500/30 to-pink-500/30 h-1 w-full rounded-full"></div>
-                </div>
-                <h3 className="text-lg font-bold text-white uppercase">{language === 'en' ? 'THE TOTAL' : 'TOTALUL'}</h3>
-              </div>
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                {language === 'en' ? 'My Weekly' : 'Săptămânal'}
+              </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-blue-500/20 shadow-lg hover:shadow-blue-500/10 transition-all duration-300 p-4">
+              <div className="grid grid-cols-1 gap-4 md:gap-6 mb-6 md:mb-8">
+                <div className="flex justify-between items-center overflow-x-auto">
+                  <h3 className="text-sm md:text-lg font-bold text-white uppercase whitespace-nowrap">{language === 'en' ? 'THE SCORE' : 'SCORUL'}</h3>
+                  <div className="flex-grow mx-2 md:mx-4">
+                    <div className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 h-0.5 md:h-1 w-full rounded-full"></div>
+                  </div>
+                  <h3 className="text-sm md:text-lg font-bold text-white uppercase whitespace-nowrap">{language === 'en' ? 'THE STREAKS' : 'SERIILE'}</h3>
+                  <div className="flex-grow mx-2 md:mx-4">
+                    <div className="bg-gradient-to-r from-purple-500/30 to-pink-500/30 h-0.5 md:h-1 w-full rounded-full"></div>
+                  </div>
+                  <h3 className="text-sm md:text-lg font-bold text-white uppercase whitespace-nowrap">{language === 'en' ? 'THE TOTAL' : 'TOTALUL'}</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
+                  <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-blue-500/20 shadow-lg hover:shadow-blue-500/10 transition-all duration-300 p-3 md:p-4">
                   <div className="flex flex-col items-center">
                     <h3 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">
                       {coreScore + dailyFourScore + weeklyTwoScore + doorScore}
@@ -773,64 +773,64 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </Card>
                 
-                <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-purple-500/20 shadow-lg hover:shadow-purple-500/10 transition-all duration-300 p-4">
-                  <div className="grid grid-cols-4 gap-4">
+                  <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-purple-500/20 shadow-lg hover:shadow-purple-500/10 transition-all duration-300 p-3 md:p-4">
+                  <div className="grid grid-cols-4 gap-2 md:gap-4">
                     <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 border-4 border-blue-500/50 rounded-full flex items-center justify-center">
-                        <span className="text-xl font-bold text-blue-400">{streaks.stack}</span>
+                      <div className="w-10 h-10 md:w-16 md:h-16 border-2 md:border-4 border-blue-500/50 rounded-full flex items-center justify-center">
+                        <span className="text-sm md:text-xl font-bold text-blue-400">{streaks.stack}</span>
                       </div>
-                      <span className="mt-2 text-xs text-center text-gray-300">STACK</span>
+                      <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">STACK</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 border-4 border-purple-500/50 rounded-full flex items-center justify-center">
-                        <span className="text-xl font-bold text-purple-400">{streaks.core}</span>
+                      <div className="w-10 h-10 md:w-16 md:h-16 border-2 md:border-4 border-purple-500/50 rounded-full flex items-center justify-center">
+                        <span className="text-sm md:text-xl font-bold text-purple-400">{streaks.core}</span>
                       </div>
-                      <span className="mt-2 text-xs text-center text-gray-300">CORE</span>
+                      <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">CORE</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 border-4 border-pink-500/50 rounded-full flex items-center justify-center">
-                        <span className="text-xl font-bold text-pink-400">{streaks.dailyFour}</span>
+                      <div className="w-10 h-10 md:w-16 md:h-16 border-2 md:border-4 border-pink-500/50 rounded-full flex items-center justify-center">
+                        <span className="text-sm md:text-xl font-bold text-pink-400">{streaks.dailyFour}</span>
                       </div>
-                      <span className="mt-2 text-xs text-center text-gray-300">DAILY</span>
+                      <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">DAILY</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 border-4 border-green-500/50 rounded-full flex items-center justify-center">
-                        <span className="text-xl font-bold text-green-400">{streaks.door}</span>
+                      <div className="w-10 h-10 md:w-16 md:h-16 border-2 md:border-4 border-green-500/50 rounded-full flex items-center justify-center">
+                        <span className="text-sm md:text-xl font-bold text-green-400">{streaks.door}</span>
                       </div>
-                      <span className="mt-2 text-xs text-center text-gray-300">DOOR</span>
+                      <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">DOOR</span>
                     </div>
                   </div>
                 </Card>
                 
-                <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-pink-500/20 shadow-lg hover:shadow-pink-500/10 transition-all duration-300 p-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-pink-500/20 shadow-lg hover:shadow-pink-500/10 transition-all duration-300 p-3 md:p-4">
+                  <div className="grid grid-cols-2 gap-2 md:gap-4">
                     <div className="flex flex-col items-center">
-                      <div className="flex items-center space-x-3">
-                        <Circle className="w-4 h-4 text-blue-500 fill-blue-500" />
-                        <span className="text-sm text-gray-300">STACK</span>
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <Circle className="w-3 h-3 md:w-4 md:h-4 text-blue-500 fill-blue-500" />
+                        <span className="text-xs md:text-sm text-gray-300">STACK</span>
                       </div>
-                      <span className="mt-2 text-2xl font-bold text-blue-400">{totals.stack}</span>
+                      <span className="mt-1 md:mt-2 text-lg md:text-2xl font-bold text-blue-400">{totals.stack}</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="flex items-center space-x-3">
-                        <Circle className="w-4 h-4 text-purple-500 fill-purple-500" />
-                        <span className="text-sm text-gray-300">CORE</span>
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <Circle className="w-3 h-3 md:w-4 md:h-4 text-purple-500 fill-purple-500" />
+                        <span className="text-xs md:text-sm text-gray-300">CORE</span>
                       </div>
-                      <span className="mt-2 text-2xl font-bold text-purple-400">{totals.core}</span>
+                      <span className="mt-1 md:mt-2 text-lg md:text-2xl font-bold text-purple-400">{totals.core}</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="flex items-center space-x-3">
-                        <Circle className="w-4 h-4 text-amber-500 fill-amber-500" />
-                        <span className="text-sm text-gray-300">DAILY</span>
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <Circle className="w-3 h-3 md:w-4 md:h-4 text-amber-500 fill-amber-500" />
+                        <span className="text-xs md:text-sm text-gray-300">DAILY</span>
                       </div>
-                      <span className="mt-2 text-2xl font-bold text-amber-400">{totals.dailyFour}</span>
+                      <span className="mt-1 md:mt-2 text-lg md:text-2xl font-bold text-amber-400">{totals.dailyFour}</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <div className="flex items-center space-x-3">
-                        <Circle className="w-4 h-4 text-green-500 fill-green-500" />
-                        <span className="text-sm text-gray-300">DOOR</span>
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <Circle className="w-3 h-3 md:w-4 md:h-4 text-green-500 fill-green-500" />
+                        <span className="text-xs md:text-sm text-gray-300">DOOR</span>
                       </div>
-                      <span className="mt-2 text-2xl font-bold text-green-400">{totals.door}</span>
+                      <span className="mt-1 md:mt-2 text-lg md:text-2xl font-bold text-green-400">{totals.door}</span>
                     </div>
                   </div>
                 </Card>
