@@ -133,22 +133,22 @@ export const CoreContent: React.FC = () => {
   const completedActivities = getCompletedCountForSelectedDay();
   
   return (
-    <div className="container mx-auto min-h-screen rounded-lg p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="w-full max-w-full px-2 sm:px-4 md:px-6 min-h-screen rounded-lg py-4 sm:py-6">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
         <div className="flex items-center gap-2">
           <Button 
             variant="ghost" 
             size="sm"
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 text-xs sm:text-sm"
             onClick={handleNavigateToDashboard}
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
             {t('dashboard')}
           </Button>
-          <h1 className="text-2xl font-bold uppercase">{t('core')}</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold uppercase">{t('core')}</h1>
         </div>
         <Button 
-          className="bg-warrior-accent hover:bg-warrior-accent/90 text-white"
+          className="bg-warrior-accent hover:bg-warrior-accent/90 text-white text-xs sm:text-sm px-2 sm:px-4"
           onClick={handleNavigateToDashboard}
         >
           {t('dashboard')}
@@ -190,9 +190,9 @@ export const CoreContent: React.FC = () => {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-7 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
         <div className="md:col-span-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
             {[
               { category: 'body', items: baseActivities.filter(a => a.category === 'body') },
               { category: 'being', items: baseActivities.filter(a => a.category === 'being') },
@@ -205,15 +205,15 @@ export const CoreContent: React.FC = () => {
                   return (
                     <Button
                       key={activity.id}
-                      className={`h-24 text-lg font-bold flex items-center justify-center gap-2 ${
+                      className={`h-16 sm:h-20 md:h-24 text-xs sm:text-sm md:text-lg font-bold flex items-center justify-center gap-1 sm:gap-2 ${
                         isCompleted 
                           ? 'bg-blue-500 hover:bg-blue-600 text-white' 
                           : 'bg-gray-700 hover:bg-gray-600 text-white'
                       }`}
                       onClick={() => toggleActivity(activity.id)}
                     >
-                      {activity.icon}
-                      {activity.name}
+                      <span className="w-4 h-4 sm:w-5 sm:h-5">{activity.icon}</span>
+                      <span className="hidden sm:inline">{activity.name}</span>
                     </Button>
                   );
                 })}
@@ -236,7 +236,7 @@ export const CoreContent: React.FC = () => {
             <div className="relative z-10 w-full flex justify-center items-center">
               <div className="relative">
                 <div 
-                  className="absolute inset-0 rounded-full border-4 border-gray-600"
+                  className="absolute inset-0 rounded-full border-2 sm:border-4 border-gray-600"
                   style={{ 
                     width: '100%', 
                     height: '100%', 
@@ -258,12 +258,12 @@ export const CoreContent: React.FC = () => {
                   }}
                 ></div>
                 
-                <div className="human-body bg-[#222222] p-4 rounded-lg">
+                <div className="human-body bg-[#222222] p-2 sm:p-3 md:p-4 rounded-lg">
                   {bodyPose === 0 && (
                     <img 
                       src="/lovable-uploads/5d4df0ba-8e02-4eac-8993-76e703419b48.png" 
                       alt="Human body initial pose" 
-                      className="h-96 object-contain"
+                      className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
                   
@@ -271,7 +271,7 @@ export const CoreContent: React.FC = () => {
                     <img 
                       src="/lovable-uploads/a09b8a17-8046-4ed4-9af1-1bc2b170002c.png" 
                       alt="Human body pose 1" 
-                      className="h-96 object-contain"
+                      className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
                   
@@ -279,7 +279,7 @@ export const CoreContent: React.FC = () => {
                     <img 
                       src="/lovable-uploads/bcd69726-2bc4-4f9f-bf9e-20c73ceb64ce.png" 
                       alt="Human body pose 2" 
-                      className="h-96 object-contain"
+                      className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
                   
@@ -287,7 +287,7 @@ export const CoreContent: React.FC = () => {
                     <img 
                       src="/lovable-uploads/075359e4-f407-471e-9f39-3a53f3bd7793.png" 
                       alt="Human body pose 3" 
-                      className="h-96 object-contain"
+                      className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
                   
@@ -295,7 +295,7 @@ export const CoreContent: React.FC = () => {
                     <img 
                       src="/lovable-uploads/3bc032f6-0cc5-427c-b563-11ae4132cf78.png" 
                       alt="Human body pose 4" 
-                      className="h-96 object-contain"
+                      className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
                   
@@ -303,7 +303,7 @@ export const CoreContent: React.FC = () => {
                     <img 
                       src="/lovable-uploads/2b0cba15-9d96-460f-8666-82b6b2e83566.png" 
                       alt="Human body pose 5" 
-                      className="h-96 object-contain"
+                      className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
                   
@@ -311,7 +311,7 @@ export const CoreContent: React.FC = () => {
                     <img 
                       src="/lovable-uploads/7bab07ca-88e3-48e7-b4c0-befaa8178ef7.png" 
                       alt="Human body pose 6" 
-                      className="h-96 object-contain"
+                      className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
                   
@@ -319,7 +319,7 @@ export const CoreContent: React.FC = () => {
                     <img 
                       src="/lovable-uploads/ae7db7c1-bcd9-4b60-a218-392246631e24.png" 
                       alt="Human body final pose" 
-                      className="h-96 object-contain"
+                      className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
                 </div>
@@ -329,7 +329,7 @@ export const CoreContent: React.FC = () => {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {[
           { category: 'body', label: t('body'), color: 'bg-red-500' },
           { category: 'being', label: t('being'), color: 'bg-blue-500' },
@@ -341,12 +341,12 @@ export const CoreContent: React.FC = () => {
           const percentage = (completed / total) * 100;
           
           return (
-            <Card key={item.category} className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-semibold">{item.label}</h3>
-                <span className="text-sm text-gray-400">{completed}/{total}</span>
+            <Card key={item.category} className="bg-gray-800 border border-gray-700 rounded-lg p-2 sm:p-3 md:p-4">
+              <div className="flex justify-between items-center mb-1 sm:mb-2">
+                <h3 className="font-semibold text-xs sm:text-sm md:text-base">{item.label}</h3>
+                <span className="text-xs sm:text-sm text-gray-400">{completed}/{total}</span>
               </div>
-              <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-1 sm:h-2 bg-gray-700 rounded-full overflow-hidden">
                 <div 
                   className={`h-full ${item.color} transition-all duration-300`} 
                   style={{ width: `${percentage}%` }}

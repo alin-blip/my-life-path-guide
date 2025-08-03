@@ -116,7 +116,7 @@ export const LearnCourses: React.FC<LearnCoursesProps> = ({ activeCategory, acti
         </Button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         {filteredCourses.map((course) => (
           <CourseCard 
             key={course.id} 
@@ -128,7 +128,7 @@ export const LearnCourses: React.FC<LearnCoursesProps> = ({ activeCategory, acti
         ))}
         
         {filteredCourses.length === 0 && (
-          <div className="col-span-full text-center py-8 text-gray-500">
+          <div className="col-span-full text-center py-6 sm:py-8 text-gray-500 text-sm">
             {getTranslatedText(
               'noResourcesFiltered', 
               `No resources available for this ${activeCategory ? 'category and ' : ''}subcategory.`, 
@@ -222,27 +222,27 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onClick, getCourseTypeI
           </div>
         )}
       </div>
-      <CardContent className="p-4">
+      <CardContent className="p-2 sm:p-3 md:p-4">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="font-semibold text-white">{course.title}</h3>
+            <h3 className="font-semibold text-white text-sm sm:text-base">{course.title}</h3>
             {course.subTitle && (
-              <div className="flex items-center mt-1 text-xs text-white/60">
+              <div className="flex items-center mt-1 text-[10px] sm:text-xs text-white/60">
                 {getCourseTypeIcon(course.type)}
                 <span className="ml-1">{course.subTitle}</span>
               </div>
             )}
             {course.modules && course.modules.length > 0 && (
-              <div className="text-xs text-white/60 mt-1">
+              <div className="text-[10px] sm:text-xs text-white/60 mt-1">
                 {course.modules.length} module{course.modules.length !== 1 ? 's' : ''}
               </div>
             )}
           </div>
         </div>
-        <div className="mt-4">
-          <div className="w-full bg-gray-700 rounded-full h-1.5">
+        <div className="mt-3 sm:mt-4">
+          <div className="w-full bg-gray-700 rounded-full h-1 sm:h-1.5">
             <div 
-              className={`h-1.5 rounded-full ${
+              className={`h-1 sm:h-1.5 rounded-full ${
                 course.status === 'COMPLETED' ? 'bg-green-500' : 
                 course.status === 'IN PROGRESS' ? 'bg-amber-500' : 
                 'bg-blue-500'
@@ -250,7 +250,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onClick, getCourseTypeI
               style={{ width: `${course.progress}%` }}
             ></div>
           </div>
-          <div className="text-xs mt-1 text-white/60 text-right">
+          <div className="text-[10px] sm:text-xs mt-1 text-white/60 text-right">
             {course.progress}% {language === 'en' ? 'Complete' : 'Complet'}
           </div>
         </div>

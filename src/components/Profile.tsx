@@ -86,9 +86,9 @@ export const Profile: React.FC = () => {
             <CardTitle>Personal Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex flex-col items-center sm:flex-row sm:items-start gap-6">
+            <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4 sm:gap-6">
               <div className="relative group">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-muted flex items-center justify-center border border-muted/40">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-muted flex items-center justify-center border border-muted/40">
                   {profileImage ? (
                     <img 
                       src={profileImage} 
@@ -96,7 +96,7 @@ export const Profile: React.FC = () => {
                       className="w-full h-full object-cover" 
                     />
                   ) : (
-                    <User className="h-12 w-12 text-muted-foreground" />
+                    <User className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground" />
                   )}
                 </div>
                 <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -127,7 +127,7 @@ export const Profile: React.FC = () => {
               </div>
 
               <div className="flex-1 space-y-4 w-full">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <label htmlFor="firstName" className="text-sm font-medium">
                       First Name
@@ -170,7 +170,7 @@ export const Profile: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
                 <label htmlFor="birthYear" className="text-sm font-medium">
                   Birth Year

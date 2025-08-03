@@ -116,21 +116,25 @@ export const LearnDashboard: React.FC<LearnDashboardProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Main Categories */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {categories.map((category, index) => (
           <Card 
             key={index} 
             className={`overflow-hidden border-0 transition-all duration-300 hover:shadow-lg cursor-pointer ${category.bgColor} ${activeCategory === category.id ? 'ring-2 ring-white/30 shadow-lg' : ''}`}
             onClick={() => handleCardClick(category.id)}
           >
-            <CardContent className="p-4">
-              <div className="flex flex-col items-center mb-2 text-center">
-                {category.icon}
-                <h2 className="text-lg font-semibold mt-2 text-white">{category.title}</h2>
+            <CardContent className="p-2 sm:p-3 md:p-4">
+              <div className="flex flex-col items-center mb-1 sm:mb-2 text-center">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white">
+                  {React.cloneElement(category.icon as React.ReactElement, { 
+                    className: "w-full h-full text-white" 
+                  })}
+                </div>
+                <h2 className="text-sm sm:text-base md:text-lg font-semibold mt-1 sm:mt-2 text-white">{category.title}</h2>
                 {categoryCounts && categoryCounts[category.id] > 0 && (
-                  <div className="text-xs text-white/80 mt-1">
+                  <div className="text-[10px] sm:text-xs text-white/80 mt-1">
                     {language === 'en' ? `${categoryCounts[category.id]} resources` : `${categoryCounts[category.id]} resurse`}
                   </div>
                 )}
@@ -141,17 +145,21 @@ export const LearnDashboard: React.FC<LearnDashboardProps> = ({
       </div>
 
       {/* Subcategories Tabs - Always show them */}
-      <div className="mt-6 bg-gray-900 p-4 rounded-lg shadow-lg">
+      <div className="mt-4 sm:mt-6 bg-gray-900 p-2 sm:p-3 md:p-4 rounded-lg shadow-lg">
         <Tabs defaultValue="courses" value={activeSubcategory} onValueChange={handleSubcategoryChange} className="w-full">
-          <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full bg-gray-800">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 w-full bg-gray-800 gap-1">
             {subcategories.map((subcat) => (
               <TabsTrigger 
                 key={subcat.id} 
                 value={subcat.id} 
-                className="flex items-center gap-2 data-[state=active]:bg-gray-700"
+                className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-gray-700 text-xs sm:text-sm p-1 sm:p-2"
               >
-                {subcat.icon}
-                <span>{subcat.title}</span>
+                <span className="w-3 h-3 sm:w-4 sm:h-4">
+                  {React.cloneElement(subcat.icon as React.ReactElement, { 
+                    className: "w-full h-full" 
+                  })}
+                </span>
+                <span className="hidden sm:inline">{subcat.title}</span>
               </TabsTrigger>
             ))}
           </TabsList>

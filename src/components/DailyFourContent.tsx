@@ -126,22 +126,22 @@ export const DailyFourContent: React.FC = () => {
   const weeklyPercentage = getCompletedWeeklyActivities() / weeklyActivities.length * 100;
   
   return (
-    <div className="container mx-auto min-h-screen rounded-lg p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="w-full max-w-full px-2 sm:px-4 md:px-6 min-h-screen rounded-lg py-4 sm:py-6">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
         <div className="flex items-center gap-2">
           <Button 
             variant="ghost" 
             size="sm"
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 text-xs sm:text-sm"
             onClick={handleNavigateToDashboard}
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
             {t('dashboard')}
           </Button>
-          <h1 className="text-2xl font-bold uppercase">{t('dailyFour')}</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold uppercase">{t('dailyFour')}</h1>
         </div>
         <Button 
-          className="bg-warrior-accent hover:bg-warrior-accent/90 text-white"
+          className="bg-warrior-accent hover:bg-warrior-accent/90 text-white text-xs sm:text-sm px-2 sm:px-4"
           onClick={handleNavigateToDashboard}
         >
           {t('dashboard')}
@@ -183,19 +183,19 @@ export const DailyFourContent: React.FC = () => {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mb-6 sm:mb-8">
         <div>
-          <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/30 p-6 rounded-lg backdrop-blur-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">
+          <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/30 p-3 sm:p-4 md:p-6 rounded-lg backdrop-blur-sm">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">
                 {t('dailyFour')}
               </h2>
-              <div className="text-sm text-purple-300">
+              <div className="text-xs sm:text-sm text-purple-300">
                 {getCompletedDailyActivities()}/{dailyActivities.length}
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {dailyActivities.map(activity => {
                 const isCompleted = dailyFourData[selectedDay]?.dailyActivities?.find(a => a.id === activity.id)?.completed || false;
                 
@@ -205,20 +205,24 @@ export const DailyFourContent: React.FC = () => {
                     className={`
                       ${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
                       border ${isCompleted ? 'border-purple-400/50' : 'border-purple-900/50'} 
-                      shadow-md p-6 flex flex-col items-center justify-center cursor-pointer
+                      shadow-md p-3 sm:p-4 md:p-6 flex flex-col items-center justify-center cursor-pointer
                       transition-all duration-200 hover:shadow-purple-500/10
                     `}
                     onClick={() => toggleDailyActivity(activity.id)}
                   >
-                    <div className="relative mb-3">
-                      {activity.icon}
+                    <div className="relative mb-2 sm:mb-3">
+                      <span className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 block">
+                        {React.cloneElement(activity.icon as React.ReactElement, { 
+                          className: "w-full h-full" 
+                        })}
+                      </span>
                       {isCompleted && (
                         <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
-                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+                          <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
                         </div>
                       )}
                     </div>
-                    <div className="text-white font-medium">{activity.title}</div>
+                    <div className="text-white font-medium text-xs sm:text-sm">{activity.title}</div>
                   </Card>
                 );
               })}
@@ -227,17 +231,17 @@ export const DailyFourContent: React.FC = () => {
         </div>
         
         <div>
-          <div className="bg-gradient-to-r from-pink-900/50 to-pink-800/30 p-6 rounded-lg backdrop-blur-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-300">
+          <div className="bg-gradient-to-r from-pink-900/50 to-pink-800/30 p-3 sm:p-4 md:p-6 rounded-lg backdrop-blur-sm">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-300">
                 {t('weeklyTwo')}
               </h2>
-              <div className="text-sm text-pink-300">
+              <div className="text-xs sm:text-sm text-pink-300">
                 {getCompletedWeeklyActivities()}/{weeklyActivities.length}
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {weeklyActivities.map(activity => {
                 const isCompleted = dailyFourData[selectedDay]?.weeklyActivities?.find(a => a.id === activity.id)?.completed || false;
                 
@@ -247,20 +251,24 @@ export const DailyFourContent: React.FC = () => {
                     className={`
                       ${isCompleted ? 'bg-gradient-to-br from-pink-600 to-pink-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
                       border ${isCompleted ? 'border-pink-400/50' : 'border-pink-900/50'} 
-                      shadow-md p-6 flex flex-col items-center justify-center cursor-pointer
+                      shadow-md p-3 sm:p-4 md:p-6 flex flex-col items-center justify-center cursor-pointer
                       transition-all duration-200 hover:shadow-pink-500/10
                     `}
                     onClick={() => toggleWeeklyActivity(activity.id)}
                   >
-                    <div className="relative mb-3">
-                      {activity.icon}
+                    <div className="relative mb-2 sm:mb-3">
+                      <span className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 block">
+                        {React.cloneElement(activity.icon as React.ReactElement, { 
+                          className: "w-full h-full" 
+                        })}
+                      </span>
                       {isCompleted && (
                         <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
-                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+                          <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
                         </div>
                       )}
                     </div>
-                    <div className="text-white font-medium">{activity.title}</div>
+                    <div className="text-white font-medium text-xs sm:text-sm">{activity.title}</div>
                   </Card>
                 );
               })}
@@ -269,14 +277,14 @@ export const DailyFourContent: React.FC = () => {
         </div>
       </div>
       
-      <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-bold mb-4">{t('explanation')}</h3>
-        <p className="text-gray-300 mb-3">
+      <div className="bg-gray-800 p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
+        <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">{t('explanation')}</h3>
+        <p className="text-gray-300 mb-2 sm:mb-3 text-sm sm:text-base">
           {language === 'en' 
             ? 'Daily Four is a system designed to help you create and share content consistently in four different formats.'
             : 'Daily Four este un sistem conceput pentru a te ajuta să creezi și să împărtășești conținut în mod consecvent în patru formate diferite.'}
         </p>
-        <p className="text-gray-300">
+        <p className="text-gray-300 text-sm sm:text-base">
           {language === 'en'
             ? 'Complete the four daily activities and two weekly activities to maximize your impact and reach your audience through multiple mediums.'
             : 'Completează cele patru activități zilnice și două activități săptămânale pentru a-ți maximiza impactul și a-ți atinge audiența prin multiple mijloace.'}
