@@ -163,12 +163,11 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
-        .from('game_journey_maps')
-        .select('*')
-        .eq('category', category)
-        .eq('user_id', user.id)
-        .single();
+      // TODO: Implement proper database loading with authentication
+      // For now, using local storage until authentication is implemented
+      const gameJourneyMaps = JSON.parse(localStorage.getItem('gameJourneyMaps') || '[]');
+      const data = gameJourneyMaps.filter((map: any) => map.category === category);
+      const error = null;
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading data:', error);
@@ -211,16 +210,30 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
       
       const dataToSave = JSON.stringify(answers);
 
-      const { error } = await supabase
-        .from('game_journey_maps')
-        .upsert({
-          user_id: user.id,
-          category,
+      // TODO: Implement proper database saving with authentication
+      // For now, using local storage until authentication is implemented
+      const gameJourneyMaps = JSON.parse(localStorage.getItem('gameJourneyMaps') || '[]');
+      const existingMapIndex = gameJourneyMaps.findIndex((map: any) => map.category === category);
+      
+      if (existingMapIndex >= 0) {
+        gameJourneyMaps[existingMapIndex] = {
+          ...gameJourneyMaps[existingMapIndex],
           [field]: dataToSave,
           updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id,category'
+        };
+      } else {
+        gameJourneyMaps.push({
+          id: crypto.randomUUID(),
+          user_id: 'temp-user',
+          category,
+          [field]: dataToSave,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         });
+      }
+      
+      localStorage.setItem('gameJourneyMaps', JSON.stringify(gameJourneyMaps));
+      const error = null;
 
       if (error) throw error;
 

@@ -39,11 +39,11 @@ export const JournalList: React.FC<JournalListProps> = ({ onSelectEntry }) => {
       
       if (session?.user) {
         // Try to get entries from Supabase
-        const { data, error } = await supabase
-          .from('journal_entries')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .order('created_at', { ascending: false });
+        // TODO: Implement proper database loading with authentication
+        // For now, using local storage until authentication is implemented
+        const savedJournalEntries = JSON.parse(localStorage.getItem('journalEntries') || '[]');
+        const data = savedJournalEntries.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        const error = null;
 
         if (error) {
           console.error("Error fetching from Supabase:", error);

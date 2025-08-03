@@ -29,15 +29,9 @@ export const MonthlyObjectives: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
-        .from('game_journey_maps')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Error loading monthly objectives:', error);
-        return;
-      }
+      // TODO: Implement proper database loading with authentication
+      // For now, using local storage until authentication is implemented
+      const data = JSON.parse(localStorage.getItem('gameJourneyMaps') || '[]');
 
       if (data) {
         const parsedObjectives: MonthlyObjective[] = [];

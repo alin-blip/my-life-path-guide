@@ -114,30 +114,19 @@ export const Dashboard: React.FC = () => {
         // Get today's date in ISO format (YYYY-MM-DD)
         const today = new Date().toISOString().split('T')[0];
         
-        // Fetch today's progress
-        const { data: progressData, error: progressError } = await supabase
-          .from('user_progress')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('date', today)
-          .maybeSingle();
+        // TODO: Implement proper user progress tracking with authentication
+        // For now, using local storage until authentication is implemented
+        const progressKey = `userProgress_${today}`;
+        const savedProgress = localStorage.getItem(progressKey);
+        const progressData = savedProgress ? JSON.parse(savedProgress) : null;
+        setUserProgressData(progressData);
         
-        if (progressError) {
-          console.error('Error fetching user progress:', progressError);
-        } else {
-          console.log('Fetched user progress:', progressData);
-          setUserProgressData(progressData);
-        }
+        // TODO: Implement proper user statistics tracking
+        const statsKey = 'userStatistics';
+        const savedStats = localStorage.getItem(statsKey);
+        const statsData = savedStats ? JSON.parse(savedStats) : null;
         
-        // Fetch all-time statistics
-        const { data: statsData, error: statsError } = await supabase
-          .from('user_statistics')
-          .select('*')
-          .eq('user_id', userId)
-          .maybeSingle();
-        
-        if (statsError) {
-          console.error('Error fetching user statistics:', statsError);
+        if (statsData) {
         } else {
           console.log('Fetched user statistics:', statsData);
           setUserStatistics(statsData);

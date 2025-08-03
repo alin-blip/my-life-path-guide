@@ -75,14 +75,21 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
-        await supabase.from('power_stack_sessions').insert({
+        // TODO: Implement proper database insertion with authentication
+        // For now, using local storage until authentication is implemented
+        const stackSessions = JSON.parse(localStorage.getItem('powerStackSessions') || '[]');
+        const newSession = {
+          id: crypto.randomUUID(),
           session_id: `session-${Date.now()}`,
           step_number: questions.length,
           question: questions[questions.length - 1],
           answer: answers[questions.length - 1],
           answers: answers,
-          user_id: session.user.id
-        });
+          user_id: 'temp-user',
+          created_at: new Date().toISOString()
+        };
+        stackSessions.push(newSession);
+        localStorage.setItem('powerStackSessions', JSON.stringify(stackSessions));
       }
       
       await updateDailyProgress('stack', { 

@@ -702,13 +702,11 @@ export const FactMapSimplified: React.FC<FactMapProps> = ({ category }) => {
     const loadFoundationMap = async () => {
       if (category !== "body") return;
 
-      const { data, error } = await supabase
-        .from('fact_maps')
-        .select('*')
-        .eq('category', 'foundation')
-        .order('created_at', { ascending: false });
-
-      if (error) { console.error('Error loading foundation:', error); return; }
+      // TODO: Implement proper database loading with authentication
+      // For now, using local storage until authentication is implemented
+      const savedMaps = localStorage.getItem('factMaps');
+      const data = savedMaps ? JSON.parse(savedMaps).filter((m: any) => m.category === 'foundation') : [];
+      
       if (!data || data.length === 0) return;
 
       const foundation = data.find((m: any) => {
@@ -804,45 +802,58 @@ export const FactMapSimplified: React.FC<FactMapProps> = ({ category }) => {
     }];
 
     if (!foundationId) {
-      const { data, error } = await supabase.from('fact_maps').insert([{
+      // TODO: Implement proper database insertion with authentication
+      // For now, using local storage until authentication is implemented
+      const newFoundation = {
+        id: crypto.randomUUID(),
         category: 'foundation',
         title: language === 'en' ? 'Body Foundation' : 'Baza Corpului',
         items: resultItems,
-      }]).select();
-
-      if (error) { console.error('Error creating:', error); return; }
-      if (data && data[0]) {
-        setFoundationId(data[0].id);
-        setBodyCreatedAt(new Date(data[0].created_at).toLocaleString());
-        setBodyUpdatedAt(new Date(data[0].updated_at).toLocaleString());
-      }
+        user_id: 'temp-user',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      const existingMaps = JSON.parse(localStorage.getItem('factMaps') || '[]');
+      localStorage.setItem('factMaps', JSON.stringify([...existingMaps, newFoundation]));
+      
+      setFoundationId(newFoundation.id);
+      setBodyCreatedAt(new Date(newFoundation.created_at).toLocaleString());
+      setBodyUpdatedAt(new Date(newFoundation.updated_at).toLocaleString());
     } else {
-      const { data, error } = await supabase
-        .from('fact_maps')
-        .update({ items: resultItems, updated_at: now })
-        .eq('id', foundationId)
-        .select();
-      if (error) { console.error('Error updating:', error); return; }
-      if (data && data[0]) setBodyUpdatedAt(new Date(data[0].updated_at).toLocaleString());
+      // TODO: Implement proper database updating with authentication
+      // For now, using local storage until authentication is implemented
+      const existingMaps = JSON.parse(localStorage.getItem('factMaps') || '[]');
+      const updatedMaps = existingMaps.map((map: any) => 
+        map.id === foundationId ? { ...map, items: resultItems, updated_at: now } : map
+      );
+      localStorage.setItem('factMaps', JSON.stringify(updatedMaps));
+      setBodyUpdatedAt(new Date(now).toLocaleString());
     }
     setBodyEditing(false);
 
     const userId = null;
-    const { data: missionData } = await supabase
-      .from('monthly_missions')
-      .select('*')
-      .eq('category', 'body')
-      .eq('is_impossible_game', false);
+    // TODO: Implement proper database operations with authentication
+    // For now, using local storage until authentication is implemented
+    const existingMissions = JSON.parse(localStorage.getItem('monthlyMissions') || '[]');
+    const missionData = existingMissions.filter((mission: any) => 
+      mission.category === 'body' && !mission.is_impossible_game
+    );
 
     if (!missionData || missionData.length === 0) {
-      await supabase.from('monthly_missions').insert([{
+      const newMission = {
+        id: crypto.randomUUID(),
         category: 'body',
         name: language === 'en' ? 'Monthly Mission (Body)' : 'Misiunea Lunii (Corp)',
+        user_id: 'temp-user',
         start_date: now.slice(0,10),
         end_date: new Date(Date.now() + 2629800000).toISOString().slice(0,10),
         is_impossible_game: false,
         questions: resultItems[0].answers,
-      }]);
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      localStorage.setItem('monthlyMissions', JSON.stringify([...existingMissions, newMission]));
     }
   };
 
