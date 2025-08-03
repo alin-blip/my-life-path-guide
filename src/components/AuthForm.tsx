@@ -167,13 +167,13 @@ export const AuthForm: React.FC = () => {
     <div className="w-full max-w-md mx-auto">
       <div className="mb-8 text-center">
         <div className="inline-flex items-center justify-center mb-4">
-          <div className="bg-warrior-accent rounded-md p-2">
-            <span className="font-display font-bold text-white text-xl">H</span>
+          <div className="bg-feminine-primary rounded-md p-2">
+            <span className="font-display font-bold text-white text-xl">🌙</span>
           </div>
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">
-          {mode === AuthMode.LOGIN && (language === 'en' ? "WELCOME BACK" : "BINE AI REVENIT")}
-          {mode === AuthMode.REGISTER && (language === 'en' ? "JOIN HAVE IT ALL" : "ALĂTURĂ-TE HAVE IT ALL")}
+          {mode === AuthMode.LOGIN && (language === 'en' ? "WELCOME BACK GODDESS" : "BINE AI REVENIT ZEIȚĂ")}
+          {mode === AuthMode.REGISTER && (language === 'en' ? "JOIN YOUR DIVINE SISTERHOOD" : "ALĂTURĂ-TE SORORITĂȚII DIVINE")}
           {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "RESET PASSWORD" : "RESETEAZĂ PAROLA")}
         </h1>
         <p className="text-muted-foreground">
@@ -285,7 +285,7 @@ export const AuthForm: React.FC = () => {
 
         <Button
           type="submit"
-          className="w-full bg-warrior-accent hover:bg-warrior-accent-hover"
+          className="w-full bg-feminine-primary hover:bg-feminine-primary/90"
           disabled={isLoading || rateLimitCount >= MAX_RATE_LIMIT}
         >
           {isLoading ? (
@@ -310,7 +310,7 @@ export const AuthForm: React.FC = () => {
               className="text-sm text-muted-foreground hover:text-white"
             >
               {language === 'en' ? "Don't have an account? " : "Nu ai cont? "}
-              <span className="text-warrior-accent">
+              <span className="text-feminine-primary">
                 {language === 'en' ? "Create one" : "Creează unul"}
               </span>
             </button>
@@ -321,7 +321,7 @@ export const AuthForm: React.FC = () => {
               className="text-sm text-muted-foreground hover:text-white"
             >
               {language === 'en' ? "Already have an account? " : "Ai deja cont? "}
-              <span className="text-warrior-accent">
+              <span className="text-feminine-primary">
                 {language === 'en' ? "Sign in" : "Autentifică-te"}
               </span>
             </button>

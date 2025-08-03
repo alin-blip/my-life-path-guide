@@ -23,7 +23,7 @@ export const Dashboard: React.FC = () => {
     language,
     t
   } = useLanguage();
-  const [activeTab, setActiveTab] = useState<string>("warrior-tools");
+  const [activeTab, setActiveTab] = useState<string>("goddess-tools");
   const [activeLearnCategory, setActiveLearnCategory] = useState<string | null>(null);
   const [activeLearnSubcategory, setActiveLearnSubcategory] = useState<string>("courses");
   const navigate = useNavigate();
@@ -485,11 +485,11 @@ export const Dashboard: React.FC = () => {
         
       </div>
       
-      <QuoteDisplay appName="WARRIOR" />
+      <QuoteDisplay appName="GODDESS" />
       
       <div className="mb-8 bg-[#1A1F2C] p-4 rounded-lg">
         <h2 className="text-lg font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-          {language === 'en' ? 'Warrior Journey' : 'Călătoria Războinicului'}
+          {language === 'en' ? 'Goddess Journey' : 'Călătoria Zeitei'}
         </h2>
         <div className="flex items-center justify-between">
           <div className="flex flex-col items-center z-10 relative">
@@ -594,15 +594,15 @@ export const Dashboard: React.FC = () => {
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 bg-[#1A1F2C]">
-          <TabsTrigger value="warrior-tools" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600">
-            {language === 'en' ? 'Warrior Tools' : 'Unelte Warrior'}
+          <TabsTrigger value="goddess-tools" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-feminine-primary data-[state=active]:to-feminine-purple">
+            {language === 'en' ? 'Goddess Tools' : 'Unelte Zeițe'}
           </TabsTrigger>
           <TabsTrigger value="courses" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600">
             {language === 'en' ? 'Courses' : 'Cursuri'}
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="warrior-tools" className="space-y-6">
+        <TabsContent value="goddess-tools" className="space-y-6">
           <div className="mb-8">
             
             

@@ -28,6 +28,10 @@ import Profile from "./pages/Profile";
 import Fitness from "./pages/Fitness";
 import GeneralsTent from "./pages/GeneralsTent";
 import NotFound from "./pages/NotFound";
+import { Settings } from "./pages/Settings";
+import { Support } from "./pages/Support";
+import { Notes } from "./pages/Notes";
+import { Library } from "./pages/Library";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +119,26 @@ const App = () => (
                     </ProtectedRoute>
                   } />
                   <Route path="/library" element={
+                    <ProtectedRoute>
+                      <Library />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/settings" element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/support" element={
+                    <ProtectedRoute>
+                      <Support />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/notes" element={
+                    <ProtectedRoute>
+                      <Notes />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/generals-tent" element={
                     <ProtectedRoute>
                       <GeneralsTent />
                     </ProtectedRoute>

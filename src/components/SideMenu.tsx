@@ -59,43 +59,43 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed }) => {
     { title: 'My Daily', icon: Home, path: '/dashboard' },
     { title: 'Learn', icon: BookOpen, path: '/learn' },
     { 
-      title: 'Introspecție', 
+      title: 'Sacred Rituals', 
       icon: Layers, 
       path: '/stack',
       subItems: [
-        { title: 'Stack de Furie', icon: Angry, path: '/stack?type=anger' },
-        { title: 'Stack de Rugăciune', icon: Heart, path: '/stack?type=divine-prayer' },
-        { title: 'Stack de Deblocare', icon: Headphones, path: '/stack?type=ai-live' },
-        { title: 'Jurnal', icon: Pencil, path: '/journal' },
+        { title: 'Fire Goddess Ritual', icon: Angry, path: '/stack?type=anger' },
+        { title: 'Moon Goddess Communion', icon: Heart, path: '/stack?type=divine-prayer' },
+        { title: 'Inner Wisdom Oracle', icon: Headphones, path: '/stack?type=ai-live' },
+        { title: 'Sacred Journal', icon: Pencil, path: '/journal' },
       ]
     },
-    { title: 'Core 4', icon: Box, path: '/core', hidden: true },
-    { title: 'Daily 4', icon: Clock, path: '/daily-four', hidden: true },
-    { title: 'To do list', icon: Flag, path: '/door' },
-    { title: 'Obiective', icon: Target, path: '/game' },
+    { title: 'Sacred Circle', icon: Box, path: '/core', hidden: true },
+    { title: 'Divine 4', icon: Clock, path: '/daily-four', hidden: true },
+    { title: 'Sacred Gateway', icon: Flag, path: '/door' },
+    { title: 'Divine Missions', icon: Target, path: '/game' },
     { 
-      title: 'Community', 
+      title: 'Sacred Sisterhood', 
       icon: UsersRound, 
       path: '/chat', 
       subItems: [
-        { title: 'Chat', icon: MessageSquare, path: '/chat' },
-        { title: 'Tribe', icon: Users, path: '/tribe' },
+        { title: 'Sacred Chat', icon: MessageSquare, path: '/chat' },
+        { title: 'Divine Circle', icon: Users, path: '/tribe' },
       ] 
     },
-    { title: 'Notes', icon: FileText, path: '/notes' },
-    { title: 'Library', icon: BookOpenIcon, path: '/library' },
+    { title: 'Sacred Notes', icon: FileText, path: '/notes' },
+    { title: 'Sacred Library', icon: BookOpenIcon, path: '/library' },
     { title: 'Admin', icon: Shield, path: '/admin' },
   ];
 
   return (
-    <div className="h-full bg-warrior-DEFAULT border-r border-warrior-muted/20 flex flex-col overflow-hidden">
-      <div className="p-4 border-b border-warrior-muted/20">
+    <div className="h-full bg-background border-r border-feminine-primary/20 flex flex-col overflow-hidden">
+      <div className="p-4 border-b border-feminine-primary/20">
         <div className="flex items-center justify-center md:justify-start gap-3">
-          <div className="bg-warrior-accent rounded-md p-1.5">
-            <span className="font-display font-bold text-white text-sm">H</span>
+          <div className="bg-feminine-primary rounded-md p-1.5">
+            <span className="font-display font-bold text-white text-sm">🌙</span>
           </div>
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-lg text-white">HAVE IT ALL</h1>
+            <h1 className="font-display font-bold text-lg text-white">UNLEASH YOUR FEMININE POWER</h1>
           )}
         </div>
       </div>
@@ -166,12 +166,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed }) => {
                       <span className="text-sm">{item.title}</span>
                     )}
                     {!isCollapsed && item.notification && (
-                      <div className="ml-auto bg-warrior-accent text-white text-xs py-0.5 px-1.5 rounded-full">
+                      <div className="ml-auto bg-feminine-primary text-white text-xs py-0.5 px-1.5 rounded-full">
                         {item.notification > 99 ? '99+' : item.notification}
                       </div>
                     )}
                     {isCollapsed && item.notification && (
-                      <div className="absolute top-0 right-0 bg-warrior-accent w-2 h-2 rounded-full"></div>
+                      <div className="absolute top-0 right-0 bg-feminine-primary w-2 h-2 rounded-full"></div>
                     )}
                   </Link>
                 )}
@@ -181,7 +181,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed }) => {
         </nav>
       </div>
       
-      <div className="p-2 border-t border-warrior-muted/20">
+      <div className="p-2 border-t border-feminine-primary/20">
         <Link to="/settings" className={`sidebar-item ${currentPath === '/settings' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <Settings className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
           {!isCollapsed && <span className="text-sm">Settings</span>}
