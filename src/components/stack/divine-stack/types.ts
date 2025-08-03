@@ -45,6 +45,6 @@ export interface UseDivinePrayerStackReturn {
   };
   utils: {
     getCurrentQuestion: () => string;
-    getDivineSummary: () => React.JSX.Element;
+    getDivineSummary: () => JSX.Element;
   };
 }
