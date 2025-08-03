@@ -6,11 +6,14 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
 import { MissionCategory } from '@/types/mission';
 import { ObjectivesForm } from './ObjectivesForm';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type ObjectiveType = 'current' | 'monthly' | 'annual';
 
 export const ObjectivesContent = () => {
   const { language } = useLanguage();
+  const isMobile = useIsMobile();
   const [activeCategory, setActiveCategory] = useState<MissionCategory>('body');
   const [activeObjective, setActiveObjective] = useState<ObjectiveType | null>(null);
 
@@ -82,59 +85,94 @@ export const ObjectivesContent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0c1023] to-[#1a2242] text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">
+    <div className="min-h-screen bg-gradient-to-b from-[#0c1023] to-[#1a2242] text-white">
+      <div className={`${isMobile ? 'px-3 py-4' : 'p-6'} max-w-4xl mx-auto`}>
+        <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-center mb-6`}>
           {language === 'en' ? 'Objectives' : 'Obiective'}
         </h1>
 
         {/* Category Selection */}
         <Tabs 
           defaultValue="body" 
-          className="w-full mb-8"
+          className="w-full mb-6"
           onValueChange={(value) => setActiveCategory(value as MissionCategory)}
         >
-          <TabsList className="grid grid-cols-4 max-w-2xl mx-auto bg-slate-800">
-            <TabsTrigger value="body" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
-              {getCategoryName('body')}
-            </TabsTrigger>
-            <TabsTrigger value="being" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-              {getCategoryName('being')}
-            </TabsTrigger>
-            <TabsTrigger value="balance" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
-              {getCategoryName('balance')}
-            </TabsTrigger>
-            <TabsTrigger value="business" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-              {getCategoryName('business')}
-            </TabsTrigger>
-          </TabsList>
+          {isMobile ? (
+            // Mobile: Horizontal scrollable tabs
+            <div className="w-full mb-6">
+              <ScrollArea className="w-full whitespace-nowrap">
+                <TabsList className="flex w-max space-x-2 bg-slate-800 p-2">
+                  <TabsTrigger 
+                    value="body" 
+                    className="data-[state=active]:bg-red-600 data-[state=active]:text-white px-4 py-2 text-sm"
+                  >
+                    {getCategoryName('body')}
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="being" 
+                    className="data-[state=active]:bg-blue-600 data-[state=active]:text-white px-4 py-2 text-sm"
+                  >
+                    {getCategoryName('being')}
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="balance" 
+                    className="data-[state=active]:bg-green-600 data-[state=active]:text-white px-4 py-2 text-sm"
+                  >
+                    {getCategoryName('balance')}
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="business" 
+                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white px-4 py-2 text-sm"
+                  >
+                    {getCategoryName('business')}
+                  </TabsTrigger>
+                </TabsList>
+              </ScrollArea>
+            </div>
+          ) : (
+            // Desktop: Grid layout
+            <TabsList className="grid grid-cols-4 max-w-2xl mx-auto bg-slate-800">
+              <TabsTrigger value="body" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
+                {getCategoryName('body')}
+              </TabsTrigger>
+              <TabsTrigger value="being" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                {getCategoryName('being')}
+              </TabsTrigger>
+              <TabsTrigger value="balance" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
+                {getCategoryName('balance')}
+              </TabsTrigger>
+              <TabsTrigger value="business" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                {getCategoryName('business')}
+              </TabsTrigger>
+            </TabsList>
+          )}
 
-          <TabsContent value={activeCategory} className="mt-8">
-            <div className={`p-6 bg-gradient-to-r ${categoryColors[activeCategory]} rounded-lg mb-8`}>
-              <h2 className="text-2xl font-bold text-center">
+          <TabsContent value={activeCategory} className="mt-6">
+            <div className={`${isMobile ? 'p-4' : 'p-6'} bg-gradient-to-r ${categoryColors[activeCategory]} rounded-lg mb-6`}>
+              <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-center`}>
                 {getCategoryName(activeCategory)}
               </h2>
             </div>
 
             {/* Three Main Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-3 gap-6'}`}>
               {(['current', 'monthly', 'annual'] as ObjectiveType[]).map((type) => (
                 <Card 
                   key={type}
                   className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/80 transition-colors cursor-pointer"
                   onClick={() => setActiveObjective(type)}
                 >
-                  <CardHeader>
-                    <CardTitle className="text-white text-center">
+                  <CardHeader className={isMobile ? 'pb-3' : ''}>
+                    <CardTitle className={`text-white text-center ${isMobile ? 'text-lg' : ''}`}>
                       {getObjectiveTitle(type)}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-gray-300 mb-4">
+                  <CardContent className={`text-center ${isMobile ? 'pt-0' : ''}`}>
+                    <p className={`text-gray-300 mb-4 ${isMobile ? 'text-sm' : ''}`}>
                       {getObjectiveDescription(type)}
                     </p>
                     <Button 
-                      className="w-full"
+                      className={`w-full ${isMobile ? 'h-10 text-sm' : ''}`}
                       variant="outline"
                       onClick={(e) => {
                         e.stopPropagation();

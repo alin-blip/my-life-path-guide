@@ -31,6 +31,7 @@ import {
 
 interface SideMenuProps {
   isCollapsed: boolean;
+  onItemClick?: () => void;
 }
 
 interface MenuItem {
@@ -42,7 +43,7 @@ interface MenuItem {
   hidden?: boolean;
 }
 
-export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed }) => {
+export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['community', 'introspecție']);
@@ -119,7 +120,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed }) => {
                         }
                       }}
                     >
-                      <Link to={item.path} className="flex items-center w-full">
+                      <Link to={item.path} className="flex items-center w-full" onClick={onItemClick}>
                         <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
                         {!isCollapsed && (
                           <>
@@ -142,6 +143,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed }) => {
                           <li key={subItem.path}>
                             <Link
                               to={subItem.path}
+                              onClick={onItemClick}
                               className={`sidebar-item ${
                                 currentPath === subItem.path ? 'active' : ''
                               }`}
@@ -157,6 +159,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed }) => {
                 ) : (
                   <Link
                     to={item.path}
+                    onClick={onItemClick}
                     className={`sidebar-item ${currentPath === item.path ? 'active' : ''} ${
                       isCollapsed ? 'justify-center' : ''
                     }`}
@@ -182,11 +185,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed }) => {
       </div>
       
       <div className="p-2 border-t border-feminine-primary/20">
-        <Link to="/settings" className={`sidebar-item ${currentPath === '/settings' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
+        <Link to="/settings" onClick={onItemClick} className={`sidebar-item ${currentPath === '/settings' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <Settings className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
           {!isCollapsed && <span className="text-sm">Settings</span>}
         </Link>
-        <Link to="/support" className={`sidebar-item mt-1 ${currentPath === '/support' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
+        <Link to="/support" onClick={onItemClick} className={`sidebar-item mt-1 ${currentPath === '/support' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <HelpCircle className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
           {!isCollapsed && <span className="text-sm">Support</span>}
         </Link>
