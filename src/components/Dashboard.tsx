@@ -576,7 +576,7 @@ export const Dashboard: React.FC = () => {
               <ListTodo className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
               {hasCompletedDoor && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-pink-500 text-white rounded-full p-1 z-20" />}
             </div>
-            <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">DOOR</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">GATEWAY</span>
           </div>
         </div>
       </div>
@@ -765,7 +765,7 @@ export const Dashboard: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
                           <Circle className="w-3 h-3 mr-2 text-green-500 fill-green-500" />
-                          <span className="text-sm text-gray-300">DOOR</span>
+                          <span className="text-sm text-gray-300">GATEWAY</span>
                         </div>
                         <span className="text-sm text-gray-300">{doorScore}</span>
                       </div>
@@ -797,7 +797,7 @@ export const Dashboard: React.FC = () => {
                       <div className="w-10 h-10 md:w-16 md:h-16 border-2 md:border-4 border-green-500/50 rounded-full flex items-center justify-center">
                         <span className="text-sm md:text-xl font-bold text-green-400">{streaks.door}</span>
                       </div>
-                      <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">DOOR</span>
+                      <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">GATEWAY</span>
                     </div>
                   </div>
                 </Card>
@@ -828,7 +828,7 @@ export const Dashboard: React.FC = () => {
                     <div className="flex flex-col items-center">
                       <div className="flex items-center space-x-2 md:space-x-3">
                         <Circle className="w-3 h-3 md:w-4 md:h-4 text-green-500 fill-green-500" />
-                        <span className="text-xs md:text-sm text-gray-300">DOOR</span>
+                        <span className="text-xs md:text-sm text-gray-300">GATEWAY</span>
                       </div>
                       <span className="mt-1 md:mt-2 text-lg md:text-2xl font-bold text-green-400">{totals.door}</span>
                     </div>

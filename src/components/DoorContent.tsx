@@ -114,7 +114,7 @@ export const DoorContent: React.FC = () => {
   }, []);
 
   return (
-    <div className={`container mx-auto ${isMobile ? 'px-2 py-4' : 'px-4 py-6'}`}>
+    <div className={`${isMobile ? 'w-full max-w-full px-1 py-2' : 'container mx-auto px-4 py-6'}`}>
       <DoorHeader 
         currentDate={currentDate}
         currentDateRange={currentDateRange}
@@ -132,11 +132,11 @@ export const DoorContent: React.FC = () => {
         isMobile={isMobile}
       />
 
-      <div className={`grid gap-4 ${
+      <div className={`grid ${
         isMobile 
-          ? 'grid-cols-1' 
-          : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3'
-      } ${isMobile ? 'gap-4' : 'gap-6'}`}>
+          ? 'grid-cols-1 gap-2' 
+          : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6'
+      }`}>
         {isMobile ? (
           <>
             <div className="order-1">

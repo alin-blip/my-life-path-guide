@@ -72,7 +72,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     },
     { title: 'Sacred Circle', icon: Box, path: '/core', hidden: true },
     { title: 'Divine 4', icon: Clock, path: '/daily-four', hidden: true },
-    { title: 'Sacred Gateway', icon: Flag, path: '/door' },
+    { title: 'Secret Getaway', icon: Flag, path: '/door' },
     { title: 'Divine Missions', icon: Target, path: '/game' },
     { 
       title: 'Sacred Sisterhood', 

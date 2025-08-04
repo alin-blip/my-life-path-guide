@@ -47,31 +47,31 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
 
   return (
     <>
-      <header className={`flex justify-between items-center mb-6 ${isMobile ? 'flex-col space-y-4 px-2' : 'mb-8'}`}>
+      <header className={`flex justify-between items-center ${isMobile ? 'mb-3 flex-col space-y-2 px-1' : 'mb-6'}`}>
         <div className={`flex items-center ${isMobile ? 'w-full justify-between' : 'space-x-4'}`}>
-          <Button variant="outline" size={isMobile ? "sm" : "sm"} asChild className="mr-2">
+          <Button variant="outline" size={isMobile ? "sm" : "sm"} asChild className={isMobile ? 'mr-1 px-2 py-1 text-xs' : 'mr-2'}>
             <Link to="/dashboard">
               <ArrowLeft className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} mr-1`} />
-              {t('backToDashboard')}
+              {isMobile ? 'Back' : t('backToDashboard')}
             </Link>
           </Button>
-          <h1 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold tracking-widest text-center`}>
-            {t('todoList')}
+          <h1 className={`${isMobile ? 'text-sm' : 'text-lg'} font-bold tracking-widest text-center`}>
+            SECRET GETAWAY
           </h1>
-          <Calendar className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-blue-500`} />
+          <Calendar className={`${isMobile ? 'w-3 h-3' : 'w-5 h-5'} text-blue-500`} />
         </div>
-        <div className={`flex items-center ${isMobile ? 'w-full justify-between text-sm' : 'space-x-4'}`}>
-          <div className="flex items-center space-x-2">
+        <div className={`flex items-center ${isMobile ? 'w-full justify-between text-xs' : 'space-x-4'}`}>
+          <div className="flex items-center space-x-1">
             <DoorDiagnostics />
             <Info 
               className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-gray-500 cursor-pointer`} 
               aria-label={t('autoSaveInfo')}
             />
             <span className={`text-gray-300 ${isMobile ? 'text-xs' : ''}`}>
-              {t('today')}: {today}
+              {isMobile ? format(new Date(), 'EEE') : `${t('today')}: ${today}`}
             </span>
           </div>
-          <div className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-blue-500 flex items-center justify-center`}>
+          <div className={`${isMobile ? 'w-5 h-5' : 'w-8 h-8'} rounded-full bg-blue-500 flex items-center justify-center`}>
             <span className={`text-white ${isMobile ? 'text-xs' : 'text-sm'}`}>JD</span>
           </div>
         </div>

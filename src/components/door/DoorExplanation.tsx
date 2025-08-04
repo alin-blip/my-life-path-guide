@@ -8,19 +8,19 @@ export const DoorExplanation: React.FC = () => {
   const { language } = useLanguage();
   
   return (
-    <div className="mb-6 bg-gradient-to-br from-[#1E293B] to-[#2A3A53] rounded-xl shadow-lg p-6 border border-blue-500/20 animate-fade-in">
+    <div className="mb-4 sm:mb-6 bg-gradient-to-br from-[#1E293B] to-[#2A3A53] rounded-xl shadow-lg p-3 sm:p-6 border border-blue-500/20 animate-fade-in">
       <div className="flex items-center mb-4">
         <KeyRound className="w-6 h-6 mr-3 text-blue-400" />
         <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
-          {language === 'en' ? 'The Door - The Pillar of Focus and Production' : 'Ușa - Stâlpul Concentrării și Producției'}
+          {language === 'en' ? 'Secret Getaway - The Pillar of Focus and Production' : 'Secret Getaway - Stâlpul Concentrării și Producției'}
         </h2>
       </div>
       
       <div className="text-gray-300 mb-6 leading-relaxed">
         <p className="mb-4">
           {language === 'en' 
-            ? 'The Door represents the game of daily production. While Stack handles perspective and Core Four provides power, The Door focuses on daily productivity, answering the question: "What do I do today?"'
-            : 'Ușa reprezintă jocul producției zilnice. În timp ce Stack se ocupă de perspectivă și Core Four oferă putere, Ușa se concentrează pe productivitatea zilnică, răspunzând la întrebarea: "Ce fac azi?"'}
+            ? 'Secret Getaway represents the game of daily production. While Stack handles perspective and Core Four provides power, Secret Getaway focuses on daily productivity, answering the question: "What do I do today?"'
+            : 'Secret Getaway reprezintă jocul producției zilnice. În timp ce Stack se ocupă de perspectivă și Core Four oferă putere, Secret Getaway se concentrează pe productivitatea zilnică, răspunzând la întrebarea: "Ce fac azi?"'}
         </p>
         <p>
           {language === 'en'
@@ -32,7 +32,7 @@ export const DoorExplanation: React.FC = () => {
       <Accordion type="single" collapsible className="border-t border-blue-500/20 pt-2">
         <AccordionItem value="components" className="border-b-0">
           <AccordionTrigger className="text-blue-400 hover:text-blue-300 py-2">
-            {language === 'en' ? 'The Four Components of The Door' : 'Cele Patru Componente ale Ușii'}
+            {language === 'en' ? 'The Four Components of Secret Getaway' : 'Cele Patru Componente ale Secret Getaway'}
           </AccordionTrigger>
           <AccordionContent className="text-gray-300">
             <div className="space-y-4 mt-2">
@@ -106,7 +106,7 @@ export const DoorExplanation: React.FC = () => {
       
       <div className="mt-4 flex justify-end">
         <div className="inline-flex items-center text-sm text-blue-400 hover:text-blue-300 transition-colors cursor-pointer group">
-          <span>{language === 'en' ? 'Start creating your Door' : 'Începe să-ți creezi Ușa'}</span>
+          <span>{language === 'en' ? 'Start creating your Secret Getaway' : 'Începe să-ți creezi Secret Getaway'}</span>
           <ArrowRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
