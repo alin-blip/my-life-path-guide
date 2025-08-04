@@ -2,22 +2,42 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { AiLiveCoachingExplanation } from './AiLiveCoachingExplanation';
 import { useToast } from "@/hooks/use-toast";
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
-import { Send, PlusCircle, Lightbulb } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Send, PlusCircle, Lightbulb, Settings, MessageCircle } from "lucide-react";
 
 interface AiLiveCoachingProps {
   onAddToHitList?: (action: string) => void;
 }
 
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
 export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }) => {
   const { toast } = useToast();
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [committedAction, setCommittedAction] = useState("");
+  const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('setup');
+  const [systemPrompt, setSystemPrompt] = useState(`Ești un coach profesionist AI care ajută oamenii să depășească provocările din viața lor. 
+
+Rolul tău este să:
+- Asculți activ și să înțelegi situația utilizatorului
+- Pui întrebări care stimulează reflecția și claritatea
+- Ghidezi utilizatorul către soluții practice și realizabile
+- Ajuți la identificarea obstacolelor și resurselor disponibile
+- Propui acțiuni concrete și măsurabile
+
+Răspunde în română și folosește un ton empatic, profesionist și încurajator. Fii concis dar profund în răspunsuri.`);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [currentMessage, setCurrentMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [finalAction, setFinalAction] = useState("");
   
   const {
     isIdeaModalOpen,
@@ -25,91 +45,138 @@ export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }
     closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
 
-  // Questions for the Stack de Deblocare
-  const questions = [
-    "Care este provocarea majoră cu care te confrunți în prezent?",
-    "Ce soluții ai încercat deja pentru această provocare?",
-    "Ce resurse ai la dispoziție pentru a face față acestei provocări?",
-    "Care ar fi rezultatul ideal al acestei situații?",
-    "Ce te împiedică să obții acest rezultat ideal?",
-    "Care este prima acțiune concretă pe care o poți face pentru a rezolva această provocare?"
-  ];
-
-  const handleNext = () => {
-    if (!answers[step]) {
+  const sendMessage = async () => {
+    if (!currentMessage.trim()) {
       toast({
-        title: "Răspuns necesar",
-        description: "Te rugăm să completezi un răspuns înainte de a continua.",
+        title: "Mesaj necesar",
+        description: "Te rugăm să scrii un mesaj înainte de a-l trimite.",
         variant: "destructive",
       });
       return;
     }
-    
-    if (step < questions.length - 1) {
-      setStep(step + 1);
-    } else {
-      handleComplete();
+
+    const userMessage: Message = {
+      role: 'user',
+      content: currentMessage,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setCurrentMessage("");
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
+        body: {
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            content: m.content
+          })),
+          systemPrompt
+        }
+      });
+
+      if (error) throw error;
+
+      const aiMessage: Message = {
+        role: 'assistant',
+        content: data.message,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut trimite mesajul. Te rugăm să încerci din nou.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleBack = () => {
-    if (step > 0) {
-      setStep(step - 1);
-    }
-  };
+  const generateFinalAction = async () => {
+    setIsLoading(true);
+    try {
+      const actionPrompt = `Bazându-te pe conversația de mai sus, generează o acțiune concretă, specifică și măsurabilă pe care utilizatorul o poate lua în următoarele 24-48 de ore pentru a avansa către soluționarea provocării sale. Acțiunea să fie clară, practică și direct implementabilă. Răspunde DOAR cu acțiunea, fără explicații suplimentare.`;
 
-  const handleComplete = () => {
-    setIsSubmitting(true);
-    
-    setTimeout(() => {
-      setIsSubmitting(false);
+      const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
+        body: {
+          messages: [...messages, {
+            role: 'user',
+            content: actionPrompt
+          }],
+          systemPrompt: "Ești un expert în generarea de acțiuni concrete și măsurabile."
+        }
+      });
+
+      if (error) throw error;
+
+      setFinalAction(data.message);
+      setMode('complete');
       
       toast({
-        title: "Stack finalizat",
-        description: "Stack-ul de deblocare a fost finalizat cu succes.",
+        title: "Sesiune finalizată",
+        description: "A fost generată o acțiune concretă bazată pe conversație.",
       });
-      
-      if (answers[questions.length - 1]) {
-        setCommittedAction(answers[questions.length - 1]);
-      }
-    }, 1000);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setAnswers({ ...answers, [step]: e.target.value });
+    } catch (error) {
+      console.error('Error generating action:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut genera acțiunea finală. Te rugăm să încerci din nou.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const addToHitList = () => {
-    if (onAddToHitList && committedAction) {
-      onAddToHitList(committedAction);
-      setCommittedAction("");
+    if (onAddToHitList && finalAction) {
+      onAddToHitList(finalAction);
+      setFinalAction("");
     }
   };
 
-  const resetStack = () => {
-    setStep(0);
-    setAnswers({});
-    setCommittedAction("");
+  const resetSession = () => {
+    setMode('setup');
+    setMessages([]);
+    setCurrentMessage("");
+    setFinalAction("");
+  };
+
+  const startChat = () => {
+    if (!systemPrompt.trim()) {
+      toast({
+        title: "Prompt necesar",
+        description: "Te rugăm să configurezi instrucțiunile pentru AI înainte de a începe.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setMode('chat');
   };
 
   return (
     <div className="w-full h-full">
-      {committedAction ? (
+      {mode === 'complete' ? (
         <div className="min-h-screen w-full p-2 sm:p-4">
           <div className="mb-4">
             <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-2">
-              Acțiune Angajată
+              Acțiune Finală Generată
             </h1>
             
             <div className="p-3 bg-background/50 rounded border-l-4 border-green-500 mb-4">
-              <p className="text-sm sm:text-base text-foreground">{committedAction}</p>
+              <p className="text-sm sm:text-base text-foreground">{finalAction}</p>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2">
             <Button 
               variant="outline" 
-              onClick={resetStack}
+              onClick={resetSession}
               size="sm"
               className="text-xs sm:text-sm"
             >
@@ -125,50 +192,120 @@ export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }
             </Button>
           </div>
         </div>
-      ) : (
+      ) : mode === 'setup' ? (
         <div className="min-h-screen w-full p-2 sm:p-4">
           <AiLiveCoachingExplanation />
           
           <div className="mb-4">
-            <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-1">
-              Stack de Deblocare
+            <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-2">
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5 inline mr-2" />
+              Configurare AI Coach
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Pasul {step + 1} din {questions.length}
+          </div>
+
+          <div className="mb-4">
+            <Label htmlFor="system-prompt" className="text-sm font-medium text-foreground mb-2 block">
+              Instrucțiuni pentru AI Coach
+            </Label>
+            <Textarea 
+              id="system-prompt"
+              placeholder="Configurează cum vrei să se comporte AI coach-ul..."
+              className="min-h-[120px] sm:min-h-[150px] w-full text-sm"
+              value={systemPrompt}
+              onChange={(e) => setSystemPrompt(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Aceste instrucțiuni vor ghida comportamentul AI coach-ului pe parcursul conversației.
             </p>
           </div>
 
-          <div className="mb-4 p-3 bg-background/50 rounded border-l-4 border-green-500">
-            <p className="text-sm sm:text-base text-foreground">{questions[step]}</p>
+          <Button 
+            onClick={startChat}
+            className="w-full"
+            size="sm"
+          >
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Începe Sesiunea de Coaching
+          </Button>
+        </div>
+      ) : (
+        <div className="min-h-screen w-full p-2 sm:p-4">
+          <div className="mb-4">
+            <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-1">
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 inline mr-2" />
+              AI Live Coaching
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Conversie ({messages.length} mesaje)
+            </p>
+          </div>
+
+          <div className="mb-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto bg-background/30 rounded border p-2">
+            {messages.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Începe conversația scriind primul tău mesaj mai jos...
+              </p>
+            ) : (
+              messages.map((message, index) => (
+                <div key={index} className={`mb-3 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                  <div className={`inline-block max-w-[80%] p-2 rounded text-sm ${
+                    message.role === 'user' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-secondary text-secondary-foreground'
+                  }`}>
+                    <p>{message.content}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
+                </div>
+              ))
+            )}
+            {isLoading && (
+              <div className="text-left">
+                <div className="inline-block bg-secondary text-secondary-foreground p-2 rounded text-sm">
+                  AI coach-ul scrie...
+                </div>
+              </div>
+            )}
           </div>
           
-          <div className="mb-4">
+          <div className="mb-4 flex gap-2">
             <Textarea 
-              placeholder="Scrie răspunsul tău aici..."
-              className="min-h-[100px] sm:min-h-[120px] w-full text-sm"
-              value={answers[step] || ""}
-              onChange={handleInputChange}
-              onEnterSubmit={handleNext}
+              placeholder="Scrie mesajul tău aici..."
+              className="min-h-[60px] flex-1 text-sm"
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onEnterSubmit={sendMessage}
+              disabled={isLoading}
             />
+            <Button 
+              onClick={sendMessage}
+              disabled={isLoading || !currentMessage.trim()}
+              size="sm"
+              className="px-3"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
           </div>
 
           <div className="flex gap-2 justify-between">
             <Button 
               variant="outline" 
-              onClick={handleBack}
-              disabled={step === 0}
+              onClick={resetSession}
               size="sm"
               className="text-xs sm:text-sm"
             >
-              Înapoi
+              Resetează sesiunea
             </Button>
             <Button 
-              onClick={handleNext}
-              disabled={isSubmitting}
+              onClick={generateFinalAction}
+              disabled={isLoading || messages.length < 2}
               size="sm"
               className="text-xs sm:text-sm"
             >
-              {step < questions.length - 1 ? 'Continuă' : 'Finalizează'}
+              <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              Generează acțiune finală
             </Button>
           </div>
         </div>
