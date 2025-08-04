@@ -7,6 +7,7 @@ import { useDivinePrayerStack } from './useDivinePrayerStack';
 import { DivinePrayerStackProps } from './types';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "../StackIdeaModal";
+import { DivinePrayerExplanation } from "./DivinePrayerExplanation";
 import { Send, PlusCircle, CheckCircle, Lightbulb } from 'lucide-react';
 
 export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHitList }) => {
@@ -75,6 +76,8 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
         </div>
       ) : (
         <div className="min-h-screen w-full p-2 sm:p-4">
+          <DivinePrayerExplanation />
+          
           <div className="mb-4">
             <h1 className="text-lg sm:text-xl font-semibold text-indigo-400 mb-1">
               Stack de Rugăciune

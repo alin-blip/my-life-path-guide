@@ -2,6 +2,7 @@ import React from 'react';
 import { useAngerStack } from './anger-stack/useAngerStack';
 import { AngerStackQuestion } from './anger-stack/AngerStackQuestion';
 import { CompletedStack } from './anger-stack/CompletedStack';
+import { AngerStackExplanation } from './anger-stack/AngerStackExplanation';
 import { getQuestions } from './anger-stack/questions';
 import { AngerStackProps } from './anger-stack/types';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
@@ -97,6 +98,8 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
 
   return (
     <div className="w-full h-full">
+      {!(committedAction || stackCompleted) && <AngerStackExplanation />}
+      
       {(committedAction || stackCompleted) ? (
         <CompletedStack
           committedAction={committedAction}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { AiLiveCoachingExplanation } from './AiLiveCoachingExplanation';
 import { useToast } from "@/hooks/use-toast";
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
@@ -126,6 +127,8 @@ export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }
         </div>
       ) : (
         <div className="min-h-screen w-full p-2 sm:p-4">
+          <AiLiveCoachingExplanation />
+          
           <div className="mb-4">
             <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-1">
               Stack de Deblocare
