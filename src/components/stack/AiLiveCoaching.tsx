@@ -92,83 +92,83 @@ export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }
   };
 
   return (
-    <div className="w-full max-w-none space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-        <h2 className="text-lg sm:text-xl font-semibold text-green-400">Stack de Deblocare</h2>
-        <Button 
-          onClick={openIdeaModal}
-          variant="outline"
-          size="sm"
-          className="border-green-500/30 hover:bg-green-800 text-green-400 w-full sm:w-auto"
-        >
-          <Lightbulb className="w-4 h-4 mr-2" />
-          Adaugă idee nouă
-        </Button>
-      </div>
-
+    <div className="w-full h-full">
       {committedAction ? (
-        <Card className="border-green-500/30 bg-green-950/10 w-full">
-          <CardHeader>
-            <CardTitle className="text-center text-green-400 text-lg sm:text-xl">Acțiune Angajată</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-300 text-sm sm:text-base">{committedAction}</p>
-          </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div className="min-h-screen w-full p-2 sm:p-4">
+          <div className="mb-4">
+            <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-2">
+              Acțiune Angajată
+            </h1>
+            
+            <div className="p-3 bg-background/50 rounded border-l-4 border-green-500 mb-4">
+              <p className="text-sm sm:text-base text-foreground">{committedAction}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button 
               variant="outline" 
-              className="hover:bg-green-800 border-green-500/30 w-full sm:w-auto"
               onClick={resetStack}
+              size="sm"
+              className="text-xs sm:text-sm"
             >
               Începe o nouă sesiune
             </Button>
             <Button 
-              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
               onClick={addToHitList}
+              size="sm"
+              className="text-xs sm:text-sm"
             >
-              <PlusCircle className="w-4 h-4 mr-2" />
+              <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               Adaugă la lista HIT
             </Button>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       ) : (
-        <Card className="border-green-500/30 bg-green-950/10 w-full">
-          <CardHeader>
-            <CardTitle className="text-center text-green-400 text-lg sm:text-xl">
-              Stack de Deblocare - Pasul {step + 1} din {questions.length}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-3 sm:p-4 bg-gray-800/50 rounded-md">
-              <p className="text-gray-100 text-sm sm:text-base">{questions[step]}</p>
-            </div>
+        <div className="min-h-screen w-full p-2 sm:p-4">
+          <div className="mb-4">
+            <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-1">
+              Stack de Deblocare
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Pasul {step + 1} din {questions.length}
+            </p>
+          </div>
+
+          <div className="mb-4 p-3 bg-background/50 rounded border-l-4 border-green-500">
+            <p className="text-sm sm:text-base text-foreground">{questions[step]}</p>
+          </div>
+          
+          <div className="mb-4">
             <Textarea 
               placeholder="Scrie răspunsul tău aici..."
-              className="min-h-[120px] sm:min-h-[150px] bg-gray-800/30 border-gray-700 text-sm sm:text-base"
+              className="min-h-[100px] sm:min-h-[120px] w-full text-sm"
               value={answers[step] || ""}
               onChange={handleInputChange}
               onEnterSubmit={handleNext}
             />
-          </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          </div>
+
+          <div className="flex gap-2 justify-between">
             <Button 
               variant="outline" 
               onClick={handleBack}
               disabled={step === 0}
-              className="hover:bg-green-800 border-green-500/30 w-full sm:w-auto"
+              size="sm"
+              className="text-xs sm:text-sm"
             >
               Înapoi
             </Button>
             <Button 
-              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
               onClick={handleNext}
               disabled={isSubmitting}
+              size="sm"
+              className="text-xs sm:text-sm"
             >
               {step < questions.length - 1 ? 'Continuă' : 'Finalizează'}
-              <Send className="w-4 h-4 ml-2" />
             </Button>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       )}
 
       <StackIdeaModal

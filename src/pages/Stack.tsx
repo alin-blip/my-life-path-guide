@@ -123,76 +123,8 @@ const CoachingPage = () => {
   
   return (
     <Layout>
-      <div className="w-full min-h-screen">
-        {/* Header complet pentru mobile și desktop */}
-        <div className="w-full px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 bg-gradient-to-br from-[#1e2943] to-[#131a2c] border-b border-[#273043]">
-          <div className="flex flex-col space-y-3 sm:space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
-                Introspecție
-              </h1>
-              <p className="text-muted-foreground text-xs sm:text-sm max-w-full sm:max-w-md">
-                Use our AI coaching tools to gain clarity, transform challenges, and create breakthroughs in your life.
-              </p>
-            </div>
-            
-            {/* Stack selector - optimizat pentru mobile */}
-            <div className="w-full">
-              <div className="flex flex-wrap gap-2 sm:gap-3">
-                <button 
-                  onClick={() => setActiveStack("anger")}
-                  className={`px-3 py-2 text-xs sm:text-sm rounded-md transition-all flex-1 sm:flex-none min-w-0 ${
-                    activeStack === "anger" 
-                      ? 'bg-red-500 text-white' 
-                      : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                  }`}
-                >
-                  Stack de Furie
-                </button>
-                <button 
-                  onClick={() => setActiveStack("divine-prayer")}
-                  className={`px-3 py-2 text-xs sm:text-sm rounded-md transition-all flex-1 sm:flex-none min-w-0 ${
-                    activeStack === "divine-prayer" 
-                      ? 'bg-indigo-500 text-white' 
-                      : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                  }`}
-                >
-                  Stack de Rugăciune
-                </button>
-                <button 
-                  onClick={() => setActiveStack("ai-live")}
-                  className={`px-3 py-2 text-xs sm:text-sm rounded-md transition-all flex-1 sm:flex-none min-w-0 ${
-                    activeStack === "ai-live" 
-                      ? 'bg-green-500 text-white' 
-                      : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                  }`}
-                >
-                  Stack de Deblocare
-                </button>
-              </div>
-            </div>
-            
-            {!isSupabaseAvailable && (
-              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-md p-3 sm:p-4">
-                <p className="text-yellow-300 text-xs sm:text-sm">
-                  Note: For enhanced features including session history and cloud backup, connect your account to Supabase.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Explanation section - ascuns pe mobile pentru a economisi spațiu */}
-        <div className="hidden md:block px-2 sm:px-4 lg:px-6 py-3 bg-background/50">
-          <StackExplanation />
-        </div>
-        
-        {/* Main stack content - full width */}
-        <div className="w-full px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
-          <div className="w-full max-w-none">
-            {renderActiveStack()}
-          </div>
-        </div>
+      <div className="min-h-screen w-full">
+        {renderActiveStack()}
       </div>
     </Layout>
   );

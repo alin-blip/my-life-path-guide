@@ -96,21 +96,8 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
   };
 
   return (
-    <div className="w-full max-w-none space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-        <h2 className="text-lg sm:text-xl font-semibold text-red-400">Anger Stack</h2>
-        <Button 
-          onClick={openIdeaModal}
-          variant="outline"
-          size="sm"
-          className="border-red-500/30 hover:bg-red-800 text-red-400 w-full sm:w-auto"
-        >
-          <Lightbulb className="w-4 h-4 mr-2" />
-          Adaugă idee nouă
-        </Button>
-      </div>
-
-      {(committedAction || stackCompleted) && (
+    <div className="w-full h-full">
+      {(committedAction || stackCompleted) ? (
         <CompletedStack
           committedAction={committedAction}
           stackCompleted={stackCompleted}
@@ -118,9 +105,7 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
           onAddToHotList={!actionAddedToHotList ? addToHotList : () => {}}
           actionAddedToHotList={actionAddedToHotList}
         />
-      )}
-
-      {!stackCompleted && (
+      ) : (
         <AngerStackQuestion
           step={step}
           totalSteps={rawQuestions.length}

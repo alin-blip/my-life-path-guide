@@ -27,101 +27,97 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
   const { getCurrentQuestion, getDivineSummary } = utils;
 
   return (
-    <div className="w-full max-w-none space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-        <h2 className="text-lg sm:text-xl font-semibold text-indigo-400">Stack de Rugăciune Divină</h2>
-        <Button 
-          onClick={openIdeaModal}
-          variant="outline"
-          size="sm"
-          className="border-indigo-500/30 hover:bg-indigo-800 text-indigo-400 w-full sm:w-auto"
-        >
-          <Lightbulb className="w-4 h-4 mr-2" />
-          Adaugă idee nouă
-        </Button>
-      </div>
-
-      {(committedAction || stackCompleted) && (
-        <Card className="border-indigo-500/30 bg-indigo-950/10 w-full">
-          <CardHeader>
-            <CardTitle className="text-center text-indigo-400 text-lg sm:text-xl">
+    <div className="w-full h-full">
+      {(committedAction || stackCompleted) ? (
+        <div className="min-h-screen w-full p-2 sm:p-4">
+          <div className="mb-4">
+            <h1 className="text-lg sm:text-xl font-semibold text-indigo-400 mb-2">
               {showSummary ? "Rugăciune Finalizată" : "Acțiune Angajată"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {showSummary ? (
-              getDivineSummary()
-            ) : (
-              <div>
-                <p className="text-gray-300 text-sm sm:text-base">{committedAction}</p>
-                {actionAddedToHotList && (
-                  <div className="flex items-center text-green-400 text-xs sm:text-sm mt-2">
-                    <CheckCircle className="w-4 h-4 mr-1" />
-                    Această acțiune a fost adăugată la lista ta fierbinte
-                  </div>
-                )}
-              </div>
-            )}
-          </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            </h1>
+            
+            <div className="p-3 bg-background/50 rounded border-l-4 border-indigo-500 mb-4">
+              {showSummary ? (
+                getDivineSummary()
+              ) : (
+                <div>
+                  <p className="text-sm sm:text-base text-foreground">{committedAction}</p>
+                  {actionAddedToHotList && (
+                    <div className="flex items-center text-green-400 text-xs sm:text-sm mt-2">
+                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      Această acțiune a fost adăugată la lista ta fierbinte
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button 
               variant="outline" 
-              className="hover:bg-indigo-800 border-indigo-500/30 w-full sm:w-auto"
               onClick={resetStack}
+              size="sm"
+              className="text-xs sm:text-sm"
             >
               Începe o nouă rugăciune
             </Button>
             {!actionAddedToHotList && committedAction && (
               <Button 
-                className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-auto"
                 onClick={addToHotList}
+                size="sm"
+                className="text-xs sm:text-sm"
               >
-                <PlusCircle className="w-4 h-4 mr-2" />
+                <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                 Adaugă la lista fierbinte
               </Button>
             )}
-          </CardFooter>
-        </Card>
-      )}
+          </div>
+        </div>
+      ) : (
+        <div className="min-h-screen w-full p-2 sm:p-4">
+          <div className="mb-4">
+            <h1 className="text-lg sm:text-xl font-semibold text-indigo-400 mb-1">
+              Stack de Rugăciune
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Pasul {step + 1} din 17
+            </p>
+          </div>
 
-      {!stackCompleted && (
-        <Card className="border-indigo-500/30 bg-indigo-950/10 w-full">
-          <CardHeader>
-            <CardTitle className="text-center text-indigo-400 text-lg sm:text-xl">
-              Stack de Rugăciune - Pasul {step + 1} din 17
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-3 sm:p-4 bg-gray-800/50 rounded-md">
-              <p className="text-gray-100 text-sm sm:text-base">{getCurrentQuestion()}</p>
-            </div>
+          <div className="mb-4 p-3 bg-background/50 rounded border-l-4 border-indigo-500">
+            <p className="text-sm sm:text-base text-foreground">{getCurrentQuestion()}</p>
+          </div>
+          
+          <div className="mb-4">
             <Textarea 
               placeholder="Scrie răspunsul tău aici..."
-              className="min-h-[120px] sm:min-h-[150px] bg-gray-800/30 border-gray-700 text-sm sm:text-base"
+              className="min-h-[100px] sm:min-h-[120px] w-full text-sm"
               value={answers[step] || ""}
               onChange={handleInputChange}
               onEnterSubmit={handleNext}
             />
-          </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          </div>
+
+          <div className="flex gap-2 justify-between">
             <Button 
               variant="outline" 
               onClick={handleBack}
               disabled={step === 0}
-              className="hover:bg-indigo-800 border-indigo-500/30 w-full sm:w-auto"
+              size="sm"
+              className="text-xs sm:text-sm"
             >
               Înapoi
             </Button>
             <Button 
-              className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-auto"
               onClick={handleNext}
               disabled={isSubmitting}
+              size="sm"
+              className="text-xs sm:text-sm"
             >
               {step < 16 ? 'Continuă' : 'Finalizează'}
-              <Send className="w-4 h-4 ml-2" />
             </Button>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       )}
 
       <StackIdeaModal

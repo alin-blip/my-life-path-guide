@@ -51,7 +51,7 @@ export const AngerStackQuestion: React.FC<AngerStackQuestionProps> = ({
       return (
         <Textarea 
           placeholder={language === 'en' ? "Write your answer here..." : "Scrie răspunsul tău aici..."}
-          className="min-h-[150px] bg-gray-800/30 border-gray-700"
+          className="min-h-[100px] sm:min-h-[120px] w-full text-sm"
           value={currentAnswer}
           onChange={onTextChange}
           onEnterSubmit={onNext}
@@ -73,7 +73,7 @@ export const AngerStackQuestion: React.FC<AngerStackQuestionProps> = ({
     return (
       <Textarea 
         placeholder={language === 'en' ? "Write your answer here..." : "Scrie răspunsul tău aici..."}
-        className="min-h-[150px] bg-gray-800/30 border-gray-700"
+        className="min-h-[100px] sm:min-h-[120px] w-full text-sm"
         value={currentAnswer}
         onChange={onTextChange}
         onEnterSubmit={onNext}
@@ -82,42 +82,51 @@ export const AngerStackQuestion: React.FC<AngerStackQuestionProps> = ({
   };
 
   return (
-    <Card className="border-red-500/30 bg-red-950/10">
-      <CardHeader>
-        <CardTitle className="text-center text-red-400">
+    <div className="min-h-screen w-full p-2 sm:p-4">
+      {/* Compact header */}
+      <div className="mb-4">
+        <h1 className="text-lg sm:text-xl font-semibold text-red-400 mb-1">
+          {language === 'en' ? 'Stack de Furie' : 'Stack de Furie'}
+        </h1>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           {language === 'en' ? 
-            `Anger Stack - Step ${step + 1} of ${totalSteps}` : 
-            `Stack de Furie - Pasul ${step + 1} din ${totalSteps}`}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="p-4 bg-gray-800/50 rounded-md">
-          <p className="text-gray-100">{question}</p>
-        </div>
-        
+            `Step ${step + 1} of ${totalSteps}` : 
+            `Pasul ${step + 1} din ${totalSteps}`}
+        </p>
+      </div>
+
+      {/* Direct question */}
+      <div className="mb-4 p-3 bg-background/50 rounded border-l-4 border-red-500">
+        <p className="text-sm sm:text-base text-foreground">{question}</p>
+      </div>
+      
+      {/* Input area */}
+      <div className="mb-4">
         {handleSpecialStep()}
-      </CardContent>
-      <CardFooter className="flex justify-between">
+      </div>
+
+      {/* Compact navigation */}
+      <div className="flex gap-2 justify-between">
         <Button 
           variant="outline" 
           onClick={onBack}
           disabled={step === 0}
-          className="hover:bg-red-800 border-red-500/30"
+          size="sm"
+          className="text-xs sm:text-sm"
         >
           {language === 'en' ? "Back" : "Înapoi"}
         </Button>
-        {/* Only show the Continue button for text inputs or special steps like 31 or 41 */}
         {(!isYesNoQuestion || step === 31 || step === 41) && (
           <Button 
-            className="bg-red-600 hover:bg-red-700 text-white"
             onClick={onNext}
             disabled={isSubmitting}
+            size="sm"
+            className="text-xs sm:text-sm"
           >
             {step < totalSteps - 1 ? (language === 'en' ? 'Continue' : 'Continuă') : (language === 'en' ? 'Finish' : 'Finalizează')}
-            <Send className="w-4 h-4 ml-2" />
           </Button>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };

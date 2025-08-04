@@ -23,19 +23,18 @@ export const CompletedStack: React.FC<CompletedStackProps> = ({
   const { language } = useLanguage();
 
   return (
-    <Card className="border-red-500/30 bg-red-950/10">
-      <CardHeader>
-        <CardTitle className="text-center text-red-400">
+    <div className="min-h-screen w-full p-2 sm:p-4">
+      <div className="mb-4">
+        <h1 className="text-lg sm:text-xl font-semibold text-red-400 mb-2">
           {language === 'en' ? "Committed Action" : "Acțiune Angajată"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </h1>
+        
         {committedAction ? (
-          <div>
-            <p className="text-gray-300 mb-2">{committedAction}</p>
+          <div className="p-3 bg-background/50 rounded border-l-4 border-red-500 mb-4">
+            <p className="text-sm sm:text-base text-foreground">{committedAction}</p>
             {actionAddedToHotList && (
-              <div className="flex items-center text-green-400 text-sm mt-2">
-                <CheckCircle className="w-4 h-4 mr-1" />
+              <div className="flex items-center text-green-400 text-xs sm:text-sm mt-2">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                 {language === 'en' 
                   ? "This action has been added to your Hot List" 
                   : "Această acțiune a fost adăugată la lista ta fierbinte"}
@@ -43,31 +42,36 @@ export const CompletedStack: React.FC<CompletedStackProps> = ({
             )}
           </div>
         ) : (
-          <p className="text-gray-300">{language === 'en' 
-            ? "Your anger stack has been completed and saved." 
-            : "Stack-ul tău de furie a fost finalizat și salvat."}
-          </p>
+          <div className="p-3 bg-background/50 rounded border-l-4 border-red-500 mb-4">
+            <p className="text-sm sm:text-base text-foreground">{language === 'en' 
+              ? "Your anger stack has been completed and saved." 
+              : "Stack-ul tău de furie a fost finalizat și salvat."}
+            </p>
+          </div>
         )}
-      </CardContent>
-      <CardFooter className="flex justify-between">
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-2">
         <Button 
           variant="outline" 
-          className="hover:bg-red-800 border-red-500/30"
           onClick={onReset}
+          size="sm"
+          className="text-xs sm:text-sm"
         >
-          <RotateCcw className="w-4 h-4 mr-2" />
+          <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
           {language === 'en' ? "Start a new stack" : "Începe un nou stack"}
         </Button>
         {committedAction && !actionAddedToHotList && (
           <Button 
-            className="bg-red-600 hover:bg-red-700 text-white"
             onClick={onAddToHotList}
+            size="sm"
+            className="text-xs sm:text-sm"
           >
-            <PlusCircle className="w-4 h-4 mr-2" />
+            <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
             {language === 'en' ? "Add to Hot list" : "Adaugă la lista fierbinte"}
           </Button>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };
