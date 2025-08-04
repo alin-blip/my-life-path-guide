@@ -23,7 +23,7 @@ export const CompletedStack: React.FC<CompletedStackProps> = ({
   const { language } = useLanguage();
 
   return (
-    <div className="min-h-screen w-full p-2 sm:p-4">
+    <div className="w-full p-1 sm:p-2 flex flex-col justify-end h-full">
       <div className="mb-4">
         <h1 className="text-lg sm:text-xl font-semibold text-red-400 mb-2">
           {language === 'en' ? "Committed Action" : "Acțiune Angajată"}

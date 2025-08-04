@@ -28,9 +28,9 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
   const { getCurrentQuestion, getDivineSummary } = utils;
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full flex flex-col">
       {(committedAction || stackCompleted) ? (
-        <div className="min-h-screen w-full p-2 sm:p-4">
+        <div className="w-full p-1 sm:p-2 flex flex-col justify-end h-full">
           <div className="mb-4">
             <h1 className="text-lg sm:text-xl font-semibold text-indigo-400 mb-2">
               {showSummary ? "Rugăciune Finalizată" : "Acțiune Angajată"}
@@ -75,7 +75,7 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
           </div>
         </div>
       ) : (
-        <div className="min-h-screen w-full p-2 sm:p-4">
+        <div className="w-full p-1 sm:p-2 flex flex-col justify-end h-full">
           <DivinePrayerExplanation />
           
           <div className="mb-4">
