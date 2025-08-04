@@ -14,20 +14,23 @@ export function FitnessHub() {
 
   return (
     <Card className="bg-warrior-DEFAULT border-warrior-muted/20">
-      <CardContent className="p-6">
+      <CardContent className="p-3 sm:p-6">
         <Tabs defaultValue="calorie-calculator" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-3 mb-6 bg-warrior-dark">
-            <TabsTrigger value="calorie-calculator" className="data-[state=active]:bg-warrior-accent">
-              <Weight className="mr-2 h-4 w-4" />
-              <span>{t('calorieCalculator')}</span>
+          <TabsList className="grid grid-cols-1 sm:grid-cols-3 mb-3 sm:mb-6 bg-warrior-dark gap-1 sm:gap-0">
+            <TabsTrigger value="calorie-calculator" className="data-[state=active]:bg-warrior-accent text-xs sm:text-sm">
+              <Weight className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">{t('calorieCalculator')}</span>
+              <span className="sm:hidden">Calories</span>
             </TabsTrigger>
-            <TabsTrigger value="meal-planner" className="data-[state=active]:bg-warrior-accent">
-              <Utensils className="mr-2 h-4 w-4" />
-              <span>{t('mealPlanner')}</span>
+            <TabsTrigger value="meal-planner" className="data-[state=active]:bg-warrior-accent text-xs sm:text-sm">
+              <Utensils className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">{t('mealPlanner')}</span>
+              <span className="sm:hidden">Meals</span>
             </TabsTrigger>
-            <TabsTrigger value="workout-generator" className="data-[state=active]:bg-warrior-accent">
-              <Dumbbell className="mr-2 h-4 w-4" />
-              <span>{t('workoutGenerator')}</span>
+            <TabsTrigger value="workout-generator" className="data-[state=active]:bg-warrior-accent text-xs sm:text-sm">
+              <Dumbbell className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">{t('workoutGenerator')}</span>
+              <span className="sm:hidden">Workout</span>
             </TabsTrigger>
           </TabsList>
           

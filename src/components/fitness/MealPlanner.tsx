@@ -29,9 +29,9 @@ export function MealPlanner() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-6">
       {!mealPlan ? (
-        <div className="space-y-6">
+        <div className="space-y-3 sm:space-y-6">
           <PreferencesForm 
             preferences={preferences}
             onUpdatePreference={updatePreference}
@@ -39,7 +39,7 @@ export function MealPlanner() {
           
           <Button 
             onClick={generateMealPlan} 
-            className="w-full"
+            className="w-full h-9 sm:h-10"
             disabled={isGenerating}
           >
             {isGenerating ? (
@@ -53,25 +53,26 @@ export function MealPlanner() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">
+        <div className="space-y-3 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold">
               {t('targetCalories')}: {mealPlan.targetCalories} {t('caloriesPerDay')}
             </h2>
-            <Button variant="outline" onClick={() => setMealPlan(null)}>
+            <Button variant="outline" onClick={() => setMealPlan(null)} className="h-8 sm:h-10 text-xs sm:text-sm">
               {t('recalculate')}
             </Button>
           </div>
           
           <Tabs value={activeDay} onValueChange={setActiveDay}>
-            <TabsList className="grid grid-cols-7">
+            <TabsList className="grid grid-cols-7 h-8 sm:h-10 overflow-x-auto">
               {mealPlan.days.map((_, index) => (
                 <TabsTrigger 
                   key={`day-${index + 1}`} 
                   value={`day-${index + 1}`}
-                  className="data-[state=active]:bg-warrior-accent"
+                  className="data-[state=active]:bg-warrior-accent text-xs sm:text-sm min-w-0"
                 >
-                  {t('day')} {index + 1}
+                  <span className="hidden sm:inline">{t('day')} {index + 1}</span>
+                  <span className="sm:hidden">{index + 1}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -83,7 +84,7 @@ export function MealPlanner() {
             ))}
           </Tabs>
           
-          <Button className="w-full">
+          <Button className="w-full h-9 sm:h-10">
             {t('save')} {t('mealPlanner')}
           </Button>
         </div>

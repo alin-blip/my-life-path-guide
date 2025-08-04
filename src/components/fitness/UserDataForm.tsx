@@ -25,16 +25,16 @@ export function UserDataForm({
   const { t, language } = useLanguage();
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-3 sm:space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
         {/* Gender Selection */}
-        <div className="space-y-2">
-          <Label htmlFor="gender">{t('gender')}</Label>
+        <div className="space-y-1 sm:space-y-2">
+          <Label htmlFor="gender" className="text-sm">{t('gender')}</Label>
           <Select 
             value={userData.gender} 
             onValueChange={(value: 'male' | 'female') => onChange('gender', value)}
           >
-            <SelectTrigger id="gender">
+            <SelectTrigger id="gender" className="h-9 sm:h-10">
               <SelectValue placeholder={t('selectGender')} />
             </SelectTrigger>
             <SelectContent>
@@ -45,8 +45,8 @@ export function UserDataForm({
         </div>
 
         {/* Age Input */}
-        <div className="space-y-2">
-          <Label htmlFor="age">{t('age')}</Label>
+        <div className="space-y-1 sm:space-y-2">
+          <Label htmlFor="age" className="text-sm">{t('age')}</Label>
           <Input
             id="age"
             type="number"
@@ -55,12 +55,13 @@ export function UserDataForm({
             min={18}
             max={100}
             required
+            className="h-9 sm:h-10"
           />
         </div>
 
         {/* Weight Input */}
-        <div className="space-y-2">
-          <Label htmlFor="weight">{t('weight')} (kg)</Label>
+        <div className="space-y-1 sm:space-y-2">
+          <Label htmlFor="weight" className="text-sm">{t('weight')} (kg)</Label>
           <Input
             id="weight"
             type="number"
@@ -70,12 +71,13 @@ export function UserDataForm({
             max={300}
             step={0.1}
             required
+            className="h-9 sm:h-10"
           />
         </div>
 
         {/* Height Input */}
-        <div className="space-y-2">
-          <Label htmlFor="height">{t('height')} (cm)</Label>
+        <div className="space-y-1 sm:space-y-2">
+          <Label htmlFor="height" className="text-sm">{t('height')} (cm)</Label>
           <Input
             id="height"
             type="number"
@@ -84,17 +86,18 @@ export function UserDataForm({
             min={100}
             max={250}
             required
+            className="h-9 sm:h-10"
           />
         </div>
 
         {/* Activity Level */}
-        <div className="space-y-2">
-          <Label htmlFor="activityLevel">{t('activityLevel')}</Label>
+        <div className="space-y-1 sm:space-y-2">
+          <Label htmlFor="activityLevel" className="text-sm">{t('activityLevel')}</Label>
           <Select 
             value={userData.activityLevel} 
             onValueChange={(value: UserData['activityLevel']) => onChange('activityLevel', value)}
           >
-            <SelectTrigger id="activityLevel">
+            <SelectTrigger id="activityLevel" className="h-9 sm:h-10">
               <SelectValue placeholder={t('selectActivityLevel')} />
             </SelectTrigger>
             <SelectContent>
@@ -108,13 +111,13 @@ export function UserDataForm({
         </div>
 
         {/* Goal */}
-        <div className="space-y-2">
-          <Label htmlFor="goal">{t('goal')}</Label>
+        <div className="space-y-1 sm:space-y-2">
+          <Label htmlFor="goal" className="text-sm">{t('goal')}</Label>
           <Select 
             value={userData.goal} 
             onValueChange={(value: UserData['goal']) => onChange('goal', value)}
           >
-            <SelectTrigger id="goal">
+            <SelectTrigger id="goal" className="h-9 sm:h-10">
               <SelectValue placeholder={t('selectGoal')} />
             </SelectTrigger>
             <SelectContent>
@@ -127,13 +130,13 @@ export function UserDataForm({
         </div>
 
         {/* Diet Type */}
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="dietType">{t('dietType')}</Label>
+        <div className="space-y-1 sm:space-y-2 md:col-span-2">
+          <Label htmlFor="dietType" className="text-sm">{t('dietType')}</Label>
           <Select 
             value={dietType} 
             onValueChange={onDietTypeChange}
           >
-            <SelectTrigger id="dietType">
+            <SelectTrigger id="dietType" className="h-9 sm:h-10">
               <SelectValue placeholder={t('selectDietType')} />
             </SelectTrigger>
             <SelectContent>
@@ -148,7 +151,7 @@ export function UserDataForm({
         </div>
       </div>
 
-      <Button type="submit" className="w-full">{t('calculate')}</Button>
+      <Button type="submit" className="w-full h-9 sm:h-10">{t('calculate')}</Button>
     </form>
   );
 }

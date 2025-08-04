@@ -15,17 +15,17 @@ export function PreferencesForm({ preferences, onUpdatePreference }: Preferences
   const { t } = useLanguage();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
       <Card>
-        <CardHeader>
-          <CardTitle>{t('mealsPerDay')}</CardTitle>
+        <CardHeader className="p-3 sm:p-6">
+          <CardTitle className="text-sm sm:text-base">{t('mealsPerDay')}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
           <Select 
             value={preferences.mealsPerDay.toString()} 
             onValueChange={(value) => onUpdatePreference('mealsPerDay', parseInt(value))}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-8 sm:h-10">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -39,10 +39,10 @@ export function PreferencesForm({ preferences, onUpdatePreference }: Preferences
       </Card>
       
       <Card>
-        <CardHeader>
-          <CardTitle>{t('excludedFoods')}</CardTitle>
+        <CardHeader className="p-3 sm:p-6">
+          <CardTitle className="text-sm sm:text-base">{t('excludedFoods')}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
           <div className="flex space-x-2">
             <Input 
               placeholder={t('excludedFoods')}
@@ -51,19 +51,20 @@ export function PreferencesForm({ preferences, onUpdatePreference }: Preferences
                 const foods = e.target.value.split(',').map(food => food.trim());
                 onUpdatePreference('excludedFoods', foods);
               }}
+              className="h-8 sm:h-10 text-xs sm:text-sm"
             />
           </div>
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-muted-foreground mt-1 sm:mt-2">
             Separate with commas (e.g. "peanuts, dairy, eggs")
           </p>
         </CardContent>
       </Card>
       
       <Card className="md:col-span-2">
-        <CardHeader>
-          <CardTitle>{t('preferredFoods')}</CardTitle>
+        <CardHeader className="p-3 sm:p-6">
+          <CardTitle className="text-sm sm:text-base">{t('preferredFoods')}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
           <div className="flex space-x-2">
             <Input 
               placeholder={t('preferredFoods')}
@@ -72,9 +73,10 @@ export function PreferencesForm({ preferences, onUpdatePreference }: Preferences
                 const foods = e.target.value.split(',').map(food => food.trim());
                 onUpdatePreference('preferredFoods', foods);
               }}
+              className="h-8 sm:h-10 text-xs sm:text-sm"
             />
           </div>
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-muted-foreground mt-1 sm:mt-2">
             Separate with commas (e.g. "chicken, rice, avocado")
           </p>
         </CardContent>

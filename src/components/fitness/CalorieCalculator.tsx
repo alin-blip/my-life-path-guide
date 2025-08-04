@@ -49,11 +49,11 @@ export function CalorieCalculator() {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">{t('calorieCalculator')}</CardTitle>
+    <Card className="w-full max-w-full">
+      <CardHeader className="text-center p-3 sm:p-6">
+        <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold">{t('calorieCalculator')}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-3 sm:p-6">
         {!results ? (
           <UserDataForm
             userData={userData}
