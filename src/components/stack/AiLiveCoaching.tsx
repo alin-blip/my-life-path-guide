@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,6 +38,17 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   const [currentMessage, setCurrentMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [finalAction, setFinalAction] = useState("");
+  const chatAreaRef = useRef<HTMLDivElement>(null);
+  
+  const scrollToBottom = () => {
+    if (chatAreaRef.current) {
+      chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
   
   const {
     isIdeaModalOpen,
@@ -160,9 +171,9 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   };
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full flex flex-col">
       {mode === 'complete' ? (
-        <div className="min-h-screen w-full p-2 sm:p-4">
+        <div className="w-full p-2 sm:p-4 flex flex-col justify-end h-full">
           <div className="mb-4">
             <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-2">
               Acțiune Finală Generată
@@ -193,7 +204,7 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
           </div>
         </div>
       ) : mode === 'setup' ? (
-        <div className="min-h-screen w-full p-2 sm:p-4">
+        <div className="w-full p-2 sm:p-4 flex flex-col justify-end h-full">
           <AiLiveCoachingExplanation />
           
           <div className="mb-4">
@@ -229,8 +240,8 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
           </Button>
         </div>
       ) : (
-        <div className="min-h-screen w-full p-2 sm:p-4">
-          <div className="mb-4">
+        <div className="w-full p-1 sm:p-2 flex flex-col h-full">
+          <div className="mb-2">
             <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-1">
               <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 inline mr-2" />
               AI Live Coaching
@@ -240,7 +251,11 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
             </p>
           </div>
 
-          <div className="mb-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto bg-background/30 rounded border p-2">
+          <div 
+            ref={chatAreaRef}
+            className="flex-1 mb-2 overflow-y-auto bg-background/30 rounded border p-2 scroll-smooth"
+            style={{ maxHeight: 'calc(100vh - 200px)' }}
+          >
             {messages.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
                 Începe conversația scriind primul tău mesaj mai jos...
@@ -270,7 +285,7 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
             )}
           </div>
           
-          <div className="mb-4 flex gap-2">
+          <div className="mb-2 flex gap-2">
             <Textarea 
               placeholder="Scrie mesajul tău aici..."
               className="min-h-[60px] flex-1 text-sm"
