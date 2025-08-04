@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAngerStack } from './anger-stack/useAngerStack';
 import { AngerStackQuestion } from './anger-stack/AngerStackQuestion';
@@ -7,7 +6,6 @@ import { getQuestions } from './anger-stack/questions';
 import { AngerStackProps } from './anger-stack/types';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
-import { StackTodoWidget } from "./StackTodoWidget";
 import { Button } from "@/components/ui/button";
 import { Lightbulb } from "lucide-react";
 
@@ -21,11 +19,8 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
 
   const {
     isIdeaModalOpen,
-    currentIdea,
-    setCurrentIdea,
     openIdeaModal,
-    closeIdeaModal,
-    submitIdea
+    closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
   
   const { 
@@ -44,11 +39,9 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
   
   const rawQuestions = getQuestions(document.documentElement.lang === 'en' ? 'en' : 'ro');
   
-  // Special handlers for yes/no questions and different steps
   const handleYesClick = () => {
     handleAnswer("Yes");
     
-    // Special cases for specific steps
     if (step === 39) {
       if (answers[38]) {
         setState.setCommittedAction(answers[38]);
@@ -60,7 +53,6 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
       }
       setState.setStep(step + 1);
     } else if (step === 30) {
-      // We now have a legitimate question 31, so we don't need to skip it
       setTimeout(() => setState.setStep(step + 1), 100);
     } else if (step === 29) {
       setTimeout(() => setState.setStep(step + 1), 100);
@@ -75,11 +67,9 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
   const handleNoClick = () => {
     handleAnswer("No");
     
-    // Special cases for specific steps
     if (step === 41) {
       handlers.completeStack();
     } else if (step === 30) {
-      // We now have a legitimate question 31, so we don't need to skip it
       setTimeout(() => setState.setStep(step + 1), 100);
     } else if (step === 29) {
       setState.setReturnToQuestion(20);
@@ -91,14 +81,12 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
     }
   };
   
-  // Handler for domain selection
   const handleDomainChange = (value: string) => {
     setDomain(value);
     handleAnswer(value);
     setTimeout(() => setState.setStep(step + 1), 100);
   };
 
-  // Now that we've updated question 31, we don't need to skip it anymore
   const handleCustomNext = () => {
     handleNext();
   };
@@ -108,21 +96,19 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-red-400">Anger Stack</h2>
+    <div className="w-full max-w-none space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-red-400">Anger Stack</h2>
         <Button 
           onClick={openIdeaModal}
           variant="outline"
           size="sm"
-          className="border-red-500/30 hover:bg-red-800 text-red-400"
+          className="border-red-500/30 hover:bg-red-800 text-red-400 w-full sm:w-auto"
         >
           <Lightbulb className="w-4 h-4 mr-2" />
           Adaugă idee nouă
         </Button>
       </div>
-
-      <StackTodoWidget onAddToHitList={onAddToHitList} isMinimized />
 
       {(committedAction || stackCompleted) && (
         <CompletedStack

@@ -4,100 +4,76 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useDivinePrayerStack } from './useDivinePrayerStack';
+import { DivinePrayerStackProps } from './types';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "../StackIdeaModal";
-import { StackTodoWidget } from "../StackTodoWidget";
-import { BookOpen, Save, Send, CheckCircle, PlusCircle, Lightbulb } from 'lucide-react';
-
-interface DivinePrayerStackProps {
-  onAddToHitList?: (action: string) => void;
-}
+import { Send, PlusCircle, CheckCircle, Lightbulb } from 'lucide-react';
 
 export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHitList }) => {
   const { state, handlers, utils } = useDivinePrayerStack({ onAddToHitList });
-  const { 
-    step, 
-    answers, 
-    isSubmitting, 
-    committedAction, 
-    stackCompleted, 
-    actionAddedToHotList,
-    showSummary 
-  } = state;
-
+  
   const {
     isIdeaModalOpen,
-    currentIdea,
-    setCurrentIdea,
     openIdeaModal,
-    closeIdeaModal,
-    submitIdea
+    closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
   
   const { 
-    handleInputChange, 
-    handleNext, 
-    handleBack, 
-    resetStack, 
-    addToHotList
-  } = handlers;
+    step, answers, isSubmitting, committedAction, 
+    stackCompleted, actionAddedToHotList, showSummary 
+  } = state;
   
+  const { handleInputChange, handleNext, handleBack, resetStack, addToHotList } = handlers;
   const { getCurrentQuestion, getDivineSummary } = utils;
 
-  console.log("DivinePrayerStack rendering with onAddToHitList:", !!onAddToHitList);
-  console.log("stackCompleted:", stackCompleted, "committedAction:", committedAction, "actionAddedToHotList:", actionAddedToHotList);
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-purple-400">Stack de Rugăciune</h2>
+    <div className="w-full max-w-none space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-indigo-400">Stack de Rugăciune Divină</h2>
         <Button 
           onClick={openIdeaModal}
           variant="outline"
           size="sm"
-          className="border-purple-500/30 hover:bg-purple-800 text-purple-400"
+          className="border-indigo-500/30 hover:bg-indigo-800 text-indigo-400 w-full sm:w-auto"
         >
           <Lightbulb className="w-4 h-4 mr-2" />
           Adaugă idee nouă
         </Button>
       </div>
 
-      <StackTodoWidget onAddToHitList={onAddToHitList} isMinimized />
-
-      {stackCompleted ? (
-        <Card className="border-purple-500/30 bg-purple-950/10">
+      {(committedAction || stackCompleted) && (
+        <Card className="border-indigo-500/30 bg-indigo-950/10 w-full">
           <CardHeader>
-            <CardTitle className="text-center text-purple-400">Stack de Rugăciune Finalizat</CardTitle>
+            <CardTitle className="text-center text-indigo-400 text-lg sm:text-xl">
+              {showSummary ? "Rugăciune Finalizată" : "Acțiune Angajată"}
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div>
-              {showSummary && getDivineSummary()}
-              
-              {committedAction && (
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium text-purple-300 mb-2">Acțiune Angajată:</h3>
-                  <p className="text-gray-300">{committedAction}</p>
-                  {actionAddedToHotList && (
-                    <div className="flex items-center text-green-400 text-sm mt-2">
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Această acțiune a fost adăugată la lista ta fierbinte
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+          <CardContent className="space-y-4">
+            {showSummary ? (
+              getDivineSummary()
+            ) : (
+              <div>
+                <p className="text-gray-300 text-sm sm:text-base">{committedAction}</p>
+                {actionAddedToHotList && (
+                  <div className="flex items-center text-green-400 text-xs sm:text-sm mt-2">
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    Această acțiune a fost adăugată la lista ta fierbinte
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
-          <CardFooter className="flex justify-between">
+          <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button 
               variant="outline" 
-              className="hover:bg-purple-800 border-purple-500/30"
+              className="hover:bg-indigo-800 border-indigo-500/30 w-full sm:w-auto"
               onClick={resetStack}
             >
-              Începe un nou stack
+              Începe o nouă rugăciune
             </Button>
-            {committedAction && !actionAddedToHotList && (
+            {!actionAddedToHotList && committedAction && (
               <Button 
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-auto"
                 onClick={addToHotList}
               >
                 <PlusCircle className="w-4 h-4 mr-2" />
@@ -106,41 +82,42 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
             )}
           </CardFooter>
         </Card>
-      ) : (
-        <Card className="border-purple-500/30 bg-purple-950/10">
+      )}
+
+      {!stackCompleted && (
+        <Card className="border-indigo-500/30 bg-indigo-950/10 w-full">
           <CardHeader>
-            <CardTitle className="text-center text-purple-400 flex items-center justify-center gap-2">
-              <BookOpen className="h-5 w-5" />
-              Stack de Rugăciune - Pasul {step + 1} din {19}
+            <CardTitle className="text-center text-indigo-400 text-lg sm:text-xl">
+              Stack de Rugăciune - Pasul {step + 1} din 17
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-4 bg-gray-800/50 rounded-md">
-              <p className="text-gray-100">{getCurrentQuestion()}</p>
+            <div className="p-3 sm:p-4 bg-gray-800/50 rounded-md">
+              <p className="text-gray-100 text-sm sm:text-base">{getCurrentQuestion()}</p>
             </div>
             <Textarea 
               placeholder="Scrie răspunsul tău aici..."
-              className="min-h-[150px] bg-gray-800/30 border-gray-700"
+              className="min-h-[120px] sm:min-h-[150px] bg-gray-800/30 border-gray-700 text-sm sm:text-base"
               value={answers[step] || ""}
               onChange={handleInputChange}
               onEnterSubmit={handleNext}
             />
           </CardContent>
-          <CardFooter className="flex justify-between">
+          <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button 
               variant="outline" 
               onClick={handleBack}
               disabled={step === 0}
-              className="hover:bg-purple-800 border-purple-500/30"
+              className="hover:bg-indigo-800 border-indigo-500/30 w-full sm:w-auto"
             >
               Înapoi
             </Button>
             <Button 
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-auto"
               onClick={handleNext}
               disabled={isSubmitting}
             >
-              {step < 18 ? 'Continuă' : 'Finalizează'}
+              {step < 16 ? 'Continuă' : 'Finalizează'}
               <Send className="w-4 h-4 ml-2" />
             </Button>
           </CardFooter>

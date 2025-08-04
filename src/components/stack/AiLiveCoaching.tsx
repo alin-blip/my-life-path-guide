@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,8 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
-import { StackTodoWidget } from "./StackTodoWidget";
-import { Headphones, Send, PlusCircle, Lightbulb } from "lucide-react";
+import { Send, PlusCircle, Lightbulb } from "lucide-react";
 
 interface AiLiveCoachingProps {
   onAddToHitList?: (action: string) => void;
@@ -22,11 +20,8 @@ export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }
   
   const {
     isIdeaModalOpen,
-    currentIdea,
-    setCurrentIdea,
     openIdeaModal,
-    closeIdeaModal,
-    submitIdea
+    closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
 
   // Questions for the Stack de Deblocare
@@ -65,7 +60,6 @@ export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }
   const handleComplete = () => {
     setIsSubmitting(true);
     
-    // In a real implementation, you might save to Supabase here
     setTimeout(() => {
       setIsSubmitting(false);
       
@@ -74,7 +68,6 @@ export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }
         description: "Stack-ul de deblocare a fost finalizat cu succes.",
       });
       
-      // Extract the action from the final answer
       if (answers[questions.length - 1]) {
         setCommittedAction(answers[questions.length - 1]);
       }
@@ -99,40 +92,38 @@ export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-green-400">Stack de Deblocare</h2>
+    <div className="w-full max-w-none space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-green-400">Stack de Deblocare</h2>
         <Button 
           onClick={openIdeaModal}
           variant="outline"
           size="sm"
-          className="border-green-500/30 hover:bg-green-800 text-green-400"
+          className="border-green-500/30 hover:bg-green-800 text-green-400 w-full sm:w-auto"
         >
           <Lightbulb className="w-4 h-4 mr-2" />
           Adaugă idee nouă
         </Button>
       </div>
 
-      <StackTodoWidget onAddToHitList={onAddToHitList} isMinimized />
-
       {committedAction ? (
-        <Card className="border-green-500/30 bg-green-950/10">
+        <Card className="border-green-500/30 bg-green-950/10 w-full">
           <CardHeader>
-            <CardTitle className="text-center text-green-400">Acțiune Angajată</CardTitle>
+            <CardTitle className="text-center text-green-400 text-lg sm:text-xl">Acțiune Angajată</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-300">{committedAction}</p>
+            <p className="text-gray-300 text-sm sm:text-base">{committedAction}</p>
           </CardContent>
-          <CardFooter className="flex justify-between">
+          <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button 
               variant="outline" 
-              className="hover:bg-green-800 border-green-500/30"
+              className="hover:bg-green-800 border-green-500/30 w-full sm:w-auto"
               onClick={resetStack}
             >
               Începe o nouă sesiune
             </Button>
             <Button 
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
               onClick={addToHitList}
             >
               <PlusCircle className="w-4 h-4 mr-2" />
@@ -141,35 +132,35 @@ export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }
           </CardFooter>
         </Card>
       ) : (
-        <Card className="border-green-500/30 bg-green-950/10">
+        <Card className="border-green-500/30 bg-green-950/10 w-full">
           <CardHeader>
-            <CardTitle className="text-center text-green-400">
+            <CardTitle className="text-center text-green-400 text-lg sm:text-xl">
               Stack de Deblocare - Pasul {step + 1} din {questions.length}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-4 bg-gray-800/50 rounded-md">
-              <p className="text-gray-100">{questions[step]}</p>
+            <div className="p-3 sm:p-4 bg-gray-800/50 rounded-md">
+              <p className="text-gray-100 text-sm sm:text-base">{questions[step]}</p>
             </div>
             <Textarea 
               placeholder="Scrie răspunsul tău aici..."
-              className="min-h-[150px] bg-gray-800/30 border-gray-700"
+              className="min-h-[120px] sm:min-h-[150px] bg-gray-800/30 border-gray-700 text-sm sm:text-base"
               value={answers[step] || ""}
               onChange={handleInputChange}
               onEnterSubmit={handleNext}
             />
           </CardContent>
-          <CardFooter className="flex justify-between">
+          <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button 
               variant="outline" 
               onClick={handleBack}
               disabled={step === 0}
-              className="hover:bg-green-800 border-green-500/30"
+              className="hover:bg-green-800 border-green-500/30 w-full sm:w-auto"
             >
               Înapoi
             </Button>
             <Button 
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
               onClick={handleNext}
               disabled={isSubmitting}
             >
