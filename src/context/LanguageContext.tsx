@@ -23,8 +23,8 @@ const translations: Translations = {
     "growthTracking": "Growth Tracking",
     "visualizeYourProgress": "Visualize your progress with powerful analytics",
     
-    // Coaching
-    "coaching": "COACHING",
+    // Transformation Workshop
+    "transformationWorkshop": "Transformation Workshop",
     "coachingDescription": "Take a moment to reflect and get guidance through our AI coaching system",
     "prayerStackTitle": "What are you going to title this conversation with God?",
     "whatAreYouGoingToTitleThisCoaching": "What are you going to title this coaching session?",
@@ -45,7 +45,7 @@ const translations: Translations = {
     
     // Common UI elements
     "dashboard": "DASHBOARD",
-    "stack": "COACHING",
+    "stack": "TRANSFORMATION WORKSHOP",
     "triggers": "Triggers",
     "selectTrigger": "Select a trigger",
     "newStack": "New Session",
@@ -270,8 +270,8 @@ const translations: Translations = {
     "growthTracking": "Urmărirea Creșterii",
     "visualizeYourProgress": "Vizualizează-ți progresul cu analize puternice",
     
-    // Coaching
-    "coaching": "COACHING",
+    // Transformation Workshop
+    "transformationWorkshop": "Atelierul de Transformare",
     "coachingDescription": "Ia-ți un moment pentru a reflecta și a primi îndrumare prin sistemul nostru de coaching cu AI",
     "prayerStackTitle": "Ce titlu vei da acestei conversații cu Dumnezeu?",
     "whatAreYouGoingToTitleThisCoaching": "Ce titlu vei da acestei sesiuni de coaching?",
@@ -292,7 +292,7 @@ const translations: Translations = {
     
     // Common UI elements
     "dashboard": "PANOU DE CONTROL",
-    "stack": "COACHING",
+    "stack": "ATELIERUL DE TRANSFORMARE",
     "triggers": "Declanșatori",
     "selectTrigger": "Selectează un declanșator",
     "newStack": "Sesiune Nouă",

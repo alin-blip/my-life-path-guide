@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useLanguage } from '@/context/LanguageContext';
 import { 
   Home, 
   User, 
@@ -47,6 +48,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   const location = useLocation();
   const currentPath = location.pathname;
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['community', 'introspecție']);
+  const { t } = useLanguage();
 
   const toggleExpand = (title: string) => {
     setExpandedMenus(prev => 
@@ -60,7 +62,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     { title: 'My Daily', icon: Home, path: '/dashboard' },
     { title: 'Learn', icon: BookOpen, path: '/learn' },
     { 
-      title: 'Ritualuri de Putere', 
+      title: t('transformationWorkshop'), 
       icon: Layers, 
       path: '/stack',
       subItems: [
