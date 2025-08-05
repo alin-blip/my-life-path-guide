@@ -9,9 +9,9 @@ export const DivinePrayerExplanation: React.FC = () => {
     <div className="mb-4">
       <div className="flex items-center justify-between p-3 bg-indigo-500/10 rounded border border-indigo-500/20">
         <div>
-          <h3 className="text-sm font-medium text-indigo-400 mb-1">Stack de Rugăciune</h3>
+          <h3 className="text-sm font-medium text-indigo-400 mb-1">Dialogul cu Divinitatea</h3>
           <p className="text-xs text-muted-foreground">
-            Proces structurat în 17 pași pentru clarificare prin rugăciune
+            Proces sacru în 17 pași pentru conectarea cu înțelepciunea divină
           </p>
         </div>
         <Button
@@ -27,7 +27,7 @@ export const DivinePrayerExplanation: React.FC = () => {
       {isExpanded && (
         <div className="mt-2 p-3 bg-background/50 rounded border text-xs text-muted-foreground space-y-2">
           <p>
-            Acest stack te ghidează printr-un proces de rugăciune structurat care te ajută să:
+            Dialogul cu Divinitatea te ghidează printr-un proces sacru care te ajută să:
           </p>
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>Clarifici situațiile dificile prin rugăciune</li>

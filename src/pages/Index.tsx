@@ -36,7 +36,7 @@ const Index = () => {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            {language === 'en' ? 'Unleash Your Feminine Power' : 'Eliberează-ți Puterea Feminină'}
+            {language === 'en' ? 'Unleash Your Feminine Power' : 'Trezirea Reginei Interioare'}
           </h1>
           
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
@@ -99,7 +99,7 @@ const Index = () => {
             <p className="text-gray-300">
               {language === 'en' 
                 ? 'Cultivate divine connections and sacred sisterhood' 
-                : 'Cultivă conexiuni divine și sororitatea sacrată'}
+                : 'Cultivă conexiuni divine și Cercul Surorilor'}
             </p>
           </div>
 
@@ -121,7 +121,7 @@ const Index = () => {
           <div className="bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 p-6 rounded-xl border border-feminine-primary/30">
             <Sparkles className="w-10 h-10 text-feminine-primary mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">
-              {language === 'en' ? 'Sacred Rituals' : 'Ritualuri Sacre'}
+              {language === 'en' ? 'Sacred Rituals' : 'Ritualuri de Putere'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 

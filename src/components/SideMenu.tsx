@@ -60,24 +60,24 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     { title: 'My Daily', icon: Home, path: '/dashboard' },
     { title: 'Learn', icon: BookOpen, path: '/learn' },
     { 
-      title: 'Sacred Rituals', 
+      title: 'Ritualuri de Putere', 
       icon: Layers, 
       path: '/stack',
       subItems: [
-        { title: 'Fire Goddess Ritual', icon: Angry, path: '/stack?type=anger' },
-        { title: 'Moon Goddess Communion', icon: Heart, path: '/stack?type=divine-prayer' },
-        { title: 'Inner Wisdom Oracle', icon: Headphones, path: '/stack?type=ai-live' },
-        { title: 'Sacred Journal', icon: Pencil, path: '/journal' },
+        { title: 'Alchimia Furiei', icon: Angry, path: '/stack?type=anger' },
+        { title: 'Dialogul cu Divinitatea', icon: Heart, path: '/stack?type=divine-prayer' },
+        { title: 'Oracolul Înțelepciunii', icon: Headphones, path: '/stack?type=ai-live' },
+        { title: 'Jurnalul Sacru', icon: Pencil, path: '/journal' },
       ]
     },
     { title: 'Sacred Circle', icon: Box, path: '/core', hidden: true },
     { title: 'Divine 4', icon: Clock, path: '/daily-four', hidden: true },
-    { title: 'Secret Getaway', icon: Flag, path: '/door' },
-    { title: 'Divine Missions', icon: Target, path: '/game' },
+    { title: 'Refugiul Tău', icon: Flag, path: '/door' },
+    { title: 'Misiuni de Împlinire', icon: Target, path: '/game' },
     { 
-      title: 'Sacred Sisterhood', 
+      title: 'Cercul Surorilor', 
       icon: UsersRound, 
-      path: '/chat', 
+      path: '/chat',
       subItems: [
         { title: 'Sacred Chat', icon: MessageSquare, path: '/chat' },
         { title: 'Divine Circle', icon: Users, path: '/tribe' },
@@ -96,7 +96,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
             <span className="font-display font-bold text-white text-sm">🌙</span>
           </div>
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-lg text-white">UNLEASH YOUR FEMININE POWER</h1>
+            <h1 className="font-display font-bold text-lg text-white">PUTEREA REGINEI INTERIOARE</h1>
           )}
         </div>
       </div>

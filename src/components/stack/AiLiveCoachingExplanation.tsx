@@ -9,9 +9,9 @@ export const AiLiveCoachingExplanation: React.FC = () => {
     <div className="mb-4">
       <div className="flex items-center justify-between p-3 bg-blue-500/10 rounded border border-blue-500/20">
         <div>
-          <h3 className="text-sm font-medium text-blue-400 mb-1">AI Live Coaching</h3>
+          <h3 className="text-sm font-medium text-blue-400 mb-1">Oracolul Înțelepciunii</h3>
           <p className="text-xs text-muted-foreground">
-            Coaching interactiv pentru depășirea provocărilor
+            Coaching interactiv pentru descoperirea înțelepciunii interioare
           </p>
         </div>
         <Button
@@ -27,7 +27,7 @@ export const AiLiveCoachingExplanation: React.FC = () => {
       {isExpanded && (
         <div className="mt-2 p-3 bg-background/50 rounded border text-xs text-muted-foreground space-y-2">
           <p>
-            AI Live Coaching oferă un proces de coaching personalizat care te ajută să:
+            Oracolul Înțelepciunii oferă un proces de coaching personalizat care te ajută să:
           </p>
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>Identifici provocările și obstacolele din viața ta</li>

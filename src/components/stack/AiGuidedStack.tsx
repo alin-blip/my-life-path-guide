@@ -232,7 +232,7 @@ INSTRUCȚIUNI:
       <div className="w-full p-1 sm:p-2 flex flex-col justify-end h-full">
         <div className="mb-4">
           <h1 className="text-lg sm:text-xl font-semibold text-primary mb-2">
-            Sesiune Completă - AI {stackType === 'anger' ? 'Anger' : 'Divine Prayer'} Stack
+            Sesiune Completă - AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
           </h1>
           
           <div className="p-3 bg-background/50 rounded border-l-4 border-primary mb-4">
@@ -291,7 +291,7 @@ INSTRUCȚIUNI:
       <div className="w-full p-1 sm:p-2 flex flex-col justify-end h-full">
         <div className="mb-4">
           <h1 className="text-lg sm:text-xl font-semibold text-primary mb-2">
-            AI {stackType === 'anger' ? 'Anger' : 'Divine Prayer'} Stack
+            AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mb-4">
             Configurează AI coach-ul pentru experiența ta ghidată
@@ -339,7 +339,7 @@ INSTRUCȚIUNI:
     <div className="w-full p-1 sm:p-2 flex flex-col justify-end h-full">
       <div className="mb-4">
         <h1 className="text-lg sm:text-xl font-semibold text-primary mb-1">
-          AI {stackType === 'anger' ? 'Anger' : 'Divine Prayer'} Stack
+          AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground">
           Conversație ghidată cu AI coach-ul tău

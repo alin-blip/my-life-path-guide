@@ -12,7 +12,7 @@ export const DoorExplanation: React.FC = () => {
       <div className="flex items-center mb-4">
         <KeyRound className="w-6 h-6 mr-3 text-blue-400" />
         <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
-          {language === 'en' ? 'Secret Getaway - The Pillar of Focus and Production' : 'Secret Getaway - Stâlpul Concentrării și Producției'}
+          {language === 'en' ? 'Secret Getaway - The Pillar of Focus and Production' : 'Refugiul Tău - Stâlpul Concentrării și Producției'}
         </h2>
       </div>
       

@@ -63,7 +63,7 @@ export const MissionCategorySelector: React.FC<MissionCategorySelectorProps> = (
           <div className="text-3xl mb-2">💖</div>
           <div className="font-bold text-xl">{language === 'en' ? 'SACRED RELATIONSHIPS' : 'RELAȚII SACRE'}</div>
           <div className="text-sm mt-2 text-gray-300">
-            {language === 'en' ? 'Divine Love & Sacred Sisterhood' : 'Iubire Divină și Sororitate Sacrată'}
+            {language === 'en' ? 'Divine Love & Sacred Sisterhood' : 'Iubire Divină și Cercul Surorilor'}
           </div>
         </Button>
         

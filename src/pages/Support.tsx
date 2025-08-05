@@ -54,7 +54,7 @@ export const Support: React.FC = () => {
             <p className="text-muted-foreground mb-4">
               {language === 'en' 
                 ? 'Connect with other goddesses in our sacred sisterhood.' 
-                : 'Conectează-te cu alte zeițe în sororitatea noastră sacrată.'}
+                : 'Conectează-te cu alte regine în Cercul Surorilor.'}
             </p>
             <Button variant="outline" className="border-feminine-primary text-feminine-primary hover:bg-feminine-primary/10">
               <MessageCircle className="w-4 h-4 mr-2" />

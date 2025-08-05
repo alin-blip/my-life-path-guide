@@ -56,7 +56,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
             </Link>
           </Button>
           <h1 className={`${isMobile ? 'text-sm' : 'text-lg'} font-bold tracking-widest text-center`}>
-            SECRET GETAWAY
+            REFUGIUL TĂU
           </h1>
           <Calendar className={`${isMobile ? 'w-3 h-3' : 'w-5 h-5'} text-blue-500`} />
         </div>
