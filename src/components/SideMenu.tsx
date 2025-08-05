@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { 
@@ -50,6 +50,18 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['community', 'introspecție']);
   const { t } = useLanguage();
 
+  // Auto-expand "Atelierul de Transformare" when on /stack route
+  useEffect(() => {
+    if (currentPath === '/stack' || currentPath.startsWith('/stack?')) {
+      const transformationWorkshopKey = t('transformationWorkshop').toLowerCase();
+      setExpandedMenus(prev => 
+        prev.includes(transformationWorkshopKey) 
+          ? prev 
+          : [...prev, transformationWorkshopKey]
+      );
+    }
+  }, [currentPath, t]);
+
   const toggleExpand = (title: string) => {
     setExpandedMenus(prev => 
       prev.includes(title) 
@@ -74,7 +86,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     },
     { title: 'Sacred Circle', icon: Box, path: '/core', hidden: true },
     { title: 'Divine 4', icon: Clock, path: '/daily-four', hidden: true },
-    { title: 'Refugiul Tău', icon: Flag, path: '/door' },
+    { title: t('commandCenter'), icon: Flag, path: '/door' },
     { title: 'Misiuni de Împlinire', icon: Target, path: '/game' },
     { 
       title: 'Cercul Surorilor', 
