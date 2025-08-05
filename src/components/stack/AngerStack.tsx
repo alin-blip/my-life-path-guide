@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAngerStack } from './anger-stack/useAngerStack';
 import { AngerStackQuestion } from './anger-stack/AngerStackQuestion';
 import { CompletedStack } from './anger-stack/CompletedStack';
@@ -7,10 +7,12 @@ import { getQuestions } from './anger-stack/questions';
 import { AngerStackProps } from './anger-stack/types';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
+import { AiGuidedStack } from "./AiGuidedStack";
 import { Button } from "@/components/ui/button";
-import { Lightbulb } from "lucide-react";
+import { Bot, User, Lightbulb } from "lucide-react";
 
 export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
+  const [mode, setMode] = useState<'manual' | 'ai'>('manual');
   const { 
     state, 
     setState, 
@@ -38,7 +40,6 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
   
   const { getCurrentQuestion } = utils;
   
-  const rawQuestions = getQuestions(document.documentElement.lang === 'en' ? 'en' : 'ro');
   
   const handleYesClick = () => {
     handleAnswer("Yes");
@@ -96,9 +97,46 @@ export const AngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
     handleBack();
   };
 
+  const rawQuestions = getQuestions(document.documentElement.lang === 'en' ? 'en' : 'ro');
+
+  if (mode === 'ai') {
+    return (
+      <AiGuidedStack
+        onAddToHitList={onAddToHitList}
+        stackType="anger"
+        questions={rawQuestions}
+        onModeSwitch={() => setMode('manual')}
+      />
+    );
+  }
+
   return (
     <div className="w-full h-full">
-      {!(committedAction || stackCompleted) && <AngerStackExplanation />}
+      {!(committedAction || stackCompleted) && (
+        <div className="mb-4">
+          <div className="flex gap-2 mb-4">
+            <Button
+              variant={mode === 'manual' ? 'default' : 'outline'}
+              onClick={() => setMode('manual')}
+              size="sm"
+              className="text-xs sm:text-sm"
+            >
+              <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              Manual
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setMode('ai')}
+              size="sm"
+              className="text-xs sm:text-sm"
+            >
+              <Bot className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              AI Ghidat
+            </Button>
+          </div>
+          <AngerStackExplanation />
+        </div>
+      )}
       
       {(committedAction || stackCompleted) ? (
         <CompletedStack

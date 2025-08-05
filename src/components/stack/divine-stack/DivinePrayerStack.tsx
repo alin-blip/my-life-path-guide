@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,10 +7,13 @@ import { useDivinePrayerStack } from './useDivinePrayerStack';
 import { DivinePrayerStackProps } from './types';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "../StackIdeaModal";
+import { AiGuidedStack } from "../AiGuidedStack";
 import { DivinePrayerExplanation } from "./DivinePrayerExplanation";
-import { Send, PlusCircle, CheckCircle, Lightbulb } from 'lucide-react';
+import { getQuestions } from "./questions";
+import { Send, PlusCircle, CheckCircle, Bot, User, Lightbulb } from 'lucide-react';
 
 export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHitList }) => {
+  const [mode, setMode] = useState<'manual' | 'ai'>('manual');
   const { state, handlers, utils } = useDivinePrayerStack({ onAddToHitList });
   
   const {
@@ -26,6 +29,17 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
   
   const { handleInputChange, handleNext, handleBack, resetStack, addToHotList } = handlers;
   const { getCurrentQuestion, getDivineSummary } = utils;
+
+  if (mode === 'ai') {
+    return (
+      <AiGuidedStack
+        onAddToHitList={onAddToHitList}
+        stackType="divine-prayer"
+        questions={getQuestions()}
+        onModeSwitch={() => setMode('manual')}
+      />
+    );
+  }
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -76,7 +90,29 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
         </div>
       ) : (
         <div className="w-full p-1 sm:p-2 flex flex-col justify-end h-full">
-          <DivinePrayerExplanation />
+          <div className="mb-4">
+            <div className="flex gap-2 mb-4">
+              <Button
+                variant={mode === 'manual' ? 'default' : 'outline'}
+                onClick={() => setMode('manual')}
+                size="sm"
+                className="text-xs sm:text-sm"
+              >
+                <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                Manual
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setMode('ai')}
+                size="sm"
+                className="text-xs sm:text-sm"
+              >
+                <Bot className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                AI Ghidat
+              </Button>
+            </div>
+            <DivinePrayerExplanation />
+          </div>
           
           <div className="mb-4">
             <h1 className="text-lg sm:text-xl font-semibold text-indigo-400 mb-1">
