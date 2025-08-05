@@ -38,9 +38,9 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
   
   // Get week status
   const getWeekStatus = () => {
-    if (isCurrentWeek) return { text: 'Săptămâna curentă', color: 'text-green-400' };
-    if (todayDate > weekEnd) return { text: 'Săptămână trecută', color: 'text-yellow-400' };
-    return { text: 'Săptămână viitoare', color: 'text-blue-400' };
+    if (isCurrentWeek) return { text: t('currentWeek'), color: 'text-green-400' };
+    if (todayDate > weekEnd) return { text: t('pastWeek'), color: 'text-yellow-400' };
+    return { text: t('futureWeek'), color: 'text-blue-400' };
   };
 
   const weekStatus = getWeekStatus();
@@ -56,7 +56,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
             </Link>
           </Button>
           <h1 className={`${isMobile ? 'text-sm' : 'text-lg'} font-bold tracking-widest text-center`}>
-            REFUGIUL TĂU
+            {t('commandCenter')}
           </h1>
           <Calendar className={`${isMobile ? 'w-3 h-3' : 'w-5 h-5'} text-blue-500`} />
         </div>
@@ -120,7 +120,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
                 ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' 
                 : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
             }`}>
-              ⚠️ Vizualizezi o {todayDate > weekEnd ? 'săptămână trecută' : 'săptămână viitoare'}
+              {todayDate > weekEnd ? t('viewingPastWeek') : t('viewingFutureWeek')}
             </div>
             <Button 
               variant="outline" 
@@ -131,7 +131,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
               }}
               className="text-blue-400 border-blue-400 hover:bg-blue-400 hover:text-white"
             >
-              🏠 Înapoi la săptămâna curentă
+              {t('backToCurrentWeek')}
             </Button>
           </div>
         )}

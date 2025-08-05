@@ -135,8 +135,15 @@ const translations: Translations = {
     "viewCoreDetails": "View Core Details",
     
     // Door specific translations
+    "commandCenter": "COMMAND CENTER",
     "doorTitle": "DOOR",
     "doorPlanningSystem": "Weekly Planning System",
+    "currentWeek": "Current Week",
+    "pastWeek": "Past Week", 
+    "futureWeek": "Future Week",
+    "viewingPastWeek": "You are viewing a past week",
+    "viewingFutureWeek": "You are viewing a future week",
+    "backToCurrentWeek": "🏠 Back to Current Week",
     "ideaList": "IDEA LIST",
     "hotList": "HOT LIST", 
     "weeklyGoal": "WEEKLY GOAL",
@@ -375,8 +382,15 @@ const translations: Translations = {
     "viewCoreDetails": "Vezi Detaliile Core",
     
     // Door specific translations
+    "commandCenter": "CENTRUL DE COMANDĂ",
     "doorTitle": "UȘA",
-    "doorPlanningSystem": "Sistem de Planificare Săptămânală",
+    "doorPlanningSystem": "Sistem de Planificare Săptămânală", 
+    "currentWeek": "Săptămâna Curentă",
+    "pastWeek": "Săptămână Trecută",
+    "futureWeek": "Săptămână Viitoare",
+    "viewingPastWeek": "⚠️ Vizualizezi o săptămână trecută",
+    "viewingFutureWeek": "⚠️ Vizualizezi o săptămână viitoare",
+    "backToCurrentWeek": "🏠 Înapoi la săptămâna curentă",
     "ideaList": "LISTA DE IDEI",
     "hotList": "LISTA FIERBINTE",
     "weeklyGoal": "OBIECTIV SĂPTĂMÂNAL",
