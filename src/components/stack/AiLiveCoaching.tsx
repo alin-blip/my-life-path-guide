@@ -23,7 +23,7 @@ interface Message {
 
 export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }) => {
   const { toast } = useToast();
-  const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('setup');
+  const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
   const [systemPrompt, setSystemPrompt] = useState(`Ești un coach profesionist AI care ajută oamenii să depășească provocările din viața lor. 
 
 Rolul tău este să:
@@ -49,6 +49,18 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
+
+  // Add welcome message when component mounts
+  useEffect(() => {
+    if (messages.length === 0) {
+      const welcomeMessage: Message = {
+        role: 'assistant',
+        content: 'Bună ziua! Sunt AI coach-ul tău personal și sunt aici să te ajut să găsești soluții pentru provocările din viața ta. Să începem - ce situație sau provocare te aduce astăzi aici? Spune-mi despre ceea ce te preocupă.',
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, []);
   
   const {
     isIdeaModalOpen,
@@ -152,10 +164,17 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   };
 
   const resetSession = () => {
-    setMode('setup');
-    setMessages([]);
+    setMode('chat');
     setCurrentMessage("");
     setFinalAction("");
+    
+    // Add fresh welcome message
+    const welcomeMessage: Message = {
+      role: 'assistant',
+      content: 'Bună ziua! Sunt AI coach-ul tău personal și sunt aici să te ajut să găsești soluții pentru provocările din viața ta. Să începem - ce situație sau provocare te aduce astăzi aici? Spune-mi despre ceea ce te preocupă.',
+      timestamp: new Date()
+    };
+    setMessages([welcomeMessage]);
   };
 
   const startChat = () => {

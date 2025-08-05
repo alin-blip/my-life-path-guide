@@ -27,7 +27,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   questions,
   onModeSwitch 
 }) => {
-  const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('setup');
+  const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -106,6 +106,18 @@ INSTRUCȚIUNI:
 
   useEffect(() => {
     setSystemPrompt(getStackPrompt());
+    
+    // Add welcome message when component mounts
+    if (messages.length === 0) {
+      const welcomeMessage: Message = {
+        role: 'assistant',
+        content: stackType === 'anger' 
+          ? 'Salut! Sunt aici să te ajut să treci prin procesul de transformare a furiei în claritate și acțiune constructivă. Să începem - ce te-a adus astăzi la acest exercițiu? Ce situație sau sentiment vrei să explorăm împreună?'
+          : 'Bine ai venit într-un spațiu de rugăciune și reflecție spirituală. Sunt aici să te însoțesc în această călătorie de conexiune cu divinitatea și găsire de claritate spirituală. Spune-mi, ce te-a adus astăzi la această rugăciune?',
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
   }, [stackType, questions]);
 
   const scrollToBottom = () => {
@@ -214,11 +226,20 @@ INSTRUCȚIUNI:
   };
 
   const resetSession = () => {
-    setMode('setup');
-    setMessages([]);
+    setMode('chat');
     setCurrentMessage('');
     setFinalAction('');
     setActionAddedToHitList(false);
+    
+    // Add fresh welcome message
+    const welcomeMessage: Message = {
+      role: 'assistant',
+      content: stackType === 'anger' 
+        ? 'Salut! Sunt aici să te ajut să treci prin procesul de transformare a furiei în claritate și acțiune constructivă. Să începem - ce te-a adus astăzi la acest exercițiu? Ce situație sau sentiment vrei să explorăm împreună?'
+        : 'Bine ai venit într-un spațiu de rugăciune și reflecție spirituală. Sunt aici să te însoțesc în această călătorie de conexiune cu divinitatea și găsire de claritate spirituală. Spune-mi, ce te-a adus astăzi la această rugăciune?',
+      timestamp: new Date()
+    };
+    setMessages([welcomeMessage]);
   };
 
   const startChat = () => {
