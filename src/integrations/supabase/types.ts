@@ -315,6 +315,45 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_base_files: {
+        Row: {
+          content_preview: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          metadata: Json | null
+          processed: boolean | null
+          upload_date: string
+          user_id: string
+        }
+        Insert: {
+          content_preview?: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          metadata?: Json | null
+          processed?: boolean | null
+          upload_date?: string
+          user_id: string
+        }
+        Update: {
+          content_preview?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          metadata?: Json | null
+          processed?: boolean | null
+          upload_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       missions: {
         Row: {
           category: string

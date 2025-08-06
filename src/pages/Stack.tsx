@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
 import { AngerStack } from '@/components/stack/AngerStack';
 import { AiLiveCoaching } from '@/components/stack/AiLiveCoaching';
+import { HormoziCoachingStack } from '@/components/stack/HormoziCoachingStack';
 import { useLocation } from 'react-router-dom';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
 
@@ -41,6 +42,9 @@ const CoachingPage = () => {
           break;
         case 'ai-live':
           setActiveStack('ai-live');
+          break;
+        case 'hormozi-coaching':
+          setActiveStack('hormozi-coaching');
           break;
         default:
           setActiveStack('divine-prayer');
@@ -114,6 +118,8 @@ const CoachingPage = () => {
         return <AngerStack onAddToHitList={addActionToHitList} />;
       case "ai-live":
         return <AiLiveCoaching onAddToHitList={addActionToHitList} />;
+      case "hormozi-coaching":
+        return <HormoziCoachingStack onAddToHitList={addActionToHitList} />;
       case "divine-prayer":
         return <DivinePrayerStack onAddToHitList={addActionToHitList} />;
       default:
