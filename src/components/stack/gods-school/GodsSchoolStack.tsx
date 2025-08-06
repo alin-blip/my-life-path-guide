@@ -7,14 +7,16 @@ import { useToast } from '@/hooks/use-toast';
 import { useGodsSchoolStack } from './useGodsSchoolStack';
 import { GodsSchoolExplanation } from './GodsSchoolExplanation';
 import { GodsSchoolStackProps } from './types';
-import { ArrowLeft, ArrowRight, Crown, Sparkles, RotateCcw, MessageSquare, List, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Crown, Sparkles, RotateCcw, MessageSquare, List, CheckCircle, Upload } from 'lucide-react';
 import { StackProgressIndicator } from '../StackProgressIndicator';
 import { StackIdeaModal } from '../StackIdeaModal';
 import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
+import { KnowledgeBaseUploader } from '../KnowledgeBaseUploader';
 
 export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList }) => {
   const { toast } = useToast();
   const [showExplanation, setShowExplanation] = useState(true);
+  const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
   const { 
     isIdeaModalOpen, 
     currentIdea, 
@@ -140,6 +142,15 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
         
         <div className="flex gap-2">
           <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowKnowledgeBase(!showKnowledgeBase)}
+            className="border-amber-300 text-amber-700 hover:bg-amber-50"
+          >
+            <Upload className="h-4 w-4 mr-1" />
+            Biblioteca Divină
+          </Button>
+          <Button
             variant={state.mode === 'structured' ? 'default' : 'outline'}
             size="sm"
             onClick={() => switchMode('structured')}
@@ -169,6 +180,28 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
         unsavedChanges={session.unsavedChanges}
         isAutoSaveEnabled={session.isAutoSaveEnabled}
       />
+
+      {/* Knowledge Base Uploader */}
+      {showKnowledgeBase && (
+        <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+          <CardHeader>
+            <CardTitle className="text-amber-900 flex items-center gap-2">
+              <Upload className="h-5 w-5" />
+              Biblioteca Divină - Încarcă Cartea Ta
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <KnowledgeBaseUploader 
+              onUploadComplete={() => {
+                toast({
+                  title: "📚 Cartea a fost adăugată în Biblioteca Divină",
+                  description: "Înțelepciunea din carte va ghida conversațiile tale divine!"
+                });
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Main question card */}
       <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
