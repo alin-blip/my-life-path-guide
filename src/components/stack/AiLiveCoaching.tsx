@@ -65,7 +65,8 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   const {
     isIdeaModalOpen,
     openIdeaModal,
-    closeIdeaModal
+    closeIdeaModal,
+    captureIdea
   } = useStackTodoIntegration({ onAddToHitList });
 
   const sendMessage = async () => {
@@ -157,8 +158,8 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   };
 
   const addToHitList = () => {
-    if (onAddToHitList && finalAction) {
-      onAddToHitList(finalAction);
+    if (finalAction) {
+      captureIdea(finalAction, 'hot', 'important');
       setFinalAction("");
     }
   };

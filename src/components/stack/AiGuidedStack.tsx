@@ -41,7 +41,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const {
     isIdeaModalOpen,
     openIdeaModal,
-    closeIdeaModal
+    closeIdeaModal,
+    captureIdea
   } = useStackTodoIntegration({ onAddToHitList });
 
   const getStackPrompt = () => {
@@ -205,23 +206,9 @@ INSTRUCȚIUNI:
   };
 
   const addToHitList = () => {
-    if (finalAction && onAddToHitList) {
-      onAddToHitList(finalAction);
+    if (finalAction) {
+      captureIdea(finalAction, 'hot', 'important');
       setActionAddedToHitList(true);
-      
-      // Save to localStorage as well
-      const existingItems = JSON.parse(localStorage.getItem('door-hot-list') || '[]');
-      const newItem = {
-        id: Date.now().toString(),
-        text: finalAction,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem('door-hot-list', JSON.stringify([...existingItems, newItem]));
-      
-      toast({
-        title: "Adăugat la Hit List",
-        description: "Acțiunea ta a fost adăugată cu succes la lista fierbinte!",
-      });
     }
   };
 
