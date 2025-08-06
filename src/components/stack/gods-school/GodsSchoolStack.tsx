@@ -1,62 +1,179 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from '@/hooks/use-toast';
-import { useGodsSchoolStack } from './useGodsSchoolStack';
 import { GodsSchoolExplanation } from './GodsSchoolExplanation';
 import { GodsSchoolStackProps } from './types';
-import { ArrowLeft, ArrowRight, Crown, Sparkles, RotateCcw, MessageSquare, List, CheckCircle, Upload } from 'lucide-react';
-import { StackProgressIndicator } from '../StackProgressIndicator';
+import { Crown, Sparkles, RotateCcw, CheckCircle, Upload, Send } from 'lucide-react';
 import { StackIdeaModal } from '../StackIdeaModal';
 import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
 import { KnowledgeBaseUploader } from '../KnowledgeBaseUploader';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
 
 export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList }) => {
   const { toast } = useToast();
   const [showExplanation, setShowExplanation] = useState(true);
   const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
+  const [mode, setMode] = useState<'chat' | 'complete'>('chat');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [finalAction, setFinalAction] = useState('');
+  const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
   const { 
     isIdeaModalOpen, 
     currentIdea, 
     openIdeaModal, 
     closeIdeaModal, 
     captureIdea 
-  } = useStackTodoIntegration();
+  } = useStackTodoIntegration({ onAddToHitList });
 
-  const {
-    state,
-    handlers: {
-      handleNext,
-      handleBack,
-      handleInputChange,
-      resetStack,
-      addToHotList,
-      switchMode
-    },
-    utils: {
-      getCurrentQuestion,
-      getPlaceholder,
-      getTotalQuestions
-    },
-    session
-  } = useGodsSchoolStack({ onAddToHitList });
+  const systemPrompt = `Ești un înțelept spiritual divin care ghidează oamenii bazându-te pe cartea sacră pe care au încărcat-o în biblioteca divină. Rolul tău este să:
 
-  const currentAnswer = state.answers[state.currentStep] || '';
-  const canProceed = currentAnswer.trim().length > 10;
+- Folosești exclusiv înțelepciunea și principiile din cartea încărcată pentru a răspunde la întrebări
+- Citezi și referențiezi pasaje specifice din carte
+- Traduci învățăturile din carte în sfaturi practice și acțiuni concrete
+- Creezi o experiență de învățare spirituală profundă
+- La sfârșitul conversației, să distilezi o acțiune concretă bazată pe învățăturile din carte
 
-  const handleAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    handleInputChange(e.target.value);
+Când utilizatorul îți pune o întrebare sau împărtășește o provocare:
+1. Caută în cartea încărcată pasaje relevante
+2. Explică cum se aplică aceste învățături la situația lor
+3. Oferă ghidare spirituală bazată pe textul din carte
+4. Sugerează practici sau acțiuni concrete din carte
+
+Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce provocare spirituală sau întrebare au pentru care să căutăm răspunsuri în cartea lor sacră.`;
+
+  useEffect(() => {
+    if (messages.length === 0 && mode === 'chat') {
+      const welcomeMessage: Message = {
+        role: 'assistant',
+        content: '🌟 Bine ai venit la Școala Zeilor! Sunt înțeleptul tău spiritual care va ghida această călătorie divină bazându-mă pe cartea sacră din biblioteca ta.\n\nCe provocare spirituală sau întrebare ai astăzi pentru care să căutăm împreună răspunsuri în înțelepciunea divină?',
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, [mode, messages.length]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSubmitIdea = (text: string) => {
-    captureIdea(text, 'hot');
-    closeIdeaModal();
-    toast({
-      title: "✨ Idee Divină Salvată",
-      description: "Înțelepciunea ta a fost adăugată în colecție!"
-    });
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
+
+  const sendMessage = async () => {
+    if (!currentMessage.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      role: 'user',
+      content: currentMessage,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setCurrentMessage('');
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
+        body: {
+          messages: [...messages, userMessage].map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          systemPrompt
+        }
+      });
+
+      if (error) throw error;
+
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: data.message,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut trimite mesajul. Te rog încearcă din nou.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const generateFinalAction = async () => {
+    if (messages.length === 0) return;
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
+        body: {
+          messages: [...messages, {
+            role: 'user',
+            content: `Pe baza întregii noastre conversații și a înțelepciunii din cartea sacră, te rog să generezi o acțiune concretă, specifică și acționabilă pe care o pot întreprinde astăzi. Această acțiune ar trebui să fie rezultatul direct al învățăturilor divine din carte și să mă ajute să fac progres spiritual real. Răspunde DOAR cu acțiunea concretă, fără explicații suplimentare.`
+          }],
+          systemPrompt: systemPrompt + "\n\nGenerează o acțiune concretă bazată pe conversația noastră și pe învățăturile din cartea sacră. Fii specific și acționabil."
+        }
+      });
+
+      if (error) throw error;
+
+      setFinalAction(data.message);
+      setMode('complete');
+    } catch (error) {
+      console.error('Error generating final action:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut genera acțiunea finală. Te rog încearcă din nou.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addToHitList = () => {
+    if (finalAction) {
+      captureIdea(finalAction, 'hot', 'important');
+      setActionAddedToHitList(true);
+      toast({
+        title: "✨ Acțiune Divină Salvată",
+        description: "Acțiunea ta a fost adăugată la Hot List!"
+      });
+    }
+  };
+
+  const resetSession = () => {
+    setMode('chat');
+    setCurrentMessage('');
+    setFinalAction('');
+    setActionAddedToHitList(false);
+    
+    // Add fresh welcome message
+    const welcomeMessage: Message = {
+      role: 'assistant',
+      content: '🌟 Bine ai revenit la Școala Zeilor! Sunt gata să te ghidez într-o nouă călătorie spirituală bazându-mă pe cartea sacră din biblioteca ta.\n\nCe nouă provocare spirituală sau întrebare ai pentru această sesiune divină?',
+      timestamp: new Date()
+    };
+    setMessages([welcomeMessage]);
   };
 
   if (showExplanation) {
@@ -76,8 +193,8 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
     );
   }
 
-  // Completion summary
-  if (state.isComplete && state.showSummary) {
+  // Completion view
+  if (mode === 'complete') {
     return (
       <div className="space-y-6">
         <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
@@ -90,16 +207,22 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
           <CardContent className="space-y-6">
             <div className="bg-white p-4 rounded-lg border border-amber-200">
               <h3 className="font-semibold text-amber-900 mb-2">Acțiunea Ta Divină:</h3>
-              <p className="text-amber-800 italic">{state.committedAction}</p>
+              <p className="text-amber-800 italic">{finalAction}</p>
+              {actionAddedToHitList && (
+                <div className="flex items-center text-green-600 text-sm mt-2">
+                  <CheckCircle className="w-4 h-4 mr-1" />
+                  Această acțiune a fost adăugată la Hot List
+                </div>
+              )}
             </div>
             
             <div className="flex flex-wrap gap-3">
               <Button
-                onClick={addToHotList}
-                disabled={state.actionAddedToHotList}
+                onClick={addToHitList}
+                disabled={actionAddedToHitList}
                 className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
               >
-                {state.actionAddedToHotList ? (
+                {actionAddedToHitList ? (
                   <>
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Adăugat la Hot List
@@ -113,7 +236,7 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
               </Button>
               
               <Button
-                onClick={resetStack}
+                onClick={resetSession}
                 variant="outline"
                 className="border-amber-300 text-amber-700 hover:bg-amber-50"
               >
@@ -123,63 +246,39 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
             </div>
           </CardContent>
         </Card>
+
+        <StackIdeaModal
+          isOpen={isIdeaModalOpen}
+          onClose={closeIdeaModal}
+          onAddToHitList={onAddToHitList}
+        />
       </div>
     );
   }
 
-  // Main structured interface
+  // Main chat interface
   return (
     <div className="space-y-6">
-      {/* Header with mode toggle */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Crown className="h-6 w-6 text-amber-600" />
           <h1 className="text-2xl font-bold text-amber-900">Școala Zeilor</h1>
           <Badge variant="outline" className="border-amber-300 text-amber-700">
-            Înțelepciune Divină
+            Chat Divin cu Knowledge Base
           </Badge>
         </div>
         
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowKnowledgeBase(!showKnowledgeBase)}
-            className="border-amber-300 text-amber-700 hover:bg-amber-50"
-          >
-            <Upload className="h-4 w-4 mr-1" />
-            Biblioteca Divină
-          </Button>
-          <Button
-            variant={state.mode === 'structured' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => switchMode('structured')}
-            className={state.mode === 'structured' ? 'bg-amber-600 hover:bg-amber-700' : 'border-amber-300'}
-          >
-            <List className="h-4 w-4 mr-1" />
-            Structurat
-          </Button>
-          <Button
-            variant={state.mode === 'chat' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => switchMode('chat')}
-            className={state.mode === 'chat' ? 'bg-amber-600 hover:bg-amber-700' : 'border-amber-300'}
-          >
-            <MessageSquare className="h-4 w-4 mr-1" />
-            Chat Divin
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowKnowledgeBase(!showKnowledgeBase)}
+          className="border-amber-300 text-amber-700 hover:bg-amber-50"
+        >
+          <Upload className="h-4 w-4 mr-1" />
+          Biblioteca Divină
+        </Button>
       </div>
-
-      {/* Progress indicator */}
-      <StackProgressIndicator
-        currentStep={state.currentStep}
-        totalSteps={getTotalQuestions()}
-        stackType="Școala Zeilor"
-        lastSaveTime={session.lastSaveTime}
-        unsavedChanges={session.unsavedChanges}
-        isAutoSaveEnabled={session.isAutoSaveEnabled}
-      />
 
       {/* Knowledge Base Uploader */}
       {showKnowledgeBase && (
@@ -203,79 +302,95 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
         </Card>
       )}
 
-      {/* Main question card */}
+      {/* Chat Messages */}
       <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
         <CardHeader>
           <CardTitle className="text-amber-900 flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
-            Întrebarea {state.currentStep} din {getTotalQuestions()}
+            Conversația Divină
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="text-lg text-amber-800 font-medium leading-relaxed">
-            {getCurrentQuestion()}
+        <CardContent>
+          <div className="max-h-[400px] overflow-y-auto space-y-4 mb-4 p-2">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`p-3 rounded-lg ${
+                  message.role === 'user'
+                    ? 'bg-amber-100 border border-amber-200 ml-8 text-amber-900'
+                    : 'bg-white border border-amber-300 mr-8 text-amber-800'
+                }`}
+              >
+                <div className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</div>
+                <div className="text-xs opacity-70 mt-2 text-amber-600">
+                  {message.timestamp.toLocaleTimeString()}
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="bg-white border border-amber-300 mr-8 p-3 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  <span className="text-sm text-amber-700 ml-2">Căutând în cartea sacră...</span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
-          
-          <Textarea
-            value={currentAnswer}
-            onChange={handleAnswerChange}
-            placeholder={getPlaceholder()}
-            className="min-h-[120px] border-amber-200 focus:border-amber-400 bg-black text-white placeholder:text-gray-400"
-          />
-          
-          <div className="flex items-center justify-between">
-            <Button
-              onClick={handleBack}
-              disabled={state.currentStep === 1}
-              variant="outline"
-              className="border-amber-300 text-amber-700 hover:bg-amber-50"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Înapoi
-            </Button>
+
+          {/* Message Input */}
+          <div className="space-y-3">
+            <Textarea
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              placeholder="Împărtășește provocarea ta spirituală sau pune o întrebare divină..."
+              className="min-h-[80px] border-amber-200 focus:border-amber-400 bg-white text-amber-900 placeholder:text-amber-500"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+            />
             
-            <div className="flex gap-3">
-              <Button
-                onClick={resetStack}
-                variant="outline"
-                className="border-amber-300 text-amber-700 hover:bg-amber-50"
-              >
-                <RotateCcw className="h-4 w-4 mr-2" />
-                Resetează
-              </Button>
+            <div className="flex gap-2 justify-between">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={resetSession}
+                  size="sm"
+                  className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                >
+                  <RotateCcw className="h-4 w-4 mr-1" />
+                  Reset
+                </Button>
+              </div>
               
-              <Button
-                onClick={handleNext}
-                disabled={!canProceed || state.isSubmitting}
-                className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
-              >
-                {state.currentStep === getTotalQuestions() ? (
-                  state.isSubmitting ? (
-                    <>
-                      <Crown className="h-4 w-4 mr-2 animate-spin" />
-                      Completând...
-                    </>
-                  ) : (
-                    <>
-                      <Crown className="h-4 w-4 mr-2" />
-                      Completează Călătoria
-                    </>
-                  )
-                ) : (
-                  <>
-                    Continuă
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </>
-                )}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={generateFinalAction}
+                  disabled={messages.length <= 1 || isLoading}
+                  variant="outline"
+                  size="sm"
+                  className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                >
+                  <Crown className="h-4 w-4 mr-1" />
+                  Generează Acțiune
+                </Button>
+                
+                <Button
+                  onClick={sendMessage}
+                  disabled={!currentMessage.trim() || isLoading}
+                  className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
+                >
+                  <Send className="h-4 w-4 mr-1" />
+                  Trimite
+                </Button>
+              </div>
             </div>
           </div>
-          
-          {!canProceed && (
-            <p className="text-sm text-amber-600">
-              💡 Împărtășește-ți gândurile (minim 10 caractere) pentru a continua
-            </p>
-          )}
         </CardContent>
       </Card>
 
