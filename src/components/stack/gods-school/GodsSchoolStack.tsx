@@ -220,7 +220,7 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
             value={currentAnswer}
             onChange={handleAnswerChange}
             placeholder={getPlaceholder()}
-            className="min-h-[120px] border-amber-200 focus:border-amber-400 bg-white"
+            className="min-h-[120px] border-amber-200 focus:border-amber-400 bg-black text-white placeholder:text-gray-400"
           />
           
           <div className="flex items-center justify-between">
