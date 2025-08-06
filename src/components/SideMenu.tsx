@@ -27,7 +27,8 @@ import {
   Headphones,
   BookOpen as BookOpenIcon,
   Pencil,
-  Target
+  Target,
+  Crown
 } from 'lucide-react';
 
 interface SideMenuProps {
@@ -82,6 +83,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: 'Dialogul cu Divinitatea', icon: Heart, path: '/stack?type=divine-prayer' },
         { title: 'Oracolul Înțelepciunii', icon: Headphones, path: '/stack?type=ai-live' },
         { title: 'Imperiul de Business', icon: Briefcase, path: '/stack?type=hormozi-coaching' },
+        { title: 'Școala Zeilor', icon: Crown, path: '/stack?type=gods-school' },
         { title: 'Jurnalul Sacru', icon: Pencil, path: '/journal' },
       ]
     },

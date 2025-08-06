@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AngerStack } from '@/components/stack/AngerStack';
 import { AiLiveCoaching } from '@/components/stack/AiLiveCoaching';
 import { HormoziCoachingStack } from '@/components/stack/HormoziCoachingStack';
+import { GodsSchoolStack } from '@/components/stack/gods-school/GodsSchoolStack';
 import { useLocation } from 'react-router-dom';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
 
@@ -45,6 +46,9 @@ const CoachingPage = () => {
           break;
         case 'hormozi-coaching':
           setActiveStack('hormozi-coaching');
+          break;
+        case 'gods-school':
+          setActiveStack('gods-school');
           break;
         default:
           setActiveStack('divine-prayer');
@@ -120,6 +124,8 @@ const CoachingPage = () => {
         return <AiLiveCoaching onAddToHitList={addActionToHitList} />;
       case "hormozi-coaching":
         return <HormoziCoachingStack onAddToHitList={addActionToHitList} />;
+      case "gods-school":
+        return <GodsSchoolStack onAddToHitList={addActionToHitList} />;
       case "divine-prayer":
         return <DivinePrayerStack onAddToHitList={addActionToHitList} />;
       default:
