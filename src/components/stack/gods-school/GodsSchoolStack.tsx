@@ -11,6 +11,7 @@ import { StackIdeaModal } from '../StackIdeaModal';
 import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
 import { KnowledgeBaseUploader } from '../KnowledgeBaseUploader';
 import { supabase } from '@/integrations/supabase/client';
+import { saveToStackLibrary } from '@/utils/stackProgress';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -138,6 +139,9 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
 
       setFinalAction(data.message);
       setMode('complete');
+
+      // Save the stack session to library
+      await saveStackSession(messages, data.message);
     } catch (error) {
       console.error('Error generating final action:', error);
       toast({
@@ -157,6 +161,45 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
       toast({
         title: "✨ Acțiune Divină Salvată",
         description: "Acțiunea ta a fost adăugată la Hot List!"
+      });
+    }
+  };
+
+  const saveStackSession = async (chatMessages: Message[], finalActionText: string) => {
+    try {
+      const sessionId = `gods-school-${Date.now()}`;
+      
+      // Format the chat conversation for the library
+      const conversationData = {
+        conversation: chatMessages.map(msg => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp
+        })),
+        finalAction: finalActionText,
+        sessionDate: new Date().toISOString()
+      };
+
+      // Create a formatted content for display
+      const formattedAnswers: Record<string, string> = {
+        'conversation': JSON.stringify(conversationData, null, 2),
+        'finalAction': finalActionText
+      };
+
+      const questions = ['Conversația Divină Completă', 'Acțiunea Finală Generată'];
+
+      await saveToStackLibrary('gods-school', sessionId, formattedAnswers, questions);
+      
+      toast({
+        title: "📚 Stack Salvat în Bibliotecă",
+        description: "Sesiunea ta de coaching divin a fost salvată în biblioteca de stack-uri!"
+      });
+    } catch (error) {
+      console.error('Error saving stack session:', error);
+      toast({
+        title: "Avertisment",
+        description: "Stack-ul nu a putut fi salvat în bibliotecă, dar acțiunea a fost generată cu succes.",
+        variant: "destructive"
       });
     }
   };

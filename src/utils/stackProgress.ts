@@ -101,6 +101,8 @@ const getStackLabel = (type: string): string => {
       return 'Unlock Stack';
     case 'divine':
       return 'Divine Stack';
+    case 'gods-school':
+      return 'Școala Zeilor';
     case 'ai':
       return 'AI Coaching';
     default:
@@ -119,6 +121,8 @@ const getStackColor = (type: string): string => {
       return 'green';
     case 'divine':
       return 'purple';
+    case 'gods-school':
+      return 'amber';
     case 'ai':
       return 'orange';
     default:
