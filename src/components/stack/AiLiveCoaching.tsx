@@ -260,16 +260,6 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
         </div>
       ) : (
         <div className="w-full p-1 sm:p-2 flex flex-col h-full">
-          <div className="mb-2">
-            <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-1">
-              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 inline mr-2" />
-              AI Live Coaching
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Conversie ({messages.length} mesaje)
-            </p>
-          </div>
-
           <div 
             ref={chatAreaRef}
             className="flex-1 mb-2 overflow-y-auto bg-background/30 rounded border p-2 scroll-smooth"
@@ -304,43 +294,55 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
             )}
           </div>
           
-          <div className="mb-2 flex gap-2">
-            <Textarea 
-              placeholder="Scrie mesajul tău aici..."
-              className="min-h-[60px] flex-1 text-sm"
-              value={currentMessage}
-              onChange={(e) => setCurrentMessage(e.target.value)}
-              onEnterSubmit={sendMessage}
-              disabled={isLoading}
-            />
-            <Button 
-              onClick={sendMessage}
-              disabled={isLoading || !currentMessage.trim()}
-              size="sm"
-              className="px-3"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
-          </div>
+          <div className="space-y-2">
+            <div className="mb-2">
+              <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-1">
+                <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 inline mr-2" />
+                AI Live Coaching
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Conversie ({messages.length} mesaje)
+              </p>
+            </div>
+            
+            <div className="flex gap-2">
+              <Textarea 
+                placeholder="Scrie mesajul tău aici..."
+                className="min-h-[60px] flex-1 text-sm"
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                onEnterSubmit={sendMessage}
+                disabled={isLoading}
+              />
+              <Button 
+                onClick={sendMessage}
+                disabled={isLoading || !currentMessage.trim()}
+                size="sm"
+                className="px-3"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
 
-          <div className="flex gap-2 justify-between">
-            <Button 
-              variant="outline" 
-              onClick={resetSession}
-              size="sm"
-              className="text-xs sm:text-sm"
-            >
-              Resetează sesiunea
-            </Button>
-            <Button 
-              onClick={generateFinalAction}
-              disabled={isLoading || messages.length < 2}
-              size="sm"
-              className="text-xs sm:text-sm"
-            >
-              <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              Generează acțiune finală
-            </Button>
+            <div className="flex gap-2 justify-between">
+              <Button 
+                variant="outline" 
+                onClick={resetSession}
+                size="sm"
+                className="text-xs sm:text-sm"
+              >
+                Resetează sesiunea
+              </Button>
+              <Button 
+                onClick={generateFinalAction}
+                disabled={isLoading || messages.length < 2}
+                size="sm"
+                className="text-xs sm:text-sm"
+              >
+                <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                Generează acțiune finală
+              </Button>
+            </div>
           </div>
         </div>
       )}
