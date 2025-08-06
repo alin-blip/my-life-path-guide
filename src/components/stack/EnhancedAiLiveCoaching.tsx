@@ -1,5 +1,15 @@
-import React from 'react';
-import { EnhancedAiLiveCoaching } from './EnhancedAiLiveCoaching';
+import React, { useState, useRef, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { AiLiveCoachingExplanation } from './AiLiveCoachingExplanation';
+import { useToast } from "@/hooks/use-toast";
+import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
+import { StackIdeaModal } from "./StackIdeaModal";
+import { StackResetConfirmation } from "./StackResetConfirmation";
+import { StackProgressIndicator } from "./StackProgressIndicator";
+import { supabase } from "@/integrations/supabase/client";
+import { Send, PlusCircle, Lightbulb, MessageCircle, AlertTriangle } from "lucide-react";
+import { v4 as uuidv4 } from 'uuid';
 
 interface AiLiveCoachingProps {
   onAddToHitList?: (action: string) => void;
@@ -11,12 +21,11 @@ interface Message {
   timestamp: Date;
 }
 
-export const AiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }) => {
-  return <EnhancedAiLiveCoaching onAddToHitList={onAddToHitList} />;
-};
+export const EnhancedAiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }) => {
   const { toast } = useToast();
-  const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
-  const [systemPrompt, setSystemPrompt] = useState(`Ești un coach profesionist AI care ajută oamenii să depășească provocările din viața lor. 
+  const [sessionId] = useState(() => uuidv4());
+  const [mode, setMode] = useState<'chat' | 'complete'>('chat');
+  const [systemPrompt] = useState(`Ești un coach profesionist AI care ajută oamenii să depășească provocările din viața lor. 
 
 Rolul tău este să:
 - Asculți activ și să înțelegi situația utilizatorului
@@ -30,6 +39,8 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   const [currentMessage, setCurrentMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [finalAction, setFinalAction] = useState("");
+  const [showResetConfirmation, setShowResetConfirmation] = useState(false);
+  const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
   const chatAreaRef = useRef<HTMLDivElement>(null);
   
   const scrollToBottom = () => {
@@ -53,10 +64,23 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
       setMessages([welcomeMessage]);
     }
   }, []);
+
+  // Auto-save session
+  useEffect(() => {
+    if (messages.length > 1) {
+      const saveData = {
+        sessionId,
+        messages,
+        timestamp: new Date().toISOString()
+      };
+      
+      localStorage.setItem(`ai-coaching-session-${sessionId}`, JSON.stringify(saveData));
+      setLastSaveTime(new Date());
+    }
+  }, [messages, sessionId]);
   
   const {
     isIdeaModalOpen,
-    openIdeaModal,
     closeIdeaModal,
     captureIdea
   } = useStackTodoIntegration({ onAddToHitList });
@@ -156,10 +180,17 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
     }
   };
 
-  const resetSession = () => {
+  const handleResetClick = () => {
+    setShowResetConfirmation(true);
+  };
+
+  const handleConfirmReset = () => {
     setMode('chat');
     setCurrentMessage("");
     setFinalAction("");
+    
+    // Clear session storage
+    localStorage.removeItem(`ai-coaching-session-${sessionId}`);
     
     // Add fresh welcome message
     const welcomeMessage: Message = {
@@ -168,18 +199,24 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
+    setShowResetConfirmation(false);
   };
 
-  const startChat = () => {
-    if (!systemPrompt.trim()) {
-      toast({
-        title: "Prompt necesar",
-        description: "Te rugăm să configurezi instrucțiunile pentru AI înainte de a începe.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setMode('chat');
+  const createBackup = () => {
+    const backupData = {
+      sessionId,
+      messages,
+      finalAction,
+      timestamp: new Date().toISOString()
+    };
+    
+    const backupKey = `ai-coaching-backup-${Date.now()}`;
+    localStorage.setItem(backupKey, JSON.stringify(backupData));
+    
+    toast({
+      title: "Backup creat",
+      description: "Sesiunea curentă a fost salvată ca backup.",
+    });
   };
 
   return (
@@ -199,10 +236,11 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
           <div className="flex flex-col sm:flex-row gap-2">
             <Button 
               variant="outline" 
-              onClick={resetSession}
+              onClick={handleResetClick}
               size="sm"
               className="text-xs sm:text-sm"
             >
+              <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               Începe o nouă sesiune
             </Button>
             <Button 
@@ -215,48 +253,23 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
             </Button>
           </div>
         </div>
-      ) : mode === 'setup' ? (
-        <div className="w-full p-2 sm:p-4 flex flex-col justify-end h-full">
-          <AiLiveCoachingExplanation />
-          
-          <div className="mb-4">
-            <h1 className="text-lg sm:text-xl font-semibold text-green-400 mb-2">
-              <Settings className="w-4 h-4 sm:w-5 sm:h-5 inline mr-2" />
-              Configurare AI Coach
-            </h1>
-          </div>
-
-          <div className="mb-4">
-            <Label htmlFor="system-prompt" className="text-sm font-medium text-foreground mb-2 block">
-              Instrucțiuni pentru AI Coach
-            </Label>
-            <Textarea 
-              id="system-prompt"
-              placeholder="Configurează cum vrei să se comporte AI coach-ul..."
-              className="min-h-[120px] sm:min-h-[150px] w-full text-sm"
-              value={systemPrompt}
-              onChange={(e) => setSystemPrompt(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Aceste instrucțiuni vor ghida comportamentul AI coach-ului pe parcursul conversației.
-            </p>
-          </div>
-
-          <Button 
-            onClick={startChat}
-            className="w-full"
-            size="sm"
-          >
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Începe Sesiunea de Coaching
-          </Button>
-        </div>
       ) : (
         <div className="w-full p-1 sm:p-2 flex flex-col h-full">
+          {/* Progress indicator */}
+          <div className="mb-4">
+            <StackProgressIndicator
+              currentStep={messages.length}
+              totalSteps={20} // Estimate for conversation length
+              stackType="AI Live Coaching"
+              lastSaveTime={lastSaveTime}
+              unsavedChanges={false}
+            />
+          </div>
+
           <div 
             ref={chatAreaRef}
             className="flex-1 mb-2 overflow-y-auto bg-background/30 rounded border p-2 scroll-smooth"
-            style={{ maxHeight: 'calc(100vh - 200px)' }}
+            style={{ maxHeight: 'calc(100vh - 300px)' }}
           >
             {messages.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
@@ -320,10 +333,11 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
             <div className="flex gap-2 justify-between">
               <Button 
                 variant="outline" 
-                onClick={resetSession}
+                onClick={handleResetClick}
                 size="sm"
                 className="text-xs sm:text-sm"
               >
+                <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                 Resetează sesiunea
               </Button>
               <Button 
@@ -339,6 +353,18 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
           </div>
         </div>
       )}
+
+      {/* Reset Confirmation Dialog */}
+      <StackResetConfirmation
+        isOpen={showResetConfirmation}
+        onClose={() => setShowResetConfirmation(false)}
+        onConfirm={handleConfirmReset}
+        onCreateBackup={createBackup}
+        stackType="AI Live Coaching"
+        currentStep={messages.length}
+        totalSteps={20}
+        hasAnswers={messages.length > 1}
+      />
 
       <StackIdeaModal
         isOpen={isIdeaModalOpen}

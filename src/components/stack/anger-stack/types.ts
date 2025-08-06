@@ -19,6 +19,8 @@ export interface AngerStackState {
   returnToQuestion: number | null;
   stackCompleted: boolean;
   actionAddedToHotList?: boolean;
+  lastSaveTime?: Date | null;
+  unsavedChanges?: boolean;
 }
 
 export interface UseAngerStackReturn {
@@ -45,6 +47,7 @@ export interface UseAngerStackReturn {
     completeStack: () => void;
     addToHotList: () => void;
     resetStack: () => void;
+    createBackup: () => void;
   };
   utils: {
     getCurrentQuestion: () => string;

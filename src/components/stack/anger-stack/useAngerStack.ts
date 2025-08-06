@@ -9,6 +9,7 @@ import { AngerStackProps, AngerStackState, UseAngerStackReturn, AngerStackAnswer
 import { getQuestions } from './questions';
 import { Json } from '@/integrations/supabase/types';
 import { updateDailyProgress, saveToStackLibrary } from '@/utils/stackProgress';
+import { useStackSession } from '@/hooks/useStackSession';
 
 export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStackReturn => {
   const { toast } = useToast();
@@ -31,6 +32,30 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
   useEffect(() => {
     setSessionId(uuidv4());
   }, []);
+
+  // Enhanced session management
+  const {
+    saveSession,
+    loadSession,
+    clearSession,
+    createBackup,
+    lastSaveTime,
+    unsavedChanges
+  } = useStackSession({
+    stackType: 'anger-stack',
+    sessionId,
+    onSessionRestore: (sessionData) => {
+      setStep(sessionData.step);
+      setAnswers(sessionData.answers);
+      if (sessionData.draftAnswer) {
+        setCurrentAnswer(sessionData.draftAnswer);
+      }
+      toast({
+        title: "Sesiune restaurată",
+        description: "Progresul tău a fost restaurat automat.",
+      });
+    }
+  });
 
   const rawQuestions = getQuestions(language);
   
@@ -112,7 +137,8 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
   };
 
   const handleAnswer = (value: string) => {
-    setAnswers({ ...answers, [step]: value });
+    const newAnswers = { ...answers, [step]: value };
+    setAnswers(newAnswers);
     saveToSupabase(step, value);
     setCurrentAnswer("");
     
@@ -123,6 +149,13 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
     if (step === 9) {
       setStory(value);
     }
+
+    // Auto-save session
+    saveSession({
+      step,
+      answers: newAnswers,
+      draftAnswer: value
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -294,6 +327,7 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
   };
 
   const resetStack = () => {
+    clearSession();
     setStep(0);
     setAnswers({});
     setCommittedAction("");
@@ -325,7 +359,9 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
     currentAnswer, 
     returnToQuestion, 
     stackCompleted,
-    actionAddedToHotList
+    actionAddedToHotList,
+    lastSaveTime,
+    unsavedChanges
   };
 
   const setState = {
@@ -351,6 +387,7 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
     completeStack,
     addToHotList,
     resetStack,
+    createBackup
   };
 
   const utils = {
