@@ -4,6 +4,8 @@ import { DoorHeader } from '@/components/door/DoorHeader';
 import { HotList } from '@/components/door/HotList';
 import { DominoDoor } from '@/components/door/DominoDoor';
 import { TaskList } from '@/components/door/TaskList';
+import { OnboardingTooltip } from '@/components/door/OnboardingTooltip';
+import { EmptyStateCard } from '@/components/door/EmptyStateCard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { format, subDays, getWeek } from 'date-fns';
@@ -12,12 +14,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lightbulb, Target, CheckSquare, Info, HelpCircle } from 'lucide-react';
+import { Lightbulb, Target, CheckSquare, Info, HelpCircle, Plus, Zap } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 export const SimplifiedDoorContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState('ideas');
-  const [showExplanation, setShowExplanation] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(1);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  
+  // Check if user is new (no data in localStorage)
+  useEffect(() => {
+    const hasData = localStorage.getItem('door-hot-list') || 
+                   localStorage.getItem('door-hit-list') || 
+                   localStorage.getItem('door-do-list');
+    const hasSeenTutorial = localStorage.getItem('door-onboarding-completed');
+    
+    if (!hasData && !hasSeenTutorial) {
+      setShowOnboarding(true);
+    }
+    setHasSeenOnboarding(!!hasSeenTutorial);
+  }, []);
   
   const {
     currentDate,
@@ -117,6 +134,46 @@ export const SimplifiedDoorContent: React.FC = () => {
         : `Bine ai venit la Centrul de Comandă simplificat`,
     });
   }, []);
+
+  const onboardingSteps = [
+    {
+      title: language === 'en' ? 'Welcome to Command Center!' : 'Bine ai venit în Centrul de Comandă!',
+      description: language === 'en' 
+        ? 'This is your productivity hub. Let\'s start by adding your first idea!' 
+        : 'Acesta este hub-ul tău de productivitate. Să începem prin a adăuga prima ta idee!'
+    },
+    {
+      title: language === 'en' ? 'Set Your Weekly Focus' : 'Stabilește Focusul Săptămânal',
+      description: language === 'en' 
+        ? 'Choose one important idea as your domino - the action that will create the biggest impact.' 
+        : 'Alege o idee importantă ca domino - acțiunea care va crea cel mai mare impact.'
+    },
+    {
+      title: language === 'en' ? 'Execute Daily Tasks' : 'Execută Sarcinile Zilnice',
+      description: language === 'en' 
+        ? 'Move your key actions to daily lists and track your progress throughout the week.' 
+        : 'Mută acțiunile cheie în listele zilnice și urmărește-ți progresul pe parcursul săptămânii.'
+    }
+  ];
+
+  const handleOnboardingNext = () => {
+    if (onboardingStep < onboardingSteps.length) {
+      setOnboardingStep(onboardingStep + 1);
+      // Auto-switch tabs based on step
+      if (onboardingStep === 1) setActiveTab('focus');
+      if (onboardingStep === 2) setActiveTab('tasks');
+    } else {
+      setShowOnboarding(false);
+      localStorage.setItem('door-onboarding-completed', 'true');
+      setHasSeenOnboarding(true);
+    }
+  };
+
+  const handleOnboardingSkip = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('door-onboarding-completed', 'true');
+    setHasSeenOnboarding(true);
+  };
 
   const getTabStats = (tab: string) => {
     switch (tab) {
@@ -273,22 +330,35 @@ export const SimplifiedDoorContent: React.FC = () => {
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <HotList 
-                    filteredHotList={filteredHotList}
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    toggleHotListItemSelection={toggleHotListItemSelection}
-                    updateHotListItemText={updateHotListItemText}
-                    updateHotListItemPriority={updateHotListItemPriority}
-                    addNewTarget={addNewTarget}
-                    deleteHotListItem={deleteHotListItem}
-                    handleDragStartToDomino={handleDragStartToDomino}
-                    handleDragStart={handleDragStart}
-                    handleDragEnd={handleDragEnd}
-                    handleDominoSelection={handleDominoSelection}
-                    editingNewItem={editingNewItem}
-                    isMobile={isMobile}
-                  />
+                  {filteredHotList.length === 0 ? (
+                    <EmptyStateCard
+                      icon={Lightbulb}
+                      emoji="💡"
+                      title={language === 'en' ? 'No ideas yet!' : 'Încă nu ai idei!'}
+                      description={language === 'en' 
+                        ? 'Start by capturing your first action idea. Think about what you want to accomplish this week.' 
+                        : 'Începe prin a captura prima ta idee de acțiune. Gândește-te la ceea ce vrei să realizezi săptămâna aceasta.'}
+                      actionLabel={language === 'en' ? 'Add First Idea' : 'Adaugă Prima Idee'}
+                      onAction={addNewTarget}
+                    />
+                  ) : (
+                    <HotList 
+                      filteredHotList={filteredHotList}
+                      searchTerm={searchTerm}
+                      setSearchTerm={setSearchTerm}
+                      toggleHotListItemSelection={toggleHotListItemSelection}
+                      updateHotListItemText={updateHotListItemText}
+                      updateHotListItemPriority={updateHotListItemPriority}
+                      addNewTarget={addNewTarget}
+                      deleteHotListItem={deleteHotListItem}
+                      handleDragStartToDomino={handleDragStartToDomino}
+                      handleDragStart={handleDragStart}
+                      handleDragEnd={handleDragEnd}
+                      handleDominoSelection={handleDominoSelection}
+                      editingNewItem={editingNewItem}
+                      isMobile={isMobile}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -310,18 +380,31 @@ export const SimplifiedDoorContent: React.FC = () => {
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <DominoDoor 
-                    selectedDomino={selectedDomino}
-                    dominoKeyPoints={dominoKeyPoints}
-                    updateKeyPointText={updateKeyPointText}
-                    handleDragOverDomino={handleDragOverDomino}
-                    handleDropOnDomino={handleDropOnDomino}
-                    handleKeyPointDragStart={handleKeyPointDragStart}
-                    isMobile={isMobile}
-                    isCompleted={isDominoCompleted}
-                    moveKeyPointToHotList={moveKeyPointToHotList}
-                    addNewKeyPoint={addNewKeyPoint}
-                  />
+                  {!selectedDomino ? (
+                    <EmptyStateCard
+                      icon={Target}
+                      emoji="🎯"
+                      title={language === 'en' ? 'Choose Your Domino!' : 'Alege Domino-ul!'}
+                      description={language === 'en' 
+                        ? 'Select one important idea from your list as your weekly focus. This will be your domino action that triggers everything else.' 
+                        : 'Selectează o idee importantă din lista ta ca focus săptămânal. Aceasta va fi acțiunea domino care declanșează totul.'}
+                      actionLabel={language === 'en' ? 'Go to Ideas' : 'Mergi la Idei'}
+                      onAction={() => setActiveTab('ideas')}
+                    />
+                  ) : (
+                    <DominoDoor 
+                      selectedDomino={selectedDomino}
+                      dominoKeyPoints={dominoKeyPoints}
+                      updateKeyPointText={updateKeyPointText}
+                      handleDragOverDomino={handleDragOverDomino}
+                      handleDropOnDomino={handleDropOnDomino}
+                      handleKeyPointDragStart={handleKeyPointDragStart}
+                      isMobile={isMobile}
+                      isCompleted={isDominoCompleted}
+                      moveKeyPointToHotList={moveKeyPointToHotList}
+                      addNewKeyPoint={addNewKeyPoint}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -341,29 +424,54 @@ export const SimplifiedDoorContent: React.FC = () => {
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <TaskList 
-                    activeList={activeList}
-                    setActiveList={setActiveList}
-                    activeDay={activeDay}
-                    selectDayOfWeek={selectDayOfWeek}
-                    hitList={hitList}
-                    doList={doList}
-                    toggleHitListItemCompletion={toggleHitListItemCompletion}
-                    toggleDoListItemCompletion={toggleDoListItemCompletion}
-                    handleDragOver={handleDragOver}
-                    handleDrop={handleDrop}
-                    hitAchievedCount={hitAchievedCount}
-                    hitDoneCount={hitDoneCount}
-                    doAchievedCount={doAchievedCount}
-                    doDoneCount={doDoneCount}
-                    isMobile={isMobile}
-                    moveTaskBackToHotList={moveTaskBackToHotList}
-                  />
+                  {hitList.length === 0 && doList.length === 0 ? (
+                    <EmptyStateCard
+                      icon={CheckSquare}
+                      emoji="📋"
+                      title={language === 'en' ? 'Ready for Action!' : 'Gata de Acțiune!'}
+                      description={language === 'en' 
+                        ? 'Drag your domino key points here or add daily tasks to start executing your weekly plan.' 
+                        : 'Trage punctele cheie ale domino-ului aici sau adaugă sarcini zilnice pentru a începe să execuți planul săptămânal.'}
+                      actionLabel={language === 'en' ? 'Set Weekly Focus' : 'Stabilește Focusul Săptămânal'}
+                      onAction={() => setActiveTab('focus')}
+                    />
+                  ) : (
+                    <TaskList 
+                      activeList={activeList}
+                      setActiveList={setActiveList}
+                      activeDay={activeDay}
+                      selectDayOfWeek={selectDayOfWeek}
+                      hitList={hitList}
+                      doList={doList}
+                      toggleHitListItemCompletion={toggleHitListItemCompletion}
+                      toggleDoListItemCompletion={toggleDoListItemCompletion}
+                      handleDragOver={handleDragOver}
+                      handleDrop={handleDrop}
+                      hitAchievedCount={hitAchievedCount}
+                      hitDoneCount={hitDoneCount}
+                      doAchievedCount={doAchievedCount}
+                      doDoneCount={doDoneCount}
+                      isMobile={isMobile}
+                      moveTaskBackToHotList={moveTaskBackToHotList}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
           </div>
         </Tabs>
+
+        {/* Onboarding Overlay */}
+        <OnboardingTooltip
+          step={onboardingStep}
+          totalSteps={onboardingSteps.length}
+          title={onboardingSteps[onboardingStep - 1]?.title || ''}
+          description={onboardingSteps[onboardingStep - 1]?.description || ''}
+          isVisible={showOnboarding}
+          onNext={handleOnboardingNext}
+          onSkip={handleOnboardingSkip}
+          onClose={handleOnboardingSkip}
+        />
       </div>
     </div>
   );
