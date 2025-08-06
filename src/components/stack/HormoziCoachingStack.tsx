@@ -8,6 +8,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
 import { KnowledgeBaseUploader } from "./KnowledgeBaseUploader";
+import { useHormoziStack } from './hormozi-stack/useHormoziStack';
+import { HormoziStackExplanation } from './hormozi-stack/HormoziStackExplanation';
+import { getHormoziPlaceholder } from './hormozi-stack/questions';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -30,13 +33,20 @@ interface HormoziCoachingStackProps {
 }
 
 export const HormoziCoachingStack: React.FC<HormoziCoachingStackProps> = ({ onAddToHitList }) => {
-  const [mode, setMode] = useState<'chat' | 'complete' | 'knowledge'>('chat');
+  const [mode, setMode] = useState<'chat' | 'complete' | 'knowledge' | 'structured'>('structured');
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [finalAction, setFinalAction] = useState('');
   const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
   const [knowledgeBaseFiles, setKnowledgeBaseFiles] = useState<KnowledgeBaseFile[]>([]);
+
+  // Structured mode hook
+  const {
+    state,
+    handlers,
+    utils
+  } = useHormoziStack({ onAddToHitList });
   
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
