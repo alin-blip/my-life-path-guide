@@ -86,16 +86,17 @@ export const Dashboard: React.FC = () => {
     updateStats();
     fetchUserData();
     
-    // Listen for daily progress updates
-    const handleDailyProgressUpdate = () => {
+    // Listen for progress updates
+    const handleProgressUpdate = (event: any) => {
+      console.log('Progress updated:', event.detail);
       updateStats();
       fetchUserData();
     };
     
-    window.addEventListener('daily-progress-updated', handleDailyProgressUpdate);
+    window.addEventListener('progressUpdated', handleProgressUpdate);
     
     return () => {
-      window.removeEventListener('daily-progress-updated', handleDailyProgressUpdate);
+      window.removeEventListener('progressUpdated', handleProgressUpdate);
     };
   }, []);
 
@@ -149,7 +150,7 @@ export const Dashboard: React.FC = () => {
     const dailyProgressKey = `daily-progress-${today}`;
     const dailyProgress = JSON.parse(localStorage.getItem(dailyProgressKey) || "{}");
     
-    if (dailyProgress.stack === true) {
+    if (dailyProgress.stack?.completed === true) {
       return 1; // At least one stack was completed today
     }
     
@@ -167,7 +168,7 @@ export const Dashboard: React.FC = () => {
     const dailyProgressKey = `daily-progress-${today}`;
     const dailyProgress = JSON.parse(localStorage.getItem(dailyProgressKey) || "{}");
     
-    return dailyProgress.journal === true ? 1 : 0;
+    return dailyProgress.journal?.completed === true ? 1 : 0;
   };
 
   const updateStats = () => {

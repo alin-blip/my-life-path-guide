@@ -11,7 +11,8 @@ import { StackIdeaModal } from '../StackIdeaModal';
 import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
 import { KnowledgeBaseUploader } from '../KnowledgeBaseUploader';
 import { supabase } from '@/integrations/supabase/client';
-import { saveToStackLibrary } from '@/utils/stackProgress';
+import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
+import { useAICallOptimization } from '@/hooks/useAICallOptimization';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -26,7 +27,10 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
   const [mode, setMode] = useState<'chat' | 'complete'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading: isAILoading, executeAICall } = useAICallOptimization({
+    debounceMs: 1000,
+    maxRetries: 2
+  });
   const [finalAction, setFinalAction] = useState('');
   const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
   
@@ -73,10 +77,10 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading]);
+  }, [messages, isAILoading]);
 
   const sendMessage = async () => {
-    if (!currentMessage.trim() || isLoading) return;
+    if (!currentMessage.trim() || isAILoading) return;
 
     const userMessage: Message = {
       role: 'user',
@@ -84,48 +88,43 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setCurrentMessage('');
-    setIsLoading(true);
 
-    try {
-      const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
+    const aiCallResult = await executeAICall(
+      () => supabase.functions.invoke('ai-live-coaching', {
         body: {
-          messages: [...messages, userMessage].map(msg => ({
+          messages: newMessages.map(msg => ({
             role: msg.role,
             content: msg.content
           })),
           systemPrompt
         }
-      });
+      }),
+      { messages: newMessages },
+      {
+        showLoadingToast: true,
+        loadingMessage: "🙏 Căutând în cartea sacră..."
+      }
+    );
 
-      if (error) throw error;
-
+    if (aiCallResult?.data) {
       const assistantMessage: Message = {
         role: 'assistant',
-        content: data.message,
+        content: aiCallResult.data.message,
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast({
-        title: "Eroare",
-        description: "Nu am putut trimite mesajul. Te rog încearcă din nou.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const generateFinalAction = async () => {
-    if (messages.length === 0) return;
+    if (messages.length === 0 || isAILoading) return;
 
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
+    const aiCallResult = await executeAICall(
+      () => supabase.functions.invoke('ai-live-coaching', {
         body: {
           messages: [...messages, {
             role: 'user',
@@ -133,24 +132,28 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
           }],
           systemPrompt: systemPrompt + "\n\nGenerează o acțiune concretă bazată pe conversația noastră și pe învățăturile din cartea sacră. Fii specific și acționabil."
         }
-      });
+      }),
+      { messages, action: 'final' },
+      {
+        showLoadingToast: true,
+        loadingMessage: "🎯 Generez acțiunea ta divină..."
+      }
+    );
 
-      if (error) throw error;
-
-      setFinalAction(data.message);
+    if (aiCallResult?.data) {
+      setFinalAction(aiCallResult.data.message);
       setMode('complete');
 
       // Save the stack session to library
-      await saveStackSession(messages, data.message);
-    } catch (error) {
-      console.error('Error generating final action:', error);
-      toast({
-        title: "Eroare",
-        description: "Nu am putut genera acțiunea finală. Te rog încearcă din nou.",
-        variant: "destructive"
+      await saveStackSession(messages, aiCallResult.data.message);
+      
+      // Update daily progress
+      await updateDailyProgress('stack', {
+        stackType: 'gods-school',
+        sessionId: `gods-school-${Date.now()}`,
+        messagesCount: messages.length,
+        finalAction: aiCallResult.data.message
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -370,7 +373,7 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
                 </div>
               </div>
             ))}
-            {isLoading && (
+            {isAILoading && (
               <div className="bg-white border border-amber-300 mr-8 p-3 rounded-lg">
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce"></div>
@@ -414,7 +417,7 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
               <div className="flex gap-2">
                 <Button
                   onClick={generateFinalAction}
-                  disabled={messages.length <= 1 || isLoading}
+                  disabled={messages.length <= 1 || isAILoading}
                   variant="outline"
                   size="sm"
                   className="border-amber-300 text-amber-700 hover:bg-amber-50"
@@ -425,7 +428,7 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
                 
                 <Button
                   onClick={sendMessage}
-                  disabled={!currentMessage.trim() || isLoading}
+                  disabled={!currentMessage.trim() || isAILoading}
                   className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
                 >
                   <Send className="h-4 w-4 mr-1" />
