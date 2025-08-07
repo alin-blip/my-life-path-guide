@@ -10,15 +10,12 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { format, subDays, getWeek } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lightbulb, Target, CheckSquare, Info, HelpCircle, Plus, Zap } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Lightbulb, Target, CheckSquare, Plus } from 'lucide-react';
 
 export const SimplifiedDoorContent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('ideas');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
@@ -83,7 +80,7 @@ export const SimplifiedDoorContent: React.FC = () => {
 
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   
   const handlePrevWeekWithNotification = () => {
     handlePreviousWeek();
@@ -107,31 +104,13 @@ export const SimplifiedDoorContent: React.FC = () => {
     });
   };
 
-  const handleNavigateToYesterday = () => {
-    const yesterday = subDays(new Date(), 1);
-    navigateToDate(yesterday);
-    toast({
-      title: "📅 Navigare la ieri",
-      description: `Te-ai mutat la ${format(yesterday, 'dd.MM.yyyy')}`,
-    });
-  };
-
-  const handleNavigateToToday = () => {
-    const today = new Date();
-    navigateToDate(today);
-    toast({
-      title: "🏠 Înapoi la astăzi", 
-      description: `Te-ai întors la ${format(today, 'dd.MM.yyyy')}`,
-    });
-  };
-
   useEffect(() => {
     const todayName = format(new Date(), 'EEEE');
     toast({
       title: language === 'en' ? `Today is ${todayName}` : `Astăzi este ${todayName}`,
       description: language === 'en'
-        ? `Welcome to your simplified Command Center`
-        : `Bine ai venit la Centrul de Comandă simplificat`,
+        ? `Welcome to your Command Center`
+        : `Bine ai venit în Centrul de Comandă`,
     });
   }, []);
 
@@ -139,29 +118,26 @@ export const SimplifiedDoorContent: React.FC = () => {
     {
       title: language === 'en' ? 'Welcome to Command Center!' : 'Bine ai venit în Centrul de Comandă!',
       description: language === 'en' 
-        ? 'This is your productivity hub. Let\'s start by adding your first idea!' 
-        : 'Acesta este hub-ul tău de productivitate. Să începem prin a adăuga prima ta idee!'
+        ? 'This is your productivity hub. All three sections are now visible for easy drag & drop!' 
+        : 'Acesta este hub-ul tău de productivitate. Toate cele 3 secțiuni sunt acum vizibile pentru drag & drop ușor!'
     },
     {
       title: language === 'en' ? 'Set Your Weekly Focus' : 'Stabilește Focusul Săptămânal',
       description: language === 'en' 
-        ? 'Choose one important idea as your domino - the action that will create the biggest impact.' 
-        : 'Alege o idee importantă ca domino - acțiunea care va crea cel mai mare impact.'
+        ? 'Drag an idea to the Focus section or click to select your weekly domino goal.' 
+        : 'Trage o idee în secțiunea Focus sau click pentru a selecta obiectivul domino săptămânal.'
     },
     {
       title: language === 'en' ? 'Execute Daily Tasks' : 'Execută Sarcinile Zilnice',
       description: language === 'en' 
-        ? 'Move your key actions to daily lists and track your progress throughout the week.' 
-        : 'Mută acțiunile cheie în listele zilnice și urmărește-ți progresul pe parcursul săptămânii.'
+        ? 'Drag ideas or key points to the Tasks section to create your daily action lists.' 
+        : 'Trage idei sau puncte cheie în secțiunea Sarcini pentru a crea listele de acțiuni zilnice.'
     }
   ];
 
   const handleOnboardingNext = () => {
     if (onboardingStep < onboardingSteps.length) {
       setOnboardingStep(onboardingStep + 1);
-      // Auto-switch tabs based on step
-      if (onboardingStep === 1) setActiveTab('focus');
-      if (onboardingStep === 2) setActiveTab('tasks');
     } else {
       setShowOnboarding(false);
       localStorage.setItem('door-onboarding-completed', 'true');
@@ -175,31 +151,15 @@ export const SimplifiedDoorContent: React.FC = () => {
     setHasSeenOnboarding(true);
   };
 
-  const getTabStats = (tab: string) => {
-    switch (tab) {
-      case 'ideas':
-        return filteredHotList.filter(item => item.selected).length;
-      case 'focus':
-        return selectedDomino ? dominoKeyPoints.filter(kp => kp.completed).length : 0;
-      case 'tasks':
-        return hitAchievedCount + doAchievedCount;
-      default:
-        return 0;
-    }
+  const getSectionStats = () => {
+    return {
+      ideas: filteredHotList.filter(item => item.selected).length,
+      focus: selectedDomino ? dominoKeyPoints.filter(kp => kp.completed).length : 0,
+      tasks: hitAchievedCount + doAchievedCount
+    };
   };
 
-  const getTabDescription = (tab: string) => {
-    switch (tab) {
-      case 'ideas':
-        return language === 'en' ? 'Capture and prioritize your action ideas' : 'Capturează și prioritizează ideile de acțiune';
-      case 'focus':
-        return language === 'en' ? 'Set your weekly massive goal and key actions' : 'Stabilește obiectivul săptămânal masiv și acțiunile cheie';
-      case 'tasks':
-        return language === 'en' ? 'Execute your daily hit and do lists' : 'Execută listele zilnice de lovituri și sarcini';
-      default:
-        return '';
-    }
-  };
+  const stats = getSectionStats();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
@@ -212,266 +172,264 @@ export const SimplifiedDoorContent: React.FC = () => {
           isMobile={isMobile}
         />
 
-        <Tabs 
-          value={activeTab} 
-          onValueChange={setActiveTab} 
-          className="w-full animate-fade-in"
-        >
-          {/* Mobile Bottom Navigation */}
-          {isMobile && (
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border">
-              <TabsList className="grid w-full grid-cols-3 rounded-none bg-transparent h-16">
-                <TabsTrigger 
-                  value="ideas" 
-                  className="flex flex-col gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary h-full"
-                >
-                  <Lightbulb className="w-5 h-5" />
-                  <span className="text-xs">Idei</span>
-                  {getTabStats('ideas') > 0 && (
-                    <Badge variant="secondary" className="text-xs px-1 py-0 min-w-[16px] h-4">
-                      {getTabStats('ideas')}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="focus" 
-                  className="flex flex-col gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary h-full"
-                >
-                  <Target className="w-5 h-5" />
-                  <span className="text-xs">Focus</span>
-                  {getTabStats('focus') > 0 && (
-                    <Badge variant="secondary" className="text-xs px-1 py-0 min-w-[16px] h-4">
-                      {getTabStats('focus')}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="tasks" 
-                  className="flex flex-col gap-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary h-full"
-                >
-                  <CheckSquare className="w-5 h-5" />
-                  <span className="text-xs">Sarcini</span>
-                  {getTabStats('tasks') > 0 && (
-                    <Badge variant="secondary" className="text-xs px-1 py-0 min-w-[16px] h-4">
-                      {getTabStats('tasks')}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-              </TabsList>
-            </div>
-          )}
-
-          {/* Desktop Navigation */}
-          {!isMobile && (
-            <div className="flex items-center justify-between mb-6">
-              <TabsList className="grid w-fit grid-cols-3 bg-muted/50">
-                <TabsTrigger value="ideas" className="flex items-center gap-2">
-                  <Lightbulb className="w-4 h-4" />
-                  💡 Idei
-                  {getTabStats('ideas') > 0 && (
-                    <Badge variant="secondary" className="ml-2">
-                      {getTabStats('ideas')}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="focus" className="flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  🎯 Focus Săptămânal
-                  {getTabStats('focus') > 0 && (
-                    <Badge variant="secondary" className="ml-2">
-                      {getTabStats('focus')}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="tasks" className="flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4" />
-                  📋 Sarcini Zilnice
-                  {getTabStats('tasks') > 0 && (
-                    <Badge variant="secondary" className="ml-2">
-                      {getTabStats('tasks')}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-              </TabsList>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <HelpCircle className="w-4 h-4 mr-1" />
-                    Ajutor
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80">
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Cum funcționează</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {getTabDescription(activeTab)}
-                    </p>
+        {/* Mobile: Vertical Stack Layout */}
+        {isMobile ? (
+          <div className="space-y-4 pb-4">
+            {/* Ideas Section */}
+            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Lightbulb className="w-4 h-4 text-primary" />
+                  💡 Lista de Idei
+                  <Badge variant="outline" className="ml-auto text-xs">
+                    {filteredHotList.length}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                {filteredHotList.length === 0 ? (
+                  <div className="text-center py-4">
+                    <Button onClick={addNewTarget} size="sm" className="text-xs">
+                      <Plus className="w-3 h-3 mr-1" />
+                      Adaugă prima idee
+                    </Button>
                   </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-          )}
+                ) : (
+                  <HotList 
+                    filteredHotList={filteredHotList}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    toggleHotListItemSelection={toggleHotListItemSelection}
+                    updateHotListItemText={updateHotListItemText}
+                    updateHotListItemPriority={updateHotListItemPriority}
+                    addNewTarget={addNewTarget}
+                    deleteHotListItem={deleteHotListItem}
+                    handleDragStartToDomino={handleDragStartToDomino}
+                    handleDragStart={handleDragStart}
+                    handleDragEnd={handleDragEnd}
+                    handleDominoSelection={handleDominoSelection}
+                    editingNewItem={editingNewItem}
+                    isMobile={isMobile}
+                  />
+                )}
+              </CardContent>
+            </Card>
 
-          {/* Tab Content */}
-          <div className={`${isMobile ? 'pb-20' : ''}`}>
-            <TabsContent value="ideas" className="space-y-0">
-              <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <Lightbulb className="w-5 h-5 text-primary" />
-                    💡 Lista de Idei
-                    <Badge variant="outline" className="ml-auto">
-                      {filteredHotList.length} idei
+            {/* Focus Section */}
+            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Target className="w-4 h-4 text-primary" />
+                  🎯 Focus Săptămânal
+                  {selectedDomino && (
+                    <Badge variant="outline" className="ml-auto text-xs">
+                      {stats.focus}/{dominoKeyPoints.length}
                     </Badge>
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    {getTabDescription('ideas')}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  {filteredHotList.length === 0 ? (
-                    <EmptyStateCard
-                      icon={Lightbulb}
-                      emoji="💡"
-                      title={language === 'en' ? 'No ideas yet!' : 'Încă nu ai idei!'}
-                      description={language === 'en' 
-                        ? 'Start by capturing your first action idea. Think about what you want to accomplish this week.' 
-                        : 'Începe prin a captura prima ta idee de acțiune. Gândește-te la ceea ce vrei să realizezi săptămâna aceasta.'}
-                      actionLabel={language === 'en' ? 'Add First Idea' : 'Adaugă Prima Idee'}
-                      onAction={addNewTarget}
-                    />
-                  ) : (
-                    <HotList 
-                      filteredHotList={filteredHotList}
-                      searchTerm={searchTerm}
-                      setSearchTerm={setSearchTerm}
-                      toggleHotListItemSelection={toggleHotListItemSelection}
-                      updateHotListItemText={updateHotListItemText}
-                      updateHotListItemPriority={updateHotListItemPriority}
-                      addNewTarget={addNewTarget}
-                      deleteHotListItem={deleteHotListItem}
-                      handleDragStartToDomino={handleDragStartToDomino}
-                      handleDragStart={handleDragStart}
-                      handleDragEnd={handleDragEnd}
-                      handleDominoSelection={handleDominoSelection}
-                      editingNewItem={editingNewItem}
-                      isMobile={isMobile}
-                    />
                   )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <DominoDoor 
+                  selectedDomino={selectedDomino}
+                  dominoKeyPoints={dominoKeyPoints}
+                  updateKeyPointText={updateKeyPointText}
+                  handleDragOverDomino={handleDragOverDomino}
+                  handleDropOnDomino={handleDropOnDomino}
+                  handleKeyPointDragStart={handleKeyPointDragStart}
+                  isMobile={isMobile}
+                  isCompleted={isDominoCompleted}
+                  moveKeyPointToHotList={moveKeyPointToHotList}
+                  addNewKeyPoint={addNewKeyPoint}
+                />
+              </CardContent>
+            </Card>
 
-            <TabsContent value="focus" className="space-y-0">
-              <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-primary" />
-                    🎯 Focus Săptămânal
-                    {selectedDomino && (
-                      <Badge variant="outline" className="ml-auto">
-                        {dominoKeyPoints.filter(kp => kp.completed).length}/{dominoKeyPoints.length} completate
-                      </Badge>
-                    )}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    {getTabDescription('focus')}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  {!selectedDomino ? (
-                    <EmptyStateCard
-                      icon={Target}
-                      emoji="🎯"
-                      title={language === 'en' ? 'Choose Your Domino!' : 'Alege Domino-ul!'}
-                      description={language === 'en' 
-                        ? 'Select one important idea from your list as your weekly focus. This will be your domino action that triggers everything else.' 
-                        : 'Selectează o idee importantă din lista ta ca focus săptămânal. Aceasta va fi acțiunea domino care declanșează totul.'}
-                      actionLabel={language === 'en' ? 'Go to Ideas' : 'Mergi la Idei'}
-                      onAction={() => setActiveTab('ideas')}
-                    />
-                  ) : (
-                    <DominoDoor 
-                      selectedDomino={selectedDomino}
-                      dominoKeyPoints={dominoKeyPoints}
-                      updateKeyPointText={updateKeyPointText}
-                      handleDragOverDomino={handleDragOverDomino}
-                      handleDropOnDomino={handleDropOnDomino}
-                      handleKeyPointDragStart={handleKeyPointDragStart}
-                      isMobile={isMobile}
-                      isCompleted={isDominoCompleted}
-                      moveKeyPointToHotList={moveKeyPointToHotList}
-                      addNewKeyPoint={addNewKeyPoint}
-                    />
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="tasks" className="space-y-0">
-              <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckSquare className="w-5 h-5 text-primary" />
-                    📋 Sarcini Zilnice
-                    <Badge variant="outline" className="ml-auto">
-                      {hitAchievedCount + doAchievedCount} completate
-                    </Badge>
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    {getTabDescription('tasks')}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  {hitList.length === 0 && doList.length === 0 ? (
-                    <EmptyStateCard
-                      icon={CheckSquare}
-                      emoji="📋"
-                      title={language === 'en' ? 'Ready for Action!' : 'Gata de Acțiune!'}
-                      description={language === 'en' 
-                        ? 'Drag your domino key points here or add daily tasks to start executing your weekly plan.' 
-                        : 'Trage punctele cheie ale domino-ului aici sau adaugă sarcini zilnice pentru a începe să execuți planul săptămânal.'}
-                      actionLabel={language === 'en' ? 'Set Weekly Focus' : 'Stabilește Focusul Săptămânal'}
-                      onAction={() => setActiveTab('focus')}
-                    />
-                  ) : (
-                    <TaskList 
-                      activeList={activeList}
-                      setActiveList={setActiveList}
-                      activeDay={activeDay}
-                      selectDayOfWeek={selectDayOfWeek}
-                      hitList={hitList}
-                      doList={doList}
-                      toggleHitListItemCompletion={toggleHitListItemCompletion}
-                      toggleDoListItemCompletion={toggleDoListItemCompletion}
-                      handleDragOver={handleDragOver}
-                      handleDrop={handleDrop}
-                      hitAchievedCount={hitAchievedCount}
-                      hitDoneCount={hitDoneCount}
-                      doAchievedCount={doAchievedCount}
-                      doDoneCount={doDoneCount}
-                      isMobile={isMobile}
-                      moveTaskBackToHotList={moveTaskBackToHotList}
-                    />
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+            {/* Tasks Section */}
+            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <CheckSquare className="w-4 h-4 text-primary" />
+                  📋 Sarcini Zilnice
+                  <Badge variant="outline" className="ml-auto text-xs">
+                    {stats.tasks}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                  <TaskList 
+                    hitList={hitList}
+                    doList={doList}
+                    activeDay={activeDay}
+                    activeList={activeList}
+                    setActiveList={setActiveList}
+                    selectDayOfWeek={selectDayOfWeek}
+                    toggleHitListItemCompletion={toggleHitListItemCompletion}
+                    toggleDoListItemCompletion={toggleDoListItemCompletion}
+                    hitAchievedCount={hitAchievedCount}
+                    hitDoneCount={hitDoneCount}
+                    doAchievedCount={doAchievedCount}
+                    doDoneCount={doDoneCount}
+                    handleDragOver={handleDragOver}
+                    handleDrop={handleDrop}
+                    moveTaskBackToHotList={moveTaskBackToHotList}
+                    isMobile={isMobile}
+                  />
+              </CardContent>
+            </Card>
           </div>
-        </Tabs>
+        ) : (
+          /* Desktop: 3-Column Layout */
+          <div className="grid grid-cols-3 gap-6 animate-fade-in">
+            {/* Ideas Column */}
+            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50 h-fit">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-primary" />
+                  💡 Lista de Idei
+                  <Badge variant="outline" className="ml-auto">
+                    {filteredHotList.length}
+                  </Badge>
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Capturează și prioritizează ideile de acțiune
+                </p>
+              </CardHeader>
+              <CardContent>
+                {filteredHotList.length === 0 ? (
+                  <EmptyStateCard
+                    icon={Lightbulb}
+                    emoji="💡"
+                    title="Încă nu ai idei!"
+                    description="Începe prin a captura prima ta idee de acțiune."
+                    actionLabel="Adaugă Prima Idee"
+                    onAction={addNewTarget}
+                  />
+                ) : (
+                  <HotList 
+                    filteredHotList={filteredHotList}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    toggleHotListItemSelection={toggleHotListItemSelection}
+                    updateHotListItemText={updateHotListItemText}
+                    updateHotListItemPriority={updateHotListItemPriority}
+                    addNewTarget={addNewTarget}
+                    deleteHotListItem={deleteHotListItem}
+                    handleDragStartToDomino={handleDragStartToDomino}
+                    handleDragStart={handleDragStart}
+                    handleDragEnd={handleDragEnd}
+                    handleDominoSelection={handleDominoSelection}
+                    editingNewItem={editingNewItem}
+                    isMobile={false}
+                  />
+                )}
+              </CardContent>
+            </Card>
 
-        {/* Onboarding Overlay */}
-        <OnboardingTooltip
-          step={onboardingStep}
-          totalSteps={onboardingSteps.length}
-          title={onboardingSteps[onboardingStep - 1]?.title || ''}
-          description={onboardingSteps[onboardingStep - 1]?.description || ''}
-          isVisible={showOnboarding}
-          onNext={handleOnboardingNext}
-          onSkip={handleOnboardingSkip}
-          onClose={handleOnboardingSkip}
-        />
+            {/* Focus Column */}
+            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50 h-fit">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-primary" />
+                  🎯 Focus Săptămânal
+                  {selectedDomino && (
+                    <Badge variant="outline" className="ml-auto">
+                      {stats.focus}/{dominoKeyPoints.length}
+                    </Badge>
+                  )}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Stabilește obiectivul săptămânal masiv
+                </p>
+              </CardHeader>
+              <CardContent>
+                {!selectedDomino ? (
+                  <EmptyStateCard
+                    icon={Target}
+                    emoji="🎯"
+                    title="Alege Domino-ul!"
+                    description="Selectează o idee importantă ca focus săptămânal prin drag & drop sau click."
+                    actionLabel="📋 Vezi Ghidul"
+                    onAction={() => {}}
+                  />
+                ) : (
+                  <DominoDoor 
+                    selectedDomino={selectedDomino}
+                    dominoKeyPoints={dominoKeyPoints}
+                    updateKeyPointText={updateKeyPointText}
+                    handleDragOverDomino={handleDragOverDomino}
+                    handleDropOnDomino={handleDropOnDomino}
+                    handleKeyPointDragStart={handleKeyPointDragStart}
+                    isMobile={false}
+                    isCompleted={isDominoCompleted}
+                    moveKeyPointToHotList={moveKeyPointToHotList}
+                    addNewKeyPoint={addNewKeyPoint}
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Tasks Column */}
+            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50 h-fit">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2">
+                  <CheckSquare className="w-5 h-5 text-primary" />
+                  📋 Sarcini Zilnice
+                  <Badge variant="outline" className="ml-auto">
+                    {stats.tasks}
+                  </Badge>
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Execută listele zilnice de sarcini
+                </p>
+              </CardHeader>
+              <CardContent>
+                {(hitList.length === 0 && doList.length === 0) ? (
+                  <EmptyStateCard
+                    icon={CheckSquare}
+                    emoji="📋"
+                    title="Încă nu ai sarcini!"
+                    description="Trage idei din lista ta sau puncte cheie din domino pentru a crea sarcini zilnice."
+                    actionLabel="🎯 Start Drag & Drop"
+                    onAction={() => {}}
+                  />
+                ) : (
+                  <TaskList 
+                    hitList={hitList}
+                    doList={doList}
+                    activeDay={activeDay}
+                    activeList={activeList}
+                    setActiveList={setActiveList}
+                    selectDayOfWeek={selectDayOfWeek}
+                    toggleHitListItemCompletion={toggleHitListItemCompletion}
+                    toggleDoListItemCompletion={toggleDoListItemCompletion}
+                    hitAchievedCount={hitAchievedCount}
+                    hitDoneCount={hitDoneCount}
+                    doAchievedCount={doAchievedCount}
+                    doDoneCount={doDoneCount}
+                    handleDragOver={handleDragOver}
+                    handleDrop={handleDrop}
+                    moveTaskBackToHotList={moveTaskBackToHotList}
+                    isMobile={false}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {showOnboarding && (
+          <OnboardingTooltip
+            title={onboardingSteps[onboardingStep - 1].title}
+            description={onboardingSteps[onboardingStep - 1].description}
+            step={onboardingStep}
+            totalSteps={onboardingSteps.length}
+            onNext={handleOnboardingNext}
+            onSkip={handleOnboardingSkip}
+            position={isMobile ? 'bottom' : 'top'}
+            isVisible={showOnboarding}
+            onClose={handleOnboardingSkip}
+          />
+        )}
       </div>
     </div>
   );
