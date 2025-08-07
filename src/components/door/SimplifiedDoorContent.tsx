@@ -109,14 +109,14 @@ export const SimplifiedDoorContent: React.FC = () => {
     toast({
       title: language === 'en' ? `Today is ${todayName}` : `Astăzi este ${todayName}`,
       description: language === 'en'
-        ? `Welcome to your Command Center`
-        : `Bine ai venit în Centrul de Comandă`,
+        ? `Welcome to RoWarrior Command Center`
+        : `Bine ai venit în RoWarrior - Centrul de Comandă`,
     });
   }, []);
 
   const onboardingSteps = [
     {
-      title: language === 'en' ? 'Welcome to Command Center!' : 'Bine ai venit în Centrul de Comandă!',
+      title: language === 'en' ? 'Welcome to RoWarrior!' : 'Bine ai venit în RoWarrior!',
       description: language === 'en' 
         ? 'This is your productivity hub. All three sections are now visible for easy drag & drop!' 
         : 'Acesta este hub-ul tău de productivitate. Toate cele 3 secțiuni sunt acum vizibile pentru drag & drop ușor!'
@@ -255,7 +255,11 @@ export const SimplifiedDoorContent: React.FC = () => {
                   </Badge>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
+              <CardContent 
+                className="pt-0"
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
                   <TaskList 
                     hitList={hitList}
                     doList={doList}
@@ -269,8 +273,6 @@ export const SimplifiedDoorContent: React.FC = () => {
                     hitDoneCount={hitDoneCount}
                     doAchievedCount={doAchievedCount}
                     doDoneCount={doDoneCount}
-                    handleDragOver={handleDragOver}
-                    handleDrop={handleDrop}
                     moveTaskBackToHotList={moveTaskBackToHotList}
                     isMobile={isMobile}
                   />
@@ -382,7 +384,10 @@ export const SimplifiedDoorContent: React.FC = () => {
                   Execută listele zilnice de sarcini
                 </p>
               </CardHeader>
-              <CardContent>
+              <CardContent
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
                 {(hitList.length === 0 && doList.length === 0) ? (
                   <EmptyStateCard
                     icon={CheckSquare}
@@ -406,8 +411,6 @@ export const SimplifiedDoorContent: React.FC = () => {
                     hitDoneCount={hitDoneCount}
                     doAchievedCount={doAchievedCount}
                     doDoneCount={doDoneCount}
-                    handleDragOver={handleDragOver}
-                    handleDrop={handleDrop}
                     moveTaskBackToHotList={moveTaskBackToHotList}
                     isMobile={false}
                   />

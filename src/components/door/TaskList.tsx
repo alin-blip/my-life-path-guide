@@ -15,8 +15,6 @@ interface TaskListProps {
   doList: DoListItem[];
   toggleHitListItemCompletion: (id: string) => void;
   toggleDoListItemCompletion: (id: string) => void;
-  handleDragOver: (e: React.DragEvent) => void;
-  handleDrop: (e: React.DragEvent) => void;
   hitAchievedCount: number;
   hitDoneCount: number;
   doAchievedCount: number;
@@ -34,8 +32,6 @@ export const TaskList: React.FC<TaskListProps> = ({
   doList,
   toggleHitListItemCompletion,
   toggleDoListItemCompletion,
-  handleDragOver,
-  handleDrop,
   hitAchievedCount,
   hitDoneCount,
   doAchievedCount,
@@ -52,8 +48,6 @@ export const TaskList: React.FC<TaskListProps> = ({
   return (
     <div 
       className={`bg-[#1E293B] rounded-xl ${isMobile ? 'max-h-[70vh] overflow-auto p-3' : 'h-full p-4'}`}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
     >
       <TaskListHeader
         activeList={activeList}
