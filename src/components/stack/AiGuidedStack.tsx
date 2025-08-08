@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw } from 'lucide-react';
@@ -237,55 +237,57 @@ INSTRUCȚIUNI:
 
   if (mode === 'complete') {
     return (
-      <div className="w-full p-1 sm:p-2 flex flex-col justify-end h-full">
-        <div className="mb-4">
-          <h1 className="text-lg sm:text-xl font-semibold text-primary mb-2">
-            Sesiune Completă - AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
-          </h1>
-          
-          <div className="p-3 bg-background/50 rounded border-l-4 border-primary mb-4">
-            <p className="text-sm sm:text-base text-foreground">{finalAction}</p>
-            {actionAddedToHitList && (
-              <div className="flex items-center text-green-400 text-xs sm:text-sm mt-2">
-                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                Această acțiune a fost adăugată la lista ta fierbinte
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button 
-            variant="outline" 
-            onClick={resetSession}
-            size="sm"
-            className="text-xs sm:text-sm"
-          >
-            <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-            Începe o nouă sesiune
-          </Button>
-          {onModeSwitch && (
+      <div className="w-full p-1 sm:p-2 flex flex-col h-full">
+        <Card className="flex-1 flex flex-col">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg sm:text-xl">
+              Sesiune Completă - AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="p-3 bg-background/50 rounded border-l-4 border-primary mb-2">
+              <p className="text-sm sm:text-base text-foreground">{finalAction}</p>
+              {actionAddedToHitList && (
+                <div className="flex items-center text-green-400 text-xs sm:text-sm mt-2">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                  Această acțiune a fost adăugată la lista ta fierbinte
+                </div>
+              )}
+            </div>
+          </CardContent>
+          <CardFooter className="flex gap-2 flex-wrap">
             <Button 
               variant="outline" 
-              onClick={onModeSwitch}
+              onClick={resetSession}
               size="sm"
               className="text-xs sm:text-sm"
             >
-              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              Mod Manual
+              <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              Începe o nouă sesiune
             </Button>
-          )}
-          {!actionAddedToHitList && finalAction && (
-            <Button 
-              onClick={addToHitList}
-              size="sm"
-              className="text-xs sm:text-sm"
-            >
-              <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              Adaugă la Hit List
-            </Button>
-          )}
-        </div>
+            {onModeSwitch && (
+              <Button 
+                variant="outline" 
+                onClick={onModeSwitch}
+                size="sm"
+                className="text-xs sm:text-sm"
+              >
+                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                Mod Manual
+              </Button>
+            )}
+            {!actionAddedToHitList && finalAction && (
+              <Button 
+                onClick={addToHitList}
+                size="sm"
+                className="text-xs sm:text-sm"
+              >
+                <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                Adaugă la Hit List
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
 
         <StackIdeaModal
           isOpen={isIdeaModalOpen}
@@ -347,7 +349,15 @@ INSTRUCȚIUNI:
 
   return (
     <div className="w-full p-1 sm:p-2 flex flex-col h-full">
-      <Card className="flex-1 flex flex-col max-h-[400px] mb-4">
+      <Card className="flex-1 flex flex-col">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg sm:text-xl">
+            AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
+          </CardTitle>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Conversație ghidată cu AI coach-ul tău
+          </p>
+        </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-2">
           <div className="space-y-3">
             {messages.map((message, index) => (
@@ -377,72 +387,56 @@ INSTRUCȚIUNI:
             <div ref={messagesEndRef} />
           </div>
         </CardContent>
-      </Card>
-
-      <div className="space-y-2">
-        <div className="mb-2">
-          <h1 className="text-lg sm:text-xl font-semibold text-primary mb-1">
-            AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Conversație ghidată cu AI coach-ul tău
-          </p>
-        </div>
-        
-        <div className="flex gap-2">
-          <Textarea
-            value={currentMessage}
-            onChange={(e) => setCurrentMessage(e.target.value)}
-            placeholder="Scrie mesajul tău aici..."
-            className="flex-1 min-h-[60px] text-xs sm:text-sm"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
-          />
-          <Button
-            onClick={sendMessage}
-            disabled={!currentMessage.trim() || isLoading}
-            size="sm"
-            className="px-3"
-          >
-            <Send className="w-3 h-3 sm:w-4 sm:h-4" />
-          </Button>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={resetSession}
-            size="sm"
-            className="text-xs sm:text-sm"
-          >
-            <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-            Reset
-          </Button>
-          {onModeSwitch && (
-            <Button 
-              variant="outline" 
-              onClick={onModeSwitch}
+        <CardFooter className="flex flex-col gap-2">
+          <div className="flex w-full gap-2">
+            <Textarea
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              placeholder="Scrie mesajul tău aici..."
+              className="flex-1 min-h-[60px] text-xs sm:text-sm"
+              onEnterSubmit={sendMessage}
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={!currentMessage.trim() || isLoading}
+              size="sm"
+              className="px-3"
+            >
+              <Send className="w-3 h-3 sm:w-4 sm:h-4" />
+            </Button>
+          </div>
+          <div className="flex w-full gap-2">
+            <Button
+              variant="outline"
+              onClick={resetSession}
               size="sm"
               className="text-xs sm:text-sm"
             >
-              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              Manual
+              <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              Reset
             </Button>
-          )}
-          <Button
-            onClick={generateFinalAction}
-            disabled={messages.length === 0 || isLoading}
-            size="sm"
-            className="text-xs sm:text-sm"
-          >
-            Generează Acțiune
-          </Button>
-        </div>
-      </div>
+            {onModeSwitch && (
+              <Button 
+                variant="outline" 
+                onClick={onModeSwitch}
+                size="sm"
+                className="text-xs sm:text-sm"
+              >
+                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                Manual
+              </Button>
+            )}
+            <Button
+              onClick={generateFinalAction}
+              disabled={messages.length === 0 || isLoading}
+              size="sm"
+              className="text-xs sm:text-sm"
+            >
+              Generează Acțiune
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
 
       <StackIdeaModal
         isOpen={isIdeaModalOpen}
