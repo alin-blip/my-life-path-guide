@@ -388,33 +388,22 @@ export const SimplifiedDoorContent: React.FC = () => {
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
               >
-                {(hitList.length === 0 && doList.length === 0) ? (
-                  <EmptyStateCard
-                    icon={CheckSquare}
-                    emoji="📋"
-                    title="Încă nu ai sarcini!"
-                    description="Trage idei din lista ta sau puncte cheie din domino pentru a crea sarcini zilnice."
-                    actionLabel="🎯 Start Drag & Drop"
-                    onAction={() => {}}
-                  />
-                ) : (
-                  <TaskList 
-                    hitList={hitList}
-                    doList={doList}
-                    activeDay={activeDay}
-                    activeList={activeList}
-                    setActiveList={setActiveList}
-                    selectDayOfWeek={selectDayOfWeek}
-                    toggleHitListItemCompletion={toggleHitListItemCompletion}
-                    toggleDoListItemCompletion={toggleDoListItemCompletion}
-                    hitAchievedCount={hitAchievedCount}
-                    hitDoneCount={hitDoneCount}
-                    doAchievedCount={doAchievedCount}
-                    doDoneCount={doDoneCount}
-                    moveTaskBackToHotList={moveTaskBackToHotList}
-                    isMobile={false}
-                  />
-                )}
+                <TaskList 
+                  hitList={hitList}
+                  doList={doList}
+                  activeDay={activeDay}
+                  activeList={activeList}
+                  setActiveList={setActiveList}
+                  selectDayOfWeek={selectDayOfWeek}
+                  toggleHitListItemCompletion={toggleHitListItemCompletion}
+                  toggleDoListItemCompletion={toggleDoListItemCompletion}
+                  hitAchievedCount={hitAchievedCount}
+                  hitDoneCount={hitDoneCount}
+                  doAchievedCount={doAchievedCount}
+                  doDoneCount={doDoneCount}
+                  moveTaskBackToHotList={moveTaskBackToHotList}
+                  isMobile={false}
+                />
               </CardContent>
             </Card>
           </div>

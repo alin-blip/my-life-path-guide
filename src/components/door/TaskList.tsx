@@ -64,6 +64,14 @@ export const TaskList: React.FC<TaskListProps> = ({
   const filteredHitList = hitList.filter(item => normalizeDay(item.day) === activeDay);
   const filteredDoList = doList.filter(item => normalizeDay(item.day) === activeDay);
   
+  // Debug
+  console.debug('[TaskList] activeDay', activeDay, {
+    hitTotal: hitList.length,
+    doTotal: doList.length,
+    hitFiltered: filteredHitList.length,
+    doFiltered: filteredDoList.length,
+  });
+  
   const hitStats = `${hitDoneCount}/${hitAchievedCount}`;
   const doStats = `${doDoneCount}/${doAchievedCount}`;
   
