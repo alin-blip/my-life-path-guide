@@ -1,7 +1,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Crown, Sparkles, Target, Shield, Flame, TrendingUp } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Crown, Sparkles, Target, Shield, Flame, TrendingUp, CheckCircle2 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -156,26 +157,45 @@ const Index = () => {
         </div>
 
         {/* Pricing Preview */}
-        <section className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-white">{language === 'en' ? 'Choose your pace — RoWarrior Plans' : 'Alege-ți ritmul — Abonamente RoWarrior'}</h2>
-          <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-            {language === 'en' ? 'Start with a 3-day trial (card required), then pick Basic or Pro for relentless execution.' : 'Începe cu proba de 3 zile (card necesar), apoi alege Basic sau Pro pentru execuție la sânge.'}
-          </p>
+        <section className="mb-16">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight">{language === 'en' ? 'Choose your pace — RoWarrior Plans' : 'Alege-ți ritmul — Abonamente RoWarrior'}</h2>
+            <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
+              {language === 'en' ? 'Start with a 3-day trial (card required), then pick Basic or Pro for relentless execution.' : 'Începe cu proba de 3 zile (card necesar), apoi alege Basic sau Pro pentru execuție la sânge.'}
+            </p>
+          </div>
           <div className="grid md:grid-cols-3 gap-6 mt-8">
             {plans.map((plan) => (
-              <Card key={plan.id} className={plan.featured ? 'ring-2 ring-primary' : ''}>
-                <CardHeader>
-                  <CardTitle className="text-white">{plan.name}</CardTitle>
-                  <div className="mt-2">
-                    <span className="text-3xl font-bold text-white">{plan.price}</span>
-                    {plan.period && <span className="text-muted-foreground ml-1">{plan.period}</span>}
+              <Card
+                key={plan.id}
+                className={`${plan.featured ? 'ring-2 ring-primary/60' : ''} relative overflow-hidden rounded-2xl border border-border bg-card/60 backdrop-blur supports-[backdrop-filter]:bg-card/50 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5`}
+              >
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-accent to-secondary" />
+                {plan.featured && (
+                  <Badge variant="secondary" className="absolute right-4 top-4">
+                    {language === 'en' ? 'Popular' : 'Popular'}
+                  </Badge>
+                )}
+                <CardHeader className="pb-4">
+                  <CardTitle>{plan.name}</CardTitle>
+                  {plan.highlight && (
+                    <p className="text-sm text-muted-foreground mt-1">{plan.highlight}</p>
+                  )}
+                  <div className="mt-3 flex items-baseline gap-2">
+                    <span className="text-3xl font-bold">{plan.price}</span>
+                    {plan.period && (
+                      <span className="text-muted-foreground">{plan.period}</span>
+                    )}
                   </div>
+                  {plan.result && (
+                    <p className="mt-2 text-sm text-muted-foreground">{plan.result}</p>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2 text-left">
-                    {plan.benefits.slice(0,3).map((b) => (
+                    {plan.benefits.slice(0, 5).map((b) => (
                       <li key={b} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <span className="mt-1">✅</span>
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" />
                         <span>{b}</span>
                       </li>
                     ))}
@@ -183,13 +203,15 @@ const Index = () => {
                 </CardContent>
                 <CardFooter>
                   <Button className="w-full" onClick={() => navigate('/pricing')}>
-                    {language === 'en' ? 'View details' : 'Vezi detaliile'}
+                    {plan.id === 'trial'
+                      ? (language === 'en' ? 'Start trial' : 'Începe proba')
+                      : (language === 'en' ? 'View details' : 'Vezi detaliile')}
                   </Button>
                 </CardFooter>
               </Card>
             ))}
           </div>
-          <div className="mt-6">
+          <div className="mt-6 text-center">
             <Link to="/pricing" className="underline text-sm text-muted-foreground">
               {language === 'en' ? 'See full comparison' : 'Vezi comparația completă'}
             </Link>
