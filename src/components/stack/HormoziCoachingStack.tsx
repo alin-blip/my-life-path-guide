@@ -371,7 +371,7 @@ Vorbește în română și folosește stilul direct și orientat pe rezultate al
 
   return (
     <div className="w-full p-1 sm:p-2 flex flex-col h-full">
-      <Card className="flex-1 flex flex-col max-h-[400px] mb-4">
+      <Card className="flex-1 flex flex-col max-h-[60vh] mb-4 bg-card/60 backdrop-blur-xs border border-border/50 shadow-glass">
         <CardContent className="flex-1 overflow-y-auto p-2">
           <div className="space-y-3">
             {messages.map((message, index) => (

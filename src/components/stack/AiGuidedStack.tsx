@@ -347,7 +347,7 @@ INSTRUCȚIUNI:
 
   return (
     <div className="w-full p-1 sm:p-2 flex flex-col h-full">
-      <Card className="flex-1 flex flex-col max-h-[400px] mb-4">
+      <Card className="flex-1 flex flex-col max-h-[60vh] mb-4 bg-card/60 backdrop-blur-xs border border-border/50 shadow-glass">
         <CardContent className="flex-1 overflow-y-auto p-2">
           <div className="space-y-3">
             {messages.map((message, index) => (
@@ -380,14 +380,6 @@ INSTRUCȚIUNI:
       </Card>
 
       <div className="space-y-2">
-        <div className="mb-2">
-          <h1 className="text-lg sm:text-xl font-semibold text-primary mb-1">
-            AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Conversație ghidată cu AI coach-ul tău
-          </p>
-        </div>
         
         <div className="flex gap-2">
           <Textarea
