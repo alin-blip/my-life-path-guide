@@ -59,33 +59,39 @@ serve(async (req) => {
     }
 
     const customerId = customers.data[0].id;
-    const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
-    const hasActive = subscriptions.data.length > 0;
+    const subsList = await stripe.subscriptions.list({ customer: customerId, limit: 10 });
+    const activeOrTrial = subsList.data.find((s) => s.status === "active" || s.status === "trialing");
+    const isSubscribed = Boolean(activeOrTrial);
 
     let tier: string | null = null;
     let endIso: string | null = null;
 
-    if (hasActive) {
-      const sub = subscriptions.data[0];
-      endIso = new Date(sub.current_period_end * 1000).toISOString();
-      const price = sub.items.data[0].price;
-      const amount = price.unit_amount || 0; // in bani
-      // Tier mapping for RON values
-      if (amount <= 9700) tier = "Basic"; else tier = "Pro";
+    if (isSubscribed) {
+      const sub = activeOrTrial!;
+      if (sub.status === "trialing") {
+        endIso = sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null;
+        tier = "Trial";
+      } else {
+        endIso = new Date(sub.current_period_end * 1000).toISOString();
+        const price = sub.items.data[0].price;
+        const amount = price.unit_amount || 0; // in smallest currency unit
+        // Tier mapping for RON values
+        if (amount <= 9700) tier = "Basic"; else tier = "Pro";
+      }
     }
 
     await supabaseService.from("subscribers").upsert({
       email: user.email,
       user_id: user.id,
       stripe_customer_id: customerId,
-      subscribed: hasActive,
+      subscribed: isSubscribed,
       subscription_tier: tier,
       subscription_end: endIso,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'email' });
 
     return new Response(JSON.stringify({
-      subscribed: hasActive,
+      subscribed: isSubscribed,
       subscription_tier: tier,
       subscription_end: endIso,
     }), {

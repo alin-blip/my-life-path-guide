@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 const plans = [
@@ -17,7 +17,7 @@ const plans = [
     period: "3 zile",
     highlight: "Testează fără risc",
     benefits: [
-      "Experimentezi platforma complet, fără card",
+      "Acces complet în probă – card necesar, fără taxare în primele 3 zile",
       "Plan zilnic clar – ce faci azi ca să avansezi",
       "Acces la Coaching AI pentru focus și claritate",
       "Task-uri prioritizate ca să nu risipești timpul",
@@ -60,7 +60,8 @@ const Pricing: React.FC = () => {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, subscribed, refreshSubscription } = useAuth();
+  const location = useLocation();
+  const { user, subscribed, refreshSubscription, subscriptionTier } = useAuth();
 
   useEffect(() => {
     document.title = "Operator – Abonamente & Beneficii";
@@ -70,6 +71,7 @@ const Pricing: React.FC = () => {
     const success = searchParams.get('success');
     const canceled = searchParams.get('canceled');
     const reason = searchParams.get('reason');
+    const stateReason = (location.state as any)?.reason;
 
     if (success) {
       toast({ title: 'Plată reușită', description: 'Actualizăm abonamentul...' });
@@ -78,10 +80,11 @@ const Pricing: React.FC = () => {
     if (canceled) {
       toast({ title: 'Checkout anulat', description: 'Poți încerca din nou oricând.' });
     }
-    if (reason === 'membership_required') {
+    if (reason === 'membership_required' || stateReason === 'membership_required') {
       toast({ title: 'Necesită abonament', description: 'Alege un plan pentru a continua.' });
+      if (stateReason) navigate('/pricing', { replace: true });
     }
-  }, [searchParams, toast, refreshSubscription, navigate]);
+  }, [searchParams, location.state, toast, refreshSubscription, navigate]);
 
 const handleCheckout = async (planId: string) => {
   try {
@@ -121,6 +124,16 @@ const handleManageSubscription = async () => {
   }
 };
 
+const mapTierToPlanId = (tier?: string | null) => {
+  if (!tier) return null;
+  const t = tier.toLowerCase();
+  if (t.includes('trial')) return 'trial';
+  if (t.includes('basic')) return 'basic';
+  if (t.includes('pro') || t.includes('premium')) return 'pro';
+  return null;
+};
+const activePlanId = mapTierToPlanId(subscriptionTier);
+
 return (
   <Layout>
     <main className="max-w-6xl mx-auto">
@@ -145,40 +158,55 @@ return (
       )}
 
       <div className="grid md:grid-cols-3 gap-6">
-        {plans.map((plan) => (
-          <Card key={plan.id} className={`relative ${plan.featured ? 'ring-2 ring-primary' : ''}`}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white">{plan.name}</CardTitle>
-                {plan.highlight && (
-                  <Badge variant="secondary">{plan.highlight}</Badge>
-                )}
-              </div>
-              <div className="mt-3">
-                <span className="text-3xl font-bold text-white">{plan.price}</span>
-                {plan.period && <span className="text-muted-foreground ml-1">{plan.period}</span>}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {plan.benefits.map((b) => (
-                  <li key={b} className="text-sm text-muted-foreground flex items-start gap-2">
-                    <span className="mt-1">✅</span>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" disabled={loadingPlan === plan.id} onClick={() => handleCheckout(plan.id)}>
-                {loadingPlan === plan.id ? 'Se încarcă…' : plan.cta}
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+        {plans.map((plan) => {
+          const isActive = activePlanId === plan.id;
+          return (
+            <Card key={plan.id} className={`relative ${plan.featured ? 'ring-2 ring-primary' : ''}`}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-white">{plan.name}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    {plan.highlight && (
+                      <Badge variant="secondary">{plan.highlight}</Badge>
+                    )}
+                    {isActive && <Badge>Planul tău</Badge>}
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <span className="text-3xl font-bold text-white">{plan.price}</span>
+                  {plan.period && <span className="text-muted-foreground ml-1">{plan.period}</span>}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {plan.benefits.map((b) => (
+                    <li key={b} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <span className="mt-1">✅</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full" disabled={loadingPlan === plan.id || isActive} onClick={() => handleCheckout(plan.id)}>
+                  {loadingPlan === plan.id ? 'Se încarcă…' : isActive ? 'Activ' : plan.cta}
+                </Button>
+              </CardFooter>
+            </Card>
+          );
+        })}
       </div>
 
-      <div className="text-center mt-6">
+      <div className="text-center mt-6 space-x-3">
+        <Button
+          variant="outline"
+          onClick={async () => {
+            await refreshSubscription();
+            toast({ title: 'Status actualizat', description: 'Am verificat abonamentul tău.' });
+          }}
+        >
+          Actualizează status
+        </Button>
         {subscribed ? (
           <Button variant="secondary" onClick={handleManageSubscription}>Deschide portalul de abonamente</Button>
         ) : (
