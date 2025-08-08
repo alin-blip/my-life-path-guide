@@ -28,7 +28,7 @@ const Index = () => {
       </div>
 
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-16" id="top">
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center mb-6">
             <div className="bg-gradient-to-r from-feminine-primary to-feminine-purple rounded-full p-4">
@@ -58,7 +58,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline"
-              onClick={() => navigate('/pricing')}
+              onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
               className="border-feminine-secondary text-white hover:bg-feminine-primary/20 px-8 py-4 text-lg"
             >
               {language === 'en' ? 'See Plans' : 'Vezi abonamentele'}
@@ -157,7 +157,7 @@ const Index = () => {
         </div>
 
         {/* Pricing Preview */}
-        <section className="mb-16">
+        <section id="pricing" className="mb-16">
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tight">{language === 'en' ? 'Choose your pace — RoWarrior Plans' : 'Alege-ți ritmul — Abonamente RoWarrior'}</h2>
             <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
@@ -220,21 +220,14 @@ const Index = () => {
 
         {/* Final CTA */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            {language === 'en' ? 'Become a RoWarrior' : 'Devino RoWarrior'}
-          </h2>
-          <p className="text-gray-300 mb-8">
-            {language === 'en' 
-              ? 'Build your empire with clarity, execution and balance — without excuses.' 
-              : 'Construiește-ți imperiul cu claritate, execuție și echilibru — fără scuze.'}
-          </p>
-          <Button 
-            size="lg" 
-            onClick={() => navigate('/auth')}
-            className="bg-gradient-to-r from-feminine-primary to-feminine-purple hover:from-feminine-accent hover:to-feminine-purple text-white px-12 py-4 text-xl font-semibold"
-          >
-            {language === 'en' ? 'Join Now' : 'Intră acum'}
-          </Button>
+          <div className="inline-flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">
+              {language === 'en' ? 'Already have an account?' : 'Ai deja cont?'}
+            </span>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

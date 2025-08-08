@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SideMenu } from './SideMenu';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Share, Menu, X } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
 import { useLanguage } from '@/context/LanguageContext';
@@ -131,6 +131,9 @@ export const Layout: React.FC<LayoutProps> = ({
                 <div className="text-sm text-gray-400">
                   {formatDate()}
                 </div>
+                <Button asChild variant="secondary" size="sm">
+                  <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
+                </Button>
                 <LanguageSelector />
               </div>
             </div>
@@ -142,7 +145,12 @@ export const Layout: React.FC<LayoutProps> = ({
               <div className="text-xs text-gray-400">
                 {formatDate()}
               </div>
-              <LanguageSelector />
+              <div className="flex items-center gap-2">
+                <Button asChild variant="secondary" size="sm">
+                  <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
+                </Button>
+                <LanguageSelector />
+              </div>
             </div>
           )}
           
