@@ -8,52 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-
-const plans = [
-  {
-    id: "trial",
-    name: "Probă 3 Zile",
-    price: "0 LEI",
-    period: "3 zile",
-    highlight: "Testează fără risc",
-    benefits: [
-      "Acces complet în probă – card necesar, fără taxare în primele 3 zile",
-      "Plan zilnic clar – ce faci azi ca să avansezi",
-      "Acces la Coaching AI pentru focus și claritate",
-      "Task-uri prioritizate ca să nu risipești timpul",
-    ],
-    cta: "Începe proba",
-  },
-  {
-    id: "basic",
-    name: "Basic",
-    price: "97 LEI",
-    period: "/ lună",
-    highlight: "Fundamentul disciplinei zilnice",
-    benefits: [
-      "Plan zilnic de execuție – 15 minute și știi ce ai de făcut",
-      "Focus pe profit: 1-3 acțiuni cu ROI maxim în fiecare zi",
-      "Jurnal de progres și rapoarte săptămânale",
-      "Acces la Stacks (Furie, Claritate, Focus) pentru reset rapid",
-    ],
-    cta: "Alege Basic",
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "197 LEI",
-    period: "/ lună",
-    highlight: "Creștere accelerată & execuție la sânge",
-    benefits: [
-      "Tot din Basic + Coaching AI tip Hormozi pentru ofertă și preț",
-      "Sprint de 90 de zile cu obiective și checkpoint-uri",
-      "KPI esențiali setați și urmăriți automat",
-      "Template-uri, playbook-uri și checklists de implementare",
-    ],
-    cta: "Alege Pro",
-    featured: true,
-  },
-];
+import { plans } from "@/data/pricing";
+import { Helmet } from "react-helmet-async";
 
 const Pricing: React.FC = () => {
   const { toast } = useToast();
@@ -64,7 +20,7 @@ const Pricing: React.FC = () => {
   const { user, subscribed, refreshSubscription, subscriptionTier } = useAuth();
 
   useEffect(() => {
-    document.title = "Operator – Abonamente & Beneficii";
+    document.title = "RoWarrior – Abonamente & Beneficii";
   }, []);
 
   useEffect(() => {
@@ -134,8 +90,14 @@ const mapTierToPlanId = (tier?: string | null) => {
 };
 const activePlanId = mapTierToPlanId(subscriptionTier);
 
+
 return (
   <Layout>
+    <Helmet>
+      <title>Abonamente RoWarrior — Basic și Pro</title>
+      <meta name="description" content="Abonamente RoWarrior pentru antreprenori: trial 3 zile cu card, planurile Basic (97 lei) și Pro (197 lei) pentru execuție, claritate și KPI." />
+      <link rel="canonical" href={`${window.location.origin}/pricing`} />
+    </Helmet>
     <main className="max-w-6xl mx-auto">
       <section className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-white">Abonamente construite pentru antreprenori</h1>

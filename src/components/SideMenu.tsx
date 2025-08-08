@@ -114,7 +114,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
             <span className="font-display font-bold text-white text-sm">🌙</span>
           </div>
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-lg text-white">OPERATOR</h1>
+            <h1 className="font-display font-bold text-lg text-white">RoWarrior</h1>
           )}
         </div>
       </div>

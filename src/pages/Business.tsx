@@ -8,7 +8,7 @@ import { Briefcase, Target, BarChart3, BookOpen } from "lucide-react";
 
 const Business: React.FC = () => {
   useEffect(() => {
-    document.title = "Operator – Secțiunea Business";
+    document.title = "RoWarrior – Secțiunea Business";
   }, []);
 
   return (

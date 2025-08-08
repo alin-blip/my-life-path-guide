@@ -36,7 +36,7 @@ const Index = () => {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            {language === 'en' ? 'Operator – Command Center for Entrepreneurs' : 'Operator – Centrul de Comandă pentru Antreprenori'}
+            {language === 'en' ? 'RoWarrior – Command Center for Entrepreneurs' : 'RoWarrior – Centrul de Comandă pentru Antreprenori'}
           </h1>
           
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">

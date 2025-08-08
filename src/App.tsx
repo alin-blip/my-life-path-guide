@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ProgressProvider } from "@/context/ProgressContext";
@@ -39,126 +40,128 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <LanguageProvider>
-            <SecurityProvider>
-              <ProgressProvider>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                      <DashboardPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/stack" element={
-                    <ProtectedRoute>
-                      <Stack />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/stack-library" element={
-                    <ProtectedRoute>
-                      <StackLibrary />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/learn" element={
-                    <ProtectedRoute>
-                      <Learn />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/door" element={
-                    <ProtectedRoute>
-                      <Door />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/game" element={
-                    <ProtectedRoute>
-                      <Game />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/core" element={
-                    <ProtectedRoute>
-                      <Core />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/daily-four" element={
-                    <ProtectedRoute>
-                      <DailyFour />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/chat" element={
-                    <ProtectedRoute>
-                      <Chat />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/tribe" element={
-                    <ProtectedRoute>
-                      <Tribe />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/journal" element={
-                    <ProtectedRoute>
-                      <Journal />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin" element={
-                    <ProtectedRoute>
-                      <AdminPanel />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/profile" element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/fitness" element={
-                    <ProtectedRoute>
-                      <Fitness />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/library" element={
-                    <ProtectedRoute>
-                      <Library />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/settings" element={
-                    <ProtectedRoute>
-                      <Settings />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/support" element={
-                    <ProtectedRoute>
-                      <Support />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/notes" element={
-                    <ProtectedRoute>
-                      <Notes />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/generals-tent" element={
-                    <ProtectedRoute>
-                      <GeneralsTent />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/business" element={
-                    <ProtectedRoute>
-                      <Business />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </ProgressProvider>
-            </SecurityProvider>
-          </LanguageProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+    <HelmetProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <LanguageProvider>
+              <SecurityProvider>
+                <ProgressProvider>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute>
+                        <DashboardPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/stack" element={
+                      <ProtectedRoute>
+                        <Stack />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/stack-library" element={
+                      <ProtectedRoute>
+                        <StackLibrary />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/learn" element={
+                      <ProtectedRoute>
+                        <Learn />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/door" element={
+                      <ProtectedRoute>
+                        <Door />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/game" element={
+                      <ProtectedRoute>
+                        <Game />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/core" element={
+                      <ProtectedRoute>
+                        <Core />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/daily-four" element={
+                      <ProtectedRoute>
+                        <DailyFour />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/chat" element={
+                      <ProtectedRoute>
+                        <Chat />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/tribe" element={
+                      <ProtectedRoute>
+                        <Tribe />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/journal" element={
+                      <ProtectedRoute>
+                        <Journal />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin" element={
+                      <ProtectedRoute>
+                        <AdminPanel />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/profile" element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/fitness" element={
+                      <ProtectedRoute>
+                        <Fitness />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/library" element={
+                      <ProtectedRoute>
+                        <Library />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/settings" element={
+                      <ProtectedRoute>
+                        <Settings />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/support" element={
+                      <ProtectedRoute>
+                        <Support />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/notes" element={
+                      <ProtectedRoute>
+                        <Notes />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/generals-tent" element={
+                      <ProtectedRoute>
+                        <GeneralsTent />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/pricing" element={<Pricing />} />
+                    <Route path="/business" element={
+                      <ProtectedRoute>
+                        <Business />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </ProgressProvider>
+              </SecurityProvider>
+            </LanguageProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </HelmetProvider>
   </QueryClientProvider>
 );
 
