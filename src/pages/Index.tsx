@@ -4,23 +4,22 @@ import { Crown, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { useAuth } from "@/context/AuthContext";
-import { useEffect } from "react";
+
+import { Helmet } from "react-helmet-async";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  
   const { language } = useLanguage();
 
-  // Redirect authenticated users to dashboard
-  useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
-    }
-  }, [user, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900/90 via-pink-900/80 to-purple-900/90">
+      <Helmet>
+        <title>RoWarrior — Calea războinicilor de a avea totul</title>
+        <meta name="description" content="RoWarrior: calea războinicilor de a avea totul în viață — claritate, execuție, profit și echilibru, în același timp." />
+        <link rel="canonical" href={`${window.location.origin}/`} />
+      </Helmet>
       {/* Language Selector */}
       <div className="absolute top-6 right-6 z-10">
         <LanguageSelector />
@@ -41,8 +40,8 @@ const Index = () => {
           
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
             {language === 'en' 
-              ? 'Clarify priorities, execute daily, and grow profit—without sacrificing your health, family, or values.' 
-              : 'Claritate zilnică, execuție fără risipă și profit în creștere – fără să-ți sacrifici sănătatea, familia sau valorile.'}
+              ? 'RoWarrior is the warriors’ way to have it all at once — clarity, execution, profit and balance.' 
+              : 'RoWarrior este calea războinicilor de a avea totul, în același timp — claritate, execuție, profit și echilibru.'}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -70,12 +69,12 @@ const Index = () => {
           <div className="bg-gradient-to-br from-feminine-primary/40 to-feminine-rose/40 p-6 rounded-xl border border-feminine-primary/30">
             <div className="text-4xl mb-4">🌺</div>
             <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Health & Energy' : 'Sănătate & Energie'}
+              {language === 'en' ? 'Energy & Discipline' : 'Energie & Disciplina'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Optimize energy and focus so you can execute consistently' 
-                : 'Optimizezi energia și focusul ca să execuți constant'}
+                ? 'Build routines for high energy and consistent execution.' 
+                : 'Construiește rutine pentru energie ridicată și execuție constantă.'}
             </p>
           </div>
 

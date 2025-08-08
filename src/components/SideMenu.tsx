@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
@@ -92,16 +91,16 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     { title: 'Business', icon: Briefcase, path: '/business' },
     { title: 'Misiuni de Împlinire', icon: Target, path: '/game' },
     { 
-      title: 'Cercul Surorilor', 
+      title: 'Frăția Războinicilor', 
       icon: UsersRound, 
       path: '/chat',
       subItems: [
-        { title: 'Sacred Chat', icon: MessageSquare, path: '/chat' },
-        { title: 'Divine Circle', icon: Users, path: '/tribe' },
+        { title: 'Warrior Chat', icon: MessageSquare, path: '/chat' },
+        { title: 'Frăția', icon: Users, path: '/tribe' },
       ] 
     },
-    { title: 'Sacred Notes', icon: FileText, path: '/notes' },
-    { title: 'Sacred Library', icon: BookOpenIcon, path: '/library' },
+    { title: 'Note', icon: FileText, path: '/notes' },
+    { title: 'Arsenal', icon: BookOpenIcon, path: '/library' },
     { title: 'Abonamente', icon: CreditCard, path: '/pricing' },
     { title: 'Admin', icon: Shield, path: '/admin' },
   ];
