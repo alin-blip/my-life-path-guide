@@ -1,11 +1,12 @@
 
 import { Button } from "@/components/ui/button";
-import { Crown, Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Crown, Sparkles, Target, Shield, Flame, TrendingUp } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
-
 import { Helmet } from "react-helmet-async";
+import { plans } from "@/data/pricing";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -64,112 +65,153 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Sacred Circle Features */}
+        {/* RoWarrior Pillars */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           <div className="bg-gradient-to-br from-feminine-primary/40 to-feminine-rose/40 p-6 rounded-xl border border-feminine-primary/30">
-            <div className="text-4xl mb-4">🌺</div>
+            <Target className="w-10 h-10 text-white mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Energy & Discipline' : 'Energie & Disciplina'}
+              {language === 'en' ? 'Daily Discipline' : 'Disciplină Zilnică'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Build routines for high energy and consistent execution.' 
-                : 'Construiește rutine pentru energie ridicată și execuție constantă.'}
+                ? 'Clear daily plan: know what moves the needle today.' 
+                : 'Plan zilnic clar: știi exact ce mișcă acul azi.'}
             </p>
           </div>
 
           <div className="bg-gradient-to-br from-feminine-purple/40 to-purple-700/40 p-6 rounded-xl border border-feminine-purple/30">
-            <div className="text-4xl mb-4">🧘‍♀️</div>
+            <Shield className="w-10 h-10 text-white mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Divine Connection' : 'Conexiune Divină'}
+              {language === 'en' ? 'Relentless Execution' : 'Execuție Fără Rispă'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Awaken your inner wisdom and spiritual feminine power' 
-                : 'Trezește-ți înțelepciunea interioară și puterea spirituală feminină'}
+                ? 'Protect your focus. Execute 1–3 high-ROI actions daily.' 
+                : 'Protejează-ți focusul. Execută 1–3 acțiuni cu ROI maxim pe zi.'}
             </p>
           </div>
 
           <div className="bg-gradient-to-br from-pink-600/40 to-feminine-primary/40 p-6 rounded-xl border border-pink-500/30">
-            <div className="text-4xl mb-4">💖</div>
+            <Flame className="w-10 h-10 text-white mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Sacred Relationships' : 'Relații Sacre'}
+              {language === 'en' ? 'Emotional Control' : 'Control Emoțional'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Cultivate divine connections and sacred sisterhood' 
-                : 'Cultivă conexiuni divine și Cercul Surorilor'}
+                ? 'Use quick stacks (Anger, Clarity) to reset and move forward.' 
+                : 'Folosește stack-uri rapide (Furie, Claritate) ca să revii pe traiectorie.'}
             </p>
           </div>
 
           <div className="bg-gradient-to-br from-yellow-600/40 to-orange-600/40 p-6 rounded-xl border border-yellow-500/30">
-            <Crown className="w-12 h-12 text-yellow-400 mb-4" />
+            <TrendingUp className="w-10 h-10 text-white mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? "Queen's Empire" : 'Imperiul Reginei'}
+              {language === 'en' ? 'Profit & Balance' : 'Profit & Echilibru'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Build your abundant queendom with feminine leadership' 
-                : 'Construiește-ți împărăția abundentă cu leadership feminin'}
+                ? 'Grow profit without sacrificing health, family or values.' 
+                : 'Crești profitul fără să-ți sacrifici sănătatea, familia sau valorile.'}
             </p>
           </div>
         </div>
 
-        {/* Sacred Tools Section */}
+        {/* War Tools */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
           <div className="bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 p-6 rounded-xl border border-feminine-primary/30">
             <Sparkles className="w-10 h-10 text-feminine-primary mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">
-              {language === 'en' ? 'Sacred Rituals' : 'Ritualuri de Putere'}
+              {language === 'en' ? 'War Plan Map' : 'Harta de Războinic (War Plan)'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Transform limiting beliefs through divine feminine practices' 
-                : 'Transformă convingerile limitative prin practici feminine divine'}
+                ? 'One page plan: objectives, constraints, and the next bold moves.' 
+                : 'Plan pe o pagină: obiective, blocaje și următoarele mișcări curajoase.'}
             </p>
           </div>
 
           <div className="bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 p-6 rounded-xl border border-feminine-primary/30">
-            <div className="text-3xl mb-4">🌙</div>
+            <Target className="w-10 h-10 text-feminine-primary mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">
-              {language === 'en' ? 'Sacred Circle Tracking' : 'Urmărirea Cercului Sacru'}
+              {language === 'en' ? 'Weekly Missions & KPIs' : 'Misiuni Săptămânale & KPI'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Honor your natural cycles and track your goddess journey' 
-                : 'Onorează-ți ciclurile naturale și urmărește călătoria zeiței'}
+                ? 'Pick 1 domino goal and 3–5 KPIs; review weekly, adjust fast.' 
+                : 'Alege 1 obiectiv domino și 3–5 KPI; revizuiește săptămânal, ajustează rapid.'}
             </p>
           </div>
 
           <div className="bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 p-6 rounded-xl border border-feminine-primary/30">
-            <div className="text-3xl mb-4">🦋</div>
+            <Flame className="w-10 h-10 text-feminine-primary mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">
-              {language === 'en' ? 'Goddess Awakening Map' : 'Harta Trezirii Zeiței'}
+              {language === 'en' ? 'Rapid Stacks' : 'Stack-uri Rapide'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Manifest your divine feminine destiny and impossible dreams' 
-                : 'Manifestă-ți destinul feminin divin și visurile imposibile'}
+                ? 'Reset in minutes with Anger & Clarity stacks to keep momentum.' 
+                : 'Revii în câteva minute cu stack-urile Furie & Claritate – menții momentum-ul.'}
             </p>
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* Pricing Preview */}
+        <section className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-white">{language === 'en' ? 'Choose your pace — RoWarrior Plans' : 'Alege-ți ritmul — Abonamente RoWarrior'}</h2>
+          <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
+            {language === 'en' ? 'Start with a 3-day trial (card required), then pick Basic or Pro for relentless execution.' : 'Începe cu proba de 3 zile (card necesar), apoi alege Basic sau Pro pentru execuție la sânge.'}
+          </p>
+          <div className="grid md:grid-cols-3 gap-6 mt-8">
+            {plans.map((plan) => (
+              <Card key={plan.id} className={plan.featured ? 'ring-2 ring-primary' : ''}>
+                <CardHeader>
+                  <CardTitle className="text-white">{plan.name}</CardTitle>
+                  <div className="mt-2">
+                    <span className="text-3xl font-bold text-white">{plan.price}</span>
+                    {plan.period && <span className="text-muted-foreground ml-1">{plan.period}</span>}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-left">
+                    {plan.benefits.slice(0,3).map((b) => (
+                      <li key={b} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="mt-1">✅</span>
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full" onClick={() => navigate('/pricing')}>
+                    {language === 'en' ? 'View details' : 'Vezi detaliile'}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-6">
+            <Link to="/pricing" className="underline text-sm text-muted-foreground">
+              {language === 'en' ? 'See full comparison' : 'Vezi comparația completă'}
+            </Link>
+          </div>
+        </section>
+
+        {/* Final CTA */}
         <div className="text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
-            {language === 'en' ? 'Ready to Unleash Your Divine Feminine Power?' : 'Gata să îți Eliberezi Puterea Feminină Divină?'}
+            {language === 'en' ? 'Become a RoWarrior' : 'Devino RoWarrior'}
           </h2>
           <p className="text-gray-300 mb-8">
             {language === 'en' 
-              ? 'Join the Sacred Circle of empowered women who have awakened their goddess within through the Femeia Eliberată program.' 
-              : 'Alătură-te Cercului Sacru de femei împuternicite care și-au trezit zeița din interior prin programul Femeia Eliberată.'}
+              ? 'Build your empire with clarity, execution and balance — without excuses.' 
+              : 'Construiește-ți imperiul cu claritate, execuție și echilibru — fără scuze.'}
           </p>
           <Button 
             size="lg" 
             onClick={() => navigate('/auth')}
             className="bg-gradient-to-r from-feminine-primary to-feminine-purple hover:from-feminine-accent hover:to-feminine-purple text-white px-12 py-4 text-xl font-semibold"
           >
-            {language === 'en' ? 'Awaken Your Goddess' : 'Trezește-ți Zeița'}
+            {language === 'en' ? 'Join Now' : 'Intră acum'}
           </Button>
         </div>
       </div>
