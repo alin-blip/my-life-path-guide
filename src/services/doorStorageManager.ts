@@ -193,7 +193,7 @@ class DoorStorageManager {
           doList: [],
           selectedDomino: null,
           dominoKeyPoints: [],
-          activeDay: 'monday' as DayOfWeek,
+          activeDay: 'M' as DayOfWeek,
           activeList: 'hit' as 'hit' | 'do',
           isDominoCompleted: false
         };
@@ -207,7 +207,7 @@ class DoorStorageManager {
         doList: weekData.doList || [],
         selectedDomino: weekData.selectedDomino || null,
         dominoKeyPoints: weekData.dominoKeyPoints || [],
-        activeDay: weekData.activeDay || 'monday',
+        activeDay: this.normalizeDay(weekData.activeDay || 'M'),
         activeList: weekData.activeList || 'hit',
         isDominoCompleted: weekData.isDominoCompleted || false
       };
@@ -247,6 +247,28 @@ class DoorStorageManager {
 
   private verifyChecksum(data: DoorStorageData, expectedChecksum: string): boolean {
     return this.generateChecksum(data) === expectedChecksum;
+  }
+
+  private normalizeDay(d: any): DayOfWeek {
+    if (typeof d !== 'string') return (d as DayOfWeek) || 'M';
+    const map: Record<string, DayOfWeek> = {
+      monday: 'M',
+      tuesday: 'T',
+      wednesday: 'W',
+      thursday: 'Th',
+      friday: 'F',
+      saturday: 'Sa',
+      sunday: 'Su',
+      m: 'M',
+      t: 'T',
+      w: 'W',
+      th: 'Th',
+      f: 'F',
+      sa: 'Sa',
+      su: 'Su',
+    };
+    const key = d.toLowerCase();
+    return map[key] || (d as DayOfWeek) || 'M';
   }
 
   private createBackup(data: DoorStorageData): StorageVersion {

@@ -53,7 +53,19 @@ export function useDoorStorageLoad() {
         ];
         
         setters.setDominoKeyPoints(loadedKeyPoints);
-        setters.selectDayOfWeek(loadedData.activeDay || 'M');
+
+        // Normalize and set day/list
+        const normalizeDay = (d: any): DayOfWeek => {
+          if (typeof d !== 'string') return (d as DayOfWeek) || 'M';
+          const map: Record<string, DayOfWeek> = {
+            monday: 'M', tuesday: 'T', wednesday: 'W', thursday: 'Th', friday: 'F', saturday: 'Sa', sunday: 'Su',
+            m: 'M', t: 'T', w: 'W', th: 'Th', f: 'F', sa: 'Sa', su: 'Su',
+          };
+          const key = d.toLowerCase();
+          return map[key] || (d as DayOfWeek) || 'M';
+        };
+        
+        setters.selectDayOfWeek(normalizeDay(loadedData.activeDay || 'M'));
         setters.setActiveList(loadedData.activeList || 'hit');
         
         // Set domino completion status

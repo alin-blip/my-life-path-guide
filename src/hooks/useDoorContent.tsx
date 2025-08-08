@@ -105,9 +105,19 @@ export function useDoorContent() {
     checkDominoCompletion
   });
 
-  // Filter the lists based on active day
-  const filteredHitList = hitList.filter(item => item.day === activeDay);
-  const filteredDoList = doList.filter(item => item.day === activeDay);
+  // Filter the lists based on active day (normalize for legacy values)
+  const normalizeDay = (d: any): DayOfWeek => {
+    if (typeof d !== 'string') return (d as DayOfWeek) || 'M';
+    const map: Record<string, DayOfWeek> = {
+      monday: 'M', tuesday: 'T', wednesday: 'W', thursday: 'Th', friday: 'F', saturday: 'Sa', sunday: 'Su',
+      m: 'M', t: 'T', w: 'W', th: 'Th', f: 'F', sa: 'Sa', su: 'Su',
+    };
+    const key = d.toLowerCase();
+    return map[key] || (d as DayOfWeek) || 'M';
+  };
+
+  const filteredHitList = hitList.filter(item => normalizeDay(item.day) === normalizeDay(activeDay));
+  const filteredDoList = doList.filter(item => normalizeDay(item.day) === normalizeDay(activeDay));
   const filteredHotList = searchTerm 
     ? hotList.filter(item => item.text.toLowerCase().includes(searchTerm.toLowerCase()))
     : hotList;
