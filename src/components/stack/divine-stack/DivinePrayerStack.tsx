@@ -13,7 +13,7 @@ import { getQuestions } from "./questions";
 import { Send, PlusCircle, CheckCircle, Bot, User, Lightbulb } from 'lucide-react';
 
 export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHitList }) => {
-  const [mode, setMode] = useState<'manual' | 'ai'>('manual');
+  const [mode, setMode] = useState<'manual' | 'ai'>('ai');
   const { state, handlers, utils } = useDivinePrayerStack({ onAddToHitList });
   
   const {
@@ -36,7 +36,6 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
         onAddToHitList={onAddToHitList}
         stackType="divine-prayer"
         questions={getQuestions()}
-        onModeSwitch={() => setMode('manual')}
       />
     );
   }

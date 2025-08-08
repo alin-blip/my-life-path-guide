@@ -33,7 +33,7 @@ interface HormoziCoachingStackProps {
 }
 
 export const HormoziCoachingStack: React.FC<HormoziCoachingStackProps> = ({ onAddToHitList }) => {
-  const [mode, setMode] = useState<'chat' | 'complete' | 'knowledge' | 'structured'>('structured');
+  const [mode, setMode] = useState<'chat' | 'complete' | 'knowledge' | 'structured'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);

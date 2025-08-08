@@ -22,7 +22,7 @@ interface Message {
 
 export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList }) => {
   const { toast } = useToast();
-  const [showExplanation, setShowExplanation] = useState(true);
+  const [showExplanation, setShowExplanation] = useState(false);
   const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
   const [mode, setMode] = useState<'chat' | 'complete'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);

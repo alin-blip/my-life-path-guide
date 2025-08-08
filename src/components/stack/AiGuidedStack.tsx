@@ -18,7 +18,7 @@ interface AiGuidedStackProps {
   onAddToHitList?: (action: string) => void;
   stackType: 'anger' | 'divine-prayer';
   questions: string[];
-  onModeSwitch: () => void;
+  onModeSwitch?: () => void;
 }
 
 export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({ 
@@ -264,15 +264,17 @@ INSTRUCȚIUNI:
             <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
             Începe o nouă sesiune
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={onModeSwitch}
-            size="sm"
-            className="text-xs sm:text-sm"
-          >
-            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-            Mod Manual
-          </Button>
+          {onModeSwitch && (
+            <Button 
+              variant="outline" 
+              onClick={onModeSwitch}
+              size="sm"
+              className="text-xs sm:text-sm"
+            >
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              Mod Manual
+            </Button>
+          )}
           {!actionAddedToHitList && finalAction && (
             <Button 
               onClick={addToHitList}
@@ -420,15 +422,17 @@ INSTRUCȚIUNI:
             <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
             Reset
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={onModeSwitch}
-            size="sm"
-            className="text-xs sm:text-sm"
-          >
-            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-            Manual
-          </Button>
+          {onModeSwitch && (
+            <Button 
+              variant="outline" 
+              onClick={onModeSwitch}
+              size="sm"
+              className="text-xs sm:text-sm"
+            >
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              Manual
+            </Button>
+          )}
           <Button
             onClick={generateFinalAction}
             disabled={messages.length === 0 || isLoading}
