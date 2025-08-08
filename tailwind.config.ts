@@ -19,11 +19,10 @@ export default {
 			}
 		},
 		extend: {
-      fontFamily: {
-        sans: ['Manrope', 'Inter', 'system-ui', 'sans-serif'],
-        display: ['Playfair Display', 'Manrope', 'Inter', 'system-ui', 'sans-serif'],
-        playfair: ['Playfair Display', 'serif'],
-      },
+			fontFamily: {
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+				display: ['SF Pro Display', 'Inter', 'system-ui', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

@@ -349,37 +349,37 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
       )}
 
       {/* Chat Messages */}
-      <Card className="border-amber-200 bg-card/60 backdrop-blur-xs shadow-glass border">
+      <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
         <CardHeader>
-          <CardTitle className="text-amber-300 flex items-center gap-2 font-display">
+          <CardTitle className="text-amber-900 flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
             Conversația Divină
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="max-h-[60vh] overflow-y-auto space-y-4 mb-4 p-2">
+          <div className="max-h-[400px] overflow-y-auto space-y-4 mb-4 p-2">
             {messages.map((message, index) => (
               <div
                 key={index}
                 className={`p-3 rounded-lg ${
                   message.role === 'user'
-                    ? 'bg-amber-100/20 border border-amber-200/30 ml-8 text-amber-50'
-                    : 'bg-white/10 border border-amber-300/30 mr-8 text-amber-100'
+                    ? 'bg-amber-100 border border-amber-200 ml-8 text-amber-900'
+                    : 'bg-white border border-amber-300 mr-8 text-amber-800'
                 }`}
               >
                 <div className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</div>
-                <div className="text-xs opacity-70 mt-2 text-amber-200">
+                <div className="text-xs opacity-70 mt-2 text-amber-600">
                   {message.timestamp.toLocaleTimeString()}
                 </div>
               </div>
             ))}
             {isAILoading && (
-              <div className="bg-white/10 border border-amber-300/30 mr-8 p-3 rounded-lg">
+              <div className="bg-white border border-amber-300 mr-8 p-3 rounded-lg">
                 <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                  <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                  <span className="text-sm text-amber-200 ml-2">Căutând în cartea sacră...</span>
+                  <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  <span className="text-sm text-amber-700 ml-2">Căutând în cartea sacră...</span>
                 </div>
               </div>
             )}
@@ -392,7 +392,7 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
               placeholder="Împărtășește provocarea ta spirituală sau pune o întrebare divină..."
-              className="min-h-[80px] border-amber-200/40 focus:border-amber-400 bg-white/5 text-amber-50 placeholder:text-amber-300"
+              className="min-h-[80px] border-amber-200 focus:border-amber-400 bg-white text-amber-900 placeholder:text-amber-500"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
@@ -400,29 +400,32 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
                 }
               }}
             />
+            
             <div className="flex gap-2 justify-between">
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   onClick={resetSession}
                   size="sm"
-                  className="border-amber-300/50 text-amber-200 hover:bg-amber-50/10"
+                  className="border-amber-300 text-amber-700 hover:bg-amber-50"
                 >
                   <RotateCcw className="h-4 w-4 mr-1" />
                   Reset
                 </Button>
               </div>
+              
               <div className="flex gap-2">
                 <Button
                   onClick={generateFinalAction}
                   disabled={messages.length <= 1 || isAILoading}
                   variant="outline"
                   size="sm"
-                  className="border-amber-300/50 text-amber-200 hover:bg-amber-50/10"
+                  className="border-amber-300 text-amber-700 hover:bg-amber-50"
                 >
                   <Crown className="h-4 w-4 mr-1" />
                   Generează Acțiune
                 </Button>
+                
                 <Button
                   onClick={sendMessage}
                   disabled={!currentMessage.trim() || isAILoading}

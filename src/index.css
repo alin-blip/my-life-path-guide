@@ -5,82 +5,83 @@
  
 @layer base {
   :root {
-    /* Base colors - Indigo/Violet theme */
-    --background: 245 22% 7%;
-    --foreground: 220 15% 96%;
+    --background: 340 20% 8%;
+    --foreground: 340 5% 95%;
 
-    --card: 246 22% 10%;
-    --card-foreground: 220 15% 96%;
+    --card: 340 15% 12%;
+    --card-foreground: 340 5% 95%;
 
-    --popover: 246 22% 10%;
-    --popover-foreground: 220 15% 96%;
+    --popover: 340 15% 12%;
+    --popover-foreground: 340 5% 95%;
 
-    --primary: 262 83% 58%; /* Indigo */
-    --primary-foreground: 0 0% 100%;
+    --primary: 320 85% 60%;
+    --primary-foreground: 340 20% 8%;
 
-    --secondary: 240 10% 18%;
-    --secondary-foreground: 220 15% 96%;
+    --secondary: 315 25% 20%;
+    --secondary-foreground: 340 5% 95%;
 
-    --muted: 240 8% 20%;
-    --muted-foreground: 220 12% 70%;
+    --muted: 315 15% 15%;
+    --muted-foreground: 340 10% 70%;
 
-    --accent: 278 85% 70%; /* Violet accent */
-    --accent-foreground: 245 22% 7%;
+    --accent: 300 80% 70%;
+    --accent-foreground: 340 20% 8%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 340 5% 95%;
 
-    --border: 240 10% 22%;
-    --input: 240 10% 20%;
-    --ring: 262 83% 58%;
+    --border: 315 20% 20%;
+    --input: 315 20% 18%;
+    --ring: 320 85% 60%;
 
-    /* Spiritual gradients */
-    --goddess-primary: 262 83% 58%;
-    --goddess-secondary: 278 85% 70%;
-    --sacred-pink: 316 85% 72%;
-    --divine-purple: 275 85% 70%;
+    /* Feminine Power Colors */
+    --goddess-primary: 320 85% 60%;
+    --goddess-secondary: 315 70% 75%;
+    --sacred-pink: 340 85% 65%;
+    --divine-purple: 280 85% 70%;
     --moon-silver: 220 15% 85%;
     --goddess-gold: 45 85% 70%;
     
-    --goddess-gradient: linear-gradient(135deg, hsl(262 83% 58%), hsl(275 85% 70%));
-    --sacred-gradient: linear-gradient(135deg, hsl(278 85% 70%), hsl(262 83% 58%));
-    --divine-gradient: linear-gradient(135deg, hsl(275 85% 70%), hsl(286 80% 72%));
-    --moon-gradient: linear-gradient(135deg, hsl(220 15% 85%), hsl(240 20% 90%));
+    /* Sacred Gradients */
+    --goddess-gradient: linear-gradient(135deg, hsl(320, 85%, 60%), hsl(280, 85%, 70%));
+    --sacred-gradient: linear-gradient(135deg, hsl(340, 85%, 65%), hsl(320, 85%, 60%));
+    --divine-gradient: linear-gradient(135deg, hsl(280, 85%, 70%), hsl(260, 80%, 75%));
+    --moon-gradient: linear-gradient(135deg, hsl(220, 15%, 85%), hsl(240, 20%, 90%));
   }
  
   .dark {
-    --background: 245 22% 7%;
-    --foreground: 220 15% 96%;
+    --background: 340 20% 8%;
+    --foreground: 340 5% 95%;
 
-    --card: 246 22% 10%;
-    --card-foreground: 220 15% 96%;
+    --card: 340 15% 12%;
+    --card-foreground: 340 5% 95%;
 
-    --popover: 246 22% 10%;
-    --popover-foreground: 220 15% 96%;
+    --popover: 340 15% 12%;
+    --popover-foreground: 340 5% 95%;
 
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 320 85% 60%;
+    --primary-foreground: 340 20% 8%;
 
-    --secondary: 240 10% 18%;
-    --secondary-foreground: 220 15% 96%;
+    --secondary: 315 25% 20%;
+    --secondary-foreground: 340 5% 95%;
 
-    --muted: 240 8% 20%;
-    --muted-foreground: 220 12% 70%;
+    --muted: 315 15% 15%;
+    --muted-foreground: 340 10% 70%;
 
-    --accent: 278 85% 70%;
-    --accent-foreground: 245 22% 7%;
+    --accent: 300 80% 70%;
+    --accent-foreground: 340 20% 8%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 340 5% 95%;
 
-    --border: 240 10% 22%;
-    --input: 240 10% 20%;
-    --ring: 262 83% 58%;
+    --border: 315 20% 20%;
+    --input: 315 20% 18%;
+    --ring: 320 85% 60%;
 
-    --goddess-primary: 262 83% 58%;
-    --goddess-secondary: 278 85% 70%;
-    --sacred-pink: 316 85% 72%;
-    --divine-purple: 275 85% 70%;
+    /* Feminine Power Colors */
+    --goddess-primary: 320 85% 60%;
+    --goddess-secondary: 315 70% 75%;
+    --sacred-pink: 340 85% 65%;
+    --divine-purple: 280 85% 70%;
     --moon-silver: 220 15% 85%;
     --goddess-gold: 45 85% 70%;
   }
@@ -91,10 +92,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-  }
-  h1,h2,h3 {
-    @apply font-display tracking-tight;
+    @apply bg-background text-foreground;
   }
 }
 
