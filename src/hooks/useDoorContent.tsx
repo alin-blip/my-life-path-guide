@@ -67,6 +67,7 @@ export function useDoorContent() {
     handleDragStart,
     handleDragOver,
     handleDrop,
+    handleDropOnKeyPoint,
     handleDragEnd
   } = useDoorDrag({
     activeDay,
@@ -169,6 +170,7 @@ export function useDoorContent() {
     handleDragStart,
     handleDragOver,
     handleDrop,
+    handleDropOnKeyPoint,
     handleDragEnd,
     toggleHitListItemCompletion,
     toggleDoListItemCompletion,

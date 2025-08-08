@@ -17,6 +17,7 @@ interface DominoDoorProps {
   isCompleted?: boolean;
   moveKeyPointToHotList?: (keyPoint: DominoKeyPoint) => void;
   addNewKeyPoint?: () => void;
+  handleDropOnKeyPoint?: (keyPointId: string) => void;
 }
 
 const KeyPointIcons = [
@@ -36,7 +37,8 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   isMobile = false,
   isCompleted = false,
   moveKeyPointToHotList,
-  addNewKeyPoint
+  addNewKeyPoint,
+  handleDropOnKeyPoint
 }) => {
   const { t } = useLanguage();
   
@@ -117,6 +119,8 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                   } ${isMobile ? 'p-2 space-x-2' : 'p-3 space-x-3'}`}
                   draggable={point.text && point.text.trim().length > 0}
                   onDragStart={(e) => handleKeyPointDragStart(e, point)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => handleDropOnKeyPoint && handleDropOnKeyPoint(point.id)}
                 >
                   <div className={`flex-shrink-0 rounded-full flex items-center justify-center text-xs text-white shadow-md ${
                     point.completed 

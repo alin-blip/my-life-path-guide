@@ -69,6 +69,7 @@ export const SimplifiedDoorContent: React.FC = () => {
     handleDragStart,
     handleDragOver,
     handleDrop,
+    handleDropOnKeyPoint,
     handleDragEnd,
     toggleHitListItemCompletion,
     toggleDoListItemCompletion,
@@ -240,6 +241,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                   isCompleted={isDominoCompleted}
                   moveKeyPointToHotList={moveKeyPointToHotList}
                   addNewKeyPoint={addNewKeyPoint}
+                  handleDropOnKeyPoint={handleDropOnKeyPoint}
                 />
               </CardContent>
             </Card>
@@ -365,6 +367,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                     isCompleted={isDominoCompleted}
                     moveKeyPointToHotList={moveKeyPointToHotList}
                     addNewKeyPoint={addNewKeyPoint}
+                    handleDropOnKeyPoint={handleDropOnKeyPoint}
                   />
                 )}
               </CardContent>

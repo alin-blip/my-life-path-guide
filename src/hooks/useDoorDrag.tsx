@@ -154,6 +154,27 @@ export function useDoorDrag({
     }
   };
 
+  // Drop a HotList item directly into a specific key point slot
+  const handleDropOnKeyPoint = (targetKeyPointId: string) => {
+    if (!draggedItem) return;
+    console.debug('[DnD] Drop on KeyPoint', { targetKeyPointId, draggedItem: draggedItem.id });
+
+    // Set text on the target key point and clear completion
+    const updatedKeyPoints = dominoKeyPoints.map(point =>
+      point.id === targetKeyPointId
+        ? { ...point, text: draggedItem.text, completed: false }
+        : point
+    );
+
+    setDominoKeyPoints(updatedKeyPoints);
+    checkDominoCompletion(updatedKeyPoints);
+
+    // Remove from hot list
+    setHotList(prevList => prevList.filter(item => item.id !== draggedItem.id));
+
+    setDraggedItem(null);
+  };
+
   const handleDragEnd = () => {
     setDraggedItem(null);
     setDraggedKeyPoint(null);
@@ -169,6 +190,7 @@ export function useDoorDrag({
     handleDragStart,
     handleDragOver,
     handleDrop,
+    handleDropOnKeyPoint,
     handleDragEnd
   };
 }
