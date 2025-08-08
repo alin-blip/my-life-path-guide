@@ -78,6 +78,11 @@ export const TaskList: React.FC<TaskListProps> = ({
   return (
     <div 
       className={`bg-[#1E293B] rounded-xl ${isMobile ? 'max-h-[70vh] overflow-auto p-3' : 'h-full p-4'}`}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        // allow drop even if user drops over tasks area while expecting focus; do nothing here
+        console.debug('[TaskList] Drop ignored (tasks column)');
+      }}
     >
       <TaskListHeader
         activeList={activeList}

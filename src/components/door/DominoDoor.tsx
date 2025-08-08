@@ -172,6 +172,9 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
             <p className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-sm'} max-w-sm`}>
               {t('dragGoalToSet')}
             </p>
+            <p className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-sm'} max-w-sm mt-1`}>
+              {t('orClickToSelect')}
+            </p>
           </div>
         </div>
       )}

@@ -36,6 +36,7 @@ export function useDoorDrag({
 
   const handleDragStartToDomino = (e: React.DragEvent, item: HotListItem) => {
     setDraggedItem(item);
+    console.debug('[DnD] Drag start to Domino', { id: item.id, text: item.text });
     e.dataTransfer.setData('text/plain', item.id);
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -47,6 +48,7 @@ export function useDoorDrag({
 
   const handleDropOnDomino = (e: React.DragEvent) => {
     e.preventDefault();
+    console.debug('[DnD] Drop on Domino', { hasDraggedItem: !!draggedItem });
     
     if (draggedItem) {
       handleDominoSelection(draggedItem);
@@ -54,6 +56,7 @@ export function useDoorDrag({
       // Remove the item from the hot list
       setHotList(prevList => prevList.filter(item => item.id !== draggedItem.id));
       
+      console.debug('[DnD] Selected as Domino and removed from HotList', { id: draggedItem.id });
       setDraggedItem(null);
     }
   };

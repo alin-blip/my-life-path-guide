@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X, GripVertical, Search, Plus, Star, Flag, AlertCircle, KeyRound } from 'lucide-react';
+import { Check, X, GripVertical, Search, Plus, Star, Flag, AlertCircle, KeyRound, Target } from 'lucide-react';
 import { HotListItem, TaskPriority } from '@/types/door';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/context/LanguageContext';
@@ -160,6 +160,19 @@ export const HotList: React.FC<HotListProps> = ({
                       <KeyRound className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
                     </span>
                   )}
+
+                  {/* Select as Weekly Focus */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`text-gray-400 hover:text-purple-400 transition-colors focus:ring-0 ${
+                      isMobile ? 'p-1 h-auto' : 'p-1 h-auto'
+                    }`}
+                    title={t('setWeeklyFocus')}
+                    onClick={() => handleDominoSelection(item)}
+                  >
+                    <Target className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                  </Button>
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
