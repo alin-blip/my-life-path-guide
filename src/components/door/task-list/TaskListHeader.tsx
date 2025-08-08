@@ -43,6 +43,15 @@ export const TaskListHeader: React.FC<TaskListHeaderProps> = ({
           >
             {t('todoList')} {hitStats}
           </Button>
+          <Button
+            variant="ghost"
+            className={`${isMobile ? 'px-3 py-1.5 text-sm' : 'px-4 py-2'} ${
+              activeList === 'do' ? 'bg-blue-500 text-white' : 'text-gray-400'
+            }`}
+            onClick={() => setActiveList('do')}
+          >
+            {t('doList')} {doStats}
+          </Button>
         </div>
       </div>
     </>

@@ -39,8 +39,30 @@ export const TaskList: React.FC<TaskListProps> = ({
   isMobile = false,
   moveTaskBackToHotList
 }) => {
-  const filteredHitList = hitList.filter(item => item.day === activeDay);
-  const filteredDoList = doList.filter(item => item.day === activeDay);
+  const normalizeDay = (d: any): DayOfWeek => {
+    if (typeof d !== 'string') return d as DayOfWeek;
+    const map: Record<string, DayOfWeek> = {
+      monday: 'M',
+      tuesday: 'T',
+      wednesday: 'W',
+      thursday: 'Th',
+      friday: 'F',
+      saturday: 'Sa',
+      sunday: 'Su',
+      m: 'M',
+      t: 'T',
+      w: 'W',
+      th: 'Th',
+      f: 'F',
+      sa: 'Sa',
+      su: 'Su',
+    };
+    const key = d.toLowerCase() as keyof typeof map;
+    return (map[key] || d) as DayOfWeek;
+  };
+  
+  const filteredHitList = hitList.filter(item => normalizeDay(item.day) === activeDay);
+  const filteredDoList = doList.filter(item => normalizeDay(item.day) === activeDay);
   
   const hitStats = `${hitDoneCount}/${hitAchievedCount}`;
   const doStats = `${doDoneCount}/${doAchievedCount}`;
