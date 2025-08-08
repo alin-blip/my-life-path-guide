@@ -172,7 +172,7 @@ export const AuthForm: React.FC = () => {
           </div>
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">
-          {mode === AuthMode.LOGIN && (language === 'en' ? "WELCOME BACK GODDESS" : "BINE AI REVENIT ZEIȚĂ")}
+          {mode === AuthMode.LOGIN && (language === 'en' ? "WELCOME BACK WARRIOR" : "BINE AI REVENIT RĂZBOINIC")}
           {mode === AuthMode.REGISTER && (language === 'en' ? "JOIN YOUR DIVINE SISTERHOOD" : "ALĂTURĂ-TE SORORITĂȚII DIVINE")}
           {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "RESET PASSWORD" : "RESETEAZĂ PAROLA")}
         </h1>

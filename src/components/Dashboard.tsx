@@ -479,7 +479,7 @@ export const Dashboard: React.FC = () => {
       
       <div className="mb-6 md:mb-8 bg-[#1A1F2C] p-3 md:p-4 rounded-lg">
         <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-          {language === 'en' ? 'Goddess Journey' : 'Călătoria Zeitei'}
+          {language === 'en' ? 'Warrior’s Path' : 'Calea Războinicului'}
         </h2>
         <div className="flex items-center justify-between">
           <div className="flex flex-col items-center z-10 relative">
@@ -585,7 +585,7 @@ export const Dashboard: React.FC = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 bg-[#1A1F2C]">
           <TabsTrigger value="goddess-tools" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-feminine-primary data-[state=active]:to-feminine-purple">
-            {language === 'en' ? 'Goddess Tools' : 'Unelte Zeițe'}
+            {language === 'en' ? 'RoWarrior Tools' : 'Unelte RoWarrior'}
           </TabsTrigger>
           <TabsTrigger value="courses" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600">
             {language === 'en' ? 'Courses' : 'Cursuri'}

@@ -33,8 +33,8 @@ export const Library: React.FC = () => {
           <CardContent>
             <p className="text-muted-foreground">
               {language === 'en' 
-                ? 'Wisdom for your goddess journey' 
-                : 'Înțelepciune pentru călătoria ta de zeiță'}
+                ? 'Wisdom for your warrior path' 
+                : 'Înțelepciune pentru calea ta de războinic'}
             </p>
           </CardContent>
         </Card>
