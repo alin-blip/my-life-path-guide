@@ -6,7 +6,12 @@ import { supabase } from '@/integrations/supabase/client';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  loading: boolean;
+  loading: boolean; // auth loading
+  subscriptionLoading: boolean;
+  subscribed: boolean;
+  subscriptionTier: string | null;
+  subscriptionEnd: string | null;
+  refreshSubscription: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -15,15 +20,31 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // auth loading
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  const [subscribed, setSubscribed] = useState(false);
+  const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
+  const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
 
-  useEffect(() => {
+useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        // Defer subscription check to avoid deadlocks
+        setTimeout(() => {
+          if (session?.user) {
+            refreshSubscription();
+          } else {
+            // Reset subscription state when logged out
+            setSubscribed(false);
+            setSubscriptionTier(null);
+            setSubscriptionEnd(null);
+            setSubscriptionLoading(false);
+          }
+        }, 0);
       }
     );
 
@@ -32,10 +53,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      if (session?.user) {
+        refreshSubscription();
+      } else {
+        setSubscriptionLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const refreshSubscription = async () => {
+    try {
+      setSubscriptionLoading(true);
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      if (error) throw error;
+      const subscribed = Boolean((data as any)?.subscribed);
+      setSubscribed(subscribed);
+      setSubscriptionTier(((data as any)?.subscription_tier ?? null));
+      setSubscriptionEnd(((data as any)?.subscription_end ?? null));
+    } catch (e) {
+      console.error('Error checking subscription', e);
+      setSubscribed(false);
+      setSubscriptionTier(null);
+      setSubscriptionEnd(null);
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -46,6 +91,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     loading,
+    subscriptionLoading,
+    subscribed,
+    subscriptionTier,
+    subscriptionEnd,
+    refreshSubscription,
     signOut
   };
 

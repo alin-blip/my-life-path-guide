@@ -8,10 +8,10 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, subscribed, subscriptionLoading } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (loading || subscriptionLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#0c1023] to-[#1a2242] flex items-center justify-center">
         <div className="text-white">Loading...</div>
@@ -22,6 +22,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (!user) {
     // Save the attempted URL for redirect after login
     return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  if (!subscribed) {
+    return <Navigate to="/pricing" state={{ from: location, reason: 'membership_required' }} replace />;
   }
 
   return <>{children}</>;
