@@ -28,7 +28,8 @@ import {
   BookOpen as BookOpenIcon,
   Pencil,
   Target,
-  Crown
+  Crown,
+  CreditCard
 } from 'lucide-react';
 
 interface SideMenuProps {
@@ -87,9 +88,8 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: 'Jurnalul Sacru', icon: Pencil, path: '/journal' },
       ]
     },
-    { title: 'Sacred Circle', icon: Box, path: '/core', hidden: true },
-    { title: 'Divine 4', icon: Clock, path: '/daily-four', hidden: true },
     { title: t('commandCenter'), icon: Flag, path: '/door' },
+    { title: 'Business', icon: Briefcase, path: '/business' },
     { title: 'Misiuni de Împlinire', icon: Target, path: '/game' },
     { 
       title: 'Cercul Surorilor', 
@@ -102,6 +102,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     },
     { title: 'Sacred Notes', icon: FileText, path: '/notes' },
     { title: 'Sacred Library', icon: BookOpenIcon, path: '/library' },
+    { title: 'Abonamente', icon: CreditCard, path: '/pricing' },
     { title: 'Admin', icon: Shield, path: '/admin' },
   ];
 
@@ -113,7 +114,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
             <span className="font-display font-bold text-white text-sm">🌙</span>
           </div>
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-lg text-white">PUTEREA REGINEI INTERIOARE</h1>
+            <h1 className="font-display font-bold text-lg text-white">OPERATOR</h1>
           )}
         </div>
       </div>

@@ -36,13 +36,13 @@ const Index = () => {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            {language === 'en' ? 'Unleash Your Feminine Power' : 'Trezirea Reginei Interioare'}
+            {language === 'en' ? 'Operator – Command Center for Entrepreneurs' : 'Operator – Centrul de Comandă pentru Antreprenori'}
           </h1>
           
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
             {language === 'en' 
-              ? 'Awaken your divine feminine essence. Transform your Sacred Vessel, Sacred Relationships, Divine Connection, and Queen\'s Empire with proven feminine empowerment rituals.' 
-              : 'Trezește-ți esența feminină divină. Transformă-ți Vasul Sacru, Relațiile Sacre, Conexiunea Divină și Imperiul Reginei cu ritualuri dovedite de împuternicire feminină.'}
+              ? 'Clarify priorities, execute daily, and grow profit—without sacrificing your health, family, or values.' 
+              : 'Claritate zilnică, execuție fără risipă și profit în creștere – fără să-ți sacrifici sănătatea, familia sau valorile.'}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -51,16 +51,16 @@ const Index = () => {
               onClick={() => navigate('/auth')}
               className="bg-gradient-to-r from-feminine-primary to-feminine-purple hover:from-feminine-accent hover:to-feminine-purple text-white px-8 py-4 text-lg font-semibold"
             >
-              {language === 'en' ? 'Awaken Your Power' : 'Trezește-ți Puterea'}
+              {language === 'en' ? 'Get Started' : 'Începe acum'}
             </Button>
             
             <Button 
               size="lg" 
               variant="outline"
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/pricing')}
               className="border-feminine-secondary text-white hover:bg-feminine-primary/20 px-8 py-4 text-lg"
             >
-              {language === 'en' ? 'Discover Your Goddess' : 'Descoperă-ți Zeița'}
+              {language === 'en' ? 'See Plans' : 'Vezi abonamentele'}
             </Button>
           </div>
         </div>
@@ -70,12 +70,12 @@ const Index = () => {
           <div className="bg-gradient-to-br from-feminine-primary/40 to-feminine-rose/40 p-6 rounded-xl border border-feminine-primary/30">
             <div className="text-4xl mb-4">🌺</div>
             <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Sacred Vessel' : 'Vas Sacru'}
+              {language === 'en' ? 'Health & Energy' : 'Sănătate & Energie'}
             </h3>
             <p className="text-gray-300">
               {language === 'en' 
-                ? 'Honor your body through intuitive nutrition and sacred movement' 
-                : 'Onorează-ți corpul prin nutriție intuitivă și mișcare sacrată'}
+                ? 'Optimize energy and focus so you can execute consistently' 
+                : 'Optimizezi energia și focusul ca să execuți constant'}
             </p>
           </div>
 

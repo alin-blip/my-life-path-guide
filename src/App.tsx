@@ -32,6 +32,8 @@ import { Settings } from "./pages/Settings";
 import { Support } from "./pages/Support";
 import { Notes } from "./pages/Notes";
 import { Library } from "./pages/Library";
+import Pricing from "./pages/Pricing";
+import Business from "./pages/Business";
 
 const queryClient = new QueryClient();
 
@@ -141,6 +143,12 @@ const App = () => (
                   <Route path="/generals-tent" element={
                     <ProtectedRoute>
                       <GeneralsTent />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/pricing" element={<Pricing />} />
+                  <Route path="/business" element={
+                    <ProtectedRoute>
+                      <Business />
                     </ProtectedRoute>
                   } />
                   <Route path="*" element={<NotFound />} />
