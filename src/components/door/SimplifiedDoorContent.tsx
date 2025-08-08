@@ -228,7 +228,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                   )}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
+              <CardContent className="pt-0" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
                 <DominoDoor 
                   selectedDomino={selectedDomino}
                   dominoKeyPoints={dominoKeyPoints}
