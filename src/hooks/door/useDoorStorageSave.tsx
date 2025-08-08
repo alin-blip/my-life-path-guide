@@ -40,14 +40,14 @@ export function useDoorStorageSave() {
           keyPoints: data.dominoKeyPoints.length
         });
 
-        // Show periodic save confirmation (not too often)
-        const shouldShowToast = Math.random() < 0.05; // 5% chance
-        if (shouldShowToast) {
-          toast({
-            title: "💾 Date salvate securizat",
-            description: `Progresul pentru săptămâna ${data.currentWeekKey.split('-').pop()} a fost salvat cu backup automat`,
-          });
-        }
+        // Show periodic save confirmation (not too often) - DISABLED
+        // const shouldShowToast = Math.random() < 0.05; // 5% chance
+        // if (shouldShowToast) {
+        //   toast({
+        //     title: "💾 Date salvate securizat",
+        //     description: `Progresul pentru săptămâna ${data.currentWeekKey.split('-').pop()} a fost salvat cu backup automat`,
+        //   });
+        // }
       } else {
         throw new Error('Storage manager save failed');
       }
