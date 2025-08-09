@@ -47,7 +47,7 @@ export const DoorExplanation: React.FC = () => {
                   <p className="text-sm mt-1">
                     {language === 'en' 
                       ? 'The Hot List with all your ideas and action options.' 
-                      : 'Lista fierbinte cu toate ideile și opțiunile tale de acțiune.'}
+                      : 'Lista de idei cu toate ideile și opțiunile tale de acțiune.'}
                   </p>
                 </div>
               </div>

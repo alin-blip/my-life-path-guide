@@ -65,8 +65,8 @@ export const StackIdeaModal: React.FC<StackIdeaModalProps> = ({
       default:
         return {
           icon: <Flame className="w-4 h-4" />,
-          label: 'Hot List',
-          description: 'Lista de idei fierbinti pentru organizare ulterioară',
+          label: 'Lista de idei',
+          description: 'Spațiul unde captezi ideile și opțiunile de acțiune',
           color: 'bg-orange-500/20 text-orange-400 border-orange-500/30'
         };
     }

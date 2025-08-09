@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { saveToStackLibrary } from "@/utils/stackProgress";
 import { Send, PlusCircle, Lightbulb, MessageCircle, AlertTriangle } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
+import { SuggestionPickerModal } from './SuggestionPickerModal';
 
 interface AiLiveCoachingProps {
   onAddToHitList?: (action: string) => void;
@@ -42,6 +43,8 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   const [finalAction, setFinalAction] = useState("");
   const [showResetConfirmation, setShowResetConfirmation] = useState(false);
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
   const chatAreaRef = useRef<HTMLDivElement>(null);
   
   const scrollToBottom = () => {
@@ -231,6 +234,42 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
     });
   };
 
+  const generateActionSuggestions = async () => {
+    setIsLoading(true);
+    try {
+      const prompt = 'Pe baza conversației de mai sus, propune 3-5 acțiuni concrete, foarte scurte (max 140 caractere fiecare). Răspunde DOAR ca un JSON array de string-uri.';
+      const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
+        body: {
+          messages: [...messages, { role: 'user', content: prompt }],
+          systemPrompt: 'Ești un expert în generarea de opțiuni de acțiuni scurte și acționabile.'
+        }
+      });
+      if (error) throw error;
+      let list: string[] = [];
+      try {
+        list = JSON.parse(data.message);
+      } catch {
+        list = String(data.message)
+          .split(/\n+/)
+          .map((l: string) => l.replace(/^[-*]?\s*\d*\.?\s*/, ''))
+          .filter(Boolean)
+          .slice(0, 5);
+      }
+      setSuggestions(list);
+      setIsSuggestionsOpen(true);
+    } catch (e) {
+      console.error('Error generating suggestions:', e);
+      toast({ title: 'Eroare', description: 'Nu am putut genera sugestii acum.', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSelectSuggestion = (s: string) => {
+    captureIdea(s, 'hot', 'important');
+    setIsSuggestionsOpen(false);
+  };
+
   return (
     <div className="w-full h-full flex flex-col">
       {mode === 'complete' ? (
@@ -342,7 +381,7 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
               </Button>
             </div>
 
-            <div className="flex gap-2 justify-between">
+            <div className="flex items-center justify-between gap-2">
               <Button 
                 variant="outline" 
                 onClick={handleResetClick}
@@ -352,15 +391,26 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
                 <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                 Resetează sesiunea
               </Button>
-              <Button 
-                onClick={generateFinalAction}
-                disabled={isLoading || messages.length < 2}
-                size="sm"
-                className="text-xs sm:text-sm"
-              >
-                <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                Generează acțiune finală
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={generateActionSuggestions}
+                  disabled={isLoading || messages.length < 2}
+                  size="sm"
+                  className="text-xs sm:text-sm"
+                >
+                  <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                  Sugestii (2–5)
+                </Button>
+                <Button 
+                  onClick={generateFinalAction}
+                  disabled={isLoading || messages.length < 2}
+                  size="sm"
+                  className="text-xs sm:text-sm"
+                >
+                  <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                  Generează acțiune finală
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -382,6 +432,13 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
         isOpen={isIdeaModalOpen}
         onClose={closeIdeaModal}
         onAddToHitList={onAddToHitList}
+      />
+
+      <SuggestionPickerModal
+        isOpen={isSuggestionsOpen}
+        onClose={() => setIsSuggestionsOpen(false)}
+        suggestions={suggestions}
+        onSelect={handleSelectSuggestion}
       />
     </div>
   );

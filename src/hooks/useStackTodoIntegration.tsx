@@ -46,14 +46,14 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
     
     toast({
       title: "💡 Idee capturată",
-      description: `"${text.length > 50 ? text.substring(0, 50) + '...' : text}" a fost adăugată în ${category === 'hit' ? 'HIT List' : category === 'do' ? 'DO List' : 'Hot List'}`,
+      description: `"${text.length > 50 ? text.substring(0, 50) + '...' : text}" a fost adăugată în ${category === 'hit' ? 'HIT List' : category === 'do' ? 'DO List' : 'Lista de idei'}`,
     });
   }, [toast]);
 
   const saveIdeaToTodoList = useCallback((idea: StackIdea) => {
     try {
       if (idea.category === 'hot') {
-        // Adaugă în Hot List (Lista fierbinte)
+        // Adaugă în Lista de idei
         const savedHotList = localStorage.getItem('door-hot-list') || "[]";
         const hotList = JSON.parse(savedHotList);
         

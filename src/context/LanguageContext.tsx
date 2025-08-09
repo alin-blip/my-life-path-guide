@@ -24,7 +24,7 @@ const translations: Translations = {
     "visualizeYourProgress": "Visualize your progress with powerful analytics",
     
     // Transformation Workshop
-    "transformationWorkshop": "Transformation Workshop",
+    "transformationWorkshop": "Introspection",
     "coachingDescription": "Take a moment to reflect and get guidance through our AI coaching system",
     "prayerStackTitle": "What are you going to title this conversation with God?",
     "whatAreYouGoingToTitleThisCoaching": "What are you going to title this coaching session?",
@@ -45,7 +45,7 @@ const translations: Translations = {
     
     // Common UI elements
     "dashboard": "DASHBOARD",
-    "stack": "TRANSFORMATION WORKSHOP",
+    "stack": "INTROSPECTION",
     "triggers": "Triggers",
     "selectTrigger": "Select a trigger",
     "newStack": "New Session",
@@ -271,7 +271,7 @@ const translations: Translations = {
     "visualizeYourProgress": "Vizualizează-ți progresul cu analize puternice",
     
     // Transformation Workshop
-    "transformationWorkshop": "Atelierul de Transformare",
+    "transformationWorkshop": "Introspecție",
     "coachingDescription": "Ia-ți un moment pentru a reflecta și a primi îndrumare prin sistemul nostru de coaching cu AI",
     "prayerStackTitle": "Ce titlu vei da acestei conversații cu Dumnezeu?",
     "whatAreYouGoingToTitleThisCoaching": "Ce titlu vei da acestei sesiuni de coaching?",
@@ -292,7 +292,7 @@ const translations: Translations = {
     
     // Common UI elements
     "dashboard": "PANOU DE CONTROL",
-    "stack": "ATELIERUL DE TRANSFORMARE",
+    "stack": "INTROSPECȚIE",
     "triggers": "Declanșatori",
     "selectTrigger": "Selectează un declanșator",
     "newStack": "Sesiune Nouă",
@@ -392,7 +392,7 @@ const translations: Translations = {
     "viewingFutureWeek": "⚠️ Vizualizezi o săptămână viitoare",
     "backToCurrentWeek": "🏠 Înapoi la săptămâna curentă",
     "ideaList": "LISTA DE IDEI",
-    "hotList": "LISTA FIERBINTE",
+    "hotList": "LISTA DE IDEI",
     "weeklyGoal": "OBIECTIV SĂPTĂMÂNAL",
     "dominoDoor": "UȘA DOMINO",
     "weeklyMassiveGoal": "OBIECTIV MASIV SĂPTĂMÂNAL",

@@ -81,6 +81,29 @@ export const Library: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {stacks && stacks.length > 0 && (
+        <div className="mt-8">
+          <Card className="bg-card border-feminine-primary/20">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-feminine-primary">Introspecție (Stacks)</CardTitle>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/stack-library">Vezi toate</Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {stacks.slice(0, 6).map((s) => (
+                  <li key={s.id} className="flex items-center justify-between border-b border-border/20 pb-2 last:border-b-0 last:pb-0">
+                    <span className="text-sm text-foreground/90 truncate pr-4">{s.trigger_label || s.trigger || 'Stack'}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(s.created_at || s.timestamp || Date.now()).toLocaleDateString()}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

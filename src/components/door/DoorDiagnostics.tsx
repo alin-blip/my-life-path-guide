@@ -111,7 +111,7 @@ export const DoorDiagnostics: React.FC = () => {
                 <ul className="space-y-2 text-sm">
                   <li>• Datele se salvează automat în browser (localStorage)</li>
                   <li>• Fiecare săptămână are propria colecție de date</li>
-                  <li>• Hot List-ul este partajat între toate săptămânile</li>
+                  <li>• Lista de idei este partajată între toate săptămânile</li>
                   <li>• Hit/Do tasks sunt specifice fiecărei zile</li>
                 </ul>
               </div>
