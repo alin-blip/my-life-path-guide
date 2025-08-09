@@ -5,11 +5,12 @@ import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
 import { GodsSchoolStackState, UseGodsSchoolStackProps, GodsSchoolStackData } from './types';
 import { getGodsSchoolQuestionText, getGodsSchoolPlaceholder, godsSchoolQuestions } from './questions';
 import { supabase } from '@/integrations/supabase/client';
-
+import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
+ 
 export const useGodsSchoolStack = ({ onAddToHitList }: UseGodsSchoolStackProps = {}) => {
   const { toast } = useToast();
   const { openIdeaModal } = useStackTodoIntegration();
-  const sessionId = `gods-school-${Date.now()}`;
+  const { sessionId, resetSessionId } = usePersistentSessionId('gods-school');
 
   const [state, setState] = useState<GodsSchoolStackState>({
     currentStep: 1,
@@ -171,7 +172,8 @@ export const useGodsSchoolStack = ({ onAddToHitList }: UseGodsSchoolStackProps =
       mode: 'structured'
     });
     sessionProps.clearSession();
-  }, [sessionProps]);
+    resetSessionId();
+  }, [sessionProps, resetSessionId]);
 
   const addToHotList = useCallback(() => {
     if (state.committedAction && onAddToHitList) {

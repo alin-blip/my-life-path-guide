@@ -4,11 +4,11 @@ import { useStackSession } from '@/hooks/useStackSession';
 import { hormoziQuestions, getHormoziQuestionText } from './questions';
 import { HormoziStackState, UseHormoziStackProps, HormoziStackData } from './types';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
-import { v4 as uuidv4 } from 'uuid';
+import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
 
 export function useHormoziStack({ onAddToHitList }: UseHormoziStackProps = {}) {
   const { toast } = useToast();
-  const sessionId = useState(() => uuidv4())[0];
+  const { sessionId, resetSessionId } = usePersistentSessionId('hormozi-business');
   
   const [state, setState] = useState<HormoziStackState>({
     currentStep: 1,
@@ -159,9 +159,10 @@ export function useHormoziStack({ onAddToHitList }: UseHormoziStackProps = {}) {
       actionAddedToHotList: false,
       showSummary: false,
       mode: 'structured'
-    });
-    clearSession();
-  }, [clearSession]);
+  });
+  clearSession();
+  resetSessionId();
+}, [clearSession, resetSessionId]);
 
   const addToHotList = useCallback(() => {
     if (state.committedAction && onAddToHitList) {

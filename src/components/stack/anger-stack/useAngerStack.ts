@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
@@ -19,7 +19,7 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
   const [answers, setAnswers] = useState<AngerStackAnswer>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [committedAction, setCommittedAction] = useState("");
-  const [sessionId, setSessionId] = useState<string>("");
+  const { sessionId, resetSessionId } = usePersistentSessionId('anger-stack');
   const [domain, setDomain] = useState<string>("");
   const [targetName, setTargetName] = useState<string>("");
   const [story, setStory] = useState<string>("");
@@ -29,9 +29,7 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
   const [stackCompleted, setStackCompleted] = useState(false);
   const [actionAddedToHotList, setActionAddedToHotList] = useState(false);
   
-  useEffect(() => {
-    setSessionId(uuidv4());
-  }, []);
+// sessionId is now persistent via usePersistentSessionId
 
   // Enhanced session management
   const {
@@ -334,7 +332,7 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
     setDomain("");
     setTargetName("");
     setStory("");
-    setSessionId(uuidv4());
+    resetSessionId();
     setStackCompleted(false);
     setActionAddedToHotList(false);
   };

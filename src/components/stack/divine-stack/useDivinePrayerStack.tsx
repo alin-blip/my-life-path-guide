@@ -4,6 +4,8 @@ import { useToast } from '@/hooks/use-toast';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { supabase } from '@/integrations/supabase/client';
 import { getQuestions } from './questions';
+import { useStackSession } from '@/hooks/useStackSession';
+import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
 
 interface UseDivinePrayerStackProps {
   onAddToHitList?: (action: string) => void;
@@ -19,9 +21,21 @@ export const useDivinePrayerStack = ({ onAddToHitList }: UseDivinePrayerStackPro
   const [actionAddedToHotList, setActionAddedToHotList] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
 
-  const questions = getQuestions();
+const questions = getQuestions();
+
+// Persistent session id and auto-save
+const { sessionId, resetSessionId } = usePersistentSessionId('divine-prayer');
+const { saveSession, clearSession } = useStackSession({
+  stackType: 'divine-prayer',
+  sessionId,
+  onSessionRestore: (data) => {
+    setCurrentStep(data.step || 0);
+    setAnswers(data.answers || {});
+    toast({ title: 'Draft restaurat', description: 'Am restaurat progresul rugăciunii.', duration: 2500 });
+  }
+});
   
-  const committedActionStep = 16; // Pasul pentru acțiunea angajată
+const committedActionStep = 16; // Pasul pentru acțiunea angajată
 
   const handleComplete = async () => {
     // Verificăm dacă utilizatorul a răspuns la întrebările esențiale
@@ -43,7 +57,7 @@ export const useDivinePrayerStack = ({ onAddToHitList }: UseDivinePrayerStackPro
       // Verificăm dacă utilizatorul este conectat
       const { data: { session } } = await supabase.auth.getSession();
       
-      const sessionId = `divine-prayer-${Date.now()}`;
+      // folosim sessionId persistent
       
       if (session?.user) {
         console.log("Saving divine coaching session to Supabase");
@@ -99,6 +113,10 @@ export const useDivinePrayerStack = ({ onAddToHitList }: UseDivinePrayerStackPro
       } else {
         console.warn("Could not add action to hot list. Action:", action, "onAddToHitList function:", !!onAddToHitList);
       }
+
+      // Clear session on successful completion
+      clearSession();
+      resetSessionId();
     } catch (error) {
       console.error("Error completing stack:", error);
       toast({
@@ -120,11 +138,13 @@ export const useDivinePrayerStack = ({ onAddToHitList }: UseDivinePrayerStackPro
       return;
     }
     
-    if (currentStep < questions.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      handleComplete();
-    }
+if (currentStep < questions.length - 1) {
+  const next = currentStep + 1;
+  setCurrentStep(next);
+  saveSession({ step: next, answers });
+} else {
+  handleComplete();
+}
   };
   
   const handleBack = () => {
@@ -134,7 +154,10 @@ export const useDivinePrayerStack = ({ onAddToHitList }: UseDivinePrayerStackPro
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setAnswers({ ...answers, [currentStep]: e.target.value });
+    const newAnswers = { ...answers, [currentStep]: e.target.value };
+    setAnswers(newAnswers);
+    // auto-save draft
+    saveSession({ step: currentStep, answers: newAnswers, draftAnswer: e.target.value });
   };
 
   const resetStack = () => {
