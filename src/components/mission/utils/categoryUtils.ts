@@ -32,10 +32,10 @@ export const useCategoryLabel = (category: MissionCategory) => {
 export const getCategoryColor = (category: MissionCategory): string => {
   switch (category) {
     case 'body': return 'from-feminine-primary to-feminine-rose';
-    case 'being': return 'from-feminine-purple to-purple-700';
-    case 'balance': return 'from-pink-600 to-feminine-primary';
-    case 'business': return 'from-yellow-600 to-orange-600';
-    default: return 'from-feminine-primary to-feminine-purple';
+    case 'being': return 'from-feminine-accent to-blue-800';
+    case 'balance': return 'from-feminine-light to-feminine-primary';
+    case 'business': return 'from-blue-800 to-blue-600';
+    default: return 'from-feminine-primary to-feminine-accent';
   }
 };
 
