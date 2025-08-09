@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
@@ -7,6 +7,16 @@ import { ArrowLeft, BookOpen, Video, FileText } from 'lucide-react';
 
 export const Library: React.FC = () => {
   const { language } = useLanguage();
+  const [stacks, setStacks] = useState<any[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('stack_library');
+      setStacks(raw ? JSON.parse(raw) : []);
+    } catch (e) {
+      setStacks([]);
+    }
+  }, []);
   
   return (
     <div className="container mx-auto py-8 px-4">

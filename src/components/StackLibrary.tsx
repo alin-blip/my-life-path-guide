@@ -87,7 +87,7 @@ export const StackLibrary = () => {
       if (session?.user) {
         // TODO: Implement proper database operations with authentication
         // For now, using local storage until authentication is implemented
-        const stackLibrary = JSON.parse(localStorage.getItem('stackLibrary') || '[]');
+const stackLibrary = JSON.parse(localStorage.getItem('stack_library') || '[]');
         const data = stackLibrary.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         const error = null;
 
@@ -168,9 +168,9 @@ export const StackLibrary = () => {
       if (session?.user) {
         // TODO: Implement proper database deletion with authentication
         // For now, using local storage until authentication is implemented
-        const stackLibrary = JSON.parse(localStorage.getItem('stackLibrary') || '[]');
-        const updatedLibrary = stackLibrary.filter((stack: any) => stack.id !== deleteStackId);
-        localStorage.setItem('stackLibrary', JSON.stringify(updatedLibrary));
+const stackLibrary = JSON.parse(localStorage.getItem('stack_library') || '[]');
+const updatedLibrary = stackLibrary.filter((stack: any) => stack.id !== deleteStackId);
+localStorage.setItem('stack_library', JSON.stringify(updatedLibrary));
         const error = null;
 
         if (error) {
@@ -229,11 +229,11 @@ export const StackLibrary = () => {
       const shareId = stack.share_id || crypto.randomUUID();
       // TODO: Implement proper database update with authentication
       // For now, using local storage until authentication is implemented
-      const stackLibrary = JSON.parse(localStorage.getItem('stackLibrary') || '[]');
-      const updatedLibrary = stackLibrary.map((s: any) => 
-        s.id === stack.id ? { ...s, shared: true, share_id: shareId } : s
-      );
-      localStorage.setItem('stackLibrary', JSON.stringify(updatedLibrary));
+const stackLibrary = JSON.parse(localStorage.getItem('stack_library') || '[]');
+const updatedLibrary = stackLibrary.map((s: any) => 
+  s.id === stack.id ? { ...s, shared: true, share_id: shareId } : s
+);
+localStorage.setItem('stack_library', JSON.stringify(updatedLibrary));
       const error = null;
         
       if (error) {

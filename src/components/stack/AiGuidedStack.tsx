@@ -7,6 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
+import { v4 as uuidv4 } from 'uuid';
+import { saveToStackLibrary } from '@/utils/stackProgress';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -34,6 +36,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [systemPrompt, setSystemPrompt] = useState('');
   const [finalAction, setFinalAction] = useState('');
   const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
+  const [sessionId] = useState(() => uuidv4());
   
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -193,6 +196,18 @@ INSTRUCȚIUNI:
 
       setFinalAction(data.message);
       setMode('complete');
+
+      // Save session to Stack Library (Arsenal)
+      try {
+        const derivedType = stackType === 'anger' ? 'anger' : 'divine';
+        const questionsList: string[] = [...messages.map((m, i) => `Mesaj ${i + 1} (${m.role})`), 'Acțiune finală'];
+        const answersMap: Record<string | number, string> = {};
+        messages.forEach((m, i) => { answersMap[i] = m.content; });
+        answersMap[questionsList.length - 1] = data.message;
+        await saveToStackLibrary(derivedType, sessionId, answersMap, questionsList);
+      } catch (e) {
+        console.error('Failed to save AI guided stack to Stack Library:', e);
+      }
     } catch (error) {
       console.error('Error generating final action:', error);
       toast({

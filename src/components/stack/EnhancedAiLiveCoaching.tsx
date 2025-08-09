@@ -8,6 +8,7 @@ import { StackIdeaModal } from "./StackIdeaModal";
 import { StackResetConfirmation } from "./StackResetConfirmation";
 import { StackProgressIndicator } from "./StackProgressIndicator";
 import { supabase } from "@/integrations/supabase/client";
+import { saveToStackLibrary } from "@/utils/stackProgress";
 import { Send, PlusCircle, Lightbulb, MessageCircle, AlertTriangle } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -156,6 +157,17 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
 
       setFinalAction(data.message);
       setMode('complete');
+
+      // Save session to Stack Library (Arsenal)
+      try {
+        const questions: string[] = [...messages.map((m, i) => `Mesaj ${i + 1} (${m.role})`), 'Acțiune finală'];
+        const answers: Record<string | number, string> = {};
+        messages.forEach((m, i) => { answers[i] = m.content; });
+        answers[questions.length - 1] = data.message;
+        await saveToStackLibrary('ai', sessionId, answers, questions);
+      } catch (e) {
+        console.error('Failed to save AI coaching session to Stack Library:', e);
+      }
       
       toast({
         title: "Sesiune finalizată",
