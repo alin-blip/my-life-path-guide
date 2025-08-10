@@ -424,7 +424,7 @@ const translations: Translations = {
     "addNewItemsToStart": "Adaugă elemente noi pentru a începe",
     "addNewIdea": "Adaugă Idee Nouă",
     "addItem": "Adaugă Element",
-    "searchItems": "Caută elemente...",
+    "searchItems": "Caută taskuri...",
     "searchIdeas": "Caută idei...",
     "normal": "Normal",
     "important": "Important",

@@ -1,7 +1,7 @@
 import { HotListItem, HitListItem, DoListItem, DominoKeyPoint, DayOfWeek } from '@/types/door';
 import { useToast } from '@/hooks/use-toast';
 import { useDoorStorageLogger } from './useDoorStorageLogger';
-import { doorSupabaseService } from '@/services/doorSupabaseService';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
 
 interface SaveStateData {
   currentWeekKey: string;
@@ -22,7 +22,7 @@ export function useDoorStorageSave() {
     if (!data.currentWeekKey) return;
 
     try {
-      await doorSupabaseService.saveWeekLists(data.currentWeekKey, {
+      await doorUserTasksService.saveWeekLists(data.currentWeekKey, {
         hotList: data.hotList,
         hitList: data.hitList,
         doList: data.doList,

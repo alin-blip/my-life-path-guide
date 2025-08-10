@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { HotListItem, HitListItem, DoListItem, DayOfWeek, TaskPriority } from '@/types/door';
-import { doorSupabaseService } from '@/services/doorSupabaseService';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { supabase } from '@/integrations/supabase/client';
 
 interface UseDoorListsProps {
@@ -24,7 +24,7 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
 
     const loadData = async () => {
       try {
-        const { hotList: loadedHotList, hitList: loadedHitList, doList: loadedDoList } = await doorSupabaseService.fetchWeekLists(currentWeekKey);
+        const { hotList: loadedHotList, hitList: loadedHitList, doList: loadedDoList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
         setHotList(loadedHotList);
         setHitList(loadedHitList);
         setDoList(loadedDoList);
@@ -41,15 +41,15 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
 
     loadData();
 
-    // Set up real-time subscription for hot_list_items changes
+    // Set up real-time subscription for user_tasks changes
     const channel = supabase
-      .channel('hot-list-realtime')
+      .channel('user-tasks-realtime')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'hot_list_items',
+          table: 'user_tasks',
           filter: `week_key=eq.${currentWeekKey}`
         },
         () => {
@@ -142,7 +142,7 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     
     // Immediate save to Supabase
     try {
-      await doorSupabaseService.saveWeekLists(currentWeekKey, {
+      await doorUserTasksService.saveWeekLists(currentWeekKey, {
         hotList,
         hitList: updatedHitList,
         doList
@@ -167,7 +167,7 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     
     // Immediate save to Supabase
     try {
-      await doorSupabaseService.saveWeekLists(currentWeekKey, {
+      await doorUserTasksService.saveWeekLists(currentWeekKey, {
         hotList,
         hitList,
         doList: updatedDoList
@@ -203,7 +203,7 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
         
         // Immediate save to Supabase
         try {
-          await doorSupabaseService.saveWeekLists(currentWeekKey, {
+          await doorUserTasksService.saveWeekLists(currentWeekKey, {
             hotList: updatedHotList,
             hitList: updatedHitList,
             doList
@@ -242,7 +242,7 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
         
         // Immediate save to Supabase
         try {
-          await doorSupabaseService.saveWeekLists(currentWeekKey, {
+          await doorUserTasksService.saveWeekLists(currentWeekKey, {
             hotList: updatedHotList,
             hitList,
             doList: updatedDoList

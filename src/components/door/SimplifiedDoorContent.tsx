@@ -5,6 +5,7 @@ import { HotList } from '@/components/door/HotList';
 import { DominoDoor } from '@/components/door/DominoDoor';
 import { TaskList } from '@/components/door/TaskList';
 import { OnboardingTooltip } from '@/components/door/OnboardingTooltip';
+import { DoorClearHistory } from '@/components/door/DoorClearHistory';
 import { EmptyStateCard } from '@/components/door/EmptyStateCard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
@@ -165,13 +166,20 @@ export const SimplifiedDoorContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <div className={`${isMobile ? 'w-full max-w-full px-2 py-2' : 'container mx-auto px-4 py-6'}`}>
-        <DoorHeader 
-          currentDate={currentDate}
-          currentDateRange={currentDateRange}
-          handlePreviousWeek={handlePrevWeekWithNotification}
-          handleNextWeek={handleNextWeekWithNotification}
-          isMobile={isMobile}
-        />
+        <div className="space-y-4">
+          <DoorHeader 
+            currentDate={currentDate}
+            currentDateRange={currentDateRange}
+            handlePreviousWeek={handlePrevWeekWithNotification}
+            handleNextWeek={handleNextWeekWithNotification}
+            isMobile={isMobile}
+          />
+          
+          {/* Clear History Button - positioned in top right */}
+          <div className="flex justify-end">
+            <DoorClearHistory onHistoryCleared={() => window.location.reload()} />
+          </div>
+        </div>
 
         {/* Mobile: Vertical Stack Layout */}
         {isMobile ? (

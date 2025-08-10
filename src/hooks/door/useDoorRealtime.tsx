@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { HotListItem, HitListItem, DoListItem } from '@/types/door';
 import { useToast } from '@/hooks/use-toast';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
 
 interface UseDoorRealtimeProps {
   currentWeekKey: string;
@@ -18,7 +19,7 @@ export function useDoorRealtime({ currentWeekKey, onDataUpdate }: UseDoorRealtim
   useEffect(() => {
     if (!currentWeekKey) return;
 
-    // Set up real-time subscription for hot_list_items changes
+    // Set up real-time subscription for user_tasks changes
     const channel = supabase
       .channel(`door-realtime-${currentWeekKey}`)
       .on(
@@ -26,54 +27,15 @@ export function useDoorRealtime({ currentWeekKey, onDataUpdate }: UseDoorRealtim
         {
           event: '*',
           schema: 'public',
-          table: 'hot_list_items',
+          table: 'user_tasks',
           filter: `week_key=eq.${currentWeekKey}`
         },
         async (payload) => {
           console.log('Real-time update received:', payload);
           
           try {
-            // Re-fetch latest data when changes occur
-            const { data, error } = await supabase
-              .from('hot_list_items')
-              .select('id, title, list_type, day_of_week, completed, priority, week_key')
-              .eq('week_key', currentWeekKey);
-
-            if (error) throw error;
-
-            // Parse and organize data
-            const hotList: HotListItem[] = [];
-            const hitList: HitListItem[] = [];
-            const doList: DoListItem[] = [];
-
-            for (const row of data ?? []) {
-              const common = {
-                id: String(row.id),
-                text: row.title as string,
-                priority: fromDbPriority((row.priority as number | null) ?? null),
-              } as any;
-
-              if (row.list_type === 'hot') {
-                hotList.push({ ...common, selected: false } as HotListItem);
-              } else if (row.list_type === 'hit') {
-                hitList.push({
-                  id: String(row.id),
-                  text: row.title as string,
-                  day: normalizeDay(row.day_of_week),
-                  completed: Boolean(row.completed),
-                  priority: fromDbPriority((row.priority as number | null) ?? null),
-                });
-              } else if (row.list_type === 'do') {
-                doList.push({
-                  id: String(row.id),
-                  text: row.title as string,
-                  day: normalizeDay(row.day_of_week),
-                  completed: Boolean(row.completed),
-                  priority: fromDbPriority((row.priority as number | null) ?? null),
-                });
-              }
-            }
-
+            // Re-fetch latest data when changes occur using the service
+            const { hotList, hitList, doList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
             onDataUpdate({ hotList, hitList, doList });
             
             // Show notification for real-time updates

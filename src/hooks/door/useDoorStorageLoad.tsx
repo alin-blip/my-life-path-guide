@@ -2,7 +2,7 @@
 
 import { HotListItem, HitListItem, DoListItem, DominoKeyPoint, DayOfWeek } from '@/types/door';
 import { useToast } from '@/hooks/use-toast';
-import { doorSupabaseService } from '@/services/doorSupabaseService';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { useDoorStorageLogger } from './useDoorStorageLogger';
 
 interface LoadStateSetters {
@@ -25,7 +25,7 @@ export function useDoorStorageLoad() {
     try {
       logStorageAction('Loading Door lists from Supabase', { weekKey: currentWeekKey });
 
-      const { hotList, hitList, doList } = await doorSupabaseService.fetchWeekLists(currentWeekKey);
+      const { hotList, hitList, doList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
 
       if ((hotList.length + hitList.length + doList.length) > 0) {
         setters.setHotList(hotList);
