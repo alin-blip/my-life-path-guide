@@ -5,8 +5,6 @@ import {
   Home, 
   User, 
   BookOpen, 
-  MessageSquare, 
-  Users, 
   Layers, 
   Box, 
   Flag, 
@@ -20,7 +18,6 @@ import {
   Activity,
   Angry,
   Briefcase,
-  UsersRound,
   Clock,
   Map,
   Headphones,
@@ -90,15 +87,6 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     { title: t('commandCenter'), icon: Flag, path: '/door' },
     { title: 'Business', icon: Briefcase, path: '/business' },
     { title: 'Misiuni de Împlinire', icon: Target, path: '/game' },
-    { 
-      title: 'Frăția Războinicilor', 
-      icon: UsersRound, 
-      path: '/chat',
-      subItems: [
-        { title: 'Warrior Chat', icon: MessageSquare, path: '/chat' },
-        { title: 'Frăția', icon: Users, path: '/tribe' },
-      ] 
-    },
     { title: 'Note', icon: FileText, path: '/notes' },
     { title: 'Arsenal', icon: BookOpenIcon, path: '/library' },
     { title: 'Abonamente', icon: CreditCard, path: '/pricing' },
