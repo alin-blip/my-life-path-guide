@@ -607,7 +607,7 @@ export const Dashboard: React.FC = () => {
                 <div className="space-y-6">
                   <div className="bg-gradient-to-r from-blue-900/50 to-blue-800/30 p-3 md:p-4 rounded-lg backdrop-blur-sm">
                     <div className="flex justify-between items-center mb-3 md:mb-4">
-                      <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">{language === 'en' ? 'THE CORE' : 'CORE'}</h3>
+                      <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">{language === 'en' ? 'CORE 4' : 'CORE 4'}</h3>
                       <Button variant="outline" className="bg-blue-600/20 border-blue-500/50 hover:bg-blue-700/30 text-white text-xs md:text-sm" onClick={() => navigateTo('/core')}>
                         {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
                       </Button>
