@@ -382,7 +382,7 @@ const translations: Translations = {
     "viewCoreDetails": "Vezi Detaliile Core",
     
     // Door specific translations
-    "commandCenter": "DE FĂCUT",
+    "commandCenter": "TASKURI",
     "doorTitle": "UȘA",
     "doorPlanningSystem": "Sistem de Planificare Săptămânală", 
     "currentWeek": "Săptămâna Curentă",

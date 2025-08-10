@@ -111,7 +111,7 @@ export const SimplifiedDoorContent: React.FC = () => {
       title: language === 'en' ? `Today is ${todayName}` : `Astăzi este ${todayName}`,
       description: language === 'en'
         ? `Welcome to RoWarrior To Do`
-        : `Bine ai venit în RoWarrior - De Făcut`,
+        : `Bine ai venit în RoWarrior - Taskuri`,
     });
   }, []);
 

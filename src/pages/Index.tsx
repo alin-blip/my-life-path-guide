@@ -40,7 +40,7 @@ const Index = () => {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            {language === 'en' ? 'RoWarrior – To Do for Entrepreneurs' : 'RoWarrior – De Făcut pentru Antreprenori'}
+            {language === 'en' ? 'RoWarrior – To Do for Entrepreneurs' : 'RoWarrior – Taskuri pentru Antreprenori'}
           </h1>
           
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
