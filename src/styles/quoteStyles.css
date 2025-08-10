@@ -22,7 +22,7 @@
 /* Quote Content */
 .quote-content {
   padding: 40px;
-  background-color: rgba(30, 35, 48, 0.85);
+  background-color: hsl(var(--card) / 0.85);
   backdrop-filter: blur(5px);
 }
 
@@ -47,11 +47,11 @@
 .category-tag {
   display: inline-block;
   padding: 4px 12px;
-  color: #fff;
+  color: hsl(var(--foreground));
   border-radius: 16px;
   font-size: 14px;
   text-transform: capitalize;
-  background-color: rgba(124, 58, 237, 0.2);
+  background-color: hsl(var(--primary) / 0.2);
 }
 
 /* Star Rating */
@@ -67,7 +67,7 @@
 
 .star:hover,
 .star.selected {
-  color: #ffc107;
+  color: hsl(var(--goddess-gold));
 }
 
 /* Similar Quotes */
@@ -104,8 +104,8 @@
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top: 4px solid #7c3aed;
+  border: 4px solid hsl(var(--foreground) / 0.1);
+  border-top: 4px solid hsl(var(--primary));
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -120,7 +120,7 @@
 .quote-display-error {
   padding: 24px;
   text-align: center;
-  color: #ef4444;
+  color: hsl(var(--destructive));
 }
 
 /* Quote Preview in Share Modal */
@@ -132,32 +132,32 @@
 
 /* Custom Design Templates */
 .template-classic {
-  background-color: #f3f4f6;
-  border-top: 10px solid #7c3aed;
-  border-bottom: 10px solid #7c3aed;
+  background-color: hsl(var(--card));
+  border-top: 10px solid hsl(var(--primary));
+  border-bottom: 10px solid hsl(var(--primary));
 }
 
 .template-modern {
-  background-color: #ffffff;
-  border-left: 20px solid #7c3aed;
+  background-color: hsl(var(--card));
+  border-left: 20px solid hsl(var(--primary));
 }
 
 .template-nature {
-  background: linear-gradient(to bottom, #87CEEB, #3CB371);
-  color: #202124;
+  background: var(--divine-gradient);
+  color: hsl(var(--foreground));
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
 }
 
 .template-bold {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
   font-weight: 700;
 }
 
 .template-minimal {
-  background-color: #ffffff;
-  color: #202124;
-  border: 20px solid #eeeeee;
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border: 20px solid hsl(var(--border));
 }
 
 /* Color Schemes */
