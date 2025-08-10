@@ -1,9 +1,9 @@
 
-import { format } from 'date-fns';
+
 import { HotListItem, HitListItem, DoListItem, DominoKeyPoint, DayOfWeek } from '@/types/door';
 import { useToast } from '@/hooks/use-toast';
+import { doorSupabaseService } from '@/services/doorSupabaseService';
 import { useDoorStorageLogger } from './useDoorStorageLogger';
-import { doorStorageManager } from '@/services/doorStorageManager';
 
 interface LoadStateSetters {
   setHotList: React.Dispatch<React.SetStateAction<HotListItem[]>>;
@@ -21,88 +21,56 @@ export function useDoorStorageLoad() {
   const { toast } = useToast();
   const { logStorageAction } = useDoorStorageLogger();
 
-  const loadSavedState = (currentWeekKey: string, setters: LoadStateSetters) => {
+  const loadSavedState = async (currentWeekKey: string, setters: LoadStateSetters) => {
     try {
-      logStorageAction('Starting data load via storage manager', { weekKey: currentWeekKey });
-      
-      const loadedData = doorStorageManager.loadData(currentWeekKey);
-      
-      if (loadedData) {
-        logStorageAction('Found data via storage manager', {
-          weekKey: currentWeekKey,
-          hotItems: loadedData.hotList?.length || 0,
-          hitItems: loadedData.hitList?.length || 0,
-          doItems: loadedData.doList?.length || 0,
-          hasDomino: !!loadedData.selectedDomino,
-          keyPoints: loadedData.dominoKeyPoints?.length || 0,
-          isDominoComplete: loadedData.isDominoCompleted
-        });
-        
-        // Set loaded data
-        setters.setHotList(loadedData.hotList || []);
-        setters.setHitList(loadedData.hitList || []);
-        setters.setDoList(loadedData.doList || []);
-        setters.setSelectedDomino(loadedData.selectedDomino);
-        
-        // Handle domino key points
-        const loadedKeyPoints = loadedData.dominoKeyPoints || [
+      logStorageAction('Loading Door lists from Supabase', { weekKey: currentWeekKey });
+
+      const { hotList, hitList, doList } = await doorSupabaseService.fetchWeekLists(currentWeekKey);
+
+      if ((hotList.length + hitList.length + doList.length) > 0) {
+        setters.setHotList(hotList);
+        setters.setHitList(hitList);
+        setters.setDoList(doList);
+        setters.setSelectedDomino(null);
+
+        const defaultKeyPoints: DominoKeyPoint[] = [
           { id: 'key1', text: '', completed: false },
           { id: 'key2', text: '', completed: false },
           { id: 'key3', text: '', completed: false },
           { id: 'key4', text: '', completed: false },
         ];
-        
-        setters.setDominoKeyPoints(loadedKeyPoints);
+        setters.setDominoKeyPoints(defaultKeyPoints);
 
-        // Normalize and set day/list
-        const normalizeDay = (d: any): DayOfWeek => {
-          if (typeof d !== 'string') return (d as DayOfWeek) || 'M';
-          const map: Record<string, DayOfWeek> = {
-            monday: 'M', tuesday: 'T', wednesday: 'W', thursday: 'Th', friday: 'F', saturday: 'Sa', sunday: 'Su',
-            m: 'M', t: 'T', w: 'W', th: 'Th', f: 'F', sa: 'Sa', su: 'Su',
-          };
-          const key = d.toLowerCase();
-          return map[key] || (d as DayOfWeek) || 'M';
-        };
-        
-        setters.selectDayOfWeek(normalizeDay(loadedData.activeDay || 'M'));
-        setters.setActiveList(loadedData.activeList || 'hit');
-        
-        // Set domino completion status
-        const isComplete = loadedData.isDominoCompleted ?? setters.checkDominoCompletion(loadedKeyPoints);
+        const isComplete = setters.checkDominoCompletion(defaultKeyPoints);
         setters.setIsDominoCompleted(isComplete);
-        
-        logStorageAction('Successfully loaded data via storage manager', {
-          activeDay: loadedData.activeDay,
-          activeList: loadedData.activeList,
-          isDominoComplete: isComplete
+        setters.setActiveList('hit');
+
+        logStorageAction('Loaded Door lists from Supabase', {
+          weekKey: currentWeekKey,
+          hotItems: hotList.length,
+          hitItems: hitList.length,
+          doItems: doList.length,
         });
 
-        // Show welcome back message for returning users (if this is not a new week)
-        if (loadedData.hitList.length > 0 || loadedData.doList.length > 0) {
-          toast({
-            title: "👋 Date încărcate securizat",
-            description: `Progresul tău pentru săptămâna ${currentWeekKey.split('-').pop()} a fost încărcat cu succes`,
-          });
-        }
-        
-      } else {
-        logStorageAction('No data found - setting defaults via storage manager', { weekKey: currentWeekKey });
-        resetToDefaultState(setters);
-        
-        // Show new week message
         toast({
-          title: "🆕 Săptămână nouă securizată",
-          description: "Ai început o nouă săptămână! Datele tale sunt protejate prin backup automat.",
+          title: '👋 Date încărcate din cloud',
+          description: `Săptămâna ${currentWeekKey.split('-').pop()} a fost încărcată din Supabase`,
+        });
+      } else {
+        logStorageAction('No cloud data for week - using defaults', { weekKey: currentWeekKey });
+        resetToDefaultState(setters);
+        toast({
+          title: '🆕 Săptămână nouă',
+          description: 'Nu există încă sarcini salvate în cloud pentru această săptămână.',
         });
       }
     } catch (error: any) {
-      logStorageAction('Critical error in loadSavedState via storage manager', { error: error.message });
-      console.error('Error in loadSavedState:', error);
+      logStorageAction('Error loading from Supabase', { error: error.message });
+      console.error('Error in loadSavedState (Supabase):', error);
       toast({
-        title: "⚠️ Eroare încărcare",
-        description: "A apărut o problemă la încărcarea datelor. Sistemul de backup va încerca recuperarea automată.",
-        variant: "destructive",
+        title: '⚠️ Eroare încărcare',
+        description: 'A apărut o problemă la încărcarea din cloud. Încearcă din nou.',
+        variant: 'destructive',
       });
       resetToDefaultState(setters);
     }

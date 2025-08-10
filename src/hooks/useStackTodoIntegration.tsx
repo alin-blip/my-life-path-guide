@@ -1,7 +1,8 @@
-
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { HotListItem, HitListItem, DoListItem, DayOfWeek } from '@/types/door';
+import { doorSupabaseService } from '@/services/doorSupabaseService';
+import { getWeek, getYear } from 'date-fns';
 
 interface StackIdea {
   id: string;

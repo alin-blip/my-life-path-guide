@@ -1,8 +1,7 @@
-
 import { HotListItem, HitListItem, DoListItem, DominoKeyPoint, DayOfWeek } from '@/types/door';
 import { useToast } from '@/hooks/use-toast';
 import { useDoorStorageLogger } from './useDoorStorageLogger';
-import { doorStorageManager } from '@/services/doorStorageManager';
+import { doorSupabaseService } from '@/services/doorSupabaseService';
 
 interface SaveStateData {
   currentWeekKey: string;
@@ -21,43 +20,29 @@ export function useDoorStorageSave() {
 
   const saveState = async (data: SaveStateData) => {
     if (!data.currentWeekKey) return;
-    
-    try {
-      const success = await doorStorageManager.saveData({
-        ...data,
-        isDominoCompleted: data.dominoKeyPoints.length > 0 && data.dominoKeyPoints.every(point => 
-          point.text && point.text.trim() !== '' && point.completed === true
-        )
-      });
-      
-      if (success) {
-        logStorageAction('Successfully saved data via storage manager', {
-          weekKey: data.currentWeekKey,
-          hotListItems: data.hotList.length,
-          hitListItems: data.hitList.length,
-          doListItems: data.doList.length,
-          dominoSelected: !!data.selectedDomino,
-          keyPoints: data.dominoKeyPoints.length
-        });
 
-        // Show periodic save confirmation (not too often) - DISABLED
-        // const shouldShowToast = Math.random() < 0.05; // 5% chance
-        // if (shouldShowToast) {
-        //   toast({
-        //     title: "💾 Date salvate securizat",
-        //     description: `Progresul pentru săptămâna ${data.currentWeekKey.split('-').pop()} a fost salvat cu backup automat`,
-        //   });
-        // }
-      } else {
-        throw new Error('Storage manager save failed');
-      }
+    try {
+      await doorSupabaseService.saveWeekLists(data.currentWeekKey, {
+        hotList: data.hotList,
+        hitList: data.hitList,
+        doList: data.doList,
+      });
+
+      logStorageAction('Saved Door lists to Supabase', {
+        weekKey: data.currentWeekKey,
+        hotListItems: data.hotList.length,
+        hitListItems: data.hitList.length,
+        doListItems: data.doList.length,
+      });
+
+      // Optional: quiet success (toast only on forceSave)
     } catch (error: any) {
-      logStorageAction('Error saving state via storage manager', { error: error.message });
-      console.error('Error saving state:', error);
+      logStorageAction('Error saving Door lists to Supabase', { error: error.message });
+      console.error('Error saving Door lists:', error);
       toast({
-        title: "⚠️ Eroare salvare",
-        description: "A apărut o problemă la salvarea datelor. Datele sunt protejate prin backup automat.",
-        variant: "destructive",
+        title: '⚠️ Eroare salvare',
+        description: 'Nu s-au putut salva listele în cloud. Încearcă din nou.',
+        variant: 'destructive',
       });
     }
   };
