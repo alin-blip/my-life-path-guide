@@ -283,35 +283,47 @@ export type Database = {
         Row: {
           completed: boolean
           created_at: string
+          day_of_week: string | null
           description: string | null
           due_date: string | null
           id: string
+          list_type: string
           priority: number | null
+          source: string | null
           title: string
           updated_at: string
           user_id: string
+          week_key: string | null
         }
         Insert: {
           completed?: boolean
           created_at?: string
+          day_of_week?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
+          list_type?: string
           priority?: number | null
+          source?: string | null
           title: string
           updated_at?: string
           user_id: string
+          week_key?: string | null
         }
         Update: {
           completed?: boolean
           created_at?: string
+          day_of_week?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
+          list_type?: string
           priority?: number | null
+          source?: string | null
           title?: string
           updated_at?: string
           user_id?: string
+          week_key?: string | null
         }
         Relationships: []
       }
@@ -511,6 +523,39 @@ export type Database = {
           id?: string
           title?: string
           type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stack_sessions: {
+        Row: {
+          answers: Json
+          completed: boolean
+          created_at: string
+          id: string
+          session_id: string
+          stack_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          completed?: boolean
+          created_at?: string
+          id?: string
+          session_id: string
+          stack_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed?: boolean
+          created_at?: string
+          id?: string
+          session_id?: string
+          stack_type?: string
           updated_at?: string
           user_id?: string
         }
