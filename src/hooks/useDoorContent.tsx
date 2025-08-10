@@ -21,6 +21,8 @@ export function useDoorContent() {
     navigateToDate,
   } = useDoorDate();
 
+  const [dataChangeCallback, setDataChangeCallback] = useState(() => () => {});
+
   const {
     hotList,
     setHotList,
@@ -41,7 +43,10 @@ export function useDoorContent() {
     toggleHitListItemCompletion,
     toggleDoListItemCompletion,
     moveTaskBackToHotList
-  } = useDoorLists({ currentWeekKey, onDataChange: () => {} });
+  } = useDoorLists({ 
+    currentWeekKey, 
+    onDataChange: dataChangeCallback 
+  });
 
   const {
     selectedDomino,
