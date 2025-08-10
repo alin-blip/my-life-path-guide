@@ -51,66 +51,36 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
     });
   }, [toast]);
 
-  const saveIdeaToTodoList = useCallback((idea: StackIdea) => {
+  const saveIdeaToTodoList = useCallback(async (idea: StackIdea) => {
     try {
-      if (idea.category === 'hot') {
-        // Adaugă în Lista de idei
-        const savedHotList = localStorage.getItem('door-hot-list') || "[]";
-        const hotList = JSON.parse(savedHotList);
-        
-        const newHotItem = {
-          id: idea.id,
-          text: idea.text,
-          selected: false,
-          priority: idea.priority
-        };
-        
-        hotList.push(newHotItem);
-        localStorage.setItem('door-hot-list', JSON.stringify(hotList));
-        
-      } else if (idea.category === 'hit' || idea.category === 'do') {
-        // Adaugă în HIT/DO List
-        const currentWeekKey = `door-week-${new Date().getFullYear()}-${Math.ceil((new Date().getDate() + new Date().getDay()) / 7)}`;
-        const savedWeekData = localStorage.getItem(currentWeekKey);
-        
-        const weekData = savedWeekData ? JSON.parse(savedWeekData) : {
-          hitList: [],
-          doList: [],
-          hotList: []
-        };
-        
-        const newTaskItem = {
-          id: idea.id,
-          text: idea.text,
-          day: idea.day || 'M' as DayOfWeek,
-          completed: false,
-          priority: idea.priority
-        };
-        
-        if (idea.category === 'hit') {
-          weekData.hitList = [...(weekData.hitList || []), newTaskItem];
-        } else {
-          weekData.doList = [...(weekData.doList || []), newTaskItem];
-        }
-        
-        localStorage.setItem(currentWeekKey, JSON.stringify(weekData));
-        
-        // Compatibilitate cu funcția existentă
-        if (onAddToHitList && idea.category === 'hit') {
-          onAddToHitList(idea.text);
-        }
-      }
+      // Generate current week key
+      const now = new Date();
+      const currentWeekKey = `door-week-${now.getFullYear()}-${getWeek(now)}`;
+      
+      // Save directly to Supabase
+      await doorSupabaseService.addIdeaToWeek(currentWeekKey, {
+        id: idea.id,
+        text: idea.text,
+        category: idea.category,
+        priority: idea.priority,
+        day: idea.day
+      });
       
       // Trigger event pentru actualizarea interfței Door
       window.dispatchEvent(new CustomEvent('doorDataUpdated', { 
         detail: { type: 'ideaAdded', idea } 
       }));
       
+      // Compatibilitate cu funcția existentă
+      if (onAddToHitList && idea.category === 'hit') {
+        onAddToHitList(idea.text);
+      }
+      
     } catch (error) {
-      console.error("Error saving idea to TODO list:", error);
+      console.error("Error saving idea to Supabase:", error);
       toast({
         title: "⚠️ Eroare salvare",
-        description: "Nu s-a putut salva ideea în TODO list. Încearcă din nou.",
+        description: "Nu s-a putut salva ideea în cloud. Încearcă din nou.",
         variant: "destructive",
       });
     }
