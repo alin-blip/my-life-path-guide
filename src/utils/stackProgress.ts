@@ -169,6 +169,9 @@ export const updateDailyProgress = async (
       // Update user statistics
       await updateUserStatistics(session.user.id, activity);
       
+      // Also update local cache so UI (Dashboard) reflects instantly
+      updateLocalProgress(activity, data);
+      
       // Dispatch custom event for dashboard updates
       window.dispatchEvent(new CustomEvent('progressUpdated', {
         detail: { activity, data, date }
