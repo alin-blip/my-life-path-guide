@@ -77,20 +77,35 @@ export const TaskList: React.FC<TaskListProps> = ({
   
   return (
     <div 
-      className={isMobile ? 'max-h-[70vh] overflow-auto' : 'h-full'}
+      className={isMobile ? 'max-h-[70vh] overflow-auto' : ''}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
-        // allow drop even if user drops over tasks area while expecting focus; do nothing here
         console.debug('[TaskList] Drop ignored (tasks column)');
       }}
     >
-      <TaskListHeader
-        activeList={activeList}
-        setActiveList={setActiveList}
-        hitStats={hitStats}
-        doStats={doStats}
-        isMobile={isMobile}
-      />
+      {/* Task Type Tabs */}
+      <div className="flex mb-4">
+        <button
+          className={`px-3 py-2 text-sm font-medium rounded-l-md border ${
+            activeList === 'hit' 
+              ? 'bg-blue-50 text-blue-600 border-blue-200' 
+              : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+          }`}
+          onClick={() => setActiveList('hit')}
+        >
+          📋 To Do ({hitStats})
+        </button>
+        <button
+          className={`px-3 py-2 text-sm font-medium rounded-r-md border-t border-r border-b ${
+            activeList === 'do' 
+              ? 'bg-blue-50 text-blue-600 border-blue-200' 
+              : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+          }`}
+          onClick={() => setActiveList('do')}
+        >
+          ✅ Do ({doStats})
+        </button>
+      </div>
       
       <DayNavigation
         activeDay={activeDay}
@@ -98,7 +113,7 @@ export const TaskList: React.FC<TaskListProps> = ({
         isMobile={isMobile}
       />
       
-      <div className={`space-y-2 ${isMobile ? 'max-h-[calc(70vh-180px)] overflow-y-auto space-y-1.5' : ''}`}>
+      <div className={`space-y-2 ${isMobile ? 'max-h-[calc(70vh-120px)] overflow-y-auto' : ''}`}>
         {activeList === 'hit' ? (
           filteredHitList.length > 0 ? (
             filteredHitList.map(item => (

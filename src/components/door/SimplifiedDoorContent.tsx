@@ -6,15 +6,10 @@ import { DominoDoor } from '@/components/door/DominoDoor';
 import { TaskList } from '@/components/door/TaskList';
 import { OnboardingTooltip } from '@/components/door/OnboardingTooltip';
 import { DoorClearHistory } from '@/components/door/DoorClearHistory';
-import { EmptyStateCard } from '@/components/door/EmptyStateCard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
-import { format, subDays, getWeek } from 'date-fns';
+import { format, getWeek } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Lightbulb, Target, CheckSquare, Plus } from 'lucide-react';
 
 export const SimplifiedDoorContent: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -164,259 +159,168 @@ export const SimplifiedDoorContent: React.FC = () => {
   const stats = getSectionStats();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <div className={`${isMobile ? 'w-full max-w-full px-2 py-2' : 'container mx-auto px-4 py-6'}`}>
-        <div className="space-y-4">
-          <DoorHeader 
-            currentDate={currentDate}
-            currentDateRange={currentDateRange}
-            handlePreviousWeek={handlePrevWeekWithNotification}
-            handleNextWeek={handleNextWeekWithNotification}
-            isMobile={isMobile}
-          />
-          
-          {/* Clear History Button - positioned in top right */}
-          <div className="flex justify-end">
-            <DoorClearHistory onHistoryCleared={() => window.location.reload()} />
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <DoorHeader 
+        currentDate={currentDate}
+        currentDateRange={currentDateRange}
+        handlePreviousWeek={handlePrevWeekWithNotification}
+        handleNextWeek={handleNextWeekWithNotification}
+        isMobile={isMobile}
+      />
+      
+      <div className={`${isMobile ? 'px-4 py-6' : 'container mx-auto px-6 py-8'}`}>
+        {/* Clear History Button */}
+        <div className="flex justify-end mb-6">
+          <DoorClearHistory onHistoryCleared={() => window.location.reload()} />
         </div>
 
         {/* Mobile: Vertical Stack Layout */}
         {isMobile ? (
-          <div className="space-y-4 pb-4">
-            {/* Ideas Section */}
-            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Lightbulb className="w-4 h-4 text-primary" />
-                  📋 To Do
-                  <Badge variant="outline" className="ml-auto text-xs">
-                    {filteredHotList.length}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                {filteredHotList.length === 0 ? (
-                  <div className="text-center py-4">
-                    <Button onClick={addNewTarget} size="sm" className="text-xs">
-                      <Plus className="w-3 h-3 mr-1" />
-                      Adaugă prima idee
-                    </Button>
-                  </div>
-                ) : (
-                  <HotList 
-                    filteredHotList={filteredHotList}
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    toggleHotListItemSelection={toggleHotListItemSelection}
-                    updateHotListItemText={updateHotListItemText}
-                    updateHotListItemPriority={updateHotListItemPriority}
-                    addNewTarget={addNewTarget}
-                    deleteHotListItem={deleteHotListItem}
-                    handleDragStartToDomino={handleDragStartToDomino}
-                    handleDragStart={handleDragStart}
-                    handleDragEnd={handleDragEnd}
-                    handleDominoSelection={handleDominoSelection}
-                    editingNewItem={editingNewItem}
-                    isMobile={isMobile}
-                  />
-                )}
-              </CardContent>
-            </Card>
+          <div className="space-y-6">
+            {/* To Do Section */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">📋 To Do</h2>
+                <span className="text-sm text-gray-500">{filteredHotList.length}</span>
+              </div>
+              <HotList 
+                filteredHotList={filteredHotList}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                toggleHotListItemSelection={toggleHotListItemSelection}
+                updateHotListItemText={updateHotListItemText}
+                updateHotListItemPriority={updateHotListItemPriority}
+                addNewTarget={addNewTarget}
+                deleteHotListItem={deleteHotListItem}
+                handleDragStartToDomino={handleDragStartToDomino}
+                handleDragStart={handleDragStart}
+                handleDragEnd={handleDragEnd}
+                handleDominoSelection={handleDominoSelection}
+                editingNewItem={editingNewItem}
+                isMobile={isMobile}
+              />
+            </div>
 
             {/* Focus Section */}
-            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Target className="w-4 h-4 text-primary" />
-                  🎯 Focus Săptămânal
-                  {selectedDomino && (
-                    <Badge variant="outline" className="ml-auto text-xs">
-                      {stats.focus}/{dominoKeyPoints.length}
-                    </Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
-                <DominoDoor 
-                  selectedDomino={selectedDomino}
-                  dominoKeyPoints={dominoKeyPoints}
-                  updateKeyPointText={updateKeyPointText}
-                  handleDragOverDomino={handleDragOverDomino}
-                  handleDropOnDomino={handleDropOnDomino}
-                  handleKeyPointDragStart={handleKeyPointDragStart}
-                  isMobile={isMobile}
-                  isCompleted={isDominoCompleted}
-                  moveKeyPointToHotList={moveKeyPointToHotList}
-                  addNewKeyPoint={addNewKeyPoint}
-                  handleDropOnKeyPoint={handleDropOnKeyPoint}
-                />
-              </CardContent>
-            </Card>
+            <div className="bg-white border border-gray-200 rounded-lg p-4" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">🎯 Focus Săptămânal</h2>
+                {selectedDomino && (
+                  <span className="text-sm text-gray-500">{stats.focus}/{dominoKeyPoints.length}</span>
+                )}
+              </div>
+              <DominoDoor 
+                selectedDomino={selectedDomino}
+                dominoKeyPoints={dominoKeyPoints}
+                updateKeyPointText={updateKeyPointText}
+                handleDragOverDomino={handleDragOverDomino}
+                handleDropOnDomino={handleDropOnDomino}
+                handleKeyPointDragStart={handleKeyPointDragStart}
+                isMobile={isMobile}
+                isCompleted={isDominoCompleted}
+                moveKeyPointToHotList={moveKeyPointToHotList}
+                addNewKeyPoint={addNewKeyPoint}
+                handleDropOnKeyPoint={handleDropOnKeyPoint}
+              />
+            </div>
 
             {/* Tasks Section */}
-            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <CheckSquare className="w-4 h-4 text-primary" />
-                  📋 Sarcini Zilnice
-                  <Badge variant="outline" className="ml-auto text-xs">
-                    {stats.tasks}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent 
-                className="pt-0"
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-              >
-                  <TaskList 
-                    hitList={hitList}
-                    doList={doList}
-                    activeDay={activeDay}
-                    activeList={activeList}
-                    setActiveList={setActiveList}
-                    selectDayOfWeek={selectDayOfWeek}
-                    toggleHitListItemCompletion={toggleHitListItemCompletion}
-                    toggleDoListItemCompletion={toggleDoListItemCompletion}
-                    hitAchievedCount={hitAchievedCount}
-                    hitDoneCount={hitDoneCount}
-                    doAchievedCount={doAchievedCount}
-                    doDoneCount={doDoneCount}
-                    moveTaskBackToHotList={moveTaskBackToHotList}
-                    isMobile={isMobile}
-                  />
-              </CardContent>
-            </Card>
+            <div className="bg-white border border-gray-200 rounded-lg p-4" onDragOver={handleDragOver} onDrop={handleDrop}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">📋 Sarcini Zilnice</h2>
+                <span className="text-sm text-gray-500">{stats.tasks}</span>
+              </div>
+              <TaskList 
+                hitList={hitList}
+                doList={doList}
+                activeDay={activeDay}
+                activeList={activeList}
+                setActiveList={setActiveList}
+                selectDayOfWeek={selectDayOfWeek}
+                toggleHitListItemCompletion={toggleHitListItemCompletion}
+                toggleDoListItemCompletion={toggleDoListItemCompletion}
+                hitAchievedCount={hitAchievedCount}
+                hitDoneCount={hitDoneCount}
+                doAchievedCount={doAchievedCount}
+                doDoneCount={doDoneCount}
+                moveTaskBackToHotList={moveTaskBackToHotList}
+                isMobile={isMobile}
+              />
+            </div>
           </div>
         ) : (
           /* Desktop: 3-Column Layout */
-          <div className="grid grid-cols-3 gap-6 animate-fade-in">
-            {/* Ideas Column */}
-            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50 h-fit">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-primary" />
-                  📋 To Do
-                  <Badge variant="outline" className="ml-auto">
-                    {filteredHotList.length}
-                  </Badge>
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Capturează și prioritizează ideile de acțiune
-                </p>
-              </CardHeader>
-              <CardContent>
-                {filteredHotList.length === 0 ? (
-                  <EmptyStateCard
-                    icon={Lightbulb}
-                    emoji="💡"
-                    title="Încă nu ai idei!"
-                    description="Începe prin a captura prima ta idee de acțiune."
-                    actionLabel="Adaugă Prima Idee"
-                    onAction={addNewTarget}
-                  />
-                ) : (
-                  <HotList 
-                    filteredHotList={filteredHotList}
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    toggleHotListItemSelection={toggleHotListItemSelection}
-                    updateHotListItemText={updateHotListItemText}
-                    updateHotListItemPriority={updateHotListItemPriority}
-                    addNewTarget={addNewTarget}
-                    deleteHotListItem={deleteHotListItem}
-                    handleDragStartToDomino={handleDragStartToDomino}
-                    handleDragStart={handleDragStart}
-                    handleDragEnd={handleDragEnd}
-                    handleDominoSelection={handleDominoSelection}
-                    editingNewItem={editingNewItem}
-                    isMobile={false}
-                  />
-                )}
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-3 gap-6">
+            {/* To Do Column */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">📋 To Do</h2>
+                <span className="text-sm text-gray-500">{filteredHotList.length}</span>
+              </div>
+              <HotList 
+                filteredHotList={filteredHotList}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                toggleHotListItemSelection={toggleHotListItemSelection}
+                updateHotListItemText={updateHotListItemText}
+                updateHotListItemPriority={updateHotListItemPriority}
+                addNewTarget={addNewTarget}
+                deleteHotListItem={deleteHotListItem}
+                handleDragStartToDomino={handleDragStartToDomino}
+                handleDragStart={handleDragStart}
+                handleDragEnd={handleDragEnd}
+                handleDominoSelection={handleDominoSelection}
+                editingNewItem={editingNewItem}
+                isMobile={false}
+              />
+            </div>
 
             {/* Focus Column */}
-            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50 h-fit">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-primary" />
-                  🎯 Focus Săptămânal
-                  {selectedDomino && (
-                    <Badge variant="outline" className="ml-auto">
-                      {stats.focus}/{dominoKeyPoints.length}
-                    </Badge>
-                  )}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Stabilește obiectivul săptămânal masiv
-                </p>
-              </CardHeader>
-              <CardContent>
-                {!selectedDomino ? (
-                  <EmptyStateCard
-                    icon={Target}
-                    emoji="🎯"
-                    title="Alege Domino-ul!"
-                    description="Selectează o idee importantă ca focus săptămânal prin drag & drop sau click."
-                    actionLabel="📋 Vezi Ghidul"
-                    onAction={() => {}}
-                  />
-                ) : (
-                  <DominoDoor 
-                    selectedDomino={selectedDomino}
-                    dominoKeyPoints={dominoKeyPoints}
-                    updateKeyPointText={updateKeyPointText}
-                    handleDragOverDomino={handleDragOverDomino}
-                    handleDropOnDomino={handleDropOnDomino}
-                    handleKeyPointDragStart={handleKeyPointDragStart}
-                    isMobile={false}
-                    isCompleted={isDominoCompleted}
-                    moveKeyPointToHotList={moveKeyPointToHotList}
-                    addNewKeyPoint={addNewKeyPoint}
-                    handleDropOnKeyPoint={handleDropOnKeyPoint}
-                  />
+            <div className="bg-white border border-gray-200 rounded-lg p-6" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">🎯 Focus Săptămânal</h2>
+                {selectedDomino && (
+                  <span className="text-sm text-gray-500">{stats.focus}/{dominoKeyPoints.length}</span>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+              <DominoDoor 
+                selectedDomino={selectedDomino}
+                dominoKeyPoints={dominoKeyPoints}
+                updateKeyPointText={updateKeyPointText}
+                handleDragOverDomino={handleDragOverDomino}
+                handleDropOnDomino={handleDropOnDomino}
+                handleKeyPointDragStart={handleKeyPointDragStart}
+                isMobile={false}
+                isCompleted={isDominoCompleted}
+                moveKeyPointToHotList={moveKeyPointToHotList}
+                addNewKeyPoint={addNewKeyPoint}
+                handleDropOnKeyPoint={handleDropOnKeyPoint}
+              />
+            </div>
 
             {/* Tasks Column */}
-            <Card className="border-primary/20 bg-gradient-to-br from-card to-card/50 h-fit">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2">
-                  <CheckSquare className="w-5 h-5 text-primary" />
-                  📋 Sarcini Zilnice
-                  <Badge variant="outline" className="ml-auto">
-                    {stats.tasks}
-                  </Badge>
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Execută listele zilnice de sarcini
-                </p>
-              </CardHeader>
-              <CardContent
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-              >
-                <TaskList 
-                  hitList={hitList}
-                  doList={doList}
-                  activeDay={activeDay}
-                  activeList={activeList}
-                  setActiveList={setActiveList}
-                  selectDayOfWeek={selectDayOfWeek}
-                  toggleHitListItemCompletion={toggleHitListItemCompletion}
-                  toggleDoListItemCompletion={toggleDoListItemCompletion}
-                  hitAchievedCount={hitAchievedCount}
-                  hitDoneCount={hitDoneCount}
-                  doAchievedCount={doAchievedCount}
-                  doDoneCount={doDoneCount}
-                  moveTaskBackToHotList={moveTaskBackToHotList}
-                  isMobile={false}
-                />
-              </CardContent>
-            </Card>
+            <div className="bg-white border border-gray-200 rounded-lg p-6" onDragOver={handleDragOver} onDrop={handleDrop}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">📋 Sarcini Zilnice</h2>
+                <span className="text-sm text-gray-500">{stats.tasks}</span>
+              </div>
+              <TaskList 
+                hitList={hitList}
+                doList={doList}
+                activeDay={activeDay}
+                activeList={activeList}
+                setActiveList={setActiveList}
+                selectDayOfWeek={selectDayOfWeek}
+                toggleHitListItemCompletion={toggleHitListItemCompletion}
+                toggleDoListItemCompletion={toggleDoListItemCompletion}
+                hitAchievedCount={hitAchievedCount}
+                hitDoneCount={hitDoneCount}
+                doAchievedCount={doAchievedCount}
+                doDoneCount={doDoneCount}
+                moveTaskBackToHotList={moveTaskBackToHotList}
+                isMobile={false}
+              />
+            </div>
           </div>
         )}
 
@@ -428,9 +332,9 @@ export const SimplifiedDoorContent: React.FC = () => {
             totalSteps={onboardingSteps.length}
             onNext={handleOnboardingNext}
             onSkip={handleOnboardingSkip}
+            onClose={handleOnboardingSkip}
             position={isMobile ? 'bottom' : 'top'}
             isVisible={showOnboarding}
-            onClose={handleOnboardingSkip}
           />
         )}
       </div>

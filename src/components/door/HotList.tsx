@@ -52,21 +52,17 @@ export const HotList: React.FC<HotListProps> = ({
   }, [editingNewItem]);
 
   return (
-    <div className={isMobile ? 'max-h-[70vh] overflow-auto' : 'h-full'}>
-      <div className={`flex justify-between items-center ${isMobile ? 'mb-4' : 'mb-6'}`}>
-        <h2 className={`${isMobile ? 'text-lg' : 'text-lg'} font-semibold tracking-wider`}>
-          📋 To Do
-        </h2>
-        <div className="flex items-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`text-gray-400 hover:text-blue-500 transition-colors ${isMobile ? 'p-1.5' : 'p-2'}`}
-            onClick={addNewTarget}
-          >
-            <Plus className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-          </Button>
-        </div>
+    <div className={isMobile ? 'max-h-[70vh] overflow-auto' : ''}>
+      <div className={`flex justify-center ${isMobile ? 'mb-3' : 'mb-4'}`}>
+        <Button
+          onClick={addNewTarget}
+          size="sm"
+          className="text-blue-600 hover:bg-blue-50 border border-blue-200"
+          variant="outline"
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          {isMobile ? 'Add' : 'Adaugă'}
+        </Button>
       </div>
       
       <div className={`relative ${isMobile ? 'mb-3' : 'mb-4'}`}>

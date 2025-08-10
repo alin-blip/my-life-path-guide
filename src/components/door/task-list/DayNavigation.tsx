@@ -40,30 +40,21 @@ export const DayNavigation: React.FC<DayNavigationProps> = ({
 
   return (
     <div className={`flex justify-center ${isMobile ? 'mb-3' : 'mb-4'}`}>
-      <div className={`flex ${isMobile ? 'space-x-1' : 'space-x-2'}`}>
+      <div className={`flex ${isMobile ? 'space-x-1' : 'space-x-1'} bg-gray-100 rounded-md p-1`}>
         {daysOfWeek.map(day => (
-          <Button
+          <button
             key={day}
-            variant="ghost"
-            size={isMobile ? "sm" : "sm"}
-            className={`${isMobile ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm'} ${
+            className={`${isMobile ? 'px-2 py-1 text-xs' : 'px-3 py-1 text-sm'} rounded transition-colors ${
               activeDay === day 
-                ? 'bg-blue-500 text-white' 
+                ? 'bg-white text-gray-900 shadow-sm' 
                 : day === todayAbbr 
-                  ? 'bg-blue-500 bg-opacity-30 text-blue-300' 
-                  : 'text-gray-400'
+                  ? 'text-blue-600 hover:bg-white/50'
+                  : 'text-gray-600 hover:bg-white/50'
             }`}
             onClick={() => selectDayOfWeek(day)}
           >
-            <span className="block">
-              {dayTranslations[day]}
-            </span>
-            {day === todayAbbr && (
-              <span className={`block ${isMobile ? 'text-xs' : 'text-xs'} opacity-75`}>
-                {t('todayLabel')}
-              </span>
-            )}
-          </Button>
+            {day}
+          </button>
         ))}
       </div>
     </div>
