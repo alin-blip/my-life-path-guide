@@ -98,7 +98,8 @@ return (
       <meta name="description" content="Abonamente RoWarrior pentru antreprenori: trial 3 zile cu card, planurile Basic (97 lei) și Pro (197 lei) pentru execuție, claritate și KPI." />
       <link rel="canonical" href={`${window.location.origin}/pricing`} />
     </Helmet>
-    <main className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-hero-gradient">
+      <main className="max-w-6xl mx-auto px-4 py-12">
       <section className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-white">Abonamente construite pentru antreprenori</h1>
         <p className="text-muted-foreground mt-2">Beneficii clare. Fără pierdere de timp. Focus pe profit și execuție.</p>
@@ -176,6 +177,7 @@ return (
         )}
       </div>
     </main>
+  </div>
   </Layout>
 );
 };

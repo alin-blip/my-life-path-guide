@@ -16,7 +16,7 @@ const Index = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-900/90 via-pink-900/80 to-purple-900/90">
+    <div className="min-h-screen bg-hero-gradient">
       <Helmet>
         <title>RoWarrior — Calea războinicilor de a avea totul</title>
         <meta name="description" content="RoWarrior: calea războinicilor de a avea totul în viață — claritate, execuție, profit și echilibru, în același timp." />

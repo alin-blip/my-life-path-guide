@@ -46,6 +46,10 @@
     --sacred-gradient: linear-gradient(135deg, hsl(205, 85%, 60%), hsl(215, 85%, 50%));
     --divine-gradient: linear-gradient(135deg, hsl(210, 80%, 58%), hsl(200, 85%, 55%));
     --moon-gradient: linear-gradient(135deg, hsl(220, 15%, 85%), hsl(240, 20%, 90%));
+
+    /* Hero gradient (mock-aligned) */
+    --hero-start: 270 75% 46%;
+    --hero-end: 235 70% 18%;
   }
  
   .dark {
