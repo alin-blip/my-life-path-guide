@@ -219,6 +219,51 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_progress_stats: {
+        Row: {
+          completed_tasks: number | null
+          completion_rate: number | null
+          created_at: string
+          date: string
+          do_list_items: number | null
+          hit_list_items: number | null
+          hot_list_items: number | null
+          id: string
+          streak_days: number | null
+          total_tasks: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_tasks?: number | null
+          completion_rate?: number | null
+          created_at?: string
+          date?: string
+          do_list_items?: number | null
+          hit_list_items?: number | null
+          hot_list_items?: number | null
+          id?: string
+          streak_days?: number | null
+          total_tasks?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_tasks?: number | null
+          completion_rate?: number | null
+          created_at?: string
+          date?: string
+          do_list_items?: number | null
+          hit_list_items?: number | null
+          hot_list_items?: number | null
+          id?: string
+          streak_days?: number | null
+          total_tasks?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       divine_coaching_sessions: {
         Row: {
           answers: Json
