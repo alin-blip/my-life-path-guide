@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
 import { v4 as uuidv4 } from 'uuid';
-import { saveToStackLibrary } from '@/utils/stackProgress';
+import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -215,8 +215,25 @@ INSTRUCȚIUNI:
         messages.forEach((m, i) => { answersMap[i] = m.content; });
         answersMap[questionsList.length - 1] = data.message;
         await saveToStackLibrary(derivedType, sessionId, answersMap, questionsList);
+
+        // Also persist in universal stack_sessions
+        const { data: authData } = await supabase.auth.getSession();
+        const userId = authData.session?.user?.id;
+        if (userId) {
+          const payload = JSON.parse(JSON.stringify(answersMap));
+          const { error: upsertError } = await supabase.from('stack_sessions').upsert({
+            user_id: userId,
+            session_id: sessionId,
+            stack_type: derivedType,
+            answers: payload,
+            completed: true
+          });
+          if (upsertError) console.error('Failed to upsert stack_sessions:', upsertError);
+          // Mark introspecție complete
+          await updateDailyProgress('stack');
+        }
       } catch (e) {
-        console.error('Failed to save AI guided stack to Stack Library:', e);
+        console.error('Failed to save AI guided stack to Stack Library/stack_sessions:', e);
       }
     } catch (error) {
       console.error('Error generating final action:', error);

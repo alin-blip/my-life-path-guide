@@ -60,21 +60,19 @@ const committedActionStep = 16; // Pasul pentru acțiunea angajată
       // folosim sessionId persistent
       
       if (session?.user) {
-        console.log("Saving divine coaching session to Supabase");
-        // Salvăm în Supabase
-        const { error } = await supabase.from('divine_coaching_sessions').insert({
+        console.log("Saving divine stack session to Supabase (stack_sessions)");
+        const answersJson = JSON.parse(JSON.stringify(answers));
+        const { error } = await supabase.from('stack_sessions').upsert({
           session_id: sessionId,
-          step_number: currentStep + 1,
-          question: questions[currentStep],
-          answer: answers[currentStep],
-          answers: answers,
-          user_id: session.user.id
+          user_id: session.user.id,
+          stack_type: 'divine',
+          answers: answersJson,
+          completed: true
         });
-        
         if (error) {
           console.error("Error saving to Supabase:", error);
         } else {
-          console.log("Successfully saved to Supabase");
+          console.log("Successfully saved to stack_sessions");
         }
       }
       
