@@ -1,24 +1,85 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Medal, Search, ArrowUpDown, Calendar } from 'lucide-react';
+import { Medal, Search, ArrowUpDown, Calendar, Loader2 } from 'lucide-react';
+import { adminClientService, type AdminClient } from '@/services/adminClientService';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-// Mock data for the leaderboard
-const initialClients = [
-  { id: 1, name: "John Doe", score: 89, coreScore: 45, dailyFourScore: 35, weeklyTwoScore: 9, streak: 7 },
-  { id: 2, name: "Sarah Smith", score: 124, coreScore: 67, dailyFourScore: 48, weeklyTwoScore: 9, streak: 14 },
-  { id: 3, name: "Mike Johnson", score: 73, coreScore: 29, dailyFourScore: 36, weeklyTwoScore: 8, streak: 4 },
-  { id: 4, name: "Emma Williams", score: 112, coreScore: 56, dailyFourScore: 42, weeklyTwoScore: 14, streak: 10 },
-  { id: 5, name: "Alex Brown", score: 95, coreScore: 38, dailyFourScore: 47, weeklyTwoScore: 10, streak: 8 },
-];
+interface LeaderboardClient {
+  id: string;
+  name: string;
+  email: string;
+  totalScore: number;
+  completedTasks: number;
+  totalTasks: number;
+  completionRate: number;
+  streak: number;
+  lastActivity?: string;
+}
 
 export const Leaderboard: React.FC = () => {
-  const [clients, setClients] = useState(initialClients);
+  const [clients, setClients] = useState<LeaderboardClient[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: 'score', direction: 'desc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'totalScore', direction: 'desc' });
+
+  // Load clients data
+  const loadClientsData = async () => {
+    try {
+      setLoading(true);
+      const adminClients = await adminClientService.fetchAllClients();
+      
+      const leaderboardClients: LeaderboardClient[] = adminClients.map(client => ({
+        id: client.id,
+        name: client.display_name || client.email.split('@')[0],
+        email: client.email,
+        totalScore: Math.round(client.doorData.completionRate * 10 + client.doorData.currentStreak * 5),
+        completedTasks: client.doorData.completedTasks,
+        totalTasks: client.doorData.totalTasks,
+        completionRate: client.doorData.completionRate,
+        streak: client.doorData.currentStreak,
+        lastActivity: client.doorData.lastActivity,
+      }));
+
+      setClients(leaderboardClients);
+    } catch (error) {
+      console.error('Error loading clients:', error);
+      toast.error('Failed to load leaderboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Real-time updates
+  useEffect(() => {
+    loadClientsData();
+
+    // Subscribe to daily_progress_stats changes
+    const channel = supabase
+      .channel('leaderboard-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'daily_progress_stats'
+        },
+        (payload) => {
+          console.log('Progress stats updated:', payload);
+          // Reload data when stats change
+          loadClientsData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
   
   // Filter clients based on search term
   const filteredClients = clients.filter(client => 
@@ -37,7 +98,7 @@ export const Leaderboard: React.FC = () => {
   });
   
   // Request sort based on key
-  const requestSort = (key) => {
+  const requestSort = (key: keyof LeaderboardClient) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
@@ -71,7 +132,7 @@ export const Leaderboard: React.FC = () => {
         <CardContent>
           <div className="flex items-center justify-between mb-6">
             <div className="relative w-full max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search clients..."
@@ -81,12 +142,9 @@ export const Leaderboard: React.FC = () => {
               />
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                <span>This Week</span>
-              </Button>
-              <Button variant="outline" size="sm">
-                Export
+              <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={loadClientsData} disabled={loading}>
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Calendar className="h-4 w-4" />}
+                <span>Refresh</span>
               </Button>
             </div>
           </div>
@@ -98,43 +156,43 @@ export const Leaderboard: React.FC = () => {
                   <TableHead className="w-12">#</TableHead>
                   <TableHead>Client</TableHead>
                   <TableHead 
-                    className="cursor-pointer hover:bg-slate-100"
-                    onClick={() => requestSort('score')}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => requestSort('totalScore')}
                   >
                     <div className="flex items-center gap-1">
-                      Total Score {getSortDirectionIndicator('score')}
+                      Total Score {getSortDirectionIndicator('totalScore')}
                       <ArrowUpDown className="h-3 w-3" />
                     </div>
                   </TableHead>
                   <TableHead 
-                    className="cursor-pointer hover:bg-slate-100"
-                    onClick={() => requestSort('coreScore')}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => requestSort('completedTasks')}
                   >
                     <div className="flex items-center gap-1">
-                      Core {getSortDirectionIndicator('coreScore')}
+                      Completed {getSortDirectionIndicator('completedTasks')}
                       <ArrowUpDown className="h-3 w-3" />
                     </div>
                   </TableHead>
                   <TableHead 
-                    className="cursor-pointer hover:bg-slate-100"
-                    onClick={() => requestSort('dailyFourScore')}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => requestSort('totalTasks')}
                   >
                     <div className="flex items-center gap-1">
-                      Daily Four {getSortDirectionIndicator('dailyFourScore')}
+                      Total Tasks {getSortDirectionIndicator('totalTasks')}
                       <ArrowUpDown className="h-3 w-3" />
                     </div>
                   </TableHead>
                   <TableHead 
-                    className="cursor-pointer hover:bg-slate-100"
-                    onClick={() => requestSort('weeklyTwoScore')}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => requestSort('completionRate')}
                   >
                     <div className="flex items-center gap-1">
-                      Weekly Two {getSortDirectionIndicator('weeklyTwoScore')}
+                      Rate (%) {getSortDirectionIndicator('completionRate')}
                       <ArrowUpDown className="h-3 w-3" />
                     </div>
                   </TableHead>
                   <TableHead 
-                    className="cursor-pointer hover:bg-slate-100"
+                    className="cursor-pointer hover:bg-muted/50"
                     onClick={() => requestSort('streak')}
                   >
                     <div className="flex items-center gap-1">
@@ -145,27 +203,49 @@ export const Leaderboard: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedClients.map((client, index) => (
-                  <TableRow key={client.id} className={index < 3 ? 'bg-blue-900/50 text-white' : ''}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-1">
-                        {getMedal(index)}
-                        {index + 1}
-                      </div>
-                    </TableCell>
-                    <TableCell>{client.name}</TableCell>
-                    <TableCell className="font-semibold">{client.score}</TableCell>
-                    <TableCell>{client.coreScore}</TableCell>
-                    <TableCell>{client.dailyFourScore}</TableCell>
-                    <TableCell>{client.weeklyTwoScore}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4 text-blue-500" />
-                        {client.streak} days
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8">
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Loading leaderboard...</span>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : sortedClients.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      No clients found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  sortedClients.map((client, index) => (
+                    <TableRow key={client.id} className={index < 3 ? 'bg-primary/10' : ''}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-1">
+                          {getMedal(index)}
+                          {index + 1}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{client.name}</span>
+                          <span className="text-xs text-muted-foreground">{client.email}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-semibold">{client.totalScore}</TableCell>
+                      <TableCell>{client.completedTasks}</TableCell>
+                      <TableCell>{client.totalTasks}</TableCell>
+                      <TableCell>{client.completionRate.toFixed(1)}%</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4 text-primary" />
+                          {client.streak} days
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
