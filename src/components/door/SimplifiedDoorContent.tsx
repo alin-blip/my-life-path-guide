@@ -159,7 +159,7 @@ export const SimplifiedDoorContent: React.FC = () => {
   const stats = getSectionStats();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <DoorHeader 
         currentDate={currentDate}
         currentDateRange={currentDateRange}
@@ -178,10 +178,10 @@ export const SimplifiedDoorContent: React.FC = () => {
         {isMobile ? (
           <div className="space-y-6">
             {/* To Do Section */}
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="bg-card border border-border rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">📋 To Do</h2>
-                <span className="text-sm text-gray-500">{filteredHotList.length}</span>
+                <h2 className="text-lg font-semibold text-foreground">📋 To Do</h2>
+                <span className="text-sm text-muted-foreground">{filteredHotList.length}</span>
               </div>
               <HotList 
                 filteredHotList={filteredHotList}
@@ -202,11 +202,11 @@ export const SimplifiedDoorContent: React.FC = () => {
             </div>
 
             {/* Focus Section */}
-            <div className="bg-white border border-gray-200 rounded-lg p-4" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
+            <div className="bg-card border border-border rounded-lg p-4" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">🎯 Focus Săptămânal</h2>
+                <h2 className="text-lg font-semibold text-foreground">🎯 Focus Săptămânal</h2>
                 {selectedDomino && (
-                  <span className="text-sm text-gray-500">{stats.focus}/{dominoKeyPoints.length}</span>
+                  <span className="text-sm text-muted-foreground">{stats.focus}/{dominoKeyPoints.length}</span>
                 )}
               </div>
               <DominoDoor 
@@ -225,10 +225,10 @@ export const SimplifiedDoorContent: React.FC = () => {
             </div>
 
             {/* Tasks Section */}
-            <div className="bg-white border border-gray-200 rounded-lg p-4" onDragOver={handleDragOver} onDrop={handleDrop}>
+            <div className="bg-card border border-border rounded-lg p-4" onDragOver={handleDragOver} onDrop={handleDrop}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">📋 Sarcini Zilnice</h2>
-                <span className="text-sm text-gray-500">{stats.tasks}</span>
+                <h2 className="text-lg font-semibold text-foreground">📋 Sarcini Zilnice</h2>
+                <span className="text-sm text-muted-foreground">{stats.tasks}</span>
               </div>
               <TaskList 
                 hitList={hitList}
@@ -252,10 +252,10 @@ export const SimplifiedDoorContent: React.FC = () => {
           /* Desktop: 3-Column Layout */
           <div className="grid grid-cols-3 gap-6">
             {/* To Do Column */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <div className="bg-card border border-border rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">📋 To Do</h2>
-                <span className="text-sm text-gray-500">{filteredHotList.length}</span>
+                <h2 className="text-lg font-semibold text-foreground">📋 To Do</h2>
+                <span className="text-sm text-muted-foreground">{filteredHotList.length}</span>
               </div>
               <HotList 
                 filteredHotList={filteredHotList}
@@ -276,11 +276,11 @@ export const SimplifiedDoorContent: React.FC = () => {
             </div>
 
             {/* Focus Column */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
+            <div className="bg-card border border-border rounded-lg p-6" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">🎯 Focus Săptămânal</h2>
+                <h2 className="text-lg font-semibold text-foreground">🎯 Focus Săptămânal</h2>
                 {selectedDomino && (
-                  <span className="text-sm text-gray-500">{stats.focus}/{dominoKeyPoints.length}</span>
+                  <span className="text-sm text-muted-foreground">{stats.focus}/{dominoKeyPoints.length}</span>
                 )}
               </div>
               <DominoDoor 
@@ -299,10 +299,10 @@ export const SimplifiedDoorContent: React.FC = () => {
             </div>
 
             {/* Tasks Column */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6" onDragOver={handleDragOver} onDrop={handleDrop}>
+            <div className="bg-card border border-border rounded-lg p-6" onDragOver={handleDragOver} onDrop={handleDrop}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">📋 Sarcini Zilnice</h2>
-                <span className="text-sm text-gray-500">{stats.tasks}</span>
+                <h2 className="text-lg font-semibold text-foreground">📋 Sarcini Zilnice</h2>
+                <span className="text-sm text-muted-foreground">{stats.tasks}</span>
               </div>
               <TaskList 
                 hitList={hitList}

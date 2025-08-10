@@ -29,17 +29,17 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   const { t } = useLanguage();
 
   const getPriorityClasses = (priority?: TaskPriority, completed: boolean = false) => {
-    if (completed) return 'bg-green-500 bg-opacity-10';
-    
+    if (completed) return 'bg-green-500/10';
+
     switch (priority) {
       case 'important':
-        return 'bg-green-500 bg-opacity-10';
+        return 'bg-green-500/10';
       case 'urgent':
-        return 'bg-orange-500 bg-opacity-10';
+        return 'bg-orange-500/10';
       case 'urgent-important':
-        return 'bg-red-500 bg-opacity-10';
+        return 'bg-red-500/10';
       default:
-        return 'bg-[#232B3C]';
+        return 'bg-muted';
     }
   };
 
@@ -66,23 +66,24 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       <Button
         variant="ghost"
         size="sm"
-        className={`${isMobile ? 'w-5 h-5 p-0' : 'w-6 h-6 p-0'} rounded-full mr-3 flex items-center justify-center ${
-          completed ? 'bg-green-500 text-white' : 'bg-transparent border border-gray-400 text-gray-400'
+          className={`${isMobile ? 'w-5 h-5 p-0' : 'w-6 h-6 p-0'} rounded-full mr-3 flex items-center justify-center ${
+          completed ? 'bg-green-500 text-white' : 'bg-transparent border border-border text-muted-foreground'
         }`}
         onClick={() => onToggleCompletion(id)}
       >
         {completed && <Check className={`${isMobile ? 'w-2.5 h-2.5' : 'w-3 h-3'}`} />}
       </Button>
-      <span className={`flex-grow ${completed ? 'text-gray-500 line-through' : 'text-gray-300'} ${
+      <span className={`flex-grow ${completed ? 'text-muted-foreground line-through' : 'text-foreground'} ${
         isMobile ? 'text-sm' : ''
       } flex items-center`}>
         {!completed && getPriorityIcon(priority)}
         {text}
       </span>
       {isKeyPoint && (
-        <span className={`bg-blue-500 bg-opacity-20 text-blue-400 px-2 py-0.5 rounded mr-2 flex items-center ${
+        <span className={`bg-primary/20 text-primary px-2 py-0.5 rounded mr-2 flex items-center ${
           isMobile ? 'text-xs px-1.5 py-0.5' : 'text-xs'
         }`}>
+
           <KeyRound className={`${isMobile ? 'w-2 h-2' : 'w-3 h-3'} mr-1`} />
           {t('keyPointLabel')}
         </span>
@@ -91,7 +92,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          className={`text-gray-400 hover:text-blue-500 transition-colors ${isMobile ? 'p-1' : 'p-1'}`}
+          className={`text-muted-foreground hover:text-primary transition-colors ${isMobile ? 'p-1' : 'p-1'}`}
           onClick={() => onMoveBack(id)}
           title={t('moveBackToIdeaList')}
         >

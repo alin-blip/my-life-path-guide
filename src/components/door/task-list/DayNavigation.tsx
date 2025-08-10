@@ -40,7 +40,7 @@ export const DayNavigation: React.FC<DayNavigationProps> = ({
 
   return (
     <div className={`flex justify-center ${isMobile ? 'mb-3' : 'mb-4'}`}>
-      <div className={`flex ${isMobile ? 'space-x-1' : 'space-x-1'} bg-gray-100 rounded-md p-1`}>
+      <div className={`flex ${isMobile ? 'space-x-1' : 'space-x-1'} bg-muted rounded-md p-1`}>}>
         {daysOfWeek.map(day => (
           <button
             key={day}

@@ -88,8 +88,8 @@ export const TaskList: React.FC<TaskListProps> = ({
         <button
           className={`px-3 py-2 text-sm font-medium rounded-l-md border ${
             activeList === 'hit' 
-              ? 'bg-blue-50 text-blue-600 border-blue-200' 
-              : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+              ? 'bg-primary/10 text-primary border-primary/20' 
+              : 'bg-muted text-muted-foreground border-border hover:bg-accent'
           }`}
           onClick={() => setActiveList('hit')}
         >
@@ -98,8 +98,8 @@ export const TaskList: React.FC<TaskListProps> = ({
         <button
           className={`px-3 py-2 text-sm font-medium rounded-r-md border-t border-r border-b ${
             activeList === 'do' 
-              ? 'bg-blue-50 text-blue-600 border-blue-200' 
-              : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+              ? 'bg-primary/10 text-primary border-primary/20' 
+              : 'bg-muted text-muted-foreground border-border hover:bg-accent'
           }`}
           onClick={() => setActiveList('do')}
         >
