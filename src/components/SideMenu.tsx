@@ -108,14 +108,17 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   return (
     <div className="h-full bg-background border-r border-feminine-primary/20 flex flex-col overflow-hidden">
       <div className="p-4 border-b border-feminine-primary/20">
-        <div className="flex items-center justify-center md:justify-start gap-3">
-          <div className="bg-feminine-primary rounded-md p-1.5">
-            <span className="font-display font-bold text-white text-sm">🌙</span>
-          </div>
+        <Link to="/" className="flex items-center justify-center md:justify-start gap-3">
+          <img
+            src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
+            alt="RoWarrior logo"
+            loading="lazy"
+            className={`${isCollapsed ? 'h-7 w-auto' : 'h-9 w-auto'} drop-shadow`}
+          />
           {!isCollapsed && (
             <h1 className="font-display font-bold text-lg text-white">RoWarrior</h1>
           )}
-        </div>
+        </Link>
       </div>
       
       <div className="flex-1 overflow-y-auto py-4 px-2">
