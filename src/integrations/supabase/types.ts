@@ -738,11 +738,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_tasks: {
+        Row: {
+          completed: boolean
+          created_at: string
+          day_of_week: string | null
+          description: string | null
+          id: string
+          is_key_point: boolean | null
+          position: number | null
+          priority: number | null
+          task_type: string
+          title: string
+          updated_at: string
+          user_id: string
+          week_key: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          day_of_week?: string | null
+          description?: string | null
+          id?: string
+          is_key_point?: boolean | null
+          position?: number | null
+          priority?: number | null
+          task_type: string
+          title: string
+          updated_at?: string
+          user_id: string
+          week_key: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          day_of_week?: string | null
+          description?: string | null
+          id?: string
+          is_key_point?: boolean | null
+          position?: number | null
+          priority?: number | null
+          task_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          week_key?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      clear_user_task_history: {
+        Args: { target_user_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _user_id: string
