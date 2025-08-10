@@ -636,7 +636,7 @@ export const Dashboard: React.FC = () => {
                 <div className="space-y-6">
                   <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/30 p-3 md:p-4 rounded-lg backdrop-blur-sm">
                     <div className="flex justify-between items-center mb-3 md:mb-4">
-                      <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">{language === 'en' ? 'DAILY FOUR' : 'DAILY FOUR'}</h3>
+                      <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">{language === 'en' ? 'Biz 4' : 'Biz 4'}</h3>
                       <Button variant="outline" className="bg-purple-600/20 border-purple-500/50 hover:bg-purple-700/30 text-white text-xs md:text-sm" onClick={() => navigateTo('/daily-four')}>
                         {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
                       </Button>
