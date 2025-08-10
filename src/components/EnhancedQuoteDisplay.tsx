@@ -296,21 +296,21 @@ export const EnhancedQuoteDisplay: React.FC<EnhancedQuoteDisplayProps> = ({
 
   // Render loading state
   if (isLoading) {
-    return <div className="bg-gradient-to-r from-[#1A1F2C] to-[#192231] p-6 rounded-lg mb-8 shadow-md border border-purple-500/20 min-h-[300px] flex items-center justify-center">
+    return <div className="bg-card p-6 rounded-lg mb-8 shadow-md border border-primary/20 min-h-[300px] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
       </div>;
   }
 
   // Render error state if no quote
   if (!currentQuote) {
-    return <div className="bg-gradient-to-r from-[#1A1F2C] to-[#192231] p-6 rounded-lg mb-8 shadow-md border border-purple-500/20 min-h-[200px] flex flex-col items-center justify-center">
+    return <div className="bg-card p-6 rounded-lg mb-8 shadow-md border border-primary/20 min-h-[200px] flex flex-col items-center justify-center">
         <p className="text-red-400 mb-4">{language === 'en' ? 'Could not load quote. Please try again.' : 'Nu s-a putut încărca citatul. Vă rugăm să încercați din nou.'}</p>
         <Button onClick={loadRandomQuote} variant="outline" className="bg-purple-600/20 border-purple-500/50 hover:bg-purple-700/30 text-white">
           {language === 'en' ? 'Try Again' : 'Încercați din nou'}
         </Button>
       </div>;
   }
-  return <div className="bg-gradient-to-r from-[#1A1F2C] to-[#192231] p-6 rounded-lg mb-8 shadow-md border border-purple-500/20">
+  return <div className="bg-card p-6 rounded-lg mb-8 shadow-md border border-primary/20">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
         <h2 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2 md:mb-0">
           {language === 'en' ? 'Daily Inspiration' : 'Inspirație Zilnică'}
@@ -328,7 +328,7 @@ export const EnhancedQuoteDisplay: React.FC<EnhancedQuoteDisplayProps> = ({
                 {language === 'en' ? 'Share' : 'Distribuie'}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-60 bg-gradient-to-r from-[#1A1F2C] to-[#192231] border border-purple-500/20">
+            <PopoverContent className="w-60 bg-card border border-primary/20">
               <div className="grid gap-2">
                 <h3 className="font-medium text-white mb-2">{language === 'en' ? 'Share Quote' : 'Distribuie Citatul'}</h3>
                 <div className="flex gap-2 justify-between">

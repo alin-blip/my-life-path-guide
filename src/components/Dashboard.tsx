@@ -447,7 +447,7 @@ export const Dashboard: React.FC = () => {
   const coreToDaily = hasStack ? coreProgress : 0;
   const dailyToDoor = hasStack && coreProgress > 0 ? dailyProgress : 0;
 
-  return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4 bg-gradient-to-b from-[#0B0D17] to-[#111827]">
+  return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4 bg-gradient-to-b from-[hsl(var(--background))] to-[hsl(var(--muted))]">
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
           <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
           <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 animate-pulse"></div>
@@ -477,7 +477,7 @@ export const Dashboard: React.FC = () => {
       
       <QuoteDisplay appName="GODDESS" />
       
-      <div className="mb-6 md:mb-8 bg-[#1A1F2C] p-3 md:p-4 rounded-lg">
+      <div className="mb-6 md:mb-8 bg-card p-3 md:p-4 rounded-lg">
         <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
           {language === 'en' ? 'Warrior’s Path' : 'Calea Războinicului'}
         </h2>
@@ -485,8 +485,8 @@ export const Dashboard: React.FC = () => {
           <div className="flex flex-col items-center z-10 relative">
             <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
             ${hasStack ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-gray-600 bg-gray-800/50 text-gray-400'}`} style={{
-            border: hasStack ? '3px solid #22c55e' : '3px solid rgba(75, 85, 99, 0.6)',
-            boxShadow: hasStack ? '0 0 15px rgba(34, 197, 94, 0.5)' : 'none'
+            border: hasStack ? '3px solid hsl(var(--accent))' : '3px solid hsl(var(--muted-foreground) / 0.6)',
+            boxShadow: hasStack ? '0 0 15px hsl(var(--accent) / 0.5)' : 'none'
           }}>
               {hasStack ? <>
                   <Book className="w-5 h-5 md:w-8 md:h-8" />
@@ -514,12 +514,12 @@ export const Dashboard: React.FC = () => {
             ${hasCompletedCore ? 'bg-blue-500/20 text-blue-400' : hasStack ? 'bg-blue-800/20 text-blue-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
             border: '3px solid transparent',
             backgroundClip: 'padding-box',
-            boxShadow: hasCompletedCore ? '0 0 15px rgba(59, 130, 246, 0.5)' : 'none',
+            boxShadow: hasCompletedCore ? '0 0 15px hsl(var(--primary) / 0.5)' : 'none',
             position: 'relative'
           }}>
               {/* The circular progress track */}
               <div className="absolute inset-[-3px] rounded-full z-0" style={{
-              background: hasStack ? `conic-gradient(#3b82f6 ${coreProgress}%, rgba(75, 85, 99, 0.6) 0%)` : 'rgba(75, 85, 99, 0.6)',
+              background: hasStack ? `conic-gradient(hsl(var(--primary)) ${coreProgress}%, hsl(var(--muted-foreground) / 0.6) 0%)` : 'hsl(var(--muted-foreground) / 0.6)',
               clipPath: 'circle(50%)'
             }}></div>
               <Activity className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
@@ -541,11 +541,11 @@ export const Dashboard: React.FC = () => {
             ${hasCompletedDailyFour ? 'bg-purple-500/20 text-purple-400' : hasCompletedCore ? 'bg-purple-800/20 text-purple-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
             border: '3px solid transparent',
             backgroundClip: 'padding-box',
-            boxShadow: hasCompletedDailyFour ? '0 0 15px rgba(168, 85, 247, 0.5)' : 'none'
+            boxShadow: hasCompletedDailyFour ? '0 0 15px hsl(var(--accent) / 0.5)' : 'none'
           }}>
               {/* The circular progress track */}
               <div className="absolute inset-[-3px] rounded-full z-0" style={{
-              background: coreProgress > 0 ? `conic-gradient(#a855f7 ${dailyProgress}%, rgba(75, 85, 99, 0.6) 0%)` : 'rgba(75, 85, 99, 0.6)',
+              background: coreProgress > 0 ? `conic-gradient(hsl(var(--accent)) ${dailyProgress}%, hsl(var(--muted-foreground) / 0.6) 0%)` : 'hsl(var(--muted-foreground) / 0.6)',
               clipPath: 'circle(50%)'
             }}></div>
               <Video className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
@@ -567,11 +567,11 @@ export const Dashboard: React.FC = () => {
             ${hasCompletedDoor ? 'bg-pink-500/20 text-pink-400' : hasCompletedDailyFour ? 'bg-pink-800/20 text-pink-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
             border: '3px solid transparent',
             backgroundClip: 'padding-box',
-            boxShadow: hasCompletedDoor ? '0 0 15px rgba(236, 72, 153, 0.5)' : 'none'
+            boxShadow: hasCompletedDoor ? '0 0 15px hsl(var(--goddess-gold) / 0.5)' : 'none'
           }}>
               {/* The circular progress track */}
               <div className="absolute inset-[-3px] rounded-full z-0" style={{
-              background: dailyProgress > 0 ? `conic-gradient(#ec4899 ${doorProgress}%, rgba(75, 85, 99, 0.6) 0%)` : 'rgba(75, 85, 99, 0.6)',
+              background: dailyProgress > 0 ? `conic-gradient(hsl(var(--goddess-gold)) ${doorProgress}%, hsl(var(--muted-foreground) / 0.6) 0%)` : 'hsl(var(--muted-foreground) / 0.6)',
               clipPath: 'circle(50%)'
             }}></div>
               <ListTodo className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
@@ -583,7 +583,7 @@ export const Dashboard: React.FC = () => {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 bg-[#1A1F2C]">
+        <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 bg-card">
           <TabsTrigger value="goddess-tools" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-feminine-primary data-[state=active]:to-feminine-purple">
             {language === 'en' ? 'RoWarrior Tools' : 'Unelte RoWarrior'}
           </TabsTrigger>
@@ -616,7 +616,7 @@ export const Dashboard: React.FC = () => {
                     <div className="grid grid-cols-2 gap-1.5 md:gap-2">
                       {coreItems.map(item => {
                       const isCompleted = coreData[selectedDay]?.[item.id] || false;
-                      return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
+                      return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800' : 'bg-card hover:bg-muted'} 
                             border ${isCompleted ? 'border-blue-400/50' : 'border-blue-900/50'} 
                             shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
                             transition-colors duration-200 hover:shadow-blue-500/10`} onClick={() => handleToggleCoreActivity(item.id)}>
@@ -645,7 +645,7 @@ export const Dashboard: React.FC = () => {
                     <div className="grid grid-cols-2 gap-1.5 md:gap-2 mb-3 md:mb-4">
                       {dailyFourItems.map(item => {
                       const isCompleted = item.completed;
-                      return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
+                       return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800' : 'bg-card hover:bg-muted'} 
                             border ${isCompleted ? 'border-purple-400/50' : 'border-purple-900/50'} 
                             shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer
                             transition-colors duration-200 hover:shadow-purple-500/10`} onClick={() => handleToggleDailyActivity(item.id)}>
@@ -664,7 +664,7 @@ export const Dashboard: React.FC = () => {
                     <div className="grid grid-cols-2 gap-1.5 md:gap-2">
                       {weeklyItems.map(item => {
                       const isCompleted = item.completed;
-                      return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-pink-600 to-pink-800' : 'bg-[#1A1F2C] hover:bg-[#272e3e]'} 
+                       return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-pink-600 to-pink-800' : 'bg-card hover:bg-muted'} 
                             border ${isCompleted ? 'border-pink-400/50' : 'border-pink-900/50'} 
                             shadow-md p-2 md:p-3 flex items-center justify-center cursor-pointer
                             transition-colors duration-200 hover:shadow-pink-500/10`} onClick={() => handleToggleWeeklyActivity(item.id)}>
@@ -687,7 +687,7 @@ export const Dashboard: React.FC = () => {
                 <div className="flex justify-between items-center mb-3 md:mb-4">
                   <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">{language === 'en' ? 'HIT LIST' : 'LISTA HIT'}</h3>
                 </div>
-                <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-green-500/20 shadow-lg shadow-green-500/5 hover:shadow-green-500/10 transition-all duration-300">
+                <Card className="bg-card border border-green-500/20 shadow-lg shadow-green-500/5 hover:shadow-green-500/10 transition-all duration-300">
                   <CardContent className="p-3 md:p-4">
                     <div className="space-y-2">
                       {hitList.filter(item => item.day === activeDay).length > 0 ? hitList.filter(item => item.day === activeDay).map(item => <div key={item.id} className={`flex items-center p-2 rounded-md transition-all duration-200 ${item.completed ? 'bg-green-500/10' : getPriorityColor(item.priority)}`}>
@@ -736,7 +736,7 @@ export const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
-                  <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-blue-500/20 shadow-lg hover:shadow-blue-500/10 transition-all duration-300 p-3 md:p-4">
+                  <Card className="bg-card border border-blue-500/20 shadow-lg hover:shadow-blue-500/10 transition-all duration-300 p-3 md:p-4">
                   <div className="flex flex-col items-center">
                     <h3 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">
                       {coreScore + dailyFourScore + weeklyTwoScore + doorScore}
@@ -774,7 +774,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </Card>
                 
-                  <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-purple-500/20 shadow-lg hover:shadow-purple-500/10 transition-all duration-300 p-3 md:p-4">
+                  <Card className="bg-card border border-purple-500/20 shadow-lg hover:shadow-purple-500/10 transition-all duration-300 p-3 md:p-4">
                   <div className="grid grid-cols-4 gap-2 md:gap-4">
                     <div className="flex flex-col items-center">
                       <div className="w-10 h-10 md:w-16 md:h-16 border-2 md:border-4 border-blue-500/50 rounded-full flex items-center justify-center">
@@ -803,7 +803,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </Card>
                 
-                <Card className="bg-gradient-to-br from-[#1A1F2C] to-[#192231] border border-pink-500/20 shadow-lg hover:shadow-pink-500/10 transition-all duration-300 p-3 md:p-4">
+                <Card className="bg-card border border-pink-500/20 shadow-lg hover:shadow-pink-500/10 transition-all duration-300 p-3 md:p-4">
                   <div className="grid grid-cols-2 gap-2 md:gap-4">
                     <div className="flex flex-col items-center">
                       <div className="flex items-center space-x-2 md:space-x-3">

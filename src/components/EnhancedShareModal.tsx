@@ -391,7 +391,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-gradient-to-r from-[#1A1F2C] to-[#192231] border border-purple-500/20 text-white sm:max-w-xl">
+      <DialogContent className="bg-card border border-primary/20 text-white sm:max-w-xl">
         <DialogHeader>
           <DialogTitle className="text-center text-xl">
             {language === 'en' ? 'Share Inspiration' : 'Distribuie Inspirația'}
@@ -411,7 +411,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
         
         {/* Tabs */}
         <Tabs defaultValue="social" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 w-full bg-warrior-dark">
+          <TabsList className="grid grid-cols-4 w-full bg-card">
             <TabsTrigger value="social">{language === 'en' ? 'Social Media' : 'Social Media'}</TabsTrigger>
             <TabsTrigger value="customize">{language === 'en' ? 'Customize' : 'Personalizează'}</TabsTrigger>
             <TabsTrigger value="copy">{language === 'en' ? 'Copy & Download' : 'Copiază & Descarcă'}</TabsTrigger>
