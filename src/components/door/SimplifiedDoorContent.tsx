@@ -189,7 +189,7 @@ export const SimplifiedDoorContent: React.FC = () => {
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-sm">
                   <Lightbulb className="w-4 h-4 text-primary" />
-                  💡 Lista de Idei
+                  📋 To Do
                   <Badge variant="outline" className="ml-auto text-xs">
                     {filteredHotList.length}
                   </Badge>
@@ -297,7 +297,7 @@ export const SimplifiedDoorContent: React.FC = () => {
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2">
                   <Lightbulb className="w-5 h-5 text-primary" />
-                  💡 Lista de Idei
+                  📋 To Do
                   <Badge variant="outline" className="ml-auto">
                     {filteredHotList.length}
                   </Badge>

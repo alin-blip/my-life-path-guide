@@ -77,7 +77,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   
   return (
     <div 
-      className={`bg-[#1E293B] rounded-xl ${isMobile ? 'max-h-[70vh] overflow-auto p-3' : 'h-full p-4'}`}
+      className={isMobile ? 'max-h-[70vh] overflow-auto' : 'h-full'}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         // allow drop even if user drops over tasks area while expecting focus; do nothing here
@@ -98,7 +98,7 @@ export const TaskList: React.FC<TaskListProps> = ({
         isMobile={isMobile}
       />
       
-      <div className={`space-y-2 ${isMobile ? 'max-h-[calc(70vh-200px)] overflow-y-auto space-y-1.5' : ''}`}>
+      <div className={`space-y-2 ${isMobile ? 'max-h-[calc(70vh-180px)] overflow-y-auto space-y-1.5' : ''}`}>
         {activeList === 'hit' ? (
           filteredHitList.length > 0 ? (
             filteredHitList.map(item => (

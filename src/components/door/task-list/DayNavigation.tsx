@@ -39,14 +39,14 @@ export const DayNavigation: React.FC<DayNavigationProps> = ({
   const todayAbbr = getCurrentDayAbbr();
 
   return (
-    <div className={`flex justify-between ${isMobile ? 'mb-4 overflow-x-auto pb-2' : 'mb-6'}`}>
-      <div className={`flex ${isMobile ? 'space-x-1 min-w-max' : 'space-x-2'}`}>
+    <div className={`flex justify-center ${isMobile ? 'mb-3' : 'mb-4'}`}>
+      <div className={`flex ${isMobile ? 'space-x-1' : 'space-x-2'}`}>
         {daysOfWeek.map(day => (
           <Button
             key={day}
             variant="ghost"
             size={isMobile ? "sm" : "sm"}
-            className={`${isMobile ? 'px-1 py-1 text-xs min-w-[36px]' : 'px-3 py-2 text-sm'} ${
+            className={`${isMobile ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm'} ${
               activeDay === day 
                 ? 'bg-blue-500 text-white' 
                 : day === todayAbbr 

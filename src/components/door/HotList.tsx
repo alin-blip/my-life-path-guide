@@ -52,7 +52,7 @@ export const HotList: React.FC<HotListProps> = ({
   }, [editingNewItem]);
 
   return (
-    <div className={`bg-[#1E293B] rounded-xl ${isMobile ? 'max-h-[70vh] overflow-auto p-3' : 'h-full p-4'}`}>
+    <div className={isMobile ? 'max-h-[70vh] overflow-auto' : 'h-full'}>
       <div className={`flex justify-between items-center ${isMobile ? 'mb-4' : 'mb-6'}`}>
         <h2 className={`${isMobile ? 'text-lg' : 'text-lg'} font-semibold tracking-wider`}>
           📋 To Do
