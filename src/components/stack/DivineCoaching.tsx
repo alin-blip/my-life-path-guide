@@ -278,42 +278,67 @@ export const DivineCoaching: React.FC<DivineCoachingProps> = ({ onAddToHitList }
   const addToHotList = () => {
     if (committedAction && !actionAddedToHotList) {
       try {
-        // Get current hot list
         const savedHotList = localStorage.getItem('door-hot-list') || "[]";
         const hotList = JSON.parse(savedHotList);
-        
-        // Add the new item to hot list
+
         const newItem = {
           id: `stack-${Date.now()}`,
           text: committedAction,
           selected: false,
           priority: 'none'
         };
-        
+
         hotList.push(newItem);
-        
-        // Save back to localStorage
         localStorage.setItem('door-hot-list', JSON.stringify(hotList));
-        
+
+        // Notify Door to refresh UI
+        window.dispatchEvent(new CustomEvent('doorDataUpdated', { detail: { type: 'ideaAdded', idea: newItem } }));
+
         setActionAddedToHotList(true);
-        
         toast({
-          title: "Adăugat la lista fierbinte",
-          description: "Acțiunea ta a fost adăugată cu succes la lista fierbinte.",
+          title: "Adăugat în Lista de idei",
+          description: "Acțiunea a fost adăugată cu succes în Lista de idei.",
         });
-        
-        // We also call the original onAddToHitList function to maintain compatibility
+
         if (onAddToHitList) {
           onAddToHitList(committedAction);
         }
       } catch (error) {
         console.error("Error adding to Hot List:", error);
-        
-        // Fallback to original behavior
         if (onAddToHitList) {
           onAddToHitList(committedAction);
         }
       }
+    }
+  };
+
+  // Helper: add arbitrary action text to Lista de idei (Hot List)
+  const addActionTextToHotList = (actionText: string) => {
+    const text = (actionText || '').trim();
+    if (!text) return;
+    try {
+      const savedHotList = localStorage.getItem('door-hot-list') || "[]";
+      const hotList = JSON.parse(savedHotList);
+      const newItem = {
+        id: `stack-${Date.now()}`,
+        text,
+        selected: false,
+        priority: 'none'
+      };
+      hotList.push(newItem);
+      localStorage.setItem('door-hot-list', JSON.stringify(hotList));
+      window.dispatchEvent(new CustomEvent('doorDataUpdated', { detail: { type: 'ideaAdded', idea: newItem } }));
+      toast({
+        title: "Adăugat în Lista de idei",
+        description: "Acțiunea a fost adăugată cu succes în Lista de idei.",
+      });
+    } catch (error) {
+      console.error('Error adding pending action to Hot List:', error);
+      toast({
+        title: 'Eroare',
+        description: 'Nu s-a putut adăuga acțiunea. Încearcă din nou.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -498,7 +523,7 @@ Rămân mereu alături de tine, în orice provocare și victorie.`;
             {actionAddedToHotList && (
               <div className="flex items-center text-green-400 text-sm mt-2">
                 <CheckCircle className="w-4 h-4 mr-1" />
-                Această acțiune a fost adăugată la lista fierbinte
+                Această acțiune a fost adăugată în Lista de idei
               </div>
             )}
           </div>
@@ -543,8 +568,20 @@ Rămân mereu alături de tine, în orice provocare și victorie.`;
               />
             )}
           </div>
-          
-          <div className="flex justify-between">
+
+          {currentStep === 8 && (answers[8]?.trim()?.length > 0) && (
+            <div className="mt-4 p-4 rounded-md border border-purple-500/30 bg-purple-900/10">
+              <h4 className="text-sm font-medium text-purple-300 mb-2">Acțiune propusă pentru Lista de idei</h4>
+              <p className="text-white mb-3 whitespace-pre-wrap">{answers[8]}</p>
+              <div className="flex justify-end">
+                <Button size="sm" onClick={() => addActionTextToHotList(answers[8])} className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
+                  <Plus className="mr-2 h-4 w-4" /> Adaugă în Lista de idei
+                </Button>
+              </div>
+            </div>
+          )}
+           
+           <div className="flex justify-between">
             <Button
               variant="outline"
               onClick={handlePrevious}
