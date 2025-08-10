@@ -41,7 +41,7 @@ export function useDoorContent() {
     toggleHitListItemCompletion,
     toggleDoListItemCompletion,
     moveTaskBackToHotList
-  } = useDoorLists();
+  } = useDoorLists({ currentWeekKey, onDataChange: () => {} });
 
   const {
     selectedDomino,
