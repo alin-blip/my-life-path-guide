@@ -72,7 +72,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   };
 
   const menuItems: MenuItem[] = [
-    { title: 'My Daily', icon: Home, path: '/dashboard' },
+    { title: 'Dashboard', icon: Home, path: '/dashboard' },
     { title: 'Learn', icon: BookOpen, path: '/learn' },
     { 
       title: t('transformationWorkshop'), 

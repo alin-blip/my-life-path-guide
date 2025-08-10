@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SideMenu } from './SideMenu';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Share, Menu, X } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
 import { useLanguage } from '@/context/LanguageContext';
@@ -8,6 +8,7 @@ import { Button } from './ui/button';
 import { useAffiliateLink } from '@/hooks/useAffiliateLink';
 import { ReferralTracker } from './ReferralTracker';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/context/AuthContext';
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -18,14 +19,11 @@ export const Layout: React.FC<LayoutProps> = ({
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isAuthPage = location.pathname === '/';
-  const {
-    language
-  } = useLanguage();
-  const {
-    isLoading,
-    shareReferralLink
-  } = useAffiliateLink();
+  const { user, signOut } = useAuth();
+  const { language } = useLanguage();
+  const { isLoading, shareReferralLink } = useAffiliateLink();
   if (isAuthPage) {
     return <>{children}</>;
   }
@@ -51,6 +49,10 @@ export const Layout: React.FC<LayoutProps> = ({
     if (day === 2 || day === 22) suffix = 'nd';
     if (day === 3 || day === 23) suffix = 'rd';
     return `${month} ${day}${suffix} ${year}`;
+  };
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
   };
   return <div className="flex min-h-screen bg-[#0a0e1a]">
       <ReferralTracker />
@@ -127,15 +129,26 @@ export const Layout: React.FC<LayoutProps> = ({
                 </Button>
               </div>
               
-              <div className="flex-1 flex items-center justify-end space-x-4">
-                <div className="text-sm text-gray-400">
-                  {formatDate()}
+                <div className="flex-1 flex items-center justify-end space-x-4">
+                  <div className="text-sm text-gray-400">
+                    {formatDate()}
+                  </div>
+                  {!user ? (
+                    <Button asChild variant="secondary" size="sm">
+                      <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Button asChild variant="secondary" size="sm">
+                        <Link to="/profile">{language === 'en' ? 'My account' : 'Contul meu'}</Link>
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={handleSignOut}>
+                        {language === 'en' ? 'Log out' : 'Delogare'}
+                      </Button>
+                    </div>
+                  )}
+                  <LanguageSelector />
                 </div>
-                <Button asChild variant="secondary" size="sm">
-                  <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
-                </Button>
-                <LanguageSelector />
-              </div>
             </div>
           )}
           
@@ -146,9 +159,20 @@ export const Layout: React.FC<LayoutProps> = ({
                 {formatDate()}
               </div>
               <div className="flex items-center gap-2">
-                <Button asChild variant="secondary" size="sm">
-                  <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
-                </Button>
+                {!user ? (
+                  <Button asChild variant="secondary" size="sm">
+                    <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button asChild variant="secondary" size="sm">
+                      <Link to="/profile">{language === 'en' ? 'My account' : 'Contul meu'}</Link>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleSignOut}>
+                      {language === 'en' ? 'Log out' : 'Delogare'}
+                    </Button>
+                  </>
+                )}
                 <LanguageSelector />
               </div>
             </div>
