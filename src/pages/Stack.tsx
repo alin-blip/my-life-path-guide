@@ -9,12 +9,14 @@ import { useState, useEffect } from 'react';
 import { useDoorContent } from '@/hooks/useDoorContent';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
+import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { AngerStack } from '@/components/stack/AngerStack';
 import { AiLiveCoaching } from '@/components/stack/AiLiveCoaching';
 import { HormoziCoachingStack } from '@/components/stack/HormoziCoachingStack';
 import { GodsSchoolStack } from '@/components/stack/gods-school/GodsSchoolStack';
 import { useLocation } from 'react-router-dom';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
+import { getWeek } from 'date-fns';
 
 const CoachingPage = () => {
   const [activeTab, setActiveTab] = useState<string>("power-stacks");
@@ -73,7 +75,7 @@ const CoachingPage = () => {
     }
   };
   
-  const addActionToHitList = (actionText: string) => {
+  const addActionToHitList = async (actionText: string) => {
     if (actionText.trim()) {
       try {
         console.log("Adding action to HIT list:", actionText);
@@ -87,17 +89,35 @@ const CoachingPage = () => {
         
         setHitList(prev => [...prev, newHitItem]);
         
+        // Use the unified service to save to database
         try {
-          const currentWeekKey = `door-week-${new Date().getFullYear()}-${Math.ceil((new Date().getDate() + new Date().getDay()) / 7)}`;
-          const savedWeekData = localStorage.getItem(currentWeekKey);
+          const now = new Date();
+          const currentWeekKey = `door-week-${now.getFullYear()}-${getWeek(now)}`;
           
+          await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
+            id: newHitItem.id,
+            text: newHitItem.text,
+            category: 'hit',
+            priority: 'none' as any,
+            day: newHitItem.day
+          });
+          
+          // Also save to localStorage for immediate UI updates
+          const savedWeekData = localStorage.getItem(currentWeekKey);
           if (savedWeekData) {
             const weekData = JSON.parse(savedWeekData);
             weekData.hitList = [...(weekData.hitList || []), newHitItem];
             localStorage.setItem(currentWeekKey, JSON.stringify(weekData));
           }
+          
+          // Trigger event for Door interface updates
+          window.dispatchEvent(new CustomEvent('doorDataUpdated', { 
+            detail: { type: 'ideaAdded', idea: newHitItem } 
+          }));
+          
         } catch (error) {
-          console.error("Error saving to local storage:", error);
+          console.error("Error saving to database:", error);
+          // Still show success to user since local state was updated
         }
         
         toast({

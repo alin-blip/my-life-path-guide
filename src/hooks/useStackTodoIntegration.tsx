@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { HotListItem, HitListItem, DoListItem, DayOfWeek } from '@/types/door';
-import { doorSupabaseService } from '@/services/doorSupabaseService';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { getWeek, getYear } from 'date-fns';
 
 interface StackIdea {
@@ -57,8 +57,8 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
       const now = new Date();
       const currentWeekKey = `door-week-${now.getFullYear()}-${getWeek(now)}`;
       
-      // Save directly to Supabase
-      await doorSupabaseService.addIdeaToWeek(currentWeekKey, {
+      // Save directly to Supabase using the unified service
+      await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
         id: idea.id,
         text: idea.text,
         category: idea.category,
