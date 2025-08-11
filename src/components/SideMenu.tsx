@@ -88,7 +88,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     { title: 'Business', icon: Briefcase, path: '/business' },
     { title: 'Misiuni de Împlinire', icon: Target, path: '/game' },
     { title: 'Note', icon: FileText, path: '/notes' },
-    { title: 'Arsenal', icon: BookOpenIcon, path: '/library' },
+    { title: 'Biblioteca', icon: BookOpenIcon, path: '/library' },
     { title: 'Abonamente', icon: CreditCard, path: '/pricing' },
     { title: 'Admin', icon: Shield, path: '/admin' },
   ];
