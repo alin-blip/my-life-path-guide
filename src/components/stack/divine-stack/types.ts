@@ -18,7 +18,7 @@ export interface DivinePrayerStackState {
 }
 
 export interface DivinePrayerStackProps {
-  onAddToHitList?: (action: string) => void;
+  onAddToHitList?: (action: string) => Promise<void> | void;
 }
 
 export interface UseDivinePrayerStackReturn {
@@ -39,7 +39,7 @@ export interface UseDivinePrayerStackReturn {
     handleNext: () => void;
     handleBack: () => void;
     completeStack: () => void;
-    addToHotList: () => void;
+    addToHotList: () => Promise<void>;
     resetStack: () => void;
     addMoreActions: () => void;
   };

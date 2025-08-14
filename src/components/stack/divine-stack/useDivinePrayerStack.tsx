@@ -8,7 +8,7 @@ import { useStackSession } from '@/hooks/useStackSession';
 import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
 
 interface UseDivinePrayerStackProps {
-  onAddToHitList?: (action: string) => void;
+  onAddToHitList?: (action: string) => Promise<void> | void;
 }
 
 export const useDivinePrayerStack = ({ onAddToHitList }: UseDivinePrayerStackProps) => {
@@ -55,7 +55,12 @@ const committedActionStep = 16; // Pasul pentru acțiunea angajată
     
     try {
       // Verificăm dacă utilizatorul este conectat
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      
+      if (authError) {
+        console.warn("Authentication error:", authError);
+        // Continue with local storage only if auth fails
+      }
       
       // folosim sessionId persistent
       
@@ -101,13 +106,22 @@ const committedActionStep = 16; // Pasul pentru acțiunea angajată
       // Fix: Verify that action exists and onAddToHitList function was provided before calling it
       if (action && action.trim() !== '' && onAddToHitList) {
         console.log("Adding action to hot list:", action);
-        onAddToHitList(action); // This calls the function to add to hot list
-        setActionAddedToHotList(true); // Mark action as added to hot list
-        
-        toast({
-          title: "Acțiune adăugată",
-          description: "Acțiunea a fost adăugată la lista fierbinte.",
-        });
+        try {
+          await onAddToHitList(action); // Await the async function call
+          setActionAddedToHotList(true); // Mark action as added to hot list
+          
+          toast({
+            title: "Acțiune adăugată",
+            description: "Acțiunea a fost adăugată la lista fierbinte.",
+          });
+        } catch (error) {
+          console.error("Error adding action to hot list:", error);
+          toast({
+            title: "Eroare la adăugarea acțiunii",
+            description: "Acțiunea nu a putut fi salvată în lista fierbinte.",
+            variant: "destructive",
+          });
+        }
       } else {
         console.warn("Could not add action to hot list. Action:", action, "onAddToHitList function:", !!onAddToHitList);
       }
@@ -167,16 +181,25 @@ if (currentStep < questions.length - 1) {
     setShowSummary(false);
   };
 
-  const addToHotList = () => {
+  const addToHotList = async () => {
     if (committedAction && !actionAddedToHotList && onAddToHitList) {
       console.log("Manually adding action to hot list:", committedAction);
-      onAddToHitList(committedAction);
-      setActionAddedToHotList(true);
-      
-      toast({
-        title: "Acțiune adăugată",
-        description: "Acțiunea a fost adăugată la lista fierbinte.",
-      });
+      try {
+        await onAddToHitList(committedAction);
+        setActionAddedToHotList(true);
+        
+        toast({
+          title: "Acțiune adăugată",
+          description: "Acțiunea a fost adăugată la lista fierbinte.",
+        });
+      } catch (error) {
+        console.error("Error manually adding action to hot list:", error);
+        toast({
+          title: "Eroare la adăugarea acțiunii",
+          description: "Acțiunea nu a putut fi salvată în lista fierbinte.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
