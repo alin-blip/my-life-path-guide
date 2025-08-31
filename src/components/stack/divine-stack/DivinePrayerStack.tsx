@@ -9,8 +9,9 @@ import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "../StackIdeaModal";
 import { AiGuidedStack } from "../AiGuidedStack";
 import { DivinePrayerExplanation } from "./DivinePrayerExplanation";
+import { StackDraftSaver } from "../StackDraftSaver";
 import { getQuestions } from "./questions";
-import { Send, PlusCircle, CheckCircle, Bot, User, Lightbulb } from 'lucide-react';
+import { Send, PlusCircle, CheckCircle, Bot, User, Lightbulb, Save } from 'lucide-react';
 
 export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHitList }) => {
   const [mode, setMode] = useState<'manual' | 'ai'>('ai');
@@ -24,10 +25,10 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
   
   const { 
     step, answers, isSubmitting, committedAction, 
-    stackCompleted, actionAddedToHotList, showSummary 
+    stackCompleted, actionAddedToHotList, showSummary, sessionId, saveStatus 
   } = state;
   
-  const { handleInputChange, handleNext, handleBack, resetStack, addToHotList } = handlers;
+  const { handleInputChange, handleNext, handleBack, resetStack, addToHotList, handleDraftRestore } = handlers;
   const { getCurrentQuestion, getDivineSummary } = utils;
 
   if (mode === 'ai') {
@@ -134,6 +135,12 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
               onChange={handleInputChange}
               onEnterSubmit={handleNext}
             />
+            
+            {/* Save status indicator */}
+            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+              <Save className="w-3 h-3" />
+              <span>{saveStatus}</span>
+            </div>
           </div>
 
           <div className="flex gap-2 justify-between">
@@ -162,6 +169,15 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
         isOpen={isIdeaModalOpen}
         onClose={closeIdeaModal}
         onAddToHitList={onAddToHitList}
+      />
+      
+      {/* Draft auto-saver for emergency saves */}
+      <StackDraftSaver
+        stackType="divine-prayer"
+        sessionId={sessionId}
+        currentStep={step}
+        currentAnswer={answers[step] || ""}
+        onDraftRestore={handleDraftRestore}
       />
     </div>
   );

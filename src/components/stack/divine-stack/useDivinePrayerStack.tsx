@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +20,11 @@ export const useDivinePrayerStack = ({ onAddToHitList }: UseDivinePrayerStackPro
   const [committedAction, setCommittedAction] = useState("");
   const [actionAddedToHotList, setActionAddedToHotList] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [saveStatus, setSaveStatus] = useState("Salvat");
+  
+  // Refs for emergency saves
+  const emergencySaveRef = useRef<() => void>();
+  const lastAnswerRef = useRef<string>("");
 
 const questions = getQuestions();
 
@@ -34,6 +39,67 @@ const { saveSession, clearSession } = useStackSession({
     toast({ title: 'Draft restaurat', description: 'Am restaurat progresul rugăciunii.', duration: 2500 });
   }
 });
+
+// Emergency save function for immediate persistence
+const emergencySave = () => {
+  try {
+    const emergencyData = {
+      step: currentStep,
+      answers,
+      timestamp: new Date().toISOString(),
+      emergencySave: true
+    };
+    localStorage.setItem(`emergency-divine-${sessionId}`, JSON.stringify(emergencyData));
+    console.log('🚨 Emergency save executed');
+  } catch (error) {
+    console.error('Emergency save failed:', error);
+  }
+};
+
+emergencySaveRef.current = emergencySave;
+
+// Save on visibility change (tab switch)
+useEffect(() => {
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'hidden' && emergencySaveRef.current) {
+      emergencySaveRef.current();
+      setSaveStatus("Salvat automat");
+    }
+  };
+
+  const handleBeforeUnload = () => {
+    if (emergencySaveRef.current) {
+      emergencySaveRef.current();
+    }
+  };
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
+  return () => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  };
+}, []);
+
+// Update emergency save when data changes
+useEffect(() => {
+  if (Object.keys(answers).length > 0) {
+    emergencySaveRef.current = () => {
+      try {
+        const emergencyData = {
+          step: currentStep,
+          answers,
+          timestamp: new Date().toISOString(),
+          emergencySave: true
+        };
+        localStorage.setItem(`emergency-divine-${sessionId}`, JSON.stringify(emergencyData));
+      } catch (error) {
+        console.error('Emergency save failed:', error);
+      }
+    };
+  }
+}, [currentStep, answers, sessionId]);
   
 const committedActionStep = 16; // Pasul pentru acțiunea angajată
 
@@ -168,7 +234,26 @@ if (currentStep < questions.length - 1) {
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newAnswers = { ...answers, [currentStep]: e.target.value };
     setAnswers(newAnswers);
-    // auto-save draft
+    
+    // Immediate emergency save to localStorage
+    try {
+      const emergencyData = {
+        step: currentStep,
+        answers: newAnswers,
+        timestamp: new Date().toISOString(),
+        emergencySave: true
+      };
+      localStorage.setItem(`emergency-divine-${sessionId}`, JSON.stringify(emergencyData));
+      setSaveStatus("Se salvează...");
+      
+      // Update status after a short delay
+      setTimeout(() => setSaveStatus("Salvat"), 500);
+    } catch (error) {
+      console.error('Immediate save failed:', error);
+      setSaveStatus("Eroare salvare");
+    }
+    
+    // Also trigger the regular auto-save
     saveSession({ step: currentStep, answers: newAnswers, draftAnswer: e.target.value });
   };
 
@@ -179,6 +264,19 @@ if (currentStep < questions.length - 1) {
     setCommittedAction("");
     setActionAddedToHotList(false);
     setShowSummary(false);
+    setSaveStatus("Salvat");
+    
+    // Clear emergency saves
+    try {
+      localStorage.removeItem(`emergency-divine-${sessionId}`);
+    } catch (error) {
+      console.error('Error clearing emergency save:', error);
+    }
+  };
+  
+  const handleDraftRestore = (draftAnswer: string) => {
+    const newAnswers = { ...answers, [currentStep]: draftAnswer };
+    setAnswers(newAnswers);
   };
 
   const addToHotList = async () => {
@@ -234,7 +332,9 @@ if (currentStep < questions.length - 1) {
       committedAction,
       stackCompleted: isComplete,
       actionAddedToHotList,
-      showSummary
+      showSummary,
+      sessionId,
+      saveStatus
     },
     handlers: {
       handleInputChange,
@@ -242,6 +342,7 @@ if (currentStep < questions.length - 1) {
       handleBack,
       resetStack,
       addToHotList,
+      handleDraftRestore,
       handleAnswer: (step: number, answer: string) => setAnswers({ ...answers, [step]: answer })
     },
     utils: {
