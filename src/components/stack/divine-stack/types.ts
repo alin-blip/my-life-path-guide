@@ -19,6 +19,9 @@ export interface DivinePrayerStackState {
 
 export interface DivinePrayerStackProps {
   onAddToHitList?: (action: string) => Promise<void> | void;
+  existingData?: any;
+  isReadOnly?: boolean;
+  stackId?: string | null;
 }
 
 export interface UseDivinePrayerStackReturn {

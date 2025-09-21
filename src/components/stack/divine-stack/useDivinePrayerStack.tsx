@@ -9,9 +9,15 @@ import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
 
 interface UseDivinePrayerStackProps {
   onAddToHitList?: (action: string) => Promise<void> | void;
+  existingData?: any;
+  isReadOnly?: boolean;
 }
 
-export const useDivinePrayerStack = ({ onAddToHitList }: UseDivinePrayerStackProps) => {
+export const useDivinePrayerStack = ({ 
+  onAddToHitList,
+  existingData,
+  isReadOnly = false 
+}: UseDivinePrayerStackProps) => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});

@@ -13,9 +13,18 @@ import { StackDraftSaver } from "../StackDraftSaver";
 import { getQuestions } from "./questions";
 import { Send, PlusCircle, CheckCircle, Bot, User, Lightbulb, Save } from 'lucide-react';
 
-export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHitList }) => {
+export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ 
+  onAddToHitList, 
+  existingData, 
+  isReadOnly = false,
+  stackId 
+}) => {
   const [mode, setMode] = useState<'manual' | 'ai'>('ai');
-  const { state, handlers, utils } = useDivinePrayerStack({ onAddToHitList });
+  const { state, handlers, utils } = useDivinePrayerStack({ 
+    onAddToHitList,
+    existingData,
+    isReadOnly 
+  });
   
   const {
     isIdeaModalOpen,
@@ -30,6 +39,44 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ onAddToHit
   
   const { handleInputChange, handleNext, handleBack, resetStack, addToHotList, handleDraftRestore } = handlers;
   const { getCurrentQuestion, getDivineSummary } = utils;
+
+  // If we have existing data, show it in read-only mode
+  if (existingData && isReadOnly) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#0c1023] to-[#1a2242] text-white p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-purple-900/20 border border-purple-700 rounded-xl p-6 mb-6">
+            <h1 className="text-2xl font-bold text-purple-300 mb-4">
+              🙏 Stack de Rugăciune Salvat
+            </h1>
+            <p className="text-gray-300 mb-4">
+              Creat la: {new Date(existingData.created_at).toLocaleDateString('ro-RO', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </p>
+            
+            {existingData.content && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-purple-300">Răspunsurile tale:</h3>
+                {Object.entries(existingData.content).map(([key, value]: [string, any]) => (
+                  <div key={key} className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-300 mb-2">
+                      Întrebarea {parseInt(key) + 1}: {getQuestions()[parseInt(key)] || 'Întrebare necunoscută'}
+                    </h4>
+                    <p className="text-white whitespace-pre-wrap">{value}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (mode === 'ai') {
     return (
