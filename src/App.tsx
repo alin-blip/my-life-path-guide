@@ -16,6 +16,7 @@ import Auth from "./pages/Auth";
 import DashboardPage from "./pages/DashboardPage";
 import Stack from "./pages/Stack";
 import StackLibrary from "./pages/StackLibrary";
+import StackViewer from "./pages/StackViewer";
 import Learn from "./pages/Learn";
 import Door from "./pages/Door";
 import Game from "./pages/Game";
@@ -65,6 +66,11 @@ const App = () => (
                     <Route path="/stack-library" element={
                       <ProtectedRoute>
                         <StackLibrary />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/stack/view/:id" element={
+                      <ProtectedRoute>
+                        <StackViewer />
                       </ProtectedRoute>
                     } />
                     <Route path="/learn" element={
