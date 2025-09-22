@@ -10,18 +10,23 @@ import { MissionCategory } from '@/types/mission';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionStruct } from '../mission/utils/getQuestions';
+import { objectivesService } from '@/services/objectivesService';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
+import { TaskPriority } from '@/types/door';
 
 type ObjectiveType = 'current' | 'weekly' | 'monthly' | 'annual';
 
 interface ObjectivesFormProps {
   category: MissionCategory;
   objectiveType: ObjectiveType;
+  weekKey?: string;
   onBack: () => void;
 }
 
 export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
   category,
   objectiveType,
+  weekKey,
   onBack
 }) => {
   const { language } = useLanguage();
@@ -198,40 +203,73 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
     if (user) {
       loadExistingData();
     }
-  }, [category, objectiveType, user]);
+  }, [category, objectiveType, weekKey, user]);
 
   const loadExistingData = async () => {
     if (!user) return;
     
     try {
-      // TODO: Implement proper database loading with authentication
-      // For now, using local storage until authentication is implemented
-      const gameJourneyMaps = JSON.parse(localStorage.getItem('gameJourneyMaps') || '[]');
-      const data = gameJourneyMaps.filter((map: any) => map.category === category);
-      const error = null;
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading data:', error);
-        return;
-      }
-
-      if (data) {
-      const field = objectiveType === 'current' ? 'current_reality' : 
-                   objectiveType === 'weekly' ? 'weekly_plan' :
-                   objectiveType === 'monthly' ? 'monthly_goal' : 'annual_goal';
+      if (objectiveType === 'weekly' && weekKey) {
+        // Load from Supabase for weekly objectives
+        const savedAnswers = await objectivesService.loadWeeklyObjectives(category, weekKey);
+        if (savedAnswers) {
+          setAnswers(savedAnswers);
+        }
+      } else {
+        // Fallback to localStorage for other types
+        const gameJourneyMaps = JSON.parse(localStorage.getItem('gameJourneyMaps') || '[]');
+        const data = gameJourneyMaps.find((map: any) => map.category === category);
         
-        if (data[field]) {
-          try {
-            const parsedAnswers = JSON.parse(data[field]);
-            setAnswers(parsedAnswers);
-          } catch {
-            // If it's a string, convert to answer format
-            setAnswers({ 0: data[field] });
+        if (data) {
+          const field = objectiveType === 'current' ? 'current_reality' : 
+                       objectiveType === 'monthly' ? 'monthly_goal' : 'annual_goal';
+          
+          if (data[field]) {
+            try {
+              const parsedAnswers = JSON.parse(data[field]);
+              setAnswers(parsedAnswers);
+            } catch {
+              setAnswers({ 0: data[field] });
+            }
           }
         }
       }
     } catch (error) {
       console.error('Error loading existing data:', error);
+    }
+  };
+
+  const transferToHotList = async () => {
+    if (!weekKey || objectiveType !== 'weekly') return;
+
+    try {
+      const actions = await objectivesService.getWeeklyActionsForDoor(weekKey);
+      const doorWeekKey = weekKey.replace('week-', 'door-week-');
+
+      for (const action of actions) {
+        await doorUserTasksService.addIdeaToWeek(doorWeekKey, {
+          id: crypto.randomUUID(),
+          text: action.text,
+          category: 'hot',
+          priority: 'important' as TaskPriority
+        });
+      }
+
+      toast({
+        title: language === 'en' ? 'Transferred Successfully' : 'Transfer Reușit',
+        description: language === 'en' 
+          ? `${actions.length} actions transferred to Hot List` 
+          : `${actions.length} acțiuni transferate în Lista Fierbinte`,
+      });
+    } catch (error) {
+      console.error('Error transferring to Hot List:', error);
+      toast({
+        title: language === 'en' ? 'Transfer Failed' : 'Transfer Eșuat',
+        description: language === 'en' 
+          ? 'Failed to transfer actions to Hot List' 
+          : 'Nu s-au putut transfera acțiunile în Lista Fierbinte',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -247,38 +285,40 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
 
     setIsLoading(true);
     try {
-      const field = objectiveType === 'current' ? 'current_reality' : 
-                   objectiveType === 'weekly' ? 'weekly_plan' :
-                   objectiveType === 'monthly' ? 'monthly_goal' : 'annual_goal';
-      
-      const dataToSave = JSON.stringify(answers);
-
-      // TODO: Implement proper database saving with authentication
-      // For now, using local storage until authentication is implemented
-      const gameJourneyMaps = JSON.parse(localStorage.getItem('gameJourneyMaps') || '[]');
-      const existingMapIndex = gameJourneyMaps.findIndex((map: any) => map.category === category);
-      
-      if (existingMapIndex >= 0) {
-        gameJourneyMaps[existingMapIndex] = {
-          ...gameJourneyMaps[existingMapIndex],
-          [field]: dataToSave,
-          updated_at: new Date().toISOString()
-        };
+      if (objectiveType === 'weekly' && weekKey) {
+        // Save to Supabase for weekly objectives
+        await objectivesService.saveWeeklyObjectives(category, answers, weekKey);
+        
+        // Auto-transfer to Hot List for weekly objectives
+        await transferToHotList();
       } else {
-        gameJourneyMaps.push({
-          id: crypto.randomUUID(),
-          user_id: 'temp-user',
-          category,
-          [field]: dataToSave,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
+        // Fallback to localStorage for other types
+        const field = objectiveType === 'current' ? 'current_reality' : 
+                     objectiveType === 'monthly' ? 'monthly_goal' : 'annual_goal';
+        
+        const dataToSave = JSON.stringify(answers);
+        const gameJourneyMaps = JSON.parse(localStorage.getItem('gameJourneyMaps') || '[]');
+        const existingMapIndex = gameJourneyMaps.findIndex((map: any) => map.category === category);
+        
+        if (existingMapIndex >= 0) {
+          gameJourneyMaps[existingMapIndex] = {
+            ...gameJourneyMaps[existingMapIndex],
+            [field]: dataToSave,
+            updated_at: new Date().toISOString()
+          };
+        } else {
+          gameJourneyMaps.push({
+            id: crypto.randomUUID(),
+            user_id: 'temp-user',
+            category,
+            [field]: dataToSave,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        }
+        
+        localStorage.setItem('gameJourneyMaps', JSON.stringify(gameJourneyMaps));
       }
-      
-      localStorage.setItem('gameJourneyMaps', JSON.stringify(gameJourneyMaps));
-      const error = null;
-
-      if (error) throw error;
 
       toast({
         title: language === 'en' ? 'Saved Successfully' : 'Salvat cu Succes',
@@ -349,17 +389,30 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
               </div>
             ))}
             
-            <Button
-              onClick={handleSave}
-              disabled={isLoading}
-              className="w-full mt-6"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              {isLoading 
-                ? (language === 'en' ? 'Saving...' : 'Se salvează...') 
-                : (language === 'en' ? 'Save Objectives' : 'Salvează Obiectivele')
-              }
-            </Button>
+            <div className="space-y-3">
+              <Button
+                onClick={handleSave}
+                disabled={isLoading}
+                className="w-full mt-6"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {isLoading 
+                  ? (language === 'en' ? 'Saving...' : 'Se salvează...') 
+                  : (language === 'en' ? 'Save Objectives' : 'Salvează Obiectivele')
+                }
+              </Button>
+              
+              {objectiveType === 'weekly' && weekKey && (
+                <Button
+                  onClick={transferToHotList}
+                  disabled={isLoading}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {language === 'en' ? 'Transfer to Hot List' : 'Transferă în Lista Fierbinte'}
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -8,6 +8,8 @@ import { MissionCategory } from '@/types/mission';
 import { ObjectivesForm } from './ObjectivesForm';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { WeekNavigation } from './WeekNavigation';
+import { useObjectivesWeek } from '@/hooks/useObjectivesWeek';
 
 type ObjectiveType = 'current' | 'weekly' | 'monthly' | 'annual';
 
@@ -16,6 +18,13 @@ export const ObjectivesContent = () => {
   const isMobile = useIsMobile();
   const [activeCategory, setActiveCategory] = useState<MissionCategory>('body');
   const [activeObjective, setActiveObjective] = useState<ObjectiveType | null>(null);
+  const { 
+    currentDateRange, 
+    currentWeekKey, 
+    handlePreviousWeek, 
+    handleNextWeek, 
+    isCurrentWeek 
+  } = useObjectivesWeek();
 
   const categoryColors = {
     body: 'from-red-900/60 to-red-700/40',
@@ -83,6 +92,7 @@ export const ObjectivesContent = () => {
       <ObjectivesForm
         category={activeCategory}
         objectiveType={activeObjective}
+        weekKey={currentWeekKey}
         onBack={() => setActiveObjective(null)}
       />
     );
@@ -94,6 +104,13 @@ export const ObjectivesContent = () => {
         <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-center mb-6`}>
           {language === 'en' ? 'Objectives' : 'Obiective'}
         </h1>
+
+        <WeekNavigation
+          currentDateRange={currentDateRange}
+          onPreviousWeek={handlePreviousWeek}
+          onNextWeek={handleNextWeek}
+          isCurrentWeek={isCurrentWeek()}
+        />
 
         {/* Category Selection */}
         <Tabs 
