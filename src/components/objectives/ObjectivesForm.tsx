@@ -132,29 +132,38 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
     const categoryLabels = {
       en: { 
         body: 'your body/health', 
-        being: 'your spirituality/personal development', 
+        being: 'your spiritual development', 
         balance: 'your relationships', 
-        business: 'your business/career' 
+        business: 'your business' 
       },
       ro: { 
         body: 'corpul/sănătatea ta', 
-        being: 'spiritualitatea/dezvoltarea ta personală', 
+        being: 'dezvoltarea spirituală', 
         balance: 'relațiile tale', 
-        business: 'afacerea/cariera ta' 
+        business: 'business-ul tău' 
       }
     };
 
-    const questionTemplate = {
-      en: 'What are 4 concrete actions you will take this week for {}?',
-      ro: 'Care sunt 4 acțiuni concrete pe care le vei face săptămâna aceasta pentru {}?'
-    };
-
     const categoryLabel = categoryLabels[language][category];
-    const question = questionTemplate[language].replace('{}', categoryLabel);
+    
+    const questionTemplates = {
+      en: [
+        `What is the first action for ${categoryLabel} this week?`,
+        `What is the second action for ${categoryLabel} this week?`,
+        `What is the third action for ${categoryLabel} this week?`,
+        `What is the fourth action for ${categoryLabel} this week?`
+      ],
+      ro: [
+        `Care este prima acțiune pentru ${categoryLabel} săptămâna aceasta?`,
+        `Care este a doua acțiune pentru ${categoryLabel} săptămâna aceasta?`,
+        `Care este a treia acțiune pentru ${categoryLabel} săptămâna aceasta?`,
+        `Care este a patra acțiune pentru ${categoryLabel} săptămâna aceasta?`
+      ]
+    };
 
     return [{
       title: language === 'en' ? 'Weekly Actions' : 'Acțiuni Săptămânale',
-      questions: [question]
+      questions: questionTemplates[language]
     }];
   };
 
