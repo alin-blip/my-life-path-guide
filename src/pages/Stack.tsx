@@ -24,7 +24,7 @@ const CoachingPage = () => {
   const [stackId, setStackId] = useState<string | null>(null);
   const [existingStack, setExistingStack] = useState<any>(null);
   const [isLoadingStack, setIsLoadingStack] = useState(false);
-  const { hitList, setHitList } = useDoorContent();
+  const { hitList, setHitList, hotList, setHotList } = useDoorContent();
   const { toast } = useToast();
   const [isSupabaseAvailable, setIsSupabaseAvailable] = useState(false);
   const location = useLocation();
@@ -156,12 +156,12 @@ const CoachingPage = () => {
     }
 
     try {
-      console.log("🎯 Adding action to HIT list:", actionText);
+      console.log("🔥 Adding action to HOT list:", actionText);
       
       // Check authentication first
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
-        console.warn("⚠️ User not authenticated for HIT list save");
+        console.warn("⚠️ User not authenticated for HOT list save");
         toast({
           title: "Autentificare necesară",
           description: "Trebuie să fiți autentificat pentru a salva acțiuni.",
@@ -170,16 +170,17 @@ const CoachingPage = () => {
         return;
       }
       
-      const newHitItem = {
+      const newHotItem = {
         id: `stack-${Date.now()}`,
         text: actionText,
-        day: 'M' as any,
-        completed: false
+        priority: 'none' as any,
+        selected: false,
+        isKeyPoint: false
       };
       
       // Update local state immediately
-      setHitList(prev => [...prev, newHitItem]);
-      console.log("✅ Local HIT list updated");
+      setHotList(prev => [...prev, newHotItem]);
+      console.log("✅ Local HOT list updated");
       
       // Save to database with better error handling
       try {
@@ -189,11 +190,10 @@ const CoachingPage = () => {
         console.log("💾 Saving to database with week key:", currentWeekKey);
         
         await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
-          id: newHitItem.id,
-          text: newHitItem.text,
-          category: 'hit',
-          priority: 'none' as any,
-          day: newHitItem.day
+          id: newHotItem.id,
+          text: newHotItem.text,
+          category: 'hot',
+          priority: 'none' as any
         });
         
         console.log("✅ Saved to Supabase successfully");
@@ -201,28 +201,28 @@ const CoachingPage = () => {
         // Update localStorage for immediate UI sync
         const savedWeekData = localStorage.getItem(currentWeekKey);
         let weekData = savedWeekData ? JSON.parse(savedWeekData) : {};
-        weekData.hitList = [...(weekData.hitList || []), newHitItem];
+        weekData.hotList = [...(weekData.hotList || []), newHotItem];
         localStorage.setItem(currentWeekKey, JSON.stringify(weekData));
         
         console.log("✅ localStorage updated");
         
         // Trigger event for Door interface updates
         window.dispatchEvent(new CustomEvent('doorDataUpdated', { 
-          detail: { type: 'ideaAdded', idea: newHitItem } 
+          detail: { type: 'ideaAdded', idea: newHotItem } 
         }));
         
         console.log("✅ Door update event dispatched");
         
         toast({
           title: "✅ Acțiune adăugată cu succes",
-          description: "Acțiunea a fost salvată în lista ta HIT și se va sincroniza cu Door.",
+          description: "Acțiunea a fost salvată în Hot List și se va sincroniza cu Door.",
         });
         
       } catch (dbError: any) {
         console.error("❌ Database save error:", dbError);
         
         // Remove from local state since DB save failed
-        setHitList(prev => prev.filter(item => item.id !== newHitItem.id));
+        setHotList(prev => prev.filter(item => item.id !== newHotItem.id));
         
         toast({
           title: "⚠️ Eroare la salvare",
@@ -232,7 +232,7 @@ const CoachingPage = () => {
       }
       
     } catch (error: any) {
-      console.error("❌ General error adding to HIT list:", error);
+      console.error("❌ General error adding to HOT list:", error);
       toast({
         title: "❌ Eroare generală",
         description: `Nu s-a putut adăuga acțiunea: ${error.message || 'Eroare necunoscută'}`,
