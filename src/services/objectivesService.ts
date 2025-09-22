@@ -39,9 +39,10 @@ export const objectivesService = {
         category,
         title,
         description,
+        week_key: weekKey,
         status: 'pending',
         due_date: weekEndDate.toISOString().split('T')[0],
-      });
+      } as any);
 
     if (error) throw error;
   },
@@ -59,9 +60,9 @@ export const objectivesService = {
       .eq('user_id', user.id)
       .eq('category', category)
       .eq('week_key', weekKey)
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') throw error;
+    if (error) throw error;
     if (!data) return null;
 
     try {

@@ -488,6 +488,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          week_key: string | null
         }
         Insert: {
           category: string
@@ -499,6 +500,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          week_key?: string | null
         }
         Update: {
           category?: string
@@ -510,6 +512,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          week_key?: string | null
         }
         Relationships: []
       }
