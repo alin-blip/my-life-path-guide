@@ -71,8 +71,8 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
         detail: { type: 'ideaAdded', idea } 
       }));
       
-      // Compatibilitate cu funcția existentă
-      if (onAddToHitList && idea.category === 'hit') {
+      // Compatibilitate cu funcția existentă - salvez toate acțiunile în Hot List  
+      if (onAddToHitList) {
         onAddToHitList(idea.text);
       }
       
