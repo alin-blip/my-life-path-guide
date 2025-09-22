@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionStruct } from '../mission/utils/getQuestions';
 
-type ObjectiveType = 'current' | 'monthly' | 'annual';
+type ObjectiveType = 'current' | 'weekly' | 'monthly' | 'annual';
 
 interface ObjectivesFormProps {
   category: MissionCategory;
@@ -128,9 +128,41 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
     return sections;
   };
 
+  const getWeeklyQuestions = (): { title: string; questions: string[] }[] => {
+    const categoryLabels = {
+      en: { 
+        body: 'your body/health', 
+        being: 'your spirituality/personal development', 
+        balance: 'your relationships', 
+        business: 'your business/career' 
+      },
+      ro: { 
+        body: 'corpul/sănătatea ta', 
+        being: 'spiritualitatea/dezvoltarea ta personală', 
+        balance: 'relațiile tale', 
+        business: 'afacerea/cariera ta' 
+      }
+    };
+
+    const questionTemplate = {
+      en: 'What are 4 concrete actions you will take this week for {}?',
+      ro: 'Care sunt 4 acțiuni concrete pe care le vei face săptămâna aceasta pentru {}?'
+    };
+
+    const categoryLabel = categoryLabels[language][category];
+    const question = questionTemplate[language].replace('{}', categoryLabel);
+
+    return [{
+      title: language === 'en' ? 'Weekly Actions' : 'Acțiuni Săptămânale',
+      questions: [question]
+    }];
+  };
+
   const getQuestionSections = (): { title: string; questions: string[] }[] => {
     if (objectiveType === 'current') {
       return getCurrentRealityQuestions();
+    } else if (objectiveType === 'weekly') {
+      return getWeeklyQuestions();
     } else {
       return getComplexQuestions();
     }
@@ -146,8 +178,8 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
 
   const getObjectiveTitle = (type: ObjectiveType) => {
     const titles = {
-      en: { current: 'Current Reality', monthly: 'Monthly Mission', annual: 'Annual Goals' },
-      ro: { current: 'Realitatea Actuală', monthly: 'Misiunea Lunară', annual: 'Obiectivele Anuale' }
+      en: { current: 'Current Reality', weekly: 'Weekly Plan', monthly: 'Monthly Mission', annual: 'Annual Goals' },
+      ro: { current: 'Realitatea Actuală', weekly: 'Planul Săptămânal', monthly: 'Misiunea Lunară', annual: 'Obiectivele Anuale' }
     };
     return titles[language][type];
   };
@@ -175,8 +207,9 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
       }
 
       if (data) {
-        const field = objectiveType === 'current' ? 'current_reality' : 
-                     objectiveType === 'monthly' ? 'monthly_goal' : 'annual_goal';
+      const field = objectiveType === 'current' ? 'current_reality' : 
+                   objectiveType === 'weekly' ? 'weekly_plan' :
+                   objectiveType === 'monthly' ? 'monthly_goal' : 'annual_goal';
         
         if (data[field]) {
           try {
@@ -206,6 +239,7 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
     setIsLoading(true);
     try {
       const field = objectiveType === 'current' ? 'current_reality' : 
+                   objectiveType === 'weekly' ? 'weekly_plan' :
                    objectiveType === 'monthly' ? 'monthly_goal' : 'annual_goal';
       
       const dataToSave = JSON.stringify(answers);

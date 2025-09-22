@@ -9,7 +9,7 @@ import { ObjectivesForm } from './ObjectivesForm';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-type ObjectiveType = 'current' | 'monthly' | 'annual';
+type ObjectiveType = 'current' | 'weekly' | 'monthly' | 'annual';
 
 export const ObjectivesContent = () => {
   const { language } = useLanguage();
@@ -46,11 +46,13 @@ export const ObjectivesContent = () => {
     const titles = {
       en: {
         current: 'Current Reality',
+        weekly: 'Weekly Plan',
         monthly: 'Monthly Mission', 
         annual: 'Annual Goals'
       },
       ro: {
         current: 'Realitatea Actuală',
+        weekly: 'Planul Săptămânal',
         monthly: 'Misiunea Lunară',
         annual: 'Obiectivele Anuale'
       }
@@ -62,11 +64,13 @@ export const ObjectivesContent = () => {
     const descriptions = {
       en: {
         current: 'Where are you today?',
+        weekly: 'What 4 actions will you take this week?',
         monthly: 'What do you want to achieve this month?',
         annual: 'What is your vision for the next year?'
       },
       ro: {
         current: 'Unde te afli astăzi?',
+        weekly: 'Ce 4 acțiuni vei face săptămâna aceasta?',
         monthly: 'Ce vrei să realizezi luna aceasta?', 
         annual: 'Care este viziunea ta pentru următorul an?'
       }
@@ -154,9 +158,9 @@ export const ObjectivesContent = () => {
               </h2>
             </div>
 
-            {/* Three Main Buttons */}
-            <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-3 gap-6'}`}>
-              {(['current', 'monthly', 'annual'] as ObjectiveType[]).map((type) => (
+            {/* Four Main Buttons */}
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-2 md:grid-cols-4 gap-6'}`}>
+              {(['current', 'weekly', 'monthly', 'annual'] as ObjectiveType[]).map((type) => (
                 <Card 
                   key={type}
                   className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/80 transition-colors cursor-pointer"
