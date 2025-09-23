@@ -38,19 +38,22 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
     clearSession,
     createBackup,
     lastSaveTime,
-    unsavedChanges
+    unsavedChanges,
+    isVisible
   } = useStackSession({
     stackType: 'anger-stack',
     sessionId,
+    currentAnswer,
     onSessionRestore: (sessionData) => {
       setStep(sessionData.step);
       setAnswers(sessionData.answers);
-      if (sessionData.draftAnswer) {
-        setCurrentAnswer(sessionData.draftAnswer);
+      if (sessionData.currentAnswer || sessionData.draftAnswer) {
+        setCurrentAnswer(sessionData.currentAnswer || sessionData.draftAnswer || '');
       }
       toast({
         title: "Sesiune restaurată",
         description: "Progresul tău a fost restaurat automat.",
+        duration: 4000,
       });
     }
   });
@@ -157,7 +160,16 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setCurrentAnswer(e.target.value);
+    const value = e.target.value;
+    setCurrentAnswer(value);
+    
+    // Save session with current answer for persistence
+    saveSession({
+      step,
+      answers,
+      currentAnswer: value,
+      draftAnswer: value
+    });
   };
 
   const handleNext = () => {
@@ -359,7 +371,8 @@ export const useAngerStack = ({ onAddToHitList }: AngerStackProps): UseAngerStac
     stackCompleted,
     actionAddedToHotList,
     lastSaveTime,
-    unsavedChanges
+    unsavedChanges,
+    isVisible
   };
 
   const setState = {

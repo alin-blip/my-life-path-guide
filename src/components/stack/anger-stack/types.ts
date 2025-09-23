@@ -21,6 +21,7 @@ export interface AngerStackState {
   actionAddedToHotList?: boolean;
   lastSaveTime?: Date | null;
   unsavedChanges?: boolean;
+  isVisible?: boolean;
 }
 
 export interface UseAngerStackReturn {

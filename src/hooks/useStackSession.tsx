@@ -9,20 +9,23 @@ interface StackSessionData {
   timestamp: string;
   isCompleted: boolean;
   draftAnswer?: string;
+  currentAnswer?: string;
 }
 
 interface UseStackSessionProps {
   stackType: string;
   sessionId: string;
   onSessionRestore?: (data: StackSessionData) => void;
+  currentAnswer?: string;
 }
 
-export function useStackSession({ stackType, sessionId, onSessionRestore }: UseStackSessionProps) {
+export function useStackSession({ stackType, sessionId, onSessionRestore, currentAnswer }: UseStackSessionProps) {
   const { toast } = useToast();
   const [isAutoSaveEnabled, setIsAutoSaveEnabled] = useState(true);
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   const [unsavedChanges, setUnsavedChanges] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
   const getSessionKey = useCallback(() => `stack-session-${stackType}-${sessionId}`, [stackType, sessionId]);
   
@@ -145,18 +148,67 @@ export function useStackSession({ stackType, sessionId, onSessionRestore }: UseS
     detectUnexpectedReload();
   }, [loadSession, onSessionRestore, detectUnexpectedReload]);
 
-  // Handle page unload to warn about unsaved changes
+  // Handle visibility change to save immediately when tab becomes hidden
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      const isNowVisible = !document.hidden;
+      setIsVisible(isNowVisible);
+      
+      if (!isNowVisible && unsavedChanges && currentAnswer) {
+        // Save immediately when tab becomes hidden
+        console.log(`💾 [${new Date().toLocaleTimeString()}] Emergency save triggered by tab switch`);
+        saveSession({
+          currentAnswer,
+          draftAnswer: currentAnswer,
+          timestamp: new Date().toISOString()
+        });
+      }
+    };
+
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (unsavedChanges) {
+        // Emergency save before unload
+        if (currentAnswer) {
+          saveSession({
+            currentAnswer,
+            draftAnswer: currentAnswer,
+            timestamp: new Date().toISOString()
+          });
+        }
         e.preventDefault();
         e.returnValue = 'Ai modificări nesalvate. Ești sigur că vrei să părăsești pagina?';
       }
     };
 
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [unsavedChanges]);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [unsavedChanges, currentAnswer, saveSession]);
+
+  // Auto-save current answer when it changes
+  useEffect(() => {
+    if (currentAnswer && currentAnswer.trim() !== '') {
+      setUnsavedChanges(true);
+      
+      // Clear existing timeout
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      
+      // Save after 3 seconds of inactivity
+      saveTimeoutRef.current = setTimeout(() => {
+        saveSession({
+          currentAnswer,
+          draftAnswer: currentAnswer,
+          timestamp: new Date().toISOString()
+        });
+      }, 3000);
+    }
+  }, [currentAnswer, saveSession]);
 
   return {
     saveSession: saveSessionDebounced,
@@ -167,6 +219,7 @@ export function useStackSession({ stackType, sessionId, onSessionRestore }: UseS
     isAutoSaveEnabled,
     setIsAutoSaveEnabled,
     lastSaveTime,
-    unsavedChanges
+    unsavedChanges,
+    isVisible
   };
 }

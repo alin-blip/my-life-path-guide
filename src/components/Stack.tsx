@@ -9,13 +9,18 @@ import {
   PlusCircle, 
   Send, 
   Share,
-  CheckCircle 
+  CheckCircle,
+  Save
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { updateDailyProgress } from '@/utils/stackProgress';
 import { StackTodoWidget } from './stack/StackTodoWidget';
 import { StackIdeaModal } from './stack/StackIdeaModal';
 import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
+import { useStackSession } from '@/hooks/useStackSession';
+import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
+import { StackSaveStatus } from './stack/StackSaveStatus';
+import { StackSessionIndicator } from './stack/StackSessionIndicator';
 
 interface StackProps {
   onAddToHitList?: (action: string) => void;
@@ -28,6 +33,35 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [committedAction, setCommittedAction] = useState("");
   const [actionAddedToHotList, setActionAddedToHotList] = useState(false);
+  const [currentAnswer, setCurrentAnswer] = useState("");
+  
+  // Session management
+  const { sessionId, resetSessionId } = usePersistentSessionId('power-stack');
+  
+  const {
+    saveSession,
+    loadSession,
+    clearSession,
+    lastSaveTime,
+    unsavedChanges,
+    isVisible
+  } = useStackSession({
+    stackType: 'power-stack',
+    sessionId,
+    currentAnswer,
+    onSessionRestore: (sessionData) => {
+      setStep(sessionData.step);
+      setAnswers(sessionData.answers);
+      if (sessionData.currentAnswer || sessionData.draftAnswer) {
+        setCurrentAnswer(sessionData.currentAnswer || sessionData.draftAnswer || '');
+      }
+      toast({
+        title: "Sesiune restaurată",
+        description: "Progresul tău a fost restaurat automat.",
+        duration: 4000,
+      });
+    }
+  });
   
   // Hook pentru integrarea TODO - acum conectat corect
   const {
@@ -46,7 +80,9 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
   ];
 
   const handleNext = () => {
-    if (!answers[step]) {
+    const currentStepAnswer = answers[step] || currentAnswer;
+    
+    if (!currentStepAnswer) {
       toast({
         title: "Răspuns necesar",
         description: "Te rugăm să completezi un răspuns înainte de a continua.",
@@ -55,8 +91,20 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
       return;
     }
     
+    // Save current answer if it's not already saved
+    if (currentAnswer && !answers[step]) {
+      const newAnswers = { ...answers, [step]: currentAnswer };
+      setAnswers(newAnswers);
+      saveSession({
+        step,
+        answers: newAnswers,
+        currentAnswer: ""
+      });
+    }
+    
     if (step < questions.length - 1) {
       setStep(step + 1);
+      setCurrentAnswer(answers[step + 1] || "");
     } else {
       handleComplete();
     }
@@ -64,7 +112,19 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
 
   const handleBack = () => {
     if (step > 0) {
+      // Save current answer before going back
+      if (currentAnswer) {
+        const newAnswers = { ...answers, [step]: currentAnswer };
+        setAnswers(newAnswers);
+        saveSession({
+          step: step - 1,
+          answers: newAnswers,
+          currentAnswer: answers[step - 1] || ""
+        });
+      }
+      
       setStep(step - 1);
+      setCurrentAnswer(answers[step - 1] || "");
     }
   };
 
@@ -128,7 +188,19 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setAnswers({ ...answers, [step]: e.target.value });
+    const value = e.target.value;
+    setCurrentAnswer(value);
+    
+    // Update answers and save session
+    const newAnswers = { ...answers, [step]: value };
+    setAnswers(newAnswers);
+    
+    saveSession({
+      step,
+      answers: newAnswers,
+      currentAnswer: value,
+      draftAnswer: value
+    });
   };
 
   const addToHotList = () => {
@@ -168,10 +240,13 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
   };
 
   const resetStack = () => {
+    clearSession();
     setStep(0);
     setAnswers({});
     setCommittedAction("");
     setActionAddedToHotList(false);
+    setCurrentAnswer("");
+    resetSessionId();
   };
 
   return (
@@ -216,8 +291,13 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
           ) : (
             <Card className="border-blue-500/30 bg-blue-950/10">
               <CardHeader>
-                <CardTitle className="text-center text-blue-400">
-                  Power Stack - Pasul {step + 1} din {questions.length}
+                <CardTitle className="text-center text-blue-400 flex items-center justify-between">
+                  <span>Power Stack - Pasul {step + 1} din {questions.length}</span>
+                  <StackSaveStatus 
+                    lastSaveTime={lastSaveTime}
+                    unsavedChanges={unsavedChanges}
+                    isVisible={isVisible}
+                  />
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -227,9 +307,17 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
                 <Textarea 
                   placeholder="Scrie răspunsul tău aici..."
                   className="min-h-[150px] bg-gray-800/30 border-gray-700"
-                  value={answers[step] || ""}
+                  value={currentAnswer}
                   onChange={handleInputChange}
                   onEnterSubmit={handleNext}
+                />
+                
+                {/* Session debugging info */}
+                <StackSessionIndicator 
+                  sessionId={sessionId}
+                  stackType="power-stack"
+                  isVisible={isVisible}
+                  unsavedChanges={unsavedChanges}
                 />
               </CardContent>
               <CardFooter className="flex justify-between">
