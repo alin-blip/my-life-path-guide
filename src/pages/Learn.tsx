@@ -1,57 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Layout } from '@/components/Layout';
-import { AdminCourseProvider } from '@/components/AdminCourseProvider';
 import { useLanguage } from '@/context/LanguageContext';
-import { Button } from '@/components/ui/button';
-import { CourseUploadModal } from '@/components/CourseUploadModal';
-import { LearnCourses } from '@/components/LearnCourses';
-import { Upload } from 'lucide-react';
+import { EmptyStateCard } from '@/components/door/EmptyStateCard';
+import { BookOpen } from 'lucide-react';
 
 const LearnPage = () => {
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const { language } = useLanguage();
 
   return (
-    <AdminCourseProvider>
-      <Layout>
-        <div className="w-full max-w-7xl mx-auto px-4 py-8">
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold">
-                {language === 'en' ? 'Learn' : 'Învață'}
-              </h1>
-              
-              <Button 
-                onClick={() => setShowUploadModal(true)}
-                className="gap-2"
-              >
-                <Upload className="w-4 h-4" />
-                {language === 'en' ? 'Upload Course' : 'Încarcă Curs'}
-              </Button>
-            </div>
-
-            <LearnCourses 
-              activeCategory={null}
-              activeSubcategory="courses"
-            />
-          </div>
-        </div>
-
-        {showUploadModal && (
-          <CourseUploadModal 
-            isOpen={showUploadModal}
-            onClose={() => setShowUploadModal(false)}
-            category="body"
-            subcategory="courses"
-            language={language}
-            isStripeConnected={true}
-            onCourseUploaded={() => {
-              setShowUploadModal(false);
-            }}
+    <Layout>
+      <div className="w-full max-w-7xl mx-auto px-4 py-8">
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold">
+            {language === 'en' ? 'Learn' : 'Învață'}
+          </h1>
+          
+          <EmptyStateCard
+            icon={BookOpen}
+            title={language === 'en' ? 'Coming Soon' : 'În Lucru'}
+            description={language === 'en' 
+              ? 'We are working on bringing you amazing courses. Stay tuned!' 
+              : 'Lucrăm pentru a vă aduce cursuri incredibile. Rămâneți pe fază!'}
+            actionLabel={language === 'en' ? 'Back to Dashboard' : 'Înapoi la Dashboard'}
+            onAction={() => window.location.href = '/'}
+            emoji="🚧"
           />
-        )}
-      </Layout>
-    </AdminCourseProvider>
+        </div>
+      </div>
+    </Layout>
   );
 };
 
