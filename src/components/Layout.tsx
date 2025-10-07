@@ -113,23 +113,7 @@ export const Layout: React.FC<LayoutProps> = ({
           {/* Header - Hidden on mobile to save space */}
           {!isMobile && (
             <div className="flex justify-between items-center mb-6">
-              <div className="flex-1"></div>
-              
-              {/* Share Button - Centered */}
-              <div className="flex-1 flex justify-center">
-                <Button variant="outline" size="sm" onClick={shareReferralLink} disabled={isLoading} className="group relative overflow-hidden bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 hover:border-purple-500/50 hover:from-blue-600/30 hover:to-purple-600/30">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                  
-                  <div className="relative flex items-center gap-2 z-10">
-                    <Share className="w-4 h-4 text-blue-300" />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-300 group-hover:from-blue-200 group-hover:to-purple-200 transition-all whitespace-normal text-xs">
-                      {language === 'en' ? 'Invite a friend and earn 50% of their subscription while they use the platform' : 'Invita un prieten si castiga 50% din abonamentul lor cat timp foloseste platforma'}
-                    </span>
-                  </div>
-                </Button>
-              </div>
-              
-                <div className="flex-1 flex items-center justify-end space-x-4">
+                <div className="flex items-center justify-end space-x-4 w-full">
                   <div className="text-sm text-gray-400">
                     {formatDate()}
                   </div>
