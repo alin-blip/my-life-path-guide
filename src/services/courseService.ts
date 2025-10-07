@@ -53,9 +53,21 @@ export class CourseService {
   // Fetch all courses with their modules and submodules
   static async getCourses(): Promise<EnhancedCourse[]> {
     try {
-      // Temporarily return empty array until types are updated
-      // TODO: Enable after Supabase types are regenerated
-      return [];
+      const { data: courses, error } = await supabase
+        .from('courses')
+        .select(`
+          *,
+          course_modules (
+            *,
+            course_submodules (*)
+          )
+        `)
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return (courses || []).map(course => this.transformToEnhancedCourse(course));
     } catch (error) {
       console.error('Error fetching courses:', error);
       return [];
@@ -89,9 +101,30 @@ export class CourseService {
         is_locked: courseData.access_level === 'premium' || courseData.access_level === 'enterprise'
       };
 
-      // Temporarily disabled until types are updated
-      // TODO: Enable after Supabase types are regenerated
-      throw new Error('Course creation temporarily disabled');
+      const { data: course, error } = await supabase
+        .from('courses')
+        .insert({
+          title: courseInsertData.title,
+          description: courseInsertData.description,
+          thumbnail_url: courseInsertData.image,
+          category: courseInsertData.category,
+          difficulty_level: 'beginner',
+          estimated_duration: parseInt(courseInsertData.duration?.replace(/\D/g, '') || '0') || 0,
+          is_published: true,
+          created_by: user.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (!course) throw new Error('Failed to create course');
+
+      // Create modules if provided
+      if (modules.length > 0) {
+        await this.createModulesForCourse(course.id, modules);
+      }
+
+      return course.id;
     } catch (error) {
       console.error('Error creating course:', error);
       throw error;
@@ -112,11 +145,24 @@ export class CourseService {
         pdf_url: module.pdfUrl
       }));
 
-      // Temporarily disabled until types are updated
-      // TODO: Enable after Supabase types are regenerated
-      throw new Error('Module creation temporarily disabled');
+      const { data: insertedModules, error } = await supabase
+        .from('course_modules')
+        .insert(modulesData)
+        .select();
 
-      // Temporarily disabled until types are updated
+      if (error) throw error;
+
+      // Create submodules for each module if they exist
+      if (insertedModules) {
+        for (let i = 0; i < modules.length; i++) {
+          const module = modules[i];
+          const insertedModule = insertedModules[i];
+          
+          if (module.submodules && module.submodules.length > 0) {
+            await this.createSubmodulesForModule(insertedModule.id, module.submodules);
+          }
+        }
+      }
     } catch (error) {
       console.error('Error creating modules:', error);
       throw error;
@@ -137,9 +183,11 @@ export class CourseService {
         pdf_url: submodule.pdfUrl
       }));
 
-      // Temporarily disabled until types are updated
-      // TODO: Enable after Supabase types are regenerated
-      throw new Error('Submodule creation temporarily disabled');
+      const { error } = await supabase
+        .from('course_submodules')
+        .insert(submodulesData);
+
+      if (error) throw error;
     } catch (error) {
       console.error('Error creating submodules:', error);
       throw error;
@@ -149,9 +197,20 @@ export class CourseService {
   // Update course
   static async updateCourse(courseId: string, updates: Partial<SupabaseCourse>): Promise<void> {
     try {
-      // Temporarily disabled until types are updated
-      // TODO: Enable after Supabase types are regenerated
-      throw new Error('Course update temporarily disabled');
+      const updateData: any = {};
+      
+      if (updates.title) updateData.title = updates.title;
+      if (updates.description) updateData.description = updates.description;
+      if (updates.image) updateData.thumbnail_url = updates.image;
+      if (updates.category) updateData.category = updates.category;
+      if (updates.duration) updateData.estimated_duration = parseInt(updates.duration.replace(/\D/g, '') || '0') || 0;
+
+      const { error } = await supabase
+        .from('courses')
+        .update(updateData)
+        .eq('id', courseId);
+
+      if (error) throw error;
     } catch (error) {
       console.error('Error updating course:', error);
       throw error;
@@ -161,9 +220,34 @@ export class CourseService {
   // Delete course
   static async deleteCourse(courseId: string): Promise<void> {
     try {
-      // Temporarily disabled until types are updated
-      // TODO: Enable after Supabase types are regenerated
-      throw new Error('Course deletion temporarily disabled');
+      // Delete submodules first
+      const { data: modules } = await supabase
+        .from('course_modules')
+        .select('id')
+        .eq('course_id', courseId);
+
+      if (modules) {
+        for (const module of modules) {
+          await supabase
+            .from('course_submodules')
+            .delete()
+            .eq('module_id', module.id);
+        }
+      }
+
+      // Delete modules
+      await supabase
+        .from('course_modules')
+        .delete()
+        .eq('course_id', courseId);
+
+      // Delete course
+      const { error } = await supabase
+        .from('courses')
+        .delete()
+        .eq('id', courseId);
+
+      if (error) throw error;
     } catch (error) {
       console.error('Error deleting course:', error);
       throw error;
