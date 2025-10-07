@@ -282,25 +282,25 @@ export class CourseService {
     return {
       id: course.id,
       title: course.title,
-      subTitle: course.subcategory === 'ebook' ? 'E-BOOK' : 
-                course.subcategory === 'audiobook' ? 'AUDIOBOOK' : 
-                course.subcategory === 'courses' ? 'VIDEOBOOK' : 
-                course.subcategory?.toUpperCase() || 'COURSE',
-      image: course.image || '/public/lovable-uploads/26a033cf-b370-4f36-b524-05194c9e8f64.png',
+      subTitle: (course.subcategory || 'courses') === 'ebook' ? 'E-BOOK' : 
+                (course.subcategory || 'courses') === 'audiobook' ? 'AUDIOBOOK' : 
+                (course.subcategory || 'courses') === 'courses' ? 'VIDEOBOOK' : 
+                (course.subcategory || 'courses').toUpperCase(),
+      image: course.thumbnail_url || course.image || '/public/lovable-uploads/26a033cf-b370-4f36-b524-05194c9e8f64.png',
       status: 'NOT STARTED',
       progress: 0,
       category: course.category,
-      type: course.type,
-      subcategory: course.subcategory,
+      type: (course.type as any) || 'video',
+      subcategory: course.subcategory || 'courses',
       url: course.url,
-      hasPlayButton: course.type === 'video' || course.type === 'audio',
-      isLocked: course.is_locked,
+      hasPlayButton: modules.some((m: any) => !!m.videoUrl) || ((course.type as any) === 'video' || (course.type as any) === 'audio'),
+      isLocked: course.is_locked || false,
       author: course.author,
-      isPremium: course.is_premium,
+      isPremium: course.is_premium || false,
       price: course.price,
       description: course.description,
       duration: course.duration,
-      accessLevel: course.access_level,
+      accessLevel: (course.access_level as any) || 'free',
       createdAt: course.created_at,
       modules: modules,
       totalModules: modules.length,
