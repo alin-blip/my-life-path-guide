@@ -122,6 +122,7 @@ export const doorUserTasksService = {
         title: item.text,
         priority: toDbPriority(item.priority),
         is_key_point: item.isKeyPoint || false,
+        completed: false,
         position: position++
       });
     }
