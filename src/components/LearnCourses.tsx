@@ -86,37 +86,9 @@ export const LearnCourses: React.FC<LearnCoursesProps> = ({ activeCategory, acti
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 mt-4 mb-3 sm:mt-8 sm:mb-6">
-        <h2 className="text-lg sm:text-xl font-medium pl-1">
-          {getTranslatedText('resourcesTitle', 'Available Resources', 'Resurse disponibile')}
-        </h2>
-        <Button 
-          onClick={() => {
-            if (!isStripeConnected) {
-              const connectFirst = confirm(
-                "To upload courses and earn commissions, you need to connect your Stripe account first. Would you like to connect Stripe now?"
-              );
-              if (connectFirst) {
-                handleConnectStripe();
-              }
-              return;
-            }
-            setShowUploadModal(true);
-          }}
-          className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs sm:text-sm px-3 py-2 sm:px-4"
-        >
-          {isStripeConnected ? (
-            <span className="hidden sm:inline">{getTranslatedText('uploadCourse', 'Upload New Course', 'Încarcă un curs nou')}</span>
-          ) : (
-            <span className="flex items-center gap-1 sm:gap-2">
-              <BadgeDollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">{getTranslatedText('connectStripe', 'Connect Stripe to Upload', 'Conectează Stripe pentru încărcare')}</span>
-              <span className="sm:hidden">Connect Stripe</span>
-            </span>
-          )}
-          <span className="sm:hidden">{isStripeConnected ? 'Upload' : ''}</span>
-        </Button>
-      </div>
+      <h2 className="text-lg sm:text-xl font-medium pl-1 mt-4 mb-3 sm:mt-8 sm:mb-6">
+        {getTranslatedText('resourcesTitle', 'Available Resources', 'Resurse disponibile')}
+      </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         {filteredCourses.map((course) => (
