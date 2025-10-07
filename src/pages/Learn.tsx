@@ -1,100 +1,63 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Layout } from '@/components/Layout';
-import { LearnDashboard } from '@/components/LearnDashboard';
-import { LearnCourses } from '@/components/LearnCourses';
 import { AdminCourseProvider } from '@/components/AdminCourseProvider';
-import { useLocation } from 'react-router-dom';
+import { useLanguage } from '@/context/LanguageContext';
+import { Button } from '@/components/ui/button';
+import { CourseUploadModal } from '@/components/CourseUploadModal';
+import { Upload } from 'lucide-react';
 
 const LearnPage = () => {
-  const location = useLocation();
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [activeSubcategory, setActiveSubcategory] = useState<string>('courses');
-  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
-
-  // Check for category in URL when component mounts or URL changes
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const categoryParam = params.get('category');
-    const subcategoryParam = params.get('subcategory');
-    
-    if (categoryParam) {
-      setActiveCategory(categoryParam);
-    }
-    
-    if (subcategoryParam) {
-      setActiveSubcategory(subcategoryParam);
-    }
-  }, [location]);
-
-  // Calculate the resources per category
-  useEffect(() => {
-    // This would normally fetch from an API
-    setCategoryCounts({
-      body: 3,
-      balance: 2,
-      being: 2,
-      business: 2
-    });
-  }, []);
-
-  // Handle category selection
-  const handleCategorySelect = (category: string) => {
-    setActiveCategory(category);
-    
-    // Update URL with category param
-    const params = new URLSearchParams(location.search);
-    params.set('category', category);
-    
-    // Keep subcategory if it exists
-    if (activeSubcategory) {
-      params.set('subcategory', activeSubcategory);
-    }
-    
-    const newUrl = `${location.pathname}?${params.toString()}`;
-    window.history.pushState({ path: newUrl }, '', newUrl);
-  };
-  
-  // Handle subcategory selection
-  const handleSubcategorySelect = (subcategory: string) => {
-    setActiveSubcategory(subcategory);
-    
-    // Update URL with subcategory param
-    const params = new URLSearchParams(location.search);
-    params.set('subcategory', subcategory);
-    
-    // Keep category if it exists
-    if (activeCategory) {
-      params.set('category', activeCategory);
-    }
-    
-    const newUrl = `${location.pathname}?${params.toString()}`;
-    window.history.pushState({ path: newUrl }, '', newUrl);
-  };
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const { language } = useLanguage();
 
   return (
     <AdminCourseProvider>
       <Layout>
-        <div className="w-full max-w-full px-2 sm:px-4 pb-4 sm:pb-8">
-          <div className="flex justify-between items-center mb-3 sm:mb-6">
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">LEARN</h1>
-          </div>
-          
-          <LearnDashboard 
-            onCategorySelect={handleCategorySelect}
-            activeCategory={activeCategory}
-            categoryCounts={categoryCounts}
-            onSubcategorySelect={handleSubcategorySelect}
-            activeSubcategory={activeSubcategory}
-          />
-          
-          <div className="mt-3 sm:mt-6">
-            <LearnCourses 
-              activeCategory={activeCategory} 
-              activeSubcategory={activeSubcategory}
-            />
+        <div className="w-full max-w-4xl mx-auto px-4 py-8">
+          <div className="text-center space-y-6">
+            <h1 className="text-3xl font-bold">
+              {language === 'en' ? 'Learn' : 'Învață'}
+            </h1>
+            
+            <div className="bg-card border rounded-lg p-8 space-y-4">
+              <div className="flex justify-center">
+                <Upload className="w-16 h-16 text-muted-foreground" />
+              </div>
+              
+              <h2 className="text-xl font-semibold">
+                {language === 'en' ? 'Upload Your Course' : 'Încarcă Cursul Tău'}
+              </h2>
+              
+              <p className="text-muted-foreground">
+                {language === 'en' 
+                  ? 'Start by uploading your first course to share knowledge with others.'
+                  : 'Începe prin a încărca primul tău curs pentru a împărtăși cunoștințe cu alții.'}
+              </p>
+              
+              <Button 
+                onClick={() => setShowUploadModal(true)}
+                size="lg"
+                className="mt-4"
+              >
+                {language === 'en' ? 'Upload Course' : 'Încarcă Curs'}
+              </Button>
+            </div>
           </div>
         </div>
+
+        {showUploadModal && (
+          <CourseUploadModal 
+            isOpen={showUploadModal}
+            onClose={() => setShowUploadModal(false)}
+            category="body"
+            subcategory="courses"
+            language={language}
+            isStripeConnected={true}
+            onCourseUploaded={() => {
+              setShowUploadModal(false);
+            }}
+          />
+        )}
       </Layout>
     </AdminCourseProvider>
   );
