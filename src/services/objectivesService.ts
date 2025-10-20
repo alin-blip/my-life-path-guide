@@ -148,11 +148,12 @@ export const objectivesService = {
         const answers = JSON.parse(objective.description);
         const category = objective.category as MissionCategory;
         
-        Object.values(answers).forEach((answer) => {
-          if (typeof answer === 'string' && answer.trim()) {
-            result[category].push(answer.trim());
+        // Luăm doar primele 4 obiective strategice (indices 0-3)
+        for (let i = 0; i < 4; i++) {
+          if (answers[i] && typeof answers[i] === 'string' && answers[i].trim()) {
+            result[category].push(answers[i].trim());
           }
-        });
+        }
       } catch (e) {
         console.error('Error parsing objective description:', e);
       }
