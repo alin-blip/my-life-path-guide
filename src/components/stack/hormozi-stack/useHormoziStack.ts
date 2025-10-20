@@ -33,14 +33,14 @@ export function useHormoziStack({ onAddToHitList }: UseHormoziStackProps = {}) {
   } = useStackSession({
     stackType: 'hormozi-business',
     sessionId,
-    onSessionRestore: (sessionData: HormoziStackData) => {
+    onSessionRestore: (sessionData) => {
       setState(prev => ({
         ...prev,
         currentStep: sessionData.step || 1,
         answers: sessionData.answers || {},
         isComplete: sessionData.isCompleted || false,
         committedAction: sessionData.committedAction || '',
-        mode: sessionData.mode || 'structured'
+        mode: (sessionData.mode as 'structured' | 'chat') || 'structured'
       }));
     }
   });

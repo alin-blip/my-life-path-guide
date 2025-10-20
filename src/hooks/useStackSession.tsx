@@ -1,16 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
-
-interface StackSessionData {
-  sessionId: string;
-  stackType: string;
-  step: number;
-  answers: Record<string | number, string>;
-  timestamp: string;
-  isCompleted: boolean;
-  draftAnswer?: string;
-  currentAnswer?: string;
-}
+import { stackSessionsService, StackSessionData } from '@/services/stackSessionsService';
 
 interface UseStackSessionProps {
   stackType: string;
@@ -38,19 +28,25 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
       const currentData = existingData ? JSON.parse(existingData) : {};
       
       const updatedData: StackSessionData = {
-        sessionId,
-        stackType,
+        session_id: sessionId,
+        stack_type: stackType as any,
         timestamp: new Date().toISOString(),
         isCompleted: false,
+        answers: {},
         ...currentData,
         ...data
       };
 
+      // Salvăm în localStorage ca backup local
       localStorage.setItem(sessionKey, JSON.stringify(updatedData));
+      
+      // Salvăm în Supabase (primary source of truth)
+      await stackSessionsService.saveStackSession(updatedData);
+      
       setLastSaveTime(new Date());
       setUnsavedChanges(false);
       
-      console.log(`🔄 [${new Date().toLocaleTimeString()}] Stack Session Auto-saved:`, {
+      console.log(`🔄 [${new Date().toLocaleTimeString()}] Stack Session Auto-saved to Supabase:`, {
         stackType,
         step: updatedData.step,
         answersCount: Object.keys(updatedData.answers || {}).length
@@ -72,17 +68,29 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
     }, 2000); // Save after 2 seconds of inactivity
   }, [saveSession]);
 
-  const loadSession = useCallback((): StackSessionData | null => {
+  const loadSession = useCallback(async (): Promise<StackSessionData | null> => {
     try {
       const sessionKey = getSessionKey();
-      const savedData = localStorage.getItem(sessionKey);
       
+      // Încercăm să încărcăm din Supabase (primary)
+      const supabaseData = await stackSessionsService.loadStackSession(sessionId, stackType);
+      
+      if (supabaseData) {
+        // Sincronizăm și în localStorage
+        localStorage.setItem(sessionKey, JSON.stringify(supabaseData));
+        console.log(`📥 [${new Date().toLocaleTimeString()}] Stack Session Loaded from Supabase:`, {
+          stackType: supabaseData.stack_type,
+          answersCount: Object.keys(supabaseData.answers || {}).length
+        });
+        return supabaseData;
+      }
+      
+      // Fallback la localStorage dacă Supabase nu returnează date
+      const savedData = localStorage.getItem(sessionKey);
       if (savedData) {
         const data = JSON.parse(savedData) as StackSessionData;
-        console.log(`📥 [${new Date().toLocaleTimeString()}] Stack Session Loaded:`, {
-          stackType: data.stackType,
-          step: data.step,
-          timestamp: data.timestamp
+        console.log(`📥 [${new Date().toLocaleTimeString()}] Stack Session Loaded from localStorage:`, {
+          stackType: data.stack_type
         });
         return data;
       }
@@ -90,20 +98,26 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
       console.error('Error loading stack session:', error);
     }
     return null;
-  }, [getSessionKey]);
+  }, [getSessionKey, sessionId, stackType]);
 
-  const clearSession = useCallback(() => {
+  const clearSession = useCallback(async () => {
     try {
       const sessionKey = getSessionKey();
+      
+      // Ștergem din localStorage
       localStorage.removeItem(sessionKey);
+      
+      // Ștergem din Supabase
+      await stackSessionsService.clearStackSession(sessionId, stackType);
+      
       setLastSaveTime(null);
       setUnsavedChanges(false);
       
-      console.log(`🗑️ [${new Date().toLocaleTimeString()}] Stack Session Cleared:`, { stackType });
+      console.log(`🗑️ [${new Date().toLocaleTimeString()}] Stack Session Cleared from both localStorage and Supabase:`, { stackType });
     } catch (error) {
       console.error('Error clearing stack session:', error);
     }
-  }, [getSessionKey, stackType]);
+  }, [getSessionKey, stackType, sessionId]);
 
   const createBackup = useCallback(() => {
     try {
@@ -125,9 +139,10 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
     }
   }, [getSessionKey, toast]);
 
-  const detectUnexpectedReload = useCallback(() => {
+  const detectUnexpectedReload = useCallback(async () => {
     const isReload = performance.navigation && performance.navigation.type === 1;
-    const hasUnsavedData = loadSession() && !loadSession()?.isCompleted;
+    const savedSession = await loadSession();
+    const hasUnsavedData = savedSession && !savedSession.isCompleted;
     
     if (isReload && hasUnsavedData) {
       toast({
@@ -140,13 +155,16 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
 
   // Check for session recovery on mount
   useEffect(() => {
-    const savedSession = loadSession();
-    if (savedSession && !savedSession.isCompleted && onSessionRestore) {
-      onSessionRestore(savedSession);
-    }
+    const restoreSession = async () => {
+      const savedSession = await loadSession();
+      if (savedSession && !savedSession.isCompleted && onSessionRestore) {
+        onSessionRestore(savedSession);
+      }
+    };
     
+    restoreSession();
     detectUnexpectedReload();
-  }, [loadSession, onSessionRestore, detectUnexpectedReload]);
+  }, [detectUnexpectedReload]);
 
   // Handle visibility change to save immediately when tab becomes hidden
   useEffect(() => {
@@ -189,7 +207,7 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
     };
   }, [unsavedChanges, currentAnswer, saveSession]);
 
-  // Auto-save current answer when it changes
+  // Auto-save current answer when it changes (debounced 2s)
   useEffect(() => {
     if (currentAnswer && currentAnswer.trim() !== '') {
       setUnsavedChanges(true);
@@ -199,14 +217,14 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
         clearTimeout(saveTimeoutRef.current);
       }
       
-      // Save after 3 seconds of inactivity
+      // Save after 2 seconds of inactivity (optimizat pentru Supabase)
       saveTimeoutRef.current = setTimeout(() => {
         saveSession({
           currentAnswer,
           draftAnswer: currentAnswer,
           timestamp: new Date().toISOString()
         });
-      }, 3000);
+      }, 2000);
     }
   }, [currentAnswer, saveSession]);
 

@@ -27,7 +27,7 @@ export const useGodsSchoolStack = ({ onAddToHitList }: UseGodsSchoolStackProps =
   const sessionProps = useStackSession({
     stackType: 'gods-school',
     sessionId,
-    onSessionRestore: (sessionData: GodsSchoolStackData) => {
+    onSessionRestore: (sessionData) => {
       setState(prevState => ({
         ...prevState,
         currentStep: sessionData.step || 1,
