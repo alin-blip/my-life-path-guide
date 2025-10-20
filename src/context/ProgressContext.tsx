@@ -1,5 +1,6 @@
 
 import React, { createContext, useState, useEffect, useContext, useRef, useCallback } from 'react';
+import { userProgressService } from '@/services/userProgressService';
 
 type DayOfWeek = 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su';
 
@@ -143,61 +144,217 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   
   // FIX: Add ref to track if data is loaded to prevent multiple syncData calls
   const dataLoaded = useRef(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load data from localStorage on mount
+  // Debounced save to Supabase
+  const saveToSupabase = useCallback(async () => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    try {
+      // Convert ActivityByDay format to DailyFourData format for service
+      const dailyFourFormatted: any = {};
+      Object.keys(dailyFourData).forEach(day => {
+        dailyFourFormatted[day] = {};
+        dailyFourData[day].dailyActivities.forEach(activity => {
+          dailyFourFormatted[day][activity.id] = activity.completed;
+        });
+        dailyFourData[day].weeklyActivities.forEach(activity => {
+          dailyFourFormatted[day][activity.id] = activity.completed;
+        });
+      });
+
+      await Promise.all([
+        userProgressService.saveCoreProgress(today, coreData),
+        userProgressService.saveDailyFourProgress(today, dailyFourFormatted)
+      ]);
+      console.log('✅ Progress saved to Supabase');
+    } catch (error) {
+      console.error('Error saving to Supabase:', error);
+    }
+  }, [coreData, dailyFourData]);
+
+  // Load data from Supabase on mount (with localStorage fallback)
   useEffect(() => {
     if (dataLoaded.current) return;
     
-    const savedCoreData = localStorage.getItem('coreData');
-    if (savedCoreData) {
+    const loadInitialData = async () => {
+      const today = new Date().toISOString().split('T')[0];
+      
       try {
-        setCoreData(JSON.parse(savedCoreData));
-      } catch (e) {
-        console.error("Error parsing saved core data:", e);
-      }
-    }
-
-    const savedDailyFourData = localStorage.getItem('dailyFourData');
-    if (savedDailyFourData) {
-      try {
-        const parsedData = JSON.parse(savedDailyFourData);
-        if (parsedData.byDay) {
-          setDailyFourData(parsedData.byDay);
+        const { core, dailyFour } = await userProgressService.loadWeekProgress(today);
+        
+        if (core) {
+          setCoreData(core);
+          localStorage.setItem('coreData', JSON.stringify(core));
+        } else {
+          // Fallback to localStorage
+          const savedCoreData = localStorage.getItem('coreData');
+          if (savedCoreData) {
+            try {
+              const parsedCore = JSON.parse(savedCoreData);
+              setCoreData(parsedCore);
+              // Migrate to Supabase
+              await userProgressService.saveCoreProgress(today, parsedCore);
+            } catch (e) {
+              console.error("Error parsing saved core data:", e);
+            }
+          }
         }
-      } catch (e) {
-        console.error("Error parsing saved daily four data:", e);
+        
+        if (dailyFour) {
+          // Convert DailyFourData format to ActivityByDay format
+          const convertedData: ActivityByDay = {};
+          Object.keys(dailyFour).forEach(day => {
+            const dayData = dailyFour[day];
+            convertedData[day] = {
+              dailyActivities: defaultDailyActivities.map(a => ({
+                ...a,
+                completed: dayData[a.id] || false
+              })),
+              weeklyActivities: defaultWeeklyActivities.map(a => ({
+                ...a,
+                completed: dayData[a.id] || false
+              }))
+            };
+          });
+          setDailyFourData(convertedData);
+          localStorage.setItem('dailyFourData', JSON.stringify({ byDay: convertedData }));
+        } else {
+          // Fallback to localStorage
+          const savedDailyFourData = localStorage.getItem('dailyFourData');
+          if (savedDailyFourData) {
+            try {
+              const parsedData = JSON.parse(savedDailyFourData);
+              if (parsedData.byDay) {
+                setDailyFourData(parsedData.byDay);
+                
+                // Convert and migrate to Supabase
+                const dailyFourFormatted: any = {};
+                Object.keys(parsedData.byDay).forEach(day => {
+                  dailyFourFormatted[day] = {};
+                  parsedData.byDay[day].dailyActivities.forEach((activity: any) => {
+                    dailyFourFormatted[day][activity.id] = activity.completed;
+                  });
+                  parsedData.byDay[day].weeklyActivities.forEach((activity: any) => {
+                    dailyFourFormatted[day][activity.id] = activity.completed;
+                  });
+                });
+                await userProgressService.saveDailyFourProgress(today, dailyFourFormatted);
+              }
+            } catch (e) {
+              console.error("Error parsing saved daily four data:", e);
+            }
+          }
+        }
+
+        // Load progress data from localStorage
+        const savedProgress = localStorage.getItem('progressData');
+        if (savedProgress) {
+          try {
+            setProgress(JSON.parse(savedProgress));
+          } catch (e) {
+            console.error("Error parsing saved progress data:", e);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        // Fallback to localStorage on error
+        const savedCoreData = localStorage.getItem('coreData');
+        if (savedCoreData) {
+          try {
+            setCoreData(JSON.parse(savedCoreData));
+          } catch (e) {
+            console.error("Error parsing saved core data:", e);
+          }
+        }
+
+        const savedDailyFourData = localStorage.getItem('dailyFourData');
+        if (savedDailyFourData) {
+          try {
+            const parsedData = JSON.parse(savedDailyFourData);
+            if (parsedData.byDay) {
+              setDailyFourData(parsedData.byDay);
+            }
+          } catch (e) {
+            console.error("Error parsing saved daily four data:", e);
+          }
+        }
+        
+        const savedProgress = localStorage.getItem('progressData');
+        if (savedProgress) {
+          try {
+            setProgress(JSON.parse(savedProgress));
+          } catch (e) {
+            console.error("Error parsing saved progress data:", e);
+          }
+        }
       }
-    }
-    
-    // Load progress data if available
-    const savedProgress = localStorage.getItem('progressData');
-    if (savedProgress) {
-      try {
-        setProgress(JSON.parse(savedProgress));
-      } catch (e) {
-        console.error("Error parsing saved progress data:", e);
-      }
-    }
-    
-    dataLoaded.current = true;
+      
+      dataLoaded.current = true;
+    };
+
+    loadInitialData();
   }, []);
 
-  // Save data to localStorage whenever it changes
+  // Save data to localStorage and Supabase whenever it changes (with debouncing)
   useEffect(() => {
     localStorage.setItem('coreData', JSON.stringify(coreData));
-  }, [coreData]);
+    
+    // Debounce Supabase save (500ms)
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      saveToSupabase();
+    }, 500);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [coreData, saveToSupabase]);
 
   useEffect(() => {
     const dataToSave = {
       byDay: dailyFourData
     };
     localStorage.setItem('dailyFourData', JSON.stringify(dataToSave));
-  }, [dailyFourData]);
+    
+    // Debounce Supabase save (500ms)
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      saveToSupabase();
+    }, 500);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [dailyFourData, saveToSupabase]);
   
   // Save progress data
   useEffect(() => {
     localStorage.setItem('progressData', JSON.stringify(progress));
   }, [progress]);
+
+  // Emergency save before unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      saveToSupabase();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [saveToSupabase]);
 
   // FIX: Use useCallback to prevent unnecessary re-renders
   const updateCoreActivity = useCallback((day: DayOfWeek, activityId: string, completed: boolean) => {
@@ -305,43 +462,82 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return score;
   }, [dailyFourData]);
 
-  // FIX: Make syncData a useCallback to prevent recreation on each render
-  const syncData = useCallback(() => {
-    if (dataLoaded.current) return;
+  // FIX: Make syncData a useCallback to sync from Supabase
+  const syncData = useCallback(async () => {
+    const today = new Date().toISOString().split('T')[0];
     
-    // Reload data from localStorage
-    const savedCoreData = localStorage.getItem('coreData');
-    if (savedCoreData) {
-      try {
-        setCoreData(JSON.parse(savedCoreData));
-      } catch (e) {
-        console.error("Error parsing saved core data:", e);
+    try {
+      const { core, dailyFour } = await userProgressService.loadWeekProgress(today);
+      
+      if (core) {
+        setCoreData(core);
+        localStorage.setItem('coreData', JSON.stringify(core));
       }
-    }
+      
+      if (dailyFour) {
+        // Convert DailyFourData format to ActivityByDay format
+        const convertedData: ActivityByDay = {};
+        Object.keys(dailyFour).forEach(day => {
+          const dayData = dailyFour[day];
+          convertedData[day] = {
+            dailyActivities: defaultDailyActivities.map(a => ({
+              ...a,
+              completed: dayData[a.id] || false
+            })),
+            weeklyActivities: defaultWeeklyActivities.map(a => ({
+              ...a,
+              completed: dayData[a.id] || false
+            }))
+          };
+        });
+        setDailyFourData(convertedData);
+        localStorage.setItem('dailyFourData', JSON.stringify({ byDay: convertedData }));
+      }
 
-    const savedDailyFourData = localStorage.getItem('dailyFourData');
-    if (savedDailyFourData) {
-      try {
-        const parsedData = JSON.parse(savedDailyFourData);
-        if (parsedData.byDay) {
-          setDailyFourData(parsedData.byDay);
+      // Still load progress from localStorage
+      const savedProgress = localStorage.getItem('progressData');
+      if (savedProgress) {
+        try {
+          setProgress(JSON.parse(savedProgress));
+        } catch (e) {
+          console.error("Error parsing saved progress data:", e);
         }
-      } catch (e) {
-        console.error("Error parsing saved daily four data:", e);
+      }
+      
+      console.log('✅ Data synced from Supabase');
+    } catch (error) {
+      console.error('Error syncing data:', error);
+      // Fallback to localStorage
+      const savedCoreData = localStorage.getItem('coreData');
+      if (savedCoreData) {
+        try {
+          setCoreData(JSON.parse(savedCoreData));
+        } catch (e) {
+          console.error("Error parsing saved core data:", e);
+        }
+      }
+
+      const savedDailyFourData = localStorage.getItem('dailyFourData');
+      if (savedDailyFourData) {
+        try {
+          const parsedData = JSON.parse(savedDailyFourData);
+          if (parsedData.byDay) {
+            setDailyFourData(parsedData.byDay);
+          }
+        } catch (e) {
+          console.error("Error parsing saved daily four data:", e);
+        }
+      }
+      
+      const savedProgress = localStorage.getItem('progressData');
+      if (savedProgress) {
+        try {
+          setProgress(JSON.parse(savedProgress));
+        } catch (e) {
+          console.error("Error parsing saved progress data:", e);
+        }
       }
     }
-    
-    // Load progress data if available
-    const savedProgress = localStorage.getItem('progressData');
-    if (savedProgress) {
-      try {
-        setProgress(JSON.parse(savedProgress));
-      } catch (e) {
-        console.error("Error parsing saved progress data:", e);
-      }
-    }
-    
-    dataLoaded.current = true;
   }, []);
 
   return (
