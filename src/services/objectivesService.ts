@@ -107,5 +107,58 @@ export const objectivesService = {
     });
 
     return actions;
+  },
+
+  async getWeeklyObjectivesForDashboard(weekKey: string): Promise<Record<MissionCategory, string[]>> {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return {
+        body: [],
+        being: [],
+        balance: [],
+        business: []
+      };
+    }
+
+    const { data, error } = await supabase
+      .from('objectives')
+      .select('category, description')
+      .eq('user_id', user.id)
+      .eq('week_key', weekKey);
+
+    if (error) throw error;
+    if (!data) {
+      return {
+        body: [],
+        being: [],
+        balance: [],
+        business: []
+      };
+    }
+
+    const result: Record<MissionCategory, string[]> = {
+      body: [],
+      being: [],
+      balance: [],
+      business: []
+    };
+
+    data.forEach((objective) => {
+      try {
+        const answers = JSON.parse(objective.description);
+        const category = objective.category as MissionCategory;
+        
+        Object.values(answers).forEach((answer) => {
+          if (typeof answer === 'string' && answer.trim()) {
+            result[category].push(answer.trim());
+          }
+        });
+      } catch (e) {
+        console.error('Error parsing objective description:', e);
+      }
+    });
+
+    return result;
   }
+
 };

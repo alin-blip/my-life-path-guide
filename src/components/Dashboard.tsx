@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { LearnDashboard } from './LearnDashboard';
 import { WeeklyProgress } from './WeeklyProgress';
 import { MonthlyObjectives } from './MonthlyObjectives';
+import { WeeklyObjectives } from './WeeklyObjectives';
 import { useProgress } from '@/context/ProgressContext';
 import { Progress } from './ui/progress';
 import { useToast } from '@/hooks/use-toast';
@@ -711,8 +712,13 @@ export const Dashboard: React.FC = () => {
                 </Card>
               </div>
               
-              <div>
-                <MonthlyObjectives />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <WeeklyObjectives />
+                </div>
+                <div>
+                  <MonthlyObjectives />
+                </div>
               </div>
             </div>
           </div>
