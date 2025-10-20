@@ -6,6 +6,9 @@ verify_jwt = true
 [functions.hormozi-coaching]
 verify_jwt = true
 
+[functions.hormozi-platform-analysis]
+verify_jwt = true
+
 [functions.process-referral]
 verify_jwt = true
 

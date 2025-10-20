@@ -36,6 +36,7 @@ import { Notes } from "./pages/Notes";
 import { Library } from "./pages/Library";
 import Pricing from "./pages/Pricing";
 import Business from "./pages/Business";
+import HormoziAnalysis from "./pages/HormoziAnalysis";
 
 const queryClient = new QueryClient();
 
@@ -157,6 +158,11 @@ const App = () => (
                     <Route path="/business" element={
                       <ProtectedRoute>
                         <Business />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/business/hormozi-analysis" element={
+                      <ProtectedRoute>
+                        <HormoziAnalysis />
                       </ProtectedRoute>
                     } />
                     <Route path="*" element={<NotFound />} />
