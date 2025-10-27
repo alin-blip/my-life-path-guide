@@ -1,35 +1,34 @@
-
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Crown, Sparkles, Target, Shield, Flame, TrendingUp, CheckCircle2 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
-import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Helmet } from "react-helmet-async";
-import { plans } from "@/data/pricing";
+import { ProblemSection } from "@/components/landing/ProblemSection";
+import { UniqueMechanismSection } from "@/components/landing/UniqueMechanismSection";
+import { HowItWorksTimeline } from "@/components/landing/HowItWorksTimeline";
+import { ProofSection } from "@/components/landing/ProofSection";
+import { ValueStackPricing } from "@/components/landing/ValueStackPricing";
+import { ObjectionHandling } from "@/components/landing/ObjectionHandling";
+import { FinalCTA } from "@/components/landing/FinalCTA";
 
 const Index = () => {
   const navigate = useNavigate();
-  
-  const { language } = useLanguage();
-
 
   return (
     <div className="min-h-screen bg-hero-gradient">
       <Helmet>
-        <title>RoWarrior — Calea războinicilor de a avea totul</title>
-        <meta name="description" content="RoWarrior: calea războinicilor de a avea totul în viață — claritate, execuție, profit și echilibru, în același timp." />
+        <title>RoWarrior — Antreprenori €500k-€10M+: +15-30% Profit în 90 Zile</title>
+        <meta name="description" content="Sistem de War Planning pentru antreprenori români de 6-8 cifre. Reduci 80% din task-uri și crești profitul cu 15-30% în 90 de zile. Trial gratuit 3 zile." />
         <link rel="canonical" href={`${window.location.origin}/`} />
       </Helmet>
+
       {/* Language Selector */}
       <div className="absolute top-6 right-6 z-10">
         <LanguageSelector />
       </div>
 
-      {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16" id="top">
-        <div className="text-center mb-16">
+      <div className="container mx-auto px-4 py-16">
+        {/* Hero Section - Hormozi Style */}
+        <div className="text-center mb-24" id="top">
           <div className="inline-flex items-center justify-center mb-6">
             <img
               src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
@@ -39,196 +38,84 @@ const Index = () => {
             />
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            {language === 'en' ? 'RoWarrior – To Do for Entrepreneurs' : 'RoWarrior – Taskuri pentru Antreprenori'}
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            Antreprenori cu €500k-€10M+:<br />
+            Reduci 80% din task-uri și crești<br />
+            profitul cu 15-30% în 90 de zile
           </h1>
           
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            {language === 'en' 
-              ? 'RoWarrior is the warriors’ way to have it all at once — clarity, execution, profit and balance.' 
-              : 'RoWarrior este calea războinicilor de a avea totul, în același timp — claritate, execuție, profit și echilibru.'}
+          <p className="text-xl md:text-2xl text-gray-200 mb-4 max-w-4xl mx-auto">
+            Sistem de <span className="text-feminine-primary font-bold">War Planning</span> pentru CEO-uri: obiectiv domino săptămânal + 1-3 task-uri high-ROI pe zi + coaching AI tip Hormozi
+          </p>
+
+          <p className="text-lg text-gray-300 mb-8 max-w-3xl mx-auto">
+            Nu e task manager generic. E sistem de execuție pentru antreprenori români de 6-8 cifre care vor să crească profitul fără să sacrifice sănătatea și familia.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button 
               size="lg" 
               onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-feminine-primary to-feminine-purple hover:from-feminine-accent hover:to-feminine-purple text-white px-8 py-4 text-lg font-semibold"
+              className="bg-gradient-to-r from-feminine-primary to-feminine-purple hover:from-feminine-accent hover:to-feminine-purple text-white px-12 py-6 text-xl font-bold"
             >
-              {language === 'en' ? 'Get Started' : 'Începe acum'}
+              Începe Trial de 3 Zile — Vezi Primele Rezultate în 48h
             </Button>
             
             <Button 
               size="lg" 
               variant="outline"
               onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              className="border-feminine-secondary text-white hover:bg-feminine-primary/20 px-8 py-4 text-lg"
+              className="border-feminine-primary text-white hover:bg-feminine-primary/20 px-12 py-6 text-xl"
             >
-              {language === 'en' ? 'See Plans' : 'Vezi abonamentele'}
+              Vezi Pricing & ROI
             </Button>
           </div>
-        </div>
 
-        {/* RoWarrior Pillars */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          <div className="bg-gradient-to-br from-feminine-primary/40 to-feminine-rose/40 p-6 rounded-xl border border-feminine-primary/30">
-            <Target className="w-10 h-10 text-white mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Daily Discipline' : 'Disciplină Zilnică'}
-            </h3>
-            <p className="text-gray-300">
-              {language === 'en' 
-                ? 'Clear daily plan: know what moves the needle today.' 
-                : 'Plan zilnic clar: știi exact ce mișcă acul azi.'}
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-feminine-purple/40 to-purple-700/40 p-6 rounded-xl border border-feminine-purple/30">
-            <Shield className="w-10 h-10 text-white mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Relentless Execution' : 'Execuție Fără Rispă'}
-            </h3>
-            <p className="text-gray-300">
-              {language === 'en' 
-                ? 'Protect your focus. Execute 1–3 high-ROI actions daily.' 
-                : 'Protejează-ți focusul. Execută 1–3 acțiuni cu ROI maxim pe zi.'}
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-pink-600/40 to-feminine-primary/40 p-6 rounded-xl border border-pink-500/30">
-            <Flame className="w-10 h-10 text-white mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Emotional Control' : 'Control Emoțional'}
-            </h3>
-            <p className="text-gray-300">
-              {language === 'en' 
-                ? 'Use quick stacks (Anger, Clarity) to reset and move forward.' 
-                : 'Folosește stack-uri rapide (Furie, Claritate) ca să revii pe traiectorie.'}
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-yellow-600/40 to-orange-600/40 p-6 rounded-xl border border-yellow-500/30">
-            <TrendingUp className="w-10 h-10 text-white mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">
-              {language === 'en' ? 'Profit & Balance' : 'Profit & Echilibru'}
-            </h3>
-            <p className="text-gray-300">
-              {language === 'en' 
-                ? 'Grow profit without sacrificing health, family or values.' 
-                : 'Crești profitul fără să-ți sacrifici sănătatea, familia sau valorile.'}
-            </p>
+          <div className="flex items-center justify-center gap-8 text-gray-300">
+            <div className="flex items-center gap-2">
+              <span className="text-feminine-accent font-bold text-lg">✓</span>
+              <span>150+ antreprenori români</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-feminine-accent font-bold text-lg">✓</span>
+              <span>Medie +22% profit în Q1</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-feminine-accent font-bold text-lg">✓</span>
+              <span>Trial 3 zile gratuit</span>
+            </div>
           </div>
         </div>
 
-        {/* War Tools */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          <div className="bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 p-6 rounded-xl border border-feminine-primary/30">
-            <Sparkles className="w-10 h-10 text-feminine-primary mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">
-              {language === 'en' ? 'War Plan Map' : 'Harta de Războinic (War Plan)'}
-            </h3>
-            <p className="text-gray-300">
-              {language === 'en' 
-                ? 'One page plan: objectives, constraints, and the next bold moves.' 
-                : 'Plan pe o pagină: obiective, blocaje și următoarele mișcări curajoase.'}
-            </p>
-          </div>
+        {/* Problem Section */}
+        <ProblemSection />
 
-          <div className="bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 p-6 rounded-xl border border-feminine-primary/30">
-            <Target className="w-10 h-10 text-feminine-primary mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">
-              {language === 'en' ? 'Weekly Missions & KPIs' : 'Misiuni Săptămânale & KPI'}
-            </h3>
-            <p className="text-gray-300">
-              {language === 'en' 
-                ? 'Pick 1 domino goal and 3–5 KPIs; review weekly, adjust fast.' 
-                : 'Alege 1 obiectiv domino și 3–5 KPI; revizuiește săptămânal, ajustează rapid.'}
-            </p>
-          </div>
+        {/* Unique Mechanism */}
+        <UniqueMechanismSection />
 
-          <div className="bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 p-6 rounded-xl border border-feminine-primary/30">
-            <Flame className="w-10 h-10 text-feminine-primary mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">
-              {language === 'en' ? 'Rapid Stacks' : 'Stack-uri Rapide'}
-            </h3>
-            <p className="text-gray-300">
-              {language === 'en' 
-                ? 'Reset in minutes with Anger & Clarity stacks to keep momentum.' 
-                : 'Revii în câteva minute cu stack-urile Furie & Claritate – menții momentum-ul.'}
-            </p>
-          </div>
-        </div>
+        {/* How It Works Timeline */}
+        <HowItWorksTimeline />
 
-        {/* Pricing Preview */}
-        <section id="pricing" className="mb-16">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight">{language === 'en' ? 'Choose your pace — RoWarrior Plans' : 'Alege-ți ritmul — Abonamente RoWarrior'}</h2>
-            <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-              {language === 'en' ? 'Start with a 3-day trial (card required), then pick Basic or Pro for relentless execution.' : 'Începe cu proba de 3 zile (card necesar), apoi alege Basic sau Pro pentru execuție la sânge.'}
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6 mt-8">
-            {plans.map((plan) => (
-              <Card
-                key={plan.id}
-                className={`${plan.featured ? 'ring-2 ring-primary/60' : ''} relative overflow-hidden rounded-2xl border border-border bg-card/60 backdrop-blur supports-[backdrop-filter]:bg-card/50 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5`}
-              >
-                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-accent to-secondary" />
-                {plan.featured && (
-                  <Badge variant="secondary" className="absolute right-4 top-4">
-                    {language === 'en' ? 'Popular' : 'Popular'}
-                  </Badge>
-                )}
-                <CardHeader className="pb-4">
-                  <CardTitle>{plan.name}</CardTitle>
-                  {plan.highlight && (
-                    <p className="text-sm text-muted-foreground mt-1">{plan.highlight}</p>
-                  )}
-                  <div className="mt-3 flex items-baseline gap-2">
-                    <span className="text-3xl font-bold">{plan.price}</span>
-                    {plan.period && (
-                      <span className="text-muted-foreground">{plan.period}</span>
-                    )}
-                  </div>
-                  {plan.result && (
-                    <p className="mt-2 text-sm text-muted-foreground">{plan.result}</p>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-left">
-                    {plan.benefits.slice(0, 5).map((b) => (
-                      <li key={b} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full" onClick={() => navigate('/pricing')}>
-                    {plan.id === 'trial'
-                      ? (language === 'en' ? 'Start trial' : 'Începe proba')
-                      : (language === 'en' ? 'View details' : 'Vezi detaliile')}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-          <div className="mt-6 text-center">
-            <Link to="/pricing" className="underline text-sm text-muted-foreground">
-              {language === 'en' ? 'See full comparison' : 'Vezi comparația completă'}
-            </Link>
-          </div>
-        </section>
+        {/* Proof & Testimonials */}
+        <ProofSection />
+
+        {/* Value Stack Pricing */}
+        <ValueStackPricing />
+
+        {/* Objection Handling */}
+        <ObjectionHandling />
 
         {/* Final CTA */}
+        <FinalCTA />
+
+        {/* Login Link */}
         <div className="text-center">
           <div className="inline-flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
-              {language === 'en' ? 'Already have an account?' : 'Ai deja cont?'}
+            <span className="text-sm text-gray-300">
+              Ai deja cont?
             </span>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
+            <Button asChild variant="outline" size="sm" className="border-feminine-primary text-white hover:bg-feminine-primary/20">
+              <Link to="/auth">Autentificare</Link>
             </Button>
           </div>
         </div>
