@@ -24,18 +24,20 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
 
     const loadData = async () => {
       try {
-        const { hotList: loadedHotList, hitList: loadedHitList, doList: loadedDoList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
+        // Load global hot list (permanent inbox)
+        const loadedHotList = await doorUserTasksService.fetchGlobalHotList();
+        
+        // Load weekly hit/do lists
+        const { hitList: loadedHitList, doList: loadedDoList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
+        
         setHotList(loadedHotList);
         setHitList(loadedHitList);
         setDoList(loadedDoList);
       } catch (error) {
         console.error('Error loading Door data:', error);
-        // Set default data if no data exists
-        setHotList([
-          { id: '1', text: 'get the transcript from 6 phase meditation and implement in the ...', selected: false, priority: 'none' },
-          { id: '2', text: 'plan the webinar', selected: false, priority: 'none' },
-          { id: '3', text: 'reach out to 50 peoples, that means 10 a day from leads', selected: false, priority: 'urgent' },
-        ]);
+        setHotList([]);
+        setHitList([]);
+        setDoList([]);
       }
     };
 
@@ -49,8 +51,7 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
         {
           event: '*',
           schema: 'public',
-          table: 'user_tasks',
-          filter: `week_key=eq.${currentWeekKey}`
+          table: 'user_tasks'
         },
         () => {
           // Reload data when changes occur
@@ -94,20 +95,38 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     ));
   };
 
-  const updateHotListItemText = (id: string, text: string) => {
-    setHotList(hotList.map(item => 
+  const updateHotListItemText = async (id: string, text: string) => {
+    const updatedHotList = hotList.map(item => 
       item.id === id ? { ...item, text } : item
-    ));
+    );
+    setHotList(updatedHotList);
+    
+    // Save global hot list immediately
+    try {
+      await doorUserTasksService.saveGlobalHotList(updatedHotList);
+      onDataChange?.();
+    } catch (error) {
+      console.error('Error saving hot list:', error);
+    }
     
     if (editingNewItem && text.trim() !== '') {
       setEditingNewItem(false);
     }
   };
 
-  const updateHotListItemPriority = (id: string, priority: TaskPriority) => {
-    setHotList(hotList.map(item => 
+  const updateHotListItemPriority = async (id: string, priority: TaskPriority) => {
+    const updatedHotList = hotList.map(item => 
       item.id === id ? { ...item, priority } : item
-    ));
+    );
+    setHotList(updatedHotList);
+    
+    // Save global hot list immediately
+    try {
+      await doorUserTasksService.saveGlobalHotList(updatedHotList);
+      onDataChange?.();
+    } catch (error) {
+      console.error('Error saving hot list priority:', error);
+    }
     
     const priorityLabels = {
       'none': 'Normal',
@@ -122,8 +141,18 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     });
   };
 
-  const deleteHotListItem = (id: string) => {
-    setHotList(hotList.filter(item => item.id !== id));
+  const deleteHotListItem = async (id: string) => {
+    const updatedHotList = hotList.filter(item => item.id !== id);
+    setHotList(updatedHotList);
+    
+    // Save global hot list immediately
+    try {
+      await doorUserTasksService.saveGlobalHotList(updatedHotList);
+      onDataChange?.();
+    } catch (error) {
+      console.error('Error deleting hot list item:', error);
+    }
+    
     toast({
       title: "Item deleted",
       description: "Item has been removed from the Hot List",
@@ -143,7 +172,6 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     // Immediate save to Supabase
     try {
       await doorUserTasksService.saveWeekLists(currentWeekKey, {
-        hotList,
         hitList: updatedHitList,
         doList
       });
@@ -168,7 +196,6 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     // Immediate save to Supabase
     try {
       await doorUserTasksService.saveWeekLists(currentWeekKey, {
-        hotList,
         hitList,
         doList: updatedDoList
       });
@@ -203,8 +230,8 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
         
         // Immediate save to Supabase
         try {
+          await doorUserTasksService.saveGlobalHotList(updatedHotList);
           await doorUserTasksService.saveWeekLists(currentWeekKey, {
-            hotList: updatedHotList,
             hitList: updatedHitList,
             doList
           });
@@ -242,8 +269,8 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
         
         // Immediate save to Supabase
         try {
+          await doorUserTasksService.saveGlobalHotList(updatedHotList);
           await doorUserTasksService.saveWeekLists(currentWeekKey, {
-            hotList: updatedHotList,
             hitList,
             doList: updatedDoList
           });

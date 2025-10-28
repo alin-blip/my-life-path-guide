@@ -22,8 +22,11 @@ export function useDoorStorageSave() {
     if (!data.currentWeekKey) return;
 
     try {
+      // Save global hot list separately
+      await doorUserTasksService.saveGlobalHotList(data.hotList);
+      
+      // Save weekly hit/do lists
       await doorUserTasksService.saveWeekLists(data.currentWeekKey, {
-        hotList: data.hotList,
         hitList: data.hitList,
         doList: data.doList,
       });

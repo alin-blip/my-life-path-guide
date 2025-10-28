@@ -45,8 +45,30 @@ async function getUserId(): Promise<string | null> {
 }
 
 export const doorUserTasksService = {
+  async fetchGlobalHotList(): Promise<HotListItem[]> {
+    const { data, error } = await supabase
+      .from('user_tasks')
+      .select('id, title, task_type, priority, is_key_point')
+      .eq('task_type', 'hot')
+      .is('week_key', null)
+      .order('position', { ascending: true });
+
+    if (error) throw error;
+
+    const hotList: HotListItem[] = [];
+    for (const row of data ?? []) {
+      hotList.push({
+        id: String(row.id),
+        text: row.title as string,
+        priority: fromDbPriority(row.priority),
+        selected: false,
+        isKeyPoint: row.is_key_point || false
+      });
+    }
+    return hotList;
+  },
+
   async fetchWeekLists(weekKey: string): Promise<{
-    hotList: HotListItem[];
     hitList: HitListItem[];
     doList: DoListItem[];
   }> {
@@ -54,11 +76,11 @@ export const doorUserTasksService = {
       .from('user_tasks')
       .select('id, title, task_type, day_of_week, completed, priority, is_key_point')
       .eq('week_key', weekKey)
+      .in('task_type', ['hit', 'do'])
       .order('position', { ascending: true });
 
     if (error) throw error;
 
-    const hotList: HotListItem[] = [];
     const hitList: HitListItem[] = [];
     const doList: DoListItem[] = [];
 
@@ -69,13 +91,7 @@ export const doorUserTasksService = {
         priority: fromDbPriority(row.priority),
       };
 
-      if (row.task_type === 'hot') {
-        hotList.push({ 
-          ...common, 
-          selected: false,
-          isKeyPoint: row.is_key_point || false
-        } as HotListItem);
-      } else if (row.task_type === 'hit') {
+      if (row.task_type === 'hit') {
         hitList.push({
           ...common,
           day: normalizeDay(row.day_of_week),
@@ -91,41 +107,65 @@ export const doorUserTasksService = {
       }
     }
 
-    return { hotList, hitList, doList };
+    return { hitList, doList };
+  },
+
+  async saveGlobalHotList(hotList: HotListItem[]) {
+    const userId = await getUserId();
+    if (!userId) throw new Error('User not authenticated');
+
+    // Delete all existing hot tasks for this user
+    const { error: delErr } = await supabase
+      .from('user_tasks')
+      .delete()
+      .eq('task_type', 'hot')
+      .is('week_key', null);
+    
+    if (delErr) throw delErr;
+
+    if (hotList.length === 0) return { count: 0 };
+
+    const rows: any[] = [];
+    hotList.forEach((item, index) => {
+      rows.push({
+        user_id: userId,
+        week_key: null,
+        task_type: 'hot',
+        title: item.text,
+        priority: toDbPriority(item.priority),
+        is_key_point: item.isKeyPoint || false,
+        completed: false,
+        position: index
+      });
+    });
+
+    const { error: insErr } = await supabase
+      .from('user_tasks')
+      .insert(rows);
+
+    if (insErr) throw insErr;
+
+    return { count: rows.length };
   },
 
   async saveWeekLists(weekKey: string, params: {
-    hotList: HotListItem[];
     hitList: HitListItem[];
     doList: DoListItem[];
   }) {
     const userId = await getUserId();
     if (!userId) throw new Error('User not authenticated');
 
-    // Clear existing items for this week (user is enforced by RLS)
+    // Clear existing hit/do items for this week
     const { error: delErr } = await supabase
       .from('user_tasks')
       .delete()
-      .eq('week_key', weekKey);
+      .eq('week_key', weekKey)
+      .in('task_type', ['hit', 'do']);
     
     if (delErr) throw delErr;
 
     const rows: any[] = [];
     let position = 0;
-
-    // Add hot list items
-    for (const item of params.hotList) {
-      rows.push({
-        user_id: userId,
-        week_key: weekKey,
-        task_type: 'hot',
-        title: item.text,
-        priority: toDbPriority(item.priority),
-        is_key_point: item.isKeyPoint || false,
-        completed: false,
-        position: position++
-      });
-    }
 
     // Add hit list items
     for (const item of params.hitList) {

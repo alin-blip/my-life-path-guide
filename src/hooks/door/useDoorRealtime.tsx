@@ -27,15 +27,19 @@ export function useDoorRealtime({ currentWeekKey, onDataUpdate }: UseDoorRealtim
         {
           event: '*',
           schema: 'public',
-          table: 'user_tasks',
-          filter: `week_key=eq.${currentWeekKey}`
+          table: 'user_tasks'
         },
         async (payload) => {
           console.log('Real-time update received:', payload);
           
           try {
-            // Re-fetch latest data when changes occur using the service
-            const { hotList, hitList, doList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
+            // Re-fetch latest data when changes occur
+            // Global hot list (permanent inbox)
+            const hotList = await doorUserTasksService.fetchGlobalHotList();
+            
+            // Weekly hit/do lists
+            const { hitList, doList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
+            
             onDataUpdate({ hotList, hitList, doList });
             
             // Show notification for real-time updates
