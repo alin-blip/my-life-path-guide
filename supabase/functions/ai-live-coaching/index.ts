@@ -13,23 +13,23 @@ serve(async (req) => {
   }
 
   try {
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OPENAI_API_KEY is not configured');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    if (!lovableApiKey) {
+      throw new Error('LOVABLE_API_KEY is not configured');
     }
 
     const { messages, systemPrompt } = await req.json();
 
     console.log('AI Live Coaching request:', { messagesCount: messages.length, systemPrompt: systemPrompt?.substring(0, 100) + '...' });
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'system',
@@ -46,15 +46,22 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
           },
           ...messages
         ],
-        temperature: 0.8,
         max_tokens: 500,
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.error('Lovable AI API error:', errorData);
+      
+      if (response.status === 429) {
+        throw new Error('Rate limit depășit. Te rog încearcă din nou mai târziu.');
+      }
+      if (response.status === 402) {
+        throw new Error('Credite insuficiente. Te rog adaugă fonduri în contul Lovable AI.');
+      }
+      
+      throw new Error(`Lovable AI API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -71,10 +78,15 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
 
   } catch (error) {
     console.error('Error in ai-live-coaching function:', error);
+    
+    let statusCode = 500;
+    if (error.message?.includes('Rate limit')) statusCode = 429;
+    if (error.message?.includes('Credite insuficiente')) statusCode = 402;
+    
     return new Response(JSON.stringify({ 
       error: error.message 
     }), {
-      status: 500,
+      status: statusCode,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
