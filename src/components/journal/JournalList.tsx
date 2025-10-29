@@ -61,7 +61,9 @@ export const JournalList: React.FC<JournalListProps> = ({ onSelectEntry }) => {
         }));
 
         setEntries(journalEntries);
-        console.log("Loaded journal entries from Supabase:", journalEntries.length);
+        if (import.meta.env.DEV) {
+          console.log("Loaded journal entries from Supabase:", journalEntries.length);
+        }
       } else {
         // User not logged in, load from localStorage
         loadEntriesFromLocalStorage();
@@ -86,7 +88,9 @@ export const JournalList: React.FC<JournalListProps> = ({ onSelectEntry }) => {
       setEntries(parsedEntries.sort((a: JournalEntry, b: JournalEntry) => 
         new Date(b.timestamp || "").getTime() - new Date(a.timestamp || "").getTime()
       ));
-      console.log("Loaded journal entries from localStorage:", parsedEntries.length);
+      if (import.meta.env.DEV) {
+        console.log("Loaded journal entries from localStorage:", parsedEntries.length);
+      }
     } catch (error) {
       console.error("Error loading from localStorage:", error);
       setEntries([]);

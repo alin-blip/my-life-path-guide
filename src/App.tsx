@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,48 +9,62 @@ import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ProgressProvider } from "@/context/ProgressContext";
 import { SecurityProvider } from "@/components/SecurityProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+
+// Eager load critical pages
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import DashboardPage from "./pages/DashboardPage";
-import Stack from "./pages/Stack";
-import StackLibrary from "./pages/StackLibrary";
-import StackViewer from "./pages/StackViewer";
-import Learn from "./pages/Learn";
-import Door from "./pages/Door";
-import Game from "./pages/Game";
-import Core from "./pages/Core";
-import DailyFour from "./pages/DailyFour";
-import Chat from "./pages/Chat";
-import Tribe from "./pages/Tribe";
-import Journal from "./pages/Journal";
-import AdminPanel from "./pages/AdminPanel";
-import Profile from "./pages/Profile";
-import Fitness from "./pages/Fitness";
-import GeneralsTent from "./pages/GeneralsTent";
 import NotFound from "./pages/NotFound";
-import { Settings } from "./pages/Settings";
-import { Support } from "./pages/Support";
-import { Notes } from "./pages/Notes";
-import { Library } from "./pages/Library";
-import Pricing from "./pages/Pricing";
-import Business from "./pages/Business";
-import HormoziAnalysis from "./pages/HormoziAnalysis";
+
+// Lazy load heavy pages for better performance
+const Stack = lazy(() => import("./pages/Stack"));
+const StackLibrary = lazy(() => import("./pages/StackLibrary"));
+const StackViewer = lazy(() => import("./pages/StackViewer"));
+const Learn = lazy(() => import("./pages/Learn"));
+const Door = lazy(() => import("./pages/Door"));
+const Game = lazy(() => import("./pages/Game"));
+const Core = lazy(() => import("./pages/Core"));
+const DailyFour = lazy(() => import("./pages/DailyFour"));
+const Chat = lazy(() => import("./pages/Chat"));
+const Tribe = lazy(() => import("./pages/Tribe"));
+const Journal = lazy(() => import("./pages/Journal"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Fitness = lazy(() => import("./pages/Fitness"));
+const GeneralsTent = lazy(() => import("./pages/GeneralsTent"));
+const Settings = lazy(() => import("./pages/Settings").then(m => ({ default: m.Settings })));
+const Support = lazy(() => import("./pages/Support").then(m => ({ default: m.Support })));
+const Notes = lazy(() => import("./pages/Notes").then(m => ({ default: m.Notes })));
+const Library = lazy(() => import("./pages/Library").then(m => ({ default: m.Library })));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Business = lazy(() => import("./pages/Business"));
+const HormoziAnalysis = lazy(() => import("./pages/HormoziAnalysis"));
+
+// Loading component for lazy routes
+const LoadingFallback = () => (
+  <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+  </div>
+);
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <HelmetProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <LanguageProvider>
-              <SecurityProvider>
-                <ProgressProvider>
-                  <Routes>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AuthProvider>
+              <LanguageProvider>
+                <SecurityProvider>
+                  <ProgressProvider>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/dashboard" element={
@@ -165,16 +178,18 @@ const App = () => (
                         <HormoziAnalysis />
                       </ProtectedRoute>
                     } />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </ProgressProvider>
-              </SecurityProvider>
-            </LanguageProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </HelmetProvider>
-  </QueryClientProvider>
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </Suspense>
+                  </ProgressProvider>
+                </SecurityProvider>
+              </LanguageProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </HelmetProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

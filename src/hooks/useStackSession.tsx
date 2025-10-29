@@ -46,11 +46,13 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
       setLastSaveTime(new Date());
       setUnsavedChanges(false);
       
-      console.log(`🔄 [${new Date().toLocaleTimeString()}] Stack Session Auto-saved to Supabase:`, {
-        stackType,
-        step: updatedData.step,
-        answersCount: Object.keys(updatedData.answers || {}).length
-      });
+      if (import.meta.env.DEV) {
+        console.log(`🔄 [${new Date().toLocaleTimeString()}] Stack Session Auto-saved to Supabase:`, {
+          stackType,
+          step: updatedData.step,
+          answersCount: Object.keys(updatedData.answers || {}).length
+        });
+      }
     } catch (error) {
       console.error('Error saving stack session:', error);
     }
@@ -78,10 +80,12 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
       if (supabaseData) {
         // Sincronizăm și în localStorage
         localStorage.setItem(sessionKey, JSON.stringify(supabaseData));
-        console.log(`📥 [${new Date().toLocaleTimeString()}] Stack Session Loaded from Supabase:`, {
-          stackType: supabaseData.stack_type,
-          answersCount: Object.keys(supabaseData.answers || {}).length
-        });
+        if (import.meta.env.DEV) {
+          console.log(`📥 [${new Date().toLocaleTimeString()}] Stack Session Loaded from Supabase:`, {
+            stackType: supabaseData.stack_type,
+            answersCount: Object.keys(supabaseData.answers || {}).length
+          });
+        }
         return supabaseData;
       }
       
@@ -89,9 +93,11 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
       const savedData = localStorage.getItem(sessionKey);
       if (savedData) {
         const data = JSON.parse(savedData) as StackSessionData;
-        console.log(`📥 [${new Date().toLocaleTimeString()}] Stack Session Loaded from localStorage:`, {
-          stackType: data.stack_type
-        });
+        if (import.meta.env.DEV) {
+          console.log(`📥 [${new Date().toLocaleTimeString()}] Stack Session Loaded from localStorage:`, {
+            stackType: data.stack_type
+          });
+        }
         return data;
       }
     } catch (error) {
@@ -113,7 +119,9 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
       setLastSaveTime(null);
       setUnsavedChanges(false);
       
-      console.log(`🗑️ [${new Date().toLocaleTimeString()}] Stack Session Cleared from both localStorage and Supabase:`, { stackType });
+      if (import.meta.env.DEV) {
+        console.log(`🗑️ [${new Date().toLocaleTimeString()}] Stack Session Cleared from both localStorage and Supabase:`, { stackType });
+      }
     } catch (error) {
       console.error('Error clearing stack session:', error);
     }
@@ -127,7 +135,9 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
       
       if (currentData) {
         localStorage.setItem(backupKey, currentData);
-        console.log(`💾 [${new Date().toLocaleTimeString()}] Stack Session Backup Created:`, { backupKey });
+        if (import.meta.env.DEV) {
+          console.log(`💾 [${new Date().toLocaleTimeString()}] Stack Session Backup Created:`, { backupKey });
+        }
         
         toast({
           title: "Backup creat",
@@ -174,7 +184,9 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
       
       if (!isNowVisible && unsavedChanges && currentAnswer) {
         // Save immediately when tab becomes hidden
-        console.log(`💾 [${new Date().toLocaleTimeString()}] Emergency save triggered by tab switch`);
+        if (import.meta.env.DEV) {
+          console.log(`💾 [${new Date().toLocaleTimeString()}] Emergency save triggered by tab switch`);
+        }
         saveSession({
           currentAnswer,
           draftAnswer: currentAnswer,

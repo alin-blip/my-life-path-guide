@@ -92,7 +92,9 @@ const CoachingPage = () => {
   const loadExistingStack = async (stackId: string) => {
     setIsLoadingStack(true);
     try {
-      console.log("🔍 Loading existing stack:", stackId);
+      if (import.meta.env.DEV) {
+        console.log("🔍 Loading existing stack:", stackId);
+      }
       
       // Try loading from Supabase first
       const { data: { session } } = await supabase.auth.getSession();
@@ -104,7 +106,9 @@ const CoachingPage = () => {
           .single();
           
         if (stackData && !error) {
-          console.log("📥 Stack loaded from Supabase:", stackData);
+          if (import.meta.env.DEV) {
+            console.log("📥 Stack loaded from Supabase:", stackData);
+          }
           setExistingStack(stackData);
           setActiveStack(stackData.type || 'divine-prayer');
           setIsLoadingStack(false);
@@ -117,11 +121,15 @@ const CoachingPage = () => {
       const foundStack = stackLibrary.find((s: any) => s.id === stackId);
       
       if (foundStack) {
-        console.log("📥 Stack loaded from localStorage:", foundStack);
+        if (import.meta.env.DEV) {
+          console.log("📥 Stack loaded from localStorage:", foundStack);
+        }
         setExistingStack(foundStack);
         setActiveStack(foundStack.type || 'divine-prayer');
       } else {
-        console.warn("⚠️ Stack not found:", stackId);
+        if (import.meta.env.DEV) {
+          console.warn("⚠️ Stack not found:", stackId);
+        }
         toast({
           title: "Stack nu a fost găsit",
           description: "Stack-ul solicitat nu există sau nu aveți acces la el.",
@@ -156,12 +164,16 @@ const CoachingPage = () => {
     }
 
     try {
-      console.log("🔥 Adding action to HOT list:", actionText);
+      if (import.meta.env.DEV) {
+        console.log("🔥 Adding action to HOT list:", actionText);
+      }
       
       // Check authentication first
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
-        console.warn("⚠️ User not authenticated for HOT list save");
+        if (import.meta.env.DEV) {
+          console.warn("⚠️ User not authenticated for HOT list save");
+        }
         toast({
           title: "Autentificare necesară",
           description: "Trebuie să fiți autentificat pentru a salva acțiuni.",
@@ -180,14 +192,18 @@ const CoachingPage = () => {
       
       // Update local state immediately
       setHotList(prev => [...prev, newHotItem]);
-      console.log("✅ Local HOT list updated");
+      if (import.meta.env.DEV) {
+        console.log("✅ Local HOT list updated");
+      }
       
       // Save to database with better error handling
       try {
         const now = new Date();
         const currentWeekKey = `door-week-${now.getFullYear()}-${getWeek(now)}`;
         
-        console.log("💾 Saving to database with week key:", currentWeekKey);
+        if (import.meta.env.DEV) {
+          console.log("💾 Saving to database with week key:", currentWeekKey);
+        }
         
         await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
           id: newHotItem.id,
@@ -196,7 +212,9 @@ const CoachingPage = () => {
           priority: 'none' as any
         });
         
-        console.log("✅ Saved to Supabase successfully");
+        if (import.meta.env.DEV) {
+          console.log("✅ Saved to Supabase successfully");
+        }
         
         // Update localStorage for immediate UI sync
         const savedWeekData = localStorage.getItem(currentWeekKey);
@@ -204,14 +222,18 @@ const CoachingPage = () => {
         weekData.hotList = [...(weekData.hotList || []), newHotItem];
         localStorage.setItem(currentWeekKey, JSON.stringify(weekData));
         
-        console.log("✅ localStorage updated");
+        if (import.meta.env.DEV) {
+          console.log("✅ localStorage updated");
+        }
         
         // Trigger event for Door interface updates
         window.dispatchEvent(new CustomEvent('doorDataUpdated', { 
           detail: { type: 'ideaAdded', idea: newHotItem } 
         }));
         
-        console.log("✅ Door update event dispatched");
+        if (import.meta.env.DEV) {
+          console.log("✅ Door update event dispatched");
+        }
         
         toast({
           title: "✅ Acțiune adăugată cu succes",
@@ -241,8 +263,10 @@ const CoachingPage = () => {
     }
   };
 
-  const renderActiveStack = () => {
-    console.log("🎨 Rendering active stack:", activeStack, "with existing data:", !!existingStack);
+const renderActiveStack = () => {
+    if (import.meta.env.DEV) {
+      console.log("🎨 Rendering active stack:", activeStack, "with existing data:", !!existingStack);
+    }
     
     if (isLoadingStack) {
       return (

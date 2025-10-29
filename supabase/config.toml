@@ -1,5 +1,21 @@
 project_id = "sdflvglvhqmukzqmqosa"
 
+[auth]
+enable_signup = true
+enable_anonymous_sign_ins = false
+otp_expiry = 3600
+password_min_length = 8
+enable_password_leak_detection = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+max_frequency = "1h"
+
+[auth.sms]
+max_frequency = "1m"
+
 [functions.ai-live-coaching]
 verify_jwt = true
 

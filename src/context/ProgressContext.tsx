@@ -167,7 +167,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         userProgressService.saveCoreProgress(today, coreData),
         userProgressService.saveDailyFourProgress(today, dailyFourFormatted)
       ]);
-      console.log('✅ Progress saved to Supabase');
+      if (import.meta.env.DEV) {
+        console.log('✅ Progress saved to Supabase');
+      }
     } catch (error) {
       console.error('Error saving to Supabase:', error);
     }
@@ -196,7 +198,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               // Migrate to Supabase
               await userProgressService.saveCoreProgress(today, parsedCore);
             } catch (e) {
-              console.error("Error parsing saved core data:", e);
+              if (import.meta.env.DEV) {
+                console.error("Error parsing saved core data:", e);
+              }
             }
           }
         }
@@ -242,7 +246,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 await userProgressService.saveDailyFourProgress(today, dailyFourFormatted);
               }
             } catch (e) {
-              console.error("Error parsing saved daily four data:", e);
+              if (import.meta.env.DEV) {
+                console.error("Error parsing saved daily four data:", e);
+              }
             }
           }
         }
@@ -253,7 +259,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           try {
             setProgress(JSON.parse(savedProgress));
           } catch (e) {
-            console.error("Error parsing saved progress data:", e);
+            if (import.meta.env.DEV) {
+              console.error("Error parsing saved progress data:", e);
+            }
           }
         }
       } catch (error) {
@@ -264,7 +272,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           try {
             setCoreData(JSON.parse(savedCoreData));
           } catch (e) {
-            console.error("Error parsing saved core data:", e);
+            if (import.meta.env.DEV) {
+              console.error("Error parsing saved core data:", e);
+            }
           }
         }
 
@@ -276,7 +286,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               setDailyFourData(parsedData.byDay);
             }
           } catch (e) {
-            console.error("Error parsing saved daily four data:", e);
+            if (import.meta.env.DEV) {
+              console.error("Error parsing saved daily four data:", e);
+            }
           }
         }
         
@@ -285,7 +297,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           try {
             setProgress(JSON.parse(savedProgress));
           } catch (e) {
-            console.error("Error parsing saved progress data:", e);
+            if (import.meta.env.DEV) {
+              console.error("Error parsing saved progress data:", e);
+            }
           }
         }
       }
@@ -401,7 +415,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
       
       if (alreadyCompletedInOtherDay) {
-        console.warn(`${activityId} already completed in another day of the week`);
+        if (import.meta.env.DEV) {
+          console.warn(`${activityId} already completed in another day of the week`);
+        }
         return; // Don't update if already completed in another day
       }
     }
