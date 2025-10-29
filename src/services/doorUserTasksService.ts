@@ -219,7 +219,7 @@ export const doorUserTasksService = {
 
     const payload: any = {
       user_id: userId,
-      week_key: weekKey,
+      week_key: idea.category === 'hot' ? null : weekKey,
       task_type: idea.category,
       title: idea.text,
       priority: toDbPriority(idea.priority),

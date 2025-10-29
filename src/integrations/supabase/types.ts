@@ -755,7 +755,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
-          week_key: string
+          week_key: string | null
         }
         Insert: {
           completed?: boolean
@@ -770,7 +770,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
-          week_key: string
+          week_key?: string | null
         }
         Update: {
           completed?: boolean
@@ -785,7 +785,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
-          week_key?: string
+          week_key?: string | null
         }
         Relationships: []
       }
