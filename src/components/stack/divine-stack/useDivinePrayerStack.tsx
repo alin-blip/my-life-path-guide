@@ -46,6 +46,48 @@ const { saveSession, clearSession } = useStackSession({
   }
 });
 
+// Restore emergency save on mount (higher priority than useStackSession)
+useEffect(() => {
+  const restoreEmergencySave = () => {
+    try {
+      const emergencyKey = `emergency-divine-${sessionId}`;
+      const emergencyData = localStorage.getItem(emergencyKey);
+      
+      if (emergencyData) {
+        const parsed = JSON.parse(emergencyData);
+        const currentAnswersCount = Object.keys(answers).length;
+        const emergencyAnswersCount = Object.keys(parsed.answers || {}).length;
+        
+        // Restore if emergency save has more data
+        if (emergencyAnswersCount > currentAnswersCount) {
+          console.log('🚨 Restoring emergency save:', {
+            emergencyAnswers: emergencyAnswersCount,
+            currentAnswers: currentAnswersCount,
+            step: parsed.step
+          });
+          
+          setCurrentStep(parsed.step || 0);
+          setAnswers(parsed.answers || {});
+          
+          toast({
+            title: "Progres recuperat",
+            description: `Am restaurat ${emergencyAnswersCount} răspunsuri salvate automat.`,
+            duration: 3000,
+          });
+          
+          // Clean up emergency save after successful restore
+          localStorage.removeItem(emergencyKey);
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring emergency save:', error);
+    }
+  };
+  
+  // Run on mount with slight delay to let useStackSession try first
+  setTimeout(restoreEmergencySave, 100);
+}, [sessionId]);
+
 // Emergency save function for immediate persistence
 const emergencySave = () => {
   try {
