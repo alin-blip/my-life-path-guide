@@ -43,25 +43,35 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
 
     loadData();
 
-    // Set up real-time subscription for user_tasks changes
-    const channel = supabase
-      .channel('user-tasks-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_tasks'
-        },
-        () => {
-          // Reload data when changes occur
-          loadData();
-        }
-      )
-      .subscribe();
+    // Set up real-time subscription with user_id filter to prevent false reloads
+    const setupRealtime = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      return supabase
+        .channel('user-tasks-realtime')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'user_tasks',
+            filter: `user_id=eq.${user.id}` // Only listen to current user's changes
+          },
+          (payload) => {
+            console.log('[Realtime] User task changed:', payload);
+            loadData();
+          }
+        )
+        .subscribe();
+    };
+
+    let channelPromise = setupRealtime();
 
     return () => {
-      supabase.removeChannel(channel);
+      channelPromise.then(channel => {
+        if (channel) supabase.removeChannel(channel);
+      });
     };
   }, [currentWeekKey]);
 

@@ -155,21 +155,16 @@ export const doorUserTasksService = {
     const userId = await getUserId();
     if (!userId) throw new Error('User not authenticated');
 
-    // Clear existing hit/do items for this week
-    const { error: delErr } = await supabase
-      .from('user_tasks')
-      .delete()
-      .eq('week_key', weekKey)
-      .in('task_type', ['hit', 'do']);
-    
-    if (delErr) throw delErr;
-
     const rows: any[] = [];
     let position = 0;
 
-    // Add hit list items
+    // Prepare all tasks for UPSERT
     for (const item of params.hitList) {
+      // Keep UUID if valid (for updates), undefined for new tasks
+      const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id);
+      
       rows.push({
+        id: isValidUuid ? item.id : undefined,
         user_id: userId,
         week_key: weekKey,
         task_type: 'hit',
@@ -182,9 +177,11 @@ export const doorUserTasksService = {
       });
     }
 
-    // Add do list items
     for (const item of params.doList) {
+      const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id);
+      
       rows.push({
+        id: isValidUuid ? item.id : undefined,
         user_id: userId,
         week_key: weekKey,
         task_type: 'do',
@@ -196,13 +193,38 @@ export const doorUserTasksService = {
       });
     }
 
-    if (rows.length === 0) return { count: 0 };
+    if (rows.length === 0) {
+      // Delete all tasks if lists are empty
+      await supabase
+        .from('user_tasks')
+        .delete()
+        .eq('week_key', weekKey)
+        .eq('user_id', userId)
+        .in('task_type', ['hit', 'do']);
+      return { count: 0 };
+    }
 
-    const { error: insErr } = await supabase
+    // UPSERT: Update if exists, insert if new (single event instead of DELETE + INSERT)
+    const { error: upsertErr } = await supabase
       .from('user_tasks')
-      .insert(rows);
+      .upsert(rows, {
+        onConflict: 'id',
+        ignoreDuplicates: false
+      });
 
-    if (insErr) throw insErr;
+    if (upsertErr) throw upsertErr;
+
+    // Delete tasks that are no longer in the lists
+    const keptIds = rows.map(r => r.id).filter(Boolean);
+    if (keptIds.length > 0) {
+      await supabase
+        .from('user_tasks')
+        .delete()
+        .eq('week_key', weekKey)
+        .eq('user_id', userId)
+        .in('task_type', ['hit', 'do'])
+        .not('id', 'in', `(${keptIds.join(',')})`);
+    }
 
     return { count: rows.length };
   },
