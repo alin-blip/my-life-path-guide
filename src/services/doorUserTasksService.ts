@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { HotListItem, HitListItem, DoListItem, TaskPriority, DayOfWeek } from '@/types/door';
+import { v4 as uuidv4 } from 'uuid';
 
 function toDbPriority(priority: TaskPriority | undefined): number {
   switch (priority) {
@@ -160,11 +161,11 @@ export const doorUserTasksService = {
 
     // Prepare all tasks for UPSERT
     for (const item of params.hitList) {
-      // Keep UUID if valid (for updates), undefined for new tasks
+      // Keep UUID if valid (for updates), generate new UUID for new tasks
       const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id);
       
       rows.push({
-        id: isValidUuid ? item.id : undefined,
+        id: isValidUuid ? item.id : uuidv4(),
         user_id: userId,
         week_key: weekKey,
         task_type: 'hit',
@@ -181,7 +182,7 @@ export const doorUserTasksService = {
       const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id);
       
       rows.push({
-        id: isValidUuid ? item.id : undefined,
+        id: isValidUuid ? item.id : uuidv4(),
         user_id: userId,
         week_key: weekKey,
         task_type: 'do',
