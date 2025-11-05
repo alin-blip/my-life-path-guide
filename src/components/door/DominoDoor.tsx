@@ -1,10 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
-import { Info, Share2, Check, ArrowLeft, Plus, KeyRound, Sparkles, Flame, Trophy } from 'lucide-react';
-import { HotListItem, DominoKeyPoint } from '@/types/door';
+import { Info, Share2, Check, ArrowLeft, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket } from 'lucide-react';
+import { HotListItem, DominoKeyPoint, PlanningResult } from '@/types/door';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
+import { DoorPlanningModal } from './DoorPlanningModal';
+import { useToast } from '@/hooks/use-toast';
 
 interface DominoDoorProps {
   selectedDomino: HotListItem | null;
@@ -18,6 +20,8 @@ interface DominoDoorProps {
   moveKeyPointToHotList?: (keyPoint: DominoKeyPoint) => void;
   addNewKeyPoint?: () => void;
   handleDropOnKeyPoint?: (keyPointId: string) => void;
+  setSelectedDomino?: (domino: HotListItem | null) => void;
+  setDominoKeyPoints?: (keyPoints: DominoKeyPoint[]) => void;
 }
 
 const KeyPointIcons = [
@@ -38,9 +42,48 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   isCompleted = false,
   moveKeyPointToHotList,
   addNewKeyPoint,
-  handleDropOnKeyPoint
+  handleDropOnKeyPoint,
+  setSelectedDomino,
+  setDominoKeyPoints
 }) => {
   const { t } = useLanguage();
+  const { toast } = useToast();
+  const [isPlanningModalOpen, setIsPlanningModalOpen] = useState(false);
+
+  const handlePlanningComplete = (result: PlanningResult) => {
+    if (!setSelectedDomino || !setDominoKeyPoints) return;
+
+    // Set Domino Door
+    setSelectedDomino({
+      id: `domino-${Date.now()}`,
+      text: result.dominoTitle,
+      selected: true,
+      priority: 'urgent-important'
+    });
+
+    // Set 4 key points with metadata
+    setDominoKeyPoints(result.keyPoints.map((kp) => ({
+      id: `key${kp.id}`,
+      text: kp.title,
+      completed: false,
+      metadata: {
+        objective: kp.objective,
+        why: kp.why,
+        positiveImpact: kp.positiveImpact,
+        negativeImpact: kp.negativeImpact,
+        steps: kp.steps,
+        responsible: kp.responsible,
+        deadline: kp.deadline
+      }
+    })));
+
+    setIsPlanningModalOpen(false);
+    
+    toast({
+      title: "✅ Planificare completată!",
+      description: `Domino Door și cele 4 chei au fost setate pentru săptămâna aceasta.`,
+    });
+  };
   
   // Ensure we always render exactly 4 key points
   const limitedKeyPoints = dominoKeyPoints.slice(0, 4);
@@ -67,10 +110,29 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           {t('weeklyMassiveGoal')} {selectedDomino ? '1/1' : '0/1'}
         </h2>
         <div className="flex items-center space-x-2">
+          {setSelectedDomino && setDominoKeyPoints && (
+            <Button
+              onClick={() => setIsPlanningModalOpen(true)}
+              variant="default"
+              size="sm"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+            >
+              <Rocket className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} mr-1`} />
+              {isMobile ? 'Start' : 'Start Planning'}
+            </Button>
+          )}
           <Info className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-gray-400 hover:text-blue-400 transition-colors cursor-pointer`} />
           <Share2 className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-gray-400 hover:text-blue-400 transition-colors cursor-pointer`} />
         </div>
       </div>
+      
+      {isPlanningModalOpen && setSelectedDomino && setDominoKeyPoints && (
+        <DoorPlanningModal
+          isOpen={isPlanningModalOpen}
+          onClose={() => setIsPlanningModalOpen(false)}
+          onPlanningComplete={handlePlanningComplete}
+        />
+      )}
       
       {selectedDomino ? (
         <div className={`space-y-4 animate-fade-in ${isMobile ? 'space-y-3' : 'space-y-6'}`}>
@@ -179,6 +241,21 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
             <p className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-sm'} max-w-sm mt-1`}>
               {t('orClickToSelect')}
             </p>
+            
+            {setSelectedDomino && setDominoKeyPoints && (
+              <div className="mt-6">
+                <p className={`text-gray-400 mb-3 ${isMobile ? 'text-xs' : 'text-sm'}`}>sau</p>
+                <Button
+                  onClick={() => setIsPlanningModalOpen(true)}
+                  variant="default"
+                  size={isMobile ? 'sm' : 'default'}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+                >
+                  <Rocket className="w-4 h-4 mr-2" />
+                  Start AI Planning
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -158,6 +158,8 @@ export function useDoorContent() {
     setActiveList,
     setHotList,
     setHitList,
+    setSelectedDomino,
+    setDominoKeyPoints,
     handlePreviousWeek,
     handleNextWeek,
     toggleHotListItemSelection,

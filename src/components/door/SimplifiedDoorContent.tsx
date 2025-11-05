@@ -48,6 +48,8 @@ export const SimplifiedDoorContent: React.FC = () => {
     editingNewItem,
     setSearchTerm,
     setActiveList,
+    setSelectedDomino,
+    setDominoKeyPoints,
     handlePreviousWeek,
     handleNextWeek,
     toggleHotListItemSelection,
@@ -221,6 +223,8 @@ export const SimplifiedDoorContent: React.FC = () => {
                 moveKeyPointToHotList={moveKeyPointToHotList}
                 addNewKeyPoint={addNewKeyPoint}
                 handleDropOnKeyPoint={handleDropOnKeyPoint}
+                setSelectedDomino={setSelectedDomino}
+                setDominoKeyPoints={setDominoKeyPoints}
               />
             </div>
 
@@ -295,6 +299,8 @@ export const SimplifiedDoorContent: React.FC = () => {
                 moveKeyPointToHotList={moveKeyPointToHotList}
                 addNewKeyPoint={addNewKeyPoint}
                 handleDropOnKeyPoint={handleDropOnKeyPoint}
+                setSelectedDomino={setSelectedDomino}
+                setDominoKeyPoints={setDominoKeyPoints}
               />
             </div>
 

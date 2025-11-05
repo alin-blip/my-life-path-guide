@@ -32,5 +32,43 @@ export type DoListItem = {
 export type DominoKeyPoint = {
   id: string;
   text: string;
-  completed?: boolean; // Add completed flag
+  completed?: boolean;
+  metadata?: {
+    objective?: string;
+    why?: string;
+    positiveImpact?: string;
+    negativeImpact?: string;
+    steps?: string[];
+    responsible?: string;
+    deadline?: string;
+  };
 };
+
+export interface PreviousWeekData {
+  dominoTitle: string;
+  keyPoints: Array<{
+    title: string;
+    objective?: string;
+    positiveImpact?: string;
+    negativeImpact?: string;
+    steps?: string;
+    responsible?: string;
+    deadline?: string;
+  }>;
+}
+
+export interface PlanningResult {
+  dominoTitle: string;
+  weekGoal: string;
+  keyPoints: Array<{
+    id: number;
+    title: string;
+    objective: string;
+    why: string;
+    positiveImpact: string;
+    negativeImpact: string;
+    steps: string[];
+    responsible: string;
+    deadline: string;
+  }>;
+}
