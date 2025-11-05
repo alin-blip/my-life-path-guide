@@ -861,6 +861,42 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_planning: {
+        Row: {
+          created_at: string
+          domino_title: string
+          id: string
+          key_points: Json
+          review_data: Json | null
+          updated_at: string
+          user_id: string
+          week_goal: string | null
+          week_key: string
+        }
+        Insert: {
+          created_at?: string
+          domino_title: string
+          id?: string
+          key_points?: Json
+          review_data?: Json | null
+          updated_at?: string
+          user_id: string
+          week_goal?: string | null
+          week_key: string
+        }
+        Update: {
+          created_at?: string
+          domino_title?: string
+          id?: string
+          key_points?: Json
+          review_data?: Json | null
+          updated_at?: string
+          user_id?: string
+          week_goal?: string | null
+          week_key?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

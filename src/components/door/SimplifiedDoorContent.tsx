@@ -6,6 +6,7 @@ import { DominoDoor } from '@/components/door/DominoDoor';
 import { TaskList } from '@/components/door/TaskList';
 import { OnboardingTooltip } from '@/components/door/OnboardingTooltip';
 import { DoorClearHistory } from '@/components/door/DoorClearHistory';
+import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNotification';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { format, getWeek } from 'date-fns';
@@ -15,6 +16,7 @@ export const SimplifiedDoorContent: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  const [isPlanningModalOpen, setIsPlanningModalOpen] = useState(false);
   
   // Check if user is new (no data in localStorage)
   useEffect(() => {
@@ -28,6 +30,10 @@ export const SimplifiedDoorContent: React.FC = () => {
     }
     setHasSeenOnboarding(!!hasSeenTutorial);
   }, []);
+
+  const handleStartPlanningFromNotification = () => {
+    setIsPlanningModalOpen(true);
+  };
   
   const {
     currentDate,
@@ -171,6 +177,9 @@ export const SimplifiedDoorContent: React.FC = () => {
       />
       
       <div className={`${isMobile ? 'px-4 py-6' : 'container mx-auto px-6 py-8'}`}>
+        {/* Weekly Planning Notification */}
+        <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />
+        
         {/* Clear History Button */}
         <div className="flex justify-end mb-6">
           <DoorClearHistory onHistoryCleared={() => window.location.reload()} />

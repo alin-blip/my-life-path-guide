@@ -7,6 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Send, Sparkles, SkipForward } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlanningResult, PreviousWeekData } from '@/types/door';
+import { weeklyPlanningService } from '@/services/weeklyPlanningService';
+import { getISOWeek, getYear } from 'date-fns';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -23,7 +25,7 @@ interface DoorPlanningModalProps {
 export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   isOpen,
   onClose,
-  previousWeekData,
+  previousWeekData: externalPreviousData,
   onPlanningComplete,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -31,18 +33,60 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isSkippingReview, setIsSkippingReview] = useState(false);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [previousWeekData, setPreviousWeekData] = useState<PreviousWeekData | undefined>(externalPreviousData);
+  const [isLoadingPreviousData, setIsLoadingPreviousData] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const totalQuestions = previousWeekData ? 22 : 18; // 4 review questions + 18 new week, or just 18
+  const totalQuestions = previousWeekData ? 22 : 18;
   const progress = (questionsAnswered / totalQuestions) * 100;
 
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      // Start conversation
-      startConversation();
+    if (isOpen) {
+      loadPreviousWeekData();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && !isLoadingPreviousData && messages.length === 0) {
+      startConversation();
+    }
+  }, [isOpen, isLoadingPreviousData]);
+
+  const loadPreviousWeekData = async () => {
+    setIsLoadingPreviousData(true);
+    
+    try {
+      const today = new Date();
+      const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
+      
+      // Load previous week's plan from database
+      const previousPlan = await weeklyPlanningService.getPreviousWeekPlan(currentWeekKey);
+      
+      if (previousPlan) {
+        setPreviousWeekData({
+          dominoTitle: previousPlan.dominoTitle,
+          keyPoints: previousPlan.keyPoints.map(kp => ({
+            title: kp.title,
+            objective: kp.objective,
+            positiveImpact: kp.positiveImpact,
+            negativeImpact: kp.negativeImpact,
+            steps: kp.steps.join(', '),
+            responsible: kp.responsible,
+            deadline: kp.deadline,
+          })),
+        });
+        
+        console.log('✅ Loaded previous week data:', previousPlan);
+      } else {
+        console.log('ℹ️ No previous week data found');
+      }
+    } catch (error) {
+      console.error('Error loading previous week data:', error);
+    } finally {
+      setIsLoadingPreviousData(false);
+    }
+  };
 
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive
@@ -164,6 +208,18 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
             if (toolCall?.function?.name === 'save_planning' && toolCall?.function?.arguments) {
               try {
                 const planningData = JSON.parse(toolCall.function.arguments);
+                
+                // Save to database
+                const today = new Date();
+                const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
+                
+                await weeklyPlanningService.savePlan({
+                  weekKey: currentWeekKey,
+                  dominoTitle: planningData.dominoTitle,
+                  weekGoal: planningData.weekGoal,
+                  keyPoints: planningData.keyPoints,
+                });
+                
                 onPlanningComplete(planningData);
                 onClose();
                 return;
@@ -215,10 +271,24 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Sparkles className="w-5 h-5 text-purple-500" />
             AI Weekly Planning Assistant
+            {previousWeekData && !isSkippingReview && (
+              <span className="text-sm font-normal text-muted-foreground ml-2">
+                (cu review săptămână precedentă)
+              </span>
+            )}
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 px-6 py-4" ref={scrollAreaRef}>
+        {isLoadingPreviousData ? (
+          <div className="flex-1 flex items-center justify-center py-12">
+            <div className="text-center space-y-3">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-purple-500" />
+              <p className="text-sm text-muted-foreground">Încărcare date săptămâna precedentă...</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <ScrollArea className="flex-1 px-6 py-4" ref={scrollAreaRef}>
           <div className="space-y-4">
             {messages.map((msg, idx) => (
               <div
@@ -244,50 +314,52 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                 </div>
               </div>
             )}
-          </div>
-        </ScrollArea>
-
-        <div className="px-6 pb-6 border-t pt-4 space-y-3">
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Progres: {questionsAnswered}/{totalQuestions} întrebări</span>
-              <span>{Math.round(progress)}%</span>
             </div>
-            <Progress value={progress} className="h-2" />
-          </div>
+          </ScrollArea>
 
-          {previousWeekData && !isSkippingReview && questionsAnswered === 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSkipReview}
-              className="w-full"
-            >
-              <SkipForward className="w-4 h-4 mr-2" />
-              Sari peste review, planifică direct săptămâna nouă
-            </Button>
-          )}
+          <div className="px-6 pb-6 border-t pt-4 space-y-3">
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Progres: {questionsAnswered}/{totalQuestions} întrebări</span>
+                <span>{Math.round(progress)}%</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
 
-          <div className="flex gap-2">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Scrie răspunsul tău... (Enter = trimite, Shift+Enter = rând nou)"
-              className="resize-none"
-              rows={2}
-              disabled={isLoading}
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={isLoading || !input.trim()}
-              size="icon"
-              className="h-auto"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
+            {previousWeekData && !isSkippingReview && questionsAnswered === 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSkipReview}
+                className="w-full"
+              >
+                <SkipForward className="w-4 h-4 mr-2" />
+                Sari peste review, planifică direct săptămâna nouă
+              </Button>
+            )}
+
+            <div className="flex gap-2">
+              <Textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Scrie răspunsul tău... (Enter = trimite, Shift+Enter = rând nou)"
+                className="resize-none"
+                rows={2}
+                disabled={isLoading}
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={isLoading || !input.trim()}
+                size="icon"
+                className="h-auto"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
-        </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

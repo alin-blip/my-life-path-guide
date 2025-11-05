@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
 import { DoorPlanningModal } from './DoorPlanningModal';
 import { useToast } from '@/hooks/use-toast';
+import { KeyPointMetadataPopover } from './KeyPointMetadataPopover';
 
 interface DominoDoorProps {
   selectedDomino: HotListItem | null;
@@ -174,52 +175,53 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
             
             <div className={`grid gap-2 ${isMobile ? 'gap-2' : 'gap-3'}`}>
               {displayKeyPoints.map((point, index) => (
-                <div 
-                  key={point.id} 
-                  className={`flex items-start space-x-2 rounded-lg hover:shadow-md transition-all ${
-                    point.completed ? 'bg-green-500/10' : 'bg-blue-500/10'
-                  } ${isMobile ? 'p-2 space-x-2' : 'p-3 space-x-3'}`}
-                  draggable={point.text && point.text.trim().length > 0}
-                  onDragStart={(e) => handleKeyPointDragStart(e, point)}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={() => handleDropOnKeyPoint && handleDropOnKeyPoint(point.id)}
-                >
-                  <div className={`flex-shrink-0 rounded-full flex items-center justify-center text-xs text-white shadow-md ${
-                    point.completed 
-                      ? 'bg-gradient-to-br from-green-400 to-green-600' 
-                      : 'bg-gradient-to-br from-blue-400 to-purple-600'
-                  } ${isMobile ? 'w-6 h-6' : 'w-7 h-7'}`}>
-                    {point.completed ? (
-                      <Check className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-                    ) : (
-                      React.createElement(KeyPointIcons[index % 4].icon, { 
-                        className: `${isMobile ? 'w-3 h-3' : 'w-4 h-4'} ${KeyPointIcons[index % 4].color}` 
-                      })
+                <KeyPointMetadataPopover key={point.id} keyPoint={point}>
+                  <div 
+                    className={`flex items-start space-x-2 rounded-lg hover:shadow-md transition-all ${
+                      point.completed ? 'bg-green-500/10' : 'bg-blue-500/10'
+                    } ${isMobile ? 'p-2 space-x-2' : 'p-3 space-x-3'}`}
+                    draggable={point.text && point.text.trim().length > 0}
+                    onDragStart={(e) => handleKeyPointDragStart(e, point)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => handleDropOnKeyPoint && handleDropOnKeyPoint(point.id)}
+                  >
+                    <div className={`flex-shrink-0 rounded-full flex items-center justify-center text-xs text-white shadow-md ${
+                      point.completed 
+                        ? 'bg-gradient-to-br from-green-400 to-green-600' 
+                        : 'bg-gradient-to-br from-blue-400 to-purple-600'
+                    } ${isMobile ? 'w-6 h-6' : 'w-7 h-7'}`}>
+                      {point.completed ? (
+                        <Check className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                      ) : (
+                        React.createElement(KeyPointIcons[index % 4].icon, { 
+                          className: `${isMobile ? 'w-3 h-3' : 'w-4 h-4'} ${KeyPointIcons[index % 4].color}` 
+                        })
+                      )}
+                    </div>
+                    
+                    <Textarea
+                      className={`flex-grow bg-transparent border-none focus:ring-0 focus:ring-offset-0 p-0 min-h-0 resize-none ${
+                        point.completed 
+                          ? 'text-gray-400 line-through' 
+                          : 'text-white'
+                      } ${isMobile ? 'text-sm' : 'text-sm'}`}
+                      placeholder={`${t('keyPoint')} ${index + 1}`}
+                      value={point.text}
+                      onChange={(e) => updateKeyPointText(point.id, e.target.value)}
+                      rows={1}
+                    />
+                    
+                    {point.text && point.text.trim().length > 0 && moveKeyPointToHotList && (
+                      <button 
+                        onClick={() => moveKeyPointToHotList(point)}
+                        className={`text-gray-400 hover:text-blue-400 transition-colors ${isMobile ? 'p-0.5' : 'p-1'}`}
+                        title={t('moveBackToIdeaList')}
+                      >
+                        <ArrowLeft className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                      </button>
                     )}
                   </div>
-                  
-                  <Textarea
-                    className={`flex-grow bg-transparent border-none focus:ring-0 focus:ring-offset-0 p-0 min-h-0 resize-none ${
-                      point.completed 
-                        ? 'text-gray-400 line-through' 
-                        : 'text-white'
-                    } ${isMobile ? 'text-sm' : 'text-sm'}`}
-                    placeholder={`${t('keyPoint')} ${index + 1}`}
-                    value={point.text}
-                    onChange={(e) => updateKeyPointText(point.id, e.target.value)}
-                    rows={1}
-                  />
-                  
-                  {point.text && point.text.trim().length > 0 && moveKeyPointToHotList && (
-                    <button 
-                      onClick={() => moveKeyPointToHotList(point)}
-                      className={`text-gray-400 hover:text-blue-400 transition-colors ${isMobile ? 'p-0.5' : 'p-1'}`}
-                      title={t('moveBackToIdeaList')}
-                    >
-                      <ArrowLeft className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-                    </button>
-                  )}
-                </div>
+                </KeyPointMetadataPopover>
               ))}
             </div>
           </div>
