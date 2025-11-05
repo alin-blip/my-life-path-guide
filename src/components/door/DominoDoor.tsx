@@ -1,13 +1,19 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
-import { Info, Share2, Check, ArrowLeft, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket } from 'lucide-react';
+import { Info, Share2, Check, ArrowLeft, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, History, FileDown, BarChart, Mic } from 'lucide-react';
 import { HotListItem, DominoKeyPoint, PlanningResult } from '@/types/door';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
 import { DoorPlanningModal } from './DoorPlanningModal';
+import { VoicePlanningModal } from './VoicePlanningModal';
+import { WeeklyPlanningHistory } from './WeeklyPlanningHistory';
+import { WeeklyAnalyticsDashboard } from './WeeklyAnalyticsDashboard';
 import { useToast } from '@/hooks/use-toast';
 import { KeyPointMetadataPopover } from './KeyPointMetadataPopover';
+import { weeklyPlanningService, WeeklyPlanningData } from '@/services/weeklyPlanningService';
+import { exportWeeklyPlanToPDF } from '@/services/pdfExportService';
+import { getISOWeek, getYear } from 'date-fns';
 
 interface DominoDoorProps {
   selectedDomino: HotListItem | null;
@@ -50,6 +56,19 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const { t } = useLanguage();
   const { toast } = useToast();
   const [isPlanningModalOpen, setIsPlanningModalOpen] = useState(false);
+  const [isVoicePlanningOpen, setIsVoicePlanningOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const [allPlans, setAllPlans] = useState<WeeklyPlanningData[]>([]);
+
+  useEffect(() => {
+    loadAllPlans();
+  }, []);
+
+  const loadAllPlans = async () => {
+    const plans = await weeklyPlanningService.getAllPlans();
+    setAllPlans(plans);
+  };
 
   const handlePlanningComplete = (result: PlanningResult) => {
     if (!setSelectedDomino || !setDominoKeyPoints) return;
@@ -79,10 +98,82 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
     })));
 
     setIsPlanningModalOpen(false);
+    setIsVoicePlanningOpen(false);
+    loadAllPlans(); // Reload plans after completion
     
     toast({
       title: "✅ Planificare completată!",
       description: `Domino Door și cele 4 chei au fost setate pentru săptămâna aceasta.`,
+    });
+  };
+
+  const handleExportPDF = async () => {
+    if (!selectedDomino || !setSelectedDomino || !setDominoKeyPoints) return;
+
+    const today = new Date();
+    const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
+    
+    const currentPlan: WeeklyPlanningData = {
+      weekKey: currentWeekKey,
+      dominoTitle: selectedDomino.text,
+      weekGoal: '',
+      keyPoints: dominoKeyPoints.map(kp => ({
+        id: parseInt(kp.id.replace('key', '')),
+        title: kp.text,
+        objective: kp.metadata?.objective || '',
+        why: kp.metadata?.why || '',
+        positiveImpact: kp.metadata?.positiveImpact || '',
+        negativeImpact: kp.metadata?.negativeImpact || '',
+        steps: kp.metadata?.steps || [],
+        responsible: kp.metadata?.responsible || '',
+        deadline: kp.metadata?.deadline || '',
+      })),
+    };
+
+    try {
+      await exportWeeklyPlanToPDF(currentPlan);
+      toast({
+        title: 'PDF Export Successful',
+        description: 'Planul săptămânal a fost exportat cu succes!',
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: 'Eroare Export',
+        description: 'Nu s-a putut exporta PDF-ul',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleSelectHistoryPlan = (plan: WeeklyPlanningData) => {
+    if (!setSelectedDomino || !setDominoKeyPoints) return;
+
+    setSelectedDomino({
+      id: `domino-history-${Date.now()}`,
+      text: plan.dominoTitle,
+      selected: true,
+      priority: 'urgent-important'
+    });
+
+    setDominoKeyPoints(plan.keyPoints.map((kp) => ({
+      id: `key${kp.id}`,
+      text: kp.title,
+      completed: false,
+      metadata: {
+        objective: kp.objective,
+        why: kp.why,
+        positiveImpact: kp.positiveImpact,
+        negativeImpact: kp.negativeImpact,
+        steps: kp.steps,
+        responsible: kp.responsible,
+        deadline: kp.deadline
+      }
+    })));
+
+    toast({
+      title: 'Plan Încărcat',
+      description: `Planul din ${plan.weekKey} a fost încărcat cu succes`,
     });
   };
   
@@ -110,28 +201,92 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
         <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600`}>
           {t('weeklyMassiveGoal')} {selectedDomino ? '1/1' : '0/1'}
         </h2>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
           {setSelectedDomino && setDominoKeyPoints && (
-            <Button
-              onClick={() => setIsPlanningModalOpen(true)}
-              variant="default"
-              size="sm"
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
-            >
-              <Rocket className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} mr-1`} />
-              {isMobile ? 'Start' : 'Start Planning'}
-            </Button>
+            <>
+              <Button
+                onClick={() => setIsPlanningModalOpen(true)}
+                variant="ghost"
+                size="sm"
+                className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                title="Start AI Planning (text)"
+              >
+                <Rocket className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+              </Button>
+              <Button
+                onClick={() => setIsVoicePlanningOpen(true)}
+                variant="ghost"
+                size="sm"
+                className="text-purple-400 hover:text-purple-300 hover:bg-purple-500/10"
+                title="Start Voice Planning"
+              >
+                <Mic className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+              </Button>
+              <Button
+                onClick={() => setIsHistoryOpen(true)}
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-gray-300 hover:bg-gray-500/10"
+                title="View History"
+              >
+                <History className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+              </Button>
+              <Button
+                onClick={handleExportPDF}
+                variant="ghost"
+                size="sm"
+                className="text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                title="Export PDF"
+                disabled={!selectedDomino}
+              >
+                <FileDown className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+              </Button>
+              <Button
+                onClick={() => setIsAnalyticsOpen(true)}
+                variant="ghost"
+                size="sm"
+                className="text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
+                title="Analytics Dashboard"
+              >
+                <BarChart className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+              </Button>
+            </>
           )}
           <Info className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-gray-400 hover:text-blue-400 transition-colors cursor-pointer`} />
-          <Share2 className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-gray-400 hover:text-blue-400 transition-colors cursor-pointer`} />
         </div>
       </div>
       
+      {/* Modals */}
       {isPlanningModalOpen && setSelectedDomino && setDominoKeyPoints && (
         <DoorPlanningModal
           isOpen={isPlanningModalOpen}
           onClose={() => setIsPlanningModalOpen(false)}
           onPlanningComplete={handlePlanningComplete}
+        />
+      )}
+
+      {isVoicePlanningOpen && setSelectedDomino && setDominoKeyPoints && (
+        <VoicePlanningModal
+          isOpen={isVoicePlanningOpen}
+          onClose={() => setIsVoicePlanningOpen(false)}
+          onPlanningComplete={handlePlanningComplete}
+        />
+      )}
+
+      {isHistoryOpen && (
+        <WeeklyPlanningHistory
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          plans={allPlans}
+          onSelectPlan={handleSelectHistoryPlan}
+        />
+      )}
+
+      {isAnalyticsOpen && (
+        <WeeklyAnalyticsDashboard
+          isOpen={isAnalyticsOpen}
+          onClose={() => setIsAnalyticsOpen(false)}
+          plans={allPlans}
         />
       )}
       

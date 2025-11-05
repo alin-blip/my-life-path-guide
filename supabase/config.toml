@@ -39,3 +39,6 @@ verify_jwt = true
 
 [functions.door-ai-planning]
 verify_jwt = true
+
+[functions.realtime-voice]
+verify_jwt = false
