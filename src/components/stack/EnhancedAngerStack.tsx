@@ -6,6 +6,7 @@ import { AngerStackExplanation } from './anger-stack/AngerStackExplanation';
 import { getQuestions } from './anger-stack/questions';
 import { AngerStackProps } from './anger-stack/types';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
+import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { StackIdeaModal } from "./StackIdeaModal";
 import { AiGuidedStack } from "./AiGuidedStack";
 import { StackResetConfirmation } from "./StackResetConfirmation";
@@ -36,6 +37,22 @@ export const EnhancedAngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }
     isYesNoQuestion, currentAnswer, stackCompleted, actionAddedToHotList,
     lastSaveTime, unsavedChanges, sessionId
   } = state;
+  
+  // Voice input integration
+  const {
+    isConnected,
+    isMicOn,
+    isAISpeaking,
+    isUserSpeaking,
+    audioLevel,
+    toggleMic
+  } = useVoiceInput({
+    onTranscript: (text) => {
+      setState.setCurrentAnswer(prev => prev ? prev + ' ' + text : text);
+    },
+    systemPrompt: "You are a helpful assistant helping users process anger and emotions. Be concise and empathetic.",
+    enabled: mode === 'manual' && !stackCompleted
+  });
   
   const { setDomain, setCurrentAnswer } = setState;
   

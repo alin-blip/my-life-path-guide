@@ -97,6 +97,8 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
     isConnected,
     isMicOn,
     isAISpeaking,
+    isUserSpeaking,
+    audioLevel,
     toggleMic
   } = useVoiceInput({
     onTranscript: handleVoiceTranscript,
@@ -433,8 +435,11 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
                   isConnected={isConnected}
                   isMicOn={isMicOn}
                   isAISpeaking={isAISpeaking}
+                  isUserSpeaking={isUserSpeaking}
+                  audioLevel={audioLevel}
                   onToggle={toggleMic}
                   variant="compact"
+                  showWaveform={true}
                 />
                 <Button 
                   onClick={sendMessage}

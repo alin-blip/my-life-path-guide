@@ -15,6 +15,8 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
   const [isAISpeaking, setIsAISpeaking] = useState(false);
+  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
   
   const wsRef = useRef<WebSocket | null>(null);
   const recorderRef = useRef<AudioRecorder | null>(null);
@@ -70,15 +72,20 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
         
         // Start microphone recording
         try {
-          recorderRef.current = new AudioRecorder((audioData: Float32Array) => {
-            if (wsRef.current?.readyState === WebSocket.OPEN) {
-              const base64Audio = encodeAudioForAPI(audioData);
-              wsRef.current.send(JSON.stringify({
-                type: 'input_audio_buffer.append',
-                audio: base64Audio
-              }));
-            }
-          });
+      recorderRef.current = new AudioRecorder(
+        (audioData: Float32Array) => {
+          if (wsRef.current?.readyState === WebSocket.OPEN) {
+            const base64Audio = encodeAudioForAPI(audioData);
+            wsRef.current.send(JSON.stringify({
+              type: 'input_audio_buffer.append',
+              audio: base64Audio
+            }));
+          }
+        },
+        (level: number) => {
+          setAudioLevel(level);
+        }
+      );
           
           await recorderRef.current.start();
           setIsMicOn(true);
@@ -138,13 +145,15 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
               console.log('🔊 AI started speaking');
               break;
               
-            case 'input_audio_buffer.speech_started':
-              console.log('🎤 User started speaking');
-              break;
-              
-            case 'input_audio_buffer.speech_stopped':
-              console.log('🎤 User stopped speaking');
-              break;
+          case 'input_audio_buffer.speech_started':
+            console.log('🎤 User started speaking');
+            setIsUserSpeaking(true);
+            break;
+            
+          case 'input_audio_buffer.speech_stopped':
+            console.log('🎤 User stopped speaking');
+            setIsUserSpeaking(false);
+            break;
               
             case 'error':
               console.error('❌ Voice error:', data);
@@ -229,6 +238,8 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     isConnected,
     isMicOn,
     isAISpeaking,
+    isUserSpeaking,
+    audioLevel,
     startVoice,
     stopVoice,
     toggleMic

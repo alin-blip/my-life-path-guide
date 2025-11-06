@@ -3,8 +3,13 @@ export class AudioRecorder {
   private audioContext: AudioContext | null = null;
   private processor: ScriptProcessorNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
+  private analyser: AnalyserNode | null = null;
+  private dataArray: Uint8Array<ArrayBuffer> | null = null;
 
-  constructor(private onAudioData: (audioData: Float32Array) => void) {}
+  constructor(
+    private onAudioData: (audioData: Float32Array) => void,
+    private onAudioLevel?: (level: number) => void
+  ) {}
 
   async start() {
     try {
@@ -25,17 +30,56 @@ export class AudioRecorder {
       this.source = this.audioContext.createMediaStreamSource(this.stream);
       this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
       
+      // Add AnalyserNode for visualization
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = 2048;
+      this.analyser.smoothingTimeConstant = 0.8;
+      const buffer = new ArrayBuffer(this.analyser.frequencyBinCount);
+      this.dataArray = new Uint8Array(buffer);
+      
       this.processor.onaudioprocess = (e) => {
         const inputData = e.inputBuffer.getChannelData(0);
         this.onAudioData(new Float32Array(inputData));
       };
       
-      this.source.connect(this.processor);
+      // Connect: source -> analyser -> processor -> destination
+      this.source.connect(this.analyser);
+      this.analyser.connect(this.processor);
       this.processor.connect(this.audioContext.destination);
+      
+      // Start audio level monitoring
+      if (this.onAudioLevel) {
+        this.startLevelMonitoring();
+      }
     } catch (error) {
       console.error('Error accessing microphone:', error);
       throw error;
     }
+  }
+
+  private startLevelMonitoring() {
+    const updateLevel = () => {
+      if (!this.analyser || !this.dataArray || !this.onAudioLevel) return;
+      
+      this.analyser.getByteTimeDomainData(this.dataArray);
+      
+      // Calculate RMS (Root Mean Square) for audio level
+      let sum = 0;
+      for (let i = 0; i < this.dataArray.length; i++) {
+        const normalized = (this.dataArray[i] - 128) / 128;
+        sum += normalized * normalized;
+      }
+      const rms = Math.sqrt(sum / this.dataArray.length);
+      const level = Math.min(1, rms * 5); // Normalized 0-1, amplified
+      
+      this.onAudioLevel(level);
+      
+      if (this.audioContext) {
+        requestAnimationFrame(updateLevel);
+      }
+    };
+    
+    requestAnimationFrame(updateLevel);
   }
 
   stop() {
@@ -55,6 +99,8 @@ export class AudioRecorder {
       this.audioContext.close();
       this.audioContext = null;
     }
+    this.analyser = null;
+    this.dataArray = null;
   }
 }
 

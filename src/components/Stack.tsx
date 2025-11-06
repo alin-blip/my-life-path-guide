@@ -42,6 +42,8 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
     isConnected,
     isMicOn,
     isAISpeaking,
+    isUserSpeaking,
+    audioLevel,
     toggleMic
   } = useVoiceInput({
     onTranscript: (text) => {
@@ -334,8 +336,11 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
                       isConnected={isConnected}
                       isMicOn={isMicOn}
                       isAISpeaking={isAISpeaking}
+                      isUserSpeaking={isUserSpeaking}
+                      audioLevel={audioLevel}
                       onToggle={toggleMic}
                       variant="compact"
+                      showWaveform={true}
                     />
                     <Button 
                       onClick={handleNext}
