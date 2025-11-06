@@ -33,7 +33,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     
     // Extract project ref from URL
     const projectRef = supabaseUrl.replace('https://', '').replace('.supabase.co', '');
-    return `wss://${projectRef}.supabase.co/functions/v1/realtime-voice`;
+    return `wss://${projectRef}.functions.supabase.co/functions/v1/realtime-voice`;
   }, []);
 
   // Initialize audio context

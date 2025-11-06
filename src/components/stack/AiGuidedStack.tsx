@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from './VoiceInputButton';
+import { AISpeakingIndicator } from './AISpeakingIndicator';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -409,7 +410,9 @@ INSTRUCȚIUNI:
 
   return (
     <div className="w-full p-1 sm:p-2 flex flex-col h-full">
-      <Card className="flex-1 flex flex-col">
+      <Card className={`flex-1 flex flex-col transition-all ${
+        isAISpeaking ? 'ring-2 ring-green-500 animate-pulse' : ''
+      }`}>
         <CardHeader className="pb-2">
           <CardTitle className="text-lg sm:text-xl">
             AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
@@ -419,6 +422,7 @@ INSTRUCȚIUNI:
           </p>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-2">
+          <AISpeakingIndicator isAISpeaking={isAISpeaking} />
           <div className="space-y-3">
             {messages.map((message, index) => (
               <div

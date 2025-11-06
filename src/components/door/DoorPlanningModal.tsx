@@ -331,7 +331,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       audioQueueRef.current = new AudioQueue(audioContextRef.current);
 
       const projectId = 'sdflvglvhqmukzqmqosa';
-      const wsUrl = `wss://${projectId}.supabase.co/functions/v1/realtime-voice`;
+      const wsUrl = `wss://${projectId}.functions.supabase.co/functions/v1/realtime-voice`;
       
       console.log('📡 Connecting to WebSocket:', wsUrl);
       const ws = new WebSocket(wsUrl);

@@ -63,7 +63,7 @@ export const VoicePlanningModal: React.FC<VoicePlanningModalProps> = ({
 
       // Connect to WebSocket
       const projectId = 'sdflvglvhqmukzqmqosa';
-      const wsUrl = `wss://${projectId}.supabase.co/functions/v1/realtime-voice`;
+      const wsUrl = `wss://${projectId}.functions.supabase.co/functions/v1/realtime-voice`;
       
       wsRef.current = new WebSocket(wsUrl);
 

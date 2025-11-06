@@ -7,6 +7,8 @@ import { Send } from "lucide-react";
 import { useLanguage } from '@/context/LanguageContext';
 import { DomainSelection } from './DomainSelection';
 import { YesNoSelection } from './YesNoSelection';
+import { VoiceInputButton } from '../VoiceInputButton';
+import { AISpeakingIndicator } from '../AISpeakingIndicator';
 
 interface AngerStackQuestionProps {
   step: number;
@@ -22,6 +24,13 @@ interface AngerStackQuestionProps {
   onNoClick: () => void;
   onNext: () => void;
   onBack: () => void;
+  // Voice props
+  isConnected?: boolean;
+  isMicOn?: boolean;
+  isAISpeaking?: boolean;
+  isUserSpeaking?: boolean;
+  audioLevel?: number;
+  onToggleVoice?: () => void;
 }
 
 export const AngerStackQuestion: React.FC<AngerStackQuestionProps> = ({
@@ -37,7 +46,13 @@ export const AngerStackQuestion: React.FC<AngerStackQuestionProps> = ({
   onYesClick,
   onNoClick,
   onNext,
-  onBack
+  onBack,
+  isConnected = false,
+  isMicOn = false,
+  isAISpeaking = false,
+  isUserSpeaking = false,
+  audioLevel = 0,
+  onToggleVoice
 }) => {
   const { language } = useLanguage();
   
@@ -71,13 +86,27 @@ export const AngerStackQuestion: React.FC<AngerStackQuestionProps> = ({
     }
 
     return (
-      <Textarea 
-        placeholder={language === 'en' ? "Write your answer here..." : "Scrie răspunsul tău aici..."}
-        className="min-h-[100px] sm:min-h-[120px] w-full text-sm"
-        value={currentAnswer}
-        onChange={onTextChange}
-        onEnterSubmit={onNext}
-      />
+      <div className="flex gap-2">
+        <Textarea 
+          placeholder={language === 'en' ? "Write your answer here or speak..." : "Scrie răspunsul tău aici sau vorbește..."}
+          className="min-h-[100px] sm:min-h-[120px] flex-1 text-sm"
+          value={currentAnswer}
+          onChange={onTextChange}
+          onEnterSubmit={onNext}
+        />
+        {onToggleVoice && (
+          <VoiceInputButton
+            isConnected={isConnected}
+            isMicOn={isMicOn}
+            isAISpeaking={isAISpeaking}
+            isUserSpeaking={isUserSpeaking}
+            audioLevel={audioLevel}
+            onToggle={onToggleVoice}
+            variant="compact"
+            showWaveform={true}
+          />
+        )}
+      </div>
     );
   };
 
@@ -99,6 +128,8 @@ export const AngerStackQuestion: React.FC<AngerStackQuestionProps> = ({
       <div className="mb-4 p-3 bg-background/50 rounded border-l-4 border-red-500">
         <p className="text-sm sm:text-base text-foreground">{question}</p>
       </div>
+      
+      <AISpeakingIndicator isAISpeaking={isAISpeaking} />
       
       {/* Input area */}
       <div className="mb-4">

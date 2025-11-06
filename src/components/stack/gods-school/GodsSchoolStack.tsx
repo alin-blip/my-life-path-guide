@@ -15,6 +15,7 @@ import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { useAICallOptimization } from '@/hooks/useAICallOptimization';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '../VoiceInputButton';
+import { AISpeakingIndicator } from '../AISpeakingIndicator';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -369,7 +370,9 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
       )}
 
       {/* Chat Messages */}
-      <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+      <Card className={`border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 transition-all ${
+        isAISpeaking ? 'ring-2 ring-green-500 animate-pulse' : ''
+      }`}>
         <CardHeader>
           <CardTitle className="text-amber-900 flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
@@ -377,6 +380,7 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <AISpeakingIndicator isAISpeaking={isAISpeaking} />
           <div className="max-h-[400px] overflow-y-auto space-y-4 mb-4 p-2">
             {messages.map((message, index) => (
               <div

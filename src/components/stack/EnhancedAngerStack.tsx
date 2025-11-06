@@ -206,6 +206,12 @@ export const EnhancedAngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }
           onNoClick={handleNoClick}
           onNext={handleNext}
           onBack={handleBack}
+          isConnected={isConnected}
+          isMicOn={isMicOn}
+          isAISpeaking={isAISpeaking}
+          isUserSpeaking={isUserSpeaking}
+          audioLevel={audioLevel}
+          onToggleVoice={toggleMic}
         />
       )}
 

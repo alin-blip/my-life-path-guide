@@ -42,3 +42,6 @@ verify_jwt = true
 
 [functions.realtime-voice]
 verify_jwt = false
+
+[functions.realtime-ephemeral-session]
+verify_jwt = false

@@ -14,6 +14,7 @@ import { getQuestions } from "./questions";
 import { Send, PlusCircle, CheckCircle, Bot, User, Lightbulb, Save } from 'lucide-react';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '../VoiceInputButton';
+import { AISpeakingIndicator } from '../AISpeakingIndicator';
 
 export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ 
   onAddToHitList, 
@@ -192,9 +193,11 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
             <p className="text-sm sm:text-base text-foreground">{getCurrentQuestion()}</p>
           </div>
           
+          <AISpeakingIndicator isAISpeaking={isAISpeaking} />
+          
           <div className="mb-4">
             <div className="flex gap-2">
-              <Textarea 
+              <Textarea
                 placeholder="Scrie răspunsul tău aici... sau apasă pe microfon"
                 className="min-h-[100px] sm:min-h-[120px] flex-1 text-sm"
                 value={answers[step] || ""}
