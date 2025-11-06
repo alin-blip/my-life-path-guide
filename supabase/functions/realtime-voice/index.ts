@@ -24,27 +24,21 @@ serve(async (req) => {
     console.log("✅ Client WebSocket connected");
     
     try {
-      // Connect to OpenAI Realtime API with Authorization header
+      // Connect to OpenAI Realtime API
       console.log("📡 Connecting to OpenAI Realtime API...");
       
-      // Create WebSocket with auth in URL since Deno doesn't support headers in WebSocket constructor
       const url = `wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`;
       
-      // We'll send auth after connection in session config
-      openaiWs = new WebSocket(url);
+      // Create WebSocket with proper headers for authentication
+      openaiWs = new WebSocket(url, {
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'OpenAI-Beta': 'realtime=v1'
+        }
+      });
 
       openaiWs.onopen = () => {
         console.log("✅ Connected to OpenAI Realtime API");
-        
-        // Send authentication event first
-        const authEvent = {
-          type: "session.update",
-          session: {
-            api_key: OPENAI_API_KEY
-          }
-        };
-        openaiWs?.send(JSON.stringify(authEvent));
-        console.log("🔐 Authentication sent to OpenAI");
         
         // Send initial greeting to client
         socket.send(JSON.stringify({

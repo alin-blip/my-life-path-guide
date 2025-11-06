@@ -157,9 +157,13 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
               
             case 'error':
               console.error('❌ Voice error:', data);
+              const errorMessage = typeof data.error === 'string' 
+                ? data.error 
+                : data.error?.message || data.message || "An error occurred";
+              
               toast({
                 title: "Voice Error",
-                description: data.error || "An error occurred",
+                description: errorMessage,
                 variant: "destructive"
               });
               break;

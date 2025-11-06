@@ -13,6 +13,8 @@ import { KnowledgeBaseUploader } from '../KnowledgeBaseUploader';
 import { supabase } from '@/integrations/supabase/client';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { useAICallOptimization } from '@/hooks/useAICallOptimization';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { VoiceInputButton } from '../VoiceInputButton';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -43,6 +45,24 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
     closeIdeaModal, 
     captureIdea 
   } = useStackTodoIntegration({ onAddToHitList });
+
+  // Voice input hook
+  const handleVoiceTranscript = (text: string) => {
+    setCurrentMessage(prev => prev + ' ' + text);
+  };
+  
+  const {
+    isConnected,
+    isMicOn,
+    isAISpeaking,
+    isUserSpeaking,
+    audioLevel,
+    toggleMic
+  } = useVoiceInput({
+    onTranscript: handleVoiceTranscript,
+    systemPrompt: `Ești un înțelept spiritual divin care ghidează oamenii bazându-te pe cartea sacră.`,
+    enabled: mode === 'chat'
+  });
 
   const systemPrompt = `Ești un înțelept spiritual divin care ghidează oamenii bazându-te pe cartea sacră pe care au încărcat-o în biblioteca divină. Rolul tău este să:
 
@@ -388,18 +408,39 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
 
           {/* Message Input */}
           <div className="space-y-3">
-            <Textarea
-              value={currentMessage}
-              onChange={(e) => setCurrentMessage(e.target.value)}
-              placeholder="Împărtășește provocarea ta spirituală sau pune o întrebare divină..."
-              className="min-h-[80px] border-amber-200 focus:border-amber-400 bg-white text-amber-900 placeholder:text-amber-500"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-            />
+            <div className="flex gap-2">
+              <Textarea
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                placeholder="Împărtășește provocarea ta spirituală sau vorbește..."
+                className="min-h-[80px] flex-1 border-amber-200 focus:border-amber-400 bg-white text-amber-900 placeholder:text-amber-500"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+              />
+              <div className="flex flex-col gap-2">
+                <VoiceInputButton
+                  isConnected={isConnected}
+                  isMicOn={isMicOn}
+                  isAISpeaking={isAISpeaking}
+                  isUserSpeaking={isUserSpeaking}
+                  audioLevel={audioLevel}
+                  onToggle={toggleMic}
+                  variant="compact"
+                  showWaveform={true}
+                />
+                <Button
+                  onClick={sendMessage}
+                  disabled={!currentMessage.trim() || isAILoading}
+                  className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 h-12 w-12 p-0"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
             
             <div className="flex gap-2 justify-between">
               <div className="flex gap-2">
@@ -424,15 +465,6 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
                 >
                   <Crown className="h-4 w-4 mr-1" />
                   Generează Acțiune
-                </Button>
-                
-                <Button
-                  onClick={sendMessage}
-                  disabled={!currentMessage.trim() || isAILoading}
-                  className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
-                >
-                  <Send className="h-4 w-4 mr-1" />
-                  Trimite
                 </Button>
               </div>
             </div>

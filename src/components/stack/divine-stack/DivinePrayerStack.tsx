@@ -12,6 +12,8 @@ import { DivinePrayerExplanation } from "./DivinePrayerExplanation";
 import { StackDraftSaver } from "../StackDraftSaver";
 import { getQuestions } from "./questions";
 import { Send, PlusCircle, CheckCircle, Bot, User, Lightbulb, Save } from 'lucide-react';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { VoiceInputButton } from '../VoiceInputButton';
 
 export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({ 
   onAddToHitList, 
@@ -39,6 +41,22 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
   
   const { handleInputChange, handleNext, handleBack, resetStack, addToHotList, handleDraftRestore } = handlers;
   const { getCurrentQuestion, getDivineSummary } = utils;
+
+  // Voice input hook
+  const {
+    isConnected,
+    isMicOn,
+    isAISpeaking,
+    isUserSpeaking,
+    audioLevel,
+    toggleMic
+  } = useVoiceInput({
+    onTranscript: (text) => {
+      handleInputChange({ target: { value: answers[step] + ' ' + text } } as any);
+    },
+    systemPrompt: `Ești un asistent spiritual care ajută utilizatorii să răspundă la întrebări de rugăciune profundă.`,
+    enabled: mode === 'manual' && !isReadOnly && !committedAction
+  });
 
   // If we have existing data, show it in read-only mode
   if (existingData && isReadOnly) {
@@ -175,13 +193,35 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
           </div>
           
           <div className="mb-4">
-            <Textarea 
-              placeholder="Scrie răspunsul tău aici..."
-              className="min-h-[100px] sm:min-h-[120px] w-full text-sm"
-              value={answers[step] || ""}
-              onChange={handleInputChange}
-              onEnterSubmit={handleNext}
-            />
+            <div className="flex gap-2">
+              <Textarea 
+                placeholder="Scrie răspunsul tău aici... sau apasă pe microfon"
+                className="min-h-[100px] sm:min-h-[120px] flex-1 text-sm"
+                value={answers[step] || ""}
+                onChange={handleInputChange}
+                onEnterSubmit={handleNext}
+              />
+              <div className="flex flex-col gap-2">
+                <VoiceInputButton
+                  isConnected={isConnected}
+                  isMicOn={isMicOn}
+                  isAISpeaking={isAISpeaking}
+                  isUserSpeaking={isUserSpeaking}
+                  audioLevel={audioLevel}
+                  onToggle={toggleMic}
+                  variant="compact"
+                  showWaveform={true}
+                />
+                <Button 
+                  onClick={handleNext}
+                  disabled={isSubmitting}
+                  size="sm"
+                  className="h-12 w-12 p-0"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
             
             {/* Save status indicator */}
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
@@ -199,14 +239,6 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
               className="text-xs sm:text-sm"
             >
               Înapoi
-            </Button>
-            <Button 
-              onClick={handleNext}
-              disabled={isSubmitting}
-              size="sm"
-              className="text-xs sm:text-sm"
-            >
-              {step < 16 ? 'Continuă' : 'Finalizează'}
             </Button>
           </div>
         </div>
