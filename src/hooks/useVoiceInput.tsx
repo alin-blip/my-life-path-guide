@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { AudioRecorder, AudioQueue, encodeAudioForAPI } from '@/utils/realtimeAudio';
+import { supabase } from '@/integrations/supabase/client';
+import { AudioRecorder, AudioQueue, RealtimeChat } from '@/utils/RealtimeAudio';
 
 interface UseVoiceInputOptions {
   onTranscript?: (text: string) => void;
   systemPrompt?: string;
   enabled?: boolean;
+  transport?: 'webrtc' | 'ws'; // WebRTC is recommended
 }
 
 export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
-  const { onTranscript, systemPrompt = "You are a helpful assistant.", enabled = true } = options;
+  const { onTranscript, systemPrompt = "You are a helpful assistant.", enabled = true, transport = 'webrtc' } = options;
   const { toast } = useToast();
   
   const [isConnected, setIsConnected] = useState(false);
@@ -19,6 +21,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
   const [audioLevel, setAudioLevel] = useState(0);
   
   const wsRef = useRef<WebSocket | null>(null);
+  const rtcChatRef = useRef<RealtimeChat | null>(null);
   const recorderRef = useRef<AudioRecorder | null>(null);
   const audioQueueRef = useRef<AudioQueue | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -55,139 +58,191 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     if (!enabled) return;
     
     try {
-      // Connect WebSocket
-      const wsUrl = getWebSocketUrl();
-      console.log('🔌 Connecting to voice WebSocket:', wsUrl);
-      
-      wsRef.current = new WebSocket(wsUrl);
-      
-      wsRef.current.onopen = async () => {
-        console.log('✅ WebSocket connected');
+      if (transport === 'webrtc') {
+        // WebRTC implementation using ephemeral token
+        console.log('🔌 Starting WebRTC voice connection...');
+        
+        // Initialize audio context if not already done
+        if (!audioContextRef.current) {
+          audioContextRef.current = new AudioContext({ sampleRate: 24000 });
+          audioQueueRef.current = new AudioQueue(audioContextRef.current);
+        }
+
+        // Create RealtimeChat instance
+        rtcChatRef.current = new RealtimeChat(
+          (event: any) => {
+            console.log('📨 RTC Event:', event.type);
+            
+            // Handle different event types
+            if (event.type === 'response.created') {
+              setIsAISpeaking(true);
+            } else if (event.type === 'response.audio.done' || event.type === 'response.done') {
+              setIsAISpeaking(false);
+            } else if (event.type === 'input_audio_buffer.speech_started') {
+              setIsUserSpeaking(true);
+            } else if (event.type === 'input_audio_buffer.speech_stopped') {
+              setIsUserSpeaking(false);
+            } else if (event.type === 'conversation.item.input_audio_transcription.completed') {
+              if (event.transcript && onTranscript) {
+                onTranscript(event.transcript);
+              }
+            } else if (event.type === 'response.audio_transcript.delta') {
+              transcriptBufferRef.current += event.delta || '';
+            } else if (event.type === 'response.audio_transcript.done') {
+              if (transcriptBufferRef.current && onTranscript) {
+                onTranscript(transcriptBufferRef.current);
+                transcriptBufferRef.current = '';
+              }
+            }
+          },
+          audioQueueRef.current!,
+          (level: number) => setAudioLevel(level)
+        );
+
+        await rtcChatRef.current.init();
         setIsConnected(true);
+        setIsMicOn(true);
         
         toast({
           title: "🎤 Voice Ready",
           description: "Speak naturally - AI will respond with voice"
         });
         
-        // Start microphone recording
-        try {
-      recorderRef.current = new AudioRecorder(
-        (audioData: Float32Array) => {
-          if (wsRef.current?.readyState === WebSocket.OPEN) {
-            const base64Audio = encodeAudioForAPI(audioData);
-            wsRef.current.send(JSON.stringify({
-              type: 'input_audio_buffer.append',
-              audio: base64Audio
-            }));
-          }
-        },
-        (level: number) => {
-          setAudioLevel(level);
-        }
-      );
+      } else {
+        // WebSocket fallback (original implementation)
+        const wsUrl = getWebSocketUrl();
+        console.log('🔌 Connecting to voice WebSocket:', wsUrl);
+        
+        wsRef.current = new WebSocket(wsUrl);
+        
+        wsRef.current.onopen = async () => {
+          console.log('✅ WebSocket connected');
+          setIsConnected(true);
           
-          await recorderRef.current.start();
-          setIsMicOn(true);
-          console.log('🎙️ Microphone started');
-        } catch (error) {
-          console.error('❌ Microphone error:', error);
           toast({
-            title: "Microphone Error",
-            description: "Could not access microphone. Please check permissions.",
+            title: "🎤 Voice Ready",
+            description: "Speak naturally - AI will respond with voice"
+          });
+          
+          // Start microphone recording
+          try {
+            recorderRef.current = new AudioRecorder(
+              (audioData: Float32Array) => {
+                if (wsRef.current?.readyState === WebSocket.OPEN) {
+                  const base64Audio = AudioRecorder.encodeAudioForAPI(audioData);
+                  wsRef.current.send(JSON.stringify({
+                    type: 'input_audio_buffer.append',
+                    audio: base64Audio
+                  }));
+                }
+              },
+              (level: number) => {
+                setAudioLevel(level);
+              }
+            );
+            
+            await recorderRef.current.start();
+            setIsMicOn(true);
+            console.log('🎙️ Microphone started');
+          } catch (error) {
+            console.error('❌ Microphone error:', error);
+            toast({
+              title: "Microphone Error",
+              description: "Could not access microphone. Please check permissions.",
+              variant: "destructive"
+            });
+          }
+        };
+        
+        wsRef.current.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log('📨 Received:', data.type);
+            
+            // Handle different message types
+            switch (data.type) {
+              case 'response.audio.delta':
+                // Play audio chunk
+                if (data.delta && audioQueueRef.current) {
+                  const binaryString = atob(data.delta);
+                  const bytes = new Uint8Array(binaryString.length);
+                  for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                  }
+                  audioQueueRef.current.addToQueue(bytes);
+                }
+                break;
+                
+              case 'response.audio.done':
+                setIsAISpeaking(false);
+                console.log('🔇 AI finished speaking');
+                break;
+                
+              case 'response.audio_transcript.delta':
+                // Accumulate transcript
+                if (data.delta) {
+                  transcriptBufferRef.current += data.delta;
+                }
+                break;
+                
+              case 'response.audio_transcript.done':
+                // Send complete transcript
+                if (transcriptBufferRef.current && onTranscript) {
+                  console.log('📝 Transcript:', transcriptBufferRef.current);
+                  onTranscript(transcriptBufferRef.current);
+                  transcriptBufferRef.current = '';
+                }
+                break;
+                
+              case 'response.created':
+                setIsAISpeaking(true);
+                console.log('🔊 AI started speaking');
+                break;
+                
+              case 'input_audio_buffer.speech_started':
+                console.log('🎤 User started speaking');
+                setIsUserSpeaking(true);
+                break;
+              
+              case 'input_audio_buffer.speech_stopped':
+                console.log('🎤 User stopped speaking');
+                setIsUserSpeaking(false);
+                break;
+                
+              case 'error':
+                console.error('❌ Voice error:', data);
+                const errorMessage = typeof data.error === 'string' 
+                  ? data.error 
+                  : data.error?.message || data.message || "An error occurred";
+                
+                toast({
+                  title: "Voice Error",
+                  description: errorMessage,
+                  variant: "destructive"
+                });
+                break;
+            }
+          } catch (error) {
+            console.error('❌ Error processing message:', error);
+          }
+        };
+        
+        wsRef.current.onerror = (error) => {
+          console.error('❌ WebSocket error:', error);
+          toast({
+            title: "Connection Error",
+            description: "Voice connection failed",
             variant: "destructive"
           });
-        }
-      };
-      
-      wsRef.current.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('📨 Received:', data.type);
-          
-          // Handle different message types
-          switch (data.type) {
-            case 'response.audio.delta':
-              // Play audio chunk
-              if (data.delta && audioQueueRef.current) {
-                const binaryString = atob(data.delta);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                  bytes[i] = binaryString.charCodeAt(i);
-                }
-                audioQueueRef.current.addToQueue(bytes);
-              }
-              break;
-              
-            case 'response.audio.done':
-              setIsAISpeaking(false);
-              console.log('🔇 AI finished speaking');
-              break;
-              
-            case 'response.audio_transcript.delta':
-              // Accumulate transcript
-              if (data.delta) {
-                transcriptBufferRef.current += data.delta;
-              }
-              break;
-              
-            case 'response.audio_transcript.done':
-              // Send complete transcript
-              if (transcriptBufferRef.current && onTranscript) {
-                console.log('📝 Transcript:', transcriptBufferRef.current);
-                onTranscript(transcriptBufferRef.current);
-                transcriptBufferRef.current = '';
-              }
-              break;
-              
-            case 'response.created':
-              setIsAISpeaking(true);
-              console.log('🔊 AI started speaking');
-              break;
-              
-          case 'input_audio_buffer.speech_started':
-            console.log('🎤 User started speaking');
-            setIsUserSpeaking(true);
-            break;
-            
-          case 'input_audio_buffer.speech_stopped':
-            console.log('🎤 User stopped speaking');
-            setIsUserSpeaking(false);
-            break;
-              
-            case 'error':
-              console.error('❌ Voice error:', data);
-              const errorMessage = typeof data.error === 'string' 
-                ? data.error 
-                : data.error?.message || data.message || "An error occurred";
-              
-              toast({
-                title: "Voice Error",
-                description: errorMessage,
-                variant: "destructive"
-              });
-              break;
-          }
-        } catch (error) {
-          console.error('❌ Error processing message:', error);
-        }
-      };
-      
-      wsRef.current.onerror = (error) => {
-        console.error('❌ WebSocket error:', error);
-        toast({
-          title: "Connection Error",
-          description: "Voice connection failed",
-          variant: "destructive"
-        });
-      };
-      
-      wsRef.current.onclose = () => {
-        console.log('🔌 WebSocket closed');
-        setIsConnected(false);
-        setIsMicOn(false);
-        setIsAISpeaking(false);
-      };
+        };
+        
+        wsRef.current.onclose = () => {
+          console.log('🔌 WebSocket closed');
+          setIsConnected(false);
+          setIsMicOn(false);
+          setIsAISpeaking(false);
+        };
+      }
       
     } catch (error) {
       console.error('❌ Error starting voice:', error);
@@ -197,9 +252,15 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
         variant: "destructive"
       });
     }
-  }, [enabled, getWebSocketUrl, onTranscript, toast]);
+  }, [enabled, transport, getWebSocketUrl, onTranscript, toast]);
 
   const stopVoice = useCallback(() => {
+    // Stop WebRTC if active
+    if (rtcChatRef.current) {
+      rtcChatRef.current.disconnect();
+      rtcChatRef.current = null;
+    }
+    
     // Stop recording
     if (recorderRef.current) {
       recorderRef.current.stop();
@@ -220,6 +281,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     
     setIsConnected(false);
     setIsAISpeaking(false);
+    setIsUserSpeaking(false);
     transcriptBufferRef.current = '';
   }, []);
 
