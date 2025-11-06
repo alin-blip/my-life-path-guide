@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Bot, User, AlertTriangle } from "lucide-react";
 
 export const EnhancedAngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
-  const [mode, setMode] = useState<'manual' | 'ai'>('ai');
+  const [mode, setMode] = useState<'manual' | 'ai'>('manual');
   const [showResetConfirmation, setShowResetConfirmation] = useState(false);
   
   const { 

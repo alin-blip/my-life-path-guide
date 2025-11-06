@@ -21,7 +21,7 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
   isReadOnly = false,
   stackId 
 }) => {
-  const [mode, setMode] = useState<'manual' | 'ai'>('ai');
+  const [mode, setMode] = useState<'manual' | 'ai'>('manual');
   const { state, handlers, utils } = useDivinePrayerStack({ 
     onAddToHitList,
     existingData,

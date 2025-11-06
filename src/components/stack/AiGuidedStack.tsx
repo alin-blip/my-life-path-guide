@@ -9,6 +9,8 @@ import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
 import { v4 as uuidv4 } from 'uuid';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { VoiceInputButton } from './VoiceInputButton';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -47,6 +49,22 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     closeIdeaModal,
     captureIdea
   } = useStackTodoIntegration({ onAddToHitList });
+
+  // Voice input integration
+  const {
+    isConnected,
+    isMicOn,
+    isAISpeaking,
+    isUserSpeaking,
+    audioLevel,
+    toggleMic
+  } = useVoiceInput({
+    onTranscript: (text) => {
+      setCurrentMessage(prev => prev + ' ' + text);
+    },
+    systemPrompt: `Ești un coach AI care ajută utilizatorii cu ${stackType === 'anger' ? 'gestionarea furiei' : 'rugăciune și reflecție spirituală'}. Fii concis, empatic și orientat către acțiune.`,
+    enabled: mode === 'chat'
+  });
 
   const getStackPrompt = () => {
     if (stackType === 'anger') {
@@ -434,18 +452,30 @@ INSTRUCȚIUNI:
             <Textarea
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
-              placeholder="Scrie mesajul tău aici..."
+              placeholder="Scrie mesajul tău aici sau folosește voice input..."
               className="flex-1 min-h-[60px] text-xs sm:text-sm"
               onEnterSubmit={sendMessage}
             />
-            <Button
-              onClick={sendMessage}
-              disabled={!currentMessage.trim() || isLoading}
-              size="sm"
-              className="px-3"
-            >
-              <Send className="w-3 h-3 sm:w-4 sm:h-4" />
-            </Button>
+            <div className="flex flex-col gap-2">
+              <VoiceInputButton
+                isConnected={isConnected}
+                isMicOn={isMicOn}
+                isAISpeaking={isAISpeaking}
+                isUserSpeaking={isUserSpeaking}
+                audioLevel={audioLevel}
+                onToggle={toggleMic}
+                variant="compact"
+                showWaveform={true}
+              />
+              <Button
+                onClick={sendMessage}
+                disabled={!currentMessage.trim() || isLoading}
+                size="sm"
+                className="px-3"
+              >
+                <Send className="w-3 h-3 sm:w-4 sm:h-4" />
+              </Button>
+            </div>
           </div>
           <div className="flex w-full gap-2">
             <Button
