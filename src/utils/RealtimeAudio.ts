@@ -160,11 +160,11 @@ export class RealtimeChat {
   private pc: RTCPeerConnection | null = null;
   private dc: RTCDataChannel | null = null;
   private audioEl: HTMLAudioElement;
+  private recorder: AudioRecorder | null = null;
 
   constructor(
     private onMessage: (message: any) => void,
-    private audioQueue: AudioQueue,
-    private onAudioLevel?: (level: number) => void
+    private audioQueue: AudioQueue
   ) {
     this.audioEl = document.createElement("audio");
     this.audioEl.autoplay = true;
@@ -180,10 +180,11 @@ export class RealtimeChat {
       this.pc = new RTCPeerConnection();
       this.pc.ontrack = e => this.audioEl.srcObject = e.streams[0];
 
-      const ms = await navigator.mediaDevices.getUserMedia({ 
+      // Start audio recorder for user input
+      const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: { sampleRate: 24000, channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
       });
-      this.pc.addTrack(ms.getTracks()[0]);
+      this.pc.addTrack(stream.getTracks()[0]);
 
       this.dc = this.pc.createDataChannel("oai-events");
       this.dc.addEventListener("message", (e) => {
@@ -219,6 +220,10 @@ export class RealtimeChat {
   }
 
   disconnect() {
+    if (this.recorder) {
+      this.recorder.stop();
+      this.recorder = null;
+    }
     if (this.dc) this.dc.close();
     if (this.pc) this.pc.close();
     this.dc = null;

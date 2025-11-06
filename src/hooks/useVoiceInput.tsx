@@ -95,8 +95,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
               }
             }
           },
-          audioQueueRef.current!,
-          (level: number) => setAudioLevel(level)
+          audioQueueRef.current!
         );
 
         await rtcChatRef.current.init();
