@@ -24,53 +24,70 @@ serve(async (req) => {
     console.log("✅ Client WebSocket connected");
     
     try {
-      // Connect to OpenAI Realtime API using the special protocol format
-      const url = `wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`;
+      // Connect to OpenAI Realtime API with Authorization header
       console.log("📡 Connecting to OpenAI Realtime API...");
       
-      // Use the insecure API key protocol for Deno WebSocket
-      openaiWs = new WebSocket(url, [`openai-insecure-api-key.${OPENAI_API_KEY}`, "realtime=v1"]);
+      // Create WebSocket with auth in URL since Deno doesn't support headers in WebSocket constructor
+      const url = `wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`;
+      
+      // We'll send auth after connection in session config
+      openaiWs = new WebSocket(url);
 
       openaiWs.onopen = () => {
         console.log("✅ Connected to OpenAI Realtime API");
+        
+        // Send authentication event first
+        const authEvent = {
+          type: "session.update",
+          session: {
+            api_key: OPENAI_API_KEY
+          }
+        };
+        openaiWs?.send(JSON.stringify(authEvent));
+        console.log("🔐 Authentication sent to OpenAI");
         
         // Send initial greeting to client
         socket.send(JSON.stringify({
           type: "connection.ready",
           message: "Voice assistant ready"
         }));
-        
-        // Send session configuration after connection
-        const sessionConfig = {
-          type: "session.update",
-          session: {
-            modalities: ["text", "audio"],
-            instructions: "You are a helpful weekly planning assistant. Guide users through planning their week by asking questions one at a time. Be concise and encouraging.",
-            voice: "alloy",
-            input_audio_format: "pcm16",
-            output_audio_format: "pcm16",
-            input_audio_transcription: {
-              model: "whisper-1"
-            },
-            turn_detection: {
-              type: "server_vad",
-              threshold: 0.5,
-              prefix_padding_ms: 300,
-              silence_duration_ms: 1000
-            },
-            temperature: 0.8,
-            max_response_output_tokens: "inf"
-          }
-        };
-        
-        openaiWs?.send(JSON.stringify(sessionConfig));
-        console.log("📤 Session configuration sent to OpenAI");
       };
-
-      openaiWs.onmessage = (event) => {
+      
+      // Listen for session.created to send configuration
+      let sessionConfigured = false;
+      const originalOnMessage = (event: MessageEvent) => {
         try {
           const data = JSON.parse(event.data);
           console.log("📨 OpenAI message type:", data.type);
+          
+          // Send session config after receiving session.created
+          if (data.type === 'session.created' && !sessionConfigured) {
+            sessionConfigured = true;
+            const sessionConfig = {
+              type: "session.update",
+              session: {
+                modalities: ["text", "audio"],
+                instructions: "You are a helpful weekly planning assistant. Guide users through planning their week by asking questions one at a time. Be concise and encouraging.",
+                voice: "alloy",
+                input_audio_format: "pcm16",
+                output_audio_format: "pcm16",
+                input_audio_transcription: {
+                  model: "whisper-1"
+                },
+                turn_detection: {
+                  type: "server_vad",
+                  threshold: 0.5,
+                  prefix_padding_ms: 300,
+                  silence_duration_ms: 1000
+                },
+                temperature: 0.8,
+                max_response_output_tokens: "inf"
+              }
+            };
+            
+            openaiWs?.send(JSON.stringify(sessionConfig));
+            console.log("📤 Session configuration sent to OpenAI");
+          }
           
           // Forward all messages to client
           socket.send(event.data);
@@ -78,6 +95,8 @@ serve(async (req) => {
           console.error("❌ Error processing OpenAI message:", error);
         }
       };
+
+      openaiWs.onmessage = originalOnMessage;
 
       openaiWs.onerror = (error) => {
         console.error("❌ OpenAI WebSocket error:", error);

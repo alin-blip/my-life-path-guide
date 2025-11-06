@@ -12,6 +12,8 @@ import { saveToStackLibrary } from "@/utils/stackProgress";
 import { Send, PlusCircle, Lightbulb, MessageCircle, AlertTriangle } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 import { SuggestionPickerModal } from './SuggestionPickerModal';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { VoiceInputButton } from './VoiceInputButton';
 
 interface AiLiveCoachingProps {
   onAddToHitList?: (action: string) => void;
@@ -46,6 +48,61 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
   const chatAreaRef = useRef<HTMLDivElement>(null);
+  
+  // Voice input integration
+  const handleVoiceTranscript = async (text: string) => {
+    const userMessage: Message = {
+      role: 'user',
+      content: text,
+      timestamp: new Date()
+    };
+    
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
+        body: {
+          messages: newMessages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          systemPrompt
+        }
+      });
+
+      if (error) throw error;
+
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: data.message,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut trimite mesajul. Te rugăm să încerci din nou.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const {
+    isConnected,
+    isMicOn,
+    isAISpeaking,
+    toggleMic
+  } = useVoiceInput({
+    onTranscript: handleVoiceTranscript,
+    systemPrompt,
+    enabled: mode === 'chat'
+  });
   
   const scrollToBottom = () => {
     if (chatAreaRef.current) {
@@ -364,21 +421,30 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
             
             <div className="flex gap-2">
               <Textarea 
-                placeholder="Scrie mesajul tău aici..."
+                placeholder="Scrie mesajul tău aici... sau apasă pe microfon pentru a vorbi"
                 className="min-h-[60px] flex-1 text-sm"
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onEnterSubmit={sendMessage}
                 disabled={isLoading}
               />
-              <Button 
-                onClick={sendMessage}
-                disabled={isLoading || !currentMessage.trim()}
-                size="sm"
-                className="px-3"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
+              <div className="flex gap-1">
+                <VoiceInputButton
+                  isConnected={isConnected}
+                  isMicOn={isMicOn}
+                  isAISpeaking={isAISpeaking}
+                  onToggle={toggleMic}
+                  variant="compact"
+                />
+                <Button 
+                  onClick={sendMessage}
+                  disabled={isLoading || !currentMessage.trim()}
+                  size="sm"
+                  className="px-3"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
 
             <div className="flex items-center justify-between gap-2">

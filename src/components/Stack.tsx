@@ -21,6 +21,8 @@ import { useStackSession } from '@/hooks/useStackSession';
 import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
 import { StackSaveStatus } from './stack/StackSaveStatus';
 import { StackSessionIndicator } from './stack/StackSessionIndicator';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { VoiceInputButton } from './stack/VoiceInputButton';
 
 interface StackProps {
   onAddToHitList?: (action: string) => void;
@@ -34,6 +36,20 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
   const [committedAction, setCommittedAction] = useState("");
   const [actionAddedToHotList, setActionAddedToHotList] = useState(false);
   const [currentAnswer, setCurrentAnswer] = useState("");
+  
+  // Voice input integration
+  const {
+    isConnected,
+    isMicOn,
+    isAISpeaking,
+    toggleMic
+  } = useVoiceInput({
+    onTranscript: (text) => {
+      setCurrentAnswer(prev => prev ? prev + ' ' + text : text);
+    },
+    systemPrompt: "You are a helpful introspection assistant. Help users answer personal development questions concisely and thoughtfully.",
+    enabled: !committedAction // Disable when stack is completed
+  });
   
   // Session management
   const { sessionId, resetSessionId } = usePersistentSessionId('power-stack');
@@ -304,13 +320,32 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
                 <div className="p-4 bg-gray-800/50 rounded-md">
                   <p className="text-gray-100">{questions[step]}</p>
                 </div>
-                <Textarea 
-                  placeholder="Scrie răspunsul tău aici..."
-                  className="min-h-[150px] bg-gray-800/30 border-gray-700"
-                  value={currentAnswer}
-                  onChange={handleInputChange}
-                  onEnterSubmit={handleNext}
-                />
+                
+                <div className="flex gap-2">
+                  <Textarea 
+                    placeholder="Scrie răspunsul tău aici... sau apasă pe microfon pentru a vorbi"
+                    className="min-h-[150px] flex-1 bg-gray-800/30 border-gray-700"
+                    value={currentAnswer}
+                    onChange={handleInputChange}
+                    onEnterSubmit={handleNext}
+                  />
+                  <div className="flex flex-col gap-2">
+                    <VoiceInputButton
+                      isConnected={isConnected}
+                      isMicOn={isMicOn}
+                      isAISpeaking={isAISpeaking}
+                      onToggle={toggleMic}
+                      variant="compact"
+                    />
+                    <Button 
+                      onClick={handleNext}
+                      disabled={isSubmitting}
+                      className="h-12 w-12 p-0"
+                    >
+                      <Send className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
                 
                 {/* Session debugging info */}
                 <StackSessionIndicator 
