@@ -164,7 +164,8 @@ export class RealtimeChat {
 
   constructor(
     private onMessage: (message: any) => void,
-    private audioQueue: AudioQueue
+    private audioQueue: AudioQueue,
+    private onAudioLevel?: (level: number) => void
   ) {
     this.audioEl = document.createElement("audio");
     this.audioEl.autoplay = true;
@@ -185,6 +186,13 @@ export class RealtimeChat {
         audio: { sampleRate: 24000, channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
       });
       this.pc.addTrack(stream.getTracks()[0]);
+
+      // Initialize audio recorder for level monitoring
+      this.recorder = new AudioRecorder(
+        () => {}, // Audio data is handled by WebRTC, we just need level monitoring
+        this.onAudioLevel
+      );
+      await this.recorder.start();
 
       this.dc = this.pc.createDataChannel("oai-events");
       this.dc.addEventListener("message", (e) => {
