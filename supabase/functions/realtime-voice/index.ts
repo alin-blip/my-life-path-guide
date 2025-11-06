@@ -10,7 +10,6 @@ serve(async (req) => {
     return new Response("Expected websocket connection", { status: 426 });
   }
 
-  // Check if API key exists
   if (!OPENAI_API_KEY) {
     console.error("❌ OPENAI_API_KEY is not configured");
     return new Response("Server configuration error - missing API key", { status: 500 });
@@ -24,78 +23,46 @@ serve(async (req) => {
     console.log("✅ Client WebSocket connected");
     
     try {
-      // Step 1: Generate ephemeral token from OpenAI
-      console.log("🔑 Requesting ephemeral token from OpenAI...");
-      
-      const tokenResponse = await fetch('https://api.openai.com/v1/realtime/sessions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-realtime-preview-2024-12-17',
-          voice: 'alloy'
-        })
-      });
-
-      if (!tokenResponse.ok) {
-        const errorText = await tokenResponse.text();
-        console.error("❌ Failed to get ephemeral token:", errorText);
-        socket.send(JSON.stringify({ 
-          type: "error", 
-          error: "Failed to authenticate with OpenAI",
-          details: errorText
-        }));
-        socket.close();
-        return;
-      }
-
-      const tokenData = await tokenResponse.json();
-      const ephemeralKey = tokenData.client_secret.value;
-      console.log("✅ Ephemeral token received");
-
-      // Step 2: Connect to OpenAI Realtime API with ephemeral token
-      console.log("📡 Connecting to OpenAI Realtime API...");
-      
+      // Connect to OpenAI Realtime API using standard WebSocket
       const url = `wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`;
-      openaiWs = new WebSocket(url);
+      console.log("📡 Connecting to OpenAI:", url);
+      
+      // OpenAI requires direct WebSocket connection with auth in URL params
+      const wsUrl = `${url}&authorization=Bearer ${OPENAI_API_KEY}`;
+      
+      openaiWs = new WebSocket(wsUrl, {
+        headers: {
+          'OpenAI-Beta': 'realtime=v1'
+        }
+      });
 
       openaiWs.onopen = () => {
         console.log("✅ Connected to OpenAI Realtime API");
         
-        // Authenticate with ephemeral token
-        openaiWs?.send(JSON.stringify({
-          type: "session.update",
-          session: {
-            client_secret: ephemeralKey
-          }
-        }));
-        
-        console.log("🔐 Authentication sent to OpenAI");
-        
-        // Send initial greeting to client
+        // Notify client
         socket.send(JSON.stringify({
           type: "connection.ready",
           message: "Voice assistant ready"
         }));
       };
       
-      // Listen for session.created to send configuration
+      // Track if session is configured
       let sessionConfigured = false;
-      const originalOnMessage = (event: MessageEvent) => {
+      
+      openaiWs.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log("📨 OpenAI message type:", data.type);
+          console.log("📨 OpenAI event:", data.type);
           
-          // Send session config after receiving session.created
+          // Configure session after receiving session.created
           if (data.type === 'session.created' && !sessionConfigured) {
             sessionConfigured = true;
+            
             const sessionConfig = {
               type: "session.update",
               session: {
                 modalities: ["text", "audio"],
-                instructions: "You are a helpful weekly planning assistant. Guide users through planning their week by asking questions one at a time. Be concise and encouraging.",
+                instructions: "You are a helpful assistant. Be concise and natural in conversation.",
                 voice: "alloy",
                 input_audio_format: "pcm16",
                 output_audio_format: "pcm16",
@@ -114,38 +81,40 @@ serve(async (req) => {
             };
             
             openaiWs?.send(JSON.stringify(sessionConfig));
-            console.log("📤 Session configuration sent to OpenAI");
+            console.log("📤 Session configuration sent");
           }
           
           // Forward all messages to client
-          socket.send(event.data);
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(event.data);
+          }
         } catch (error) {
-          console.error("❌ Error processing OpenAI message:", error);
+          console.error("❌ Error processing message:", error);
         }
       };
-
-      openaiWs.onmessage = originalOnMessage;
 
       openaiWs.onerror = (error) => {
         console.error("❌ OpenAI WebSocket error:", error);
         socket.send(JSON.stringify({ 
           type: "error", 
-          error: "OpenAI connection error",
-          details: error instanceof Error ? error.message : "Unknown error"
+          error: "Connection error",
+          details: String(error)
         }));
       };
 
       openaiWs.onclose = (event) => {
-        console.log("🔌 OpenAI WebSocket closed:", event.code, event.reason);
-        socket.close();
+        console.log("🔌 OpenAI closed:", event.code, event.reason);
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.close();
+        }
       };
 
     } catch (error) {
-      console.error("❌ Error connecting to OpenAI:", error);
+      console.error("❌ Connection failed:", error);
       socket.send(JSON.stringify({ 
         type: "error", 
-        error: "Failed to connect to AI",
-        details: error instanceof Error ? error.message : "Unknown error"
+        error: "Failed to connect",
+        details: error instanceof Error ? error.message : String(error)
       }));
       socket.close();
     }
@@ -156,20 +125,20 @@ serve(async (req) => {
       if (openaiWs && openaiWs.readyState === WebSocket.OPEN) {
         openaiWs.send(event.data);
       } else {
-        console.warn("⚠️ Cannot forward message - OpenAI WebSocket not ready");
+        console.warn("⚠️ OpenAI not ready");
       }
     } catch (error) {
-      console.error("❌ Error forwarding to OpenAI:", error);
+      console.error("❌ Forward error:", error);
     }
   };
 
   socket.onerror = (error) => {
-    console.error("❌ Client WebSocket error:", error);
+    console.error("❌ Client error:", error);
   };
 
   socket.onclose = () => {
-    console.log("🔌 Client WebSocket closed");
-    if (openaiWs) {
+    console.log("🔌 Client closed");
+    if (openaiWs && openaiWs.readyState === WebSocket.OPEN) {
       openaiWs.close();
     }
   };
