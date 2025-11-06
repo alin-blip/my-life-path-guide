@@ -45,8 +45,9 @@ export class AudioRecorder {
         this.onAudioData(new Float32Array(inputData));
         
         if (this.onAudioLevel && this.analyser && this.dataArray) {
-          this.analyser.getByteFrequencyData(this.dataArray);
-          const values = Array.from(this.dataArray);
+          const tempArray = new Uint8Array(this.analyser.frequencyBinCount);
+          this.analyser.getByteFrequencyData(tempArray);
+          const values = Array.from(tempArray);
           const average = values.reduce((a, b) => a + b, 0) / values.length;
           this.onAudioLevel(average / 255);
         }
@@ -78,7 +79,7 @@ export class AudioRecorder {
       const s = Math.max(-1, Math.min(1, float32Array[i]));
       int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
     }
-    const bytes = new Uint8Array(int16Array.buffer);
+    const bytes = new Uint8Array(int16Array.buffer as ArrayBuffer);
     let binary = '';
     for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
     return btoa(binary);
@@ -105,7 +106,7 @@ export class AudioQueue {
     const audioData = this.queue.shift()!;
     try {
       const wavData = this.createWavFromPCM(audioData);
-      const audioBuffer = await this.audioContext.decodeAudioData(wavData.buffer);
+      const audioBuffer = await this.audioContext.decodeAudioData(wavData.buffer as ArrayBuffer);
       const source = this.audioContext.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(this.audioContext.destination);
@@ -145,7 +146,7 @@ export class AudioQueue {
     view.setUint32(40, int16Data.byteLength, true);
     const wavArray = new Uint8Array(wavHeader.byteLength + int16Data.byteLength);
     wavArray.set(new Uint8Array(wavHeader), 0);
-    wavArray.set(new Uint8Array(int16Data.buffer), wavHeader.byteLength);
+    wavArray.set(new Uint8Array(int16Data.buffer as ArrayBuffer), wavHeader.byteLength);
     return wavArray;
   }
 
