@@ -24,21 +24,55 @@ serve(async (req) => {
     console.log("✅ Client WebSocket connected");
     
     try {
-      // Connect to OpenAI Realtime API
+      // Step 1: Generate ephemeral token from OpenAI
+      console.log("🔑 Requesting ephemeral token from OpenAI...");
+      
+      const tokenResponse = await fetch('https://api.openai.com/v1/realtime/sessions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-realtime-preview-2024-12-17',
+          voice: 'alloy'
+        })
+      });
+
+      if (!tokenResponse.ok) {
+        const errorText = await tokenResponse.text();
+        console.error("❌ Failed to get ephemeral token:", errorText);
+        socket.send(JSON.stringify({ 
+          type: "error", 
+          error: "Failed to authenticate with OpenAI",
+          details: errorText
+        }));
+        socket.close();
+        return;
+      }
+
+      const tokenData = await tokenResponse.json();
+      const ephemeralKey = tokenData.client_secret.value;
+      console.log("✅ Ephemeral token received");
+
+      // Step 2: Connect to OpenAI Realtime API with ephemeral token
       console.log("📡 Connecting to OpenAI Realtime API...");
       
       const url = `wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`;
-      
-      // Create WebSocket with proper headers for authentication
-      openaiWs = new WebSocket(url, {
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'OpenAI-Beta': 'realtime=v1'
-        }
-      });
+      openaiWs = new WebSocket(url);
 
       openaiWs.onopen = () => {
         console.log("✅ Connected to OpenAI Realtime API");
+        
+        // Authenticate with ephemeral token
+        openaiWs?.send(JSON.stringify({
+          type: "session.update",
+          session: {
+            client_secret: ephemeralKey
+          }
+        }));
+        
+        console.log("🔐 Authentication sent to OpenAI");
         
         // Send initial greeting to client
         socket.send(JSON.stringify({
