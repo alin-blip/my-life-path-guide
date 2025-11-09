@@ -66,8 +66,10 @@ export const useGodsSchoolStack = ({ onAddToHitList }: UseGodsSchoolStackProps =
       const { data: userData } = await supabase.auth.getUser();
       const { error } = await supabase.from('divine_coaching_sessions').insert({
         session_id: sessionId,
-        answers: state.answers,
-        completed: true,
+        answers: JSON.stringify(state.answers),
+        step_number: state.currentStep,
+        question: 'completion',
+        answer: 'completed',
         user_id: userData?.user?.id,
         created_at: new Date().toISOString()
       });

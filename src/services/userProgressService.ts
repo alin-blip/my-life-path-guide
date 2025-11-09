@@ -29,12 +29,11 @@ export const userProgressService = {
       .from('user_progress')
       .upsert({
         user_id: user.id,
-        date,
-        activity_type: 'core',
+        activity_type: `core_${date}`,
         activity_data: coreData,
         updated_at: new Date().toISOString(),
       }, {
-        onConflict: 'user_id,date,activity_type'
+        onConflict: 'user_id,activity_type'
       });
 
     if (error) {
@@ -54,12 +53,11 @@ export const userProgressService = {
       .from('user_progress')
       .upsert({
         user_id: user.id,
-        date,
-        activity_type: 'daily_four',
+        activity_type: `daily_four_${date}`,
         activity_data: dailyFourData,
         updated_at: new Date().toISOString(),
       }, {
-        onConflict: 'user_id,date,activity_type'
+        onConflict: 'user_id,activity_type'
       });
 
     if (error) {
@@ -79,9 +77,8 @@ export const userProgressService = {
       .from('user_progress')
       .select('activity_data')
       .eq('user_id', user.id)
-      .eq('date', date)
-      .eq('activity_type', 'core')
-      .single();
+      .eq('activity_type', `core_${date}`)
+      .maybeSingle();
 
     if (error) {
       if (error.code === 'PGRST116') return null; // No rows found
@@ -103,9 +100,8 @@ export const userProgressService = {
       .from('user_progress')
       .select('activity_data')
       .eq('user_id', user.id)
-      .eq('date', date)
-      .eq('activity_type', 'daily_four')
-      .single();
+      .eq('activity_type', `daily_four_${date}`)
+      .maybeSingle();
 
     if (error) {
       if (error.code === 'PGRST116') return null; // No rows found

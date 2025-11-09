@@ -109,9 +109,8 @@ export class CourseService {
           thumbnail_url: courseInsertData.image,
           category: courseInsertData.category,
           difficulty_level: 'beginner',
-          estimated_duration: parseInt(courseInsertData.duration?.replace(/\D/g, '') || '0') || 0,
-          is_published: true,
-          created_by: user.id
+          duration: courseInsertData.duration || '0 min',
+          user_id: user.id
         })
         .select()
         .single();
