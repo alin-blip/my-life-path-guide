@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
+import { VoiceTextarea } from '@/components/ui/VoiceTextarea';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -377,11 +377,12 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
                       <label className="text-sm font-medium text-gray-300">
                         {question}
                       </label>
-                      <Textarea
+                      <VoiceTextarea
                         placeholder={language === 'en' ? 'Your answer...' : 'Răspunsul tău...'}
                         className="min-h-[100px] bg-gray-800/30 border-gray-600 focus:border-gray-500"
                         value={answers[currentQuestionIndex] || ''}
                         onChange={(e) => setAnswers(prev => ({ ...prev, [currentQuestionIndex]: e.target.value }))}
+                        language={language}
                       />
                     </div>
                   );

@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { VoiceTextarea } from '@/components/ui/VoiceTextarea';
 import { ArrowLeft, Save } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from '@/context/LanguageContext';
@@ -188,11 +188,12 @@ export const FactMapDetail: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-300 mb-1">
                       {language === 'en' ? 'How would you describe your current fitness level?' : 'Cum ți-ai descrie nivelul actual de fitness?'}
                     </label>
-                    <Textarea
+                    <VoiceTextarea
                       className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                       placeholder={language === 'en' ? "Describe your current fitness level..." : "Descrie nivelul tău actual de fitness..."}
                       value={answers.q1 || ''}
                       onChange={(e) => handleAnswerChange('q1', e.target.value)}
+                      language={language}
                     />
                   </div>
                   
@@ -200,11 +201,12 @@ export const FactMapDetail: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-300 mb-1">
                       {language === 'en' ? 'What are your current physical challenges?' : 'Care sunt provocările tale fizice actuale?'}
                     </label>
-                    <Textarea
+                    <VoiceTextarea
                       className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                       placeholder={language === 'en' ? "Describe any limitations or challenges..." : "Descrie limitările sau provocările..."}
                       value={answers.q2 || ''}
                       onChange={(e) => handleAnswerChange('q2', e.target.value)}
+                      language={language}
                     />
                   </div>
                   
@@ -212,11 +214,12 @@ export const FactMapDetail: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-300 mb-1">
                       {language === 'en' ? 'What physical activities do you currently engage in?' : 'Ce activități fizice practici în prezent?'}
                     </label>
-                    <Textarea
+                    <VoiceTextarea
                       className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                       placeholder={language === 'en' ? "List your regular physical activities..." : "Enumeră activitățile fizice regulate..."}
                       value={answers.q3 || ''}
                       onChange={(e) => handleAnswerChange('q3', e.target.value)}
+                      language={language}
                     />
                   </div>
                   
@@ -224,11 +227,12 @@ export const FactMapDetail: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-300 mb-1">
                       {language === 'en' ? 'How would you describe your current nutrition habits?' : 'Cum ți-ai descrie obiceiurile alimentare actuale?'}
                     </label>
-                    <Textarea
+                    <VoiceTextarea
                       className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                       placeholder={language === 'en' ? "Describe your eating habits..." : "Descrie obiceiurile tale alimentare..."}
                       value={answers.q4 || ''}
                       onChange={(e) => handleAnswerChange('q4', e.target.value)}
+                      language={language}
                     />
                   </div>
                   
@@ -236,11 +240,12 @@ export const FactMapDetail: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-300 mb-1">
                       {language === 'en' ? 'How is your sleep quality and routine?' : 'Cum este calitatea și rutina somnului tău?'}
                     </label>
-                    <Textarea
+                    <VoiceTextarea
                       className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                       placeholder={language === 'en' ? "Describe your sleep patterns..." : "Descrie tiparele tale de somn..."}
                       value={answers.q5 || ''}
                       onChange={(e) => handleAnswerChange('q5', e.target.value)}
+                      language={language}
                     />
                   </div>
                   
@@ -248,11 +253,12 @@ export const FactMapDetail: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-300 mb-1">
                       {language === 'en' ? 'What is your current energy level throughout the day?' : 'Care este nivelul tău de energie pe parcursul zilei?'}
                     </label>
-                    <Textarea
+                    <VoiceTextarea
                       className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                       placeholder={language === 'en' ? "Describe your daily energy patterns..." : "Descrie tiparele tale de energie zilnică..."}
                       value={answers.q6 || ''}
                       onChange={(e) => handleAnswerChange('q6', e.target.value)}
+                      language={language}
                     />
                   </div>
                 </div>
@@ -267,11 +273,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'What has been working well for your physical health?' : 'Ce a funcționat bine pentru sănătatea ta fizică?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "List what's working well..." : "Enumeră ce funcționează bine..."}
                     value={answers.working || ''}
                     onChange={(e) => handleAnswerChange('working', e.target.value)}
+                    language={language}
                   />
                 </div>
                 
@@ -279,11 +286,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'What has not been working for your physical health?' : 'Ce nu a funcționat pentru sănătatea ta fizică?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "List what's not working..." : "Enumeră ce nu funcționează..."}
                     value={answers['not-working'] || ''}
                     onChange={(e) => handleAnswerChange('not-working', e.target.value)}
+                    language={language}
                   />
                 </div>
                 
@@ -291,11 +299,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'What adjustments could you make to improve your physical health?' : 'Ce ajustări ai putea face pentru a-ți îmbunătăți sănătatea fizică?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "Describe potential adjustments..." : "Descrie ajustările potențiale..."}
                     value={answers.adjustments || ''}
                     onChange={(e) => handleAnswerChange('adjustments', e.target.value)}
+                    language={language}
                   />
                 </div>
                 
@@ -303,11 +312,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'What missions or objectives would you like to accomplish?' : 'Ce misiuni sau obiective ai dori să realizezi?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "List your physical health objectives..." : "Enumeră obiectivele tale de sănătate fizică..."}
                     value={answers.missions || ''}
                     onChange={(e) => handleAnswerChange('missions', e.target.value)}
+                    language={language}
                   />
                 </div>
               </div>
@@ -326,11 +336,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'How would you describe your current spiritual practice?' : 'Cum ți-ai descrie practica spirituală actuală?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "Describe your spiritual practices..." : "Descrie practicile tale spirituale..."}
                     value={answers['being-q1'] || ''}
                     onChange={(e) => handleAnswerChange('being-q1', e.target.value)}
+                    language={language}
                   />
                 </div>
                 
@@ -338,11 +349,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'How often do you meditate or connect with your higher purpose?' : 'Cât de des meditezi sau te conectezi cu scopul tău superior?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "Describe your meditation habits..." : "Descrie obiceiurile tale de meditație..."}
                     value={answers['being-q2'] || ''}
                     onChange={(e) => handleAnswerChange('being-q2', e.target.value)}
+                    language={language}
                   />
                 </div>
                 
@@ -350,11 +362,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'What are your current spiritual challenges?' : 'Care sunt provocările tale spirituale actuale?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "Describe your spiritual challenges..." : "Descrie provocările tale spirituale..."}
                     value={answers['being-q3'] || ''}
                     onChange={(e) => handleAnswerChange('being-q3', e.target.value)}
+                    language={language}
                   />
                 </div>
               </div>
@@ -368,11 +381,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'What has been working well for your spiritual health?' : 'Ce a funcționat bine pentru sănătatea ta spirituală?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "List what's working well..." : "Enumeră ce funcționează bine..."}
                     value={answers['being-working'] || ''}
                     onChange={(e) => handleAnswerChange('being-working', e.target.value)}
+                    language={language}
                   />
                 </div>
                 
@@ -380,11 +394,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'What has not been working for your spiritual health?' : 'Ce nu a funcționat pentru sănătatea ta spirituală?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "List what's not working..." : "Enumeră ce nu funcționează..."}
                     value={answers['being-not-working'] || ''}
                     onChange={(e) => handleAnswerChange('being-not-working', e.target.value)}
+                    language={language}
                   />
                 </div>
               </div>
@@ -403,11 +418,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'How would you describe your current relationships?' : 'Cum ți-ai descrie relațiile actuale?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "Describe your current relationships..." : "Descrie relațiile tale actuale..."}
                     value={answers['balance-q1'] || ''}
                     onChange={(e) => handleAnswerChange('balance-q1', e.target.value)}
+                    language={language}
                   />
                 </div>
                 
@@ -415,11 +431,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'What are your current relationship challenges?' : 'Care sunt provocările tale relaționale actuale?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "Describe your relationship challenges..." : "Descrie provocările tale relaționale..."}
                     value={answers['balance-q2'] || ''}
                     onChange={(e) => handleAnswerChange('balance-q2', e.target.value)}
+                    language={language}
                   />
                 </div>
               </div>
@@ -438,11 +455,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'How would you describe your current financial situation?' : 'Cum ți-ai descrie situația financiară actuală?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "Describe your financial situation..." : "Descrie situația ta financiară..."}
                     value={answers['business-q1'] || ''}
                     onChange={(e) => handleAnswerChange('business-q1', e.target.value)}
+                    language={language}
                   />
                 </div>
                 
@@ -450,11 +468,12 @@ export const FactMapDetail: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-300 mb-1">
                     {language === 'en' ? 'What are your current business or career challenges?' : 'Care sunt provocările tale actuale în afaceri sau carieră?'}
                   </label>
-                  <Textarea
+                  <VoiceTextarea
                     className="bg-[#1E2638] border-gray-700 text-white min-h-[100px]"
                     placeholder={language === 'en' ? "Describe your business challenges..." : "Descrie provocările tale în afaceri..."}
                     value={answers['business-q2'] || ''}
                     onChange={(e) => handleAnswerChange('business-q2', e.target.value)}
+                    language={language}
                   />
                 </div>
               </div>
