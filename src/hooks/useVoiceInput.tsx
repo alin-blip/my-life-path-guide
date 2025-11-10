@@ -6,6 +6,7 @@ import { logger } from '@/lib/logger';
 
 interface UseVoiceInputOptions {
   onTranscript?: (text: string) => void;
+  onMicStop?: () => void; // Called when user stops the microphone
   systemPrompt?: string;
   enabled?: boolean;
   transport?: 'webrtc' | 'ws'; // WebRTC is recommended
@@ -13,7 +14,7 @@ interface UseVoiceInputOptions {
 }
 
 export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
-  const { onTranscript, systemPrompt = "You are a helpful assistant.", enabled = true, transport = 'webrtc', voiceLanguage: initialLanguage } = options;
+  const { onTranscript, onMicStop, systemPrompt = "You are a helpful assistant.", enabled = true, transport = 'webrtc', voiceLanguage: initialLanguage } = options;
   const { toast } = useToast();
   
   // Voice language state with localStorage persistence
@@ -157,6 +158,12 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
         setIsConnected(false);
         setIsMicOn(false);
         setIsUserSpeaking(false);
+        
+        // Call onMicStop callback when mic is stopped
+        if (onMicStop) {
+          logger.log('📞 Calling onMicStop callback');
+          onMicStop();
+        }
       }
     };
 
@@ -171,7 +178,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
         variant: "destructive"
       });
     }
-  }, [onTranscript, toast, voiceLanguage]);
+  }, [onTranscript, onMicStop, toast, voiceLanguage]);
 
   const stopBrowserSTT = useCallback(() => {
     if (browserSTTRef.current) {

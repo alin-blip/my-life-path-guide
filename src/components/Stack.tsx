@@ -49,6 +49,16 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
     onTranscript: (text) => {
       setCurrentAnswer(prev => prev ? prev + ' ' + text : text);
     },
+    onMicStop: () => {
+      // Auto-submit when mic stops if there's content
+      if (currentAnswer.trim() && !committedAction) {
+        console.log('🎤 Auto-submitting after mic stop:', currentAnswer);
+        // Small delay to ensure the last transcript is captured
+        setTimeout(() => {
+          handleNext();
+        }, 300);
+      }
+    },
     systemPrompt: "You are a helpful introspection assistant. Help users answer personal development questions concisely and thoughtfully.",
     enabled: !committedAction // Disable when stack is completed
   });
