@@ -275,7 +275,17 @@ export const SimplifiedDoorContent: React.FC = () => {
             </Button>
             <ClearWeekButton 
               currentDate={currentDate} 
-              onArchived={() => window.location.reload()} 
+              onArchived={() => {
+                // Force reload of current week data after archiving
+                toast({
+                  title: '✅ Săptămână arhivată',
+                  description: 'Reîncărcare date...',
+                });
+                // Use setTimeout to allow toast to show, then reload
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
+              }} 
             />
             <DoorClearHistory onHistoryCleared={() => window.location.reload()} />
           </div>

@@ -30,19 +30,28 @@ export const ClearWeekButton: React.FC<ClearWeekButtonProps> = ({ currentDate, o
     try {
       const weekKey = `door-week-${getYear(currentDate)}-${String(getISOWeek(currentDate)).padStart(2, '0')}`;
       
+      console.log('🗄️ Archiving week:', weekKey);
+      
       await doorUserTasksService.archiveWeekTasks(weekKey);
       
+      console.log('✅ Week archived successfully:', weekKey);
+      
       toast({
-        title: "Săptămână arhivată",
-        description: "Sarcinile au fost mutate în arhivă. Le poți restaura oricând.",
+        title: "✅ Săptămână arhivată",
+        description: "Sarcinile au fost mutate în arhivă cu succes.",
       });
       
       setShowDialog(false);
-      onArchived?.();
+      
+      // Wait a bit before triggering the callback to ensure database operation completes
+      setTimeout(() => {
+        onArchived?.();
+      }, 300);
+      
     } catch (error) {
-      console.error('Archive error:', error);
+      console.error('❌ Archive error:', error);
       toast({
-        title: "Eroare arhivare",
+        title: "❌ Eroare arhivare",
         description: "Nu s-au putut arhiva sarcinile. Încearcă din nou.",
         variant: "destructive"
       });
