@@ -421,115 +421,139 @@ INSTRUCȚIUNI:
   }
 
   return (
-    <div className="w-full p-1 sm:p-2 flex flex-col h-full">
-      <Card className={`flex-1 flex flex-col transition-all ${
-        isAISpeaking ? 'ring-2 ring-green-500 animate-pulse' : ''
-      }`}>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg sm:text-xl">
+    <div className="flex flex-col h-full bg-background">
+      {/* Header fix la top */}
+      <div className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
+        <div>
+          <h1 className="text-base sm:text-lg font-semibold">
             AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
-          </CardTitle>
-          <p className="text-xs sm:text-sm text-muted-foreground">
+          </h1>
+          <p className="text-xs text-muted-foreground">
             Conversație ghidată cu AI coach-ul tău
           </p>
-        </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto p-2">
-          <AISpeakingIndicator isAISpeaking={isAISpeaking} />
-          <div className="space-y-3">
-            {messages.map((message, index) => (
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            variant="ghost" 
+            onClick={resetSession}
+            size="sm"
+            className="text-xs"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </Button>
+          {onModeSwitch && (
+            <Button 
+              variant="ghost" 
+              onClick={onModeSwitch}
+              size="sm"
+              className="text-xs"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Manual
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Zona de mesaje - scrollable */}
+      <div className="flex-1 overflow-y-auto px-4 py-6">
+        <AISpeakingIndicator isAISpeaking={isAISpeaking} />
+        <div className="max-w-3xl mx-auto space-y-4">
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
               <div
-                key={index}
-                className={`p-2 rounded-lg text-xs sm:text-sm ${
+                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                   message.role === 'user'
-                    ? 'bg-primary text-primary-foreground ml-8'
-                    : 'bg-muted mr-8'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-foreground'
                 }`}
               >
-                <div className="whitespace-pre-wrap">{message.content}</div>
-                <div className="text-xs opacity-70 mt-1">
-                  {message.timestamp.toLocaleTimeString()}
+                <div className="text-sm whitespace-pre-wrap">{message.content}</div>
+                <div className="text-xs opacity-60 mt-1">
+                  {message.timestamp.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
-            ))}
-            {isLoading && (
-              <div className="bg-muted mr-8 p-2 rounded-lg text-xs sm:text-sm">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-2">
-          <div className="flex w-full gap-2">
-            <Textarea
-              value={currentMessage}
-              onChange={(e) => setCurrentMessage(e.target.value)}
-              placeholder="Scrie mesajul tău aici sau folosește voice input..."
-              className="flex-1 min-h-[60px] text-xs sm:text-sm"
-              onEnterSubmit={sendMessage}
-            />
-            <div className="flex flex-col gap-2">
-              <VoiceInputButton
-                isConnected={isConnected}
-                isMicOn={isMicOn}
-                isAISpeaking={isAISpeaking}
-                isUserSpeaking={isUserSpeaking}
-                audioLevel={audioLevel}
-                onToggle={toggleMic}
-                variant="compact"
-                showWaveform={true}
-              />
-              <Button
-                onClick={sendMessage}
-                disabled={!currentMessage.trim() || isLoading}
-                size="sm"
-                className="px-3"
-              >
-                <Send className="w-3 h-3 sm:w-4 sm:h-4" />
-              </Button>
             </div>
-          </div>
-          <div className="flex w-full gap-2 flex-wrap">
-            <VoiceLanguageToggle
-              currentLanguage={voiceLanguage}
-              onLanguageChange={changeVoiceLanguage}
-              disabled={isConnected}
-            />
+          ))}
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-muted">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* Zona de input - fix la fund */}
+      <div className="border-t border-border bg-card px-4 py-3">
+        <div className="max-w-3xl mx-auto space-y-2">
+          {/* Input cu butoane integrate */}
+          <div className="flex gap-2 items-end">
+            <div className="flex-1 relative">
+              <Textarea
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                placeholder={isUserSpeaking ? "Vorbești..." : "Scrie mesajul tău aici... (Enter trimite)"}
+                className={`min-h-[52px] max-h-32 text-sm resize-none pr-20 ${
+                  isUserSpeaking ? 'ring-2 ring-blue-500' : ''
+                }`}
+                disabled={isLoading}
+              />
+              <div className="absolute bottom-2 right-2 flex gap-1">
+                <VoiceLanguageToggle 
+                  currentLanguage={voiceLanguage}
+                  onLanguageChange={changeVoiceLanguage}
+                  disabled={isConnected}
+                />
+                <VoiceInputButton 
+                  isMicOn={isMicOn}
+                  isConnected={isConnected}
+                  isAISpeaking={isAISpeaking}
+                  isUserSpeaking={isUserSpeaking}
+                  audioLevel={audioLevel}
+                  onToggle={toggleMic}
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
             <Button
-              variant="outline"
-              onClick={resetSession}
-              size="sm"
-              className="text-xs sm:text-sm"
+              onClick={sendMessage}
+              disabled={!currentMessage.trim() || isLoading}
+              size="icon"
+              className="h-[52px] w-[52px] shrink-0"
             >
-              <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              Reset
-            </Button>
-            {onModeSwitch && (
-              <Button 
-                variant="outline" 
-                onClick={onModeSwitch}
-                size="sm"
-                className="text-xs sm:text-sm"
-              >
-                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                Manual
-              </Button>
-            )}
-            <Button
-              onClick={generateFinalAction}
-              disabled={messages.length === 0 || isLoading}
-              size="sm"
-              className="text-xs sm:text-sm flex-1"
-            >
-              Generează Acțiune
+              <Send className="w-5 h-5" />
             </Button>
           </div>
-        </CardFooter>
-      </Card>
+
+          {/* Buton pentru generare acțiune finală - clar vizibil și separat */}
+          <Button
+            onClick={generateFinalAction}
+            disabled={messages.length === 0 || isLoading}
+            variant="secondary"
+            size="sm"
+            className="w-full text-sm font-medium"
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Generează Acțiune Finală din Conversație
+          </Button>
+        </div>
+      </div>
 
       <StackIdeaModal
         isOpen={isIdeaModalOpen}
