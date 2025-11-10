@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import { VoiceTextarea } from '@/components/ui/VoiceTextarea';
 import { Info, Share2, Check, ArrowLeft, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, History, FileDown, BarChart, Mic } from 'lucide-react';
 import { HotListItem, DominoKeyPoint, PlanningResult } from '@/types/door';
 import { Button } from '@/components/ui/button';
@@ -355,7 +355,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                       )}
                     </div>
                     
-                    <Textarea
+                    <VoiceTextarea
                       className={`flex-grow bg-transparent border-none focus:ring-0 focus:ring-offset-0 p-0 min-h-0 resize-none ${
                         point.completed 
                           ? 'text-gray-400 line-through' 
@@ -365,6 +365,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                       value={point.text}
                       onChange={(e) => updateKeyPointText(point.id, e.target.value)}
                       rows={1}
+                      language="ro"
                     />
                     
                     {point.text && point.text.trim().length > 0 && moveKeyPointToHotList && (
