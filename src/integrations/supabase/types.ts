@@ -672,6 +672,7 @@ export type Database = {
           id: string
           is_key_point: boolean | null
           list_type: string
+          position: number | null
           priority: number | null
           selected: boolean | null
           task_id: string
@@ -689,6 +690,7 @@ export type Database = {
           id?: string
           is_key_point?: boolean | null
           list_type: string
+          position?: number | null
           priority?: number | null
           selected?: boolean | null
           task_id: string
@@ -706,6 +708,7 @@ export type Database = {
           id?: string
           is_key_point?: boolean | null
           list_type?: string
+          position?: number | null
           priority?: number | null
           selected?: boolean | null
           task_id?: string
