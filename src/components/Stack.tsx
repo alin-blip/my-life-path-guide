@@ -23,6 +23,7 @@ import { StackSaveStatus } from './stack/StackSaveStatus';
 import { StackSessionIndicator } from './stack/StackSessionIndicator';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from './stack/VoiceInputButton';
+import { TextToSpeechButton } from '@/components/ui/TextToSpeechButton';
 
 interface StackProps {
   onAddToHitList?: (action: string) => void;
@@ -287,8 +288,9 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
                 <CardTitle className="text-center text-blue-400">Acțiune Angajată</CardTitle>
               </CardHeader>
               <CardContent>
-                <div>
-                  <p className="text-gray-300">{committedAction}</p>
+                <div className="flex items-start gap-2">
+                  <p className="text-gray-300 flex-1">{committedAction}</p>
+                  <TextToSpeechButton text={committedAction} />
                   {actionAddedToHotList && (
                     <div className="flex items-center text-green-400 text-sm mt-2">
                       <CheckCircle className="w-4 h-4 mr-1" />
@@ -329,8 +331,9 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 bg-gray-800/50 rounded-md">
-                  <p className="text-gray-100">{questions[step]}</p>
+                <div className="p-4 bg-gray-800/50 rounded-md flex items-start gap-2">
+                  <p className="text-gray-100 flex-1">{questions[step]}</p>
+                  <TextToSpeechButton text={questions[step]} />
                 </div>
                 
                 <div className="flex gap-2">

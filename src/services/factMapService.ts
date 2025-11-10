@@ -103,14 +103,9 @@ export const saveFactMapGoalAnswers = async (mapId: string, goalId: string, answ
       throw new Error('Failed to save answers');
     }
     
-    // Also save to localStorage as a fallback
-    localStorage.setItem(`factMap-${mapId}-${goalId}-answers`, JSON.stringify(answers));
-    
     return true;
   } catch (error) {
     console.error('Error saving answers:', error);
-    // Still save to localStorage even if the API call fails
-    localStorage.setItem(`factMap-${mapId}-${goalId}-answers`, JSON.stringify(answers));
     return false;
   }
 };

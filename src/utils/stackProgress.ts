@@ -29,52 +29,20 @@ export const saveToStackLibrary = async (
       
       if (error) {
         console.error("Error saving to stack library:", error);
-        saveToLocalStackLibrary(type, sessionId, answers, questions);
-      } else {
-        console.log("Successfully saved stack to Supabase library");
+        throw error;
       }
+      console.log("Successfully saved stack to Supabase library");
     } else {
-      // User not logged in, save to local storage
-      saveToLocalStackLibrary(type, sessionId, answers, questions);
+      console.warn("User not logged in - cannot save stack");
+      throw new Error("User not logged in");
     }
   } catch (error) {
     console.error("Error in saveToStackLibrary:", error);
-    saveToLocalStackLibrary(type, sessionId, answers, questions);
+    throw error;
   }
 };
 
-// Helper function to save stack to local storage
-const saveToLocalStackLibrary = (
-  type: string,
-  sessionId: string,
-  answers: Record<string | number, string>,
-  questions: string[]
-) => {
-  try {
-    const stackData = {
-      id: `local-${sessionId}`,
-      trigger: type,
-      trigger_label: getStackLabel(type),
-      color: getStackColor(type),
-      questions: questions,
-      content: formatAnswersContent(answers, questions),
-      created_at: new Date().toISOString()
-    };
-    
-    // Get existing stacks
-    const existingStacks = localStorage.getItem('stack_library') || '[]';
-    const stacks = JSON.parse(existingStacks);
-    
-    // Add new stack
-    stacks.push(stackData);
-    
-    // Save back to localStorage
-    localStorage.setItem('stack_library', JSON.stringify(stacks));
-    console.log("Saved stack to local storage library");
-  } catch (error) {
-    console.error("Error saving to local stack library:", error);
-  }
-};
+// Removed localStorage fallback - all stacks must save to Supabase
 
 // Helper function to format answers for content
 const formatAnswersContent = (
@@ -140,8 +108,7 @@ export const updateDailyProgress = async (
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session?.user) {
-      // Save to localStorage as fallback
-      updateLocalProgress(activity, data);
+      console.warn("User not logged in - cannot save progress");
       return;
     }
     
@@ -160,29 +127,24 @@ export const updateDailyProgress = async (
 
       if (progressError) {
         console.error("Error updating progress:", progressError);
-        updateLocalProgress(activity, data);
         return;
       }
 
       // Update user statistics
       await updateUserStatistics(session.user.id, activity);
       
-      // Also update local cache so UI (Dashboard) reflects instantly
-      updateLocalProgress(activity, data);
-      
       // Dispatch custom event for dashboard updates
+      const today = new Date().toISOString().split('T')[0];
       window.dispatchEvent(new CustomEvent('progressUpdated', {
-        detail: { activity, data, date }
+        detail: { activity, data, date: today }
       }));
       
       console.log(`Progress updated successfully for ${activity}`);
     } catch (supabaseError) {
-      console.error("Supabase error, falling back to localStorage:", supabaseError);
-      updateLocalProgress(activity, data);
+      console.error("Supabase error:", supabaseError);
     }
   } catch (error) {
     console.error("Error in updateDailyProgress:", error);
-    updateLocalProgress(activity, data);
   }
 };
 
@@ -267,30 +229,4 @@ const updateUserStatistics = async (userId: string, activity: string) => {
   }
 };
 
-// Helper function to update local progress as fallback
-const updateLocalProgress = (activity: string, data?: any) => {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    const progressKey = `daily-progress-${today}`;
-    
-    const existingProgress = localStorage.getItem(progressKey);
-    const progress = existingProgress ? JSON.parse(existingProgress) : {};
-    
-    progress[activity] = {
-      completed: true,
-      data: data || {},
-      timestamp: new Date().toISOString()
-    };
-    
-    localStorage.setItem(progressKey, JSON.stringify(progress));
-    
-    // Dispatch event for dashboard updates
-    window.dispatchEvent(new CustomEvent('progressUpdated', {
-      detail: { activity, data, date: today, source: 'localStorage' }
-    }));
-    
-    console.log(`Progress saved locally for ${activity}`);
-  } catch (error) {
-    console.error("Error saving local progress:", error);
-  }
-};
+// Removed localStorage fallback for progress - all progress must save to Supabase
