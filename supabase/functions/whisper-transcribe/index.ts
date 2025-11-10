@@ -71,6 +71,38 @@ function createWavFromPCM(pcmBytes: Uint8Array, sampleRate = 24000, numChannels 
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+const retryWithBackoff = async (fn: () => Promise<Response>, maxRetries = 2) => {
+  const delays = [800, 1600]; // Backoff delays in ms
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fn();
+      
+      // If rate limited and we have retries left, wait and retry
+      if ((response.status === 429 || response.status === 402) && attempt < maxRetries) {
+        const retryAfter = response.headers.get('retry-after');
+        const delayMs = retryAfter 
+          ? parseInt(retryAfter) * 1000 
+          : delays[attempt] || 1600;
+        
+        console.log(`⏳ Rate limited (attempt ${attempt + 1}/${maxRetries + 1}), retrying after ${delayMs}ms`);
+        await sleep(delayMs);
+        continue;
+      }
+      
+      return response;
+    } catch (error) {
+      if (attempt === maxRetries) throw error;
+      console.log(`⏳ Error on attempt ${attempt + 1}, retrying after ${delays[attempt]}ms`);
+      await sleep(delays[attempt]);
+    }
+  }
+  
+  throw new Error('Max retries exceeded');
+};
+
+
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -123,14 +155,16 @@ serve(async (req) => {
 
     console.log('📤 Sending to OpenAI Whisper API...');
 
-    // Send to OpenAI
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: formData,
-    });
+    // Send to OpenAI with retry logic
+    const response = await retryWithBackoff(() => 
+      fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: formData,
+      })
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
