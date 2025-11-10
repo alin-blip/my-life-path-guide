@@ -114,13 +114,27 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       setIsLoading(true);
       setQuestionsAnswered(prev => prev + 1);
 
+      // Salvare imediată în database după voice input
+      const updatedMessages = [...messages, userMessage];
+      const updatedQuestionsAnswered = questionsAnswered + 1;
+      
+      setIsSaving(true);
+      await weeklyPlanningDraftService.saveDraft(currentWeekKey, {
+        messages: updatedMessages,
+        questionsAnswered: updatedQuestionsAnswered,
+        isSkippingReview,
+      });
+      setLastCloudSave(new Date());
+      setIsSaving(false);
+      console.log('☁️ Voice message saved to cloud immediately');
+
       try {
         const mode = previousWeekData && !isSkippingReview && questionsAnswered < 4 ? 'review' : 'new';
         
         await streamChat({
           mode,
           previousWeekData: mode === 'review' ? previousWeekData : undefined,
-          messages: [...messages, userMessage],
+          messages: updatedMessages,
         });
       } catch (error) {
         console.error('Error sending voice message:', error);
@@ -206,10 +220,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     }
   };
 
-  // Auto-save to database every 30 seconds + localStorage immediately
+  // Auto-save to localStorage immediately for fast backup
   useEffect(() => {
     if (messages.length > 0) {
-      // Save to localStorage immediately (fast backup)
       try {
         localStorage.setItem(draftKey, JSON.stringify({
           messages,
@@ -220,35 +233,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       } catch (e) {
         console.error('Error saving to localStorage:', e);
       }
-
-      // Clear previous timer
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-      }
-
-      // Schedule database save after 30 seconds of inactivity
-      saveTimerRef.current = setTimeout(async () => {
-        setIsSaving(true);
-        const success = await weeklyPlanningDraftService.saveDraft(currentWeekKey, {
-          messages,
-          questionsAnswered,
-          isSkippingReview,
-        });
-        
-        if (success) {
-          setLastCloudSave(new Date());
-          console.log('☁️ Auto-saved to cloud');
-        }
-        setIsSaving(false);
-      }, 30000); // 30 seconds
     }
-
-    return () => {
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-      }
-    };
-  }, [messages, questionsAnswered, isSkippingReview, currentWeekKey, draftKey]);
+  }, [messages, questionsAnswered, isSkippingReview, draftKey]);
 
   // Auto-scroll to bottom when messages change or loading state changes
   useEffect(() => {
@@ -258,7 +244,6 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   useEffect(() => {
     if (!isOpen) {
       setInputMode('text');
-      // Don't clear data on close - keep it for recovery
       setDraftLoaded(false);
     }
   }, [isOpen]);
@@ -317,10 +302,24 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input.trim() };
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    const updatedQuestionsAnswered = questionsAnswered + 1;
+    
+    setMessages(updatedMessages);
     setInput('');
     setIsLoading(true);
-    setQuestionsAnswered(prev => prev + 1);
+    setQuestionsAnswered(updatedQuestionsAnswered);
+
+    // Salvare imediată în database după text input
+    setIsSaving(true);
+    await weeklyPlanningDraftService.saveDraft(currentWeekKey, {
+      messages: updatedMessages,
+      questionsAnswered: updatedQuestionsAnswered,
+      isSkippingReview,
+    });
+    setLastCloudSave(new Date());
+    setIsSaving(false);
+    console.log('☁️ Text message saved to cloud immediately');
 
     try {
       const mode = previousWeekData && !isSkippingReview && questionsAnswered < 4 ? 'review' : 'new';
@@ -328,7 +327,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       await streamChat({
         mode,
         previousWeekData: mode === 'review' ? previousWeekData : undefined,
-        messages: [...messages, userMessage],
+        messages: updatedMessages,
       });
     } catch (error) {
       console.error('Error sending message:', error);
