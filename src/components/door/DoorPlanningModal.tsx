@@ -39,6 +39,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const [previousWeekData, setPreviousWeekData] = useState<PreviousWeekData | undefined>(externalPreviousData);
   const [isLoadingPreviousData, setIsLoadingPreviousData] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   // Voice input integration
@@ -139,30 +140,10 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     }
   };
 
+  // Auto-scroll to bottom when messages change or loading state changes
   useEffect(() => {
-    // Auto-scroll to bottom with ResizeObserver for better handling of long messages
-    const scrollToBottom = () => {
-      if (scrollAreaRef.current) {
-        const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-        if (scrollElement) {
-          requestAnimationFrame(() => {
-            scrollElement.scrollTop = scrollElement.scrollHeight;
-          });
-        }
-      }
-    };
-
-    scrollToBottom();
-
-    // Observe content height changes
-    const observer = new ResizeObserver(scrollToBottom);
-    const scrollElement = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
-    if (scrollElement) {
-      observer.observe(scrollElement);
-    }
-
-    return () => observer.disconnect();
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -393,6 +374,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
 
