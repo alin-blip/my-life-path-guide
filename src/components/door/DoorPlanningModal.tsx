@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Send, Sparkles, SkipForward, Mic, MicOff, Keyboard } from 'lucide-react';
+import { Loader2, Send, Sparkles, SkipForward, Keyboard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlanningResult, PreviousWeekData } from '@/types/door';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
 import { getISOWeek, getYear } from 'date-fns';
-import { AudioRecorder, AudioQueue, encodeAudioForAPI, createWavFromPCM } from '@/utils/realtimeAudio';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
+import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -39,13 +41,45 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Voice mode state
+  // Voice input integration
   const [inputMode, setInputMode] = useState<'text' | 'voice'>('text');
-  const [isRecording, setIsRecording] = useState(false);
-  const [wsConnection, setWsConnection] = useState<WebSocket | null>(null);
-  const recorderRef = useRef<AudioRecorder | null>(null);
-  const audioQueueRef = useRef<AudioQueue | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
+  
+  const {
+    isConnected,
+    isMicOn,
+    isUserSpeaking,
+    voiceLanguage,
+    changeVoiceLanguage,
+    toggleMic
+  } = useVoiceInput({
+    onTranscript: async (transcript) => {
+      const userMessage: Message = { role: 'user', content: transcript };
+      setMessages(prev => [...prev, userMessage]);
+      setInput('');
+      setIsLoading(true);
+      setQuestionsAnswered(prev => prev + 1);
+
+      try {
+        const mode = previousWeekData && !isSkippingReview && questionsAnswered < 4 ? 'review' : 'new';
+        
+        await streamChat({
+          mode,
+          previousWeekData: mode === 'review' ? previousWeekData : undefined,
+          messages: [...messages, userMessage],
+        });
+      } catch (error) {
+        console.error('Error sending voice message:', error);
+        toast({
+          title: 'Eroare',
+          description: 'Nu s-a putut trimite mesajul',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    enabled: inputMode === 'voice'
+  });
 
   const totalQuestions = previousWeekData ? 22 : 18;
   const progress = (questionsAnswered / totalQuestions) * 100;
@@ -122,18 +156,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     return () => observer.disconnect();
   }, [messages]);
 
-  // Cleanup voice resources when modal closes or mode changes
-  useEffect(() => {
-    return () => {
-      if (inputMode === 'voice') {
-        cleanupVoice();
-      }
-    };
-  }, [inputMode]);
-
   useEffect(() => {
     if (!isOpen) {
-      cleanupVoice();
       setInputMode('text');
       setMessages([]);
       setQuestionsAnswered(0);
@@ -307,177 +331,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     }
   };
 
-  const cleanupVoice = () => {
-    console.log('🧹 Cleaning up voice resources');
-    recorderRef.current?.stop();
-    wsConnection?.close();
-    audioQueueRef.current?.clear();
-    audioContextRef.current?.close();
-    setIsRecording(false);
-    setWsConnection(null);
-    recorderRef.current = null;
-    audioQueueRef.current = null;
-    audioContextRef.current = null;
-  };
-
-  const initializeVoiceMode = async () => {
-    try {
-      console.log('🎤 Initializing voice mode...');
-      
-      // Request microphone permission first
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-
-      audioContextRef.current = new AudioContext({ sampleRate: 24000 });
-      audioQueueRef.current = new AudioQueue(audioContextRef.current);
-
-      const projectId = 'sdflvglvhqmukzqmqosa';
-      const wsUrl = `wss://${projectId}.functions.supabase.co/functions/v1/realtime-voice`;
-      
-      console.log('📡 Connecting to WebSocket:', wsUrl);
-      const ws = new WebSocket(wsUrl);
-      
-      ws.onopen = () => {
-        console.log('✅ WebSocket connected');
-        setIsRecording(true);
-        startMicrophone();
-        
-        toast({
-          title: 'Voice activat',
-          description: 'Poți vorbi acum, AI-ul te ascultă',
-        });
-      };
-
-      ws.onmessage = handleVoiceMessage;
-      
-      ws.onerror = (error) => {
-        console.error('❌ WebSocket error:', error);
-        toast({
-          title: 'Eroare voice',
-          description: 'Conexiunea cu AI-ul a eșuat',
-          variant: 'destructive',
-        });
-        cleanupVoice();
-      };
-
-      ws.onclose = () => {
-        console.log('🔌 WebSocket closed');
-        setIsRecording(false);
-      };
-      
-      setWsConnection(ws);
-    } catch (error) {
-      console.error('❌ Error initializing voice:', error);
-      toast({
-        title: 'Eroare voice',
-        description: 'Nu s-a putut activa microfonul. Verifică permisiunile.',
-        variant: 'destructive',
-      });
-      setInputMode('text');
-    }
-  };
-
-  const startMicrophone = async () => {
-    try {
-      console.log('🎙️ Starting microphone...');
-      recorderRef.current = new AudioRecorder((audioData: Float32Array) => {
-        if (wsConnection?.readyState === WebSocket.OPEN) {
-          wsConnection.send(JSON.stringify({
-            type: 'input_audio_buffer.append',
-            audio: encodeAudioForAPI(audioData)
-          }));
-        }
-      });
-      
-      await recorderRef.current.start();
-      console.log('✅ Microphone started');
-    } catch (error) {
-      console.error('❌ Error starting microphone:', error);
-      toast({
-        title: 'Eroare microfon',
-        description: 'Nu s-a putut accesa microfonul',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleVoiceMessage = async (event: MessageEvent) => {
-    try {
-      const data = JSON.parse(event.data);
-      console.log('📨 Voice message:', data.type);
-      
-      if (data.type === 'response.audio.delta') {
-        // Play audio
-        const binaryString = atob(data.delta);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        await audioQueueRef.current?.addToQueue(bytes);
-      }
-      else if (data.type === 'conversation.item.input_audio_transcription.completed') {
-        // User speech transcribed
-        console.log('👤 User said:', data.transcript);
-        setMessages(prev => [...prev, { role: 'user', content: data.transcript }]);
-        setQuestionsAnswered(prev => prev + 1);
-      }
-      else if (data.type === 'response.audio_transcript.delta') {
-        // AI response text
-        setMessages(prev => {
-          const last = prev[prev.length - 1];
-          if (last?.role === 'assistant') {
-            return [...prev.slice(0, -1), { role: 'assistant', content: last.content + data.delta }];
-          }
-          return [...prev, { role: 'assistant', content: data.delta }];
-        });
-      }
-      else if (data.type === 'response.function_call_arguments.done') {
-        // Planning complete
-        console.log('✅ Planning complete, saving...');
-        try {
-          const planningData = JSON.parse(data.arguments);
-          
-          const today = new Date();
-          const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
-          
-          await weeklyPlanningService.savePlan({
-            weekKey: currentWeekKey,
-            dominoTitle: planningData.dominoTitle,
-            weekGoal: planningData.weekGoal,
-            keyPoints: planningData.keyPoints,
-          });
-          
-          toast({
-            title: 'Plan salvat!',
-            description: 'Planul tău săptămânal a fost salvat cu succes',
-          });
-          
-          onPlanningComplete(planningData);
-          cleanupVoice();
-          onClose();
-        } catch (e) {
-          console.error('❌ Error parsing planning data:', e);
-        }
-      }
-    } catch (error) {
-      console.error('❌ Voice message error:', error);
-    }
-  };
-
-  const toggleInputMode = async () => {
-    if (inputMode === 'text') {
-      // Switch to voice
-      await initializeVoiceMode();
-      setInputMode('voice');
-    } else {
-      // Switch back to text
-      cleanupVoice();
-      setInputMode('text');
-      
-      toast({
-        title: 'Mod text activat',
-        description: 'Poți scrie răspunsurile cu tastatura',
-      });
-    }
+  const toggleInputMode = () => {
+    setInputMode(prev => prev === 'text' ? 'voice' : 'text');
   };
 
   return (
@@ -568,56 +423,57 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                   />
                   <div className="flex flex-col gap-2">
                     <Button
-                      onClick={toggleInputMode}
-                      variant="outline"
-                      size="icon"
-                      title="Activează voice"
-                      disabled={isLoading}
-                    >
-                      <Mic className="w-4 h-4" />
-                    </Button>
-                    <Button
                       onClick={handleSendMessage}
                       disabled={isLoading || !input.trim()}
                       size="icon"
                     >
                       <Send className="w-4 h-4" />
                     </Button>
+                    <Button
+                      onClick={toggleInputMode}
+                      variant="outline"
+                      size="icon"
+                      title="Activează voice"
+                      disabled={isLoading}
+                    >
+                      <Keyboard className="w-4 h-4" />
+                    </Button>
                   </div>
                 </>
               ) : (
-                <>
-                  <div className="flex-1 flex items-center justify-center bg-muted/50 rounded-lg border-2 border-dashed">
-                    <div className="text-center space-y-3 py-4">
-                      <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center transition-all ${
-                        isRecording ? 'bg-red-500 animate-pulse shadow-lg shadow-red-500/50' : 'bg-green-500'
-                      }`}>
-                        {isRecording ? (
-                          <Mic className="w-8 h-8 text-white" />
-                        ) : (
-                          <MicOff className="w-8 h-8 text-white" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">
-                          {isRecording ? 'Vorbește acum...' : 'Conectare voice...'}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          AI-ul te ascultă și răspunde
-                        </p>
-                      </div>
-                    </div>
+                <div className="flex-1 flex flex-col gap-3">
+                  <div className="flex items-center justify-center gap-3">
+                    <VoiceLanguageToggle
+                      currentLanguage={voiceLanguage}
+                      onLanguageChange={changeVoiceLanguage}
+                      disabled={isMicOn || isLoading}
+                    />
+                    <VoiceInputButton 
+                      isMicOn={isMicOn}
+                      isConnected={isConnected}
+                      isAISpeaking={false}
+                      isUserSpeaking={isUserSpeaking}
+                      audioLevel={0}
+                      onToggle={toggleMic}
+                      variant="compact"
+                      disabled={isLoading}
+                    />
                   </div>
+                  <p className="text-center text-sm text-muted-foreground">
+                    {isMicOn 
+                      ? 'Vorbește acum - microfonul este activ' 
+                      : 'Click pe microfon pentru a începe'}
+                  </p>
                   <Button
                     onClick={toggleInputMode}
                     variant="outline"
-                    size="icon"
-                    title="Înapoi la text"
-                    className="h-auto"
+                    size="sm"
+                    className="w-full"
                   >
-                    <Keyboard className="w-4 h-4" />
+                    <Keyboard className="w-4 h-4 mr-2" />
+                    Înapoi la text
                   </Button>
-                </>
+                </div>
               )}
             </div>
           </div>
