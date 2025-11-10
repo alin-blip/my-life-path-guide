@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic, CheckCircle } from 'lucide-react';
+import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic, CheckCircle, Cloud, CloudOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlanningResult, PreviousWeekData } from '@/types/door';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
+import { weeklyPlanningDraftService } from '@/services/weeklyPlanningDraftService';
 import { getISOWeek, getYear } from 'date-fns';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
@@ -35,12 +36,36 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
   const draftKey = `doorPlanningDraft_${currentWeekKey}`;
   
-  // Load draft from localStorage
-  const loadDraft = () => {
+  // Load draft from database first, fallback to localStorage
+  const loadDraft = async () => {
     try {
+      // Try database first
+      const dbDraft = await weeklyPlanningDraftService.loadDraft(currentWeekKey);
+      if (dbDraft) {
+        console.log('📦 Loaded draft from database');
+        return {
+          messages: dbDraft.messages || [],
+          questionsAnswered: dbDraft.questionsAnswered || 0,
+          isSkippingReview: dbDraft.isSkippingReview || false,
+        };
+      }
+
+      // Fallback to localStorage
       const saved = localStorage.getItem(draftKey);
       if (saved) {
         const draft = JSON.parse(saved);
+        console.log('📦 Loaded draft from localStorage (will migrate to DB)');
+        
+        // Migrate to database
+        if (draft.messages && draft.messages.length > 0) {
+          await weeklyPlanningDraftService.saveDraft(currentWeekKey, {
+            messages: draft.messages,
+            questionsAnswered: draft.questionsAnswered || 0,
+            isSkippingReview: draft.isSkippingReview || false,
+          });
+          localStorage.removeItem(draftKey); // Clear old localStorage
+        }
+        
         return {
           messages: draft.messages || [],
           questionsAnswered: draft.questionsAnswered || 0,
@@ -53,16 +78,19 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     return null;
   };
 
-  const draft = loadDraft();
-  const [messages, setMessages] = useState<Message[]>(draft?.messages || []);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSkippingReview, setIsSkippingReview] = useState(draft?.isSkippingReview || false);
-  const [questionsAnswered, setQuestionsAnswered] = useState(draft?.questionsAnswered || 0);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastCloudSave, setLastCloudSave] = useState<Date | null>(null);
+  const [isSkippingReview, setIsSkippingReview] = useState(false);
+  const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const [previousWeekData, setPreviousWeekData] = useState<PreviousWeekData | undefined>(externalPreviousData);
   const [isLoadingPreviousData, setIsLoadingPreviousData] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const saveTimerRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
 
   // Voice input integration
@@ -116,6 +144,20 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const totalQuestions = previousWeekData ? 22 : 18;
   const progress = (questionsAnswered / totalQuestions) * 100;
 
+  // Load draft on mount
+  useEffect(() => {
+    if (isOpen && !draftLoaded) {
+      loadDraft().then(draft => {
+        if (draft) {
+          setMessages(draft.messages);
+          setQuestionsAnswered(draft.questionsAnswered);
+          setIsSkippingReview(draft.isSkippingReview);
+        }
+        setDraftLoaded(true);
+      });
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (isOpen) {
       loadPreviousWeekData();
@@ -124,10 +166,10 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
   useEffect(() => {
     // Only start new conversation if no draft exists
-    if (isOpen && !isLoadingPreviousData && messages.length === 0) {
+    if (isOpen && !isLoadingPreviousData && draftLoaded && messages.length === 0) {
       startConversation();
     }
-  }, [isOpen, isLoadingPreviousData]);
+  }, [isOpen, isLoadingPreviousData, draftLoaded]);
 
   const loadPreviousWeekData = async () => {
     setIsLoadingPreviousData(true);
@@ -164,9 +206,10 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     }
   };
 
-  // Auto-save conversation to localStorage
+  // Auto-save to database every 30 seconds + localStorage immediately
   useEffect(() => {
     if (messages.length > 0) {
+      // Save to localStorage immediately (fast backup)
       try {
         localStorage.setItem(draftKey, JSON.stringify({
           messages,
@@ -174,12 +217,38 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           isSkippingReview,
           timestamp: new Date().toISOString(),
         }));
-        console.log('✅ Draft auto-saved:', { messagesCount: messages.length, questionsAnswered });
       } catch (e) {
-        console.error('Error saving draft:', e);
+        console.error('Error saving to localStorage:', e);
       }
+
+      // Clear previous timer
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+
+      // Schedule database save after 30 seconds of inactivity
+      saveTimerRef.current = setTimeout(async () => {
+        setIsSaving(true);
+        const success = await weeklyPlanningDraftService.saveDraft(currentWeekKey, {
+          messages,
+          questionsAnswered,
+          isSkippingReview,
+        });
+        
+        if (success) {
+          setLastCloudSave(new Date());
+          console.log('☁️ Auto-saved to cloud');
+        }
+        setIsSaving(false);
+      }, 30000); // 30 seconds
     }
-  }, [messages, questionsAnswered, isSkippingReview, draftKey]);
+
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, [messages, questionsAnswered, isSkippingReview, currentWeekKey, draftKey]);
 
   // Auto-scroll to bottom when messages change or loading state changes
   useEffect(() => {
@@ -190,6 +259,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     if (!isOpen) {
       setInputMode('text');
       // Don't clear data on close - keep it for recovery
+      setDraftLoaded(false);
     }
   }, [isOpen]);
 
@@ -220,19 +290,25 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     setIsSkippingReview(true);
     setMessages([]);
     setQuestionsAnswered(0);
-    // Clear draft when starting fresh
+    // Clear both localStorage and database
     localStorage.removeItem(draftKey);
+    weeklyPlanningDraftService.deleteDraft(currentWeekKey);
     startConversation();
   };
 
-  const handleClearDraft = () => {
+  const handleClearDraft = async () => {
+    // Clear from both localStorage and database
     localStorage.removeItem(draftKey);
+    await weeklyPlanningDraftService.deleteDraft(currentWeekKey);
+    
     setMessages([]);
     setQuestionsAnswered(0);
     setIsSkippingReview(false);
+    setLastCloudSave(null);
+    
     toast({
       title: 'Draft șters',
-      description: 'Conversația salvată a fost ștearsă.',
+      description: 'Conversația salvată a fost ștearsă din localStorage și din cloud.',
     });
     onClose();
   };
@@ -331,8 +407,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                 if (saveSuccess) {
                   console.log('✅ Planning saved successfully to database');
                   
-                  // Clear draft only after successful save
+                  // Clear draft from both localStorage and database
                   localStorage.removeItem(draftKey);
+                  await weeklyPlanningDraftService.deleteDraft(currentWeekKey);
                   
                   toast({
                     title: 'Plan salvat cu succes!',
@@ -419,11 +496,29 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
               )}
             </div>
             {messages.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-green-500 flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  Auto-salvat
-                </span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  {isSaving ? (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Salvare cloud...</span>
+                    </div>
+                  ) : lastCloudSave ? (
+                    <div className="flex items-center gap-1 text-xs text-green-500">
+                      <Cloud className="w-3 h-3" />
+                      <span>Cloud: {lastCloudSave.toLocaleTimeString()}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <CloudOff className="w-3 h-3" />
+                      <span>Local only</span>
+                    </div>
+                  )}
+                  <span className="text-xs text-green-500 flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" />
+                    Auto-save
+                  </span>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"

@@ -798,6 +798,42 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_planning_drafts: {
+        Row: {
+          created_at: string
+          id: string
+          is_skipping_review: boolean
+          last_saved_at: string
+          messages: Json
+          questions_answered: number
+          updated_at: string
+          user_id: string
+          week_key: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_skipping_review?: boolean
+          last_saved_at?: string
+          messages?: Json
+          questions_answered?: number
+          updated_at?: string
+          user_id: string
+          week_key: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_skipping_review?: boolean
+          last_saved_at?: string
+          messages?: Json
+          questions_answered?: number
+          updated_at?: string
+          user_id?: string
+          week_key?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
