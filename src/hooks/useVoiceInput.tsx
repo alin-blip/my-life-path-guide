@@ -82,6 +82,19 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
       description: "Folosim browserul pentru transcriere (fără răspuns audio AI).",
     });
 
+    // Release microphone from WebRTC before starting STT
+    if (rtcChatRef.current) {
+      try {
+        rtcChatRef.current.disconnect();
+      } catch (e) {
+        logger.warn('Could not disconnect RTC before STT', e);
+      }
+      rtcChatRef.current = null;
+      setIsConnected(false);
+      setIsAISpeaking(false);
+      setIsUserSpeaking(false);
+    }
+
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
