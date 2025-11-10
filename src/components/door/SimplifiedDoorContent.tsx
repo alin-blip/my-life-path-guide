@@ -54,14 +54,56 @@ export const SimplifiedDoorContent: React.FC = () => {
   };
 
   const handleSelectPlan = (plan: WeeklyPlanningData) => {
-    // When a plan is selected, populate the domino and key points
+    // Populate the domino
+    if (plan.dominoTitle) {
+      setSelectedDomino({
+        id: `domino-${plan.weekKey}`,
+        text: plan.dominoTitle,
+        priority: 'none',
+        selected: false,
+      });
+    }
+
+    // Map and populate key points with full metadata
+    const mappedKeyPoints = plan.keyPoints.map((kp, index) => ({
+      id: kp.id ? `key${kp.id}` : `key${index + 1}`,
+      text: kp.title || '',
+      completed: false,
+      metadata: {
+        objective: kp.objective || '',
+        why: kp.why || '',
+        positiveImpact: kp.positiveImpact || '',
+        negativeImpact: kp.negativeImpact || '',
+        steps: kp.steps || [],
+        responsible: kp.responsible || 'Eu',
+        deadline: kp.deadline || '',
+      },
+    }));
+
+    // Ensure exactly 4 key points
+    while (mappedKeyPoints.length < 4) {
+      mappedKeyPoints.push({
+        id: `key${mappedKeyPoints.length + 1}`,
+        text: '',
+        completed: false,
+        metadata: {
+          objective: '',
+          why: '',
+          positiveImpact: '',
+          negativeImpact: '',
+          steps: [],
+          responsible: 'Eu',
+          deadline: '',
+        },
+      });
+    }
+
+    setDominoKeyPoints(mappedKeyPoints);
+
     toast({
-      title: '📋 Plan restaurat',
-      description: `Planul pentru săptămâna ${plan.weekKey} a fost încărcat.`,
+      title: '📋 Plan restaurat din cloud',
+      description: `Planul pentru săptămâna ${plan.weekKey} a fost încărcat cu succes.`,
     });
-    
-    // TODO: Implement actual restoration logic to populate the domino
-    // This would require updating useDoorContent hook
   };
   
   const {

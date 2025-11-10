@@ -2,6 +2,8 @@ import { HotListItem, HitListItem, DoListItem, DominoKeyPoint, DayOfWeek } from 
 import { useToast } from '@/hooks/use-toast';
 import { useDoorStorageLogger } from './useDoorStorageLogger';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
+import { weeklyPlanningService } from '@/services/weeklyPlanningService';
+import { toPlanningWeekKey } from '@/utils/weekKey';
 
 interface SaveStateData {
   currentWeekKey: string;
@@ -37,6 +39,52 @@ export function useDoorStorageSave() {
         hitListItems: data.hitList.length,
         doListItems: data.doList.length,
       });
+
+      // Save Domino + Key Points to weekly_planning
+      if (data.selectedDomino || data.dominoKeyPoints.some(kp => kp.text)) {
+        try {
+          const planningKey = toPlanningWeekKey(data.currentWeekKey);
+          
+          // Load existing plan to preserve weekGoal and other data
+          const existingPlan = await weeklyPlanningService.getPlanForWeek(planningKey);
+          
+          // Build payload with current Domino + Key Points
+          const planPayload = {
+            weekKey: planningKey,
+            dominoTitle: data.selectedDomino?.text || existingPlan?.dominoTitle || '',
+            weekGoal: existingPlan?.weekGoal || '',
+            keyPoints: data.dominoKeyPoints
+              .filter(kp => kp.text) // Only save non-empty key points
+              .map((kp, index) => ({
+                id: index + 1,
+                title: kp.text,
+                objective: kp.metadata?.objective || '',
+                why: kp.metadata?.why || '',
+                positiveImpact: kp.metadata?.positiveImpact || '',
+                negativeImpact: kp.metadata?.negativeImpact || '',
+                steps: kp.metadata?.steps || [],
+                responsible: kp.metadata?.responsible || 'Eu',
+                deadline: kp.metadata?.deadline || '',
+              })),
+          };
+
+          const planSaved = await weeklyPlanningService.savePlan(planPayload);
+          
+          if (planSaved) {
+            logStorageAction('Saved weekly plan to cloud', {
+              weekKey: data.currentWeekKey,
+              planningKey,
+              dominoTitle: planPayload.dominoTitle,
+              keyPointsCount: planPayload.keyPoints.length,
+            });
+          } else {
+            logStorageAction('Failed to save weekly plan', { planningKey });
+          }
+        } catch (planError: any) {
+          logStorageAction('Error saving weekly plan', { error: planError.message });
+          console.error('Error saving weekly plan:', planError);
+        }
+      }
 
       // Optional: quiet success (toast only on forceSave)
     } catch (error: any) {

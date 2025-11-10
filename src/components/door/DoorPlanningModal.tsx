@@ -43,6 +43,10 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       const dbDraft = await weeklyPlanningDraftService.loadDraft(currentWeekKey);
       if (dbDraft) {
         console.log('📦 Loaded draft from database');
+        // Set cloud save timestamp immediately from loaded draft
+        if (dbDraft.lastSavedAt) {
+          setLastCloudSave(new Date(dbDraft.lastSavedAt));
+        }
         return {
           messages: dbDraft.messages || [],
           questionsAnswered: dbDraft.questionsAnswered || 0,

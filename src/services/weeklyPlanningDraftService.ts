@@ -18,6 +18,10 @@ interface DraftRecord {
   updated_at: string;
 }
 
+interface DraftDataWithTimestamp extends DraftData {
+  lastSavedAt?: string;
+}
+
 const getUserId = async (): Promise<string | null> => {
   const { data: { user } } = await supabase.auth.getUser();
   return user?.id || null;
@@ -64,7 +68,7 @@ export const weeklyPlanningDraftService = {
   /**
    * Load the latest draft for a specific week
    */
-  async loadDraft(weekKey: string): Promise<DraftData | null> {
+  async loadDraft(weekKey: string): Promise<DraftDataWithTimestamp | null> {
     try {
       const userId = await getUserId();
       if (!userId) {
@@ -101,6 +105,7 @@ export const weeklyPlanningDraftService = {
         messages: record.messages || [],
         questionsAnswered: record.questions_answered || 0,
         isSkippingReview: record.is_skipping_review || false,
+        lastSavedAt: record.last_saved_at,
       };
     } catch (error) {
       console.error('❌ Unexpected error loading draft:', error);
