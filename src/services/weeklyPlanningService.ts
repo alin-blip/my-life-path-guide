@@ -145,5 +145,32 @@ export const weeklyPlanningService = {
       console.error('Error in getAllPlans:', error);
       return [];
     }
+  },
+
+  async deletePlan(planId: string): Promise<boolean> {
+    const userId = await getUserId();
+    if (!userId) {
+      console.error('No user ID found');
+      return false;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('weekly_planning')
+        .delete()
+        .eq('id', planId)
+        .eq('user_id', userId); // Ensure user can only delete their own plans
+
+      if (error) {
+        console.error('Error deleting plan:', error);
+        return false;
+      }
+
+      console.log('✅ Plan deleted successfully');
+      return true;
+    } catch (error) {
+      console.error('Error in deletePlan:', error);
+      return false;
+    }
   }
 };

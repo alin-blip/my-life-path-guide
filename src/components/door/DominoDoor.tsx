@@ -279,6 +279,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           onClose={() => setIsHistoryOpen(false)}
           plans={allPlans}
           onSelectPlan={handleSelectHistoryPlan}
+          onRefresh={loadAllPlans}
         />
       )}
 

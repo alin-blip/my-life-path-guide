@@ -7,18 +7,24 @@ import { TaskList } from '@/components/door/TaskList';
 import { OnboardingTooltip } from '@/components/door/OnboardingTooltip';
 import { DoorClearHistory } from '@/components/door/DoorClearHistory';
 import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNotification';
+import { WeeklyPlanningHistory } from '@/components/door/WeeklyPlanningHistory';
 import { WeekSelector } from '@/components/door/WeekSelector';
 import { ClearWeekButton } from '@/components/door/ClearWeekButton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { format, getWeek } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
+import { weeklyPlanningService, WeeklyPlanningData } from '@/services/weeklyPlanningService';
+import { Button } from '@/components/ui/button';
+import { History } from 'lucide-react';
 
 export const SimplifiedDoorContent: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
   const [isPlanningModalOpen, setIsPlanningModalOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [planningHistory, setPlanningHistory] = useState<WeeklyPlanningData[]>([]);
   
   // Check if user is new (no data in localStorage)
   useEffect(() => {
@@ -35,6 +41,27 @@ export const SimplifiedDoorContent: React.FC = () => {
 
   const handleStartPlanningFromNotification = () => {
     setIsPlanningModalOpen(true);
+  };
+
+  const loadPlanningHistory = async () => {
+    const plans = await weeklyPlanningService.getAllPlans();
+    setPlanningHistory(plans);
+  };
+
+  const handleOpenHistory = () => {
+    loadPlanningHistory();
+    setIsHistoryOpen(true);
+  };
+
+  const handleSelectPlan = (plan: WeeklyPlanningData) => {
+    // When a plan is selected, populate the domino and key points
+    toast({
+      title: '📋 Plan restaurat',
+      description: `Planul pentru săptămâna ${plan.weekKey} a fost încărcat.`,
+    });
+    
+    // TODO: Implement actual restoration logic to populate the domino
+    // This would require updating useDoorContent hook
   };
   
   const {
@@ -191,6 +218,15 @@ export const SimplifiedDoorContent: React.FC = () => {
             onSelectDate={navigateToDate}
           />
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOpenHistory}
+              className="flex items-center gap-2"
+            >
+              <History className="w-4 h-4" />
+              Istoric Planuri
+            </Button>
             <ClearWeekButton 
               currentDate={currentDate} 
               onArchived={() => window.location.reload()} 
@@ -366,6 +402,14 @@ export const SimplifiedDoorContent: React.FC = () => {
             isVisible={showOnboarding}
           />
         )}
+
+        <WeeklyPlanningHistory
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          plans={planningHistory}
+          onSelectPlan={handleSelectPlan}
+          onRefresh={loadPlanningHistory}
+        />
       </div>
     </div>
   );
