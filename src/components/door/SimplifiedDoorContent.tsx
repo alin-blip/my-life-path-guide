@@ -10,6 +10,8 @@ import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNoti
 import { WeeklyPlanningHistory } from '@/components/door/WeeklyPlanningHistory';
 import { WeekSelector } from '@/components/door/WeekSelector';
 import { ClearWeekButton } from '@/components/door/ClearWeekButton';
+import { MobileBottomNav } from '@/components/door/MobileBottomNav';
+import { SwipeableSection } from '@/components/door/SwipeableSection';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { format, getWeek } from 'date-fns';
@@ -25,6 +27,7 @@ export const SimplifiedDoorContent: React.FC = () => {
   const [isPlanningModalOpen, setIsPlanningModalOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [planningHistory, setPlanningHistory] = useState<WeeklyPlanningData[]>([]);
+  const [mobileSection, setMobileSection] = useState<'todo' | 'focus' | 'tasks'>('focus');
   
   // Check if user is new (no data in localStorage)
   useEffect(() => {
@@ -241,6 +244,17 @@ export const SimplifiedDoorContent: React.FC = () => {
 
   const stats = getSectionStats();
 
+  // Handle mobile section swipe navigation
+  const handleSwipeLeft = () => {
+    if (mobileSection === 'todo') setMobileSection('focus');
+    else if (mobileSection === 'focus') setMobileSection('tasks');
+  };
+
+  const handleSwipeRight = () => {
+    if (mobileSection === 'tasks') setMobileSection('focus');
+    else if (mobileSection === 'focus') setMobileSection('todo');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <DoorHeader 
@@ -277,90 +291,106 @@ export const SimplifiedDoorContent: React.FC = () => {
           />
         </div>
 
-        {/* Mobile: Vertical Stack Layout */}
+        {/* Mobile: Swipeable Single Section View with Bottom Navigation */}
         {isMobile ? (
-          <div className="space-y-6">
-            {/* To Do Section */}
-            <div className="bg-card border border-border rounded-lg p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-foreground">📋 To Do</h2>
-                <span className="text-sm text-muted-foreground">{filteredHotList.length}</span>
-              </div>
-              <HotList 
-                filteredHotList={filteredHotList}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                toggleHotListItemSelection={toggleHotListItemSelection}
-                updateHotListItemText={updateHotListItemText}
-                updateHotListItemPriority={updateHotListItemPriority}
-                addNewTarget={addNewTarget}
-                deleteHotListItem={deleteHotListItem}
-                handleDragStartToDomino={handleDragStartToDomino}
-                handleDragStart={handleDragStart}
-                handleDragEnd={handleDragEnd}
-                handleDominoSelection={handleDominoSelection}
-                editingNewItem={editingNewItem}
-                isMobile={isMobile}
-              />
-            </div>
+          <>
+            <SwipeableSection
+              onSwipeLeft={handleSwipeLeft}
+              onSwipeRight={handleSwipeRight}
+              className="pb-20"
+            >
+              {mobileSection === 'todo' && (
+                <div className="bg-card border border-border rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-foreground">📋 To Do</h2>
+                    <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{filteredHotList.length}</span>
+                  </div>
+                  <HotList 
+                    filteredHotList={filteredHotList}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    toggleHotListItemSelection={toggleHotListItemSelection}
+                    updateHotListItemText={updateHotListItemText}
+                    updateHotListItemPriority={updateHotListItemPriority}
+                    addNewTarget={addNewTarget}
+                    deleteHotListItem={deleteHotListItem}
+                    handleDragStartToDomino={handleDragStartToDomino}
+                    handleDragStart={handleDragStart}
+                    handleDragEnd={handleDragEnd}
+                    handleDominoSelection={handleDominoSelection}
+                    editingNewItem={editingNewItem}
+                    isMobile={isMobile}
+                  />
+                </div>
+              )}
 
-            {/* Focus Section */}
-            <div className="bg-card border border-border rounded-lg p-4" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-foreground">🎯 Focus Săptămânal</h2>
-                {selectedDomino && (
-                  <span className="text-sm text-muted-foreground">{stats.focus}/{dominoKeyPoints.length}</span>
-                )}
-              </div>
-              <DominoDoor 
-                selectedDomino={selectedDomino}
-                dominoKeyPoints={dominoKeyPoints}
-                updateKeyPointText={updateKeyPointText}
-                handleDragOverDomino={handleDragOverDomino}
-                handleDropOnDomino={handleDropOnDomino}
-                handleKeyPointDragStart={handleKeyPointDragStart}
-                isMobile={isMobile}
-                isCompleted={isDominoCompleted}
-                moveKeyPointToHotList={moveKeyPointToHotList}
-                addNewKeyPoint={addNewKeyPoint}
-                handleDropOnKeyPoint={handleDropOnKeyPoint}
-                setSelectedDomino={setSelectedDomino}
-                setDominoKeyPoints={setDominoKeyPoints}
-              />
-            </div>
+              {mobileSection === 'focus' && (
+                <div className="bg-card border border-border rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-foreground">🎯 Focus Săptămânal</h2>
+                    {selectedDomino && (
+                      <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{stats.focus}/{dominoKeyPoints.length}</span>
+                    )}
+                  </div>
+                  <DominoDoor 
+                    selectedDomino={selectedDomino}
+                    dominoKeyPoints={dominoKeyPoints}
+                    updateKeyPointText={updateKeyPointText}
+                    handleDragOverDomino={handleDragOverDomino}
+                    handleDropOnDomino={handleDropOnDomino}
+                    handleKeyPointDragStart={handleKeyPointDragStart}
+                    isMobile={isMobile}
+                    isCompleted={isDominoCompleted}
+                    moveKeyPointToHotList={moveKeyPointToHotList}
+                    addNewKeyPoint={addNewKeyPoint}
+                    handleDropOnKeyPoint={handleDropOnKeyPoint}
+                    setSelectedDomino={setSelectedDomino}
+                    setDominoKeyPoints={setDominoKeyPoints}
+                  />
+                </div>
+              )}
 
-            {/* Tasks Section */}
-            <div className="bg-card border border-border rounded-lg p-4" onDragOver={handleDragOver} onDrop={handleDrop}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-foreground">📋 Sarcini Zilnice</h2>
-                <span className="text-sm text-muted-foreground">{stats.tasks}</span>
-              </div>
-              <TaskList 
-                hitList={hitList}
-                doList={doList}
-                activeDay={activeDay}
-                activeList={activeList}
-                setActiveList={setActiveList}
-                selectDayOfWeek={selectDayOfWeek}
-                toggleHitListItemCompletion={toggleHitListItemCompletion}
-                toggleDoListItemCompletion={toggleDoListItemCompletion}
-                hitAchievedCount={hitAchievedCount}
-                hitDoneCount={hitDoneCount}
-                doAchievedCount={doAchievedCount}
-                doDoneCount={doDoneCount}
-                moveTaskBackToHotList={moveTaskBackToHotList}
-                isMobile={isMobile}
-              />
-            </div>
-          </div>
+              {mobileSection === 'tasks' && (
+                <div className="bg-card border border-border rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in" onDragOver={handleDragOver} onDrop={handleDrop}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-foreground">📋 Sarcini Zilnice</h2>
+                    <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{stats.tasks}</span>
+                  </div>
+                  <TaskList 
+                    hitList={hitList}
+                    doList={doList}
+                    activeDay={activeDay}
+                    activeList={activeList}
+                    setActiveList={setActiveList}
+                    selectDayOfWeek={selectDayOfWeek}
+                    toggleHitListItemCompletion={toggleHitListItemCompletion}
+                    toggleDoListItemCompletion={toggleDoListItemCompletion}
+                    hitAchievedCount={hitAchievedCount}
+                    hitDoneCount={hitDoneCount}
+                    doAchievedCount={doAchievedCount}
+                    doDoneCount={doDoneCount}
+                    moveTaskBackToHotList={moveTaskBackToHotList}
+                    isMobile={isMobile}
+                  />
+                </div>
+              )}
+            </SwipeableSection>
+
+            {/* Mobile Bottom Navigation */}
+            <MobileBottomNav
+              activeSection={mobileSection}
+              onSectionChange={setMobileSection}
+              stats={stats}
+            />
+          </>
         ) : (
           /* Desktop: 3-Column Layout */
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-6 animate-fade-in">
             {/* To Do Column */}
-            <div className="bg-card border border-border rounded-lg p-6">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-foreground">📋 To Do</h2>
-                <span className="text-sm text-muted-foreground">{filteredHotList.length}</span>
+                <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{filteredHotList.length}</span>
               </div>
               <HotList 
                 filteredHotList={filteredHotList}
@@ -381,11 +411,11 @@ export const SimplifiedDoorContent: React.FC = () => {
             </div>
 
             {/* Focus Column */}
-            <div className="bg-card border border-border rounded-lg p-6" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-foreground">🎯 Focus Săptămânal</h2>
                 {selectedDomino && (
-                  <span className="text-sm text-muted-foreground">{stats.focus}/{dominoKeyPoints.length}</span>
+                  <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{stats.focus}/{dominoKeyPoints.length}</span>
                 )}
               </div>
               <DominoDoor 
@@ -406,10 +436,10 @@ export const SimplifiedDoorContent: React.FC = () => {
             </div>
 
             {/* Tasks Column */}
-            <div className="bg-card border border-border rounded-lg p-6" onDragOver={handleDragOver} onDrop={handleDrop}>
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300" onDragOver={handleDragOver} onDrop={handleDrop}>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-foreground">📋 Sarcini Zilnice</h2>
-                <span className="text-sm text-muted-foreground">{stats.tasks}</span>
+                <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{stats.tasks}</span>
               </div>
               <TaskList 
                 hitList={hitList}

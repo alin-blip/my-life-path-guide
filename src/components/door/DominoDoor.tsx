@@ -246,18 +246,18 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
       onDrop={handleDropOnDomino}
     >
       {selectedDomino ? (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-fade-in">
           {/* Modern Header with Primary Actions + Dropdown */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-border/30">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-border/30 animate-slide-in-right">
             <div className="flex flex-wrap items-center gap-2">
               {/* Primary Action Buttons - Larger with Gradients */}
               <Button
                 onClick={() => setShowAIPlanningModal(true)}
                 variant="default"
                 size={isMobile ? 'sm' : 'default'}
-                className="gap-2 bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all rounded-xl font-semibold h-10"
+                className="gap-2 bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 rounded-xl font-semibold h-10"
               >
-                <Rocket className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                <Rocket className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} transition-transform group-hover:rotate-12`} />
                 {!isMobile && <span>AI Planning</span>}
               </Button>
               
@@ -265,9 +265,9 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                 onClick={() => setShowVoicePlanningModal(true)}
                 variant="secondary"
                 size={isMobile ? 'sm' : 'default'}
-                className="gap-2 bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 hover:from-purple-700 hover:via-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all rounded-xl font-semibold h-10 border-0"
+                className="gap-2 bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 hover:from-purple-700 hover:via-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 rounded-xl font-semibold h-10 border-0"
               >
-                <Mic className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                <Mic className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} transition-transform group-hover:scale-110`} />
                 {!isMobile && <span>Voice</span>}
               </Button>
 
@@ -311,7 +311,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
             isCompleted 
               ? 'bg-gradient-to-r from-green-500/20 to-green-600/20 border-l-4 border-green-500' 
               : 'bg-gradient-to-r from-primary/20 to-accent/20 border-l-4 border-primary'
-          } p-5 rounded-xl shadow-lg hover:shadow-xl transition-all`}>
+          } p-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] animate-scale-in`}>
             <p className="text-muted-foreground font-semibold mb-2 text-xs uppercase tracking-wide">
               {t('mainGoal')}
             </p>
@@ -348,9 +348,9 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
               {displayKeyPoints.map((point, index) => (
                 <KeyPointMetadataPopover key={point.id} keyPoint={point}>
                   <div 
-                    className={`flex items-start gap-3 rounded-xl p-4 hover:shadow-md transition-all border ${
+                    className={`flex items-start gap-3 rounded-xl p-4 hover:shadow-md transition-all duration-300 hover:scale-[1.02] border cursor-pointer ${
                       point.completed 
-                        ? 'bg-green-500/10 border-green-500/30' 
+                        ? 'bg-green-500/10 border-green-500/30 animate-scale-in' 
                         : 'bg-accent/30 border-border/50'
                     }`}
                     draggable={point.text && point.text.trim().length > 0}
