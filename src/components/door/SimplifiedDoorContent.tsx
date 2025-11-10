@@ -64,45 +64,49 @@ export const SimplifiedDoorContent: React.FC = () => {
       });
     }
 
-    // Map and populate key points with full metadata
-    const mappedKeyPoints = plan.keyPoints.map((kp, index) => ({
-      id: kp.id ? `key${kp.id}` : `key${index + 1}`,
-      text: kp.title || '',
-      completed: false,
-      metadata: {
-        objective: kp.objective || '',
-        why: kp.why || '',
-        positiveImpact: kp.positiveImpact || '',
-        negativeImpact: kp.negativeImpact || '',
-        steps: kp.steps || [],
-        responsible: kp.responsible || 'Eu',
-        deadline: kp.deadline || '',
-      },
-    }));
-
-    // Ensure exactly 4 key points
-    while (mappedKeyPoints.length < 4) {
-      mappedKeyPoints.push({
-        id: `key${mappedKeyPoints.length + 1}`,
-        text: '',
-        completed: false,
-        metadata: {
-          objective: '',
-          why: '',
-          positiveImpact: '',
-          negativeImpact: '',
-          steps: [],
-          responsible: 'Eu',
-          deadline: '',
-        },
-      });
+    // Map and populate ALL 4 key points with full metadata
+    const mappedKeyPoints: typeof dominoKeyPoints = [];
+    for (let i = 0; i < 4; i++) {
+      const kp = plan.keyPoints[i];
+      if (kp) {
+        mappedKeyPoints.push({
+          id: kp.id ? `key${kp.id}` : `key${i + 1}`,
+          text: kp.title || '',
+          completed: false,
+          metadata: {
+            objective: kp.objective || '',
+            why: kp.why || '',
+            positiveImpact: kp.positiveImpact || '',
+            negativeImpact: kp.negativeImpact || '',
+            steps: kp.steps || [],
+            responsible: kp.responsible || 'Eu',
+            deadline: kp.deadline || '',
+          },
+        });
+      } else {
+        // Empty key point with metadata structure
+        mappedKeyPoints.push({
+          id: `key${i + 1}`,
+          text: '',
+          completed: false,
+          metadata: {
+            objective: '',
+            why: '',
+            positiveImpact: '',
+            negativeImpact: '',
+            steps: [],
+            responsible: 'Eu',
+            deadline: '',
+          },
+        });
+      }
     }
 
     setDominoKeyPoints(mappedKeyPoints);
 
     toast({
       title: '📋 Plan restaurat din cloud',
-      description: `Planul pentru săptămâna ${plan.weekKey} a fost încărcat cu succes.`,
+      description: `Planul pentru săptămâna ${plan.weekKey} a fost încărcat cu succes (${plan.keyPoints.length} chei).`,
     });
   };
   

@@ -52,29 +52,33 @@ export function useDoorStorageLoad() {
             selected: false,
           });
 
-          // Map key points from plan with full metadata
-          const mappedKeyPoints: DominoKeyPoint[] = plan.keyPoints.map((kp, index) => ({
-            id: kp.id ? `key${kp.id}` : `key${index + 1}`,
-            text: kp.title || '',
-            completed: false,
-            metadata: {
-              objective: kp.objective || '',
-              why: kp.why || '',
-              positiveImpact: kp.positiveImpact || '',
-              negativeImpact: kp.negativeImpact || '',
-              steps: kp.steps || [],
-              responsible: kp.responsible || 'Eu',
-              deadline: kp.deadline || '',
-            },
-          }));
-
-          // Ensure exactly 4 key points
-          while (mappedKeyPoints.length < 4) {
-            mappedKeyPoints.push({
-              id: `key${mappedKeyPoints.length + 1}`,
-              text: '',
-              completed: false,
-            });
+          // Map key points from plan with full metadata - preserve ALL 4 key points
+          const mappedKeyPoints: DominoKeyPoint[] = [];
+          for (let i = 0; i < 4; i++) {
+            const kp = plan.keyPoints[i];
+            if (kp) {
+              mappedKeyPoints.push({
+                id: kp.id ? `key${kp.id}` : `key${i + 1}`,
+                text: kp.title || '',
+                completed: false,
+                metadata: {
+                  objective: kp.objective || '',
+                  why: kp.why || '',
+                  positiveImpact: kp.positiveImpact || '',
+                  negativeImpact: kp.negativeImpact || '',
+                  steps: kp.steps || [],
+                  responsible: kp.responsible || 'Eu',
+                  deadline: kp.deadline || '',
+                },
+              });
+            } else {
+              // Empty key point
+              mappedKeyPoints.push({
+                id: `key${i + 1}`,
+                text: '',
+                completed: false,
+              });
+            }
           }
 
           setters.setDominoKeyPoints(mappedKeyPoints);

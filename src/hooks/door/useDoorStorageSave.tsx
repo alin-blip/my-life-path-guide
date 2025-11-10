@@ -41,31 +41,29 @@ export function useDoorStorageSave() {
       });
 
       // Save Domino + Key Points to weekly_planning
-      if (data.selectedDomino || data.dominoKeyPoints.some(kp => kp.text)) {
+      if (data.selectedDomino || data.dominoKeyPoints.some(kp => kp.text || kp.metadata)) {
         try {
           const planningKey = toPlanningWeekKey(data.currentWeekKey);
           
           // Load existing plan to preserve weekGoal and other data
           const existingPlan = await weeklyPlanningService.getPlanForWeek(planningKey);
           
-          // Build payload with current Domino + Key Points
+          // Build payload with current Domino + ALL Key Points (including empty ones)
           const planPayload = {
             weekKey: planningKey,
             dominoTitle: data.selectedDomino?.text || existingPlan?.dominoTitle || '',
             weekGoal: existingPlan?.weekGoal || '',
-            keyPoints: data.dominoKeyPoints
-              .filter(kp => kp.text) // Only save non-empty key points
-              .map((kp, index) => ({
-                id: index + 1,
-                title: kp.text,
-                objective: kp.metadata?.objective || '',
-                why: kp.metadata?.why || '',
-                positiveImpact: kp.metadata?.positiveImpact || '',
-                negativeImpact: kp.metadata?.negativeImpact || '',
-                steps: kp.metadata?.steps || [],
-                responsible: kp.metadata?.responsible || 'Eu',
-                deadline: kp.metadata?.deadline || '',
-              })),
+            keyPoints: data.dominoKeyPoints.map((kp, index) => ({
+              id: index + 1,
+              title: kp.text || '',
+              objective: kp.metadata?.objective || '',
+              why: kp.metadata?.why || '',
+              positiveImpact: kp.metadata?.positiveImpact || '',
+              negativeImpact: kp.metadata?.negativeImpact || '',
+              steps: kp.metadata?.steps || [],
+              responsible: kp.metadata?.responsible || 'Eu',
+              deadline: kp.metadata?.deadline || '',
+            })),
           };
 
           const planSaved = await weeklyPlanningService.savePlan(planPayload);
@@ -76,6 +74,7 @@ export function useDoorStorageSave() {
               planningKey,
               dominoTitle: planPayload.dominoTitle,
               keyPointsCount: planPayload.keyPoints.length,
+              keyPointsWithText: planPayload.keyPoints.filter(kp => kp.title).length,
             });
           } else {
             logStorageAction('Failed to save weekly plan', { planningKey });
