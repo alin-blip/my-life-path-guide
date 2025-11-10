@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic } from 'lucide-react';
+import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlanningResult, PreviousWeekData } from '@/types/door';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
@@ -31,11 +31,34 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   previousWeekData: externalPreviousData,
   onPlanningComplete,
 }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const today = new Date();
+  const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
+  const draftKey = `doorPlanningDraft_${currentWeekKey}`;
+  
+  // Load draft from localStorage
+  const loadDraft = () => {
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        const draft = JSON.parse(saved);
+        return {
+          messages: draft.messages || [],
+          questionsAnswered: draft.questionsAnswered || 0,
+          isSkippingReview: draft.isSkippingReview || false,
+        };
+      }
+    } catch (e) {
+      console.error('Error loading draft:', e);
+    }
+    return null;
+  };
+
+  const draft = loadDraft();
+  const [messages, setMessages] = useState<Message[]>(draft?.messages || []);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSkippingReview, setIsSkippingReview] = useState(false);
-  const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [isSkippingReview, setIsSkippingReview] = useState(draft?.isSkippingReview || false);
+  const [questionsAnswered, setQuestionsAnswered] = useState(draft?.questionsAnswered || 0);
   const [previousWeekData, setPreviousWeekData] = useState<PreviousWeekData | undefined>(externalPreviousData);
   const [isLoadingPreviousData, setIsLoadingPreviousData] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -100,6 +123,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
+    // Only start new conversation if no draft exists
     if (isOpen && !isLoadingPreviousData && messages.length === 0) {
       startConversation();
     }
@@ -140,6 +164,23 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     }
   };
 
+  // Auto-save conversation to localStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        localStorage.setItem(draftKey, JSON.stringify({
+          messages,
+          questionsAnswered,
+          isSkippingReview,
+          timestamp: new Date().toISOString(),
+        }));
+        console.log('✅ Draft auto-saved:', { messagesCount: messages.length, questionsAnswered });
+      } catch (e) {
+        console.error('Error saving draft:', e);
+      }
+    }
+  }, [messages, questionsAnswered, isSkippingReview, draftKey]);
+
   // Auto-scroll to bottom when messages change or loading state changes
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -148,9 +189,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   useEffect(() => {
     if (!isOpen) {
       setInputMode('text');
-      setMessages([]);
-      setQuestionsAnswered(0);
-      setIsSkippingReview(false);
+      // Don't clear data on close - keep it for recovery
     }
   }, [isOpen]);
 
@@ -181,7 +220,21 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     setIsSkippingReview(true);
     setMessages([]);
     setQuestionsAnswered(0);
+    // Clear draft when starting fresh
+    localStorage.removeItem(draftKey);
     startConversation();
+  };
+
+  const handleClearDraft = () => {
+    localStorage.removeItem(draftKey);
+    setMessages([]);
+    setQuestionsAnswered(0);
+    setIsSkippingReview(false);
+    toast({
+      title: 'Draft șters',
+      description: 'Conversația salvată a fost ștearsă.',
+    });
+    onClose();
   };
 
   const handleSendMessage = async () => {
@@ -265,22 +318,49 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
               try {
                 const planningData = JSON.parse(toolCall.function.arguments);
                 
-                // Save to database
-                const today = new Date();
-                const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
+                console.log('📝 Planning data received from AI:', planningData);
                 
-                await weeklyPlanningService.savePlan({
+                // Save to database
+                const saveSuccess = await weeklyPlanningService.savePlan({
                   weekKey: currentWeekKey,
                   dominoTitle: planningData.dominoTitle,
                   weekGoal: planningData.weekGoal,
                   keyPoints: planningData.keyPoints,
                 });
                 
-                onPlanningComplete(planningData);
-                onClose();
+                if (saveSuccess) {
+                  console.log('✅ Planning saved successfully to database');
+                  
+                  // Clear draft only after successful save
+                  localStorage.removeItem(draftKey);
+                  
+                  toast({
+                    title: 'Plan salvat cu succes!',
+                    description: 'Planul săptămânii a fost salvat în baza de date.',
+                  });
+                  
+                  onPlanningComplete(planningData);
+                  
+                  // Small delay before closing to ensure user sees success message
+                  setTimeout(() => {
+                    onClose();
+                  }, 500);
+                } else {
+                  console.error('❌ Failed to save planning to database');
+                  toast({
+                    title: 'Eroare la salvare',
+                    description: 'Planul nu a putut fi salvat. Datele rămân în draft.',
+                    variant: 'destructive',
+                  });
+                }
                 return;
               } catch (e) {
-                console.error('Error parsing planning data:', e);
+                console.error('❌ Error parsing or saving planning data:', e);
+                toast({
+                  title: 'Eroare',
+                  description: 'A apărut o eroare la procesarea planului. Datele rămân în draft.',
+                  variant: 'destructive',
+                });
               }
             }
           }
@@ -328,13 +408,31 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Sparkles className="w-5 h-5 text-purple-500" />
-            AI Weekly Planning Assistant
-            {previousWeekData && !isSkippingReview && (
-              <span className="text-sm font-normal text-muted-foreground ml-2">
-                (cu review săptămână precedentă)
-              </span>
+          <DialogTitle className="flex items-center justify-between text-xl">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-500" />
+              AI Weekly Planning Assistant
+              {previousWeekData && !isSkippingReview && (
+                <span className="text-sm font-normal text-muted-foreground ml-2">
+                  (cu review săptămână precedentă)
+                </span>
+              )}
+            </div>
+            {messages.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-green-500 flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  Auto-salvat
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearDraft}
+                  className="text-xs text-muted-foreground hover:text-destructive"
+                >
+                  Șterge draft
+                </Button>
+              </div>
             )}
           </DialogTitle>
         </DialogHeader>
