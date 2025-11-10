@@ -438,6 +438,45 @@ export type Database = {
         }
         Relationships: []
       }
+      migration_status: {
+        Row: {
+          backup_data: Json | null
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          items_migrated: number | null
+          items_total: number | null
+          migration_type: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          backup_data?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          items_migrated?: number | null
+          items_total?: number | null
+          migration_type: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          backup_data?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          items_migrated?: number | null
+          items_total?: number | null
+          migration_type?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       objectives: {
         Row: {
           category: string
