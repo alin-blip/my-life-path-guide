@@ -225,6 +225,7 @@ export const doorUserTasksService = {
       user_id: userId,
       week_key: idea.category === 'hot' ? null : weekKey,
       task_type: idea.category,
+      list_type: idea.category, // FIX: Add required list_type field
       title: idea.text,
       priority: toDbPriority(idea.priority),
       position: 0

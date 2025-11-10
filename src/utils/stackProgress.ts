@@ -154,10 +154,8 @@ export const updateDailyProgress = async (
         .from('user_progress')
         .upsert({
           user_id: session.user.id,
-          date: date,
           activity_type: activity,
-          activity_data: data || {},
-          completed_at: new Date().toISOString()
+          activity_data: data || {}
         });
 
       if (progressError) {
