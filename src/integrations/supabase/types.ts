@@ -714,7 +714,7 @@ export type Database = {
           position: number | null
           priority: number | null
           selected: boolean | null
-          task_id: string
+          task_id: string | null
           task_type: string | null
           title: string
           updated_at: string | null
@@ -732,7 +732,7 @@ export type Database = {
           position?: number | null
           priority?: number | null
           selected?: boolean | null
-          task_id: string
+          task_id?: string | null
           task_type?: string | null
           title: string
           updated_at?: string | null
@@ -750,7 +750,7 @@ export type Database = {
           position?: number | null
           priority?: number | null
           selected?: boolean | null
-          task_id?: string
+          task_id?: string | null
           task_type?: string | null
           title?: string
           updated_at?: string | null
