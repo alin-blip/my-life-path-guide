@@ -12,6 +12,7 @@ import { SecurityProvider } from "@/components/SecurityProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { MigrationModal } from "@/components/MigrationModal";
+import { MigrationProvider } from "@/context/MigrationContext";
 
 // Eager load critical pages
 import Index from "./pages/Index";
@@ -61,12 +62,13 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <AuthProvider>
-              <LanguageProvider>
-                <SecurityProvider>
-                  <ProgressProvider>
-                    <MigrationModal />
-                    <Suspense fallback={<LoadingFallback />}>
-                      <Routes>
+              <MigrationProvider>
+                <LanguageProvider>
+                  <SecurityProvider>
+                    <ProgressProvider>
+                      <MigrationModal />
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/dashboard" element={
@@ -186,7 +188,8 @@ const App = () => (
                   </ProgressProvider>
                 </SecurityProvider>
               </LanguageProvider>
-            </AuthProvider>
+            </MigrationProvider>
+          </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
       </HelmetProvider>
