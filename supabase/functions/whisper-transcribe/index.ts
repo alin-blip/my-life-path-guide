@@ -136,15 +136,18 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error('❌ OpenAI API error:', response.status, errorText);
       
-      // Propagate rate limit and quota errors explicitly
+      // Gracefully signal rate/quota issues without 4xx to avoid UI crash overlays
       if (response.status === 429 || response.status === 402) {
+        const retryAfter = response.headers.get('retry-after');
         return new Response(
           JSON.stringify({ 
             error: response.status === 429 ? 'Rate limit exceeded' : 'Insufficient quota',
-            code: response.status
+            code: response.status,
+            shouldFallback: true,
+            retryAfter: retryAfter ? Number(retryAfter) : undefined
           }),
           {
-            status: response.status,
+            status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           }
         );
