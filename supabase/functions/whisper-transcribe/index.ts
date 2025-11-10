@@ -36,6 +36,41 @@ function processBase64Chunks(base64String: string, chunkSize = 32768) {
   return result;
 }
 
+// Convert PCM16 bytes to WAV container
+function createWavFromPCM(pcmBytes: Uint8Array, sampleRate = 24000, numChannels = 1, bitsPerSample = 16) {
+  const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+  const blockAlign = numChannels * (bitsPerSample / 8);
+  const dataSize = pcmBytes.byteLength;
+
+  const header = new ArrayBuffer(44);
+  const view = new DataView(header);
+
+  const writeString = (offset: number, str: string) => {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  };
+
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true); // PCM chunk size
+  view.setUint16(20, 1, true);  // Audio format PCM
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitsPerSample, true);
+  writeString(36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  const wavBytes = new Uint8Array(44 + dataSize);
+  wavBytes.set(new Uint8Array(header), 0);
+  wavBytes.set(pcmBytes, 44);
+  return wavBytes;
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -62,12 +97,28 @@ serve(async (req) => {
     const binaryAudio = processBase64Chunks(audio);
     console.log('✅ Audio decoded, size:', binaryAudio.length, 'bytes');
     
-    // Prepare form data
+    // Prepare form data (detect format, wrap PCM to WAV)
+    const RIFF = binaryAudio[0] === 0x52 && binaryAudio[1] === 0x49 && binaryAudio[2] === 0x46 && binaryAudio[3] === 0x46;
+    const WEBM = binaryAudio[0] === 0x1A && binaryAudio[1] === 0x45 && binaryAudio[2] === 0xDF && binaryAudio[3] === 0xA3;
+
+    let fileBytes = binaryAudio;
+    let filename = 'audio.wav';
+    let mime = 'audio/wav';
+
+    if (WEBM) {
+      filename = 'audio.webm';
+      mime = 'audio/webm';
+    } else if (!RIFF) {
+      // Assume raw PCM16 at 24kHz, wrap to WAV
+      fileBytes = createWavFromPCM(binaryAudio);
+      console.log('🔄 Wrapped PCM to WAV, size:', fileBytes.length);
+    }
+
     const formData = new FormData();
-    const blob = new Blob([binaryAudio], { type: 'audio/webm' });
-    formData.append('file', blob, 'audio.webm');
+    const blob = new Blob([fileBytes], { type: mime });
+    formData.append('file', blob, filename);
     formData.append('model', 'whisper-1');
-    formData.append('language', 'ro'); // Romanian language
+    formData.append('language', 'ro');
     formData.append('response_format', 'json');
 
     console.log('📤 Sending to OpenAI Whisper API...');
