@@ -51,7 +51,9 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     captureIdea
   } = useStackTodoIntegration({ onAddToHitList });
 
-  // Voice input integration
+  // Voice input integration with deduplication
+  const lastTranscriptRef = useRef<string>('');
+  
   const {
     isConnected,
     isMicOn,
@@ -61,7 +63,14 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     toggleMic
   } = useVoiceInput({
     onTranscript: (text) => {
-      setCurrentMessage(prev => prev + ' ' + text);
+      // Deduplication: only add if different from last transcript
+      if (text && text !== lastTranscriptRef.current) {
+        lastTranscriptRef.current = text;
+        setCurrentMessage(prev => {
+          const newText = prev ? `${prev} ${text}` : text;
+          return newText;
+        });
+      }
     },
     systemPrompt: `Ești un coach AI care ajută utilizatorii cu ${stackType === 'anger' ? 'gestionarea furiei' : 'rugăciune și reflecție spirituală'}. Fii concis, empatic și orientat către acțiune.`,
     enabled: mode === 'chat'
