@@ -6,6 +6,9 @@ import { Check, X, GripVertical, Search, Plus, Star, Flag, AlertCircle, KeyRound
 import { HotListItem, TaskPriority } from '@/types/door';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/context/LanguageContext';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
+import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
 
 interface HotListProps {
   filteredHotList: HotListItem[];
@@ -42,8 +45,34 @@ export const HotList: React.FC<HotListProps> = ({
 }) => {
   const [editingItems, setEditingItems] = useState<{ [id: string]: boolean }>({});
   const [editValues, setEditValues] = useState<{ [id: string]: string }>({});
+  const [newItemText, setNewItemText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
+
+  // Voice input integration with deduplication
+  const lastTranscriptRef = useRef<string>('');
+  
+  const {
+    isConnected,
+    isMicOn,
+    isAISpeaking,
+    isUserSpeaking,
+    audioLevel,
+    voiceLanguage,
+    changeVoiceLanguage,
+    toggleMic
+  } = useVoiceInput({
+    onTranscript: (text) => {
+      // Deduplication: only add if different from last transcript
+      if (text && text !== lastTranscriptRef.current) {
+        lastTranscriptRef.current = text;
+        setNewItemText(prev => {
+          const newText = prev ? `${prev} ${text}` : text;
+          return newText;
+        });
+      }
+    }
+  });
 
   useEffect(() => {
     if (editingNewItem && inputRef.current) {
@@ -51,9 +80,20 @@ export const HotList: React.FC<HotListProps> = ({
     }
   }, [editingNewItem]);
 
+  const handleAddItem = () => {
+    if (newItemText.trim()) {
+      // Aici ar trebui să avem o funcție pentru a adăuga textul direct
+      // Deocamdată vom folosi addNewTarget și apoi vom actualiza ultimul item
+      addNewTarget();
+      // TODO: Update the last added item with newItemText
+      setNewItemText('');
+      lastTranscriptRef.current = '';
+    }
+  };
+
   return (
     <div className={isMobile ? 'max-h-[70vh] overflow-auto' : ''}>
-      <div className={`flex justify-center ${isMobile ? 'mb-3' : 'mb-4'}`}>
+      <div className={`flex gap-2 justify-center ${isMobile ? 'mb-3' : 'mb-4'}`}>
         <Button
           onClick={addNewTarget}
           size="sm"
@@ -76,9 +116,43 @@ export const HotList: React.FC<HotListProps> = ({
           }`}
         />
       </div>
+
+      {/* Voice input for quick add */}
+      <div className={`relative ${isMobile ? 'mb-3' : 'mb-4'}`}>
+        <Input
+          ref={inputRef}
+          placeholder={isUserSpeaking ? "Vorbești..." : "Adaugă rapid cu vocea sau tastează... (Enter)"}
+          value={newItemText}
+          onChange={(e) => setNewItemText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && newItemText.trim()) {
+              e.preventDefault();
+              handleAddItem();
+            }
+          }}
+          className={`bg-muted border-0 focus-visible:ring-1 focus-visible:ring-primary pr-20 ${
+            isMobile ? 'text-sm h-8' : ''
+          } ${isUserSpeaking ? 'ring-2 ring-blue-500' : ''}`}
+        />
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+          <VoiceLanguageToggle 
+            currentLanguage={voiceLanguage}
+            onLanguageChange={changeVoiceLanguage}
+            disabled={isConnected}
+          />
+          <VoiceInputButton 
+            isMicOn={isMicOn}
+            isConnected={isConnected}
+            isAISpeaking={isAISpeaking}
+            isUserSpeaking={isUserSpeaking}
+            audioLevel={audioLevel}
+            onToggle={toggleMic}
+          />
+        </div>
+      </div>
       
       <div className={`space-y-2 hot-list-container ${
-        isMobile ? 'max-h-[calc(70vh-150px)] overflow-y-auto space-y-1.5' : ''
+        isMobile ? 'max-h-[calc(70vh-200px)] overflow-y-auto space-y-1.5' : ''
       }`}>
         {filteredHotList.length > 0 ? (
           filteredHotList.map(item => {
