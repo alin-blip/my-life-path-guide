@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { VoiceTextarea } from '@/components/ui/VoiceTextarea';
-import { Info, Share2, Check, ArrowLeft, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, History, FileDown, BarChart, Mic } from 'lucide-react';
+import { Info, Share2, Check, ArrowLeft, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, History, FileDown, BarChart, Mic, Trash2 } from 'lucide-react';
 import { HotListItem, DominoKeyPoint, PlanningResult } from '@/types/door';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
@@ -176,6 +176,48 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
       description: `Planul din ${plan.weekKey} a fost încărcat cu succes`,
     });
   };
+
+  const handleDeleteCurrentPlan = async () => {
+    if (!setSelectedDomino || !setDominoKeyPoints) return;
+
+    const confirm = window.confirm('Ștergi focusul săptămânal (Domino + Chei) pentru săptămâna curentă?');
+    if (!confirm) return;
+
+    try {
+      const today = new Date();
+      const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
+      const plan = await weeklyPlanningService.getPlanForWeek(currentWeekKey);
+
+      if (plan?.id) {
+        const ok = await weeklyPlanningService.deletePlan(plan.id);
+        if (!ok) throw new Error('Nu s-a putut șterge planul din cloud');
+      }
+
+      // Reset local state (avoid re-creare plan gol la auto-save)
+      setSelectedDomino(null);
+      setDominoKeyPoints([
+        { id: 'key1', text: '', completed: false },
+        { id: 'key2', text: '', completed: false },
+        { id: 'key3', text: '', completed: false },
+        { id: 'key4', text: '', completed: false },
+      ]);
+
+      toast({
+        title: '🗑️ Focus șters',
+        description: 'Focusul săptămânal și cheile au fost eliminate pentru săptămâna curentă.',
+      });
+
+      // Refresh lists (history/analytics)
+      loadAllPlans();
+    } catch (e: any) {
+      console.error('Delete plan error:', e);
+      toast({
+        title: 'Eroare',
+        description: e?.message || 'Nu s-a putut șterge focusul',
+        variant: 'destructive',
+      });
+    }
+  };
   
   // Ensure we always render exactly 4 key points
   const limitedKeyPoints = dominoKeyPoints.slice(0, 4);
@@ -249,6 +291,16 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                 title="Analytics Dashboard"
               >
                 <BarChart className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+              </Button>
+              <Button
+                onClick={handleDeleteCurrentPlan}
+                variant="ghost"
+                size="sm"
+                className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                title="Șterge focusul săptămânal"
+                disabled={!selectedDomino}
+              >
+                <Trash2 className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
               </Button>
             </>
           )}
