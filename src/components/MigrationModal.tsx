@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMigration } from '@/context/MigrationContext';
 import {
   Dialog,
@@ -8,12 +8,35 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Cloud, Database, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Cloud, Database, CheckCircle, XCircle, Loader2, Trash2 } from 'lucide-react';
+import { migrationService } from '@/services/migrationService';
+import { useToast } from '@/hooks/use-toast';
 
 export const MigrationModal: React.FC = () => {
   const { showMigrationUI, isMigrating, progress, startMigration, skipMigration } = useMigration();
+  const [showCleanupDialog, setShowCleanupDialog] = useState(false);
+  const [migrationComplete, setMigrationComplete] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Check if migration just completed
+    if (!isMigrating && progress.length > 0 && progress.every(p => p.status === 'completed')) {
+      setMigrationComplete(true);
+      setShowCleanupDialog(true);
+    }
+  }, [isMigrating, progress]);
 
   const getMigrationIcon = (status: string) => {
     switch (status) {
@@ -49,9 +72,33 @@ export const MigrationModal: React.FC = () => {
     ? Math.round((progress.filter(p => p.status === 'completed').length / progress.length) * 100)
     : 0;
 
+  const handleCleanup = async () => {
+    try {
+      await migrationService.clearLocalStorageAfterMigration();
+      toast({
+        title: 'Cleanup complete',
+        description: 'Local storage has been cleared. Your data is now safely stored in the cloud.',
+      });
+      setShowCleanupDialog(false);
+      skipMigration();
+    } catch (error: any) {
+      toast({
+        title: 'Cleanup failed',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleSkipCleanup = () => {
+    setShowCleanupDialog(false);
+    skipMigration();
+  };
+
   return (
-    <Dialog open={showMigrationUI} onOpenChange={(open) => !open && !isMigrating && skipMigration()}>
-      <DialogContent className="sm:max-w-md">
+    <>
+      <Dialog open={showMigrationUI && !showCleanupDialog} onOpenChange={(open) => !open && !isMigrating && skipMigration()}>
+        <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <Cloud className="w-5 h-5 text-primary" />
@@ -109,7 +156,44 @@ export const MigrationModal: React.FC = () => {
             </Button>
           </DialogFooter>
         )}
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cleanup Confirmation Dialog */}
+      <AlertDialog open={showCleanupDialog} onOpenChange={setShowCleanupDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            </div>
+            <AlertDialogTitle>Migration Complete!</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>
+                Your data has been successfully migrated to the cloud.
+              </p>
+              <p>
+                Would you like to clear the old data from local storage? This will free up space
+                and prevent any sync conflicts. Your data is safely stored in the cloud.
+              </p>
+              <p className="text-yellow-600 dark:text-yellow-500 flex items-start gap-2">
+                <Trash2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <span className="text-sm">
+                  You can always manage this later in Settings → Cloud Migration
+                </span>
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleSkipCleanup}>
+              Keep Local Data
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleCleanup} className="gap-2">
+              <Trash2 className="w-4 h-4" />
+              Clear Local Storage
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
