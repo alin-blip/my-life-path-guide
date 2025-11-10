@@ -42,7 +42,10 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const { toast } = useToast();
 
   // Voice input integration
-  const [inputMode, setInputMode] = useState<'text' | 'voice'>('text');
+  const [inputMode, setInputMode] = useState<'text' | 'voice'>(() => {
+    const saved = localStorage.getItem('doorPlanningInputMode');
+    return (saved === 'voice' || saved === 'text') ? saved : 'text';
+  });
   
   const {
     isConnected,
@@ -80,6 +83,11 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     },
     enabled: inputMode === 'voice'
   });
+
+  // Save input mode preference
+  useEffect(() => {
+    localStorage.setItem('doorPlanningInputMode', inputMode);
+  }, [inputMode]);
 
   const totalQuestions = previousWeekData ? 22 : 18;
   const progress = (questionsAnswered / totalQuestions) * 100;
