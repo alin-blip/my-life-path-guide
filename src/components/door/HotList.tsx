@@ -49,15 +49,13 @@ export const HotList: React.FC<HotListProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
 
-  // Voice input integration with deduplication
+  // Voice input integration - same as in Stack
   const lastTranscriptRef = useRef<string>('');
   
   const {
     isConnected,
     isMicOn,
-    isAISpeaking,
     isUserSpeaking,
-    audioLevel,
     voiceLanguage,
     changeVoiceLanguage,
     toggleMic
@@ -71,7 +69,8 @@ export const HotList: React.FC<HotListProps> = ({
           return newText;
         });
       }
-    }
+    },
+    enabled: true
   });
 
   useEffect(() => {
@@ -143,10 +142,11 @@ export const HotList: React.FC<HotListProps> = ({
           <VoiceInputButton 
             isMicOn={isMicOn}
             isConnected={isConnected}
-            isAISpeaking={isAISpeaking}
+            isAISpeaking={false}
             isUserSpeaking={isUserSpeaking}
-            audioLevel={audioLevel}
+            audioLevel={0}
             onToggle={toggleMic}
+            variant="compact"
           />
         </div>
       </div>
