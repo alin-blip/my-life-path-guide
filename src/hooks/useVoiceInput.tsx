@@ -187,28 +187,31 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
         rtcChatRef.current = new RealtimeChat(
           (event: any) => {
             logger.log('📨 RTC Event:', event.type);
-            
-            if (event.error?.code === 'insufficient_quota' || event.error?.type === 'insufficient_quota') {
-              logger.error('❌ OpenAI quota error:', event.error);
+
+            // Immediate handling of quota/429 errors
+            if (event?.response?.status_details?.error?.code === 'insufficient_quota') {
+              logger.error('❌ Realtime insufficient_quota');
               hasQuotaErrorRef.current = true;
-              
-              toast({
-                title: "AI voice limitat",
-                description: "Folosim fallback.",
-                variant: "destructive"
-              });
-              
-              if (audioBufferRef.current.length > 0) {
-                processWithWhisper();
-              }
+              toast({ title: 'AI voice limitat', description: 'Folosim fallback.', variant: 'destructive' });
+              if (audioBufferRef.current.length > 0) processWithWhisper();
               return;
+            }
+
+            if (event.type === 'conversation.item.input_audio_transcription.failed') {
+              const msg: string | undefined = event?.error?.message;
+              logger.error('❌ Transcription failed:', msg);
+              // Trigger Whisper on 429 Too Many Requests
+              if (msg?.includes('429')) {
+                hasQuotaErrorRef.current = true;
+                if (audioBufferRef.current.length > 0) processWithWhisper();
+                return;
+              }
             }
             
             if (event.type === 'input_audio_buffer.speech_started') {
               logger.log('🎤 User speaking');
               setIsUserSpeaking(true);
               hasQuotaErrorRef.current = false;
-              
               if (whisperTimeoutRef.current) {
                 clearTimeout(whisperTimeoutRef.current);
                 whisperTimeoutRef.current = null;
@@ -216,7 +219,6 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
             } else if (event.type === 'input_audio_buffer.speech_stopped') {
               logger.log('🛑 User stopped');
               setIsUserSpeaking(false);
-              
               if (!hasQuotaErrorRef.current) {
                 whisperTimeoutRef.current = setTimeout(() => {
                   logger.log('⏰ Timeout - Whisper fallback');
@@ -228,11 +230,8 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
                 clearTimeout(whisperTimeoutRef.current);
                 whisperTimeoutRef.current = null;
               }
-              
               logger.log('📝 User transcript:', event.transcript);
-              if (event.transcript && onTranscript) {
-                onTranscript(event.transcript);
-              }
+              if (event.transcript && onTranscript) onTranscript(event.transcript);
               audioBufferRef.current = [];
             } else if (event.type === 'response.audio.delta') {
               setIsAISpeaking(true);
@@ -245,6 +244,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
           audioQueueRef.current!,
           (level: number) => setAudioLevel(level),
           (audioData: Float32Array) => {
+            // Continuously buffer mic audio for fallback
             audioBufferRef.current.push(new Float32Array(audioData));
           }
         );
