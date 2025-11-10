@@ -166,12 +166,17 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('❌ Transcription error:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    const isRateOrQuota = /429|rate limit|insufficient_quota|quota/i.test(message);
+
+    const payload = isRateOrQuota
+      ? { error: 'Rate limit exceeded', code: 429, shouldFallback: true }
+      : { error: message || 'Unknown error' };
+
     return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      }),
+      JSON.stringify(payload),
       {
-        status: 500,
+        status: isRateOrQuota ? 200 : 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
