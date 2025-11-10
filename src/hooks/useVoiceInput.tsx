@@ -34,6 +34,8 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
   const isProcessingWhisperRef = useRef(false);
   const hasQuotaErrorRef = useRef(false);
   const browserSTTRef = useRef<any>(null);
+  const sttActiveRef = useRef(false);
+  const hasShownFallbackToastRef = useRef(false);
 
   // Get WebSocket URL
   const getWebSocketUrl = useCallback(() => {
@@ -66,6 +68,12 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
   const startBrowserSTT = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
+    // Prevent multiple STT instances
+    if (browserSTTRef.current || sttActiveRef.current) {
+      logger.warn('Browser STT already active');
+      return;
+    }
+    
     if (!SpeechRecognition) {
       logger.error('Browser STT not supported');
       toast({
@@ -77,10 +85,13 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     }
 
     logger.log('🎤 Starting Browser STT fallback');
-    toast({
-      title: "Fallback local activat",
-      description: "Folosim browserul pentru transcriere (fără răspuns audio AI).",
-    });
+    if (!hasShownFallbackToastRef.current) {
+      toast({
+        title: "Fallback local activat",
+        description: "Folosim browserul pentru transcriere (fără răspuns audio AI).",
+      });
+      hasShownFallbackToastRef.current = true;
+    }
 
     // Release microphone from WebRTC before starting STT
     if (rtcChatRef.current) {
@@ -96,33 +107,45 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.lang = 'ro-RO';
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      logger.log('✅ Browser STT:', transcript);
-      onTranscript?.(transcript);
-      browserSTTRef.current = null;
+      let interim = '';
+      let final = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const res = event.results[i];
+        const text = res[0]?.transcript || '';
+        if (res.isFinal) final += text + ' ';
+        else interim += text;
+      }
+      const out = (final || interim).trim();
+      if (out) {
+        logger.log('✅ Browser STT:', out);
+        onTranscript?.(out);
+      }
     };
 
     recognition.onerror = (event: any) => {
       logger.error('❌ Browser STT error:', event.error);
+      sttActiveRef.current = false;
       browserSTTRef.current = null;
     };
 
     recognition.onend = () => {
+      sttActiveRef.current = false;
       browserSTTRef.current = null;
     };
 
+    sttActiveRef.current = true;
     recognition.start();
     browserSTTRef.current = recognition;
   }, [onTranscript, toast]);
 
   // Whisper fallback
   const processWithWhisper = useCallback(async () => {
-    if (isProcessingWhisperRef.current || audioBufferRef.current.length === 0) return;
+    if (isProcessingWhisperRef.current || sttActiveRef.current || audioBufferRef.current.length === 0) return;
 
     isProcessingWhisperRef.current = true;
     logger.log('⚠️ Whisper fallback triggered');
@@ -149,7 +172,13 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
       }
       
       const uint8Array = new Uint8Array(int16Array.buffer);
-      const base64Audio = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
+      let binary = '';
+      const chunkSize = 0x8000;
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
+        binary += String.fromCharCode.apply(null, Array.from(chunk));
+      }
+      const base64Audio = btoa(binary);
 
       logger.log('📤 Sending to Whisper, size:', base64Audio.length);
 
@@ -160,11 +189,14 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
       if (response.error || (response.data?.error && (response.data?.code === 429 || response.data?.code === 402))) {
         logger.error('❌ Whisper error:', response.data?.error || response.error);
         
-        toast({
-          title: "Rate limit atins",
-          description: "Folosim browserul pentru transcriere.",
-          variant: "destructive"
-        });
+        if (!hasShownFallbackToastRef.current) {
+          toast({
+            title: "Rate limit atins",
+            description: "Folosim browserul pentru transcriere.",
+            variant: "destructive"
+          });
+          hasShownFallbackToastRef.current = true;
+        }
         
         startBrowserSTT();
         return;
@@ -205,7 +237,10 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
             if (event?.response?.status_details?.error?.code === 'insufficient_quota') {
               logger.error('❌ Realtime insufficient_quota');
               hasQuotaErrorRef.current = true;
-              toast({ title: 'AI voice limitat', description: 'Folosim fallback.', variant: 'destructive' });
+              if (!hasShownFallbackToastRef.current) {
+                toast({ title: 'AI voice limitat', description: 'Folosim fallback.', variant: 'destructive' });
+                hasShownFallbackToastRef.current = true;
+              }
               if (audioBufferRef.current.length > 0) processWithWhisper();
               return;
             }
@@ -432,6 +467,8 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     
     audioBufferRef.current = [];
     hasQuotaErrorRef.current = false;
+    hasShownFallbackToastRef.current = false;
+    sttActiveRef.current = false;
     
     if (rtcChatRef.current) {
       rtcChatRef.current.disconnect();
