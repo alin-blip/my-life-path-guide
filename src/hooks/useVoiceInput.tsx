@@ -9,11 +9,19 @@ interface UseVoiceInputOptions {
   systemPrompt?: string;
   enabled?: boolean;
   transport?: 'webrtc' | 'ws'; // WebRTC is recommended
+  voiceLanguage?: 'ro-RO' | 'en-US'; // Language for voice recognition
 }
 
 export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
-  const { onTranscript, systemPrompt = "You are a helpful assistant.", enabled = true, transport = 'webrtc' } = options;
+  const { onTranscript, systemPrompt = "You are a helpful assistant.", enabled = true, transport = 'webrtc', voiceLanguage: initialLanguage } = options;
   const { toast } = useToast();
+  
+  // Voice language state with localStorage persistence
+  const [voiceLanguage, setVoiceLanguage] = useState<'ro-RO' | 'en-US'>(() => {
+    if (initialLanguage) return initialLanguage;
+    const saved = localStorage.getItem('voice-language');
+    return (saved === 'en-US' ? 'en-US' : 'ro-RO') as 'ro-RO' | 'en-US';
+  });
   
   const [isConnected, setIsConnected] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
@@ -27,6 +35,21 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
   const lastInterimTranscriptRef = useRef<string>('');
 
   // Simplified Browser STT - direct implementation
+  
+  // Update language and persist to localStorage
+  const changeVoiceLanguage = useCallback((lang: 'ro-RO' | 'en-US') => {
+    setVoiceLanguage(lang);
+    localStorage.setItem('voice-language', lang);
+    
+    // If mic is active, restart with new language
+    if (browserSTTRef.current) {
+      stopBrowserSTT();
+      // Small delay to ensure cleanup
+      setTimeout(() => {
+        startBrowserSTT();
+      }, 100);
+    }
+  }, []);
 
   const startBrowserSTT = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -51,7 +74,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'ro-RO';
+    recognition.lang = voiceLanguage; // Use selected language
 
     recognition.onstart = () => {
       logger.log('✅ Browser STT started');
@@ -143,7 +166,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
         variant: "destructive"
       });
     }
-  }, [onTranscript, toast]);
+  }, [onTranscript, toast, voiceLanguage]);
 
   const stopBrowserSTT = useCallback(() => {
     if (browserSTTRef.current) {
@@ -211,6 +234,8 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     isAISpeaking,
     isUserSpeaking,
     audioLevel,
+    voiceLanguage,
+    changeVoiceLanguage,
     startVoice,
     stopVoice,
     toggleMic

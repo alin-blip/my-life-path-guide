@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from './VoiceInputButton';
+import { VoiceLanguageToggle } from './VoiceLanguageToggle';
 import { AISpeakingIndicator } from './AISpeakingIndicator';
 
 interface Message {
@@ -60,6 +61,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     isAISpeaking,
     isUserSpeaking,
     audioLevel,
+    voiceLanguage,
+    changeVoiceLanguage,
     toggleMic
   } = useVoiceInput({
     onTranscript: (text) => {
@@ -490,7 +493,12 @@ INSTRUCȚIUNI:
               </Button>
             </div>
           </div>
-          <div className="flex w-full gap-2">
+          <div className="flex w-full gap-2 flex-wrap">
+            <VoiceLanguageToggle
+              currentLanguage={voiceLanguage}
+              onLanguageChange={changeVoiceLanguage}
+              disabled={isConnected}
+            />
             <Button
               variant="outline"
               onClick={resetSession}
@@ -515,7 +523,7 @@ INSTRUCȚIUNI:
               onClick={generateFinalAction}
               disabled={messages.length === 0 || isLoading}
               size="sm"
-              className="text-xs sm:text-sm"
+              className="text-xs sm:text-sm flex-1"
             >
               Generează Acțiune
             </Button>
