@@ -41,6 +41,45 @@ export type Database = {
         }
         Relationships: []
       }
+      archived_tasks: {
+        Row: {
+          archived_at: string | null
+          completed: boolean | null
+          created_at: string | null
+          id: string
+          original_data: Json | null
+          original_task_id: string
+          task_type: string
+          title: string
+          user_id: string
+          week_key: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          completed?: boolean | null
+          created_at?: string | null
+          id?: string
+          original_data?: Json | null
+          original_task_id: string
+          task_type: string
+          title: string
+          user_id: string
+          week_key?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          completed?: boolean | null
+          created_at?: string | null
+          id?: string
+          original_data?: Json | null
+          original_task_id?: string
+          task_type?: string
+          title?: string
+          user_id?: string
+          week_key?: string | null
+        }
+        Relationships: []
+      }
       course_modules: {
         Row: {
           course_id: string
@@ -764,6 +803,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      archive_user_tasks: {
+        Args: { target_task_types?: string[]; target_week_key: string }
+        Returns: undefined
+      }
       clear_user_task_history: {
         Args: { target_user_id: string }
         Returns: undefined

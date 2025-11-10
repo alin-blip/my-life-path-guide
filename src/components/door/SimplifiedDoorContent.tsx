@@ -7,6 +7,8 @@ import { TaskList } from '@/components/door/TaskList';
 import { OnboardingTooltip } from '@/components/door/OnboardingTooltip';
 import { DoorClearHistory } from '@/components/door/DoorClearHistory';
 import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNotification';
+import { WeekSelector } from '@/components/door/WeekSelector';
+import { ClearWeekButton } from '@/components/door/ClearWeekButton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { format, getWeek } from 'date-fns';
@@ -180,9 +182,21 @@ export const SimplifiedDoorContent: React.FC = () => {
         {/* Weekly Planning Notification */}
         <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />
         
-        {/* Clear History Button */}
-        <div className="flex justify-end mb-6">
-          <DoorClearHistory onHistoryCleared={() => window.location.reload()} />
+        {/* Week Selector and Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+          <WeekSelector
+            currentDate={currentDate}
+            onPreviousWeek={handlePrevWeekWithNotification}
+            onNextWeek={handleNextWeekWithNotification}
+            onSelectDate={navigateToDate}
+          />
+          <div className="flex gap-2">
+            <ClearWeekButton 
+              currentDate={currentDate} 
+              onArchived={() => window.location.reload()} 
+            />
+            <DoorClearHistory onHistoryCleared={() => window.location.reload()} />
+          </div>
         </div>
 
         {/* Mobile: Vertical Stack Layout */}

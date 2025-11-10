@@ -115,15 +115,7 @@ export const doorUserTasksService = {
     const userId = await getUserId();
     if (!userId) throw new Error('User not authenticated');
 
-    // Delete all existing hot tasks for this user
-    const { error: delErr } = await supabase
-      .from('user_tasks')
-      .delete()
-      .eq('task_type', 'hot')
-      .is('week_key', null);
-    
-    if (delErr) throw delErr;
-
+    // No auto-delete: just UPSERT hot list
     if (hotList.length === 0) return { count: 0 };
 
     const rows: any[] = [];
@@ -195,17 +187,10 @@ export const doorUserTasksService = {
     }
 
     if (rows.length === 0) {
-      // Delete all tasks if lists are empty
-      await supabase
-        .from('user_tasks')
-        .delete()
-        .eq('week_key', weekKey)
-        .eq('user_id', userId)
-        .in('task_type', ['hit', 'do']);
       return { count: 0 };
     }
 
-    // UPSERT: Update if exists, insert if new (single event instead of DELETE + INSERT)
+    // UPSERT only: no auto-delete, preserve history
     const { error: upsertErr } = await supabase
       .from('user_tasks')
       .upsert(rows, {
@@ -215,19 +200,15 @@ export const doorUserTasksService = {
 
     if (upsertErr) throw upsertErr;
 
-    // Delete tasks that are no longer in the lists
-    const keptIds = rows.map(r => r.id).filter(Boolean);
-    if (keptIds.length > 0) {
-      await supabase
-        .from('user_tasks')
-        .delete()
-        .eq('week_key', weekKey)
-        .eq('user_id', userId)
-        .in('task_type', ['hit', 'do'])
-        .not('id', 'in', `(${keptIds.join(',')})`);
-    }
-
     return { count: rows.length };
+  },
+
+  async archiveWeekTasks(weekKey: string, taskTypes?: ('hit' | 'do' | 'hot')[]) {
+    const { error } = await supabase.rpc('archive_user_tasks', {
+      target_week_key: weekKey,
+      target_task_types: taskTypes || null
+    });
+    if (error) throw error;
   },
 
   async addIdeaToWeek(weekKey: string, idea: {

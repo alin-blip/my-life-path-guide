@@ -101,13 +101,7 @@ export const doorSupabaseService = {
     const userId = await getUserId();
     if (!userId) throw new Error('User not authenticated');
 
-    // Clear existing items for this week (user is enforced by RLS)
-    const { error: delErr } = await supabase
-      .from('hot_list_items')
-      .delete()
-      .eq('week_key', weekKey);
-    if (delErr) throw delErr;
-
+    // No auto-delete: just UPSERT what's provided
     const rows: any[] = [];
 
     for (const item of params.hotList) {
