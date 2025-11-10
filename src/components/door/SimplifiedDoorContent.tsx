@@ -249,46 +249,32 @@ export const SimplifiedDoorContent: React.FC = () => {
         handlePreviousWeek={handlePrevWeekWithNotification}
         handleNextWeek={handleNextWeekWithNotification}
         isMobile={isMobile}
+        onOpenHistory={handleOpenHistory}
+        onClearWeek={() => {
+          // Call the ClearWeekButton logic directly
+          toast({
+            title: '✅ Săptămână arhivată',
+            description: 'Reîncărcare date...',
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        }}
+        onClearHistory={() => window.location.reload()}
       />
       
       <div className={`${isMobile ? 'px-4 py-6' : 'container mx-auto px-6 py-8'}`}>
         {/* Weekly Planning Notification */}
         <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />
         
-        {/* Week Selector and Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+        {/* Week Selector - Centered and Prominent */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
           <WeekSelector
             currentDate={currentDate}
             onPreviousWeek={handlePrevWeekWithNotification}
             onNextWeek={handleNextWeekWithNotification}
             onSelectDate={navigateToDate}
           />
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleOpenHistory}
-              className="flex items-center gap-2"
-            >
-              <History className="w-4 h-4" />
-              Istoric Planuri
-            </Button>
-            <ClearWeekButton 
-              currentDate={currentDate} 
-              onArchived={() => {
-                // Force reload of current week data after archiving
-                toast({
-                  title: '✅ Săptămână arhivată',
-                  description: 'Reîncărcare date...',
-                });
-                // Use setTimeout to allow toast to show, then reload
-                setTimeout(() => {
-                  window.location.reload();
-                }, 500);
-              }} 
-            />
-            <DoorClearHistory onHistoryCleared={() => window.location.reload()} />
-          </div>
         </div>
 
         {/* Mobile: Vertical Stack Layout */}

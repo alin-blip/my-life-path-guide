@@ -1,14 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { VoiceTextarea } from '@/components/ui/VoiceTextarea';
-import { Info, Share2, Check, ArrowLeft, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, History, FileDown, BarChart, Mic, Trash2 } from 'lucide-react';
+import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, Mic } from 'lucide-react';
 import { HotListItem, DominoKeyPoint, PlanningResult } from '@/types/door';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/context/LanguageContext';
 import { DoorPlanningModal } from './DoorPlanningModal';
 import { VoicePlanningModal } from './VoicePlanningModal';
 import { WeeklyPlanningHistory } from './WeeklyPlanningHistory';
 import { WeeklyAnalyticsDashboard } from './WeeklyAnalyticsDashboard';
+import { DoorExplanation } from './DoorExplanation';
+import { DoorActionsMenu } from './DoorActionsMenu';
 import { useToast } from '@/hooks/use-toast';
 import { KeyPointMetadataPopover } from './KeyPointMetadataPopover';
 import { weeklyPlanningService, WeeklyPlanningData } from '@/services/weeklyPlanningService';
@@ -55,10 +57,10 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
 }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const [isPlanningModalOpen, setIsPlanningModalOpen] = useState(false);
-  const [isVoicePlanningOpen, setIsVoicePlanningOpen] = useState(false);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const [showAIPlanningModal, setShowAIPlanningModal] = useState(false);
+  const [showVoicePlanningModal, setShowVoicePlanningModal] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const [allPlans, setAllPlans] = useState<WeeklyPlanningData[]>([]);
 
   useEffect(() => {
@@ -97,8 +99,8 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
       }
     })));
 
-    setIsPlanningModalOpen(false);
-    setIsVoicePlanningOpen(false);
+    setShowAIPlanningModal(false);
+    setShowVoicePlanningModal(false);
     loadAllPlans(); // Reload plans after completion
     
     toast({
@@ -231,142 +233,103 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
     });
   }
   
+  // Calculate completion badge
+  const completedKeys = dominoKeyPoints.filter(kp => kp.completed && kp.text.trim()).length;
+  const totalKeys = dominoKeyPoints.filter(kp => kp.text.trim()).length;
+
   return (
     <div 
-      className={`bg-gradient-to-br from-[#1E293B] to-[#2A3A53] rounded-xl p-4 shadow-lg ${
-        isMobile ? 'max-h-[70vh] overflow-auto' : 'h-full'
-      } ${isMobile ? 'p-3' : 'p-6'}`}
+      className={`bg-gradient-to-br from-card/50 to-card rounded-2xl shadow-xl border border-border/50 ${
+        isMobile ? 'max-h-[70vh] overflow-auto p-4' : 'h-full p-6'
+      }`}
       onDragOver={handleDragOverDomino}
       onDrop={handleDropOnDomino}
     >
-      <div className={`flex justify-between items-center ${isMobile ? 'mb-4' : 'mb-6'}`}>
-        <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600`}>
-          {t('weeklyMassiveGoal')} {selectedDomino ? '1/1' : '0/1'}
-        </h2>
-        <div className="flex items-center space-x-1">
-          {setSelectedDomino && setDominoKeyPoints && (
-            <>
-              <Button
-                onClick={() => setIsPlanningModalOpen(true)}
-                variant="ghost"
-                size="sm"
-                className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
-                title="Start AI Planning (text)"
-              >
-                <Rocket className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-              </Button>
-              <Button
-                onClick={() => setIsVoicePlanningOpen(true)}
-                variant="ghost"
-                size="sm"
-                className="text-purple-400 hover:text-purple-300 hover:bg-purple-500/10"
-                title="Start Voice Planning"
-              >
-                <Mic className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-              </Button>
-              <Button
-                onClick={() => setIsHistoryOpen(true)}
-                variant="ghost"
-                size="sm"
-                className="text-gray-400 hover:text-gray-300 hover:bg-gray-500/10"
-                title="View History"
-              >
-                <History className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-              </Button>
-              <Button
-                onClick={handleExportPDF}
-                variant="ghost"
-                size="sm"
-                className="text-green-400 hover:text-green-300 hover:bg-green-500/10"
-                title="Export PDF"
-                disabled={!selectedDomino}
-              >
-                <FileDown className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-              </Button>
-              <Button
-                onClick={() => setIsAnalyticsOpen(true)}
-                variant="ghost"
-                size="sm"
-                className="text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
-                title="Analytics Dashboard"
-              >
-                <BarChart className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-              </Button>
-              <Button
-                onClick={handleDeleteCurrentPlan}
-                variant="ghost"
-                size="sm"
-                className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                title="Șterge focusul săptămânal"
-                disabled={!selectedDomino}
-              >
-                <Trash2 className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-              </Button>
-            </>
-          )}
-          <Info className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-gray-400 hover:text-blue-400 transition-colors cursor-pointer`} />
-        </div>
-      </div>
-      
-      {/* Modals */}
-      {isPlanningModalOpen && setSelectedDomino && setDominoKeyPoints && (
-        <DoorPlanningModal
-          isOpen={isPlanningModalOpen}
-          onClose={() => setIsPlanningModalOpen(false)}
-          onPlanningComplete={handlePlanningComplete}
-        />
-      )}
-
-      {isVoicePlanningOpen && setSelectedDomino && setDominoKeyPoints && (
-        <VoicePlanningModal
-          isOpen={isVoicePlanningOpen}
-          onClose={() => setIsVoicePlanningOpen(false)}
-          onPlanningComplete={handlePlanningComplete}
-        />
-      )}
-
-      {isHistoryOpen && (
-        <WeeklyPlanningHistory
-          isOpen={isHistoryOpen}
-          onClose={() => setIsHistoryOpen(false)}
-          plans={allPlans}
-          onSelectPlan={handleSelectHistoryPlan}
-          onRefresh={loadAllPlans}
-        />
-      )}
-
-      {isAnalyticsOpen && (
-        <WeeklyAnalyticsDashboard
-          isOpen={isAnalyticsOpen}
-          onClose={() => setIsAnalyticsOpen(false)}
-          plans={allPlans}
-        />
-      )}
-      
       {selectedDomino ? (
-        <div className={`space-y-4 animate-fade-in ${isMobile ? 'space-y-3' : 'space-y-6'}`}>
+        <div className="space-y-6">
+          {/* Modern Header with Primary Actions + Dropdown */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-border/30">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Primary Action Buttons - Larger with Gradients */}
+              <Button
+                onClick={() => setShowAIPlanningModal(true)}
+                variant="default"
+                size={isMobile ? 'sm' : 'default'}
+                className="gap-2 bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all rounded-xl font-semibold h-10"
+              >
+                <Rocket className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                {!isMobile && <span>AI Planning</span>}
+              </Button>
+              
+              <Button
+                onClick={() => setShowVoicePlanningModal(true)}
+                variant="secondary"
+                size={isMobile ? 'sm' : 'default'}
+                className="gap-2 bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 hover:from-purple-700 hover:via-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all rounded-xl font-semibold h-10 border-0"
+              >
+                <Mic className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                {!isMobile && <span>Voice</span>}
+              </Button>
+
+              {/* Secondary Actions Dropdown */}
+              <DoorActionsMenu
+                onViewHistory={() => {
+                  loadAllPlans();
+                  setShowHistory(true);
+                }}
+                onExportPDF={handleExportPDF}
+                onViewAnalytics={() => {
+                  loadAllPlans();
+                  setShowAnalytics(true);
+                }}
+                onDelete={handleDeleteCurrentPlan}
+                disabled={!selectedDomino}
+                isMobile={isMobile}
+              />
+            </div>
+
+            {/* Completion Badge + Info */}
+            <div className="flex items-center gap-2">
+              {totalKeys > 0 && (
+                <Badge 
+                  variant={completedKeys === totalKeys ? "default" : "secondary"}
+                  className={`${
+                    completedKeys === totalKeys 
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md' 
+                      : 'bg-accent/50 text-accent-foreground border border-border/50'
+                  } px-3 py-1.5 rounded-lg font-bold text-sm`}
+                >
+                  {completedKeys}/{totalKeys} ✓
+                </Badge>
+              )}
+              <DoorExplanation />
+            </div>
+          </div>
+
+          {/* Selected Domino Goal Display */}
           <div className={`${
             isCompleted 
               ? 'bg-gradient-to-r from-green-500/20 to-green-600/20 border-l-4 border-green-500' 
-              : 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border-l-4 border-blue-500'
-          } p-4 rounded-lg shadow-md ${isMobile ? 'p-3' : 'p-5'}`}>
-            <p className={`text-white font-medium mb-2 opacity-80 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+              : 'bg-gradient-to-r from-primary/20 to-accent/20 border-l-4 border-primary'
+          } p-5 rounded-xl shadow-lg hover:shadow-xl transition-all`}>
+            <p className="text-muted-foreground font-semibold mb-2 text-xs uppercase tracking-wide">
               {t('mainGoal')}
             </p>
-            <p className={`text-white ${isMobile ? 'text-sm' : 'text-base'} leading-relaxed`}>
+            <p className="text-foreground text-lg font-medium leading-relaxed">
               {selectedDomino.text}
             </p>
             {isCompleted && (
-              <div className={`flex items-center text-green-400 mt-3 bg-green-500/10 p-2 rounded inline-block ${isMobile ? 'text-xs' : 'text-xs'}`}>
-                <Check className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} mr-1`} />
-                <span>{t('completed')}</span>
+              <div className="flex items-center text-green-400 mt-3 bg-green-500/10 px-3 py-1.5 rounded-lg inline-flex gap-1">
+                <Check className="w-4 h-4" />
+                <span className="text-sm font-medium">{t('completed')}</span>
               </div>
             )}
           </div>
           
-          <div className={`space-y-3 ${isMobile ? 'max-h-[calc(70vh-200px)] overflow-y-auto space-y-2' : ''}`}>
+          {/* Key Points Section */}
+          <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <p className={`text-white font-medium ${isMobile ? 'text-sm' : 'text-base'}`}>
+              <p className="text-foreground font-semibold text-base">
                 {t('keyPoints')}
               </p>
               {addNewKeyPoint && displayKeyPoints.length < 4 && (
@@ -374,35 +337,37 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                   onClick={addNewKeyPoint} 
                   variant="ghost" 
                   size="sm" 
-                  className={`text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 transition-all ${isMobile ? 'p-1' : 'p-1'}`}
+                  className="text-primary hover:text-primary/80 hover:bg-primary/10 transition-all rounded-lg"
                 >
-                  <Plus className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                  <Plus className="w-4 h-4" />
                 </Button>
               )}
             </div>
             
-            <div className={`grid gap-2 ${isMobile ? 'gap-2' : 'gap-3'}`}>
+            <div className="grid gap-3">
               {displayKeyPoints.map((point, index) => (
                 <KeyPointMetadataPopover key={point.id} keyPoint={point}>
                   <div 
-                    className={`flex items-start space-x-2 rounded-lg hover:shadow-md transition-all ${
-                      point.completed ? 'bg-green-500/10' : 'bg-blue-500/10'
-                    } ${isMobile ? 'p-2 space-x-2' : 'p-3 space-x-3'}`}
+                    className={`flex items-start gap-3 rounded-xl p-4 hover:shadow-md transition-all border ${
+                      point.completed 
+                        ? 'bg-green-500/10 border-green-500/30' 
+                        : 'bg-accent/30 border-border/50'
+                    }`}
                     draggable={point.text && point.text.trim().length > 0}
                     onDragStart={(e) => handleKeyPointDragStart(e, point)}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={() => handleDropOnKeyPoint && handleDropOnKeyPoint(point.id)}
                   >
-                    <div className={`flex-shrink-0 rounded-full flex items-center justify-center text-xs text-white shadow-md ${
+                    <div className={`flex-shrink-0 rounded-full flex items-center justify-center shadow-md ${
                       point.completed 
                         ? 'bg-gradient-to-br from-green-400 to-green-600' 
-                        : 'bg-gradient-to-br from-blue-400 to-purple-600'
-                    } ${isMobile ? 'w-6 h-6' : 'w-7 h-7'}`}>
+                        : 'bg-gradient-to-br from-primary to-accent'
+                    } w-8 h-8`}>
                       {point.completed ? (
-                        <Check className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                        <Check className="w-4 h-4 text-white" />
                       ) : (
                         React.createElement(KeyPointIcons[index % 4].icon, { 
-                          className: `${isMobile ? 'w-3 h-3' : 'w-4 h-4'} ${KeyPointIcons[index % 4].color}` 
+                          className: `w-4 h-4 text-white` 
                         })
                       )}
                     </div>
@@ -410,9 +375,9 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                     <VoiceTextarea
                       className={`flex-grow bg-transparent border-none focus:ring-0 focus:ring-offset-0 p-0 min-h-0 resize-none ${
                         point.completed 
-                          ? 'text-gray-400 line-through' 
-                          : 'text-white'
-                      } ${isMobile ? 'text-sm' : 'text-sm'}`}
+                          ? 'text-muted-foreground line-through' 
+                          : 'text-foreground'
+                      } text-sm font-medium`}
                       placeholder={`${t('keyPoint')} ${index + 1}`}
                       value={point.text}
                       onChange={(e) => updateKeyPointText(point.id, e.target.value)}
@@ -423,10 +388,10 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                     {point.text && point.text.trim().length > 0 && moveKeyPointToHotList && (
                       <button 
                         onClick={() => moveKeyPointToHotList(point)}
-                        className={`text-gray-400 hover:text-blue-400 transition-colors ${isMobile ? 'p-0.5' : 'p-1'}`}
+                        className="text-muted-foreground hover:text-primary transition-colors p-1 rounded hover:bg-accent"
                         title={t('moveBackToIdeaList')}
                       >
-                        <ArrowLeft className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                        <Plus className="w-4 h-4 rotate-45" />
                       </button>
                     )}
                   </div>
@@ -436,39 +401,73 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           </div>
         </div>
       ) : (
-        <div className={`flex justify-center items-center ${isMobile ? 'h-[40vh]' : 'h-[60vh]'}`}>
+        /* Empty State */
+        <div className="flex justify-center items-center h-[60vh]">
           <div className="text-center px-4">
-            <div className={`mx-auto mb-4 rounded-lg bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center opacity-50 ${
-              isMobile ? 'w-12 h-12 mb-3' : 'w-16 h-16 mb-5'
-            }`}>
-              <KeyRound className={`text-white ${isMobile ? 'w-6 h-6' : 'w-8 h-8'}`} />
+            <div className="mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary via-primary to-accent flex items-center justify-center opacity-70 w-20 h-20 shadow-lg">
+              <KeyRound className="text-white w-10 h-10" />
             </div>
-            <p className={`text-gray-300 mb-1 ${isMobile ? 'text-sm' : 'text-base'}`}>
+            <p className="text-foreground mb-2 text-lg font-semibold">
               {t('noGoalSelected')}
             </p>
-            <p className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-sm'} max-w-sm`}>
+            <p className="text-muted-foreground text-sm max-w-sm mb-1">
               {t('dragGoalToSet')}
             </p>
-            <p className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-sm'} max-w-sm mt-1`}>
+            <p className="text-muted-foreground text-sm max-w-sm">
               {t('orClickToSelect')}
             </p>
             
             {setSelectedDomino && setDominoKeyPoints && (
-              <div className="mt-6">
-                <p className={`text-gray-400 mb-3 ${isMobile ? 'text-xs' : 'text-sm'}`}>sau</p>
+              <div className="mt-8">
+                <p className="text-muted-foreground mb-4 text-sm font-medium">sau folosește</p>
                 <Button
-                  onClick={() => setIsPlanningModalOpen(true)}
+                  onClick={() => setShowAIPlanningModal(true)}
                   variant="default"
-                  size={isMobile ? 'sm' : 'default'}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+                  size="lg"
+                  className="bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all rounded-xl font-semibold"
                 >
-                  <Rocket className="w-4 h-4 mr-2" />
+                  <Rocket className="w-5 h-5 mr-2" />
                   Start AI Planning
                 </Button>
               </div>
             )}
           </div>
         </div>
+      )}
+
+      {/* Modals */}
+      {showAIPlanningModal && setSelectedDomino && setDominoKeyPoints && (
+        <DoorPlanningModal
+          isOpen={showAIPlanningModal}
+          onClose={() => setShowAIPlanningModal(false)}
+          onPlanningComplete={handlePlanningComplete}
+        />
+      )}
+
+      {showVoicePlanningModal && setSelectedDomino && setDominoKeyPoints && (
+        <VoicePlanningModal
+          isOpen={showVoicePlanningModal}
+          onClose={() => setShowVoicePlanningModal(false)}
+          onPlanningComplete={handlePlanningComplete}
+        />
+      )}
+
+      {showHistory && (
+        <WeeklyPlanningHistory
+          isOpen={showHistory}
+          onClose={() => setShowHistory(false)}
+          plans={allPlans}
+          onSelectPlan={handleSelectHistoryPlan}
+          onRefresh={loadAllPlans}
+        />
+      )}
+
+      {showAnalytics && (
+        <WeeklyAnalyticsDashboard
+          isOpen={showAnalytics}
+          onClose={() => setShowAnalytics(false)}
+          plans={allPlans}
+        />
       )}
     </div>
   );
