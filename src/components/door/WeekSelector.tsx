@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, CalendarCheck } from 'lucide-react';
 import { format, getISOWeek, getYear } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import {
@@ -64,6 +64,18 @@ export const WeekSelector: React.FC<WeekSelectorProps> = ({
           />
         </PopoverContent>
       </Popover>
+
+      {!isCurrentWeek && (
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => onSelectDate(new Date())}
+          className="h-8 gap-2"
+        >
+          <CalendarCheck className="h-4 w-4" />
+          <span className="hidden sm:inline">Săptămâna curentă</span>
+        </Button>
+      )}
 
       <Button 
         variant="ghost" 
