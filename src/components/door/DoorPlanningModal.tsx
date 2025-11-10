@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Send, Sparkles, SkipForward, Keyboard } from 'lucide-react';
+import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlanningResult, PreviousWeekData } from '@/types/door';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
@@ -436,7 +436,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                       title="Activează voice"
                       disabled={isLoading}
                     >
-                      <Keyboard className="w-4 h-4" />
+                      <Mic className="w-4 h-4" />
                     </Button>
                   </div>
                 </>
