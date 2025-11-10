@@ -60,9 +60,10 @@ export function useDoorDate() {
   }, []);
   
   useEffect(() => {
-    const weekNumber = getWeek(currentDate);
+    const weekNumber = getWeek(currentDate, { weekStartsOn: 1 }); // ISO week
     const year = getYear(currentDate);
-    const weekKey = `door-week-${year}-${weekNumber}`;
+    // FIX: Use proper ISO week format for consistency with weekly_planning
+    const weekKey = `door-week-${year}-${String(weekNumber).padStart(2, '0')}`;
     setCurrentWeekKey(weekKey);
     
     
