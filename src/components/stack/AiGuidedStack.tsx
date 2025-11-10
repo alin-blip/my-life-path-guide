@@ -541,17 +541,19 @@ INSTRUCȚIUNI:
             </Button>
           </div>
 
-          {/* Buton pentru generare acțiune finală - clar vizibil și separat */}
-          <Button
-            onClick={generateFinalAction}
-            disabled={messages.length === 0 || isLoading}
-            variant="secondary"
-            size="sm"
-            className="w-full text-sm font-medium"
-          >
-            <CheckCircle className="w-4 h-4 mr-2" />
-            Generează Acțiune Finală din Conversație
-          </Button>
+          {/* Buton pentru generare acțiune finală - apare doar când conversația este avansată */}
+          {messages.length >= 10 && (
+            <Button
+              onClick={generateFinalAction}
+              disabled={isLoading}
+              variant="secondary"
+              size="sm"
+              className="w-full text-sm font-medium"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Generează Acțiune Finală din Conversație
+            </Button>
+          )}
         </div>
       </div>
 

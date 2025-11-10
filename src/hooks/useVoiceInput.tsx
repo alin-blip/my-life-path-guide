@@ -193,25 +193,13 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
 
   const startVoice = useCallback(async () => {
     if (!enabled) return;
-    
-    toast({
-      title: "🎤 Microfon pornit",
-      description: "Vorbește acum - textul va apărea automat"
-    });
-    
     startBrowserSTT();
-  }, [enabled, startBrowserSTT, toast]);
+  }, [enabled, startBrowserSTT]);
 
   const stopVoice = useCallback(() => {
     logger.log('🛑 Stopping voice');
-    
-    toast({
-      title: "🔇 Microfon oprit",
-      description: "Poți apăsa din nou pentru a continua"
-    });
-    
     stopBrowserSTT();
-  }, [stopBrowserSTT, toast]);
+  }, [stopBrowserSTT]);
 
   const toggleMic = useCallback(() => {
     if (isConnected || browserSTTRef.current) {
