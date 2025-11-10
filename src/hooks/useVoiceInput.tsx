@@ -33,6 +33,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
   const browserSTTRef = useRef<any>(null);
   const lastFinalTranscriptRef = useRef<string>('');
   const lastInterimTranscriptRef = useRef<string>('');
+  const isStoppingIntentionallyRef = useRef(false);
 
   // Simplified Browser STT - direct implementation
   
@@ -130,18 +131,22 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     recognition.onerror = (event: any) => {
       logger.error('❌ Browser STT error:', event.error);
       
-      // Don't auto-restart on errors - user must press button again
-      if (event.error === 'no-speech') {
-        // This is normal, just log it
-        logger.log('ℹ️ No speech detected');
-      } else {
+      // Ignore expected errors
+      if (event.error === 'no-speech' || event.error === 'aborted') {
+        // These are normal, just log them
+        logger.log(`ℹ️ STT event: ${event.error}`);
+        return;
+      }
+      
+      // Only show toast for actual errors
+      if (!isStoppingIntentionallyRef.current) {
         toast({
           title: "Eroare microfon",
           description: `Problemă: ${event.error}`,
           variant: "destructive"
         });
-        stopBrowserSTT();
       }
+      stopBrowserSTT();
     };
 
     recognition.onend = () => {
@@ -172,9 +177,15 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     if (browserSTTRef.current) {
       try {
         logger.log('🛑 Stopping Browser STT');
+        isStoppingIntentionallyRef.current = true;
         browserSTTRef.current.stop();
+        // Reset flag after a short delay
+        setTimeout(() => {
+          isStoppingIntentionallyRef.current = false;
+        }, 500);
       } catch (error) {
         logger.warn('Error stopping recognition:', error);
+        isStoppingIntentionallyRef.current = false;
       }
       browserSTTRef.current = null;
     }
