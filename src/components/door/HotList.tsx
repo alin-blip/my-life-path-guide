@@ -6,9 +6,7 @@ import { Check, X, GripVertical, Search, Plus, Star, Flag, AlertCircle, KeyRound
 import { HotListItem, TaskPriority } from '@/types/door';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/context/LanguageContext';
-import { useVoiceInput } from '@/hooks/useVoiceInput';
-import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
-import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
+import { VoiceEnabledInput } from '@/components/door/VoiceEnabledInput';
 
 interface HotListProps {
   filteredHotList: HotListItem[];
@@ -46,64 +44,44 @@ export const HotList: React.FC<HotListProps> = ({
   const [editingItems, setEditingItems] = useState<{ [id: string]: boolean }>({});
   const [editValues, setEditValues] = useState<{ [id: string]: string }>({});
   const [newItemText, setNewItemText] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
-
-  // Voice input integration - same as in Stack
-  const lastTranscriptRef = useRef<string>('');
-  
-  const {
-    isConnected,
-    isMicOn,
-    isUserSpeaking,
-    voiceLanguage,
-    changeVoiceLanguage,
-    toggleMic
-  } = useVoiceInput({
-    onTranscript: (text) => {
-      // Deduplication: only add if different from last transcript
-      if (text && text !== lastTranscriptRef.current) {
-        lastTranscriptRef.current = text;
-        setNewItemText(prev => {
-          const newText = prev ? `${prev} ${text}` : text;
-          return newText;
-        });
-      }
-    },
-    enabled: true
-  });
-
-  useEffect(() => {
-    if (editingNewItem && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [editingNewItem]);
 
   const handleAddItem = () => {
     if (newItemText.trim()) {
-      // Aici ar trebui să avem o funcție pentru a adăuga textul direct
-      // Deocamdată vom folosi addNewTarget și apoi vom actualiza ultimul item
       addNewTarget();
-      // TODO: Update the last added item with newItemText
       setNewItemText('');
-      lastTranscriptRef.current = '';
     }
   };
 
   return (
     <div className={isMobile ? 'max-h-[70vh] overflow-auto' : ''}>
+      {/* Simplified Add Button */}
       <div className={`flex gap-2 justify-center ${isMobile ? 'mb-3' : 'mb-4'}`}>
         <Button
           onClick={addNewTarget}
           size="sm"
-          className="text-primary hover:bg-primary/10 border border-primary/20"
+          className="text-primary hover:bg-primary/10 border border-primary/20 w-full"
           variant="outline"
         >
           <Plus className="w-4 h-4 mr-1" />
-          {isMobile ? 'Add' : 'Adaugă'}
+          {t('addItem')}
         </Button>
       </div>
       
+      {/* Voice-enabled Quick Add Input */}
+      <div className={`${isMobile ? 'mb-3' : 'mb-4'}`}>
+        <VoiceEnabledInput
+          value={newItemText}
+          onChange={setNewItemText}
+          onSubmit={handleAddItem}
+          placeholder="Adaugă rapid cu vocea sau tastează... (Enter)"
+          className={`bg-muted border-0 focus-visible:ring-1 focus-visible:ring-primary ${
+            isMobile ? 'text-sm h-8' : ''
+          }`}
+        />
+      </div>
+      
+      {/* Search Input */}
       <div className={`relative ${isMobile ? 'mb-3' : 'mb-4'}`}>
         <Search className={`absolute left-3 top-2.5 text-muted-foreground ${isMobile ? 'w-3 h-3 top-2' : 'h-4 w-4'}`} />
         <Input
@@ -114,41 +92,6 @@ export const HotList: React.FC<HotListProps> = ({
             isMobile ? 'pl-8 text-sm h-8' : 'pl-10'
           }`}
         />
-      </div>
-
-      {/* Voice input for quick add */}
-      <div className={`relative ${isMobile ? 'mb-3' : 'mb-4'}`}>
-        <Input
-          ref={inputRef}
-          placeholder={isUserSpeaking ? "Vorbești..." : "Adaugă rapid cu vocea sau tastează... (Enter)"}
-          value={newItemText}
-          onChange={(e) => setNewItemText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && newItemText.trim()) {
-              e.preventDefault();
-              handleAddItem();
-            }
-          }}
-          className={`bg-muted border-0 focus-visible:ring-1 focus-visible:ring-primary pr-20 ${
-            isMobile ? 'text-sm h-8' : ''
-          } ${isUserSpeaking ? 'ring-2 ring-blue-500' : ''}`}
-        />
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
-          <VoiceLanguageToggle 
-            currentLanguage={voiceLanguage}
-            onLanguageChange={changeVoiceLanguage}
-            disabled={isConnected}
-          />
-          <VoiceInputButton 
-            isMicOn={isMicOn}
-            isConnected={isConnected}
-            isAISpeaking={false}
-            isUserSpeaking={isUserSpeaking}
-            audioLevel={0}
-            onToggle={toggleMic}
-            variant="compact"
-          />
-        </div>
       </div>
       
       <div className={`space-y-2 hot-list-container ${
@@ -193,27 +136,26 @@ export const HotList: React.FC<HotListProps> = ({
                 </div>
                 
                 {isEditing ? (
-                  <Input
+                  <VoiceEnabledInput
                     value={editValues[item.id] || item.text}
-                    onChange={(e) => setEditValues({...editValues, [item.id]: e.target.value})}
-                    autoFocus
+                    onChange={(newValue) => setEditValues({...editValues, [item.id]: newValue})}
+                    onSubmit={() => {
+                      if (editValues[item.id] !== undefined) {
+                        updateHotListItemText(item.id, editValues[item.id]);
+                      }
+                      setEditingItems({...editingItems, [item.id]: false});
+                    }}
                     onBlur={() => {
                       if (editValues[item.id] !== undefined) {
                         updateHotListItemText(item.id, editValues[item.id]);
                       }
                       setEditingItems({...editingItems, [item.id]: false});
                     }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        if (editValues[item.id] !== undefined) {
-                          updateHotListItemText(item.id, editValues[item.id]);
-                        }
-                        setEditingItems({...editingItems, [item.id]: false});
-                      }
-                    }}
+                    autoFocus
                     className={`flex-grow bg-transparent border-none focus:ring-1 focus:ring-primary text-foreground ${
                       isMobile ? 'p-1 text-sm' : 'p-1'
                     }`}
+                    placeholder="Editează cu vocea sau tastează... (Enter)"
                   />
                 ) : (
                   <span 
@@ -318,18 +260,6 @@ export const HotList: React.FC<HotListProps> = ({
             </p>
           </div>
         )}
-      </div>
-      
-      <div className={`${isMobile ? 'mt-3' : 'mt-4'}`}>
-        <Button
-          onClick={addNewTarget}
-          className={`w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white border-none ${
-            isMobile ? 'py-2 text-sm' : ''
-          }`}
-        >
-          <Plus className={`mr-2 ${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-          {t('addItem')}
-        </Button>
       </div>
     </div>
   );
