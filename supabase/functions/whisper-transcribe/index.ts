@@ -84,6 +84,21 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('❌ OpenAI API error:', response.status, errorText);
+      
+      // Propagate rate limit and quota errors explicitly
+      if (response.status === 429 || response.status === 402) {
+        return new Response(
+          JSON.stringify({ 
+            error: response.status === 429 ? 'Rate limit exceeded' : 'Insufficient quota',
+            code: response.status
+          }),
+          {
+            status: response.status,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      
       throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 

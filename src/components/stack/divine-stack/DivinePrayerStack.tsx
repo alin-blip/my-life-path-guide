@@ -22,7 +22,6 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
   isReadOnly = false,
   stackId 
 }) => {
-  const [mode, setMode] = useState<'manual' | 'ai'>('manual');
   const { state, handlers, utils } = useDivinePrayerStack({ 
     onAddToHitList,
     existingData,
@@ -42,22 +41,6 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
   
   const { handleInputChange, handleNext, handleBack, resetStack, addToHotList, handleDraftRestore } = handlers;
   const { getCurrentQuestion, getDivineSummary } = utils;
-
-  // Voice input hook
-  const {
-    isConnected,
-    isMicOn,
-    isAISpeaking,
-    isUserSpeaking,
-    audioLevel,
-    toggleMic
-  } = useVoiceInput({
-    onTranscript: (text) => {
-      handleInputChange({ target: { value: answers[step] + ' ' + text } } as any);
-    },
-    systemPrompt: `Ești un asistent spiritual care ajută utilizatorii să răspundă la întrebări de rugăciune profundă.`,
-    enabled: mode === 'manual' && !isReadOnly && !committedAction
-  });
 
   // If we have existing data, show it in read-only mode
   if (existingData && isReadOnly) {
@@ -97,170 +80,20 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
     );
   }
 
-  if (mode === 'ai') {
-    return (
+  // Always use AI-guided mode
+  return (
+    <>
       <AiGuidedStack
         onAddToHitList={onAddToHitList}
         stackType="divine-prayer"
         questions={getQuestions()}
       />
-    );
-  }
-
-  return (
-    <div className="w-full h-full flex flex-col">
-      {(committedAction || stackCompleted) ? (
-        <div className="w-full p-1 sm:p-2 flex flex-col justify-end h-full">
-          <div className="mb-4">
-            <h1 className="text-lg sm:text-xl font-semibold text-indigo-400 mb-2">
-              {showSummary ? "Rugăciune Finalizată" : "Acțiune Angajată"}
-            </h1>
-            
-            <div className="p-3 bg-background/50 rounded border-l-4 border-indigo-500 mb-4">
-              {showSummary ? (
-                getDivineSummary()
-              ) : (
-                <div>
-                  <p className="text-sm sm:text-base text-foreground">{committedAction}</p>
-                  {actionAddedToHotList && (
-                    <div className="flex items-center text-green-400 text-xs sm:text-sm mt-2">
-                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                      Această acțiune a fost adăugată la lista ta fierbinte
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button 
-              variant="outline" 
-              onClick={resetStack}
-              size="sm"
-              className="text-xs sm:text-sm"
-            >
-              Începe o nouă rugăciune
-            </Button>
-            {!actionAddedToHotList && committedAction && (
-              <Button 
-                onClick={addToHotList}
-                size="sm"
-                className="text-xs sm:text-sm"
-              >
-                <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                Adaugă la lista fierbinte
-              </Button>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="w-full p-1 sm:p-2 flex flex-col justify-end h-full">
-          <div className="mb-4">
-            <div className="flex gap-2 mb-4">
-              <Button
-                variant={mode === 'manual' ? 'default' : 'outline'}
-                onClick={() => setMode('manual')}
-                size="sm"
-                className="text-xs sm:text-sm"
-              >
-                <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                Manual
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setMode('ai')}
-                size="sm"
-                className="text-xs sm:text-sm"
-              >
-                <Bot className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                AI Ghidat
-              </Button>
-            </div>
-            <DivinePrayerExplanation />
-          </div>
-          
-          <div className="mb-4">
-            <h1 className="text-lg sm:text-xl font-semibold text-indigo-400 mb-1">
-              Stack de Rugăciune
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Pasul {step + 1} din 17
-            </p>
-          </div>
-
-          <div className="mb-4 p-3 bg-background/50 rounded border-l-4 border-indigo-500">
-            <p className="text-sm sm:text-base text-foreground">{getCurrentQuestion()}</p>
-          </div>
-          
-          <AISpeakingIndicator isAISpeaking={isAISpeaking} />
-          
-          <div className="mb-4">
-            <div className="flex gap-2">
-              <Textarea
-                placeholder="Scrie răspunsul tău aici... sau apasă pe microfon"
-                className="min-h-[100px] sm:min-h-[120px] flex-1 text-sm"
-                value={answers[step] || ""}
-                onChange={handleInputChange}
-                onEnterSubmit={handleNext}
-              />
-              <div className="flex flex-col gap-2">
-                <VoiceInputButton
-                  isConnected={isConnected}
-                  isMicOn={isMicOn}
-                  isAISpeaking={isAISpeaking}
-                  isUserSpeaking={isUserSpeaking}
-                  audioLevel={audioLevel}
-                  onToggle={toggleMic}
-                  variant="compact"
-                  showWaveform={true}
-                />
-                <Button 
-                  onClick={handleNext}
-                  disabled={isSubmitting}
-                  size="sm"
-                  className="h-12 w-12 p-0"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-            
-            {/* Save status indicator */}
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Save className="w-3 h-3" />
-              <span>{saveStatus}</span>
-            </div>
-          </div>
-
-          <div className="flex gap-2 justify-between">
-            <Button 
-              variant="outline" 
-              onClick={handleBack}
-              disabled={step === 0}
-              size="sm"
-              className="text-xs sm:text-sm"
-            >
-              Înapoi
-            </Button>
-          </div>
-        </div>
-      )}
-
+      
       <StackIdeaModal
         isOpen={isIdeaModalOpen}
         onClose={closeIdeaModal}
         onAddToHitList={onAddToHitList}
       />
-      
-      {/* Draft auto-saver for emergency saves */}
-      <StackDraftSaver
-        stackType="divine-prayer"
-        sessionId={sessionId}
-        currentStep={step}
-        currentAnswer={answers[step] || ""}
-        onDraftRestore={handleDraftRestore}
-      />
-    </div>
+    </>
   );
 };
