@@ -26,6 +26,11 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
   const audioQueueRef = useRef<AudioQueue | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const transcriptBufferRef = useRef<string>('');
+  
+  // Whisper fallback state
+  const [isRecordingForWhisper, setIsRecordingForWhisper] = useState(false);
+  const audioChunksRef = useRef<Float32Array[]>([]);
+  const whisperFallbackTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Get WebSocket URL
   const getWebSocketUrl = useCallback(() => {
@@ -54,6 +59,57 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     };
   }, [enabled]);
 
+  // Whisper fallback function
+  const processWithWhisper = useCallback(async () => {
+    try {
+      console.log('🎙️ Processing with Whisper API...');
+      
+      // Combine all audio chunks
+      const totalLength = audioChunksRef.current.reduce((acc, chunk) => acc + chunk.length, 0);
+      const combined = new Float32Array(totalLength);
+      let offset = 0;
+      for (const chunk of audioChunksRef.current) {
+        combined.set(chunk, offset);
+        offset += chunk.length;
+      }
+      
+      // Encode to base64
+      const int16Array = new Int16Array(combined.length);
+      for (let i = 0; i < combined.length; i++) {
+        const s = Math.max(-1, Math.min(1, combined[i]));
+        int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      }
+      const uint8Array = new Uint8Array(int16Array.buffer);
+      let binary = '';
+      for (let i = 0; i < uint8Array.length; i++) {
+        binary += String.fromCharCode(uint8Array[i]);
+      }
+      const base64Audio = btoa(binary);
+      
+      // Call Whisper API
+      const { data, error } = await supabase.functions.invoke('whisper-transcribe', {
+        body: { audio: base64Audio }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.text && onTranscript) {
+        console.log('✅ Whisper transcription:', data.text);
+        onTranscript(data.text);
+      }
+      
+      setIsRecordingForWhisper(false);
+      audioChunksRef.current = [];
+    } catch (error) {
+      console.error('❌ Whisper fallback error:', error);
+      toast({
+        title: "Transcription Error",
+        description: "Could not transcribe audio",
+        variant: "destructive"
+      });
+    }
+  }, [onTranscript, toast]);
+
   const startVoice = useCallback(async () => {
     if (!enabled) return;
     
@@ -68,10 +124,15 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
           audioQueueRef.current = new AudioQueue(audioContextRef.current);
         }
 
-        // Create RealtimeChat instance
+        // Create RealtimeChat instance with audio capture for fallback
         rtcChatRef.current = new RealtimeChat(
           (event: any) => {
-            console.log('📨 RTC Event:', event.type);
+            console.log('📨 RTC Event:', event.type, event);
+            
+            // Capture audio for Whisper fallback
+            if (event.type === 'input_audio_buffer.append' && isRecordingForWhisper) {
+              // This won't work in WebRTC mode - we need to capture from microphone directly
+            }
             
             // Handle different event types
             if (event.type === 'response.created') {
@@ -80,23 +141,62 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
               setIsAISpeaking(false);
             } else if (event.type === 'input_audio_buffer.speech_started') {
               setIsUserSpeaking(true);
+              setIsRecordingForWhisper(true);
+              audioChunksRef.current = [];
+              console.log('🎤 User started speaking - recording for fallback');
             } else if (event.type === 'input_audio_buffer.speech_stopped') {
               setIsUserSpeaking(false);
+              console.log('🎤 User stopped speaking');
+              
+              // Start fallback timer - if no transcription in 3 seconds, use Whisper
+              whisperFallbackTimerRef.current = setTimeout(async () => {
+                if (isRecordingForWhisper && audioChunksRef.current.length > 0) {
+                  console.log('⚠️ No transcription received - using Whisper fallback');
+                  await processWithWhisper();
+                }
+              }, 3000);
             } else if (event.type === 'conversation.item.input_audio_transcription.completed') {
+              console.log('📝 User transcription completed:', event.transcript);
+              setIsRecordingForWhisper(false);
+              if (whisperFallbackTimerRef.current) {
+                clearTimeout(whisperFallbackTimerRef.current);
+              }
               if (event.transcript && onTranscript) {
                 onTranscript(event.transcript);
+              }
+            } else if (event.type === 'conversation.item.created') {
+              // Check if this has user audio transcription
+              if (event.item?.content) {
+                const audioContent = event.item.content.find((c: any) => c.type === 'input_audio');
+                if (audioContent?.transcript) {
+                  console.log('📝 User transcript from item.created:', audioContent.transcript);
+                  setIsRecordingForWhisper(false);
+                  if (whisperFallbackTimerRef.current) {
+                    clearTimeout(whisperFallbackTimerRef.current);
+                  }
+                  if (onTranscript) {
+                    onTranscript(audioContent.transcript);
+                  }
+                }
               }
             } else if (event.type === 'response.audio_transcript.delta') {
               transcriptBufferRef.current += event.delta || '';
             } else if (event.type === 'response.audio_transcript.done') {
               if (transcriptBufferRef.current && onTranscript) {
+                console.log('📝 AI transcript completed:', transcriptBufferRef.current);
                 onTranscript(transcriptBufferRef.current);
                 transcriptBufferRef.current = '';
               }
             }
           },
           audioQueueRef.current!,
-          (level: number) => setAudioLevel(level)
+          (level: number) => setAudioLevel(level),
+          (audioData: Float32Array) => {
+            // Capture audio for Whisper fallback
+            if (isRecordingForWhisper) {
+              audioChunksRef.current.push(new Float32Array(audioData));
+            }
+          }
         );
 
         await rtcChatRef.current.init();

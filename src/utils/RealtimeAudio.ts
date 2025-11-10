@@ -165,7 +165,8 @@ export class RealtimeChat {
   constructor(
     private onMessage: (message: any) => void,
     private audioQueue: AudioQueue,
-    private onAudioLevel?: (level: number) => void
+    private onAudioLevel?: (level: number) => void,
+    private onAudioData?: (audioData: Float32Array) => void
   ) {
     this.audioEl = document.createElement("audio");
     this.audioEl.autoplay = true;
@@ -187,9 +188,14 @@ export class RealtimeChat {
       });
       this.pc.addTrack(stream.getTracks()[0]);
 
-      // Initialize audio recorder for level monitoring
+      // Initialize audio recorder for level monitoring AND fallback capture
       this.recorder = new AudioRecorder(
-        () => {}, // Audio data is handled by WebRTC, we just need level monitoring
+        (audioData) => {
+          // Capture audio for Whisper fallback if callback provided
+          if (this.onAudioData) {
+            this.onAudioData(audioData);
+          }
+        },
         this.onAudioLevel
       );
       await this.recorder.start();
