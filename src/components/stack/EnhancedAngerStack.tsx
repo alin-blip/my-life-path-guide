@@ -26,9 +26,9 @@ export const EnhancedAngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }
   
   const rawQuestions = getQuestions(document.documentElement.lang === 'en' ? 'en' : 'ro');
 
-  // Load saved preference
+  // Load saved preference with unique key
   useEffect(() => {
-    const savedMode = localStorage.getItem('stack-preferred-mode') as 'audio' | 'text' | null;
+    const savedMode = localStorage.getItem('anger-stack-mode') as 'audio' | 'text' | null;
     if (savedMode) {
       setMode(savedMode);
     }
@@ -36,7 +36,7 @@ export const EnhancedAngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }
 
   const handleModeSelection = (selectedMode: 'audio' | 'text') => {
     setMode(selectedMode);
-    localStorage.setItem('stack-preferred-mode', selectedMode);
+    localStorage.setItem('anger-stack-mode', selectedMode);
   };
 
   if (mode === 'selecting') {

@@ -16,9 +16,9 @@ export const HormoziCoachingStack: React.FC<HormoziCoachingStackProps> = ({ onAd
     closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
 
-  // Load saved preference
+  // Load saved preference with unique key
   useEffect(() => {
-    const savedMode = localStorage.getItem('stack-preferred-mode') as 'audio' | 'text' | null;
+    const savedMode = localStorage.getItem('hormozi-stack-mode') as 'audio' | 'text' | null;
     if (savedMode) {
       setMode(savedMode);
     }
@@ -26,7 +26,7 @@ export const HormoziCoachingStack: React.FC<HormoziCoachingStackProps> = ({ onAd
 
   const handleModeSelection = (selectedMode: 'audio' | 'text') => {
     setMode(selectedMode);
-    localStorage.setItem('stack-preferred-mode', selectedMode);
+    localStorage.setItem('hormozi-stack-mode', selectedMode);
   };
 
   if (mode === 'selecting') {

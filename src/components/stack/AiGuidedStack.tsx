@@ -235,6 +235,9 @@ INSTRUCȚIUNI:
   useEffect(() => {
     setSystemPrompt(customSystemPrompt || getStackPrompt());
     
+    // Reset spoken flag when component mounts or stackType changes
+    setHasSpokenWelcome(false);
+    
     // Add welcome message when component mounts
     if (messages.length === 0) {
       const welcomeContent = customWelcomeMessage || (stackType === 'anger' 
@@ -253,14 +256,24 @@ INSTRUCȚIUNI:
         shouldSpeakRef.current = true;
         setTimeout(() => {
           if (shouldSpeakRef.current && !hasSpokenWelcome) {
-            console.log('🎵 [VOICE-ONLY MODE] Auto-speaking welcome message');
+            console.log('🎵 [VOICE-ONLY MODE] Auto-speaking welcome message for', stackType);
             speakText(welcomeContent);
             setHasSpokenWelcome(true);
           }
         }, 1500);
       }
     }
-  }, [stackType, questions, voiceOnlyMode, ttsEnabled, hasSpokenWelcome]);
+
+    // Cleanup: stop TTS when component unmounts or stackType changes
+    return () => {
+      console.log('🧹 Cleanup: stopping TTS for', stackType);
+      shouldSpeakRef.current = false;
+      stopSpeaking();
+      if (isListening) {
+        stopListening();
+      }
+    };
+  }, [stackType, voiceOnlyMode]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

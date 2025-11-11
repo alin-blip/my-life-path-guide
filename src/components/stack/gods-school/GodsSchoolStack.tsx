@@ -13,9 +13,9 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
     closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
 
-  // Load saved preference
+  // Load saved preference with unique key
   useEffect(() => {
-    const savedMode = localStorage.getItem('stack-preferred-mode') as 'audio' | 'text' | null;
+    const savedMode = localStorage.getItem('gods-school-stack-mode') as 'audio' | 'text' | null;
     if (savedMode) {
       setMode(savedMode);
     }
@@ -23,7 +23,7 @@ export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList
 
   const handleModeSelection = (selectedMode: 'audio' | 'text') => {
     setMode(selectedMode);
-    localStorage.setItem('stack-preferred-mode', selectedMode);
+    localStorage.setItem('gods-school-stack-mode', selectedMode);
   };
 
   if (mode === 'selecting') {
