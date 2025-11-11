@@ -62,17 +62,25 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
         console.log('✅ Using cached TTS audio');
         audioUrl = ttsCache.get(cacheKey)!;
       } else {
-        // Generate new audio
-        const { data, error } = await supabase.functions.invoke('text-to-speech', {
-          body: { text, voiceId }
-        });
+        // Generate new audio using direct fetch to get binary response
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({ text, voiceId }),
+          }
+        );
 
-        if (error) {
-          throw error;
+        if (!response.ok) {
+          throw new Error('Failed to generate speech');
         }
 
-        // Convert response to blob URL
-        const blob = new Blob([data], { type: 'audio/mpeg' });
+        // Get audio blob directly
+        const blob = await response.blob();
         audioUrl = URL.createObjectURL(blob);
         
         // Cache the audio URL
