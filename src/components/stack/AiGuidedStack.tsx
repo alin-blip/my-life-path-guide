@@ -673,26 +673,15 @@ INSTRUCȚIUNI:
               </Button>
             </div>
           </div>
-        </div>
-            </div>
-            <Button
-              onClick={sendMessage}
-              disabled={!currentMessage.trim() || isLoading}
-              size="icon"
-              className="h-[52px] w-[52px] shrink-0"
-            >
-              <Send className="w-5 h-5" />
-            </Button>
-          </div>
 
-          {/* Buton pentru generare acțiune finală - apare doar când conversația este avansată */}
+          {/* Buton pentru generare acțiune finală */}
           {messages.length >= 10 && (
             <Button
               onClick={generateFinalAction}
               disabled={isLoading}
               variant="secondary"
               size="sm"
-              className="w-full text-sm font-medium"
+              className="w-full text-sm font-medium mt-2"
             >
               <CheckCircle className="w-4 h-4 mr-2" />
               Generează Acțiune Finală din Conversație
