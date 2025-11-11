@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { useVoiceToText } from '@/hooks/useVoiceToText';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { voiceRecordingService } from '@/services/voiceRecordingService';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -42,6 +43,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
   const [sessionId] = useState(() => uuidv4());
   const [ttsEnabled, setTtsEnabled] = useState(audioMode);
+  const [currentQuestionNumber, setCurrentQuestionNumber] = useState(0);
   
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -81,13 +83,14 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     autoPlay: true
   });
 
-  // Voice input with auto-submit
+  // Voice input with auto-submit and recording
   const {
     transcript,
     isListening,
     startListening,
     stopListening,
     resetTranscript,
+    getRecordedAudio,
     isSupported: isVoiceSupported
   } = useVoiceToText({
     onTranscript: (text) => {
@@ -95,11 +98,37 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     },
     language: 'ro', // Can be made dynamic
     autoSubmit: audioMode, // Enable auto-submit in audio mode
-    onAutoSubmit: () => {
+    onAutoSubmit: async () => {
       if (currentMessage.trim()) {
+        // Save voice recording if in audio mode
+        if (audioMode) {
+          const recording = getRecordedAudio();
+          if (recording) {
+            const currentQuestion = messages[messages.length - 1];
+            const { audioBlob, durationSeconds } = recording;
+            
+            console.log('💾 Saving voice recording...');
+            const result = await voiceRecordingService.uploadRecording(audioBlob, {
+              sessionId,
+              stackType,
+              questionNumber: currentQuestionNumber,
+              questionText: currentQuestion?.role === 'assistant' ? currentQuestion.content : undefined,
+              transcript: currentMessage,
+              durationSeconds
+            });
+            
+            if (result.success) {
+              console.log('✅ Voice recording saved:', result.recordingId);
+            } else {
+              console.error('❌ Failed to save recording:', result.error);
+            }
+          }
+        }
+        
         sendMessage();
       }
-    }
+    },
+    saveRecording: audioMode // Enable recording in audio mode
   });
 
   const getStackPrompt = () => {
@@ -246,6 +275,7 @@ INSTRUCȚIUNI:
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      setCurrentQuestionNumber(prev => prev + 1);
       
       // Speak the AI response if TTS is enabled
       if (ttsEnabled) {

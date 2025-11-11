@@ -951,6 +951,48 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_recordings: {
+        Row: {
+          created_at: string | null
+          duration_seconds: number | null
+          id: string
+          metadata: Json | null
+          question_number: number | null
+          question_text: string | null
+          session_id: string
+          stack_type: string
+          storage_path: string
+          transcript: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          metadata?: Json | null
+          question_number?: number | null
+          question_text?: string | null
+          session_id: string
+          stack_type: string
+          storage_path: string
+          transcript?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          metadata?: Json | null
+          question_number?: number | null
+          question_text?: string | null
+          session_id?: string
+          stack_type?: string
+          storage_path?: string
+          transcript?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       weekly_planning: {
         Row: {
           created_at: string | null

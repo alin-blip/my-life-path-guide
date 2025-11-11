@@ -6,6 +6,8 @@ interface UseVoiceToTextOptions {
   language?: 'en' | 'ro';
   autoSubmit?: boolean;
   onAutoSubmit?: () => void;
+  saveRecording?: boolean; // New option to enable recording
+  onRecordingSaved?: (recordingId: string) => void;
 }
 
 export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
@@ -13,12 +15,17 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
     onTranscript,
     language = 'ro',
     autoSubmit = false,
-    onAutoSubmit
+    onAutoSubmit,
+    saveRecording = false,
+    onRecordingSaved
   } = options;
 
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingStartTimeRef = useRef<number>(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -86,22 +93,57 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
     };
   }, [language, autoSubmit, onAutoSubmit, transcript]);
 
-  const startListening = useCallback(() => {
+  const startListening = useCallback(async () => {
     if (recognitionRef.current && !isListening) {
       try {
         setTranscript('');
+        audioChunksRef.current = [];
+        
+        // Start audio recording if saveRecording is enabled
+        if (saveRecording) {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream, {
+              mimeType: 'audio/webm'
+            });
+            
+            mediaRecorder.ondataavailable = (event) => {
+              if (event.data.size > 0) {
+                audioChunksRef.current.push(event.data);
+              }
+            };
+            
+            mediaRecorderRef.current = mediaRecorder;
+            recordingStartTimeRef.current = Date.now();
+            mediaRecorder.start();
+            console.log('🎙️ Audio recording started');
+          } catch (error) {
+            console.error('❌ Error starting audio recording:', error);
+          }
+        }
+        
         recognitionRef.current.start();
         setIsListening(true);
       } catch (error) {
         console.error('Error starting recognition:', error);
       }
     }
-  }, [isListening]);
+  }, [isListening, saveRecording]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
+      
+      // Stop audio recording
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+        
+        // Stop all audio tracks
+        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+        
+        console.log('🎙️ Audio recording stopped');
+      }
     }
   }, [isListening]);
 
@@ -117,6 +159,15 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
     setTranscript('');
   }, []);
 
+  const getRecordedAudio = useCallback(() => {
+    if (audioChunksRef.current.length === 0) return null;
+    
+    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+    const durationSeconds = (Date.now() - recordingStartTimeRef.current) / 1000;
+    
+    return { audioBlob, durationSeconds };
+  }, []);
+
   return {
     isListening,
     transcript,
@@ -124,6 +175,7 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
     stopListening,
     toggleListening,
     resetTranscript,
+    getRecordedAudio,
     isSupported: !!recognitionRef.current
   };
 };
