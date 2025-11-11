@@ -19,6 +19,15 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not configured');
     }
 
+    // Get authenticated user from JWT
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { messages, systemPrompt, knowledgeBaseFiles = [] } = await req.json();
     
     console.log('Hormozi Coaching request:', { 
@@ -27,10 +36,25 @@ serve(async (req) => {
       knowledgeBaseFiles: knowledgeBaseFiles.length 
     });
 
-    // Create Supabase client
+    // Create Supabase client with user context
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: { Authorization: authHeader }
+      }
+    });
+
+    // Get authenticated user
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Process knowledge base context if files are provided
     let knowledgeBaseContext = '';
@@ -39,6 +63,19 @@ serve(async (req) => {
       
       for (const file of knowledgeBaseFiles) {
         try {
+          // Verify user owns this file before accessing
+          const { data: fileRecord, error: fileCheckError } = await supabase
+            .from('knowledge_base_files')
+            .select('*')
+            .eq('file_path', file.file_path)
+            .eq('user_id', user.id)
+            .single();
+
+          if (fileCheckError || !fileRecord) {
+            console.warn(`User ${user.id} attempted to access unauthorized file: ${file.file_path}`);
+            continue; // Skip unauthorized files
+          }
+
           // Download and read file content
           const { data: fileData, error: downloadError } = await supabase.storage
             .from('knowledge-base')

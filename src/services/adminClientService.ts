@@ -17,9 +17,13 @@ export interface AdminClient {
 
 export const adminClientService = {
   async fetchAllClients(): Promise<AdminClient[]> {
-    // Fetch users from auth.users (admin only)
-    const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers();
+    // Fetch users via admin edge function (server-side only)
+    const { data: usersResponse, error: usersError } = await supabase.functions.invoke('admin-users');
+    
     if (usersError) throw usersError;
+    if (!usersResponse?.users) throw new Error('Failed to fetch users');
+    
+    const usersData = usersResponse;
 
     // Fetch Door statistics for all users
     const { data: progressData, error: progressError } = await supabase
