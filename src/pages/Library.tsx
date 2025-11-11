@@ -265,9 +265,10 @@ export const Library: React.FC = () => {
               {stacks.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {stacks.map((stack) => (
-                    <div 
+                    <Link 
                       key={stack.id} 
-                      className={`p-4 rounded-lg bg-gradient-to-br ${getStackColor(stack.type)} border transition-all hover:scale-[1.02] cursor-pointer`}
+                      to={`/stack/view/${stack.id}`}
+                      className={`p-4 rounded-lg bg-gradient-to-br ${getStackColor(stack.type)} border transition-all hover:scale-[1.02] cursor-pointer block`}
                     >
                       <div className="flex items-start justify-between mb-2">
                         <h4 className="font-semibold text-foreground truncate">
@@ -285,7 +286,7 @@ export const Library: React.FC = () => {
                           {formatDate(stack.created_at)}
                         </span>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (

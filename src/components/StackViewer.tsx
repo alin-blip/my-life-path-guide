@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Calendar, MessageCircle } from "lucide-react";
+import { ArrowLeft, Plus, Calendar, MessageCircle, Share2, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -128,6 +128,35 @@ export const StackViewer = () => {
     }
   };
 
+  const handleShare = () => {
+    const shareUrl = `${window.location.origin}/stack/view/${id}`;
+    navigator.clipboard.writeText(shareUrl);
+    toast({
+      title: "Link copiat!",
+      description: "Link-ul către stack a fost copiat în clipboard",
+    });
+  };
+
+  const handleDownload = () => {
+    if (!stack) return;
+    
+    const dataStr = JSON.stringify(stack, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `stack-${(stack.title || 'untitled').replace(/\s+/g, '-').toLowerCase()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Stack descărcat!",
+      description: "Stack-ul a fost salvat ca fișier JSON",
+    });
+  };
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
     try {
@@ -208,7 +237,7 @@ export const StackViewer = () => {
     <Layout>
       <div className="container mx-auto px-4 pb-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center justify-between mb-6">
           <Button
             variant="ghost"
             onClick={() => navigate('/stack-library')}
@@ -217,6 +246,27 @@ export const StackViewer = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Library
           </Button>
+          
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleShare}
+              className="flex items-center gap-2"
+            >
+              <Share2 className="w-4 h-4" />
+              Share
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleDownload}
+              className="flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Download
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-6">

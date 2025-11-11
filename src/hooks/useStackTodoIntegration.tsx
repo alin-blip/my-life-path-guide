@@ -57,6 +57,8 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
       const now = new Date();
       const currentWeekKey = `door-week-${now.getFullYear()}-${getWeek(now)}`;
       
+      console.log('💾 Saving idea to Supabase:', { idea, currentWeekKey });
+      
       // Save directly to Supabase using the unified service
       await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
         id: idea.id,
@@ -66,18 +68,26 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
         day: idea.day
       });
       
-      // Trigger event pentru actualizarea interfței Door
+      console.log('✅ Successfully saved to Supabase');
+      
+      // Trigger event for Door interface updates
       window.dispatchEvent(new CustomEvent('doorDataUpdated', { 
         detail: { type: 'ideaAdded', idea } 
       }));
       
-      // Compatibilitate cu funcția existentă - salvez toate acțiunile în Hot List  
+      // Success toast
+      toast({
+        title: '✅ Salvat în To Do',
+        description: `Task-ul "${idea.text.substring(0, 50)}..." a fost adăugat cu succes`,
+      });
+      
+      // Compatibility with existing function
       if (onAddToHitList) {
         onAddToHitList(idea.text);
       }
       
     } catch (error) {
-      console.error("Error saving idea to Supabase:", error);
+      console.error("❌ Error saving idea to Supabase:", error);
       toast({
         title: "⚠️ Eroare salvare",
         description: "Nu s-a putut salva ideea în cloud. Încearcă din nou.",
