@@ -959,6 +959,7 @@ export type Database = {
           metadata: Json | null
           question_number: number | null
           question_text: string | null
+          sentiment_analysis: Json | null
           session_id: string
           stack_type: string
           storage_path: string
@@ -972,6 +973,7 @@ export type Database = {
           metadata?: Json | null
           question_number?: number | null
           question_text?: string | null
+          sentiment_analysis?: Json | null
           session_id: string
           stack_type: string
           storage_path: string
@@ -985,6 +987,7 @@ export type Database = {
           metadata?: Json | null
           question_number?: number | null
           question_text?: string | null
+          sentiment_analysis?: Json | null
           session_id?: string
           stack_type?: string
           storage_path?: string

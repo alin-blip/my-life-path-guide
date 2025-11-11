@@ -2,8 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, Download, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Play, Pause, Download, Trash2, Brain, Sparkles } from 'lucide-react';
 import { voiceRecordingService } from '@/services/voiceRecordingService';
+import { sentimentAnalysisService, SentimentAnalysis } from '@/services/sentimentAnalysisService';
+import { SentimentBadge } from './SentimentBadge';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -31,6 +34,10 @@ export const VoiceRecordingPlayer: React.FC<VoiceRecordingPlayerProps> = ({
   const [duration, setDuration] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [sentiment, setSentiment] = useState<SentimentAnalysis | null>(
+    recording.sentiment_analysis || null
+  );
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
 
@@ -121,6 +128,44 @@ export const VoiceRecordingPlayer: React.FC<VoiceRecordingPlayerProps> = ({
     }
   };
 
+  const handleAnalyze = async () => {
+    if (!recording.transcript) {
+      toast({
+        title: 'Eroare',
+        description: 'Nu există transcript pentru analiză.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      setAnalyzing(true);
+      const result = await sentimentAnalysisService.analyzeRecording(
+        recording.id,
+        recording.transcript,
+        recording.question_text || undefined
+      );
+
+      if (result.success && result.analysis) {
+        setSentiment(result.analysis);
+        toast({
+          title: 'Succes',
+          description: 'Analiza sentimentelor completă!'
+        });
+      } else {
+        throw new Error(result.error || 'Analysis failed');
+      }
+    } catch (error) {
+      toast({
+        title: 'Eroare',
+        description: 'Nu s-a putut analiza sentimentul.',
+        variant: 'destructive'
+      });
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   const handleDelete = async () => {
     try {
       const result = await voiceRecordingService.deleteRecording(recording.id);
@@ -170,6 +215,77 @@ export const VoiceRecordingPlayer: React.FC<VoiceRecordingPlayerProps> = ({
               </p>
               <p className="text-sm italic">{recording.transcript}</p>
             </div>
+          )}
+
+          {/* Sentiment Analysis */}
+          {sentiment ? (
+            <div className="bg-gradient-to-br from-primary/5 to-accent/5 p-4 rounded-lg border border-primary/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Brain className="w-4 h-4 text-primary" />
+                <p className="text-xs font-semibold text-primary">Analiză AI a Sentimentelor</p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  <SentimentBadge 
+                    emotion={sentiment.primary_emotion} 
+                    intensity={sentiment.intensity}
+                  />
+                  {sentiment.secondary_emotions?.map((emotion, i) => (
+                    <SentimentBadge key={i} emotion={emotion} />
+                  ))}
+                </div>
+
+                {sentiment.key_themes && sentiment.key_themes.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Teme identificate:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {sentiment.key_themes.map((theme, i) => (
+                        <Badge key={i} variant="secondary" className="text-xs">
+                          {theme}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-background/70 p-3 rounded">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">Insight psihologic:</p>
+                  <p className="text-sm">{sentiment.psychological_insight}</p>
+                </div>
+
+                {sentiment.recommendation && (
+                  <div className="bg-primary/10 p-3 rounded border border-primary/30">
+                    <p className="text-xs font-semibold text-primary mb-1">Recomandare:</p>
+                    <p className="text-sm">{sentiment.recommendation}</p>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+                  <div className="text-xs text-muted-foreground">
+                    Scor sentiment: 
+                    <span className={`ml-1 font-semibold ${
+                      sentiment.sentiment_score > 0.3 ? 'text-green-400' : 
+                      sentiment.sentiment_score < -0.3 ? 'text-red-400' : 
+                      'text-blue-400'
+                    }`}>
+                      {(sentiment.sentiment_score * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : recording.transcript && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAnalyze}
+              disabled={analyzing}
+              className="w-full"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              {analyzing ? 'Analizez...' : 'Analizează Sentimentele cu AI'}
+            </Button>
           )}
 
           {/* Audio Player */}

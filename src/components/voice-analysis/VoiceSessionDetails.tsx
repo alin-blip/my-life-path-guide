@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VoiceRecordingPlayer } from './VoiceRecordingPlayer';
+import { SessionInsights } from './SessionInsights';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Clock, Mic, Calendar } from 'lucide-react';
+import { Clock, Mic, Calendar, Brain } from 'lucide-react';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 
@@ -49,12 +51,19 @@ export const VoiceSessionDetails: React.FC<VoiceSessionDetailsProps> = ({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Mic className="w-5 h-5" />
-              Înregistrări Vocale
-            </h3>
+        <Tabs defaultValue="recordings" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="recordings" className="flex items-center gap-2">
+              <Mic className="w-4 h-4" />
+              Înregistrări
+            </TabsTrigger>
+            <TabsTrigger value="insights" className="flex items-center gap-2">
+              <Brain className="w-4 h-4" />
+              Insights AI
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="recordings" className="mt-6">
             <div className="space-y-4">
               {session.recordings
                 .sort((a: any, b: any) => (a.question_number || 0) - (b.question_number || 0))
@@ -67,8 +76,12 @@ export const VoiceSessionDetails: React.FC<VoiceSessionDetailsProps> = ({
                   </div>
                 ))}
             </div>
-          </div>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="insights" className="mt-6">
+            <SessionInsights session={session} />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
