@@ -745,8 +745,10 @@ export type Database = {
         Row: {
           content: Json | null
           created_at: string | null
+          has_transcript: boolean | null
           id: string
           title: string
+          transcript_path: string | null
           type: string
           updated_at: string | null
           user_id: string
@@ -754,8 +756,10 @@ export type Database = {
         Insert: {
           content?: Json | null
           created_at?: string | null
+          has_transcript?: boolean | null
           id?: string
           title: string
+          transcript_path?: string | null
           type: string
           updated_at?: string | null
           user_id: string
@@ -763,8 +767,10 @@ export type Database = {
         Update: {
           content?: Json | null
           created_at?: string | null
+          has_transcript?: boolean | null
           id?: string
           title?: string
+          transcript_path?: string | null
           type?: string
           updated_at?: string | null
           user_id?: string

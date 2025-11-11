@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward, Download, FileText } from 'lucide-react';
+import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward, Download, FileText, Star, StickyNote } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
 import { v4 as uuidv4 } from 'uuid';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { useVoiceToText } from '@/hooks/useVoiceToText';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
@@ -19,6 +21,9 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  isHighlighted?: boolean;
+  userNote?: string;
+  importance?: 'low' | 'medium' | 'high';
 }
 
 interface AiGuidedStackProps {
@@ -48,6 +53,11 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [sessionId] = useState(() => uuidv4());
   const [ttsEnabled, setTtsEnabled] = useState(voiceOnlyMode || audioMode);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState(0);
+  const [hasSpokenWelcome, setHasSpokenWelcome] = useState(false);
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [noteMessageIndex, setNoteMessageIndex] = useState<number | null>(null);
+  const [currentNote, setCurrentNote] = useState('');
+  const [currentImportance, setCurrentImportance] = useState<'low' | 'medium' | 'high'>('medium');
   
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -76,19 +86,20 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     voiceId: localStorage.getItem('preferred-tts-voice') || 'pNInz6obpgDQGcFmaJgB',
     onSpeakingStart: () => {
       console.log('🎵 AI started speaking');
-      if (audioMode && isListening) {
-        console.log('🔇 Stopping microphone - AI is speaking');
+      // Stop microphone IMMEDIATELY when TTS starts
+      if (isListening) {
+        console.log('🔇 IMMEDIATE stop - AI is speaking');
         stopListening();
       }
     },
     onSpeakingEnd: () => {
       console.log('✅ AI finished speaking');
-      // Auto-activate microphone after AI finishes speaking in audio mode
+      // Auto-activate microphone after AI finishes speaking with longer delay
       if (audioMode && ttsEnabled && !isListening) {
         console.log('🎤 Reactivating microphone after AI speech');
         setTimeout(() => {
           startListening();
-        }, 500);
+        }, 1500); // Increased from 500ms to 1500ms
       }
     },
     autoPlay: true
@@ -233,18 +244,19 @@ INSTRUCȚIUNI:
       };
       setMessages([welcomeMessage]);
       
-      // Speak welcome message if TTS is enabled
-      if (ttsEnabled) {
+      // Speak welcome message if TTS is enabled - with flag to prevent doubling
+      if (ttsEnabled && !hasSpokenWelcome) {
         shouldSpeakRef.current = true;
         setTimeout(() => {
-          if (shouldSpeakRef.current) {
-            console.log('🎵 Speaking welcome message:', welcomeContent.substring(0, 50) + '...');
+          if (shouldSpeakRef.current && !hasSpokenWelcome) {
+            console.log('🎵 Speaking welcome message ONCE');
             speakText(welcomeContent);
+            setHasSpokenWelcome(true);
           }
-        }, 1000); // Increased delay to ensure TTS is ready
+        }, 1500); // Increased delay for stability
       }
     }
-  }, [stackType, questions, ttsEnabled]);
+  }, [stackType, questions, ttsEnabled, hasSpokenWelcome]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -430,8 +442,43 @@ INSTRUCȚIUNI:
     }
   };
 
-  // Export functions
-  const exportToMarkdown = () => {
+  // Save transcript to Supabase Storage
+  const saveTranscriptToStorage = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Generate markdown content
+      const markdown = generateMarkdownContent();
+      
+      // Upload to Supabase Storage
+      const fileName = `${user.id}/${stackType}-${sessionId}-${Date.now()}.md`;
+      const blob = new Blob([markdown], { type: 'text/markdown' });
+      
+      const { error: uploadError } = await supabase.storage
+        .from('transcripts')
+        .upload(fileName, blob, {
+          contentType: 'text/markdown',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('✅ Transcript saved to storage:', fileName);
+
+      toast({
+        title: "📝 Transcriere salvată în cloud",
+        description: "Conversația completă este disponibilă în bibliotecă"
+      });
+    } catch (error) {
+      console.error('Error saving transcript:', error);
+    }
+  };
+
+  const generateMarkdownContent = () => {
     const stackTitle = stackType === 'anger' ? 'Stack de Furie' : 'Stack Rugăciune Divină';
     const timestamp = new Date().toLocaleString('ro-RO', {
       year: 'numeric',
@@ -447,14 +494,27 @@ INSTRUCȚIUNI:
     markdown += `---\n\n`;
     markdown += `## Transcriere Conversație\n\n`;
 
-    messages.forEach((msg, index) => {
+    messages.forEach((msg, idx) => {
+      const highlightTag = msg.isHighlighted ? ' ⭐ **[IMPORTANT]**' : '';
       const role = msg.role === 'user' ? '👤 Tu' : '🤖 AI Coach';
-      markdown += `### ${role}\n\n`;
+      
+      markdown += `### ${role}${highlightTag}\n\n`;
       markdown += `${msg.content}\n\n`;
-      if (index < messages.length - 1) markdown += `---\n\n`;
+      
+      if (msg.userNote) {
+        const importanceEmoji = msg.importance === 'high' ? '🔴' : msg.importance === 'medium' ? '🟡' : '🟢';
+        markdown += `> 💡 **Notă personală** (${importanceEmoji} ${msg.importance}): ${msg.userNote}\n\n`;
+      }
+      
+      markdown += `*${msg.timestamp.toLocaleTimeString()}*\n\n---\n\n`;
     });
 
-    // Download markdown file
+    return markdown;
+  };
+
+  // Export functions
+  const exportToMarkdown = () => {
+    const markdown = generateMarkdownContent();
     const blob = new Blob([markdown], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -465,9 +525,12 @@ INSTRUCȚIUNI:
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
+    // Also save to cloud
+    saveTranscriptToStorage();
+
     toast({
       title: "✅ Markdown exportat",
-      description: "Transcrierea a fost salvată în format Markdown",
+      description: "Transcrierea a fost salvată local și în cloud",
     });
   };
 
@@ -488,7 +551,7 @@ INSTRUCȚIUNI:
     let yPosition = 20;
 
     // Helper function to add text with wrapping
-    const addText = (text: string, fontSize: number = 11, isBold: boolean = false) => {
+    const addText = (text: string, fontSize: number = 11, isBold: boolean = false): void => {
       doc.setFontSize(fontSize);
       if (isBold) {
         doc.setFont('helvetica', 'bold');
@@ -496,7 +559,7 @@ INSTRUCȚIUNI:
         doc.setFont('helvetica', 'normal');
       }
       
-      const lines = doc.splitTextToSize(text, maxWidth);
+      const lines: string[] = doc.splitTextToSize(text, maxWidth) as string[];
       lines.forEach((line: string) => {
         if (yPosition > 270) {
           doc.addPage();
@@ -526,21 +589,26 @@ INSTRUCȚIUNI:
     addText('Transcriere Conversație', 14, true);
     yPosition += 5;
 
-    messages.forEach((msg, index) => {
-      const role = msg.role === 'user' ? '👤 Tu' : '🤖 AI Coach';
+    messages.forEach((msg) => {
+      const highlightTag = msg.isHighlighted ? ' ⭐ [IMPORTANT]' : '';
+      const role = msg.role === 'user' ? 'Tu' : 'AI Coach';
       
-      // Role header
-      addText(role, 12, true);
+      // Role header with highlight
+      addText(`${role}${highlightTag}`, 12, true);
       
       // Message content
       addText(msg.content, 11);
       
-      // Separator between messages
-      if (index < messages.length - 1) {
-        doc.setDrawColor(220, 220, 220);
-        doc.line(margin, yPosition, pageWidth - margin, yPosition);
-        yPosition += 8;
+      // Add note if exists
+      if (msg.userNote) {
+        const importanceText = msg.importance === 'high' ? 'IMPORTANT' : msg.importance === 'medium' ? 'Medie' : 'Scazuta';
+        addText(`Nota personala (${importanceText}): ${msg.userNote}`, 10);
       }
+      
+      // Separator
+      doc.setDrawColor(220, 220, 220);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 8;
     });
 
     // Save PDF
@@ -785,16 +853,56 @@ INSTRUCȚIUNI:
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`group relative flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
                 className={`max-w-[85%] rounded-lg p-3 sm:p-4 ${
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted'
-                }`}
+                } ${message.isHighlighted ? 'ring-2 ring-yellow-500' : ''}`}
               >
                 <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                
+                {/* Note badge if exists */}
+                {message.userNote && (
+                  <div className="mt-2 p-2 bg-blue-500/20 text-blue-300 rounded text-xs border-l-2 border-blue-500">
+                    💡 <strong>Notă:</strong> {message.userNote}
+                  </div>
+                )}
+                
+                {/* Hover actions */}
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      const updatedMessages = [...messages];
+                      updatedMessages[index] = {
+                        ...updatedMessages[index],
+                        isHighlighted: !updatedMessages[index].isHighlighted
+                      };
+                      setMessages(updatedMessages);
+                    }}
+                    className="h-6 w-6 p-0"
+                  >
+                    {message.isHighlighted ? <Star className="h-3 w-3 fill-yellow-500" /> : <Star className="h-3 w-3" />}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setNoteMessageIndex(index);
+                      setCurrentNote(message.userNote || '');
+                      setCurrentImportance(message.importance || 'medium');
+                      setNoteDialogOpen(true);
+                    }}
+                    className="h-6 w-6 p-0"
+                  >
+                    <StickyNote className="h-3 w-3" />
+                  </Button>
+                </div>
+                
                 <p className="text-[10px] sm:text-xs mt-1 opacity-50">
                   {message.timestamp.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
                 </p>
@@ -977,6 +1085,55 @@ INSTRUCȚIUNI:
           )}
         </div>
       </div>
+
+      {/* Note Dialog */}
+      <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adaugă notă la mesaj</DialogTitle>
+          </DialogHeader>
+          <Textarea
+            value={currentNote}
+            onChange={(e) => setCurrentNote(e.target.value)}
+            placeholder="Scrie nota ta aici..."
+            className="min-h-[100px]"
+          />
+          <div className="flex gap-2 items-center">
+            <Select value={currentImportance} onValueChange={(value: 'low' | 'medium' | 'high') => setCurrentImportance(value)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Importanță" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low">🟢 Scăzută</SelectItem>
+                <SelectItem value="medium">🟡 Medie</SelectItem>
+                <SelectItem value="high">🔴 Ridicată</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={() => {
+                if (noteMessageIndex !== null) {
+                  const updatedMessages = [...messages];
+                  updatedMessages[noteMessageIndex] = {
+                    ...updatedMessages[noteMessageIndex],
+                    userNote: currentNote,
+                    importance: currentImportance
+                  };
+                  setMessages(updatedMessages);
+                  setNoteDialogOpen(false);
+                  setCurrentNote('');
+                  setNoteMessageIndex(null);
+                  toast({
+                    title: "✅ Notă salvată",
+                    description: "Nota ta a fost adăugată la mesaj"
+                  });
+                }
+              }}
+            >
+              Salvează
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <StackIdeaModal
         isOpen={isIdeaModalOpen}

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Mic, Keyboard } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { AudioCalibrationScreen } from './AudioCalibrationScreen';
 
 interface StackModeSelectorProps {
   onSelectMode: (mode: 'audio' | 'text') => void;
@@ -10,8 +11,30 @@ interface StackModeSelectorProps {
 
 export const StackModeSelector: React.FC<StackModeSelectorProps> = ({ onSelectMode }) => {
   const { language } = useLanguage();
+  const [showCalibration, setShowCalibration] = useState(false);
 
   const isRomanian = language === 'ro';
+  
+  const handleAudioSelect = () => {
+    const skipCalibration = localStorage.getItem('audio-calibration-completed') === 'true';
+    if (skipCalibration) {
+      onSelectMode('audio');
+    } else {
+      setShowCalibration(true);
+    }
+  };
+
+  if (showCalibration) {
+    return (
+      <AudioCalibrationScreen
+        onComplete={() => onSelectMode('audio')}
+        onSkip={() => {
+          localStorage.setItem('skip-audio-calibration', 'true');
+          onSelectMode('audio');
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-4">
@@ -31,7 +54,7 @@ export const StackModeSelector: React.FC<StackModeSelectorProps> = ({ onSelectMo
           {/* Audio Mode */}
           <Card 
             className="border-2 hover:border-primary transition-all cursor-pointer group hover:shadow-lg"
-            onClick={() => onSelectMode('audio')}
+            onClick={handleAudioSelect}
           >
             <CardContent className="p-8 text-center">
               <div className="mb-6 flex justify-center">
@@ -78,7 +101,7 @@ export const StackModeSelector: React.FC<StackModeSelectorProps> = ({ onSelectMo
                 size="lg"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onSelectMode('audio');
+                  handleAudioSelect();
                 }}
               >
                 {isRomanian ? 'Alege Audio' : 'Choose Audio'}
