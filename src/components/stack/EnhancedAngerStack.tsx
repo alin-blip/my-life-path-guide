@@ -18,6 +18,7 @@ import { Bot, User, AlertTriangle } from "lucide-react";
 
 export const EnhancedAngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
   const [mode, setMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
+  const [hasInitialized, setHasInitialized] = useState(false);
   const {
     isIdeaModalOpen,
     openIdeaModal,
@@ -26,17 +27,16 @@ export const EnhancedAngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }
   
   const rawQuestions = getQuestions(document.documentElement.lang === 'en' ? 'en' : 'ro');
 
-  // Load saved preference with unique key
+  // Always start with 'selecting' to show mode selector
   useEffect(() => {
-    const savedMode = localStorage.getItem('anger-stack-mode') as 'audio' | 'text' | null;
-    if (savedMode) {
-      setMode(savedMode);
+    if (!hasInitialized) {
+      setMode('selecting');
+      setHasInitialized(true);
     }
-  }, []);
+  }, [hasInitialized]);
 
   const handleModeSelection = (selectedMode: 'audio' | 'text') => {
     setMode(selectedMode);
-    localStorage.setItem('anger-stack-mode', selectedMode);
   };
 
   if (mode === 'selecting') {

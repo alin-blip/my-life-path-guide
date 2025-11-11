@@ -11,22 +11,22 @@ interface HormoziCoachingStackProps {
 
 export const HormoziCoachingStack: React.FC<HormoziCoachingStackProps> = ({ onAddToHitList }) => {
   const [mode, setMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
+  const [hasInitialized, setHasInitialized] = useState(false);
   const {
     isIdeaModalOpen,
     closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
 
-  // Load saved preference with unique key
+  // Always start with 'selecting' to show mode selector
   useEffect(() => {
-    const savedMode = localStorage.getItem('hormozi-stack-mode') as 'audio' | 'text' | null;
-    if (savedMode) {
-      setMode(savedMode);
+    if (!hasInitialized) {
+      setMode('selecting');
+      setHasInitialized(true);
     }
-  }, []);
+  }, [hasInitialized]);
 
   const handleModeSelection = (selectedMode: 'audio' | 'text') => {
     setMode(selectedMode);
-    localStorage.setItem('hormozi-stack-mode', selectedMode);
   };
 
   if (mode === 'selecting') {

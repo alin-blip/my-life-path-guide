@@ -24,18 +24,18 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
   stackId
 }) => {
   const [mode, setMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
+  const [hasInitialized, setHasInitialized] = useState(false);
 
-  // Initialize mode from localStorage
+  // Always start with 'selecting' to show mode selector
   useEffect(() => {
-    const savedMode = localStorage.getItem('divine-prayer-stack-mode') as 'audio' | 'text' | null;
-    if (savedMode) {
-      setMode(savedMode);
+    if (!hasInitialized) {
+      setMode('selecting');
+      setHasInitialized(true);
     }
-  }, []);
+  }, [hasInitialized]);
 
   const handleModeSelection = (selectedMode: 'audio' | 'text') => {
     setMode(selectedMode);
-    localStorage.setItem('divine-prayer-stack-mode', selectedMode);
   };
 
   const { state, handlers, utils } = useDivinePrayerStack({ 
