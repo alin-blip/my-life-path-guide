@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward } from 'lucide-react';
+import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward, Download, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
@@ -13,6 +13,7 @@ import { useVoiceToText } from '@/hooks/useVoiceToText';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { voiceRecordingService } from '@/services/voiceRecordingService';
 import { AISpeakingIndicator } from './AISpeakingIndicator';
+import jsPDF from 'jspdf';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -429,6 +430,128 @@ INSTRUCȚIUNI:
     }
   };
 
+  // Export functions
+  const exportToMarkdown = () => {
+    const stackTitle = stackType === 'anger' ? 'Stack de Furie' : 'Stack Rugăciune Divină';
+    const timestamp = new Date().toLocaleString('ro-RO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    let markdown = `# ${stackTitle}\n\n`;
+    markdown += `**Data:** ${timestamp}\n`;
+    markdown += `**Sesiune ID:** ${sessionId}\n\n`;
+    markdown += `---\n\n`;
+    markdown += `## Transcriere Conversație\n\n`;
+
+    messages.forEach((msg, index) => {
+      const role = msg.role === 'user' ? '👤 Tu' : '🤖 AI Coach';
+      markdown += `### ${role}\n\n`;
+      markdown += `${msg.content}\n\n`;
+      if (index < messages.length - 1) markdown += `---\n\n`;
+    });
+
+    // Download markdown file
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${stackType}-session-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "✅ Markdown exportat",
+      description: "Transcrierea a fost salvată în format Markdown",
+    });
+  };
+
+  const exportToPDF = () => {
+    const stackTitle = stackType === 'anger' ? 'Stack de Furie' : 'Stack Rugăciune Divină';
+    const timestamp = new Date().toLocaleString('ro-RO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - (margin * 2);
+    let yPosition = 20;
+
+    // Helper function to add text with wrapping
+    const addText = (text: string, fontSize: number = 11, isBold: boolean = false) => {
+      doc.setFontSize(fontSize);
+      if (isBold) {
+        doc.setFont('helvetica', 'bold');
+      } else {
+        doc.setFont('helvetica', 'normal');
+      }
+      
+      const lines = doc.splitTextToSize(text, maxWidth);
+      lines.forEach((line: string) => {
+        if (yPosition > 270) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(line, margin, yPosition);
+        yPosition += fontSize * 0.5;
+      });
+      yPosition += 3;
+    };
+
+    // Title
+    addText(stackTitle, 18, true);
+    yPosition += 5;
+    
+    // Metadata
+    addText(`Data: ${timestamp}`, 10);
+    addText(`Sesiune ID: ${sessionId}`, 10);
+    yPosition += 10;
+
+    // Separator line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+
+    // Messages
+    addText('Transcriere Conversație', 14, true);
+    yPosition += 5;
+
+    messages.forEach((msg, index) => {
+      const role = msg.role === 'user' ? '👤 Tu' : '🤖 AI Coach';
+      
+      // Role header
+      addText(role, 12, true);
+      
+      // Message content
+      addText(msg.content, 11);
+      
+      // Separator between messages
+      if (index < messages.length - 1) {
+        doc.setDrawColor(220, 220, 220);
+        doc.line(margin, yPosition, pageWidth - margin, yPosition);
+        yPosition += 8;
+      }
+    });
+
+    // Save PDF
+    doc.save(`${stackType}-session-${new Date().toISOString().split('T')[0]}.pdf`);
+
+    toast({
+      title: "✅ PDF exportat",
+      description: "Transcrierea a fost salvată în format PDF",
+    });
+  };
+
   if (mode === 'complete') {
     return (
       <div className="w-full p-1 sm:p-2 flex flex-col h-full">
@@ -554,6 +677,28 @@ INSTRUCȚIUNI:
           </p>
         </div>
         <div className="flex gap-2">
+          {messages.length > 2 && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={exportToMarkdown}
+                className="gap-2"
+                title="Exportă în Markdown"
+              >
+                <FileText className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={exportToPDF}
+                className="gap-2"
+                title="Exportă în PDF"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            </>
+          )}
           {/* TTS Toggle Button */}
           <Button 
             variant={ttsEnabled ? "default" : "outline"}
