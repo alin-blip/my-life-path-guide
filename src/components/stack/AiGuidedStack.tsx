@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw } from 'lucide-react';
+import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
@@ -10,6 +10,7 @@ import { StackIdeaModal } from "./StackIdeaModal";
 import { v4 as uuidv4 } from 'uuid';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { VoiceInputButton } from './VoiceInputButton';
 import { VoiceLanguageToggle } from './VoiceLanguageToggle';
 import { AISpeakingIndicator } from './AISpeakingIndicator';
@@ -25,13 +26,15 @@ interface AiGuidedStackProps {
   stackType: 'anger' | 'divine-prayer';
   questions: string[];
   onModeSwitch?: () => void;
+  audioMode?: boolean;
 }
 
 export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({ 
   onAddToHitList, 
   stackType, 
   questions,
-  onModeSwitch 
+  onModeSwitch,
+  audioMode = false
 }) => {
   const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -41,9 +44,11 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [finalAction, setFinalAction] = useState('');
   const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
   const [sessionId] = useState(() => uuidv4());
+  const [ttsEnabled, setTtsEnabled] = useState(audioMode);
   
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const shouldSpeakRef = useRef(false);
   
   const {
     isIdeaModalOpen,
@@ -51,6 +56,23 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     closeIdeaModal,
     captureIdea
   } = useStackTodoIntegration({ onAddToHitList });
+
+  // TTS integration for audio mode
+  const {
+    speak: speakText,
+    stop: stopSpeaking,
+    isSpeaking: isTTSSpeaking,
+    isLoading: isTTSLoading
+  } = useTextToSpeech({
+    onSpeakingStart: () => {
+      console.log('🎵 TTS started speaking');
+    },
+    onSpeakingEnd: () => {
+      console.log('✅ TTS finished speaking');
+      shouldSpeakRef.current = false;
+    },
+    autoPlay: true
+  });
 
   // Voice input integration with deduplication
   const lastTranscriptRef = useRef<string>('');
@@ -154,16 +176,28 @@ INSTRUCȚIUNI:
     
     // Add welcome message when component mounts
     if (messages.length === 0) {
+      const welcomeContent = stackType === 'anger' 
+        ? 'Salut! Sunt aici să te ajut să treci prin procesul de transformare a furiei în claritate și acțiune constructivă. Să începem - ce te-a adus astăzi la acest exercițiu? Ce situație sau sentiment vrei să explorăm împreună?'
+        : 'Bine ai venit într-un spațiu de rugăciune și reflecție spirituală. Sunt aici să te însoțesc în această călătorie de conexiune cu divinitatea și găsire de claritate spirituală. Spune-mi, ce te-a adus astăzi la această rugăciune?';
+      
       const welcomeMessage: Message = {
         role: 'assistant',
-        content: stackType === 'anger' 
-          ? 'Salut! Sunt aici să te ajut să treci prin procesul de transformare a furiei în claritate și acțiune constructivă. Să începem - ce te-a adus astăzi la acest exercițiu? Ce situație sau sentiment vrei să explorăm împreună?'
-          : 'Bine ai venit într-un spațiu de rugăciune și reflecție spirituală. Sunt aici să te însoțesc în această călătorie de conexiune cu divinitatea și găsire de claritate spirituală. Spune-mi, ce te-a adus astăzi la această rugăciune?',
+        content: welcomeContent,
         timestamp: new Date()
       };
       setMessages([welcomeMessage]);
+      
+      // Speak welcome message if TTS is enabled
+      if (ttsEnabled) {
+        shouldSpeakRef.current = true;
+        setTimeout(() => {
+          if (shouldSpeakRef.current) {
+            speakText(welcomeContent);
+          }
+        }, 500);
+      }
     }
-  }, [stackType, questions]);
+  }, [stackType, questions, ttsEnabled]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -175,6 +209,11 @@ INSTRUCȚIUNI:
 
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
+
+    // Stop any ongoing TTS
+    if (ttsEnabled && isTTSSpeaking) {
+      stopSpeaking();
+    }
 
     const userMessage: Message = {
       role: 'user',
@@ -206,6 +245,16 @@ INSTRUCȚIUNI:
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      
+      // Speak the AI response if TTS is enabled
+      if (ttsEnabled) {
+        shouldSpeakRef.current = true;
+        setTimeout(() => {
+          if (shouldSpeakRef.current) {
+            speakText(data.message);
+          }
+        }, 300);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -286,20 +335,37 @@ INSTRUCȚIUNI:
   };
 
   const resetSession = () => {
+    // Stop any ongoing TTS
+    if (ttsEnabled && isTTSSpeaking) {
+      stopSpeaking();
+    }
+    
     setMode('chat');
     setCurrentMessage('');
     setFinalAction('');
     setActionAddedToHitList(false);
     
     // Add fresh welcome message
+    const welcomeContent = stackType === 'anger' 
+      ? 'Salut! Sunt aici să te ajut să treci prin procesul de transformare a furiei în claritate și acțiune constructivă. Să începem - ce te-a adus astăzi la acest exercițiu? Ce situație sau sentiment vrei să explorăm împreună?'
+      : 'Bine ai venit într-un spațiu de rugăciune și reflecție spirituală. Sunt aici să te însoțesc în această călătorie de conexiune cu divinitatea și găsire de claritate spirituală. Spune-mi, ce te-a adus astăzi la această rugăciune?';
+    
     const welcomeMessage: Message = {
       role: 'assistant',
-      content: stackType === 'anger' 
-        ? 'Salut! Sunt aici să te ajut să treci prin procesul de transformare a furiei în claritate și acțiune constructivă. Să începem - ce te-a adus astăzi la acest exercițiu? Ce situație sau sentiment vrei să explorăm împreună?'
-        : 'Bine ai venit într-un spațiu de rugăciune și reflecție spirituală. Sunt aici să te însoțesc în această călătorie de conexiune cu divinitatea și găsire de claritate spirituală. Spune-mi, ce te-a adus astăzi la această rugăciune?',
+      content: welcomeContent,
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
+    
+    // Speak welcome message if TTS is enabled
+    if (ttsEnabled) {
+      shouldSpeakRef.current = true;
+      setTimeout(() => {
+        if (shouldSpeakRef.current) {
+          speakText(welcomeContent);
+        }
+      }, 500);
+    }
   };
 
   const startChat = () => {
@@ -430,9 +496,37 @@ INSTRUCȚIUNI:
           </h1>
           <p className="text-xs text-muted-foreground">
             Conversație ghidată cu AI coach-ul tău
+            {ttsEnabled && isTTSSpeaking && (
+              <span className="ml-2 inline-flex items-center">
+                <span className="animate-pulse">🔊</span>
+                <span className="ml-1">AI vorbește...</span>
+              </span>
+            )}
           </p>
         </div>
         <div className="flex gap-2">
+          {/* TTS Toggle Button */}
+          <Button 
+            variant={ttsEnabled ? "default" : "outline"}
+            onClick={() => {
+              const newState = !ttsEnabled;
+              setTtsEnabled(newState);
+              if (!newState && isTTSSpeaking) {
+                stopSpeaking();
+              }
+              toast({
+                title: newState ? "🔊 TTS Activat" : "🔇 TTS Dezactivat",
+                description: newState 
+                  ? "AI va citi răspunsurile cu voce" 
+                  : "AI nu va mai citi răspunsurile",
+              });
+            }}
+            size="sm"
+            className="text-xs"
+            title={ttsEnabled ? "Dezactivează vocea AI" : "Activează vocea AI"}
+          >
+            {ttsEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </Button>
           <Button 
             variant="ghost" 
             onClick={resetSession}
