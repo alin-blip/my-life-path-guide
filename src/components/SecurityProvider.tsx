@@ -1,12 +1,13 @@
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import DOMPurify from 'dompurify';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SecurityContextType {
   sanitizeHtml: (html: string) => string;
   sanitizeInput: (input: string) => string;
   validateEmail: (email: string) => boolean;
-  logSecurityEvent: (event: string, details?: any) => void;
+  logSecurityEvent: (event: string, details?: any, severity?: 'low' | 'medium' | 'high' | 'critical') => void;
 }
 
 const SecurityContext = createContext<SecurityContextType | undefined>(undefined);
@@ -32,9 +33,26 @@ export const SecurityProvider: React.FC<{ children: ReactNode }> = ({ children }
     return emailRegex.test(email) && email.length <= 254;
   };
 
-  const logSecurityEvent = (event: string, details?: any) => {
-    // In production, this should send to a secure logging service
+  const logSecurityEvent = async (
+    event: string, 
+    details?: any, 
+    severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
+  ) => {
     console.warn(`Security Event: ${event}`, details);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      await supabase.from('security_events').insert({
+        user_id: user?.id || null,
+        event_type: event,
+        event_details: details || {},
+        severity,
+        user_agent: navigator.userAgent
+      });
+    } catch (error) {
+      console.error('Failed to log security event:', error);
+    }
   };
 
   return (

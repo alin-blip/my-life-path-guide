@@ -294,6 +294,51 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_tracking: {
+        Row: {
+          core_score: number | null
+          created_at: string | null
+          daily_four_score: number | null
+          date: string
+          door_tasks_completed: number | null
+          id: string
+          journal_completed: boolean | null
+          stack_completed: boolean | null
+          tracking_data: Json | null
+          updated_at: string | null
+          user_id: string
+          weekly_two_score: number | null
+        }
+        Insert: {
+          core_score?: number | null
+          created_at?: string | null
+          daily_four_score?: number | null
+          date?: string
+          door_tasks_completed?: number | null
+          id?: string
+          journal_completed?: boolean | null
+          stack_completed?: boolean | null
+          tracking_data?: Json | null
+          updated_at?: string | null
+          user_id: string
+          weekly_two_score?: number | null
+        }
+        Update: {
+          core_score?: number | null
+          created_at?: string | null
+          daily_four_score?: number | null
+          date?: string
+          door_tasks_completed?: number | null
+          id?: string
+          journal_completed?: boolean | null
+          stack_completed?: boolean | null
+          tracking_data?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          weekly_two_score?: number | null
+        }
+        Relationships: []
+      }
       divine_coaching_sessions: {
         Row: {
           answer: string | null
@@ -391,6 +436,42 @@ export type Database = {
           id?: string
           items?: Json | null
           title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      game_journey_maps: {
+        Row: {
+          annual_goal: Json | null
+          category: string
+          created_at: string | null
+          fact_answers: Json | null
+          id: string
+          map_type: string
+          monthly_goal: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          annual_goal?: Json | null
+          category: string
+          created_at?: string | null
+          fact_answers?: Json | null
+          id?: string
+          map_type?: string
+          monthly_goal?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          annual_goal?: Json | null
+          category?: string
+          created_at?: string | null
+          fact_answers?: Json | null
+          id?: string
+          map_type?: string
+          monthly_goal?: Json | null
           updated_at?: string | null
           user_id?: string
         }
@@ -516,6 +597,54 @@ export type Database = {
         }
         Relationships: []
       }
+      missions: {
+        Row: {
+          category: string
+          completed: boolean | null
+          created_at: string | null
+          end_goal_value: string | null
+          goal_data: Json
+          id: string
+          is_impossible_game: boolean | null
+          measurable_result: string | null
+          mission_type: string
+          period: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          completed?: boolean | null
+          created_at?: string | null
+          end_goal_value?: string | null
+          goal_data?: Json
+          id?: string
+          is_impossible_game?: boolean | null
+          measurable_result?: string | null
+          mission_type?: string
+          period?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          completed?: boolean | null
+          created_at?: string | null
+          end_goal_value?: string | null
+          goal_data?: Json
+          id?: string
+          is_impossible_game?: boolean | null
+          measurable_result?: string | null
+          mission_type?: string
+          period?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       objectives: {
         Row: {
           category: string
@@ -546,6 +675,69 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           week_key?: string
+        }
+        Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          created_at: string | null
+          endpoint: string
+          id: string
+          request_count: number | null
+          updated_at: string | null
+          user_id: string
+          window_start: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          request_count?: number | null
+          updated_at?: string | null
+          user_id: string
+          window_start?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          request_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+          window_start?: string | null
+        }
+        Relationships: []
+      }
+      security_events: {
+        Row: {
+          created_at: string | null
+          event_details: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
