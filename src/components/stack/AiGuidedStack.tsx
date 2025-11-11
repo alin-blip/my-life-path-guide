@@ -15,6 +15,7 @@ import { useVoiceToText } from '@/hooks/useVoiceToText';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { voiceRecordingService } from '@/services/voiceRecordingService';
 import { AISpeakingIndicator } from './AISpeakingIndicator';
+import { VoiceSelector } from './VoiceSelector';
 import jsPDF from 'jspdf';
 
 interface Message {
@@ -62,6 +63,9 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [noteMessageIndex, setNoteMessageIndex] = useState<number | null>(null);
   const [currentNote, setCurrentNote] = useState('');
   const [currentImportance, setCurrentImportance] = useState<'low' | 'medium' | 'high'>('medium');
+  const [selectedVoice, setSelectedVoice] = useState(() => 
+    localStorage.getItem('preferred-tts-voice') || 'pFZP5JQG7iQjIQuC4Bku'
+  );
   
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -73,6 +77,16 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     closeIdeaModal,
     captureIdea
   } = useStackTodoIntegration({ onAddToHitList });
+
+  // Handler for voice change
+  const handleVoiceChange = (voiceId: string) => {
+    setSelectedVoice(voiceId);
+    localStorage.setItem('preferred-tts-voice', voiceId);
+    toast({
+      title: '🎤 Voce schimbată',
+      description: 'Noua voce va fi folosită pentru următorul răspuns AI.',
+    });
+  };
 
   // TTS integration with advanced controls
   const {
@@ -87,7 +101,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     isPaused: isTtsPaused,
     playbackRate
   } = useTextToSpeech({
-    voiceId: localStorage.getItem('preferred-tts-voice') || 'pNInz6obpgDQGcFmaJgB',
+    voiceId: selectedVoice,
     onSpeakingStart: () => {
       console.log('🎵 AI started speaking');
       // Stop microphone IMMEDIATELY when TTS starts
@@ -949,6 +963,11 @@ INSTRUCȚIUNI:
               {/* TTS Playback Controls (shown only when TTS is enabled) */}
               {ttsEnabled && (
                 <div className="flex items-center justify-center gap-2 mb-3 pb-3 border-b border-border">
+                  <VoiceSelector
+                    currentVoice={selectedVoice}
+                    onVoiceChange={handleVoiceChange}
+                    disabled={isLoading}
+                  />
                   <Button
                     variant="ghost"
                     size="sm"
