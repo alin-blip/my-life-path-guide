@@ -102,7 +102,15 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
         // Start audio recording if saveRecording is enabled
         if (saveRecording) {
           try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+                channelCount: 1,
+                sampleRate: 24000
+              } as MediaTrackConstraints 
+            });
             const mediaRecorder = new MediaRecorder(stream, {
               mimeType: 'audio/webm'
             });

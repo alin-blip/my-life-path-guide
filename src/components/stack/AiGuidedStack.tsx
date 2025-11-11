@@ -12,6 +12,7 @@ import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { useVoiceToText } from '@/hooks/useVoiceToText';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { voiceRecordingService } from '@/services/voiceRecordingService';
+import { AISpeakingIndicator } from './AISpeakingIndicator';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -70,7 +71,13 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     playbackRate
   } = useTextToSpeech({
     voiceId: localStorage.getItem('preferred-tts-voice') || 'pNInz6obpgDQGcFmaJgB',
-    onSpeakingStart: () => console.log('🎵 AI started speaking'),
+    onSpeakingStart: () => {
+      console.log('🎵 AI started speaking');
+      if (audioMode && isListening) {
+        console.log('🔇 Stopping microphone - AI is speaking');
+        stopListening();
+      }
+    },
     onSpeakingEnd: () => {
       console.log('✅ AI finished speaking');
       // Auto-activate microphone after AI finishes speaking in audio mode
@@ -95,11 +102,16 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     isSupported: isVoiceSupported
   } = useVoiceToText({
     onTranscript: (text) => {
+      if (isAiSpeaking) return; // Ignore transcripts while AI is speaking
       setCurrentMessage(text);
     },
     language: 'ro', // Can be made dynamic
     autoSubmit: audioMode, // Enable auto-submit in audio mode
     onAutoSubmit: async () => {
+      if (isAiSpeaking) {
+        console.log('⏸️ Ignoring auto-submit while AI is speaking');
+        return;
+      }
       if (currentMessage.trim()) {
         // Save voice recording if in audio mode
         if (audioMode) {
@@ -537,12 +549,6 @@ INSTRUCȚIUNI:
           </h1>
           <p className="text-xs text-muted-foreground">
             Conversație ghidată cu AI coach-ul tău
-            {ttsEnabled && isAiSpeaking && (
-              <span className="ml-2 inline-flex items-center">
-                <span className="animate-pulse">🔊</span>
-                <span className="ml-1">AI vorbește...</span>
-              </span>
-            )}
           </p>
         </div>
         <div className="flex gap-2">
@@ -592,13 +598,11 @@ INSTRUCȚIUNI:
 
       {/* Zona de mesaje - scrollable */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
-        {isAiSpeaking && (
-          <div className="flex items-center justify-center py-2 text-sm text-muted-foreground">
-            <span className="inline-flex items-center">
-              <span className="animate-pulse mr-2">🔊</span>
-              AI vorbește...
-            </span>
-          </div>
+        {ttsEnabled && (
+          <AISpeakingIndicator 
+            isAISpeaking={isAiSpeaking} 
+            message="AI vorbește... Microfonul este dezactivat temporar"
+          />
         )}
         <div className="max-w-3xl mx-auto space-y-4">
           {messages.map((message, index) => (
