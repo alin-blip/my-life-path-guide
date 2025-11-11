@@ -74,7 +74,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     onSpeakingEnd: () => {
       console.log('✅ AI finished speaking');
       // Auto-activate microphone after AI finishes speaking in audio mode
-      if (audioMode && ttsEnabled) {
+      if (audioMode && ttsEnabled && !isListening) {
+        console.log('🎤 Reactivating microphone after AI speech');
         setTimeout(() => {
           startListening();
         }, 500);
@@ -222,9 +223,10 @@ INSTRUCȚIUNI:
         shouldSpeakRef.current = true;
         setTimeout(() => {
           if (shouldSpeakRef.current) {
+            console.log('🎵 Speaking welcome message:', welcomeContent.substring(0, 50) + '...');
             speakText(welcomeContent);
           }
-        }, 500);
+        }, 1000); // Increased delay to ensure TTS is ready
       }
     }
   }, [stackType, questions, ttsEnabled]);
@@ -236,6 +238,14 @@ INSTRUCȚIUNI:
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
+
+  // Stop microphone when AI starts speaking to prevent feedback
+  useEffect(() => {
+    if (isAiSpeaking && isListening && audioMode) {
+      console.log('🔇 Stopping microphone - AI is speaking');
+      stopListening();
+    }
+  }, [isAiSpeaking, isListening, audioMode]);
 
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
@@ -395,7 +405,7 @@ INSTRUCȚIUNI:
         if (shouldSpeakRef.current) {
           speakText(welcomeContent);
         }
-      }, 500);
+      }, 1000); // Increased delay to ensure TTS is ready
     }
   };
 
