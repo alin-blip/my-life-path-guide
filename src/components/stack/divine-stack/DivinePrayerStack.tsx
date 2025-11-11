@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +10,7 @@ import { StackIdeaModal } from "../StackIdeaModal";
 import { AiGuidedStack } from "../AiGuidedStack";
 import { DivinePrayerExplanation } from "./DivinePrayerExplanation";
 import { StackDraftSaver } from "../StackDraftSaver";
+import { StackModeSelector } from "../StackModeSelector";
 import { getQuestions } from "./questions";
 import { Send, PlusCircle, CheckCircle, Bot, User, Lightbulb, Save } from 'lucide-react';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
@@ -20,9 +21,23 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
   onAddToHitList, 
   existingData, 
   isReadOnly = false,
-  stackId,
-  mode = 'text'
+  stackId
 }) => {
+  const [mode, setMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
+
+  // Initialize mode from localStorage
+  useEffect(() => {
+    const savedMode = localStorage.getItem('divine-prayer-stack-mode') as 'audio' | 'text' | null;
+    if (savedMode) {
+      setMode(savedMode);
+    }
+  }, []);
+
+  const handleModeSelection = (selectedMode: 'audio' | 'text') => {
+    setMode(selectedMode);
+    localStorage.setItem('divine-prayer-stack-mode', selectedMode);
+  };
+
   const { state, handlers, utils } = useDivinePrayerStack({ 
     onAddToHitList,
     existingData,
@@ -79,6 +94,11 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
         </div>
       </div>
     );
+  }
+
+  // Show mode selector if mode is 'selecting'
+  if (mode === 'selecting') {
+    return <StackModeSelector onSelectMode={handleModeSelection} />;
   }
 
   // Always use AI-guided mode
