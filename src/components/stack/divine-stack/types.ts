@@ -22,6 +22,7 @@ export interface DivinePrayerStackProps {
   existingData?: any;
   isReadOnly?: boolean;
   stackId?: string | null;
+  mode?: 'audio' | 'text';
 }
 
 export interface UseDivinePrayerStackReturn {

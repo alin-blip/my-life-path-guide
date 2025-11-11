@@ -24,6 +24,7 @@ const CoachingPage = () => {
   const [stackId, setStackId] = useState<string | null>(null);
   const [existingStack, setExistingStack] = useState<any>(null);
   const [isLoadingStack, setIsLoadingStack] = useState(false);
+  const [stackMode, setStackMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
   const { hitList, setHitList, hotList, setHotList } = useDoorContent();
   const { toast } = useToast();
   const [isSupabaseAvailable, setIsSupabaseAvailable] = useState(false);
@@ -33,6 +34,12 @@ const CoachingPage = () => {
     if (supabase) {
       setIsSupabaseAvailable(true);
       createRequiredTables();
+    }
+    
+    // Load saved stack mode preference
+    const savedMode = localStorage.getItem('stack-preferred-mode') as 'audio' | 'text' | null;
+    if (savedMode && !existingStack) {
+      setStackMode(savedMode);
     }
     
     const searchParams = new URLSearchParams(location.search);
@@ -263,6 +270,11 @@ const CoachingPage = () => {
     }
   };
 
+  const handleModeSelection = (selectedMode: 'audio' | 'text') => {
+    setStackMode(selectedMode);
+    localStorage.setItem('stack-preferred-mode', selectedMode);
+  };
+
 const renderActiveStack = () => {
     if (import.meta.env.DEV) {
       console.log("🎨 Rendering active stack:", activeStack, "with existing data:", !!existingStack);
@@ -281,7 +293,8 @@ const renderActiveStack = () => {
       onAddToHitList: addActionToHitList,
       existingData: existingStack,
       isReadOnly: !!existingStack,
-      stackId: stackId
+      stackId: stackId,
+      mode: stackMode === 'selecting' ? 'text' : stackMode
     };
     
     switch(activeStack) {

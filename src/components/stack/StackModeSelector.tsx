@@ -40,34 +40,38 @@ export const StackModeSelector: React.FC<StackModeSelectorProps> = ({ onSelectMo
                 </div>
               </div>
               
-              <h3 className="text-2xl font-bold text-foreground mb-3">
-                {isRomanian ? '🎤 Mod Audio' : '🎤 Audio Mode'}
-              </h3>
-              
-              <p className="text-muted-foreground mb-6">
-                {isRomanian 
-                  ? 'Conversație vocală completă cu AI. Întrebările sunt citite cu voce, tu răspunzi vocal, totul se transcrie automat.'
-                  : 'Complete voice conversation with AI. Questions are read aloud, you respond with your voice, everything is transcribed automatically.'}
-              </p>
+          <h3 className="text-2xl font-bold text-foreground mb-3">
+            {isRomanian ? '🎙️ Sesiune Audio' : '🎙️ Audio Session'}
+          </h3>
+          
+          <p className="text-muted-foreground mb-6">
+            {isRomanian 
+              ? 'Conversație vocală completă fără tastatură. Experiență de coaching live - vorbești cu AI-ul ca la terapeut, totul se transcrie automat.'
+              : 'Complete voice conversation without keyboard. Live coaching experience - speak with AI like at therapist, everything is transcribed automatically.'}
+          </p>
 
-              <div className="space-y-2 text-sm text-left">
-                <div className="flex items-center text-muted-foreground">
-                  <span className="mr-2">✓</span>
-                  <span>{isRomanian ? 'AI citește întrebările cu voce' : 'AI reads questions aloud'}</span>
-                </div>
-                <div className="flex items-center text-muted-foreground">
-                  <span className="mr-2">✓</span>
-                  <span>{isRomanian ? 'Răspunzi prin voce' : 'Answer by voice'}</span>
-                </div>
-                <div className="flex items-center text-muted-foreground">
-                  <span className="mr-2">✓</span>
-                  <span>{isRomanian ? 'Transcriere automată' : 'Automatic transcription'}</span>
-                </div>
-                <div className="flex items-center text-muted-foreground">
-                  <span className="mr-2">✓</span>
-                  <span>{isRomanian ? 'Experiență hands-free' : 'Hands-free experience'}</span>
-                </div>
-              </div>
+          <div className="space-y-2 text-sm text-left">
+            <div className="flex items-center text-muted-foreground">
+              <span className="mr-2">✓</span>
+              <span>{isRomanian ? 'AI vorbește, tu asculți' : 'AI speaks, you listen'}</span>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <span className="mr-2">✓</span>
+              <span>{isRomanian ? 'Răspunzi vocal, fără tastatură' : 'Answer by voice, no keyboard'}</span>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <span className="mr-2">✓</span>
+              <span>{isRomanian ? 'Transcriere automată a întregii conversații' : 'Automatic transcription of entire conversation'}</span>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <span className="mr-2">✓</span>
+              <span>{isRomanian ? 'Experiență hands-free completă' : 'Complete hands-free experience'}</span>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <span className="mr-2">✓</span>
+              <span>{isRomanian ? 'Salvare automată în bibliotecă' : 'Automatic save to library'}</span>
+            </div>
+          </div>
 
               <Button 
                 className="w-full mt-6" 
@@ -94,34 +98,34 @@ export const StackModeSelector: React.FC<StackModeSelectorProps> = ({ onSelectMo
                 </div>
               </div>
               
-              <h3 className="text-2xl font-bold text-foreground mb-3">
-                {isRomanian ? '⌨️ Mod Text' : '⌨️ Text Mode'}
-              </h3>
-              
-              <p className="text-muted-foreground mb-6">
-                {isRomanian 
-                  ? 'Răspunde prin tastare sau activează voice-ul manual când vrei. Flexibilitate maximă în comunicare.'
-                  : 'Answer by typing or activate voice manually when you want. Maximum flexibility in communication.'}
-              </p>
+          <h3 className="text-2xl font-bold text-foreground mb-3">
+            {isRomanian ? '⌨️ Text + Audio' : '⌨️ Text + Audio'}
+          </h3>
+          
+          <p className="text-muted-foreground mb-6">
+            {isRomanian 
+              ? 'Modul clasic cu flexibilitate maximă - tastezi sau folosești vocea când vrei. AI poate citi răspunsurile (opțional).'
+              : 'Classic mode with maximum flexibility - type or use voice when you want. AI can read answers (optional).'}
+          </p>
 
-              <div className="space-y-2 text-sm text-left">
-                <div className="flex items-center text-muted-foreground">
-                  <span className="mr-2">✓</span>
-                  <span>{isRomanian ? 'Tastezi răspunsurile' : 'Type your answers'}</span>
-                </div>
-                <div className="flex items-center text-muted-foreground">
-                  <span className="mr-2">✓</span>
-                  <span>{isRomanian ? 'Voice opțional disponibil' : 'Optional voice available'}</span>
-                </div>
-                <div className="flex items-center text-muted-foreground">
-                  <span className="mr-2">✓</span>
-                  <span>{isRomanian ? 'Control complet' : 'Full control'}</span>
-                </div>
-                <div className="flex items-center text-muted-foreground">
-                  <span className="mr-2">✓</span>
-                  <span>{isRomanian ? 'Editare ușoară' : 'Easy editing'}</span>
-                </div>
-              </div>
+          <div className="space-y-2 text-sm text-left">
+            <div className="flex items-center text-muted-foreground">
+              <span className="mr-2">✓</span>
+              <span>{isRomanian ? 'Scrii răspunsurile' : 'Write your answers'}</span>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <span className="mr-2">✓</span>
+              <span>{isRomanian ? 'Microfon disponibil opțional' : 'Optional microphone available'}</span>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <span className="mr-2">✓</span>
+              <span>{isRomanian ? 'AI poate citi răspunsurile (opțional)' : 'AI can read answers (optional)'}</span>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <span className="mr-2">✓</span>
+              <span>{isRomanian ? 'Control complet asupra inputului' : 'Full control over input'}</span>
+            </div>
+          </div>
 
               <Button 
                 className="w-full mt-6" 

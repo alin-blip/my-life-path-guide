@@ -26,6 +26,7 @@ interface AiGuidedStackProps {
   questions: string[];
   onModeSwitch?: () => void;
   audioMode?: boolean;
+  voiceOnlyMode?: boolean;
 }
 
 export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({ 
@@ -33,7 +34,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   stackType, 
   questions,
   onModeSwitch,
-  audioMode = false
+  audioMode = false,
+  voiceOnlyMode = false
 }) => {
   const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -43,7 +45,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [finalAction, setFinalAction] = useState('');
   const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
   const [sessionId] = useState(() => uuidv4());
-  const [ttsEnabled, setTtsEnabled] = useState(audioMode);
+  const [ttsEnabled, setTtsEnabled] = useState(voiceOnlyMode || audioMode);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState(0);
   
   const { toast } = useToast();
@@ -106,15 +108,15 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
       setCurrentMessage(text);
     },
     language: 'ro', // Can be made dynamic
-    autoSubmit: audioMode, // Enable auto-submit in audio mode
+    autoSubmit: audioMode || voiceOnlyMode, // Enable auto-submit in audio or voice-only mode
     onAutoSubmit: async () => {
       if (isAiSpeaking) {
         console.log('⏸️ Ignoring auto-submit while AI is speaking');
         return;
       }
       if (currentMessage.trim()) {
-        // Save voice recording if in audio mode
-        if (audioMode) {
+        // Save voice recording if in audio or voice-only mode
+        if (audioMode || voiceOnlyMode) {
           const recording = getRecordedAudio();
           if (recording) {
             const currentQuestion = messages[messages.length - 1];
@@ -598,12 +600,42 @@ INSTRUCȚIUNI:
 
       {/* Zona de mesaje - scrollable */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
+        {voiceOnlyMode && (
+          <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border-b border-purple-700/50 p-4 mb-6 rounded-lg">
+            <div className="max-w-3xl mx-auto flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-purple-300">
+                  🎙️ Sesiune de Coaching Audio
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Conversație vocală completă - fără nevoie să scrii
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <div className={`w-2 h-2 rounded-full ${isAiSpeaking ? 'bg-blue-500 animate-pulse' : 'bg-gray-500'}`} />
+                <div className={`w-2 h-2 rounded-full ${isListening ? 'bg-red-500 animate-pulse' : 'bg-gray-500'}`} />
+              </div>
+            </div>
+          </div>
+        )}
+        
         {ttsEnabled && (
           <AISpeakingIndicator 
             isAISpeaking={isAiSpeaking} 
             message="AI vorbește... Microfonul este dezactivat temporar"
           />
         )}
+        
+        {voiceOnlyMode && isListening && currentMessage && (
+          <div className="bg-blue-900/20 border border-blue-500 rounded-lg p-3 mb-4 max-w-3xl mx-auto">
+            <div className="flex items-center gap-2 text-blue-300">
+              <Mic className="h-4 w-4 animate-pulse" />
+              <span className="text-sm">Transcriu ce spui: </span>
+              <span className="text-white font-medium">{currentMessage}</span>
+            </div>
+          </div>
+        )}
+        
         <div className="max-w-3xl mx-auto space-y-4">
           {messages.map((message, index) => (
             <div
@@ -642,94 +674,161 @@ INSTRUCȚIUNI:
       {/* Input Area - sticky la bottom */}
       <div className="border-t border-border bg-card p-4">
         <div className="max-w-3xl mx-auto">
-          {/* TTS Playback Controls (shown only when TTS is enabled) */}
-          {ttsEnabled && (
-            <div className="flex items-center justify-center gap-2 mb-3 pb-3 border-b border-border">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => isTtsPaused ? resumeTts() : pauseTts()}
-                disabled={!isAiSpeaking}
-                className="gap-2"
-              >
-                {isTtsPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={skipTts}
-                disabled={!isAiSpeaking}
-                className="gap-2"
-              >
-                <SkipForward className="h-4 w-4" />
-              </Button>
-              <select
-                value={playbackRate}
-                onChange={(e) => changePlaybackRate(parseFloat(e.target.value))}
-                className="h-8 px-2 rounded-md bg-background border border-border text-sm"
-              >
-                <option value="0.5">0.5x</option>
-                <option value="0.75">0.75x</option>
-                <option value="1">1x</option>
-                <option value="1.25">1.25x</option>
-                <option value="1.5">1.5x</option>
-                <option value="2">2x</option>
-              </select>
-            </div>
-          )}
+          {!voiceOnlyMode && (
+            <>
+              {/* TTS Playback Controls (shown only when TTS is enabled) */}
+              {ttsEnabled && (
+                <div className="flex items-center justify-center gap-2 mb-3 pb-3 border-b border-border">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => isTtsPaused ? resumeTts() : pauseTts()}
+                    disabled={!isAiSpeaking}
+                    className="gap-2"
+                  >
+                    {isTtsPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={skipTts}
+                    disabled={!isAiSpeaking}
+                    className="gap-2"
+                  >
+                    <SkipForward className="h-4 w-4" />
+                  </Button>
+                  <select
+                    value={playbackRate}
+                    onChange={(e) => changePlaybackRate(parseFloat(e.target.value))}
+                    className="h-8 px-2 rounded-md bg-background border border-border text-sm"
+                  >
+                    <option value="0.5">0.5x</option>
+                    <option value="0.75">0.75x</option>
+                    <option value="1">1x</option>
+                    <option value="1.25">1.25x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2x</option>
+                  </select>
+                </div>
+              )}
 
-          {/* Message Input */}
-          <div className="relative flex gap-2">
-            <Textarea
-              value={currentMessage}
-              onChange={(e) => setCurrentMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-              placeholder={isListening ? "Vorbești..." : "Scrie mesajul tău aici... (Enter trimite)"}
-              className={`min-h-[52px] max-h-32 text-sm resize-none ${
-                isListening ? 'ring-2 ring-blue-500' : ''
-              }`}
-              disabled={isLoading}
-            />
-            <div className="flex flex-col gap-2">
-              {isVoiceSupported && (
-                <Button
-                  variant={isListening ? "default" : "outline"}
-                  size="icon"
-                  onClick={() => isListening ? stopListening() : startListening()}
+              {/* Message Input */}
+              <div className="relative flex gap-2">
+                <Textarea
+                  value={currentMessage}
+                  onChange={(e) => setCurrentMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                  placeholder={isListening ? "Vorbești..." : "Scrie mesajul tău aici... (Enter trimite)"}
+                  className={`min-h-[52px] max-h-32 text-sm resize-none ${
+                    isListening ? 'ring-2 ring-blue-500' : ''
+                  }`}
                   disabled={isLoading}
-                  className="h-[52px]"
+                />
+                <div className="flex flex-col gap-2">
+                  {isVoiceSupported && (
+                    <Button
+                      variant={isListening ? "default" : "outline"}
+                      size="icon"
+                      onClick={() => isListening ? stopListening() : startListening()}
+                      disabled={isLoading || isAiSpeaking}
+                      className="h-[52px]"
+                    >
+                      {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    </Button>
+                  )}
+                  <Button
+                    onClick={sendMessage}
+                    disabled={!currentMessage.trim() || isLoading}
+                    size="icon"
+                    className="h-[52px]"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Buton pentru generare acțiune finală */}
+              {messages.length >= 10 && (
+                <Button
+                  onClick={generateFinalAction}
+                  disabled={isLoading}
+                  variant="secondary"
+                  size="sm"
+                  className="w-full text-sm font-medium mt-2"
                 >
-                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Generează Acțiune Finală din Conversație
                 </Button>
               )}
-              <Button
-                onClick={sendMessage}
-                disabled={!currentMessage.trim() || isLoading}
-                size="icon"
-                className="h-[52px]"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+            </>
+          )}
+          
+          {voiceOnlyMode && (
+            <div className="text-center py-4 space-y-3">
+              <div className="flex items-center justify-center gap-3">
+                {!isListening && !isAiSpeaking && (
+                  <Button
+                    size="lg"
+                    variant="default"
+                    onClick={startListening}
+                    className="gap-2 px-8 py-6 text-lg"
+                  >
+                    <Mic className="h-6 w-6" />
+                    Începe să vorbești
+                  </Button>
+                )}
+                
+                {isListening && (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="animate-pulse text-red-500">
+                      <Mic className="h-8 w-8" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Te ascult... Vorbește natural
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={stopListening}
+                    >
+                      Oprește microfonul
+                    </Button>
+                  </div>
+                )}
+                
+                {isAiSpeaking && (
+                  <div className="flex flex-col items-center gap-2">
+                    <AISpeakingIndicator 
+                      isAISpeaking={true} 
+                      message="AI vorbește... Ascultă și gândește-te la răspuns"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              <p className="text-xs text-muted-foreground">
+                💡 Conversație vocală completă - fără nevoie să scrii
+              </p>
+              
+              {/* Buton pentru generare acțiune finală în voice-only mode */}
+              {messages.length >= 10 && (
+                <Button
+                  onClick={generateFinalAction}
+                  disabled={isLoading}
+                  variant="secondary"
+                  size="sm"
+                  className="w-full text-sm font-medium mt-4"
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Generează Acțiune Finală din Conversație
+                </Button>
+              )}
             </div>
-          </div>
-
-          {/* Buton pentru generare acțiune finală */}
-          {messages.length >= 10 && (
-            <Button
-              onClick={generateFinalAction}
-              disabled={isLoading}
-              variant="secondary"
-              size="sm"
-              className="w-full text-sm font-medium mt-2"
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Generează Acțiune Finală din Conversație
-            </Button>
           )}
         </div>
       </div>

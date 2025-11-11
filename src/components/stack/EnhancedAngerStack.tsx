@@ -49,6 +49,8 @@ export const EnhancedAngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }
         onAddToHitList={onAddToHitList}
         stackType="anger"
         questions={rawQuestions}
+        voiceOnlyMode={mode === 'audio'}
+        audioMode={mode === 'audio'}
       />
 
       <StackIdeaModal

@@ -20,7 +20,8 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
   onAddToHitList, 
   existingData, 
   isReadOnly = false,
-  stackId 
+  stackId,
+  mode = 'text'
 }) => {
   const { state, handlers, utils } = useDivinePrayerStack({ 
     onAddToHitList,
@@ -87,6 +88,8 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
         onAddToHitList={onAddToHitList}
         stackType="divine-prayer"
         questions={getQuestions()}
+        voiceOnlyMode={mode === 'audio'}
+        audioMode={mode === 'audio'}
       />
       
       <StackIdeaModal
