@@ -69,8 +69,8 @@ export const StackModeSelector: React.FC<StackModeSelectorProps> = ({ onSelectMo
           
           <p className="text-muted-foreground mb-6">
             {isRomanian 
-              ? 'Conversație vocală completă fără tastatură. Experiență de coaching live - vorbești cu AI-ul ca la terapeut, totul se transcrie automat.'
-              : 'Complete voice conversation without keyboard. Live coaching experience - speak with AI like at therapist, everything is transcribed automatically.'}
+              ? 'Conversație complet vocală. AI vorbește, tu răspunzi vocal. Transcriptul apare automat pe ecran.'
+              : 'Complete voice conversation. AI speaks, you answer vocally. Transcript appears automatically on screen.'}
           </p>
 
           <div className="space-y-2 text-sm text-left">
@@ -122,13 +122,13 @@ export const StackModeSelector: React.FC<StackModeSelectorProps> = ({ onSelectMo
               </div>
               
           <h3 className="text-2xl font-bold text-foreground mb-3">
-            {isRomanian ? '⌨️ Text + Audio' : '⌨️ Text + Audio'}
+            {isRomanian ? '✍️ Sesiune Clasică' : '✍️ Classic Session'}
           </h3>
           
           <p className="text-muted-foreground mb-6">
             {isRomanian 
-              ? 'Modul clasic cu flexibilitate maximă - tastezi sau folosești vocea când vrei. AI poate citi răspunsurile (opțional).'
-              : 'Classic mode with maximum flexibility - type or use voice when you want. AI can read answers (optional).'}
+              ? 'Scrii cu tastatura și/sau vorbești cu microfonul. Controlezi când să folosești fiecare.'
+              : 'Type with keyboard and/or speak with microphone. You control when to use each.'}
           </p>
 
           <div className="space-y-2 text-sm text-left">

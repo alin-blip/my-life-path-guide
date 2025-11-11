@@ -248,19 +248,19 @@ INSTRUCȚIUNI:
       };
       setMessages([welcomeMessage]);
       
-      // Speak welcome message if TTS is enabled - with flag to prevent doubling
-      if (ttsEnabled && !hasSpokenWelcome) {
+      // ✅ CRUCIAL: TTS automat DOAR în voiceOnlyMode
+      if (voiceOnlyMode && ttsEnabled && !hasSpokenWelcome) {
         shouldSpeakRef.current = true;
         setTimeout(() => {
           if (shouldSpeakRef.current && !hasSpokenWelcome) {
-            console.log('🎵 Speaking welcome message ONCE');
+            console.log('🎵 [VOICE-ONLY MODE] Auto-speaking welcome message');
             speakText(welcomeContent);
             setHasSpokenWelcome(true);
           }
-        }, 1500); // Increased delay for stability
+        }, 1500);
       }
     }
-  }, [stackType, questions, ttsEnabled, hasSpokenWelcome]);
+  }, [stackType, questions, voiceOnlyMode, ttsEnabled, hasSpokenWelcome]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -318,8 +318,8 @@ INSTRUCȚIUNI:
       setMessages(prev => [...prev, assistantMessage]);
       setCurrentQuestionNumber(prev => prev + 1);
       
-      // Speak the AI response if TTS is enabled
-      if (ttsEnabled) {
+      // ✅ TTS doar în voiceOnlyMode SAU dacă user a activat manual
+      if (voiceOnlyMode && ttsEnabled) {
         shouldSpeakRef.current = true;
         setTimeout(() => {
           if (shouldSpeakRef.current) {
@@ -429,14 +429,14 @@ INSTRUCȚIUNI:
     };
     setMessages([welcomeMessage]);
     
-    // Speak welcome message if TTS is enabled
-    if (ttsEnabled) {
+    // ✅ TTS automat DOAR în voiceOnlyMode
+    if (voiceOnlyMode && ttsEnabled) {
       shouldSpeakRef.current = true;
       setTimeout(() => {
         if (shouldSpeakRef.current) {
           speakText(welcomeContent);
         }
-      }, 1000); // Increased delay to ensure TTS is ready
+      }, 1000);
     }
   };
 
