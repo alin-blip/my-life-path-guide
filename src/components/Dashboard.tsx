@@ -140,41 +140,65 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const getStackCount = () => {
-    // First check Supabase data if available
-    if (userProgressData?.stack_completed) {
-      return 1;
+  const [stackCount, setStackCount] = useState(0);
+  const [journalCount, setJournalCount] = useState(0);
+
+  const loadProgressCounts = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        setStackCount(0);
+        setJournalCount(0);
+        return;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Check daily_progress table in Supabase
+      const { data: dailyProgress } = await supabase
+        .from('daily_progress')
+        .select('progress_data')
+        .eq('user_id', session.user.id)
+        .eq('date', today)
+        .maybeSingle();
+
+      const progressData = dailyProgress?.progress_data as any;
+      
+      // Update stack count
+      if (progressData?.stack?.completed || userProgressData?.stack_completed) {
+        setStackCount(1);
+      } else {
+        setStackCount(0);
+      }
+      
+      // Update journal count
+      if (progressData?.journal?.completed || userProgressData?.journal_completed) {
+        setJournalCount(1);
+      } else {
+        setJournalCount(0);
+      }
+    } catch (error) {
+      console.error('Error loading progress counts:', error);
+      setStackCount(0);
+      setJournalCount(0);
     }
-    
-    // Check if stack was completed today through daily progress
-    const today = new Date().toISOString().split('T')[0];
-    const dailyProgressKey = `daily-progress-${today}`;
-    const dailyProgress = JSON.parse(localStorage.getItem(dailyProgressKey) || "{}");
-    
-    if (dailyProgress.stack?.completed === true) {
-      return 1; // At least one stack was completed today
-    }
-    
-    return 0; // No stack completed today
   };
 
-  const getJournalCount = () => {
-    // First check Supabase data if available
-    if (userProgressData?.journal_completed) {
-      return 1;
-    }
+  useEffect(() => {
+    loadProgressCounts();
     
-    // Check if journal was completed today through daily progress
-    const today = new Date().toISOString().split('T')[0];
-    const dailyProgressKey = `daily-progress-${today}`;
-    const dailyProgress = JSON.parse(localStorage.getItem(dailyProgressKey) || "{}");
+    // Listen for progress updates
+    const handleProgressUpdate = () => {
+      loadProgressCounts();
+    };
     
-    return dailyProgress.journal?.completed === true ? 1 : 0;
-  };
+    window.addEventListener('progressUpdated', handleProgressUpdate);
+    return () => {
+      window.removeEventListener('progressUpdated', handleProgressUpdate);
+    };
+  }, [userProgressData]);
 
   const updateStats = () => {
-    const stackCount = getStackCount();
-    const journalCount = getJournalCount();
     const coreScore = getCoreScore();
     const dailyFourScore = getDailyFourScore();
     const weeklyTwoScore = getWeeklyTwoScore();
@@ -429,7 +453,7 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const hasStack = getStackCount() > 0 || getJournalCount() > 0;
+  const hasStack = stackCount > 0 || journalCount > 0;
   const stackToCoreLine = hasStack ? 100 : 0;
   const totalCoreItems = 8;
   const completedCoreItems = Object.keys(coreData[selectedDay] || {}).filter(key => coreData[selectedDay][key]).length;

@@ -9,6 +9,9 @@ interface UseTextToSpeechOptions {
   autoPlay?: boolean;
 }
 
+// TTS cache to avoid regenerating same audio
+const ttsCache = new Map<string, string>();
+
 export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
   const {
     voiceId = 'pNInz6obpgDQGcFmaJgB', // Default ElevenLabs voice
@@ -19,6 +22,8 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
 
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1.0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioQueueRef = useRef<string[]>([]);
   const { toast } = useToast();
@@ -49,22 +54,37 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
       setIsLoading(true);
       console.log('🔊 Generating TTS for:', text.substring(0, 50) + '...');
 
-      const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { text, voiceId }
-      });
+      // Check cache first
+      const cacheKey = `${voiceId}:${text}`;
+      let audioUrl: string;
 
-      if (error) {
-        throw error;
+      if (ttsCache.has(cacheKey)) {
+        console.log('✅ Using cached TTS audio');
+        audioUrl = ttsCache.get(cacheKey)!;
+      } else {
+        // Generate new audio
+        const { data, error } = await supabase.functions.invoke('text-to-speech', {
+          body: { text, voiceId }
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        // Convert response to blob URL
+        const blob = new Blob([data], { type: 'audio/mpeg' });
+        audioUrl = URL.createObjectURL(blob);
+        
+        // Cache the audio URL
+        ttsCache.set(cacheKey, audioUrl);
+        console.log('💾 Cached TTS audio for future use');
       }
 
       // Create audio element
       const audio = new Audio();
       audioRef.current = audio;
-
-      // Convert response to blob URL
-      const blob = new Blob([data], { type: 'audio/mpeg' });
-      const audioUrl = URL.createObjectURL(blob);
       audio.src = audioUrl;
+      audio.playbackRate = playbackRate;
 
       // Set up event listeners
       audio.onplay = () => {
@@ -119,6 +139,33 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
     }
   }, [isSpeaking, voiceId, autoPlay, onSpeakingStart, onSpeakingEnd, cleanup, toast]);
 
+  const pause = useCallback(() => {
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+      setIsPaused(true);
+    }
+  }, []);
+
+  const resume = useCallback(() => {
+    if (audioRef.current && audioRef.current.paused) {
+      audioRef.current.play();
+      setIsPaused(false);
+    }
+  }, []);
+
+  const skip = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = audioRef.current.duration;
+    }
+  }, []);
+
+  const changePlaybackRate = useCallback((rate: number) => {
+    setPlaybackRate(rate);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = rate;
+    }
+  }, []);
+
   const stop = useCallback(() => {
     audioQueueRef.current = [];
     cleanup();
@@ -131,9 +178,15 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
   return {
     speak,
     stop,
+    pause,
+    resume,
+    skip,
+    changePlaybackRate,
     clearQueue,
     isSpeaking,
     isLoading,
+    isPaused,
+    playbackRate,
     queueLength: audioQueueRef.current.length
   };
 };

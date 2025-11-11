@@ -98,7 +98,7 @@ const getStackColor = (type: string): string => {
   }
 };
 
-// Function to update daily progress
+// Function to update daily progress - NOW SAVES TO SUPABASE DAILY_PROGRESS TABLE
 export const updateDailyProgress = async (
   activity: 'stack' | 'journal' | 'core4',
   data?: any
@@ -116,7 +116,42 @@ export const updateDailyProgress = async (
     const date = today.toISOString().split('T')[0]; // YYYY-MM-DD format
     
     try {
-      // Update user_progress table
+      // First, get existing daily progress for today
+      const { data: existingProgress } = await supabase
+        .from('daily_progress')
+        .select('progress_data')
+        .eq('user_id', session.user.id)
+        .eq('date', date)
+        .maybeSingle();
+
+      // Merge with existing progress
+      const currentProgressData = (existingProgress?.progress_data as Record<string, any>) || {};
+      const updatedProgressData = {
+        ...currentProgressData,
+        [activity]: {
+          completed: true,
+          timestamp: new Date().toISOString(),
+          ...(data || {})
+        }
+      };
+
+      // Update daily_progress table
+      const { error: dailyProgressError } = await supabase
+        .from('daily_progress')
+        .upsert({
+          user_id: session.user.id,
+          date: date,
+          progress_data: updatedProgressData
+        }, {
+          onConflict: 'user_id,date'
+        });
+
+      if (dailyProgressError) {
+        console.error("Error updating daily progress:", dailyProgressError);
+        return;
+      }
+
+      // Also update user_progress table for backward compatibility
       const { error: progressError } = await supabase
         .from('user_progress')
         .upsert({
@@ -126,20 +161,22 @@ export const updateDailyProgress = async (
         });
 
       if (progressError) {
-        console.error("Error updating progress:", progressError);
-        return;
+        console.error("Error updating user progress:", progressError);
       }
 
       // Update user statistics
       await updateUserStatistics(session.user.id, activity);
       
       // Dispatch custom event for dashboard updates
-      const today = new Date().toISOString().split('T')[0];
       window.dispatchEvent(new CustomEvent('progressUpdated', {
-        detail: { activity, data, date: today }
+        detail: { activity, data, date }
       }));
       
-      console.log(`Progress updated successfully for ${activity}`);
+      console.log(`✅ Progress saved to Supabase daily_progress for ${activity} on ${date}`);
+      
+      // Remove localStorage fallback
+      localStorage.removeItem(`daily-progress-${date}`);
+      
     } catch (supabaseError) {
       console.error("Supabase error:", supabaseError);
     }

@@ -2,18 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
 import { v4 as uuidv4 } from 'uuid';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
-import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { useVoiceToText } from '@/hooks/useVoiceToText';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
-import { VoiceInputButton } from './VoiceInputButton';
-import { VoiceLanguageToggle } from './VoiceLanguageToggle';
-import { AISpeakingIndicator } from './AISpeakingIndicator';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -57,48 +54,52 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     captureIdea
   } = useStackTodoIntegration({ onAddToHitList });
 
-  // TTS integration for audio mode
+  // TTS integration with advanced controls
   const {
     speak: speakText,
     stop: stopSpeaking,
-    isSpeaking: isTTSSpeaking,
-    isLoading: isTTSLoading
+    pause: pauseTts,
+    resume: resumeTts,
+    skip: skipTts,
+    changePlaybackRate,
+    isSpeaking: isAiSpeaking,
+    isLoading: isTtsLoading,
+    isPaused: isTtsPaused,
+    playbackRate
   } = useTextToSpeech({
-    onSpeakingStart: () => {
-      console.log('🎵 TTS started speaking');
-    },
+    voiceId: localStorage.getItem('preferred-tts-voice') || 'pNInz6obpgDQGcFmaJgB',
+    onSpeakingStart: () => console.log('🎵 AI started speaking'),
     onSpeakingEnd: () => {
-      console.log('✅ TTS finished speaking');
-      shouldSpeakRef.current = false;
+      console.log('✅ AI finished speaking');
+      // Auto-activate microphone after AI finishes speaking in audio mode
+      if (audioMode && ttsEnabled) {
+        setTimeout(() => {
+          startListening();
+        }, 500);
+      }
     },
     autoPlay: true
   });
 
-  // Voice input integration with deduplication
-  const lastTranscriptRef = useRef<string>('');
-  
+  // Voice input with auto-submit
   const {
-    isConnected,
-    isMicOn,
-    isAISpeaking,
-    isUserSpeaking,
-    audioLevel,
-    voiceLanguage,
-    changeVoiceLanguage,
-    toggleMic
-  } = useVoiceInput({
+    transcript,
+    isListening,
+    startListening,
+    stopListening,
+    resetTranscript,
+    isSupported: isVoiceSupported
+  } = useVoiceToText({
     onTranscript: (text) => {
-      // Deduplication: only add if different from last transcript
-      if (text && text !== lastTranscriptRef.current) {
-        lastTranscriptRef.current = text;
-        setCurrentMessage(prev => {
-          const newText = prev ? `${prev} ${text}` : text;
-          return newText;
-        });
-      }
+      setCurrentMessage(text);
     },
-    systemPrompt: `Ești un coach AI care ajută utilizatorii cu ${stackType === 'anger' ? 'gestionarea furiei' : 'rugăciune și reflecție spirituală'}. Fii concis, empatic și orientat către acțiune.`,
-    enabled: mode === 'chat'
+    language: 'ro', // Can be made dynamic
+    autoSubmit: audioMode, // Enable auto-submit in audio mode
+    onAutoSubmit: () => {
+      if (currentMessage.trim()) {
+        sendMessage();
+      }
+    }
   });
 
   const getStackPrompt = () => {
@@ -211,7 +212,7 @@ INSTRUCȚIUNI:
     if (!currentMessage.trim() || isLoading) return;
 
     // Stop any ongoing TTS
-    if (ttsEnabled && isTTSSpeaking) {
+    if (ttsEnabled && isAiSpeaking) {
       stopSpeaking();
     }
 
@@ -336,7 +337,7 @@ INSTRUCȚIUNI:
 
   const resetSession = () => {
     // Stop any ongoing TTS
-    if (ttsEnabled && isTTSSpeaking) {
+    if (ttsEnabled && isAiSpeaking) {
       stopSpeaking();
     }
     
@@ -496,7 +497,7 @@ INSTRUCȚIUNI:
           </h1>
           <p className="text-xs text-muted-foreground">
             Conversație ghidată cu AI coach-ul tău
-            {ttsEnabled && isTTSSpeaking && (
+            {ttsEnabled && isAiSpeaking && (
               <span className="ml-2 inline-flex items-center">
                 <span className="animate-pulse">🔊</span>
                 <span className="ml-1">AI vorbește...</span>
@@ -511,7 +512,7 @@ INSTRUCȚIUNI:
             onClick={() => {
               const newState = !ttsEnabled;
               setTtsEnabled(newState);
-              if (!newState && isTTSSpeaking) {
+              if (!newState && isAiSpeaking) {
                 stopSpeaking();
               }
               toast({
@@ -551,7 +552,14 @@ INSTRUCȚIUNI:
 
       {/* Zona de mesaje - scrollable */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
-        <AISpeakingIndicator isAISpeaking={isAISpeaking} />
+        {isAiSpeaking && (
+          <div className="flex items-center justify-center py-2 text-sm text-muted-foreground">
+            <span className="inline-flex items-center">
+              <span className="animate-pulse mr-2">🔊</span>
+              AI vorbește...
+            </span>
+          </div>
+        )}
         <div className="max-w-3xl mx-auto space-y-4">
           {messages.map((message, index) => (
             <div
@@ -559,26 +567,26 @@ INSTRUCȚIUNI:
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[85%] rounded-lg p-3 sm:p-4 ${
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-foreground'
+                    : 'bg-muted'
                 }`}
               >
-                <div className="text-sm whitespace-pre-wrap">{message.content}</div>
-                <div className="text-xs opacity-60 mt-1">
+                <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                <p className="text-[10px] sm:text-xs mt-1 opacity-50">
                   {message.timestamp.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
-                </div>
+                </p>
               </div>
             </div>
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-muted">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <div className="max-w-[85%] rounded-lg p-3 sm:p-4 bg-muted flex items-center space-x-2">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
             </div>
@@ -587,43 +595,85 @@ INSTRUCȚIUNI:
         </div>
       </div>
 
-      {/* Zona de input - fix la fund */}
-      <div className="border-t border-border bg-card px-4 py-3">
-        <div className="max-w-3xl mx-auto space-y-2">
-          {/* Input cu butoane integrate */}
-          <div className="flex gap-2 items-end">
-            <div className="flex-1 relative">
-              <Textarea
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                placeholder={isUserSpeaking ? "Vorbești..." : "Scrie mesajul tău aici... (Enter trimite)"}
-                className={`min-h-[52px] max-h-32 text-sm resize-none pr-20 ${
-                  isUserSpeaking ? 'ring-2 ring-blue-500' : ''
-                }`}
-                disabled={isLoading}
-              />
-              <div className="absolute bottom-2 right-2 flex gap-1">
-                <VoiceLanguageToggle 
-                  currentLanguage={voiceLanguage}
-                  onLanguageChange={changeVoiceLanguage}
-                  disabled={isConnected}
-                />
-                <VoiceInputButton 
-                  isMicOn={isMicOn}
-                  isConnected={isConnected}
-                  isAISpeaking={isAISpeaking}
-                  isUserSpeaking={isUserSpeaking}
-                  audioLevel={audioLevel}
-                  onToggle={toggleMic}
+      {/* Input Area - sticky la bottom */}
+      <div className="border-t border-border bg-card p-4">
+        <div className="max-w-3xl mx-auto">
+          {/* TTS Playback Controls (shown only when TTS is enabled) */}
+          {ttsEnabled && (
+            <div className="flex items-center justify-center gap-2 mb-3 pb-3 border-b border-border">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => isTtsPaused ? resumeTts() : pauseTts()}
+                disabled={!isAiSpeaking}
+                className="gap-2"
+              >
+                {isTtsPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={skipTts}
+                disabled={!isAiSpeaking}
+                className="gap-2"
+              >
+                <SkipForward className="h-4 w-4" />
+              </Button>
+              <select
+                value={playbackRate}
+                onChange={(e) => changePlaybackRate(parseFloat(e.target.value))}
+                className="h-8 px-2 rounded-md bg-background border border-border text-sm"
+              >
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1">1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+              </select>
+            </div>
+          )}
+
+          {/* Message Input */}
+          <div className="relative flex gap-2">
+            <Textarea
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              placeholder={isListening ? "Vorbești..." : "Scrie mesajul tău aici... (Enter trimite)"}
+              className={`min-h-[52px] max-h-32 text-sm resize-none ${
+                isListening ? 'ring-2 ring-blue-500' : ''
+              }`}
+              disabled={isLoading}
+            />
+            <div className="flex flex-col gap-2">
+              {isVoiceSupported && (
+                <Button
+                  variant={isListening ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => isListening ? stopListening() : startListening()}
                   disabled={isLoading}
-                />
-              </div>
+                  className="h-[52px]"
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
+              )}
+              <Button
+                onClick={sendMessage}
+                disabled={!currentMessage.trim() || isLoading}
+                size="icon"
+                className="h-[52px]"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
             </div>
             <Button
               onClick={sendMessage}

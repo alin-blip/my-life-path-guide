@@ -65,11 +65,15 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
         };
 
         recognitionRef.current.onend = () => {
+          console.log('🎤 Voice recognition ended');
           setIsListening(false);
-          if (autoSubmit && transcript.trim() && onAutoSubmit) {
+          
+          // Auto-submit when user stops speaking (VAD)
+          if (autoSubmit && transcript.trim()) {
+            console.log('✅ Auto-submitting voice input:', transcript);
             setTimeout(() => {
-              onAutoSubmit();
-            }, 300);
+              onAutoSubmit?.();
+            }, 500); // Small delay to ensure transcript is complete
           }
         };
       }
