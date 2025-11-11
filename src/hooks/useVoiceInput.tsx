@@ -6,15 +6,28 @@ import { logger } from '@/lib/logger';
 
 interface UseVoiceInputOptions {
   onTranscript?: (text: string) => void;
+  onInterimTranscript?: (text: string) => void; // Called with interim results for real-time display
   onMicStop?: () => void; // Called when user stops the microphone
+  onSilenceDetected?: () => void; // Called after 3 seconds of silence
   systemPrompt?: string;
   enabled?: boolean;
   transport?: 'webrtc' | 'ws'; // WebRTC is recommended
   voiceLanguage?: 'ro-RO' | 'en-US'; // Language for voice recognition
+  autoSubmitDelay?: number; // Milliseconds to wait before auto-submit (default: 3000)
 }
 
 export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
-  const { onTranscript, onMicStop, systemPrompt = "You are a helpful assistant.", enabled = true, transport = 'webrtc', voiceLanguage: initialLanguage } = options;
+  const { 
+    onTranscript, 
+    onInterimTranscript,
+    onMicStop, 
+    onSilenceDetected,
+    systemPrompt = "You are a helpful assistant.", 
+    enabled = true, 
+    transport = 'webrtc', 
+    voiceLanguage: initialLanguage,
+    autoSubmitDelay = 3000 
+  } = options;
   const { toast } = useToast();
   
   // Voice language state with localStorage persistence
@@ -35,6 +48,8 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
   const lastFinalTranscriptRef = useRef<string>('');
   const lastInterimTranscriptRef = useRef<string>('');
   const isStoppingIntentionallyRef = useRef(false);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const accumulatedTranscriptRef = useRef<string>(''); // Accumulate all transcripts
 
   // Simplified Browser STT - direct implementation
   
@@ -99,22 +114,42 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
         }
       }
 
-      // Process final results only - prevents repetition
+      // Clear any existing silence timer when user speaks
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
+
+      // Process final results - accumulate them
       if (finalTranscript) {
         const trimmedFinal = finalTranscript.trim();
         
-        // Deduplication: only send if different from last final transcript
         if (trimmedFinal && trimmedFinal !== lastFinalTranscriptRef.current) {
           logger.log('✅ Browser STT (Final):', trimmedFinal);
           lastFinalTranscriptRef.current = trimmedFinal;
-          onTranscript?.(trimmedFinal);
+          
+          // Accumulate transcript
+          accumulatedTranscriptRef.current = (accumulatedTranscriptRef.current + ' ' + trimmedFinal).trim();
+          
+          // Send accumulated transcript for display
+          onTranscript?.(accumulatedTranscriptRef.current);
+          
+          // Start silence timer for auto-submit
+          silenceTimerRef.current = setTimeout(() => {
+            logger.log('🔕 3 seconds of silence detected - auto-submitting');
+            onSilenceDetected?.();
+          }, autoSubmitDelay);
         }
       } else if (interimTranscript) {
-        // For interim results, show user feedback but don't send to transcript yet
+        // For interim results, show user feedback in real-time
         const trimmedInterim = interimTranscript.trim();
-        if (trimmedInterim && trimmedInterim !== lastInterimTranscriptRef.current) {
+        if (trimmedInterim) {
           lastInterimTranscriptRef.current = trimmedInterim;
           setIsUserSpeaking(true);
+          
+          // Show interim + accumulated for real-time preview
+          const fullText = (accumulatedTranscriptRef.current + ' ' + trimmedInterim).trim();
+          onInterimTranscript?.(fullText);
         }
       }
     };
@@ -197,9 +232,16 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
       browserSTTRef.current = null;
     }
     
+    // Clear silence timer
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+    
     // Reset deduplication refs
     lastFinalTranscriptRef.current = '';
     lastInterimTranscriptRef.current = '';
+    accumulatedTranscriptRef.current = '';
     
     // Update state
     setIsConnected(false);

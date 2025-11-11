@@ -26,6 +26,8 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartTimeRef = useRef<number>(0);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const accumulatedTranscriptRef = useRef<string>('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -52,10 +54,39 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
             }
           }
 
-          const newText = finalTranscript || interimTranscript;
-          setTranscript(newText);
-          if (onTranscript) {
-            onTranscript(newText);
+          // Clear any existing silence timer when user speaks
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+            silenceTimerRef.current = null;
+          }
+
+          // Handle final transcripts
+          if (finalTranscript.trim()) {
+            accumulatedTranscriptRef.current = (accumulatedTranscriptRef.current + ' ' + finalTranscript).trim();
+            console.log('✅ Final transcript accumulated:', accumulatedTranscriptRef.current);
+            
+            // Update state with accumulated transcript
+            setTranscript(accumulatedTranscriptRef.current);
+            if (onTranscript) {
+              onTranscript(accumulatedTranscriptRef.current);
+            }
+
+            // Start 3-second silence timer for auto-submit
+            if (autoSubmit) {
+              silenceTimerRef.current = setTimeout(() => {
+                console.log('🔕 3 seconds of silence detected - auto-submitting');
+                if (accumulatedTranscriptRef.current.trim()) {
+                  onAutoSubmit?.();
+                }
+              }, 3000);
+            }
+          } else if (interimTranscript.trim()) {
+            // Show interim results in real-time
+            const fullText = (accumulatedTranscriptRef.current + ' ' + interimTranscript).trim();
+            setTranscript(fullText);
+            if (onTranscript) {
+              onTranscript(fullText);
+            }
           }
         };
 
@@ -75,12 +106,10 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
           console.log('🎤 Voice recognition ended');
           setIsListening(false);
           
-          // Auto-submit when user stops speaking (VAD)
-          if (autoSubmit && transcript.trim()) {
-            console.log('✅ Auto-submitting voice input:', transcript);
-            setTimeout(() => {
-              onAutoSubmit?.();
-            }, 500); // Small delay to ensure transcript is complete
+          // Clear silence timer on end
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+            silenceTimerRef.current = null;
           }
         };
       }
@@ -98,6 +127,13 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
       try {
         setTranscript('');
         audioChunksRef.current = [];
+        accumulatedTranscriptRef.current = ''; // Reset accumulated transcript
+        
+        // Clear any existing timer
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
+        }
         
         // Start audio recording if saveRecording is enabled
         if (saveRecording) {
@@ -143,6 +179,12 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
       recognitionRef.current.stop();
       setIsListening(false);
       
+      // Clear silence timer
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
+      
       // Stop audio recording
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.stop();
@@ -165,6 +207,13 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
 
   const resetTranscript = useCallback(() => {
     setTranscript('');
+    accumulatedTranscriptRef.current = '';
+    
+    // Clear silence timer
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
   }, []);
 
   const getRecordedAudio = useCallback(() => {
