@@ -89,6 +89,63 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
+    // Input validation
+    if (!mode || !['review', 'new'].includes(mode)) {
+      return new Response(JSON.stringify({ error: 'Invalid mode: must be "review" or "new"' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+      return new Response(JSON.stringify({ error: 'Invalid messages array: must contain 1-50 messages' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    for (const msg of messages) {
+      if (!msg.content || typeof msg.content !== 'string') {
+        return new Response(JSON.stringify({ error: 'Invalid message: content must be a non-empty string' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (msg.content.length > 5000) {
+        return new Response(JSON.stringify({ error: 'Message too long: maximum 5000 characters per message' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (!['user', 'assistant', 'system'].includes(msg.role)) {
+        return new Response(JSON.stringify({ error: 'Invalid message role: must be user, assistant, or system' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    if (previousWeekData) {
+      if (typeof previousWeekData !== 'object') {
+        return new Response(JSON.stringify({ error: 'Invalid previousWeekData: must be an object' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (previousWeekData.dominoTitle && typeof previousWeekData.dominoTitle !== 'string') {
+        return new Response(JSON.stringify({ error: 'Invalid dominoTitle: must be a string' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (previousWeekData.keyPoints && !Array.isArray(previousWeekData.keyPoints)) {
+        return new Response(JSON.stringify({ error: 'Invalid keyPoints: must be an array' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     // Determine system prompt based on mode
     const systemPrompt = mode === 'review' && previousWeekData 
       ? REVIEW_SYSTEM_PROMPT 

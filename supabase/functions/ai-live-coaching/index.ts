@@ -20,6 +20,49 @@ serve(async (req) => {
 
     const { messages, systemPrompt } = await req.json();
 
+    // Input validation
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+      return new Response(JSON.stringify({ error: 'Invalid messages array: must contain 1-50 messages' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    for (const msg of messages) {
+      if (!msg.content || typeof msg.content !== 'string') {
+        return new Response(JSON.stringify({ error: 'Invalid message: content must be a non-empty string' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (msg.content.length > 5000) {
+        return new Response(JSON.stringify({ error: 'Message too long: maximum 5000 characters per message' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (!['user', 'assistant', 'system'].includes(msg.role)) {
+        return new Response(JSON.stringify({ error: 'Invalid message role: must be user, assistant, or system' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    if (systemPrompt && typeof systemPrompt !== 'string') {
+      return new Response(JSON.stringify({ error: 'Invalid systemPrompt: must be a string' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    if (systemPrompt && systemPrompt.length > 10000) {
+      return new Response(JSON.stringify({ error: 'System prompt too long: maximum 10000 characters' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     console.log('AI Live Coaching request:', { messagesCount: messages.length, systemPrompt: systemPrompt?.substring(0, 100) + '...' });
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
