@@ -9,8 +9,11 @@ interface UseTextToSpeechOptions {
   autoPlay?: boolean;
 }
 
-// TTS cache to avoid regenerating same audio
-const ttsCache = new Map<string, string>();
+// TTS cache to avoid regenerating same audio - stores blob URLs
+const ttsCache = new Map<string, { url: string; blob: Blob }>();
+
+// Track active audio elements for cleanup
+const activeAudioElements = new Set<HTMLAudioElement>();
 
 export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
   const {
@@ -31,7 +34,14 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
   const cleanup = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
+      // Remove from active set
+      activeAudioElements.delete(audioRef.current);
+      // Revoke object URL properly
+      if (audioRef.current.src.startsWith('blob:')) {
+        URL.revokeObjectURL(audioRef.current.src);
+      }
       audioRef.current.src = '';
+      audioRef.current.remove();
       audioRef.current = null;
     }
     setIsSpeaking(false);
@@ -57,10 +67,14 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
       // Check cache first
       const cacheKey = `${voiceId}:${text}`;
       let audioUrl: string;
+      let audioBlob: Blob;
 
       if (ttsCache.has(cacheKey)) {
         console.log('✅ Using cached TTS audio');
-        audioUrl = ttsCache.get(cacheKey)!;
+        const cached = ttsCache.get(cacheKey)!;
+        audioBlob = cached.blob;
+        // Create fresh URL from blob to avoid revoked URLs
+        audioUrl = URL.createObjectURL(audioBlob);
       } else {
         // Generate new audio using direct fetch to get binary response
         const response = await fetch(
@@ -80,19 +94,29 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
         }
 
         // Get audio blob directly
-        const blob = await response.blob();
-        audioUrl = URL.createObjectURL(blob);
+        audioBlob = await response.blob();
         
-        // Cache the audio URL
-        ttsCache.set(cacheKey, audioUrl);
+        // Verify blob is valid and has content
+        if (!audioBlob || audioBlob.size === 0) {
+          throw new Error('Invalid audio data received');
+        }
+        
+        audioUrl = URL.createObjectURL(audioBlob);
+        
+        // Cache the blob (not the URL, as URLs can be revoked)
+        ttsCache.set(cacheKey, { url: audioUrl, blob: audioBlob });
         console.log('💾 Cached TTS audio for future use');
       }
 
       // Create audio element
       const audio = new Audio();
       audioRef.current = audio;
+      activeAudioElements.add(audio);
+      
+      // Set source and verify it's loadable
       audio.src = audioUrl;
       audio.playbackRate = playbackRate;
+      audio.preload = 'auto';
 
       // Set up event listeners
       audio.onplay = () => {
@@ -104,9 +128,18 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
 
       audio.onended = () => {
         setIsSpeaking(false);
-        URL.revokeObjectURL(audioUrl);
         onSpeakingEnd?.();
         console.log('✅ AI finished speaking');
+        
+        // Clean up this specific audio element
+        if (audioRef.current === audio) {
+          activeAudioElements.delete(audio);
+          if (audio.src.startsWith('blob:')) {
+            URL.revokeObjectURL(audio.src);
+          }
+          audio.remove();
+          audioRef.current = null;
+        }
 
         // Process queue
         const nextText = audioQueueRef.current.shift();
@@ -117,11 +150,18 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
 
       audio.onerror = (e) => {
         console.error('❌ Audio playback error:', e);
+        console.error('Audio src:', audio.src);
+        console.error('Audio readyState:', audio.readyState);
+        console.error('Audio networkState:', audio.networkState);
+        
+        // Clear corrupted cache entry
+        ttsCache.delete(cacheKey);
+        
         cleanup();
         setIsLoading(false);
         toast({
           title: '⚠️ Eroare audio',
-          description: 'Nu s-a putut reda audio-ul',
+          description: 'Nu s-a putut reda audio-ul. Încearcă din nou.',
           variant: 'destructive',
         });
       };
@@ -176,6 +216,17 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
 
   const stop = useCallback(() => {
     audioQueueRef.current = [];
+    
+    // Stop all active audio elements
+    activeAudioElements.forEach(audio => {
+      audio.pause();
+      if (audio.src.startsWith('blob:')) {
+        URL.revokeObjectURL(audio.src);
+      }
+      audio.remove();
+    });
+    activeAudioElements.clear();
+    
     cleanup();
   }, [cleanup]);
 
