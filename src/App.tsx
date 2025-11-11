@@ -11,8 +11,8 @@ import { ProgressProvider } from "@/context/ProgressContext";
 import { SecurityProvider } from "@/components/SecurityProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { MigrationModal } from "@/components/MigrationModal";
 import { MigrationProvider } from "@/context/MigrationContext";
+import { DataMigrationModal } from "@/components/DataMigrationModal";
 
 // Eager load critical pages
 import Index from "./pages/Index";
@@ -66,7 +66,7 @@ const App = () => (
                 <LanguageProvider>
                   <SecurityProvider>
                     <ProgressProvider>
-                      <MigrationModal />
+                      <DataMigrationModal />
                       <Suspense fallback={<LoadingFallback />}>
                         <Routes>
                     <Route path="/" element={<Index />} />
