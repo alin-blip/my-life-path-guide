@@ -53,7 +53,7 @@ export function useHormoziStack({ onAddToHitList }: UseHormoziStackProps = {}) {
       const actionText = generateActionPlan(state.answers);
 
       // Save to stack library
-      const questions = hormoziQuestions.map(q => q.question);
+      const questions = hormoziQuestions;
       await saveToStackLibrary('hormozi-business', sessionId, state.answers, questions);
 
       // Update daily progress

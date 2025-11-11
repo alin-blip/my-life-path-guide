@@ -28,11 +28,13 @@ interface Message {
 
 interface AiGuidedStackProps {
   onAddToHitList?: (action: string) => void;
-  stackType: 'anger' | 'divine-prayer';
+  stackType: 'anger' | 'divine-prayer' | 'gods-school' | 'hormozi';
   questions: string[];
   onModeSwitch?: () => void;
   audioMode?: boolean;
   voiceOnlyMode?: boolean;
+  systemPrompt?: string;
+  welcomeMessage?: string;
 }
 
 export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({ 
@@ -41,13 +43,15 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   questions,
   onModeSwitch,
   audioMode = false,
-  voiceOnlyMode = false
+  voiceOnlyMode = false,
+  systemPrompt: customSystemPrompt,
+  welcomeMessage: customWelcomeMessage
 }) => {
   const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [systemPrompt, setSystemPrompt] = useState('');
+  const [systemPrompt, setSystemPrompt] = useState(customSystemPrompt || '');
   const [finalAction, setFinalAction] = useState('');
   const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
   const [sessionId] = useState(() => uuidv4());
@@ -229,13 +233,13 @@ INSTRUCȚIUNI:
   };
 
   useEffect(() => {
-    setSystemPrompt(getStackPrompt());
+    setSystemPrompt(customSystemPrompt || getStackPrompt());
     
     // Add welcome message when component mounts
     if (messages.length === 0) {
-      const welcomeContent = stackType === 'anger' 
+      const welcomeContent = customWelcomeMessage || (stackType === 'anger' 
         ? 'Salut! Sunt aici să te ajut să treci prin procesul de transformare a furiei în claritate și acțiune constructivă. Să începem - ce te-a adus astăzi la acest exercițiu? Ce situație sau sentiment vrei să explorăm împreună?'
-        : 'Bine ai venit într-un spațiu de rugăciune și reflecție spirituală. Sunt aici să te însoțesc în această călătorie de conexiune cu divinitatea și găsire de claritate spirituală. Spune-mi, ce te-a adus astăzi la această rugăciune?';
+        : 'Bine ai venit într-un spațiu de rugăciune și reflecție spirituală. Sunt aici să te însoțesc în această călătorie de conexiune cu divinitatea și găsire de claritate spirituală. Spune-mi, ce te-a adus astăzi la această rugăciune?');
       
       const welcomeMessage: Message = {
         role: 'assistant',
