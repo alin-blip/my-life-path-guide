@@ -25,7 +25,8 @@ import {
   Pencil,
   Target,
   Crown,
-  CreditCard
+  CreditCard,
+  Mic
 } from 'lucide-react';
 
 interface SideMenuProps {
@@ -82,6 +83,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: 'Imperiul de Business', icon: Briefcase, path: '/stack?type=hormozi-coaching' },
         { title: 'Școala Zeilor', icon: Crown, path: '/stack?type=gods-school' },
         { title: 'Jurnalul Sacru', icon: Pencil, path: '/journal' },
+        { title: 'Analiza Vocală', icon: Mic, path: '/voice-analysis' },
       ]
     },
     { title: t('commandCenter'), icon: Flag, path: '/door' },
