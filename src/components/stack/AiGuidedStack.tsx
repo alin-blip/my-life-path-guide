@@ -58,7 +58,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [sessionId] = useState(() => uuidv4());
   const [ttsEnabled, setTtsEnabled] = useState(voiceOnlyMode || audioMode);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState(0);
-  const [hasSpokenWelcome, setHasSpokenWelcome] = useState(false);
+  const hasSpokenWelcomeRef = useRef(false); // ✅ Schimbat în ref pentru control instant
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [noteMessageIndex, setNoteMessageIndex] = useState<number | null>(null);
   const [currentNote, setCurrentNote] = useState('');
@@ -250,7 +250,7 @@ INSTRUCȚIUNI:
     setSystemPrompt(customSystemPrompt || getStackPrompt());
     
     // Reset spoken flag when component mounts or stackType changes
-    setHasSpokenWelcome(false);
+    hasSpokenWelcomeRef.current = false; // ✅ Reset ref
     
     // Add welcome message when component mounts
     if (messages.length === 0) {
@@ -266,8 +266,8 @@ INSTRUCȚIUNI:
       setMessages([welcomeMessage]);
       
       // ✅ CRUCIAL: TTS automat DOAR în voiceOnlyMode
-      if (voiceOnlyMode && ttsEnabled && !hasSpokenWelcome) {
-        setHasSpokenWelcome(true); // ✅ CRUCIAL: Setăm flag ÎNAINTE de timeout
+      if (voiceOnlyMode && ttsEnabled && !hasSpokenWelcomeRef.current) {
+        hasSpokenWelcomeRef.current = true; // ✅ Setăm ref INSTANT
         shouldSpeakRef.current = true;
         setTimeout(() => {
           if (shouldSpeakRef.current) {
@@ -275,7 +275,7 @@ INSTRUCȚIUNI:
             stopSpeaking(); // ✅ Oprește orice audio activ
             speakText(welcomeContent);
           }
-        }, 1000); // Redus de la 1500ms la 1000ms
+        }, 1000);
       }
     }
 
@@ -283,7 +283,7 @@ INSTRUCȚIUNI:
     return () => {
       console.log('🧹 Cleanup: stopping TTS for', stackType);
       shouldSpeakRef.current = false;
-      setHasSpokenWelcome(false); // ✅ Reset flag
+      hasSpokenWelcomeRef.current = false; // ✅ Reset ref
       stopSpeaking();
       if (isListening) {
         stopListening();
@@ -458,7 +458,7 @@ INSTRUCȚIUNI:
     setCurrentMessage('');
     setFinalAction('');
     setActionAddedToHitList(false);
-    setHasSpokenWelcome(false); // ✅ Reset flag
+    hasSpokenWelcomeRef.current = false; // ✅ Reset ref
     
     // Add fresh welcome message
     const welcomeContent = stackType === 'anger' 
@@ -474,7 +474,7 @@ INSTRUCȚIUNI:
     
     // Speak welcome message in voice mode
     if (voiceOnlyMode && ttsEnabled) {
-      setHasSpokenWelcome(true); // ✅ Mutat înainte
+      hasSpokenWelcomeRef.current = true; // ✅ Setăm ref INSTANT
       shouldSpeakRef.current = true;
       setTimeout(() => {
         if (shouldSpeakRef.current) {
