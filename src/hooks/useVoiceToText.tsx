@@ -40,6 +40,7 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
         recognitionRef.current.continuous = true;
         recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = language === 'ro' ? 'ro-RO' : 'en-US';
+        recognitionRef.current.maxAlternatives = 1;
 
         recognitionRef.current.onresult = (event: any) => {
           let finalTranscript = '';
@@ -92,7 +93,25 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
 
         recognitionRef.current.onerror = (event: any) => {
           console.error('Speech recognition error:', event.error);
-          if (event.error !== 'no-speech' && event.error !== 'aborted') {
+          
+          // Handle mobile-specific errors gracefully
+          if (event.error === 'not-allowed') {
+            toast({
+              title: language === 'ro' ? 'Acces microfon refuzat' : 'Microphone access denied',
+              description: language === 'ro' 
+                ? 'Te rugăm să permiți accesul la microfon în setările browser-ului.' 
+                : 'Please allow microphone access in browser settings.',
+              variant: 'destructive',
+            });
+          } else if (event.error === 'network') {
+            toast({
+              title: language === 'ro' ? 'Eroare de rețea' : 'Network error',
+              description: language === 'ro' 
+                ? 'Verifică conexiunea la internet.' 
+                : 'Please check your internet connection.',
+              variant: 'destructive',
+            });
+          } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
             toast({
               title: language === 'ro' ? 'Eroare recunoaștere vocală' : 'Speech recognition error',
               description: event.error,
@@ -147,8 +166,17 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
                 sampleRate: 24000
               } as MediaTrackConstraints 
             });
+            
+            // Check if MediaRecorder is supported with webm
+            let mimeType = 'audio/webm';
+            if (!MediaRecorder.isTypeSupported('audio/webm')) {
+              // Fallback for Safari/iOS
+              mimeType = 'audio/mp4';
+              console.log('🍎 Using audio/mp4 for Safari compatibility');
+            }
+            
             const mediaRecorder = new MediaRecorder(stream, {
-              mimeType: 'audio/webm'
+              mimeType: mimeType
             });
             
             mediaRecorder.ondataavailable = (event) => {
@@ -163,6 +191,13 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
             console.log('🎙️ Audio recording started');
           } catch (error) {
             console.error('❌ Error starting audio recording:', error);
+            toast({
+              title: language === 'ro' ? 'Eroare înregistrare audio' : 'Audio recording error',
+              description: language === 'ro' 
+                ? 'Nu am putut porni înregistrarea audio. Încearcă din nou.' 
+                : 'Could not start audio recording. Please try again.',
+              variant: 'destructive',
+            });
           }
         }
         
@@ -170,9 +205,16 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
         setIsListening(true);
       } catch (error) {
         console.error('Error starting recognition:', error);
+        toast({
+          title: language === 'ro' ? 'Eroare pornire microfon' : 'Error starting microphone',
+          description: language === 'ro' 
+            ? 'Verifică permisiunile microfonului.' 
+            : 'Please check microphone permissions.',
+          variant: 'destructive',
+        });
       }
     }
-  }, [isListening, saveRecording]);
+  }, [isListening, saveRecording, language, toast]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
