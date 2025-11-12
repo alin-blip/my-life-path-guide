@@ -29,6 +29,8 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioQueueRef = useRef<string[]>([]);
+  const isSpeakingRef = useRef(false); // Prevent re-entrant speak calls
+  const currentTextRef = useRef<string | null>(null); // Track current spoken text
   const { toast } = useToast();
 
   const cleanup = useCallback(() => {
@@ -54,13 +56,22 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
       return;
     }
 
-    // If currently speaking, queue the text
-    if (isSpeaking) {
+    // If currently speaking or locked, avoid duplicates
+    if (isSpeakingRef.current || isSpeaking) {
+      // Drop duplicate if same as current or already last in queue
+      if (
+        currentTextRef.current === text ||
+        audioQueueRef.current[audioQueueRef.current.length - 1] === text
+      ) {
+        console.log('🛑 Dropping duplicate TTS request');
+        return;
+      }
       audioQueueRef.current.push(text);
       return;
     }
 
     try {
+      isSpeakingRef.current = true; // Lock immediately to avoid race conditions
       setIsLoading(true);
       console.log('🔊 Generating TTS for:', text.substring(0, 50) + '...');
 
@@ -120,6 +131,7 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
 
       // Set up event listeners
       audio.onplay = () => {
+        currentTextRef.current = text; // Track currently spoken text
         setIsSpeaking(true);
         setIsLoading(false);
         onSpeakingStart?.();
@@ -141,8 +153,16 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
           audioRef.current = null;
         }
 
-        // Process queue
-        const nextText = audioQueueRef.current.shift();
+        // Unlock speaking
+        isSpeakingRef.current = false;
+        currentTextRef.current = null;
+
+        // Process queue (skip duplicates of just-played text)
+        let nextText = audioQueueRef.current.shift();
+        while (nextText && nextText === text) {
+          console.log('⏩ Skipping queued duplicate TTS');
+          nextText = audioQueueRef.current.shift();
+        }
         if (nextText) {
           speak(nextText);
         }
@@ -156,6 +176,10 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
         
         // Clear corrupted cache entry
         ttsCache.delete(cacheKey);
+        
+        // Unlock
+        isSpeakingRef.current = false;
+        currentTextRef.current = null;
         
         cleanup();
         setIsLoading(false);
@@ -175,6 +199,8 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
       console.error('❌ TTS error:', error);
       setIsLoading(false);
       setIsSpeaking(false);
+      isSpeakingRef.current = false;
+      currentTextRef.current = null;
       
       // Only show toast for real errors, not for missing API key
       if (error instanceof Error && !error.message.includes('API_KEY')) {
@@ -185,7 +211,7 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
         });
       }
     }
-  }, [isSpeaking, voiceId, autoPlay, onSpeakingStart, onSpeakingEnd, cleanup, toast]);
+  }, [isSpeaking, voiceId, autoPlay, onSpeakingStart, onSpeakingEnd, playbackRate, cleanup, toast]);
 
   const pause = useCallback(() => {
     if (audioRef.current && !audioRef.current.paused) {
@@ -216,6 +242,8 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
 
   const stop = useCallback(() => {
     audioQueueRef.current = [];
+    isSpeakingRef.current = false; // Unlock speaking
+    currentTextRef.current = null;
     
     // Stop all active audio elements
     activeAudioElements.forEach(audio => {
