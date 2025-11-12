@@ -266,14 +266,18 @@ INSTRUCȚIUNI:
       setMessages([welcomeMessage]);
       
       // ✅ CRUCIAL: TTS automat DOAR în voiceOnlyMode
-      if (voiceOnlyMode && ttsEnabled && !hasSpokenWelcomeRef.current) {
-        hasSpokenWelcomeRef.current = true; // ✅ Setăm ref INSTANT
+      if (voiceOnlyMode && ttsEnabled && !hasSpokenWelcomeRef.current && !isAiSpeaking) {
+        hasSpokenWelcomeRef.current = true;
         shouldSpeakRef.current = true;
+        console.log('🎵 [VOICE-ONLY MODE] Preparing to speak welcome message for', stackType);
         setTimeout(() => {
-          if (shouldSpeakRef.current) {
-            console.log('🎵 [VOICE-ONLY MODE] Auto-speaking welcome message for', stackType);
-            stopSpeaking(); // ✅ Oprește orice audio activ
+          // Double-check that we should still speak
+          if (shouldSpeakRef.current && !isAiSpeaking) {
+            console.log('🎵 [VOICE-ONLY MODE] Actually speaking welcome message');
+            stopSpeaking();
             speakText(welcomeContent);
+          } else {
+            console.log('⏸️ [VOICE-ONLY MODE] Cancelled welcome - already speaking or cancelled');
           }
         }, 1000);
       }
@@ -283,7 +287,7 @@ INSTRUCȚIUNI:
     return () => {
       console.log('🧹 Cleanup: stopping TTS for', stackType);
       shouldSpeakRef.current = false;
-      hasSpokenWelcomeRef.current = false; // ✅ Reset ref
+      // ✅ NU resetăm hasSpokenWelcomeRef pentru a preveni re-trigger
       stopSpeaking();
       if (isListening) {
         stopListening();
@@ -473,13 +477,17 @@ INSTRUCȚIUNI:
     setMessages([welcomeMessage]);
     
     // Speak welcome message in voice mode
-    if (voiceOnlyMode && ttsEnabled) {
-      hasSpokenWelcomeRef.current = true; // ✅ Setăm ref INSTANT
+    if (voiceOnlyMode && ttsEnabled && !isAiSpeaking) {
+      hasSpokenWelcomeRef.current = true;
       shouldSpeakRef.current = true;
+      console.log('🎵 [RESET] Preparing to speak welcome message');
       setTimeout(() => {
-        if (shouldSpeakRef.current) {
-          stopSpeaking(); // ✅ Safety stop
+        if (shouldSpeakRef.current && !isAiSpeaking) {
+          console.log('🎵 [RESET] Actually speaking welcome message');
+          stopSpeaking();
           speakText(welcomeContent);
+        } else {
+          console.log('⏸️ [RESET] Cancelled welcome - already speaking');
         }
       }, 1000);
     }
