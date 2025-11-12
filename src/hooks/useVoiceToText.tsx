@@ -26,6 +26,10 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartTimeRef = useRef<number>(0);
+  const silenceTimerRef = useRef<number | null>(null);
+  const accumulatedTranscriptRef = useRef<string>('');
+  const didAutoSubmitRef = useRef(false);
+  const lastTranscriptTimeRef = useRef<number>(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -38,6 +42,7 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
         recognitionRef.current.continuous = true;
         recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = language === 'ro' ? 'ro-RO' : 'en-US';
+        recognitionRef.current.maxAlternatives = 1; // Mobile optimization
 
         recognitionRef.current.onresult = (event: any) => {
           let finalTranscript = '';
@@ -52,16 +57,63 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
             }
           }
 
-          const newText = finalTranscript || interimTranscript;
-          setTranscript(newText);
+          // Acumulare transcript final
+          if (finalTranscript.trim()) {
+            accumulatedTranscriptRef.current += finalTranscript;
+            lastTranscriptTimeRef.current = Date.now();
+          }
+
+          // Display: accumulated + interim pentru feedback live
+          const displayText = accumulatedTranscriptRef.current + interimTranscript;
+          setTranscript(displayText);
           if (onTranscript) {
-            onTranscript(newText);
+            onTranscript(displayText);
+          }
+
+          // Timer de liniște 3s
+          if (autoSubmit) {
+            // Clear timer existent
+            if (silenceTimerRef.current) {
+              clearTimeout(silenceTimerRef.current);
+            }
+
+            // Set timer nou - după 3s de liniște => submit
+            silenceTimerRef.current = window.setTimeout(() => {
+              const now = Date.now();
+              const timeSinceLastTranscript = now - lastTranscriptTimeRef.current;
+              
+              // Verifică că a trecut 3s și nu am făcut deja submit
+              if (timeSinceLastTranscript >= 3000 && !didAutoSubmitRef.current && accumulatedTranscriptRef.current.trim()) {
+                console.log('🔄 VAD: 3s silence detected, auto-submitting');
+                didAutoSubmitRef.current = true;
+                onAutoSubmit?.();
+                
+                // Reset flag după 1s pentru a permite submit-uri viitoare
+                setTimeout(() => {
+                  didAutoSubmitRef.current = false;
+                }, 1000);
+              }
+            }, 3100); // 3.1s pentru siguranță
           }
         };
 
         recognitionRef.current.onerror = (event: any) => {
           console.error('Speech recognition error:', event.error);
-          if (event.error !== 'no-speech' && event.error !== 'aborted') {
+          
+          // Mobile-specific error handling
+          if (event.error === 'not-allowed') {
+            toast({
+              title: language === 'ro' ? 'Acces microfon refuzat' : 'Microphone access denied',
+              description: language === 'ro' ? 'Permite acces la microfon în setări' : 'Allow microphone access in settings',
+              variant: 'destructive',
+            });
+          } else if (event.error === 'network') {
+            toast({
+              title: language === 'ro' ? 'Eroare conexiune' : 'Network error',
+              description: language === 'ro' ? 'Verifică conexiunea la internet' : 'Check internet connection',
+              variant: 'destructive',
+            });
+          } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
             toast({
               title: language === 'ro' ? 'Eroare recunoaștere vocală' : 'Speech recognition error',
               description: event.error,
@@ -69,19 +121,22 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
             });
           }
           setIsListening(false);
+          
+          // Clear timer
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+          }
         };
 
         recognitionRef.current.onend = () => {
           console.log('🎤 Voice recognition ended');
           setIsListening(false);
           
-          // Auto-submit when user stops speaking (VAD)
-          if (autoSubmit && transcript.trim()) {
-            console.log('✅ Auto-submitting voice input:', transcript);
-            setTimeout(() => {
-              onAutoSubmit?.();
-            }, 500); // Small delay to ensure transcript is complete
+          // Clear timer
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
           }
+          // Auto-submit se face din timer, nu aici
         };
       }
     }
@@ -96,7 +151,11 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
   const startListening = useCallback(async () => {
     if (recognitionRef.current && !isListening) {
       try {
+        // Reset refs
         setTranscript('');
+        accumulatedTranscriptRef.current = '';
+        didAutoSubmitRef.current = false;
+        lastTranscriptTimeRef.current = Date.now();
         audioChunksRef.current = [];
         
         // Start audio recording if saveRecording is enabled
@@ -111,9 +170,24 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
                 sampleRate: 24000
               } as MediaTrackConstraints 
             });
-            const mediaRecorder = new MediaRecorder(stream, {
-              mimeType: 'audio/webm'
-            });
+            
+            // iOS/Safari fallback pentru MIME type
+            let mimeType = 'audio/webm';
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            
+            if (isIOS || isSafari) {
+              mimeType = 'audio/mp4';
+            }
+            
+            let mediaRecorder: MediaRecorder;
+            try {
+              mediaRecorder = new MediaRecorder(stream, { mimeType });
+            } catch (e) {
+              // Fallback fără mimeType dacă browser-ul nu-l suportă
+              console.log('⚠️ Falling back to default MediaRecorder format');
+              mediaRecorder = new MediaRecorder(stream);
+            }
             
             mediaRecorder.ondataavailable = (event) => {
               if (event.data.size > 0) {
@@ -127,6 +201,11 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
             console.log('🎙️ Audio recording started');
           } catch (error) {
             console.error('❌ Error starting audio recording:', error);
+            toast({
+              title: language === 'ro' ? 'Eroare înregistrare' : 'Recording error',
+              description: language === 'ro' ? 'Nu s-a putut porni înregistrarea audio' : 'Could not start audio recording',
+              variant: 'destructive'
+            });
           }
         }
         
@@ -134,14 +213,25 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
         setIsListening(true);
       } catch (error) {
         console.error('Error starting recognition:', error);
+        toast({
+          title: language === 'ro' ? 'Eroare microfon' : 'Microphone error',
+          description: language === 'ro' ? 'Nu s-a putut porni microfonul' : 'Could not start microphone',
+          variant: 'destructive'
+        });
       }
     }
-  }, [isListening, saveRecording]);
+  }, [isListening, saveRecording, language, toast]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
+      
+      // Clear timer
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
       
       // Stop audio recording
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
@@ -165,6 +255,12 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
 
   const resetTranscript = useCallback(() => {
     setTranscript('');
+    accumulatedTranscriptRef.current = '';
+    didAutoSubmitRef.current = false;
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
   }, []);
 
   const getRecordedAudio = useCallback(() => {

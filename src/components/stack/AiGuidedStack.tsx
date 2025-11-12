@@ -112,12 +112,12 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     },
     onSpeakingEnd: () => {
       console.log('✅ AI finished speaking');
-      // Auto-activate microphone after AI finishes speaking with longer delay
+      // Auto-activate microphone after AI finishes speaking
       if (audioMode && ttsEnabled && !isListening) {
         console.log('🎤 Reactivating microphone after AI speech');
         setTimeout(() => {
           startListening();
-        }, 1500); // Increased from 500ms to 1500ms
+        }, 1000); // Redus de la 1500ms la 1000ms pentru fluiditate
       }
     },
     autoPlay: true
@@ -267,14 +267,15 @@ INSTRUCȚIUNI:
       
       // ✅ CRUCIAL: TTS automat DOAR în voiceOnlyMode
       if (voiceOnlyMode && ttsEnabled && !hasSpokenWelcome) {
+        setHasSpokenWelcome(true); // ✅ CRUCIAL: Setăm flag ÎNAINTE de timeout
         shouldSpeakRef.current = true;
         setTimeout(() => {
-          if (shouldSpeakRef.current && !hasSpokenWelcome) {
+          if (shouldSpeakRef.current) {
             console.log('🎵 [VOICE-ONLY MODE] Auto-speaking welcome message for', stackType);
+            stopSpeaking(); // ✅ Oprește orice audio activ
             speakText(welcomeContent);
-            setHasSpokenWelcome(true);
           }
-        }, 1500);
+        }, 1000); // Redus de la 1500ms la 1000ms
       }
     }
 
@@ -282,6 +283,7 @@ INSTRUCȚIUNI:
     return () => {
       console.log('🧹 Cleanup: stopping TTS for', stackType);
       shouldSpeakRef.current = false;
+      setHasSpokenWelcome(false); // ✅ Reset flag
       stopSpeaking();
       if (isListening) {
         stopListening();
@@ -308,10 +310,8 @@ INSTRUCȚIUNI:
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
 
-    // Stop any ongoing TTS
-    if (ttsEnabled && isAiSpeaking) {
-      stopSpeaking();
-    }
+    // Stop any ongoing TTS BEFORE starting new interaction
+    stopSpeaking(); // ✅ Mutat înaintea creării userMessage
 
     const userMessage: Message = {
       role: 'user',
@@ -321,6 +321,7 @@ INSTRUCȚIUNI:
 
     setMessages(prev => [...prev, userMessage]);
     setCurrentMessage('');
+    resetTranscript(); // ✅ Curăță transcript hook
     setIsLoading(true);
 
     try {
@@ -345,11 +346,12 @@ INSTRUCȚIUNI:
       setMessages(prev => [...prev, assistantMessage]);
       setCurrentQuestionNumber(prev => prev + 1);
       
-      // ✅ TTS doar în voiceOnlyMode SAU dacă user a activat manual
-      if (voiceOnlyMode && ttsEnabled) {
+      // Auto-speak AI response in audio/voice mode
+      if ((voiceOnlyMode || audioMode) && ttsEnabled) {
         shouldSpeakRef.current = true;
         setTimeout(() => {
           if (shouldSpeakRef.current) {
+            stopSpeaking(); // ✅ Safety stop
             speakText(data.message);
           }
         }, 300);
@@ -400,14 +402,29 @@ INSTRUCȚIUNI:
         const userId = authData.session?.user?.id;
         if (userId) {
           const payload = JSON.parse(JSON.stringify(answersMap));
+          
+          // ✅ Salvare transcript complet în metadata
+          const transcriptText = messages.map((m, i) => 
+            `[${m.timestamp.toLocaleTimeString('ro-RO')}] ${m.role === 'user' ? 'Tu' : 'AI'}: ${m.content}`
+          ).join('\n\n');
+          
           const { error: upsertError } = await supabase.from('stack_sessions').upsert({
             user_id: userId,
             session_id: sessionId,
             stack_type: derivedType,
             answers: payload,
-            completed: true
+            completed: true,
+            metadata: {
+              transcript: transcriptText,
+              message_count: messages.length,
+              voice_mode: voiceOnlyMode || audioMode
+            }
           });
           if (upsertError) console.error('Failed to upsert stack_sessions:', upsertError);
+          
+          // ✅ Salvare în storage
+          await saveTranscriptToStorage();
+          
           // Mark introspecție complete
           await updateDailyProgress('stack');
         }
@@ -435,14 +452,13 @@ INSTRUCȚIUNI:
 
   const resetSession = () => {
     // Stop any ongoing TTS
-    if (ttsEnabled && isAiSpeaking) {
-      stopSpeaking();
-    }
+    stopSpeaking(); // ✅ Simplificat
     
     setMode('chat');
     setCurrentMessage('');
     setFinalAction('');
     setActionAddedToHitList(false);
+    setHasSpokenWelcome(false); // ✅ Reset flag
     
     // Add fresh welcome message
     const welcomeContent = stackType === 'anger' 
@@ -456,11 +472,13 @@ INSTRUCȚIUNI:
     };
     setMessages([welcomeMessage]);
     
-    // ✅ TTS automat DOAR în voiceOnlyMode
+    // Speak welcome message in voice mode
     if (voiceOnlyMode && ttsEnabled) {
+      setHasSpokenWelcome(true); // ✅ Mutat înainte
       shouldSpeakRef.current = true;
       setTimeout(() => {
         if (shouldSpeakRef.current) {
+          stopSpeaking(); // ✅ Safety stop
           speakText(welcomeContent);
         }
       }, 1000);
