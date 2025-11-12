@@ -16,7 +16,6 @@ import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { voiceRecordingService } from '@/services/voiceRecordingService';
 import { AISpeakingIndicator } from './AISpeakingIndicator';
 import { VoiceSelector } from './VoiceSelector';
-import { VoiceWaveform } from './VoiceWaveform';
 import jsPDF from 'jspdf';
 
 interface Message {
@@ -67,8 +66,6 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [selectedVoice, setSelectedVoice] = useState(() => 
     localStorage.getItem('preferred-tts-voice') || 'pFZP5JQG7iQjIQuC4Bku'
   );
-  const [previewMessage, setPreviewMessage] = useState<string>('');
-  const [sessionStartTime] = useState(() => Date.now());
   
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -139,7 +136,6 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     onTranscript: (text) => {
       if (isAiSpeaking) return; // Ignore transcripts while AI is speaking
       setCurrentMessage(text);
-      setPreviewMessage(text); // Store for live display
     },
     language: 'ro', // Can be made dynamic
     autoSubmit: audioMode || voiceOnlyMode, // Enable auto-submit in audio or voice-only mode
@@ -175,7 +171,6 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
         }
         
         sendMessage();
-        setPreviewMessage(''); // Clear preview after submit
       }
     },
     saveRecording: audioMode // Enable recording in audio mode
@@ -270,15 +265,16 @@ INSTRUCȚIUNI:
       };
       setMessages([welcomeMessage]);
       
-      // ✅ CRUCIAL: TTS automat DOAR în voiceOnlyMode - prevent double trigger
+      // ✅ CRUCIAL: TTS automat DOAR în voiceOnlyMode
       if (voiceOnlyMode && ttsEnabled && !hasSpokenWelcome) {
-        setHasSpokenWelcome(true); // Set BEFORE timeout to prevent double trigger
+        shouldSpeakRef.current = true;
         setTimeout(() => {
-          if (!isAiSpeaking) { // Check if not already speaking
+          if (shouldSpeakRef.current && !hasSpokenWelcome) {
             console.log('🎵 [VOICE-ONLY MODE] Auto-speaking welcome message for', stackType);
             speakText(welcomeContent);
+            setHasSpokenWelcome(true);
           }
-        }, 1000);
+        }, 1500);
       }
     }
 
@@ -286,7 +282,6 @@ INSTRUCȚIUNI:
     return () => {
       console.log('🧹 Cleanup: stopping TTS for', stackType);
       shouldSpeakRef.current = false;
-      setHasSpokenWelcome(false); // Reset flag on cleanup
       stopSpeaking();
       if (isListening) {
         stopListening();
@@ -400,35 +395,19 @@ INSTRUCȚIUNI:
         answersMap[questionsList.length - 1] = data.message;
         await saveToStackLibrary(derivedType, sessionId, answersMap, questionsList);
 
-        // Generate full conversation transcript
-        const transcriptText = messages.map((m, i) => 
-          `[${m.timestamp.toLocaleTimeString('ro-RO')}] ${m.role === 'user' ? 'Tu' : 'AI'}: ${m.content}`
-        ).join('\n\n');
-        
-        // Also persist in universal stack_sessions with enhanced metadata
+        // Also persist in universal stack_sessions
         const { data: authData } = await supabase.auth.getSession();
         const userId = authData.session?.user?.id;
         if (userId) {
           const payload = JSON.parse(JSON.stringify(answersMap));
-          const sessionDuration = (Date.now() - sessionStartTime) / 1000;
-          
           const { error: upsertError } = await supabase.from('stack_sessions').upsert({
             user_id: userId,
             session_id: sessionId,
             stack_type: derivedType,
             answers: payload,
-            completed: true,
-            data: {
-              transcript: transcriptText,
-              duration_seconds: sessionDuration,
-              message_count: messages.length,
-              voice_recordings_count: currentQuestionNumber,
-              voice_mode: voiceOnlyMode || audioMode
-            }
+            completed: true
           });
           if (upsertError) console.error('Failed to upsert stack_sessions:', upsertError);
-          else console.log('✅ Successfully saved to stack_sessions with transcript');
-          
           // Mark introspecție complete
           await updateDailyProgress('stack');
         }
@@ -891,24 +870,12 @@ INSTRUCȚIUNI:
           />
         )}
         
-        {/* Live transcript preview with waveform */}
-        {voiceOnlyMode && isListening && previewMessage && (
-          <div className="max-w-3xl mx-auto mb-4">
-            <VoiceWaveform 
-              audioLevel={0.5} 
-              isUserSpeaking={isListening}
-              isAISpeaking={false}
-              width={280}
-              height={60}
-            />
-            <div className="flex justify-end mt-2">
-              <div className="max-w-[85%] rounded-lg p-3 bg-primary/50 border-2 border-primary animate-pulse">
-                <div className="flex items-center gap-2 mb-1">
-                  <Mic className="h-3 w-3 animate-pulse text-red-500" />
-                  <span className="text-xs opacity-70">Vorbești acum...</span>
-                </div>
-                <p className="text-sm text-primary-foreground">{previewMessage}</p>
-              </div>
+        {voiceOnlyMode && isListening && currentMessage && (
+          <div className="bg-blue-900/20 border border-blue-500 rounded-lg p-3 mb-4 max-w-3xl mx-auto">
+            <div className="flex items-center gap-2 text-blue-300">
+              <Mic className="h-4 w-4 animate-pulse" />
+              <span className="text-sm">Transcriu ce spui: </span>
+              <span className="text-white font-medium">{currentMessage}</span>
             </div>
           </div>
         )}
