@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward, Download, FileText, Star, StickyNote } from 'lucide-react';
-import { VoiceWaveform } from './VoiceWaveform';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
@@ -1060,18 +1059,6 @@ INSTRUCȚIUNI:
           
           {voiceOnlyMode && (
             <div className="text-center py-4 space-y-3">
-              {/* VoiceWaveform visualization */}
-              <div className="flex items-center justify-center mb-4">
-                <VoiceWaveform
-                  audioLevel={isListening ? 0.6 : 0}
-                  isUserSpeaking={isListening}
-                  isAISpeaking={isAiSpeaking}
-                  variant="inline"
-                  width={280}
-                  height={80}
-                />
-              </div>
-              
               <div className="flex items-center justify-center gap-3">
                 {!isListening && !isAiSpeaking && (
                   <Button
@@ -1087,25 +1074,16 @@ INSTRUCȚIUNI:
                 
                 {isListening && (
                   <div className="flex flex-col items-center gap-2">
-                    <div className="relative">
-                      <div className="absolute inset-0 rounded-full animate-ping bg-red-400 opacity-75" />
-                      <div className="relative animate-pulse text-red-500">
-                        <Mic className="h-8 w-8" />
-                      </div>
+                    <div className="animate-pulse text-red-500">
+                      <Mic className="h-8 w-8" />
                     </div>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      🎤 Te ascult... Vorbește natural
+                    <p className="text-sm text-muted-foreground">
+                      Te ascult... Vorbește natural
                     </p>
-                    {transcript && (
-                      <p className="text-sm text-foreground/80 max-w-md px-4 py-2 bg-muted rounded-lg">
-                        "{transcript}"
-                      </p>
-                    )}
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={stopListening}
-                      className="mt-2"
                     >
                       Oprește microfonul
                     </Button>
