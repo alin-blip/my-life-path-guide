@@ -9,8 +9,8 @@ interface UseTextToSpeechOptions {
   autoPlay?: boolean;
 }
 
-// TTS cache to avoid regenerating same audio - stores blob URLs
-const ttsCache = new Map<string, { url: string; blob: Blob }>();
+// TTS cache to avoid regenerating same audio - stores blobs
+const ttsCache = new Map<string, { blob: Blob }>();
 
 // Track active audio elements for cleanup
 const activeAudioElements = new Set<HTMLAudioElement>();
@@ -73,7 +73,7 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
         console.log('✅ Using cached TTS audio');
         const cached = ttsCache.get(cacheKey)!;
         audioBlob = cached.blob;
-        // Create fresh URL from blob to avoid revoked URLs
+        // Always create fresh URL from blob to avoid revoked URLs
         audioUrl = URL.createObjectURL(audioBlob);
       } else {
         // Generate new audio using direct fetch to get binary response
@@ -103,8 +103,8 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
         
         audioUrl = URL.createObjectURL(audioBlob);
         
-        // Cache the blob (not the URL, as URLs can be revoked)
-        ttsCache.set(cacheKey, { url: audioUrl, blob: audioBlob });
+        // Cache only the blob (URLs are created fresh each time)
+        ttsCache.set(cacheKey, { blob: audioBlob });
         console.log('💾 Cached TTS audio for future use');
       }
 

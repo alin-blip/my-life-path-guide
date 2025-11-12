@@ -37,9 +37,10 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
       
       if (SpeechRecognition) {
         recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.continuous = true;
-        recognitionRef.current.interimResults = true;
-        recognitionRef.current.lang = language === 'ro' ? 'ro-RO' : 'en-US';
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = true;
+    recognitionRef.current.lang = language === 'ro' ? 'ro-RO' : 'en-US';
+    recognitionRef.current.maxAlternatives = 1; // Better mobile performance
 
         recognitionRef.current.onresult = (event: any) => {
           let finalTranscript = '';
@@ -92,14 +93,28 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
 
         recognitionRef.current.onerror = (event: any) => {
           console.error('Speech recognition error:', event.error);
-          if (event.error !== 'no-speech' && event.error !== 'aborted') {
+          setIsListening(false);
+          
+          // Mobile-specific error handling
+          if (event.error === 'not-allowed') {
+            toast({
+              title: '🎤 Acces microfon refuzat',
+              description: 'Te rog permite accesul la microfon în setările browser-ului.',
+              variant: 'destructive',
+            });
+          } else if (event.error === 'network') {
+            toast({
+              title: '⚠️ Eroare de rețea',
+              description: 'Verifică conexiunea la internet și încearcă din nou.',
+              variant: 'destructive',
+            });
+          } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
             toast({
               title: language === 'ro' ? 'Eroare recunoaștere vocală' : 'Speech recognition error',
               description: event.error,
               variant: 'destructive',
             });
           }
-          setIsListening(false);
         };
 
         recognitionRef.current.onend = () => {
@@ -123,56 +138,88 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
   }, [language, autoSubmit, onAutoSubmit, transcript]);
 
   const startListening = useCallback(async () => {
-    if (recognitionRef.current && !isListening) {
-      try {
-        setTranscript('');
-        audioChunksRef.current = [];
-        accumulatedTranscriptRef.current = ''; // Reset accumulated transcript
-        
-        // Clear any existing timer
-        if (silenceTimerRef.current) {
-          clearTimeout(silenceTimerRef.current);
-          silenceTimerRef.current = null;
-        }
-        
-        // Start audio recording if saveRecording is enabled
-        if (saveRecording) {
-          try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-              audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true,
-                channelCount: 1,
-                sampleRate: 24000
-              } as MediaTrackConstraints 
-            });
-            const mediaRecorder = new MediaRecorder(stream, {
-              mimeType: 'audio/webm'
-            });
-            
-            mediaRecorder.ondataavailable = (event) => {
-              if (event.data.size > 0) {
-                audioChunksRef.current.push(event.data);
-              }
-            };
-            
-            mediaRecorderRef.current = mediaRecorder;
-            recordingStartTimeRef.current = Date.now();
-            mediaRecorder.start();
-            console.log('🎙️ Audio recording started');
-          } catch (error) {
-            console.error('❌ Error starting audio recording:', error);
-          }
-        }
-        
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch (error) {
-        console.error('Error starting recognition:', error);
-      }
+    if (!recognitionRef.current) {
+      toast({
+        title: '⚠️ Speech Recognition indisponibil',
+        description: 'Browserul tău nu suportă recunoașterea vocală.',
+        variant: 'destructive',
+      });
+      return;
     }
-  }, [isListening, saveRecording]);
+
+    try {
+      console.log('🎤 Starting voice recognition...');
+      setIsListening(true);
+
+      // Reset accumulated transcript
+      accumulatedTranscriptRef.current = '';
+      setTranscript('');
+
+      // Start audio recording if enabled
+      if (saveRecording) {
+        console.log('🎙️ Starting audio recording...');
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          
+          // Detect iOS/Safari
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+          const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+          
+          // Use compatible MIME type for iOS/Safari
+          let mimeType = 'audio/webm';
+          if (isIOS || isSafari) {
+            mimeType = 'audio/mp4';
+          }
+          
+          let mediaRecorder;
+          try {
+            mediaRecorder = new MediaRecorder(stream, { mimeType });
+          } catch (e) {
+            // Fallback to browser default
+            console.log('⚠️ MIME type not supported, using default');
+            mediaRecorder = new MediaRecorder(stream);
+          }
+          
+          const audioChunks: Blob[] = [];
+          mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+              audioChunks.push(event.data);
+            }
+          };
+
+          mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: mimeType });
+            const duration = (Date.now() - recordingStartTimeRef.current) / 1000;
+            audioChunksRef.current = [audioBlob];
+            recordingStartTimeRef.current = duration;
+            console.log(`✅ Audio recording saved (${duration.toFixed(1)}s)`);
+          };
+
+          recordingStartTimeRef.current = Date.now();
+          mediaRecorder.start();
+          mediaRecorderRef.current = mediaRecorder;
+          console.log('✅ MediaRecorder started');
+        } catch (recordError) {
+          console.error('Audio recording error:', recordError);
+          toast({
+            title: '⚠️ Eroare înregistrare',
+            description: 'Nu am putut începe înregistrarea audio.',
+            variant: 'destructive',
+          });
+        }
+      }
+
+      recognitionRef.current.start();
+    } catch (error) {
+      console.error('Error starting voice recognition:', error);
+      setIsListening(false);
+      toast({
+        title: '⚠️ Eroare microfon',
+        description: 'Nu am putut accesa microfonul. Verifică permisiunile.',
+        variant: 'destructive',
+      });
+    }
+  }, [saveRecording, toast]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
@@ -219,8 +266,15 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
   const getRecordedAudio = useCallback(() => {
     if (audioChunksRef.current.length === 0) return null;
     
-    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-    const durationSeconds = (Date.now() - recordingStartTimeRef.current) / 1000;
+    // Get the correct MIME type
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const mimeType = (isIOS || isSafari) ? 'audio/mp4' : 'audio/webm';
+    
+    const audioBlob = audioChunksRef.current[0]; // Already a blob from MediaRecorder
+    const durationSeconds = typeof recordingStartTimeRef.current === 'number' && recordingStartTimeRef.current < 100000
+      ? recordingStartTimeRef.current 
+      : (Date.now() - recordingStartTimeRef.current) / 1000;
     
     return { audioBlob, durationSeconds };
   }, []);
