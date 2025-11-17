@@ -42,20 +42,30 @@ export const TextToSpeechButton: React.FC<TextToSpeechButtonProps> = ({
     setIsLoading(true);
 
     try {
-      // Use fetch directly to get binary audio response
+      // Get the current session to obtain the access token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      // Use fetch directly to get binary audio response with proper auth
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
           },
           body: JSON.stringify({ text }),
         }
       );
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('TTS API error:', errorText);
         throw new Error('Failed to generate speech');
       }
 
@@ -87,7 +97,9 @@ export const TextToSpeechButton: React.FC<TextToSpeechButtonProps> = ({
       console.error('TTS error:', error);
       toast({
         title: 'Eroare TTS',
-        description: 'Nu s-a putut genera audio-ul.',
+        description: error instanceof Error && error.message === 'Not authenticated' 
+          ? 'Trebuie să fii autentificat.' 
+          : 'Nu s-a putut genera audio-ul.',
         variant: 'destructive',
       });
     } finally {
