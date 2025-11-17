@@ -42,14 +42,25 @@ export const TextToSpeechButton: React.FC<TextToSpeechButtonProps> = ({
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { text },
-      });
+      // Use fetch directly to get binary audio response
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ text }),
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error('Failed to generate speech');
+      }
 
-      // Create audio blob from response
-      const audioBlob = new Blob([data], { type: 'audio/mpeg' });
+      // Get audio blob from response
+      const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
 
       // Create and play audio
