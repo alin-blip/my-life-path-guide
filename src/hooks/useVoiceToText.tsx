@@ -223,27 +223,43 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
   }, [isListening, saveRecording, language, toast]);
 
   const stopListening = useCallback(() => {
-    if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-      
-      // Clear timer
-      if (silenceTimerRef.current) {
-        clearTimeout(silenceTimerRef.current);
-        silenceTimerRef.current = null;
+    // Always set UI state to OFF, even if recognitionRef was already cleared
+    setIsListening(false);
+
+    // Clear silence timer
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+
+    // Safely stop speech recognition (if present)
+    try {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.onresult = null; } catch {}
+        try { recognitionRef.current.onerror = null; } catch {}
+        try { recognitionRef.current.onend = null; } catch {}
+        recognitionRef.current.stop?.();
       }
-      
-      // Stop audio recording
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-        mediaRecorderRef.current.stop();
-        
-        // Stop all audio tracks
-        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-        
+    } catch (e) {
+      console.warn('⚠️ Error stopping recognition:', e);
+    }
+
+    // Stop audio recording and release mic tracks (if any)
+    try {
+      if (mediaRecorderRef.current) {
+        if (mediaRecorderRef.current.state !== 'inactive') {
+          mediaRecorderRef.current.stop();
+        }
+        const stream = mediaRecorderRef.current.stream;
+        if (stream) {
+          stream.getTracks().forEach((track) => track.stop());
+        }
         console.log('🎙️ Audio recording stopped');
       }
+    } catch (e) {
+      console.warn('⚠️ Error stopping media recorder:', e);
     }
-  }, [isListening]);
+  }, []);
 
   const toggleListening = useCallback(() => {
     if (isListening) {
