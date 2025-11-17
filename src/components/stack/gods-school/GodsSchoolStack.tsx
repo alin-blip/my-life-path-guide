@@ -7,28 +7,10 @@ import { StackModeSelector } from '../StackModeSelector';
 import { questions } from './questions';
 
 export const GodsSchoolStack: React.FC<GodsSchoolStackProps> = ({ onAddToHitList }) => {
-  const [mode, setMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
-  const [hasInitialized, setHasInitialized] = useState(false);
   const {
     isIdeaModalOpen,
     closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
-
-  // Always start with 'selecting' to show mode selector
-  useEffect(() => {
-    if (!hasInitialized) {
-      setMode('selecting');
-      setHasInitialized(true);
-    }
-  }, [hasInitialized]);
-
-  const handleModeSelection = (selectedMode: 'audio' | 'text') => {
-    setMode(selectedMode);
-  };
-
-  if (mode === 'selecting') {
-    return <StackModeSelector onSelectMode={handleModeSelection} />;
-  }
 
   const systemPrompt = `Ești un înțelept spiritual divin care ghidează oamenii bazându-te pe cartea sacră pe care au încărcat-o în biblioteca divină. Rolul tău este să:
 
@@ -52,8 +34,8 @@ Vorbește cu înțelepciune divină, fiind empatic și ghidator. Întreabă ce p
         onAddToHitList={onAddToHitList}
         stackType="gods-school"
         questions={questions}
-        voiceOnlyMode={mode === 'audio'}
-        audioMode={mode === 'audio'}
+        voiceOnlyMode={false}
+        audioMode={false}
         systemPrompt={systemPrompt}
         welcomeMessage="🌟 Bine ai venit la Școala Zeilor! Sunt înțeleptul tău spiritual care va ghida această călătorie divină bazându-mă pe cartea sacră din biblioteca ta.\n\nCe provocare spirituală sau întrebare ai astăzi pentru care să căutăm împreună răspunsuri în înțelepciunea divină?"
       />

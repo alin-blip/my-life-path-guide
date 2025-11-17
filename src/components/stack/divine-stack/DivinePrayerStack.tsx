@@ -23,20 +23,6 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
   isReadOnly = false,
   stackId
 }) => {
-  const [mode, setMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
-  const [hasInitialized, setHasInitialized] = useState(false);
-
-  // Always start with 'selecting' to show mode selector
-  useEffect(() => {
-    if (!hasInitialized) {
-      setMode('selecting');
-      setHasInitialized(true);
-    }
-  }, [hasInitialized]);
-
-  const handleModeSelection = (selectedMode: 'audio' | 'text') => {
-    setMode(selectedMode);
-  };
 
   const { state, handlers, utils } = useDivinePrayerStack({ 
     onAddToHitList,
@@ -96,20 +82,15 @@ export const DivinePrayerStack: React.FC<DivinePrayerStackProps> = ({
     );
   }
 
-  // Show mode selector if mode is 'selecting'
-  if (mode === 'selecting') {
-    return <StackModeSelector onSelectMode={handleModeSelection} />;
-  }
-
-  // Always use AI-guided mode
+  // Always use Classic mode (text + optional TTS)
   return (
     <>
       <AiGuidedStack
         onAddToHitList={onAddToHitList}
         stackType="divine-prayer"
         questions={getQuestions()}
-        voiceOnlyMode={mode === 'audio'}
-        audioMode={mode === 'audio'}
+        voiceOnlyMode={false}
+        audioMode={false}
       />
       
       <StackIdeaModal

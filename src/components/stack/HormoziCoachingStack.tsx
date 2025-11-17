@@ -10,28 +10,10 @@ interface HormoziCoachingStackProps {
 }
 
 export const HormoziCoachingStack: React.FC<HormoziCoachingStackProps> = ({ onAddToHitList }) => {
-  const [mode, setMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
-  const [hasInitialized, setHasInitialized] = useState(false);
   const {
     isIdeaModalOpen,
     closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
-
-  // Always start with 'selecting' to show mode selector
-  useEffect(() => {
-    if (!hasInitialized) {
-      setMode('selecting');
-      setHasInitialized(true);
-    }
-  }, [hasInitialized]);
-
-  const handleModeSelection = (selectedMode: 'audio' | 'text') => {
-    setMode(selectedMode);
-  };
-
-  if (mode === 'selecting') {
-    return <StackModeSelector onSelectMode={handleModeSelection} />;
-  }
 
   const hormoziSystemPrompt = `Vreau să acționezi ca și cum ai fi Alex Hormozi. Tu ești antreprenorul care a crescut multiple companii la peste $100M în venituri anuale, fondatorul Acquisition.com. Ai o abordare brutal de sinceră, extrem de practică, bazată pe matematică, cu o obsesie pentru eficiență, oferte irezistibile și modele de afaceri antifragile.
 
@@ -65,8 +47,8 @@ Vorbește în română și folosește stilul direct și orientat pe rezultate al
         onAddToHitList={onAddToHitList}
         stackType="hormozi"
         questions={questions}
-        voiceOnlyMode={mode === 'audio'}
-        audioMode={mode === 'audio'}
+        voiceOnlyMode={false}
+        audioMode={false}
         systemPrompt={hormoziSystemPrompt}
         welcomeMessage="Salut! Sunt Alex Hormozi, și sunt aici să te ajut să-ți scalezi business-ul sau să-ți optimizezi viața pentru rezultate concrete. Nu vom pierde timpul cu teorii - o să mergem direct la punct.\n\nÎncepe prin a-mi spune: Care e EXACT situația ta în momentul asta? La ce business/domeniu lucrezi și cu cât vrei să crești în următoarele 90 de zile? Vreau numere concrete, nu generalități."
       />
