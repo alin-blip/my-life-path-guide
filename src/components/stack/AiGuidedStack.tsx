@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward, Download, FileText, Star, StickyNote } from 'lucide-react';
+import { TextToSpeechButton } from '@/components/ui/TextToSpeechButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
@@ -919,7 +920,17 @@ INSTRUCȚIUNI:
                     : 'bg-muted'
                 } ${message.isHighlighted ? 'ring-2 ring-yellow-500' : ''}`}
               >
-                <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                <div className="flex items-start gap-2">
+                  <p className="flex-1 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  {message.role === 'assistant' && !voiceOnlyMode && (
+                    <TextToSpeechButton 
+                      text={message.content}
+                      variant="ghost"
+                      size="sm"
+                      className="flex-shrink-0"
+                    />
+                  )}
+                </div>
                 
                 {/* Note badge if exists */}
                 {message.userNote && (
