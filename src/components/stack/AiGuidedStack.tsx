@@ -113,13 +113,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     },
     onSpeakingEnd: () => {
       console.log('✅ AI finished speaking');
-      // Auto-activate microphone after AI finishes speaking
-      if (audioMode && ttsEnabled && !isListening) {
-        console.log('🎤 Reactivating microphone after AI speech');
-        setTimeout(() => {
-          startListening();
-        }, 1000); // Redus de la 1500ms la 1000ms pentru fluiditate
-      }
+      // Microphone stays OFF - user must click to activate
     },
     autoPlay: true
   });
@@ -146,6 +140,12 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
         return;
       }
       if (currentMessage.trim()) {
+        // Stop microphone immediately after auto-submit
+        if (isListening) {
+          console.log('🔇 Stopping microphone after auto-submit');
+          stopListening();
+        }
+        
         // Save voice recording if in audio or voice-only mode
         if (audioMode || voiceOnlyMode) {
           const recording = getRecordedAudio();
@@ -317,6 +317,12 @@ INSTRUCȚIUNI:
 
     // Stop any ongoing TTS BEFORE starting new interaction
     stopSpeaking(); // ✅ Mutat înaintea creării userMessage
+    
+    // Stop microphone immediately when sending message
+    if (isListening) {
+      console.log('🔇 Stopping microphone - message sent');
+      stopListening();
+    }
 
     const userMessage: Message = {
       role: 'user',
