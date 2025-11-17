@@ -129,7 +129,11 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     isSupported: isVoiceSupported
   } = useVoiceToText({
     onTranscript: (text) => {
-      if (isAiSpeaking) return; // Ignore transcripts while AI is speaking
+      // Only update message if mic is ON and AI is not speaking
+      if (isAiSpeaking || !isListening) {
+        console.log('🚫 Ignoring transcript - AI speaking or mic OFF');
+        return;
+      }
       setCurrentMessage(text);
     },
     language: 'ro', // Can be made dynamic

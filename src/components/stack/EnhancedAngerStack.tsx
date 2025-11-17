@@ -17,31 +17,12 @@ import { Button } from "@/components/ui/button";
 import { Bot, User, AlertTriangle } from "lucide-react";
 
 export const EnhancedAngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }) => {
-  const [mode, setMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
-  const [hasInitialized, setHasInitialized] = useState(false);
   const {
     isIdeaModalOpen,
-    openIdeaModal,
     closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
   
   const rawQuestions = getQuestions(document.documentElement.lang === 'en' ? 'en' : 'ro');
-
-  // Always start with 'selecting' to show mode selector
-  useEffect(() => {
-    if (!hasInitialized) {
-      setMode('selecting');
-      setHasInitialized(true);
-    }
-  }, [hasInitialized]);
-
-  const handleModeSelection = (selectedMode: 'audio' | 'text') => {
-    setMode(selectedMode);
-  };
-
-  if (mode === 'selecting') {
-    return <StackModeSelector onSelectMode={handleModeSelection} />;
-  }
   
   return (
     <>
@@ -49,8 +30,8 @@ export const EnhancedAngerStack: React.FC<AngerStackProps> = ({ onAddToHitList }
         onAddToHitList={onAddToHitList}
         stackType="anger"
         questions={rawQuestions}
-        voiceOnlyMode={mode === 'audio'}
-        audioMode={mode === 'audio'}
+        voiceOnlyMode={false}
+        audioMode={false}
       />
 
       <StackIdeaModal
