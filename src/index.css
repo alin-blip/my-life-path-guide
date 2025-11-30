@@ -5,51 +5,51 @@
  
 @layer base {
   :root {
-    --background: 340 20% 8%;
-    --foreground: 340 5% 95%;
+    --background: 0 0% 100%;
+    --foreground: 220 15% 15%;
 
-    --card: 340 15% 12%;
-    --card-foreground: 340 5% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
 
-    --popover: 340 15% 12%;
-    --popover-foreground: 340 5% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
 
     --primary: 215 85% 50%;
-    --primary-foreground: 340 5% 95%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 30% 20%;
-    --secondary-foreground: 340 5% 95%;
+    --secondary: 215 20% 95%;
+    --secondary-foreground: 215 85% 40%;
 
-    --muted: 215 15% 15%;
-    --muted-foreground: 340 10% 70%;
+    --muted: 220 10% 96%;
+    --muted-foreground: 220 10% 45%;
 
     --accent: 205 90% 50%;
-    --accent-foreground: 340 5% 95%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 340 5% 95%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 20%;
-    --input: 215 20% 18%;
+    --border: 220 15% 88%;
+    --input: 220 15% 92%;
     --ring: 215 85% 50%;
 
-    /* Marine Power Colors */
+    /* Marine Power Colors - optimized for white bg */
     --goddess-primary: 215 85% 50%;
-    --goddess-secondary: 215 70% 65%;
-    --sacred-pink: 205 85% 60%;
-    --divine-purple: 210 80% 58%;
-    --moon-silver: 220 15% 85%;
-    --goddess-gold: 45 85% 70%;
+    --goddess-secondary: 215 70% 55%;
+    --sacred-pink: 205 85% 50%;
+    --divine-purple: 210 80% 48%;
+    --moon-silver: 220 15% 70%;
+    --goddess-gold: 45 85% 50%;
     
     /* Marine Gradients */
     --goddess-gradient: linear-gradient(135deg, hsl(215, 85%, 50%), hsl(210, 80%, 58%));
-    --sacred-gradient: linear-gradient(135deg, hsl(205, 85%, 60%), hsl(215, 85%, 50%));
-    --divine-gradient: linear-gradient(135deg, hsl(210, 80%, 58%), hsl(200, 85%, 55%));
-    --moon-gradient: linear-gradient(135deg, hsl(220, 15%, 85%), hsl(240, 20%, 90%));
+    --sacred-gradient: linear-gradient(135deg, hsl(205, 85%, 50%), hsl(215, 85%, 50%));
+    --divine-gradient: linear-gradient(135deg, hsl(210, 80%, 48%), hsl(200, 85%, 45%));
+    --moon-gradient: linear-gradient(135deg, hsl(220, 15%, 70%), hsl(240, 20%, 75%));
 
-    /* Hero gradient (mock-aligned) */
-    --hero-start: 270 75% 46%;
-    --hero-end: 235 70% 18%;
+    /* Hero gradient - subtle light */
+    --hero-start: 215 85% 98%;
+    --hero-end: 210 80% 96%;
   }
  
   .dark {

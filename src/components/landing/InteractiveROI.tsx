@@ -22,17 +22,17 @@ export const InteractiveROI = () => {
   return (
     <div className="mb-24" id="roi-calculator">
       <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
           Cât te costă să NU ai RoWarrior?
         </h2>
-        <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
           Calculează exact cât pierzi fără un sistem clar de execuție
         </p>
       </div>
 
-      <Card className="bg-gradient-to-br from-background/80 to-background/40 backdrop-blur border-border/50 p-8 max-w-4xl mx-auto">
+      <Card className="bg-card border-border shadow-lg p-8 max-w-4xl mx-auto">
         <div className="mb-8">
-          <Label htmlFor="revenue" className="text-lg text-white mb-2 block">
+          <Label htmlFor="revenue" className="text-lg text-foreground mb-2 block font-semibold">
             Care este cifra ta de afaceri anuală? (EUR)
           </Label>
           <Input
@@ -40,47 +40,47 @@ export const InteractiveROI = () => {
             type="number"
             value={revenue}
             onChange={(e) => setRevenue(e.target.value)}
-            className="text-2xl font-bold text-center h-14 bg-background/60 border-feminine-primary/30 focus:border-feminine-primary text-white"
+            className="text-2xl font-bold text-center h-14 bg-input border-primary/30 focus:border-primary text-foreground"
             placeholder="500000"
           />
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-destructive/10 border-destructive/30 p-6">
+          <Card className="bg-destructive/5 border-destructive/50 p-6 shadow">
             <AlertCircle className="h-8 w-8 text-destructive mb-3" />
-            <div className="text-sm text-gray-400 mb-1">Timp pierdut pe task-uri inutile</div>
+            <div className="text-sm text-muted-foreground mb-1 font-medium">Timp pierdut pe task-uri inutile</div>
             <div className="text-2xl font-bold text-destructive">
               €{losses.timeLoss.toLocaleString('ro-RO', { maximumFractionDigits: 0 })}
             </div>
           </Card>
 
-          <Card className="bg-destructive/10 border-destructive/30 p-6">
+          <Card className="bg-destructive/5 border-destructive/50 p-6 shadow">
             <AlertCircle className="h-8 w-8 text-destructive mb-3" />
-            <div className="text-sm text-gray-400 mb-1">Oportunități ratate</div>
+            <div className="text-sm text-muted-foreground mb-1 font-medium">Oportunități ratate</div>
             <div className="text-2xl font-bold text-destructive">
               €{losses.opportunityLoss.toLocaleString('ro-RO', { maximumFractionDigits: 0 })}
             </div>
           </Card>
 
-          <Card className="bg-feminine-primary/10 border-feminine-primary/30 p-6">
-            <TrendingUp className="h-8 w-8 text-feminine-accent mb-3" />
-            <div className="text-sm text-gray-400 mb-1">Investiție RoWarrior/an</div>
-            <div className="text-2xl font-bold text-feminine-primary">
+          <Card className="bg-primary/5 border-primary/50 p-6 shadow">
+            <TrendingUp className="h-8 w-8 text-accent mb-3" />
+            <div className="text-sm text-muted-foreground mb-1 font-medium">Investiție RoWarrior/an</div>
+            <div className="text-2xl font-bold text-primary">
               €{monthlySubscription.toLocaleString('ro-RO')}
             </div>
           </Card>
         </div>
 
-        <div className="bg-gradient-to-r from-feminine-primary/20 to-feminine-purple/20 rounded-lg p-8 text-center border border-feminine-primary/30">
-          <DollarSign className="h-12 w-12 text-feminine-accent mx-auto mb-3" />
-          <div className="text-lg text-gray-300 mb-2">ROI Estimat în Primul An</div>
-          <div className="text-5xl font-bold text-feminine-accent mb-2">
+        <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-8 text-center border-2 border-primary/40 shadow-lg">
+          <DollarSign className="h-12 w-12 text-accent mx-auto mb-3" />
+          <div className="text-lg text-muted-foreground mb-2 font-semibold">ROI Estimat în Primul An</div>
+          <div className="text-5xl font-bold text-accent mb-2">
             {roi}%
           </div>
-          <div className="text-xl text-white mb-4">
+          <div className="text-xl text-foreground font-bold mb-4">
             Economisești/Câștigi: €{(losses.total - monthlySubscription).toLocaleString('ro-RO', { maximumFractionDigits: 0 })}
           </div>
-          <p className="text-sm text-gray-400 max-w-2xl mx-auto">
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
             Calculul este conservator și presupune doar 15% recuperare din timp + oportunități.
             Majoritatea clienților raportează 20-30% îmbunătățire reală.
           </p>
