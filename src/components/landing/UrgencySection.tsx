@@ -4,10 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Clock, Users, Gift, Zap } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const UrgencySection = () => {
   const navigate = useNavigate();
-  const [spotsLeft, setSpotsLeft] = useState(47); // Simulated dynamic spots
+  const [spotsLeft, setSpotsLeft] = useState(47);
+  const { elementRef, isVisible } = useScrollAnimation();
 
   useEffect(() => {
     // Simulate spots decreasing (in production, fetch from backend)
@@ -19,7 +21,13 @@ export const UrgencySection = () => {
   }, []);
 
   return (
-    <div className="mb-24" id="urgency">
+    <div 
+      ref={elementRef}
+      className={`mb-24 transition-all duration-700 ${
+        isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
+      }`} 
+      id="urgency"
+    >
       <Card className="bg-gradient-to-br from-feminine-primary/20 via-feminine-purple/20 to-feminine-accent/20 border-feminine-primary p-8 md:p-12 relative overflow-hidden">
         {/* Animated background effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-feminine-primary/10 to-feminine-purple/10 animate-pulse" />

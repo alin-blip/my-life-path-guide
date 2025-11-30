@@ -1,9 +1,18 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Quote, TrendingUp } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const ProofSection = () => {
+  const { elementRef, isVisible } = useScrollAnimation();
+  
   return (
-    <section className="mb-24" id="proof">
+    <section 
+      ref={elementRef}
+      className={`mb-24 transition-all duration-700 ${
+        isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
+      }`} 
+      id="proof"
+    >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
           Rezultate Reale de la Antreprenori Români

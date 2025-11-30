@@ -1,12 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Shield, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const FinalCTA = () => {
   const navigate = useNavigate();
+  const { elementRef, isVisible } = useScrollAnimation();
 
   return (
-    <section className="mb-16">
+    <section 
+      ref={elementRef}
+      className={`mb-16 transition-all duration-700 ${
+        isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
+      }`}
+    >
       <div className="max-w-4xl mx-auto">
         <div className="bg-gradient-to-br from-feminine-primary/30 to-feminine-purple/30 border-2 border-feminine-primary rounded-2xl p-12 text-center">
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">

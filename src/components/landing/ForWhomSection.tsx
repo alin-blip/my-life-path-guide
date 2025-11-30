@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { CheckCircle2, XCircle } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const idealFor = [
   "Antreprenori cu cifră 100k-10M+ EUR care vor să crească profitul fără să lucreze mai mult",
@@ -18,8 +19,16 @@ const notFor = [
 ];
 
 export const ForWhomSection = () => {
+  const { elementRef, isVisible } = useScrollAnimation();
+  
   return (
-    <div className="mb-24" id="for-whom">
+    <div 
+      ref={elementRef}
+      className={`mb-24 transition-all duration-700 ${
+        isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
+      }`} 
+      id="for-whom"
+    >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
           RoWarrior Este Pentru Tine?
