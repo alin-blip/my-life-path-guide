@@ -28,75 +28,75 @@ export const UrgencySection = () => {
       }`} 
       id="urgency"
     >
-      <Card className="bg-gradient-to-br from-feminine-primary/20 via-feminine-purple/20 to-feminine-accent/20 border-feminine-primary p-8 md:p-12 relative overflow-hidden">
+      <Card className="bg-gradient-to-br from-primary/10 via-accent/10 to-primary/15 border-primary p-8 md:p-12 relative overflow-hidden shadow-xl">
         {/* Animated background effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-feminine-primary/10 to-feminine-purple/10 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 animate-pulse" />
         
         <div className="relative z-10">
           <div className="text-center mb-8">
-            <Badge className="bg-feminine-accent text-white border-0 mb-4 text-lg px-6 py-2">
+            <Badge className="bg-accent text-white border-0 mb-4 text-lg px-6 py-2 font-bold">
               🔥 Ofertă Limitată Founding Members
             </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
               Primii 100 de Membri Pro<br />
               Primesc Acces Premium GRATUIT
             </h2>
-            <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Intri în grupul exclusiv de Founding Members și primești beneficii permanente
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mb-8 max-w-4xl mx-auto">
-            <Card className="bg-background/60 backdrop-blur border-feminine-primary/30 p-6">
+            <Card className="bg-card border-primary/30 p-6 shadow-md">
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-feminine-primary/20 rounded-lg">
-                  <Users className="h-8 w-8 text-feminine-primary" />
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <Users className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-lg mb-2">Comunitate Privată Founding Members</h3>
-                  <p className="text-gray-300 text-sm">
+                  <h3 className="font-bold text-foreground text-lg mb-2">Comunitate Privată Founding Members</h3>
+                  <p className="text-muted-foreground text-sm">
                     Acces exclusiv la grupul de WhatsApp/Telegram cu ceilalți 100 de founderi + sesiuni lunare de Q&A live
                   </p>
                 </div>
               </div>
             </Card>
 
-            <Card className="bg-background/60 backdrop-blur border-feminine-primary/30 p-6">
+            <Card className="bg-card border-primary/30 p-6 shadow-md">
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-feminine-primary/20 rounded-lg">
-                  <Gift className="h-8 w-8 text-feminine-primary" />
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <Gift className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-lg mb-2">Stack-uri Premium Lifetime</h3>
-                  <p className="text-gray-300 text-sm">
+                  <h3 className="font-bold text-foreground text-lg mb-2">Stack-uri Premium Lifetime</h3>
+                  <p className="text-muted-foreground text-sm">
                     Acces GRATUIT pe viață la toate stack-urile premium noi (valoare €97/lună)
                   </p>
                 </div>
               </div>
             </Card>
 
-            <Card className="bg-background/60 backdrop-blur border-feminine-primary/30 p-6">
+            <Card className="bg-card border-primary/30 p-6 shadow-md">
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-feminine-primary/20 rounded-lg">
-                  <Zap className="h-8 w-8 text-feminine-primary" />
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <Zap className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-lg mb-2">Implementare Prioritară</h3>
-                  <p className="text-gray-300 text-sm">
+                  <h3 className="font-bold text-foreground text-lg mb-2">Implementare Prioritară</h3>
+                  <p className="text-muted-foreground text-sm">
                     Feature requests-urile tale au prioritate în roadmap + early access la toate update-urile
                   </p>
                 </div>
               </div>
             </Card>
 
-            <Card className="bg-background/60 backdrop-blur border-feminine-primary/30 p-6">
+            <Card className="bg-card border-primary/30 p-6 shadow-md">
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-feminine-primary/20 rounded-lg">
-                  <Clock className="h-8 w-8 text-feminine-primary" />
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <Clock className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-lg mb-2">Preț Blocat Pe Viață</h3>
-                  <p className="text-gray-300 text-sm">
+                  <h3 className="font-bold text-foreground text-lg mb-2">Preț Blocat Pe Viață</h3>
+                  <p className="text-muted-foreground text-sm">
                     €197/lună pentru totdeauna. Când prețul crește la €297+, tu rămâi la €197
                   </p>
                 </div>
@@ -104,15 +104,15 @@ export const UrgencySection = () => {
             </Card>
           </div>
 
-          <div className="bg-destructive/20 border border-destructive rounded-lg p-6 mb-8 max-w-2xl mx-auto">
+          <div className="bg-destructive/10 border-2 border-destructive rounded-lg p-6 mb-8 max-w-2xl mx-auto shadow-md">
             <div className="flex items-center justify-center gap-4 mb-3">
               <Clock className="h-8 w-8 text-destructive animate-pulse" />
               <div className="text-center">
-                <div className="text-sm text-gray-300 mb-1">Locuri Rămase din 100</div>
-                <div className="text-4xl font-bold text-white">{spotsLeft}</div>
+                <div className="text-sm text-muted-foreground mb-1 font-medium">Locuri Rămase din 100</div>
+                <div className="text-4xl font-bold text-destructive">{spotsLeft}</div>
               </div>
             </div>
-            <p className="text-center text-gray-300 text-sm">
+            <p className="text-center text-muted-foreground text-sm">
               Când se ocupă toate locurile, beneficiile Founding Members dispar pentru totdeauna
             </p>
           </div>
@@ -121,11 +121,11 @@ export const UrgencySection = () => {
             <Button
               size="lg"
               onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-feminine-accent via-feminine-primary to-feminine-purple hover:from-feminine-primary hover:to-feminine-accent text-white px-16 py-8 text-2xl font-bold shadow-2xl hover:shadow-feminine-primary/50 transition-all hover:scale-105"
+              className="bg-gradient-to-r from-accent via-primary to-accent hover:from-primary hover:to-accent text-white px-16 py-8 text-2xl font-bold shadow-2xl hover:shadow-primary/50 transition-all hover:scale-105"
             >
               Vreau Să Fiu Founding Member — Trial 3 Zile GRATUIT
             </Button>
-            <p className="text-sm text-gray-400 mt-4">
+            <p className="text-sm text-muted-foreground mt-4">
               Nu plătești nimic acum. Trial 3 zile să vezi dacă îți place. Anulezi oricând.
             </p>
           </div>
