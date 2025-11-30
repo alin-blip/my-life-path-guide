@@ -3,10 +3,16 @@ import { useNavigate, Link } from "react-router-dom";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Helmet } from "react-helmet-async";
 import { ProblemSection } from "@/components/landing/ProblemSection";
+import { SegmentQuiz } from "@/components/landing/SegmentQuiz";
+import { InteractiveROI } from "@/components/landing/InteractiveROI";
 import { UniqueMechanismSection } from "@/components/landing/UniqueMechanismSection";
 import { HowItWorksTimeline } from "@/components/landing/HowItWorksTimeline";
+import { CurriculumSection } from "@/components/landing/CurriculumSection";
 import { ProofSection } from "@/components/landing/ProofSection";
+import { ForWhomSection } from "@/components/landing/ForWhomSection";
+import { FounderSection } from "@/components/landing/FounderSection";
 import { ValueStackPricing } from "@/components/landing/ValueStackPricing";
+import { UrgencySection } from "@/components/landing/UrgencySection";
 import { ObjectionHandling } from "@/components/landing/ObjectionHandling";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 
@@ -27,8 +33,8 @@ const Index = () => {
       </div>
 
       <div className="container mx-auto px-4 py-16">
-        {/* Hero Section - Hormozi Style */}
-        <div className="text-center mb-24" id="top">
+        {/* Hero Section - Emotional + Direct */}
+        <div className="text-center mb-16" id="top">
           <div className="inline-flex items-center justify-center mb-6">
             <img
               src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
@@ -39,17 +45,20 @@ const Index = () => {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Antreprenori cu €500k-€10M+:<br />
-            Reduci 80% din task-uri și crești<br />
-            profitul cu 15-30% în 90 de zile
+            Lucrezi 60h/săptămână...<br />
+            Dar business-ul nu crește?
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-200 mb-4 max-w-4xl mx-auto">
-            Sistem de <span className="text-feminine-primary font-bold">War Planning</span> pentru CEO-uri: obiectiv domino săptămânal + 1-3 task-uri high-ROI pe zi + coaching AI tip Hormozi
+            Sistemul de <span className="text-feminine-primary font-bold">War Planning</span> care transformă antreprenori 
+            blocați în task-uri în CEO-uri strategici care cresc profitul cu 15-30% în 90 de zile
           </p>
 
           <p className="text-lg text-gray-300 mb-8 max-w-3xl mx-auto">
-            Nu e task manager generic. E sistem de execuție pentru antreprenori români de 6-8 cifre care vor să crească profitul fără să sacrifice sănătatea și familia.
+            <span className="text-feminine-accent font-bold">1 obiectiv domino săptămânal</span> + 
+            <span className="text-feminine-accent font-bold"> 1-3 task-uri high-ROI zilnice</span> + 
+            <span className="text-feminine-accent font-bold"> Coaching AI tip Hormozi</span> = 
+            Clarity, Execuție, Rezultate
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -87,17 +96,32 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Segment Quiz */}
+        <SegmentQuiz />
+
         {/* Problem Section */}
         <ProblemSection />
+
+        {/* Interactive ROI Calculator */}
+        <InteractiveROI />
 
         {/* Unique Mechanism */}
         <UniqueMechanismSection />
 
-        {/* How It Works Timeline */}
-        <HowItWorksTimeline />
+        {/* Curriculum Section - Replace Timeline */}
+        <CurriculumSection />
 
         {/* Proof & Testimonials */}
         <ProofSection />
+
+        {/* For Whom Section */}
+        <ForWhomSection />
+
+        {/* Founder Story */}
+        <FounderSection />
+
+        {/* Urgency Section */}
+        <UrgencySection />
 
         {/* Value Stack Pricing */}
         <ValueStackPricing />
