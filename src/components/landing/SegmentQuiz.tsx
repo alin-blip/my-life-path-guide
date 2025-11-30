@@ -51,10 +51,10 @@ export const SegmentQuiz = () => {
 
   return (
     <div className="mb-16">
-      <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-4">
+      <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-4">
         La ce cifră de afaceri ești acum?
       </h2>
-      <p className="text-gray-300 text-center mb-8 max-w-2xl mx-auto">
+      <p className="text-muted-foreground text-center mb-8 max-w-2xl mx-auto">
         Selectează unde te afli ca să vezi exact cum RoWarrior te ajută în etapa TA
       </p>
       
@@ -62,35 +62,35 @@ export const SegmentQuiz = () => {
         {segments.map((segment) => (
           <Card
             key={segment.id}
-            className={`p-6 cursor-pointer transition-all hover:scale-105 ${
+            className={`p-6 cursor-pointer transition-all hover:scale-105 hover:shadow-lg ${
               selectedSegment === segment.id
-                ? "bg-gradient-to-br from-feminine-primary/20 to-feminine-purple/20 border-feminine-primary"
-                : "bg-background/40 border-border hover:border-feminine-primary/50"
+                ? "bg-gradient-to-br from-primary/10 to-accent/10 border-primary shadow-lg"
+                : "bg-card border-border hover:border-primary/50"
             }`}
             onClick={() => setSelectedSegment(segment.id)}
           >
             <div className="text-center">
               <div className={`text-lg font-bold mb-2 ${
-                selectedSegment === segment.id ? "text-feminine-primary" : "text-white"
+                selectedSegment === segment.id ? "text-primary" : "text-foreground"
               }`}>
                 {segment.label}
               </div>
-              <div className="text-sm text-gray-400">{segment.title}</div>
+              <div className="text-sm text-muted-foreground">{segment.title}</div>
             </div>
           </Card>
         ))}
       </div>
 
       {selectedSegment && (
-        <Card className="bg-gradient-to-br from-feminine-primary/10 to-feminine-purple/10 border-feminine-primary/30 p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <h3 className="text-xl font-bold text-white mb-4 text-center">
+        <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/30 p-8 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-lg">
+          <h3 className="text-xl font-bold text-foreground mb-4 text-center">
             Cum te ajută RoWarrior în etapa ta
           </h3>
           <div className="space-y-3 max-w-2xl mx-auto">
             {segments.find(s => s.id === selectedSegment)?.benefits.map((benefit, idx) => (
               <div key={idx} className="flex items-start gap-3">
-                <CheckCircle2 className="h-6 w-6 text-feminine-accent shrink-0 mt-0.5" />
-                <p className="text-gray-200">{benefit}</p>
+                <CheckCircle2 className="h-6 w-6 text-accent shrink-0 mt-0.5" />
+                <p className="text-foreground">{benefit}</p>
               </div>
             ))}
           </div>

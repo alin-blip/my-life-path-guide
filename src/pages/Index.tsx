@@ -20,7 +20,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-hero-gradient">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50/30 via-white to-blue-50/20">
       <Helmet>
         <title>RoWarrior — Antreprenori €500k-€10M+: +15-30% Profit în 90 Zile</title>
         <meta name="description" content="Sistem de War Planning pentru antreprenori români de 6-8 cifre. Reduci 80% din task-uri și crești profitul cu 15-30% în 90 de zile. Trial gratuit 3 zile." />
@@ -44,20 +44,20 @@ const Index = () => {
             />
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
             Lucrezi 60h/săptămână...<br />
             Dar business-ul nu crește?
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-200 mb-4 max-w-4xl mx-auto">
-            Sistemul de <span className="text-feminine-primary font-bold">War Planning</span> care transformă antreprenori 
+          <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-4xl mx-auto">
+            Sistemul de <span className="text-primary font-bold">War Planning</span> care transformă antreprenori 
             blocați în task-uri în CEO-uri strategici care cresc profitul cu 15-30% în 90 de zile
           </p>
 
-          <p className="text-lg text-gray-300 mb-8 max-w-3xl mx-auto">
-            <span className="text-feminine-accent font-bold">1 obiectiv domino săptămânal</span> + 
-            <span className="text-feminine-accent font-bold"> 1-3 task-uri high-ROI zilnice</span> + 
-            <span className="text-feminine-accent font-bold"> Coaching AI tip Hormozi</span> = 
+          <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
+            <span className="text-accent font-bold">1 obiectiv domino săptămânal</span> + 
+            <span className="text-accent font-bold"> 1-3 task-uri high-ROI zilnice</span> + 
+            <span className="text-accent font-bold"> Coaching AI tip Hormozi</span> = 
             Clarity, Execuție, Rezultate
           </p>
           
@@ -65,7 +65,7 @@ const Index = () => {
             <Button 
               size="lg" 
               onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-feminine-primary to-feminine-purple hover:from-feminine-accent hover:to-feminine-purple text-white px-12 py-6 text-xl font-bold"
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white px-12 py-6 text-xl font-bold shadow-lg hover:shadow-xl transition-all"
             >
               Începe Trial de 3 Zile — Vezi Primele Rezultate în 48h
             </Button>
@@ -74,24 +74,24 @@ const Index = () => {
               size="lg" 
               variant="outline"
               onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              className="border-feminine-primary text-white hover:bg-feminine-primary/20 px-12 py-6 text-xl"
+              className="border-primary text-primary hover:bg-primary hover:text-white px-12 py-6 text-xl font-semibold shadow transition-all"
             >
               Vezi Pricing & ROI
             </Button>
           </div>
 
-          <div className="flex items-center justify-center gap-8 text-gray-300">
+          <div className="flex items-center justify-center gap-8 text-muted-foreground">
             <div className="flex items-center gap-2">
-              <span className="text-feminine-accent font-bold text-lg">✓</span>
-              <span>150+ antreprenori români</span>
+              <span className="text-accent font-bold text-lg">✓</span>
+              <span className="font-medium">150+ antreprenori români</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-feminine-accent font-bold text-lg">✓</span>
-              <span>Medie +22% profit în Q1</span>
+              <span className="text-accent font-bold text-lg">✓</span>
+              <span className="font-medium">Medie +22% profit în Q1</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-feminine-accent font-bold text-lg">✓</span>
-              <span>Trial 3 zile gratuit</span>
+              <span className="text-accent font-bold text-lg">✓</span>
+              <span className="font-medium">Trial 3 zile gratuit</span>
             </div>
           </div>
         </div>
@@ -135,10 +135,10 @@ const Index = () => {
         {/* Login Link */}
         <div className="text-center">
           <div className="inline-flex items-center gap-3">
-            <span className="text-sm text-gray-300">
+            <span className="text-sm text-muted-foreground">
               Ai deja cont?
             </span>
-            <Button asChild variant="outline" size="sm" className="border-feminine-primary text-white hover:bg-feminine-primary/20">
+            <Button asChild variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-white">
               <Link to="/auth">Autentificare</Link>
             </Button>
           </div>
