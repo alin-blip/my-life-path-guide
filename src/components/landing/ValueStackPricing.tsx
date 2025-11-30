@@ -57,40 +57,43 @@ export const ValueStackPricing = () => {
             </div>
 
             <div className="space-y-3 mb-6">
-              <p className="text-white font-semibold mb-3">Primești:</p>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-feminine-primary mt-0.5 shrink-0" />
-                <span className="text-gray-200">War Plan pe o pagină — viziune €10M → task-ul de azi</span>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-feminine-accent shrink-0" />
+                <span className="text-gray-200">Access complet la War Planning System (Domino săptămânal + task-uri zilnice)</span>
               </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-feminine-primary mt-0.5 shrink-0" />
-                <span className="text-gray-200">1 obiectiv domino săptămânal + 3-5 KPI esențiali</span>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-feminine-accent shrink-0" />
+                <span className="text-gray-200">AI Coaching tip Hormozi pentru bottleneck-uri și decizii strategice</span>
               </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-feminine-primary mt-0.5 shrink-0" />
-                <span className="text-gray-200">1-3 task-uri high-ROI pe zi — zero time waste</span>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-feminine-accent shrink-0" />
+                <span className="text-gray-200">Tracking automat al progresului și raportare săptămânală</span>
               </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-feminine-primary mt-0.5 shrink-0" />
-                <span className="text-gray-200">Coaching AI tip Hormozi pentru ofertă și preț</span>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-feminine-accent shrink-0" />
+                <span className="text-gray-200">Integrare cu echipa pentru delegare și accountability</span>
               </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-feminine-primary mt-0.5 shrink-0" />
-                <span className="text-gray-200">Sprint de 90 de zile cu obiective și checkpoint-uri</span>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-feminine-accent shrink-0" />
+                <span className="text-gray-200">Stack Library (coaching stacks pt. probleme specifice)</span>
               </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-feminine-primary mt-0.5 shrink-0" />
-                <span className="text-gray-200">Template-uri, playbook-uri și checklists de implementare</span>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="h-5 w-5 text-feminine-accent shrink-0" />
+                <span className="text-gray-200">Update-uri și feature-uri noi lunar</span>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-900/40 to-blue-700/40 border border-blue-500/30 rounded-xl p-4">
+            <div className="bg-feminine-primary/10 rounded-lg p-4 mb-6 border border-feminine-primary/20">
               <div className="flex items-start gap-3">
-                <Shield className="w-5 h-5 text-blue-400 mt-0.5 shrink-0" />
+                <Shield className="h-6 w-6 text-feminine-accent shrink-0 mt-1" />
                 <div>
-                  <p className="text-white font-semibold mb-1">Garanție Zero Risc</p>
-                  <p className="text-gray-200 text-sm">
-                    Trial 3 zile gratuit. Vezi rezultate în 48h sau anulezi fără nicio taxare.
+                  <div className="font-bold text-white mb-2">Garanție 90 de Zile sau Banii Înapoi + €100</div>
+                  <p className="text-sm text-gray-300 mb-2">
+                    <span className="font-semibold text-feminine-accent">Trial 3 zile GRATUIT</span> ca să testezi sistemul.
+                  </p>
+                  <p className="text-sm text-gray-300">
+                    Dacă după 90 de zile nu ai văzut cel puțin 10% îmbunătățire măsurabilă în profit sau productivitate, 
+                    îți returnăm toți banii + €100 pentru timpul tău pierdut. <span className="font-semibold">Zero risc.</span>
                   </p>
                 </div>
               </div>

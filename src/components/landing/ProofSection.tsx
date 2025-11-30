@@ -3,14 +3,54 @@ import { Quote, TrendingUp } from "lucide-react";
 
 export const ProofSection = () => {
   return (
-    <section className="mb-24">
+    <section className="mb-24" id="proof">
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-          Rezultate Reale, Antreprenori Reali
+          Rezultate Reale de la Antreprenori Români
         </h2>
         <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-          Antreprenori români de 6-8 cifre care au implementat sistemul RoWarrior
+          Nu este teorie. Sunt business-uri reale care au implementat sistemul War Planning și au rezultate măsurabile.
         </p>
+      </div>
+
+      {/* Video Testimonial Placeholder */}
+      <div className="mb-12 max-w-4xl mx-auto">
+        <Card className="bg-gradient-to-br from-background/80 to-background/40 backdrop-blur border-feminine-primary/30 overflow-hidden">
+          <div className="aspect-video bg-gradient-to-br from-feminine-primary/10 to-feminine-purple/10 flex items-center justify-center">
+            <div className="text-center p-8">
+              <div className="w-20 h-20 mx-auto mb-4 bg-feminine-primary/20 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-feminine-primary" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+              <p className="text-lg text-white font-semibold mb-2">Video Testimonial</p>
+              <p className="text-gray-400 text-sm">Antreprenor român cu cifră 1.2M EUR explică cum a crescut profitul cu 28% în 90 de zile</p>
+              <p className="text-xs text-gray-500 mt-2">(Video în curând — momentan avem doar testimoniale text)</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Client Logos */}
+      <div className="mb-12">
+        <p className="text-center text-gray-400 text-sm mb-6">Folosit de antreprenori din:</p>
+        <div className="flex flex-wrap justify-center items-center gap-8 max-w-4xl mx-auto opacity-60">
+          <div className="px-6 py-3 bg-background/40 rounded border border-border text-gray-300 font-semibold">
+            E-commerce
+          </div>
+          <div className="px-6 py-3 bg-background/40 rounded border border-border text-gray-300 font-semibold">
+            SaaS
+          </div>
+          <div className="px-6 py-3 bg-background/40 rounded border border-border text-gray-300 font-semibold">
+            Consultanță
+          </div>
+          <div className="px-6 py-3 bg-background/40 rounded border border-border text-gray-300 font-semibold">
+            Agenții
+          </div>
+          <div className="px-6 py-3 bg-background/40 rounded border border-border text-gray-300 font-semibold">
+            Real Estate
+          </div>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
