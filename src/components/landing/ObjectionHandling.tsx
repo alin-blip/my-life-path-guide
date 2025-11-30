@@ -1,9 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpCircle, Clock, DollarSign } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const ObjectionHandling = () => {
+  const { elementRef, isVisible } = useScrollAnimation();
+  
   return (
-    <section className="mb-24">
+    <section 
+      ref={elementRef}
+      className={`mb-24 transition-all duration-700 ${
+        isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
+      }`}
+    >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
           Întrebări frecvente

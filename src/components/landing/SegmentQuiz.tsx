@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const segments = [
   {
@@ -48,9 +49,15 @@ const segments = [
 
 export const SegmentQuiz = () => {
   const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
+  const { elementRef, isVisible } = useScrollAnimation();
 
   return (
-    <div className="mb-16">
+    <div 
+      ref={elementRef}
+      className={`mb-16 transition-all duration-700 ${
+        isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
+      }`}
+    >
       <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-4">
         La ce cifră de afaceri ești acum?
       </h2>

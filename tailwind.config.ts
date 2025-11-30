@@ -129,6 +129,14 @@ export default {
 					from: { transform: 'translateY(10px)', opacity: '0' },
 					to: { transform: 'translateY(0)', opacity: '1' }
 				},
+				slideUpLarge: {
+					from: { transform: 'translateY(30px)', opacity: '0' },
+					to: { transform: 'translateY(0)', opacity: '1' }
+				},
+				fadeInUp: {
+					from: { opacity: '0', transform: 'translateY(20px)' },
+					to: { opacity: '1', transform: 'translateY(0)' }
+				},
 				pulse: {
 					'0%, 100%': {
 						opacity: '1'
@@ -151,6 +159,8 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fadeIn 0.3s ease-in-out',
 				'slide-up': 'slideUp 0.4s ease-out',
+				'slide-up-large': 'slideUpLarge 0.6s ease-out',
+				'fade-in-up': 'fadeInUp 0.5s ease-out',
 				'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
 				'glow': 'glow 2s ease-in-out infinite'
 			},

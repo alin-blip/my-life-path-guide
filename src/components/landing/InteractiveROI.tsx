@@ -3,9 +3,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TrendingUp, AlertCircle, DollarSign } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const InteractiveROI = () => {
   const [revenue, setRevenue] = useState<string>("500000");
+  const { elementRef, isVisible } = useScrollAnimation();
 
   const calculateLosses = (rev: number) => {
     // Calculăm pierderile estimate: 15-30% din cifră pe task-uri inutile + oportunități ratate
@@ -20,7 +22,13 @@ export const InteractiveROI = () => {
   const roi = ((losses.total - monthlySubscription) / monthlySubscription * 100).toFixed(0);
 
   return (
-    <div className="mb-24" id="roi-calculator">
+    <div 
+      ref={elementRef}
+      className={`mb-24 transition-all duration-700 ${
+        isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
+      }`} 
+      id="roi-calculator"
+    >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
           Cât te costă să NU ai RoWarrior?

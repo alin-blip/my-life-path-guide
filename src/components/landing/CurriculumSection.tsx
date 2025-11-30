@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Target, Brain, TrendingUp, Users } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const modules = [
   {
@@ -54,8 +55,16 @@ const modules = [
 ];
 
 export const CurriculumSection = () => {
+  const { elementRef, isVisible } = useScrollAnimation();
+  
   return (
-    <div className="mb-24" id="curriculum">
+    <div 
+      ref={elementRef}
+      className={`mb-24 transition-all duration-700 ${
+        isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
+      }`} 
+      id="curriculum"
+    >
       <div className="text-center mb-12">
         <Badge className="bg-primary/10 text-primary border-primary/50 mb-4 font-semibold">
           Program în 4 Module
