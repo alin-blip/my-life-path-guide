@@ -95,45 +95,43 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
         {/* Right: Undo/Redo + Actions + Today + Profile */}
         <div className="flex items-center space-x-3">
           {/* Undo/Redo Buttons */}
-          {(onUndo || onRedo) && (
-            <TooltipProvider>
-              <div className="flex items-center gap-1 bg-accent/20 rounded-lg p-1 border border-border/50">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={onUndo}
-                      disabled={!canUndo}
-                      className="h-8 px-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent/50 transition-all"
-                    >
-                      <Undo className="w-4 h-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Undo (Ctrl+Z)</p>
+          <TooltipProvider>
+            <div className="flex items-center gap-1 bg-accent/20 rounded-lg p-1 border border-border/50">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onUndo}
+                    disabled={!canUndo}
+                    className="h-8 px-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent/50 transition-all"
+                  >
+                    <Undo className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Undo (Ctrl+Z)</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onRedo}
+                    disabled={!canRedo}
+                    className="h-8 px-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent/50 transition-all"
+                  >
+                    <Redo className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Redo (Ctrl+Shift+Z)</p>
                   </TooltipContent>
-                </Tooltip>
-                
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={onRedo}
-                      disabled={!canRedo}
-                      className="h-8 px-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent/50 transition-all"
-                    >
-                      <Redo className="w-4 h-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Redo (Ctrl+Shift+Z)</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </TooltipProvider>
-          )}
+              </Tooltip>
+            </div>
+          </TooltipProvider>
 
           {/* Action Buttons */}
           {onOpenHistory && (
