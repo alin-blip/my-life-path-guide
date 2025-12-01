@@ -269,9 +269,17 @@ INSTRUCȚIUNI:
     
     // Add welcome message when component mounts
     if (messages.length === 0) {
-      const welcomeContent = customWelcomeMessage || (stackType === 'anger' 
-        ? 'Salut! Sunt aici să te ajut să treci prin procesul de transformare a furiei în claritate și acțiune constructivă. Să începem - ce te-a adus astăzi la acest exercițiu? Ce situație sau sentiment vrei să explorăm împreună?'
-        : 'Bine ai venit într-un spațiu de rugăciune și reflecție spirituală. Sunt aici să te însoțesc în această călătorie de conexiune cu divinitatea și găsire de claritate spirituală. Spune-mi, ce te-a adus astăzi la această rugăciune?');
+      let welcomeContent = customWelcomeMessage;
+      
+      if (!welcomeContent) {
+        if (stackType === 'anger') {
+          welcomeContent = 'Salut! Sunt aici să te ajut să treci prin procesul de transformare a furiei în claritate și acțiune constructivă. Să începem - ce te-a adus astăzi la acest exercițiu? Ce situație sau sentiment vrei să explorăm împreună?';
+        } else if (stackType === 'napoleon-hill') {
+          welcomeContent = 'Bun venit! Sunt ghidul tău bazat pe principiile lui Napoleon Hill din "Think and Grow Rich". Împreună vom explora cei 13 pași către succes, transformând visul tău într-un plan concret de acțiune. Spune-mi, care este obiectivul principal pe care vrei să-l atingi? Ce dorință arzătoare îți domină gândurile?';
+        } else {
+          welcomeContent = 'Bine ai venit într-un spațiu de rugăciune și reflecție spirituală. Sunt aici să te însoțesc în această călătorie de conexiune cu divinitatea și găsire de claritate spirituală. Spune-mi, ce te-a adus astăzi la această rugăciune?';
+        }
+      }
       
       const welcomeMessage: Message = {
         role: 'assistant',
