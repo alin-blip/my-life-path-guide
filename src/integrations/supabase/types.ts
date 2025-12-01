@@ -527,6 +527,7 @@ export type Database = {
       }
       knowledge_base_files: {
         Row: {
+          content_preview: string | null
           created_at: string | null
           file_name: string
           file_path: string
@@ -537,6 +538,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          content_preview?: string | null
           created_at?: string | null
           file_name: string
           file_path: string
@@ -547,6 +549,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          content_preview?: string | null
           created_at?: string | null
           file_name?: string
           file_path?: string
