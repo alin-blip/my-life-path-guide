@@ -7,7 +7,7 @@ import { Layout } from '@/components/Layout';
 const DoorPage = () => {
   return (
     <Layout>
-      <div className="min-h-screen bg-[#1A1F2C] text-white">
+      <div className="min-h-screen bg-background">
         <DoorContent />
         <Toaster />
       </div>

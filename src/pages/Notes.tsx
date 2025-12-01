@@ -18,7 +18,7 @@ export const Notes: React.FC = () => {
               {language === 'en' ? 'Back to Dashboard' : 'Înapoi la Dashboard'}
             </Link>
           </Button>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-2xl font-bold text-foreground">
             {language === 'en' ? 'Sacred Notes' : 'Notițe Sacre'}
           </h1>
         </div>

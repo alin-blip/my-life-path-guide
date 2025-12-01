@@ -409,7 +409,7 @@ export const Dashboard: React.FC = () => {
       case 'important':
         return 'bg-blue-500/10 border-blue-500/30';
       default:
-        return 'bg-[#222233]';
+        return 'bg-card';
     }
   };
 
@@ -472,7 +472,7 @@ export const Dashboard: React.FC = () => {
   const coreToDaily = hasStack ? coreProgress : 0;
   const dailyToDoor = hasStack && coreProgress > 0 ? dailyProgress : 0;
 
-  return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4 bg-gradient-to-b from-[hsl(var(--background))] to-[hsl(var(--muted))]">
+  return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4 bg-gradient-to-b from-background to-muted">
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
           <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
           <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 animate-pulse"></div>
@@ -523,11 +523,11 @@ export const Dashboard: React.FC = () => {
                   {language === 'en' ? 'START' : 'START'}
                 </Button>}
             </div>
-            <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">{t('stack')}</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">{t('stack')}</span>
           </div>
           
           <div className="flex-grow mx-2 relative">
-            <div className="h-2 bg-gray-700 rounded-full w-full relative overflow-hidden">
+            <div className="h-2 bg-muted rounded-full w-full relative overflow-hidden">
               <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-1000 ease-in-out ${hasStack ? 'animate-progress-line' : ''}`} style={{
               width: `${stackToCoreLine}%`
             }}></div>
@@ -550,11 +550,11 @@ export const Dashboard: React.FC = () => {
               <Activity className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
               {hasCompletedCore && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-blue-500 text-white rounded-full p-1 z-20" />}
             </div>
-            <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">CORE</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">CORE</span>
           </div>
           
           <div className="flex-grow mx-2 relative">
-            <div className="h-2 bg-gray-700 rounded-full w-full relative overflow-hidden">
+            <div className="h-2 bg-muted rounded-full w-full relative overflow-hidden">
               <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-in-out ${coreProgress > 0 ? 'animate-progress-line' : ''}`} style={{
               width: `${coreToDaily}%`
             }}></div>
@@ -576,11 +576,11 @@ export const Dashboard: React.FC = () => {
               <Video className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
               {hasCompletedDailyFour && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-purple-500 text-white rounded-full p-1 z-20" />}
             </div>
-            <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">DAILY</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">DAILY</span>
           </div>
           
           <div className="flex-grow mx-2 relative">
-            <div className="h-2 bg-gray-700 rounded-full w-full relative overflow-hidden">
+            <div className="h-2 bg-muted rounded-full w-full relative overflow-hidden">
               <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000 ease-in-out ${dailyProgress > 0 ? 'animate-progress-line' : ''}`} style={{
               width: `${dailyToDoor}%`
             }}></div>
@@ -602,7 +602,7 @@ export const Dashboard: React.FC = () => {
               <ListTodo className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
               {hasCompletedDoor && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-pink-500 text-white rounded-full p-1 z-20" />}
             </div>
-            <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">GATEWAY</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">GATEWAY</span>
           </div>
         </div>
       </div>
@@ -719,11 +719,11 @@ export const Dashboard: React.FC = () => {
                             <Button variant="ghost" size="sm" className={`w-6 h-6 rounded-full mr-3 p-0 flex items-center justify-center ${item.completed ? 'bg-green-500 text-white' : 'bg-transparent border border-gray-400 text-gray-400'}`} onClick={() => toggleHitListItemCompletion(item.id)}>
                               {item.completed && <CheckCircle2 className="w-3 h-3" />}
                             </Button>
-                            <span className={`flex-grow ${item.completed ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
+                            <span className={`flex-grow ${item.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
                               {item.text}
                             </span>
                             {!item.completed && getPriorityIcon(item.priority)}
-                          </div>) : <div className="text-center text-gray-500 py-4">
+                          </div>) : <div className="text-center text-muted-foreground py-4">
                           <p>{language === 'en' ? 'No HIT items for today' : 'Nu există elemente HIT pentru astăzi'}</p>
                         </div>}
                     </div>
