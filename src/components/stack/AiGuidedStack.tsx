@@ -421,7 +421,16 @@ INSTRUCȚIUNI:
 
       // Save session to Stack Library (Arsenal)
       try {
-        const derivedType = stackType === 'anger' ? 'anger' : 'divine';
+        // Map all stack types correctly
+        const stackTypeMap: Record<string, string> = {
+          'anger': 'anger',
+          'divine-prayer': 'divine',
+          'gods-school': 'gods-school',
+          'hormozi': 'hormozi',
+          'napoleon-hill': 'napoleon-hill'
+        };
+        const derivedType = stackTypeMap[stackType] || stackType;
+        
         const questionsList: string[] = [...messages.map((m, i) => `Mesaj ${i + 1} (${m.role})`), 'Acțiune finală'];
         const answersMap: Record<string | number, string> = {};
         messages.forEach((m, i) => { answersMap[i] = m.content; });

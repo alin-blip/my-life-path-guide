@@ -71,6 +71,10 @@ const getStackLabel = (type: string): string => {
       return 'Divine Stack';
     case 'gods-school':
       return 'Școala Zeilor';
+    case 'hormozi':
+      return 'Imperiul de Business';
+    case 'napoleon-hill':
+      return 'Napoleon Hill';
     case 'ai':
       return 'AI Coaching';
     default:
@@ -91,8 +95,12 @@ const getStackColor = (type: string): string => {
       return 'purple';
     case 'gods-school':
       return 'amber';
-    case 'ai':
+    case 'hormozi':
       return 'orange';
+    case 'napoleon-hill':
+      return 'emerald';
+    case 'ai':
+      return 'cyan';
     default:
       return 'blue';
   }
