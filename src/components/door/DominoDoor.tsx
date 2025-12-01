@@ -302,7 +302,6 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                   {completedKeys}/{totalKeys} ✓
                 </Badge>
               )}
-              <DoorExplanation />
             </div>
           </div>
 
@@ -416,6 +415,11 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
             <p className="text-muted-foreground text-sm max-w-sm">
               {t('orClickToSelect')}
             </p>
+            
+            {/* Show explanation only in empty state */}
+            <div className="mt-6">
+              <DoorExplanation />
+            </div>
             
             {setSelectedDomino && setDominoKeyPoints && (
               <div className="mt-8">
