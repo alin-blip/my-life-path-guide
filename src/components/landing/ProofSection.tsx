@@ -15,10 +15,10 @@ export const ProofSection = () => {
     >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-          Rezultate Reale de la Antreprenori Români
+          Transformări Reale în Toate Cele 4 Arii
         </h2>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Nu este teorie. Sunt business-uri reale care au implementat sistemul War Planning și au rezultate măsurabile.
+          Nu este teorie. Sunt antreprenori români care au parcurs Calea Războinicului și au rezultate măsurabile în Corp, Spirit, Relații și Business.
         </p>
       </div>
 
@@ -33,7 +33,7 @@ export const ProofSection = () => {
                 </svg>
               </div>
               <p className="text-lg text-foreground font-semibold mb-2">Video Testimonial</p>
-              <p className="text-muted-foreground text-sm">Antreprenor român cu cifră 1.2M EUR explică cum a crescut profitul cu 28% în 90 de zile</p>
+              <p className="text-muted-foreground text-sm">Antreprenor român explică transformarea completă: de la burnout la echilibru în Corp, Relații, Spirit și Business</p>
               <p className="text-xs text-muted-foreground mt-2">(Video în curând — momentan avem doar testimoniale text)</p>
             </div>
           </div>
@@ -68,16 +68,16 @@ export const ProofSection = () => {
             <Quote className="w-8 h-8 text-primary mb-2" />
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-5 h-5 text-accent" />
-              <span className="text-accent font-bold text-xl">+€15k/lună profit</span>
+              <span className="text-accent font-bold text-xl">Toate cele 4 arii</span>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-foreground mb-4 italic">
-              "Am eliminat 70% din task-urile inutile în prima săptămână. După 90 de zile: +€15k/lună profit net, lucrez 45h în loc de 65h."
+              "În 90 de zile: am slăbit 12kg, m-am împăcat cu soția, am claritate spirituală și profit +€15k/lună. Calea Războinicului mi-a arătat că nu trebuie să sacrific nimic pentru business."
             </p>
             <div className="border-t border-border pt-3">
               <p className="text-foreground font-semibold">Ionuț P.</p>
-              <p className="text-muted-foreground text-sm">E-commerce, €2.5M/an cifră de afaceri</p>
+              <p className="text-muted-foreground text-sm">E-commerce, 42 ani, căsătorit</p>
             </div>
           </CardContent>
         </Card>
@@ -87,16 +87,16 @@ export const ProofSection = () => {
             <Quote className="w-8 h-8 text-accent mb-2" />
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-5 h-5 text-accent" />
-              <span className="text-accent font-bold text-xl">+22% creștere Q1</span>
+              <span className="text-accent font-bold text-xl">De la burnout la claritate</span>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-foreground mb-4 italic">
-              "War Plan mi-a clarificat prioritățile. Obiectivul domino săptămânal m-a forțat să fac doar ce contează. Rezultat: +22% creștere în Q1."
+              "Eram epuizat total. Calea Războinicului m-a ajutat să-mi reconstruiesc corpul, să mă reconectez spiritual, să-mi repar căsnicia și să cresc business-ul cu +22% în Q1. Acum am TOTUL."
             </p>
             <div className="border-t border-border pt-3">
               <p className="text-foreground font-semibold">Mihai S.</p>
-              <p className="text-muted-foreground text-sm">SaaS B2B, €800k/an ARR</p>
+              <p className="text-muted-foreground text-sm">SaaS B2B, 38 ani, 2 copii</p>
             </div>
           </CardContent>
         </Card>
@@ -106,16 +106,16 @@ export const ProofSection = () => {
             <Quote className="w-8 h-8 text-primary mb-2" />
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-5 h-5 text-accent" />
-              <span className="text-accent font-bold text-xl">Bottleneck rezolvat în 30 zile</span>
+              <span className="text-accent font-bold text-xl">Relații + Business împreună</span>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-foreground mb-4 italic">
-              "Aveam un blocaj major în sales. Coaching AI Hormozi m-a ajutat să clarific oferta și prețul. Bottleneck-ul rezolvat în 30 de zile."
+              "Credeam că trebuie să aleg între familie și business. Protocolul Balance mi-a arătat că pot avea ambele. Acum familia mă susține și business-ul crește natural."
             </p>
             <div className="border-t border-border pt-3">
               <p className="text-foreground font-semibold">Ana M.</p>
-              <p className="text-muted-foreground text-sm">Consulting, €1.2M/an cifră de afaceri</p>
+              <p className="text-muted-foreground text-sm">Consulting, 35 ani, mamă</p>
             </div>
           </CardContent>
         </Card>

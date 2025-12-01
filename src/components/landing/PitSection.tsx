@@ -9,11 +9,31 @@ export const PitSection = () => {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
   const pitItems = [
-    { id: "work", label: "Lucrez constant dar rezultatele nu vin" },
-    { id: "disconnect", label: "Mă simt deconectat de familie/partener" },
-    { id: "body", label: "Corpul meu suferă (oboseală, greutate, lipsă energie)" },
-    { id: "numb", label: "Mă sedez cu mâncarea/alcoolul/rețelele sociale" },
-    { id: "deserve", label: "Simt că nu merit mai mult" },
+    { 
+      id: "work", 
+      label: "Lucrez constant dar rezultatele nu vin",
+      consequence: "→ Burnout garantat în 6-12 luni, pierdere business"
+    },
+    { 
+      id: "disconnect", 
+      label: "Mă simt deconectat de familie/partener",
+      consequence: "→ Divorț sau relații distruse, copii care suferă"
+    },
+    { 
+      id: "body", 
+      label: "Corpul meu suferă (oboseală, greutate, lipsă energie)",
+      consequence: "→ Boli cronice, epuizare fizică, risc cardiac"
+    },
+    { 
+      id: "numb", 
+      label: "Mă sedez cu mâncarea/alcoolul/rețelele sociale",
+      consequence: "→ Dependențe, depresie, pierdere identitate"
+    },
+    { 
+      id: "deserve", 
+      label: "Simt că nu merit mai mult",
+      consequence: "→ Sabotatre perpetuă, nu vei atinge niciodată potențialul"
+    },
   ];
 
   const checkedCount = Object.values(checkedItems).filter(Boolean).length;
@@ -52,9 +72,16 @@ export const PitSection = () => {
               />
               <label
                 htmlFor={item.id}
-                className="text-lg text-foreground font-medium cursor-pointer flex-1"
+                className="cursor-pointer flex-1"
               >
-                {item.label}
+                <div className="text-lg text-foreground font-medium mb-1">
+                  {item.label}
+                </div>
+                {checkedItems[item.id] && (
+                  <div className="text-sm text-destructive font-semibold animate-in fade-in slide-in-from-top-2 duration-300">
+                    {item.consequence}
+                  </div>
+                )}
               </label>
             </div>
           ))}
