@@ -895,10 +895,16 @@ INSTRUCȚIUNI:
       <div className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
         <div>
           <h1 className="text-base sm:text-lg font-semibold">
-            AI {stackType === 'anger' ? 'Alchimia Furiei' : 'Dialogul cu Divinitatea'}
+            {stackType === 'anger' ? 'AI Alchimia Furiei' : 
+             stackType === 'napoleon-hill' ? 'Napoleon Hill Coaching' :
+             stackType === 'hormozi' ? 'Hormozi Business Coaching' :
+             stackType === 'gods-school' ? "God's School" :
+             'AI Dialogul cu Divinitatea'}
           </h1>
           <p className="text-xs text-muted-foreground">
-            Conversație ghidată cu AI coach-ul tău
+            {stackType === 'napoleon-hill' ? 'Ghidare bazată pe "Think and Grow Rich"' :
+             stackType === 'hormozi' ? 'Strategie business bazată pe $100M Offers' :
+             'Conversație ghidată cu AI coach-ul tău'}
           </p>
         </div>
         <div className="flex gap-2">
