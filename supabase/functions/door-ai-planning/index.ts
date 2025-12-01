@@ -106,13 +106,13 @@ serve(async (req) => {
       });
     }
 
-    if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > 100) {
       console.error('❌ Invalid messages array:', {
         isArray: Array.isArray(messages),
         length: messages?.length,
         messages: JSON.stringify(messages)
       });
-      return new Response(JSON.stringify({ error: 'Invalid messages array: must contain 1-50 messages' }), {
+      return new Response(JSON.stringify({ error: 'Invalid messages array: must contain 1-100 messages' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

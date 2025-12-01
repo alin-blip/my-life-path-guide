@@ -56,12 +56,16 @@ export const VoicePlanningModal: React.FC<VoicePlanningModalProps> = ({
       
       // Update history first, then use it in the API call
       const updatedHistory = [...conversationHistory, userMessage];
-      setConversationHistory(updatedHistory);
+      
+      // Keep only last 40 messages to stay within 100-message limit
+      const truncatedHistory = updatedHistory.slice(-40);
+      
+      setConversationHistory(truncatedHistory);
       setMessages(prev => [...prev, userMessage]);
       
       console.log('📤 Sending to door-ai-planning:', {
         mode: 'new',
-        messagesCount: updatedHistory.length,
+        messagesCount: truncatedHistory.length,
         lastMessage: userMessage.content.substring(0, 50)
       });
       
@@ -71,7 +75,7 @@ export const VoicePlanningModal: React.FC<VoicePlanningModalProps> = ({
         const { data, error } = await supabase.functions.invoke('door-ai-planning', {
           body: {
             mode: 'new',
-            messages: updatedHistory,
+            messages: truncatedHistory,
           }
         });
 
