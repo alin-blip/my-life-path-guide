@@ -37,6 +37,7 @@ import {
 type StackType = {
   id: string;
   title?: string;
+  type?: string;
   trigger?: string;
   color?: string;
   created_at?: string;
@@ -106,6 +107,8 @@ const stackLibrary = JSON.parse(localStorage.getItem('stack_library') || '[]');
           // Map the data to ensure types are compatible
           const formattedData: StackType[] = data.map(item => ({
             id: item.id,
+            title: item.title || '',
+            type: item.type || '',
             trigger: item.trigger || '',
             trigger_label: item.trigger_label || '',
             color: item.color || 'blue',
@@ -299,8 +302,23 @@ localStorage.setItem('stack_library', JSON.stringify(updatedLibrary));
       case 'blue': return 'bg-blue-900/20 border-blue-700';
       case 'purple': return 'bg-purple-900/20 border-purple-700';
       case 'orange': return 'bg-orange-900/20 border-orange-700';
+      case 'amber': return 'bg-amber-900/20 border-amber-700';
+      case 'emerald': return 'bg-emerald-900/20 border-emerald-700';
+      case 'cyan': return 'bg-cyan-900/20 border-cyan-700';
       default: return 'bg-blue-900/20 border-blue-700';
     }
+  };
+
+  const getStackTitle = (stack: StackType) => {
+    const typeLabels: Record<string, string> = {
+      'anger': 'Alchimia Furiei',
+      'divine': 'Dialogul cu Divinitatea',
+      'napoleon-hill': 'Napoleon Hill - Think and Grow Rich',
+      'hormozi': 'Imperiul de Business',
+      'gods-school': 'Școala Zeilor',
+      'ai': 'Coaching AI'
+    };
+    return typeLabels[stack.type || ''] || stack.title || 'Stack Session';
   };
 
   return (
@@ -369,7 +387,7 @@ localStorage.setItem('stack_library', JSON.stringify(updatedLibrary));
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg font-medium text-white">
-                    {stack.trigger_label || stack.trigger || "Untitled Stack"}
+                    {getStackTitle(stack)}
                   </CardTitle>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
