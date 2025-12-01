@@ -88,7 +88,12 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     onSessionRestore: (sessionData) => {
       console.log('📥 Restoring session:', sessionData);
       if (sessionData.answers && sessionData.answers.messages && Array.isArray(sessionData.answers.messages)) {
-        setMessages(sessionData.answers.messages);
+        // Convert timestamp strings back to Date objects
+        const restoredMessages = sessionData.answers.messages.map((msg: any) => ({
+          ...msg,
+          timestamp: msg.timestamp instanceof Date ? msg.timestamp : new Date(msg.timestamp)
+        }));
+        setMessages(restoredMessages);
         setCurrentQuestionNumber(sessionData.answers.currentStep || 0);
         if (sessionData.answers.finalAction) {
           setFinalAction(sessionData.answers.finalAction);
