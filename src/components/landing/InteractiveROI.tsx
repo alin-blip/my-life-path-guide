@@ -6,20 +6,50 @@ import { TrendingUp, AlertCircle, DollarSign } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const InteractiveROI = () => {
-  const [revenue, setRevenue] = useState<string>("500000");
+  const [bodyScore, setBodyScore] = useState<number>(5);
+  const [relationshipsScore, setRelationshipsScore] = useState<number>(5);
+  const [spiritScore, setSpiritScore] = useState<number>(5);
+  const [businessScore, setBusinessScore] = useState<number>(5);
   const { elementRef, isVisible } = useScrollAnimation();
 
-  const calculateLosses = (rev: number) => {
-    // Calculăm pierderile estimate: 15-30% din cifră pe task-uri inutile + oportunități ratate
-    const timeLoss = rev * 0.15; // 15% timp pierdut pe task-uri inutile
-    const opportunityLoss = rev * 0.15; // 15% oportunități ratate din lipsa de focus
-    return { timeLoss, opportunityLoss, total: timeLoss + opportunityLoss };
-  };
+  const areas = [
+    { 
+      id: "body", 
+      label: "Corp", 
+      score: bodyScore, 
+      setScore: setBodyScore,
+      without: "Oboseală cronică, greutate în plus, lipsă de energie",
+      with: "Energie zilnică constantă, corp sănătos și rezistent"
+    },
+    { 
+      id: "relationships", 
+      label: "Relații", 
+      score: relationshipsScore, 
+      setScore: setRelationshipsScore,
+      without: "Deconectare emoțională, conflicte frecvente, singurătate",
+      with: "Conexiune profundă cu familia, intimitate autentică"
+    },
+    { 
+      id: "spirit", 
+      label: "Spirit", 
+      score: spiritScore, 
+      setScore: setSpiritScore,
+      without: "Confuzie despre scop, lipsă de sens, anxietate",
+      with: "Claritate totală, pace interioară, conexiune spirituală"
+    },
+    { 
+      id: "business", 
+      label: "Bani", 
+      score: businessScore, 
+      setScore: setBusinessScore,
+      without: "Stagnare financiară, stres constant despre bani",
+      with: "Creștere predictibilă, abundență, libertate financiară"
+    }
+  ];
 
-  const revNumber = parseFloat(revenue) || 0;
-  const losses = calculateLosses(revNumber);
-  const monthlySubscription = 197 * 12; // €197/lună × 12 luni
-  const roi = ((losses.total - monthlySubscription) / monthlySubscription * 100).toFixed(0);
+  const totalScore = bodyScore + relationshipsScore + spiritScore + businessScore;
+  const maxScore = 40;
+  const overallHealth = Math.round((totalScore / maxScore) * 100);
 
   return (
     <div 
@@ -31,66 +61,87 @@ export const InteractiveROI = () => {
     >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-          Cât te costă să NU ai RoWarrior?
+          Evaluează-ți Starea în Cele 4 Arii
         </h2>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Calculează exact cât pierzi fără un sistem clar de execuție
+          Evaluează fiecare arie de la 1 (foarte slab) la 10 (excelent) și vezi unde te afli acum
         </p>
       </div>
 
-      <Card className="bg-card border-border shadow-lg p-8 max-w-4xl mx-auto">
-        <div className="mb-8">
-          <Label htmlFor="revenue" className="text-lg text-foreground mb-2 block font-semibold">
-            Care este cifra ta de afaceri anuală? (EUR)
-          </Label>
-          <Input
-            id="revenue"
-            type="number"
-            value={revenue}
-            onChange={(e) => setRevenue(e.target.value)}
-            className="text-2xl font-bold text-center h-14 bg-input border-primary/30 focus:border-primary text-foreground"
-            placeholder="500000"
-          />
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-destructive/5 border-destructive/50 p-6 shadow">
-            <AlertCircle className="h-8 w-8 text-destructive mb-3" />
-            <div className="text-sm text-muted-foreground mb-1 font-medium">Timp pierdut pe task-uri inutile</div>
-            <div className="text-2xl font-bold text-destructive">
-              €{losses.timeLoss.toLocaleString('ro-RO', { maximumFractionDigits: 0 })}
+      <Card className="bg-card border-border shadow-lg p-8 max-w-5xl mx-auto">
+        <div className="space-y-8 mb-8">
+          {areas.map((area) => (
+            <div key={area.id} className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor={area.id} className="text-lg text-foreground font-semibold">
+                  {area.label}
+                </Label>
+                <span className="text-2xl font-bold text-primary">{area.score}/10</span>
+              </div>
+              <Input
+                id={area.id}
+                type="range"
+                min="1"
+                max="10"
+                value={area.score}
+                onChange={(e) => area.setScore(parseInt(e.target.value))}
+                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+              />
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div className="bg-destructive/5 border border-destructive/30 p-3 rounded">
+                  <p className="font-semibold text-destructive mb-1">❌ Fără RoWarrior:</p>
+                  <p className="text-muted-foreground">{area.without}</p>
+                </div>
+                <div className="bg-primary/5 border border-primary/30 p-3 rounded">
+                  <p className="font-semibold text-primary mb-1">✅ Cu RoWarrior:</p>
+                  <p className="text-muted-foreground">{area.with}</p>
+                </div>
+              </div>
             </div>
-          </Card>
-
-          <Card className="bg-destructive/5 border-destructive/50 p-6 shadow">
-            <AlertCircle className="h-8 w-8 text-destructive mb-3" />
-            <div className="text-sm text-muted-foreground mb-1 font-medium">Oportunități ratate</div>
-            <div className="text-2xl font-bold text-destructive">
-              €{losses.opportunityLoss.toLocaleString('ro-RO', { maximumFractionDigits: 0 })}
-            </div>
-          </Card>
-
-          <Card className="bg-primary/5 border-primary/50 p-6 shadow">
-            <TrendingUp className="h-8 w-8 text-accent mb-3" />
-            <div className="text-sm text-muted-foreground mb-1 font-medium">Investiție RoWarrior/an</div>
-            <div className="text-2xl font-bold text-primary">
-              €{monthlySubscription.toLocaleString('ro-RO')}
-            </div>
-          </Card>
+          ))}
         </div>
 
         <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-8 text-center border-2 border-primary/40 shadow-lg">
-          <DollarSign className="h-12 w-12 text-accent mx-auto mb-3" />
-          <div className="text-lg text-muted-foreground mb-2 font-semibold">ROI Estimat în Primul An</div>
-          <div className="text-5xl font-bold text-accent mb-2">
-            {roi}%
+          <TrendingUp className="h-12 w-12 text-accent mx-auto mb-3" />
+          <div className="text-lg text-muted-foreground mb-2 font-semibold">Starea Ta Generală</div>
+          <div className="text-5xl font-bold text-accent mb-4">
+            {overallHealth}%
           </div>
-          <div className="text-xl text-foreground font-bold mb-4">
-            Economisești/Câștigi: €{(losses.total - monthlySubscription).toLocaleString('ro-RO', { maximumFractionDigits: 0 })}
-          </div>
-          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-            Calculul este conservator și presupune doar 15% recuperare din timp + oportunități.
-            Majoritatea clienților raportează 20-30% îmbunătățire reală.
+          
+          {overallHealth < 50 && (
+            <div className="bg-destructive/10 border-l-4 border-destructive p-4 rounded-r mb-4">
+              <p className="text-foreground font-bold">⚠️ Ești în zona de risc</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Când scorul general e sub 50%, riscul de burnout, probleme de sănătate și relații distruse crește exponențial. 
+                E timpul să acționezi.
+              </p>
+            </div>
+          )}
+          
+          {overallHealth >= 50 && overallHealth < 75 && (
+            <div className="bg-accent/10 border-l-4 border-accent p-4 rounded-r mb-4">
+              <p className="text-foreground font-bold">📈 Ai un fundament solid</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Ești pe drumul cel bun, dar există încă spațiu mare de creștere. 
+                Calea Războinicului te va ajuta să ajungi la 80-90% în toate ariile.
+              </p>
+            </div>
+          )}
+          
+          {overallHealth >= 75 && (
+            <div className="bg-primary/10 border-l-4 border-primary p-4 rounded-r mb-4">
+              <p className="text-foreground font-bold">🏆 Excelent! Continuă pe această cale</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Ai un echilibru solid, dar chiar și războinicii puternici au nevoie de un sistem 
+                care să-i mențină la acest nivel și să-i protejeze de recăderi.
+              </p>
+            </div>
+          )}
+
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+            <span className="text-foreground font-bold">Calea Războinicului</span> nu se concentrează doar pe bani sau business. 
+            Te ajută să crești <span className="text-primary font-bold">SIMULTAN</span> în toate cele 4 arii — 
+            pentru că adevărata bogăție înseamnă abundență în toate domeniile vieții.
           </p>
         </div>
       </Card>

@@ -37,39 +37,50 @@ export const FounderSection = () => {
 
           {/* Story Content */}
           <div className="flex-1 space-y-4 text-muted-foreground">
-            <p className="text-lg leading-relaxed">
-              <span className="text-accent font-bold">În 2019</span>, am ajuns la 2M EUR cifră de afaceri... 
-              și eram mai blocat ca niciodată. Lucram 80h/săptămână, echipa de 15 oameni habar nu avea ce e prioritar, 
-              și eu trăiam în task-uri operative.
+            <p className="text-lg leading-relaxed font-semibold text-foreground">
+              <span className="text-destructive">7 ani.</span> 7 ani mi-au trebuit să descopăr, să testez și să dovedesc drumul unui războinic.
             </p>
 
             <p className="leading-relaxed">
-              Am încercat toate tool-urile: Asana, Monday, Notion, Trello. Nimic nu funcționa. 
-              Problema nu erau task-urile — <span className="text-foreground font-semibold">problema era lipsa de CLARITATE strategică</span>.
+              7 ani în care am trecut prin <span className="text-destructive font-bold">burnout, spitalizare și depresie profundă</span>. 
+              Am ajuns în punctul în care doctorii nu mi-au mai dat nici o șansă. Soția mea a fost distrusă. 
+              <span className="text-foreground font-semibold"> Am fost o legumă mentală timp de un an...</span>
             </p>
 
             <p className="leading-relaxed">
-              Atunci am descoperit conceptul de <span className="text-primary font-bold">"Domino"</span> din 
-              cartea <em>The ONE Thing</em> de Gary Keller. Am combinat asta cu frameworks de la Alex Hormozi, 
-              sistemele de execuție militară, și coaching AI.
+              Dar am refuzat să accept că acesta e sfârșitul. Am început să caut răspunsuri — 
+              nu în pastile sau terapii convenționale, ci în <span className="text-primary font-bold">adevăr</span>. 
+              Am realizat că problema nu era doar în business. Era în <span className="text-foreground font-semibold">TOATE ariile</span> — 
+              corp, spirit, relații, afaceri.
             </p>
 
             <div className="bg-primary/10 border-l-4 border-primary p-4 rounded-r">
-              <p className="text-foreground font-semibold">
-                Rezultat: În 6 luni am crescut profitul cu 35%, am redus orele lucrate cu 40%, și echipa știa 
-                EXACT ce face fiecare zi.
-              </p>
+              <p className="text-foreground font-bold mb-2">Rezultatul transformării:</p>
+              <ul className="space-y-1 text-sm">
+                <li>✓ Am slăbit 30 kg în 4 luni</li>
+                <li>✓ De la depresie la putere mentală și claritate</li>
+                <li>✓ Business de 5M€+ în 3 ani</li>
+                <li>✓ De la relație toxică la căsnicie plină de pasiune</li>
+                <li>✓ Tată și soț ghidat de credință</li>
+              </ul>
             </div>
 
             <p className="leading-relaxed">
-              Am sistematizat tot ce am învățat și l-am transformat în RoWarrior. Acum peste 150 de antreprenori 
-              români folosesc sistemul și raportează în medie +22% profit în primele 90 de zile.
+              Am învățat că <span className="text-primary font-bold">succesul fără echilibru e doar o altă formă de sărăcie</span>. 
+              Poți avea milioane în bancă și totuși să fii în Groapă — deconectat, desensibilizat, distrus pe dinăuntru.
             </p>
 
-            <p className="text-sm text-muted-foreground italic">
-              <span className="text-accent">Nota:</span> Adaugă aici povestea ta reală, experiența concretă, 
-              cifrele tale și de ce exact ai creat această platformă. Autenticitatea vinde mai mult decât orice "pitch".
+            <p className="leading-relaxed">
+              Am sistematizat tot ce am învățat și l-am transformat în Calea Războinicului. Nu doar pentru mine — 
+              pentru că <span className="text-foreground font-bold">nu am avut pe nimeni care să-mi arate calea</span>. 
+              Dar TU ai acum această oportunitate.
             </p>
+
+            <div className="bg-accent/10 border-l-4 border-accent p-4 rounded-r">
+              <p className="text-foreground font-bold">
+                Acum sistemul este folosit de 65,000+ bărbați în 40+ de țări. Adaptat pentru piața românească.
+              </p>
+            </div>
           </div>
         </div>
       </Card>
