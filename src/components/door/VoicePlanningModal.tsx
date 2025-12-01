@@ -44,10 +44,26 @@ export const VoicePlanningModal: React.FC<VoicePlanningModalProps> = ({
     toggleMic
   } = useVoiceInput({
     onTranscript: async (transcript) => {
+      // Validare transcript
+      const trimmedTranscript = transcript.trim();
+      if (!trimmedTranscript) {
+        console.log('⚠️ Empty transcript, skipping');
+        return;
+      }
+
       // Add user message
-      const userMessage: Message = { role: 'user', content: transcript };
-      setConversationHistory(prev => [...prev, userMessage]);
+      const userMessage: Message = { role: 'user', content: trimmedTranscript };
+      
+      // Update history first, then use it in the API call
+      const updatedHistory = [...conversationHistory, userMessage];
+      setConversationHistory(updatedHistory);
       setMessages(prev => [...prev, userMessage]);
+      
+      console.log('📤 Sending to door-ai-planning:', {
+        mode: 'new',
+        messagesCount: updatedHistory.length,
+        lastMessage: userMessage.content.substring(0, 50)
+      });
       
       // Send to AI
       setIsProcessing(true);
@@ -55,7 +71,7 @@ export const VoicePlanningModal: React.FC<VoicePlanningModalProps> = ({
         const { data, error } = await supabase.functions.invoke('door-ai-planning', {
           body: {
             mode: 'new',
-            messages: [...conversationHistory, userMessage],
+            messages: updatedHistory,
           }
         });
 
