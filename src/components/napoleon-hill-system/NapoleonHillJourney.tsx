@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { NapoleonHillProject, napoleonHillProjectService } from '@/services/napoleonHillProjectService';
 import { PrincipleTimeline } from './PrincipleTimeline';
 import { PrincipleChat } from './PrincipleChat';
 import { ActionsList } from './ActionsList';
 import { DoorIntegrationButton } from './DoorIntegrationButton';
-import { CheckCircle, Download } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface NapoleonHillJourneyProps {
@@ -55,10 +54,6 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
         onProjectUpdate();
       }
     }
-  };
-
-  const handleExportPDF = () => {
-    toast({ title: "Export PDF în curând...", description: "Funcționalitate în dezvoltare" });
   };
 
   return (
@@ -124,14 +119,7 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
             Planul Tău de Acțiune
           </h3>
           
-          <div className="flex gap-4">
-            <Button onClick={handleExportPDF} variant="outline">
-              <Download className="w-4 h-4 mr-2" />
-              Export PDF
-            </Button>
-            
-            <DoorIntegrationButton project={project} />
-          </div>
+          <DoorIntegrationButton project={project} />
         </Card>
       )}
     </div>

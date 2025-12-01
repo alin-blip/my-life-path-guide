@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Target, Upload, Crown } from "lucide-react";
+import { BookOpen, Target, Upload, Crown, BarChart3 } from "lucide-react";
 import { napoleonHillProjectService, NapoleonHillProject } from '@/services/napoleonHillProjectService';
 import { NapoleonHillProjectsList } from '@/components/napoleon-hill-system/NapoleonHillProjectsList';
 import { NapoleonHillJourney } from '@/components/napoleon-hill-system/NapoleonHillJourney';
+import { NapoleonHillDashboard } from '@/components/napoleon-hill-system/NapoleonHillDashboard';
 import { NapoleonHillKnowledgeBase } from '@/components/stack/napoleon-hill/NapoleonHillKnowledgeBase';
+import { NotificationSettings } from '@/components/napoleon-hill-system/NotificationSettings';
 import { NewProjectModal } from '@/components/napoleon-hill-system/NewProjectModal';
 import { Button } from '@/components/ui/button';
 
@@ -69,20 +71,28 @@ export default function NapoleonHillSystem() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3">
+            <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4">
+              <TabsTrigger value="dashboard" className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Dashboard
+              </TabsTrigger>
               <TabsTrigger value="projects" className="flex items-center gap-2">
                 <Target className="w-4 h-4" />
-                Proiectele Mele
+                Proiecte
               </TabsTrigger>
               <TabsTrigger value="journey" className="flex items-center gap-2" disabled={!selectedProject}>
                 <BookOpen className="w-4 h-4" />
-                Journey Activ
+                Journey
               </TabsTrigger>
               <TabsTrigger value="knowledge" className="flex items-center gap-2">
                 <Upload className="w-4 h-4" />
-                Knowledge Base
+                Knowledge
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="dashboard" className="mt-6">
+              <NapoleonHillDashboard />
+            </TabsContent>
 
             <TabsContent value="projects" className="mt-6">
               <div className="space-y-4">
@@ -119,7 +129,10 @@ export default function NapoleonHillSystem() {
             </TabsContent>
 
             <TabsContent value="knowledge" className="mt-6">
-              <NapoleonHillKnowledgeBase />
+              <div className="space-y-6">
+                <NotificationSettings />
+                <NapoleonHillKnowledgeBase />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
