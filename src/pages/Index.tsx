@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Helmet } from "react-helmet-async";
-import { ProblemSection } from "@/components/landing/ProblemSection";
+import { PitSection } from "@/components/landing/PitSection";
 import { SegmentQuiz } from "@/components/landing/SegmentQuiz";
 import { InteractiveROI } from "@/components/landing/InteractiveROI";
 import { UniqueMechanismSection } from "@/components/landing/UniqueMechanismSection";
-import { HowItWorksTimeline } from "@/components/landing/HowItWorksTimeline";
+import { Core4Section } from "@/components/landing/Core4Section";
 import { CurriculumSection } from "@/components/landing/CurriculumSection";
 import { ProofSection } from "@/components/landing/ProofSection";
 import { ForWhomSection } from "@/components/landing/ForWhomSection";
@@ -22,8 +22,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50/30 via-white to-blue-50/20">
       <Helmet>
-        <title>RoWarrior — Antreprenori €500k-€10M+: +15-30% Profit în 90 Zile</title>
-        <meta name="description" content="Sistem de War Planning pentru antreprenori români de 6-8 cifre. Reduci 80% din task-uri și crești profitul cu 15-30% în 90 de zile. Trial gratuit 3 zile." />
+        <title>RoWarrior — Calea Războinicului: Transformare Completă în Corp, Spirit, Relații și Afaceri</title>
+        <meta name="description" content="Sistemul complet de viață pentru bărbați care vor TOTUL — nu doar bani. Energie în corp, pace în spirit, relații profunde, business profitabil. 65,000+ războinici în 40+ țări. Trial gratuit 3 zile." />
         <link rel="canonical" href={`${window.location.origin}/`} />
       </Helmet>
 
@@ -45,20 +45,20 @@ const Index = () => {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-            Lucrezi 60h/săptămână...<br />
-            Dar business-ul nu crește?
+            Ai sacrificat totul pentru business...<br />
+            Și încă nu ai <span className="text-primary">TOTUL</span>?
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-4xl mx-auto">
-            Sistemul de <span className="text-primary font-bold">War Planning</span> care transformă antreprenori 
-            blocați în task-uri în CEO-uri strategici care cresc profitul cu 15-30% în 90 de zile
+          <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-4xl mx-auto leading-relaxed">
+            <span className="text-primary font-bold">Calea Războinicului</span> te învață cum să ai un corp plin de energie, 
+            relații profunde, claritate spirituală <span className="text-accent font-bold">ȘI</span> un business profitabil — 
+            <span className="text-foreground font-bold"> fără să sacrifici nimic</span>
           </p>
 
           <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
-            <span className="text-accent font-bold">1 obiectiv domino săptămânal</span> + 
-            <span className="text-accent font-bold"> 1-3 task-uri high-ROI zilnice</span> + 
-            <span className="text-accent font-bold"> Coaching AI tip Hormozi</span> = 
-            Clarity, Execuție, Rezultate
+            Sistem testat de <span className="text-accent font-bold">65,000+ bărbați în 40+ țări</span> • 
+            Adaptat pentru <span className="text-accent font-bold"> piața românească</span> • 
+            Primele rezultate în <span className="text-accent font-bold">48 de ore</span>
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -80,14 +80,14 @@ const Index = () => {
             </Button>
           </div>
 
-          <div className="flex items-center justify-center gap-8 text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8 text-muted-foreground">
             <div className="flex items-center gap-2">
               <span className="text-accent font-bold text-lg">✓</span>
-              <span className="font-medium">150+ antreprenori români</span>
+              <span className="font-medium">Transformare în 4 arii</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-accent font-bold text-lg">✓</span>
-              <span className="font-medium">Medie +22% profit în Q1</span>
+              <span className="font-medium">Sistem complet de viață</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-accent font-bold text-lg">✓</span>
@@ -99,16 +99,19 @@ const Index = () => {
         {/* Segment Quiz */}
         <SegmentQuiz />
 
-        {/* Problem Section */}
-        <ProblemSection />
+        {/* Pit Section - "Ești În Groapă?" */}
+        <PitSection />
+
+        {/* Core 4 Areas */}
+        <Core4Section />
+
+        {/* Unique Mechanism - 5 Protocoale */}
+        <UniqueMechanismSection />
 
         {/* Interactive ROI Calculator */}
         <InteractiveROI />
 
-        {/* Unique Mechanism */}
-        <UniqueMechanismSection />
-
-        {/* Curriculum Section - Replace Timeline */}
+        {/* Curriculum Section - 3 Faze */}
         <CurriculumSection />
 
         {/* Proof & Testimonials */}
