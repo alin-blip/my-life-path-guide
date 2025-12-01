@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 import { PitSection } from "@/components/landing/PitSection";
 import { SegmentQuiz } from "@/components/landing/SegmentQuiz";
 import { InteractiveROI } from "@/components/landing/InteractiveROI";
@@ -18,6 +19,24 @@ import { FinalCTA } from "@/components/landing/FinalCTA";
 
 const Index = () => {
   const navigate = useNavigate();
+
+  // Forțează tema light permanent pe pagina index
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousTheme = root.classList.contains('dark') ? 'dark' : 'light';
+    
+    // Forțează tema light
+    root.classList.remove('dark');
+    root.classList.add('light');
+    
+    // Restaurează tema originală la unmount
+    return () => {
+      root.classList.remove('light');
+      if (previousTheme === 'dark') {
+        root.classList.add('dark');
+      }
+    };
+  }, []);
 
   return (
     <div className="light min-h-screen bg-gradient-to-b from-blue-50/30 via-white to-blue-50/20">
