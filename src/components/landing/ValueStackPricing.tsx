@@ -19,10 +19,10 @@ export const ValueStackPricing = () => {
     >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-          Câți bani pierzi săptămâna asta fără RoWarrior?
+          Ce pierzi în viață fără Calea Războinicului?
         </h2>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Dacă faci €1M/an și pierzi 50% din timp pe low-value work... <span className="text-accent font-bold">pierzi €500k/an</span>.
+          Nu e doar despre bani. Pierzi <span className="text-accent font-bold">sănătate, relații, claritate spirituală și prosperitate</span>. Costul real? Imposibil de calculat.
         </p>
       </div>
 
@@ -41,24 +41,32 @@ export const ValueStackPricing = () => {
             <div className="bg-gradient-to-br from-green-50 to-green-100/50 border-2 border-green-400 rounded-xl p-6 mb-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp className="w-6 h-6 text-green-600" />
-                <h3 className="text-xl font-bold text-green-900">ROI Calculation</h3>
+                <h3 className="text-xl font-bold text-green-900">Transformare în Toate Cele 4 Arii</h3>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-green-800">Economisești 20h/săptămână</span>
-                  <span className="text-accent font-bold">€5k-€20k/lună</span>
+                  <span className="text-green-800">💪 Body: Energie + Sănătate</span>
+                  <span className="text-accent font-bold">Nepretuit</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-green-800">Crești profit cu 15-30%</span>
+                  <span className="text-green-800">🙏 Spirit: Claritate + Scop</span>
+                  <span className="text-accent font-bold">Nepretuit</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-green-800">❤️ Relații: Conexiune + Pace</span>
+                  <span className="text-accent font-bold">Nepretuit</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-green-800">💼 Business: +15-30% profit</span>
                   <span className="text-accent font-bold">€25k-€150k/trimestru</span>
                 </div>
                 <div className="border-t-2 border-green-400 pt-3 mt-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-green-900 font-bold text-lg">Cost RoWarrior Pro</span>
+                    <span className="text-green-900 font-bold text-lg">Investiție RoWarrior Pro</span>
                     <span className="text-green-900 font-bold text-lg">197 LEI/lună</span>
                   </div>
                   <p className="text-green-600 text-sm mt-2 text-right font-semibold">
-                    Se plătește singur în prima săptămână
+                    Doar partea de Business se plătește singur în prima săptămână
                   </p>
                 </div>
               </div>
@@ -67,27 +75,27 @@ export const ValueStackPricing = () => {
             <div className="space-y-3 mb-6">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
-                <span className="text-foreground">Access complet la War Planning System (Domino săptămânal + task-uri zilnice)</span>
+                <span className="text-foreground">Cele 5 Protocoale ale Războinicului (Code, Stack, Core 4, Door, Game)</span>
               </div>
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
-                <span className="text-foreground">AI Coaching tip Hormozi pentru bottleneck-uri și decizii strategice</span>
+                <span className="text-foreground">Harta Realității + Jocul Imposibil pentru toate cele 4 arii de viață</span>
               </div>
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
-                <span className="text-foreground">Tracking automat al progresului și raportare săptămânală</span>
+                <span className="text-foreground">War Planning System pentru execuție focusată și claritate săptămânală</span>
               </div>
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
-                <span className="text-foreground">Integrare cu echipa pentru delegare și accountability</span>
+                <span className="text-foreground">AI Coaching multi-dimensional pentru transformare holistica</span>
               </div>
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
-                <span className="text-foreground">Stack Library (coaching stacks pt. probleme specifice)</span>
+                <span className="text-foreground">Stack Library (protocoale ghidate pentru fiecare arie)</span>
               </div>
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
-                <span className="text-foreground">Update-uri și feature-uri noi lunar</span>
+                <span className="text-foreground">Tracking complet în Corp, Spirit, Relații și Business</span>
               </div>
             </div>
 
