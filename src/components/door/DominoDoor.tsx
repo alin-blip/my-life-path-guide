@@ -4,6 +4,7 @@ import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, Mic } fro
 import { HotListItem, DominoKeyPoint, PlanningResult } from '@/types/door';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/context/LanguageContext';
 import { DoorPlanningModal } from './DoorPlanningModal';
 import { VoicePlanningModal } from './VoicePlanningModal';
@@ -61,6 +62,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const [showVoicePlanningModal, setShowVoicePlanningModal] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
   const [allPlans, setAllPlans] = useState<WeeklyPlanningData[]>([]);
 
   useEffect(() => {
@@ -302,6 +304,15 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                   {completedKeys}/{totalKeys} ✓
                 </Badge>
               )}
+              <Button
+                onClick={() => setShowExplanation(true)}
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-lg"
+                title="Veți explicația Domino Door"
+              >
+                <Info className="w-4 h-4" />
+              </Button>
             </div>
           </div>
 
@@ -473,6 +484,16 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           plans={allPlans}
         />
       )}
+
+      {/* Explanation Dialog */}
+      <Dialog open={showExplanation} onOpenChange={setShowExplanation}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Ce este Domino Door?</DialogTitle>
+          </DialogHeader>
+          <DoorExplanation />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
