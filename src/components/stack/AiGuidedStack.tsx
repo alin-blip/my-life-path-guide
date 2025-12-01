@@ -30,12 +30,13 @@ interface Message {
 
 interface AiGuidedStackProps {
   onAddToHitList?: (action: string) => void;
-  stackType: 'anger' | 'divine-prayer' | 'gods-school' | 'hormozi';
-  questions: string[];
+  stackType: 'anger' | 'divine-prayer' | 'gods-school' | 'hormozi' | 'napoleon-hill';
+  questions: any[];
   onModeSwitch?: () => void;
   audioMode?: boolean;
   voiceOnlyMode?: boolean;
   systemPrompt?: string;
+  systemPromptOverride?: string;
   welcomeMessage?: string;
 }
 
@@ -47,6 +48,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   audioMode = false,
   voiceOnlyMode = false,
   systemPrompt: customSystemPrompt,
+  systemPromptOverride,
   welcomeMessage: customWelcomeMessage
 }) => {
   const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
@@ -185,6 +187,11 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   });
 
   const getStackPrompt = () => {
+    // If systemPromptOverride is provided, use it directly
+    if (systemPromptOverride) {
+      return systemPromptOverride;
+    }
+    
     if (stackType === 'anger') {
       return `Ești un coach AI specializat în gestionarea furiei și autoreflecție profundă. Ghidezi utilizatorii printr-un proces terapeutic de 40+ de întrebări pentru a transforma furia în claritate și acțiune constructivă.
 
@@ -200,7 +207,7 @@ REGULĂ STRICTĂ:
 - Aștepți răspunsul utilizatorului înainte să treci la următoarea întrebare.
 
 ÎNTREBĂRILE GHID (doar pentru context, NU le afișa pe toate odată):
-${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+${questions.map((q, i) => `${i + 1}. ${typeof q === 'string' ? q : q.question || ''}`).join('\\n')}
 
 PROCESUL TĂU:
 1. Începi prin a întreba despre numele stack-ului și domeniul CORE 4
@@ -233,7 +240,7 @@ REGULĂ STRICTĂ:
 - Aștepți răspunsul utilizatorului înainte să treci la următoarea întrebare.
 
 ÎNTREBĂRILE GHID (doar pentru context, NU le afișa pe toate odată):
-${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+${questions.map((q, i) => `${i + 1}. ${typeof q === 'string' ? q : q.question || ''}`).join('\\n')}
 
 PROCESUL TĂU:
 1. Începi prin a întreba despre titlul acestui stack de rugăciune
