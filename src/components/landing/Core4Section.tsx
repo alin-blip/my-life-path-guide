@@ -86,12 +86,13 @@ export const Core4Section = () => {
       </div>
 
       <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/40 p-8 max-w-4xl mx-auto mt-8 shadow-lg">
-        <p className="text-lg text-foreground font-bold text-center mb-2">
+        <p className="text-lg text-foreground font-bold text-center mb-3">
           🎯 Filosofia RoWarrior: Progres SIMULTAN în toate cele 4 arii
         </p>
-        <p className="text-base text-muted-foreground text-center">
-          Nu sacrifici corpul pentru bani. Nu sacrifici familia pentru succes. Nu sacrifici spiritualitatea pentru productivitate. 
-          <span className="text-foreground font-semibold"> Construiești totul în același timp — echilibrat, sustenabil, de durată.</span>
+        <p className="text-base text-muted-foreground text-center leading-relaxed">
+          <span className="text-foreground font-semibold">Nu sacrifici corpul pentru bani.</span> Nu sacrifici familia pentru succes. 
+          Nu sacrifici spiritualitatea pentru productivitate. <span className="text-primary font-bold">Construiești totul în același timp</span> — 
+          echilibrat, sustenabil, de durată. Pentru că adevăratul războinic nu alege între arii — le câștigă pe toate patru.
         </p>
       </Card>
     </section>
