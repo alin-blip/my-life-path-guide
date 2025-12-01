@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Layout } from '@/components/Layout';
 import { Stack as PowerStack } from '@/components/Stack';
@@ -16,6 +15,7 @@ import { HormoziCoachingStack } from '@/components/stack/HormoziCoachingStack';
 import { GodsSchoolStack } from '@/components/stack/gods-school/GodsSchoolStack';
 import { useLocation } from 'react-router-dom';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
+import { NapoleonHillStack } from '@/components/stack/napoleon-hill/NapoleonHillStack';
 import { getWeek } from 'date-fns';
 
 const CoachingPage = () => {
@@ -72,6 +72,9 @@ const CoachingPage = () => {
           break;
         case 'gods-school':
           setActiveStack('gods-school');
+          break;
+        case 'napoleon-hill':
+          setActiveStack('napoleon-hill');
           break;
         default:
           setActiveStack('divine-prayer');
@@ -308,6 +311,8 @@ const renderActiveStack = () => {
         return <GodsSchoolStack {...stackProps} />;
       case "divine-prayer":
         return <DivinePrayerStack {...stackProps} />;
+      case "napoleon-hill":
+        return <NapoleonHillStack {...stackProps} />;
       default:
         return <DivinePrayerStack {...stackProps} />;
     }
