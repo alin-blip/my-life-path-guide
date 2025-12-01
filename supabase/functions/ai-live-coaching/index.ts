@@ -87,9 +87,9 @@ Rolul tău este să:
 
 Răspunde în română și folosește un ton empatic, profesionist și încurajator. Fii concis dar profund în răspunsuri.`
           },
-          ...messages
+        ...messages
         ],
-        max_tokens: 500,
+        max_tokens: 1500,
       }),
     });
 

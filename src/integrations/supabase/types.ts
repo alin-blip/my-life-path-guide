@@ -648,6 +648,54 @@ export type Database = {
         }
         Relationships: []
       }
+      napoleon_hill_projects: {
+        Row: {
+          action_items: Json | null
+          created_at: string | null
+          current_principle: number
+          goal_amount: string | null
+          goal_deadline: string | null
+          goal_description: string
+          id: string
+          principle_answers: Json | null
+          principle_summaries: Json | null
+          project_name: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_items?: Json | null
+          created_at?: string | null
+          current_principle?: number
+          goal_amount?: string | null
+          goal_deadline?: string | null
+          goal_description: string
+          id?: string
+          principle_answers?: Json | null
+          principle_summaries?: Json | null
+          project_name: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_items?: Json | null
+          created_at?: string | null
+          current_principle?: number
+          goal_amount?: string | null
+          goal_deadline?: string | null
+          goal_description?: string
+          id?: string
+          principle_answers?: Json | null
+          principle_summaries?: Json | null
+          project_name?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       objectives: {
         Row: {
           category: string

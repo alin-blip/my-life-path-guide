@@ -25,6 +25,7 @@ import NotFound from "./pages/NotFound";
 const Stack = lazy(() => import("./pages/Stack"));
 const StackLibrary = lazy(() => import("./pages/StackLibrary"));
 const StackViewer = lazy(() => import("./pages/StackViewer"));
+const NapoleonHillSystem = lazy(() => import("./pages/NapoleonHillSystem"));
 const Learn = lazy(() => import("./pages/Learn"));
 const Door = lazy(() => import("./pages/Door"));
 const Game = lazy(() => import("./pages/Game"));
@@ -92,6 +93,11 @@ const App = () => (
                     <Route path="/stack/view/:id" element={
                       <ProtectedRoute>
                         <StackViewer />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/napoleon-hill-system" element={
+                      <ProtectedRoute>
+                        <NapoleonHillSystem />
                       </ProtectedRoute>
                     } />
                     <Route path="/learn" element={
