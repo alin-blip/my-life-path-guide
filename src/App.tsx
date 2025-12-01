@@ -13,6 +13,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { MigrationProvider } from "@/context/MigrationContext";
 import { DataMigrationModal } from "@/components/DataMigrationModal";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 // Eager load critical pages
 import Index from "./pages/Index";
@@ -58,15 +59,16 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AuthProvider>
-              <MigrationProvider>
-                <LanguageProvider>
-                  <SecurityProvider>
-                    <ProgressProvider>
+        <ThemeProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AuthProvider>
+                <MigrationProvider>
+                  <LanguageProvider>
+                    <SecurityProvider>
+                      <ProgressProvider>
                       <DataMigrationModal />
                       <Suspense fallback={<LoadingFallback />}>
                         <Routes>
@@ -191,13 +193,14 @@ const App = () => (
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Suspense>
-                  </ProgressProvider>
-                </SecurityProvider>
-              </LanguageProvider>
-            </MigrationProvider>
-          </AuthProvider>
+                    </ProgressProvider>
+                  </SecurityProvider>
+                </LanguageProvider>
+              </MigrationProvider>
+            </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
+      </ThemeProvider>
       </HelmetProvider>
     </QueryClientProvider>
   </ErrorBoundary>

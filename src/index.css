@@ -53,41 +53,51 @@
   }
  
   .dark {
-    --background: 340 20% 8%;
-    --foreground: 340 5% 95%;
+    --background: 215 30% 8%;
+    --foreground: 220 15% 95%;
 
-    --card: 340 15% 12%;
-    --card-foreground: 340 5% 95%;
+    --card: 215 25% 12%;
+    --card-foreground: 220 15% 95%;
 
-    --popover: 340 15% 12%;
-    --popover-foreground: 340 5% 95%;
+    --popover: 215 25% 12%;
+    --popover-foreground: 220 15% 95%;
 
     --primary: 215 85% 50%;
-    --primary-foreground: 340 5% 95%;
+    --primary-foreground: 220 15% 95%;
 
     --secondary: 215 30% 20%;
-    --secondary-foreground: 340 5% 95%;
+    --secondary-foreground: 220 15% 95%;
 
-    --muted: 215 15% 15%;
-    --muted-foreground: 340 10% 70%;
+    --muted: 215 20% 15%;
+    --muted-foreground: 220 15% 65%;
 
     --accent: 205 90% 50%;
-    --accent-foreground: 340 5% 95%;
+    --accent-foreground: 220 15% 95%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 340 5% 95%;
+    --destructive-foreground: 220 15% 95%;
 
-    --border: 215 20% 20%;
-    --input: 215 20% 18%;
+    --border: 215 25% 20%;
+    --input: 215 25% 18%;
     --ring: 215 85% 50%;
 
-    /* Marine Power Colors */
-    --goddess-primary: 215 85% 50%;
+    /* Marine Power Colors - Dark Mode */
+    --goddess-primary: 215 85% 55%;
     --goddess-secondary: 215 70% 65%;
     --sacred-pink: 205 85% 60%;
     --divine-purple: 210 80% 58%;
     --moon-silver: 220 15% 85%;
     --goddess-gold: 45 85% 70%;
+    
+    /* Marine Gradients - Dark Mode */
+    --goddess-gradient: linear-gradient(135deg, hsl(215, 85%, 55%), hsl(210, 80%, 60%));
+    --sacred-gradient: linear-gradient(135deg, hsl(205, 85%, 55%), hsl(215, 85%, 55%));
+    --divine-gradient: linear-gradient(135deg, hsl(210, 80%, 50%), hsl(200, 85%, 50%));
+    --moon-gradient: linear-gradient(135deg, hsl(220, 20%, 30%), hsl(240, 25%, 35%));
+
+    /* Hero gradient - dark */
+    --hero-start: 215 40% 10%;
+    --hero-end: 210 35% 12%;
   }
 }
  
@@ -102,11 +112,11 @@
 
 /* Fixed sidebar styles */
 .sidebar-item {
-  @apply flex items-center gap-3 px-3 py-2 text-sm text-white/80 rounded-md transition-colors hover:text-white hover:bg-gray-800;
+  @apply flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground rounded-md transition-colors hover:text-foreground hover:bg-muted;
 }
 
 .sidebar-item.active {
-  @apply bg-gradient-to-r from-primary to-accent text-white font-medium;
+  @apply bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium;
 }
 
 /* Animation for confetti */
