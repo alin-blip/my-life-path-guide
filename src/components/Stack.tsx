@@ -331,9 +331,12 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 bg-gray-800/50 rounded-md flex items-start gap-2">
+                <div className="p-4 bg-gray-800/50 rounded-md flex items-start gap-3">
                   <p className="text-gray-100 flex-1">{questions[step]}</p>
-                  <TextToSpeechButton text={questions[step]} />
+                  <div className="flex flex-col items-center gap-1">
+                    <TextToSpeechButton text={questions[step]} />
+                    <span className="text-xs text-muted-foreground">Ascultă</span>
+                  </div>
                 </div>
                 
                 <div className="flex gap-2">
@@ -345,20 +348,26 @@ export const Stack: React.FC<StackProps> = ({ onAddToHitList }) => {
                     onEnterSubmit={handleNext}
                   />
                   <div className="flex flex-col gap-2">
-                    <VoiceInputButton
-                      isConnected={isConnected}
-                      isMicOn={isMicOn}
-                      isAISpeaking={isAISpeaking}
-                      isUserSpeaking={isUserSpeaking}
-                      audioLevel={audioLevel}
-                      onToggle={toggleMic}
-                      variant="compact"
-                      showWaveform={true}
-                    />
+                    <div className="flex flex-col items-center gap-1">
+                      <VoiceInputButton
+                        isConnected={isConnected}
+                        isMicOn={isMicOn}
+                        isAISpeaking={isAISpeaking}
+                        isUserSpeaking={isUserSpeaking}
+                        audioLevel={audioLevel}
+                        onToggle={toggleMic}
+                        variant="compact"
+                        showWaveform={true}
+                      />
+                      <span className="text-xs text-primary font-medium">
+                        {isMicOn ? 'Vorbește' : 'Microfon'}
+                      </span>
+                    </div>
                     <Button 
                       onClick={handleNext}
                       disabled={isSubmitting}
                       className="h-12 w-12 p-0"
+                      title="Trimite răspunsul"
                     >
                       <Send className="w-4 h-4" />
                     </Button>

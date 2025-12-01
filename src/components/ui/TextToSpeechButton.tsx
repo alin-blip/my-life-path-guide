@@ -114,7 +114,7 @@ export const TextToSpeechButton: React.FC<TextToSpeechButtonProps> = ({
       className={className}
       onClick={handlePlayPause}
       disabled={isLoading}
-      title={isPlaying ? 'Stop audio' : 'Ascultă textul'}
+      title={isPlaying ? 'Stop redare' : 'Ascultă întrebarea citită de AI'}
     >
       {isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin" />

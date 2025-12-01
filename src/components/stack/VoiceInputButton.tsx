@@ -54,10 +54,10 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
   };
 
   const getTooltipText = () => {
-    if (!isConnected) return 'Start voice input';
-    if (isAISpeaking) return 'AI is speaking...';
-    if (isMicOn) return 'Stop voice input';
-    return 'Voice connected';
+    if (!isConnected) return 'Apasă pentru a vorbi (voice input)';
+    if (isAISpeaking) return 'AI vorbește...';
+    if (isMicOn) return 'Vorbește acum - apasă pentru a opri';
+    return 'Microfon conectat';
   };
 
   const getButtonClasses = () => {
