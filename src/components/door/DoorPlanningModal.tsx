@@ -258,10 +258,16 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     try {
       const mode = previousWeekData && !isSkippingReview ? 'review' : 'new';
       
+      // Pornește conversația cu un mesaj inițial de la user
+      const initialMessage: Message = { 
+        role: 'user', 
+        content: 'Salut! Să începem planificarea săptămânii.' 
+      };
+      
       await streamChat({
         mode,
         previousWeekData: mode === 'review' ? previousWeekData : undefined,
-        messages: [],
+        messages: [initialMessage],
       });
     } catch (error) {
       console.error('Error starting conversation:', error);

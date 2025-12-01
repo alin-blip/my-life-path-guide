@@ -84,6 +84,14 @@ serve(async (req) => {
   try {
     const { mode, previousWeekData, messages }: PlanningRequest = await req.json();
     
+    console.log('📥 Received request:', {
+      mode,
+      hasPreviousWeekData: !!previousWeekData,
+      messagesCount: messages?.length,
+      messagesType: typeof messages,
+      isArray: Array.isArray(messages)
+    });
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
@@ -91,6 +99,7 @@ serve(async (req) => {
 
     // Input validation
     if (!mode || !['review', 'new'].includes(mode)) {
+      console.error('❌ Invalid mode:', mode);
       return new Response(JSON.stringify({ error: 'Invalid mode: must be "review" or "new"' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -98,6 +107,11 @@ serve(async (req) => {
     }
 
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+      console.error('❌ Invalid messages array:', {
+        isArray: Array.isArray(messages),
+        length: messages?.length,
+        messages: JSON.stringify(messages)
+      });
       return new Response(JSON.stringify({ error: 'Invalid messages array: must contain 1-50 messages' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
