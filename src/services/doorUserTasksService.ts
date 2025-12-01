@@ -115,7 +115,14 @@ export const doorUserTasksService = {
     const userId = await getUserId();
     if (!userId) throw new Error('User not authenticated');
 
-    // No auto-delete: just UPSERT hot list
+    // DELETE all existing hot list items first to avoid duplicates
+    await supabase
+      .from('user_tasks')
+      .delete()
+      .eq('user_id', userId)
+      .eq('task_type', 'hot')
+      .is('week_key', null);
+
     if (hotList.length === 0) return { count: 0 };
 
     const rows: any[] = [];
@@ -149,16 +156,22 @@ export const doorUserTasksService = {
     const userId = await getUserId();
     if (!userId) throw new Error('User not authenticated');
 
+    // DELETE all existing tasks for this week to avoid duplicates
+    await supabase
+      .from('user_tasks')
+      .delete()
+      .eq('user_id', userId)
+      .eq('week_key', weekKey)
+      .in('task_type', ['hit', 'do']);
+
     const rows: any[] = [];
     let position = 0;
 
-    // Prepare all tasks for UPSERT
+    // Prepare all tasks for INSERT
     for (const item of params.hitList) {
-      // Keep UUID if valid (for updates), generate new UUID for new tasks
-      const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id);
-      
+      // Always generate new UUID for fresh insert
       rows.push({
-        id: isValidUuid ? item.id : uuidv4(),
+        id: uuidv4(),
         user_id: userId,
         week_key: weekKey,
         task_type: 'hit',
@@ -173,10 +186,8 @@ export const doorUserTasksService = {
     }
 
     for (const item of params.doList) {
-      const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id);
-      
       rows.push({
-        id: isValidUuid ? item.id : uuidv4(),
+        id: uuidv4(),
         user_id: userId,
         week_key: weekKey,
         task_type: 'do',
@@ -193,15 +204,12 @@ export const doorUserTasksService = {
       return { count: 0 };
     }
 
-    // UPSERT only: no auto-delete, preserve history
-    const { error: upsertErr } = await supabase
+    // INSERT fresh data
+    const { error: insertErr } = await supabase
       .from('user_tasks')
-      .upsert(rows, {
-        onConflict: 'id',
-        ignoreDuplicates: false
-      });
+      .insert(rows);
 
-    if (upsertErr) throw upsertErr;
+    if (insertErr) throw insertErr;
 
     return { count: rows.length };
   },
