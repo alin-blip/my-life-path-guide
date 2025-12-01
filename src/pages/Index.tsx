@@ -20,7 +20,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50/30 via-white to-blue-50/20">
+    <div className="light min-h-screen bg-gradient-to-b from-blue-50/30 via-white to-blue-50/20">
       <Helmet>
         <title>RoWarrior — Calea Războinicului: Transformare Completă în Corp, Spirit, Relații și Afaceri</title>
         <meta name="description" content="Sistemul complet de viață pentru bărbați care vor TOTUL — nu doar bani. Energie în corp, pace în spirit, relații profunde, business profitabil. 65,000+ războinici în 40+ țări. Trial gratuit 3 zile." />
