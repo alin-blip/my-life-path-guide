@@ -1,6 +1,6 @@
 import React from 'react';
 import { Progress } from "@/components/ui/progress";
-import { Save, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { Save, Clock, CheckCircle, AlertCircle, Circle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface StackProgressIndicatorProps {
@@ -10,6 +10,7 @@ interface StackProgressIndicatorProps {
   lastSaveTime?: Date | null;
   unsavedChanges?: boolean;
   isAutoSaveEnabled?: boolean;
+  principleNames?: string[];
 }
 
 export const StackProgressIndicator: React.FC<StackProgressIndicatorProps> = ({
@@ -18,7 +19,8 @@ export const StackProgressIndicator: React.FC<StackProgressIndicatorProps> = ({
   stackType,
   lastSaveTime,
   unsavedChanges = false,
-  isAutoSaveEnabled = true
+  isAutoSaveEnabled = true,
+  principleNames = []
 }) => {
   const progressPercentage = Math.round((currentStep / totalSteps) * 100);
   
@@ -111,6 +113,37 @@ export const StackProgressIndicator: React.FC<StackProgressIndicatorProps> = ({
             </div>
             <div className="text-muted-foreground">Est. timp</div>
           </div>
+        </div>
+      )}
+
+      {/* Principle Names Grid (if provided) */}
+      {principleNames.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 pt-3 mt-3 border-t border-border">
+          {principleNames.map((name, index) => {
+            const isCompleted = index < currentStep;
+            const isCurrent = index === currentStep;
+            
+            return (
+              <div
+                key={index}
+                className={cn(
+                  "flex items-center gap-2 p-2 rounded-lg transition-all text-xs",
+                  isCompleted && "bg-primary/10 text-primary",
+                  isCurrent && "bg-accent/20 text-accent border border-accent/30 animate-pulse",
+                  !isCompleted && !isCurrent && "bg-muted/30 text-muted-foreground"
+                )}
+              >
+                {isCompleted ? (
+                  <CheckCircle2 className="w-3 h-3 flex-shrink-0" />
+                ) : isCurrent ? (
+                  <Clock className="w-3 h-3 flex-shrink-0" />
+                ) : (
+                  <Circle className="w-3 h-3 flex-shrink-0" />
+                )}
+                <span className="font-medium truncate">{name}</span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

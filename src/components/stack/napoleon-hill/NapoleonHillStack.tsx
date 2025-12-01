@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NapoleonHillStackProps } from './types';
 import { getQuestions } from './questions';
 import { AiGuidedStack } from '../AiGuidedStack';
 import { StackIdeaModal } from '../StackIdeaModal';
 import { NapoleonHillExplanation } from './NapoleonHillExplanation';
 import { NapoleonHillKnowledgeBase } from './NapoleonHillKnowledgeBase';
+import { StackProgressIndicator } from '../StackProgressIndicator';
 import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Upload } from "lucide-react";
+import { supabase } from '@/integrations/supabase/client';
 
 export const NapoleonHillStack: React.FC<NapoleonHillStackProps> = ({ 
   onAddToHitList,
@@ -21,8 +23,42 @@ export const NapoleonHillStack: React.FC<NapoleonHillStackProps> = ({
   } = useStackTodoIntegration({ onAddToHitList });
 
   const [activeTab, setActiveTab] = useState<string>("coaching");
+  const [currentProgress, setCurrentProgress] = useState(0);
+  const [lastSaveTime, setLastSaveTime] = useState<Date | undefined>();
   
   const rawQuestions = getQuestions(document.documentElement.lang === 'en' ? 'en' : 'ro');
+  
+  // Extract principle names for progress indicator
+  const principleNames = rawQuestions.map(q => q.principle);
+
+  // Track progress by loading session data
+  useEffect(() => {
+    if (stackId) {
+      loadSessionProgress();
+    }
+  }, [stackId]);
+
+  const loadSessionProgress = async () => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user?.id) return;
+
+      const { data, error } = await supabase
+        .from('stack_sessions')
+        .select('*')
+        .eq('session_id', stackId)
+        .eq('user_id', session.session.user.id)
+        .single();
+
+      if (data && !error) {
+        const answersCount = data.answers ? Object.keys(data.answers).length : 0;
+        setCurrentProgress(answersCount);
+        setLastSaveTime(data.updated_at ? new Date(data.updated_at) : undefined);
+      }
+    } catch (err) {
+      console.error('Error loading session progress:', err);
+    }
+  };
 
   // Read-only mode for existing stacks
   if (existingData && isReadOnly) {
@@ -69,6 +105,17 @@ export const NapoleonHillStack: React.FC<NapoleonHillStackProps> = ({
   return (
     <>
       <div className="space-y-6">
+        {/* Progress Indicator */}
+        {!existingData && (
+          <StackProgressIndicator
+            currentStep={currentProgress}
+            totalSteps={rawQuestions.length}
+            stackType="napoleon-hill"
+            lastSaveTime={lastSaveTime}
+            principleNames={principleNames}
+          />
+        )}
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
             <TabsTrigger value="coaching" className="flex items-center gap-2">
