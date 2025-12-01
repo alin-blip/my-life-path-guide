@@ -494,7 +494,7 @@ export const Dashboard: React.FC = () => {
         </div>}
       
       <div className="flex justify-between items-center mb-4 md:mb-6">
-        <h1 className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           {language === 'en' ? 'My Daily' : 'Zilnica mea'}
         </h1>
         
@@ -502,8 +502,8 @@ export const Dashboard: React.FC = () => {
       
       <QuoteDisplay appName="GODDESS" />
       
-      <div className="mb-6 md:mb-8 bg-card p-3 md:p-4 rounded-lg">
-        <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+      <div className="mb-6 md:mb-8 bg-card border border-border p-3 md:p-4 rounded-lg shadow-sm">
+        <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           {language === 'en' ? 'Warrior’s Path' : 'Calea Războinicului'}
         </h2>
         <div className="flex items-center justify-between">
@@ -625,15 +625,19 @@ export const Dashboard: React.FC = () => {
             
             <div className="mb-8">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg uppercase text-indigo-500 font-extrabold">{language === 'en' ? 'CORE & DAILY ACTIVITIES' : 'CORE & DAILY FOUR'}</h3>
+                <h3 className="text-lg uppercase font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  {language === 'en' ? 'CORE & DAILY ACTIVITIES' : 'CORE & DAILY FOUR'}
+                </h3>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
                 <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-blue-900/50 to-blue-800/30 p-3 md:p-4 rounded-lg backdrop-blur-sm">
+                  <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-blue-900/50 dark:to-blue-800/30 p-3 md:p-4 rounded-lg border border-primary/20 backdrop-blur-sm">
                     <div className="flex justify-between items-center mb-3 md:mb-4">
-                      <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">{language === 'en' ? 'CORE 4' : 'CORE 4'}</h3>
-                      <Button variant="outline" className="bg-blue-600/20 border-blue-500/50 hover:bg-blue-700/30 text-white text-xs md:text-sm" onClick={() => navigateTo('/core')}>
+                      <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                        {language === 'en' ? 'CORE 4' : 'CORE 4'}
+                      </h3>
+                      <Button variant="outline" className="border-primary/50 hover:bg-primary/10 text-xs md:text-sm" onClick={() => navigateTo('/core')}>
                         {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
                       </Button>
                     </div>
@@ -669,10 +673,12 @@ export const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/30 p-3 md:p-4 rounded-lg backdrop-blur-sm">
+                  <div className="bg-gradient-to-r from-accent/10 to-accent/5 dark:from-purple-900/50 dark:to-purple-800/30 p-3 md:p-4 rounded-lg border border-accent/20 backdrop-blur-sm">
                     <div className="flex justify-between items-center mb-3 md:mb-4">
-                      <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">{language === 'en' ? 'Biz 4' : 'Biz 4'}</h3>
-                      <Button variant="outline" className="bg-purple-600/20 border-purple-500/50 hover:bg-purple-700/30 text-white text-xs md:text-sm" onClick={() => navigateTo('/daily-four')}>
+                      <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">
+                        {language === 'en' ? 'Biz 4' : 'Biz 4'}
+                      </h3>
+                      <Button variant="outline" className="border-accent/50 hover:bg-accent/10 text-xs md:text-sm" onClick={() => navigateTo('/daily-four')}>
                         {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
                       </Button>
                     </div>
@@ -705,7 +711,9 @@ export const Dashboard: React.FC = () => {
                       })}
                     </div>
                     
-                    <h3 className="text-xs md:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-300 mb-2">{language === 'en' ? 'WEEKLY TWO' : 'WEEKLY TWO'}</h3>
+                    <h3 className="text-xs md:text-sm font-bold bg-gradient-to-r from-goddess-gold to-goddess-gold/80 bg-clip-text text-transparent mb-2">
+                      {language === 'en' ? 'WEEKLY TWO' : 'WEEKLY TWO'}
+                    </h3>
                     <div className="grid grid-cols-2 gap-1.5 md:gap-2">
                       {weeklyItems.map(item => {
                         const isCompleted = item.completed;
@@ -740,9 +748,11 @@ export const Dashboard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mb-6 md:mb-8">
               <div>
                 <div className="flex justify-between items-center mb-3 md:mb-4">
-                  <h3 className="text-base md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">{language === 'en' ? 'HIT LIST' : 'LISTA HIT'}</h3>
+                  <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-400 dark:to-emerald-300 bg-clip-text text-transparent">
+                    {language === 'en' ? 'HIT LIST' : 'LISTA HIT'}
+                  </h3>
                 </div>
-                <Card className="bg-card border border-green-500/20 shadow-lg shadow-green-500/5 hover:shadow-green-500/10 transition-all duration-300">
+                <Card className="bg-card border border-green-500/30 dark:border-green-500/20 shadow-lg shadow-green-500/5 hover:shadow-green-500/10 transition-all duration-300">
                   <CardContent className="p-3 md:p-4">
                     <div className="space-y-2">
                       {hitList.filter(item => item.day === activeDay).length > 0 ? hitList.filter(item => item.day === activeDay).map(item => <div key={item.id} className={`flex items-center p-2 rounded-md transition-all duration-200 ${item.completed ? 'bg-green-500/10' : getPriorityColor(item.priority)}`}>
@@ -778,7 +788,7 @@ export const Dashboard: React.FC = () => {
           </div>
           
             <div>
-              <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+              <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 {language === 'en' ? 'My Weekly' : 'Săptămânal'}
               </h2>
               

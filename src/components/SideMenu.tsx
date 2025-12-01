@@ -96,8 +96,8 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   ];
 
   return (
-    <div className="h-full bg-background border-r border-feminine-primary/20 flex flex-col overflow-hidden">
-      <div className="p-4 border-b border-feminine-primary/20">
+    <div className="h-full bg-card border-r border-border flex flex-col overflow-hidden">
+      <div className="p-4 border-b border-border">
         <Link to="/" className="flex items-center justify-center md:justify-start gap-3">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
@@ -194,7 +194,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         </nav>
       </div>
       
-      <div className="p-2 border-t border-feminine-primary/20">
+      <div className="p-2 border-t border-border">
         <Link to="/settings" onClick={onItemClick} className={`sidebar-item ${currentPath === '/settings' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <Settings className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
           {!isCollapsed && <span className="text-sm">Settings</span>}
