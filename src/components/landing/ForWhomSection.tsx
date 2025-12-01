@@ -3,19 +3,19 @@ import { CheckCircle2, XCircle } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const idealFor = [
-  "Antreprenori cu cifră 100k-10M+ EUR care vor să crească profitul fără să lucreze mai mult",
-  "CEO-uri blocați în operațional care vor să devină CEO-uri strategici",
-  "Business owners care simt că echipa lor nu execută la nivel maxim",
-  "Antreprenori care au încercat Asana, Monday, Notion și tot n-au claritate",
-  "Leaderi care vor rezultate măsurabile în 90 de zile, nu 'productivity hacks'"
+  "Vrei să ai TOTUL — nu doar bani, ci și sănătate, relații, pace interioară",
+  "Ești dispus să te confrunți cu adevărul despre viața ta",
+  "Vrei un sistem structurat, nu motivație de weekend",
+  "Înțelegi că schimbarea cere timp, energie și angajament",
+  "Vrei să lași o moștenire copiilor tăi — un exemplu de bărbat complet"
 ];
 
 const notFor = [
-  "Freelanceri sau solo-prenori sub 50k EUR/an (sistemul e prea avansat pentru etapa ta)",
-  "Persoane care caută 'life hacks' și trucuri de productivitate (RoWarrior e sistem, nu tips & tricks)",
-  "Antreprenori care nu sunt dispuși să investească 10 minute/zi în planificare strategică",
-  "Business-uri fără cifră stabilă care încă caută Product-Market Fit",
-  "Cei care vor soluții instant fără să implementeze un sistem real"
+  "Cauți o soluție rapidă sau un 'hack' magic",
+  "Nu ești dispus să faci munca zilnică",
+  "Vrei doar bani, fără echilibru în corp, relații sau spirit",
+  "Crezi că deja știi totul și nu ai nevoie de un sistem",
+  "Nu ești dispus să spui adevărul despre unde ești acum"
 ];
 
 export const ForWhomSection = () => {
@@ -56,7 +56,7 @@ export const ForWhomSection = () => {
           </ul>
           <div className="mt-6 p-4 bg-primary/10 rounded-lg border border-primary/30">
             <p className="text-sm text-foreground">
-              <span className="font-bold">TL;DR:</span> Ai business real cu cifră reală, vrei să scalezi smart, și ești dispus să urmezi un sistem dovedit.
+              <span className="font-bold">Pe scurt:</span> Vrei să ai un corp sănătos, relații puternice, claritate spirituală ȘI un business profitabil — și ești gata să urmezi un sistem complet.
             </p>
           </div>
         </Card>
@@ -77,7 +77,7 @@ export const ForWhomSection = () => {
           </ul>
           <div className="mt-6 p-4 bg-destructive/10 rounded-lg border border-destructive/30">
             <p className="text-sm text-foreground">
-              <span className="font-bold">TL;DR:</span> Dacă ești în faza de validare sau cauți quick fixes, RoWarrior e prea mult pentru tine acum. Revino când ai cifră stabilă.
+              <span className="font-bold">Pe scurt:</span> Dacă vrei doar bani fără echilibru sau cauți soluții rapide fără efort, RoWarrior nu este pentru tine. Revino când ești pregătit pentru transformare completă.
             </p>
           </div>
         </Card>
@@ -85,8 +85,8 @@ export const ForWhomSection = () => {
 
       <div className="mt-12 text-center">
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Dacă ești în coloana verde, intră în trial. Dacă ești în roșu, salvează pagina asta și revino când ești pregătit.
-          <span className="block mt-2 text-accent font-semibold">Nu forța fit-ul. RoWarrior funcționează doar pentru cei care sunt pregătiți.</span>
+          Dacă te regăsești în coloana verde, începe trial-ul gratuit. Dacă ești în roșu, salvează pagina și revino când ești pregătit.
+          <span className="block mt-2 text-accent font-semibold">RoWarrior funcționează doar pentru cei care sunt gata să se transforme cu adevărat.</span>
         </p>
       </div>
     </div>

@@ -1,55 +1,85 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Target, Brain, TrendingUp, Users } from "lucide-react";
+import { Map, Target, Calendar, Shield, Crown, Castle } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const modules = [
   {
-    number: 1,
-    title: "War Planning Foundation",
-    duration: "Săptămâna 1-2",
+    number: "PAS 0",
+    title: "Harta Realității",
+    duration: "Ziua 1",
+    icon: Map,
+    description: "Radiografia faptică a vieții tale acum — unde ești cu adevărat în toate cele 4 arii.",
+    outcomes: [
+      "Evaluezi onest situația actuală în corp, spirit, relații și afaceri",
+      "Identifici decalajul dintre unde ești și unde vrei să ajungi",
+      "Elimini autoinșelarea și minciuna despre starea ta reală",
+      "Construiești fundația pentru transformare autentică"
+    ]
+  },
+  {
+    number: "PAS 1",
+    title: "Jocul Imposibil",
+    duration: "Ziua 2-3",
     icon: Target,
-    description: "Învăți să identifici DOMINO-ul săptămânal și să elimini 80% din task-uri",
+    description: "Stabilești obiective clare pe 1 an în toate ariile — vei ști EXACT unde mergi.",
     outcomes: [
-      "Definești obiectivul domino care dă jos toate celelalte",
-      "Elimini task-urile care nu contribuie la domino",
-      "Structurezi săptămâna în jurul a 1-3 task-uri high-ROI"
+      "Definești viziunea ta pe 1 an pentru corp, spirit, relații, business",
+      "Transformi vise vagi în obiective măsurabile și datate",
+      "Creezi un plan anual clar care te ghidează zilnic",
+      "Înțelegi exact ce trebuie să faci pentru a avea TOTUL"
     ]
   },
   {
-    number: 2,
-    title: "Execuție Zilnică & Sistem",
-    duration: "Săptămâna 3-4",
-    icon: Brain,
-    description: "Integrezi rutina zilnică și sistemul de tracking al progresului",
+    number: "PAS 2",
+    title: "Milestone-uri Lunare",
+    duration: "Săptămâna 1",
+    icon: Calendar,
+    description: "Împarți obiectivele anuale în pași lunari — transformi imposibilul în realizabil.",
     outcomes: [
-      "Creezi ritual-ul de dimineață (10 minute War Planning)",
-      "Tracking automat al progresului zilnic",
-      "Ajustări rapide bazate pe feedback real"
+      "Creezi roadmap lunar pentru fiecare din cele 4 arii",
+      "Stabilești milestone-uri clare și măsurabile",
+      "Înveți să lucrezi progresiv, pas cu pas",
+      "Transformi obiective mari în acțiuni săptămânale"
     ]
   },
   {
-    number: 3,
-    title: "AI Coaching & Optimizare",
-    duration: "Săptămâna 5-8",
-    icon: TrendingUp,
-    description: "Folosești coaching-ul AI tip Hormozi pentru decizii strategice",
+    number: "FAZA 1",
+    title: "Fii Bărbatul",
+    duration: "Luna 1",
+    icon: Shield,
+    description: "Construiești fundația — elimini mentalitatea de sărăcie și construiești un fundament solid de adevăr.",
     outcomes: [
-      "Analiză AI a bottleneck-urilor din business",
-      "Recomandări personalizate pentru creștere",
-      "Stack-uri de coaching pentru probleme specifice"
+      "Elimini mentalitatea de sărăcie și gândurile autosabotante",
+      "Înveți să trăiești în adevăr prin Cod",
+      "Implementezi Stack-ul pentru claritate mentală zilnică",
+      "Recapeți energia și claritatea necesare schimbării"
     ]
   },
   {
-    number: 4,
-    title: "Scale & Delegare",
-    duration: "Săptămâna 9-12",
-    icon: Users,
-    description: "Scalezi sistemul și delegi eficient către echipă",
+    number: "FAZA 2",
+    title: "Fii Regele",
+    duration: "Luna 2-3",
+    icon: Crown,
+    description: "Creezi abundență în toate cele 4 arii — corp, spirit, relații, afaceri — prin Core 4 zilnic.",
     outcomes: [
-      "Transformi procesul tău în sistem pentru echipă",
-      "Delegi task-urile low-ROI fără să pierzi controlul",
-      "Raportare automată și accountability în echipă"
+      "Implementezi acțiuni zilnice în toate cele 4 arii de viață",
+      "Folosești Ușa pentru planificare săptămânală focalizată",
+      "Vezi progres vizibil în energie, relații și business",
+      "Construiești obiceiuri care aduc rezultate constante"
+    ]
+  },
+  {
+    number: "FAZA 3",
+    title: "Construiește Regatul",
+    duration: "Luna 4+",
+    icon: Castle,
+    description: "Scalezi sistemul și creezi o moștenire durabilă pentru generații.",
+    outcomes: [
+      "Scalezi business-ul prin delegare și sisteme",
+      "Automatizezi procesele pentru libertate de timp",
+      "Folosești Jocul pentru misiuni lunare și anuale",
+      "Creezi un regat care funcționează fără tine"
     ]
   }
 ];
@@ -67,14 +97,14 @@ export const CurriculumSection = () => {
     >
       <div className="text-center mb-12">
         <Badge className="bg-primary/10 text-primary border-primary/50 mb-4 font-semibold">
-          Program în 4 Module
+          Calea Completă de Transformare
         </Badge>
         <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-          Cum Te Transformi în War-Planning CEO
+          Călătoria de la Haos la Regat
         </h2>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Nu este doar un tool. Este un <span className="text-primary font-bold">program complet</span> care
-          te duce de la haos la execuție impecabilă în 90 de zile.
+          Nu este un hack rapid. Este <span className="text-primary font-bold">un sistem complet</span> care
+          te transformă pas cu pas — de la o viață în groapa sărăciei la un regat în toate cele 4 arii.
         </p>
       </div>
 
@@ -102,7 +132,7 @@ export const CurriculumSection = () => {
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2 md:justify-end">
                             <Badge variant="outline" className="border-primary/50 text-primary font-semibold">
-                              Modul {module.number}
+                              {module.number}
                             </Badge>
                             <span className="text-sm text-muted-foreground font-medium">{module.duration}</span>
                           </div>
@@ -133,8 +163,8 @@ export const CurriculumSection = () => {
       <div className="mt-12 text-center">
         <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/40 p-6 max-w-3xl mx-auto shadow-lg">
           <p className="text-lg text-foreground">
-            <span className="font-bold text-accent">Rezultat final:</span> În 90 de zile ai un sistem
-            de execuție care rulează singur, echipa ta știe exact ce face, și tu ai timp pentru strategie și creștere.
+            <span className="font-bold text-accent">Rezultat final:</span> Ai claritate totală asupra vieții tale,
+            un corp plin de energie, relații profunde, pace spirituală și un business care crește constant — fără să mai sacrifici nimic.
           </p>
         </Card>
       </div>
