@@ -640,20 +640,30 @@ export const Dashboard: React.FC = () => {
                     
                     <div className="grid grid-cols-2 gap-1.5 md:gap-2">
                       {coreItems.map(item => {
-                      const isCompleted = coreData[selectedDay]?.[item.id] || false;
-                      return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800' : 'bg-card hover:bg-muted'} 
-                            border ${isCompleted ? 'border-blue-400/50' : 'border-blue-900/50'} 
+                        const isCompleted = coreData[selectedDay]?.[item.id] || false;
+                        return (
+                          <Card
+                            key={item.id}
+                            className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                            border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
                             shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
-                            transition-colors duration-200 hover:shadow-blue-500/10`} onClick={() => handleToggleCoreActivity(item.id)}>
+                            transition-colors duration-200 hover:shadow-blue-500/10`}
+                            onClick={() => handleToggleCoreActivity(item.id)}
+                          >
                             <div className="relative flex items-center justify-center">
-                              <Activity className="h-4 w-4 md:h-6 md:w-6 text-white" />
-                              {isCompleted && <div className="absolute -top-1 -right-1">
+                              <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                              {isCompleted && (
+                                <div className="absolute -top-1 -right-1">
                                   <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                </div>}
+                                </div>
+                              )}
                             </div>
-                            <div className="mt-1 md:mt-2 text-xs text-center text-white font-medium">{item.title}</div>
-                          </Card>;
-                    })}
+                            <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                              {item.title}
+                            </div>
+                          </Card>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -669,38 +679,58 @@ export const Dashboard: React.FC = () => {
                     
                     <div className="grid grid-cols-2 gap-1.5 md:gap-2 mb-3 md:mb-4">
                       {dailyFourItems.map(item => {
-                      const isCompleted = item.completed;
-                       return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800' : 'bg-card hover:bg-muted'} 
-                            border ${isCompleted ? 'border-purple-400/50' : 'border-purple-900/50'} 
+                        const isCompleted = item.completed;
+                        return (
+                          <Card
+                            key={item.id}
+                            className={`${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                            border ${isCompleted ? 'border-purple-400/50' : 'border-purple-200/70 dark:border-purple-900/50'} 
                             shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer
-                            transition-colors duration-200 hover:shadow-purple-500/10`} onClick={() => handleToggleDailyActivity(item.id)}>
+                            transition-colors duration-200 hover:shadow-purple-500/10`}
+                            onClick={() => handleToggleDailyActivity(item.id)}
+                          >
                             <div className="relative flex items-center justify-center">
-                              <Video className="h-4 w-4 md:h-6 md:w-6 text-white" />
-                              {isCompleted && <div className="absolute -top-1 -right-1">
+                              <Video className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                              {isCompleted && (
+                                <div className="absolute -top-1 -right-1">
                                   <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                </div>}
+                                </div>
+                              )}
                             </div>
-                            <div className="mt-1 md:mt-2 text-xs text-center text-white font-medium">{item.title}</div>
-                          </Card>;
-                    })}
+                            <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                              {item.title}
+                            </div>
+                          </Card>
+                        );
+                      })}
                     </div>
                     
                     <h3 className="text-xs md:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-300 mb-2">{language === 'en' ? 'WEEKLY TWO' : 'WEEKLY TWO'}</h3>
                     <div className="grid grid-cols-2 gap-1.5 md:gap-2">
                       {weeklyItems.map(item => {
-                      const isCompleted = item.completed;
-                       return <Card key={item.id} className={`${isCompleted ? 'bg-gradient-to-br from-pink-600 to-pink-800' : 'bg-card hover:bg-muted'} 
-                            border ${isCompleted ? 'border-pink-400/50' : 'border-pink-900/50'} 
+                        const isCompleted = item.completed;
+                        return (
+                          <Card
+                            key={item.id}
+                            className={`${isCompleted ? 'bg-gradient-to-br from-pink-600 to-pink-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                            border ${isCompleted ? 'border-pink-400/50' : 'border-pink-200/70 dark:border-pink-900/50'} 
                             shadow-md p-2 md:p-3 flex items-center justify-center cursor-pointer
-                            transition-colors duration-200 hover:shadow-pink-500/10`} onClick={() => handleToggleWeeklyActivity(item.id)}>
+                            transition-colors duration-200 hover:shadow-pink-500/10`}
+                            onClick={() => handleToggleWeeklyActivity(item.id)}
+                          >
                             <div className="relative flex items-center justify-center">
-                              <div className="text-xs text-center text-white font-medium">{item.title}</div>
-                              {isCompleted && <div className="absolute -top-1 -right-1">
+                              <div className={`text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                {item.title}
+                              </div>
+                              {isCompleted && (
+                                <div className="absolute -top-1 -right-1">
                                   <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                </div>}
+                                </div>
+                              )}
                             </div>
-                          </Card>;
-                    })}
+                          </Card>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
