@@ -318,6 +318,10 @@ export const SimplifiedDoorContent: React.FC = () => {
           }, 500);
         }}
         onClearHistory={() => window.location.reload()}
+        onUndo={undo}
+        onRedo={redo}
+        canUndo={canUndo}
+        canRedo={canRedo}
       />
       
       <div className={`${isMobile ? 'px-4 py-6' : 'container mx-auto px-6 py-8'}`}>

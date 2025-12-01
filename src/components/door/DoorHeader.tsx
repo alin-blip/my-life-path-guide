@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Calendar, Trash2, History as HistoryIcon } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Trash2, History as HistoryIcon, Undo, Redo } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DoorHeaderProps {
   currentDateRange: string;
@@ -22,6 +23,10 @@ interface DoorHeaderProps {
   onOpenHistory?: () => void;
   onClearWeek?: () => void;
   onClearHistory?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 export const DoorHeader: React.FC<DoorHeaderProps> = ({
@@ -33,6 +38,10 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
   onOpenHistory,
   onClearWeek,
   onClearHistory,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false,
 }) => {
   const { t } = useLanguage();
   const today = format(new Date(), 'EEE');
@@ -83,8 +92,49 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
           </Button>
         </div>
 
-        {/* Right: Actions + Today + Profile */}
+        {/* Right: Undo/Redo + Actions + Today + Profile */}
         <div className="flex items-center space-x-3">
+          {/* Undo/Redo Buttons */}
+          {(onUndo || onRedo) && (
+            <TooltipProvider>
+              <div className="flex items-center gap-1 bg-accent/20 rounded-lg p-1 border border-border/50">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={onUndo}
+                      disabled={!canUndo}
+                      className="h-8 px-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent/50 transition-all"
+                    >
+                      <Undo className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Undo (Ctrl+Z)</p>
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={onRedo}
+                      disabled={!canRedo}
+                      className="h-8 px-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent/50 transition-all"
+                    >
+                      <Redo className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Redo (Ctrl+Shift+Z)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
+          )}
+
           {/* Action Buttons */}
           {onOpenHistory && (
             <Button
