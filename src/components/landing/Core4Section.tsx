@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Heart, Brain, Scale, TrendingUp } from "lucide-react";
+import { Heart, Brain, Scale, TrendingUp, ArrowRight, Zap } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const Core4Section = () => {
@@ -13,7 +13,8 @@ export const Core4Section = () => {
       bgColor: "bg-red-500/10",
       borderColor: "border-red-500/30",
       description: "Energie, sănătate, vitalitate",
-      details: "Un corp plin de energie este fundația pentru tot ce construiești. Fără sănătate, nimic altceva nu contează."
+      details: "Un corp plin de energie devine claritate în decizii și rezistență în negocieri. Fără sănătate, nimic altceva nu contează.",
+      feeds: "Energie → Claritate mentală → Forță în relații → Rezistență în business"
     },
     {
       icon: Brain,
@@ -22,7 +23,8 @@ export const Core4Section = () => {
       bgColor: "bg-purple-500/10",
       borderColor: "border-purple-500/30",
       description: "Credință, sens, pace interioară",
-      details: "Conectarea cu ceva mai mare decât tine îți oferă claritate, scop și puterea de a depăși orice obstacol."
+      details: "Pacea interioară vede oportunitățile invizibile altora. Claritatea spirituală susține relațiile și ghidează deciziile de business.",
+      feeds: "Claritate → Decizii înțelepte → Relații autentice → Business cu scop"
     },
     {
       icon: Scale,
@@ -31,7 +33,8 @@ export const Core4Section = () => {
       bgColor: "bg-blue-500/10",
       borderColor: "border-blue-500/30",
       description: "Familie, partener, prieteni",
-      details: "Relațiile de calitate sunt sursa fericirii autentice. Nu sacrifica niciodată familia pentru bani."
+      details: "Suportul din relații îți dă curajul să riști în business. Rețeaua ta deschide uși. Familia îți dă motivația să continui.",
+      feeds: "Suport → Curaj → Rețea → Oportunități de business"
     },
     {
       icon: TrendingUp,
@@ -40,7 +43,8 @@ export const Core4Section = () => {
       bgColor: "bg-green-500/10",
       borderColor: "border-green-500/30",
       description: "Libertate financiară, impact, moștenire",
-      details: "Banii sunt doar un instrument — dar un instrument esențial pentru a-ți proteja familia și a crea impact."
+      details: "Resursele din business îți cumpără timp pentru corp, liniște pentru spirit și experiențe pentru familie. Banii amplifică celelalte arii.",
+      feeds: "Resurse → Timp liber → Sănătate mai bună → Relații mai profunde"
     }
   ];
 
@@ -77,12 +81,106 @@ export const Core4Section = () => {
                   <p className={`text-sm font-semibold ${area.color}`}>{area.description}</p>
                 </div>
               </div>
-              <p className="text-base text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed mb-3">
                 {area.details}
               </p>
+              <div className="flex items-center gap-2 text-sm font-medium opacity-70">
+                <Zap className="h-4 w-4" />
+                <span className="text-xs">{area.feeds}</span>
+              </div>
             </Card>
           );
         })}
+      </div>
+
+      {/* Ciclul Virtuos - Visual Diagram */}
+      <div className="max-w-5xl mx-auto mt-16 mb-12">
+        <h3 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-6">
+          Ciclul Virtuos: Cum Se Alimentează Reciproc Cele 4 Arii
+        </h3>
+        <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
+          Nu construiești 4 lucruri separate. Construiești un singur motor cu 4 cilindri care se alimentează reciproc.
+        </p>
+
+        <div className="relative">
+          {/* Circular Flow Diagram */}
+          <div className="grid grid-cols-2 gap-8 md:gap-12 max-w-3xl mx-auto relative">
+            {/* Center Connection Visualization */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-primary/20 animate-pulse" />
+            </div>
+
+            {/* Corp - Top Left */}
+            <Card className="relative bg-red-500/10 border-2 border-red-500/30 p-6 hover:scale-105 transition-all duration-300 hover:shadow-xl">
+              <div className="flex items-center gap-3 mb-3">
+                <Heart className="h-8 w-8 text-red-500" />
+                <h4 className="text-xl font-bold text-foreground">Corp</h4>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Energie fizică → Claritate mentală → Rezistență în provocări
+              </p>
+              <ArrowRight className="absolute -right-4 top-1/2 -translate-y-1/2 h-8 w-8 text-primary animate-pulse hidden md:block" />
+            </Card>
+
+            {/* Spirit - Top Right */}
+            <Card className="relative bg-purple-500/10 border-2 border-purple-500/30 p-6 hover:scale-105 transition-all duration-300 hover:shadow-xl">
+              <div className="flex items-center gap-3 mb-3">
+                <Brain className="h-8 w-8 text-purple-500" />
+                <h4 className="text-xl font-bold text-foreground">Spirit</h4>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Pace interioară → Decizii înțelepte → Scop clar în acțiuni
+              </p>
+              <ArrowRight className="absolute left-1/2 -bottom-4 -translate-x-1/2 rotate-90 h-8 w-8 text-primary animate-pulse hidden md:block" />
+            </Card>
+
+            {/* Relații - Bottom Left */}
+            <Card className="relative bg-blue-500/10 border-2 border-blue-500/30 p-6 hover:scale-105 transition-all duration-300 hover:shadow-xl">
+              <div className="flex items-center gap-3 mb-3">
+                <Scale className="h-8 w-8 text-blue-500" />
+                <h4 className="text-xl font-bold text-foreground">Relații</h4>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Suport emoțional → Curaj să riști → Rețea de oportunități
+              </p>
+              <ArrowRight className="absolute left-1/2 -top-4 -translate-x-1/2 -rotate-90 h-8 w-8 text-primary animate-pulse hidden md:block" />
+            </Card>
+
+            {/* Business - Bottom Right */}
+            <Card className="relative bg-green-500/10 border-2 border-green-500/30 p-6 hover:scale-105 transition-all duration-300 hover:shadow-xl">
+              <div className="flex items-center gap-3 mb-3">
+                <TrendingUp className="h-8 w-8 text-green-500" />
+                <h4 className="text-xl font-bold text-foreground">Business</h4>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Resurse financiare → Timp liber → Investiție în celelalte arii
+              </p>
+              <ArrowRight className="absolute -left-4 top-1/2 -translate-y-1/2 rotate-180 h-8 w-8 text-primary animate-pulse hidden md:block" />
+            </Card>
+          </div>
+
+          {/* Flow Description */}
+          <div className="mt-12 text-center max-w-3xl mx-auto">
+            <Card className="bg-gradient-to-br from-primary/10 via-accent/10 to-primary/5 border-2 border-primary/30 p-8">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Zap className="h-8 w-8 text-primary animate-pulse" />
+                <h4 className="text-xl md:text-2xl font-bold text-foreground">
+                  Efectul Multiplicator
+                </h4>
+              </div>
+              <p className="text-base md:text-lg text-foreground leading-relaxed mb-4">
+                <span className="font-bold text-primary">Când Corp crește</span>, ai mai multă energie pentru Spirit și Business. 
+                <span className="font-bold text-purple-500"> Când Spirit este puternic</span>, iei decizii mai bune în Business și Relații. 
+                <span className="font-bold text-blue-500"> Când Relațiile sunt solide</span>, ai curajul să riști în Business și pacea să te odihnești. 
+                <span className="font-bold text-green-500"> Când Business merge bine</span>, ai resurse pentru sănătate, timp pentru familie și liniște pentru spirit.
+              </p>
+              <p className="text-lg font-bold text-foreground">
+                Nu alegi între arii — le construiești simultan. Când una crește, toate cresc. 
+                <span className="text-primary"> Asta e diferența RoWarrior.</span>
+              </p>
+            </Card>
+          </div>
+        </div>
       </div>
 
       <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/40 p-8 max-w-4xl mx-auto mt-8 shadow-lg">
