@@ -118,6 +118,9 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     autoPlay: true
   });
 
+  // Ref pentru a verifica starea curentă fără closure issues
+  const isListeningRef = useRef(false);
+
   // Voice input with auto-submit and recording
   const {
     transcript,
@@ -129,8 +132,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
     isSupported: isVoiceSupported
   } = useVoiceToText({
     onTranscript: (text) => {
-      // Only update message if mic is ON and AI is not speaking
-      if (isAiSpeaking || !isListening) {
+      // Folosește ref-ul pentru a verifica starea actuală
+      if (isAiSpeaking || !isListeningRef.current) {
         console.log('🚫 Ignoring transcript - AI speaking or mic OFF');
         return;
       }
@@ -315,6 +318,12 @@ INSTRUCȚIUNI:
       stopListening();
     }
   }, [isAiSpeaking, isListening, audioMode]);
+
+  // Sincronizare ref pentru a evita closure issues în onTranscript
+  useEffect(() => {
+    isListeningRef.current = isListening;
+    console.log('🎤 isListening updated:', isListening);
+  }, [isListening]);
 
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
