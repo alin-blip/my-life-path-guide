@@ -1,24 +1,47 @@
-import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Clock, Users, Gift, Zap } from "lucide-react";
+import { Heart, Calendar, TrendingDown, AlertTriangle } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const UrgencySection = () => {
   const navigate = useNavigate();
-  const [spotsLeft, setSpotsLeft] = useState(47);
   const { elementRef, isVisible } = useScrollAnimation();
 
-  useEffect(() => {
-    // Simulate spots decreasing (in production, fetch from backend)
-    const interval = setInterval(() => {
-      setSpotsLeft(prev => Math.max(1, prev - Math.floor(Math.random() * 2)));
-    }, 300000); // Every 5 minutes
-
-    return () => clearInterval(interval);
-  }, []);
+  const costsPerDay = [
+    {
+      icon: Heart,
+      area: "Corp",
+      color: "text-red-500",
+      bgColor: "bg-red-500/10",
+      borderColor: "border-red-500/30",
+      cost: "O zi pierdută = mai puțină energie, mai multă oboseală cronică, un pas mai aproape de burnout"
+    },
+    {
+      icon: Calendar,
+      area: "Relații",
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+      borderColor: "border-blue-500/30",
+      cost: "O zi pierdută = distanță mai mare cu familia, încă o zi în care copiii tăi te simt absent"
+    },
+    {
+      icon: TrendingDown,
+      area: "Spirit",
+      color: "text-purple-500",
+      bgColor: "bg-purple-500/10",
+      borderColor: "border-purple-500/30",
+      cost: "O zi pierdută = mai multă confuzie, mai puțină claritate, încă o zi în care nu știi de ce faci ce faci"
+    },
+    {
+      icon: TrendingDown,
+      area: "Business",
+      color: "text-green-500",
+      bgColor: "bg-green-500/10",
+      borderColor: "border-green-500/30",
+      cost: "O zi pierdută = oportunități ratate, încă o săptămână de lucru haotic fără rezultate clare"
+    }
+  ];
 
   return (
     <div 
@@ -28,109 +51,74 @@ export const UrgencySection = () => {
       }`} 
       id="urgency"
     >
-      <Card className="bg-gradient-to-br from-primary/10 via-accent/10 to-primary/15 border-primary p-8 md:p-12 relative overflow-hidden shadow-xl">
-        {/* Animated background effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5 animate-pulse" />
-        
-        <div className="relative z-10">
-          <div className="text-center mb-8">
-            <Badge className="bg-accent text-white border-0 mb-4 text-lg px-6 py-2 font-bold">
-              🔥 Ofertă Limitată Founding Members
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-              Primii 100 de Membri Pro<br />
-              Primesc Acces Premium GRATUIT
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Intri în grupul exclusiv de Founding Members și primești beneficii permanente
-            </p>
-          </div>
+      <div className="text-center mb-12">
+        <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          Cât Te Costă Fiecare Zi Fără Sistem?
+        </h2>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Nu e despre oferte sau locuri limitate. E despre <span className="text-destructive font-bold">costul real</span> al fiecărei zile în care rămâi blocat.
+        </p>
+      </div>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-8 max-w-4xl mx-auto">
-            <Card className="bg-card border-primary/30 p-6 shadow-md">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <Users className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-foreground text-lg mb-2">Comunitate Privată Founding Members</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Acces exclusiv la grupul de WhatsApp/Telegram cu ceilalți 100 de founderi + sesiuni lunare de Q&A live
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-card border-primary/30 p-6 shadow-md">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <Gift className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-foreground text-lg mb-2">Stack-uri Premium Lifetime</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Acces GRATUIT pe viață la toate stack-urile premium noi (valoare €97/lună)
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-card border-primary/30 p-6 shadow-md">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <Zap className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-foreground text-lg mb-2">Implementare Prioritară</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Feature requests-urile tale au prioritate în roadmap + early access la toate update-urile
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-card border-primary/30 p-6 shadow-md">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <Clock className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-foreground text-lg mb-2">Preț Blocat Pe Viață</h3>
-                  <p className="text-muted-foreground text-sm">
-                    €197/lună pentru totdeauna. Când prețul crește la €297+, tu rămâi la €197
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          <div className="bg-destructive/10 border-2 border-destructive rounded-lg p-6 mb-8 max-w-2xl mx-auto shadow-md">
-            <div className="flex items-center justify-center gap-4 mb-3">
-              <Clock className="h-8 w-8 text-destructive animate-pulse" />
-              <div className="text-center">
-                <div className="text-sm text-muted-foreground mb-1 font-medium">Locuri Rămase din 100</div>
-                <div className="text-4xl font-bold text-destructive">{spotsLeft}</div>
-              </div>
-            </div>
-            <p className="text-center text-muted-foreground text-sm">
-              Când se ocupă toate locurile, beneficiile Founding Members dispar pentru totdeauna
-            </p>
-          </div>
-
-          <div className="text-center">
-            <Button
-              size="lg"
-              onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-accent via-primary to-accent hover:from-primary hover:to-accent text-white px-16 py-8 text-2xl font-bold shadow-2xl hover:shadow-primary/50 transition-all hover:scale-105"
+      <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-12">
+        {costsPerDay.map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <Card 
+              key={index}
+              className={`${item.bgColor} border-2 ${item.borderColor} p-6 shadow-md`}
             >
-              Vreau Să Fiu Founding Member — Trial 3 Zile GRATUIT
-            </Button>
-            <p className="text-sm text-muted-foreground mt-4">
-              Nu plătești nimic acum. Trial 3 zile să vezi dacă îți place. Anulezi oricând.
+              <div className="flex items-start gap-4">
+                <div className={`${item.bgColor} p-3 rounded-lg border ${item.borderColor}`}>
+                  <Icon className={`h-8 w-8 ${item.color}`} />
+                </div>
+                <div className="flex-1">
+                  <h3 className={`text-xl font-bold mb-2 ${item.color}`}>{item.area}</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {item.cost}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      <Card className="bg-gradient-to-br from-destructive/5 to-destructive/10 border-2 border-destructive/40 p-8 md:p-12 max-w-4xl mx-auto mb-8 shadow-xl">
+        <div className="text-center space-y-4">
+          <p className="text-2xl font-bold text-foreground">
+            Fiecare zi fără sistem = fiecare zi mai adânc în Groapă
+          </p>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Peste 1 an, costul nu va fi doar financiar. Va fi <span className="text-destructive font-bold">sănătatea ta</span>, 
+            <span className="text-destructive font-bold"> relațiile tale</span>, 
+            <span className="text-destructive font-bold"> claritatea ta spirituală</span> și 
+            <span className="text-destructive font-bold"> oportunitatea de a avea TOTUL</span>.
+          </p>
+          <div className="bg-destructive/10 border-l-4 border-destructive p-6 rounded-r mt-6">
+            <p className="text-foreground font-bold text-lg mb-2">
+              Întrebarea nu este "De ce acum?"
+            </p>
+            <p className="text-muted-foreground">
+              Întrebarea este: <span className="text-foreground font-semibold">"Câte zile mai pot să pierd înainte să fie prea târziu?"</span>
             </p>
           </div>
         </div>
       </Card>
+
+      <div className="text-center">
+        <Button
+          size="lg"
+          onClick={() => navigate('/auth')}
+          className="bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white px-16 py-8 text-2xl font-bold shadow-2xl transition-all hover:scale-105"
+        >
+          Începe Transformarea Astăzi — Trial 3 Zile GRATUIT
+        </Button>
+        <p className="text-sm text-muted-foreground mt-4 max-w-xl mx-auto">
+          Nu plătești nimic acum. Trial 3 zile să vezi dacă îți place. Garanție 90 de zile sau banii înapoi + €100 dacă nu vezi îmbunătățiri.
+        </p>
+      </div>
     </div>
   );
 };

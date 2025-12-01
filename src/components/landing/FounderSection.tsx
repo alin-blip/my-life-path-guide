@@ -42,15 +42,26 @@ export const FounderSection = () => {
             </p>
 
             <p className="leading-relaxed">
-              7 ani în care am trecut prin <span className="text-destructive font-bold">burnout, spitalizare și depresie profundă</span>. 
-              Am ajuns în punctul în care doctorii nu mi-au mai dat nici o șansă. Soția mea a fost distrusă. 
-              <span className="text-foreground font-semibold"> Am fost o legumă mentală timp de un an...</span>
+              În 2016, aveam "totul": cifră de afaceri peste €1M, echipă de 15 oameni, birouri frumoase. 
+              Dar realitatea? <span className="text-destructive font-bold">Burnout total, 105kg, anxietate cronică, soție pe care o vedeam 2 ore pe săptămână</span>.
             </p>
 
             <p className="leading-relaxed">
-              Dar am refuzat să accept că acesta e sfârșitul. Am început să caut răspunsuri — 
-              nu în pastile sau terapii convenționale, ci în <span className="text-primary font-bold">adevăr</span>. 
-              Am realizat că problema nu era doar în business. Era în <span className="text-foreground font-semibold">TOATE ariile</span> — 
+              Am ajuns la spital după o criză de anxietate. Doctorii mi-au spus: 
+              <span className="text-destructive font-semibold italic"> "Dacă nu schimbi radical ceva, nu mai ai mult timp."</span> 
+              Aveam 32 de ani și eram gata să mor.
+            </p>
+
+            <p className="leading-relaxed">
+              Am realizat adevărul brutal: <span className="text-foreground font-bold">Aveam bani, dar nu aveam VIAȚĂ</span>. 
+              Corpul meu se prăbușea. Relația cu soția era moartă. Nu mai simțeam nimic spiritual. 
+              Business-ul mergea, dar eu eram o ruină umană.
+            </p>
+
+            <p className="leading-relaxed">
+              Am refuzat să accept că acesta e sfârșitul. Am început să caut răspunsuri — 
+              nu în pastile sau motivație de weekend, ci în <span className="text-primary font-bold">adevăr brutal</span>. 
+              Am realizat că problema nu era doar în business. Era în <span className="text-foreground font-semibold">TOATE ariile simultan</span> — 
               corp, spirit, relații, afaceri.
             </p>
 
@@ -66,14 +77,15 @@ export const FounderSection = () => {
             </div>
 
             <p className="leading-relaxed">
-              Am învățat că <span className="text-primary font-bold">succesul fără echilibru e doar o altă formă de sărăcie</span>. 
-              Poți avea milioane în bancă și totuși să fii în Groapă — deconectat, desensibilizat, distrus pe dinăuntru.
+              <span className="text-primary font-bold">Succesul fără echilibru este doar o altă formă de sărăcie.</span> 
+              Poți avea milioane în bancă și totuși să fii în Groapă — deconectat, desensibilizat, distrus pe dinăuntru. 
+              Eu am fost acolo. <span className="text-foreground font-semibold">Nu mai vreau ca alți bărbați să ajungă unde am fost eu.</span>
             </p>
 
             <p className="leading-relaxed">
-              Am sistematizat tot ce am învățat și l-am transformat în Calea Războinicului. Nu doar pentru mine — 
-              pentru că <span className="text-foreground font-bold">nu am avut pe nimeni care să-mi arate calea</span>. 
-              Dar TU ai acum această oportunitate.
+              Am sistematizat tot ce am învățat în cei 7 ani și l-am transformat în Calea Războinicului. 
+              Nu pentru că vreau să vând ceva — pentru că <span className="text-foreground font-bold">nu am avut pe nimeni care să-mi arate calea când eram în groapă</span>. 
+              Și știu durerea asta. <span className="text-accent font-bold">Tu ai acum șansa pe care eu nu am avut-o.</span>
             </p>
 
             <div className="bg-accent/10 border-l-4 border-accent p-4 rounded-r">
