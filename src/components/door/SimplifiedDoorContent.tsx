@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDoorContent } from '@/hooks/useDoorContent';
+import { useDoorUndo } from '@/hooks/useDoorUndo';
 import { DoorHeader } from '@/components/door/DoorHeader';
 import { HotList } from '@/components/door/HotList';
 import { DominoDoor } from '@/components/door/DominoDoor';
@@ -164,6 +165,48 @@ export const SimplifiedDoorContent: React.FC = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { language } = useLanguage();
+
+  // Undo/Redo functionality
+  const { undo, redo, canUndo, canRedo } = useDoorUndo({
+    selectedDomino,
+    dominoKeyPoints,
+    setSelectedDomino,
+    setDominoKeyPoints,
+  });
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Z or Cmd+Z for undo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        if (undo()) {
+          toast({
+            title: '↩️ Undo',
+            description: language === 'en' 
+              ? 'Restored previous focus' 
+              : 'Focus anterior restaurat',
+          });
+        }
+      }
+      // Ctrl+Shift+Z or Ctrl+Y or Cmd+Shift+Z for redo
+      if (((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z') || 
+          ((e.ctrlKey || e.metaKey) && e.key === 'y')) {
+        e.preventDefault();
+        if (redo()) {
+          toast({
+            title: '↪️ Redo',
+            description: language === 'en' 
+              ? 'Restored next focus' 
+              : 'Focus următor restaurat',
+          });
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo, toast, language]);
   
   const handlePrevWeekWithNotification = () => {
     handlePreviousWeek();
