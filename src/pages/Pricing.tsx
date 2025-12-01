@@ -101,7 +101,7 @@ return (
     <div className="min-h-screen bg-hero-gradient">
       <main className="max-w-6xl mx-auto px-4 py-12">
       <section className="text-center mb-10">
-        <h1 className="text-3xl md:text-4xl font-bold text-white">Abonamente construite pentru antreprenori</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground">Abonamente construite pentru antreprenori</h1>
         <p className="text-muted-foreground mt-2">Beneficii clare. Fără pierdere de timp. Focus pe profit și execuție.</p>
       </section>
 
@@ -127,7 +127,7 @@ return (
             <Card key={plan.id} className={`relative ${plan.featured ? 'ring-2 ring-primary' : ''}`}>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-white">{plan.name}</CardTitle>
+                  <CardTitle className="text-foreground">{plan.name}</CardTitle>
                   <div className="flex items-center gap-2">
                     {plan.highlight && (
                       <Badge variant="secondary">{plan.highlight}</Badge>
@@ -136,7 +136,7 @@ return (
                   </div>
                 </div>
                 <div className="mt-3">
-                  <span className="text-3xl font-bold text-white">{plan.price}</span>
+                  <span className="text-3xl font-bold text-foreground">{plan.price}</span>
                   {plan.period && <span className="text-muted-foreground ml-1">{plan.period}</span>}
                 </div>
               </CardHeader>

@@ -106,7 +106,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
             className={`${isCollapsed ? 'h-7 w-auto' : 'h-9 w-auto'} drop-shadow`}
           />
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-lg text-white">RoWarrior</h1>
+            <h1 className="font-display font-bold text-lg text-foreground">RoWarrior</h1>
           )}
         </Link>
       </div>

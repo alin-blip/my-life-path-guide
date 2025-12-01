@@ -99,7 +99,7 @@ export const ObjectivesContent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0c1023] to-[#1a2242] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
       <div className={`${isMobile ? 'px-3 py-4' : 'p-6'} max-w-4xl mx-auto`}>
         <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-center mb-6`}>
           {language === 'en' ? 'Objectives' : 'Obiective'}
@@ -122,7 +122,7 @@ export const ObjectivesContent = () => {
             // Mobile: Horizontal scrollable tabs
             <div className="w-full mb-6">
               <ScrollArea className="w-full whitespace-nowrap">
-                <TabsList className="flex w-max space-x-2 bg-slate-800 p-2">
+                <TabsList className="flex w-max space-x-2 bg-muted p-2">
                   <TabsTrigger 
                     value="body" 
                     className="data-[state=active]:bg-red-600 data-[state=active]:text-white px-4 py-2 text-sm"
@@ -152,7 +152,7 @@ export const ObjectivesContent = () => {
             </div>
           ) : (
             // Desktop: Grid layout
-            <TabsList className="grid grid-cols-4 max-w-2xl mx-auto bg-slate-800">
+            <TabsList className="grid grid-cols-4 max-w-2xl mx-auto bg-muted">
               <TabsTrigger value="body" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">
                 {getCategoryName('body')}
               </TabsTrigger>
@@ -180,16 +180,16 @@ export const ObjectivesContent = () => {
               {(['current', 'weekly', 'monthly', 'annual'] as ObjectiveType[]).map((type) => (
                 <Card 
                   key={type}
-                  className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/80 transition-colors cursor-pointer"
+                  className="bg-muted/50 border-border hover:bg-muted transition-colors cursor-pointer"
                   onClick={() => setActiveObjective(type)}
                 >
                   <CardHeader className={isMobile ? 'pb-3' : ''}>
-                    <CardTitle className={`text-white text-center ${isMobile ? 'text-lg' : ''}`}>
+                    <CardTitle className={`text-foreground text-center ${isMobile ? 'text-lg' : ''}`}>
                       {getObjectiveTitle(type)}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className={`text-center ${isMobile ? 'pt-0' : ''}`}>
-                    <p className={`text-gray-300 mb-4 ${isMobile ? 'text-sm' : ''}`}>
+                    <p className={`text-muted-foreground mb-4 ${isMobile ? 'text-sm' : ''}`}>
                       {getObjectiveDescription(type)}
                     </p>
                     <Button 

@@ -54,7 +54,7 @@ export const Layout: React.FC<LayoutProps> = ({
     await signOut();
     navigate('/auth');
   };
-  return <div className="flex min-h-screen bg-[#0a0e1a]">
+  return <div className="flex min-h-screen bg-background">
       <ReferralTracker />
       
       {/* Mobile Overlay */}
@@ -74,7 +74,7 @@ export const Layout: React.FC<LayoutProps> = ({
           : `fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-20 ${
               isMenuCollapsed ? 'w-[70px]' : 'w-[240px]'
             }`
-        } bg-[#11152b]
+        } bg-card
       `}>
         <SideMenu 
           isCollapsed={!isMobile && isMenuCollapsed} 
@@ -114,7 +114,7 @@ export const Layout: React.FC<LayoutProps> = ({
           {!isMobile && (
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center justify-end space-x-4 w-full">
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-muted-foreground">
                     {formatDate()}
                   </div>
                   {!user ? (
@@ -139,7 +139,7 @@ export const Layout: React.FC<LayoutProps> = ({
           {/* Mobile Header - Simplified */}
           {isMobile && (
             <div className="flex justify-between items-center mb-4">
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-muted-foreground">
                 {formatDate()}
               </div>
               <div className="flex items-center gap-2">
