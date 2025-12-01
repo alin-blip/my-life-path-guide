@@ -18,6 +18,8 @@ import { voiceRecordingService } from '@/services/voiceRecordingService';
 import { AISpeakingIndicator } from './AISpeakingIndicator';
 import { VoiceSelector } from './VoiceSelector';
 import jsPDF from 'jspdf';
+import { useStackSession } from '@/hooks/useStackSession';
+import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -58,7 +60,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [systemPrompt, setSystemPrompt] = useState(customSystemPrompt || '');
   const [finalAction, setFinalAction] = useState('');
   const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
-  const [sessionId] = useState(() => uuidv4());
+  const { sessionId } = usePersistentSessionId(stackType);
   const [ttsEnabled, setTtsEnabled] = useState(voiceOnlyMode || audioMode);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState(0);
   const hasSpokenWelcomeRef = useRef(false); // ✅ Schimbat în ref pentru control instant
@@ -73,6 +75,28 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const shouldSpeakRef = useRef(false);
+  
+  // Auto-save session management
+  const {
+    saveSession,
+    loadSession,
+    isAutoSaveEnabled,
+    lastSaveTime: sessionLastSaveTime
+  } = useStackSession({
+    stackType,
+    sessionId,
+    onSessionRestore: (sessionData) => {
+      console.log('📥 Restoring session:', sessionData);
+      if (sessionData.answers && sessionData.answers.messages && Array.isArray(sessionData.answers.messages)) {
+        setMessages(sessionData.answers.messages);
+        setCurrentQuestionNumber(sessionData.answers.currentStep || 0);
+        if (sessionData.answers.finalAction) {
+          setFinalAction(sessionData.answers.finalAction);
+          setMode('complete');
+        }
+      }
+    }
+  });
   
   const {
     isIdeaModalOpen,
@@ -261,7 +285,19 @@ INSTRUCȚIUNI:
     }
   };
 
+  // Load existing session on mount
   useEffect(() => {
+    const loadExistingSession = async () => {
+      const sessionData = await loadSession();
+      if (!sessionData || !sessionData.answers || !sessionData.answers.messages || sessionData.answers.messages.length === 0) {
+        // No existing session, create welcome message
+        initializeWelcomeMessage();
+      }
+    };
+    loadExistingSession();
+  }, []);
+
+  const initializeWelcomeMessage = () => {
     setSystemPrompt(customSystemPrompt || getStackPrompt());
     
     // Reset spoken flag when component mounts or stackType changes
@@ -316,7 +352,27 @@ INSTRUCȚIUNI:
         stopListening();
       }
     };
-  }, [stackType, voiceOnlyMode]);
+  };
+
+  // Auto-save messages whenever they change
+  useEffect(() => {
+    if (messages.length > 0 && isAutoSaveEnabled) {
+      const sessionData = {
+        session_id: sessionId,
+        stack_type: stackType as any,
+        step: currentQuestionNumber,
+        answers: {
+          messages,
+          currentStep: currentQuestionNumber,
+          finalAction: finalAction || undefined,
+          mode
+        },
+        isCompleted: mode === 'complete',
+        timestamp: new Date().toISOString()
+      };
+      saveSession(sessionData);
+    }
+  }, [messages, currentQuestionNumber, finalAction, mode, isAutoSaveEnabled, saveSession, sessionId, stackType]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
