@@ -1,12 +1,11 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, X, GripVertical, Search, Plus, Star, Flag, AlertCircle, KeyRound, Target } from 'lucide-react';
 import { HotListItem, TaskPriority } from '@/types/door';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/context/LanguageContext';
-import { VoiceEnabledInput } from '@/components/door/VoiceEnabledInput';
 
 interface HotListProps {
   filteredHotList: HotListItem[];
@@ -44,12 +43,14 @@ export const HotList: React.FC<HotListProps> = ({
   const [editingItems, setEditingItems] = useState<{ [id: string]: boolean }>({});
   const [editValues, setEditValues] = useState<{ [id: string]: string }>({});
   const [newItemText, setNewItemText] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
 
   const handleAddItem = () => {
     if (newItemText.trim()) {
       addNewTarget();
       setNewItemText('');
+      setTimeout(() => inputRef.current?.focus(), 0);
     }
   };
 
@@ -68,14 +69,20 @@ export const HotList: React.FC<HotListProps> = ({
         </Button>
       </div>
       
-      {/* Voice-enabled Quick Add Input */}
+      {/* Quick Add Input */}
       <div className={`${isMobile ? 'mb-3' : 'mb-4'}`}>
-        <VoiceEnabledInput
+        <Input
+          ref={inputRef}
           value={newItemText}
-          onChange={setNewItemText}
-          onSubmit={handleAddItem}
-          placeholder="Adaugă rapid cu vocea sau tastează... (Enter)"
-          className={`bg-muted border-0 focus-visible:ring-1 focus-visible:ring-primary ${
+          onChange={(e) => setNewItemText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleAddItem();
+            }
+          }}
+          placeholder="Tastează task nou și apasă Enter..."
+          className={`bg-muted border-0 focus-visible:ring-1 focus-visible:ring-primary transition-all ${
             isMobile ? 'text-sm h-8' : ''
           }`}
         />
@@ -136,14 +143,20 @@ export const HotList: React.FC<HotListProps> = ({
                 </div>
                 
                 {isEditing ? (
-                  <VoiceEnabledInput
+                  <Input
                     value={editValues[item.id] || item.text}
-                    onChange={(newValue) => setEditValues({...editValues, [item.id]: newValue})}
-                    onSubmit={() => {
-                      if (editValues[item.id] !== undefined) {
-                        updateHotListItemText(item.id, editValues[item.id]);
+                    onChange={(e) => setEditValues({...editValues, [item.id]: e.target.value})}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (editValues[item.id] !== undefined) {
+                          updateHotListItemText(item.id, editValues[item.id]);
+                        }
+                        setEditingItems({...editingItems, [item.id]: false});
+                      } else if (e.key === 'Escape') {
+                        setEditingItems({...editingItems, [item.id]: false});
+                        setEditValues({...editValues, [item.id]: item.text});
                       }
-                      setEditingItems({...editingItems, [item.id]: false});
                     }}
                     onBlur={() => {
                       if (editValues[item.id] !== undefined) {
@@ -155,11 +168,11 @@ export const HotList: React.FC<HotListProps> = ({
                     className={`flex-grow bg-transparent border-none focus:ring-1 focus:ring-primary text-foreground ${
                       isMobile ? 'p-1 text-sm' : 'p-1'
                     }`}
-                    placeholder="Editează cu vocea sau tastează... (Enter)"
+                    placeholder="Editează și apasă Enter..."
                   />
                 ) : (
                   <span 
-                    className={`flex-grow text-gray-300 cursor-pointer ${isMobile ? 'text-sm' : ''}`}
+                    className={`flex-grow text-foreground cursor-pointer hover:text-primary transition-colors ${isMobile ? 'text-sm' : ''}`}
                     onClick={() => setEditingItems({...editingItems, [item.id]: true})}
                   >
                     {item.text}
