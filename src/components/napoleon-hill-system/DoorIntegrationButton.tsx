@@ -1,10 +1,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { NapoleonHillProject } from '@/services/napoleonHillProjectService';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
+import { napoleonHillPdfService } from '@/services/napoleonHillPdfService';
 import { v4 as uuidv4 } from 'uuid';
 
 interface DoorIntegrationButtonProps {
@@ -77,10 +78,34 @@ export const DoorIntegrationButton: React.FC<DoorIntegrationButtonProps> = ({ pr
     }
   };
 
+  const handleExportPDF = async () => {
+    try {
+      await napoleonHillPdfService.generatePDF(project);
+      toast({
+        title: "PDF Generat!",
+        description: "Planul tău Napoleon Hill a fost exportat cu succes"
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut genera PDF-ul",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
-    <Button onClick={handleIntegrate}>
-      <ArrowRight className="w-4 h-4 mr-2" />
-      Integrează în Domino Door
-    </Button>
+    <div className="flex gap-2">
+      <Button onClick={handleExportPDF} variant="outline">
+        <Download className="w-4 h-4 mr-2" />
+        Export PDF
+      </Button>
+      
+      <Button onClick={handleIntegrate}>
+        <ArrowRight className="w-4 h-4 mr-2" />
+        Integrează în Domino Door
+      </Button>
+    </div>
   );
 };

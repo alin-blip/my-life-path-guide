@@ -648,6 +648,39 @@ export type Database = {
         }
         Relationships: []
       }
+      napoleon_hill_notifications: {
+        Row: {
+          created_at: string | null
+          email_notifications: boolean | null
+          id: string
+          last_sent_at: string | null
+          notification_day: number | null
+          notification_time: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          last_sent_at?: string | null
+          notification_day?: number | null
+          notification_time?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          last_sent_at?: string | null
+          notification_day?: number | null
+          notification_time?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       napoleon_hill_projects: {
         Row: {
           action_items: Json | null
