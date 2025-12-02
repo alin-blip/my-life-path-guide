@@ -12,6 +12,7 @@ import { TextToSpeechButton } from '@/components/ui/TextToSpeechButton';
 import { PrincipleProgressRing } from './PrincipleProgressRing';
 import { napoleonHillDraftService } from '@/services/napoleonHillDraftService';
 import { napoleonHillBackupService } from '@/services/napoleonHillBackupService';
+import { PrincipleSummaryPreview } from './PrincipleSummaryPreview';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -56,6 +57,10 @@ export const PrincipleChat: React.FC<PrincipleChatProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
   const [projectFiles, setProjectFiles] = useState<any[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewSummary, setPreviewSummary] = useState('');
+  const [previewActions, setPreviewActions] = useState<any[]>([]);
+  const [fullConversation, setFullConversation] = useState('');
   const chatAreaRef = useRef<HTMLDivElement>(null);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -253,33 +258,25 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
     setCurrentMessage("");
   };
 
-  const handleCompletePrinciple = async () => {
-    if (messages.length < 2) {
-      toast({
-        title: "Mai multe răspunsuri necesare",
-        description: "Te rugăm să ai o conversație mai amplă înainte de a finaliza.",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  const generateSummaryAndActions = async () => {
     setIsProcessing(true);
-
+    
     try {
-      // Collect all user messages as the answer
-      const fullConversation = messages
+      // Collect all messages as the answer
+      const conversation = messages
         .map(m => `${m.role === 'user' ? 'Tu' : 'AI'}: ${m.content}`)
         .join('\n\n');
+      
+      setFullConversation(conversation);
 
       // Trim conversation to stay under Edge Function per-message limit (5000 chars)
-      // We keep the final part of the conversation, which is most relevant for summary
       const MAX_MESSAGE_LENGTH = 4000;
       const trimmedConversation =
-        fullConversation.length > MAX_MESSAGE_LENGTH
-          ? fullConversation.slice(fullConversation.length - MAX_MESSAGE_LENGTH)
-          : fullConversation;
+        conversation.length > MAX_MESSAGE_LENGTH
+          ? conversation.slice(conversation.length - MAX_MESSAGE_LENGTH)
+          : conversation;
 
-      // Generate AI summary and extract actions - DON'T pass knowledgeBaseFiles here
+      // Generate AI summary and extract actions
       const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
         body: {
           messages: [
@@ -320,40 +317,20 @@ Răspunde în format JSON strict:
           const summary = parsed.summary || aiResponse.substring(0, 200);
           const actions = parsed.actions || [];
 
-          // Delete draft after successful completion
-          await napoleonHillDraftService.deleteDraft(project.id, principle);
-
-          // Trigger auto-backup in background (non-blocking)
-          napoleonHillBackupService.autoBackupIfNeeded().catch(err => 
-            console.warn('Auto-backup failed:', err)
-          );
-
-          onPrincipleComplete(
-            principle,
-            fullConversation,
-            summary,
-            actions.map((action: string) => ({ action, completed: false }))
-          );
+          // Show preview modal
+          setPreviewSummary(summary);
+          setPreviewActions(actions.map((action: string) => ({ action, completed: false })));
+          setShowPreview(true);
         } else {
           throw new Error('No JSON found in AI response');
         }
       } catch (parseError) {
         console.error('JSON parsing failed, using fallback:', parseError);
-        // Delete draft even on fallback
-        await napoleonHillDraftService.deleteDraft(project.id, principle);
         
-        // Trigger auto-backup in background (non-blocking)
-        napoleonHillBackupService.autoBackupIfNeeded().catch(err => 
-          console.warn('Auto-backup failed:', err)
-        );
-        
-        // Fallback if JSON parsing fails
-        onPrincipleComplete(
-          principle,
-          fullConversation,
-          aiResponse.substring(0, 200),
-          []
-        );
+        // Fallback: show preview with raw response
+        setPreviewSummary(aiResponse.substring(0, 200));
+        setPreviewActions([]);
+        setShowPreview(true);
       }
     } catch (error) {
       console.error('Error processing principle:', error);
@@ -365,6 +342,52 @@ Răspunde în format JSON strict:
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleCompletePrinciple = async () => {
+    if (messages.length < 2) {
+      toast({
+        title: "Mai multe răspunsuri necesare",
+        description: "Te rugăm să ai o conversație mai amplă înainte de a finaliza.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    await generateSummaryAndActions();
+  };
+
+  const handleSaveFromPreview = async (summary: string, actions: any[]) => {
+    try {
+      // Delete draft after successful completion
+      await napoleonHillDraftService.deleteDraft(project.id, principle);
+
+      // Trigger auto-backup in background (non-blocking)
+      napoleonHillBackupService.autoBackupIfNeeded().catch(err => 
+        console.warn('Auto-backup failed:', err)
+      );
+
+      onPrincipleComplete(
+        principle,
+        fullConversation,
+        summary,
+        actions
+      );
+      
+      setShowPreview(false);
+    } catch (error) {
+      console.error('Error saving principle:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut salva principiul. Te rog încearcă din nou.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRegenerateSummary = () => {
+    setShowPreview(false);
+    generateSummaryAndActions();
   };
 
   return (
@@ -499,6 +522,16 @@ Răspunde în format JSON strict:
           </Button>
         </div>
       )}
+
+      <PrincipleSummaryPreview
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        onSave={handleSaveFromPreview}
+        onRegenerate={handleRegenerateSummary}
+        initialSummary={previewSummary}
+        initialActions={previewActions}
+        isRegenerating={isProcessing}
+      />
     </Card>
   );
 };
