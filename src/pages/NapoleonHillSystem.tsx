@@ -8,6 +8,7 @@ import { NapoleonHillJourney } from '@/components/napoleon-hill-system/NapoleonH
 import { NapoleonHillDashboard } from '@/components/napoleon-hill-system/NapoleonHillDashboard';
 import { NapoleonHillKnowledgeBase } from '@/components/stack/napoleon-hill/NapoleonHillKnowledgeBase';
 import { NotificationSettings } from '@/components/napoleon-hill-system/NotificationSettings';
+import { BackupManager } from '@/components/napoleon-hill-system/BackupManager';
 import { NewProjectModal } from '@/components/napoleon-hill-system/NewProjectModal';
 import { Button } from '@/components/ui/button';
 
@@ -130,6 +131,7 @@ export default function NapoleonHillSystem() {
 
             <TabsContent value="knowledge" className="mt-6">
               <div className="space-y-6">
+                <BackupManager />
                 <NotificationSettings />
                 <NapoleonHillKnowledgeBase />
               </div>

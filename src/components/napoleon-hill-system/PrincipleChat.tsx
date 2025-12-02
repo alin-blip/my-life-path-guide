@@ -11,6 +11,7 @@ import { VoiceInputButton } from '../stack/VoiceInputButton';
 import { TextToSpeechButton } from '@/components/ui/TextToSpeechButton';
 import { PrincipleProgressRing } from './PrincipleProgressRing';
 import { napoleonHillDraftService } from '@/services/napoleonHillDraftService';
+import { napoleonHillBackupService } from '@/services/napoleonHillBackupService';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -269,6 +270,11 @@ Răspunde în format JSON:
           // Delete draft after successful completion
           await napoleonHillDraftService.deleteDraft(project.id, principle);
 
+          // Trigger auto-backup in background (non-blocking)
+          napoleonHillBackupService.autoBackupIfNeeded().catch(err => 
+            console.warn('Auto-backup failed:', err)
+          );
+
           onPrincipleComplete(
             principle,
             fullConversation,
@@ -281,6 +287,11 @@ Răspunde în format JSON:
       } catch (parseError) {
         // Delete draft even on fallback
         await napoleonHillDraftService.deleteDraft(project.id, principle);
+        
+        // Trigger auto-backup in background (non-blocking)
+        napoleonHillBackupService.autoBackupIfNeeded().catch(err => 
+          console.warn('Auto-backup failed:', err)
+        );
         
         // Fallback if JSON parsing fails
         onPrincipleComplete(
