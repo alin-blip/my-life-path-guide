@@ -49,8 +49,9 @@ export default function NapoleonHillSystem() {
     if (newProject) {
       await loadProjects();
       setSelectedProject(newProject);
-      setActiveTab("journey");
-      setIsNewProjectModalOpen(false);
+      // Don't close modal yet - allow file uploads
+      // Don't switch tab yet - will happen when modal closes
+      return newProject.id;
     }
   };
 
@@ -141,7 +142,10 @@ export default function NapoleonHillSystem() {
 
         <NewProjectModal
           isOpen={isNewProjectModalOpen}
-          onClose={() => setIsNewProjectModalOpen(false)}
+          onClose={() => {
+            setIsNewProjectModalOpen(false);
+            setActiveTab("journey");
+          }}
           onProjectCreated={handleProjectCreated}
         />
       </div>

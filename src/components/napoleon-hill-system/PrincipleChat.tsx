@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { NapoleonHillProject } from '@/services/napoleonHillProjectService';
-import { Send, Loader2, Lightbulb } from 'lucide-react';
+import { Send, Loader2, Lightbulb, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
@@ -54,6 +54,7 @@ export const PrincipleChat: React.FC<PrincipleChatProps> = ({
   const [currentMessage, setCurrentMessage] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
+  const [projectFiles, setProjectFiles] = useState<any[]>([]);
   const chatAreaRef = useRef<HTMLDivElement>(null);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -95,6 +96,27 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
       chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
     }
   };
+
+  // Load project files on mount
+  useEffect(() => {
+    const loadProjectFiles = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('knowledge_base_files')
+          .select('*')
+          .eq('project_id', project.id);
+
+        if (error) throw error;
+        if (data) {
+          setProjectFiles(data);
+        }
+      } catch (error) {
+        console.error('Error loading project files:', error);
+      }
+    };
+
+    loadProjectFiles();
+  }, [project.id]);
 
   useEffect(() => {
     scrollToBottom();
@@ -183,7 +205,8 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
             role: msg.role,
             content: msg.content
           })),
-          systemPrompt
+          systemPrompt,
+          knowledgeBaseFiles: projectFiles.map(f => f.file_path)
         }
       });
 
@@ -319,12 +342,20 @@ Răspunde în format JSON:
         <h3 className="text-xl font-bold text-foreground">
           Principiul {principle}: {principleName}
         </h3>
-        {!existingAnswer && (
-          <PrincipleProgressRing 
-            messageCount={messages.length}
-            isCompleted={false}
-          />
-        )}
+        <div className="flex items-center gap-3">
+          {projectFiles.length > 0 && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
+              <FileText className="w-3.5 h-3.5" />
+              <span>{projectFiles.length} {projectFiles.length === 1 ? 'document' : 'documente'} de referință</span>
+            </div>
+          )}
+          {!existingAnswer && (
+            <PrincipleProgressRing 
+              messageCount={messages.length}
+              isCompleted={false}
+            />
+          )}
+        </div>
       </div>
 
       {existingAnswer ? (
