@@ -681,6 +681,47 @@ export type Database = {
         }
         Relationships: []
       }
+      napoleon_hill_principle_drafts: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_saved_at: string
+          messages: Json
+          principle_number: number
+          project_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_saved_at?: string
+          messages?: Json
+          principle_number: number
+          project_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_saved_at?: string
+          messages?: Json
+          principle_number?: number
+          project_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "napoleon_hill_principle_drafts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "napoleon_hill_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       napoleon_hill_projects: {
         Row: {
           action_items: Json | null
