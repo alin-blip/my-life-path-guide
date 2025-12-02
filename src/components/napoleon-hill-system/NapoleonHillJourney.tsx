@@ -16,6 +16,7 @@ interface NapoleonHillJourneyProps {
 }
 
 const PRINCIPLES = [
+  "📚 Document Review & Foundation",
   "Dorința", "Credința", "Autosuggestia", "Cunoaștere Specializată",
   "Imaginația", "Planificare Organizată", "Decizia", "Perseverența",
   "Master Mind", "Transmutarea Energiei", "Subconștientul",
@@ -41,7 +42,8 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
     );
 
     if (success) {
-      toast({ title: `Principiul ${principle} salvat!` });
+      const principleLabel = principle === 0 ? 'Document Review completat!' : `Principiul ${principle} salvat!`;
+      toast({ title: principleLabel });
       onProjectUpdate();
       
       // Move to next principle if not at end
@@ -101,7 +103,7 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
         <PrincipleChat
           project={project}
           principle={selectedPrinciple}
-          principleName={PRINCIPLES[selectedPrinciple - 1]}
+          principleName={PRINCIPLES[selectedPrinciple]}
           onPrincipleComplete={handlePrincipleComplete}
         />
       )}
@@ -111,7 +113,7 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-xl font-bold text-foreground">
-              Principiul {selectedPrinciple}: {PRINCIPLES[selectedPrinciple - 1]}
+              {selectedPrinciple === 0 ? '📚 Document Review & Foundation' : `Principiul ${selectedPrinciple}: ${PRINCIPLES[selectedPrinciple]}`}
             </h3>
             <Button
               onClick={() => setEditingPrinciple(selectedPrinciple)}
@@ -171,7 +173,7 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
           onClose={() => setEditingPrinciple(null)}
           project={project}
           principle={editingPrinciple}
-          principleName={PRINCIPLES[editingPrinciple - 1]}
+          principleName={PRINCIPLES[editingPrinciple]}
           existingAnswer={project.principle_answers[editingPrinciple] || ''}
           onSave={handlePrincipleComplete}
         />
