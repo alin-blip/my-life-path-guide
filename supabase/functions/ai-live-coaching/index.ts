@@ -14,11 +14,14 @@ serve(async (req) => {
 
   try {
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    
     if (!lovableApiKey) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const { messages, systemPrompt } = await req.json();
+    const { messages, systemPrompt, knowledgeBaseFiles } = await req.json();
 
     // Input validation
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
@@ -63,7 +66,37 @@ serve(async (req) => {
       });
     }
 
-    console.log('AI Live Coaching request:', { messagesCount: messages.length, systemPrompt: systemPrompt?.substring(0, 100) + '...' });
+    console.log('AI Live Coaching request:', { messagesCount: messages.length, systemPrompt: systemPrompt?.substring(0, 100) + '...', knowledgeBaseFilesCount: knowledgeBaseFiles?.length || 0 });
+
+    // Load knowledge base files content if provided
+    let knowledgeContext = '';
+    if (knowledgeBaseFiles && knowledgeBaseFiles.length > 0 && supabaseUrl && supabaseAnonKey) {
+      try {
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.3');
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        for (const filePath of knowledgeBaseFiles) {
+          try {
+            const { data, error } = await supabase.storage
+              .from('knowledge-base')
+              .download(filePath);
+
+            if (!error && data) {
+              const text = await data.text();
+              knowledgeContext += `\n\n--- Document: ${filePath.split('/').pop()} ---\n${text.substring(0, 3000)}\n`;
+            }
+          } catch (fileError) {
+            console.error('Error loading file:', filePath, fileError);
+          }
+        }
+      } catch (storageError) {
+        console.error('Error accessing knowledge base:', storageError);
+      }
+    }
+
+    const enhancedSystemPrompt = knowledgeContext 
+      ? `${systemPrompt}\n\n=== DOCUMENTE DE REFERINȚĂ ===\n${knowledgeContext}\n\nFolosește informațiile din documentele de mai sus pentru a oferi răspunsuri personalizate și relevante pentru contextul utilizatorului.`
+      : systemPrompt;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -76,7 +109,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: systemPrompt || `Ești un coach profesionist AI care ajută oamenii să depășească provocările din viața lor. 
+            content: enhancedSystemPrompt || `Ești un coach profesionist AI care ajută oamenii să depășească provocările din viața lor.
             
 Rolul tău este să:
 - Asculți activ și să înțelegi situația utilizatorului

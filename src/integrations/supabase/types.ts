@@ -534,6 +534,7 @@ export type Database = {
           file_size: number | null
           file_type: string | null
           id: string
+          project_id: string | null
           upload_date: string | null
           user_id: string
         }
@@ -545,6 +546,7 @@ export type Database = {
           file_size?: number | null
           file_type?: string | null
           id?: string
+          project_id?: string | null
           upload_date?: string | null
           user_id: string
         }
@@ -556,10 +558,19 @@ export type Database = {
           file_size?: number | null
           file_type?: string | null
           id?: string
+          project_id?: string | null
           upload_date?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_base_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "napoleon_hill_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       migration_status: {
         Row: {

@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface KnowledgeBaseUploaderProps {
   onUploadComplete: () => void;
+  projectId?: string;
 }
 
 interface UploadProgress {
@@ -17,7 +18,8 @@ interface UploadProgress {
 }
 
 export const KnowledgeBaseUploader: React.FC<KnowledgeBaseUploaderProps> = ({
-  onUploadComplete
+  onUploadComplete,
+  projectId
 }) => {
   const [uploads, setUploads] = useState<UploadProgress[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -83,7 +85,8 @@ export const KnowledgeBaseUploader: React.FC<KnowledgeBaseUploaderProps> = ({
         file_path: filePath,
         file_type: file.type,
         file_size: file.size,
-        content_preview: contentPreview.substring(0, 1000) // First 1000 chars
+        content_preview: contentPreview.substring(0, 1000), // First 1000 chars
+        project_id: projectId || null
       });
 
     if (dbError) throw dbError;
