@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { NapoleonHillProject, napoleonHillProjectService } from '@/services/napoleonHillProjectService';
 import { PrincipleTimeline } from './PrincipleTimeline';
 import { PrincipleChat } from './PrincipleChat';
 import { ActionsList } from './ActionsList';
 import { DoorIntegrationButton } from './DoorIntegrationButton';
-import { CheckCircle } from 'lucide-react';
+import { EditPrincipleDialog } from './EditPrincipleDialog';
+import { CheckCircle, Pencil } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface NapoleonHillJourneyProps {
@@ -26,6 +28,7 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
 }) => {
   const { toast } = useToast();
   const [selectedPrinciple, setSelectedPrinciple] = useState(project.current_principle);
+  const [editingPrinciple, setEditingPrinciple] = useState<number | null>(null);
   const isCompleted = project.status === 'completed';
 
   const handlePrincipleComplete = async (principle: number, answer: any, summary: string, actions: any[]) => {
@@ -94,13 +97,51 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
       </Card>
 
       {/* Current Principle Chat */}
-      {!isCompleted && (
+      {!isCompleted && !project.principle_answers[selectedPrinciple] && (
         <PrincipleChat
           project={project}
           principle={selectedPrinciple}
           principleName={PRINCIPLES[selectedPrinciple - 1]}
           onPrincipleComplete={handlePrincipleComplete}
         />
+      )}
+      
+      {/* Completed Principle Display with Edit Button */}
+      {project.principle_answers[selectedPrinciple] && (
+        <Card className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-xl font-bold text-foreground">
+              Principiul {selectedPrinciple}: {PRINCIPLES[selectedPrinciple - 1]}
+            </h3>
+            <Button
+              onClick={() => setEditingPrinciple(selectedPrinciple)}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Pencil className="w-4 h-4" />
+              Editează
+            </Button>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="p-4 bg-muted rounded-lg">
+              <p className="text-sm text-muted-foreground mb-2">Conversația ta:</p>
+              <p className="text-foreground whitespace-pre-wrap text-sm">
+                {project.principle_answers[selectedPrinciple]}
+              </p>
+            </div>
+            
+            {project.principle_summaries[selectedPrinciple] && (
+              <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                <p className="text-sm font-semibold text-primary mb-2">Sumar:</p>
+                <p className="text-foreground">
+                  {project.principle_summaries[selectedPrinciple]}
+                </p>
+              </div>
+            )}
+          </div>
+        </Card>
       )}
 
       {/* Actions List */}
@@ -121,6 +162,19 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
           
           <DoorIntegrationButton project={project} />
         </Card>
+      )}
+      
+      {/* Edit Principle Dialog */}
+      {editingPrinciple !== null && (
+        <EditPrincipleDialog
+          isOpen={true}
+          onClose={() => setEditingPrinciple(null)}
+          project={project}
+          principle={editingPrinciple}
+          principleName={PRINCIPLES[editingPrinciple - 1]}
+          existingAnswer={project.principle_answers[editingPrinciple] || ''}
+          onSave={handlePrincipleComplete}
+        />
       )}
     </div>
   );

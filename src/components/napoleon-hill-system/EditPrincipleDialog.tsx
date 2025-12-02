@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { NapoleonHillProject } from '@/services/napoleonHillProjectService';
@@ -17,44 +23,30 @@ interface Message {
   timestamp: Date;
 }
 
-interface PrincipleChatProps {
+interface EditPrincipleDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
   project: NapoleonHillProject;
   principle: number;
   principleName: string;
-  onPrincipleComplete: (principle: number, answer: any, summary: string, actions: any[]) => void;
+  existingAnswer: string;
+  onSave: (principle: number, answer: any, summary: string, actions: any[]) => void;
 }
 
-const PRINCIPLE_PROMPTS: Record<number, string> = {
-  1: "Care este obiectivul tău specific și măsurabil? Descrie în detaliu ce vrei să realizezi.",
-  2: "Ce te face să crezi că vei reuși? Descrie sursele tale de credință și încredere.",
-  3: "Cum vei întări zilnic această convingere? Scrie afirmația ta zilnică.",
-  4: "Ce cunoștințe îți lipsesc pentru a atinge acest obiectiv?",
-  5: "Vizualizează succesul tău. Cum arată viața ta când ai realizat obiectivul?",
-  6: "Care sunt pașii concreți pentru a realiza obiectivul? Creează un plan detaliat.",
-  7: "Ce decizie fermă iei ACUM? Ce commitment faci?",
-  8: "Ce obstacole anticipezi și cum le vei depăși?",
-  9: "Cine poate să te susțină în această călătorie? Cine va fi în grupul tău Master Mind?",
-  10: "Cum vei canaliza energia ta creativă către acest obiectiv?",
-  11: "Ce convingeri limitatoare trebuie să schimbi?",
-  12: "Cum vei menține focusul mental și claritatea gândirii?",
-  13: "Ce îți spune intuiția despre acest obiectiv?",
-  14: "Care este PRIMA acțiune pe care o vei face ASTĂZI?"
-};
-
-export const PrincipleChat: React.FC<PrincipleChatProps> = ({
+export const EditPrincipleDialog: React.FC<EditPrincipleDialogProps> = ({
+  isOpen,
+  onClose,
   project,
   principle,
   principleName,
-  onPrincipleComplete
+  existingAnswer,
+  onSave
 }) => {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const chatAreaRef = useRef<HTMLDivElement>(null);
-  
-  const existingAnswer = project.principle_answers[principle];
-  const existingSummary = project.principle_summaries[principle];
 
   // Napoleon Hill System Prompt
   const systemPrompt = `Ești un ghid AI bazat pe principiile lui Napoleon Hill din "Think and Grow Rich". 
@@ -65,7 +57,7 @@ Folosește întrebări profunde care stimulează reflecția și claritatea. Ajut
 
 Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
 
-  // Voice input integration - accumulate text instead of sending immediately
+  // Voice input integration
   const handleVoiceTranscript = (text: string) => {
     setCurrentMessage(prev => {
       const newText = prev ? `${prev} ${text}` : text;
@@ -82,8 +74,7 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
     toggleMic
   } = useVoiceInput({
     onTranscript: handleVoiceTranscript,
-    systemPrompt,
-    enabled: !existingAnswer // Only enable voice if not completed
+    systemPrompt
   });
 
   const scrollToBottom = () => {
@@ -96,22 +87,26 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
     scrollToBottom();
   }, [messages, isProcessing]);
 
-  // Reset and initialize chat when principle changes
+  // Load existing conversation when dialog opens
   useEffect(() => {
-    // Clear messages and current input when switching principles
-    setMessages([]);
-    setCurrentMessage('');
-    
-    // Add welcome message for new principle
-    if (!existingAnswer) {
-      const welcomeMessage: Message = {
-        role: 'assistant',
-        content: PRINCIPLE_PROMPTS[principle] || `Să explorăm Principiul ${principle}: ${principleName}. Cum îl aplici la obiectivul tău?`,
-        timestamp: new Date()
-      };
-      setMessages([welcomeMessage]);
+    if (isOpen && existingAnswer) {
+      // Parse existing conversation
+      const conversationLines = existingAnswer.split('\n\n');
+      const parsedMessages: Message[] = conversationLines
+        .filter(line => line.trim())
+        .map(line => {
+          const isUser = line.startsWith('Tu:');
+          const content = line.replace(/^(Tu|AI): /, '');
+          return {
+            role: (isUser ? 'user' : 'assistant') as 'user' | 'assistant',
+            content,
+            timestamp: new Date()
+          };
+        });
+      
+      setMessages(parsedMessages);
     }
-  }, [principle, principleName, existingAnswer]);
+  }, [isOpen, existingAnswer]);
 
   const sendMessageToAI = async (messageText: string) => {
     const userMessage: Message = {
@@ -162,7 +157,7 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
     setCurrentMessage("");
   };
 
-  const handleCompletePrinciple = async () => {
+  const handleSaveEdited = async () => {
     if (messages.length < 2) {
       toast({
         title: "Mai multe răspunsuri necesare",
@@ -175,7 +170,6 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
     setIsProcessing(true);
 
     try {
-      // Collect all user messages as the answer
       const fullConversation = messages.map(m => `${m.role === 'user' ? 'Tu' : 'AI'}: ${m.content}`).join('\n\n');
 
       // Generate AI summary and extract actions
@@ -207,7 +201,6 @@ Răspunde în format JSON:
 
       let aiResponse = data.message;
       
-      // Try to parse JSON from AI response
       try {
         const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
@@ -215,23 +208,36 @@ Răspunde în format JSON:
           const summary = parsed.summary || aiResponse.substring(0, 200);
           const actions = parsed.actions || [];
 
-          onPrincipleComplete(
+          onSave(
             principle,
             fullConversation,
             summary,
             actions.map((action: string) => ({ action, completed: false }))
           );
+          
+          toast({
+            title: "✅ Principiu actualizat!",
+            description: "Modificările au fost salvate cu succes."
+          });
+          
+          onClose();
         } else {
           throw new Error('No JSON found');
         }
       } catch (parseError) {
-        // Fallback if JSON parsing fails
-        onPrincipleComplete(
+        onSave(
           principle,
           fullConversation,
           aiResponse.substring(0, 200),
           []
         );
+        
+        toast({
+          title: "✅ Principiu actualizat!",
+          description: "Modificările au fost salvate."
+        });
+        
+        onClose();
       }
     } catch (error) {
       console.error('Error processing principle:', error);
@@ -246,34 +252,21 @@ Răspunde în format JSON:
   };
 
   return (
-    <Card className="p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-xl font-bold text-foreground">
-          Principiul {principle}: {principleName}
-        </h3>
-        {!existingAnswer && (
-          <PrincipleProgressRing 
-            messageCount={messages.length}
-            isCompleted={false}
-          />
-        )}
-      </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3">
+            <span>Editează Principiul {principle}: {principleName}</span>
+            <PrincipleProgressRing 
+              messageCount={messages.length}
+              size={60}
+            />
+          </DialogTitle>
+          <DialogDescription>
+            Continuă conversația pentru a îmbunătăți și clarifica răspunsurile tale.
+          </DialogDescription>
+        </DialogHeader>
 
-      {existingAnswer ? (
-        <div className="space-y-4">
-          <div className="p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">Conversația ta:</p>
-            <p className="text-foreground whitespace-pre-wrap text-sm">{existingAnswer}</p>
-          </div>
-          
-          {existingSummary && (
-            <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
-              <p className="text-sm font-semibold text-primary mb-2">Sumar:</p>
-              <p className="text-foreground">{existingSummary}</p>
-            </div>
-          )}
-        </div>
-      ) : (
         <div className="space-y-4">
           <div 
             ref={chatAreaRef}
@@ -344,26 +337,34 @@ Răspunde în format JSON:
             </div>
           </div>
 
-          <Button 
-            onClick={handleCompletePrinciple} 
-            disabled={isProcessing || messages.length < 2}
-            className="w-full"
-            variant="default"
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Procesez...
-              </>
-            ) : (
-              <>
-                <Lightbulb className="w-4 h-4 mr-2" />
-                Finalizează Principiul {principle}
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2 justify-end">
+            <Button 
+              onClick={onClose}
+              variant="outline"
+              disabled={isProcessing}
+            >
+              Anulează
+            </Button>
+            <Button 
+              onClick={handleSaveEdited} 
+              disabled={isProcessing || messages.length < 2}
+              variant="default"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Salvez...
+                </>
+              ) : (
+                <>
+                  <Lightbulb className="w-4 h-4 mr-2" />
+                  Salvează Modificările
+                </>
+              )}
+            </Button>
+          </div>
         </div>
-      )}
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 };
