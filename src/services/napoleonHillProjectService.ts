@@ -44,7 +44,7 @@ export const napoleonHillProjectService = {
         goal_description: projectData.goal_description,
         goal_amount: projectData.goal_amount,
         goal_deadline: projectData.goal_deadline,
-        current_principle: 1,
+        current_principle: 0, // Start with document review phase
         status: 'active'
       })
       .select()

@@ -27,6 +27,7 @@ interface PrincipleChatProps {
 }
 
 const PRINCIPLE_PROMPTS: Record<number, string> = {
+  0: "Am văzut documentele tale de referință. Să le analizăm împreună pentru a stabili o bază solidă pentru proiectul tău. Ce aspecte din aceste documente sunt cele mai importante pentru tine?",
   1: "Care este obiectivul tău specific și măsurabil? Descrie în detaliu ce vrei să realizezi.",
   2: "Ce te face să crezi că vei reuși? Descrie sursele tale de credință și încredere.",
   3: "Cum vei întări zilnic această convingere? Scrie afirmația ta zilnică.",
@@ -62,7 +63,22 @@ export const PrincipleChat: React.FC<PrincipleChatProps> = ({
   const existingSummary = project.principle_summaries[principle];
 
   // Napoleon Hill System Prompt
-  const systemPrompt = `Ești un ghid AI bazat pe principiile lui Napoleon Hill din "Think and Grow Rich". 
+  const systemPrompt = principle === 0 
+    ? `Ești un ghid AI specializat în analiza strategică și planificare de proiecte, inspirat de principiile lui Napoleon Hill.
+
+Utilizatorul tocmai a încărcat documente de referință pentru proiectul său: "${project.goal_description}".
+
+Rolul tău în această fază de DOCUMENT REVIEW & FOUNDATION:
+1. Citește și analizează documentele de referință încărcate
+2. Identifică obiectivele cheie, resursele disponibile, și oportunitățile din documente
+3. Pune întrebări clarificatoare pentru a înțelege contextul complet
+4. Evidențiază punctele forte și provocările din plan
+5. Ajută utilizatorul să cristalizeze viziunea pentru proiect înainte de a începe cei 14 pași Napoleon Hill
+
+Fii strategic, analitic și ajută-l să construiască o fundație solidă. Răspunde în română, cu claritate și acțiuni concrete.
+
+După ce ai stabilit o bază solidă cu utilizatorul, recomandă-i să treacă la Principiul 1: Desire (Dorința Arzătoare).`
+    : `Ești un ghid AI bazat pe principiile lui Napoleon Hill din "Think and Grow Rich". 
   
 Rolul tău este să ghidezi utilizatorul prin Principiul ${principle}: "${principleName}".
 
@@ -340,7 +356,7 @@ Răspunde în format JSON:
     <Card className="p-6">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-xl font-bold text-foreground">
-          Principiul {principle}: {principleName}
+          {principle === 0 ? '📚 Document Review & Foundation' : `Principiul ${principle}: ${principleName}`}
         </h3>
         <div className="flex items-center gap-3">
           {projectFiles.length > 0 && (
@@ -453,6 +469,11 @@ Răspunde în format JSON:
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Procesez...
+              </>
+            ) : principle === 0 ? (
+              <>
+                <Lightbulb className="w-4 h-4 mr-2" />
+                Finalizează Review & Începe Principiul 1
               </>
             ) : (
               <>
