@@ -64,9 +64,12 @@ Folosește întrebări profunde care stimulează reflecția și claritatea. Ajut
 
 Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
 
-  // Voice input integration
-  const handleVoiceTranscript = async (text: string) => {
-    await sendMessageToAI(text);
+  // Voice input integration - accumulate text instead of sending immediately
+  const handleVoiceTranscript = (text: string) => {
+    setCurrentMessage(prev => {
+      const newText = prev ? `${prev} ${text}` : text;
+      return newText;
+    });
   };
   
   const {
@@ -92,9 +95,14 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
     scrollToBottom();
   }, [messages, isProcessing]);
 
-  // Add welcome message when principle starts
+  // Reset and initialize chat when principle changes
   useEffect(() => {
-    if (messages.length === 0 && !existingAnswer) {
+    // Clear messages and current input when switching principles
+    setMessages([]);
+    setCurrentMessage('');
+    
+    // Add welcome message for new principle
+    if (!existingAnswer) {
       const welcomeMessage: Message = {
         role: 'assistant',
         content: PRINCIPLE_PROMPTS[principle] || `Să explorăm Principiul ${principle}: ${principleName}. Cum îl aplici la obiectivul tău?`,
@@ -102,7 +110,7 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
       };
       setMessages([welcomeMessage]);
     }
-  }, [principle, existingAnswer]);
+  }, [principle, principleName, existingAnswer]);
 
   const sendMessageToAI = async (messageText: string) => {
     const userMessage: Message = {
