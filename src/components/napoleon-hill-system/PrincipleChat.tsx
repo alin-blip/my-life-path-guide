@@ -269,7 +269,7 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
       // Collect all user messages as the answer
       const fullConversation = messages.map(m => `${m.role === 'user' ? 'Tu' : 'AI'}: ${m.content}`).join('\n\n');
 
-      // Generate AI summary and extract actions
+      // Generate AI summary and extract actions - DON'T pass knowledgeBaseFiles here
       const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
         body: {
           messages: [
@@ -294,7 +294,10 @@ Răspunde în format JSON:
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('AI summary generation error:', error);
+        throw error;
+      }
 
       let aiResponse = data.message;
       
@@ -321,9 +324,10 @@ Răspunde în format JSON:
             actions.map((action: string) => ({ action, completed: false }))
           );
         } else {
-          throw new Error('No JSON found');
+          throw new Error('No JSON found in AI response');
         }
       } catch (parseError) {
+        console.error('JSON parsing failed, using fallback:', parseError);
         // Delete draft even on fallback
         await napoleonHillDraftService.deleteDraft(project.id, principle);
         
