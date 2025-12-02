@@ -267,7 +267,17 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
 
     try {
       // Collect all user messages as the answer
-      const fullConversation = messages.map(m => `${m.role === 'user' ? 'Tu' : 'AI'}: ${m.content}`).join('\n\n');
+      const fullConversation = messages
+        .map(m => `${m.role === 'user' ? 'Tu' : 'AI'}: ${m.content}`)
+        .join('\n\n');
+
+      // Trim conversation to stay under Edge Function per-message limit (5000 chars)
+      // We keep the final part of the conversation, which is most relevant for summary
+      const MAX_MESSAGE_LENGTH = 4000;
+      const trimmedConversation =
+        fullConversation.length > MAX_MESSAGE_LENGTH
+          ? fullConversation.slice(fullConversation.length - MAX_MESSAGE_LENGTH)
+          : fullConversation;
 
       // Generate AI summary and extract actions - DON'T pass knowledgeBaseFiles here
       const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
@@ -275,22 +285,23 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
           messages: [
             {
               role: 'user',
-              content: `Bazat pe conversația despre Principiul "${principleName}" pentru proiectul Napoleon Hill:
+              content: `Bazat pe conversația despre Principiul "${principleName}" pentru proiectul Napoleon Hill (posibil trunchiată pentru lungime):
 
-${fullConversation}
+${trimmedConversation}
 
 Te rog să generezi:
 1. Un sumar concis (2-3 propoziții) care să captureze esența înțelegerii utilizatorului despre acest principiu
 2. 2-4 acțiuni concrete, măsurabile pe care utilizatorul le poate face pentru a aplica acest principiu
 
-Răspunde în format JSON:
+Răspunde în format JSON strict:
 {
   "summary": "sumar aici...",
   "actions": ["acțiunea 1", "acțiunea 2", ...]
 }`
             }
           ],
-          systemPrompt: 'Tu ești un asistent AI care ajută la structurarea răspunsurilor utilizatorului în formate clare și acționabile. Răspunde doar în JSON.'
+          systemPrompt:
+            'Tu ești un asistent AI care ajută la structurarea răspunsurilor utilizatorului în formate clare și acționabile. Răspunde doar în JSON valid.'
         }
       });
 
