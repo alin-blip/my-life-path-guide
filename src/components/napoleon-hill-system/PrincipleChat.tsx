@@ -10,6 +10,7 @@ import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '../stack/VoiceInputButton';
 import { TextToSpeechButton } from '@/components/ui/TextToSpeechButton';
 import { PrincipleProgressRing } from './PrincipleProgressRing';
+import { napoleonHillDraftService } from '@/services/napoleonHillDraftService';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -51,7 +52,9 @@ export const PrincipleChat: React.FC<PrincipleChatProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
   const chatAreaRef = useRef<HTMLDivElement>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   const existingAnswer = project.principle_answers[principle];
   const existingSummary = project.principle_summaries[principle];
@@ -96,22 +99,70 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
     scrollToBottom();
   }, [messages, isProcessing]);
 
-  // Reset and initialize chat when principle changes
+  // Load draft when component mounts or principle changes
   useEffect(() => {
-    // Clear messages and current input when switching principles
-    setMessages([]);
+    const loadDraft = async () => {
+      if (existingAnswer) {
+        // Don't load draft if principle is already completed
+        setIsDraftLoaded(true);
+        return;
+      }
+
+      const draft = await napoleonHillDraftService.loadDraft(project.id, principle);
+      
+      if (draft && draft.length > 0) {
+        // Restore draft conversation - ensure timestamps are Date objects
+        const restoredMessages: Message[] = draft.map(msg => ({
+          ...msg,
+          timestamp: msg.timestamp instanceof Date ? msg.timestamp : new Date(msg.timestamp)
+        }));
+        setMessages(restoredMessages);
+        toast({
+          title: "💾 Draft restaurat",
+          description: "Conversația ta a fost restaurată automat.",
+        });
+      } else {
+        // Add welcome message for new principle
+        const welcomeMessage: Message = {
+          role: 'assistant',
+          content: PRINCIPLE_PROMPTS[principle] || `Să explorăm Principiul ${principle}: ${principleName}. Cum îl aplici la obiectivul tău?`,
+          timestamp: new Date()
+        };
+        setMessages([welcomeMessage]);
+      }
+      
+      setIsDraftLoaded(true);
+    };
+
+    setIsDraftLoaded(false);
     setCurrentMessage('');
-    
-    // Add welcome message for new principle
-    if (!existingAnswer) {
-      const welcomeMessage: Message = {
-        role: 'assistant',
-        content: PRINCIPLE_PROMPTS[principle] || `Să explorăm Principiul ${principle}: ${principleName}. Cum îl aplici la obiectivul tău?`,
-        timestamp: new Date()
-      };
-      setMessages([welcomeMessage]);
+    loadDraft();
+  }, [principle, principleName, existingAnswer, project.id]);
+
+  // Auto-save draft whenever messages change
+  useEffect(() => {
+    if (!isDraftLoaded || existingAnswer || messages.length === 0) return;
+
+    // Clear existing timer
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
     }
-  }, [principle, principleName, existingAnswer]);
+
+    // Set new timer for auto-save (debounced by 2 seconds)
+    autoSaveTimerRef.current = setTimeout(async () => {
+      const saved = await napoleonHillDraftService.saveDraft(project.id, principle, messages);
+      if (saved) {
+        console.log('✅ Draft auto-saved');
+      }
+    }, 2000);
+
+    // Cleanup timer on unmount
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [messages, isDraftLoaded, existingAnswer, project.id, principle]);
 
   const sendMessageToAI = async (messageText: string) => {
     const userMessage: Message = {
@@ -215,6 +266,9 @@ Răspunde în format JSON:
           const summary = parsed.summary || aiResponse.substring(0, 200);
           const actions = parsed.actions || [];
 
+          // Delete draft after successful completion
+          await napoleonHillDraftService.deleteDraft(project.id, principle);
+
           onPrincipleComplete(
             principle,
             fullConversation,
@@ -225,6 +279,9 @@ Răspunde în format JSON:
           throw new Error('No JSON found');
         }
       } catch (parseError) {
+        // Delete draft even on fallback
+        await napoleonHillDraftService.deleteDraft(project.id, principle);
+        
         // Fallback if JSON parsing fails
         onPrincipleComplete(
           principle,
