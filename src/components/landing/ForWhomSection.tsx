@@ -41,9 +41,9 @@ export const ForWhomSection = () => {
 
       <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
         {/* Pentru Cine Este */}
-        <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-green-200 p-8 shadow-md">
+        <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-green-200 p-8 shadow-md hover:shadow-2xl hover:shadow-green-200/50 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] group">
           <div className="flex items-center gap-3 mb-6">
-            <CheckCircle2 className="h-8 w-8 text-green-500" />
+            <CheckCircle2 className="h-8 w-8 text-green-500 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-12" />
             <h3 className="text-2xl font-bold text-slate-900">RoWarrior ESTE pentru tine dacă:</h3>
           </div>
           <ul className="space-y-4">
@@ -62,9 +62,9 @@ export const ForWhomSection = () => {
         </Card>
 
         {/* Pentru Cine NU Este */}
-        <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-red-200 p-8 shadow-md">
+        <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-red-200 p-8 shadow-md hover:shadow-2xl hover:shadow-red-200/50 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] group">
           <div className="flex items-center gap-3 mb-6">
-            <XCircle className="h-8 w-8 text-red-500" />
+            <XCircle className="h-8 w-8 text-red-500 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-12" />
             <h3 className="text-2xl font-bold text-slate-900">RoWarrior NU este pentru tine dacă:</h3>
           </div>
           <ul className="space-y-4">

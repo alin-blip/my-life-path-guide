@@ -67,11 +67,11 @@ export const UrgencySection = () => {
           return (
             <Card 
               key={index}
-              className={`${item.bgColor} border-2 ${item.borderColor} p-6 shadow-md`}
+              className={`${item.bgColor} border-2 ${item.borderColor} p-6 shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] group cursor-pointer`}
             >
               <div className="flex items-start gap-4">
-                <div className={`${item.bgColor} p-3 rounded-lg border ${item.borderColor}`}>
-                  <Icon className={`h-8 w-8 ${item.color}`} />
+                <div className={`${item.bgColor} p-3 rounded-lg border ${item.borderColor} transition-all duration-300 group-hover:scale-110 group-hover:rotate-6`}>
+                  <Icon className={`h-8 w-8 ${item.color} transition-transform duration-300 group-hover:scale-110`} />
                 </div>
                 <div className="flex-1">
                   <h3 className={`text-xl font-bold mb-2 ${item.color}`}>{item.area}</h3>

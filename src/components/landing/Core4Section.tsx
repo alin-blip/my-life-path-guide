@@ -70,11 +70,11 @@ export const Core4Section = () => {
           return (
             <Card 
               key={index}
-              className={`${area.bgColor} border-2 ${area.borderColor} p-8 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]`}
+              className={`${area.bgColor} border-2 ${area.borderColor} p-8 transition-all duration-500 hover:shadow-2xl hover:shadow-slate-300/50 hover:scale-[1.03] hover:-translate-y-2 cursor-pointer group`}
             >
               <div className="flex items-start gap-4 mb-4">
-                <div className={`${area.bgColor} p-3 rounded-lg border ${area.borderColor}`}>
-                  <Icon className={`h-8 w-8 ${area.color}`} />
+                <div className={`${area.bgColor} p-3 rounded-lg border ${area.borderColor} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                  <Icon className={`h-8 w-8 ${area.color} transition-transform duration-300 group-hover:scale-110`} />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-slate-900 mb-1">{area.title}</h3>
@@ -111,9 +111,9 @@ export const Core4Section = () => {
             </div>
 
             {/* Corp - Top Left */}
-            <Card className="relative bg-red-50 border-2 border-red-200 p-6 hover:scale-105 transition-all duration-300 hover:shadow-xl">
+            <Card className="relative bg-red-50 border-2 border-red-200 p-6 hover:scale-105 transition-all duration-500 hover:shadow-2xl hover:shadow-red-200/50 hover:-translate-y-1 cursor-pointer group">
               <div className="flex items-center gap-3 mb-3">
-                <Heart className="h-8 w-8 text-red-500" />
+                <Heart className="h-8 w-8 text-red-500 transition-transform duration-300 group-hover:scale-125 group-hover:animate-pulse" />
                 <h4 className="text-xl font-bold text-slate-900">Corp</h4>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">
@@ -123,9 +123,9 @@ export const Core4Section = () => {
             </Card>
 
             {/* Spirit - Top Right */}
-            <Card className="relative bg-purple-50 border-2 border-purple-200 p-6 hover:scale-105 transition-all duration-300 hover:shadow-xl">
+            <Card className="relative bg-purple-50 border-2 border-purple-200 p-6 hover:scale-105 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-200/50 hover:-translate-y-1 cursor-pointer group">
               <div className="flex items-center gap-3 mb-3">
-                <Brain className="h-8 w-8 text-purple-500" />
+                <Brain className="h-8 w-8 text-purple-500 transition-transform duration-300 group-hover:scale-125 group-hover:animate-pulse" />
                 <h4 className="text-xl font-bold text-slate-900">Spirit</h4>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">
@@ -135,9 +135,9 @@ export const Core4Section = () => {
             </Card>
 
             {/* Relații - Bottom Left */}
-            <Card className="relative bg-blue-50 border-2 border-blue-200 p-6 hover:scale-105 transition-all duration-300 hover:shadow-xl">
+            <Card className="relative bg-blue-50 border-2 border-blue-200 p-6 hover:scale-105 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-200/50 hover:-translate-y-1 cursor-pointer group">
               <div className="flex items-center gap-3 mb-3">
-                <Scale className="h-8 w-8 text-blue-500" />
+                <Scale className="h-8 w-8 text-blue-500 transition-transform duration-300 group-hover:scale-125 group-hover:animate-pulse" />
                 <h4 className="text-xl font-bold text-slate-900">Relații</h4>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">
@@ -147,9 +147,9 @@ export const Core4Section = () => {
             </Card>
 
             {/* Business - Bottom Right */}
-            <Card className="relative bg-green-50 border-2 border-green-200 p-6 hover:scale-105 transition-all duration-300 hover:shadow-xl">
+            <Card className="relative bg-green-50 border-2 border-green-200 p-6 hover:scale-105 transition-all duration-500 hover:shadow-2xl hover:shadow-green-200/50 hover:-translate-y-1 cursor-pointer group">
               <div className="flex items-center gap-3 mb-3">
-                <TrendingUp className="h-8 w-8 text-green-500" />
+                <TrendingUp className="h-8 w-8 text-green-500 transition-transform duration-300 group-hover:scale-125 group-hover:animate-pulse" />
                 <h4 className="text-xl font-bold text-slate-900">Business</h4>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">
