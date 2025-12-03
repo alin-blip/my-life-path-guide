@@ -113,6 +113,25 @@ const Index = () => {
               <span className="font-medium">Trial 3 zile gratuit</span>
             </div>
           </div>
+
+          {/* Hero Video */}
+          <div className="mt-12 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: '0.7s' }}>
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/50 border-4 border-white/80 hover:shadow-3xl transition-shadow duration-500">
+              <div className="aspect-video">
+                <iframe
+                  src="https://www.youtube.com/embed/sfuey_WNODs?rel=0&modestbranding=1"
+                  title="RoWarrior - Calea Războinicului"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+            <p className="text-sm text-slate-500 mt-4 text-center">
+              🎬 Vezi cum funcționează sistemul în practică
+            </p>
+          </div>
         </div>
 
         {/* Segment Quiz */}
