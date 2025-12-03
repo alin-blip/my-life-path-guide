@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, Link } from "react-router-dom";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Helmet } from "react-helmet-async";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Play } from "lucide-react";
 import { PitSection } from "@/components/landing/PitSection";
 import { SegmentQuiz } from "@/components/landing/SegmentQuiz";
 import { InteractiveROI } from "@/components/landing/InteractiveROI";
@@ -19,6 +20,7 @@ import { FinalCTA } from "@/components/landing/FinalCTA";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [videoPlaying, setVideoPlaying] = useState(false);
 
   // Forțează tema light permanent pe pagina index
   useEffect(() => {
@@ -116,16 +118,35 @@ const Index = () => {
 
           {/* Hero Video */}
           <div className="mt-12 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: '0.7s' }}>
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/50 border-4 border-white/80 hover:shadow-3xl transition-shadow duration-500">
+            <div 
+              className="relative rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/50 border-4 border-white/80 hover:shadow-3xl transition-shadow duration-500 cursor-pointer group"
+              onClick={() => setVideoPlaying(true)}
+            >
+              {/* Video Thumbnail with Play Overlay */}
+              {!videoPlaying && (
+                <div className="absolute inset-0 z-10 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent flex items-center justify-center">
+                  <div className="w-20 h-20 md:w-24 md:h-24 bg-primary rounded-full flex items-center justify-center shadow-2xl shadow-primary/40 group-hover:scale-110 group-hover:shadow-primary/60 transition-all duration-300">
+                    <Play className="w-10 h-10 md:w-12 md:h-12 text-white fill-white ml-1" />
+                  </div>
+                </div>
+              )}
+              
               <div className="aspect-video">
-                <iframe
-                  src="https://www.youtube.com/embed/sfuey_WNODs?rel=0&modestbranding=1"
-                  title="RoWarrior - Calea Războinicului"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                  loading="lazy"
-                />
+                {videoPlaying ? (
+                  <iframe
+                    src="https://www.youtube.com/embed/sfuey_WNODs?rel=0&modestbranding=1&autoplay=1"
+                    title="RoWarrior - Calea Războinicului"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <img 
+                    src="https://img.youtube.com/vi/sfuey_WNODs/maxresdefault.jpg"
+                    alt="RoWarrior Video Preview"
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
             </div>
             <p className="text-sm text-slate-500 mt-4 text-center">
