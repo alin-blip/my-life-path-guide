@@ -60,20 +60,20 @@ export const InteractiveROI = () => {
       id="roi-calculator"
     >
       <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
           Evaluează-ți Starea în Cele 4 Arii
         </h2>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+        <p className="text-xl text-slate-600 max-w-3xl mx-auto">
           Evaluează fiecare arie de la 1 (foarte slab) la 10 (excelent) și vezi unde te afli acum
         </p>
       </div>
 
-      <Card className="bg-card border-border shadow-lg p-8 max-w-5xl mx-auto">
+      <Card className="bg-white border-slate-200 shadow-lg p-8 max-w-5xl mx-auto">
         <div className="space-y-8 mb-8">
           {areas.map((area) => (
             <div key={area.id} className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor={area.id} className="text-lg text-foreground font-semibold">
+                <Label htmlFor={area.id} className="text-lg text-slate-900 font-semibold">
                   {area.label}
                 </Label>
                 <span className="text-2xl font-bold text-primary">{area.score}/10</span>
@@ -85,33 +85,33 @@ export const InteractiveROI = () => {
                 max="10"
                 value={area.score}
                 onChange={(e) => area.setScore(parseInt(e.target.value))}
-                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
               />
               <div className="grid md:grid-cols-2 gap-4 text-sm">
-                <div className="bg-destructive/5 border border-destructive/30 p-3 rounded">
-                  <p className="font-semibold text-destructive mb-1">❌ Fără RoWarrior:</p>
-                  <p className="text-muted-foreground">{area.without}</p>
+                <div className="bg-red-50 border border-red-200 p-3 rounded">
+                  <p className="font-semibold text-red-600 mb-1">❌ Fără RoWarrior:</p>
+                  <p className="text-slate-600">{area.without}</p>
                 </div>
-                <div className="bg-primary/5 border border-primary/30 p-3 rounded">
+                <div className="bg-blue-50 border border-primary/30 p-3 rounded">
                   <p className="font-semibold text-primary mb-1">✅ Cu RoWarrior:</p>
-                  <p className="text-muted-foreground">{area.with}</p>
+                  <p className="text-slate-600">{area.with}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-8 text-center border-2 border-primary/40 shadow-lg">
-          <TrendingUp className="h-12 w-12 text-accent mx-auto mb-3" />
-          <div className="text-lg text-muted-foreground mb-2 font-semibold">Starea Ta Generală</div>
-          <div className="text-5xl font-bold text-accent mb-4">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8 text-center border-2 border-primary/40 shadow-lg">
+          <TrendingUp className="h-12 w-12 text-primary mx-auto mb-3" />
+          <div className="text-lg text-slate-600 mb-2 font-semibold">Starea Ta Generală</div>
+          <div className="text-5xl font-bold text-primary mb-4">
             {overallHealth}%
           </div>
           
           {overallHealth < 50 && (
-            <div className="bg-destructive/10 border-l-4 border-destructive p-4 rounded-r mb-4">
-              <p className="text-foreground font-bold">⚠️ Ești în zona de risc</p>
-              <p className="text-sm text-muted-foreground mt-2">
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r mb-4">
+              <p className="text-slate-900 font-bold">⚠️ Ești în zona de risc</p>
+              <p className="text-sm text-slate-600 mt-2">
                 Când scorul general e sub 50%, riscul de burnout, probleme de sănătate și relații distruse crește exponențial. 
                 E timpul să acționezi.
               </p>
@@ -119,9 +119,9 @@ export const InteractiveROI = () => {
           )}
           
           {overallHealth >= 50 && overallHealth < 75 && (
-            <div className="bg-accent/10 border-l-4 border-accent p-4 rounded-r mb-4">
-              <p className="text-foreground font-bold">📈 Ai un fundament solid</p>
-              <p className="text-sm text-muted-foreground mt-2">
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r mb-4">
+              <p className="text-slate-900 font-bold">📈 Ai un fundament solid</p>
+              <p className="text-sm text-slate-600 mt-2">
                 Ești pe drumul cel bun, dar există încă spațiu mare de creștere. 
                 Calea Războinicului te va ajuta să ajungi la 80-90% în toate ariile.
               </p>
@@ -129,17 +129,17 @@ export const InteractiveROI = () => {
           )}
           
           {overallHealth >= 75 && (
-            <div className="bg-primary/10 border-l-4 border-primary p-4 rounded-r mb-4">
-              <p className="text-foreground font-bold">🏆 Excelent! Continuă pe această cale</p>
-              <p className="text-sm text-muted-foreground mt-2">
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-r mb-4">
+              <p className="text-slate-900 font-bold">🏆 Excelent! Continuă pe această cale</p>
+              <p className="text-sm text-slate-600 mt-2">
                 Ai un echilibru solid, dar chiar și războinicii puternici au nevoie de un sistem 
                 care să-i mențină la acest nivel și să-i protejeze de recăderi.
               </p>
             </div>
           )}
 
-          <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-            <span className="text-foreground font-bold">Calea Războinicului</span> nu se concentrează doar pe bani sau business. 
+          <p className="text-base text-slate-600 max-w-2xl mx-auto">
+            <span className="text-slate-900 font-bold">Calea Războinicului</span> nu se concentrează doar pe bani sau business. 
             Te ajută să crești <span className="text-primary font-bold">SIMULTAN</span> în toate cele 4 arii — 
             pentru că adevărata bogăție înseamnă abundență în toate domeniile vieții.
           </p>
