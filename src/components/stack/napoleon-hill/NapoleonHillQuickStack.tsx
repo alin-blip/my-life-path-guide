@@ -400,6 +400,7 @@ CITATE NAPOLEON HILL DE FOLOSIT:
         </div>
 
         <AiGuidedStack
+          key={mode === 'full' ? 'full-stack' : `principle-${selectedPrinciple}`}
           onAddToHitList={onAddToHitList}
           stackType="napoleon-hill"
           questions={[]}
@@ -408,7 +409,7 @@ CITATE NAPOLEON HILL DE FOLOSIT:
           systemPromptOverride={mode === 'full' ? getFullStackPrompt() : getQuickStackPrompt(selectedPrinciple!)}
           welcomeMessage={mode === 'full' 
             ? "Hai să facem un reset matinal rapid bazat pe Napoleon Hill! PRINCIPIUL 1 - DORINȚA: Ce îți dorești cel mai mult să realizezi? Fii SPECIFIC (sumă exactă, dată precisă, detalii concrete)."
-            : `Bun venit la stack-ul rapid pentru Principiul ${selectedPrinciple}: ${NAPOLEON_HILL_PRINCIPLES[selectedPrinciple! - 1]?.name}. Ce obiectiv specific ai în minte astăzi legat de acest principiu?`
+            : `Bun venit la Stack-ul Napoleon Hill pentru Principiul ${selectedPrinciple}: ${NAPOLEON_HILL_PRINCIPLES[selectedPrinciple! - 1]?.name}! ${NAPOLEON_HILL_PRINCIPLES[selectedPrinciple! - 1]?.description}. Ce obiectiv specific ai în minte astăzi legat de acest principiu?`
           }
           knowledgeBaseFiles={knowledgeBaseFiles}
         />
