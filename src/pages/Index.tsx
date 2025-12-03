@@ -49,75 +49,75 @@ const Index = () => {
       </Helmet>
 
       {/* Language Selector */}
-      <div className="absolute top-6 right-6 z-10">
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-10">
         <LanguageSelector />
       </div>
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8 md:py-16">
         {/* Hero Section - Emotional + Direct */}
-        <div className="text-center mb-16 py-12 -mx-4 px-4 bg-gradient-to-b from-blue-50/40 via-white to-white rounded-3xl" id="top">
-          <div className="inline-flex items-center justify-center mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <div className="text-center mb-12 md:mb-16 py-8 md:py-12 -mx-4 px-4 bg-gradient-to-b from-blue-50/40 via-white to-white rounded-3xl" id="top">
+          <div className="inline-flex items-center justify-center mb-4 md:mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <img
               src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
               alt="RoWarrior logo"
               loading="lazy"
-              className="h-16 md:h-20 w-auto drop-shadow"
+              className="h-12 md:h-20 w-auto drop-shadow"
             />
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4 md:mb-6 leading-tight animate-fade-in px-2" style={{ animationDelay: '0.2s' }}>
             Ai sacrificat totul pentru business...<br />
             Și încă nu ai <span className="text-primary">TOTUL</span>?
           </h1>
           
-          <p className="text-xl md:text-2xl text-slate-700 mb-4 max-w-4xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <p className="text-base sm:text-lg md:text-2xl text-slate-700 mb-3 md:mb-4 max-w-4xl mx-auto leading-relaxed animate-fade-in px-2" style={{ animationDelay: '0.3s' }}>
             <span className="text-primary font-bold">Calea Războinicului</span> te învață cum să ai un corp plin de energie, 
             relații profunde, claritate spirituală <span className="text-accent font-bold">ȘI</span> un business profitabil — 
             <span className="text-slate-900 font-bold"> fără să sacrifici nimic</span>
           </p>
 
-          <p className="text-lg text-slate-600 mb-8 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 mb-6 md:mb-8 max-w-3xl mx-auto animate-fade-in px-2" style={{ animationDelay: '0.4s' }}>
             Sistem testat de <span className="text-primary font-semibold">65,000+ bărbați în 40+ țări</span> • 
             Adaptat pentru <span className="text-primary font-semibold"> piața românească</span> • 
             Primele rezultate în <span className="text-primary font-semibold">48 de ore</span>
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+          <div className="flex flex-col gap-3 sm:gap-4 justify-center mb-6 md:mb-8 animate-fade-in px-2" style={{ animationDelay: '0.5s' }}>
             <Button 
               size="lg" 
               onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white px-12 py-6 text-xl font-bold shadow-lg hover:shadow-xl transition-all"
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white px-6 sm:px-8 md:px-12 py-4 md:py-6 text-base sm:text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto sm:mx-auto"
             >
-              Începe Trial de 3 Zile — Vezi Primele Rezultate în 48h
+              Începe Trial de 3 Zile
             </Button>
             
             <Button 
               size="lg" 
               variant="outline"
               onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              className="border-primary text-primary hover:bg-primary hover:text-white px-12 py-6 text-xl font-semibold shadow transition-all"
+              className="border-primary text-primary hover:bg-primary hover:text-white px-6 sm:px-8 md:px-12 py-4 md:py-6 text-base sm:text-lg md:text-xl font-semibold shadow transition-all w-full sm:w-auto sm:mx-auto"
             >
               Vezi Pricing & ROI
             </Button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8 text-slate-600 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-8 text-slate-600 animate-fade-in text-sm sm:text-base" style={{ animationDelay: '0.6s' }}>
             <div className="flex items-center gap-2">
-              <span className="text-primary font-bold text-lg">✓</span>
+              <span className="text-primary font-bold text-base md:text-lg">✓</span>
               <span className="font-medium">Transformare în 4 arii</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-primary font-bold text-lg">✓</span>
+              <span className="text-primary font-bold text-base md:text-lg">✓</span>
               <span className="font-medium">Sistem complet de viață</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-primary font-bold text-lg">✓</span>
+              <span className="text-primary font-bold text-base md:text-lg">✓</span>
               <span className="font-medium">Trial 3 zile gratuit</span>
             </div>
           </div>
 
           {/* Hero Video */}
-          <div className="mt-12 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: '0.7s' }}>
+          <div className="mt-8 md:mt-12 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: '0.7s' }}>
             <div 
               className="relative rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/50 border-4 border-white/80 hover:shadow-3xl transition-shadow duration-500 cursor-pointer group"
               onClick={() => setVideoPlaying(true)}
