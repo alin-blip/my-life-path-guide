@@ -62,10 +62,10 @@ export const SegmentQuiz = () => {
         isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
       }`}
     >
-      <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-4">
+      <h2 className="text-2xl md:text-3xl font-bold text-slate-900 text-center mb-4">
         Care e cea mai mare luptă a ta acum?
       </h2>
-      <p className="text-muted-foreground text-center mb-8 max-w-2xl mx-auto">
+      <p className="text-slate-600 text-center mb-8 max-w-2xl mx-auto">
         Selectează aria în care simți că ai nevoie de claritate și transformare
       </p>
       
@@ -73,36 +73,36 @@ export const SegmentQuiz = () => {
         {segments.map((segment) => (
           <Card
             key={segment.id}
-            className={`p-6 cursor-pointer transition-all hover:scale-105 hover:shadow-lg ${
+            className={`group p-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-1 ${
               selectedSegment === segment.id
-                ? "bg-gradient-to-br from-primary/10 to-accent/10 border-primary shadow-lg"
-                : "bg-card border-border hover:border-primary/50"
+                ? "bg-gradient-to-br from-primary/10 to-accent/10 border-2 border-primary shadow-xl shadow-primary/20"
+                : "bg-white border border-slate-200 hover:border-primary/50 hover:shadow-xl hover:shadow-slate-200/50"
             }`}
             onClick={() => setSelectedSegment(segment.id)}
           >
             <div className="text-center">
-              <div className="text-4xl mb-2">{segment.icon}</div>
+              <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300">{segment.icon}</div>
               <div className={`text-lg font-bold mb-1 ${
-                selectedSegment === segment.id ? "text-primary" : "text-foreground"
+                selectedSegment === segment.id ? "text-primary" : "text-slate-900"
               }`}>
                 {segment.label}
               </div>
-              <div className="text-xs text-muted-foreground">{segment.title}</div>
+              <div className="text-xs text-slate-500">{segment.title}</div>
             </div>
           </Card>
         ))}
       </div>
 
       {selectedSegment && (
-        <Card className="bg-gradient-to-br from-primary/5 to-accent/5 border-primary/30 p-8 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-lg">
-          <h3 className="text-xl font-bold text-foreground mb-4 text-center">
+        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-primary/30 p-8 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-xl">
+          <h3 className="text-xl font-bold text-slate-900 mb-4 text-center">
             Calea Războinicului te transformă aici
           </h3>
           <div className="space-y-3 max-w-2xl mx-auto">
             {segments.find(s => s.id === selectedSegment)?.benefits.map((benefit, idx) => (
               <div key={idx} className="flex items-start gap-3">
-                <CheckCircle2 className="h-6 w-6 text-accent shrink-0 mt-0.5" />
-                <p className="text-foreground">{benefit}</p>
+                <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                <p className="text-slate-700">{benefit}</p>
               </div>
             ))}
           </div>

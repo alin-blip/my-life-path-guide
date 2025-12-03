@@ -66,10 +66,10 @@ export const UniqueMechanismSection = () => {
       }`}
     >
       <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
           Cele 5 Protocoale ale Războinicului
         </h2>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+        <p className="text-xl text-slate-600 max-w-3xl mx-auto">
           Nu e un tool de productivitate. E un <span className="text-primary font-bold">sistem complet de viață</span> care integrează corp, spirit, relații și afaceri.
         </p>
       </div>
@@ -80,16 +80,16 @@ export const UniqueMechanismSection = () => {
           return (
             <Card
               key={index}
-              className={`${protocol.bgColor} border-2 ${protocol.borderColor} p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.03]`}
+              className={`group ${protocol.bgColor} border-2 ${protocol.borderColor} p-6 hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-default`}
             >
               <div className="flex items-start gap-3 mb-4">
-                <div className={`${protocol.bgColor} border-2 ${protocol.borderColor} rounded-full w-10 h-10 flex items-center justify-center font-bold ${protocol.color} text-lg shrink-0`}>
+                <div className={`${protocol.bgColor} border-2 ${protocol.borderColor} rounded-full w-10 h-10 flex items-center justify-center font-bold ${protocol.color} text-lg shrink-0 group-hover:scale-110 transition-transform duration-300`}>
                   {protocol.number}
                 </div>
-                <Icon className={`h-8 w-8 ${protocol.color}`} />
+                <Icon className={`h-8 w-8 ${protocol.color} group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`} />
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">{protocol.title}</h3>
-              <p className="text-sm text-muted-foreground mb-3">{protocol.description}</p>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">{protocol.title}</h3>
+              <p className="text-sm text-slate-600 mb-3">{protocol.description}</p>
               <div className={`border-t-2 ${protocol.borderColor} pt-3`}>
                 <p className={`text-sm font-semibold ${protocol.color}`}>→ {protocol.result}</p>
               </div>
@@ -98,14 +98,14 @@ export const UniqueMechanismSection = () => {
         })}
       </div>
 
-      <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/40 p-8 max-w-4xl mx-auto shadow-lg">
-        <p className="text-lg text-foreground font-bold text-center mb-2">
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-primary/40 p-8 max-w-4xl mx-auto shadow-xl">
+        <p className="text-lg text-slate-900 font-bold text-center mb-2">
           🎯 Funcționează împreună ca un SISTEM
         </p>
-        <p className="text-base text-muted-foreground text-center">
+        <p className="text-base text-slate-600 text-center">
           Fiecare protocol se conectează cu celelalte. Codul stabilește fundația, Stack-ul îți oferă claritate zilnică, 
           Core 4 asigură progresul în toate ariile, Ușa te ține focalizat săptămânal, iar Jocul îți păstrează viziunea pe termen lung. 
-          <span className="text-foreground font-semibold"> Nu funcționează unul fără celelalte.</span>
+          <span className="text-slate-900 font-semibold"> Nu funcționează unul fără celelalte.</span>
         </p>
       </Card>
     </section>
