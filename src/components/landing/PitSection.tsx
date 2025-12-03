@@ -46,19 +46,19 @@ export const PitSection = () => {
       }`}
     >
       <div className="text-center mb-12">
-        <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
           Ești În Groapă?
         </h2>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+        <p className="text-xl text-slate-600 max-w-3xl mx-auto">
           Groapa sărăciei are 5 consecințe. Bifează ce rezonează cu tine:
         </p>
       </div>
 
-      <Card className="bg-card border-border shadow-lg p-8 md:p-12 max-w-3xl mx-auto">
+      <Card className="bg-white border-slate-200 shadow-lg p-8 md:p-12 max-w-3xl mx-auto">
         <div className="space-y-6 mb-8">
           {pitItems.map((item) => (
-            <div key={item.id} className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
+            <div key={item.id} className="flex items-start gap-4 p-4 rounded-lg hover:bg-slate-50 transition-colors">
               <Checkbox
                 id={item.id}
                 checked={checkedItems[item.id] || false}
@@ -74,11 +74,11 @@ export const PitSection = () => {
                 htmlFor={item.id}
                 className="cursor-pointer flex-1"
               >
-                <div className="text-lg text-foreground font-medium mb-1">
+                <div className="text-lg text-slate-900 font-medium mb-1">
                   {item.label}
                 </div>
                 {checkedItems[item.id] && (
-                  <div className="text-sm text-destructive font-semibold animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="text-sm text-red-600 font-semibold animate-in fade-in slide-in-from-top-2 duration-300">
                     {item.consequence}
                   </div>
                 )}
@@ -88,11 +88,11 @@ export const PitSection = () => {
         </div>
 
         {checkedCount >= 2 && (
-          <div className="bg-gradient-to-r from-destructive/10 to-accent/10 border-l-4 border-destructive p-6 rounded-r-lg">
-            <p className="text-lg text-foreground font-bold mb-2">
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-500 p-6 rounded-r-lg">
+            <p className="text-lg text-slate-900 font-bold mb-2">
               Ai bifat {checkedCount} din 5 — Ești în Groapă.
             </p>
-            <p className="text-base text-muted-foreground">
+            <p className="text-base text-slate-600">
               Vestea bună? <span className="text-primary font-bold">Există o cale de ieșire.</span> Calea Războinicului 
               te învață cum să ieși din Groapă și să construiești un echilibru real în toate ariile vieții.
             </p>
@@ -100,20 +100,20 @@ export const PitSection = () => {
         )}
 
         {checkedCount > 0 && checkedCount < 2 && (
-          <div className="bg-primary/10 border-l-4 border-primary p-6 rounded-r-lg">
-            <p className="text-base text-muted-foreground">
+          <div className="bg-blue-50 border-l-4 border-primary p-6 rounded-r-lg">
+            <p className="text-base text-slate-600">
               Ești aproape de marginea Gropii. Acum e momentul să construiești un sistem care 
-              <span className="text-foreground font-bold"> te protejează și te pune pe calea creșterii.</span>
+              <span className="text-slate-900 font-bold"> te protejează și te pune pe calea creșterii.</span>
             </p>
           </div>
         )}
 
         {checkedCount === 0 && (
-          <div className="bg-accent/10 border-l-4 border-accent p-6 rounded-r-lg">
-            <p className="text-base text-muted-foreground">
+          <div className="bg-green-50 border-l-4 border-accent p-6 rounded-r-lg">
+            <p className="text-base text-slate-600">
               E excelent că nu rezonezi cu aceste simptome! Totuși, Calea Războinicului te învață 
-              <span className="text-foreground font-bold"> cum să PAZ</span> ce ai construit și să 
-              <span className="text-foreground font-bold"> SCALEZI</span> fără să sacrifici nimic.
+              <span className="text-slate-900 font-bold"> cum să PĂZEȘTI</span> ce ai construit și să 
+              <span className="text-slate-900 font-bold"> SCALEZI</span> fără să sacrifici nimic.
             </p>
           </div>
         )}
