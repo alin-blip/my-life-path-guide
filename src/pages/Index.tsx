@@ -197,7 +197,7 @@ const Index = () => {
         {/* Login Link */}
         <div className="text-center">
           <div className="inline-flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-slate-500">
               Ai deja cont?
             </span>
             <Button asChild variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-white">

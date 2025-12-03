@@ -108,10 +108,10 @@ export const CurriculumSection = () => {
         <Badge className="bg-primary/10 text-primary border-primary/50 mb-4 font-semibold">
           Program Complet în 7 Pași
         </Badge>
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
           De la Realitate la Transformare Completă
         </h2>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+        <p className="text-xl text-slate-600 max-w-3xl mx-auto">
           Începi cu o radiografie faptică a vieții tale, stabilești obiective clare pe 1 an, apoi implementezi
           <span className="text-primary font-bold"> sistemul complet</span> care te duce la rezultate în toate cele 4 arii.
         </p>
@@ -119,7 +119,7 @@ export const CurriculumSection = () => {
 
       <div className="relative max-w-5xl mx-auto">
         {/* Timeline line */}
-        <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-accent to-primary transform -translate-x-1/2" />
+        <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/50 to-primary transform -translate-x-1/2" />
 
         <div className="space-y-12">
           {modules.map((module, idx) => {
@@ -129,11 +129,11 @@ export const CurriculumSection = () => {
             return (
               <div key={module.number} className="relative">
                 {/* Timeline dot */}
-                <div className="hidden md:block absolute left-1/2 top-8 w-6 h-6 bg-primary rounded-full border-4 border-background shadow-lg transform -translate-x-1/2 z-10" />
+                <div className="hidden md:block absolute left-1/2 top-8 w-6 h-6 bg-primary rounded-full border-4 border-white shadow-lg transform -translate-x-1/2 z-10" />
                 
                 <div className={`md:grid md:grid-cols-2 gap-8 ${isEven ? '' : 'md:grid-flow-col-dense'}`}>
                   <div className={isEven ? 'md:text-right' : 'md:col-start-2'}>
-                    <Card className="bg-card border-primary/30 p-6 hover:border-primary hover:shadow-lg transition-all shadow-md">
+                    <Card className="bg-white border-slate-200 p-6 hover:border-primary hover:shadow-xl transition-all shadow-md">
                       <div className="flex items-start gap-4 md:flex-row-reverse md:justify-end">
                         <div className={`p-3 bg-primary/10 rounded-lg ${isEven ? 'md:ml-0' : ''}`}>
                           <Icon className="h-8 w-8 text-primary" />
@@ -143,16 +143,16 @@ export const CurriculumSection = () => {
                             <Badge variant="outline" className="border-primary/50 text-primary font-semibold">
                               {module.number}
                             </Badge>
-                            <span className="text-sm text-muted-foreground font-medium">{module.duration}</span>
+                            <span className="text-sm text-slate-500 font-medium">{module.duration}</span>
                           </div>
-                          <h3 className="text-xl font-bold text-foreground mb-2">{module.title}</h3>
-                          <p className="text-muted-foreground mb-4">{module.description}</p>
+                          <h3 className="text-xl font-bold text-slate-900 mb-2">{module.title}</h3>
+                          <p className="text-slate-600 mb-4">{module.description}</p>
                           <div className="space-y-2">
-                            <div className="text-sm font-semibold text-accent">Ce Obții:</div>
-                            <ul className="space-y-1 text-sm text-muted-foreground">
+                            <div className="text-sm font-semibold text-primary">Ce Obții:</div>
+                            <ul className="space-y-1 text-sm text-slate-600">
                               {module.outcomes.map((outcome, i) => (
                                 <li key={i} className="flex items-start gap-2">
-                                  <span className="text-accent mt-1">•</span>
+                                  <span className="text-primary mt-1">•</span>
                                   <span>{outcome}</span>
                                 </li>
                               ))}
@@ -170,9 +170,9 @@ export const CurriculumSection = () => {
       </div>
 
       <div className="mt-12 text-center">
-        <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/40 p-6 max-w-3xl mx-auto shadow-lg">
-          <p className="text-lg text-foreground">
-            <span className="font-bold text-accent">Rezultat final:</span> Știi EXACT unde ești, unde mergi și ce trebuie să faci zilnic.
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-primary/40 p-6 max-w-3xl mx-auto shadow-lg">
+          <p className="text-lg text-slate-700">
+            <span className="font-bold text-primary">Rezultat final:</span> Știi EXACT unde ești, unde mergi și ce trebuie să faci zilnic.
             Ai un sistem complet de execuție care aduce rezultate constante în corp, spirit, relații și business.
           </p>
         </Card>
