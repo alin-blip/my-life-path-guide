@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward, Download, FileText, Star, StickyNote } from 'lucide-react';
+import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward, Download, FileText, Star, StickyNote, Share2, Copy, Check } from 'lucide-react';
 import { TextToSpeechButton } from '@/components/ui/TextToSpeechButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -848,6 +848,56 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
     });
   };
 
+  // Share functionality
+  const [isCopied, setIsCopied] = useState(false);
+  
+  const shareSession = async () => {
+    const stackTitle = stackType === 'anger' ? 'Alchimia Furiei' : 
+                       stackType === 'napoleon-hill' ? 'Napoleon Hill' :
+                       stackType === 'hormozi' ? 'Hormozi Coaching' :
+                       stackType === 'gods-school' ? "God's School" :
+                       'Rugăciune Divină';
+    
+    const shareText = `🎯 Sesiune ${stackTitle}\n\n` + 
+      messages.slice(0, 5).map(m => `${m.role === 'user' ? '👤' : '🤖'} ${m.content.substring(0, 100)}...`).join('\n\n');
+    
+    // Try native share API first (mobile)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Sesiune ${stackTitle} - RoWarrior`,
+          text: shareText,
+          url: window.location.href
+        });
+        toast({
+          title: "✅ Partajat cu succes",
+          description: "Sesiunea a fost partajată",
+        });
+        return;
+      } catch (err) {
+        // User cancelled or share failed, fallback to clipboard
+      }
+    }
+    
+    // Fallback: copy to clipboard
+    const fullContent = generateMarkdownContent();
+    try {
+      await navigator.clipboard.writeText(fullContent);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+      toast({
+        title: "📋 Copiat în clipboard",
+        description: "Conținutul sesiunii a fost copiat",
+      });
+    } catch (err) {
+      toast({
+        title: "❌ Eroare",
+        description: "Nu s-a putut copia conținutul",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (mode === 'complete') {
     return (
       <div className="w-full p-1 sm:p-2 flex flex-col h-full">
@@ -871,12 +921,39 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
           <CardFooter className="flex gap-2 flex-wrap">
             <Button 
               variant="outline" 
+              onClick={shareSession}
+              size="sm"
+              className="text-xs sm:text-sm"
+            >
+              {isCopied ? <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-green-500" /> : <Share2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />}
+              Partajează
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={exportToPDF}
+              size="sm"
+              className="text-xs sm:text-sm"
+            >
+              <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              Export PDF
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={exportToMarkdown}
+              size="sm"
+              className="text-xs sm:text-sm"
+            >
+              <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              Markdown
+            </Button>
+            <Button 
+              variant="outline" 
               onClick={resetSession}
               size="sm"
               className="text-xs sm:text-sm"
             >
               <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              Începe o nouă sesiune
+              Nouă sesiune
             </Button>
             {onModeSwitch && (
               <Button 
@@ -978,26 +1055,38 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
              'Conversație ghidată cu AI coach-ul tău'}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1 sm:gap-2">
           {messages.length > 2 && (
             <>
               <Button
                 variant="outline"
                 size="sm"
+                onClick={shareSession}
+                className="gap-1 sm:gap-2"
+                title="Partajează sesiunea"
+              >
+                {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Share2 className="h-4 w-4" />}
+                <span className="hidden sm:inline text-xs">Partajează</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={exportToMarkdown}
-                className="gap-2"
+                className="gap-1 sm:gap-2"
                 title="Exportă în Markdown"
               >
                 <FileText className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">Markdown</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={exportToPDF}
-                className="gap-2"
+                className="gap-1 sm:gap-2"
                 title="Exportă în PDF"
               >
                 <Download className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">PDF</span>
               </Button>
             </>
           )}
