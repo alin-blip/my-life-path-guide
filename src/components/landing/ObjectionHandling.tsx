@@ -23,11 +23,11 @@ export const ObjectionHandling = () => {
 
       <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
         {/* Obiecția 1: Nu am timp */}
-        <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300">
+        <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 shadow-lg hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] group cursor-pointer">
           <CardHeader>
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Clock className="w-7 h-7 text-primary" />
+              <div className="p-3 bg-blue-100 rounded-lg transition-all duration-300 group-hover:bg-blue-200 group-hover:scale-110 group-hover:rotate-6">
+                <Clock className="w-7 h-7 text-primary transition-transform duration-300 group-hover:scale-110" />
               </div>
               <CardTitle className="text-slate-900 text-xl">"Nu am timp să mai adaug ceva nou"</CardTitle>
             </div>
@@ -46,11 +46,11 @@ export const ObjectionHandling = () => {
         </Card>
 
         {/* Obiecția 2: E prea scump */}
-        <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300">
+        <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200 shadow-lg hover:shadow-2xl hover:shadow-green-200/50 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] group cursor-pointer">
           <CardHeader>
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <Wallet className="w-7 h-7 text-green-600" />
+              <div className="p-3 bg-green-100 rounded-lg transition-all duration-300 group-hover:bg-green-200 group-hover:scale-110 group-hover:rotate-6">
+                <Wallet className="w-7 h-7 text-green-600 transition-transform duration-300 group-hover:scale-110" />
               </div>
               <CardTitle className="text-slate-900 text-xl">"E prea scump pentru mine acum"</CardTitle>
             </div>
@@ -69,11 +69,11 @@ export const ObjectionHandling = () => {
         </Card>
 
         {/* Obiecția 3: Am încercat altele */}
-        <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 shadow-lg hover:shadow-xl transition-all duration-300">
+        <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 shadow-lg hover:shadow-2xl hover:shadow-purple-200/50 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] group cursor-pointer">
           <CardHeader>
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <RefreshCcw className="w-7 h-7 text-purple-600" />
+              <div className="p-3 bg-purple-100 rounded-lg transition-all duration-300 group-hover:bg-purple-200 group-hover:scale-110 group-hover:rotate-6">
+                <RefreshCcw className="w-7 h-7 text-purple-600 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-180" />
               </div>
               <CardTitle className="text-slate-900 text-xl">"Am încercat altele și nu au funcționat"</CardTitle>
             </div>
@@ -92,11 +92,11 @@ export const ObjectionHandling = () => {
         </Card>
 
         {/* Obiecția 4: Nu sunt sigur că funcționează pentru mine */}
-        <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300">
+        <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200 shadow-lg hover:shadow-2xl hover:shadow-orange-200/50 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] group cursor-pointer">
           <CardHeader>
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-3 bg-orange-100 rounded-lg">
-                <Shield className="w-7 h-7 text-orange-600" />
+              <div className="p-3 bg-orange-100 rounded-lg transition-all duration-300 group-hover:bg-orange-200 group-hover:scale-110 group-hover:rotate-6">
+                <Shield className="w-7 h-7 text-orange-600 transition-transform duration-300 group-hover:scale-110" />
               </div>
               <CardTitle className="text-slate-900 text-xl">"Nu sunt sigur că funcționează pentru mine"</CardTitle>
             </div>
