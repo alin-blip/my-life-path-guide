@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NapoleonHillStackProps } from './types';
 import { AiGuidedStack } from '../AiGuidedStack';
 import { StackIdeaModal } from '../StackIdeaModal';
+import { KnowledgeBaseUploader } from '../KnowledgeBaseUploader';
 import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Target, Flame, Brain, Lightbulb, Users, Zap, Heart, Eye, ArrowRight, RotateCcw } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Target, Flame, Brain, Lightbulb, Users, Zap, Heart, Eye, ArrowRight, RotateCcw, BookOpen, ChevronDown, FileText, Trash2 } from "lucide-react";
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const NAPOLEON_HILL_PRINCIPLES = [
   { id: 1, name: "Dorința", icon: Flame, description: "Definirea clară a obiectivului tău arzător", color: "bg-orange-500" },
@@ -33,11 +37,85 @@ export const NapoleonHillQuickStack: React.FC<NapoleonHillStackProps> = ({
 }) => {
   const [selectedPrinciple, setSelectedPrinciple] = useState<number | null>(null);
   const [mode, setMode] = useState<'select' | 'full' | 'coaching'>('select');
+  const [knowledgeBaseFiles, setKnowledgeBaseFiles] = useState<string[]>([]);
+  const [knowledgeBaseOpen, setKnowledgeBaseOpen] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, file_name: string, file_path: string}>>([]);
+  const { toast } = useToast();
 
   const {
     isIdeaModalOpen,
     closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
+
+  // Fetch knowledge base files on mount
+  useEffect(() => {
+    fetchKnowledgeBaseFiles();
+  }, []);
+
+  const fetchKnowledgeBaseFiles = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('knowledge_base_files')
+        .select('id, file_name, file_path')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (data) {
+        setUploadedFiles(data);
+        // Auto-select Napoleon Hill related files
+        const napoleonFiles = data.filter(f => 
+          f.file_name.toLowerCase().includes('napoleon') || 
+          f.file_name.toLowerCase().includes('think') ||
+          f.file_name.toLowerCase().includes('grow') ||
+          f.file_name.toLowerCase().includes('rich')
+        );
+        if (napoleonFiles.length > 0) {
+          setKnowledgeBaseFiles(napoleonFiles.map(f => f.file_path));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching knowledge base files:', error);
+    }
+  };
+
+  const toggleFileSelection = (filePath: string) => {
+    setKnowledgeBaseFiles(prev => 
+      prev.includes(filePath) 
+        ? prev.filter(f => f !== filePath)
+        : [...prev, filePath]
+    );
+  };
+
+  const deleteFile = async (fileId: string, filePath: string) => {
+    try {
+      // Delete from storage
+      await supabase.storage.from('knowledge-base').remove([filePath]);
+      
+      // Delete from database
+      await supabase.from('knowledge_base_files').delete().eq('id', fileId);
+      
+      // Update local state
+      setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+      setKnowledgeBaseFiles(prev => prev.filter(f => f !== filePath));
+      
+      toast({
+        title: "Fișier șters",
+        description: "Fișierul a fost eliminat din knowledge base",
+      });
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut șterge fișierul",
+        variant: "destructive"
+      });
+    }
+  };
 
   const getQuickStackPrompt = (principleId: number) => {
     const principle = NAPOLEON_HILL_PRINCIPLES.find(p => p.id === principleId);
@@ -85,7 +163,8 @@ INSTRUCȚIUNI STRICTE:
 - Fiecare răspuns maxim 2-3 propoziții
 - Focus pe ASTĂZI, nu pe planuri pe termen lung
 - Pune O SINGURĂ întrebare per mesaj
-- Citează din Napoleon Hill în fiecare răspuns
+- Citează din Napoleon Hill în fiecare răspuns - folosește CITATE EXACTE din carte dacă ai acces la knowledge base
+- Dacă ai acces la documente de referință, citează pasaje relevante din "Think and Grow Rich"
 - La final, extrage o acțiune concretă pentru HIT list
 
 CITATE NAPOLEON HILL:
@@ -129,7 +208,8 @@ FINAL:
 INSTRUCȚIUNI STRICTE:
 - O SINGURĂ întrebare per mesaj
 - Răspunsuri AI maxim 2-3 propoziții
-- Citează din Napoleon Hill la finalul fiecărui principiu
+- Citează din Napoleon Hill la finalul fiecărui principiu - folosește CITATE EXACTE din carte dacă ai acces la knowledge base
+- Dacă ai acces la documente de referință, citează pasaje relevante din "Think and Grow Rich"
 - Ritm rapid, fără filosofări lungi
 - Focus pe ACȚIUNE IMEDIATĂ
 - Întregul stack în 15-20 minute maximum
@@ -187,6 +267,66 @@ CITATE NAPOLEON HILL DE FOLOSIT:
                 Parcurge toate cele 14 principii cu câte o întrebare cheie pentru fiecare
               </span>
             </Button>
+
+            {/* Knowledge Base Section */}
+            <Collapsible open={knowledgeBaseOpen} onOpenChange={setKnowledgeBaseOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4" />
+                    <span>Knowledge Base - Cartea "Think and Grow Rich"</span>
+                    {knowledgeBaseFiles.length > 0 && (
+                      <Badge variant="secondary" className="ml-2">
+                        {knowledgeBaseFiles.length} fișier{knowledgeBaseFiles.length > 1 ? 'e' : ''} selectat{knowledgeBaseFiles.length > 1 ? 'e' : ''}
+                      </Badge>
+                    )}
+                  </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${knowledgeBaseOpen ? 'rotate-180' : ''}`} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-4 space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Încarcă cartea "Think and Grow Rich" sau notițe pentru ca AI-ul să citeze direct din ea în timpul coaching-ului.
+                </p>
+                
+                {uploadedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Fișiere disponibile:</p>
+                    {uploadedFiles.map((file) => (
+                      <div 
+                        key={file.id} 
+                        className={`flex items-center justify-between p-2 rounded border ${
+                          knowledgeBaseFiles.includes(file.file_path) 
+                            ? 'border-amber-500 bg-amber-900/20' 
+                            : 'border-border'
+                        }`}
+                      >
+                        <button
+                          onClick={() => toggleFileSelection(file.file_path)}
+                          className="flex items-center gap-2 flex-1 text-left"
+                        >
+                          <FileText className="w-4 h-4" />
+                          <span className="text-sm truncate">{file.file_name}</span>
+                          {knowledgeBaseFiles.includes(file.file_path) && (
+                            <Badge className="bg-amber-600 text-white text-xs">Selectat</Badge>
+                          )}
+                        </button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => deleteFile(file.id, file.file_path)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <KnowledgeBaseUploader onUploadComplete={fetchKnowledgeBaseFiles} />
+              </CollapsibleContent>
+            </Collapsible>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -267,9 +407,10 @@ CITATE NAPOLEON HILL DE FOLOSIT:
           audioMode={false}
           systemPromptOverride={mode === 'full' ? getFullStackPrompt() : getQuickStackPrompt(selectedPrinciple!)}
           welcomeMessage={mode === 'full' 
-            ? "Hai să facem un reset matinal rapid! PRINCIPIUL 1 - DORINȚA: Ce îți dorești cel mai mult să realizezi? Fii SPECIFIC (sumă exactă, dată precisă, detalii concrete)."
+            ? "Hai să facem un reset matinal rapid bazat pe Napoleon Hill! PRINCIPIUL 1 - DORINȚA: Ce îți dorești cel mai mult să realizezi? Fii SPECIFIC (sumă exactă, dată precisă, detalii concrete)."
             : `Bun venit la stack-ul rapid pentru Principiul ${selectedPrinciple}: ${NAPOLEON_HILL_PRINCIPLES[selectedPrinciple! - 1]?.name}. Ce obiectiv specific ai în minte astăzi legat de acest principiu?`
           }
+          knowledgeBaseFiles={knowledgeBaseFiles}
         />
       </div>
 
