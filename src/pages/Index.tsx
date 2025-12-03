@@ -53,7 +53,7 @@ const Index = () => {
 
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section - Emotional + Direct */}
-        <div className="text-center mb-16" id="top">
+        <div className="text-center mb-16 py-12 -mx-4 px-4 bg-gradient-to-b from-blue-50/40 via-white to-white rounded-3xl" id="top">
           <div className="inline-flex items-center justify-center mb-6">
             <img
               src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
@@ -63,21 +63,21 @@ const Index = () => {
             />
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight">
             Ai sacrificat totul pentru business...<br />
             Și încă nu ai <span className="text-primary">TOTUL</span>?
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-slate-700 mb-4 max-w-4xl mx-auto leading-relaxed">
             <span className="text-primary font-bold">Calea Războinicului</span> te învață cum să ai un corp plin de energie, 
             relații profunde, claritate spirituală <span className="text-accent font-bold">ȘI</span> un business profitabil — 
-            <span className="text-foreground font-bold"> fără să sacrifici nimic</span>
+            <span className="text-slate-900 font-bold"> fără să sacrifici nimic</span>
           </p>
 
-          <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Sistem testat de <span className="text-accent font-bold">65,000+ bărbați în 40+ țări</span> • 
-            Adaptat pentru <span className="text-accent font-bold"> piața românească</span> • 
-            Primele rezultate în <span className="text-accent font-bold">48 de ore</span>
+          <p className="text-lg text-slate-600 mb-8 max-w-3xl mx-auto">
+            Sistem testat de <span className="text-primary font-semibold">65,000+ bărbați în 40+ țări</span> • 
+            Adaptat pentru <span className="text-primary font-semibold"> piața românească</span> • 
+            Primele rezultate în <span className="text-primary font-semibold">48 de ore</span>
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -99,17 +99,17 @@ const Index = () => {
             </Button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8 text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8 text-slate-600">
             <div className="flex items-center gap-2">
-              <span className="text-accent font-bold text-lg">✓</span>
+              <span className="text-primary font-bold text-lg">✓</span>
               <span className="font-medium">Transformare în 4 arii</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-accent font-bold text-lg">✓</span>
+              <span className="text-primary font-bold text-lg">✓</span>
               <span className="font-medium">Sistem complet de viață</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-accent font-bold text-lg">✓</span>
+              <span className="text-primary font-bold text-lg">✓</span>
               <span className="font-medium">Trial 3 zile gratuit</span>
             </div>
           </div>
