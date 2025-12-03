@@ -16,6 +16,7 @@ import { GodsSchoolStack } from '@/components/stack/gods-school/GodsSchoolStack'
 import { useLocation } from 'react-router-dom';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
 import { NapoleonHillStack } from '@/components/stack/napoleon-hill/NapoleonHillStack';
+import { NapoleonHillQuickStack } from '@/components/stack/napoleon-hill/NapoleonHillQuickStack';
 import { getWeek } from 'date-fns';
 
 const CoachingPage = () => {
@@ -75,6 +76,9 @@ const CoachingPage = () => {
           break;
         case 'napoleon-hill':
           setActiveStack('napoleon-hill');
+          break;
+        case 'napoleon-hill-quick':
+          setActiveStack('napoleon-hill-quick');
           break;
         default:
           setActiveStack('divine-prayer');
@@ -313,6 +317,8 @@ const renderActiveStack = () => {
         return <DivinePrayerStack {...stackProps} />;
       case "napoleon-hill":
         return <NapoleonHillStack {...stackProps} />;
+      case "napoleon-hill-quick":
+        return <NapoleonHillQuickStack {...stackProps} />;
       default:
         return <DivinePrayerStack {...stackProps} />;
     }

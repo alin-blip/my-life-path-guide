@@ -80,6 +80,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       subItems: [
         { title: 'Alchimia Furiei', icon: Angry, path: '/stack?type=anger' },
         { title: 'Dialogul cu Divinitatea', icon: Heart, path: '/stack?type=divine-prayer' },
+        { title: 'Napoleon Hill Quick', icon: Crown, path: '/stack?type=napoleon-hill-quick' },
         { title: 'Oracolul Înțelepciunii', icon: Headphones, path: '/stack?type=ai-live' },
         { title: 'Imperiul de Business', icon: Briefcase, path: '/stack?type=hormozi-coaching' },
         { title: 'Școala Zeilor', icon: Target, path: '/stack?type=gods-school' },
