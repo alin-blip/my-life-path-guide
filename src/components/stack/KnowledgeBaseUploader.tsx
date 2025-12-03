@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, FileText, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -13,7 +13,7 @@ interface KnowledgeBaseUploaderProps {
 interface UploadProgress {
   file: File;
   progress: number;
-  status: 'uploading' | 'success' | 'error';
+  status: 'uploading' | 'parsing' | 'success' | 'error';
   error?: string;
 }
 
@@ -51,18 +51,46 @@ export const KnowledgeBaseUploader: React.FC<KnowledgeBaseUploaderProps> = ({
       return await file.text();
     }
     
-    // For other file types, we'll just store the file and process it later
-    // In a production environment, you might want to use a service like PDF.js or similar
-    return file.name; // Placeholder preview
+    // For PDFs and other types, return placeholder - will be parsed by edge function
+    return `[${file.type}] ${file.name}`;
   };
 
-  const uploadFile = async (file: File) => {
+  const parsePdfFile = async (filePath: string, fileId: string): Promise<void> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('parse-pdf', {
+        body: { filePath, fileId }
+      });
+
+      if (error) {
+        console.error('PDF parsing error:', error);
+        throw error;
+      }
+
+      console.log('PDF parsed successfully:', data);
+      
+      if (data?.textLength) {
+        toast({
+          title: "PDF procesat",
+          description: `Text extras: ${data.textLength.toLocaleString()} caractere`,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to parse PDF:', error);
+      // Don't throw - file is still uploaded, just not parsed
+      toast({
+        title: "Atenție",
+        description: "PDF-ul a fost încărcat dar textul nu a putut fi extras automat.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const uploadFile = async (file: File, setStatus: (status: UploadProgress['status']) => void) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}_${file.name}`;
     const filePath = `${user.id}/${fileName}`;
 
@@ -77,7 +105,7 @@ export const KnowledgeBaseUploader: React.FC<KnowledgeBaseUploaderProps> = ({
     const contentPreview = await extractTextContent(file);
 
     // Save metadata to database
-    const { error: dbError } = await supabase
+    const { data: insertData, error: dbError } = await supabase
       .from('knowledge_base_files')
       .insert({
         user_id: user.id,
@@ -85,11 +113,19 @@ export const KnowledgeBaseUploader: React.FC<KnowledgeBaseUploaderProps> = ({
         file_path: filePath,
         file_type: file.type,
         file_size: file.size,
-        content_preview: contentPreview.substring(0, 1000), // First 1000 chars
+        content_preview: contentPreview.substring(0, 1000),
         project_id: projectId || null
-      });
+      })
+      .select('id')
+      .single();
 
     if (dbError) throw dbError;
+
+    // If it's a PDF, trigger parsing
+    if (file.type === 'application/pdf' && insertData?.id) {
+      setStatus('parsing');
+      await parsePdfFile(filePath, insertData.id);
+    }
 
     return { filePath, fileName };
   };
@@ -126,6 +162,14 @@ export const KnowledgeBaseUploader: React.FC<KnowledgeBaseUploaderProps> = ({
     for (let i = 0; i < fileArray.length; i++) {
       const file = fileArray[i];
       
+      const setFileStatus = (status: UploadProgress['status']) => {
+        setUploads(prev => prev.map(upload => 
+          upload.file === file 
+            ? { ...upload, status }
+            : upload
+        ));
+      };
+      
       try {
         setUploads(prev => prev.map(upload => 
           upload.file === file 
@@ -133,7 +177,7 @@ export const KnowledgeBaseUploader: React.FC<KnowledgeBaseUploaderProps> = ({
             : upload
         ));
 
-        await uploadFile(file);
+        await uploadFile(file, setFileStatus);
 
         setUploads(prev => prev.map(upload => 
           upload.file === file 
@@ -169,11 +213,11 @@ export const KnowledgeBaseUploader: React.FC<KnowledgeBaseUploaderProps> = ({
 
     // Clean up completed uploads after a delay
     setTimeout(() => {
-      setUploads(prev => prev.filter(upload => upload.status === 'uploading'));
+      setUploads(prev => prev.filter(upload => upload.status === 'uploading' || upload.status === 'parsing'));
       onUploadComplete();
     }, 3000);
 
-  }, [onUploadComplete, toast]);
+  }, [onUploadComplete, toast, projectId]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -228,6 +272,9 @@ export const KnowledgeBaseUploader: React.FC<KnowledgeBaseUploaderProps> = ({
             <p className="text-xs text-muted-foreground">
               Acceptăm: TXT, PDF, DOC, DOCX, MD, CSV (max 10MB)
             </p>
+            <p className="text-xs text-primary/70">
+              📄 PDF-urile sunt parsate automat pentru extragere text
+            </p>
             <input
               type="file"
               id="file-upload"
@@ -265,6 +312,12 @@ export const KnowledgeBaseUploader: React.FC<KnowledgeBaseUploaderProps> = ({
                       )}
                       {upload.status === 'error' && (
                         <AlertCircle className="w-3 h-3 text-red-500" />
+                      )}
+                      {upload.status === 'parsing' && (
+                        <div className="flex items-center gap-1 text-primary">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span className="text-[10px]">Extragere text...</span>
+                        </div>
                       )}
                     </div>
                     
