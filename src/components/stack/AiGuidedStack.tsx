@@ -40,6 +40,7 @@ interface AiGuidedStackProps {
   systemPrompt?: string;
   systemPromptOverride?: string;
   welcomeMessage?: string;
+  knowledgeBaseFiles?: string[];
 }
 
 export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({ 
@@ -51,7 +52,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   voiceOnlyMode = false,
   systemPrompt: customSystemPrompt,
   systemPromptOverride,
-  welcomeMessage: customWelcomeMessage
+  welcomeMessage: customWelcomeMessage,
+  knowledgeBaseFiles = []
 }) => {
   const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -497,7 +499,8 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
             role: msg.role,
             content: msg.content
           })),
-          systemPrompt
+          systemPrompt,
+          knowledgeBaseFiles: knowledgeBaseFiles.length > 0 ? knowledgeBaseFiles : undefined
         }
       });
 
