@@ -35,9 +35,10 @@ export function useDoorStorage(props: UseDoorStorageProps) {
   const { getStorageStats } = useDoorStorageStats();
   const { checkDataIntegrity, createBackup, restoreFromBackup, exportData } = useDoorDataIntegrity();
   
-  // Load state when component mounts or week changes
-  useEffect(() => {
+  // Helper to reload data
+  const reloadData = () => {
     if (props.currentWeekKey) {
+      console.log('🔄 Reloading Door data...');
       loadSavedState(props.currentWeekKey, {
         setHotList: props.setHotList,
         setHitList: props.setHitList,
@@ -49,8 +50,31 @@ export function useDoorStorage(props: UseDoorStorageProps) {
         setActiveList: props.setActiveList,
         checkDominoCompletion: props.checkDominoCompletion
       });
+    }
+  };
+
+  // Load state when component mounts or week changes
+  useEffect(() => {
+    if (props.currentWeekKey) {
+      reloadData();
       initialLoadRef.current = false;
     }
+  }, [props.currentWeekKey]);
+
+  // Listen for doorDataUpdated events (from Stack adding ideas)
+  useEffect(() => {
+    const handleDoorDataUpdated = (event: CustomEvent) => {
+      console.log('📬 doorDataUpdated event received:', event.detail);
+      // Small delay to ensure database write is complete
+      setTimeout(() => {
+        reloadData();
+      }, 300);
+    };
+
+    window.addEventListener('doorDataUpdated', handleDoorDataUpdated as EventListener);
+    return () => {
+      window.removeEventListener('doorDataUpdated', handleDoorDataUpdated as EventListener);
+    };
   }, [props.currentWeekKey]);
 
   // Save state whenever relevant data changes with debouncing
