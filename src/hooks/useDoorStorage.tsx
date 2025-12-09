@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { HotListItem, HitListItem, DoListItem, DominoKeyPoint, DayOfWeek } from '@/types/door';
 import { useDoorStorageState, UseDoorStorageStateProps } from './door/useDoorStorageState';
 import { useDoorStorageSave } from './door/useDoorStorageSave';
@@ -35,10 +35,14 @@ export function useDoorStorage(props: UseDoorStorageProps) {
   const { getStorageStats } = useDoorStorageStats();
   const { checkDataIntegrity, createBackup, restoreFromBackup, exportData } = useDoorDataIntegrity();
   
+  // Track if we're currently reloading to prevent save during reload
+  const isReloadingRef = useRef(false);
+
   // Helper to reload data
   const reloadData = () => {
     if (props.currentWeekKey) {
       console.log('🔄 Reloading Door data...');
+      isReloadingRef.current = true;
       loadSavedState(props.currentWeekKey, {
         setHotList: props.setHotList,
         setHitList: props.setHitList,
@@ -49,6 +53,12 @@ export function useDoorStorage(props: UseDoorStorageProps) {
         selectDayOfWeek: props.selectDayOfWeek,
         setActiveList: props.setActiveList,
         checkDominoCompletion: props.checkDominoCompletion
+      }).finally(() => {
+        // Reset the reloading flag after a short delay to allow state to settle
+        setTimeout(() => {
+          isReloadingRef.current = false;
+          console.log('✅ Door data reload complete');
+        }, 1000);
       });
     }
   };
@@ -56,8 +66,23 @@ export function useDoorStorage(props: UseDoorStorageProps) {
   // Load state when component mounts or week changes
   useEffect(() => {
     if (props.currentWeekKey) {
-      reloadData();
-      initialLoadRef.current = false;
+      isReloadingRef.current = true;
+      loadSavedState(props.currentWeekKey, {
+        setHotList: props.setHotList,
+        setHitList: props.setHitList,
+        setDoList: props.setDoList,
+        setSelectedDomino: props.setSelectedDomino,
+        setDominoKeyPoints: props.setDominoKeyPoints,
+        setIsDominoCompleted: props.setIsDominoCompleted,
+        selectDayOfWeek: props.selectDayOfWeek,
+        setActiveList: props.setActiveList,
+        checkDominoCompletion: props.checkDominoCompletion
+      }).finally(() => {
+        initialLoadRef.current = false;
+        setTimeout(() => {
+          isReloadingRef.current = false;
+        }, 1000);
+      });
     }
   }, [props.currentWeekKey]);
 
@@ -79,8 +104,9 @@ export function useDoorStorage(props: UseDoorStorageProps) {
 
   // Save state whenever relevant data changes with debouncing
   useEffect(() => {
-    // Prevent saving during initial load
-    if (initialLoadRef.current) {
+    // Prevent saving during initial load or during reload
+    if (initialLoadRef.current || isReloadingRef.current) {
+      console.log('⏸️ Skipping save - initial load or reloading in progress');
       return;
     }
     
