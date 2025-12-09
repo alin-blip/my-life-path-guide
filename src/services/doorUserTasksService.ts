@@ -229,26 +229,43 @@ export const doorUserTasksService = {
     priority: TaskPriority;
     day?: DayOfWeek;
   }) {
+    console.log('🔄 addIdeaToWeek called:', { weekKey, idea });
+    
     const userId = await getUserId();
-    if (!userId) throw new Error('User not authenticated');
+    console.log('👤 User ID:', userId);
+    
+    if (!userId) {
+      console.error('❌ No user authenticated for addIdeaToWeek');
+      throw new Error('User not authenticated');
+    }
 
     const payload: any = {
+      id: uuidv4(), // Generate unique ID to ensure insertion
       user_id: userId,
       week_key: idea.category === 'hot' ? null : weekKey,
       task_type: idea.category,
-      list_type: idea.category, // FIX: Add required list_type field
+      list_type: idea.category,
       title: idea.text,
       priority: toDbPriority(idea.priority),
-      position: 0
+      position: 0,
+      completed: false
     };
 
     if (idea.category !== 'hot') {
       payload.day_of_week = idea.day ? String(idea.day) : 'M';
-      payload.completed = false;
     }
 
-    const { error } = await supabase.from('user_tasks').insert(payload);
-    if (error) throw error;
+    console.log('📦 Inserting task payload:', payload);
+
+    const { data, error } = await supabase.from('user_tasks').insert(payload).select();
+    
+    if (error) {
+      console.error('❌ Error inserting task:', error);
+      throw error;
+    }
+    
+    console.log('✅ Task inserted successfully:', data);
+    return data;
   },
 
   async clearUserHistory(): Promise<number> {
