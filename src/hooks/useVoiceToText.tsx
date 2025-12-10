@@ -223,7 +223,9 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
   }, [isListening, saveRecording, language, toast]);
 
   const stopListening = useCallback(() => {
-    // Always set UI state to OFF, even if recognitionRef was already cleared
+    console.log('🛑 stopListening called');
+    
+    // Always set UI state to OFF
     setIsListening(false);
 
     // Clear silence timer
@@ -232,12 +234,10 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
       silenceTimerRef.current = null;
     }
 
-    // Safely stop speech recognition (if present)
+    // Safely stop speech recognition WITHOUT removing handlers
     try {
       if (recognitionRef.current) {
-        try { recognitionRef.current.onresult = null; } catch {}
-        try { recognitionRef.current.onerror = null; } catch {}
-        try { recognitionRef.current.onend = null; } catch {}
+        // Don't remove handlers - just stop. Handlers will be reused.
         recognitionRef.current.stop?.();
       }
     } catch (e) {
@@ -254,6 +254,7 @@ export const useVoiceToText = (options: UseVoiceToTextOptions = {}) => {
         if (stream) {
           stream.getTracks().forEach((track) => track.stop());
         }
+        mediaRecorderRef.current = null;
         console.log('🎙️ Audio recording stopped');
       }
     } catch (e) {
