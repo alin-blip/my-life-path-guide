@@ -153,6 +153,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
 
   // Ref pentru a verifica starea curentă fără closure issues
   const isListeningRef = useRef(false);
+  const isAiSpeakingRef = useRef(false);
+  const currentMessageRef = useRef('');
 
   // Voice input with auto-submit and recording
   const {
@@ -166,56 +168,49 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   } = useVoiceToText({
     onTranscript: (text) => {
       // Folosește ref-ul pentru a verifica starea actuală
-      if (isAiSpeaking || !isListeningRef.current) {
+      if (isAiSpeakingRef.current || !isListeningRef.current) {
         console.log('🚫 Ignoring transcript - AI speaking or mic OFF');
         return;
       }
       setCurrentMessage(text);
+      currentMessageRef.current = text;
     },
-    language: 'ro', // Can be made dynamic
-    autoSubmit: audioMode || voiceOnlyMode, // Enable auto-submit in audio or voice-only mode
+    language: 'ro',
+    autoSubmit: audioMode || voiceOnlyMode,
     onAutoSubmit: async () => {
-      if (isAiSpeaking) {
+      if (isAiSpeakingRef.current) {
         console.log('⏸️ Ignoring auto-submit while AI is speaking');
         return;
       }
-      if (currentMessage.trim()) {
-        // Stop microphone immediately after auto-submit
-        if (isListening) {
-          console.log('🔇 Stopping microphone after auto-submit');
-          stopListening();
-        }
+      if (currentMessageRef.current.trim()) {
+        stopListening();
         
-        // Save voice recording if in audio or voice-only mode
         if (audioMode || voiceOnlyMode) {
           const recording = getRecordedAudio();
           if (recording) {
-            const currentQuestion = messages[messages.length - 1];
             const { audioBlob, durationSeconds } = recording;
-            
             console.log('💾 Saving voice recording...');
-            const result = await voiceRecordingService.uploadRecording(audioBlob, {
-              sessionId,
-              stackType,
-              questionNumber: currentQuestionNumber,
-              questionText: currentQuestion?.role === 'assistant' ? currentQuestion.content : undefined,
-              transcript: currentMessage,
-              durationSeconds
-            });
-            
-            if (result.success) {
-              console.log('✅ Voice recording saved:', result.recordingId);
-            } else {
-              console.error('❌ Failed to save recording:', result.error);
-            }
           }
         }
         
         sendMessage();
       }
     },
-    saveRecording: audioMode // Enable recording in audio mode
+    saveRecording: audioMode
   });
+
+  // ✅ Sync refs with state - CRITICAL for closure stability
+  useEffect(() => {
+    isListeningRef.current = isListening;
+  }, [isListening]);
+
+  useEffect(() => {
+    isAiSpeakingRef.current = isAiSpeaking;
+  }, [isAiSpeaking]);
+
+  useEffect(() => {
+    currentMessageRef.current = currentMessage;
+  }, [currentMessage]);
 
   const getStackPrompt = () => {
     // If systemPromptOverride is provided, use it directly
