@@ -67,7 +67,20 @@ useEffect(() => {
     try {
       setSubscriptionLoading(true);
       const { data, error } = await supabase.functions.invoke('check-subscription');
-      if (error) throw error;
+      
+      // Handle session expired error - sign out and reset state
+      if (error || (data as any)?.error === 'session_expired') {
+        console.warn('Session expired or subscription check failed, signing out');
+        setSubscribed(false);
+        setSubscriptionTier(null);
+        setSubscriptionEnd(null);
+        // If session is expired, sign out to clear stale tokens
+        if ((data as any)?.error === 'session_expired') {
+          await supabase.auth.signOut();
+        }
+        return;
+      }
+      
       const subscribed = Boolean((data as any)?.subscribed);
       setSubscribed(subscribed);
       setSubscriptionTier(((data as any)?.subscription_tier ?? null));

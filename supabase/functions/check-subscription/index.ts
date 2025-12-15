@@ -33,7 +33,26 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
 
     const { data: userData, error: userError } = await supabaseService.auth.getUser(token);
-    if (userError) throw new Error(`Auth error: ${userError.message}`);
+    
+    // Handle expired/invalid session gracefully - return 401 instead of 500
+    if (userError) {
+      const isSessionError = userError.message?.includes("Session") || 
+                             userError.message?.includes("session") ||
+                             userError.message?.includes("JWT");
+      if (isSessionError) {
+        log("Session expired or invalid", { message: userError.message });
+        return new Response(JSON.stringify({ 
+          subscribed: false, 
+          error: "session_expired",
+          message: "Session expired, please sign in again"
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        });
+      }
+      throw new Error(`Auth error: ${userError.message}`);
+    }
+    
     const user = userData.user;
     if (!user?.email) throw new Error("No user email");
     log("User", { userId: user.id, email: user.email });
