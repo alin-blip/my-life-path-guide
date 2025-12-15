@@ -8,7 +8,7 @@ import { useDoorContent } from '@/hooks/useDoorContent';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
 import { LearnDashboard } from './LearnDashboard';
-import { WeeklyMissions } from './WeeklyMissions';
+
 import { WeeklyProgress } from './WeeklyProgress';
 import { MonthlyObjectives } from './MonthlyObjectives';
 import { WeeklyObjectives } from './WeeklyObjectives';
@@ -777,10 +777,7 @@ export const Dashboard: React.FC = () => {
                 </Card>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div>
-                  <WeeklyMissions />
-                </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
                   <WeeklyObjectives />
                 </div>
