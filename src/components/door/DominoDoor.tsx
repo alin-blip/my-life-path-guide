@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { VoiceTextarea } from '@/components/ui/VoiceTextarea';
-import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, Mic } from 'lucide-react';
+import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, Mic, RefreshCw } from 'lucide-react';
 import { HotListItem, DominoKeyPoint, PlanningResult } from '@/types/door';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -361,6 +361,8 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                     className={`flex items-start gap-3 rounded-xl p-4 hover:shadow-md transition-all duration-300 hover:scale-[1.02] border cursor-pointer ${
                       point.completed 
                         ? 'bg-green-500/10 border-green-500/30 animate-scale-in' 
+                        : point.isContinued
+                        ? 'bg-amber-500/10 border-amber-500/30'
                         : 'bg-accent/30 border-border/50'
                     }`}
                     draggable={point.text && point.text.trim().length > 0}
@@ -371,6 +373,8 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                     <div className={`flex-shrink-0 rounded-full flex items-center justify-center shadow-md ${
                       point.completed 
                         ? 'bg-gradient-to-br from-green-400 to-green-600' 
+                        : point.isContinued
+                        ? 'bg-gradient-to-br from-amber-400 to-amber-600'
                         : 'bg-gradient-to-br from-primary to-accent'
                     } w-8 h-8`}>
                       {point.completed ? (
@@ -382,18 +386,29 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                       )}
                     </div>
                     
-                    <VoiceTextarea
-                      className={`flex-grow bg-transparent border-none focus:ring-0 focus:ring-offset-0 p-0 min-h-0 resize-none ${
-                        point.completed 
-                          ? 'text-muted-foreground line-through' 
-                          : 'text-foreground'
-                      } text-sm font-medium`}
-                      placeholder={`${t('keyPoint')} ${index + 1}`}
-                      value={point.text}
-                      onChange={(e) => updateKeyPointText(point.id, e.target.value)}
-                      rows={1}
-                      language="ro"
-                    />
+                    <div className="flex-grow flex flex-col gap-1">
+                      {point.isContinued && (
+                        <Badge 
+                          variant="secondary" 
+                          className="self-start text-xs bg-amber-500/20 text-amber-600 border-amber-500/30 mb-1"
+                        >
+                          <RefreshCw className="w-3 h-3 mr-1" />
+                          Continuat
+                        </Badge>
+                      )}
+                      <VoiceTextarea
+                        className={`flex-grow bg-transparent border-none focus:ring-0 focus:ring-offset-0 p-0 min-h-0 resize-none ${
+                          point.completed 
+                            ? 'text-muted-foreground line-through' 
+                            : 'text-foreground'
+                        } text-sm font-medium`}
+                        placeholder={`${t('keyPoint')} ${index + 1}`}
+                        value={point.text}
+                        onChange={(e) => updateKeyPointText(point.id, e.target.value)}
+                        rows={1}
+                        language="ro"
+                      />
+                    </div>
                     
                     {point.text && point.text.trim().length > 0 && moveKeyPointToHotList && (
                       <button 
