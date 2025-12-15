@@ -33,6 +33,7 @@ export type DominoKeyPoint = {
   id: string;
   text: string;
   completed?: boolean;
+  isContinued?: boolean; // Marker for keys continued from previous week
   metadata?: {
     objective?: string;
     why?: string;
@@ -70,5 +71,6 @@ export interface PlanningResult {
     steps: string[];
     responsible: string;
     deadline: string;
+    isContinued?: boolean; // Marker for keys continued from previous week
   }>;
 }

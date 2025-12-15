@@ -13,6 +13,7 @@ import { getISOWeek, getYear } from 'date-fns';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
 import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
+import { ReviewProgressStats } from './ReviewProgressStats';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -92,6 +93,15 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const [previousWeekData, setPreviousWeekData] = useState<PreviousWeekData | undefined>(externalPreviousData);
   const [isLoadingPreviousData, setIsLoadingPreviousData] = useState(true);
+  
+  // Review statistics tracking
+  const [reviewStats, setReviewStats] = useState({
+    totalKeys: 4,
+    completedKeys: 0,
+    continuedKeys: 0,
+    failedKeys: 0,
+    reviewComplete: false
+  });
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const saveTimerRef = useRef<NodeJS.Timeout>();
@@ -552,6 +562,16 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           <>
             <ScrollArea className="flex-1 px-6 py-4" ref={scrollAreaRef}>
           <div className="space-y-4">
+            {/* Review Statistics - show after review phase */}
+            {previousWeekData && !isSkippingReview && reviewStats.reviewComplete && (
+              <ReviewProgressStats
+                totalKeys={reviewStats.totalKeys}
+                completedKeys={reviewStats.completedKeys}
+                continuedKeys={reviewStats.continuedKeys}
+                failedKeys={reviewStats.failedKeys}
+              />
+            )}
+            
             {messages.map((msg, idx) => (
               <div
                 key={idx}
