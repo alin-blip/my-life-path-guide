@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { BookOpen, ChevronRight } from 'lucide-react';
+import { BookOpen, ChevronRight, Target } from 'lucide-react';
 import { LIFEBOOK_STRUCTURE, SECTIONS, LifebookSubcategory, LifebookEntry } from './types';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
@@ -128,8 +128,17 @@ const LifebookDashboard: React.FC = () => {
           ))}
         </div>
 
-        {/* Export Button */}
-        <div className="mt-8 flex justify-center">
+        {/* Action Buttons */}
+        <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+          <Button 
+            size="lg" 
+            variant="outline"
+            className="gap-2"
+            onClick={() => navigate('/lifebook/missions')}
+          >
+            <Target className="w-5 h-5" />
+            {language === 'ro' ? 'Definește Obiective' : 'Define Objectives'}
+          </Button>
           <Button 
             size="lg" 
             className="gap-2"
