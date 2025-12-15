@@ -1,9 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Download, BookOpen, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { 
+  ArrowLeft, 
+  Download, 
+  BookOpen, 
+  CheckCircle2, 
+  AlertCircle, 
+  Loader2,
+  Upload,
+  Image,
+  Printer,
+  X
+} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -14,10 +27,14 @@ const LifebookExport: React.FC = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [entries, setEntries] = useState<LifebookEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [userName, setUserName] = useState<string>('');
+  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [printOptimized, setPrintOptimized] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -44,13 +61,64 @@ const LifebookExport: React.FC = () => {
     }
   };
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: language === 'ro' ? 'Tip de fișier invalid' : 'Invalid file type',
+        description: language === 'ro' 
+          ? 'Te rog încarcă o imagine (JPG, PNG, etc.)'
+          : 'Please upload an image file (JPG, PNG, etc.)',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: language === 'ro' ? 'Fișier prea mare' : 'File too large',
+        description: language === 'ro' 
+          ? 'Imaginea trebuie să fie mai mică de 5MB'
+          : 'Image must be smaller than 5MB',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      setCoverImage(result);
+      toast({
+        title: language === 'ro' ? 'Imagine încărcată' : 'Image uploaded',
+        description: language === 'ro' 
+          ? 'Imaginea de copertă a fost adăugată'
+          : 'Cover image has been added',
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setCoverImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleExport = async () => {
     setExporting(true);
     try {
       await exportLifebookToPdf({
         entries,
         userName,
-        generatedAt: new Date()
+        generatedAt: new Date(),
+        coverImage: coverImage || undefined,
+        printOptimized
       }, language as 'en' | 'ro');
 
       toast({
@@ -110,6 +178,87 @@ const LifebookExport: React.FC = () => {
               : 'Generate a beautifully formatted PDF with your entire Life Book'}
           </p>
         </div>
+
+        {/* PDF Options Card */}
+        <Card className="mb-6 bg-card border-border">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Image className="w-5 h-5 text-primary" />
+              {language === 'ro' ? 'Opțiuni PDF' : 'PDF Options'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Cover Image Upload */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">
+                {language === 'ro' ? 'Imagine de Copertă / Logo' : 'Cover Image / Logo'}
+              </Label>
+              
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              
+              {coverImage ? (
+                <div className="relative inline-block">
+                  <img 
+                    src={coverImage} 
+                    alt="Cover" 
+                    className="w-32 h-32 object-cover rounded-lg border border-border"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute -top-2 -right-2 w-6 h-6"
+                    onClick={handleRemoveImage}
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  {language === 'ro' ? 'Încarcă Imagine' : 'Upload Image'}
+                </Button>
+              )}
+              
+              <p className="text-xs text-muted-foreground">
+                {language === 'ro' 
+                  ? 'Opțional: Adaugă o imagine personală sau logo pe coperta PDF-ului (max 5MB)'
+                  : 'Optional: Add a personal image or logo to the PDF cover (max 5MB)'}
+              </p>
+            </div>
+
+            {/* Print Optimized Toggle */}
+            <div className="flex items-center justify-between p-4 bg-accent/20 rounded-lg">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Printer className="w-4 h-4 text-primary" />
+                  <Label htmlFor="print-optimized" className="font-medium">
+                    {language === 'ro' ? 'Versiune pentru Tipărire' : 'Print-Optimized Version'}
+                  </Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'ro'
+                    ? 'Margini mai mari, pagini de secțiune, optimizat pentru legare'
+                    : 'Larger margins, section dividers, optimized for binding'}
+                </p>
+              </div>
+              <Switch
+                id="print-optimized"
+                checked={printOptimized}
+                onCheckedChange={setPrintOptimized}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Overall Progress Card */}
         <Card className="mb-6 bg-card border-border">
@@ -232,24 +381,38 @@ const LifebookExport: React.FC = () => {
                       ? `Life Book-ul tău este ${Math.round(overallProgress)}% complet. Poți genera PDF-ul oricând.`
                       : `Your Life Book is ${Math.round(overallProgress)}% complete. You can generate the PDF anytime.`}
                   </p>
-                  <Button 
-                    size="lg" 
-                    onClick={handleExport}
-                    disabled={exporting}
-                    className="gap-2"
-                  >
-                    {exporting ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        {language === 'ro' ? 'Se generează...' : 'Generating...'}
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-5 h-5" />
-                        {language === 'ro' ? 'Descarcă PDF' : 'Download PDF'}
-                      </>
-                    )}
-                  </Button>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button 
+                      size="lg" 
+                      onClick={handleExport}
+                      disabled={exporting}
+                      className="gap-2"
+                    >
+                      {exporting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          {language === 'ro' ? 'Se generează...' : 'Generating...'}
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-5 h-5" />
+                          {language === 'ro' ? 'Descarcă PDF' : 'Download PDF'}
+                          {printOptimized && (
+                            <span className="ml-1 text-xs opacity-75">
+                              ({language === 'ro' ? 'print' : 'print'})
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {coverImage && (
+                    <p className="text-xs text-muted-foreground">
+                      ✓ {language === 'ro' ? 'Imagine de copertă inclusă' : 'Cover image included'}
+                    </p>
+                  )}
                 </>
               )}
             </div>
