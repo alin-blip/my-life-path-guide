@@ -572,6 +572,81 @@ export type Database = {
           },
         ]
       }
+      lifebook_drafts: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_saved_at: string
+          messages: Json
+          section: string
+          subcategory: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_saved_at?: string
+          messages?: Json
+          section: string
+          subcategory: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_saved_at?: string
+          messages?: Json
+          section?: string
+          subcategory?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lifebook_entries: {
+        Row: {
+          category: string
+          content: Json
+          created_at: string | null
+          id: string
+          messages: Json | null
+          section: string
+          status: string | null
+          subcategory: string
+          summary: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          content?: Json
+          created_at?: string | null
+          id?: string
+          messages?: Json | null
+          section: string
+          status?: string | null
+          subcategory: string
+          summary?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          content?: Json
+          created_at?: string | null
+          id?: string
+          messages?: Json | null
+          section?: string
+          status?: string | null
+          subcategory?: string
+          summary?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       migration_status: {
         Row: {
           backup_data: Json | null

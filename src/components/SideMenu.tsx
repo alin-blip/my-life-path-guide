@@ -99,6 +99,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: 'Knowledge Base', icon: Upload, path: '/napoleon-hill-system?tab=knowledge' },
       ]
     },
+    { title: '📖 Have It All - Life Book', icon: BookOpen, path: '/lifebook' },
     { title: t('commandCenter'), icon: Flag, path: '/door' },
     { title: 'Business', icon: Briefcase, path: '/business' },
     { title: 'Misiuni de Împlinire', icon: Target, path: '/game' },
