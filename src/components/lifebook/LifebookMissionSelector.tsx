@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Target, Calendar, ArrowLeft, Save, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { Target, Calendar, ArrowLeft, Save, Sparkles, ChevronDown, ChevronUp, Wand2, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -34,6 +34,11 @@ interface ExtractedContent {
   purposes: string[];
 }
 
+interface GeneratingState {
+  category: LifebookCategory | null;
+  type: 'annual' | 'monthly' | null;
+}
+
 const LifebookMissionSelector: React.FC = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -43,6 +48,7 @@ const LifebookMissionSelector: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [extractedContent, setExtractedContent] = useState<ExtractedContent[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [generating, setGenerating] = useState<GeneratingState>({ category: null, type: null });
   
   const [missions, setMissions] = useState<AllMissions>({
     body: { annual: '', monthly: '' },
@@ -156,6 +162,69 @@ const LifebookMissionSelector: React.FC = () => {
       ...prev,
       [category]: !prev[category]
     }));
+  };
+
+  const generateAISuggestion = async (category: LifebookCategory, missionType: 'annual' | 'monthly') => {
+    const extracted = extractedContent.find(e => e.category === category);
+    
+    if (!extracted || (extracted.visions.length === 0 && extracted.strategies.length === 0 && extracted.purposes.length === 0)) {
+      toast({
+        title: language === 'ro' ? 'Conținut insuficient' : 'Insufficient content',
+        description: language === 'ro' 
+          ? 'Completează mai întâi secțiunile din Life Book pentru această categorie' 
+          : 'Complete Life Book sections for this category first',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setGenerating({ category, type: missionType });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('lifebook-mission-suggest', {
+        body: {
+          category,
+          visions: extracted.visions,
+          strategies: extracted.strategies,
+          purposes: extracted.purposes,
+          missionType,
+          language
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.suggestion) {
+        handleMissionChange(category, missionType, data.suggestion);
+        toast({
+          title: language === 'ro' ? 'Sugestie generată!' : 'Suggestion generated!',
+          description: language === 'ro' 
+            ? 'Poți edita obiectivul sugerat după preferințe' 
+            : 'You can edit the suggested objective as you prefer'
+        });
+      }
+    } catch (error: any) {
+      console.error('Error generating suggestion:', error);
+      toast({
+        title: language === 'ro' ? 'Eroare' : 'Error',
+        description: error.message || (language === 'ro' ? 'Nu s-a putut genera sugestia' : 'Could not generate suggestion'),
+        variant: 'destructive'
+      });
+    } finally {
+      setGenerating({ category: null, type: null });
+    }
+  };
+
+  const generateAllSuggestions = async () => {
+    const categories: LifebookCategory[] = ['body', 'being', 'balance', 'business'];
+    
+    for (const category of categories) {
+      const extracted = extractedContent.find(e => e.category === category);
+      if (extracted && (extracted.visions.length > 0 || extracted.strategies.length > 0 || extracted.purposes.length > 0)) {
+        await generateAISuggestion(category, 'annual');
+        await generateAISuggestion(category, 'monthly');
+      }
+    }
   };
 
   const saveMissions = async () => {
@@ -284,6 +353,34 @@ const LifebookMissionSelector: React.FC = () => {
           </p>
         </div>
 
+        {/* AI Generate All Button */}
+        <Card className="mb-6 border-primary/30 bg-primary/5">
+          <CardContent className="py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Wand2 className="w-5 h-5 text-primary" />
+              <span className="text-sm text-foreground">
+                {language === 'ro' 
+                  ? 'Lasă AI-ul să analizeze Life Book-ul și să sugereze obiective pentru toate categoriile' 
+                  : 'Let AI analyze your Life Book and suggest objectives for all categories'}
+              </span>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="gap-2"
+              onClick={generateAllSuggestions}
+              disabled={generating.category !== null}
+            >
+              {generating.category !== null ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4" />
+              )}
+              {language === 'ro' ? 'Generează Toate' : 'Generate All'}
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Progress Warning */}
         {!isComplete && (
           <Card className="mb-6 border-yellow-500/50 bg-yellow-500/10">
@@ -384,7 +481,23 @@ const LifebookMissionSelector: React.FC = () => {
                         {language === 'ro' ? 'Obiectiv Lunar' : 'Monthly Objective'}
                       </TabsTrigger>
                     </TabsList>
-                    <TabsContent value="annual" className="mt-4">
+                    <TabsContent value="annual" className="mt-4 space-y-3">
+                      <div className="flex justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-2 text-primary hover:text-primary"
+                          onClick={() => generateAISuggestion(category, 'annual')}
+                          disabled={generating.category === category && generating.type === 'annual'}
+                        >
+                          {generating.category === category && generating.type === 'annual' ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Wand2 className="w-4 h-4" />
+                          )}
+                          {language === 'ro' ? 'Sugestie AI' : 'AI Suggestion'}
+                        </Button>
+                      </div>
                       <Textarea
                         placeholder={language === 'ro' 
                           ? `Care este obiectivul tău anual pentru ${getCategoryLabel(category)}?`
@@ -394,7 +507,23 @@ const LifebookMissionSelector: React.FC = () => {
                         className="min-h-[120px]"
                       />
                     </TabsContent>
-                    <TabsContent value="monthly" className="mt-4">
+                    <TabsContent value="monthly" className="mt-4 space-y-3">
+                      <div className="flex justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-2 text-primary hover:text-primary"
+                          onClick={() => generateAISuggestion(category, 'monthly')}
+                          disabled={generating.category === category && generating.type === 'monthly'}
+                        >
+                          {generating.category === category && generating.type === 'monthly' ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Wand2 className="w-4 h-4" />
+                          )}
+                          {language === 'ro' ? 'Sugestie AI' : 'AI Suggestion'}
+                        </Button>
+                      </div>
                       <Textarea
                         placeholder={language === 'ro' 
                           ? `Care este obiectivul tău lunar pentru ${getCategoryLabel(category)}?`
