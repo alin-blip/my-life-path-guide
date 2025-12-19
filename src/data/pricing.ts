@@ -17,7 +17,7 @@ export const plans: Plan[] = [
     price: "0 LEI",
     period: "3 zile",
     highlight: "Testează fără risc",
-    result: "Testezi ecosistemul RoWarrior: în 3 zile simți claritate, focus și momentum.",
+    result: "Testezi ecosistemul Napoleon Hill Academy: în 3 zile simți claritate, focus și momentum.",
     benefits: [
       "Acces complet în probă – card necesar, fără taxare în primele 3 zile",
       "Plan zilnic clar – ce faci azi ca să avansezi",

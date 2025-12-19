@@ -21,11 +21,11 @@ export const Tribe = () => {
   const members: Member[] = [
     {
       id: '1',
-      name: 'John Warrior',
+      name: 'John Hill',
       role: 'Founder',
       joinDate: '2021-05-10',
       active: true,
-      avatar: 'JW',
+      avatar: 'JH',
     },
     {
       id: '2',
@@ -81,14 +81,14 @@ export const Tribe = () => {
     <div className="max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-white uppercase">TRIBE</h1>
-        <Button className="bg-warrior-accent hover:bg-warrior-accent/80">
+        <Button className="bg-primary hover:bg-primary/80">
           <UserPlus className="h-4 w-4 mr-2" />
           Invite Member
         </Button>
       </div>
 
       <div className="mb-8">
-        <div className="bg-warrior-secondary rounded-lg p-6">
+        <div className="bg-secondary rounded-lg p-6">
           <h2 className="text-xl font-bold text-white mb-4">Find Tribe Members</h2>
           
           <div className="flex flex-col md:flex-row gap-4">
@@ -96,11 +96,11 @@ export const Tribe = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name, skill, or location..."
-                className="pl-9 bg-warrior-muted/30 border-warrior-muted/30"
+                className="pl-9 bg-muted/30 border-muted/30"
               />
             </div>
             
-            <Button variant="outline" className="bg-warrior-muted/30 border-warrior-muted/30">
+            <Button variant="outline" className="bg-muted/30 border-muted/30">
               <Filter className="h-4 w-4 mr-2" />
               Filters
             </Button>
@@ -108,7 +108,7 @@ export const Tribe = () => {
         </div>
       </div>
 
-      <div className="bg-warrior-secondary rounded-lg p-6">
+      <div className="bg-secondary rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-white">Members</h2>
           <div className="text-sm text-muted-foreground">{members.length} members</div>
@@ -116,9 +116,9 @@ export const Tribe = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {members.map((member) => (
-            <div key={member.id} className="bg-warrior-DEFAULT rounded-lg p-4 border border-warrior-muted/30">
+            <div key={member.id} className="bg-background rounded-lg p-4 border border-muted/30">
               <div className="flex items-start">
-                <div className="w-12 h-12 rounded-full bg-warrior-accent flex items-center justify-center text-white font-bold mr-3">
+                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold mr-3">
                   {member.avatar}
                 </div>
                 <div className="flex-1">
@@ -138,7 +138,7 @@ export const Tribe = () => {
               <div className="mt-4">
                 <Button 
                   variant="outline" 
-                  className="w-full border-warrior-muted/30 hover:bg-warrior-accent hover:text-white"
+                  className="w-full border-muted/30 hover:bg-primary hover:text-white"
                   onClick={() => handleConnect(member.id)}
                 >
                   Connect

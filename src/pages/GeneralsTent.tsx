@@ -13,7 +13,7 @@ const GeneralsTent = () => {
     <Layout>
       <div className="container mx-auto py-6 space-y-8">
         <div className="flex items-center gap-3 mb-6">
-          <Tent className="h-8 w-8 text-warrior-accent" />
+          <Tent className="h-8 w-8 text-primary" />
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
               {language === 'en' ? "General's Tent" : "Cortul Generalului"}
@@ -40,9 +40,9 @@ const GeneralsTent = () => {
           </TabsList>
 
           <TabsContent value="weekly-review">
-            <Card className="p-6 bg-warrior-DEFAULT border-warrior-muted/20">
+            <Card className="p-6 bg-card border-border/20">
               <div className="flex items-center mb-4">
-                <Calendar className="h-5 w-5 text-warrior-accent mr-2" />
+                <Calendar className="h-5 w-5 text-primary mr-2" />
                 <h3 className="text-xl font-semibold">
                   {language === 'en' ? "Week of April 1-7, 2025" : "Săptămâna 1-7 Aprilie, 2025"}
                 </h3>
@@ -81,13 +81,13 @@ const GeneralsTent = () => {
                   {language === 'en' ? "Actions for Next Week" : "Acțiuni pentru Săptămâna Viitoare"}
                 </h4>
                 <div className="space-y-2">
-                  <div className="p-3 bg-warrior-muted/10 rounded-md border border-warrior-muted/20">
+                  <div className="p-3 bg-muted/10 rounded-md border border-border/20">
                     {language === 'en' ? "Complete Door planning by Monday" : "Completează planificarea Door până luni"}
                   </div>
-                  <div className="p-3 bg-warrior-muted/10 rounded-md border border-warrior-muted/20">
+                  <div className="p-3 bg-muted/10 rounded-md border border-border/20">
                     {language === 'en' ? "Finish monthly mission questionnaire" : "Finalizează chestionarul misiunii lunare"}
                   </div>
-                  <div className="p-3 bg-warrior-muted/10 rounded-md border border-warrior-muted/20">
+                  <div className="p-3 bg-muted/10 rounded-md border border-border/20">
                     {language === 'en' ? "Update Core 4 daily scores" : "Actualizează scorurile zilnice Core 4"}
                   </div>
                 </div>
@@ -96,7 +96,7 @@ const GeneralsTent = () => {
           </TabsContent>
 
           <TabsContent value="monthly-planning">
-            <Card className="p-6 bg-warrior-DEFAULT border-warrior-muted/20">
+            <Card className="p-6 bg-card border-border/20">
               <div className="flex justify-center items-center h-40">
                 <p className="text-muted-foreground">
                   {language === 'en' 
@@ -108,7 +108,7 @@ const GeneralsTent = () => {
           </TabsContent>
 
           <TabsContent value="quarterly-strategy">
-            <Card className="p-6 bg-warrior-DEFAULT border-warrior-muted/20">
+            <Card className="p-6 bg-card border-border/20">
               <div className="flex justify-center items-center h-40">
                 <p className="text-muted-foreground">
                   {language === 'en' 

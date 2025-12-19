@@ -496,7 +496,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                 className="flex flex-col items-center justify-center p-4 h-auto bg-green-900/20 hover:bg-green-900/40 border-green-800/40"
                 onClick={() => {
                   navigator.share?.({
-                    title: 'Warrior Quote',
+                    title: 'Napoleon Hill Quote',
                     text: `"${quote.text}" - ${quote.author}`,
                     url: window.location.href
                   }).catch(err => console.error('Error sharing:', err));
@@ -534,8 +534,8 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                       variant={selectedTemplate === key ? "default" : "outline"}
                       className={`h-auto py-2 text-xs ${
                         selectedTemplate === key 
-                          ? "bg-warrior-accent hover:bg-warrior-accent/80" 
-                          : "bg-warrior-dark/50 hover:bg-warrior-dark"
+                          ? "bg-primary hover:bg-primary/80" 
+                          : "bg-background/50 hover:bg-background"
                       }`}
                       title={description}
                       onClick={() => setSelectedTemplate(key)}
@@ -556,7 +556,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                       key={color}
                       className={`w-8 h-8 rounded-full border-2 ${
                         selectedColor === color 
-                          ? "border-warrior-accent" 
+                          ? "border-primary" 
                           : "border-transparent"
                       }`}
                       style={{ backgroundColor: scheme.primary }}
@@ -577,8 +577,8 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                     variant={selectedFont === "serif" ? "default" : "outline"}
                     className={`h-auto py-2 ${
                       selectedFont === "serif" 
-                        ? "bg-warrior-accent hover:bg-warrior-accent/80" 
-                        : "bg-warrior-dark/50 hover:bg-warrior-dark"
+                        ? "bg-primary hover:bg-primary/80" 
+                        : "bg-background/50 hover:bg-background"
                     }`}
                     style={{ fontFamily: fontOptions.serif }}
                     onClick={() => setSelectedFont("serif")}
@@ -589,8 +589,8 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                     variant={selectedFont === "sans" ? "default" : "outline"}
                     className={`h-auto py-2 ${
                       selectedFont === "sans" 
-                        ? "bg-warrior-accent hover:bg-warrior-accent/80" 
-                        : "bg-warrior-dark/50 hover:bg-warrior-dark"
+                        ? "bg-primary hover:bg-primary/80" 
+                        : "bg-background/50 hover:bg-background"
                     }`}
                     style={{ fontFamily: fontOptions.sans }}
                     onClick={() => setSelectedFont("sans")}
@@ -601,8 +601,8 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                     variant={selectedFont === "display" ? "default" : "outline"}
                     className={`h-auto py-2 ${
                       selectedFont === "display" 
-                        ? "bg-warrior-accent hover:bg-warrior-accent/80" 
-                        : "bg-warrior-dark/50 hover:bg-warrior-dark"
+                        ? "bg-primary hover:bg-primary/80" 
+                        : "bg-background/50 hover:bg-background"
                     }`}
                     style={{ fontFamily: fontOptions.display }}
                     onClick={() => setSelectedFont("display")}
@@ -613,8 +613,8 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                     variant={selectedFont === "handwriting" ? "default" : "outline"}
                     className={`h-auto py-2 ${
                       selectedFont === "handwriting" 
-                        ? "bg-warrior-accent hover:bg-warrior-accent/80" 
-                        : "bg-warrior-dark/50 hover:bg-warrior-dark"
+                        ? "bg-primary hover:bg-primary/80" 
+                        : "bg-background/50 hover:bg-background"
                     }`}
                     style={{ fontFamily: fontOptions.handwriting }}
                     onClick={() => setSelectedFont("handwriting")}
@@ -625,8 +625,8 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                     variant={selectedFont === "monospace" ? "default" : "outline"}
                     className={`h-auto py-2 ${
                       selectedFont === "monospace" 
-                        ? "bg-warrior-accent hover:bg-warrior-accent/80" 
-                        : "bg-warrior-dark/50 hover:bg-warrior-dark"
+                        ? "bg-primary hover:bg-primary/80" 
+                        : "bg-background/50 hover:bg-background"
                     }`}
                     style={{ fontFamily: fontOptions.monospace }}
                     onClick={() => setSelectedFont("monospace")}
@@ -637,7 +637,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
               </div>
               
               <Button 
-                className="w-full bg-warrior-accent hover:bg-warrior-accent/80"
+                className="w-full bg-primary hover:bg-primary/80"
                 onClick={downloadImage}
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -649,14 +649,14 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
           {/* Copy & Download Tab */}
           <TabsContent value="copy" className="pt-4">
             <div className="space-y-4">
-              <div className="p-4 bg-warrior-dark/50 border border-warrior-muted/10 rounded-md">
+              <div className="p-4 bg-background/50 border border-border/10 rounded-md">
                 <p className="text-center italic mb-4">"{quote.text}"</p>
                 <p className="text-center text-sm">— {quote.author}</p>
               </div>
               
               <Button
                 variant="outline"
-                className="w-full flex items-center justify-center bg-warrior-dark/50 hover:bg-warrior-dark border-warrior-muted/30"
+                className="w-full flex items-center justify-center bg-background/50 hover:bg-background border-border/30"
                 onClick={handleCopyToClipboard}
               >
                 <Copy className="h-4 w-4 mr-2" />
@@ -670,7 +670,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                 </div>
               )}
               
-              <div className="border-t border-warrior-muted/10 pt-4">
+              <div className="border-t border-border/10 pt-4">
                 <p className="text-sm mb-3">
                   {language === 'en'
                     ? 'Download as image to share on social media or print:' 
@@ -679,7 +679,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                 </p>
                 
                 <Button
-                  className="w-full bg-warrior-accent hover:bg-warrior-accent/80"
+                  className="w-full bg-primary hover:bg-primary/80"
                   onClick={downloadImage}
                 >
                   <Download className="h-4 w-4 mr-2" />
@@ -694,7 +694,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                 </p>
               </div>
               
-              <div className="border-t border-warrior-muted/10 pt-4">
+              <div className="border-t border-border/10 pt-4">
                 <p className="text-sm mb-3">
                   {language === 'en'
                     ? 'Share directly to your phone:'
@@ -704,7 +704,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                 
                 <Button
                   variant="outline"
-                  className="w-full flex items-center justify-center bg-warrior-dark/50 hover:bg-warrior-dark border-warrior-muted/30"
+                  className="w-full flex items-center justify-center bg-background/50 hover:bg-background border-border/30"
                   onClick={() => {
                     // Generate a shareable URL with the quote text encoded
                     const shareableUrl = `${window.location.origin}${window.location.pathname}?quote=${encodeURIComponent(quote.text)}&author=${encodeURIComponent(quote.author)}`;
@@ -730,23 +730,23 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
             {shareStats && (
               <div>
                 <div className="grid grid-cols-3 gap-2 mb-4">
-                  <div className="bg-warrior-dark/50 p-4 rounded-md border border-warrior-muted/10 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold text-warrior-accent">{shareStats.shares}</span>
+                  <div className="bg-background/50 p-4 rounded-md border border-border/10 flex flex-col items-center justify-center">
+                    <span className="text-2xl font-bold text-primary">{shareStats.shares}</span>
                     <span className="text-xs text-gray-400">{language === 'en' ? 'Shares' : 'Distribuiri'}</span>
                   </div>
                   
-                  <div className="bg-warrior-dark/50 p-4 rounded-md border border-warrior-muted/10 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold text-warrior-accent">{shareStats.likes}</span>
+                  <div className="bg-background/50 p-4 rounded-md border border-border/10 flex flex-col items-center justify-center">
+                    <span className="text-2xl font-bold text-primary">{shareStats.likes}</span>
                     <span className="text-xs text-gray-400">{language === 'en' ? 'Likes' : 'Aprecieri'}</span>
                   </div>
                   
-                  <div className="bg-warrior-dark/50 p-4 rounded-md border border-warrior-muted/10 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold text-warrior-accent">{shareStats.saves}</span>
+                  <div className="bg-background/50 p-4 rounded-md border border-border/10 flex flex-col items-center justify-center">
+                    <span className="text-2xl font-bold text-primary">{shareStats.saves}</span>
                     <span className="text-xs text-gray-400">{language === 'en' ? 'Saves' : 'Salvări'}</span>
                   </div>
                 </div>
                 
-                <div className="bg-warrior-dark/50 p-4 rounded-md border border-warrior-muted/10 text-center mb-4">
+                <div className="bg-background/50 p-4 rounded-md border border-border/10 text-center mb-4">
                   <h4 className="font-medium mb-2">
                     {language === 'en' ? 'Your Impact' : 'Impactul Tău'}
                   </h4>
@@ -762,8 +762,8 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                       <Award className="h-5 w-5 mr-2 text-amber-400" />
                       <span className="text-sm text-amber-300">
                         {language === 'en'
-                          ? 'Inspiration Warrior Badge Unlocked!'
-                          : 'Insignă de Războinic al Inspirației Deblocată!'
+                          ? 'Inspiration Champion Badge Unlocked!'
+                          : 'Insignă de Campion al Inspirației Deblocată!'
                         }
                       </span>
                     </div>
@@ -772,7 +772,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                 
                 <p className="text-xs text-center text-gray-400">
                   {language === 'en'
-                    ? 'Continue sharing to increase your warrior impact score!'
+                    ? 'Continue sharing to increase your impact score!'
                     : 'Continuă să distribui pentru a-ți crește scorul de impact!'
                   }
                 </p>

@@ -57,7 +57,7 @@ export default function HormoziAnalysis() {
             Analiza Alex Hormozi
           </h1>
           <p className="text-muted-foreground text-lg">
-            Feedback strategic brutal despre platforma RoWarrior din perspectiva lui Alex Hormozi, 
+            Feedback strategic brutal despre platforma Napoleon Hill Academy din perspectiva lui Alex Hormozi, 
             focusat pe antreprenori români de 6-8 cifre.
           </p>
         </div>

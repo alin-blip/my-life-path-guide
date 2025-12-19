@@ -141,7 +141,7 @@ export const DailyFourContent: React.FC = () => {
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold uppercase">{t('dailyFour')}</h1>
         </div>
         <Button 
-          className="bg-warrior-accent hover:bg-warrior-accent/90 text-white text-xs sm:text-sm px-2 sm:px-4"
+          className="bg-primary hover:bg-primary/90 text-white text-xs sm:text-sm px-2 sm:px-4"
           onClick={handleNavigateToDashboard}
         >
           {t('dashboard')}
@@ -167,7 +167,7 @@ export const DailyFourContent: React.FC = () => {
                 variant={selectedDay === day ? "default" : "ghost"}
                 className={`rounded-full w-10 h-10 p-0 ${
                   selectedDay === day 
-                  ? "bg-warrior-accent text-white" 
+                  ? "bg-primary text-white" 
                   : "text-gray-300 hover:text-white"
                 }`}
                 onClick={() => setSelectedDay(day)}
