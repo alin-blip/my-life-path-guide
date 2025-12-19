@@ -27,6 +27,7 @@ const CoachingPage = () => {
   const [isLoadingStack, setIsLoadingStack] = useState(false);
   const [stackMode, setStackMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
   const [initialPrinciple, setInitialPrinciple] = useState<number | null>(null);
+  const [challengeDay, setChallengeDay] = useState<number | null>(null);
   const { hitList, setHitList, hotList, setHotList } = useDoorContent();
   const { toast } = useToast();
   const [isSupabaseAvailable, setIsSupabaseAvailable] = useState(false);
@@ -49,12 +50,20 @@ const CoachingPage = () => {
     const idParam = searchParams.get('id');
     const sharedParam = searchParams.get('shared');
     const principleParam = searchParams.get('principle');
+    const challengeDayParam = searchParams.get('challengeDay');
     
     // Store principle in state to pass to component
     if (principleParam) {
       setInitialPrinciple(parseInt(principleParam, 10));
     } else {
       setInitialPrinciple(null);
+    }
+    
+    // Store challengeDay in state to pass to component
+    if (challengeDayParam) {
+      setChallengeDay(parseInt(challengeDayParam, 10));
+    } else {
+      setChallengeDay(null);
     }
     
     // Handle existing stack loading
@@ -327,7 +336,7 @@ const renderActiveStack = () => {
       case "napoleon-hill":
         return <NapoleonHillStack {...stackProps} />;
       case "napoleon-hill-quick":
-        return <NapoleonHillQuickStack {...stackProps} initialPrinciple={initialPrinciple} />;
+        return <NapoleonHillQuickStack {...stackProps} initialPrinciple={initialPrinciple} challengeDay={challengeDay} />;
       default:
         return <DivinePrayerStack {...stackProps} />;
     }

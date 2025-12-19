@@ -124,6 +124,7 @@ export type Database = {
           created_at: string | null
           day_number: number
           id: string
+          stack_session_id: string | null
           updated_at: string | null
           user_id: string
           video_watched: boolean | null
@@ -135,6 +136,7 @@ export type Database = {
           created_at?: string | null
           day_number: number
           id?: string
+          stack_session_id?: string | null
           updated_at?: string | null
           user_id: string
           video_watched?: boolean | null
@@ -146,11 +148,20 @@ export type Database = {
           created_at?: string | null
           day_number?: number
           id?: string
+          stack_session_id?: string | null
           updated_at?: string | null
           user_id?: string
           video_watched?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "challenge_progress_stack_session_id_fkey"
+            columns: ["stack_session_id"]
+            isOneToOne: false
+            referencedRelation: "stack_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       course_modules: {
         Row: {
@@ -1093,6 +1104,7 @@ export type Database = {
       stack_sessions: {
         Row: {
           answers: Json | null
+          challenge_day_number: number | null
           completed: boolean | null
           created_at: string | null
           data: Json | null
@@ -1104,6 +1116,7 @@ export type Database = {
         }
         Insert: {
           answers?: Json | null
+          challenge_day_number?: number | null
           completed?: boolean | null
           created_at?: string | null
           data?: Json | null
@@ -1115,6 +1128,7 @@ export type Database = {
         }
         Update: {
           answers?: Json | null
+          challenge_day_number?: number | null
           completed?: boolean | null
           created_at?: string | null
           data?: Json | null

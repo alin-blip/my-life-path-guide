@@ -7,9 +7,10 @@ interface UseStackSessionProps {
   sessionId: string;
   onSessionRestore?: (data: StackSessionData) => void;
   currentAnswer?: string;
+  challengeDay?: number | null;
 }
 
-export function useStackSession({ stackType, sessionId, onSessionRestore, currentAnswer }: UseStackSessionProps) {
+export function useStackSession({ stackType, sessionId, onSessionRestore, currentAnswer, challengeDay }: UseStackSessionProps) {
   const { toast } = useToast();
   const [isAutoSaveEnabled, setIsAutoSaveEnabled] = useState(true);
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
@@ -34,7 +35,8 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
         isCompleted: false,
         answers: {},
         ...currentData,
-        ...data
+        ...data,
+        ...(challengeDay ? { challenge_day_number: challengeDay } : {})
       };
 
       // Salvăm în localStorage ca backup local

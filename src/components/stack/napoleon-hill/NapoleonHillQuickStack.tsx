@@ -34,7 +34,8 @@ export const NapoleonHillQuickStack: React.FC<NapoleonHillStackProps> = ({
   existingData,
   isReadOnly,
   stackId,
-  initialPrinciple
+  initialPrinciple,
+  challengeDay
 }) => {
   const [selectedPrinciple, setSelectedPrinciple] = useState<number | null>(null);
   const [mode, setMode] = useState<'select' | 'full' | 'coaching'>('select');
@@ -421,6 +422,7 @@ CITATE NAPOLEON HILL DE FOLOSIT:
             : `Bun venit la Stack-ul Napoleon Hill pentru Principiul ${selectedPrinciple}: ${NAPOLEON_HILL_PRINCIPLES[selectedPrinciple! - 1]?.name}! ${NAPOLEON_HILL_PRINCIPLES[selectedPrinciple! - 1]?.description}. Ce obiectiv specific ai în minte astăzi legat de acest principiu?`
           }
           knowledgeBaseFiles={knowledgeBaseFiles}
+          challengeDay={challengeDay}
         />
       </div>
 
