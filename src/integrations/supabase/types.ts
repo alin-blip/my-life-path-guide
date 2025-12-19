@@ -80,6 +80,42 @@ export type Database = {
         }
         Relationships: []
       }
+      book_reading_progress: {
+        Row: {
+          action_completed: boolean | null
+          chapter: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          page_number: number
+          principle: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          action_completed?: boolean | null
+          chapter: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          page_number: number
+          principle: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          action_completed?: boolean | null
+          chapter?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          page_number?: number
+          principle?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       challenge_progress: {
         Row: {
           actions_completed: Json | null
