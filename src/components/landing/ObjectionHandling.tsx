@@ -37,7 +37,7 @@ export const ObjectionHandling = () => {
               <span className="text-slate-900 font-semibold">Te înțeleg perfect.</span> Și eu lucram 14-16 ore pe zi și tot simțeam că nu am timp de nimic.
             </p>
             <p className="text-slate-700 leading-relaxed">
-              Adevărul e că <span className="font-semibold">nu e vorba de timp, ci de prioritate</span>. RoWarrior nu îți adaugă task-uri — îți elimină haosul. În loc să lucrezi pe 20 de lucruri pe care le uiți, lucrezi pe 3 lucruri clare care contează.
+              Adevărul e că <span className="font-semibold">nu e vorba de timp, ci de prioritate</span>. Napoleon Hill Academy nu îți adaugă task-uri — îți elimină haosul. În loc să lucrezi pe 20 de lucruri pe care le uiți, lucrezi pe 3 lucruri clare care contează.
             </p>
             <p className="text-sm text-slate-500 italic border-l-4 border-blue-200 pl-4 py-2">
               Când am început, mi-a luat 30 de minute să îmi planific prima săptămână. La finalul acelei săptămâni, am realizat că am recuperat 8 ore din haos și distracții inutile.
@@ -63,7 +63,7 @@ export const ObjectionHandling = () => {
               Dar <span className="font-semibold">cât te costă să rămâi blocat unde ești</span>? Cât te costă să pierzi alte 6 luni lucrând fără claritate? Cât te costă anxietatea de a nu ști dacă mergi în direcția bună?
             </p>
             <p className="text-sm text-slate-500 italic border-l-4 border-green-200 pl-4 py-2">
-              Un client mi-a spus: "Am cheltuit mai mult pe cafele și distracții într-o lună decât costă RoWarrior. Dar RoWarrior mi-a schimbat viața. Cafeaua mi-a dat doar agitație."
+              Un client mi-a spus: "Am cheltuit mai mult pe cafele și distracții într-o lună decât costă Napoleon Hill Academy. Dar Napoleon Hill Academy mi-a schimbat viața. Cafeaua mi-a dat doar agitație."
             </p>
           </CardContent>
         </Card>
@@ -83,10 +83,10 @@ export const ObjectionHandling = () => {
               <span className="text-slate-900 font-semibold">Normal să fii sceptic.</span> Și eu am încercat zeci de sisteme, cursuri, coaching-uri. Majoritatea erau teorie fără implementare sau hack-uri fără fundație.
             </p>
             <p className="text-slate-700 leading-relaxed">
-              RoWarrior nu e un curs. Nu e un tool. <span className="font-semibold">E o cale de viață</span> — un sistem care integrează corp, spirit, relații și business simultan. Nu te învăț trucuri. Te învăț <span className="font-semibold">cum să devii omul care construiește</span> ce visezi.
+              Napoleon Hill Academy nu e un curs. Nu e un tool. <span className="font-semibold">E o cale de viață</span> — un sistem care integrează corp, spirit, relații și business simultan. Nu te învăț trucuri. Te învăț <span className="font-semibold">cum să devii omul care construiește</span> ce visezi.
             </p>
             <p className="text-sm text-slate-500 italic border-l-4 border-purple-200 pl-4 py-2">
-              Diferența: celelalte îți spun "ce" să faci. RoWarrior te ajută să devii "cine" trebuie să fii pentru a face ce trebuie.
+              Diferența: celelalte îți spun "ce" să faci. Napoleon Hill Academy te ajută să devii "cine" trebuie să fii pentru a face ce trebuie.
             </p>
           </CardContent>
         </Card>

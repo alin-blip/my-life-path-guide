@@ -32,7 +32,7 @@ export const GamePlan: React.FC<GamePlanProps> = ({ category }) => {
   
   useEffect(() => {
     // Load saved game data from local storage
-    const savedData = localStorage.getItem('warrior-game-plans');
+    const savedData = localStorage.getItem('napoleon-hill-game-plans');
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
@@ -55,7 +55,7 @@ export const GamePlan: React.FC<GamePlanProps> = ({ category }) => {
   
   const finalizeGamePlan = (category: GameCategory) => {
     // Save to local storage
-    localStorage.setItem('warrior-game-plans', JSON.stringify(gameData));
+    localStorage.setItem('napoleon-hill-game-plans', JSON.stringify(gameData));
     
     // Show success toast
     toast({

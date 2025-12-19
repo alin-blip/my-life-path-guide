@@ -62,7 +62,7 @@ export const ValueStackPricing = () => {
                 </div>
                 <div className="border-t-2 border-green-300 pt-3 mt-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-green-800 font-bold text-lg">Investiție RoWarrior Pro</span>
+                    <span className="text-green-800 font-bold text-lg">Investiție Napoleon Hill Academy Pro</span>
                     <span className="text-green-800 font-bold text-lg">197 LEI/lună</span>
                   </div>
                   <p className="text-green-600 text-sm mt-2 text-right font-semibold">

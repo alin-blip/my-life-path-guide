@@ -15,7 +15,7 @@ export const FounderSection = () => {
     >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-          De Ce Am Creat RoWarrior?
+          De Ce Am Creat Napoleon Hill Academy?
         </h2>
         <p className="text-xl text-slate-600 max-w-3xl mx-auto">
           Povestea din spatele sistemului care transformă antreprenori blocați în CEO-uri strategici
@@ -31,7 +31,7 @@ export const FounderSection = () => {
             </div>
             <div className="mt-4 text-center">
               <div className="font-bold text-slate-900 text-lg">[Numele Fondatorului]</div>
-              <div className="text-sm text-slate-500">Fondator RoWarrior</div>
+              <div className="text-sm text-slate-500">Fondator Napoleon Hill Academy</div>
             </div>
           </div>
 

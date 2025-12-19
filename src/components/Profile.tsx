@@ -239,7 +239,7 @@ export const Profile: React.FC = () => {
             <Button 
               type="submit" 
               disabled={isSaving || isSaved}
-              className={`${isSaved ? 'bg-green-600 hover:bg-green-700' : 'bg-warrior-accent hover:bg-warrior-accent-hover'}`}
+              className={`${isSaved ? 'bg-green-600 hover:bg-green-700' : 'bg-primary hover:bg-primary/90'}`}
             >
               {isSaving ? (
                 <div className="flex items-center">
