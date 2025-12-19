@@ -242,56 +242,56 @@ export const Dashboard: React.FC = () => {
   const getCoreItems = () => {
     return [{
       id: 'fitness',
-      title: language === 'en' ? 'FITNESS' : 'FITNESS',
+      title: language === 'en' ? '⚡ DISCIPLINE OF THE BODY' : '⚡ DISCIPLINA CORPULUI',
       icon: <Activity className="h-6 w-6 text-white" />,
       completed: coreData[selectedDay]?.['fitness'] || false,
       color: 'bg-blue-600',
       category: 'body'
     }, {
       id: 'fuel',
-      title: language === 'en' ? 'FUEL' : 'ALIMENTAȚIE',
+      title: language === 'en' ? '🍎 FUEL FOR SUBCONSCIOUS' : '🍎 COMBUSTIBIL SUBCONȘTIENT',
       icon: <Activity className="h-6 w-6 text-white" />,
       completed: coreData[selectedDay]?.['fuel'] || false,
       color: 'bg-blue-600',
       category: 'body'
     }, {
       id: 'person1',
-      title: language === 'en' ? 'PERSON 1' : 'PERSOANA 1',
+      title: language === 'en' ? '💝 LAW OF SERVICE #1' : '💝 LEGEA SERVIRII #1',
       icon: <Users className="h-6 w-6 text-white" />,
       completed: coreData[selectedDay]?.['person1'] || false,
       color: 'bg-blue-600',
       category: 'balance'
     }, {
       id: 'person2',
-      title: language === 'en' ? 'PERSON 2' : 'PERSOANA 2',
+      title: language === 'en' ? '💝 LAW OF SERVICE #2' : '💝 LEGEA SERVIRII #2',
       icon: <Users className="h-6 w-6 text-white" />,
       completed: coreData[selectedDay]?.['person2'] || false,
       color: 'bg-blue-600',
       category: 'balance'
     }, {
       id: 'meditation',
-      title: language === 'en' ? 'MEDITATION' : 'MEDITAȚIE',
+      title: language === 'en' ? '🧘 AUTOSUGGESTION & FAITH' : '🧘 AUTOSUGESTIE ȘI CREDINȚĂ',
       icon: <Heart className="h-6 w-6 text-white" />,
       completed: coreData[selectedDay]?.['meditation'] || false,
       color: 'bg-blue-600',
       category: 'being'
     }, {
       id: 'memoirs',
-      title: language === 'en' ? 'MEMOIRS' : 'MEMORII',
+      title: language === 'en' ? '✍️ SUBCONSCIOUS PROGRAMMING' : '✍️ PROGRAMARE SUBCONȘTIENT',
       icon: <Book className="h-6 w-6 text-white" />,
       completed: coreData[selectedDay]?.['memoirs'] || false,
       color: 'bg-blue-600',
       category: 'being'
     }, {
       id: 'discover',
-      title: language === 'en' ? 'DISCOVER' : 'DESCOPERĂ',
+      title: language === 'en' ? '📚 SPECIALIZED KNOWLEDGE' : '📚 CUNOȘTINȚE SPECIALIZATE',
       icon: <Compass className="h-6 w-6 text-white" />,
       completed: coreData[selectedDay]?.['discover'] || false,
       color: 'bg-blue-600',
       category: 'business'
     }, {
       id: 'declare',
-      title: language === 'en' ? 'DECLARE' : 'DECLARĂ',
+      title: language === 'en' ? '💰 ORGANIZED PLANNING' : '💰 PLANIFICARE ORGANIZATĂ',
       icon: <DollarSign className="h-6 w-6 text-white" />,
       completed: coreData[selectedDay]?.['declare'] || false,
       color: 'bg-blue-600',

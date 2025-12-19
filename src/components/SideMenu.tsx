@@ -72,7 +72,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
   const menuItems: MenuItem[] = [
     { title: 'Dashboard', icon: Home, path: '/dashboard' },
-    { title: 'Learn', icon: BookOpen, path: '/learn' },
+    { title: '🚀 Challenge - Start Here', icon: Target, path: '/challenge' },
     { 
       title: t('transformationWorkshop'), 
       icon: Layers, 
@@ -115,12 +115,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         <Link to="/" className="flex items-center justify-center md:justify-start gap-3">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
-            alt="RoWarrior logo"
+            alt="Napoleon Hill Academy logo"
             loading="lazy"
             className={`${isCollapsed ? 'h-7 w-auto' : 'h-9 w-auto'} drop-shadow`}
           />
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-lg text-foreground">RoWarrior</h1>
+            <h1 className="font-display font-bold text-lg text-foreground">Napoleon Hill Academy</h1>
           )}
         </Link>
       </div>

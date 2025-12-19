@@ -13,7 +13,7 @@ interface EnhancedQuoteDisplayProps {
   appName?: string;
 }
 export const EnhancedQuoteDisplay: React.FC<EnhancedQuoteDisplayProps> = ({
-  appName = "WARRIOR"
+  appName = "NAPOLEON HILL ACADEMY"
 }) => {
   const {
     toast
