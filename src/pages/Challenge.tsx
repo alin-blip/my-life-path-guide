@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Layout } from '@/components/Layout';
 import { useLanguage } from '@/context/LanguageContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Flame, Heart, Target, Zap, Gift, BookOpen, Crown,
   Play, Lock, CheckCircle2, ArrowRight, Rocket
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 
 interface ChallengeDay {
   day: number;
@@ -32,7 +34,7 @@ const challengeDays: ChallengeDay[] = [
     subtitleRo: "Descoperă ce vrei cu adevărat",
     icon: Flame,
     color: "from-red-500 to-orange-500",
-    actionPath: "/napoleon-hill-system",
+    actionPath: "/challenge/1",
     principleNumber: 1
   },
   {
@@ -43,7 +45,7 @@ const challengeDays: ChallengeDay[] = [
     subtitleRo: "Programează-ți subconștientul pentru succes",
     icon: Heart,
     color: "from-pink-500 to-rose-500",
-    actionPath: "/journal",
+    actionPath: "/challenge/2",
     principleNumber: 2
   },
   {
@@ -54,7 +56,7 @@ const challengeDays: ChallengeDay[] = [
     subtitleRo: "Ia decizii puternice și ireversibile",
     icon: Target,
     color: "from-blue-500 to-cyan-500",
-    actionPath: "/door",
+    actionPath: "/challenge/3",
     principleNumber: 6
   },
   {
@@ -65,7 +67,7 @@ const challengeDays: ChallengeDay[] = [
     subtitleRo: "Stăpânește-ți corpul și energia",
     icon: Zap,
     color: "from-yellow-500 to-amber-500",
-    actionPath: "/core",
+    actionPath: "/challenge/4",
     principleNumber: 12
   },
   {
@@ -76,7 +78,7 @@ const challengeDays: ChallengeDay[] = [
     subtitleRo: "Succesul vine din contribuție",
     icon: Gift,
     color: "from-green-500 to-emerald-500",
-    actionPath: "/core",
+    actionPath: "/challenge/5",
     principleNumber: 9
   },
   {
@@ -87,7 +89,7 @@ const challengeDays: ChallengeDay[] = [
     subtitleRo: "Învață, descoperă, aplică",
     icon: BookOpen,
     color: "from-purple-500 to-violet-500",
-    actionPath: "/napoleon-hill-system",
+    actionPath: "/challenge/6",
     principleNumber: 4
   },
   {
@@ -98,7 +100,7 @@ const challengeDays: ChallengeDay[] = [
     subtitleRo: "Planifică-ți săptămâna ca un general",
     icon: Crown,
     color: "from-amber-500 to-yellow-600",
-    actionPath: "/door",
+    actionPath: "/challenge/7",
     principleNumber: 8
   }
 ];
@@ -106,30 +108,38 @@ const challengeDays: ChallengeDay[] = [
 const ChallengePage = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
-  
-  // For now, simulate progress - this would come from database later
-  const [completedDays, setCompletedDays] = useState<number[]>([]);
-  const currentDay = completedDays.length + 1;
-  const progressPercentage = (completedDays.length / 7) * 100;
-
-  const isDayUnlocked = (day: number) => {
-    return day <= currentDay;
-  };
-
-  const isDayCompleted = (day: number) => {
-    return completedDays.includes(day);
-  };
+  const { 
+    loading, 
+    completedDaysCount, 
+    progressPercentage, 
+    currentDay,
+    isDayUnlocked, 
+    isDayCompleted 
+  } = useChallengeProgress();
 
   const handleStartDay = (day: ChallengeDay) => {
     if (!isDayUnlocked(day.day)) return;
     navigate(day.actionPath);
   };
 
-  const handleCompleteDay = (dayNumber: number) => {
-    if (!completedDays.includes(dayNumber)) {
-      setCompletedDays([...completedDays, dayNumber]);
-    }
-  };
+  if (loading) {
+    return (
+      <Layout>
+        <div className="w-full max-w-4xl mx-auto px-4 py-8">
+          <div className="text-center mb-8">
+            <Skeleton className="h-10 w-64 mx-auto mb-2" />
+            <Skeleton className="h-6 w-48 mx-auto" />
+          </div>
+          <Skeleton className="h-24 w-full mb-8" />
+          <div className="space-y-4">
+            {[1,2,3,4,5,6,7].map(i => (
+              <Skeleton key={i} className="h-24 w-full" />
+            ))}
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -156,7 +166,7 @@ const ChallengePage = () => {
               {language === 'en' ? 'Your Progress' : 'Progresul Tău'}
             </span>
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
-              {completedDays.length}/7 {language === 'en' ? 'Days' : 'Zile'}
+              {completedDaysCount}/7 {language === 'en' ? 'Days' : 'Zile'}
             </Badge>
           </div>
           <Progress value={progressPercentage} className="h-3 mb-2" />

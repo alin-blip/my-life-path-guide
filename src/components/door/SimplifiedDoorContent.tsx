@@ -235,14 +235,14 @@ export const SimplifiedDoorContent: React.FC = () => {
     toast({
       title: language === 'en' ? `Today is ${todayName}` : `Astăzi este ${todayName}`,
       description: language === 'en'
-        ? `Welcome to RoWarrior To Do`
-        : `Bine ai venit în RoWarrior - Taskuri`,
+        ? `Welcome to Napoleon Hill Academy To Do`
+        : `Bine ai venit în Napoleon Hill Academy - Taskuri`,
     });
   }, []);
 
   const onboardingSteps = [
     {
-      title: language === 'en' ? 'Welcome to RoWarrior!' : 'Bine ai venit în RoWarrior!',
+      title: language === 'en' ? 'Welcome to Napoleon Hill Academy!' : 'Bine ai venit în Napoleon Hill Academy!',
       description: language === 'en' 
         ? 'This is your productivity hub. All three sections are now visible for easy drag & drop!' 
         : 'Acesta este hub-ul tău de productivitate. Toate cele 3 secțiuni sunt acum vizibile pentru drag & drop ușor!'
