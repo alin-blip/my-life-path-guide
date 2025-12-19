@@ -26,7 +26,7 @@ const Stack = lazy(() => import("./pages/Stack"));
 const StackLibrary = lazy(() => import("./pages/StackLibrary"));
 const StackViewer = lazy(() => import("./pages/StackViewer"));
 const NapoleonHillSystem = lazy(() => import("./pages/NapoleonHillSystem"));
-const Learn = lazy(() => import("./pages/Learn"));
+const Challenge = lazy(() => import("./pages/Challenge"));
 const Door = lazy(() => import("./pages/Door"));
 const Game = lazy(() => import("./pages/Game"));
 const Core = lazy(() => import("./pages/Core"));
@@ -101,9 +101,14 @@ const App = () => (
                         <NapoleonHillSystem />
                       </ProtectedRoute>
                     } />
+                    <Route path="/challenge" element={
+                      <ProtectedRoute>
+                        <Challenge />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/learn" element={
                       <ProtectedRoute>
-                        <Learn />
+                        <Challenge />
                       </ProtectedRoute>
                     } />
                     <Route path="/door" element={

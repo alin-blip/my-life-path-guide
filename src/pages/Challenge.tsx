@@ -1,0 +1,276 @@
+import React, { useState } from 'react';
+import { Layout } from '@/components/Layout';
+import { useLanguage } from '@/context/LanguageContext';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Flame, Heart, Target, Zap, Gift, BookOpen, Crown,
+  Play, Lock, CheckCircle2, ArrowRight, Rocket
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+interface ChallengeDay {
+  day: number;
+  titleEn: string;
+  titleRo: string;
+  subtitleEn: string;
+  subtitleRo: string;
+  icon: React.ElementType;
+  color: string;
+  actionPath: string;
+  principleNumber: number;
+}
+
+const challengeDays: ChallengeDay[] = [
+  {
+    day: 1,
+    titleEn: "DESIRE ENGINE",
+    titleRo: "MOTORUL DORINȚEI",
+    subtitleEn: "Discover what you truly want",
+    subtitleRo: "Descoperă ce vrei cu adevărat",
+    icon: Flame,
+    color: "from-red-500 to-orange-500",
+    actionPath: "/napoleon-hill-system",
+    principleNumber: 1
+  },
+  {
+    day: 2,
+    titleEn: "FAITH INSTALL",
+    titleRo: "INSTALEAZĂ CREDINȚA",
+    subtitleEn: "Program your subconscious for success",
+    subtitleRo: "Programează-ți subconștientul pentru succes",
+    icon: Heart,
+    color: "from-pink-500 to-rose-500",
+    actionPath: "/journal",
+    principleNumber: 2
+  },
+  {
+    day: 3,
+    titleEn: "DECISION DAY",
+    titleRo: "ZIUA DECIZIEI",
+    subtitleEn: "Make powerful, irreversible decisions",
+    subtitleRo: "Ia decizii puternice și ireversibile",
+    icon: Target,
+    color: "from-blue-500 to-cyan-500",
+    actionPath: "/door",
+    principleNumber: 6
+  },
+  {
+    day: 4,
+    titleEn: "ENERGY & DISCIPLINE",
+    titleRo: "ENERGIE ȘI DISCIPLINĂ",
+    subtitleEn: "Master your body and energy",
+    subtitleRo: "Stăpânește-ți corpul și energia",
+    icon: Zap,
+    color: "from-yellow-500 to-amber-500",
+    actionPath: "/core",
+    principleNumber: 12
+  },
+  {
+    day: 5,
+    titleEn: "VALUE & SERVICE",
+    titleRo: "VALOARE ȘI SERVIRE",
+    subtitleEn: "Success comes from contribution",
+    subtitleRo: "Succesul vine din contribuție",
+    icon: Gift,
+    color: "from-green-500 to-emerald-500",
+    actionPath: "/core",
+    principleNumber: 9
+  },
+  {
+    day: 6,
+    titleEn: "SPECIALIZED KNOWLEDGE",
+    titleRo: "CUNOȘTINȚE SPECIALIZATE",
+    subtitleEn: "Learn, discover, apply",
+    subtitleRo: "Învață, descoperă, aplică",
+    icon: BookOpen,
+    color: "from-purple-500 to-violet-500",
+    actionPath: "/napoleon-hill-system",
+    principleNumber: 4
+  },
+  {
+    day: 7,
+    titleEn: "DOMINO DOOR",
+    titleRo: "UȘA DOMINO",
+    subtitleEn: "Plan your week like a general",
+    subtitleRo: "Planifică-ți săptămâna ca un general",
+    icon: Crown,
+    color: "from-amber-500 to-yellow-600",
+    actionPath: "/door",
+    principleNumber: 8
+  }
+];
+
+const ChallengePage = () => {
+  const { language } = useLanguage();
+  const navigate = useNavigate();
+  
+  // For now, simulate progress - this would come from database later
+  const [completedDays, setCompletedDays] = useState<number[]>([]);
+  const currentDay = completedDays.length + 1;
+  const progressPercentage = (completedDays.length / 7) * 100;
+
+  const isDayUnlocked = (day: number) => {
+    return day <= currentDay;
+  };
+
+  const isDayCompleted = (day: number) => {
+    return completedDays.includes(day);
+  };
+
+  const handleStartDay = (day: ChallengeDay) => {
+    if (!isDayUnlocked(day.day)) return;
+    navigate(day.actionPath);
+  };
+
+  const handleCompleteDay = (dayNumber: number) => {
+    if (!completedDays.includes(dayNumber)) {
+      setCompletedDays([...completedDays, dayNumber]);
+    }
+  };
+
+  return (
+    <Layout>
+      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Rocket className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-red-500">
+              {language === 'en' ? 'Napoleon Hill Challenge' : 'Provocarea Napoleon Hill'}
+            </h1>
+          </div>
+          <p className="text-muted-foreground text-lg">
+            {language === 'en' 
+              ? '7 Days to Transform Your Mind & Life' 
+              : '7 Zile pentru a-ți Transforma Mintea și Viața'}
+          </p>
+        </div>
+
+        {/* Progress Card */}
+        <Card className="p-6 mb-8 bg-card border-primary/20">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-medium text-muted-foreground">
+              {language === 'en' ? 'Your Progress' : 'Progresul Tău'}
+            </span>
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
+              {completedDays.length}/7 {language === 'en' ? 'Days' : 'Zile'}
+            </Badge>
+          </div>
+          <Progress value={progressPercentage} className="h-3 mb-2" />
+          <p className="text-xs text-muted-foreground text-center">
+            {progressPercentage === 100 
+              ? (language === 'en' ? '🎉 Challenge Complete! You are a Napoleon Hill Master!' : '🎉 Challenge Complet! Ești un Maestru Napoleon Hill!')
+              : (language === 'en' ? `Day ${currentDay} of 7 - Keep going!` : `Ziua ${currentDay} din 7 - Continuă!`)}
+          </p>
+        </Card>
+
+        {/* Challenge Days Grid */}
+        <div className="space-y-4">
+          {challengeDays.map((day) => {
+            const Icon = day.icon;
+            const unlocked = isDayUnlocked(day.day);
+            const completed = isDayCompleted(day.day);
+            
+            return (
+              <Card 
+                key={day.day}
+                className={`p-4 transition-all duration-300 ${
+                  unlocked 
+                    ? 'bg-card border-primary/20 hover:border-primary/40 cursor-pointer' 
+                    : 'bg-muted/30 border-border/50 opacity-60'
+                } ${completed ? 'ring-2 ring-green-500/50' : ''}`}
+                onClick={() => handleStartDay(day)}
+              >
+                <div className="flex items-center gap-4">
+                  {/* Day Number & Icon */}
+                  <div className={`relative flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br ${day.color} ${!unlocked ? 'grayscale' : ''}`}>
+                    {completed ? (
+                      <CheckCircle2 className="h-8 w-8 text-white" />
+                    ) : unlocked ? (
+                      <Icon className="h-8 w-8 text-white" />
+                    ) : (
+                      <Lock className="h-6 w-6 text-white/70" />
+                    )}
+                    <span className="absolute -top-2 -left-2 w-6 h-6 bg-background border-2 border-primary rounded-full flex items-center justify-center text-xs font-bold text-primary">
+                      {day.day}
+                    </span>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg ${unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {language === 'en' ? day.titleEn : day.titleRo}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'en' ? day.subtitleEn : day.subtitleRo}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="secondary" className="text-xs">
+                        {language === 'en' ? `Principle ${day.principleNumber}` : `Principiul ${day.principleNumber}`}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <div>
+                    {completed ? (
+                      <Button variant="outline" size="sm" className="border-green-500/50 text-green-500">
+                        <CheckCircle2 className="h-4 w-4 mr-1" />
+                        {language === 'en' ? 'Done' : 'Gata'}
+                      </Button>
+                    ) : unlocked ? (
+                      <Button 
+                        size="sm" 
+                        className={`bg-gradient-to-r ${day.color} hover:opacity-90`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartDay(day);
+                        }}
+                      >
+                        <Play className="h-4 w-4 mr-1" />
+                        {language === 'en' ? 'Start' : 'Începe'}
+                      </Button>
+                    ) : (
+                      <Button variant="ghost" size="sm" disabled>
+                        <Lock className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* CTA for Trial */}
+        <Card className="mt-8 p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30">
+          <div className="text-center">
+            <h3 className="text-xl font-bold mb-2 text-foreground">
+              {language === 'en' 
+                ? '🚀 Start Your FREE 7-Day Transformation' 
+                : '🚀 Începe Transformarea ta GRATUITĂ de 7 Zile'}
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              {language === 'en'
+                ? 'Master the 13 principles of Napoleon Hill and transform your life'
+                : 'Stăpânește cele 13 principii ale lui Napoleon Hill și transformă-ți viața'}
+            </p>
+            <Button 
+              size="lg"
+              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+              onClick={() => handleStartDay(challengeDays[0])}
+            >
+              {language === 'en' ? 'Begin Challenge' : 'Începe Provocarea'}
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </Card>
+      </div>
+    </Layout>
+  );
+};
+
+export default ChallengePage;
