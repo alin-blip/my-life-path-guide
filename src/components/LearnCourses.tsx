@@ -118,7 +118,7 @@ export const LearnCourses: React.FC<LearnCoursesProps> = ({ activeCategory, acti
           onClose={() => setSelectedCourse(null)}
           course={selectedCourse}
           isLocked={selectedCourse.isLocked}
-          purchaseUrl="https://warriorprogram.ro/pricing"
+          purchaseUrl="/pricing"
         />
       )}
 

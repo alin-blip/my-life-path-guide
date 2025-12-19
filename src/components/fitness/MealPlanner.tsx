@@ -69,7 +69,7 @@ export function MealPlanner() {
                 <TabsTrigger 
                   key={`day-${index + 1}`} 
                   value={`day-${index + 1}`}
-                  className="data-[state=active]:bg-warrior-accent text-xs sm:text-sm min-w-0"
+                  className="data-[state=active]:bg-primary text-xs sm:text-sm min-w-0"
                 >
                   <span className="hidden sm:inline">{t('day')} {index + 1}</span>
                   <span className="sm:hidden">{index + 1}</span>

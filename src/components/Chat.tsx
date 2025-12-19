@@ -28,7 +28,7 @@ export const Chat = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<MessageType[]>([
     {
-      text: 'Welcome to the Warrior chat! How can I help you today?',
+      text: 'Welcome to the Napoleon Hill Academy chat! How can I help you today?',
       sender: 'other',
       timestamp: new Date(),
     }
@@ -39,7 +39,7 @@ export const Chat = () => {
   // Sample data
   const channels: Channel[] = [
     { id: '1', name: 'General', isPrivate: false },
-    { id: '2', name: 'Warrior Council', isPrivate: true },
+    { id: '2', name: 'Master Mind Group', isPrivate: true },
     { id: '3', name: 'Daily Stack', isPrivate: false },
   ];
 
@@ -102,14 +102,14 @@ export const Chat = () => {
   return (
     <div className="flex h-full max-w-7xl mx-auto">
       {/* Sidebar */}
-      <div className="w-72 bg-warrior-secondary border-r border-warrior-muted/30 flex flex-col h-full">
-        <div className="p-4 border-b border-warrior-muted/30">
+      <div className="w-72 bg-secondary border-r border-border/30 flex flex-col h-full">
+        <div className="p-4 border-b border-border/30">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Chat</h2>
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-8 w-8 rounded-full bg-warrior-muted/50 hover:bg-warrior-muted"
+              className="h-8 w-8 rounded-full bg-muted/50 hover:bg-muted"
               onClick={toggleCreateMenu}
             >
               <Plus className="h-4 w-4" />
@@ -117,12 +117,12 @@ export const Chat = () => {
             
             {/* Create menu popup */}
             {isCreateMenuOpen && (
-              <div className="absolute top-24 right-8 bg-warrior-secondary border border-warrior-muted/50 shadow-lg rounded-md p-2 w-48 z-10">
-                <div className="p-2 hover:bg-warrior-muted/30 rounded-md cursor-pointer flex items-center gap-2">
+              <div className="absolute top-24 right-8 bg-secondary border border-border/50 shadow-lg rounded-md p-2 w-48 z-10">
+                <div className="p-2 hover:bg-muted/30 rounded-md cursor-pointer flex items-center gap-2">
                   <MessagesSquare className="h-4 w-4" />
                   <span>Create a Channel</span>
                 </div>
-                <div className="p-2 hover:bg-warrior-muted/30 rounded-md cursor-pointer flex items-center gap-2">
+                <div className="p-2 hover:bg-muted/30 rounded-md cursor-pointer flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   <span>Create a Segment</span>
                 </div>
@@ -133,19 +133,19 @@ export const Chat = () => {
           <div className="mt-4">
             <div className="flex space-x-2">
               <button 
-                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeView === 'messages' ? 'bg-warrior-accent text-white' : 'text-muted-foreground hover:bg-warrior-muted/30'}`}
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeView === 'messages' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/30'}`}
                 onClick={() => setActiveView('messages')}
               >
                 Messages
               </button>
               <button 
-                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeView === 'channels' ? 'bg-warrior-accent text-white' : 'text-muted-foreground hover:bg-warrior-muted/30'}`}
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeView === 'channels' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/30'}`}
                 onClick={() => setActiveView('channels')}
               >
                 Channels
               </button>
               <button 
-                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeView === 'dms' ? 'bg-warrior-accent text-white' : 'text-muted-foreground hover:bg-warrior-muted/30'}`}
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeView === 'dms' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/30'}`}
                 onClick={() => setActiveView('dms')}
               >
                 DMs
@@ -159,7 +159,7 @@ export const Chat = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search messages..."
-              className="pl-9 bg-warrior-muted/30 border-warrior-muted/30"
+              className="pl-9 bg-muted/30 border-border/30"
             />
           </div>
         </div>
@@ -169,13 +169,13 @@ export const Chat = () => {
             <div className="space-y-1">
               <h3 className="text-xs font-semibold text-muted-foreground mb-2 px-2">CHANNELS</h3>
               {channels.map(channel => (
-                <div key={channel.id} className="flex items-center px-2 py-1.5 rounded-md hover:bg-warrior-muted/30 cursor-pointer">
+                <div key={channel.id} className="flex items-center px-2 py-1.5 rounded-md hover:bg-muted/30 cursor-pointer">
                   <div className="flex items-center">
                     <MessagesSquare className="h-4 w-4 mr-2 text-muted-foreground" />
                     <span className="text-sm">{channel.name}</span>
                   </div>
                   {channel.isPrivate && (
-                    <div className="ml-2 bg-warrior-muted/50 text-xs px-1.5 py-0.5 rounded">
+                    <div className="ml-2 bg-muted/50 text-xs px-1.5 py-0.5 rounded">
                       Private
                     </div>
                   )}
@@ -188,13 +188,13 @@ export const Chat = () => {
             <div className="space-y-1">
               <h3 className="text-xs font-semibold text-muted-foreground mb-2 px-2">DIRECT MESSAGES</h3>
               {directMessages.map(dm => (
-                <div key={dm.id} className="flex items-center px-2 py-1.5 rounded-md hover:bg-warrior-muted/30 cursor-pointer">
+                <div key={dm.id} className="flex items-center px-2 py-1.5 rounded-md hover:bg-muted/30 cursor-pointer">
                   <div className="relative mr-2">
-                    <div className="w-8 h-8 rounded-full bg-warrior-muted flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                       <User className="h-4 w-4" />
                     </div>
                     {dm.isOnline && (
-                      <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border border-warrior-secondary"></div>
+                      <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border border-secondary"></div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -219,7 +219,7 @@ export const Chat = () => {
             <div className="space-y-4">
               <div className="space-y-1">
                 <h3 className="text-xs font-semibold text-muted-foreground mb-2 px-2">THREADS</h3>
-                <div className="px-2 py-1.5 rounded-md hover:bg-warrior-muted/30 cursor-pointer">
+                <div className="px-2 py-1.5 rounded-md hover:bg-muted/30 cursor-pointer">
                   <span className="text-sm">All Threads</span>
                 </div>
               </div>
@@ -227,13 +227,13 @@ export const Chat = () => {
               <div className="space-y-1">
                 <h3 className="text-xs font-semibold text-muted-foreground mb-2 px-2">DIRECT MESSAGES</h3>
                 {directMessages.map(dm => (
-                  <div key={dm.id} className="flex items-center px-2 py-1.5 rounded-md hover:bg-warrior-muted/30 cursor-pointer">
+                  <div key={dm.id} className="flex items-center px-2 py-1.5 rounded-md hover:bg-muted/30 cursor-pointer">
                     <div className="relative mr-2">
-                      <div className="w-8 h-8 rounded-full bg-warrior-muted flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                         <User className="h-4 w-4" />
                       </div>
                       {dm.isOnline && (
-                        <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border border-warrior-secondary"></div>
+                        <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border border-secondary"></div>
                       )}
                     </div>
                     <span className="text-sm">{dm.username}</span>
@@ -247,7 +247,7 @@ export const Chat = () => {
       
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col h-full">
-        <div className="p-4 border-b border-warrior-muted/30">
+        <div className="p-4 border-b border-border/30">
           <h2 className="text-lg font-semibold">General</h2>
         </div>
         
@@ -273,7 +273,7 @@ export const Chat = () => {
           ))}
         </div>
         
-        <div className="p-4 border-t border-warrior-muted/30">
+        <div className="p-4 border-t border-border/30">
           <div className="flex items-center gap-2">
             <Input
               value={message}

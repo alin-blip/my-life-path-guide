@@ -14,7 +14,7 @@ export function DailyMealDisplay({ day }: DailyMealDisplayProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="col-span-full pb-2 border-b border-warrior-muted/20">
+        <div className="col-span-full pb-2 border-b border-border/20">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium">{t('totalCalories')}: {Math.round(day.totalCalories)}</h3>
             <div className="flex space-x-4">
@@ -26,7 +26,7 @@ export function DailyMealDisplay({ day }: DailyMealDisplayProps) {
         </div>
         
         {day.meals.map((meal, index) => (
-          <Card key={`meal-${index}`} className="bg-warrior-dark border-warrior-muted/10">
+          <Card key={`meal-${index}`} className="bg-card border-border/10">
             <CardHeader className="pb-2">
               <CardTitle>{t(meal.name.toLowerCase())}</CardTitle>
               <div className="text-sm text-muted-foreground">
@@ -44,7 +44,7 @@ export function DailyMealDisplay({ day }: DailyMealDisplayProps) {
                   </li>
                 ))}
               </ul>
-              <div className="mt-3 pt-2 border-t border-warrior-muted/10 text-xs flex justify-between">
+              <div className="mt-3 pt-2 border-t border-border/10 text-xs flex justify-between">
                 <span>P: {Math.round(meal.totalMacros.protein)}g</span>
                 <span>C: {Math.round(meal.totalMacros.carbs)}g</span>
                 <span>F: {Math.round(meal.totalMacros.fat)}g</span>

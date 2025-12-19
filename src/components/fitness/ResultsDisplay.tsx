@@ -21,7 +21,7 @@ export function ResultsDisplay({ results, onReset }: ResultsDisplayProps) {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4">
         {/* Target Calories Card */}
-        <Card className="bg-gradient-to-br from-warrior-purple-light to-warrior-purple shadow-lg border-0">
+        <Card className="bg-gradient-to-br from-primary/80 to-primary shadow-lg border-0">
           <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
             <CardTitle className="text-sm sm:text-lg flex items-center gap-1 sm:gap-2">
               <Flag className="w-3 h-3 sm:w-5 sm:h-5" />
