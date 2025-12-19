@@ -11,13 +11,14 @@ export interface StackSessionData {
   mode?: 'structured' | 'chat';
   currentAnswer?: string;
   draftAnswer?: string;
+  challenge_day_number?: number;
 }
 
 export const stackSessionsService = {
   /**
    * Salvează o sesiune de stack în Supabase
    */
-  async saveStackSession(sessionData: StackSessionData): Promise<{ success: boolean; error?: any }> {
+  async saveStackSession(sessionData: StackSessionData): Promise<{ success: boolean; error?: any; sessionId?: string }> {
     try {
       const { data: userData } = await supabase.auth.getUser();
       
@@ -26,25 +27,34 @@ export const stackSessionsService = {
         return { success: false, error: 'No authenticated user' };
       }
 
-      const { error } = await supabase
+      const insertData: any = {
+        session_id: sessionData.session_id,
+        stack_type: sessionData.stack_type,
+        user_id: userData.user.id,
+        answers: sessionData.answers,
+        completed: sessionData.isCompleted || false,
+        updated_at: new Date().toISOString()
+      };
+
+      // Add challenge_day_number if provided
+      if (sessionData.challenge_day_number) {
+        insertData.challenge_day_number = sessionData.challenge_day_number;
+      }
+
+      const { data, error } = await supabase
         .from('stack_sessions')
-        .upsert({
-          session_id: sessionData.session_id,
-          stack_type: sessionData.stack_type,
-          user_id: userData.user.id,
-          answers: sessionData.answers,
-          completed: sessionData.isCompleted || false,
-          updated_at: new Date().toISOString()
-        }, {
+        .upsert(insertData, {
           onConflict: 'session_id,stack_type'
-        });
+        })
+        .select('id')
+        .single();
 
       if (error) {
         console.error('Error saving stack session to Supabase:', error);
         return { success: false, error };
       }
 
-      return { success: true };
+      return { success: true, sessionId: data?.id };
     } catch (error) {
       console.error('Exception saving stack session:', error);
       return { success: false, error };

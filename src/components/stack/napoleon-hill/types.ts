@@ -16,6 +16,7 @@ export interface NapoleonHillStackProps {
   isReadOnly?: boolean;
   stackId?: string;
   initialPrinciple?: number | null;
+  challengeDay?: number | null;
 }
 
 export interface NapoleonHillState {

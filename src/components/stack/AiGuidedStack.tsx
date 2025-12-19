@@ -41,6 +41,7 @@ interface AiGuidedStackProps {
   systemPromptOverride?: string;
   welcomeMessage?: string;
   knowledgeBaseFiles?: string[];
+  challengeDay?: number | null;
 }
 
 export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({ 
@@ -53,7 +54,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   systemPrompt: customSystemPrompt,
   systemPromptOverride,
   welcomeMessage: customWelcomeMessage,
-  knowledgeBaseFiles = []
+  knowledgeBaseFiles = [],
+  challengeDay
 }) => {
   const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -87,6 +89,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   } = useStackSession({
     stackType,
     sessionId,
+    challengeDay,
     onSessionRestore: (sessionData) => {
       console.log('📥 Restoring session:', sessionData);
       if (sessionData.answers && sessionData.answers.messages && Array.isArray(sessionData.answers.messages)) {
