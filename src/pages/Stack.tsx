@@ -26,6 +26,7 @@ const CoachingPage = () => {
   const [existingStack, setExistingStack] = useState<any>(null);
   const [isLoadingStack, setIsLoadingStack] = useState(false);
   const [stackMode, setStackMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
+  const [initialPrinciple, setInitialPrinciple] = useState<number | null>(null);
   const { hitList, setHitList, hotList, setHotList } = useDoorContent();
   const { toast } = useToast();
   const [isSupabaseAvailable, setIsSupabaseAvailable] = useState(false);
@@ -47,6 +48,14 @@ const CoachingPage = () => {
     const typeParam = searchParams.get('type');
     const idParam = searchParams.get('id');
     const sharedParam = searchParams.get('shared');
+    const principleParam = searchParams.get('principle');
+    
+    // Store principle in state to pass to component
+    if (principleParam) {
+      setInitialPrinciple(parseInt(principleParam, 10));
+    } else {
+      setInitialPrinciple(null);
+    }
     
     // Handle existing stack loading
     if (idParam) {
@@ -318,7 +327,7 @@ const renderActiveStack = () => {
       case "napoleon-hill":
         return <NapoleonHillStack {...stackProps} />;
       case "napoleon-hill-quick":
-        return <NapoleonHillQuickStack {...stackProps} />;
+        return <NapoleonHillQuickStack {...stackProps} initialPrinciple={initialPrinciple} />;
       default:
         return <DivinePrayerStack {...stackProps} />;
     }

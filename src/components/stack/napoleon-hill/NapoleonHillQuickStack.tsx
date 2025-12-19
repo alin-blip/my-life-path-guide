@@ -33,7 +33,8 @@ export const NapoleonHillQuickStack: React.FC<NapoleonHillStackProps> = ({
   onAddToHitList,
   existingData,
   isReadOnly,
-  stackId 
+  stackId,
+  initialPrinciple
 }) => {
   const [selectedPrinciple, setSelectedPrinciple] = useState<number | null>(null);
   const [mode, setMode] = useState<'select' | 'full' | 'coaching'>('select');
@@ -46,6 +47,14 @@ export const NapoleonHillQuickStack: React.FC<NapoleonHillStackProps> = ({
     isIdeaModalOpen,
     closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
+
+  // Auto-select principle if passed via URL
+  useEffect(() => {
+    if (initialPrinciple && initialPrinciple >= 1 && initialPrinciple <= 14) {
+      setSelectedPrinciple(initialPrinciple);
+      setMode('coaching');
+    }
+  }, [initialPrinciple]);
 
   // Fetch knowledge base files on mount
   useEffect(() => {
