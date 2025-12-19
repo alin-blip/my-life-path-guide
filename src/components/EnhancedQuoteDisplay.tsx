@@ -373,12 +373,12 @@ export const EnhancedQuoteDisplay: React.FC<EnhancedQuoteDisplayProps> = ({
         </div>
       </div>
 
-      <Card className="relative bg-black/30 p-6 rounded-lg mt-2 min-h-[180px] border-warrior-muted/10">
+      <Card className="relative bg-black/30 p-6 rounded-lg mt-2 min-h-[180px] border-border/10">
         <div className="text-center">
           <p className="text-white text-lg md:text-xl italic mb-3">"{currentQuote.text}"</p>
           <p className="text-gray-300 text-sm md:text-base">— {currentQuote.author}</p>
           <div className="mt-3 flex items-center justify-center">
-            <span className="px-2 py-1 bg-warrior-accent/20 rounded-full text-xs text-warrior-accent">
+            <span className="px-2 py-1 bg-primary/20 rounded-full text-xs text-primary">
               {currentQuote.category}
             </span>
           </div>
@@ -387,23 +387,23 @@ export const EnhancedQuoteDisplay: React.FC<EnhancedQuoteDisplayProps> = ({
       
       <div className="flex flex-wrap gap-2 mt-4 justify-between">
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className={`bg-transparent border-warrior-muted/30 hover:bg-warrior-accent/10 ${hasInteracted('likes') ? 'text-warrior-accent' : 'text-gray-400'}`} onClick={handleLike}>
-            <Heart className={`h-4 w-4 mr-2 ${hasInteracted('likes') ? 'fill-warrior-accent' : ''}`} />
+          <Button variant="outline" size="sm" className={`bg-transparent border-border/30 hover:bg-primary/10 ${hasInteracted('likes') ? 'text-primary' : 'text-gray-400'}`} onClick={handleLike}>
+            <Heart className={`h-4 w-4 mr-2 ${hasInteracted('likes') ? 'fill-primary' : ''}`} />
             {language === 'en' ? 'Like' : 'Apreciază'}
           </Button>
           
-          <Button variant="outline" size="sm" className={`bg-transparent border-warrior-muted/30 hover:bg-warrior-accent/10 ${hasInteracted('saves') ? 'text-warrior-accent' : 'text-gray-400'}`} onClick={handleSave}>
-            <Bookmark className={`h-4 w-4 mr-2 ${hasInteracted('saves') ? 'fill-warrior-accent' : ''}`} />
+          <Button variant="outline" size="sm" className={`bg-transparent border-border/30 hover:bg-primary/10 ${hasInteracted('saves') ? 'text-primary' : 'text-gray-400'}`} onClick={handleSave}>
+            <Bookmark className={`h-4 w-4 mr-2 ${hasInteracted('saves') ? 'fill-primary' : ''}`} />
             {language === 'en' ? 'Save' : 'Salvează'}
           </Button>
         </div>
         
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="bg-transparent border-warrior-muted/30 hover:bg-warrior-accent/10 text-gray-400" onClick={loadDailyQuote}>
+          <Button variant="outline" size="sm" className="bg-transparent border-border/30 hover:bg-primary/10 text-gray-400" onClick={loadDailyQuote}>
             {language === 'en' ? 'Daily' : 'Zilnic'}
           </Button>
           
-          <Button variant="outline" size="sm" className="bg-transparent border-warrior-muted/30 hover:bg-warrior-accent/10 text-gray-400" onClick={loadPersonalizedQuote}>
+          <Button variant="outline" size="sm" className="bg-transparent border-border/30 hover:bg-primary/10 text-gray-400" onClick={loadPersonalizedQuote}>
             {language === 'en' ? 'For You' : 'Pentru Tine'}
           </Button>
         </div>

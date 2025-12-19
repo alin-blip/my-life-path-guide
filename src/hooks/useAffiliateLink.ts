@@ -33,14 +33,14 @@ export function useAffiliateLink() {
       if (navigator.share) {
         // Use Web Share API if available
         await navigator.share({
-          title: 'Join Warrior Romania',
-          text: 'Become the best version of yourself in all areas of life: Join the Warrior Romania community',
+          title: 'Join Napoleon Hill Academy',
+          text: 'Become the best version of yourself in all areas of life: Join the Napoleon Hill Academy community',
           url: referralLink,
         });
         
         toast({
           title: 'Link shared successfully',
-          description: 'Thank you for sharing Warrior Romania!',
+          description: 'Thank you for sharing Napoleon Hill Academy!',
         });
       } else {
         // Fallback to clipboard

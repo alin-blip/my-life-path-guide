@@ -13,11 +13,11 @@ interface Course {
   hasPlayButton?: boolean;
 }
 
-// Course data matching the image
+// Course data - Napoleon Hill themed
 const courseData: Course[] = [
   {
     id: '1',
-    title: 'WARRIORBOOK 2ND EDITION',
+    title: 'THINK AND GROW RICH',
     subTitle: 'AUDIOBOOK',
     image: '/public/lovable-uploads/26a033cf-b370-4f36-b524-05194c9e8f64.png',
     status: 'NOT STARTED',
@@ -25,7 +25,7 @@ const courseData: Course[] = [
   },
   {
     id: '2',
-    title: 'THE WARRIOR\'S WAY',
+    title: 'THE 13 PRINCIPLES',
     subTitle: 'VIDEOBOOK',
     image: '/public/lovable-uploads/26a033cf-b370-4f36-b524-05194c9e8f64.png',
     status: 'IN PROGRESS',
@@ -42,7 +42,7 @@ const courseData: Course[] = [
   },
   {
     id: '4',
-    title: 'WARRIORAPP QUICK START',
+    title: 'NAPOLEON HILL QUICK START',
     image: '/public/lovable-uploads/26a033cf-b370-4f36-b524-05194c9e8f64.png',
     status: 'NOT STARTED',
     progress: 0
@@ -65,7 +65,7 @@ const courseData: Course[] = [
   },
   {
     id: '7',
-    title: 'WARRIORCORE4',
+    title: 'NAPOLEON HILL CORE 4',
     subTitle: 'AUDIOBOOK',
     image: '/public/lovable-uploads/26a033cf-b370-4f36-b524-05194c9e8f64.png',
     status: 'COMPLETED',

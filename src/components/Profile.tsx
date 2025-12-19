@@ -81,7 +81,7 @@ export const Profile: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit}>
-        <Card className="bg-warrior-DEFAULT border-warrior-muted/30 shadow-lg">
+        <Card className="bg-card border-border/30 shadow-lg">
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
           </CardHeader>
@@ -101,7 +101,7 @@ export const Profile: React.FC = () => {
                 </div>
                 <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                   <div className="flex flex-col items-center">
-                    <label htmlFor="profile-upload" className="cursor-pointer text-xs text-white hover:text-warrior-accent mb-1 flex items-center">
+                    <label htmlFor="profile-upload" className="cursor-pointer text-xs text-white hover:text-primary mb-1 flex items-center">
                       <Upload className="h-3 w-3 mr-1" />
                       UPLOAD
                     </label>
