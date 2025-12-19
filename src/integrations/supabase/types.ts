@@ -644,6 +644,36 @@ export type Database = {
           },
         ]
       }
+      leaderboard_profiles: {
+        Row: {
+          avatar_emoji: string | null
+          created_at: string | null
+          display_name: string
+          id: string
+          is_visible: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_emoji?: string | null
+          created_at?: string | null
+          display_name: string
+          id?: string
+          is_visible?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_emoji?: string | null
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          is_visible?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       lifebook_drafts: {
         Row: {
           created_at: string | null
@@ -1362,7 +1392,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      leaderboard_stats: {
+        Row: {
+          actions_completed: number | null
+          avatar_emoji: string | null
+          display_name: string | null
+          last_activity: string | null
+          pages_read: number | null
+          principles_touched: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       archive_user_tasks: {

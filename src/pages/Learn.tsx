@@ -3,10 +3,11 @@ import { Layout } from '@/components/Layout';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, BarChart3 } from 'lucide-react';
+import { BookOpen, BarChart3, Trophy } from 'lucide-react';
 import { DailyBookPage } from '@/components/challenge/DailyBookPage';
 import { ReadingProgressDashboard } from '@/components/challenge/ReadingProgressDashboard';
 import { EmptyStateCard } from '@/components/door/EmptyStateCard';
+import { Leaderboard } from '@/components/leaderboard/Leaderboard';
 
 const LearnPage = () => {
   const { language } = useLanguage();
@@ -27,14 +28,18 @@ const LearnPage = () => {
           </p>
 
           <Tabs defaultValue="daily" className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsList className="grid w-full max-w-lg grid-cols-3">
               <TabsTrigger value="daily" className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4" />
                 {language === 'en' ? 'Daily Page' : 'Pagina Zilnică'}
               </TabsTrigger>
               <TabsTrigger value="progress" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
-                {language === 'en' ? 'My Progress' : 'Progresul Meu'}
+                {language === 'en' ? 'Progress' : 'Progres'}
+              </TabsTrigger>
+              <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+                <Trophy className="h-4 w-4" />
+                {language === 'en' ? 'Leaderboard' : 'Clasament'}
               </TabsTrigger>
             </TabsList>
             
@@ -57,6 +62,10 @@ const LearnPage = () => {
                   emoji="🔐"
                 />
               )}
+            </TabsContent>
+
+            <TabsContent value="leaderboard" className="mt-6">
+              <Leaderboard />
             </TabsContent>
           </Tabs>
         </div>
