@@ -155,12 +155,13 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   } catch (error) {
     console.error('Error in ai-live-coaching function:', error);
     
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     let statusCode = 500;
-    if (error.message?.includes('Rate limit')) statusCode = 429;
-    if (error.message?.includes('Credite insuficiente')) statusCode = 402;
+    if (errorMessage.includes('Rate limit')) statusCode = 429;
+    if (errorMessage.includes('Credite insuficiente')) statusCode = 402;
     
     return new Response(JSON.stringify({ 
-      error: error.message 
+      error: errorMessage 
     }), {
       status: statusCode,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

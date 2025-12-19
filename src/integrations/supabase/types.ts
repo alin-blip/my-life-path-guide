@@ -80,6 +80,42 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_progress: {
+        Row: {
+          actions_completed: Json | null
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          day_number: number
+          id: string
+          updated_at: string | null
+          user_id: string
+          video_watched: boolean | null
+        }
+        Insert: {
+          actions_completed?: Json | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          day_number: number
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          video_watched?: boolean | null
+        }
+        Update: {
+          actions_completed?: Json | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          day_number?: number
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          video_watched?: boolean | null
+        }
+        Relationships: []
+      }
       course_modules: {
         Row: {
           course_id: string

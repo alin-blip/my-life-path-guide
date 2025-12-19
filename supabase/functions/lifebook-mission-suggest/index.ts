@@ -129,7 +129,7 @@ Generate a single clear and actionable ${isAnnual ? 'annual' : 'monthly'} object
     });
   } catch (error) {
     console.error('Error in lifebook-mission-suggest:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

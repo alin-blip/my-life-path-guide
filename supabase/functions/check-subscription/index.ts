@@ -79,7 +79,7 @@ serve(async (req) => {
 
     const customerId = customers.data[0].id;
     const subsList = await stripe.subscriptions.list({ customer: customerId, limit: 10 });
-    const activeOrTrial = subsList.data.find((s) => s.status === "active" || s.status === "trialing");
+    const activeOrTrial = subsList.data.find((s: { status: string }) => s.status === "active" || s.status === "trialing");
     const isSubscribed = Boolean(activeOrTrial);
 
     let tier: string | null = null;
