@@ -251,7 +251,7 @@ Analizează din perspectiva unui investitor/advisor care evaluează dacă RoWarr
   } catch (error) {
     console.error('[HORMOZI-ANALYSIS] Error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
