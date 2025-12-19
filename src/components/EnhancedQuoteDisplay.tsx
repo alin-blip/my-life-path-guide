@@ -312,8 +312,8 @@ export const EnhancedQuoteDisplay: React.FC<EnhancedQuoteDisplayProps> = ({
   }
   return <div className="bg-card p-6 rounded-lg mb-8 shadow-md border border-primary/20">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-        <h2 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2 md:mb-0">
-          {language === 'en' ? 'Daily Inspiration' : 'Inspirație Zilnică'}
+        <h2 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 mb-2 md:mb-0">
+          {language === 'en' ? '📖 Daily Page from Think and Grow Rich' : '📖 Pagina Zilnică din Think and Grow Rich'}
         </h2>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={loadRandomQuote} className="bg-purple-600/20 border-purple-500/50 hover:bg-purple-700/30 text-white">

@@ -16,7 +16,7 @@ import { useProgress } from '@/context/ProgressContext';
 import { Progress } from './ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { TaskPriority } from '@/types/door';
-import { QuoteDisplay } from './QuoteDisplay';
+import { DailyBookPage } from './challenge/DailyBookPage';
 import { MonthlyMission, MissionCategory } from '@/types/mission';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -501,7 +501,7 @@ export const Dashboard: React.FC = () => {
         
       </div>
       
-      <QuoteDisplay appName="GODDESS" />
+      <DailyBookPage />
       
       <div className="mb-6 md:mb-8 bg-card border border-border p-3 md:p-4 rounded-lg shadow-sm">
         <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">

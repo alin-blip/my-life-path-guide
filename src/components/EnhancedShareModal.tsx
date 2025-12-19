@@ -237,6 +237,11 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
     setQuoteImageUrl(canvas.toDataURL('image/png'));
   };
 
+  // Challenge CTA constants
+  const CHALLENGE_CTA = "🚀 Start your FREE 7-day transformation challenge";
+  const CHALLENGE_URL = "napoleonhill.academy/challenge";
+  const CHALLENGE_HASHTAGS = "ThinkAndGrowRich,NapoleonHill,Success,Transformation";
+
   // Handle social media sharing
   const handleSocialShare = (platform: string) => {
     if (!quote) return;
@@ -244,10 +249,12 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
     // Record the share interaction
     quoteService.recordQuoteInteraction(quote.id, 'shares');
 
-    // Prepare the quote text and attribution
-    const text = encodeURIComponent(`"${quote.text}" — ${quote.author}`);
-    const hashtags = encodeURIComponent('WakeUpWarrior,DailyInspiration');
-    const url = encodeURIComponent(window.location.href);
+    // Prepare the quote text with Challenge CTA
+    const quoteText = `"${quote.text}" — ${quote.author}`;
+    const textWithCTA = `${quoteText}\n\n${CHALLENGE_CTA}\n${CHALLENGE_URL}`;
+    const text = encodeURIComponent(textWithCTA);
+    const hashtags = encodeURIComponent(CHALLENGE_HASHTAGS);
+    const url = encodeURIComponent(window.location.origin + '/challenge');
 
     // Open the appropriate share dialog based on platform
     let shareUrl;
@@ -287,8 +294,8 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
   const handleCopyToClipboard = () => {
     if (!quote) return;
     
-    // Create formatted text with quote and attribution
-    const textToCopy = `"${quote.text}"\n— ${quote.author}\n\nShared from ${appName}`;
+    // Create formatted text with quote, attribution, and Challenge CTA
+    const textToCopy = `"${quote.text}"\n— ${quote.author}\n\n🚀 Start your FREE 7-day transformation challenge\n${window.location.origin}/challenge\n\n#ThinkAndGrowRich #NapoleonHill`;
     
     navigator.clipboard.writeText(textToCopy)
       .then(() => {
@@ -316,7 +323,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
     if (!quoteImageUrl || !quote) return;
 
     const link = document.createElement('a');
-    link.download = 'warrior-quote.png';
+    link.download = 'napoleon-hill-quote.png';
     link.href = quoteImageUrl;
     link.click();
 
