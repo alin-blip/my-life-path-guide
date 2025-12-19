@@ -43,7 +43,7 @@ const challengeContent: ChallengeDayContent[] = [
     videoPlaceholder: "🎬 Video: Definește-ți Dorința Arzătoare (Coming Soon)",
     icon: Flame,
     color: "from-red-500 to-orange-500",
-    actionPath: "/napoleon-hill-system",
+    actionPath: "/stack?type=napoleon-hill-quick&principle=1",
     stepsEn: [
       "Watch the video about the power of burning desire",
       "Write down your definite major purpose",
@@ -80,7 +80,7 @@ const challengeContent: ChallengeDayContent[] = [
     videoPlaceholder: "🎬 Video: Cum să Instalezi Credința (Coming Soon)",
     icon: Heart,
     color: "from-pink-500 to-rose-500",
-    actionPath: "/journal",
+    actionPath: "/stack?type=napoleon-hill-quick&principle=2",
     stepsEn: [
       "Watch the video about installing faith",
       "Practice the autosuggestion technique",
@@ -117,7 +117,7 @@ const challengeContent: ChallengeDayContent[] = [
     videoPlaceholder: "🎬 Video: Puterea Deciziei Ireversibile (Coming Soon)",
     icon: Target,
     color: "from-blue-500 to-cyan-500",
-    actionPath: "/door",
+    actionPath: "/stack?type=napoleon-hill-quick&principle=7",
     stepsEn: [
       "Watch the video about the power of decision",
       "Make 3 definite decisions today",
@@ -154,7 +154,7 @@ const challengeContent: ChallengeDayContent[] = [
     videoPlaceholder: "🎬 Video: Disciplina Corpului și a Minții (Coming Soon)",
     icon: Zap,
     color: "from-yellow-500 to-amber-500",
-    actionPath: "/core",
+    actionPath: "/stack?type=napoleon-hill-quick&principle=12",
     stepsEn: [
       "Watch the video about body-mind connection",
       "Complete your fitness activity",
@@ -191,7 +191,7 @@ const challengeContent: ChallengeDayContent[] = [
     videoPlaceholder: "🎬 Video: Legea Servirii și a Valorii (Coming Soon)",
     icon: Gift,
     color: "from-green-500 to-emerald-500",
-    actionPath: "/core",
+    actionPath: "/stack?type=napoleon-hill-quick&principle=9",
     stepsEn: [
       "Watch the video about value and service",
       "Reach out to 2 people in your network",
@@ -228,7 +228,7 @@ const challengeContent: ChallengeDayContent[] = [
     videoPlaceholder: "🎬 Video: Puterea Cunoștințelor Specializate (Coming Soon)",
     icon: BookOpen,
     color: "from-purple-500 to-violet-500",
-    actionPath: "/napoleon-hill-system",
+    actionPath: "/stack?type=napoleon-hill-quick&principle=4",
     stepsEn: [
       "Watch the video about specialized knowledge",
       "Identify gaps in your knowledge for your goal",
@@ -265,7 +265,7 @@ const challengeContent: ChallengeDayContent[] = [
     videoPlaceholder: "🎬 Video: Planificarea Săptămânală ca un General (Coming Soon)",
     icon: Crown,
     color: "from-amber-500 to-yellow-600",
-    actionPath: "/door",
+    actionPath: "/stack?type=napoleon-hill-quick&principle=6",
     stepsEn: [
       "Watch the video about organized weekly planning",
       "Complete your weekly planning session",

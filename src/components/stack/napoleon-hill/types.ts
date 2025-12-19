@@ -15,6 +15,7 @@ export interface NapoleonHillStackProps {
   existingData?: any;
   isReadOnly?: boolean;
   stackId?: string;
+  initialPrinciple?: number | null;
 }
 
 export interface NapoleonHillState {
