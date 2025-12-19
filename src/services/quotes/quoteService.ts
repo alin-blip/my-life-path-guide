@@ -14,9 +14,9 @@ import {
 } from './types/quoteTypes';
 
 // Local storage keys
-const QUOTE_HISTORY_KEY = 'warrior_quote_history';
-const QUOTE_PREFERENCES_KEY = 'warrior_quote_preferences';
-const QUOTE_INTERACTIONS_KEY = 'warrior_quote_interactions';
+const QUOTE_HISTORY_KEY = 'napoleon_hill_quote_history';
+const QUOTE_PREFERENCES_KEY = 'napoleon_hill_quote_preferences';
+const QUOTE_INTERACTIONS_KEY = 'napoleon_hill_quote_interactions';
 
 // Types for user preferences and interactions
 interface QuoteWithTimestamp extends Quote {
