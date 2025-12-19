@@ -25,7 +25,7 @@ const PRINCIPLES = [
   { name: "Decision", chapter: "Decision", chapterNumber: 8 },
   { name: "Persistence", chapter: "Persistence", chapterNumber: 9 },
   { name: "Power of the Master Mind", chapter: "Power of the Master Mind", chapterNumber: 10 },
-  { name: "The Mystery of Sex Transmutation", chapter: "Sex Transmutation", chapterNumber: 11 },
+  { name: "Sex Transmutation", chapter: "Sex Transmutation", chapterNumber: 11 },
   { name: "The Subconscious Mind", chapter: "The Subconscious Mind", chapterNumber: 12 },
   { name: "The Brain", chapter: "The Brain", chapterNumber: 13 },
   { name: "The Sixth Sense", chapter: "The Sixth Sense", chapterNumber: 14 }
@@ -433,13 +433,15 @@ const generateAllPages = (): BookPage[] => {
   ];
   
   while (allPages.length < 365) {
-    const principleIndex = (allPages.length - 52) % PRINCIPLES.length;
-    const themeIndex = Math.floor((allPages.length - 52) / PRINCIPLES.length) % practiceThemes.length;
+    const offset = allPages.length - 52;
+    // Ensure positive index using Math.abs and modulo
+    const principleIndex = ((offset % PRINCIPLES.length) + PRINCIPLES.length) % PRINCIPLES.length;
+    const themeIndex = Math.floor(Math.abs(offset) / PRINCIPLES.length) % practiceThemes.length;
     const principle = PRINCIPLES[principleIndex];
     const theme = practiceThemes[themeIndex];
     
     const lessons = coreLessons[principle.name]?.lessons || [];
-    const lessonIndex = (allPages.length - 52) % lessons.length;
+    const lessonIndex = Math.abs(offset) % Math.max(lessons.length, 1);
     const baseLesson = lessons[lessonIndex] || lessons[0];
     
     allPages.push({
