@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, BarChart3, Trophy } from 'lucide-react';
 import { DailyBookPage } from '@/components/challenge/DailyBookPage';
-import { ReadingProgressDashboard } from '@/components/challenge/ReadingProgressDashboard';
+import { AnalyticsDashboard } from '@/components/challenge/AnalyticsDashboard';
 import { EmptyStateCard } from '@/components/door/EmptyStateCard';
 import { Leaderboard } from '@/components/leaderboard/Leaderboard';
 
@@ -49,7 +49,7 @@ const LearnPage = () => {
             
             <TabsContent value="progress" className="mt-6">
               {user ? (
-                <ReadingProgressDashboard />
+                <AnalyticsDashboard />
               ) : (
                 <EmptyStateCard
                   icon={BarChart3}
