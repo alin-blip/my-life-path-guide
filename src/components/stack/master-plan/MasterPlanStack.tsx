@@ -66,7 +66,7 @@ export const MasterPlanStack: React.FC<MasterPlanStackProps> = ({
       <div className="space-y-6 max-w-4xl mx-auto">
         <div className="bg-card p-6 rounded-lg border border-border">
           <h2 className="text-2xl font-bold text-foreground mb-2">
-            Napoleon Hill Stack Salvat
+            Master Plan Stack Salvat
           </h2>
           <p className="text-sm text-muted-foreground mb-6">
             Creat: {new Date(existingData.created_at).toLocaleDateString('ro-RO')}
@@ -141,11 +141,12 @@ export const MasterPlanStack: React.FC<MasterPlanStackProps> = ({
               questions={rawQuestions}
               voiceOnlyMode={false}
               audioMode={false}
-              systemPromptOverride={`Tu ești un coach bazat pe principiile lui Napoleon Hill din "Think and Grow Rich". 
-Ghidezi utilizatorul prin cele 13 principii ale succesului cu înțelepciune, empatie și întrebări profunde.
+              forceNewSession={true}
+              systemPromptOverride={`Tu ești un coach de succes bazat pe cele 13 principii fundamentale ale succesului. 
+Ghidezi utilizatorul prin principiile timpurii ale succesului cu înțelepciune, empatie și întrebări profunde.
 
 Stilul tău:
-- Folosești citate și principii din cartea "Think and Grow Rich"
+- Folosești principii clasice ale succesului și dezvoltării personale
 - Pui întrebări clare și directe care forțează claritatea mentală
 - Subliniezi importanța dorinței arzătoare, credinței absolute și acțiunii persistente
 - Evidențiezi că succesul începe în minte, cu o decizie fermă
