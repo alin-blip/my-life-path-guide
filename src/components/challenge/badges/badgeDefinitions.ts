@@ -1,4 +1,4 @@
-import { BookOpen, Flame, Trophy, Star, Award, Target, Zap, Crown, Medal, Sparkles, Heart, Rocket, Shield, Brain, Eye } from 'lucide-react';
+import { BookOpen, Flame, Trophy, Star, Award, Target, Zap, Crown, Medal, Sparkles, Heart, Rocket, Shield, Brain, Eye, Dumbbell, Users } from 'lucide-react';
 
 export interface Badge {
   id: string;
@@ -19,10 +19,166 @@ export interface BadgeStats {
   principlesStarted: number;
   principlesMastered: number;
   totalDaysActive: number;
+  // New stats for Have It All areas
+  bodyActivitiesCompleted?: number;
+  beingActivitiesCompleted?: number;
+  balanceActivitiesCompleted?: number;
+  businessActivitiesCompleted?: number;
+  challengeDaysCompleted?: number;
 }
 
 export const BADGES: Badge[] = [
-  // Reading Milestones
+  // ============ HAVE IT ALL CHALLENGE BADGES ============
+  {
+    id: 'have_it_all_starter',
+    name: { en: 'Have It All Starter', ro: 'Start Have It All' },
+    description: { en: 'Complete Day 1 of the Challenge', ro: 'Completează Ziua 1 a Provocării' },
+    icon: 'Rocket',
+    color: 'text-orange-500',
+    tier: 'bronze',
+    requirement: (stats) => (stats.challengeDaysCompleted || 0) >= 1,
+    progress: (stats) => ({ current: Math.min(stats.challengeDaysCompleted || 0, 1), target: 1 })
+  },
+  {
+    id: 'have_it_all_master',
+    name: { en: 'Have It All Master', ro: 'Maestru Have It All' },
+    description: { en: 'Complete the full 7-Day Challenge', ro: 'Completează întreaga Provocare de 7 Zile' },
+    icon: 'Crown',
+    color: 'text-amber-500',
+    tier: 'platinum',
+    requirement: (stats) => (stats.challengeDaysCompleted || 0) >= 7,
+    progress: (stats) => ({ current: Math.min(stats.challengeDaysCompleted || 0, 7), target: 7 })
+  },
+  
+  // ============ BODY BADGES ============
+  {
+    id: 'body_warrior_3',
+    name: { en: 'Body Warrior', ro: 'Războinic Corporal' },
+    description: { en: '3 days of physical activity', ro: '3 zile de activitate fizică' },
+    icon: 'Dumbbell',
+    color: 'text-green-500',
+    tier: 'bronze',
+    requirement: (stats) => (stats.bodyActivitiesCompleted || 0) >= 3,
+    progress: (stats) => ({ current: Math.min(stats.bodyActivitiesCompleted || 0, 3), target: 3 })
+  },
+  {
+    id: 'body_warrior_7',
+    name: { en: 'Body Champion', ro: 'Campion Corporal' },
+    description: { en: '7 days of physical activity', ro: '7 zile de activitate fizică' },
+    icon: 'Dumbbell',
+    color: 'text-green-600',
+    tier: 'silver',
+    requirement: (stats) => (stats.bodyActivitiesCompleted || 0) >= 7,
+    progress: (stats) => ({ current: Math.min(stats.bodyActivitiesCompleted || 0, 7), target: 7 })
+  },
+  {
+    id: 'body_warrior_30',
+    name: { en: 'Body Master', ro: 'Maestru Corporal' },
+    description: { en: '30 days of physical activity', ro: '30 zile de activitate fizică' },
+    icon: 'Dumbbell',
+    color: 'text-green-700',
+    tier: 'gold',
+    requirement: (stats) => (stats.bodyActivitiesCompleted || 0) >= 30,
+    progress: (stats) => ({ current: Math.min(stats.bodyActivitiesCompleted || 0, 30), target: 30 })
+  },
+  
+  // ============ BEING (SOUL) BADGES ============
+  {
+    id: 'soul_seeker_3',
+    name: { en: 'Soul Seeker', ro: 'Căutător Spiritual' },
+    description: { en: '3 meditation sessions', ro: '3 sesiuni de meditație' },
+    icon: 'Sparkles',
+    color: 'text-purple-500',
+    tier: 'bronze',
+    requirement: (stats) => (stats.beingActivitiesCompleted || 0) >= 3,
+    progress: (stats) => ({ current: Math.min(stats.beingActivitiesCompleted || 0, 3), target: 3 })
+  },
+  {
+    id: 'soul_seeker_7',
+    name: { en: 'Inner Peace', ro: 'Pace Interioară' },
+    description: { en: '7 meditation sessions', ro: '7 sesiuni de meditație' },
+    icon: 'Sparkles',
+    color: 'text-purple-600',
+    tier: 'silver',
+    requirement: (stats) => (stats.beingActivitiesCompleted || 0) >= 7,
+    progress: (stats) => ({ current: Math.min(stats.beingActivitiesCompleted || 0, 7), target: 7 })
+  },
+  {
+    id: 'soul_seeker_30',
+    name: { en: 'Enlightened', ro: 'Iluminat' },
+    description: { en: '30 meditation sessions', ro: '30 sesiuni de meditație' },
+    icon: 'Eye',
+    color: 'text-purple-700',
+    tier: 'gold',
+    requirement: (stats) => (stats.beingActivitiesCompleted || 0) >= 30,
+    progress: (stats) => ({ current: Math.min(stats.beingActivitiesCompleted || 0, 30), target: 30 })
+  },
+  
+  // ============ BALANCE (RELATIONSHIPS) BADGES ============
+  {
+    id: 'relationship_builder_3',
+    name: { en: 'Relationship Builder', ro: 'Constructor de Relații' },
+    description: { en: 'Add value to others 3 times', ro: 'Adaugă valoare altora de 3 ori' },
+    icon: 'Heart',
+    color: 'text-pink-500',
+    tier: 'bronze',
+    requirement: (stats) => (stats.balanceActivitiesCompleted || 0) >= 3,
+    progress: (stats) => ({ current: Math.min(stats.balanceActivitiesCompleted || 0, 3), target: 3 })
+  },
+  {
+    id: 'relationship_builder_7',
+    name: { en: 'Love Ambassador', ro: 'Ambasador al Dragostei' },
+    description: { en: 'Add value to others 7 times', ro: 'Adaugă valoare altora de 7 ori' },
+    icon: 'Heart',
+    color: 'text-pink-600',
+    tier: 'silver',
+    requirement: (stats) => (stats.balanceActivitiesCompleted || 0) >= 7,
+    progress: (stats) => ({ current: Math.min(stats.balanceActivitiesCompleted || 0, 7), target: 7 })
+  },
+  {
+    id: 'relationship_builder_30',
+    name: { en: 'Connection Master', ro: 'Maestru al Conexiunilor' },
+    description: { en: 'Add value to others 30 times', ro: 'Adaugă valoare altora de 30 ori' },
+    icon: 'Users',
+    color: 'text-pink-700',
+    tier: 'gold',
+    requirement: (stats) => (stats.balanceActivitiesCompleted || 0) >= 30,
+    progress: (stats) => ({ current: Math.min(stats.balanceActivitiesCompleted || 0, 30), target: 30 })
+  },
+  
+  // ============ BUSINESS BADGES ============
+  {
+    id: 'knowledge_seeker_3',
+    name: { en: 'Knowledge Seeker', ro: 'Căutător de Cunoștințe' },
+    description: { en: '3 business learning sessions', ro: '3 sesiuni de învățare business' },
+    icon: 'BookOpen',
+    color: 'text-blue-500',
+    tier: 'bronze',
+    requirement: (stats) => (stats.businessActivitiesCompleted || 0) >= 3,
+    progress: (stats) => ({ current: Math.min(stats.businessActivitiesCompleted || 0, 3), target: 3 })
+  },
+  {
+    id: 'knowledge_seeker_7',
+    name: { en: 'Business Student', ro: 'Student Business' },
+    description: { en: '7 business learning sessions', ro: '7 sesiuni de învățare business' },
+    icon: 'BookOpen',
+    color: 'text-blue-600',
+    tier: 'silver',
+    requirement: (stats) => (stats.businessActivitiesCompleted || 0) >= 7,
+    progress: (stats) => ({ current: Math.min(stats.businessActivitiesCompleted || 0, 7), target: 7 })
+  },
+  {
+    id: 'knowledge_seeker_30',
+    name: { en: 'Business Master', ro: 'Maestru Business' },
+    description: { en: '30 business learning sessions', ro: '30 sesiuni de învățare business' },
+    icon: 'Brain',
+    color: 'text-blue-700',
+    tier: 'gold',
+    requirement: (stats) => (stats.businessActivitiesCompleted || 0) >= 30,
+    progress: (stats) => ({ current: Math.min(stats.businessActivitiesCompleted || 0, 30), target: 30 })
+  },
+  
+  // ============ READING MILESTONES ============
   {
     id: 'first_page',
     name: { en: 'First Step', ro: 'Primul Pas' },
@@ -74,11 +230,11 @@ export const BADGES: Badge[] = [
     progress: (stats) => ({ current: Math.min(stats.totalPagesRead, 365), target: 365 })
   },
   
-  // Streak Badges
+  // ============ STREAK BADGES ============
   {
     id: 'streak_3',
     name: { en: 'Getting Started', ro: 'La Început' },
-    description: { en: '3 day reading streak', ro: 'Streak de 3 zile' },
+    description: { en: '3 day streak', ro: 'Streak de 3 zile' },
     icon: 'Flame',
     color: 'text-orange-400',
     tier: 'bronze',
@@ -87,8 +243,8 @@ export const BADGES: Badge[] = [
   },
   {
     id: 'streak_7',
-    name: { en: 'Week Warrior', ro: 'Războinic Săptămânal' },
-    description: { en: '7 day reading streak', ro: 'Streak de 7 zile' },
+    name: { en: 'Week Achiever', ro: 'Realizator Săptămânal' },
+    description: { en: '7 day streak', ro: 'Streak de 7 zile' },
     icon: 'Flame',
     color: 'text-orange-500',
     tier: 'silver',
@@ -98,7 +254,7 @@ export const BADGES: Badge[] = [
   {
     id: 'streak_30',
     name: { en: 'Monthly Master', ro: 'Maestru Lunar' },
-    description: { en: '30 day reading streak', ro: 'Streak de 30 zile' },
+    description: { en: '30 day streak', ro: 'Streak de 30 zile' },
     icon: 'Flame',
     color: 'text-orange-600',
     tier: 'gold',
@@ -108,7 +264,7 @@ export const BADGES: Badge[] = [
   {
     id: 'streak_100',
     name: { en: 'Unstoppable', ro: 'De Neoprit' },
-    description: { en: '100 day reading streak', ro: 'Streak de 100 zile' },
+    description: { en: '100 day streak', ro: 'Streak de 100 zile' },
     icon: 'Zap',
     color: 'text-yellow-500',
     tier: 'platinum',
@@ -116,7 +272,7 @@ export const BADGES: Badge[] = [
     progress: (stats) => ({ current: Math.min(Math.max(stats.currentStreak, stats.longestStreak), 100), target: 100 })
   },
   
-  // Action Badges
+  // ============ ACTION BADGES ============
   {
     id: 'action_5',
     name: { en: 'Action Taker', ro: 'Om de Acțiune' },
@@ -148,7 +304,7 @@ export const BADGES: Badge[] = [
     progress: (stats) => ({ current: Math.min(stats.totalActionsCompleted, 100), target: 100 })
   },
   
-  // Principle Badges
+  // ============ PRINCIPLE BADGES ============
   {
     id: 'principle_1',
     name: { en: 'Principle Explorer', ro: 'Explorator de Principii' },
@@ -181,7 +337,7 @@ export const BADGES: Badge[] = [
   },
   {
     id: 'principle_13',
-    name: { en: 'Napoleon Hill Master', ro: 'Maestru Napoleon Hill' },
+    name: { en: 'Success Principles Master', ro: 'Maestru Success Principles' },
     description: { en: 'Master all 13 principles', ro: 'Stăpânește toate 13 principiile' },
     icon: 'Crown',
     color: 'text-purple-600',
@@ -190,7 +346,7 @@ export const BADGES: Badge[] = [
     progress: (stats) => ({ current: Math.min(stats.principlesMastered, 13), target: 13 })
   },
   
-  // Special Badges
+  // ============ SPECIAL BADGES ============
   {
     id: 'balanced',
     name: { en: 'Balanced Learner', ro: 'Învățăcel Echilibrat' },

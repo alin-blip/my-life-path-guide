@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Flame, Heart, Target, Zap, Gift, BookOpen, Crown,
-  Play, Lock, CheckCircle2, ArrowRight, Rocket
+  Play, Lock, CheckCircle2, ArrowRight, Rocket, Dumbbell, Brain, Users
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
@@ -22,88 +22,102 @@ interface ChallengeDay {
   icon: React.ElementType;
   color: string;
   actionPath: string;
-  principleNumber: number;
+  focusAreas: ('body' | 'being' | 'balance' | 'business')[];
 }
 
 const challengeDays: ChallengeDay[] = [
   {
     day: 1,
-    titleEn: "DESIRE ENGINE",
-    titleRo: "MOTORUL DORINȚEI",
-    subtitleEn: "Discover what you truly want",
-    subtitleRo: "Descoperă ce vrei cu adevărat",
+    titleEn: "🔥 IGNITE YOUR DESIRE",
+    titleRo: "🔥 APRINDE-ȚI DORINȚA",
+    subtitleEn: "Define your 'Have It All' vision",
+    subtitleRo: "Definește-ți viziunea 'Have It All'",
     icon: Flame,
-    color: "from-red-500 to-orange-500",
+    color: "from-orange-500 to-red-500",
     actionPath: "/challenge/1",
-    principleNumber: 1
+    focusAreas: ['being']
   },
   {
     day: 2,
-    titleEn: "FAITH INSTALL",
-    titleRo: "INSTALEAZĂ CREDINȚA",
-    subtitleEn: "Program your subconscious for success",
-    subtitleRo: "Programează-ți subconștientul pentru succes",
-    icon: Heart,
-    color: "from-pink-500 to-rose-500",
+    titleEn: "💪 BODY MASTERY",
+    titleRo: "💪 STĂPÂNIREA CORPULUI",
+    subtitleEn: "30 min movement + Green fuel",
+    subtitleRo: "30 min mișcare + Combustibil verde",
+    icon: Dumbbell,
+    color: "from-green-500 to-emerald-500",
     actionPath: "/challenge/2",
-    principleNumber: 2
+    focusAreas: ['body']
   },
   {
     day: 3,
-    titleEn: "DECISION DAY",
-    titleRo: "ZIUA DECIZIEI",
-    subtitleEn: "Make powerful, irreversible decisions",
-    subtitleRo: "Ia decizii puternice și ireversibile",
-    icon: Target,
-    color: "from-blue-500 to-cyan-500",
+    titleEn: "✨ SOUL CONNECTION",
+    titleRo: "✨ CONEXIUNE SPIRITUALĂ",
+    subtitleEn: "Meditation + Gratitude + Stack",
+    subtitleRo: "Meditație + Gratitudine + Stack",
+    icon: Brain,
+    color: "from-purple-500 to-violet-500",
     actionPath: "/challenge/3",
-    principleNumber: 6
+    focusAreas: ['body', 'being']
   },
   {
     day: 4,
-    titleEn: "ENERGY & DISCIPLINE",
-    titleRo: "ENERGIE ȘI DISCIPLINĂ",
-    subtitleEn: "Master your body and energy",
-    subtitleRo: "Stăpânește-ți corpul și energia",
-    icon: Zap,
-    color: "from-yellow-500 to-amber-500",
+    titleEn: "💕 LOVE & CONNECTION",
+    titleRo: "💕 DRAGOSTE ȘI CONEXIUNE",
+    subtitleEn: "Add value to 2 people you love",
+    subtitleRo: "Adaugă valoare la 2 persoane dragi",
+    icon: Heart,
+    color: "from-pink-500 to-rose-500",
     actionPath: "/challenge/4",
-    principleNumber: 12
+    focusAreas: ['body', 'being', 'balance']
   },
   {
     day: 5,
-    titleEn: "VALUE & SERVICE",
-    titleRo: "VALOARE ȘI SERVIRE",
-    subtitleEn: "Success comes from contribution",
-    subtitleRo: "Succesul vine din contribuție",
-    icon: Gift,
-    color: "from-green-500 to-emerald-500",
-    actionPath: "/challenge/5",
-    principleNumber: 9
-  },
-  {
-    day: 6,
-    titleEn: "SPECIALIZED KNOWLEDGE",
-    titleRo: "CUNOȘTINȚE SPECIALIZATE",
+    titleEn: "💰 BUSINESS EDGE",
+    titleRo: "💰 AVANTAJ DE BUSINESS",
     subtitleEn: "Learn, discover, apply",
     subtitleRo: "Învață, descoperă, aplică",
     icon: BookOpen,
-    color: "from-purple-500 to-violet-500",
+    color: "from-blue-500 to-cyan-500",
+    actionPath: "/challenge/5",
+    focusAreas: ['body', 'being', 'balance', 'business']
+  },
+  {
+    day: 6,
+    titleEn: "⚡ INTEGRATION DAY",
+    titleRo: "⚡ ZIUA INTEGRĂRII",
+    subtitleEn: "Practice ALL 4 areas",
+    subtitleRo: "Practică TOATE 4 ariile",
+    icon: Zap,
+    color: "from-yellow-500 to-amber-500",
     actionPath: "/challenge/6",
-    principleNumber: 4
+    focusAreas: ['body', 'being', 'balance', 'business']
   },
   {
     day: 7,
-    titleEn: "DOMINO DOOR",
-    titleRo: "UȘA DOMINO",
-    subtitleEn: "Plan your week like a general",
-    subtitleRo: "Planifică-ți săptămâna ca un general",
+    titleEn: "🏆 FREEDOM BLUEPRINT",
+    titleRo: "🏆 PLANUL LIBERTĂȚII",
+    subtitleEn: "Plan your week in The Door",
+    subtitleRo: "Planifică-ți săptămâna în Door",
     icon: Crown,
     color: "from-amber-500 to-yellow-600",
     actionPath: "/challenge/7",
-    principleNumber: 8
+    focusAreas: ['body', 'being', 'balance', 'business']
   }
 ];
+
+const areaColors = {
+  body: 'bg-green-500',
+  being: 'bg-purple-500',
+  balance: 'bg-pink-500',
+  business: 'bg-blue-500'
+};
+
+const areaLabels = {
+  body: { en: 'Body', ro: 'Corp' },
+  being: { en: 'Being', ro: 'Spirit' },
+  balance: { en: 'Balance', ro: 'Relații' },
+  business: { en: 'Business', ro: 'Business' }
+};
 
 const ChallengePage = () => {
   const { language } = useLanguage();
@@ -149,14 +163,26 @@ const ChallengePage = () => {
           <div className="flex items-center justify-center gap-2 mb-2">
             <Rocket className="h-8 w-8 text-primary" />
             <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-red-500">
-              {language === 'en' ? 'Napoleon Hill Challenge' : 'Provocarea Napoleon Hill'}
+              {language === 'en' ? 'Have It All Lifestyle Challenge' : 'Provocarea Have It All Lifestyle'}
             </h1>
           </div>
           <p className="text-muted-foreground text-lg">
             {language === 'en' 
-              ? '7 Days to Transform Your Mind & Life' 
-              : '7 Zile pentru a-ți Transforma Mintea și Viața'}
+              ? '7 Days to Transform Every Area of Your Life' 
+              : '7 Zile pentru a Transforma Fiecare Arie a Vieții Tale'}
           </p>
+          
+          {/* 4 Areas Legend */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
+            {(['body', 'being', 'balance', 'business'] as const).map((area) => (
+              <div key={area} className="flex items-center gap-1.5">
+                <div className={`w-3 h-3 rounded-full ${areaColors[area]}`} />
+                <span className="text-sm text-muted-foreground">
+                  {language === 'en' ? areaLabels[area].en : areaLabels[area].ro}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Progress Card */}
@@ -172,7 +198,7 @@ const ChallengePage = () => {
           <Progress value={progressPercentage} className="h-3 mb-2" />
           <p className="text-xs text-muted-foreground text-center">
             {progressPercentage === 100 
-              ? (language === 'en' ? '🎉 Challenge Complete! You are a Napoleon Hill Master!' : '🎉 Challenge Complet! Ești un Maestru Napoleon Hill!')
+              ? (language === 'en' ? '🎉 Challenge Complete! You are a Have It All Achiever!' : '🎉 Challenge Complet! Ești un Realizator Have It All!')
               : (language === 'en' ? `Day ${currentDay} of 7 - Keep going!` : `Ziua ${currentDay} din 7 - Continuă!`)}
           </p>
         </Card>
@@ -217,10 +243,15 @@ const ChallengePage = () => {
                     <p className="text-sm text-muted-foreground">
                       {language === 'en' ? day.subtitleEn : day.subtitleRo}
                     </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary" className="text-xs">
-                        {language === 'en' ? `Principle ${day.principleNumber}` : `Principiul ${day.principleNumber}`}
-                      </Badge>
+                    {/* Focus Areas Badges */}
+                    <div className="flex items-center gap-1.5 mt-2">
+                      {day.focusAreas.map((area) => (
+                        <div 
+                          key={area} 
+                          className={`w-2.5 h-2.5 rounded-full ${areaColors[area]}`}
+                          title={language === 'en' ? areaLabels[area].en : areaLabels[area].ro}
+                        />
+                      ))}
                     </div>
                   </div>
 
@@ -260,13 +291,13 @@ const ChallengePage = () => {
           <div className="text-center">
             <h3 className="text-xl font-bold mb-2 text-foreground">
               {language === 'en' 
-                ? '🚀 Start Your FREE 7-Day Transformation' 
-                : '🚀 Începe Transformarea ta GRATUITĂ de 7 Zile'}
+                ? '🦅 Start Your FREE 7-Day Transformation' 
+                : '🦅 Începe Transformarea ta GRATUITĂ de 7 Zile'}
             </h3>
             <p className="text-muted-foreground mb-4">
               {language === 'en'
-                ? 'Master the 13 principles of Napoleon Hill and transform your life'
-                : 'Stăpânește cele 13 principii ale lui Napoleon Hill și transformă-ți viața'}
+                ? 'Master Body, Being, Balance & Business — Have It ALL!'
+                : 'Stăpânește Corpul, Spiritul, Relațiile și Business-ul — Ai TOTUL!'}
             </p>
             <Button 
               size="lg"
