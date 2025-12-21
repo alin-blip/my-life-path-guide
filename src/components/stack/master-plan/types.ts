@@ -1,16 +1,16 @@
-export interface NapoleonHillQuestion {
+export interface MasterPlanQuestion {
   id: string;
   principle: string;
   question: string;
   subQuestions?: string[];
 }
 
-export interface NapoleonHillAnswer {
+export interface MasterPlanAnswer {
   questionId: string;
   answer: string;
 }
 
-export interface NapoleonHillStackProps {
+export interface MasterPlanStackProps {
   onAddToHitList?: (action: string) => void;
   existingData?: any;
   isReadOnly?: boolean;
@@ -19,10 +19,16 @@ export interface NapoleonHillStackProps {
   challengeDay?: number | null;
 }
 
-export interface NapoleonHillState {
+export interface MasterPlanState {
   currentStep: number;
   answers: Record<string, string>;
   isSubmitting: boolean;
   stackCompleted: boolean;
   finalAction?: string;
 }
+
+// Backwards compatibility aliases
+export type NapoleonHillQuestion = MasterPlanQuestion;
+export type NapoleonHillAnswer = MasterPlanAnswer;
+export type NapoleonHillStackProps = MasterPlanStackProps;
+export type NapoleonHillState = MasterPlanState;

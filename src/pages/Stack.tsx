@@ -15,8 +15,8 @@ import { HormoziCoachingStack } from '@/components/stack/HormoziCoachingStack';
 import { GodsSchoolStack } from '@/components/stack/gods-school/GodsSchoolStack';
 import { useLocation } from 'react-router-dom';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
-import { NapoleonHillStack } from '@/components/stack/napoleon-hill/NapoleonHillStack';
-import { NapoleonHillQuickStack } from '@/components/stack/napoleon-hill/NapoleonHillQuickStack';
+import { MasterPlanStack as NapoleonHillStack } from '@/components/stack/master-plan/MasterPlanStack';
+import { MasterPlanQuickStack as NapoleonHillQuickStack } from '@/components/stack/master-plan/MasterPlanQuickStack';
 import { getWeek } from 'date-fns';
 
 const CoachingPage = () => {

@@ -74,6 +74,16 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     { title: 'Dashboard', icon: Home, path: '/dashboard' },
     { title: '📖 Have It All Blueprint', icon: BookOpen, path: '/lifebook' },
     { title: '🚀 Have It All Challenge', icon: Target, path: '/challenge' },
+    {
+      title: '📚 Master Plan',
+      icon: Crown,
+      path: '/master-plan',
+      subItems: [
+        { title: 'My Projects', icon: Target, path: '/master-plan' },
+        { title: 'Active Journey', icon: BookOpen, path: '/master-plan?tab=journey' },
+        { title: 'Knowledge Base', icon: Upload, path: '/master-plan?tab=knowledge' },
+      ]
+    },
     { 
       title: t('transformationWorkshop'), 
       icon: Layers, 
@@ -81,23 +91,13 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       subItems: [
         { title: 'Rage to Power', icon: Angry, path: '/stack?type=anger' },
         { title: 'Divine Connection', icon: Heart, path: '/stack?type=divine-prayer' },
-        { title: 'Principle Coaching', icon: Crown, path: '/stack?type=napoleon-hill-quick' },
+        { title: 'Principle Coaching', icon: Crown, path: '/stack?type=master-plan-quick' },
         { title: 'Wisdom Oracle', icon: Headphones, path: '/stack?type=ai-live' },
         { title: 'Business Empire', icon: Briefcase, path: '/stack?type=hormozi-coaching' },
         { title: 'Masters Academy', icon: Target, path: '/stack?type=gods-school' },
         { title: 'Reflection Journal', icon: Pencil, path: '/journal' },
         { title: 'Voice Analysis', icon: Mic, path: '/voice-analysis' },
         { title: 'Transformation Toolkit', icon: Box, path: '/stack-library' },
-      ]
-    },
-    {
-      title: '📚 Master Plan',
-      icon: Crown,
-      path: '/napoleon-hill-system',
-      subItems: [
-        { title: 'My Projects', icon: Target, path: '/napoleon-hill-system' },
-        { title: 'Active Journey', icon: BookOpen, path: '/napoleon-hill-system?tab=journey' },
-        { title: 'Knowledge Base', icon: Upload, path: '/napoleon-hill-system?tab=knowledge' },
       ]
     },
     { title: t('commandCenter'), icon: Flag, path: '/door' },

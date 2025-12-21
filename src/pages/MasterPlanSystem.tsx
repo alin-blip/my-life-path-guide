@@ -12,10 +12,10 @@ import { BackupManager } from '@/components/napoleon-hill-system/BackupManager';
 import { NewProjectModal } from '@/components/napoleon-hill-system/NewProjectModal';
 import { Button } from '@/components/ui/button';
 
-export default function NapoleonHillSystem() {
+export default function MasterPlanSystem() {
   const [activeTab, setActiveTab] = useState<string>("projects");
-  const [projects, setProjects] = useState<NapoleonHillProject[]>([]);
-  const [selectedProject, setSelectedProject] = useState<NapoleonHillProject | null>(null);
+  const [projects, setProjects] = useState<MasterPlanProject[]>([]);
+  const [selectedProject, setSelectedProject] = useState<MasterPlanProject | null>(null);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -25,12 +25,12 @@ export default function NapoleonHillSystem() {
 
   const loadProjects = async () => {
     setIsLoading(true);
-    const allProjects = await napoleonHillProjectService.getProjects();
+    const allProjects = await masterPlanProjectService.getProjects();
     setProjects(allProjects);
     setIsLoading(false);
   };
 
-  const handleProjectSelect = (project: NapoleonHillProject) => {
+  const handleProjectSelect = (project: MasterPlanProject) => {
     setSelectedProject(project);
     setActiveTab("journey");
   };
@@ -45,7 +45,7 @@ export default function NapoleonHillSystem() {
     goal_amount?: string;
     goal_deadline?: string;
   }) => {
-    const newProject = await napoleonHillProjectService.createProject(projectData);
+    const newProject = await masterPlanProjectService.createProject(projectData);
     if (newProject) {
       await loadProjects();
       setSelectedProject(newProject);
@@ -93,7 +93,7 @@ export default function NapoleonHillSystem() {
             </TabsList>
 
             <TabsContent value="dashboard" className="mt-6">
-              <NapoleonHillDashboard />
+              <MasterPlanDashboard />
             </TabsContent>
 
             <TabsContent value="projects" className="mt-6">
@@ -108,7 +108,7 @@ export default function NapoleonHillSystem() {
                   </Button>
                 </div>
                 
-                <NapoleonHillProjectsList
+                <MasterPlanProjectsList
                   projects={projects}
                   isLoading={isLoading}
                   onProjectSelect={handleProjectSelect}
@@ -119,7 +119,7 @@ export default function NapoleonHillSystem() {
 
             <TabsContent value="journey" className="mt-6">
               {selectedProject ? (
-                <NapoleonHillJourney
+                <MasterPlanJourney
                   project={selectedProject}
                   onProjectUpdate={loadProjects}
                 />
@@ -134,7 +134,7 @@ export default function NapoleonHillSystem() {
               <div className="space-y-6">
                 <BackupManager />
                 <NotificationSettings />
-                <NapoleonHillKnowledgeBase />
+                <MasterPlanKnowledgeBase />
               </div>
             </TabsContent>
           </Tabs>
