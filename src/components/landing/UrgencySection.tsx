@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Heart, Calendar, TrendingDown, AlertTriangle } from "lucide-react";
+import { Dumbbell, Brain, Heart, Briefcase, AlertTriangle, Flame, ArrowRight, Clock } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const UrgencySection = () => {
@@ -10,115 +10,133 @@ export const UrgencySection = () => {
 
   const costsPerDay = [
     {
-      icon: Heart,
-      area: "Corp",
+      icon: Dumbbell,
+      area: "Body",
       color: "text-red-500",
       bgColor: "bg-red-50",
       borderColor: "border-red-200",
-      cost: "O zi pierdută = mai puțină energie, mai multă oboseală cronică, un pas mai aproape de burnout"
+      cost: "-0.5% energy & vitality each day you skip your health routine"
     },
     {
-      icon: Calendar,
-      area: "Relații",
-      color: "text-blue-500",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      cost: "O zi pierdută = distanță mai mare cu familia, încă o zi în care copiii tăi te simt absent"
-    },
-    {
-      icon: TrendingDown,
-      area: "Spirit",
+      icon: Brain,
+      area: "Being",
       color: "text-purple-500",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200",
-      cost: "O zi pierdută = mai multă confuzie, mai puțină claritate, încă o zi în care nu știi de ce faci ce faci"
+      cost: "-1 moment of inner peace lost to stress and mental fog"
     },
     {
-      icon: TrendingDown,
+      icon: Heart,
+      area: "Balance",
+      color: "text-pink-500",
+      bgColor: "bg-pink-50",
+      borderColor: "border-pink-200",
+      cost: "-1 meaningful connection with loved ones you'll never get back"
+    },
+    {
+      icon: Briefcase,
       area: "Business",
-      color: "text-green-500",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200",
-      cost: "O zi pierdută = oportunități ratate, încă o săptămână de lucru haotic fără rezultate clare"
+      color: "text-amber-500",
+      bgColor: "bg-amber-50",
+      borderColor: "border-amber-200",
+      cost: "-$50-500 potential revenue from missed opportunities and chaos"
     }
   ];
 
   return (
-    <div 
+    <section 
       ref={elementRef}
-      className={`mb-24 transition-all duration-700 ${
+      className={`mb-12 md:mb-16 transition-all duration-700 ${
         isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
-      }`} 
+      }`}
       id="urgency"
     >
-      <div className="text-center mb-12">
-        <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-          Cât Te Costă Fiecare Zi Fără Sistem?
-        </h2>
-        <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-          Nu e despre oferte sau locuri limitate. E despre <span className="text-red-600 font-bold">costul real</span> al fiecărei zile în care rămâi blocat.
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-12">
-        {costsPerDay.map((item, index) => {
-          const Icon = item.icon;
-          return (
-            <Card 
-              key={index}
-              className={`${item.bgColor} border-2 ${item.borderColor} p-6 shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] group cursor-pointer`}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`${item.bgColor} p-3 rounded-lg border ${item.borderColor} transition-all duration-300 group-hover:scale-110 group-hover:rotate-6`}>
-                  <Icon className={`h-8 w-8 ${item.color} transition-transform duration-300 group-hover:scale-110`} />
-                </div>
-                <div className="flex-1">
-                  <h3 className={`text-xl font-bold mb-2 ${item.color}`}>{item.area}</h3>
-                  <p className="text-slate-600 leading-relaxed">
-                    {item.cost}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-300 p-8 md:p-12 max-w-4xl mx-auto mb-8 shadow-xl">
-        <div className="text-center space-y-4">
-          <p className="text-2xl font-bold text-slate-900">
-            Fiecare zi fără sistem = fiecare zi mai adânc în Groapă
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-8 md:mb-12">
+          <div className="inline-flex items-center gap-2 bg-red-500/10 text-red-600 px-4 py-2 rounded-full mb-4">
+            <AlertTriangle className="w-4 h-4" />
+            <span className="text-sm font-medium">The Cost of Waiting</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            Every Day Without a System Costs You
+          </h2>
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+            While you hesitate, life keeps moving. Here's what you lose with each passing day:
           </p>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Peste 1 an, costul nu va fi doar financiar. Va fi <span className="text-red-600 font-bold">sănătatea ta</span>, 
-            <span className="text-red-600 font-bold"> relațiile tale</span>, 
-            <span className="text-red-600 font-bold"> claritatea ta spirituală</span> și 
-            <span className="text-red-600 font-bold"> oportunitatea de a avea TOTUL</span>.
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-8 md:mb-12">
+          {costsPerDay.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <Card 
+                key={index}
+                className={`${item.bgColor} border-2 ${item.borderColor} p-6 shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] group cursor-pointer`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`${item.bgColor} p-3 rounded-lg border ${item.borderColor} transition-all duration-300 group-hover:scale-110 group-hover:rotate-6`}>
+                    <Icon className={`h-8 w-8 ${item.color} transition-transform duration-300 group-hover:scale-110`} />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`text-xl font-bold mb-2 ${item.color}`}>{item.area}</h3>
+                    <p className="text-slate-600 leading-relaxed">
+                      {item.cost}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 md:p-8 text-center text-white mb-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Flame className="w-6 h-6 text-orange-400" />
+            <h3 className="text-xl md:text-2xl font-bold">30 Days From Now</h3>
+            <Flame className="w-6 h-6 text-orange-400" />
+          </div>
+          
+          <p className="text-slate-300 mb-6 max-w-2xl mx-auto">
+            You can either be 30 days into your transformation, experiencing more energy, clarity, 
+            better relationships, and growing income... or still wondering "what if?"
           </p>
-          <div className="bg-red-100 border-l-4 border-red-500 p-6 rounded-r mt-6">
-            <p className="text-slate-900 font-bold text-lg mb-2">
-              Întrebarea nu este "De ce acum?"
-            </p>
-            <p className="text-slate-600">
-              Întrebarea este: <span className="text-slate-900 font-semibold">"Câte zile mai pot să pierd înainte să fie prea târziu?"</span>
-            </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white/10 rounded-lg p-3">
+              <p className="text-2xl font-bold text-green-400">+15%</p>
+              <p className="text-xs text-slate-400">Energy Level</p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-3">
+              <p className="text-2xl font-bold text-purple-400">+30</p>
+              <p className="text-xs text-slate-400">Mindful Minutes</p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-3">
+              <p className="text-2xl font-bold text-pink-400">+7</p>
+              <p className="text-xs text-slate-400">Quality Moments</p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-3">
+              <p className="text-2xl font-bold text-amber-400">+22%</p>
+              <p className="text-xs text-slate-400">Productivity</p>
+            </div>
+          </div>
+
+          <Button 
+            size="lg"
+            className="bg-white text-slate-900 hover:bg-slate-100 px-8 py-6 text-lg font-bold"
+            onClick={() => navigate('/auth')}
+          >
+            Start My Transformation Today
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        </div>
+
+        <div className="text-center">
+          <div className="inline-flex items-center gap-2 text-slate-500">
+            <Clock className="w-4 h-4" />
+            <span className="text-sm">Average setup time: 15 minutes</span>
           </div>
         </div>
-      </Card>
-
-      <div className="text-center">
-        <Button
-          size="lg"
-          onClick={() => navigate('/auth')}
-          className="bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white px-16 py-8 text-2xl font-bold shadow-2xl transition-all hover:scale-105"
-        >
-          Începe Transformarea Astăzi — Trial 3 Zile GRATUIT
-        </Button>
-        <p className="text-sm text-slate-500 mt-4 max-w-xl mx-auto">
-          Nu plătești nimic acum. Trial 3 zile să vezi dacă îți place. Garanție 90 de zile sau banii înapoi + €100 dacă nu vezi îmbunătățiri.
-        </p>
       </div>
-    </div>
+    </section>
   );
 };
