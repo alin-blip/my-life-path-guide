@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { NapoleonHillProject, napoleonHillProjectService } from '@/services/napoleonHillProjectService';
+import { NapoleonHillProject, masterPlanProjectService } from '@/services/masterPlanProjectService';
 import { PrincipleTimeline } from './PrincipleTimeline';
 import { PrincipleChat } from './PrincipleChat';
 import { ActionsList } from './ActionsList';
@@ -23,7 +23,7 @@ const PRINCIPLES = [
   "Creierul", "Al Șaselea Simț", "Acțiunea Imediată"
 ];
 
-export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
+export const MasterPlanJourney: React.FC<NapoleonHillJourneyProps> = ({
   project,
   onProjectUpdate
 }) => {
@@ -33,7 +33,7 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
   const isCompleted = project.status === 'completed';
 
   const handlePrincipleComplete = async (principle: number, answer: any, summary: string, actions: any[]) => {
-    const success = await napoleonHillProjectService.savePrincipleProgress(
+    const success = await masterPlanProjectService.savePrincipleProgress(
       project.id,
       principle,
       answer,
@@ -51,7 +51,7 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
         setSelectedPrinciple(principle + 1);
       } else {
         // Complete the project
-        await napoleonHillProjectService.completeProject(project.id);
+        await masterPlanProjectService.completeProject(project.id);
         toast({ 
           title: "🎉 Journey Completat!",
           description: "Ai parcurs toate cele 14 principii Master Plan"

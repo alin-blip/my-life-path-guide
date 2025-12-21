@@ -15,7 +15,7 @@ interface KnowledgeFile {
   file_path: string;
 }
 
-export const NapoleonHillKnowledgeBase: React.FC = () => {
+export const MasterPlanKnowledgeBase: React.FC = () => {
   const [files, setFiles] = useState<KnowledgeFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();

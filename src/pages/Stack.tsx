@@ -15,8 +15,8 @@ import { HormoziCoachingStack } from '@/components/stack/HormoziCoachingStack';
 import { GodsSchoolStack } from '@/components/stack/gods-school/GodsSchoolStack';
 import { useLocation } from 'react-router-dom';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
-import { MasterPlanStack as NapoleonHillStack } from '@/components/stack/master-plan/MasterPlanStack';
-import { MasterPlanQuickStack as NapoleonHillQuickStack } from '@/components/stack/master-plan/MasterPlanQuickStack';
+import { MasterPlanStack } from '@/components/stack/master-plan/MasterPlanStack';
+import { MasterPlanQuickStack } from '@/components/stack/master-plan/MasterPlanQuickStack';
 import { getWeek } from 'date-fns';
 
 const CoachingPage = () => {
@@ -334,9 +334,9 @@ const renderActiveStack = () => {
       case "divine-prayer":
         return <DivinePrayerStack {...stackProps} />;
       case "napoleon-hill":
-        return <NapoleonHillStack {...stackProps} />;
+        return <MasterPlanStack {...stackProps} />;
       case "napoleon-hill-quick":
-        return <NapoleonHillQuickStack {...stackProps} initialPrinciple={initialPrinciple} challengeDay={challengeDay} />;
+        return <MasterPlanQuickStack {...stackProps} initialPrinciple={initialPrinciple} challengeDay={challengeDay} />;
       default:
         return <DivinePrayerStack {...stackProps} />;
     }

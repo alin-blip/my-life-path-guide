@@ -2,10 +2,9 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { NapoleonHillProject } from '@/services/napoleonHillProjectService';
+import { NapoleonHillProject, masterPlanProjectService } from '@/services/masterPlanProjectService';
 import { PlayCircle, CheckCircle, Archive, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { napoleonHillProjectService } from '@/services/napoleonHillProjectService';
 import { useToast } from '@/hooks/use-toast';
 
 interface NapoleonHillProjectsListProps {
@@ -15,7 +14,7 @@ interface NapoleonHillProjectsListProps {
   onRefresh: () => void;
 }
 
-export const NapoleonHillProjectsList: React.FC<NapoleonHillProjectsListProps> = ({
+export const MasterPlanProjectsList: React.FC<NapoleonHillProjectsListProps> = ({
   projects,
   isLoading,
   onProjectSelect,
@@ -24,7 +23,7 @@ export const NapoleonHillProjectsList: React.FC<NapoleonHillProjectsListProps> =
   const { toast } = useToast();
 
   const handleArchive = async (projectId: string) => {
-    const success = await napoleonHillProjectService.archiveProject(projectId);
+    const success = await masterPlanProjectService.archiveProject(projectId);
     if (success) {
       toast({ title: "Proiect arhivat" });
       onRefresh();
@@ -34,7 +33,7 @@ export const NapoleonHillProjectsList: React.FC<NapoleonHillProjectsListProps> =
   const handleDelete = async (projectId: string) => {
     if (!confirm("Sigur vrei să ștergi acest proiect?")) return;
     
-    const success = await napoleonHillProjectService.deleteProject(projectId);
+    const success = await masterPlanProjectService.deleteProject(projectId);
     if (success) {
       toast({ title: "Proiect șters" });
       onRefresh();
