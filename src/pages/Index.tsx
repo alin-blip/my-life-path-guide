@@ -43,8 +43,8 @@ const Index = () => {
   return (
     <div className="light min-h-screen bg-white">
       <Helmet>
-        <title>RoWarrior — Calea Războinicului: Transformare Completă în Corp, Spirit, Relații și Afaceri</title>
-        <meta name="description" content="Sistemul complet de viață pentru bărbați care vor TOTUL — nu doar bani. Energie în corp, pace în spirit, relații profunde, business profitabil. 65,000+ războinici în 40+ țări. Trial gratuit 3 zile." />
+        <title>Jump to Freedom — Have It All Lifestyle: Total Transformation in Body, Mind, Relationships & Business</title>
+        <meta name="description" content="The complete life system for entrepreneurs who want it ALL — not just money. Energy in body, peace in mind, deep relationships, profitable business. 65,000+ achievers in 40+ countries. Free 3-day trial." />
         <link rel="canonical" href={`${window.location.origin}/`} />
       </Helmet>
 
@@ -59,27 +59,27 @@ const Index = () => {
           <div className="inline-flex items-center justify-center mb-4 md:mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <img
               src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
-              alt="RoWarrior logo"
+              alt="Jump to Freedom logo"
               loading="lazy"
               className="h-12 md:h-20 w-auto drop-shadow"
             />
           </div>
           
           <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4 md:mb-6 leading-tight animate-fade-in px-2" style={{ animationDelay: '0.2s' }}>
-            Ai sacrificat totul pentru business...<br />
-            Și încă nu ai <span className="text-primary">TOTUL</span>?
+            What if you could <span className="text-primary">Have It ALL</span>?<br />
+            Business, Health, Love & Peace
           </h1>
           
           <p className="text-base sm:text-lg md:text-2xl text-slate-700 mb-3 md:mb-4 max-w-4xl mx-auto leading-relaxed animate-fade-in px-2" style={{ animationDelay: '0.3s' }}>
-            <span className="text-primary font-bold">Calea Războinicului</span> te învață cum să ai un corp plin de energie, 
-            relații profunde, claritate spirituală <span className="text-accent font-bold">ȘI</span> un business profitabil — 
-            <span className="text-slate-900 font-bold"> fără să sacrifici nimic</span>
+            <span className="text-primary font-bold">Jump to Freedom</span> is the premium execution platform for entrepreneurs 
+            who refuse to choose between success and fulfillment — 
+            <span className="text-slate-900 font-bold"> have it ALL without sacrifice</span>
           </p>
 
           <p className="text-sm sm:text-base md:text-lg text-slate-600 mb-6 md:mb-8 max-w-3xl mx-auto animate-fade-in px-2" style={{ animationDelay: '0.4s' }}>
-            Sistem testat de <span className="text-primary font-semibold">65,000+ bărbați în 40+ țări</span> • 
-            Adaptat pentru <span className="text-primary font-semibold"> piața românească</span> • 
-            Primele rezultate în <span className="text-primary font-semibold">48 de ore</span>
+            Trusted by <span className="text-primary font-semibold">65,000+ achievers in 40+ countries</span> • 
+            <span className="text-primary font-semibold"> Have It All Lifestyle Challenge</span> • 
+            First results in <span className="text-primary font-semibold">48 hours</span>
           </p>
           
           <div className="flex flex-col gap-3 sm:gap-4 justify-center mb-6 md:mb-8 animate-fade-in px-2" style={{ animationDelay: '0.5s' }}>
@@ -135,7 +135,7 @@ const Index = () => {
                 {videoPlaying ? (
                   <iframe
                     src="https://www.youtube.com/embed/sfuey_WNODs?rel=0&modestbranding=1&autoplay=1"
-                    title="RoWarrior - Calea Războinicului"
+                    title="Jump to Freedom - Have It All Lifestyle"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="w-full h-full"
@@ -143,14 +143,14 @@ const Index = () => {
                 ) : (
                   <img 
                     src="https://img.youtube.com/vi/sfuey_WNODs/maxresdefault.jpg"
-                    alt="RoWarrior Video Preview"
+                    alt="Jump to Freedom Video Preview"
                     className="w-full h-full object-cover"
                   />
                 )}
               </div>
             </div>
             <p className="text-sm text-slate-500 mt-4 text-center">
-              🎬 Vezi cum funcționează sistemul în practică
+              🎬 See how the system works in practice
             </p>
           </div>
         </div>
