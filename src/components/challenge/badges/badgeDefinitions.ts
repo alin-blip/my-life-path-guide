@@ -337,7 +337,7 @@ export const BADGES: Badge[] = [
   },
   {
     id: 'principle_13',
-    name: { en: 'Success Principles Master', ro: 'Maestru Success Principles' },
+    name: { en: 'Master Plan Champion', ro: 'Campion Master Plan' },
     description: { en: 'Master all 13 principles', ro: 'Stăpânește toate 13 principiile' },
     icon: 'Crown',
     color: 'text-purple-600',

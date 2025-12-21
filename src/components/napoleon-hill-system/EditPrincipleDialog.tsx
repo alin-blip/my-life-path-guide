@@ -48,8 +48,8 @@ export const EditPrincipleDialog: React.FC<EditPrincipleDialogProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const chatAreaRef = useRef<HTMLDivElement>(null);
 
-  // Napoleon Hill System Prompt
-  const systemPrompt = `Ești un ghid AI bazat pe principiile lui Napoleon Hill din "Think and Grow Rich". 
+  // Master Plan System Prompt
+  const systemPrompt = `Ești un ghid AI bazat pe cele 14 principii universale ale succesului din Master Plan. 
   
 Rolul tău este să ghidezi utilizatorul prin Principiul ${principle}: "${principleName}".
 
@@ -178,7 +178,7 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
           messages: [
             {
               role: 'user',
-              content: `Bazat pe conversația despre Principiul "${principleName}" pentru proiectul Napoleon Hill:
+              content: `Bazat pe conversația despre Principiul "${principleName}" pentru proiectul Master Plan:
 
 ${fullConversation}
 

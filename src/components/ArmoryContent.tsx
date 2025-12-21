@@ -42,7 +42,7 @@ const courseData: Course[] = [
   },
   {
     id: '4',
-    title: 'NAPOLEON HILL QUICK START',
+    title: 'MASTER PLAN QUICK START',
     image: '/public/lovable-uploads/26a033cf-b370-4f36-b524-05194c9e8f64.png',
     status: 'NOT STARTED',
     progress: 0
@@ -65,7 +65,7 @@ const courseData: Course[] = [
   },
   {
     id: '7',
-    title: 'NAPOLEON HILL CORE 4',
+    title: 'MASTER PLAN CORE 4',
     subTitle: 'AUDIOBOOK',
     image: '/public/lovable-uploads/26a033cf-b370-4f36-b524-05194c9e8f64.png',
     status: 'COMPLETED',

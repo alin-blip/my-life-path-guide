@@ -64,7 +64,7 @@ export default function NapoleonHillSystem() {
             <div className="flex items-center gap-3 mb-2">
               <Crown className="w-8 h-8 text-primary" />
               <h1 className="text-3xl font-bold text-foreground">
-                Sistemul Napoleon Hill
+                Master Plan
               </h1>
             </div>
             <p className="text-muted-foreground">

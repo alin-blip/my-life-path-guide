@@ -59,7 +59,7 @@ export const NapoleonHillProjectsList: React.FC<NapoleonHillProjectsListProps> =
     return (
       <Card className="p-12 text-center">
         <p className="text-muted-foreground mb-4">
-          Nu ai niciun proiect Napoleon Hill încă
+          Nu ai niciun proiect Master Plan încă
         </p>
         <p className="text-sm text-muted-foreground">
           Creează primul tău journey pentru a începe transformarea

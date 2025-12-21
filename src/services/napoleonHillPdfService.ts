@@ -50,7 +50,7 @@ export const napoleonHillPdfService = {
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(32);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Napoleon Hill', pageWidth / 2, 35, { align: 'center' });
+    pdf.text('Master Plan', pageWidth / 2, 35, { align: 'center' });
     pdf.text('Planul de Acțiune', pageWidth / 2, 50, { align: 'center' });
     
     pdf.setFontSize(16);
@@ -111,7 +111,7 @@ export const napoleonHillPdfService = {
     pdf.addPage();
     yPosition = margin;
 
-    addText('Principiile Tale Napoleon Hill', 20, true, [41, 98, 255]);
+    addText('Principiile Tale Master Plan', 20, true, [41, 98, 255]);
     yPosition += 15;
 
     Object.entries(project.principle_answers).forEach(([principleNum, answer]) => {
@@ -238,7 +238,7 @@ export const napoleonHillPdfService = {
     yPosition += 10;
 
     if (project.status === 'completed') {
-      addText('🎉 Felicitări! Ai completat toate principiile Napoleon Hill.', 12, true);
+      addText('🎉 Felicitări! Ai completat toate principiile Master Plan.', 12, true);
       yPosition += 8;
       addText('Acum este timpul să implementezi tot ce ai învățat și să-ți atingi obiectivul!', 11);
     } else {

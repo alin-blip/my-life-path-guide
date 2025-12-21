@@ -313,7 +313,7 @@ localStorage.setItem('stack_library', JSON.stringify(updatedLibrary));
     const typeLabels: Record<string, string> = {
       'anger': 'Alchimia Furiei',
       'divine': 'Dialogul cu Divinitatea',
-      'napoleon-hill': 'Napoleon Hill - Think and Grow Rich',
+      'napoleon-hill': 'Master Plan - Success Principles',
       'hormozi': 'Imperiul de Business',
       'gods-school': 'Școala Zeilor',
       'ai': 'Coaching AI'
