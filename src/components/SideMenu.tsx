@@ -72,6 +72,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
   const menuItems: MenuItem[] = [
     { title: 'Dashboard', icon: Home, path: '/dashboard' },
+    { title: '📖 Have It All Blueprint', icon: BookOpen, path: '/lifebook' },
     { title: '🚀 Have It All Challenge', icon: Target, path: '/challenge' },
     { 
       title: t('transformationWorkshop'), 
@@ -99,7 +100,6 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: 'Knowledge Base', icon: Upload, path: '/napoleon-hill-system?tab=knowledge' },
       ]
     },
-    { title: '📖 Life Design Blueprint', icon: BookOpen, path: '/lifebook' },
     { title: t('commandCenter'), icon: Flag, path: '/door' },
     { title: 'Business', icon: Briefcase, path: '/business' },
     { title: 'Freedom Missions', icon: Target, path: '/game' },
