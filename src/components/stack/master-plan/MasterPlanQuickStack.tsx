@@ -408,9 +408,9 @@ CITATE DE FOLOSIT:
         </div>
 
         <AiGuidedStack
-          key={mode === 'full' ? 'full-stack' : `principle-${selectedPrinciple}`}
+          key={mode === 'full' ? 'full-stack' : `principle-${selectedPrinciple}-${Date.now()}`}
           onAddToHitList={onAddToHitList}
-          stackType="napoleon-hill"
+          stackType={mode === 'full' ? 'napoleon-hill' : `napoleon-hill-p${selectedPrinciple}` as any}
           questions={[]}
           voiceOnlyMode={false}
           audioMode={false}
