@@ -131,7 +131,7 @@ export const MasterPlanStack: React.FC<MasterPlanStackProps> = ({
           <TabsContent value="coaching" className="mt-6">
             {!existingData && (
               <div className="mb-6">
-                <NapoleonHillExplanation />
+                <MasterPlanExplanation />
               </div>
             )}
             
@@ -173,7 +173,7 @@ Fii direct, clar și motivant. Succesul începe cu o decizie fermă și acțiune
           </TabsContent>
 
           <TabsContent value="knowledge" className="mt-6">
-            <NapoleonHillKnowledgeBase />
+            <MasterPlanKnowledgeBase />
           </TabsContent>
         </Tabs>
       </div>

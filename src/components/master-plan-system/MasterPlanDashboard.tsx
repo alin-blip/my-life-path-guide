@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { napoleonHillProjectService, NapoleonHillProject } from '@/services/napoleonHillProjectService';
+import { masterPlanProjectService, NapoleonHillProject } from '@/services/masterPlanProjectService';
 import { CheckCircle, TrendingUp, Target, Clock, Award, Zap } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 
-export const NapoleonHillDashboard: React.FC = () => {
+export const MasterPlanDashboard: React.FC = () => {
   const [projects, setProjects] = useState<NapoleonHillProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -14,7 +14,7 @@ export const NapoleonHillDashboard: React.FC = () => {
   }, []);
 
   const loadProjects = async () => {
-    const allProjects = await napoleonHillProjectService.getProjects();
+    const allProjects = await masterPlanProjectService.getProjects();
     setProjects(allProjects);
     setIsLoading(false);
   };

@@ -2,20 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Target, Upload, Crown, BarChart3 } from "lucide-react";
-import { napoleonHillProjectService, NapoleonHillProject } from '@/services/napoleonHillProjectService';
-import { NapoleonHillProjectsList } from '@/components/napoleon-hill-system/NapoleonHillProjectsList';
-import { NapoleonHillJourney } from '@/components/napoleon-hill-system/NapoleonHillJourney';
-import { NapoleonHillDashboard } from '@/components/napoleon-hill-system/NapoleonHillDashboard';
-import { NapoleonHillKnowledgeBase } from '@/components/stack/napoleon-hill/NapoleonHillKnowledgeBase';
-import { NotificationSettings } from '@/components/napoleon-hill-system/NotificationSettings';
-import { BackupManager } from '@/components/napoleon-hill-system/BackupManager';
-import { NewProjectModal } from '@/components/napoleon-hill-system/NewProjectModal';
+import { masterPlanProjectService, NapoleonHillProject } from '@/services/masterPlanProjectService';
+import { MasterPlanProjectsList } from '@/components/master-plan-system/MasterPlanProjectsList';
+import { MasterPlanJourney } from '@/components/master-plan-system/MasterPlanJourney';
+import { MasterPlanDashboard } from '@/components/master-plan-system/MasterPlanDashboard';
+import { MasterPlanKnowledgeBase } from '@/components/stack/master-plan/MasterPlanKnowledgeBase';
+import { NotificationSettings } from '@/components/master-plan-system/NotificationSettings';
+import { BackupManager } from '@/components/master-plan-system/BackupManager';
+import { NewProjectModal } from '@/components/master-plan-system/NewProjectModal';
 import { Button } from '@/components/ui/button';
 
 export default function MasterPlanSystem() {
   const [activeTab, setActiveTab] = useState<string>("projects");
-  const [projects, setProjects] = useState<MasterPlanProject[]>([]);
-  const [selectedProject, setSelectedProject] = useState<MasterPlanProject | null>(null);
+  const [projects, setProjects] = useState<NapoleonHillProject[]>([]);
+  const [selectedProject, setSelectedProject] = useState<NapoleonHillProject | null>(null);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,7 +30,7 @@ export default function MasterPlanSystem() {
     setIsLoading(false);
   };
 
-  const handleProjectSelect = (project: MasterPlanProject) => {
+  const handleProjectSelect = (project: NapoleonHillProject) => {
     setSelectedProject(project);
     setActiveTab("journey");
   };

@@ -29,7 +29,7 @@ const NAPOLEON_HILL_PRINCIPLES = [
   { id: 14, name: "Cele 6 Frici", icon: Target, description: "Depășirea fricilor care te blochează", color: "bg-slate-500" },
 ];
 
-export const NapoleonHillQuickStack: React.FC<NapoleonHillStackProps> = ({ 
+export const MasterPlanQuickStack: React.FC<NapoleonHillStackProps> = ({ 
   onAddToHitList,
   existingData,
   isReadOnly,
@@ -457,4 +457,4 @@ function getSpecificQuestion(principleId: number, questionNum: number): string {
   return questions[principleId]?.[questionNum - 1] || "Care e următorul pas?";
 }
 
-export default NapoleonHillQuickStack;
+export default MasterPlanQuickStack;

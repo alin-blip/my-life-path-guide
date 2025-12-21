@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, Target, Sparkles, Users } from "lucide-react";
 
-export const NapoleonHillExplanation: React.FC = () => {
+export const MasterPlanExplanation: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <Card className="bg-card/50 border-primary/20">
