@@ -54,7 +54,7 @@ export const NapoleonHillJourney: React.FC<NapoleonHillJourneyProps> = ({
         await napoleonHillProjectService.completeProject(project.id);
         toast({ 
           title: "🎉 Journey Completat!",
-          description: "Ai parcurs toate cele 14 principii Napoleon Hill"
+          description: "Ai parcurs toate cele 14 principii Master Plan"
         });
         onProjectUpdate();
       }

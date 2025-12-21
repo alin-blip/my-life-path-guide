@@ -70,7 +70,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Journey Nou Napoleon Hill</DialogTitle>
+          <DialogTitle>Journey Nou Master Plan</DialogTitle>
         </DialogHeader>
 
         {!showUploader ? (
@@ -136,7 +136,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
               <div className="flex-1 space-y-1">
                 <h3 className="font-semibold text-sm">Încarcă Documente de Referință</h3>
                 <p className="text-xs text-muted-foreground">
-                  Adaugă planuri strategice, note de consultanță, obiective detaliate sau orice alt material care te poate ajuta în journey-ul Napoleon Hill.
+                  Adaugă planuri strategice, note de consultanță, obiective detaliate sau orice alt material care te poate ajuta în journey-ul Master Plan.
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Aceste documente vor fi folosite de AI pentru a-ți oferi ghidaj personalizat bazat pe contextul tău specific.

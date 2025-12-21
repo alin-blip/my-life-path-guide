@@ -9,13 +9,13 @@ export const NapoleonHillExplanation: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl">
             <Brain className="w-6 h-6 text-primary" />
-            Napoleon Hill: Think and Grow Rich
+            Master Plan: Success Principles
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-foreground/90 leading-relaxed">
-            Bine ai venit la studiul principiilor succesului din "Think and Grow Rich"! 
-            Acest coaching te ghidează prin cele <strong>13 principii transformatoare</strong> ale lui Napoleon Hill,
+            Bine ai venit la studiul principiilor succesului! 
+            Acest coaching te ghidează prin cele <strong>13 principii transformatoare</strong>,
             bazate pe analiza celor mai de succes oameni din lume.
           </p>
 
@@ -76,7 +76,7 @@ export const NapoleonHillExplanation: React.FC = () => {
           <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
             <h3 className="font-semibold text-foreground mb-2">📚 Încarcă cartea pentru referință</h3>
             <p className="text-sm text-muted-foreground">
-              Poți încărca PDF-ul cărții "Think and Grow Rich" sau notițele tale pentru ca AI-ul 
+              Poți încărca PDF-ul cărții sau notițele tale pentru ca AI-ul 
               să folosească conținutul ca referință în timpul conversației.
             </p>
           </div>

@@ -28,7 +28,7 @@ export const Chat = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<MessageType[]>([
     {
-      text: 'Welcome to the Napoleon Hill Academy chat! How can I help you today?',
+      text: 'Welcome to Jump to Freedom! How can I help you today?',
       sender: 'other',
       timestamp: new Date(),
     }

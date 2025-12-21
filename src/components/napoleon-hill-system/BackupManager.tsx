@@ -167,7 +167,7 @@ export const BackupManager: React.FC = () => {
         </div>
 
         <p className="text-sm text-muted-foreground mb-4">
-          Backup-uri automate pentru toate draft-urile Napoleon Hill. Ultimele 10 backup-uri sunt păstrate automat.
+          Backup-uri automate pentru toate draft-urile Master Plan. Ultimele 10 backup-uri sunt păstrate automat.
         </p>
 
         {isLoading ? (

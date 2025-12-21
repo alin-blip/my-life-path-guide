@@ -91,7 +91,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
     {
-      title: '📚 Success Principles',
+      title: '📚 Master Plan',
       icon: Crown,
       path: '/napoleon-hill-system',
       subItems: [

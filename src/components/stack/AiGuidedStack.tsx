@@ -386,7 +386,7 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
         if (stackType === 'anger') {
           welcomeContent = 'Bine ai venit la Alchimia Furiei! Sunt aici să te ghidez prin procesul complet de transformare a furiei în claritate și acțiune. Vom parcurge împreună 40 de întrebări structurate. Să începem! Întrebarea 1: Ce nume vei da acestui stack de furie?';
         } else if (stackType === 'napoleon-hill') {
-          welcomeContent = 'Bun venit! Sunt ghidul tău bazat pe principiile lui Napoleon Hill din "Think and Grow Rich". Împreună vom explora cei 13 pași către succes, transformând visul tău într-un plan concret de acțiune. Spune-mi, care este obiectivul principal pe care vrei să-l atingi? Ce dorință arzătoare îți domină gândurile?';
+          welcomeContent = 'Bun venit! Sunt ghidul tău bazat pe cele 14 principii universale ale succesului din Master Plan. Împreună vom explora pașii către succes, transformând visul tău într-un plan concret de acțiune. Spune-mi, care este obiectivul principal pe care vrei să-l atingi? Ce dorință arzătoare îți domină gândurile?';
         } else if (stackType === 'divine-prayer') {
           welcomeContent = 'Bine ai venit în acest spațiu sacru de rugăciune și reflecție spirituală. Sunt aici să te ghidez prin cele 19 întrebări ale Stack-ului de Rugăciune Divină. Să începem! Întrebarea 1: Ce titlu vei da acestui stack de rugăciune?';
         } else {

@@ -83,7 +83,7 @@ export const DoorIntegrationButton: React.FC<DoorIntegrationButtonProps> = ({ pr
       await napoleonHillPdfService.generatePDF(project);
       toast({
         title: "PDF Generat!",
-        description: "Planul tău Napoleon Hill a fost exportat cu succes"
+        description: "Planul tău Master Plan a fost exportat cu succes"
       });
     } catch (error) {
       console.error('Error generating PDF:', error);

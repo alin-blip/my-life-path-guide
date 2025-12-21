@@ -22,8 +22,8 @@ interface QuoteInteractionStats {
 
 export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({ 
   quote, 
-  appName = "NAPOLEON HILL ACADEMY", 
-  onClose 
+  appName = "JUMP TO FREEDOM", 
+  onClose
 }) => {
   const { toast } = useToast();
   const { language } = useLanguage();
@@ -496,7 +496,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
                 className="flex flex-col items-center justify-center p-4 h-auto bg-green-900/20 hover:bg-green-900/40 border-green-800/40"
                 onClick={() => {
                   navigator.share?.({
-                    title: 'Napoleon Hill Quote',
+                    title: 'Inspirational Quote',
                     text: `"${quote.text}" - ${quote.author}`,
                     url: window.location.href
                   }).catch(err => console.error('Error sharing:', err));

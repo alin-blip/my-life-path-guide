@@ -74,7 +74,7 @@ const getStackLabel = (type: string): string => {
     case 'hormozi':
       return 'Imperiul de Business';
     case 'napoleon-hill':
-      return 'Napoleon Hill';
+      return 'Master Plan';
     case 'ai':
       return 'AI Coaching';
     default:

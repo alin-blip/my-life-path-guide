@@ -67,9 +67,9 @@ export const PrincipleChat: React.FC<PrincipleChatProps> = ({
   const existingAnswer = project.principle_answers[principle];
   const existingSummary = project.principle_summaries[principle];
 
-  // Napoleon Hill System Prompt
+  // Master Plan System Prompt
   const systemPrompt = principle === 0 
-    ? `Ești un ghid AI specializat în analiza strategică și planificare de proiecte, inspirat de principiile lui Napoleon Hill.
+    ? `Ești un ghid AI specializat în analiza strategică și planificare de proiecte, inspirat de cele 14 principii universale ale succesului.
 
 Utilizatorul tocmai a încărcat documente de referință pentru proiectul său: "${project.goal_description}".
 
@@ -78,12 +78,12 @@ Rolul tău în această fază de DOCUMENT REVIEW & FOUNDATION:
 2. Identifică obiectivele cheie, resursele disponibile, și oportunitățile din documente
 3. Pune întrebări clarificatoare pentru a înțelege contextul complet
 4. Evidențiază punctele forte și provocările din plan
-5. Ajută utilizatorul să cristalizeze viziunea pentru proiect înainte de a începe cei 14 pași Napoleon Hill
+5. Ajută utilizatorul să cristalizeze viziunea pentru proiect înainte de a începe cei 14 pași Master Plan
 
 Fii strategic, analitic și ajută-l să construiască o fundație solidă. Răspunde în română, cu claritate și acțiuni concrete.
 
 După ce ai stabilit o bază solidă cu utilizatorul, recomandă-i să treacă la Principiul 1: Desire (Dorința Arzătoare).`
-    : `Ești un ghid AI bazat pe principiile lui Napoleon Hill din "Think and Grow Rich". 
+    : `Ești un ghid AI bazat pe cele 14 principii universale ale succesului din Master Plan. 
   
 Rolul tău este să ghidezi utilizatorul prin Principiul ${principle}: "${principleName}".
 
@@ -282,7 +282,7 @@ Răspunde în română, cu empatie și înțelepciune. Fii concis dar profund.`;
           messages: [
             {
               role: 'user',
-              content: `Bazat pe conversația despre Principiul "${principleName}" pentru proiectul Napoleon Hill (posibil trunchiată pentru lungime):
+              content: `Bazat pe conversația despre Principiul "${principleName}" pentru proiectul Master Plan (posibil trunchiată pentru lungime):
 
 ${trimmedConversation}
 
