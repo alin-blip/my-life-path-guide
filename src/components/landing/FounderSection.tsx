@@ -15,10 +15,10 @@ export const FounderSection = () => {
     >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-          De Ce Am Creat Napoleon Hill Academy?
+          Why I Created Jump to Freedom
         </h2>
         <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-          Povestea din spatele sistemului care transformă antreprenori blocați în CEO-uri strategici
+          The story behind the system that transforms stuck entrepreneurs into balanced leaders
         </p>
       </div>
 
@@ -30,67 +30,67 @@ export const FounderSection = () => {
               <Quote className="h-16 w-16 text-primary/40" />
             </div>
             <div className="mt-4 text-center">
-              <div className="font-bold text-slate-900 text-lg">[Numele Fondatorului]</div>
-              <div className="text-sm text-slate-500">Fondator Napoleon Hill Academy</div>
+              <div className="font-bold text-slate-900 text-lg">[Founder Name]</div>
+              <div className="text-sm text-slate-500">Founder, Jump to Freedom</div>
             </div>
           </div>
 
           {/* Story Content */}
           <div className="flex-1 space-y-4 text-slate-600">
             <p className="text-lg leading-relaxed font-semibold text-slate-900">
-              <span className="text-red-500">7 ani.</span> 7 ani mi-au trebuit să descopăr, să testez și să dovedesc drumul unui războinic.
+              <span className="text-red-500">7 years.</span> It took me 7 years to discover, test, and prove the path to true freedom.
             </p>
 
             <p className="leading-relaxed">
-              În 2016, aveam "totul": cifră de afaceri peste €1M, echipă de 15 oameni, birouri frumoase. 
-              Dar realitatea? <span className="text-red-600 font-bold">Burnout total, 105kg, anxietate cronică, soție pe care o vedeam 2 ore pe săptămână</span>.
+              In 2016, I had "everything": €1M+ revenue, team of 15, beautiful offices. 
+              But the reality? <span className="text-red-600 font-bold">Complete burnout, 230 lbs, chronic anxiety, a wife I saw 2 hours a week</span>.
             </p>
 
             <p className="leading-relaxed">
-              Am ajuns la spital după o criză de anxietate. Doctorii mi-au spus: 
-              <span className="text-red-600 font-semibold italic"> "Dacă nu schimbi radical ceva, nu mai ai mult timp."</span> 
-              Aveam 32 de ani și eram gata să mor.
+              I ended up in the hospital after an anxiety attack. Doctors told me: 
+              <span className="text-red-600 font-semibold italic"> "If you don't change something radically, you don't have much time left."</span> 
+              I was 32 years old and ready to die.
             </p>
 
             <p className="leading-relaxed">
-              Am realizat adevărul brutal: <span className="text-slate-900 font-bold">Aveam bani, dar nu aveam VIAȚĂ</span>. 
-              Corpul meu se prăbușea. Relația cu soția era moartă. Nu mai simțeam nimic spiritual. 
-              Business-ul mergea, dar eu eram o ruină umană.
+              I realized the brutal truth: <span className="text-slate-900 font-bold">I had money, but I didn't have LIFE</span>. 
+              My body was collapsing. My relationship with my wife was dead. I felt nothing spiritual. 
+              Business was running, but I was a human ruin.
             </p>
 
             <p className="leading-relaxed">
-              Am refuzat să accept că acesta e sfârșitul. Am început să caut răspunsuri — 
-              nu în pastile sau motivație de weekend, ci în <span className="text-primary font-bold">adevăr brutal</span>. 
-              Am realizat că problema nu era doar în business. Era în <span className="text-slate-900 font-semibold">TOATE ariile simultan</span> — 
-              corp, spirit, relații, afaceri.
+              I refused to accept this was the end. I started looking for answers — 
+              not in pills or weekend motivation, but in <span className="text-primary font-bold">brutal truth</span>. 
+              I realized the problem wasn't just in business. It was in <span className="text-slate-900 font-semibold">ALL areas simultaneously</span> — 
+              body, spirit, relationships, business.
             </p>
 
             <div className="bg-blue-50 border-l-4 border-primary p-4 rounded-r">
-              <p className="text-slate-900 font-bold mb-2">Rezultatul transformării:</p>
+              <p className="text-slate-900 font-bold mb-2">The transformation results:</p>
               <ul className="space-y-1 text-sm text-slate-700">
-                <li>✓ Am slăbit 30 kg în 4 luni</li>
-                <li>✓ De la depresie la putere mentală și claritate</li>
-                <li>✓ Business de 5M€+ în 3 ani</li>
-                <li>✓ De la relație toxică la căsnicie plină de pasiune</li>
-                <li>✓ Tată și soț ghidat de credință</li>
+                <li>✓ Lost 65 lbs in 4 months</li>
+                <li>✓ From depression to mental power and clarity</li>
+                <li>✓ Business grew to €5M+ in 3 years</li>
+                <li>✓ From toxic relationship to passionate marriage</li>
+                <li>✓ Father and husband guided by faith</li>
               </ul>
             </div>
 
             <p className="leading-relaxed">
-              <span className="text-primary font-bold">Succesul fără echilibru este doar o altă formă de sărăcie.</span> 
-              Poți avea milioane în bancă și totuși să fii în Groapă — deconectat, desensibilizat, distrus pe dinăuntru. 
-              Eu am fost acolo. <span className="text-slate-900 font-semibold">Nu mai vreau ca alți bărbați să ajungă unde am fost eu.</span>
+              <span className="text-primary font-bold">Success without balance is just another form of poverty.</span> 
+              You can have millions in the bank and still be in The Pit — disconnected, desensitized, destroyed inside. 
+              I was there. <span className="text-slate-900 font-semibold">I don't want other men to end up where I was.</span>
             </p>
 
             <p className="leading-relaxed">
-              Am sistematizat tot ce am învățat în cei 7 ani și l-am transformat în Calea Războinicului. 
-              Nu pentru că vreau să vând ceva — pentru că <span className="text-slate-900 font-bold">nu am avut pe nimeni care să-mi arate calea când eram în groapă</span>. 
-              Și știu durerea asta. <span className="text-green-600 font-bold">Tu ai acum șansa pe care eu nu am avut-o.</span>
+              I systematized everything I learned in those 7 years and transformed it into Jump to Freedom. 
+              Not because I want to sell something — because <span className="text-slate-900 font-bold">I had no one to show me the way when I was in The Pit</span>. 
+              And I know that pain. <span className="text-green-600 font-bold">You now have the chance I never had.</span>
             </p>
 
             <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-r">
               <p className="text-slate-900 font-bold">
-                Acum sistemul este folosit de 65,000+ bărbați în 40+ de țări. Adaptat pentru piața românească.
+                Now the system is used by 65,000+ men in 40+ countries. Built on timeless principles, adapted for modern life.
               </p>
             </div>
           </div>

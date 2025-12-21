@@ -11,28 +11,28 @@ export const PitSection = () => {
   const pitItems = [
     { 
       id: "work", 
-      label: "Lucrez constant dar rezultatele nu vin",
-      consequence: "→ Burnout garantat în 6-12 luni, pierdere business"
+      label: "I work constantly but results aren't coming",
+      consequence: "→ Guaranteed burnout in 6-12 months, business collapse"
     },
     { 
       id: "disconnect", 
-      label: "Mă simt deconectat de familie/partener",
-      consequence: "→ Divorț sau relații distruse, copii care suferă"
+      label: "I feel disconnected from my family/partner",
+      consequence: "→ Divorce or destroyed relationships, children who suffer"
     },
     { 
       id: "body", 
-      label: "Corpul meu suferă (oboseală, greutate, lipsă energie)",
-      consequence: "→ Boli cronice, epuizare fizică, risc cardiac"
+      label: "My body is suffering (fatigue, weight gain, no energy)",
+      consequence: "→ Chronic disease, physical exhaustion, heart risk"
     },
     { 
       id: "numb", 
-      label: "Mă sedez cu mâncarea/alcoolul/rețelele sociale",
-      consequence: "→ Dependențe, depresie, pierdere identitate"
+      label: "I numb myself with food/alcohol/social media",
+      consequence: "→ Addictions, depression, loss of identity"
     },
     { 
       id: "deserve", 
-      label: "Simt că nu merit mai mult",
-      consequence: "→ Sabotatre perpetuă, nu vei atinge niciodată potențialul"
+      label: "I feel like I don't deserve more",
+      consequence: "→ Perpetual self-sabotage, never reaching your potential"
     },
   ];
 
@@ -48,10 +48,10 @@ export const PitSection = () => {
       <div className="text-center mb-12">
         <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
         <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-          Ești În Groapă?
+          Are You Trapped in The Pit?
         </h2>
         <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-          Groapa sărăciei are 5 consecințe. Bifează ce rezonează cu tine:
+          The Pit of Imbalance has 5 warning signs. Check what resonates with you:
         </p>
       </div>
 
@@ -90,11 +90,11 @@ export const PitSection = () => {
         {checkedCount >= 2 && (
           <div className="bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-500 p-6 rounded-r-lg">
             <p className="text-lg text-slate-900 font-bold mb-2">
-              Ai bifat {checkedCount} din 5 — Ești în Groapă.
+              You checked {checkedCount} of 5 — You're in The Pit.
             </p>
             <p className="text-base text-slate-600">
-              Vestea bună? <span className="text-primary font-bold">Există o cale de ieșire.</span> Calea Războinicului 
-              te învață cum să ieși din Groapă și să construiești un echilibru real în toate ariile vieții.
+              The good news? <span className="text-primary font-bold">There's a way out.</span> Jump to Freedom 
+              teaches you how to escape The Pit and build real balance across Body, Being, Balance & Business.
             </p>
           </div>
         )}
@@ -102,8 +102,8 @@ export const PitSection = () => {
         {checkedCount > 0 && checkedCount < 2 && (
           <div className="bg-blue-50 border-l-4 border-primary p-6 rounded-r-lg">
             <p className="text-base text-slate-600">
-              Ești aproape de marginea Gropii. Acum e momentul să construiești un sistem care 
-              <span className="text-slate-900 font-bold"> te protejează și te pune pe calea creșterii.</span>
+              You're close to the edge of The Pit. Now is the time to build a system that 
+              <span className="text-slate-900 font-bold"> protects you and puts you on the path to growth.</span>
             </p>
           </div>
         )}
@@ -111,9 +111,9 @@ export const PitSection = () => {
         {checkedCount === 0 && (
           <div className="bg-green-50 border-l-4 border-accent p-6 rounded-r-lg">
             <p className="text-base text-slate-600">
-              E excelent că nu rezonezi cu aceste simptome! Totuși, Calea Războinicului te învață 
-              <span className="text-slate-900 font-bold"> cum să PĂZEȘTI</span> ce ai construit și să 
-              <span className="text-slate-900 font-bold"> SCALEZI</span> fără să sacrifici nimic.
+              Excellent that you don't resonate with these symptoms! Still, Jump to Freedom teaches you 
+              <span className="text-slate-900 font-bold"> how to PROTECT</span> what you've built and 
+              <span className="text-slate-900 font-bold"> SCALE</span> without sacrificing anything.
             </p>
           </div>
         )}
