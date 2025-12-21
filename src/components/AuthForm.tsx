@@ -168,17 +168,17 @@ export const AuthForm: React.FC = () => {
       <div className="mb-8 text-center">
         <div className="inline-flex items-center justify-center mb-4">
           <div className="bg-feminine-primary rounded-md p-2">
-            <span className="font-display font-bold text-white text-xl">🌙</span>
+            <span className="font-display font-bold text-white text-xl">🦅</span>
           </div>
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">
-          {mode === AuthMode.LOGIN && (language === 'en' ? "WELCOME BACK WARRIOR" : "BINE AI REVENIT RĂZBOINIC")}
-          {mode === AuthMode.REGISTER && (language === 'en' ? "JOIN YOUR DIVINE SISTERHOOD" : "ALĂTURĂ-TE SORORITĂȚII DIVINE")}
+          {mode === AuthMode.LOGIN && (language === 'en' ? "WELCOME BACK ACHIEVER" : "BINE AI REVENIT")}
+          {mode === AuthMode.REGISTER && (language === 'en' ? "JOIN JUMP TO FREEDOM" : "ALĂTURĂ-TE JUMP TO FREEDOM")}
           {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "RESET PASSWORD" : "RESETEAZĂ PAROLA")}
         </h1>
         <p className="text-muted-foreground">
-          {mode === AuthMode.LOGIN && (language === 'en' ? "Sign in to continue your journey" : "Autentifică-te pentru a continua călătoria")}
-          {mode === AuthMode.REGISTER && (language === 'en' ? "Create your account to begin" : "Creează-ți contul pentru a începe")}
+          {mode === AuthMode.LOGIN && (language === 'en' ? "Sign in to continue your freedom journey" : "Autentifică-te pentru a continua călătoria spre libertate")}
+          {mode === AuthMode.REGISTER && (language === 'en' ? "Create your account to Have It All" : "Creează-ți contul pentru a avea totul")}
           {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "Enter your email to reset your password" : "Introdu email-ul pentru a reseta parola")}
         </p>
       </div>

@@ -72,40 +72,40 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
   const menuItems: MenuItem[] = [
     { title: 'Dashboard', icon: Home, path: '/dashboard' },
-    { title: '🚀 Challenge - Start Here', icon: Target, path: '/challenge' },
+    { title: '🚀 Have It All Challenge', icon: Target, path: '/challenge' },
     { 
       title: t('transformationWorkshop'), 
       icon: Layers, 
       path: '/stack',
       subItems: [
-        { title: 'Alchimia Furiei', icon: Angry, path: '/stack?type=anger' },
-        { title: 'Dialogul cu Divinitatea', icon: Heart, path: '/stack?type=divine-prayer' },
-        { title: 'Napoleon Hill Quick', icon: Crown, path: '/stack?type=napoleon-hill-quick' },
-        { title: 'Oracolul Înțelepciunii', icon: Headphones, path: '/stack?type=ai-live' },
-        { title: 'Imperiul de Business', icon: Briefcase, path: '/stack?type=hormozi-coaching' },
-        { title: 'Școala Zeilor', icon: Target, path: '/stack?type=gods-school' },
-        { title: 'Jurnalul Sacru', icon: Pencil, path: '/journal' },
-        { title: 'Analiza Vocală', icon: Mic, path: '/voice-analysis' },
-        { title: 'Arsenal Stacks', icon: Box, path: '/stack-library' },
+        { title: 'Rage to Power', icon: Angry, path: '/stack?type=anger' },
+        { title: 'Divine Connection', icon: Heart, path: '/stack?type=divine-prayer' },
+        { title: 'Principle Coaching', icon: Crown, path: '/stack?type=napoleon-hill-quick' },
+        { title: 'Wisdom Oracle', icon: Headphones, path: '/stack?type=ai-live' },
+        { title: 'Business Empire', icon: Briefcase, path: '/stack?type=hormozi-coaching' },
+        { title: 'Masters Academy', icon: Target, path: '/stack?type=gods-school' },
+        { title: 'Reflection Journal', icon: Pencil, path: '/journal' },
+        { title: 'Voice Analysis', icon: Mic, path: '/voice-analysis' },
+        { title: 'Transformation Toolkit', icon: Box, path: '/stack-library' },
       ]
     },
     {
-      title: '📚 Napoleon Hill System',
+      title: '📚 Success Principles',
       icon: Crown,
       path: '/napoleon-hill-system',
       subItems: [
-        { title: 'Proiectele Mele', icon: Target, path: '/napoleon-hill-system' },
-        { title: 'Journey Activ', icon: BookOpen, path: '/napoleon-hill-system?tab=journey' },
+        { title: 'My Projects', icon: Target, path: '/napoleon-hill-system' },
+        { title: 'Active Journey', icon: BookOpen, path: '/napoleon-hill-system?tab=journey' },
         { title: 'Knowledge Base', icon: Upload, path: '/napoleon-hill-system?tab=knowledge' },
       ]
     },
-    { title: '📖 Have It All - Life Book', icon: BookOpen, path: '/lifebook' },
+    { title: '📖 Life Design Blueprint', icon: BookOpen, path: '/lifebook' },
     { title: t('commandCenter'), icon: Flag, path: '/door' },
     { title: 'Business', icon: Briefcase, path: '/business' },
-    { title: 'Misiuni de Împlinire', icon: Target, path: '/game' },
-    { title: 'Note', icon: FileText, path: '/notes' },
-    { title: 'Biblioteca', icon: BookOpenIcon, path: '/library' },
-    { title: 'Abonamente', icon: CreditCard, path: '/pricing' },
+    { title: 'Freedom Missions', icon: Target, path: '/game' },
+    { title: 'Notes', icon: FileText, path: '/notes' },
+    { title: 'Library', icon: BookOpenIcon, path: '/library' },
+    { title: 'Subscriptions', icon: CreditCard, path: '/pricing' },
     { title: 'Admin', icon: Shield, path: '/admin' },
   ];
 
@@ -115,12 +115,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         <Link to="/" className="flex items-center justify-center md:justify-start gap-3">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
-            alt="Napoleon Hill Academy logo"
+            alt="Jump to Freedom logo"
             loading="lazy"
             className={`${isCollapsed ? 'h-7 w-auto' : 'h-9 w-auto'} drop-shadow`}
           />
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-lg text-foreground">Napoleon Hill Academy</h1>
+            <h1 className="font-display font-bold text-lg text-foreground">Jump to Freedom</h1>
           )}
         </Link>
       </div>
