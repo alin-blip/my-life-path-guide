@@ -1,94 +1,98 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Map, Target, Calendar, Brain, TrendingUp, Users } from "lucide-react";
+import { Map, Target, Calendar, Dumbbell, Sparkles, Heart, Briefcase } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const modules = [
   {
-    number: "PAS 0",
-    title: "Harta Realității",
-    duration: "Ziua 1",
+    number: "DAY 1",
+    title: "Ignite Your Desire",
+    duration: "Foundation",
+    icon: Target,
+    description: "Define your 'Have It All' vision — clarity on what you truly want in all 4 areas.",
+    outcomes: [
+      "Complete your first Stack coaching session",
+      "Define your vision for Body, Being, Balance & Business",
+      "Set your intention for the 7-day transformation",
+      "Join the community of freedom seekers"
+    ]
+  },
+  {
+    number: "DAY 2",
+    title: "Body Mastery",
+    duration: "Physical",
+    icon: Dumbbell,
+    description: "Start your physical transformation — movement and nutrition that energizes.",
+    outcomes: [
+      "30 minutes of movement (any form you enjoy)",
+      "Green smoothie or healthy nutrition choice",
+      "Complete your Stack session",
+      "Track your first Body progress"
+    ]
+  },
+  {
+    number: "DAY 3",
+    title: "Soul Connection",
+    duration: "Spiritual",
+    icon: Sparkles,
+    description: "Connect with your inner self through meditation and gratitude practices.",
+    outcomes: [
+      "10 minutes of meditation",
+      "Gratitude journaling (3 things)",
+      "Continue Body rituals from Day 2",
+      "Stack session for inner clarity"
+    ]
+  },
+  {
+    number: "DAY 4",
+    title: "Love & Connection",
+    duration: "Relationships",
+    icon: Heart,
+    description: "Add value to the people who matter most — spouse, children, or close friends.",
+    outcomes: [
+      "One meaningful action for your partner/spouse",
+      "One meaningful action for children/family/friends",
+      "Continue Body + Being rituals",
+      "Reflect on relationship growth"
+    ]
+  },
+  {
+    number: "DAY 5",
+    title: "Business Edge",
+    duration: "Professional",
+    icon: Briefcase,
+    description: "Invest in your professional growth — learn, plan, and apply.",
+    outcomes: [
+      "30 minutes of business/marketing reading",
+      "Extract 3 key ideas from your learning",
+      "Apply 1 idea immediately",
+      "Continue all previous rituals"
+    ]
+  },
+  {
+    number: "DAY 6",
+    title: "Integration Day",
+    duration: "All Areas",
+    icon: Target,
+    description: "Practice ALL 4 areas in one day — experience the power of complete balance.",
+    outcomes: [
+      "Body: 30 min movement + healthy eating",
+      "Being: Stack + 10 min meditation",
+      "Balance: Add value to 2 people",
+      "Business: Learn & apply one insight"
+    ]
+  },
+  {
+    number: "DAY 7",
+    title: "Freedom Blueprint",
+    duration: "Planning",
     icon: Map,
-    description: "Radiografia faptică a vieții tale acum — unde ești cu adevărat în toate cele 4 arii.",
+    description: "Create your weekly execution plan using The Door — your roadmap to freedom.",
     outcomes: [
-      "Evaluezi onest situația actuală în corp, spirit, relații și afaceri",
-      "Identifici decalajul dintre unde ești și unde vrei să ajungi",
-      "Elimini autoinșelarea și minciuna despre starea ta reală",
-      "Construiești fundația pentru transformare autentică"
-    ]
-  },
-  {
-    number: "PAS 1",
-    title: "Jocul Imposibil",
-    duration: "Ziua 2-3",
-    icon: Target,
-    description: "Stabilești obiective clare pe 1 an în toate ariile — vei ști EXACT unde mergi.",
-    outcomes: [
-      "Definești viziunea ta pe 1 an pentru corp, spirit, relații, business",
-      "Transformi vise vagi în obiective măsurabile și datate",
-      "Creezi un plan anual clar care te ghidează zilnic",
-      "Înțelegi exact ce trebuie să faci pentru a avea TOTUL"
-    ]
-  },
-  {
-    number: "PAS 2",
-    title: "Milestone-uri Lunare",
-    duration: "Săptămâna 1",
-    icon: Calendar,
-    description: "Împarți obiectivele anuale în pași lunari — transformi imposibilul în realizabil.",
-    outcomes: [
-      "Creezi roadmap lunar pentru fiecare din cele 4 arii",
-      "Stabilești milestone-uri clare și măsurabile",
-      "Înveți să lucrezi progresiv, pas cu pas",
-      "Transformi obiective mari în acțiuni săptămânale"
-    ]
-  },
-  {
-    number: "MODUL 1",
-    title: "War Planning Foundation",
-    duration: "Săptămâna 1-2",
-    icon: Target,
-    description: "Învăți să identifici DOMINO-ul săptămânal și să elimini 80% din task-uri",
-    outcomes: [
-      "Definești obiectivul domino care dă jos toate celelalte",
-      "Elimini task-urile care nu contribuie la domino",
-      "Structurezi săptămâna în jurul a 1-3 task-uri high-ROI"
-    ]
-  },
-  {
-    number: "MODUL 2",
-    title: "Execuție Zilnică & Sistem",
-    duration: "Săptămâna 3-4",
-    icon: Brain,
-    description: "Integrezi rutina zilnică și sistemul de tracking al progresului",
-    outcomes: [
-      "Creezi ritual-ul de dimineață (10 minute War Planning)",
-      "Tracking automat al progresului zilnic",
-      "Ajustări rapide bazate pe feedback real"
-    ]
-  },
-  {
-    number: "MODUL 3",
-    title: "AI Coaching & Optimizare",
-    duration: "Săptămâna 5-8",
-    icon: TrendingUp,
-    description: "Folosești coaching-ul AI tip Hormozi pentru decizii strategice",
-    outcomes: [
-      "Analiză AI a bottleneck-urilor din business",
-      "Recomandări personalizate pentru creștere",
-      "Stack-uri de coaching pentru probleme specifice"
-    ]
-  },
-  {
-    number: "MODUL 4",
-    title: "Scale & Delegare",
-    duration: "Săptămâna 9-12",
-    icon: Users,
-    description: "Scalezi sistemul și delegi eficient către echipă",
-    outcomes: [
-      "Transformi procesul tău în sistem pentru echipă",
-      "Delegi task-urile low-ROI fără să pierzi controlul",
-      "Raportare automată și accountability în echipă"
+      "Complete weekly planning in The Door",
+      "Define your Domino objective for the week",
+      "Set 5 Key Points across all 4 areas",
+      "Celebrate your 7-day transformation!"
     ]
   }
 ];
@@ -106,14 +110,14 @@ export const CurriculumSection = () => {
     >
       <div className="text-center mb-12">
         <Badge className="bg-primary/10 text-primary border-primary/50 mb-4 font-semibold">
-          Program Complet în 7 Pași
+          Complete 7-Day Transformation
         </Badge>
         <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-          De la Realitate la Transformare Completă
+          Your Have It All Lifestyle Challenge
         </h2>
         <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-          Începi cu o radiografie faptică a vieții tale, stabilești obiective clare pe 1 an, apoi implementezi
-          <span className="text-primary font-bold"> sistemul complet</span> care te duce la rezultate în toate cele 4 arii.
+          Each day builds on the previous, progressively integrating all 4 life areas until you're 
+          <span className="text-primary font-bold"> living the complete system</span> with full clarity and momentum.
         </p>
       </div>
 
@@ -148,7 +152,7 @@ export const CurriculumSection = () => {
                           <h3 className="text-xl font-bold text-slate-900 mb-2">{module.title}</h3>
                           <p className="text-slate-600 mb-4">{module.description}</p>
                           <div className="space-y-2">
-                            <div className="text-sm font-semibold text-primary">Ce Obții:</div>
+                            <div className="text-sm font-semibold text-primary">What You'll Do:</div>
                             <ul className="space-y-1 text-sm text-slate-600">
                               {module.outcomes.map((outcome, i) => (
                                 <li key={i} className="flex items-start gap-2">
@@ -172,8 +176,8 @@ export const CurriculumSection = () => {
       <div className="mt-12 text-center">
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-primary/40 p-6 max-w-3xl mx-auto shadow-lg">
           <p className="text-lg text-slate-700">
-            <span className="font-bold text-primary">Rezultat final:</span> Știi EXACT unde ești, unde mergi și ce trebuie să faci zilnic.
-            Ai un sistem complet de execuție care aduce rezultate constante în corp, spirit, relații și business.
+            <span className="font-bold text-primary">End Result:</span> After 7 days, you'll have experienced the complete system — 
+            daily rituals for Body, Being, Balance & Business, plus a weekly planning framework that keeps you focused on what truly matters.
           </p>
         </Card>
       </div>

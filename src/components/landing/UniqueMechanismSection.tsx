@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { BookOpen, Brain, Target, DoorOpen, Gamepad2 } from "lucide-react";
+import { Dumbbell, Sparkles, Heart, Briefcase, Target } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export const UniqueMechanismSection = () => {
@@ -8,53 +8,53 @@ export const UniqueMechanismSection = () => {
   const protocols = [
     {
       number: "1",
-      icon: BookOpen,
-      title: "Codul",
-      description: "Te învață să trăiești în adevăr",
-      result: "Fundament solid, fără minciuni",
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-300"
+      icon: Dumbbell,
+      title: "Body",
+      description: "Daily movement & nutrition rituals",
+      result: "Energy, strength, vitality",
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      borderColor: "border-green-300"
     },
     {
       number: "2",
-      icon: Brain,
-      title: "Stack-ul",
-      description: "Introspecție zilnică (10-15 min)",
-      result: "Claritate mentală, perspective noi",
+      icon: Sparkles,
+      title: "Being",
+      description: "Meditation, Stack & inner clarity",
+      result: "Peace, purpose, mental power",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-300"
     },
     {
       number: "3",
-      icon: Target,
-      title: "Core 4",
-      description: "Acțiuni zilnice în 4 arii",
-      result: "Echilibru constant",
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-300"
+      icon: Heart,
+      title: "Balance",
+      description: "Adding value to relationships daily",
+      result: "Deep connections, love, legacy",
+      color: "text-pink-600",
+      bgColor: "bg-pink-50",
+      borderColor: "border-pink-300"
     },
     {
       number: "4",
-      icon: DoorOpen,
-      title: "Ușa",
-      description: "Planificare săptămânală",
-      result: "Focus pe ce contează",
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-300"
+      icon: Briefcase,
+      title: "Business",
+      description: "Strategic learning & application",
+      result: "Growth, income, impact",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+      borderColor: "border-blue-300"
     },
     {
       number: "5",
-      icon: Gamepad2,
-      title: "Jocul",
-      description: "Misiuni lunare/anuale",
-      result: "Viziune pe termen lung",
-      color: "text-red-600",
-      bgColor: "bg-red-50",
-      borderColor: "border-red-300"
+      icon: Target,
+      title: "The Door",
+      description: "Weekly planning & execution",
+      result: "Focus on what truly matters",
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
+      borderColor: "border-amber-300"
     }
   ];
   
@@ -67,10 +67,10 @@ export const UniqueMechanismSection = () => {
     >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-          Cele 5 Protocoale ale Războinicului
+          The 5 Pillars of Freedom
         </h2>
         <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-          Nu e un tool de productivitate. E un <span className="text-primary font-bold">sistem complet de viață</span> care integrează corp, spirit, relații și afaceri.
+          This isn't a productivity tool. It's a <span className="text-primary font-bold">complete life system</span> that integrates Body, Being, Balance, and Business into one unified framework.
         </p>
       </div>
 
@@ -100,12 +100,12 @@ export const UniqueMechanismSection = () => {
 
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-primary/40 p-8 max-w-4xl mx-auto shadow-xl">
         <p className="text-lg text-slate-900 font-bold text-center mb-2">
-          🎯 Funcționează împreună ca un SISTEM
+          🎯 Works Together as ONE SYSTEM
         </p>
         <p className="text-base text-slate-600 text-center">
-          Fiecare protocol se conectează cu celelalte. Codul stabilește fundația, Stack-ul îți oferă claritate zilnică, 
-          Core 4 asigură progresul în toate ariile, Ușa te ține focalizat săptămânal, iar Jocul îți păstrează viziunea pe termen lung. 
-          <span className="text-slate-900 font-semibold"> Nu funcționează unul fără celelalte.</span>
+          Each pillar connects with the others. Body gives you energy. Being gives you clarity. 
+          Balance keeps you grounded. Business drives growth. The Door keeps you focused weekly. 
+          <span className="text-slate-900 font-semibold"> One without the others leads to imbalance.</span>
         </p>
       </Card>
     </section>
