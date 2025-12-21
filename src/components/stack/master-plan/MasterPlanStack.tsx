@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { NapoleonHillStackProps } from './types';
+import { MasterPlanStackProps } from './types';
 import { getQuestions } from './questions';
 import { AiGuidedStack } from '../AiGuidedStack';
 import { StackIdeaModal } from '../StackIdeaModal';
-import { NapoleonHillExplanation } from './NapoleonHillExplanation';
-import { NapoleonHillKnowledgeBase } from './NapoleonHillKnowledgeBase';
+import { MasterPlanExplanation } from './MasterPlanExplanation';
+import { MasterPlanKnowledgeBase } from './MasterPlanKnowledgeBase';
 import { StackProgressIndicator } from '../StackProgressIndicator';
 import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Upload } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 
-export const NapoleonHillStack: React.FC<NapoleonHillStackProps> = ({ 
+export const MasterPlanStack: React.FC<MasterPlanStackProps> = ({ 
   onAddToHitList,
   existingData,
   isReadOnly,

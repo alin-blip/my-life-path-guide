@@ -25,7 +25,7 @@ import NotFound from "./pages/NotFound";
 const Stack = lazy(() => import("./pages/Stack"));
 const StackLibrary = lazy(() => import("./pages/StackLibrary"));
 const StackViewer = lazy(() => import("./pages/StackViewer"));
-const NapoleonHillSystem = lazy(() => import("./pages/NapoleonHillSystem"));
+const MasterPlanSystem = lazy(() => import("./pages/MasterPlanSystem"));
 const Challenge = lazy(() => import("./pages/Challenge"));
 const ChallengeDay = lazy(() => import("./pages/ChallengeDay"));
 const Door = lazy(() => import("./pages/Door"));
@@ -98,9 +98,9 @@ const App = () => (
                         <StackViewer />
                       </ProtectedRoute>
                     } />
-                    <Route path="/napoleon-hill-system" element={
+                    <Route path="/master-plan" element={
                       <ProtectedRoute>
-                        <NapoleonHillSystem />
+                        <MasterPlanSystem />
                       </ProtectedRoute>
                     } />
                     <Route path="/challenge" element={
