@@ -92,12 +92,17 @@ const CoachingPage = () => {
         case 'gods-school':
           setActiveStack('gods-school');
           break;
+
+        // Backwards-compatible URLs
         case 'napoleon-hill':
+        case 'master-plan':
           setActiveStack('napoleon-hill');
           break;
         case 'napoleon-hill-quick':
+        case 'master-plan-quick':
           setActiveStack('napoleon-hill-quick');
           break;
+
         default:
           setActiveStack('divine-prayer');
       }
