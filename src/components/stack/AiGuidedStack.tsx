@@ -42,6 +42,7 @@ interface AiGuidedStackProps {
   welcomeMessage?: string;
   knowledgeBaseFiles?: string[];
   challengeDay?: number | null;
+  forceNewSession?: boolean;
 }
 
 export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({ 
@@ -55,7 +56,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   systemPromptOverride,
   welcomeMessage: customWelcomeMessage,
   knowledgeBaseFiles = [],
-  challengeDay
+  challengeDay,
+  forceNewSession = false
 }) => {
   const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -363,14 +365,37 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   // Load existing session on mount
   useEffect(() => {
     const loadExistingSession = async () => {
+      // Always set the system prompt first based on current stack type
+      setSystemPrompt(customSystemPrompt || systemPromptOverride || getStackPrompt());
+      
+      // If forceNewSession is true, skip loading and initialize fresh
+      if (forceNewSession) {
+        setMessages([]);
+        initializeWelcomeMessage();
+        return;
+      }
+      
       const sessionData = await loadSession();
       if (!sessionData || !sessionData.answers || !sessionData.answers.messages || sessionData.answers.messages.length === 0) {
         // No existing session, create welcome message
         initializeWelcomeMessage();
+      } else {
+        // Existing session found - restore messages
+        const restoredMessages = sessionData.answers.messages.map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp)
+        }));
+        setMessages(restoredMessages);
+        if (sessionData.answers.mode) {
+          setMode(sessionData.answers.mode);
+        }
+        if (sessionData.answers.currentStep) {
+          setCurrentQuestionNumber(sessionData.answers.currentStep);
+        }
       }
     };
     loadExistingSession();
-  }, []);
+  }, [stackType, systemPromptOverride, forceNewSession]); // Re-run when stackType, prompt, or forceNewSession changes
 
   const initializeWelcomeMessage = () => {
     setSystemPrompt(customSystemPrompt || getStackPrompt());

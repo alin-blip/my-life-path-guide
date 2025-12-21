@@ -131,7 +131,7 @@ export const MasterPlanQuickStack: React.FC<NapoleonHillStackProps> = ({
     const principle = NAPOLEON_HILL_PRINCIPLES.find(p => p.id === principleId);
     
     const principleContext: Record<number, string> = {
-      1: 'DORINȚA este punctul de pornire al tuturor realizărilor. Napoleon Hill spune: "The starting point of all achievement is desire."',
+      1: 'DORINȚA este punctul de pornire al tuturor realizărilor. "The starting point of all achievement is desire."',
       2: 'CREDINȚA este capul de pod între gândire și realitate. "Faith is the head chemist of the mind."',
       3: 'AUTOSUGGESTIA este tehnica prin care îți programezi subconștientul. "Any idea, plan, or purpose may be placed in the mind through repetition of thought."',
       4: 'CUNOȘTINȚELE SPECIALIZATE sunt cele care produc bogăție când sunt organizate și aplicate inteligent.',
@@ -147,8 +147,8 @@ export const MasterPlanQuickStack: React.FC<NapoleonHillStackProps> = ({
       14: 'CELE 6 FRICI (sărăcie, critică, boală, pierderea iubirii, bătrânețe, moarte) sunt inamicii succesului care trebuie eliminați.'
     };
     
-    return `Ești un coach EXCLUSIV bazat pe principiile lui Napoleon Hill din "Think and Grow Rich".
-IMPORTANT: Ești NAPOLEON HILL COACH, nu orice alt tip de coach. Toate răspunsurile trebuie ancorate în filosofia sa.
+    return `Ești un coach EXCLUSIV bazat pe cele 14 principii ale succesului din sistemul Master Plan.
+IMPORTANT: Ești MASTER PLAN COACH, nu orice alt tip de coach. Toate răspunsurile trebuie ancorate în aceste principii universale.
 
 Astăzi te concentrezi pe PRINCIPIUL ${principleId}: ${principle?.name?.toUpperCase()}.
 
@@ -164,7 +164,7 @@ STRUCTURA CONVERSAȚIEI (5-7 întrebări scurte):
 2. "${getSpecificQuestion(principleId, 1)}"
 3. "${getSpecificQuestion(principleId, 2)}"
 4. "Ce te blochează ACUM să faci progres în această direcție?"
-5. "Conform lui Napoleon Hill, cum poți aplica principiul ${principle?.name} pentru a depăși acest blocaj?"
+5. "Cum poți aplica principiul ${principle?.name} pentru a depăși acest blocaj?"
 6. "Ce SINGURĂ ACȚIUNE poți face în următoarele 2 ore?"
 7. "Vrei să adaugi această acțiune la HIT list?"
 
@@ -173,24 +173,23 @@ INSTRUCȚIUNI STRICTE:
 - Fiecare răspuns maxim 2-3 propoziții
 - Focus pe ASTĂZI, nu pe planuri pe termen lung
 - Pune O SINGURĂ întrebare per mesaj
-- Citează din Napoleon Hill în fiecare răspuns - folosește CITATE EXACTE din carte dacă ai acces la knowledge base
-- Dacă ai acces la documente de referință, citează pasaje relevante din "Think and Grow Rich"
+- Folosește citate motivaționale relevante
 - La final, extrage o acțiune concretă pentru HIT list
 
-CITATE NAPOLEON HILL:
+CITATE DE FOLOSIT:
 - "Whatever the mind can conceive and believe, it can achieve."
 - "A goal is a dream with a deadline."
 - "Action is the real measure of intelligence."
 - "Every adversity carries with it the seed of an equal or greater benefit."
 
-Începe ACUM: "Bun venit la Stack-ul Napoleon Hill pentru ${principle?.name}! ${principleContext[principleId]?.split('.')[0] || ''} Ce obiectiv specific ai în minte astăzi legat de acest principiu?"`;
+Începe ACUM: "Bun venit la Stack-ul Master Plan pentru ${principle?.name}! ${principleContext[principleId]?.split('.')[0] || ''} Ce obiectiv specific ai în minte astăzi legat de acest principiu?"`;
   };
 
   const getFullStackPrompt = () => {
-    return `Ești un coach EXCLUSIV bazat pe principiile lui Napoleon Hill din "Think and Grow Rich".
+    return `Ești un coach EXCLUSIV bazat pe cele 14 principii ale succesului din sistemul Master Plan.
 Ghidezi utilizatorul printr-un STACK RAPID DE DIMINEAȚĂ prin toate cele 14 principii.
 
-IMPORTANT: Ești NAPOLEON HILL COACH, nu altceva. Răspunsurile tale trebuie să fie ancorate în filosofia lui Napoleon Hill.
+IMPORTANT: Ești MASTER PLAN COACH, nu altceva. Răspunsurile tale trebuie să fie ancorate în aceste principii universale.
 
 === FRAMEWORK STACK COMPLET RAPID (14 principii, 1 întrebare per principiu) ===
 
@@ -218,20 +217,19 @@ FINAL:
 INSTRUCȚIUNI STRICTE:
 - O SINGURĂ întrebare per mesaj
 - Răspunsuri AI maxim 2-3 propoziții
-- Citează din Napoleon Hill la finalul fiecărui principiu - folosește CITATE EXACTE din carte dacă ai acces la knowledge base
-- Dacă ai acces la documente de referință, citează pasaje relevante din "Think and Grow Rich"
+- Folosește citate motivaționale relevante
 - Ritm rapid, fără filosofări lungi
 - Focus pe ACȚIUNE IMEDIATĂ
 - Întregul stack în 15-20 minute maximum
 
-CITATE NAPOLEON HILL DE FOLOSIT:
+CITATE DE FOLOSIT:
 - "Whatever the mind can conceive and believe, it can achieve."
 - "A goal is a dream with a deadline."
 - "Action is the real measure of intelligence."
 - "Every adversity carries with it the seed of an equal or greater benefit."
 - "The starting point of all achievement is desire."
 
-Începe cu: "Hai să facem un reset matinal rapid bazat pe Napoleon Hill! PRINCIPIUL 1 - DORINȚA: Ce îți dorești cel mai mult să realizezi? Fii SPECIFIC."`;
+Începe cu: "Hai să facem un reset matinal rapid! PRINCIPIUL 1 - DORINȚA: Ce îți dorești cel mai mult să realizezi? Fii SPECIFIC."`;
   };
 
   const handleSelectPrinciple = (principleId: number) => {
@@ -257,10 +255,10 @@ CITATE NAPOLEON HILL DE FOLOSIT:
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-2xl text-amber-300">
               <Flame className="w-8 h-8" />
-              Napoleon Hill Quick Stack
+              Master Plan Quick Stack
             </CardTitle>
             <CardDescription className="text-amber-100/80 text-base">
-              Stack rapid de dimineață bazat pe "Think and Grow Rich" - deblochează-te și acționează ASTĂZI
+              Stack rapid de dimineață bazat pe cele 14 principii ale succesului - deblochează-te și acționează ASTĂZI
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -284,7 +282,7 @@ CITATE NAPOLEON HILL DE FOLOSIT:
                 <Button variant="outline" className="w-full justify-between">
                   <div className="flex items-center gap-2">
                     <BookOpen className="w-4 h-4" />
-                    <span>Knowledge Base - Cartea "Think and Grow Rich"</span>
+                    <span>Knowledge Base - Încarcă carte/notițe</span>
                     {knowledgeBaseFiles.length > 0 && (
                       <Badge variant="secondary" className="ml-2">
                         {knowledgeBaseFiles.length} fișier{knowledgeBaseFiles.length > 1 ? 'e' : ''} selectat{knowledgeBaseFiles.length > 1 ? 'e' : ''}
@@ -296,7 +294,7 @@ CITATE NAPOLEON HILL DE FOLOSIT:
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-4 space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Încarcă cartea "Think and Grow Rich" sau notițe pentru ca AI-ul să citeze direct din ea în timpul coaching-ului.
+                  Încarcă o carte sau notițe pentru ca AI-ul să citeze direct din ea în timpul coaching-ului.
                 </p>
                 
                 {uploadedFiles.length > 0 && (
@@ -418,11 +416,12 @@ CITATE NAPOLEON HILL DE FOLOSIT:
           audioMode={false}
           systemPromptOverride={mode === 'full' ? getFullStackPrompt() : getQuickStackPrompt(selectedPrinciple!)}
           welcomeMessage={mode === 'full' 
-            ? "Hai să facem un reset matinal rapid bazat pe Napoleon Hill! PRINCIPIUL 1 - DORINȚA: Ce îți dorești cel mai mult să realizezi? Fii SPECIFIC (sumă exactă, dată precisă, detalii concrete)."
-            : `Bun venit la Stack-ul Napoleon Hill pentru Principiul ${selectedPrinciple}: ${NAPOLEON_HILL_PRINCIPLES[selectedPrinciple! - 1]?.name}! ${NAPOLEON_HILL_PRINCIPLES[selectedPrinciple! - 1]?.description}. Ce obiectiv specific ai în minte astăzi legat de acest principiu?`
+            ? "Hai să facem un reset matinal rapid! PRINCIPIUL 1 - DORINȚA: Ce îți dorești cel mai mult să realizezi? Fii SPECIFIC (sumă exactă, dată precisă, detalii concrete)."
+            : `Bun venit la Stack-ul Master Plan pentru Principiul ${selectedPrinciple}: ${NAPOLEON_HILL_PRINCIPLES[selectedPrinciple! - 1]?.name}! ${NAPOLEON_HILL_PRINCIPLES[selectedPrinciple! - 1]?.description}. Ce obiectiv specific ai în minte astăzi legat de acest principiu?`
           }
           knowledgeBaseFiles={knowledgeBaseFiles}
           challengeDay={challengeDay}
+          forceNewSession={true}
         />
       </div>
 
