@@ -24,6 +24,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { TransformedWarrior, WarriorBadge, MediaMaster, MediaBadge, WarriorPowerCard, MediaMasterCard } from '@/components/celebrations';
+import { XPProgressBar, LevelUpCelebration, XPPopupContainer } from '@/components/xp';
+import { useXPSystem } from '@/hooks/useXPSystem';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -88,6 +90,10 @@ export const Dashboard: React.FC = () => {
   
   // Sound settings
   const { playSuccessSound } = useSoundSettings();
+  
+  // XP System
+  const { recentXPGain, showLevelUp, newLevel, dismissLevelUp } = useXPSystem();
+  
   const prevCategoryComplete = useRef<Record<string, boolean>>({
     body: false,
     relationship: false,
@@ -574,6 +580,12 @@ export const Dashboard: React.FC = () => {
         isVisible={showMediaOverlay} 
         onClose={() => setShowMediaOverlay(false)} 
       />
+      <LevelUpCelebration 
+        isOpen={showLevelUp} 
+        onClose={dismissLevelUp} 
+        newLevel={newLevel} 
+      />
+      <XPPopupContainer recentGain={recentXPGain} />
 
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
           <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
@@ -641,6 +653,9 @@ export const Dashboard: React.FC = () => {
       </div>
       
       <DailyBookPage />
+      
+      {/* XP Progress Bar */}
+      <XPProgressBar className="mb-6" />
       
       <div className="mb-6 md:mb-8 bg-card border border-border p-3 md:p-4 rounded-lg shadow-sm">
         <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
