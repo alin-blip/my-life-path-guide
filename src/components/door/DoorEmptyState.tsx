@@ -36,61 +36,50 @@ export const DoorEmptyState: React.FC<DoorEmptyStateProps> = ({
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center py-8 px-4 animate-fade-in">
-      {/* Animated Illustration */}
-      <div className="relative mb-6">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-          <Lightbulb className="w-10 h-10 text-primary animate-pulse" />
-        </div>
-        <div className="absolute -top-1 -right-1">
-          <Sparkles className="w-5 h-5 text-accent animate-bounce" />
-        </div>
+    <div className="flex flex-col items-center justify-center py-6 px-2 animate-fade-in">
+      {/* Simple Icon */}
+      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+        <Lightbulb className="w-7 h-7 text-primary" />
       </div>
       
-      {/* Main Title */}
-      <h3 className="text-lg font-semibold text-foreground mb-2 text-center">
-        {language === 'en' ? 'What do you want to achieve this week?' : 'Ce vrei să realizezi săptămâna asta?'}
+      {/* Title */}
+      <h3 className="text-base font-semibold text-foreground mb-1 text-center">
+        {language === 'en' ? 'Start your week' : 'Începe săptămâna'}
       </h3>
       
-      <p className="text-sm text-muted-foreground mb-6 text-center max-w-xs">
+      <p className="text-xs text-muted-foreground mb-4 text-center px-2">
         {language === 'en' 
-          ? 'Add your ideas and drag them to Focus to set your weekly goal'
-          : 'Adaugă ideile tale și trage-le în Focus pentru a seta obiectivul săptămânal'}
+          ? 'Add ideas and set your focus'
+          : 'Adaugă idei și setează focusul'}
       </p>
       
-      {/* Main CTA Button */}
+      {/* Main CTA */}
       <Button
         onClick={onAddItem}
-        className="mb-6 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300"
-        size="lg"
+        className="mb-4 bg-primary hover:bg-primary/90 text-primary-foreground"
+        size="sm"
       >
-        <Plus className="w-5 h-5 mr-2" />
-        {language === 'en' ? 'Add your first idea' : 'Adaugă prima ta idee'}
+        <Plus className="w-4 h-4 mr-1" />
+        {language === 'en' ? 'Add idea' : 'Adaugă idee'}
       </Button>
       
-      {/* Quick Templates */}
-      <div className="w-full space-y-2">
-        <p className="text-xs text-muted-foreground text-center mb-3">
-          {language === 'en' ? 'Or start with a template:' : 'Sau începe cu un șablon:'}
+      {/* Quick Templates - Compact */}
+      <div className="w-full space-y-1.5">
+        <p className="text-[10px] text-muted-foreground text-center mb-2">
+          {language === 'en' ? 'Quick add:' : 'Adaugă rapid:'}
         </p>
         
         {templates.map((template, index) => (
           <button
             key={index}
             onClick={() => onAddTemplate(template.text)}
-            className={`w-full flex items-center gap-3 p-3 rounded-lg ${template.bgColor} border border-transparent hover:border-border transition-all duration-200 text-left group`}
+            className={`w-full flex items-center gap-2 p-2.5 rounded-lg ${template.bgColor} transition-all text-left`}
           >
-            <template.icon className={`w-4 h-4 ${template.color} group-hover:scale-110 transition-transform`} />
-            <span className="text-sm text-foreground">{template.text}</span>
+            <template.icon className={`w-4 h-4 shrink-0 ${template.color}`} />
+            <span className="text-xs text-foreground truncate">{template.text}</span>
           </button>
         ))}
       </div>
-      
-      {/* Keyboard Shortcut Hint */}
-      <p className="mt-6 text-xs text-muted-foreground flex items-center gap-1">
-        <kbd className="px-1.5 py-0.5 text-xs rounded bg-muted border border-border">Enter</kbd>
-        <span>{language === 'en' ? 'to add quickly' : 'pentru adăugare rapidă'}</span>
-      </p>
     </div>
   );
 };

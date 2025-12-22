@@ -322,8 +322,8 @@ export const SimplifiedDoorContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <DoorHeader 
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      <DoorHeader
         currentDate={currentDate}
         currentDateRange={currentDateRange}
         handlePreviousWeek={handlePrevWeekWithNotification}
@@ -347,9 +347,9 @@ export const SimplifiedDoorContent: React.FC = () => {
         canRedo={canRedo}
       />
       
-      <div className={`${isMobile ? 'px-3 pt-4 pb-24' : 'container mx-auto px-6 py-8'}`}>
-        {/* Weekly Planning Notification */}
-        <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />
+      <div className={`${isMobile ? 'px-3 pt-3 pb-20' : 'container mx-auto px-6 py-8'}`}>
+        {/* Weekly Planning Notification - hide on mobile for cleaner UI */}
+        {!isMobile && <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />}
         
         {/* Confetti Celebration */}
         <ConfettiCelebration
@@ -357,26 +357,28 @@ export const SimplifiedDoorContent: React.FC = () => {
           completedTasks={hitDoneCount + doDoneCount}
         />
         
-        {/* Week Selector with Progress Ring - compact on mobile */}
-        <div className={`flex items-center justify-between gap-3 mb-4 ${isMobile ? 'flex-row' : 'flex-col sm:flex-row'}`}>
-          <div className="flex items-center gap-2">
-            <WeeklyProgressRing
-              totalTasks={hitAchievedCount + doAchievedCount}
-              completedTasks={hitDoneCount + doDoneCount}
-              focusKeyPoints={dominoKeyPoints.length}
-              completedKeyPoints={dominoKeyPoints.filter(kp => kp.completed).length}
-              streak={streakData.currentStreak}
+        {/* Week Selector with Progress Ring - inline on mobile */}
+        {!isMobile && (
+          <div className="flex items-center justify-between gap-3 mb-6">
+            <div className="flex items-center gap-2">
+              <WeeklyProgressRing
+                totalTasks={hitAchievedCount + doAchievedCount}
+                completedTasks={hitDoneCount + doDoneCount}
+                focusKeyPoints={dominoKeyPoints.length}
+                completedKeyPoints={dominoKeyPoints.filter(kp => kp.completed).length}
+                streak={streakData.currentStreak}
+              />
+              <DoorHelpButton />
+            </div>
+            
+            <WeekSelector
+              currentDate={currentDate}
+              onPreviousWeek={handlePrevWeekWithNotification}
+              onNextWeek={handleNextWeekWithNotification}
+              onSelectDate={navigateToDate}
             />
-            {!isMobile && <DoorHelpButton />}
           </div>
-          
-          <WeekSelector
-            currentDate={currentDate}
-            onPreviousWeek={handlePrevWeekWithNotification}
-            onNextWeek={handleNextWeekWithNotification}
-            onSelectDate={navigateToDate}
-          />
-        </div>
+        )}
 
         {/* Mobile: Swipeable Single Section View with Bottom Navigation */}
         {isMobile ? (
