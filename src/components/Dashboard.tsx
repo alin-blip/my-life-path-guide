@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Heart, Brain, Briefcase, Video, Text, AudioLines, Image as ImageIcon, ArrowRight, RefreshCw, Compass, DollarSign, Users, Clock, Award, AlertTriangle, Check, Sparkles, Calendar as CalendarIcon, History } from 'lucide-react';
@@ -27,6 +27,16 @@ import { TransformedWarrior, WarriorBadge, MediaMaster, MediaBadge, WarriorPower
 import { XPProgressBar, LevelUpCelebration, XPPopupContainer } from '@/components/xp';
 import { useXPSystem } from '@/hooks/useXPSystem';
 import { XPAwardEvent } from '@/services/xpService';
+import { useStreakTracking } from '@/hooks/useStreakTracking';
+import { useReadingProgress } from '@/hooks/useReadingProgress';
+import { BADGES, BadgeStats } from '@/components/challenge/badges/badgeDefinitions';
+import { 
+  StreakMilestoneCelebration, 
+  BadgeUnlockCelebration, 
+  DailyChallenges, 
+  SmartNotifications, 
+  RewardsShowcase 
+} from '@/components/gamification';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -93,11 +103,24 @@ export const Dashboard: React.FC = () => {
   const { playSuccessSound } = useSoundSettings();
   
   // XP System
-  const { recentXPGain, showLevelUp, newLevel, dismissLevelUp, addXP } = useXPSystem();
+  const { xpData, recentXPGain, showLevelUp, newLevel, dismissLevelUp, addXP } = useXPSystem();
+  
+  // Streak tracking
+  const { streakData } = useStreakTracking();
+  
+  // Reading progress for badge tracking
+  const { progress: readingProgress, getOverallStats } = useReadingProgress();
   
   // Track if we've awarded XP for Core 4 / Biz 4 today
   const [hasAwardedCoreXP, setHasAwardedCoreXP] = useState(false);
   const [hasAwardedDailyXP, setHasAwardedDailyXP] = useState(false);
+  
+  // Gamification celebration states
+  const [showStreakMilestone, setShowStreakMilestone] = useState(false);
+  const [streakMilestoneValue, setStreakMilestoneValue] = useState<7 | 30 | 100 | 365>(7);
+  const [showBadgeUnlock, setShowBadgeUnlock] = useState(false);
+  const [unlockedBadge, setUnlockedBadge] = useState<typeof BADGES[0] | null>(null);
+  const [previouslyEarnedBadges, setPreviouslyEarnedBadges] = useState<string[]>([]);
   
   const prevCategoryComplete = useRef<Record<string, boolean>>({
     body: false,
@@ -115,6 +138,72 @@ export const Dashboard: React.FC = () => {
 
   const [userProgressData, setUserProgressData] = useState<any>(null);
   const [userStatistics, setUserStatistics] = useState<any>(null);
+  
+  // Calculate badge stats
+  const badgeStats: BadgeStats = useMemo(() => {
+    const stats = getOverallStats();
+    const uniqueDays = new Set(
+      readingProgress.map(p => new Date(p.read_at).toDateString())
+    ).size;
+    
+    return {
+      totalPagesRead: stats.totalPagesRead,
+      totalActionsCompleted: stats.totalActionsCompleted,
+      currentStreak: streakData.currentStreak,
+      longestStreak: streakData.longestStreak,
+      principlesStarted: stats.principlesStarted,
+      principlesMastered: stats.principlesMastered,
+      totalDaysActive: uniqueDays
+    };
+  }, [readingProgress, getOverallStats, streakData]);
+  
+  // Check for new badge unlocks
+  const earnedBadges = useMemo(() => {
+    return BADGES.filter(badge => badge.requirement(badgeStats));
+  }, [badgeStats]);
+  
+  // Trigger badge unlock celebration
+  useEffect(() => {
+    const earnedIds = earnedBadges.map(b => b.id);
+    const newBadges = earnedIds.filter(id => !previouslyEarnedBadges.includes(id));
+    
+    if (newBadges.length > 0 && previouslyEarnedBadges.length > 0) {
+      const newBadge = BADGES.find(b => b.id === newBadges[0]);
+      if (newBadge) {
+        setUnlockedBadge(newBadge);
+        setShowBadgeUnlock(true);
+      }
+    }
+    
+    setPreviouslyEarnedBadges(earnedIds);
+  }, [earnedBadges]);
+  
+  // Check for streak milestones
+  useEffect(() => {
+    const checkMilestone = (streak: number): 7 | 30 | 100 | 365 | null => {
+      if (streak === 365) return 365;
+      if (streak === 100) return 100;
+      if (streak === 30) return 30;
+      if (streak === 7) return 7;
+      return null;
+    };
+    
+    const milestone = checkMilestone(streakData.currentStreak);
+    if (milestone) {
+      const shownKey = `streakMilestone_${milestone}_shown`;
+      const alreadyShown = localStorage.getItem(shownKey);
+      
+      if (!alreadyShown) {
+        setStreakMilestoneValue(milestone);
+        setShowStreakMilestone(true);
+        localStorage.setItem(shownKey, 'true');
+        
+        // Award XP bonus for milestone
+        const xpBonuses: Record<number, number> = { 7: 100, 30: 500, 100: 1000, 365: 5000 };
+        addXP(xpBonuses[milestone], `Streak Milestone: ${milestone} days`);
+      }
+    }
+  }, [streakData.currentStreak, addXP]);
 
   useEffect(() => {
     syncData();
@@ -613,6 +702,19 @@ export const Dashboard: React.FC = () => {
         newLevel={newLevel} 
       />
       <XPPopupContainer recentGain={recentXPGain} />
+      
+      {/* Gamification Celebrations */}
+      <StreakMilestoneCelebration
+        isOpen={showStreakMilestone}
+        onClose={() => setShowStreakMilestone(false)}
+        streakDays={streakData.currentStreak}
+        milestone={streakMilestoneValue}
+      />
+      <BadgeUnlockCelebration
+        isOpen={showBadgeUnlock}
+        onClose={() => setShowBadgeUnlock(false)}
+        badge={unlockedBadge}
+      />
 
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
           <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
@@ -681,8 +783,36 @@ export const Dashboard: React.FC = () => {
       
       <DailyBookPage />
       
+      {/* Smart Notifications */}
+      <div className="mb-4">
+        <SmartNotifications
+          currentStreak={streakData.currentStreak}
+          lastActivityDate={streakData.lastActivityDate}
+          xpToNextLevel={xpData.xpToNextLevel - xpData.xpInCurrentLevel}
+          totalXP={xpData.totalXP}
+          currentLevel={xpData.currentLevel}
+          hasCompletedTodayStack={stackCount > 0}
+          onAction={(id) => {
+            if (id === 'morning_motivation' || id === 'streak_reminder' || id === 'comeback') {
+              navigateTo('/stack');
+            }
+          }}
+        />
+      </div>
+      
       {/* XP Progress Bar */}
       <XPProgressBar className="mb-6" />
+      
+      {/* Daily Challenges */}
+      <div className="mb-6">
+        <DailyChallenges
+          stackCompleted={stackCount > 0}
+          core4Score={completedCoreItems}
+          biz4Score={completedDailyItems}
+          pagesReadToday={badgeStats.totalPagesRead}
+          actionsCompletedToday={badgeStats.totalActionsCompleted}
+        />
+      </div>
       
       <div className="mb-6 md:mb-8 bg-card border border-border p-3 md:p-4 rounded-lg shadow-sm">
         <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -1264,6 +1394,21 @@ export const Dashboard: React.FC = () => {
                     </div>
                   </div>
                 </Card>
+                
+                {/* Rewards Showcase */}
+                <RewardsShowcase 
+                  currentLevel={xpData.currentLevel}
+                  onEquip={(rewardId) => {
+                    // Save equipped reward to localStorage
+                    const equippedKey = `equipped_${rewardId.split('_')[0]}`;
+                    localStorage.setItem(equippedKey, rewardId);
+                  }}
+                  equippedRewards={{
+                    theme: localStorage.getItem('equipped_theme') || undefined,
+                    avatar: localStorage.getItem('equipped_avatar') || undefined,
+                    frame: localStorage.getItem('equipped_frame') || undefined
+                  }}
+                />
               </div>
             </div>
           </div>

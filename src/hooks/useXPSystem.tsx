@@ -130,6 +130,8 @@ export const useXPSystem = () => {
           total_xp: newTotalXP,
           current_level: newXPData.currentLevel,
           xp_to_next_level: newXPData.xpToNextLevel,
+        }, {
+          onConflict: 'user_id'
         });
 
       if (updateError) throw updateError;
