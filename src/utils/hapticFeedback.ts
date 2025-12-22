@@ -3,7 +3,7 @@
  * Works on mobile browsers, desktop may not support it
  */
 
-type HapticPattern = 'light' | 'medium' | 'heavy' | 'success' | 'error' | 'warning';
+type HapticPattern = 'light' | 'medium' | 'heavy' | 'success' | 'error' | 'warning' | 'celebration';
 
 const HAPTIC_PATTERNS: Record<HapticPattern, number | number[]> = {
   light: 10,           // Light tap
@@ -11,7 +11,8 @@ const HAPTIC_PATTERNS: Record<HapticPattern, number | number[]> = {
   heavy: 50,           // Long press
   success: [10, 50, 10],  // Double tap
   error: [50, 100, 50],   // Longer vibration
-  warning: [20, 40, 20]   // Distinct pattern
+  warning: [20, 40, 20],  // Distinct pattern
+  celebration: [10, 30, 10, 30, 50]  // Celebratory vibration
 };
 
 export class HapticFeedback {
@@ -71,6 +72,7 @@ export const haptic = {
   success: () => HapticFeedback.trigger('success'),
   error: () => HapticFeedback.trigger('error'),
   warning: () => HapticFeedback.trigger('warning'),
+  celebration: () => HapticFeedback.trigger('celebration'),
   custom: (pattern: number | number[]) => HapticFeedback.custom(pattern),
   stop: () => HapticFeedback.stop()
 };

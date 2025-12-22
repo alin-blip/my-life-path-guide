@@ -2,6 +2,7 @@ import React from 'react';
 import { CelebrationOverlay } from './CelebrationOverlay';
 import { EnergyParticles } from './EnergyParticles';
 import { useLanguage } from '@/context/LanguageContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AlchemistTransformationProps {
   isVisible: boolean;
@@ -24,17 +25,19 @@ export const AlchemistTransformation: React.FC<AlchemistTransformationProps> = (
   stackType
 }) => {
   const { language } = useLanguage();
+  const isMobile = useIsMobile();
   const colors = stackColors[stackType] || stackColors.anger;
+  const orbCount = isMobile ? 4 : 8;
 
   return (
     <CelebrationOverlay isVisible={isVisible} onClose={onClose} duration={4000}>
       <EnergyParticles count={25} color={colors.primary} />
 
-      {/* Alchemy symbol - circle with triangle */}
-      <div className="relative w-48 h-48 animate-alchemist-appear">
+      {/* Alchemy symbol - circle with triangle - responsive */}
+      <div className="relative w-36 h-36 md:w-48 md:h-48 animate-alchemist-appear">
         {/* Outer circle */}
         <div 
-          className="absolute inset-0 rounded-full border-4 animate-spin-slow"
+          className="absolute inset-0 rounded-full border-2 md:border-4 animate-spin-slow"
           style={{ borderColor: colors.primary }}
         />
         
@@ -62,35 +65,35 @@ export const AlchemistTransformation: React.FC<AlchemistTransformationProps> = (
           />
         </svg>
 
-        {/* Center flame/symbol */}
+        {/* Center flame/symbol - responsive */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-5xl animate-flame-flicker">
+          <div className="text-4xl md:text-5xl animate-flame-flicker">
             {colors.emoji}
           </div>
         </div>
       </div>
 
-      {/* Floating energy orbs */}
+      {/* Floating energy orbs - reduced on mobile */}
       <div className="absolute inset-0 pointer-events-none">
-        {Array.from({ length: 8 }).map((_, i) => (
+        {Array.from({ length: orbCount }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-4 h-4 rounded-full animate-float-orbit"
+            className="absolute w-3 h-3 md:w-4 md:h-4 rounded-full animate-float-orbit"
             style={{
               backgroundColor: i % 2 === 0 ? colors.primary : colors.secondary,
-              left: `${50 + 35 * Math.cos((i * Math.PI * 2) / 8)}%`,
-              top: `${50 + 35 * Math.sin((i * Math.PI * 2) / 8)}%`,
+              left: `${50 + 35 * Math.cos((i * Math.PI * 2) / orbCount)}%`,
+              top: `${50 + 35 * Math.sin((i * Math.PI * 2) / orbCount)}%`,
               animationDelay: `${i * 0.2}s`,
-              boxShadow: `0 0 15px ${colors.primary}`
+              boxShadow: `0 0 10px ${colors.primary}`
             }}
           />
         ))}
       </div>
 
-      {/* Title text */}
-      <div className="absolute bottom-20 text-center animate-fade-in" style={{ animationDelay: '0.5s' }}>
+      {/* Title text - responsive */}
+      <div className="absolute bottom-24 md:bottom-20 text-center animate-fade-in px-4" style={{ animationDelay: '0.5s' }}>
         <h2 
-          className="text-3xl font-bold"
+          className="text-2xl md:text-3xl font-bold"
           style={{ 
             background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
             WebkitBackgroundClip: 'text',
@@ -99,7 +102,7 @@ export const AlchemistTransformation: React.FC<AlchemistTransformationProps> = (
         >
           {language === 'en' ? 'TRANSFORMATION COMPLETE' : 'TRANSFORMARE COMPLETĂ'}
         </h2>
-        <p className="text-muted-foreground mt-2 capitalize">
+        <p className="text-muted-foreground mt-2 text-sm md:text-base capitalize">
           {stackType.replace('-', ' ')} Stack
         </p>
       </div>

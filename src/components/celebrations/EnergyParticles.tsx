@@ -1,4 +1,5 @@
 import React from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface EnergyParticlesProps {
   count?: number;
@@ -9,12 +10,15 @@ export const EnergyParticles: React.FC<EnergyParticlesProps> = ({
   count = 20,
   color = 'hsl(var(--primary))'
 }) => {
+  const isMobile = useIsMobile();
+  const particleCount = isMobile ? Math.floor(count / 2) : count;
+
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {Array.from({ length: count }).map((_, i) => (
+      {Array.from({ length: particleCount }).map((_, i) => (
         <div
           key={i}
-          className="absolute w-2 h-2 rounded-full animate-particle-float"
+          className="absolute w-1.5 h-1.5 md:w-2 md:h-2 rounded-full animate-particle-float"
           style={{
             backgroundColor: color,
             left: `${Math.random() * 100}%`,
