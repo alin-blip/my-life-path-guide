@@ -66,7 +66,7 @@ export const HotList: React.FC<HotListProps> = ({
   };
 
   return (
-    <div className={isMobile ? 'max-h-[70vh] overflow-auto' : ''}>
+    <div className={isMobile ? 'max-h-[70vh] overflow-y-auto overflow-x-hidden w-full max-w-full' : ''}>
       {/* Simplified Add Button */}
       <div className={`flex gap-2 justify-center ${isMobile ? 'mb-3' : 'mb-4'}`}>
         <Button

@@ -322,7 +322,7 @@ export const SimplifiedDoorContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden w-full max-w-full">
       <DoorHeader
         currentDate={currentDate}
         currentDateRange={currentDateRange}
@@ -347,7 +347,7 @@ export const SimplifiedDoorContent: React.FC = () => {
         canRedo={canRedo}
       />
       
-      <div className={`${isMobile ? 'px-3 pt-3 pb-20' : 'container mx-auto px-6 py-8'}`}>
+      <div className={`${isMobile ? 'px-2 pt-2 pb-20 w-full max-w-full overflow-hidden' : 'container mx-auto px-6 py-8'}`}>
         {/* Weekly Planning Notification - hide on mobile for cleaner UI */}
         {!isMobile && <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />}
         
@@ -386,7 +386,7 @@ export const SimplifiedDoorContent: React.FC = () => {
             <SwipeableSection
               onSwipeLeft={handleSwipeLeft}
               onSwipeRight={handleSwipeRight}
-              className="min-h-[60vh]"
+              className="min-h-[60vh] w-full max-w-full overflow-hidden"
             >
               {mobileSection === 'todo' && (
                 <div className="animate-fade-in">
