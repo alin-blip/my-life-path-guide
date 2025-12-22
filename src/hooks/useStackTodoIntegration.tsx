@@ -42,14 +42,9 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
 
     setCapturedIdeas(prev => [...prev, newIdea]);
     
-    // Salvează imediat în TODO list
+    // Salvează imediat în TODO list (fără toast duplicat)
     saveIdeaToTodoList(newIdea);
-    
-    toast({
-      title: "💡 Idee capturată",
-      description: `"${text.length > 50 ? text.substring(0, 50) + '...' : text}" a fost adăugată în ${category === 'hit' ? 'HIT List' : category === 'do' ? 'DO List' : 'Lista de idei'}`,
-    });
-  }, [toast]);
+  }, []);
 
   const saveIdeaToTodoList = useCallback(async (idea: StackIdea) => {
     try {
