@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { MigrationManagement } from '@/components/settings/MigrationManagement';
+import { SoundSettings } from '@/components/settings/SoundSettings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const Settings: React.FC = () => {
@@ -24,33 +25,22 @@ export const Settings: React.FC = () => {
         </h1>
       </div>
       
-      <Tabs defaultValue="migration" className="space-y-6">
+      <Tabs defaultValue="general" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="migration">
-            {language === 'en' ? 'Cloud Migration' : 'Migrare Cloud'}
-          </TabsTrigger>
           <TabsTrigger value="general">
             {language === 'en' ? 'General' : 'General'}
           </TabsTrigger>
+          <TabsTrigger value="migration">
+            {language === 'en' ? 'Cloud Migration' : 'Migrare Cloud'}
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="general" className="space-y-6">
+          <SoundSettings />
+        </TabsContent>
 
         <TabsContent value="migration">
           <MigrationManagement />
-        </TabsContent>
-
-        <TabsContent value="general">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {language === 'en' ? 'General Settings' : 'Setări Generale'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                {language === 'en' ? 'General settings coming soon.' : 'Setări generale în curând.'}
-              </p>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
