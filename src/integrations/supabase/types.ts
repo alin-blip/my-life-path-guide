@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_generated_images: {
+        Row: {
+          category: string | null
+          created_at: string
+          has_logo: boolean | null
+          id: string
+          image_url: string
+          prompt: string
+          tags: string[] | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          has_logo?: boolean | null
+          id?: string
+          image_url: string
+          prompt: string
+          tags?: string[] | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          has_logo?: boolean | null
+          id?: string
+          image_url?: string
+          prompt?: string
+          tags?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       anger_stack_sessions: {
         Row: {
           created_at: string | null
@@ -1031,6 +1064,59 @@ export type Database = {
           window_start?: string | null
         }
         Relationships: []
+      }
+      scheduled_posts: {
+        Row: {
+          content: string
+          content_type: string
+          created_at: string
+          id: string
+          image_id: string | null
+          meta_post_id: string | null
+          platforms: string[] | null
+          published_at: string | null
+          scheduled_for: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          image_id?: string | null
+          meta_post_id?: string | null
+          platforms?: string[] | null
+          published_at?: string | null
+          scheduled_for: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          image_id?: string | null
+          meta_post_id?: string | null
+          platforms?: string[] | null
+          published_at?: string | null
+          scheduled_for?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_posts_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "ai_generated_images"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       security_events: {
         Row: {
