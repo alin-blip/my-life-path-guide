@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/context/LanguageContext';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Circle, Activity, Video, ListTodo, Book, ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, subDays, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
+import { ArrowLeft, CheckCircle2, Circle, Activity, Video, ListTodo, ChevronLeft, ChevronRight, Download, FileText } from 'lucide-react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
 
 interface DayProgress {
   date: Date;
@@ -20,9 +21,82 @@ interface DayProgress {
 
 export const DailyTimeline: React.FC = () => {
   const { language } = useLanguage();
+  const { toast } = useToast();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [daysProgress, setDaysProgress] = useState<DayProgress[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const exportToCSV = () => {
+    if (daysProgress.length === 0) return;
+
+    const headers = ['Date', 'Core (completed/8)', 'Daily Four (completed/4)', 'Stack Completed', 'Door Tasks', 'Total Score'];
+    const rows = daysProgress.map(day => {
+      const coreCount = getCoreCount(day.core);
+      const dailyCount = getDailyCount(day.dailyFour);
+      const score = getDayScore(day);
+      return [
+        format(day.date, 'yyyy-MM-dd'),
+        `${coreCount}/8`,
+        `${dailyCount}/4`,
+        day.stackCompleted ? 'Yes' : 'No',
+        day.doorTasks.toString(),
+        score.toString()
+      ];
+    });
+
+    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `daily-timeline-${format(selectedMonth, 'yyyy-MM')}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: language === 'en' ? 'Exported' : 'Exportat',
+      description: language === 'en' ? 'CSV file downloaded successfully' : 'Fișierul CSV a fost descărcat'
+    });
+  };
+
+  const exportToPDF = () => {
+    if (daysProgress.length === 0) return;
+
+    const doc = new jsPDF();
+    const monthTitle = format(selectedMonth, 'MMMM yyyy');
+    
+    doc.setFontSize(18);
+    doc.text(`Daily Timeline - ${monthTitle}`, 14, 20);
+    
+    doc.setFontSize(10);
+    let yPos = 35;
+
+    daysProgress.forEach((day, index) => {
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      const coreCount = getCoreCount(day.core);
+      const dailyCount = getDailyCount(day.dailyFour);
+      const score = getDayScore(day);
+      const dateStr = format(day.date, 'EEE, dd MMM yyyy');
+
+      doc.setFontSize(11);
+      doc.text(dateStr, 14, yPos);
+      doc.setFontSize(9);
+      doc.text(`Core: ${coreCount}/8 | Daily: ${dailyCount}/4 | Stack: ${day.stackCompleted ? 'Done' : '-'} | Door: ${day.doorTasks} | Score: ${score} pts`, 14, yPos + 5);
+      
+      yPos += 12;
+    });
+
+    doc.save(`daily-timeline-${format(selectedMonth, 'yyyy-MM')}.pdf`);
+
+    toast({
+      title: language === 'en' ? 'Exported' : 'Exportat',
+      description: language === 'en' ? 'PDF file downloaded successfully' : 'Fișierul PDF a fost descărcat'
+    });
+  };
 
   useEffect(() => {
     loadMonthProgress();
@@ -150,6 +224,17 @@ export const DailyTimeline: React.FC = () => {
         <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           {language === 'en' ? 'Daily Timeline' : 'Istoric Zilnic'}
         </h1>
+      </div>
+
+      <div className="flex gap-2 mb-4 justify-end">
+        <Button variant="outline" size="sm" onClick={exportToCSV} disabled={loading || daysProgress.length === 0}>
+          <Download className="w-4 h-4 mr-2" />
+          CSV
+        </Button>
+        <Button variant="outline" size="sm" onClick={exportToPDF} disabled={loading || daysProgress.length === 0}>
+          <FileText className="w-4 h-4 mr-2" />
+          PDF
+        </Button>
       </div>
 
       <Card className="mb-6">
