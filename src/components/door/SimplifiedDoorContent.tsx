@@ -412,13 +412,7 @@ export const SimplifiedDoorContent: React.FC = () => {
               )}
 
               {mobileSection === 'focus' && (
-                <div className="bg-card border border-border rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-foreground">🎯 Focus Săptămânal</h2>
-                    {selectedDomino && (
-                      <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{stats.focus}/{dominoKeyPoints.length}</span>
-                    )}
-                  </div>
+                <div onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
                   <DominoDoor 
                     selectedDomino={selectedDomino}
                     dominoKeyPoints={dominoKeyPoints}
@@ -510,14 +504,8 @@ export const SimplifiedDoorContent: React.FC = () => {
               />
             </div>
 
-            {/* Focus Column */}
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-foreground">🎯 Focus Săptămânal</h2>
-                {selectedDomino && (
-                  <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{stats.focus}/{dominoKeyPoints.length}</span>
-                )}
-              </div>
+            {/* Focus Column - No extra wrapper, DominoDoor has its own styling */}
+            <div onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
               <DominoDoor 
                 selectedDomino={selectedDomino}
                 dominoKeyPoints={dominoKeyPoints}
