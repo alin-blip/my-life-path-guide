@@ -426,42 +426,29 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           </div>
         </div>
       ) : (
-        /* Empty State */
-        <div className="flex justify-center items-center h-[60vh]">
-          <div className="text-center px-4">
-            <div className="mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary via-primary to-accent flex items-center justify-center opacity-70 w-20 h-20 shadow-lg">
-              <KeyRound className="text-white w-10 h-10" />
-            </div>
-            <p className="text-foreground mb-2 text-lg font-semibold">
-              {t('noGoalSelected')}
-            </p>
-            <p className="text-muted-foreground text-sm max-w-sm mb-1">
-              {t('dragGoalToSet')}
-            </p>
-            <p className="text-muted-foreground text-sm max-w-sm">
-              {t('orClickToSelect')}
-            </p>
-            
-            {/* Show explanation only in empty state */}
-            <div className="mt-6">
-              <DoorExplanation />
-            </div>
-            
-            {setSelectedDomino && setDominoKeyPoints && (
-              <div className="mt-8">
-                <p className="text-muted-foreground mb-4 text-sm font-medium">sau folosește</p>
-                <Button
-                  onClick={() => setShowAIPlanningModal(true)}
-                  variant="default"
-                  size="lg"
-                  className="bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all rounded-xl font-semibold"
-                >
-                  <Rocket className="w-5 h-5 mr-2" />
-                  Start AI Planning
-                </Button>
-              </div>
-            )}
+        /* Empty State - Clean & Simple */
+        <div className="flex flex-col items-center justify-center py-12 px-4">
+          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4">
+            <KeyRound className="w-8 h-8 text-primary" />
           </div>
+          <p className="text-foreground font-semibold text-lg mb-1">
+            {t('noGoalSelected')}
+          </p>
+          <p className="text-muted-foreground text-sm text-center max-w-xs mb-6">
+            {t('dragGoalToSet')} {t('orClickToSelect')}
+          </p>
+          
+          {setSelectedDomino && setDominoKeyPoints && (
+            <Button
+              onClick={() => setShowAIPlanningModal(true)}
+              variant="default"
+              size="default"
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-md hover:shadow-lg transition-all rounded-xl font-medium gap-2"
+            >
+              <Rocket className="w-4 h-4" />
+              Start AI Planning
+            </Button>
+          )}
         </div>
       )}
 

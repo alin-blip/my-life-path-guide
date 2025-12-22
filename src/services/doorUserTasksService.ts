@@ -115,7 +115,10 @@ export const doorUserTasksService = {
     const userId = await getUserId();
     if (!userId) throw new Error('User not authenticated');
 
-    // DELETE all existing hot list items first to avoid duplicates
+    // Filter out empty items before saving
+    const validItems = hotList.filter(item => item.text && item.text.trim().length > 0);
+
+    // DELETE all existing hot list items first (week_key MUST be null for hot list)
     await supabase
       .from('user_tasks')
       .delete()
@@ -123,16 +126,16 @@ export const doorUserTasksService = {
       .eq('task_type', 'hot')
       .is('week_key', null);
 
-    if (hotList.length === 0) return { count: 0 };
+    if (validItems.length === 0) return { count: 0 };
 
     const rows: any[] = [];
-    hotList.forEach((item, index) => {
+    validItems.forEach((item, index) => {
       rows.push({
         user_id: userId,
-        week_key: null,
+        week_key: null, // CRITICAL: Hot list items are global, not week-specific
         task_type: 'hot',
         list_type: 'hot',
-        title: item.text,
+        title: item.text.trim(),
         priority: toDbPriority(item.priority),
         is_key_point: item.isKeyPoint || false,
         completed: false,
