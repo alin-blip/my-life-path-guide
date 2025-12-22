@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "./StackIdeaModal";
+import { AddToTodoDialog } from "./AddToTodoDialog";
 import { v4 as uuidv4 } from 'uuid';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -66,6 +67,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [systemPrompt, setSystemPrompt] = useState(customSystemPrompt || '');
   const [finalAction, setFinalAction] = useState('');
   const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
+  const [showAddToTodoDialog, setShowAddToTodoDialog] = useState(false);
   const { sessionId } = usePersistentSessionId(stackType);
   const [ttsEnabled, setTtsEnabled] = useState(voiceOnlyMode || audioMode);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState(0);
@@ -585,6 +587,9 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
 
       setFinalAction(data.message);
       setMode('complete');
+      
+      // Deschide dialogul pentru a întreba utilizatorul dacă vrea să adauge la idei
+      setShowAddToTodoDialog(true);
 
       // Save session to Stack Library (Arsenal)
       try {
@@ -654,7 +659,16 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
     if (finalAction) {
       captureIdea(finalAction, 'hot', 'important');
       setActionAddedToHitList(true);
+      setShowAddToTodoDialog(false);
     }
+  };
+
+  const handleAddToTodoConfirm = () => {
+    addToHitList();
+  };
+
+  const handleAddToTodoCancel = () => {
+    setShowAddToTodoDialog(false);
   };
 
   const resetSession = () => {
@@ -1509,6 +1523,14 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
         isOpen={isIdeaModalOpen}
         onClose={closeIdeaModal}
         onAddToHitList={onAddToHitList}
+      />
+
+      <AddToTodoDialog
+        open={showAddToTodoDialog}
+        onOpenChange={setShowAddToTodoDialog}
+        actionText={finalAction}
+        onConfirm={handleAddToTodoConfirm}
+        onCancel={handleAddToTodoCancel}
       />
     </div>
   );
