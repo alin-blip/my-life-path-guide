@@ -360,6 +360,14 @@ export const Dashboard: React.FC = () => {
     });
   };
 
+  const clearCorePair = (activityIds: string[]) => {
+    activityIds.forEach((id) => updateCoreActivity(selectedDay, id, false));
+    toast({
+      title: language === 'en' ? 'Reset' : 'Reset',
+      description: language === 'en' ? 'Category cleared.' : 'Categoria a fost resetată.'
+    });
+  };
+
   const handleToggleDailyActivity = (activityId: string) => {
     const activity = dailyFourData[selectedDay]?.dailyActivities?.find(a => a.id === activityId);
     const isCurrentlyCompleted = activity?.completed || false;
@@ -663,11 +671,12 @@ export const Dashboard: React.FC = () => {
                         return (
                           <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
                             {bodyComplete && (
-                              <div className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2">
+                              <div
+                                className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
+                                onClick={() => clearCorePair(['fitness', 'fuel'])}
+                              >
                                 <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                                <span className="text-white font-bold text-sm md:text-base">
-                                  {language === 'en' ? 'BODY Done' : 'BODY Done'}
-                                </span>
+                                <span className="text-white font-bold text-sm md:text-base">Body Done</span>
                               </div>
                             )}
                             {coreItems.filter(item => item.id === 'fitness' || item.id === 'fuel').map(item => {
@@ -708,11 +717,12 @@ export const Dashboard: React.FC = () => {
                         return (
                           <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
                             {relationshipComplete && (
-                              <div className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2">
+                              <div
+                                className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
+                                onClick={() => clearCorePair(['person1', 'person2'])}
+                              >
                                 <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                                <span className="text-white font-bold text-sm md:text-base">
-                                  {language === 'en' ? 'RELATIONSHIP Done' : 'RELATIONSHIP Done'}
-                                </span>
+                                <span className="text-white font-bold text-sm md:text-base">Relationship Done</span>
                               </div>
                             )}
                             {coreItems.filter(item => item.id === 'person1' || item.id === 'person2').map(item => {
@@ -753,11 +763,12 @@ export const Dashboard: React.FC = () => {
                         return (
                           <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
                             {beingComplete && (
-                              <div className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2">
+                              <div
+                                className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
+                                onClick={() => clearCorePair(['meditation', 'memoirs'])}
+                              >
                                 <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                                <span className="text-white font-bold text-sm md:text-base">
-                                  {language === 'en' ? 'BEING Done' : 'BEING Done'}
-                                </span>
+                                <span className="text-white font-bold text-sm md:text-base">Being Done</span>
                               </div>
                             )}
                             {coreItems.filter(item => item.id === 'meditation' || item.id === 'memoirs').map(item => {
@@ -798,11 +809,12 @@ export const Dashboard: React.FC = () => {
                         return (
                           <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
                             {businessComplete && (
-                              <div className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2">
+                              <div
+                                className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
+                                onClick={() => clearCorePair(['discover', 'declare'])}
+                              >
                                 <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                                <span className="text-white font-bold text-sm md:text-base">
-                                  {language === 'en' ? 'BUSINESS Done' : 'BUSINESS Done'}
-                                </span>
+                                <span className="text-white font-bold text-sm md:text-base">Business Done</span>
                               </div>
                             )}
                             {coreItems.filter(item => item.id === 'discover' || item.id === 'declare').map(item => {
