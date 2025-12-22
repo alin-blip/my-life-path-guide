@@ -26,6 +26,7 @@ import { format } from 'date-fns';
 import { TransformedWarrior, WarriorBadge, MediaMaster, MediaBadge, WarriorPowerCard, MediaMasterCard } from '@/components/celebrations';
 import { XPProgressBar, LevelUpCelebration, XPPopupContainer } from '@/components/xp';
 import { useXPSystem } from '@/hooks/useXPSystem';
+import { XPAwardEvent } from '@/services/xpService';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -92,7 +93,11 @@ export const Dashboard: React.FC = () => {
   const { playSuccessSound } = useSoundSettings();
   
   // XP System
-  const { recentXPGain, showLevelUp, newLevel, dismissLevelUp } = useXPSystem();
+  const { recentXPGain, showLevelUp, newLevel, dismissLevelUp, addXP } = useXPSystem();
+  
+  // Track if we've awarded XP for Core 4 / Biz 4 today
+  const [hasAwardedCoreXP, setHasAwardedCoreXP] = useState(false);
+  const [hasAwardedDailyXP, setHasAwardedDailyXP] = useState(false);
   
   const prevCategoryComplete = useRef<Record<string, boolean>>({
     body: false,
@@ -123,12 +128,20 @@ export const Dashboard: React.FC = () => {
       fetchUserData();
     };
     
+    // Listen for XP award events from xpService
+    const handleXPAward = (event: CustomEvent<XPAwardEvent>) => {
+      const { amount, reason } = event.detail;
+      addXP(amount, reason);
+    };
+    
     window.addEventListener('progressUpdated', handleProgressUpdate);
+    window.addEventListener('xp-award', handleXPAward as EventListener);
     
     return () => {
       window.removeEventListener('progressUpdated', handleProgressUpdate);
+      window.removeEventListener('xp-award', handleXPAward as EventListener);
     };
-  }, []);
+  }, [addXP]);
 
   useEffect(() => {
     fetchUserData();
@@ -548,26 +561,40 @@ export const Dashboard: React.FC = () => {
   const coreToDaily = hasStack ? coreProgress : 0;
   const dailyToDoor = hasStack && coreProgress > 0 ? dailyProgress : 0;
 
-  // Trigger Core 4 celebration
+  // Trigger Core 4 celebration and award XP
   useEffect(() => {
     if (hasCompletedCore && !hasShownCoreAnimation) {
       setShowWarriorOverlay(true);
       setHasShownCoreAnimation(true);
+      
+      // Award XP for Core 4 completion (once per day)
+      if (!hasAwardedCoreXP) {
+        addXP(100, 'Core 4 completat');
+        setHasAwardedCoreXP(true);
+      }
     }
-  }, [hasCompletedCore, hasShownCoreAnimation]);
+  }, [hasCompletedCore, hasShownCoreAnimation, hasAwardedCoreXP, addXP]);
 
-  // Trigger Daily Four celebration
+  // Trigger Daily Four celebration and award XP
   useEffect(() => {
     if (hasCompletedDailyFour && !hasShownDailyAnimation) {
       setShowMediaOverlay(true);
       setHasShownDailyAnimation(true);
+      
+      // Award XP for Biz 4 completion (once per day)
+      if (!hasAwardedDailyXP) {
+        addXP(100, 'Biz 4 completat');
+        setHasAwardedDailyXP(true);
+      }
     }
-  }, [hasCompletedDailyFour, hasShownDailyAnimation]);
+  }, [hasCompletedDailyFour, hasShownDailyAnimation, hasAwardedDailyXP, addXP]);
 
-  // Reset animation flags when day changes
+  // Reset animation and XP flags when day changes
   useEffect(() => {
     setHasShownCoreAnimation(hasCompletedCore);
     setHasShownDailyAnimation(hasCompletedDailyFour);
+    setHasAwardedCoreXP(hasCompletedCore);
+    setHasAwardedDailyXP(hasCompletedDailyFour);
   }, [selectedDay]);
 
   return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4 bg-gradient-to-b from-background to-muted">

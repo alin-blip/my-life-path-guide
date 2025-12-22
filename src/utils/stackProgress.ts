@@ -1,6 +1,7 @@
 
 // Add a better error handler to ensure this file is working as expected
 import { supabase } from "@/integrations/supabase/client";
+import { awardXP } from "@/services/xpService";
 
 // Function to save a completed stack to the stack library
 export const saveToStackLibrary = async (
@@ -32,6 +33,9 @@ export const saveToStackLibrary = async (
         throw error;
       }
       console.log("Successfully saved stack to Supabase library");
+      
+      // Award XP for completing a stack
+      awardXP('stack_completed');
     } else {
       console.warn("User not logged in - cannot save stack");
       throw new Error("User not logged in");

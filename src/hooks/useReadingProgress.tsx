@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { getAllPrinciples } from '@/services/napoleonHillBookService';
+import { awardXP } from '@/services/xpService';
 
 export interface ReadingProgress {
   id: string;
@@ -101,6 +102,9 @@ export const useReadingProgress = () => {
   ): Promise<boolean> => {
     if (!user?.id) return false;
 
+    // Check if page was already read (to avoid duplicate XP)
+    const wasAlreadyRead = isPageRead(pageNumber);
+
     try {
       const { error } = await supabase
         .from('book_reading_progress')
@@ -117,6 +121,11 @@ export const useReadingProgress = () => {
 
       if (error) throw error;
       
+      // Award XP only if this is a new page read
+      if (!wasAlreadyRead) {
+        awardXP('page_read');
+      }
+      
       await fetchProgress();
       return true;
     } catch (error) {
@@ -129,6 +138,9 @@ export const useReadingProgress = () => {
   const markActionCompleted = async (pageNumber: number): Promise<boolean> => {
     if (!user?.id) return false;
 
+    // Check if action was already completed (to avoid duplicate XP)
+    const wasAlreadyCompleted = isActionCompleted(pageNumber);
+
     try {
       const { error } = await supabase
         .from('book_reading_progress')
@@ -137,6 +149,11 @@ export const useReadingProgress = () => {
         .eq('page_number', pageNumber);
 
       if (error) throw error;
+      
+      // Award XP only if this is a new action completion
+      if (!wasAlreadyCompleted) {
+        awardXP('action_completed');
+      }
       
       await fetchProgress();
       return true;
