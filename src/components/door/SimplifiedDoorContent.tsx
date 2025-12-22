@@ -13,6 +13,9 @@ import { WeekSelector } from '@/components/door/WeekSelector';
 import { ClearWeekButton } from '@/components/door/ClearWeekButton';
 import { MobileBottomNav } from '@/components/door/MobileBottomNav';
 import { SwipeableSection } from '@/components/door/SwipeableSection';
+import { WeeklyProgressRing } from '@/components/door/WeeklyProgressRing';
+import { DoorHelpButton } from '@/components/door/DoorHelpButton';
+import { QuickActionBar } from '@/components/door/QuickActionBar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { format, getWeek } from 'date-fns';
@@ -328,8 +331,19 @@ export const SimplifiedDoorContent: React.FC = () => {
         {/* Weekly Planning Notification */}
         <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />
         
-        {/* Week Selector - Centered and Prominent */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+        {/* Week Selector with Progress Ring */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <WeeklyProgressRing
+              totalTasks={hitAchievedCount + doAchievedCount}
+              completedTasks={hitDoneCount + doDoneCount}
+              focusKeyPoints={dominoKeyPoints.length}
+              completedKeyPoints={dominoKeyPoints.filter(kp => kp.completed).length}
+              streak={0}
+            />
+            <DoorHelpButton />
+          </div>
+          
           <WeekSelector
             currentDate={currentDate}
             onPreviousWeek={handlePrevWeekWithNotification}
@@ -435,10 +449,23 @@ export const SimplifiedDoorContent: React.FC = () => {
           <div className="grid grid-cols-3 gap-6 animate-fade-in">
             {/* To Do Column */}
             <div className="bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-3">
                 <h2 className="text-lg font-semibold text-foreground">📋 To Do</h2>
                 <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{filteredHotList.length}</span>
               </div>
+              
+              {/* Quick Action Bar */}
+              <div className="mb-4">
+                <QuickActionBar 
+                  onAddIdea={addNewTarget}
+                  onAddTemplate={(text) => {
+                    // Add item with template text
+                    addNewTarget();
+                  }}
+                  isMobile={false}
+                />
+              </div>
+              
               <HotList 
                 filteredHotList={filteredHotList}
                 searchTerm={searchTerm}

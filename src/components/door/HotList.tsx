@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +5,7 @@ import { Check, X, GripVertical, Search, Plus, Star, Flag, AlertCircle, KeyRound
 import { HotListItem, TaskPriority } from '@/types/door';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/context/LanguageContext';
+import { DoorEmptyState } from './DoorEmptyState';
 
 interface HotListProps {
   filteredHotList: HotListItem[];
@@ -15,6 +15,7 @@ interface HotListProps {
   updateHotListItemText: (id: string, text: string) => void;
   updateHotListItemPriority: (id: string, priority: TaskPriority) => void;
   addNewTarget: () => void;
+  addNewTargetWithText?: (text: string) => void;
   deleteHotListItem: (id: string) => void;
   handleDragStartToDomino: (e: React.DragEvent, item: HotListItem) => void;
   handleDragStart: (e: React.DragEvent, item: HotListItem) => void;
@@ -32,6 +33,7 @@ export const HotList: React.FC<HotListProps> = ({
   updateHotListItemText,
   updateHotListItemPriority,
   addNewTarget,
+  addNewTargetWithText,
   deleteHotListItem,
   handleDragStartToDomino,
   handleDragStart,
@@ -45,6 +47,15 @@ export const HotList: React.FC<HotListProps> = ({
   const [newItemText, setNewItemText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
+
+  const handleAddTemplate = (text: string) => {
+    if (addNewTargetWithText) {
+      addNewTargetWithText(text);
+    } else {
+      // Fallback: add empty item and focus
+      addNewTarget();
+    }
+  };
 
   const handleAddItem = () => {
     if (newItemText.trim()) {
@@ -266,12 +277,10 @@ export const HotList: React.FC<HotListProps> = ({
             );
           })
         ) : (
-          <div className={`text-center text-muted-foreground ${isMobile ? 'py-8' : 'py-6'}`}>
-            <p className={`${isMobile ? 'text-sm' : ''}`}>{t('yourIdeaListEmpty')}</p>
-            <p className={`${isMobile ? 'text-xs' : 'text-sm'} mt-1`}>
-              {t('addNewItemsToStart')}
-            </p>
-          </div>
+          <DoorEmptyState 
+            onAddItem={addNewTarget}
+            onAddTemplate={handleAddTemplate}
+          />
         )}
       </div>
     </div>
