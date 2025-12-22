@@ -21,6 +21,7 @@ import { VoiceSelector } from './VoiceSelector';
 import jsPDF from 'jspdf';
 import { useStackSession } from '@/hooks/useStackSession';
 import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
+import { useConfettiCelebration } from '@/components/door/ConfettiCelebration';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -655,11 +656,22 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
     }
   };
 
+  const { triggerSmallCelebration } = useConfettiCelebration();
+
   const addToHitList = () => {
     if (finalAction) {
       captureIdea(finalAction, 'hot', 'important');
       setActionAddedToHitList(true);
       setShowAddToTodoDialog(false);
+      
+      // Trigger celebration animation
+      triggerSmallCelebration();
+      
+      // Show success toast
+      toast({
+        title: "✨ Acțiune adăugată!",
+        description: "Acțiunea a fost salvată în lista de idei.",
+      });
     }
   };
 
