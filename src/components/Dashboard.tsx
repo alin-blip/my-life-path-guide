@@ -654,31 +654,185 @@ export const Dashboard: React.FC = () => {
                     </div>
                     
                     <div className="grid grid-cols-2 gap-1.5 md:gap-2">
-                      {coreItems.map(item => {
-                        const isCompleted = coreData[selectedDay]?.[item.id] || false;
+                      {/* Row 1: Body - Fitness & Fuel */}
+                      {(() => {
+                        const fitnessCompleted = coreData[selectedDay]?.['fitness'] || false;
+                        const fuelCompleted = coreData[selectedDay]?.['fuel'] || false;
+                        const bodyComplete = fitnessCompleted && fuelCompleted;
+                        
                         return (
-                          <Card
-                            key={item.id}
-                            className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
-                            border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
-                            shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
-                            transition-colors duration-200 hover:shadow-blue-500/10`}
-                            onClick={() => handleToggleCoreActivity(item.id)}
-                          >
-                            <div className="relative flex items-center justify-center">
-                              <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
-                              {isCompleted && (
-                                <div className="absolute -top-1 -right-1">
-                                  <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                </div>
-                              )}
-                            </div>
-                            <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
-                              {item.title}
-                            </div>
-                          </Card>
+                          <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
+                            {bodyComplete && (
+                              <div className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2">
+                                <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                                <span className="text-white font-bold text-sm md:text-base">
+                                  {language === 'en' ? 'BODY Done' : 'BODY Done'}
+                                </span>
+                              </div>
+                            )}
+                            {coreItems.filter(item => item.id === 'fitness' || item.id === 'fuel').map(item => {
+                              const isCompleted = coreData[selectedDay]?.[item.id] || false;
+                              return (
+                                <Card
+                                  key={item.id}
+                                  className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                                  border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
+                                  shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
+                                  transition-colors duration-200 hover:shadow-blue-500/10`}
+                                  onClick={() => handleToggleCoreActivity(item.id)}
+                                >
+                                  <div className="relative flex items-center justify-center">
+                                    <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                    {isCompleted && (
+                                      <div className="absolute -top-1 -right-1">
+                                        <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                    {item.id === 'fitness' ? 'FITNESS' : 'FUEL'}
+                                  </div>
+                                </Card>
+                              );
+                            })}
+                          </div>
                         );
-                      })}
+                      })()}
+                      
+                      {/* Row 2: Relationship - Person 1 & Person 2 */}
+                      {(() => {
+                        const person1Completed = coreData[selectedDay]?.['person1'] || false;
+                        const person2Completed = coreData[selectedDay]?.['person2'] || false;
+                        const relationshipComplete = person1Completed && person2Completed;
+                        
+                        return (
+                          <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
+                            {relationshipComplete && (
+                              <div className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2">
+                                <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                                <span className="text-white font-bold text-sm md:text-base">
+                                  {language === 'en' ? 'RELATIONSHIP Done' : 'RELATIONSHIP Done'}
+                                </span>
+                              </div>
+                            )}
+                            {coreItems.filter(item => item.id === 'person1' || item.id === 'person2').map(item => {
+                              const isCompleted = coreData[selectedDay]?.[item.id] || false;
+                              return (
+                                <Card
+                                  key={item.id}
+                                  className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                                  border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
+                                  shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
+                                  transition-colors duration-200 hover:shadow-blue-500/10`}
+                                  onClick={() => handleToggleCoreActivity(item.id)}
+                                >
+                                  <div className="relative flex items-center justify-center">
+                                    <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                    {isCompleted && (
+                                      <div className="absolute -top-1 -right-1">
+                                        <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                    {item.id === 'person1' ? 'PERSON 1' : 'PERSON 2'}
+                                  </div>
+                                </Card>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+                      
+                      {/* Row 3: Being - Meditation & Memoirs */}
+                      {(() => {
+                        const meditationCompleted = coreData[selectedDay]?.['meditation'] || false;
+                        const memoirsCompleted = coreData[selectedDay]?.['memoirs'] || false;
+                        const beingComplete = meditationCompleted && memoirsCompleted;
+                        
+                        return (
+                          <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
+                            {beingComplete && (
+                              <div className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2">
+                                <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                                <span className="text-white font-bold text-sm md:text-base">
+                                  {language === 'en' ? 'BEING Done' : 'BEING Done'}
+                                </span>
+                              </div>
+                            )}
+                            {coreItems.filter(item => item.id === 'meditation' || item.id === 'memoirs').map(item => {
+                              const isCompleted = coreData[selectedDay]?.[item.id] || false;
+                              return (
+                                <Card
+                                  key={item.id}
+                                  className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                                  border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
+                                  shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
+                                  transition-colors duration-200 hover:shadow-blue-500/10`}
+                                  onClick={() => handleToggleCoreActivity(item.id)}
+                                >
+                                  <div className="relative flex items-center justify-center">
+                                    <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                    {isCompleted && (
+                                      <div className="absolute -top-1 -right-1">
+                                        <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                    {item.id === 'meditation' ? 'MEDITATION' : 'MEMOIRS'}
+                                  </div>
+                                </Card>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+                      
+                      {/* Row 4: Business - Discover & Declare */}
+                      {(() => {
+                        const discoverCompleted = coreData[selectedDay]?.['discover'] || false;
+                        const declareCompleted = coreData[selectedDay]?.['declare'] || false;
+                        const businessComplete = discoverCompleted && declareCompleted;
+                        
+                        return (
+                          <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
+                            {businessComplete && (
+                              <div className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2">
+                                <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                                <span className="text-white font-bold text-sm md:text-base">
+                                  {language === 'en' ? 'BUSINESS Done' : 'BUSINESS Done'}
+                                </span>
+                              </div>
+                            )}
+                            {coreItems.filter(item => item.id === 'discover' || item.id === 'declare').map(item => {
+                              const isCompleted = coreData[selectedDay]?.[item.id] || false;
+                              return (
+                                <Card
+                                  key={item.id}
+                                  className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                                  border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
+                                  shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
+                                  transition-colors duration-200 hover:shadow-blue-500/10`}
+                                  onClick={() => handleToggleCoreActivity(item.id)}
+                                >
+                                  <div className="relative flex items-center justify-center">
+                                    <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                    {isCompleted && (
+                                      <div className="absolute -top-1 -right-1">
+                                        <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                    {item.id === 'discover' ? 'DISCOVER' : 'DECLARE'}
+                                  </div>
+                                </Card>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
