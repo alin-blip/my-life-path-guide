@@ -24,7 +24,7 @@ import { format, getWeek } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
 import { weeklyPlanningService, WeeklyPlanningData } from '@/services/weeklyPlanningService';
 import { Button } from '@/components/ui/button';
-import { History } from 'lucide-react';
+import { History, ListTodo, Target, CheckSquare } from 'lucide-react';
 
 export const SimplifiedDoorContent: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -347,7 +347,7 @@ export const SimplifiedDoorContent: React.FC = () => {
         canRedo={canRedo}
       />
       
-      <div className={`${isMobile ? 'px-4 py-6' : 'container mx-auto px-6 py-8'}`}>
+      <div className={`${isMobile ? 'px-3 pt-4 pb-24' : 'container mx-auto px-6 py-8'}`}>
         {/* Weekly Planning Notification */}
         <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />
         
@@ -357,9 +357,9 @@ export const SimplifiedDoorContent: React.FC = () => {
           completedTasks={hitDoneCount + doDoneCount}
         />
         
-        {/* Week Selector with Progress Ring */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3">
+        {/* Week Selector with Progress Ring - compact on mobile */}
+        <div className={`flex items-center justify-between gap-3 mb-4 ${isMobile ? 'flex-row' : 'flex-col sm:flex-row'}`}>
+          <div className="flex items-center gap-2">
             <WeeklyProgressRing
               totalTasks={hitAchievedCount + doAchievedCount}
               completedTasks={hitDoneCount + doDoneCount}
@@ -367,7 +367,7 @@ export const SimplifiedDoorContent: React.FC = () => {
               completedKeyPoints={dominoKeyPoints.filter(kp => kp.completed).length}
               streak={streakData.currentStreak}
             />
-            <DoorHelpButton />
+            {!isMobile && <DoorHelpButton />}
           </div>
           
           <WeekSelector
@@ -384,13 +384,16 @@ export const SimplifiedDoorContent: React.FC = () => {
             <SwipeableSection
               onSwipeLeft={handleSwipeLeft}
               onSwipeRight={handleSwipeRight}
-              className="pb-20"
+              className="min-h-[60vh]"
             >
               {mobileSection === 'todo' && (
-                <div className="bg-card border border-border rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-foreground">📋 To Do</h2>
-                    <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{filteredHotList.length}</span>
+                <div className="animate-fade-in">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+                      <ListTodo className="w-4 h-4 text-blue-500" />
+                      Idei
+                    </h2>
+                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{filteredHotList.length}</span>
                   </div>
                   <HotList 
                     filteredHotList={filteredHotList}
@@ -412,7 +415,7 @@ export const SimplifiedDoorContent: React.FC = () => {
               )}
 
               {mobileSection === 'focus' && (
-                <div onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
+                <div className="animate-fade-in" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
                   <DominoDoor 
                     selectedDomino={selectedDomino}
                     dominoKeyPoints={dominoKeyPoints}
@@ -432,10 +435,13 @@ export const SimplifiedDoorContent: React.FC = () => {
               )}
 
               {mobileSection === 'tasks' && (
-                <div className="bg-card border border-border rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in" onDragOver={handleDragOver} onDrop={handleDrop}>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-foreground">📋 Sarcini Zilnice</h2>
-                    <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{stats.tasks}</span>
+                <div className="animate-fade-in" onDragOver={handleDragOver} onDrop={handleDrop}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+                      <CheckSquare className="w-4 h-4 text-green-500" />
+                      Sarcini
+                    </h2>
+                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{stats.tasks}</span>
                   </div>
                   <TaskList 
                     hitList={hitList}
@@ -462,6 +468,7 @@ export const SimplifiedDoorContent: React.FC = () => {
               activeSection={mobileSection}
               onSectionChange={setMobileSection}
               stats={stats}
+              streak={streakData.currentStreak}
             />
           </>
         ) : (

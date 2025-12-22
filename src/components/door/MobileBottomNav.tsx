@@ -1,6 +1,7 @@
 import React from 'react';
-import { ListTodo, Target, CheckSquare } from 'lucide-react';
+import { ListTodo, Target, CheckSquare, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { haptic } from '@/utils/hapticFeedback';
 
 interface MobileBottomNavProps {
   activeSection: 'todo' | 'focus' | 'tasks';
@@ -10,40 +11,47 @@ interface MobileBottomNavProps {
     focus: number;
     tasks: number;
   };
+  streak?: number;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   activeSection,
   onSectionChange,
   stats,
+  streak = 0,
 }) => {
   const navItems = [
     {
       id: 'todo' as const,
       icon: ListTodo,
-      label: 'To Do',
+      label: 'Idei',
       count: stats.ideas,
-      gradient: 'from-blue-500 to-cyan-500',
+      activeColor: 'bg-blue-600',
     },
     {
       id: 'focus' as const,
       icon: Target,
       label: 'Focus',
       count: stats.focus,
-      gradient: 'from-purple-500 to-pink-500',
+      activeColor: 'bg-purple-600',
     },
     {
       id: 'tasks' as const,
       icon: CheckSquare,
-      label: 'Tasks',
+      label: 'Sarcini',
       count: stats.tasks,
-      gradient: 'from-green-500 to-emerald-500',
+      activeColor: 'bg-green-600',
     },
   ];
 
+  const handleSectionChange = (section: 'todo' | 'focus' | 'tasks') => {
+    haptic.light();
+    onSectionChange(section);
+  };
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border shadow-2xl z-50 pb-safe animate-slide-in-right">
-      <div className="flex items-center justify-around px-2 py-3">
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 safe-area-bottom">
+      <div className="flex items-stretch justify-around h-16">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;
@@ -51,37 +59,55 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           return (
             <button
               key={item.id}
-              onClick={() => onSectionChange(item.id)}
+              onClick={() => handleSectionChange(item.id)}
               className={cn(
-                'flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-300 relative min-w-[80px]',
+                'flex-1 flex flex-col items-center justify-center gap-0.5 relative transition-all duration-200',
                 isActive
-                  ? 'bg-gradient-to-br ' + item.gradient + ' text-white shadow-lg scale-110'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  ? 'text-primary'
+                  : 'text-muted-foreground active:bg-accent/50'
               )}
             >
-              <Icon className={cn(
-                'w-6 h-6 transition-transform duration-300',
-                isActive && 'scale-110'
-              )} />
+              {/* Active indicator bar */}
+              {isActive && (
+                <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-primary rounded-b-full" />
+              )}
+              
+              <div className="relative">
+                <Icon className={cn(
+                  'w-5 h-5 transition-transform duration-200',
+                  isActive && 'scale-110'
+                )} />
+                
+                {/* Count badge */}
+                {item.count > 0 && (
+                  <span className={cn(
+                    'absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted-foreground/20 text-muted-foreground'
+                  )}>
+                    {item.count > 99 ? '99+' : item.count}
+                  </span>
+                )}
+              </div>
+              
               <span className={cn(
-                'text-xs font-semibold transition-all duration-300',
-                isActive && 'text-white'
+                'text-[10px] font-medium',
+                isActive && 'font-semibold'
               )}>
                 {item.label}
               </span>
-              {item.count > 0 && (
-                <span className={cn(
-                  'absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center shadow-md transition-all duration-300',
-                  isActive
-                    ? 'bg-white text-primary'
-                    : 'bg-primary text-primary-foreground'
-                )}>
-                  {item.count}
-                </span>
-              )}
             </button>
           );
         })}
+        
+        {/* Streak indicator */}
+        {streak > 0 && (
+          <div className="absolute right-2 -top-8 flex items-center gap-1 bg-orange-500/20 text-orange-500 px-2 py-1 rounded-full text-xs font-bold">
+            <Flame className="w-3 h-3" />
+            {streak}
+          </div>
+        )}
       </div>
     </div>
   );

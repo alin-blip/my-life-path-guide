@@ -241,16 +241,16 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
 
   return (
     <div 
-      className={`bg-gradient-to-br from-card/50 to-card rounded-2xl shadow-xl border border-border/50 ${
-        isMobile ? 'max-h-[70vh] overflow-auto p-4' : 'h-full p-6'
+      className={`bg-card rounded-xl shadow-sm border border-border ${
+        isMobile ? 'p-4' : 'h-full p-6'
       }`}
       onDragOver={handleDragOverDomino}
       onDrop={handleDropOnDomino}
     >
       {selectedDomino ? (
-        <div className="space-y-6 animate-fade-in">
-          {/* Modern Header with Primary Actions + Dropdown */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-border/30 animate-slide-in-right">
+        <div className={`space-y-4 animate-fade-in ${isMobile ? '' : 'space-y-6'}`}>
+          {/* Header with Primary Actions */}
+          <div className={`flex items-center justify-between gap-2 pb-3 border-b border-border ${isMobile ? 'flex-wrap' : ''}`}>
             <div className="flex flex-wrap items-center gap-2">
               {/* Primary Action Buttons - Larger with Gradients */}
               <Button
@@ -426,27 +426,27 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           </div>
         </div>
       ) : (
-        /* Empty State - Clean & Simple */
-        <div className="flex flex-col items-center justify-center py-12 px-4">
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4">
-            <KeyRound className="w-8 h-8 text-primary" />
+        /* Empty State - Clean & Compact for mobile */
+        <div className={`flex flex-col items-center justify-center ${isMobile ? 'py-8' : 'py-12'} px-4`}>
+          <div className={`${isMobile ? 'w-12 h-12' : 'w-16 h-16'} rounded-xl bg-primary/10 flex items-center justify-center mb-3`}>
+            <KeyRound className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-primary`} />
           </div>
-          <p className="text-foreground font-semibold text-lg mb-1">
+          <p className={`text-foreground font-semibold ${isMobile ? 'text-base' : 'text-lg'} mb-1`}>
             {t('noGoalSelected')}
           </p>
-          <p className="text-muted-foreground text-sm text-center max-w-xs mb-6">
-            {t('dragGoalToSet')} {t('orClickToSelect')}
+          <p className="text-muted-foreground text-sm text-center max-w-xs mb-4">
+            {t('dragGoalToSet')}
           </p>
           
           {setSelectedDomino && setDominoKeyPoints && (
             <Button
               onClick={() => setShowAIPlanningModal(true)}
               variant="default"
-              size="default"
-              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-md hover:shadow-lg transition-all rounded-xl font-medium gap-2"
+              size={isMobile ? 'sm' : 'default'}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium gap-2"
             >
               <Rocket className="w-4 h-4" />
-              Start AI Planning
+              Start Planning
             </Button>
           )}
         </div>
