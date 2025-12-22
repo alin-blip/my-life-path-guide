@@ -4,6 +4,7 @@ import { HitListItem, DoListItem, DayOfWeek } from '@/types/door';
 import { TaskListHeader } from './task-list/TaskListHeader';
 import { DayNavigation } from './task-list/DayNavigation';
 import { TaskItem } from './task-list/TaskItem';
+import { SwipeableTaskItem } from './SwipeableTaskItem';
 import { EmptyTaskList } from './task-list/EmptyTaskList';
 
 interface TaskListProps {
@@ -21,6 +22,7 @@ interface TaskListProps {
   doDoneCount: number;
   isMobile?: boolean;
   moveTaskBackToHotList?: (taskId: string, listType: 'hit' | 'do') => void;
+  onDeleteTask?: (taskId: string, listType: 'hit' | 'do') => void;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({
@@ -37,7 +39,8 @@ export const TaskList: React.FC<TaskListProps> = ({
   doAchievedCount,
   doDoneCount,
   isMobile = false,
-  moveTaskBackToHotList
+  moveTaskBackToHotList,
+  onDeleteTask
 }) => {
   const normalizeDay = (d: any): DayOfWeek => {
     if (typeof d !== 'string') return d as DayOfWeek;
@@ -117,17 +120,32 @@ export const TaskList: React.FC<TaskListProps> = ({
         {activeList === 'hit' ? (
           filteredHitList.length > 0 ? (
             filteredHitList.map(item => (
-              <TaskItem
-                key={item.id}
-                id={item.id}
-                text={item.text}
-                completed={item.completed}
-                priority={item.priority}
-                isKeyPoint={item.isKeyPoint}
-                onToggleCompletion={toggleHitListItemCompletion}
-                onMoveBack={moveTaskBackToHotList ? (id) => moveTaskBackToHotList(id, 'hit') : undefined}
-                isMobile={isMobile}
-              />
+              isMobile ? (
+                <SwipeableTaskItem
+                  key={item.id}
+                  id={item.id}
+                  text={item.text}
+                  completed={item.completed}
+                  priority={item.priority}
+                  isKeyPoint={item.isKeyPoint}
+                  onToggleCompletion={toggleHitListItemCompletion}
+                  onDelete={onDeleteTask ? (id) => onDeleteTask(id, 'hit') : undefined}
+                  onMoveBack={moveTaskBackToHotList ? (id) => moveTaskBackToHotList(id, 'hit') : undefined}
+                  isMobile={isMobile}
+                />
+              ) : (
+                <TaskItem
+                  key={item.id}
+                  id={item.id}
+                  text={item.text}
+                  completed={item.completed}
+                  priority={item.priority}
+                  isKeyPoint={item.isKeyPoint}
+                  onToggleCompletion={toggleHitListItemCompletion}
+                  onMoveBack={moveTaskBackToHotList ? (id) => moveTaskBackToHotList(id, 'hit') : undefined}
+                  isMobile={isMobile}
+                />
+              )
             ))
           ) : (
             <EmptyTaskList activeList="hit" isMobile={isMobile} />
@@ -135,16 +153,30 @@ export const TaskList: React.FC<TaskListProps> = ({
         ) : (
           filteredDoList.length > 0 ? (
             filteredDoList.map(item => (
-              <TaskItem
-                key={item.id}
-                id={item.id}
-                text={item.text}
-                completed={item.completed}
-                priority={item.priority}
-                onToggleCompletion={toggleDoListItemCompletion}
-                onMoveBack={moveTaskBackToHotList ? (id) => moveTaskBackToHotList(id, 'do') : undefined}
-                isMobile={isMobile}
-              />
+              isMobile ? (
+                <SwipeableTaskItem
+                  key={item.id}
+                  id={item.id}
+                  text={item.text}
+                  completed={item.completed}
+                  priority={item.priority}
+                  onToggleCompletion={toggleDoListItemCompletion}
+                  onDelete={onDeleteTask ? (id) => onDeleteTask(id, 'do') : undefined}
+                  onMoveBack={moveTaskBackToHotList ? (id) => moveTaskBackToHotList(id, 'do') : undefined}
+                  isMobile={isMobile}
+                />
+              ) : (
+                <TaskItem
+                  key={item.id}
+                  id={item.id}
+                  text={item.text}
+                  completed={item.completed}
+                  priority={item.priority}
+                  onToggleCompletion={toggleDoListItemCompletion}
+                  onMoveBack={moveTaskBackToHotList ? (id) => moveTaskBackToHotList(id, 'do') : undefined}
+                  isMobile={isMobile}
+                />
+              )
             ))
           ) : (
             <EmptyTaskList activeList="do" isMobile={isMobile} />

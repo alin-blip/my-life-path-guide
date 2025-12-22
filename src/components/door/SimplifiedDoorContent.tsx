@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDoorContent } from '@/hooks/useDoorContent';
 import { useDoorUndo } from '@/hooks/useDoorUndo';
+import { useStreakTracking } from '@/hooks/useStreakTracking';
 import { DoorHeader } from '@/components/door/DoorHeader';
 import { HotList } from '@/components/door/HotList';
 import { DominoDoor } from '@/components/door/DominoDoor';
@@ -16,6 +17,7 @@ import { SwipeableSection } from '@/components/door/SwipeableSection';
 import { WeeklyProgressRing } from '@/components/door/WeeklyProgressRing';
 import { DoorHelpButton } from '@/components/door/DoorHelpButton';
 import { QuickActionBar } from '@/components/door/QuickActionBar';
+import { ConfettiCelebration } from '@/components/door/ConfettiCelebration';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { format, getWeek } from 'date-fns';
@@ -168,6 +170,24 @@ export const SimplifiedDoorContent: React.FC = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { language } = useLanguage();
+  
+  // Streak tracking
+  const { streakData, updateDailyProgress } = useStreakTracking();
+  
+  // Update progress when tasks change
+  useEffect(() => {
+    const totalTasks = hitAchievedCount + doAchievedCount;
+    const completedTasks = hitDoneCount + doDoneCount;
+    if (totalTasks > 0) {
+      updateDailyProgress(
+        totalTasks,
+        completedTasks,
+        filteredHotList.length,
+        hitAchievedCount,
+        doAchievedCount
+      );
+    }
+  }, [hitDoneCount, doDoneCount, hitAchievedCount, doAchievedCount]);
 
   // Undo/Redo functionality
   const { undo, redo, canUndo, canRedo } = useDoorUndo({
@@ -331,6 +351,12 @@ export const SimplifiedDoorContent: React.FC = () => {
         {/* Weekly Planning Notification */}
         <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />
         
+        {/* Confetti Celebration */}
+        <ConfettiCelebration
+          totalTasks={hitAchievedCount + doAchievedCount}
+          completedTasks={hitDoneCount + doDoneCount}
+        />
+        
         {/* Week Selector with Progress Ring */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
@@ -339,7 +365,7 @@ export const SimplifiedDoorContent: React.FC = () => {
               completedTasks={hitDoneCount + doDoneCount}
               focusKeyPoints={dominoKeyPoints.length}
               completedKeyPoints={dominoKeyPoints.filter(kp => kp.completed).length}
-              streak={0}
+              streak={streakData.currentStreak}
             />
             <DoorHelpButton />
           </div>
