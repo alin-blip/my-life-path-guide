@@ -31,102 +31,52 @@ export const WeeklyProgressRing: React.FC<WeeklyProgressRingProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-4">
-        {/* Main Progress Ring */}
+      <div className="flex items-center gap-2">
+        {/* Compact Progress Ring */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="relative w-16 h-16 cursor-pointer group">
+            <div className="relative w-10 h-10 cursor-pointer">
               <svg className="w-full h-full transform -rotate-90">
-                {/* Background circle */}
                 <circle
-                  cx="32"
-                  cy="32"
-                  r={radius}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  className="text-muted/30"
-                />
-                {/* Focus progress (outer) */}
-                <circle
-                  cx="32"
-                  cy="32"
-                  r={radius}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={focusOffset}
-                  strokeLinecap="round"
-                  className="text-accent transition-all duration-700 ease-out"
-                />
-                {/* Tasks progress (inner) */}
-                <circle
-                  cx="32"
-                  cy="32"
-                  r={radius - 8}
+                  cx="20"
+                  cy="20"
+                  r="16"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="3"
-                  strokeDasharray={circumference * 0.7}
-                  strokeDashoffset={(circumference * 0.7) - (tasksProgress / 100) * (circumference * 0.7)}
+                  className="text-muted/30"
+                />
+                <circle
+                  cx="20"
+                  cy="20"
+                  r="16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeDasharray={100}
+                  strokeDashoffset={100 - tasksProgress}
                   strokeLinecap="round"
-                  className="text-primary transition-all duration-700 ease-out"
+                  className="text-primary transition-all duration-500"
                 />
               </svg>
-              
-              {/* Center Icon/Percentage */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-xs font-bold text-foreground group-hover:scale-110 transition-transform">
-                  {Math.round((tasksProgress + focusProgress) / 2)}%
-                </span>
+                <span className="text-[10px] font-bold text-foreground">{tasksProgress}%</span>
               </div>
             </div>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-popover border-border">
-            <div className="space-y-1 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-accent" />
-                <span>Focus: {focusProgress}% ({completedKeyPoints}/{focusKeyPoints})</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary" />
-                <span>Sarcini: {tasksProgress}% ({completedTasks}/{totalTasks})</span>
-              </div>
-            </div>
+          <TooltipContent side="bottom" className="text-xs">
+            <p>Sarcini: {completedTasks}/{totalTasks}</p>
+            <p>Focus: {completedKeyPoints}/{focusKeyPoints}</p>
           </TooltipContent>
         </Tooltip>
         
-        {/* Quick Stats Badges */}
-        <div className="flex flex-col gap-1">
-          {/* Streak Badge */}
-          {streak > 0 && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-orange-500/10 text-orange-500 text-xs font-medium cursor-pointer hover:bg-orange-500/20 transition-colors">
-                  <Flame className="w-3 h-3" />
-                  <span>{streak}</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                {language === 'en' ? `${streak} day streak!` : `${streak} zile consecutive!`}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          
-          {/* Completed Today Badge */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium cursor-pointer hover:bg-primary/20 transition-colors">
-                <Target className="w-3 h-3" />
-                <span>{completedTasks}/{totalTasks}</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              {language === 'en' ? 'Tasks completed this week' : 'Sarcini completate săptămâna aceasta'}
-            </TooltipContent>
-          </Tooltip>
-        </div>
+        {/* Streak Badge - Compact */}
+        {streak > 0 && (
+          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500 text-[10px] font-bold">
+            <Flame className="w-3 h-3" />
+            {streak}
+          </div>
+        )}
       </div>
     </TooltipProvider>
   );

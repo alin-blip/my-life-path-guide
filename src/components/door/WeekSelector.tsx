@@ -28,27 +28,25 @@ export const WeekSelector: React.FC<WeekSelectorProps> = ({
   const isCurrentWeek = getISOWeek(new Date()) === weekNumber && getYear(new Date()) === year;
 
   return (
-    <div className="flex items-center justify-between gap-2 bg-card/50 rounded-lg px-3 py-2 border border-border/50">
+    <div className="flex items-center gap-1">
       <Button 
         variant="ghost" 
         size="icon"
         onClick={onPreviousWeek}
-        className="h-8 w-8"
+        className="h-7 w-7"
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="ghost" className="flex items-center gap-2 h-8">
-            <Calendar className="h-4 w-4" />
-            <span className="font-medium">
-              Săptămâna {weekNumber}, {year}
+          <Button variant="ghost" size="sm" className="flex items-center gap-1.5 h-7 px-2">
+            <Calendar className="h-3.5 w-3.5" />
+            <span className="text-xs font-medium">
+              S{weekNumber}
             </span>
             {isCurrentWeek && (
-              <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                Curentă
-              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
             )}
           </Button>
         </PopoverTrigger>
@@ -65,23 +63,11 @@ export const WeekSelector: React.FC<WeekSelectorProps> = ({
         </PopoverContent>
       </Popover>
 
-      {!isCurrentWeek && (
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => onSelectDate(new Date())}
-          className="h-8 gap-2"
-        >
-          <CalendarCheck className="h-4 w-4" />
-          <span className="hidden sm:inline">Săptămâna curentă</span>
-        </Button>
-      )}
-
       <Button 
         variant="ghost" 
         size="icon"
         onClick={onNextWeek}
-        className="h-8 w-8"
+        className="h-7 w-7"
         disabled={isCurrentWeek}
       >
         <ChevronRight className="h-4 w-4" />

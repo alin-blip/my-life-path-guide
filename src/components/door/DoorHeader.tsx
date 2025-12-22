@@ -46,6 +46,37 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
   const { t } = useLanguage();
   const today = format(new Date(), 'EEE');
 
+  if (isMobile) {
+    // Compact mobile header
+    return (
+      <div className="bg-card border-b border-border px-3 py-2">
+        <div className="flex items-center justify-between">
+          <Button variant="ghost" size="sm" asChild className="p-1">
+            <Link to="/dashboard">
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+          </Button>
+          
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" onClick={handlePreviousWeek} className="p-1">
+              <ArrowLeft className="w-3 h-3" />
+            </Button>
+            <span className="text-xs font-medium text-foreground px-2 py-1 bg-muted rounded min-w-[90px] text-center">
+              {currentDateRange}
+            </span>
+            <Button variant="ghost" size="sm" onClick={handleNextWeek} className="p-1">
+              <ArrowRight className="w-3 h-3" />
+            </Button>
+          </div>
+
+          <span className="text-xs font-medium text-primary px-2 py-1 bg-primary/10 rounded">
+            {today}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-card border-b border-border px-4 py-3 shadow-md">
       <div className="flex items-center justify-between">
@@ -59,7 +90,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
           >
             <Link to="/dashboard">
               <ArrowLeft className="w-4 h-4 mr-1" />
-              {isMobile ? 'Back' : t('backToDashboard')}
+              {t('backToDashboard')}
             </Link>
           </Button>
           <h1 className="text-lg font-bold text-foreground">
@@ -142,7 +173,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
               className="gap-2 border-border/50 hover:border-border hover:bg-accent/50 transition-all rounded-lg shadow-sm"
             >
               <HistoryIcon className="w-4 h-4" />
-              {!isMobile && <span>Istoric</span>}
+              <span>Istoric</span>
             </Button>
           )}
           
@@ -155,7 +186,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
                   className="gap-2 border-border/50 hover:border-border hover:bg-accent/50 transition-all rounded-lg shadow-sm"
                 >
                   <Trash2 className="w-4 h-4" />
-                  {!isMobile && <span>Șterge</span>}
+                  <span>Șterge</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 bg-popover border-border shadow-lg z-50">
