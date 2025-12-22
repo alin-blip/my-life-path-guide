@@ -112,6 +112,15 @@
   }
 }
 
+/* Safe area for mobile devices */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+}
+
 /* Fixed sidebar styles */
 .sidebar-item {
   @apply flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground rounded-md transition-colors hover:text-foreground hover:bg-muted;

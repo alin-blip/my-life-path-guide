@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { Check, Trash2, ArrowLeft, Star, Flag, AlertCircle, KeyRound } from 'lucide-react';
+import { Check, Trash2, Star, Flag, AlertCircle, KeyRound, ChevronRight, ChevronLeft } from 'lucide-react';
 import { TaskPriority } from '@/types/door';
-import { useLanguage } from '@/context/LanguageContext';
 import { haptic } from '@/utils/hapticFeedback';
+import { cn } from '@/lib/utils';
 
 interface SwipeableTaskItemProps {
   id: string;
@@ -27,19 +27,21 @@ export const SwipeableTaskItem: React.FC<SwipeableTaskItemProps> = ({
   onMoveBack,
   isMobile = false
 }) => {
-  const { t } = useLanguage();
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [showHint, setShowHint] = useState(true);
   const startXRef = useRef(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const startTimeRef = useRef(0);
 
-  const SWIPE_THRESHOLD = 80;
+  const SWIPE_THRESHOLD = 60;
   const MAX_SWIPE = 100;
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!isMobile) return;
     startXRef.current = e.touches[0].clientX;
+    startTimeRef.current = Date.now();
     setIsDragging(true);
+    setShowHint(false);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -47,147 +49,168 @@ export const SwipeableTaskItem: React.FC<SwipeableTaskItemProps> = ({
     const currentX = e.touches[0].clientX;
     const diff = currentX - startXRef.current;
     
-    // Clamp the value
-    const clampedDiff = Math.max(-MAX_SWIPE, Math.min(MAX_SWIPE, diff));
+    // Add resistance at edges
+    const resistance = 0.5;
+    let clampedDiff = diff;
+    if (Math.abs(diff) > SWIPE_THRESHOLD) {
+      const excess = Math.abs(diff) - SWIPE_THRESHOLD;
+      clampedDiff = Math.sign(diff) * (SWIPE_THRESHOLD + excess * resistance);
+    }
+    clampedDiff = Math.max(-MAX_SWIPE, Math.min(MAX_SWIPE, clampedDiff));
     setTranslateX(clampedDiff);
+    
+    // Haptic at threshold
+    if (Math.abs(clampedDiff) >= SWIPE_THRESHOLD && Math.abs(diff - clampedDiff) < 5) {
+      haptic.light();
+    }
   };
 
   const handleTouchEnd = () => {
     if (!isMobile) return;
     setIsDragging(false);
 
-    if (translateX > SWIPE_THRESHOLD) {
-      // Swipe right - complete
+    const duration = Date.now() - startTimeRef.current;
+    const velocity = Math.abs(translateX) / duration;
+    const isQuickSwipe = velocity > 0.5 && Math.abs(translateX) > 30;
+
+    if (translateX > SWIPE_THRESHOLD || (isQuickSwipe && translateX > 0)) {
       haptic.success();
       onToggleCompletion(id);
-    } else if (translateX < -SWIPE_THRESHOLD && onDelete) {
-      // Swipe left - delete
+    } else if ((translateX < -SWIPE_THRESHOLD || (isQuickSwipe && translateX < 0)) && onDelete) {
       haptic.warning();
       onDelete(id);
     }
 
-    // Reset position
     setTranslateX(0);
   };
 
-  const getPriorityClasses = (priority?: TaskPriority, completed: boolean = false) => {
-    if (completed) return 'bg-green-500/10';
-
+  const getPriorityStyles = (priority?: TaskPriority, isCompleted: boolean = false) => {
+    if (isCompleted) return 'border-l-4 border-l-green-500 bg-green-500/5';
     switch (priority) {
       case 'important':
-        return 'bg-green-500/10';
+        return 'border-l-4 border-l-green-500';
       case 'urgent':
-        return 'bg-orange-500/10';
+        return 'border-l-4 border-l-orange-500';
       case 'urgent-important':
-        return 'bg-red-500/10';
+        return 'border-l-4 border-l-red-500';
       default:
-        return 'bg-muted';
+        return 'border-l-4 border-l-transparent';
     }
   };
 
   const getPriorityIcon = (priority?: TaskPriority) => {
-    const iconSize = isMobile ? 'w-3 h-3' : 'w-4 h-4';
     switch (priority) {
       case 'important':
-        return <Star className={`${iconSize} text-green-500 mr-2`} />;
+        return <Star className="w-3 h-3 text-green-500" />;
       case 'urgent':
-        return <Flag className={`${iconSize} text-orange-500 mr-2`} />;
+        return <Flag className="w-3 h-3 text-orange-500" />;
       case 'urgent-important':
-        return <AlertCircle className={`${iconSize} text-red-500 mr-2`} />;
+        return <AlertCircle className="w-3 h-3 text-red-500" />;
       default:
         return null;
     }
   };
 
-  // Calculate background opacity based on swipe distance
-  const rightSwipeOpacity = Math.min(1, Math.max(0, translateX / SWIPE_THRESHOLD));
-  const leftSwipeOpacity = Math.min(1, Math.max(0, -translateX / SWIPE_THRESHOLD));
+  const rightProgress = Math.min(1, Math.max(0, translateX / SWIPE_THRESHOLD));
+  const leftProgress = Math.min(1, Math.max(0, -translateX / SWIPE_THRESHOLD));
 
   return (
-    <div 
-      ref={containerRef}
-      className="relative overflow-hidden rounded-md"
-    >
-      {/* Background actions */}
+    <div className="relative overflow-hidden rounded-lg mb-2">
+      {/* Swipe backgrounds */}
       {isMobile && (
         <>
           {/* Complete action (right swipe) */}
           <div 
-            className="absolute inset-y-0 left-0 w-24 flex items-center justify-center bg-green-500 transition-opacity"
-            style={{ opacity: rightSwipeOpacity }}
+            className={cn(
+              "absolute inset-y-0 left-0 flex items-center pl-4 transition-all duration-150",
+              rightProgress >= 1 ? 'bg-green-500' : 'bg-green-500/80'
+            )}
+            style={{ 
+              width: `${Math.max(translateX, 0)}px`,
+              opacity: rightProgress 
+            }}
           >
-            <Check className="w-6 h-6 text-white" />
+            <Check className={cn(
+              "w-5 h-5 text-white transition-transform",
+              rightProgress >= 1 && "scale-125"
+            )} />
           </div>
           
           {/* Delete action (left swipe) */}
           <div 
-            className="absolute inset-y-0 right-0 w-24 flex items-center justify-center bg-red-500 transition-opacity"
-            style={{ opacity: leftSwipeOpacity }}
+            className={cn(
+              "absolute inset-y-0 right-0 flex items-center justify-end pr-4 transition-all duration-150",
+              leftProgress >= 1 ? 'bg-red-500' : 'bg-red-500/80'
+            )}
+            style={{ 
+              width: `${Math.max(-translateX, 0)}px`,
+              opacity: leftProgress 
+            }}
           >
-            <Trash2 className="w-6 h-6 text-white" />
+            <Trash2 className={cn(
+              "w-5 h-5 text-white transition-transform",
+              leftProgress >= 1 && "scale-125"
+            )} />
           </div>
         </>
       )}
 
       {/* Task content */}
       <div 
-        className={`flex items-center rounded-md ${getPriorityClasses(priority, completed)} ${
-          isMobile ? 'p-3' : 'p-2'
-        } transition-transform duration-150 ease-out relative z-10 bg-card`}
-        style={{ 
-          transform: isMobile ? `translateX(${translateX}px)` : undefined,
-          transition: isDragging ? 'none' : 'transform 0.2s ease-out'
-        }}
+        className={cn(
+          "flex items-center gap-3 p-3 bg-card rounded-lg relative z-10 touch-pan-y",
+          getPriorityStyles(priority, completed),
+          isDragging ? '' : 'transition-transform duration-200 ease-out'
+        )}
+        style={{ transform: isMobile ? `translateX(${translateX}px)` : undefined }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Checkbox */}
         <button
-          className={`${isMobile ? 'w-6 h-6' : 'w-6 h-6'} p-0 rounded-full mr-3 flex items-center justify-center ${
-            completed ? 'bg-green-500 text-white' : 'bg-transparent border border-border text-muted-foreground'
-          } transition-all duration-200`}
+          className={cn(
+            "w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200",
+            completed 
+              ? 'bg-green-500 text-white' 
+              : 'border-2 border-border'
+          )}
           onClick={() => {
             haptic.light();
             onToggleCompletion(id);
           }}
         >
-          {completed && <Check className={`${isMobile ? 'w-3 h-3' : 'w-3 h-3'}`} />}
+          {completed && <Check className="w-3.5 h-3.5" />}
         </button>
         
-        <span className={`flex-grow ${completed ? 'text-muted-foreground line-through' : 'text-foreground'} ${
-          isMobile ? 'text-sm' : ''
-        } flex items-center`}>
-          {!completed && getPriorityIcon(priority)}
-          {text}
-        </span>
+        {/* Text and badges */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            {!completed && getPriorityIcon(priority)}
+            <span className={cn(
+              "text-sm leading-tight",
+              completed && 'text-muted-foreground line-through'
+            )}>
+              {text}
+            </span>
+          </div>
+        </div>
         
+        {/* Key point badge */}
         {isKeyPoint && (
-          <span className={`bg-primary/20 text-primary px-2 py-0.5 rounded mr-2 flex items-center ${
-            isMobile ? 'text-xs px-1.5 py-0.5' : 'text-xs'
-          }`}>
-            <KeyRound className={`${isMobile ? 'w-2 h-2' : 'w-3 h-3'} mr-1`} />
-            {t('keyPointLabel')}
+          <span className="shrink-0 bg-primary/15 text-primary px-1.5 py-0.5 rounded text-[10px] font-medium flex items-center gap-0.5">
+            <KeyRound className="w-2.5 h-2.5" />
           </span>
         )}
-        
-        {onMoveBack && !isMobile && (
-          <button
-            className="text-muted-foreground hover:text-primary transition-colors p-1"
-            onClick={() => onMoveBack(id)}
-            title={t('moveBackToIdeaList')}
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
+
+        {/* Swipe hint arrows */}
+        {isMobile && showHint && !completed && (
+          <div className="flex items-center gap-1 text-muted-foreground/40">
+            <ChevronLeft className="w-3 h-3" />
+            <ChevronRight className="w-3 h-3" />
+          </div>
         )}
       </div>
-
-      {/* Swipe hints for mobile */}
-      {isMobile && translateX === 0 && (
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-between px-2 opacity-0 group-hover:opacity-100">
-          <div className="text-xs text-green-500">← Complete</div>
-          <div className="text-xs text-red-500">Delete →</div>
-        </div>
-      )}
     </div>
   );
 };
