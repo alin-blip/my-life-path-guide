@@ -17,6 +17,7 @@ import { useLocation } from 'react-router-dom';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
 import { MasterPlanStack } from '@/components/stack/master-plan/MasterPlanStack';
 import { MasterPlanQuickStack } from '@/components/stack/master-plan/MasterPlanQuickStack';
+import { GratitudeStack } from '@/components/stack/gratitude-stack/GratitudeStack';
 import { getWeek } from 'date-fns';
 
 const CoachingPage = () => {
@@ -91,6 +92,9 @@ const CoachingPage = () => {
           break;
         case 'gods-school':
           setActiveStack('gods-school');
+          break;
+        case 'gratitude':
+          setActiveStack('gratitude');
           break;
 
         // Backwards-compatible URLs
@@ -338,6 +342,8 @@ const renderActiveStack = () => {
         return <GodsSchoolStack {...stackProps} />;
       case "divine-prayer":
         return <DivinePrayerStack {...stackProps} />;
+      case "gratitude":
+        return <GratitudeStack {...stackProps} />;
       case "napoleon-hill":
         return <MasterPlanStack {...stackProps} />;
       case "napoleon-hill-quick":
