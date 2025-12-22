@@ -91,6 +91,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       subItems: [
         { title: 'Rage to Power', icon: Angry, path: '/stack?type=anger' },
         { title: 'Divine Connection', icon: Heart, path: '/stack?type=divine-prayer' },
+        { title: 'Gratitude Practice', icon: Heart, path: '/stack?type=gratitude' },
         { title: 'Principle Coaching', icon: Crown, path: '/stack?type=master-plan-quick' },
         { title: 'Wisdom Oracle', icon: Headphones, path: '/stack?type=ai-live' },
         { title: 'Business Empire', icon: Briefcase, path: '/stack?type=hormozi-coaching' },
