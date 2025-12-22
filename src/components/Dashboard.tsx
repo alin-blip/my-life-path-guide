@@ -1,8 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Heart, Brain, Briefcase, Video, Text, AudioLines, Image as ImageIcon, ArrowRight, RefreshCw, Compass, DollarSign, Users, Clock, Award, AlertTriangle, Check, Sparkles } from 'lucide-react';
+import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Heart, Brain, Briefcase, Video, Text, AudioLines, Image as ImageIcon, ArrowRight, RefreshCw, Compass, DollarSign, Users, Clock, Award, AlertTriangle, Check, Sparkles, Calendar as CalendarIcon, History } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDoorContent } from '@/hooks/useDoorContent';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -19,6 +19,10 @@ import { TaskPriority } from '@/types/door';
 import { DailyBookPage } from './challenge/DailyBookPage';
 import { MonthlyMission, MissionCategory } from '@/types/mission';
 import { supabase } from '@/integrations/supabase/client';
+import { useSoundSettings } from '@/hooks/useSoundSettings';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -72,6 +76,17 @@ export const Dashboard: React.FC = () => {
   });
 
   const [showConfetti, setShowConfetti] = useState(false);
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date>(new Date());
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  
+  // Sound settings
+  const { playSuccessSound } = useSoundSettings();
+  const prevCategoryComplete = useRef<Record<string, boolean>>({
+    body: false,
+    relationship: false,
+    being: false,
+    business: false
+  });
 
   const categoryCounts = {
     body: 12,
@@ -237,6 +252,45 @@ export const Dashboard: React.FC = () => {
     } else {
       setShowConfetti(false);
     }
+    
+    // Check category completion for sound effects
+    const fitnessCompleted = coreData[selectedDay]?.['fitness'] || false;
+    const fuelCompleted = coreData[selectedDay]?.['fuel'] || false;
+    const bodyNowComplete = fitnessCompleted && fuelCompleted;
+    
+    const person1Completed = coreData[selectedDay]?.['person1'] || false;
+    const person2Completed = coreData[selectedDay]?.['person2'] || false;
+    const relationshipNowComplete = person1Completed && person2Completed;
+    
+    const meditationCompleted = coreData[selectedDay]?.['meditation'] || false;
+    const memoirsCompleted = coreData[selectedDay]?.['memoirs'] || false;
+    const beingNowComplete = meditationCompleted && memoirsCompleted;
+    
+    const discoverCompleted = coreData[selectedDay]?.['discover'] || false;
+    const declareCompleted = coreData[selectedDay]?.['declare'] || false;
+    const businessNowComplete = discoverCompleted && declareCompleted;
+    
+    // Play sound when a category becomes complete
+    if (bodyNowComplete && !prevCategoryComplete.current.body) {
+      playSuccessSound();
+    }
+    if (relationshipNowComplete && !prevCategoryComplete.current.relationship) {
+      playSuccessSound();
+    }
+    if (beingNowComplete && !prevCategoryComplete.current.being) {
+      playSuccessSound();
+    }
+    if (businessNowComplete && !prevCategoryComplete.current.business) {
+      playSuccessSound();
+    }
+    
+    // Update prev state
+    prevCategoryComplete.current = {
+      body: bodyNowComplete,
+      relationship: relationshipNowComplete,
+      being: beingNowComplete,
+      business: businessNowComplete
+    };
   };
 
   const getCoreItems = () => {
@@ -507,6 +561,44 @@ export const Dashboard: React.FC = () => {
           {language === 'en' ? 'My Daily' : 'Zilnica mea'}
         </h1>
         
+        <div className="flex items-center gap-2">
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <CalendarIcon className="w-4 h-4" />
+                <span className="hidden md:inline">{format(selectedCalendarDate, 'dd MMM yyyy')}</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={selectedCalendarDate}
+                onSelect={(date) => {
+                  if (date) {
+                    setSelectedCalendarDate(date);
+                    // Map date to day of week for Core/Daily
+                    const dayMap: Record<number, 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su'> = {
+                      0: 'Su', 1: 'Mo', 2: 'Tu', 3: 'We', 4: 'Th', 5: 'Fr', 6: 'Sa'
+                    };
+                    setSelectedDay(dayMap[date.getDay()]);
+                    setCalendarOpen(false);
+                  }
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigateTo('/daily-timeline')}
+            className="flex items-center gap-2"
+          >
+            <History className="w-4 h-4" />
+            <span className="hidden md:inline">{language === 'en' ? 'Timeline' : 'Istoric'}</span>
+          </Button>
+        </div>
       </div>
       
       <DailyBookPage />

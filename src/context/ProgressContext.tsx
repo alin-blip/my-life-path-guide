@@ -65,6 +65,11 @@ interface ProgressContextType {
   selectedDay: DayOfWeek;
   setSelectedDay: (day: DayOfWeek) => void;
   
+  // Selected date for calendar-based progress
+  selectedDate: string;
+  setSelectedDate: (date: string) => void;
+  loadProgressForDate: (date: string) => Promise<void>;
+  
   // Utility functions
   syncData: () => void;
 }
@@ -130,6 +135,7 @@ const ProgressContext = createContext<ProgressContextType | undefined>(undefined
 
 export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>(getCurrentDayOfWeek());
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [coreData, setCoreData] = useState<CoreDataByDay>(initializeCoreData());
   const [dailyFourData, setDailyFourData] = useState<ActivityByDay>(initializeDailyFourData());
   
@@ -145,10 +151,16 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // FIX: Add ref to track if data is loaded to prevent multiple syncData calls
   const dataLoaded = useRef(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const currentSaveDateRef = useRef<string>(selectedDate);
+
+  // Update save date ref when selectedDate changes
+  useEffect(() => {
+    currentSaveDateRef.current = selectedDate;
+  }, [selectedDate]);
 
   // Debounced save to Supabase
   const saveToSupabase = useCallback(async () => {
-    const today = new Date().toISOString().split('T')[0];
+    const dateToSave = currentSaveDateRef.current;
     
     try {
       // Convert ActivityByDay format to DailyFourData format for service
@@ -164,8 +176,8 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       });
 
       await Promise.all([
-        userProgressService.saveCoreProgress(today, coreData),
-        userProgressService.saveDailyFourProgress(today, dailyFourFormatted)
+        userProgressService.saveCoreProgress(dateToSave, coreData),
+        userProgressService.saveDailyFourProgress(dateToSave, dailyFourFormatted)
       ]);
       if (import.meta.env.DEV) {
         console.log('✅ Progress saved to Supabase');
@@ -556,6 +568,22 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
+  const loadProgressForDate = useCallback(async (date: string) => {
+    const { core, dailyFour } = await userProgressService.loadWeekProgress(date);
+    if (core) setCoreData(core);
+    if (dailyFour) {
+      const convertedData: ActivityByDay = {};
+      Object.keys(dailyFour).forEach(day => {
+        const dayData = dailyFour[day];
+        convertedData[day] = {
+          dailyActivities: defaultDailyActivities.map(a => ({ ...a, completed: dayData[a.id] || false })),
+          weeklyActivities: defaultWeeklyActivities.map(a => ({ ...a, completed: dayData[a.id] || false }))
+        };
+      });
+      setDailyFourData(convertedData);
+    }
+  }, []);
+
   return (
     <ProgressContext.Provider
       value={{
@@ -573,6 +601,10 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         
         selectedDay,
         setSelectedDay,
+        
+        selectedDate,
+        setSelectedDate,
+        loadProgressForDate,
         
         syncData
       }}
