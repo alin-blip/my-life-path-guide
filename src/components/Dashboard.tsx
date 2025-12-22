@@ -23,6 +23,7 @@ import { useSoundSettings } from '@/hooks/useSoundSettings';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
+import { TransformedWarrior, WarriorBadge, MediaMaster, MediaBadge } from '@/components/celebrations';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -78,6 +79,12 @@ export const Dashboard: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date>(new Date());
   const [calendarOpen, setCalendarOpen] = useState(false);
+  
+  // Celebration overlays
+  const [showWarriorOverlay, setShowWarriorOverlay] = useState(false);
+  const [showMediaOverlay, setShowMediaOverlay] = useState(false);
+  const [hasShownCoreAnimation, setHasShownCoreAnimation] = useState(false);
+  const [hasShownDailyAnimation, setHasShownDailyAnimation] = useState(false);
   
   // Sound settings
   const { playSuccessSound } = useSoundSettings();
@@ -535,7 +542,39 @@ export const Dashboard: React.FC = () => {
   const coreToDaily = hasStack ? coreProgress : 0;
   const dailyToDoor = hasStack && coreProgress > 0 ? dailyProgress : 0;
 
+  // Trigger Core 4 celebration
+  useEffect(() => {
+    if (hasCompletedCore && !hasShownCoreAnimation) {
+      setShowWarriorOverlay(true);
+      setHasShownCoreAnimation(true);
+    }
+  }, [hasCompletedCore, hasShownCoreAnimation]);
+
+  // Trigger Daily Four celebration
+  useEffect(() => {
+    if (hasCompletedDailyFour && !hasShownDailyAnimation) {
+      setShowMediaOverlay(true);
+      setHasShownDailyAnimation(true);
+    }
+  }, [hasCompletedDailyFour, hasShownDailyAnimation]);
+
+  // Reset animation flags when day changes
+  useEffect(() => {
+    setHasShownCoreAnimation(hasCompletedCore);
+    setHasShownDailyAnimation(hasCompletedDailyFour);
+  }, [selectedDay]);
+
   return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4 bg-gradient-to-b from-background to-muted">
+      {/* Celebration Overlays */}
+      <TransformedWarrior 
+        isVisible={showWarriorOverlay} 
+        onClose={() => setShowWarriorOverlay(false)} 
+      />
+      <MediaMaster 
+        isVisible={showMediaOverlay} 
+        onClose={() => setShowMediaOverlay(false)} 
+      />
+
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
           <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
           <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 animate-pulse"></div>
