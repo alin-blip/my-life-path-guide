@@ -22,6 +22,7 @@ import jsPDF from 'jspdf';
 import { useStackSession } from '@/hooks/useStackSession';
 import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
 import { useConfettiCelebration } from '@/components/door/ConfettiCelebration';
+import { AlchemistTransformation } from '@/components/celebrations';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -77,7 +78,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [noteMessageIndex, setNoteMessageIndex] = useState<number | null>(null);
   const [currentNote, setCurrentNote] = useState('');
   const [currentImportance, setCurrentImportance] = useState<'low' | 'medium' | 'high'>('medium');
-  const [selectedVoice, setSelectedVoice] = useState(() => 
+  const [showAlchemistOverlay, setShowAlchemistOverlay] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState(() =>
     localStorage.getItem('preferred-tts-voice') || 'pFZP5JQG7iQjIQuC4Bku'
   );
   
@@ -640,6 +642,9 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
           
           // Mark introspecție complete
           await updateDailyProgress('stack');
+          
+          // Trigger Alchemist celebration
+          setShowAlchemistOverlay(true);
         }
       } catch (e) {
         console.error('Failed to save AI guided stack to Stack Library/stack_sessions:', e);
@@ -959,6 +964,11 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
   if (mode === 'complete') {
     return (
       <div className="w-full p-1 sm:p-2 flex flex-col h-full">
+        <AlchemistTransformation 
+          isVisible={showAlchemistOverlay} 
+          onClose={() => setShowAlchemistOverlay(false)} 
+          stackType={stackType}
+        />
         <Card className="flex-1 flex flex-col">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg sm:text-xl">
