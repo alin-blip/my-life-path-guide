@@ -12,9 +12,10 @@ import { ToolsManager } from './admin/ToolsManager';
 import { Leaderboard } from './admin/Leaderboard';
 import { CourseSubmissions } from './admin/CourseSubmissions';
 import { RevenueDashboard } from './admin/RevenueDashboard';
+import { AdminAIStudio } from './admin/AdminAIStudio';
 import { 
   Shield, Users, BookOpen, Wrench, Settings, LayoutDashboard, 
-  Trophy, Upload, DollarSign, Lock
+  Trophy, Upload, DollarSign, Lock, Bot
 } from 'lucide-react';
 
 export const SecureAdminPanel: React.FC = () => {
@@ -82,8 +83,12 @@ export const SecureAdminPanel: React.FC = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="dashboard">
-        <TabsList className="mb-8">
+      <Tabs defaultValue="ai-studio">
+        <TabsList className="mb-8 flex-wrap">
+          <TabsTrigger value="ai-studio" className="flex items-center gap-1">
+            <Bot className="h-4 w-4" />
+            🤖 AI Studio
+          </TabsTrigger>
           <TabsTrigger value="dashboard" className="flex items-center gap-1">
             <LayoutDashboard className="h-4 w-4" />
             Dashboard
@@ -117,6 +122,10 @@ export const SecureAdminPanel: React.FC = () => {
             Settings
           </TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="ai-studio" className="pt-4">
+          <AdminAIStudio />
+        </TabsContent>
         
         <TabsContent value="dashboard" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
