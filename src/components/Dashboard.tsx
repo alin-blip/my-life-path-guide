@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Heart, Brain, Briefcase, Video, Text, AudioLines, Image as ImageIcon, ArrowRight, RefreshCw, Compass, DollarSign, Users, Clock, Award, AlertTriangle, Check } from 'lucide-react';
+import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Heart, Brain, Briefcase, Video, Text, AudioLines, Image as ImageIcon, ArrowRight, RefreshCw, Compass, DollarSign, Users, Clock, Award, AlertTriangle, Check, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDoorContent } from '@/hooks/useDoorContent';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -525,6 +525,16 @@ export const Dashboard: React.FC = () => {
                 </Button>}
             </div>
             <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">{t('stack')}</span>
+            {/* Quick access to Gratitude Stack */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigateTo('/stack?type=gratitude')}
+              className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 p-1 h-auto"
+            >
+              <Sparkles className="w-3 h-3 mr-1" />
+              <span className="hidden md:inline">Gratitude</span>
+            </Button>
           </div>
           
           <div className="flex-grow mx-2 relative">
