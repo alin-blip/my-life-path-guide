@@ -1,19 +1,30 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Loader2, Download, Image, Sparkles, RefreshCw } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Download, Image, Sparkles, RefreshCw, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+const imageCategories = [
+  { value: 'general', label: 'General' },
+  { value: 'social', label: 'Social Media' },
+  { value: 'motivation', label: 'Motivațional' },
+  { value: 'product', label: 'Produs' },
+  { value: 'brand', label: 'Brand' },
+];
 
 export const AIImageGenerator: React.FC = () => {
   const [prompt, setPrompt] = useState('');
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [addLogo, setAddLogo] = useState(true);
+  const [category, setCategory] = useState('general');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
@@ -138,6 +149,62 @@ export const AIImageGenerator: React.FC = () => {
     toast({ title: 'Descărcat!', description: 'Imaginea a fost salvată' });
   };
 
+  const saveToGallery = async () => {
+    if (!generatedImage || !prompt.trim()) return;
+
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // For base64 images, upload to storage first
+      let imageUrl = generatedImage;
+      
+      if (generatedImage.startsWith('data:')) {
+        const base64Data = generatedImage.split(',')[1];
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'image/png' });
+        
+        const fileName = `${user.id}/${Date.now()}.png`;
+        const { error: uploadError } = await supabase.storage
+          .from('ai-generated-images')
+          .upload(fileName, blob);
+        
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('ai-generated-images')
+          .getPublicUrl(fileName);
+        
+        imageUrl = publicUrl;
+      }
+
+      const { error } = await supabase
+        .from('ai_generated_images')
+        .insert({
+          user_id: user.id,
+          prompt: prompt.trim(),
+          image_url: imageUrl,
+          has_logo: addLogo,
+          category: category,
+        });
+
+      if (error) throw error;
+      
+      toast({ title: 'Salvat!', description: 'Imaginea a fost adăugată în galerie' });
+    } catch (error) {
+      console.error('Error saving to gallery:', error);
+      toast({ title: 'Eroare', description: 'Nu am putut salva imaginea', variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const promptSuggestions = [
     'Warrior meditating at sunrise, epic mountain backdrop',
     'Abstract representation of discipline and focus',
@@ -181,6 +248,20 @@ export const AIImageGenerator: React.FC = () => {
           </div>
 
           <div className="space-y-2">
+            <Label>Categorie pentru galerie</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selectează categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                {imageCategories.map(cat => (
+                  <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <p className="text-xs text-muted-foreground">Sugestii:</p>
             <div className="flex flex-wrap gap-1">
               {promptSuggestions.map((suggestion, i) => (
@@ -219,10 +300,14 @@ export const AIImageGenerator: React.FC = () => {
             <CardDescription>Imaginea generată de AI</CardDescription>
           </div>
           {generatedImage && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button variant="outline" size="sm" onClick={generateImage} disabled={isLoading}>
                 <RefreshCw className={`w-4 h-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
                 Regenerează
+              </Button>
+              <Button variant="outline" size="sm" onClick={saveToGallery} disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
+                Salvează
               </Button>
               <Button variant="outline" size="sm" onClick={downloadImage}>
                 <Download className="w-4 h-4 mr-1" />
