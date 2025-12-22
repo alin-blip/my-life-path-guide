@@ -23,7 +23,7 @@ import { useSoundSettings } from '@/hooks/useSoundSettings';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { TransformedWarrior, WarriorBadge, MediaMaster, MediaBadge, WarriorPowerCard } from '@/components/celebrations';
+import { TransformedWarrior, WarriorBadge, MediaMaster, MediaBadge, WarriorPowerCard, MediaMasterCard } from '@/components/celebrations';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -996,33 +996,37 @@ export const Dashboard: React.FC = () => {
                       </Button>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-1.5 md:gap-2 mb-3 md:mb-4">
-                      {dailyFourItems.map(item => {
-                        const isCompleted = item.completed;
-                        return (
-                          <Card
-                            key={item.id}
-                            className={`${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
-                            border ${isCompleted ? 'border-purple-400/50' : 'border-purple-200/70 dark:border-purple-900/50'} 
-                            shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer
-                            transition-colors duration-200 hover:shadow-purple-500/10`}
-                            onClick={() => handleToggleDailyActivity(item.id)}
-                          >
-                            <div className="relative flex items-center justify-center">
-                              <Video className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
-                              {isCompleted && (
-                                <div className="absolute -top-1 -right-1">
-                                  <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                </div>
-                              )}
-                            </div>
-                            <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
-                              {item.title}
-                            </div>
-                          </Card>
-                        );
-                      })}
-                    </div>
+                    {hasCompletedDailyFour && hasShownDailyAnimation ? (
+                      <MediaMasterCard />
+                    ) : (
+                      <div className="grid grid-cols-2 gap-1.5 md:gap-2 mb-3 md:mb-4">
+                        {dailyFourItems.map(item => {
+                          const isCompleted = item.completed;
+                          return (
+                            <Card
+                              key={item.id}
+                              className={`${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                              border ${isCompleted ? 'border-purple-400/50' : 'border-purple-200/70 dark:border-purple-900/50'} 
+                              shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer
+                              transition-colors duration-200 hover:shadow-purple-500/10`}
+                              onClick={() => handleToggleDailyActivity(item.id)}
+                            >
+                              <div className="relative flex items-center justify-center">
+                                <Video className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                {isCompleted && (
+                                  <div className="absolute -top-1 -right-1">
+                                    <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                {item.title}
+                              </div>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    )}
                     
                     <h3 className="text-xs md:text-sm font-bold bg-gradient-to-r from-goddess-gold to-goddess-gold/80 bg-clip-text text-transparent mb-2">
                       {language === 'en' ? 'WEEKLY TWO' : 'WEEKLY TWO'}
