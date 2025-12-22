@@ -32,7 +32,7 @@ interface Message {
 
 interface AiGuidedStackProps {
   onAddToHitList?: (action: string) => void;
-  stackType: 'anger' | 'divine-prayer' | 'gods-school' | 'hormozi' | 'napoleon-hill';
+  stackType: 'anger' | 'divine-prayer' | 'gods-school' | 'hormozi' | 'napoleon-hill' | 'gratitude';
   questions: any[];
   onModeSwitch?: () => void;
   audioMode?: boolean;
