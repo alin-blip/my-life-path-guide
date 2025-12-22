@@ -1370,6 +1370,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_xp: {
+        Row: {
+          created_at: string
+          current_level: number
+          id: string
+          total_xp: number
+          updated_at: string
+          user_id: string
+          xp_to_next_level: number
+        }
+        Insert: {
+          created_at?: string
+          current_level?: number
+          id?: string
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+          xp_to_next_level?: number
+        }
+        Update: {
+          created_at?: string
+          current_level?: number
+          id?: string
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+          xp_to_next_level?: number
+        }
+        Relationships: []
+      }
       voice_recordings: {
         Row: {
           created_at: string | null
@@ -1487,6 +1517,30 @@ export type Database = {
           updated_at?: string
           user_id?: string
           week_key?: string
+        }
+        Relationships: []
+      }
+      xp_history: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          user_id: string
+          xp_amount: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          user_id: string
+          xp_amount: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          user_id?: string
+          xp_amount?: number
         }
         Relationships: []
       }
