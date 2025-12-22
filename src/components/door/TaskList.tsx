@@ -80,7 +80,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   
   return (
     <div 
-      className={isMobile ? 'max-h-[70vh] overflow-auto' : ''}
+      className={isMobile ? 'max-h-[70vh] overflow-y-auto overflow-x-hidden w-full max-w-full' : ''}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         console.debug('[TaskList] Drop ignored (tasks column)');

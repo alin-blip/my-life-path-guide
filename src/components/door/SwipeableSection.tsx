@@ -71,7 +71,7 @@ export const SwipeableSection: React.FC<SwipeableSectionProps> = ({
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
-      className={`${className} transition-transform duration-200 ${
+      className={`${className} transition-transform duration-200 w-full max-w-full overflow-hidden box-border ${
         isSwiping ? 'touch-none' : ''
       }`}
       style={{
