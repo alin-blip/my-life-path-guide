@@ -39,13 +39,20 @@ import {
 } from '@/components/gamification';
 
 export const Dashboard: React.FC = () => {
-  const { language, t } = useLanguage();
+  const {
+    language,
+    t
+  } = useLanguage();
   const [activeTab, setActiveTab] = useState<string>("goddess-tools");
   const [activeLearnCategory, setActiveLearnCategory] = useState<string | null>(null);
   const [activeLearnSubcategory, setActiveLearnSubcategory] = useState<string>("courses");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { hitList, activeDay, toggleHitListItemCompletion } = useDoorContent();
+  const {
+    hitList,
+    activeDay,
+    toggleHitListItemCompletion
+  } = useDoorContent();
   const {
     selectedDay,
     setSelectedDay,
@@ -68,25 +75,47 @@ export const Dashboard: React.FC = () => {
     business: null
   });
   
-  const [streaks, setStreaks] = useState({ stack: 0, core: 0, dailyFour: 0, door: 0 });
-  const [totals, setTotals] = useState({ stack: 0, core: 0, dailyFour: 0, door: 0 });
+  const [streaks, setStreaks] = useState({
+    stack: 0,
+    core: 0,
+    dailyFour: 0,
+    door: 0
+  });
+  
+  const [totals, setTotals] = useState({
+    stack: 0,
+    core: 0,
+    dailyFour: 0,
+    door: 0
+  });
+
   const [showConfetti, setShowConfetti] = useState(false);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date>(new Date());
   const [calendarOpen, setCalendarOpen] = useState(false);
   
+  // Celebration overlays
   const [showWarriorOverlay, setShowWarriorOverlay] = useState(false);
   const [showMediaOverlay, setShowMediaOverlay] = useState(false);
   const [hasShownCoreAnimation, setHasShownCoreAnimation] = useState(false);
   const [hasShownDailyAnimation, setHasShownDailyAnimation] = useState(false);
   
+  // Sound settings
   const { playSuccessSound } = useSoundSettings();
+  
+  // XP System
   const { xpData, recentXPGain, showLevelUp, newLevel, dismissLevelUp, addXP } = useXPSystem();
+  
+  // Streak tracking
   const { streakData } = useStreakTracking();
+  
+  // Reading progress for badge tracking
   const { progress: readingProgress, getOverallStats } = useReadingProgress();
   
+  // Track if we've awarded XP for Core 4 / Biz 4 today
   const [hasAwardedCoreXP, setHasAwardedCoreXP] = useState(false);
   const [hasAwardedDailyXP, setHasAwardedDailyXP] = useState(false);
   
+  // Gamification celebration states
   const [showStreakMilestone, setShowStreakMilestone] = useState(false);
   const [streakMilestoneValue, setStreakMilestoneValue] = useState<7 | 30 | 100 | 365>(7);
   const [showBadgeUnlock, setShowBadgeUnlock] = useState(false);
@@ -100,13 +129,23 @@ export const Dashboard: React.FC = () => {
     business: false
   });
 
-  const categoryCounts = { body: 12, balance: 8, being: 15, business: 10 };
+  const categoryCounts = {
+    body: 12,
+    balance: 8,
+    being: 15,
+    business: 10
+  };
+
   const [userProgressData, setUserProgressData] = useState<any>(null);
   const [userStatistics, setUserStatistics] = useState<any>(null);
   
+  // Calculate badge stats
   const badgeStats: BadgeStats = useMemo(() => {
     const stats = getOverallStats();
-    const uniqueDays = new Set(readingProgress.map(p => new Date(p.read_at).toDateString())).size;
+    const uniqueDays = new Set(
+      readingProgress.map(p => new Date(p.read_at).toDateString())
+    ).size;
+    
     return {
       totalPagesRead: stats.totalPagesRead,
       totalActionsCompleted: stats.totalActionsCompleted,
@@ -118,11 +157,16 @@ export const Dashboard: React.FC = () => {
     };
   }, [readingProgress, getOverallStats, streakData]);
   
-  const earnedBadges = useMemo(() => BADGES.filter(badge => badge.requirement(badgeStats)), [badgeStats]);
+  // Check for new badge unlocks
+  const earnedBadges = useMemo(() => {
+    return BADGES.filter(badge => badge.requirement(badgeStats));
+  }, [badgeStats]);
   
+  // Trigger badge unlock celebration
   useEffect(() => {
     const earnedIds = earnedBadges.map(b => b.id);
     const newBadges = earnedIds.filter(id => !previouslyEarnedBadges.includes(id));
+    
     if (newBadges.length > 0 && previouslyEarnedBadges.length > 0) {
       const newBadge = BADGES.find(b => b.id === newBadges[0]);
       if (newBadge) {
@@ -130,9 +174,11 @@ export const Dashboard: React.FC = () => {
         setShowBadgeUnlock(true);
       }
     }
+    
     setPreviouslyEarnedBadges(earnedIds);
   }, [earnedBadges]);
   
+  // Check for streak milestones
   useEffect(() => {
     const checkMilestone = (streak: number): 7 | 30 | 100 | 365 | null => {
       if (streak === 365) return 365;
@@ -141,14 +187,18 @@ export const Dashboard: React.FC = () => {
       if (streak === 7) return 7;
       return null;
     };
+    
     const milestone = checkMilestone(streakData.currentStreak);
     if (milestone) {
       const shownKey = `streakMilestone_${milestone}_shown`;
       const alreadyShown = localStorage.getItem(shownKey);
+      
       if (!alreadyShown) {
         setStreakMilestoneValue(milestone);
         setShowStreakMilestone(true);
         localStorage.setItem(shownKey, 'true');
+        
+        // Award XP bonus for milestone
         const xpBonuses: Record<number, number> = { 7: 100, 30: 500, 100: 1000, 365: 5000 };
         addXP(xpBonuses[milestone], `Streak Milestone: ${milestone} days`);
       }
@@ -160,10 +210,14 @@ export const Dashboard: React.FC = () => {
     updateStats();
     fetchUserData();
     
+    // Listen for progress updates
     const handleProgressUpdate = (event: any) => {
+      console.log('Progress updated:', event.detail);
       updateStats();
       fetchUserData();
     };
+    
+    // Listen for XP award events from xpService
     const handleXPAward = (event: CustomEvent<XPAwardEvent>) => {
       const { amount, reason } = event.detail;
       addXP(amount, reason);
@@ -171,28 +225,43 @@ export const Dashboard: React.FC = () => {
     
     window.addEventListener('progressUpdated', handleProgressUpdate);
     window.addEventListener('xp-award', handleXPAward as EventListener);
+    
     return () => {
       window.removeEventListener('progressUpdated', handleProgressUpdate);
       window.removeEventListener('xp-award', handleXPAward as EventListener);
     };
   }, [addXP]);
 
-  useEffect(() => { fetchUserData(); }, []);
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   const fetchUserData = async () => {
     try {
+      // Check if user is logged in
       const { data: { session } } = await supabase.auth.getSession();
+      
       if (session?.user) {
+        const userId = session.user.id;
+        
+        // Get today's date in ISO format (YYYY-MM-DD)
         const today = new Date().toISOString().split('T')[0];
+        
+        // TODO: Implement proper user progress tracking with authentication
+        // For now, using local storage until authentication is implemented
         const progressKey = `userProgress_${today}`;
         const savedProgress = localStorage.getItem(progressKey);
         const progressData = savedProgress ? JSON.parse(savedProgress) : null;
         setUserProgressData(progressData);
         
+        // TODO: Implement proper user statistics tracking
         const statsKey = 'userStatistics';
         const savedStats = localStorage.getItem(statsKey);
         const statsData = savedStats ? JSON.parse(savedStats) : null;
+        
         if (statsData) {
+        } else {
+          console.log('Fetched user statistics:', statsData);
           setUserStatistics(statsData);
           updateStats();
         }
@@ -213,16 +282,32 @@ export const Dashboard: React.FC = () => {
         setJournalCount(0);
         return;
       }
+
       const today = new Date().toISOString().split('T')[0];
+      
+      // Check daily_progress table in Supabase
       const { data: dailyProgress } = await supabase
         .from('daily_progress')
         .select('progress_data')
         .eq('user_id', session.user.id)
         .eq('date', today)
         .maybeSingle();
+
       const progressData = dailyProgress?.progress_data as any;
-      setStackCount(progressData?.stack?.completed || userProgressData?.stack_completed ? 1 : 0);
-      setJournalCount(progressData?.journal?.completed || userProgressData?.journal_completed ? 1 : 0);
+      
+      // Update stack count
+      if (progressData?.stack?.completed || userProgressData?.stack_completed) {
+        setStackCount(1);
+      } else {
+        setStackCount(0);
+      }
+      
+      // Update journal count
+      if (progressData?.journal?.completed || userProgressData?.journal_completed) {
+        setJournalCount(1);
+      } else {
+        setJournalCount(0);
+      }
     } catch (error) {
       console.error('Error loading progress counts:', error);
       setStackCount(0);
@@ -232,9 +317,16 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadProgressCounts();
-    const handleProgressUpdate = () => loadProgressCounts();
+    
+    // Listen for progress updates
+    const handleProgressUpdate = () => {
+      loadProgressCounts();
+    };
+    
     window.addEventListener('progressUpdated', handleProgressUpdate);
-    return () => window.removeEventListener('progressUpdated', handleProgressUpdate);
+    return () => {
+      window.removeEventListener('progressUpdated', handleProgressUpdate);
+    };
   }, [userProgressData]);
 
   const updateStats = () => {
@@ -243,6 +335,11 @@ export const Dashboard: React.FC = () => {
     const weeklyTwoScore = getWeeklyTwoScore();
     const doorScore = hitList.filter(item => item.completed).length;
     
+    console.log(`Updating stats - Stack: ${stackCount}, Journal: ${journalCount}, Core: ${coreScore}, Daily: ${dailyFourScore}, Door: ${doorScore}`);
+    
+    // Calculate streaks based on data
+    // For a real implementation, you'd need to fetch a history of completions
+    // from Supabase to calculate accurate streaks
     setStreaks({
       stack: userStatistics?.total_stacks || (stackCount > 0 ? Math.max(3, userStatistics?.total_stacks || 0) : 0),
       core: coreScore > 0 ? Math.max(5, userStatistics?.total_daily_points || 0) : 0,
@@ -250,6 +347,7 @@ export const Dashboard: React.FC = () => {
       door: doorScore > 0 ? 4 : 0
     });
     
+    // Calculate totals
     setTotals({
       stack: userStatistics?.total_stacks || (stackCount > 0 ? 1 : 0),
       core: userStatistics?.total_daily_points || (coreScore > 0 ? coreScore : 0),
@@ -257,7 +355,11 @@ export const Dashboard: React.FC = () => {
       door: doorScore > 0 ? doorScore : 0
     });
     
-    if (stackCount > 0 && journalCount > 0 && coreScore === 8 && dailyFourScore === 4 && 
+    // Check if all activities are completed to show confetti
+    if (stackCount > 0 && 
+        journalCount > 0 && 
+        coreScore === 8 && 
+        dailyFourScore === 4 && 
         hitList.filter(item => item.completed).length === hitList.filter(item => item.day === activeDay).length && 
         hitList.filter(item => item.day === activeDay).length > 0) {
       setShowConfetti(true);
@@ -266,6 +368,7 @@ export const Dashboard: React.FC = () => {
       setShowConfetti(false);
     }
     
+    // Check category completion for sound effects
     const fitnessCompleted = coreData[selectedDay]?.['fitness'] || false;
     const fuelCompleted = coreData[selectedDay]?.['fuel'] || false;
     const bodyNowComplete = fitnessCompleted && fuelCompleted;
@@ -282,11 +385,21 @@ export const Dashboard: React.FC = () => {
     const declareCompleted = coreData[selectedDay]?.['declare'] || false;
     const businessNowComplete = discoverCompleted && declareCompleted;
     
-    if (bodyNowComplete && !prevCategoryComplete.current.body) playSuccessSound();
-    if (relationshipNowComplete && !prevCategoryComplete.current.relationship) playSuccessSound();
-    if (beingNowComplete && !prevCategoryComplete.current.being) playSuccessSound();
-    if (businessNowComplete && !prevCategoryComplete.current.business) playSuccessSound();
+    // Play sound when a category becomes complete
+    if (bodyNowComplete && !prevCategoryComplete.current.body) {
+      playSuccessSound();
+    }
+    if (relationshipNowComplete && !prevCategoryComplete.current.relationship) {
+      playSuccessSound();
+    }
+    if (beingNowComplete && !prevCategoryComplete.current.being) {
+      playSuccessSound();
+    }
+    if (businessNowComplete && !prevCategoryComplete.current.business) {
+      playSuccessSound();
+    }
     
+    // Update prev state
     prevCategoryComplete.current = {
       body: bodyNowComplete,
       relationship: relationshipNowComplete,
@@ -295,32 +408,117 @@ export const Dashboard: React.FC = () => {
     };
   };
 
-  const getCoreItems = () => [
-    { id: 'fitness', title: language === 'en' ? 'Discipline of the Body' : 'Disciplina Corpului', icon: <Activity className="h-5 w-5" />, completed: coreData[selectedDay]?.['fitness'] || false, category: 'body' },
-    { id: 'fuel', title: language === 'en' ? 'Fuel for Subconscious' : 'Combustibil Subconștient', icon: <Activity className="h-5 w-5" />, completed: coreData[selectedDay]?.['fuel'] || false, category: 'body' },
-    { id: 'person1', title: language === 'en' ? 'Law of Service #1' : 'Legea Servirii #1', icon: <Users className="h-5 w-5" />, completed: coreData[selectedDay]?.['person1'] || false, category: 'balance' },
-    { id: 'person2', title: language === 'en' ? 'Law of Service #2' : 'Legea Servirii #2', icon: <Users className="h-5 w-5" />, completed: coreData[selectedDay]?.['person2'] || false, category: 'balance' },
-    { id: 'meditation', title: language === 'en' ? 'Autosuggestion & Faith' : 'Autosugestie și Credință', icon: <Heart className="h-5 w-5" />, completed: coreData[selectedDay]?.['meditation'] || false, category: 'being' },
-    { id: 'memoirs', title: language === 'en' ? 'Subconscious Programming' : 'Programare Subconștient', icon: <Book className="h-5 w-5" />, completed: coreData[selectedDay]?.['memoirs'] || false, category: 'being' },
-    { id: 'discover', title: language === 'en' ? 'Specialized Knowledge' : 'Cunoștințe Specializate', icon: <Compass className="h-5 w-5" />, completed: coreData[selectedDay]?.['discover'] || false, category: 'business' },
-    { id: 'declare', title: language === 'en' ? 'Organized Planning' : 'Planificare Organizată', icon: <DollarSign className="h-5 w-5" />, completed: coreData[selectedDay]?.['declare'] || false, category: 'business' }
-  ];
+  const getCoreItems = () => {
+    return [{
+      id: 'fitness',
+      title: language === 'en' ? '⚡ DISCIPLINE OF THE BODY' : '⚡ DISCIPLINA CORPULUI',
+      icon: <Activity className="h-6 w-6 text-white" />,
+      completed: coreData[selectedDay]?.['fitness'] || false,
+      color: 'bg-blue-600',
+      category: 'body'
+    }, {
+      id: 'fuel',
+      title: language === 'en' ? '🍎 FUEL FOR SUBCONSCIOUS' : '🍎 COMBUSTIBIL SUBCONȘTIENT',
+      icon: <Activity className="h-6 w-6 text-white" />,
+      completed: coreData[selectedDay]?.['fuel'] || false,
+      color: 'bg-blue-600',
+      category: 'body'
+    }, {
+      id: 'person1',
+      title: language === 'en' ? '💝 LAW OF SERVICE #1' : '💝 LEGEA SERVIRII #1',
+      icon: <Users className="h-6 w-6 text-white" />,
+      completed: coreData[selectedDay]?.['person1'] || false,
+      color: 'bg-blue-600',
+      category: 'balance'
+    }, {
+      id: 'person2',
+      title: language === 'en' ? '💝 LAW OF SERVICE #2' : '💝 LEGEA SERVIRII #2',
+      icon: <Users className="h-6 w-6 text-white" />,
+      completed: coreData[selectedDay]?.['person2'] || false,
+      color: 'bg-blue-600',
+      category: 'balance'
+    }, {
+      id: 'meditation',
+      title: language === 'en' ? '🧘 AUTOSUGGESTION & FAITH' : '🧘 AUTOSUGESTIE ȘI CREDINȚĂ',
+      icon: <Heart className="h-6 w-6 text-white" />,
+      completed: coreData[selectedDay]?.['meditation'] || false,
+      color: 'bg-blue-600',
+      category: 'being'
+    }, {
+      id: 'memoirs',
+      title: language === 'en' ? '✍️ SUBCONSCIOUS PROGRAMMING' : '✍️ PROGRAMARE SUBCONȘTIENT',
+      icon: <Book className="h-6 w-6 text-white" />,
+      completed: coreData[selectedDay]?.['memoirs'] || false,
+      color: 'bg-blue-600',
+      category: 'being'
+    }, {
+      id: 'discover',
+      title: language === 'en' ? '📚 SPECIALIZED KNOWLEDGE' : '📚 CUNOȘTINȚE SPECIALIZATE',
+      icon: <Compass className="h-6 w-6 text-white" />,
+      completed: coreData[selectedDay]?.['discover'] || false,
+      color: 'bg-blue-600',
+      category: 'business'
+    }, {
+      id: 'declare',
+      title: language === 'en' ? '💰 ORGANIZED PLANNING' : '💰 PLANIFICARE ORGANIZATĂ',
+      icon: <DollarSign className="h-6 w-6 text-white" />,
+      completed: coreData[selectedDay]?.['declare'] || false,
+      color: 'bg-blue-600',
+      category: 'business'
+    }];
+  };
 
-  const getDailyFourItems = () => [
-    { id: 'video', title: 'Video', icon: <Video className="h-5 w-5" />, completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'video')?.completed || false },
-    { id: 'text', title: 'Text', icon: <Text className="h-5 w-5" />, completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'text')?.completed || false },
-    { id: 'audio', title: 'Audio', icon: <AudioLines className="h-5 w-5" />, completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'audio')?.completed || false },
-    { id: 'image', title: 'Image', icon: <ImageIcon className="h-5 w-5" />, completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'image')?.completed || false }
-  ];
+  const getDailyFourItems = () => {
+    return [{
+      id: 'video',
+      title: 'VIDEO',
+      icon: <Video className="h-6 w-6 text-white" />,
+      completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'video')?.completed || false,
+      color: 'bg-blue-600'
+    }, {
+      id: 'text',
+      title: 'TEXT',
+      icon: <Text className="h-6 w-6 text-white" />,
+      completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'text')?.completed || false,
+      color: 'bg-blue-600'
+    }, {
+      id: 'audio',
+      title: 'AUDIO',
+      icon: <AudioLines className="h-6 w-6 text-white" />,
+      completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'audio')?.completed || false,
+      color: 'bg-blue-600'
+    }, {
+      id: 'image',
+      title: 'IMAGE',
+      icon: <ImageIcon className="h-6 w-6 text-white" />,
+      completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'image')?.completed || false,
+      color: 'bg-blue-600'
+    }];
+  };
 
-  const getWeeklyItems = () => [
-    { id: 'podcast', title: 'Podcast', completed: dailyFourData[selectedDay]?.weeklyActivities?.find((a: any) => a.id === 'podcast')?.completed || false },
-    { id: 'webinar', title: 'Webinar', completed: dailyFourData[selectedDay]?.weeklyActivities?.find((a: any) => a.id === 'webinar')?.completed || false }
-  ];
+  const getWeeklyItems = () => {
+    return [{
+      id: 'podcast',
+      title: 'PODCAST',
+      completed: dailyFourData[selectedDay]?.weeklyActivities?.find((a: any) => a.id === 'podcast')?.completed || false
+    }, {
+      id: 'webinar',
+      title: 'WEBINAR',
+      completed: dailyFourData[selectedDay]?.weeklyActivities?.find((a: any) => a.id === 'webinar')?.completed || false
+    }];
+  };
 
-  const navigateTo = (path: string) => navigate(path);
-  const handleLearnCategorySelect = (category: string) => setActiveLearnCategory(category);
-  const handleLearnSubcategorySelect = (subcategory: string) => setActiveLearnSubcategory(subcategory);
+  const navigateTo = (path: string) => {
+    navigate(path);
+  };
+
+  const handleLearnCategorySelect = (category: string) => {
+    setActiveLearnCategory(category);
+  };
+
+  const handleLearnSubcategorySelect = (subcategory: string) => {
+    setActiveLearnSubcategory(subcategory);
+  };
 
   const handleToggleCoreActivity = (activityId: string) => {
     const isCurrentlyCompleted = coreData[selectedDay]?.[activityId] || false;
@@ -369,19 +567,67 @@ export const Dashboard: React.FC = () => {
 
   const getPriorityIcon = (priority?: TaskPriority) => {
     switch (priority) {
-      case 'urgent-important': return <AlertTriangle className="h-3 w-3 text-destructive" />;
-      case 'urgent': return <Clock className="h-3 w-3 text-orange-500" />;
-      case 'important': return <Award className="h-3 w-3 text-primary" />;
-      default: return null;
+      case 'urgent-important':
+        return <AlertTriangle className="h-3 w-3 text-red-500" />;
+      case 'urgent':
+        return <Clock className="h-3 w-3 text-orange-500" />;
+      case 'important':
+        return <Award className="h-3 w-3 text-blue-500" />;
+      default:
+        return null;
     }
   };
 
   const getPriorityColor = (priority?: TaskPriority) => {
     switch (priority) {
-      case 'urgent-important': return 'bg-destructive/10 border-destructive/30';
-      case 'urgent': return 'bg-orange-500/10 border-orange-500/30';
-      case 'important': return 'bg-primary/10 border-primary/30';
-      default: return 'bg-card';
+      case 'urgent-important':
+        return 'bg-red-500/10 border-red-500/30';
+      case 'urgent':
+        return 'bg-orange-500/10 border-orange-500/30';
+      case 'important':
+        return 'bg-blue-500/10 border-blue-500/30';
+      default:
+        return 'bg-card';
+    }
+  };
+
+  const getCategoryIcon = (category: MissionCategory) => {
+    switch(category) {
+      case 'body': return <Dumbbell className="h-4 w-4 text-red-400" />;
+      case 'being': return <Brain className="h-4 w-4 text-blue-400" />;
+      case 'balance': return <Heart className="h-4 w-4 text-green-400" />;
+      case 'business': return <Briefcase className="h-4 w-4 text-purple-400" />;
+      default: return <Circle className="h-4 w-4" />;
+    }
+  };
+  
+  const getCategoryColor = (category: MissionCategory) => {
+    switch(category) {
+      case 'body': return 'border-red-500/30 bg-red-500/10';
+      case 'being': return 'border-blue-500/30 bg-blue-500/10';
+      case 'balance': return 'border-green-500/30 bg-green-500/10';
+      case 'business': return 'border-purple-500/30 bg-purple-500/10';
+      default: return 'border-gray-500/30 bg-gray-500/10';
+    }
+  };
+  
+  const getCategoryName = (category: MissionCategory) => {
+    if (language === 'en') {
+      switch(category) {
+        case 'body': return 'Body';
+        case 'being': return 'Spirituality';
+        case 'balance': return 'Relationships';
+        case 'business': return 'Business';
+        default: return category;
+      }
+    } else {
+      switch(category) {
+        case 'body': return 'Corp';
+        case 'being': return 'Spiritualitate';
+        case 'balance': return 'Relații';
+        case 'business': return 'Afaceri';
+        default: return category;
+      }
     }
   };
 
@@ -390,21 +636,27 @@ export const Dashboard: React.FC = () => {
   const totalCoreItems = 8;
   const completedCoreItems = Object.keys(coreData[selectedDay] || {}).filter(key => coreData[selectedDay][key]).length;
   const hasCompletedCore = completedCoreItems >= totalCoreItems;
+
   const totalDailyItems = 4;
   const completedDailyItems = dailyFourData[selectedDay]?.dailyActivities?.filter(a => a.completed).length || 0;
   const hasCompletedDailyFour = completedDailyItems >= totalDailyItems;
+
   const totalDoorItems = hitList.filter(item => item.day === activeDay).length;
   const doorProgress = totalDoorItems > 0 ? hitList.filter(item => item.day === activeDay && item.completed).length / totalDoorItems * 100 : 0;
   const hasCompletedDoor = totalDoorItems > 0 && hitList.filter(item => item.day === activeDay && item.completed).length === totalDoorItems;
+
   const coreProgress = Math.min(completedCoreItems / totalCoreItems * 100, 100);
   const dailyProgress = Math.min(completedDailyItems / totalDailyItems * 100, 100);
   const coreToDaily = hasStack ? coreProgress : 0;
   const dailyToDoor = hasStack && coreProgress > 0 ? dailyProgress : 0;
 
+  // Trigger Core 4 celebration and award XP
   useEffect(() => {
     if (hasCompletedCore && !hasShownCoreAnimation) {
       setShowWarriorOverlay(true);
       setHasShownCoreAnimation(true);
+      
+      // Award XP for Core 4 completion (once per day)
       if (!hasAwardedCoreXP) {
         addXP(100, 'Core 4 completat');
         setHasAwardedCoreXP(true);
@@ -412,10 +664,13 @@ export const Dashboard: React.FC = () => {
     }
   }, [hasCompletedCore, hasShownCoreAnimation, hasAwardedCoreXP, addXP]);
 
+  // Trigger Daily Four celebration and award XP
   useEffect(() => {
     if (hasCompletedDailyFour && !hasShownDailyAnimation) {
       setShowMediaOverlay(true);
       setHasShownDailyAnimation(true);
+      
+      // Award XP for Biz 4 completion (once per day)
       if (!hasAwardedDailyXP) {
         addXP(100, 'Biz 4 completat');
         setHasAwardedDailyXP(true);
@@ -423,6 +678,7 @@ export const Dashboard: React.FC = () => {
     }
   }, [hasCompletedDailyFour, hasShownDailyAnimation, hasAwardedDailyXP, addXP]);
 
+  // Reset animation and XP flags when day changes
   useEffect(() => {
     setHasShownCoreAnimation(hasCompletedCore);
     setHasShownDailyAnimation(hasCompletedDailyFour);
@@ -430,27 +686,61 @@ export const Dashboard: React.FC = () => {
     setHasAwardedDailyXP(hasCompletedDailyFour);
   }, [selectedDay]);
 
-  return (
-    <div className="w-full max-w-full py-6 px-4 md:py-10 md:px-6 lg:px-8 bg-background min-h-screen">
+  return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4 bg-gradient-to-b from-background to-muted">
       {/* Celebration Overlays */}
-      <TransformedWarrior isVisible={showWarriorOverlay} onClose={() => setShowWarriorOverlay(false)} />
-      <MediaMaster isVisible={showMediaOverlay} onClose={() => setShowMediaOverlay(false)} />
-      <LevelUpCelebration isOpen={showLevelUp} onClose={dismissLevelUp} newLevel={newLevel} />
+      <TransformedWarrior 
+        isVisible={showWarriorOverlay} 
+        onClose={() => setShowWarriorOverlay(false)} 
+      />
+      <MediaMaster 
+        isVisible={showMediaOverlay} 
+        onClose={() => setShowMediaOverlay(false)} 
+      />
+      <LevelUpCelebration 
+        isOpen={showLevelUp} 
+        onClose={dismissLevelUp} 
+        newLevel={newLevel} 
+      />
       <XPPopupContainer recentGain={recentXPGain} />
-      <StreakMilestoneCelebration isOpen={showStreakMilestone} onClose={() => setShowStreakMilestone(false)} streakDays={streakData.currentStreak} milestone={streakMilestoneValue} />
-      <BadgeUnlockCelebration isOpen={showBadgeUnlock} onClose={() => setShowBadgeUnlock(false)} badge={unlockedBadge} />
-
-      {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-50">
-          <div className="absolute inset-0 bg-primary/5 animate-pulse" />
-        </div>
-      )}
       
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl md:text-3xl font-semibold text-foreground">
+      {/* Gamification Celebrations */}
+      <StreakMilestoneCelebration
+        isOpen={showStreakMilestone}
+        onClose={() => setShowStreakMilestone(false)}
+        streakDays={streakData.currentStreak}
+        milestone={streakMilestoneValue}
+      />
+      <BadgeUnlockCelebration
+        isOpen={showBadgeUnlock}
+        onClose={() => setShowBadgeUnlock(false)}
+        badge={unlockedBadge}
+      />
+
+      {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
+          <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
+          <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 animate-pulse"></div>
+          <div className="absolute left-0 top-0 w-12 h-full bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
+          <div className="absolute right-0 top-0 w-12 h-full bg-gradient-to-b from-pink-500 via-purple-500 to-blue-500 animate-pulse"></div>
+          
+          {Array.from({
+        length: 50
+      }).map((_, i) => <div key={i} className="absolute animate-float" style={{
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        animationDuration: `${Math.random() * 3 + 2}s`,
+        animationDelay: `${Math.random() * 2}s`
+      }}>
+              <div className="w-3 h-3 rotate-45 bg-gradient-to-br from-purple-400 to-pink-500" style={{
+          boxShadow: '0 0 10px rgba(219, 39, 119, 0.5)'
+        }}></div>
+            </div>)}
+        </div>}
+      
+      <div className="flex justify-between items-center mb-4 md:mb-6">
+        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           {language === 'en' ? 'My Daily' : 'Zilnica mea'}
         </h1>
+        
         <div className="flex items-center gap-2">
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
@@ -466,6 +756,7 @@ export const Dashboard: React.FC = () => {
                 onSelect={(date) => {
                   if (date) {
                     setSelectedCalendarDate(date);
+                    // Map date to day of week for Core/Daily
                     const dayMap: Record<number, 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su'> = {
                       0: 'Su', 1: 'Mo', 2: 'Tu', 3: 'We', 4: 'Th', 5: 'Fr', 6: 'Sa'
                     };
@@ -477,7 +768,13 @@ export const Dashboard: React.FC = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button variant="outline" size="sm" onClick={() => navigateTo('/daily-timeline')} className="flex items-center gap-2">
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigateTo('/daily-timeline')}
+            className="flex items-center gap-2"
+          >
             <History className="w-4 h-4" />
             <span className="hidden md:inline">{language === 'en' ? 'Timeline' : 'Istoric'}</span>
           </Button>
@@ -503,8 +800,10 @@ export const Dashboard: React.FC = () => {
         />
       </div>
       
+      {/* XP Progress Bar */}
       <XPProgressBar className="mb-6" />
       
+      {/* Daily Challenges */}
       <div className="mb-6">
         <DailyChallenges
           stackCompleted={stackCount > 0}
@@ -515,339 +814,609 @@ export const Dashboard: React.FC = () => {
         />
       </div>
       
-      {/* Progress Path - Clean Design */}
-      <div className="mb-8 bg-card rounded-2xl border border-border p-5 md:p-6">
-        <h2 className="text-lg font-medium text-foreground mb-5">
-          {language === 'en' ? 'Progress Path' : 'Calea Progresului'}
+      <div className="mb-6 md:mb-8 bg-card border border-border p-3 md:p-4 rounded-lg shadow-sm">
+        <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          {language === 'en' ? 'Warrior’s Path' : 'Calea Războinicului'}
         </h2>
-        <div className="flex items-center justify-between gap-2">
-          {/* Stack */}
-          <div className="flex flex-col items-center">
-            <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center relative border-2 transition-all duration-300
-              ${hasStack ? 'border-primary bg-primary/10 text-primary' : 'border-muted-foreground/30 bg-muted text-muted-foreground'}`}>
-              {hasStack ? (
-                <>
-                  <Book className="w-6 h-6" />
-                  <Check className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full p-0.5" />
-                </>
-              ) : (
-                <Button size="sm" className="absolute inset-1 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs" onClick={() => navigateTo('/stack')}>
-                  Start
-                </Button>
-              )}
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col items-center z-10 relative">
+            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
+            ${hasStack ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-gray-600 bg-gray-800/50 text-gray-400'}`} style={{
+            border: hasStack ? '3px solid hsl(var(--accent))' : '3px solid hsl(var(--muted-foreground) / 0.6)',
+            boxShadow: hasStack ? '0 0 15px hsl(var(--accent) / 0.5)' : 'none'
+          }}>
+              {hasStack ? <>
+                  <Book className="w-5 h-5 md:w-8 md:h-8" />
+                  <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 text-white rounded-full p-1" />
+                </> : <Button className="absolute inset-0 m-auto rounded-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-800 text-white text-xs flex items-center justify-center" style={{
+              width: 'calc(100% - 6px)',
+              height: 'calc(100% - 6px)'
+            }} onClick={() => navigateTo('/stack')}>
+                  {language === 'en' ? 'START' : 'START'}
+                </Button>}
             </div>
-            <span className="mt-2 text-xs text-muted-foreground font-medium">{t('stack')}</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">{t('stack')}</span>
+            {/* Quick access to Gratitude Stack */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigateTo('/stack?type=gratitude')}
+              className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 p-1 h-auto"
+            >
+              <Sparkles className="w-3 h-3 mr-1" />
+              <span className="hidden md:inline">Gratitude</span>
+            </Button>
           </div>
           
-          <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-primary transition-all duration-700 ease-out" style={{ width: `${stackToCoreLine}%` }} />
-          </div>
-          
-          {/* Core */}
-          <div className="flex flex-col items-center">
-            <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center relative border-2 transition-all duration-300
-              ${hasCompletedCore ? 'border-primary bg-primary/10 text-primary' : hasStack ? 'border-primary/40 bg-muted text-primary/60' : 'border-muted-foreground/30 bg-muted text-muted-foreground'}`}>
-              <Activity className="w-6 h-6" />
-              {hasCompletedCore && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full p-0.5" />}
+          <div className="flex-grow mx-2 relative">
+            <div className="h-2 bg-muted rounded-full w-full relative overflow-hidden">
+              <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-1000 ease-in-out ${hasStack ? 'animate-progress-line' : ''}`} style={{
+              width: `${stackToCoreLine}%`
+            }}></div>
             </div>
-            <span className="mt-2 text-xs text-muted-foreground font-medium">Core</span>
           </div>
           
-          <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-primary transition-all duration-700 ease-out" style={{ width: `${coreToDaily}%` }} />
-          </div>
-          
-          {/* Daily */}
-          <div className="flex flex-col items-center">
-            <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center relative border-2 transition-all duration-300
-              ${hasCompletedDailyFour ? 'border-accent bg-accent/10 text-accent' : hasCompletedCore ? 'border-accent/40 bg-muted text-accent/60' : 'border-muted-foreground/30 bg-muted text-muted-foreground'}`}>
-              <Video className="w-6 h-6" />
-              {hasCompletedDailyFour && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-accent-foreground rounded-full p-0.5" />}
+          <div className="flex flex-col items-center z-10">
+            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
+            ${hasCompletedCore ? 'bg-blue-500/20 text-blue-400' : hasStack ? 'bg-blue-800/20 text-blue-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
+            border: '3px solid transparent',
+            backgroundClip: 'padding-box',
+            boxShadow: hasCompletedCore ? '0 0 15px hsl(var(--primary) / 0.5)' : 'none',
+            position: 'relative'
+          }}>
+              {/* The circular progress track */}
+              <div className="absolute inset-[-3px] rounded-full z-0" style={{
+              background: hasStack ? `conic-gradient(hsl(var(--primary)) ${coreProgress}%, hsl(var(--muted-foreground) / 0.6) 0%)` : 'hsl(var(--muted-foreground) / 0.6)',
+              clipPath: 'circle(50%)'
+            }}></div>
+              <Activity className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
+              {hasCompletedCore && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-blue-500 text-white rounded-full p-1 z-20" />}
             </div>
-            <span className="mt-2 text-xs text-muted-foreground font-medium">Daily</span>
+            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">CORE</span>
           </div>
           
-          <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-accent transition-all duration-700 ease-out" style={{ width: `${dailyToDoor}%` }} />
-          </div>
-          
-          {/* Gateway */}
-          <div className="flex flex-col items-center">
-            <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center relative border-2 transition-all duration-300
-              ${hasCompletedDoor ? 'border-accent bg-accent/10 text-accent' : hasCompletedDailyFour ? 'border-accent/40 bg-muted text-accent/60' : 'border-muted-foreground/30 bg-muted text-muted-foreground'}`}>
-              <ListTodo className="w-6 h-6" />
-              {hasCompletedDoor && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-accent-foreground rounded-full p-0.5" />}
+          <div className="flex-grow mx-2 relative">
+            <div className="h-2 bg-muted rounded-full w-full relative overflow-hidden">
+              <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-in-out ${coreProgress > 0 ? 'animate-progress-line' : ''}`} style={{
+              width: `${coreToDaily}%`
+            }}></div>
             </div>
-            <span className="mt-2 text-xs text-muted-foreground font-medium">Gateway</span>
+          </div>
+          
+          <div className="flex flex-col items-center z-10">
+            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
+            ${hasCompletedDailyFour ? 'bg-purple-500/20 text-purple-400' : hasCompletedCore ? 'bg-purple-800/20 text-purple-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
+            border: '3px solid transparent',
+            backgroundClip: 'padding-box',
+            boxShadow: hasCompletedDailyFour ? '0 0 15px hsl(var(--accent) / 0.5)' : 'none'
+          }}>
+              {/* The circular progress track */}
+              <div className="absolute inset-[-3px] rounded-full z-0" style={{
+              background: coreProgress > 0 ? `conic-gradient(hsl(var(--accent)) ${dailyProgress}%, hsl(var(--muted-foreground) / 0.6) 0%)` : 'hsl(var(--muted-foreground) / 0.6)',
+              clipPath: 'circle(50%)'
+            }}></div>
+              <Video className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
+              {hasCompletedDailyFour && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-purple-500 text-white rounded-full p-1 z-20" />}
+            </div>
+            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">DAILY</span>
+          </div>
+          
+          <div className="flex-grow mx-2 relative">
+            <div className="h-2 bg-muted rounded-full w-full relative overflow-hidden">
+              <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000 ease-in-out ${dailyProgress > 0 ? 'animate-progress-line' : ''}`} style={{
+              width: `${dailyToDoor}%`
+            }}></div>
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-center z-10">
+            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
+            ${hasCompletedDoor ? 'bg-pink-500/20 text-pink-400' : hasCompletedDailyFour ? 'bg-pink-800/20 text-pink-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
+            border: '3px solid transparent',
+            backgroundClip: 'padding-box',
+            boxShadow: hasCompletedDoor ? '0 0 15px hsl(var(--goddess-gold) / 0.5)' : 'none'
+          }}>
+              {/* The circular progress track */}
+              <div className="absolute inset-[-3px] rounded-full z-0" style={{
+              background: dailyProgress > 0 ? `conic-gradient(hsl(var(--goddess-gold)) ${doorProgress}%, hsl(var(--muted-foreground) / 0.6) 0%)` : 'hsl(var(--muted-foreground) / 0.6)',
+              clipPath: 'circle(50%)'
+            }}></div>
+              <ListTodo className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
+              {hasCompletedDoor && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-pink-500 text-white rounded-full p-1 z-20" />}
+            </div>
+            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">GATEWAY</span>
           </div>
         </div>
       </div>
       
-      {/* Main Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-        <TabsList className="grid grid-cols-2 md:w-[400px] mb-6 bg-muted/50 p-1 rounded-xl">
-          <TabsTrigger value="goddess-tools" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 bg-card">
+          <TabsTrigger value="goddess-tools" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-feminine-primary data-[state=active]:to-feminine-purple">
             {language === 'en' ? 'RoWarrior Tools' : 'Unelte RoWarrior'}
           </TabsTrigger>
-          <TabsTrigger value="courses" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">
+          <TabsTrigger value="courses" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600">
             {language === 'en' ? 'Courses' : 'Cursuri'}
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="goddess-tools" className="space-y-8">
-          {/* Core & Daily Activities */}
-          <div>
-            <h3 className="text-lg font-medium text-foreground mb-6">
-              {language === 'en' ? 'Core & Daily Activities' : 'Activități Core & Zilnice'}
-            </h3>
+        <TabsContent value="goddess-tools" className="space-y-6">
+          <div className="mb-8">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Core 4 Section */}
-              <Card className="border border-border bg-card/50 p-5">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-base font-medium text-foreground">Core 4</h4>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => navigateTo('/core')}>
-                    {language === 'en' ? 'View' : 'Vezi'}
-                  </Button>
-                </div>
-                
-                {hasCompletedCore && hasShownCoreAnimation ? (
-                  <WarriorPowerCard />
-                ) : (
-                  <div className="grid grid-cols-2 gap-3">
-                    {coreItems.map(item => {
-                      const isCompleted = coreData[selectedDay]?.[item.id] || false;
-                      return (
-                        <div
-                          key={item.id}
-                          onClick={() => handleToggleCoreActivity(item.id)}
-                          className={`p-3 rounded-xl cursor-pointer transition-all duration-200 border
-                            ${isCompleted 
-                              ? 'bg-primary/10 border-primary/30 text-primary' 
-                              : 'bg-muted/50 border-border hover:bg-muted text-foreground'}`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center
-                              ${isCompleted ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
-                              {isCompleted ? <Check className="w-4 h-4" /> : item.icon}
-                            </div>
-                            <span className="text-xs font-medium truncate">{item.id.charAt(0).toUpperCase() + item.id.slice(1)}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </Card>
-              
-              {/* Biz 4 Section */}
-              <Card className="border border-border bg-card/50 p-5">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-base font-medium text-foreground">Biz 4</h4>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => navigateTo('/daily-four')}>
-                    {language === 'en' ? 'View' : 'Vezi'}
-                  </Button>
-                </div>
-                
-                {hasCompletedDailyFour && hasShownDailyAnimation ? (
-                  <MediaMasterCard />
-                ) : (
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    {dailyFourItems.map(item => {
-                      const isCompleted = item.completed;
-                      return (
-                        <div
-                          key={item.id}
-                          onClick={() => handleToggleDailyActivity(item.id)}
-                          className={`p-3 rounded-xl cursor-pointer transition-all duration-200 border
-                            ${isCompleted 
-                              ? 'bg-accent/10 border-accent/30 text-accent' 
-                              : 'bg-muted/50 border-border hover:bg-muted text-foreground'}`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center
-                              ${isCompleted ? 'bg-accent text-accent-foreground' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
-                              {isCompleted ? <Check className="w-4 h-4" /> : item.icon}
-                            </div>
-                            <span className="text-xs font-medium">{item.title}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                
-                {/* Weekly Two */}
-                <div className="pt-4 border-t border-border">
-                  <h5 className="text-sm font-medium text-muted-foreground mb-3">Weekly Two</h5>
-                  <div className="grid grid-cols-2 gap-3">
-                    {weeklyItems.map(item => {
-                      const isCompleted = item.completed;
-                      return (
-                        <div
-                          key={item.id}
-                          onClick={() => handleToggleWeeklyActivity(item.id)}
-                          className={`p-3 rounded-xl cursor-pointer transition-all duration-200 border
-                            ${isCompleted 
-                              ? 'bg-primary/10 border-primary/30 text-primary' 
-                              : 'bg-muted/50 border-border hover:bg-muted text-foreground'}`}
-                        >
-                          <div className="flex items-center justify-center gap-2">
-                            {isCompleted && <Check className="w-4 h-4" />}
-                            <span className="text-xs font-medium">{item.title}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
-          
-          {/* Hit List & Objectives */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="border border-border bg-card/50 p-5">
-              <div className="flex justify-between items-center mb-4">
-                <h4 className="text-base font-medium text-foreground">
-                  {language === 'en' ? 'Hit List' : 'Lista Hit'}
-                </h4>
-                <Button variant="ghost" size="sm" onClick={() => navigateTo('/door')} className="text-muted-foreground hover:text-foreground">
-                  {language === 'en' ? 'View' : 'Vezi'}
-                </Button>
+            
+            
+            
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg uppercase font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  {language === 'en' ? 'CORE & DAILY ACTIVITIES' : 'CORE & DAILY FOUR'}
+                </h3>
               </div>
-              <div className="space-y-2">
-                {hitList.filter(item => item.day === activeDay).length > 0 ? (
-                  hitList.filter(item => item.day === activeDay).map(item => (
-                    <div key={item.id} className={`flex items-center p-3 rounded-lg transition-all duration-200 ${item.completed ? 'bg-primary/10' : getPriorityColor(item.priority)}`}>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={`w-6 h-6 rounded-full mr-3 p-0 flex items-center justify-center ${item.completed ? 'bg-primary text-primary-foreground' : 'bg-transparent border border-muted-foreground/40'}`}
-                        onClick={() => toggleHitListItemCompletion(item.id)}
-                      >
-                        {item.completed && <Check className="w-3 h-3" />}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-blue-900/50 dark:to-blue-800/30 p-3 md:p-4 rounded-lg border border-primary/20 backdrop-blur-sm">
+                    <div className="flex justify-between items-center mb-3 md:mb-4">
+                      <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                        {language === 'en' ? 'CORE 4' : 'CORE 4'}
+                      </h3>
+                      <Button variant="outline" className="border-primary/50 hover:bg-primary/10 text-xs md:text-sm" onClick={() => navigateTo('/core')}>
+                        {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
                       </Button>
-                      <span className={`flex-grow text-sm ${item.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
-                        {item.text}
-                      </span>
-                      {!item.completed && getPriorityIcon(item.priority)}
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center text-muted-foreground py-4">
-                    <p className="text-sm">{language === 'en' ? 'No HIT items for today' : 'Nu există elemente HIT pentru astăzi'}</p>
+                    
+                    {/* Show WarriorPowerCard when Core 4 is complete and animation has been shown */}
+                    {hasCompletedCore && hasShownCoreAnimation ? (
+                      <WarriorPowerCard />
+                    ) : (
+                      <div className="grid grid-cols-2 gap-1.5 md:gap-2">
+                        {/* Row 1: Body - Fitness & Fuel */}
+                        {(() => {
+                          const fitnessCompleted = coreData[selectedDay]?.['fitness'] || false;
+                          const fuelCompleted = coreData[selectedDay]?.['fuel'] || false;
+                          const bodyComplete = fitnessCompleted && fuelCompleted;
+                          
+                          return (
+                            <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
+                              {bodyComplete && (
+                                <div
+                                  className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
+                                  onClick={() => clearCorePair(['fitness', 'fuel'])}
+                                >
+                                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                                  <span className="text-white font-bold text-sm md:text-base">Body Done</span>
+                                </div>
+                              )}
+                              {coreItems.filter(item => item.id === 'fitness' || item.id === 'fuel').map(item => {
+                                const isCompleted = coreData[selectedDay]?.[item.id] || false;
+                                return (
+                                  <Card
+                                    key={item.id}
+                                    className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                                    border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
+                                    shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
+                                    transition-colors duration-200 hover:shadow-blue-500/10`}
+                                    onClick={() => handleToggleCoreActivity(item.id)}
+                                  >
+                                    <div className="relative flex items-center justify-center">
+                                      <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                      {isCompleted && (
+                                        <div className="absolute -top-1 -right-1">
+                                          <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                      {item.id === 'fitness' ? 'FITNESS' : 'FUEL'}
+                                    </div>
+                                  </Card>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+                        
+                        {/* Row 2: Relationship - Person 1 & Person 2 */}
+                        {(() => {
+                          const person1Completed = coreData[selectedDay]?.['person1'] || false;
+                          const person2Completed = coreData[selectedDay]?.['person2'] || false;
+                          const relationshipComplete = person1Completed && person2Completed;
+                          
+                          return (
+                            <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
+                              {relationshipComplete && (
+                                <div
+                                  className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
+                                  onClick={() => clearCorePair(['person1', 'person2'])}
+                                >
+                                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                                  <span className="text-white font-bold text-sm md:text-base">Relationship Done</span>
+                                </div>
+                              )}
+                              {coreItems.filter(item => item.id === 'person1' || item.id === 'person2').map(item => {
+                                const isCompleted = coreData[selectedDay]?.[item.id] || false;
+                                return (
+                                  <Card
+                                    key={item.id}
+                                    className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                                    border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
+                                    shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
+                                    transition-colors duration-200 hover:shadow-blue-500/10`}
+                                    onClick={() => handleToggleCoreActivity(item.id)}
+                                  >
+                                    <div className="relative flex items-center justify-center">
+                                      <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                      {isCompleted && (
+                                        <div className="absolute -top-1 -right-1">
+                                          <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                      {item.id === 'person1' ? 'PERSON 1' : 'PERSON 2'}
+                                    </div>
+                                  </Card>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+                        
+                        {/* Row 3: Being - Meditation & Memoirs */}
+                        {(() => {
+                          const meditationCompleted = coreData[selectedDay]?.['meditation'] || false;
+                          const memoirsCompleted = coreData[selectedDay]?.['memoirs'] || false;
+                          const beingComplete = meditationCompleted && memoirsCompleted;
+                          
+                          return (
+                            <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
+                              {beingComplete && (
+                                <div
+                                  className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
+                                  onClick={() => clearCorePair(['meditation', 'memoirs'])}
+                                >
+                                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                                  <span className="text-white font-bold text-sm md:text-base">Being Done</span>
+                                </div>
+                              )}
+                              {coreItems.filter(item => item.id === 'meditation' || item.id === 'memoirs').map(item => {
+                                const isCompleted = coreData[selectedDay]?.[item.id] || false;
+                                return (
+                                  <Card
+                                    key={item.id}
+                                    className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                                    border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
+                                    shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
+                                    transition-colors duration-200 hover:shadow-blue-500/10`}
+                                    onClick={() => handleToggleCoreActivity(item.id)}
+                                  >
+                                    <div className="relative flex items-center justify-center">
+                                      <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                      {isCompleted && (
+                                        <div className="absolute -top-1 -right-1">
+                                          <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                      {item.id === 'meditation' ? 'MEDITATION' : 'MEMOIRS'}
+                                    </div>
+                                  </Card>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+                        
+                        {/* Row 4: Business - Discover & Declare */}
+                        {(() => {
+                          const discoverCompleted = coreData[selectedDay]?.['discover'] || false;
+                          const declareCompleted = coreData[selectedDay]?.['declare'] || false;
+                          const businessComplete = discoverCompleted && declareCompleted;
+                          
+                          return (
+                            <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
+                              {businessComplete && (
+                                <div
+                                  className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
+                                  onClick={() => clearCorePair(['discover', 'declare'])}
+                                >
+                                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                                  <span className="text-white font-bold text-sm md:text-base">Business Done</span>
+                                </div>
+                              )}
+                              {coreItems.filter(item => item.id === 'discover' || item.id === 'declare').map(item => {
+                                const isCompleted = coreData[selectedDay]?.[item.id] || false;
+                                return (
+                                  <Card
+                                    key={item.id}
+                                    className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                                    border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
+                                    shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
+                                    transition-colors duration-200 hover:shadow-blue-500/10`}
+                                    onClick={() => handleToggleCoreActivity(item.id)}
+                                  >
+                                    <div className="relative flex items-center justify-center">
+                                      <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                      {isCompleted && (
+                                        <div className="absolute -top-1 -right-1">
+                                          <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                      {item.id === 'discover' ? 'DISCOVER' : 'DECLARE'}
+                                    </div>
+                                  </Card>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-accent/10 to-accent/5 dark:from-purple-900/50 dark:to-purple-800/30 p-3 md:p-4 rounded-lg border border-accent/20 backdrop-blur-sm">
+                    <div className="flex justify-between items-center mb-3 md:mb-4">
+                      <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">
+                        {language === 'en' ? 'Biz 4' : 'Biz 4'}
+                      </h3>
+                      <Button variant="outline" className="border-accent/50 hover:bg-accent/10 text-xs md:text-sm" onClick={() => navigateTo('/daily-four')}>
+                        {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
+                      </Button>
+                    </div>
+                    
+                    {hasCompletedDailyFour && hasShownDailyAnimation ? (
+                      <MediaMasterCard />
+                    ) : (
+                      <div className="grid grid-cols-2 gap-1.5 md:gap-2 mb-3 md:mb-4">
+                        {dailyFourItems.map(item => {
+                          const isCompleted = item.completed;
+                          return (
+                            <Card
+                              key={item.id}
+                              className={`${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                              border ${isCompleted ? 'border-purple-400/50' : 'border-purple-200/70 dark:border-purple-900/50'} 
+                              shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer
+                              transition-colors duration-200 hover:shadow-purple-500/10`}
+                              onClick={() => handleToggleDailyActivity(item.id)}
+                            >
+                              <div className="relative flex items-center justify-center">
+                                <Video className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                {isCompleted && (
+                                  <div className="absolute -top-1 -right-1">
+                                    <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                {item.title}
+                              </div>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    )}
+                    
+                    <h3 className="text-xs md:text-sm font-bold bg-gradient-to-r from-goddess-gold to-goddess-gold/80 bg-clip-text text-transparent mb-2">
+                      {language === 'en' ? 'WEEKLY TWO' : 'WEEKLY TWO'}
+                    </h3>
+                    <div className="grid grid-cols-2 gap-1.5 md:gap-2">
+                      {weeklyItems.map(item => {
+                        const isCompleted = item.completed;
+                        return (
+                          <Card
+                            key={item.id}
+                            className={`${isCompleted ? 'bg-gradient-to-br from-pink-600 to-pink-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
+                            border ${isCompleted ? 'border-pink-400/50' : 'border-pink-200/70 dark:border-pink-900/50'} 
+                            shadow-md p-2 md:p-3 flex items-center justify-center cursor-pointer
+                            transition-colors duration-200 hover:shadow-pink-500/10`}
+                            onClick={() => handleToggleWeeklyActivity(item.id)}
+                          >
+                            <div className="relative flex items-center justify-center">
+                              <div className={`text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
+                                {item.title}
+                              </div>
+                              {isCompleted && (
+                                <div className="absolute -top-1 -right-1">
+                                  <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
+                                </div>
+                              )}
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </Card>
+            </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <WeeklyObjectives />
-              <MonthlyObjectives />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mb-6 md:mb-8">
+              <div>
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-400 dark:to-emerald-300 bg-clip-text text-transparent">
+                    {language === 'en' ? 'HIT LIST' : 'LISTA HIT'}
+                  </h3>
+                </div>
+                <Card className="bg-card border border-green-500/30 dark:border-green-500/20 shadow-lg shadow-green-500/5 hover:shadow-green-500/10 transition-all duration-300">
+                  <CardContent className="p-3 md:p-4">
+                    <div className="space-y-2">
+                      {hitList.filter(item => item.day === activeDay).length > 0 ? hitList.filter(item => item.day === activeDay).map(item => <div key={item.id} className={`flex items-center p-2 rounded-md transition-all duration-200 ${item.completed ? 'bg-green-500/10' : getPriorityColor(item.priority)}`}>
+                            <Button variant="ghost" size="sm" className={`w-6 h-6 rounded-full mr-3 p-0 flex items-center justify-center ${item.completed ? 'bg-green-500 text-white' : 'bg-transparent border border-gray-400 text-gray-400'}`} onClick={() => toggleHitListItemCompletion(item.id)}>
+                              {item.completed && <CheckCircle2 className="w-3 h-3" />}
+                            </Button>
+                            <span className={`flex-grow ${item.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+                              {item.text}
+                            </span>
+                            {!item.completed && getPriorityIcon(item.priority)}
+                          </div>) : <div className="text-center text-muted-foreground py-4">
+                          <p>{language === 'en' ? 'No HIT items for today' : 'Nu există elemente HIT pentru astăzi'}</p>
+                        </div>}
+                    </div>
+                    <div className="mt-6 flex justify-end">
+                      <Button variant="outline" onClick={() => navigateTo('/door')} className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0">
+                        {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <WeeklyObjectives />
+                </div>
+                <div>
+                  <MonthlyObjectives />
+                </div>
+              </div>
             </div>
           </div>
           
-          {/* Weekly Stats */}
-          <div>
-            <h3 className="text-lg font-medium text-foreground mb-6">
-              {language === 'en' ? 'Weekly Stats' : 'Statistici Săptămânale'}
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Score Card */}
-              <Card className="border border-border bg-card/50 p-5">
-                <h4 className="text-sm font-medium text-muted-foreground mb-4">{language === 'en' ? 'Score' : 'Scor'}</h4>
-                <div className="text-center">
-                  <span className="text-4xl font-bold text-primary">{coreScore + dailyFourScore + weeklyTwoScore + doorScore}</span>
-                </div>
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{t('stack')}</span>
-                    <span className="text-foreground">0</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Core</span>
-                    <span className="text-foreground">{coreScore}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Daily</span>
-                    <span className="text-foreground">{dailyFourScore + weeklyTwoScore}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Gateway</span>
-                    <span className="text-foreground">{doorScore}</span>
-                  </div>
-                </div>
-              </Card>
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {language === 'en' ? 'My Weekly' : 'Săptămânal'}
+              </h2>
               
-              {/* Streaks Card */}
-              <Card className="border border-border bg-card/50 p-5">
-                <h4 className="text-sm font-medium text-muted-foreground mb-4">{language === 'en' ? 'Streaks' : 'Serii'}</h4>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { label: t('stack'), value: streaks.stack },
-                    { label: 'Core', value: streaks.core },
-                    { label: 'Daily', value: streaks.dailyFour },
-                    { label: 'Gateway', value: streaks.door }
-                  ].map((item, i) => (
-                    <div key={i} className="flex flex-col items-center">
-                      <div className="w-12 h-12 rounded-full border-2 border-border flex items-center justify-center">
-                        <span className="text-lg font-semibold text-foreground">{item.value}</span>
+              <div className="grid grid-cols-1 gap-4 md:gap-6 mb-6 md:mb-8">
+                <div className="flex justify-between items-center overflow-x-auto">
+                  <h3 className="text-sm md:text-lg font-bold text-white uppercase whitespace-nowrap">{language === 'en' ? 'THE SCORE' : 'SCORUL'}</h3>
+                  <div className="flex-grow mx-2 md:mx-4">
+                    <div className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 h-0.5 md:h-1 w-full rounded-full"></div>
+                  </div>
+                  <h3 className="text-sm md:text-lg font-bold text-white uppercase whitespace-nowrap">{language === 'en' ? 'THE STREAKS' : 'SERIILE'}</h3>
+                  <div className="flex-grow mx-2 md:mx-4">
+                    <div className="bg-gradient-to-r from-purple-500/30 to-pink-500/30 h-0.5 md:h-1 w-full rounded-full"></div>
+                  </div>
+                  <h3 className="text-sm md:text-lg font-bold text-white uppercase whitespace-nowrap">{language === 'en' ? 'THE TOTAL' : 'TOTALUL'}</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
+                  <Card className="bg-card border border-blue-500/20 shadow-lg hover:shadow-blue-500/10 transition-all duration-300 p-3 md:p-4">
+                  <div className="flex flex-col items-center">
+                    <h3 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">
+                      {coreScore + dailyFourScore + weeklyTwoScore + doorScore}
+                    </h3>
+                    <div className="mt-6 space-y-2 w-full">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Circle className="w-3 h-3 mr-2 text-blue-500 fill-blue-500" />
+                          <span className="text-sm text-gray-300">{t('stack')}</span>
+                        </div>
+                        <span className="text-sm text-gray-300">0</span>
                       </div>
-                      <span className="mt-2 text-xs text-muted-foreground text-center">{item.label}</span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Circle className="w-3 h-3 mr-2 text-purple-500 fill-purple-500" />
+                          <span className="text-sm text-gray-300">CORE</span>
+                        </div>
+                        <span className="text-sm text-gray-300">{coreScore}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Circle className="w-3 h-3 mr-2 text-amber-500 fill-amber-500" />
+                          <span className="text-sm text-gray-300">DAILY</span>
+                        </div>
+                        <span className="text-sm text-gray-300">{dailyFourScore + weeklyTwoScore}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Circle className="w-3 h-3 mr-2 text-green-500 fill-green-500" />
+                          <span className="text-sm text-gray-300">GATEWAY</span>
+                        </div>
+                        <span className="text-sm text-gray-300">{doorScore}</span>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </Card>
-              
-              {/* Totals Card */}
-              <Card className="border border-border bg-card/50 p-5">
-                <h4 className="text-sm font-medium text-muted-foreground mb-4">{language === 'en' ? 'Totals' : 'Totaluri'}</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { label: t('stack'), value: totals.stack },
-                    { label: 'Core', value: totals.core },
-                    { label: 'Daily', value: totals.dailyFour },
-                    { label: 'Gateway', value: totals.door }
-                  ].map((item, i) => (
-                    <div key={i} className="flex flex-col items-center">
-                      <span className="text-2xl font-bold text-foreground">{item.value}</span>
-                      <span className="text-xs text-muted-foreground">{item.label}</span>
+                  </div>
+                </Card>
+                
+                  <Card className="bg-card border border-purple-500/20 shadow-lg hover:shadow-purple-500/10 transition-all duration-300 p-3 md:p-4">
+                  <div className="grid grid-cols-4 gap-2 md:gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 md:w-16 md:h-16 border-2 md:border-4 border-blue-500/50 rounded-full flex items-center justify-center">
+                        <span className="text-sm md:text-xl font-bold text-blue-400">{streaks.stack}</span>
+                      </div>
+                      <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">{t('stack')}</span>
                     </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
-            
-            {/* Rewards Showcase */}
-            <div className="mt-6">
-              <RewardsShowcase 
-                currentLevel={xpData.currentLevel}
-                onEquip={(rewardId) => {
-                  const equippedKey = `equipped_${rewardId.split('_')[0]}`;
-                  localStorage.setItem(equippedKey, rewardId);
-                }}
-                equippedRewards={{
-                  theme: localStorage.getItem('equipped_theme') || undefined,
-                  avatar: localStorage.getItem('equipped_avatar') || undefined,
-                  frame: localStorage.getItem('equipped_frame') || undefined
-                }}
-              />
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 md:w-16 md:h-16 border-2 md:border-4 border-purple-500/50 rounded-full flex items-center justify-center">
+                        <span className="text-sm md:text-xl font-bold text-purple-400">{streaks.core}</span>
+                      </div>
+                      <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">CORE</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 md:w-16 md:h-16 border-2 md:border-4 border-pink-500/50 rounded-full flex items-center justify-center">
+                        <span className="text-sm md:text-xl font-bold text-pink-400">{streaks.dailyFour}</span>
+                      </div>
+                      <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">DAILY</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 md:w-16 md:h-16 border-2 md:border-4 border-green-500/50 rounded-full flex items-center justify-center">
+                        <span className="text-sm md:text-xl font-bold text-green-400">{streaks.door}</span>
+                      </div>
+                      <span className="mt-1 md:mt-2 text-xs text-center text-gray-300">GATEWAY</span>
+                    </div>
+                  </div>
+                </Card>
+                
+                <Card className="bg-card border border-pink-500/20 shadow-lg hover:shadow-pink-500/10 transition-all duration-300 p-3 md:p-4">
+                  <div className="grid grid-cols-2 gap-2 md:gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <Circle className="w-3 h-3 md:w-4 md:h-4 text-blue-500 fill-blue-500" />
+                        <span className="text-xs md:text-sm text-gray-300">{t('stack')}</span>
+                      </div>
+                      <span className="mt-1 md:mt-2 text-lg md:text-2xl font-bold text-blue-400">{totals.stack}</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <Circle className="w-3 h-3 md:w-4 md:h-4 text-purple-500 fill-purple-500" />
+                        <span className="text-xs md:text-sm text-gray-300">CORE</span>
+                      </div>
+                      <span className="mt-1 md:mt-2 text-lg md:text-2xl font-bold text-purple-400">{totals.core}</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <Circle className="w-3 h-3 md:w-4 md:h-4 text-amber-500 fill-amber-500" />
+                        <span className="text-xs md:text-sm text-gray-300">DAILY</span>
+                      </div>
+                      <span className="mt-1 md:mt-2 text-lg md:text-2xl font-bold text-amber-400">{totals.dailyFour}</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <Circle className="w-3 h-3 md:w-4 md:h-4 text-green-500 fill-green-500" />
+                        <span className="text-xs md:text-sm text-gray-300">GATEWAY</span>
+                      </div>
+                      <span className="mt-1 md:mt-2 text-lg md:text-2xl font-bold text-green-400">{totals.door}</span>
+                    </div>
+                  </div>
+                </Card>
+                
+                {/* Rewards Showcase */}
+                <RewardsShowcase 
+                  currentLevel={xpData.currentLevel}
+                  onEquip={(rewardId) => {
+                    // Save equipped reward to localStorage
+                    const equippedKey = `equipped_${rewardId.split('_')[0]}`;
+                    localStorage.setItem(equippedKey, rewardId);
+                  }}
+                  equippedRewards={{
+                    theme: localStorage.getItem('equipped_theme') || undefined,
+                    avatar: localStorage.getItem('equipped_avatar') || undefined,
+                    frame: localStorage.getItem('equipped_frame') || undefined
+                  }}
+                />
+              </div>
             </div>
           </div>
         </TabsContent>
         
         <TabsContent value="courses">
-          <LearnDashboard 
-            onCategorySelect={handleLearnCategorySelect} 
-            activeCategory={activeLearnCategory} 
-            categoryCounts={categoryCounts} 
-            onSubcategorySelect={handleLearnSubcategorySelect} 
-            activeSubcategory={activeLearnSubcategory} 
-          />
+          <LearnDashboard onCategorySelect={handleLearnCategorySelect} activeCategory={activeLearnCategory} categoryCounts={categoryCounts} onSubcategorySelect={handleLearnSubcategorySelect} activeSubcategory={activeLearnSubcategory} />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>;
 };
