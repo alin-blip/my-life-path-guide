@@ -16,7 +16,7 @@ import { useProgress } from '@/context/ProgressContext';
 import { Progress } from './ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { TaskPriority } from '@/types/door';
-import { DailyBookPage } from './challenge/DailyBookPage';
+import { DailyCompactCard } from './daily/DailyCompactCard';
 import { MonthlyMission, MissionCategory } from '@/types/mission';
 import { supabase } from '@/integrations/supabase/client';
 import { useSoundSettings } from '@/hooks/useSoundSettings';
@@ -24,7 +24,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { TransformedWarrior, WarriorBadge, MediaMaster, MediaBadge, WarriorPowerCard, MediaMasterCard } from '@/components/celebrations';
-import { XPProgressBar, LevelUpCelebration, XPPopupContainer } from '@/components/xp';
+import { LevelUpCelebration, XPPopupContainer } from '@/components/xp';
 import { useXPSystem } from '@/hooks/useXPSystem';
 import { XPAwardEvent } from '@/services/xpService';
 import { useStreakTracking } from '@/hooks/useStreakTracking';
@@ -33,8 +33,6 @@ import { BADGES, BadgeStats } from '@/components/challenge/badges/badgeDefinitio
 import { 
   StreakMilestoneCelebration, 
   BadgeUnlockCelebration, 
-  DailyChallenges, 
-  SmartNotifications, 
   RewardsShowcase 
 } from '@/components/gamification';
 
@@ -781,38 +779,7 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
       
-      <DailyBookPage />
-      
-      {/* Smart Notifications */}
-      <div className="mb-4">
-        <SmartNotifications
-          currentStreak={streakData.currentStreak}
-          lastActivityDate={streakData.lastActivityDate}
-          xpToNextLevel={xpData.xpToNextLevel - xpData.xpInCurrentLevel}
-          totalXP={xpData.totalXP}
-          currentLevel={xpData.currentLevel}
-          hasCompletedTodayStack={stackCount > 0}
-          onAction={(id) => {
-            if (id === 'morning_motivation' || id === 'streak_reminder' || id === 'comeback') {
-              navigateTo('/stack');
-            }
-          }}
-        />
-      </div>
-      
-      {/* XP Progress Bar */}
-      <XPProgressBar className="mb-6" />
-      
-      {/* Daily Challenges */}
-      <div className="mb-6">
-        <DailyChallenges
-          stackCompleted={stackCount > 0}
-          core4Score={completedCoreItems}
-          biz4Score={completedDailyItems}
-          pagesReadToday={badgeStats.totalPagesRead}
-          actionsCompletedToday={badgeStats.totalActionsCompleted}
-        />
-      </div>
+      <DailyCompactCard />
       
       <div className="mb-6 md:mb-8 bg-card border border-border p-3 md:p-4 rounded-lg shadow-sm">
         <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
