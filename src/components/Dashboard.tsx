@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Heart, Brain, Briefcase, Video, Text, AudioLines, Image as ImageIcon, ArrowRight, RefreshCw, Compass, DollarSign, Users, Clock, Award, AlertTriangle, Check, Sparkles, Calendar as CalendarIcon, History } from 'lucide-react';
+import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Heart, Brain, Briefcase, PenLine, MessageSquare, Send, Handshake, ArrowRight, RefreshCw, Compass, DollarSign, Users, Clock, Award, AlertTriangle, Check, Sparkles, Calendar as CalendarIcon, History } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useDoorContent } from '@/hooks/useDoorContent';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -469,26 +469,26 @@ export const Dashboard: React.FC = () => {
   const getDailyFourItems = () => {
     return [{
       id: 'video',
-      title: 'VIDEO',
-      icon: <Video className="h-6 w-6 text-white" />,
+      title: 'CONTENT',
+      icon: <PenLine className="h-6 w-6 text-white" />,
       completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'video')?.completed || false,
       color: 'bg-blue-600'
     }, {
       id: 'text',
-      title: 'TEXT',
-      icon: <Text className="h-6 w-6 text-white" />,
+      title: 'ENGAGE',
+      icon: <MessageSquare className="h-6 w-6 text-white" />,
       completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'text')?.completed || false,
       color: 'bg-blue-600'
     }, {
       id: 'audio',
-      title: 'AUDIO',
-      icon: <AudioLines className="h-6 w-6 text-white" />,
+      title: 'OUTREACH',
+      icon: <Send className="h-6 w-6 text-white" />,
       completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'audio')?.completed || false,
       color: 'bg-blue-600'
     }, {
       id: 'image',
-      title: 'IMAGE',
-      icon: <ImageIcon className="h-6 w-6 text-white" />,
+      title: 'CLOSE',
+      icon: <Handshake className="h-6 w-6 text-white" />,
       completed: dailyFourData[selectedDay]?.dailyActivities?.find((a: any) => a.id === 'image')?.completed || false,
       color: 'bg-blue-600'
     }];
@@ -862,7 +862,7 @@ export const Dashboard: React.FC = () => {
               background: coreProgress > 0 ? `conic-gradient(hsl(var(--accent)) ${dailyProgress}%, hsl(var(--muted-foreground) / 0.6) 0%)` : 'hsl(var(--muted-foreground) / 0.6)',
               clipPath: 'circle(50%)'
             }}></div>
-              <Video className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
+              <Briefcase className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
               {hasCompletedDailyFour && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-purple-500 text-white rounded-full p-1 z-20" />}
             </div>
             <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">DAILY</span>
@@ -1151,7 +1151,9 @@ export const Dashboard: React.FC = () => {
                               onClick={() => handleToggleDailyActivity(item.id)}
                             >
                               <div className="relative flex items-center justify-center">
-                                <Video className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
+                                {React.cloneElement(item.icon as React.ReactElement, {
+                                  className: `h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`
+                                })}
                                 {isCompleted && (
                                   <div className="absolute -top-1 -right-1">
                                     <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />

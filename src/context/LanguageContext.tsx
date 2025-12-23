@@ -518,7 +518,18 @@ const translations: Translations = {
     "pleaseLoginToTrack": "Please login to track progress",
     "actionCompletedToast": "Action completed!",
     "showMore": "Show more",
-    "showLess": "Show less"
+    "showLess": "Show less",
+    
+    // Biz 4 translations
+    "biz4": "BIZ 4",
+    "dailyFour": "BIZ 4",
+    "weeklyTwo": "WEEKLY TWO",
+    "contentDesc": "Create 1 piece of content",
+    "engageDesc": "Engage with your audience",
+    "outreachDesc": "Contact new prospects",
+    "closeDesc": "Sales conversation/follow-up",
+    "podcastDesc": "Record your weekly episode",
+    "webinarDesc": "Host your weekly webinar/live"
   },
   ro: {
     // Auth page
@@ -1026,7 +1037,18 @@ const translations: Translations = {
     "back": "Înapoi",
     "forward": "Înainte",
     "yes": "Da",
-    "no": "Nu"
+    "no": "Nu",
+    
+    // Biz 4 translations
+    "biz4": "BIZ 4",
+    "dailyFour": "BIZ 4",
+    "weeklyTwo": "WEEKLY TWO",
+    "contentDesc": "Creează 1 piesă de conținut",
+    "engageDesc": "Interacționează cu audiența",
+    "outreachDesc": "Contactează prospecți noi",
+    "closeDesc": "Conversație de vânzare/follow-up",
+    "podcastDesc": "Înregistrează episodul săptămânal",
+    "webinarDesc": "Ține webinarul/live-ul săptămânal"
   }
 };
 

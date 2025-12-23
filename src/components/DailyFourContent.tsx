@@ -4,7 +4,7 @@ import { useProgress } from '@/context/ProgressContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
-  Video, Text, AudioLines, Image as ImageIcon,
+  PenLine, MessageSquare, Send, Handshake,
   Podcast, MonitorPlay, ChevronLeft, ChevronRight,
   ArrowLeft, CheckCircle2
 } from 'lucide-react';
@@ -18,12 +18,14 @@ type DayOfWeek = 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su';
 interface DailyActivity {
   id: string;
   title: string;
+  description: string;
   icon: React.ReactNode;
 }
 
 interface WeeklyActivity {
   id: string;
   title: string;
+  description: string;
   icon: React.ReactNode;
 }
 
@@ -42,15 +44,15 @@ export const DailyFourContent: React.FC = () => {
   } = useProgress();
   
   const dailyActivities: DailyActivity[] = [
-    { id: 'video', title: 'VIDEO', icon: <Video className="h-6 w-6" /> },
-    { id: 'text', title: 'TEXT', icon: <Text className="h-6 w-6" /> },
-    { id: 'audio', title: 'AUDIO', icon: <AudioLines className="h-6 w-6" /> },
-    { id: 'image', title: 'IMAGE', icon: <ImageIcon className="h-6 w-6" /> },
+    { id: 'video', title: 'CONTENT', description: t('contentDesc'), icon: <PenLine className="h-6 w-6" /> },
+    { id: 'text', title: 'ENGAGE', description: t('engageDesc'), icon: <MessageSquare className="h-6 w-6" /> },
+    { id: 'audio', title: 'OUTREACH', description: t('outreachDesc'), icon: <Send className="h-6 w-6" /> },
+    { id: 'image', title: 'CLOSE', description: t('closeDesc'), icon: <Handshake className="h-6 w-6" /> },
   ];
   
   const weeklyActivities: WeeklyActivity[] = [
-    { id: 'podcast', title: 'PODCAST', icon: <Podcast className="h-6 w-6" /> },
-    { id: 'webinar', title: 'WEBINAR', icon: <MonitorPlay className="h-6 w-6" /> },
+    { id: 'podcast', title: 'PODCAST', description: t('podcastDesc'), icon: <Podcast className="h-6 w-6" /> },
+    { id: 'webinar', title: 'WEBINAR', description: t('webinarDesc'), icon: <MonitorPlay className="h-6 w-6" /> },
   ];
   
   const days: DayOfWeek[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
@@ -138,7 +140,7 @@ export const DailyFourContent: React.FC = () => {
             <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
             {t('dashboard')}
           </Button>
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold uppercase">{t('dailyFour')}</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold uppercase">{t('biz4')}</h1>
         </div>
         <Button 
           className="bg-primary hover:bg-primary/90 text-white text-xs sm:text-sm px-2 sm:px-4"
@@ -185,10 +187,10 @@ export const DailyFourContent: React.FC = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mb-6 sm:mb-8">
         <div>
-          <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/30 p-3 sm:p-4 md:p-6 rounded-lg backdrop-blur-sm">
+            <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/30 p-3 sm:p-4 md:p-6 rounded-lg backdrop-blur-sm">
             <div className="flex justify-between items-center mb-4 sm:mb-6">
               <h2 className="text-lg sm:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-300">
-                {t('dailyFour')}
+                {t('biz4')}
               </h2>
               <div className="text-xs sm:text-sm text-purple-300">
                 {getCompletedDailyActivities()}/{dailyActivities.length}
@@ -223,6 +225,7 @@ export const DailyFourContent: React.FC = () => {
                       )}
                     </div>
                     <div className="text-white font-medium text-xs sm:text-sm">{activity.title}</div>
+                    <div className="text-gray-400 text-[10px] sm:text-xs text-center mt-1">{activity.description}</div>
                   </Card>
                 );
               })}
@@ -269,6 +272,7 @@ export const DailyFourContent: React.FC = () => {
                       )}
                     </div>
                     <div className="text-white font-medium text-xs sm:text-sm">{activity.title}</div>
+                    <div className="text-gray-400 text-[10px] sm:text-xs text-center mt-1">{activity.description}</div>
                   </Card>
                 );
               })}
@@ -281,13 +285,13 @@ export const DailyFourContent: React.FC = () => {
         <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">{t('explanation')}</h3>
         <p className="text-gray-300 mb-2 sm:mb-3 text-sm sm:text-base">
           {language === 'en' 
-            ? 'Daily Four is a system designed to help you create and share content consistently in four different formats.'
-            : 'Daily Four este un sistem conceput pentru a te ajuta să creezi și să împărtășești conținut în mod consecvent în patru formate diferite.'}
+            ? 'Biz 4 is designed for accelerated business growth. Complete 4 daily actions to attract clients and grow your business.'
+            : 'Biz 4 este conceput pentru creștere accelerată a afacerii. Completează 4 acțiuni zilnice pentru a atrage clienți și a-ți dezvolta afacerea.'}
         </p>
         <p className="text-gray-300 text-sm sm:text-base">
           {language === 'en'
-            ? 'Complete the four daily activities and two weekly activities to maximize your impact and reach your audience through multiple mediums.'
-            : 'Completează cele patru activități zilnice și două activități săptămânale pentru a-ți maximiza impactul și a-ți atinge audiența prin multiple mijloace.'}
+            ? 'Weekly Two amplifies your marketing: record your podcast episode and host your weekly webinar/live to reach a wider audience.'
+            : 'Weekly Two îți amplifică marketingul: înregistrează episodul de podcast și ține webinarul/live-ul săptămânal pentru a ajunge la o audiență mai largă.'}
         </p>
       </div>
     </div>
