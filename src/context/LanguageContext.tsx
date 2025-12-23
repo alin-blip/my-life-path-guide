@@ -1,5 +1,6 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 type Language = 'en' | 'ro';
 
@@ -315,7 +316,201 @@ const translations: Translations = {
     "readyToJump": "Ready to Jump to Freedom?",
     "joinThousands": "Join thousands of people who have transformed their lives by mastering all four pillars. Start your 7-day free trial today.",
     "startFreeTrial": "Start Free Trial",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    
+    // XP System translations
+    "level": "Level",
+    "xp": "XP",
+    "xpToNextLevel": "XP to next level",
+    "totalXP": "Total XP",
+    "levelUp": "Level Up!",
+    "levelUpCongrats": "Congratulations!",
+    "youReachedLevel": "You've reached level",
+    "keepGoing": "Keep going! Great things await.",
+    "continueJourney": "Continue Journey",
+    "xpEarned": "XP earned",
+    
+    // Level titles
+    "levelTitle_1": "Awakening Seeker",
+    "levelTitle_2": "Focused Initiate",
+    "levelTitle_3": "Disciplined Warrior",
+    "levelTitle_4": "Rising Champion",
+    "levelTitle_5": "Enlightened Master",
+    "levelTitle_6": "Wise Sage",
+    "levelTitle_7": "Legendary Hero",
+    "levelTitle_8": "Transcendent Being",
+    "levelTitle_9": "Cosmic Warrior",
+    "levelTitle_10": "Infinite Master",
+    
+    // Daily Challenges
+    "dailyChallenges": "Daily Challenges",
+    "challengeProgress": "Progress",
+    "claimReward": "Claim Reward",
+    "challengeCompleted": "Completed!",
+    "challengesRefreshIn": "Challenges refresh in",
+    "allChallengesComplete": "All challenges complete! Great work!",
+    "hours": "hours",
+    "minutes": "minutes",
+    
+    // Challenge types
+    "challenge_complete_stack": "Complete a Stack",
+    "challenge_complete_stack_desc": "Finish a reflection stack",
+    "challenge_read_pages": "Read Pages",
+    "challenge_read_pages_desc": "Read at least 5 pages today",
+    "challenge_complete_core": "Complete Core 4",
+    "challenge_complete_core_desc": "Complete all Core 4 activities",
+    "challenge_complete_actions": "Complete Actions",
+    "challenge_complete_actions_desc": "Complete 3 action items",
+    "challenge_login_streak": "Login Streak",
+    "challenge_login_streak_desc": "Maintain your streak",
+    "challenge_complete_door": "Door Tasks",
+    "challenge_complete_door_desc": "Complete 5 door tasks",
+    
+    // Smart Notifications
+    "goodMorning": "Good Morning!",
+    "goodAfternoon": "Good Afternoon!",
+    "goodEvening": "Good Evening!",
+    "streakAtRisk": "Your streak is at risk!",
+    "streakAtRiskDesc": "Complete an activity to keep your streak alive",
+    "almostLevelUp": "Almost there!",
+    "almostLevelUpDesc": "Just {xp} XP to level up!",
+    "welcomeBack": "Welcome back!",
+    "welcomeBackDesc": "Ready to continue your journey?",
+    "greatStreak": "Amazing streak!",
+    "greatStreakDesc": "{days} days and counting!",
+    "startSession": "Start Session",
+    "viewProgress": "View Progress",
+    
+    // Streak Milestones
+    "streakMilestone": "Streak Milestone!",
+    "days": "days",
+    "dayStreak": "Day Streak",
+    "streakBonus": "Streak Bonus",
+    "streakShieldUnlocked": "Streak Shield Unlocked!",
+    "streakShieldDesc": "You now have protection against losing your streak",
+    "keepItUp": "Keep Going!",
+    
+    // Streak milestone titles
+    "streak_7_title": "One Week Warrior",
+    "streak_7_subtitle": "7 days of dedication",
+    "streak_7_message": "You've shown real commitment. The habit is forming!",
+    "streak_30_title": "Monthly Master",
+    "streak_30_subtitle": "30 days of discipline",
+    "streak_30_message": "A full month! You're building something extraordinary.",
+    "streak_100_title": "Century Champion",
+    "streak_100_subtitle": "100 days of excellence",
+    "streak_100_message": "100 days of growth. You're truly unstoppable!",
+    "streak_365_title": "Annual Legend",
+    "streak_365_subtitle": "365 days of mastery",
+    "streak_365_message": "A full year! You've achieved legendary status.",
+    
+    // Badge Unlock
+    "badgeUnlocked": "Badge Unlocked!",
+    "newBadge": "New Badge",
+    "awesome": "Awesome!",
+    
+    // Weekly Recap
+    "weeklyRecap": "Weekly Recap",
+    "weekNumber": "Week",
+    "daysActive": "Days Active",
+    "daysActiveSubtitle": "You showed up this week!",
+    "stacksCompleted": "Stacks Completed",
+    "stacksCompletedSubtitle": "Reflection sessions done",
+    "pagesRead": "Pages Read",
+    "pagesReadSubtitle": "Knowledge gained",
+    "actionsCompleted": "Actions Completed",
+    "actionsCompletedSubtitle": "Tasks accomplished",
+    "xpEarnedWeek": "XP Earned",
+    "xpEarnedSubtitle": "Experience gained",
+    "currentStreakWeek": "Current Streak",
+    "currentStreakSubtitle": "Days in a row",
+    "badgesEarned": "Badges Earned",
+    "badgesEarnedSubtitle": "Achievements unlocked",
+    "greatWeek": "Great week!",
+    "seeYouNextWeek": "See you next week!",
+    
+    // Milestone Celebrations
+    "milestoneReached": "Milestone Reached!",
+    "firstStack": "First Stack",
+    "firstStackMessage": "You completed your first reflection stack!",
+    "tenStacks": "10 Stacks",
+    "tenStacksMessage": "A milestone of reflection and growth!",
+    "hundredPages": "100 Pages",
+    "hundredPagesMessage": "You've read 100 pages of wisdom!",
+    "firstWeek": "First Week",
+    "firstWeekMessage": "Your first week streak!",
+    "firstMonth": "First Month",
+    "firstMonthMessage": "An entire month of dedication!",
+    "levelFive": "Level 5",
+    "levelFiveMessage": "You've reached Level 5!",
+    "levelTen": "Level 10",
+    "levelTenMessage": "The big 10! You're a master!",
+    
+    // Rewards Showcase
+    "rewards": "Rewards",
+    "unlockableRewards": "Unlockable Rewards",
+    "themes": "Themes",
+    "avatars": "Avatars",
+    "frames": "Frames",
+    "unlockAt": "Unlock at Level",
+    "unlocked": "Unlocked",
+    "equipped": "Equipped",
+    "equip": "Equip",
+    "locked": "Locked",
+    "nextReward": "Next Reward",
+    
+    // Reward names
+    "reward_dark_theme": "Dark Warrior Theme",
+    "reward_dark_theme_desc": "A sleek dark theme for focused warriors",
+    "reward_gold_theme": "Golden Champion Theme",
+    "reward_gold_theme_desc": "A prestigious golden theme",
+    "reward_nature_theme": "Nature Harmony Theme",
+    "reward_nature_theme_desc": "Calming nature-inspired colors",
+    "reward_avatar_warrior": "Warrior Avatar",
+    "reward_avatar_warrior_desc": "The classic warrior avatar",
+    "reward_avatar_sage": "Sage Avatar",
+    "reward_avatar_sage_desc": "Wisdom personified",
+    "reward_avatar_legend": "Legend Avatar",
+    "reward_avatar_legend_desc": "For legendary achievers",
+    "reward_frame_bronze": "Bronze Frame",
+    "reward_frame_bronze_desc": "A sturdy bronze frame",
+    "reward_frame_silver": "Silver Frame",
+    "reward_frame_silver_desc": "An elegant silver frame",
+    "reward_frame_gold": "Gold Frame",
+    "reward_frame_gold_desc": "The prestigious gold frame",
+    
+    // Gamification general
+    "gamification": "Gamification",
+    "achievements": "Achievements",
+    "progress": "Progress",
+    "streak": "Streak",
+    "currentStreak": "Current Streak",
+    "longestStreak": "Longest Streak",
+    "totalDaysActive": "Total Days Active",
+    "loading": "Loading...",
+    "error": "Error",
+    "close": "Close",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "remove": "Remove",
+    "update": "Update",
+    "create": "Create",
+    "submit": "Submit",
+    "done": "Done",
+    "finish": "Finish",
+    "start": "Start",
+    "stop": "Stop",
+    "pause": "Pause",
+    "resume": "Resume",
+    "retry": "Retry",
+    "back": "Back",
+    "forward": "Forward",
+    "yes": "Yes",
+    "no": "No"
   },
   ro: {
     // Auth page
@@ -621,42 +816,317 @@ const translations: Translations = {
     "readyToJump": "Ești Gata să Sari către Libertate?",
     "joinThousands": "Alătură-te miilor de oameni care și-au transformat viețile prin stăpânirea tuturor celor patru piloni. Începe trial-ul gratuit de 7 zile astăzi.",
     "startFreeTrial": "Începe Trial Gratuit",
-    "learnMore": "Află Mai Multe"
+    "learnMore": "Află Mai Multe",
+    
+    // XP System translations
+    "level": "Nivel",
+    "xp": "XP",
+    "xpToNextLevel": "XP pentru nivelul următor",
+    "totalXP": "XP Total",
+    "levelUp": "Nivel Nou!",
+    "levelUpCongrats": "Felicitări!",
+    "youReachedLevel": "Ai ajuns la nivelul",
+    "keepGoing": "Continuă! Lucruri mărețe te așteaptă.",
+    "continueJourney": "Continuă Călătoria",
+    "xpEarned": "XP câștigat",
+    
+    // Level titles
+    "levelTitle_1": "Căutător Trezit",
+    "levelTitle_2": "Inițiat Concentrat",
+    "levelTitle_3": "Războinic Disciplinat",
+    "levelTitle_4": "Campion în Ascensiune",
+    "levelTitle_5": "Maestru Luminat",
+    "levelTitle_6": "Înțelept Sage",
+    "levelTitle_7": "Erou Legendar",
+    "levelTitle_8": "Ființă Transcendentă",
+    "levelTitle_9": "Războinic Cosmic",
+    "levelTitle_10": "Maestru Infinit",
+    
+    // Daily Challenges
+    "dailyChallenges": "Provocări Zilnice",
+    "challengeProgress": "Progres",
+    "claimReward": "Revendică Recompensa",
+    "challengeCompleted": "Finalizat!",
+    "challengesRefreshIn": "Provocările se reînnoiesc în",
+    "allChallengesComplete": "Toate provocările completate! Bună treabă!",
+    "hours": "ore",
+    "minutes": "minute",
+    
+    // Challenge types
+    "challenge_complete_stack": "Finalizează un Stack",
+    "challenge_complete_stack_desc": "Termină o sesiune de reflecție",
+    "challenge_read_pages": "Citește Pagini",
+    "challenge_read_pages_desc": "Citește cel puțin 5 pagini astăzi",
+    "challenge_complete_core": "Finalizează Core 4",
+    "challenge_complete_core_desc": "Completează toate activitățile Core 4",
+    "challenge_complete_actions": "Completează Acțiuni",
+    "challenge_complete_actions_desc": "Finalizează 3 elemente de acțiune",
+    "challenge_login_streak": "Serie de Conectări",
+    "challenge_login_streak_desc": "Menține seria ta",
+    "challenge_complete_door": "Sarcini Door",
+    "challenge_complete_door_desc": "Finalizează 5 sarcini door",
+    
+    // Smart Notifications
+    "goodMorning": "Bună Dimineața!",
+    "goodAfternoon": "Bună Ziua!",
+    "goodEvening": "Bună Seara!",
+    "streakAtRisk": "Seria ta este în pericol!",
+    "streakAtRiskDesc": "Finalizează o activitate pentru a-ți menține seria",
+    "almostLevelUp": "Aproape ai ajuns!",
+    "almostLevelUpDesc": "Doar {xp} XP până la nivelul următor!",
+    "welcomeBack": "Bine ai revenit!",
+    "welcomeBackDesc": "Gata să continui călătoria?",
+    "greatStreak": "Serie incredibilă!",
+    "greatStreakDesc": "{days} zile și continuăm!",
+    "startSession": "Începe Sesiunea",
+    "viewProgress": "Vezi Progresul",
+    
+    // Streak Milestones
+    "streakMilestone": "Milestone Serie!",
+    "days": "zile",
+    "dayStreak": "Zile Consecutive",
+    "streakBonus": "Bonus Serie",
+    "streakShieldUnlocked": "Scut Serie Deblocat!",
+    "streakShieldDesc": "Acum ai protecție împotriva pierderii seriei",
+    "keepItUp": "Continuă Așa!",
+    
+    // Streak milestone titles
+    "streak_7_title": "Războinic de O Săptămână",
+    "streak_7_subtitle": "7 zile de dedicare",
+    "streak_7_message": "Ai arătat un angajament real. Obiceiul se formează!",
+    "streak_30_title": "Maestru Lunar",
+    "streak_30_subtitle": "30 de zile de disciplină",
+    "streak_30_message": "O lună întreagă! Construiești ceva extraordinar.",
+    "streak_100_title": "Campion Centenar",
+    "streak_100_subtitle": "100 de zile de excelență",
+    "streak_100_message": "100 de zile de creștere. Ești cu adevărat de neoprit!",
+    "streak_365_title": "Legendă Anuală",
+    "streak_365_subtitle": "365 de zile de măiestrie",
+    "streak_365_message": "Un an întreg! Ai atins statutul de legendă.",
+    
+    // Badge Unlock
+    "badgeUnlocked": "Insignă Deblocată!",
+    "newBadge": "Insignă Nouă",
+    "awesome": "Excelent!",
+    
+    // Weekly Recap
+    "weeklyRecap": "Rezumatul Săptămânii",
+    "weekNumber": "Săptămâna",
+    "daysActive": "Zile Active",
+    "daysActiveSubtitle": "Ai fost prezent săptămâna aceasta!",
+    "stacksCompleted": "Stack-uri Finalizate",
+    "stacksCompletedSubtitle": "Sesiuni de reflecție completate",
+    "pagesRead": "Pagini Citite",
+    "pagesReadSubtitle": "Cunoștințe acumulate",
+    "actionsCompleted": "Acțiuni Finalizate",
+    "actionsCompletedSubtitle": "Sarcini îndeplinite",
+    "xpEarnedWeek": "XP Câștigat",
+    "xpEarnedSubtitle": "Experiență acumulată",
+    "currentStreakWeek": "Serie Curentă",
+    "currentStreakSubtitle": "Zile consecutive",
+    "badgesEarned": "Insigne Câștigate",
+    "badgesEarnedSubtitle": "Realizări deblocate",
+    "greatWeek": "Săptămână excelentă!",
+    "seeYouNextWeek": "Ne vedem săptămâna viitoare!",
+    
+    // Milestone Celebrations
+    "milestoneReached": "Milestone Atins!",
+    "firstStack": "Primul Stack",
+    "firstStackMessage": "Ai finalizat primul tău stack de reflecție!",
+    "tenStacks": "10 Stack-uri",
+    "tenStacksMessage": "Un milestone al reflecției și creșterii!",
+    "hundredPages": "100 de Pagini",
+    "hundredPagesMessage": "Ai citit 100 de pagini de înțelepciune!",
+    "firstWeek": "Prima Săptămână",
+    "firstWeekMessage": "Prima ta serie de o săptămână!",
+    "firstMonth": "Prima Lună",
+    "firstMonthMessage": "O lună întreagă de dedicare!",
+    "levelFive": "Nivelul 5",
+    "levelFiveMessage": "Ai ajuns la Nivelul 5!",
+    "levelTen": "Nivelul 10",
+    "levelTenMessage": "Marele 10! Ești un maestru!",
+    
+    // Rewards Showcase
+    "rewards": "Recompense",
+    "unlockableRewards": "Recompense Deblocabile",
+    "themes": "Teme",
+    "avatars": "Avataruri",
+    "frames": "Rame",
+    "unlockAt": "Deblochează la Nivelul",
+    "unlocked": "Deblocat",
+    "equipped": "Echipat",
+    "equip": "Echipează",
+    "locked": "Blocat",
+    "nextReward": "Următoarea Recompensă",
+    
+    // Reward names
+    "reward_dark_theme": "Tema Războinic Întunecat",
+    "reward_dark_theme_desc": "O temă întunecată elegantă pentru războinici concentrați",
+    "reward_gold_theme": "Tema Campion Auriu",
+    "reward_gold_theme_desc": "O temă aurie prestigioasă",
+    "reward_nature_theme": "Tema Armonie Naturală",
+    "reward_nature_theme_desc": "Culori liniștitoare inspirate de natură",
+    "reward_avatar_warrior": "Avatar Războinic",
+    "reward_avatar_warrior_desc": "Avatarul clasic al războinicului",
+    "reward_avatar_sage": "Avatar Înțelept",
+    "reward_avatar_sage_desc": "Înțelepciunea personificată",
+    "reward_avatar_legend": "Avatar Legendă",
+    "reward_avatar_legend_desc": "Pentru realizatorii legendari",
+    "reward_frame_bronze": "Ramă de Bronz",
+    "reward_frame_bronze_desc": "O ramă solidă de bronz",
+    "reward_frame_silver": "Ramă de Argint",
+    "reward_frame_silver_desc": "O ramă elegantă de argint",
+    "reward_frame_gold": "Ramă de Aur",
+    "reward_frame_gold_desc": "Prestigioasa ramă de aur",
+    
+    // Gamification general
+    "gamification": "Gamificare",
+    "achievements": "Realizări",
+    "progress": "Progres",
+    "streak": "Serie",
+    "currentStreak": "Serie Curentă",
+    "longestStreak": "Cea Mai Lungă Serie",
+    "totalDaysActive": "Total Zile Active",
+    "loading": "Se încarcă...",
+    "error": "Eroare",
+    "close": "Închide",
+    "ok": "OK",
+    "cancel": "Anulează",
+    "confirm": "Confirmă",
+    "delete": "Șterge",
+    "edit": "Editează",
+    "add": "Adaugă",
+    "remove": "Elimină",
+    "update": "Actualizează",
+    "create": "Creează",
+    "submit": "Trimite",
+    "done": "Gata",
+    "finish": "Finalizează",
+    "start": "Începe",
+    "stop": "Oprește",
+    "pause": "Pauză",
+    "resume": "Reia",
+    "retry": "Încearcă din nou",
+    "back": "Înapoi",
+    "forward": "Înainte",
+    "yes": "Da",
+    "no": "Nu"
   }
 };
 
-const LanguageContext = createContext<{
+interface LanguageContextType {
   language: Language;
   setLanguage: (language: Language) => void;
   t: (key: string) => string;
-}>({
+  isLoading: boolean;
+}
+
+const LanguageContext = createContext<LanguageContextType>({
   language: 'en',
   setLanguage: () => {},
   t: (key: string) => key,
+  isLoading: true,
 });
 
 export const LanguageProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   // Initialize with language from localStorage, defaulting to 'en'
-  const initialLanguage = () => {
+  const getInitialLanguage = (): Language => {
     const savedLanguage = localStorage.getItem('language') as Language;
     return (savedLanguage === 'en' || savedLanguage === 'ro') ? savedLanguage : 'en';
   };
   
-  const [language, setLanguage] = useState<Language>(initialLanguage);
+  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  // Whenever language changes, save it to localStorage
+  // Listen for auth state changes
   useEffect(() => {
-    localStorage.setItem('language', language);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Load language preference from database when user is authenticated
+  useEffect(() => {
+    const loadLanguageFromDB = async () => {
+      if (!userId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('user_preferences')
+          .select('language')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error loading language preference:', error);
+          setIsLoading(false);
+          return;
+        }
+
+        if (data?.language && (data.language === 'en' || data.language === 'ro')) {
+          setLanguageState(data.language as Language);
+          localStorage.setItem('language', data.language);
+        }
+      } catch (err) {
+        console.error('Error loading language preference:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadLanguageFromDB();
+  }, [userId]);
+
+  // Update language in both localStorage and database
+  const setLanguage = useCallback(async (newLanguage: Language) => {
+    // Update local state immediately
+    setLanguageState(newLanguage);
+    localStorage.setItem('language', newLanguage);
+
+    // If user is authenticated, save to database
+    if (userId) {
+      try {
+        const { error } = await supabase
+          .from('user_preferences')
+          .upsert(
+            { 
+              user_id: userId, 
+              language: newLanguage,
+              updated_at: new Date().toISOString()
+            },
+            { 
+              onConflict: 'user_id' 
+            }
+          );
+
+        if (error) {
+          console.error('Error saving language preference:', error);
+        }
+      } catch (err) {
+        console.error('Error saving language preference:', err);
+      }
+    }
+  }, [userId]);
+
+  const t = useCallback((key: string): string => {
+    return translations[language][key] || translations['en'][key] || key;
   }, [language]);
 
-  const t = (key: string): string => {
-    return translations[language][key] || translations['en'][key] || key;
-  };
-
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, isLoading }}>
       {children}
     </LanguageContext.Provider>
   );
