@@ -686,7 +686,7 @@ export const Dashboard: React.FC = () => {
     setHasAwardedDailyXP(hasCompletedDailyFour);
   }, [selectedDay]);
 
-  return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4 bg-gradient-to-b from-background to-muted">
+  return (<div className="w-full max-w-full py-6 px-4 md:py-10 md:px-6 lg:px-8 bg-background min-h-screen">
       {/* Celebration Overlays */}
       <TransformedWarrior 
         isVisible={showWarriorOverlay} 
@@ -717,27 +717,21 @@ export const Dashboard: React.FC = () => {
       />
 
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
-          <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 animate-pulse"></div>
-          <div className="absolute left-0 top-0 w-12 h-full bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
-          <div className="absolute right-0 top-0 w-12 h-full bg-gradient-to-b from-pink-500 via-purple-500 to-blue-500 animate-pulse"></div>
-          
-          {Array.from({
-        length: 50
-      }).map((_, i) => <div key={i} className="absolute animate-float" style={{
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-        animationDuration: `${Math.random() * 3 + 2}s`,
-        animationDelay: `${Math.random() * 2}s`
-      }}>
-              <div className="w-3 h-3 rotate-45 bg-gradient-to-br from-purple-400 to-pink-500" style={{
-          boxShadow: '0 0 10px rgba(219, 39, 119, 0.5)'
-        }}></div>
-            </div>)}
+          <div className="absolute inset-0 bg-primary/5 animate-pulse" />
+          {Array.from({ length: 30 }).map((_, i) => (
+            <div key={i} className="absolute animate-float" style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDuration: `${Math.random() * 3 + 2}s`,
+              animationDelay: `${Math.random() * 2}s`
+            }}>
+              <div className="w-2 h-2 rounded-full bg-primary/60" />
+            </div>
+          ))}
         </div>}
       
-      <div className="flex justify-between items-center mb-4 md:mb-6">
-        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+      <div className="flex justify-between items-center mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-semibold text-foreground">
           {language === 'en' ? 'My Daily' : 'Zilnica mea'}
         </h1>
         
@@ -814,161 +808,134 @@ export const Dashboard: React.FC = () => {
         />
       </div>
       
-      <div className="mb-6 md:mb-8 bg-card border border-border p-3 md:p-4 rounded-lg shadow-sm">
-        <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          {language === 'en' ? 'Warrior’s Path' : 'Calea Războinicului'}
+      {/* Progress Path - Modern & Clean */}
+      <div className="mb-8 bg-card rounded-2xl border border-border p-5 md:p-6">
+        <h2 className="text-lg font-medium text-foreground mb-5">
+          {language === 'en' ? 'Progress Path' : 'Calea Progresului'}
         </h2>
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col items-center z-10 relative">
-            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
-            ${hasStack ? 'border-green-500 bg-green-500/20 text-green-400' : 'border-gray-600 bg-gray-800/50 text-gray-400'}`} style={{
-            border: hasStack ? '3px solid hsl(var(--accent))' : '3px solid hsl(var(--muted-foreground) / 0.6)',
-            boxShadow: hasStack ? '0 0 15px hsl(var(--accent) / 0.5)' : 'none'
-          }}>
-              {hasStack ? <>
-                  <Book className="w-5 h-5 md:w-8 md:h-8" />
-                  <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 text-white rounded-full p-1" />
-                </> : <Button className="absolute inset-0 m-auto rounded-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-800 text-white text-xs flex items-center justify-center" style={{
-              width: 'calc(100% - 6px)',
-              height: 'calc(100% - 6px)'
-            }} onClick={() => navigateTo('/stack')}>
-                  {language === 'en' ? 'START' : 'START'}
-                </Button>}
+        <div className="flex items-center justify-between gap-2">
+          {/* Stack */}
+          <div className="flex flex-col items-center">
+            <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center relative border-2 transition-all duration-300
+              ${hasStack 
+                ? 'border-primary bg-primary/10 text-primary' 
+                : 'border-muted-foreground/30 bg-muted text-muted-foreground'}`}>
+              {hasStack ? (
+                <>
+                  <Book className="w-6 h-6" />
+                  <Check className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full p-0.5" />
+                </>
+              ) : (
+                <Button 
+                  size="sm"
+                  className="absolute inset-1 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs"
+                  onClick={() => navigateTo('/stack')}
+                >
+                  Start
+                </Button>
+              )}
             </div>
-            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">{t('stack')}</span>
-            {/* Quick access to Gratitude Stack */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigateTo('/stack?type=gratitude')}
-              className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 p-1 h-auto"
-            >
-              <Sparkles className="w-3 h-3 mr-1" />
-              <span className="hidden md:inline">Gratitude</span>
-            </Button>
+            <span className="mt-2 text-xs text-muted-foreground font-medium">{t('stack')}</span>
           </div>
           
-          <div className="flex-grow mx-2 relative">
-            <div className="h-2 bg-muted rounded-full w-full relative overflow-hidden">
-              <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-1000 ease-in-out ${hasStack ? 'animate-progress-line' : ''}`} style={{
-              width: `${stackToCoreLine}%`
-            }}></div>
-            </div>
+          {/* Progress Line 1 */}
+          <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-primary transition-all duration-700 ease-out"
+              style={{ width: `${stackToCoreLine}%` }}
+            />
           </div>
           
-          <div className="flex flex-col items-center z-10">
-            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
-            ${hasCompletedCore ? 'bg-blue-500/20 text-blue-400' : hasStack ? 'bg-blue-800/20 text-blue-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
-            border: '3px solid transparent',
-            backgroundClip: 'padding-box',
-            boxShadow: hasCompletedCore ? '0 0 15px hsl(var(--primary) / 0.5)' : 'none',
-            position: 'relative'
-          }}>
-              {/* The circular progress track */}
-              <div className="absolute inset-[-3px] rounded-full z-0" style={{
-              background: hasStack ? `conic-gradient(hsl(var(--primary)) ${coreProgress}%, hsl(var(--muted-foreground) / 0.6) 0%)` : 'hsl(var(--muted-foreground) / 0.6)',
-              clipPath: 'circle(50%)'
-            }}></div>
-              <Activity className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
-              {hasCompletedCore && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-blue-500 text-white rounded-full p-1 z-20" />}
+          {/* Core */}
+          <div className="flex flex-col items-center">
+            <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center relative border-2 transition-all duration-300
+              ${hasCompletedCore 
+                ? 'border-primary bg-primary/10 text-primary' 
+                : hasStack 
+                  ? 'border-primary/40 bg-muted text-primary/60' 
+                  : 'border-muted-foreground/30 bg-muted text-muted-foreground'}`}>
+              <Activity className="w-6 h-6" />
+              {hasCompletedCore && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full p-0.5" />}
             </div>
-            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">CORE</span>
+            <span className="mt-2 text-xs text-muted-foreground font-medium">Core</span>
           </div>
           
-          <div className="flex-grow mx-2 relative">
-            <div className="h-2 bg-muted rounded-full w-full relative overflow-hidden">
-              <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-in-out ${coreProgress > 0 ? 'animate-progress-line' : ''}`} style={{
-              width: `${coreToDaily}%`
-            }}></div>
-            </div>
+          {/* Progress Line 2 */}
+          <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-primary transition-all duration-700 ease-out"
+              style={{ width: `${coreToDaily}%` }}
+            />
           </div>
           
-          <div className="flex flex-col items-center z-10">
-            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
-            ${hasCompletedDailyFour ? 'bg-purple-500/20 text-purple-400' : hasCompletedCore ? 'bg-purple-800/20 text-purple-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
-            border: '3px solid transparent',
-            backgroundClip: 'padding-box',
-            boxShadow: hasCompletedDailyFour ? '0 0 15px hsl(var(--accent) / 0.5)' : 'none'
-          }}>
-              {/* The circular progress track */}
-              <div className="absolute inset-[-3px] rounded-full z-0" style={{
-              background: coreProgress > 0 ? `conic-gradient(hsl(var(--accent)) ${dailyProgress}%, hsl(var(--muted-foreground) / 0.6) 0%)` : 'hsl(var(--muted-foreground) / 0.6)',
-              clipPath: 'circle(50%)'
-            }}></div>
-              <Video className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
-              {hasCompletedDailyFour && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-purple-500 text-white rounded-full p-1 z-20" />}
+          {/* Daily */}
+          <div className="flex flex-col items-center">
+            <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center relative border-2 transition-all duration-300
+              ${hasCompletedDailyFour 
+                ? 'border-accent bg-accent/10 text-accent' 
+                : hasCompletedCore 
+                  ? 'border-accent/40 bg-muted text-accent/60' 
+                  : 'border-muted-foreground/30 bg-muted text-muted-foreground'}`}>
+              <Video className="w-6 h-6" />
+              {hasCompletedDailyFour && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-accent-foreground rounded-full p-0.5" />}
             </div>
-            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">DAILY</span>
+            <span className="mt-2 text-xs text-muted-foreground font-medium">Daily</span>
           </div>
           
-          <div className="flex-grow mx-2 relative">
-            <div className="h-2 bg-muted rounded-full w-full relative overflow-hidden">
-              <div className={`absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000 ease-in-out ${dailyProgress > 0 ? 'animate-progress-line' : ''}`} style={{
-              width: `${dailyToDoor}%`
-            }}></div>
-            </div>
+          {/* Progress Line 3 */}
+          <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-accent transition-all duration-700 ease-out"
+              style={{ width: `${dailyToDoor}%` }}
+            />
           </div>
           
-          <div className="flex flex-col items-center z-10">
-            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center relative
-            ${hasCompletedDoor ? 'bg-pink-500/20 text-pink-400' : hasCompletedDailyFour ? 'bg-pink-800/20 text-pink-300/70' : 'bg-gray-800/50 text-gray-400'}`} style={{
-            border: '3px solid transparent',
-            backgroundClip: 'padding-box',
-            boxShadow: hasCompletedDoor ? '0 0 15px hsl(var(--goddess-gold) / 0.5)' : 'none'
-          }}>
-              {/* The circular progress track */}
-              <div className="absolute inset-[-3px] rounded-full z-0" style={{
-              background: dailyProgress > 0 ? `conic-gradient(hsl(var(--goddess-gold)) ${doorProgress}%, hsl(var(--muted-foreground) / 0.6) 0%)` : 'hsl(var(--muted-foreground) / 0.6)',
-              clipPath: 'circle(50%)'
-            }}></div>
-              <ListTodo className="w-5 h-5 md:w-8 md:h-8 relative z-10" />
-              {hasCompletedDoor && <Check className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-pink-500 text-white rounded-full p-1 z-20" />}
+          {/* Gateway */}
+          <div className="flex flex-col items-center">
+            <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center relative border-2 transition-all duration-300
+              ${hasCompletedDoor 
+                ? 'border-accent bg-accent/10 text-accent' 
+                : hasCompletedDailyFour 
+                  ? 'border-accent/40 bg-muted text-accent/60' 
+                  : 'border-muted-foreground/30 bg-muted text-muted-foreground'}`}>
+              <ListTodo className="w-6 h-6" />
+              {hasCompletedDoor && <Check className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-accent-foreground rounded-full p-0.5" />}
             </div>
-            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">GATEWAY</span>
+            <span className="mt-2 text-xs text-muted-foreground font-medium">Gateway</span>
           </div>
         </div>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 bg-card">
-          <TabsTrigger value="goddess-tools" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-feminine-primary data-[state=active]:to-feminine-purple">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+        <TabsList className="grid grid-cols-2 md:w-[400px] mb-6 bg-muted/50 p-1 rounded-xl">
+          <TabsTrigger value="goddess-tools" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">
             {language === 'en' ? 'RoWarrior Tools' : 'Unelte RoWarrior'}
           </TabsTrigger>
-          <TabsTrigger value="courses" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600">
+          <TabsTrigger value="courses" className="rounded-lg data-[state=active]:bg-card data-[state=active]:shadow-sm">
             {language === 'en' ? 'Courses' : 'Cursuri'}
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="goddess-tools" className="space-y-6">
-          <div className="mb-8">
+        <TabsContent value="goddess-tools" className="space-y-8">
+          <div>
+            <h3 className="text-lg font-medium text-foreground mb-6">
+              {language === 'en' ? 'Core & Daily Activities' : 'Activități Core & Zilnice'}
+            </h3>
             
-            
-            
-            
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg uppercase font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {language === 'en' ? 'CORE & DAILY ACTIVITIES' : 'CORE & DAILY FOUR'}
-                </h3>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-                <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-blue-900/50 dark:to-blue-800/30 p-3 md:p-4 rounded-lg border border-primary/20 backdrop-blur-sm">
-                    <div className="flex justify-between items-center mb-3 md:mb-4">
-                      <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                        {language === 'en' ? 'CORE 4' : 'CORE 4'}
-                      </h3>
-                      <Button variant="outline" className="border-primary/50 hover:bg-primary/10 text-xs md:text-sm" onClick={() => navigateTo('/core')}>
-                        {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
-                      </Button>
-                    </div>
-                    
-                    {/* Show WarriorPowerCard when Core 4 is complete and animation has been shown */}
-                    {hasCompletedCore && hasShownCoreAnimation ? (
-                      <WarriorPowerCard />
-                    ) : (
-                      <div className="grid grid-cols-2 gap-1.5 md:gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Core 4 Section */}
+              <div className="bg-card rounded-2xl border border-border p-5">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-base font-medium text-foreground">Core 4</h4>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => navigateTo('/core')}>
+                    {language === 'en' ? 'View' : 'Vezi'}
+                  </Button>
+                </div>
+                
+                {hasCompletedCore && hasShownCoreAnimation ? (
+                  <WarriorPowerCard />
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
                         {/* Row 1: Body - Fitness & Fuel */}
                         {(() => {
                           const fitnessCompleted = coreData[selectedDay]?.['fitness'] || false;
@@ -1157,7 +1124,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="space-y-6">
+                {/* Biz 4 Section */}
                   <div className="bg-gradient-to-r from-accent/10 to-accent/5 dark:from-purple-900/50 dark:to-purple-800/30 p-3 md:p-4 rounded-lg border border-accent/20 backdrop-blur-sm">
                     <div className="flex justify-between items-center mb-3 md:mb-4">
                       <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">
@@ -1418,5 +1385,6 @@ export const Dashboard: React.FC = () => {
           <LearnDashboard onCategorySelect={handleLearnCategorySelect} activeCategory={activeLearnCategory} categoryCounts={categoryCounts} onSubcategorySelect={handleLearnSubcategorySelect} activeSubcategory={activeLearnSubcategory} />
         </TabsContent>
       </Tabs>
-    </div>;
+    </div>
+  );
 };
