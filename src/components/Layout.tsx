@@ -96,25 +96,7 @@ export const Layout: React.FC<LayoutProps> = ({
         <div className={`${isMobile ? 'p-4 pt-16' : 'p-6'}`}>
           {/* Header - Hidden on mobile to save space */}
           {!isMobile && <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center justify-end space-x-4 w-full">
-                  <div className="text-sm text-muted-foreground">
-                    {formatDate()}
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-9 w-9">
-                    {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                  </Button>
-                  {!user ? <Button asChild variant="secondary" size="sm">
-                      <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
-                    </Button> : <div className="flex items-center gap-2">
-                      <Button asChild variant="secondary" size="sm">
-                        <Link to="/profile">{language === 'en' ? 'My account' : 'Contul meu'}</Link>
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={handleSignOut}>
-                        {language === 'en' ? 'Log out' : 'Delogare'}
-                      </Button>
-                    </div>}
-                  <LanguageSelector />
-                </div>
+                
             </div>}
           
           {/* Mobile Header - Simplified */}
