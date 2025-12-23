@@ -9,17 +9,8 @@ export const LanguageSelector: React.FC = () => {
 
   const handleLanguageChange = (value: string) => {
     const newLanguage = value as 'en' | 'ro';
-    
-    // Save to localStorage before setting state to ensure it persists
-    localStorage.setItem('language', newLanguage);
-    
-    // Update the language in context
+    // Update the language in context (this now handles localStorage and DB sync)
     setLanguage(newLanguage);
-    
-    // Force a page reload to ensure all translations are properly applied
-    // This is especially important for components like FactMapDetail that
-    // need to refresh their question sets based on the selected language
-    window.location.reload();
   };
 
   return (
