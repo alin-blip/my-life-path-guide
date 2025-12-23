@@ -510,7 +510,15 @@ const translations: Translations = {
     "back": "Back",
     "forward": "Forward",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    
+    // DailyCompactCard
+    "dailyPage": "Daily Page",
+    "read": "Read",
+    "pleaseLoginToTrack": "Please login to track progress",
+    "actionCompletedToast": "Action completed!",
+    "showMore": "Show more",
+    "showLess": "Show less"
   },
   ro: {
     // Auth page
@@ -998,6 +1006,14 @@ const translations: Translations = {
     "add": "Adaugă",
     "remove": "Elimină",
     "update": "Actualizează",
+    
+    // DailyCompactCard
+    "dailyPage": "Pagina Zilnică",
+    "read": "Citit",
+    "pleaseLoginToTrack": "Te rugăm să te autentifici pentru a urmări progresul",
+    "actionCompletedToast": "Acțiune finalizată!",
+    "showMore": "Arată mai mult",
+    "showLess": "Arată mai puțin",
     "create": "Creează",
     "submit": "Trimite",
     "done": "Gata",
