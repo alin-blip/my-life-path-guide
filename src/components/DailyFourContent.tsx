@@ -1,17 +1,19 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useProgress } from '@/context/ProgressContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
   PenLine, MessageSquare, Send, Handshake,
   Podcast, MonitorPlay, ChevronLeft, ChevronRight,
-  ArrowLeft, CheckCircle2
+  ArrowLeft, CheckCircle2, BarChart3
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { WeeklyProgress } from './WeeklyProgress';
+import { Biz4ActionModal } from './biz4/Biz4ActionModal';
+import { useBiz4Reminders } from '@/hooks/useBiz4Reminders';
 
 type DayOfWeek = 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su';
 
@@ -42,6 +44,10 @@ export const DailyFourContent: React.FC = () => {
     getDailyFourScore,
     getWeeklyTwoScore 
   } = useProgress();
+
+  const { incompleteActions, refreshIncomplete } = useBiz4Reminders();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<'content' | 'engage' | 'outreach' | 'close' | 'podcast' | 'webinar'>('content');
   
   const dailyActivities: DailyActivity[] = [
     { id: 'video', title: 'CONTENT', description: t('contentDesc'), icon: <PenLine className="h-6 w-6" /> },
@@ -91,28 +97,59 @@ export const DailyFourContent: React.FC = () => {
     const activity = dailyFourData[selectedDay]?.dailyActivities?.find(a => a.id === id);
     const isCompleted = activity?.completed || false;
     
-    updateDailyActivity(selectedDay, id, !isCompleted);
+    if (!isCompleted) {
+      // Open modal for detailed metrics
+      const actionMap: Record<string, 'content' | 'engage' | 'outreach' | 'close'> = {
+        video: 'content',
+        text: 'engage',
+        audio: 'outreach',
+        image: 'close',
+      };
+      setSelectedAction(actionMap[id] || 'content');
+      setModalOpen(true);
+    } else {
+      // Allow unchecking directly
+      updateDailyActivity(selectedDay, id, false);
+      toast({
+        title: t('activityIncomplete').replace('{activity}', id.toUpperCase()),
+        description: t('progressUpdated'),
+      });
+    }
+  };
+
+  const handleModalComplete = () => {
+    const actionToIdMap: Record<string, string> = {
+      content: 'video',
+      engage: 'text',
+      outreach: 'audio',
+      close: 'image',
+      podcast: 'podcast',
+      webinar: 'webinar',
+    };
+    const activityId = actionToIdMap[selectedAction];
     
-    toast({
-      title: !isCompleted 
-        ? t('activityCompleted').replace('{activity}', id.toUpperCase()) 
-        : t('activityIncomplete').replace('{activity}', id.toUpperCase()),
-      description: !isCompleted ? t('greatJob') : t('progressUpdated'),
-    });
+    if (['podcast', 'webinar'].includes(selectedAction)) {
+      updateWeeklyActivity(selectedDay, activityId, true);
+    } else {
+      updateDailyActivity(selectedDay, activityId, true);
+    }
+    refreshIncomplete();
   };
   
   const toggleWeeklyActivity = (id: string) => {
     const activity = dailyFourData[selectedDay]?.weeklyActivities?.find(a => a.id === id);
     const isCompleted = activity?.completed || false;
     
-    updateWeeklyActivity(selectedDay, id, !isCompleted);
-    
-    toast({
-      title: !isCompleted 
-        ? t('activityCompleted').replace('{activity}', id.toUpperCase()) 
-        : t('activityIncomplete').replace('{activity}', id.toUpperCase()),
-      description: !isCompleted ? t('greatJob') : t('progressUpdated'),
-    });
+    if (!isCompleted) {
+      setSelectedAction(id as 'podcast' | 'webinar');
+      setModalOpen(true);
+    } else {
+      updateWeeklyActivity(selectedDay, id, false);
+      toast({
+        title: t('activityIncomplete').replace('{activity}', id.toUpperCase()),
+        description: t('progressUpdated'),
+      });
+    }
   };
   
   const handleNavigateToDashboard = () => {
@@ -129,6 +166,13 @@ export const DailyFourContent: React.FC = () => {
   
   return (
     <div className="w-full max-w-full px-2 sm:px-4 md:px-6 min-h-screen rounded-lg py-4 sm:py-6">
+      <Biz4ActionModal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        actionType={selectedAction}
+        onComplete={handleModalComplete}
+      />
+      
       <div className="flex justify-between items-center mb-4 sm:mb-6">
         <div className="flex items-center gap-2">
           <Button 
@@ -142,12 +186,23 @@ export const DailyFourContent: React.FC = () => {
           </Button>
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold uppercase">{t('biz4')}</h1>
         </div>
-        <Button 
-          className="bg-primary hover:bg-primary/90 text-white text-xs sm:text-sm px-2 sm:px-4"
-          onClick={handleNavigateToDashboard}
-        >
-          {t('dashboard')}
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1 text-xs sm:text-sm"
+            onClick={() => navigate('/biz4-report')}
+          >
+            <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
+            {language === 'en' ? 'Report' : 'Raport'}
+          </Button>
+          <Button 
+            className="bg-primary hover:bg-primary/90 text-white text-xs sm:text-sm px-2 sm:px-4"
+            onClick={handleNavigateToDashboard}
+          >
+            {t('dashboard')}
+          </Button>
+        </div>
       </div>
       
       <WeeklyProgress 

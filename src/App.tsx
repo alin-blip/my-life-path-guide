@@ -50,6 +50,7 @@ const VoiceAnalysis = lazy(() => import("./pages/VoiceAnalysis"));
 const Lifebook = lazy(() => import("./pages/Lifebook"));
 const About = lazy(() => import("./pages/About"));
 const DailyTimeline = lazy(() => import("./pages/DailyTimeline"));
+const Biz4Report = lazy(() => import("./pages/Biz4Report"));
 
 // Loading component for lazy routes
 const LoadingFallback = () => (
@@ -219,6 +220,11 @@ const App = () => (
                     <Route path="/daily-timeline" element={
                       <ProtectedRoute>
                         <DailyTimeline />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/biz4-report" element={
+                      <ProtectedRoute>
+                        <Biz4Report />
                       </ProtectedRoute>
                     } />
                         <Route path="*" element={<NotFound />} />
