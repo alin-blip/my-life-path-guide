@@ -46,6 +46,7 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoStartTimerRef = useRef<NodeJS.Timeout | null>(null);
   const accumulatedTranscriptRef = useRef<string>('');
+  const interimTranscriptRef = useRef<string>('');
   const isListeningRef = useRef(false);
   const isActiveRef = useRef(false);
   const recognitionRunningRef = useRef(false);
@@ -155,8 +156,10 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
   }, [cleanupTimers, safeStopRecognition]);
 
   // Send user message
-  const sendUserMessage = useCallback(() => {
-    const message = accumulatedTranscriptRef.current.trim();
+  const sendUserMessage = useCallback((textOverride?: string) => {
+    const combined = `${accumulatedTranscriptRef.current} ${interimTranscriptRef.current}`.trim();
+    const message = (textOverride ?? combined).trim();
+
     if (!message) {
       console.log('📭 No message to send');
       return;
@@ -164,14 +167,15 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
     console.log('📤 Sending user message:', message);
     stopListeningInternal();
-    
-    setState(prev => ({ 
-      ...prev, 
+
+    setState(prev => ({
+      ...prev,
       isProcessing: true,
       currentTranscript: ''
     }));
 
     accumulatedTranscriptRef.current = '';
+    interimTranscriptRef.current = '';
     onUserMessageRef.current(message);
 
     setTimeout(() => {
@@ -208,9 +212,10 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
     silenceTimerRef.current = setTimeout(() => {
       console.log('⏱️ Silence timer triggered');
-      if (accumulatedTranscriptRef.current.trim() && isListeningRef.current) {
+      const pending = `${accumulatedTranscriptRef.current} ${interimTranscriptRef.current}`.trim();
+      if (pending && isListeningRef.current) {
         console.log('🔄 Auto-sending after silence');
-        sendUserMessage();
+        sendUserMessage(pending);
       }
     }, silenceThreshold);
   }, [silenceThreshold, sendUserMessage]);
@@ -269,6 +274,7 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       console.log('🎤 Starting to listen');
       isListeningRef.current = true;
       accumulatedTranscriptRef.current = '';
+      interimTranscriptRef.current = '';
       
       setState(prev => ({ 
         ...prev, 
@@ -369,11 +375,20 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
       if (finalTranscript.trim()) {
         accumulatedTranscriptRef.current += finalTranscript;
+        interimTranscriptRef.current = '';
         console.log('📝 Accumulated transcript:', accumulatedTranscriptRef.current);
         resetSilenceTimer();
       }
 
-      const displayText = accumulatedTranscriptRef.current + interimTranscript;
+      if (interimTranscript.trim()) {
+        interimTranscriptRef.current = interimTranscript;
+        resetSilenceTimer();
+      } else if (!finalTranscript.trim()) {
+        // If we only got empty interim and no final, clear interim
+        interimTranscriptRef.current = '';
+      }
+
+      const displayText = `${accumulatedTranscriptRef.current} ${interimTranscriptRef.current}`.trim();
       setState(prev => ({ ...prev, currentTranscript: displayText }));
     };
 
@@ -449,8 +464,9 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
   // Manual send
   const manualSend = useCallback(() => {
-    if (accumulatedTranscriptRef.current.trim()) {
-      sendUserMessage();
+    const pending = `${accumulatedTranscriptRef.current} ${interimTranscriptRef.current}`.trim();
+    if (pending) {
+      sendUserMessage(pending);
     }
   }, [sendUserMessage]);
 
