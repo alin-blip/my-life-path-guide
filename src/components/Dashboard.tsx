@@ -35,6 +35,7 @@ import {
   BadgeUnlockCelebration, 
   RewardsShowcase 
 } from '@/components/gamification';
+import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -119,6 +120,9 @@ export const Dashboard: React.FC = () => {
   const [showBadgeUnlock, setShowBadgeUnlock] = useState(false);
   const [unlockedBadge, setUnlockedBadge] = useState<typeof BADGES[0] | null>(null);
   const [previouslyEarnedBadges, setPreviouslyEarnedBadges] = useState<string[]>([]);
+  
+  // Explainer modal states
+  const [explainerModalType, setExplainerModalType] = useState<'core4' | 'biz4' | 'stack' | null>(null);
   
   const prevCategoryComplete = useRef<Record<string, boolean>>({
     body: false,
@@ -798,11 +802,17 @@ export const Dashboard: React.FC = () => {
                 </> : <Button className="absolute inset-0 m-auto rounded-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-800 text-white text-xs flex items-center justify-center" style={{
               width: 'calc(100% - 6px)',
               height: 'calc(100% - 6px)'
-            }} onClick={() => navigateTo('/stack')}>
+            }} onClick={() => navigateTo('/stack?type=daily-master')}>
                   {language === 'en' ? 'START' : 'START'}
                 </Button>}
             </div>
-            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">{t('stack')}</span>
+            <span 
+              className="mt-1 md:mt-2 text-xs text-center text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+              onClick={() => setExplainerModalType('stack')}
+              title="Click pentru explicații despre stack-uri"
+            >
+              {t('stack')} <span className="opacity-60">ⓘ</span>
+            </span>
             {/* Quick access to Gratitude Stack */}
             <Button
               variant="ghost"
@@ -923,8 +933,12 @@ export const Dashboard: React.FC = () => {
                 <div className="space-y-6">
                   <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-blue-900/50 dark:to-blue-800/30 p-3 md:p-4 rounded-lg border border-primary/20 backdrop-blur-sm">
                     <div className="flex justify-between items-center mb-3 md:mb-4">
-                      <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                        {language === 'en' ? 'CORE 4' : 'CORE 4'}
+                      <h3 
+                        className="text-base md:text-lg font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => setExplainerModalType('core4')}
+                        title="Click pentru explicații"
+                      >
+                        {language === 'en' ? 'CORE 4' : 'CORE 4'} <span className="text-xs opacity-60">ⓘ</span>
                       </h3>
                       <Button variant="outline" className="border-primary/50 hover:bg-primary/10 text-xs md:text-sm" onClick={() => navigateTo('/core')}>
                         {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
@@ -1127,8 +1141,12 @@ export const Dashboard: React.FC = () => {
                 <div className="space-y-6">
                   <div className="bg-gradient-to-r from-accent/10 to-accent/5 dark:from-purple-900/50 dark:to-purple-800/30 p-3 md:p-4 rounded-lg border border-accent/20 backdrop-blur-sm">
                     <div className="flex justify-between items-center mb-3 md:mb-4">
-                      <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">
-                        {language === 'en' ? 'Biz 4' : 'Biz 4'}
+                      <h3 
+                        className="text-base md:text-lg font-bold bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => setExplainerModalType('biz4')}
+                        title="Click pentru explicații"
+                      >
+                        {language === 'en' ? 'Biz 4' : 'Biz 4'} <span className="text-xs opacity-60">ⓘ</span>
                       </h3>
                       <Button variant="outline" className="border-accent/50 hover:bg-accent/10 text-xs md:text-sm" onClick={() => navigateTo('/daily-four')}>
                         {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
@@ -1387,5 +1405,12 @@ export const Dashboard: React.FC = () => {
           <LearnDashboard onCategorySelect={handleLearnCategorySelect} activeCategory={activeLearnCategory} categoryCounts={categoryCounts} onSubcategorySelect={handleLearnSubcategorySelect} activeSubcategory={activeLearnSubcategory} />
         </TabsContent>
       </Tabs>
+      
+      {/* Explainer Modal */}
+      <ExplainerModal 
+        open={explainerModalType !== null} 
+        onOpenChange={(open) => !open && setExplainerModalType(null)}
+        type={explainerModalType || 'core4'}
+      />
     </div>;
 };
