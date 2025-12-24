@@ -9,6 +9,7 @@ interface UseVoiceConversationOptions {
   autoStartDelay?: number; // ms after AI finishes to auto-start mic (default 2000)
   language?: 'ro-RO' | 'en-US';
   voiceId?: string;
+  playbackRate?: number; // speech speed (default 1.25)
 }
 
 interface VoiceConversationState {
@@ -28,7 +29,8 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
     silenceThreshold = 3000,
     autoStartDelay = 2000,
     language = 'ro-RO',
-    voiceId = 'EXAVITQu4vr4xnSDxMaL'
+    voiceId = 'EXAVITQu4vr4xnSDxMaL',
+    playbackRate = 1.25
   } = options;
 
   const [state, setState] = useState<VoiceConversationState>({
@@ -317,6 +319,7 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
   // TTS hook for AI speaking
   const tts = useTextToSpeech({
     voiceId,
+    initialPlaybackRate: playbackRate,
     onSpeakingStart: () => {
       console.log('🔊 AI started speaking');
       stopListeningInternal();
@@ -331,6 +334,11 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       }
     }
   });
+
+  // Update TTS playback rate when it changes
+  useEffect(() => {
+    tts.changePlaybackRate(playbackRate);
+  }, [playbackRate]);
 
   // Initialize Speech Recognition
   useEffect(() => {
