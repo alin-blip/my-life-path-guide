@@ -6,6 +6,7 @@ interface UseVoiceConversationOptions {
   onUserMessage: (text: string) => void;
   onAIResponse?: (text: string) => void;
   silenceThreshold?: number; // ms before auto-send (default 3000)
+  autoStartDelay?: number; // ms after AI finishes to auto-start mic (default 2000)
   language?: 'ro-RO' | 'en-US';
   voiceId?: string;
 }
@@ -25,6 +26,7 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
     onUserMessage,
     onAIResponse,
     silenceThreshold = 3000,
+    autoStartDelay = 2000,
     language = 'ro-RO',
     voiceId = 'EXAVITQu4vr4xnSDxMaL'
   } = options;
@@ -42,9 +44,11 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
   const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const autoStartTimerRef = useRef<NodeJS.Timeout | null>(null);
   const accumulatedTranscriptRef = useRef<string>('');
   const isListeningRef = useRef(false);
   const isActiveRef = useRef(false);
+  const recognitionRunningRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -58,8 +62,8 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
   const { toast } = useToast();
 
-  // Cleanup function
-  const cleanup = useCallback(() => {
+  // Cleanup all timers
+  const cleanupTimers = useCallback(() => {
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
@@ -68,6 +72,15 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       clearInterval(countdownIntervalRef.current);
       countdownIntervalRef.current = null;
     }
+    if (autoStartTimerRef.current) {
+      clearTimeout(autoStartTimerRef.current);
+      autoStartTimerRef.current = null;
+    }
+  }, []);
+
+  // Full cleanup function
+  const cleanup = useCallback(() => {
+    cleanupTimers();
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
@@ -80,31 +93,53 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       audioContextRef.current.close().catch(() => {});
       audioContextRef.current = null;
     }
+  }, [cleanupTimers]);
+
+  // Safely stop recognition
+  const safeStopRecognition = useCallback(() => {
+    if (recognitionRef.current && recognitionRunningRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        console.warn('Recognition stop error:', e);
+      }
+    }
+    recognitionRunningRef.current = false;
+  }, []);
+
+  // Safely start recognition
+  const safeStartRecognition = useCallback(() => {
+    if (!recognitionRef.current) return false;
+    
+    if (recognitionRunningRef.current) {
+      console.log('⚠️ Recognition already running');
+      return true;
+    }
+    
+    try {
+      recognitionRef.current.start();
+      recognitionRunningRef.current = true;
+      console.log('✅ Recognition started');
+      return true;
+    } catch (e) {
+      console.error('Recognition start error:', e);
+      recognitionRunningRef.current = false;
+      return false;
+    }
   }, []);
 
   // Stop listening internal
   const stopListeningInternal = useCallback(() => {
     console.log('🔇 Stopping listening');
     isListeningRef.current = false;
+    cleanupTimers();
     
-    if (silenceTimerRef.current) {
-      clearTimeout(silenceTimerRef.current);
-      silenceTimerRef.current = null;
-    }
-    if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current);
-      countdownIntervalRef.current = null;
-    }
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
     }
 
-    try {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    } catch (e) {}
+    safeStopRecognition();
 
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach(track => track.stop());
@@ -117,9 +152,9 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       silenceTimer: 0,
       audioLevel: 0
     }));
-  }, []);
+  }, [cleanupTimers, safeStopRecognition]);
 
-  // Send user message - uses ref to avoid dependency issues
+  // Send user message
   const sendUserMessage = useCallback(() => {
     const message = accumulatedTranscriptRef.current.trim();
     if (!message) {
@@ -137,11 +172,8 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
     }));
 
     accumulatedTranscriptRef.current = '';
-    
-    // Use ref to call the latest onUserMessage
     onUserMessageRef.current(message);
 
-    // Processing will be set to false when AI responds
     setTimeout(() => {
       setState(prev => ({ ...prev, isProcessing: false }));
     }, 500);
@@ -149,7 +181,6 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
   // Reset silence timer and start countdown
   const resetSilenceTimer = useCallback(() => {
-    // Clear existing timers
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
@@ -159,7 +190,6 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       countdownIntervalRef.current = null;
     }
 
-    // Start countdown display
     let countdown = silenceThreshold / 1000;
     setState(prev => ({ ...prev, silenceTimer: countdown }));
 
@@ -176,7 +206,6 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       }
     }, 100);
 
-    // Auto-send after silence threshold
     silenceTimerRef.current = setTimeout(() => {
       console.log('⏱️ Silence timer triggered');
       if (accumulatedTranscriptRef.current.trim() && isListeningRef.current) {
@@ -185,28 +214,6 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       }
     }, silenceThreshold);
   }, [silenceThreshold, sendUserMessage]);
-
-  // TTS hook for AI speaking
-  const tts = useTextToSpeech({
-    voiceId,
-    onSpeakingStart: () => {
-      console.log('🔊 AI started speaking');
-      setState(prev => ({ ...prev, isAISpeaking: true, isListening: false }));
-      stopListeningInternal();
-    },
-    onSpeakingEnd: () => {
-      console.log('🔇 AI finished speaking');
-      setState(prev => ({ ...prev, isAISpeaking: false }));
-      // Auto-start listening after AI finishes if conversation is active
-      if (isActiveRef.current) {
-        setTimeout(() => {
-          if (isActiveRef.current) {
-            startListeningInternal();
-          }
-        }, 500);
-      }
-    }
-  });
 
   // Monitor audio levels
   const startAudioMonitoring = useCallback(async () => {
@@ -248,11 +255,13 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
   // Internal start listening
   const startListeningInternal = useCallback(async () => {
-    if (!recognitionRef.current || isListeningRef.current) {
-      console.log('⚠️ Cannot start listening:', { 
-        hasRecognition: !!recognitionRef.current, 
-        isAlreadyListening: isListeningRef.current 
-      });
+    if (!recognitionRef.current) {
+      console.log('⚠️ No recognition available');
+      return;
+    }
+    
+    if (isListeningRef.current) {
+      console.log('⚠️ Already listening');
       return;
     }
 
@@ -269,18 +278,53 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       }));
 
       await startAudioMonitoring();
-      recognitionRef.current.start();
       
-      // Start initial silence timer
-      resetSilenceTimer();
-      
-      console.log('🎤 Voice conversation listening started');
+      if (safeStartRecognition()) {
+        resetSilenceTimer();
+        console.log('🎤 Voice conversation listening started');
+      } else {
+        throw new Error('Could not start recognition');
+      }
     } catch (error) {
       console.error('Error starting listening:', error);
       isListeningRef.current = false;
       setState(prev => ({ ...prev, isListening: false }));
     }
-  }, [startAudioMonitoring, resetSilenceTimer, silenceThreshold]);
+  }, [startAudioMonitoring, resetSilenceTimer, silenceThreshold, safeStartRecognition]);
+
+  // Schedule auto-start after AI finishes
+  const scheduleAutoStart = useCallback(() => {
+    if (autoStartTimerRef.current) {
+      clearTimeout(autoStartTimerRef.current);
+    }
+    
+    console.log(`⏰ Scheduling auto-start in ${autoStartDelay}ms`);
+    
+    autoStartTimerRef.current = setTimeout(() => {
+      if (isActiveRef.current && !isListeningRef.current) {
+        console.log('🎤 Auto-starting mic after AI finished');
+        startListeningInternal();
+      }
+    }, autoStartDelay);
+  }, [autoStartDelay, startListeningInternal]);
+
+  // TTS hook for AI speaking
+  const tts = useTextToSpeech({
+    voiceId,
+    onSpeakingStart: () => {
+      console.log('🔊 AI started speaking');
+      stopListeningInternal();
+      setState(prev => ({ ...prev, isAISpeaking: true, isListening: false }));
+    },
+    onSpeakingEnd: () => {
+      console.log('🔇 AI finished speaking');
+      setState(prev => ({ ...prev, isAISpeaking: false }));
+      // Auto-start listening after AI finishes
+      if (isActiveRef.current) {
+        scheduleAutoStart();
+      }
+    }
+  });
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -303,6 +347,11 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
     recognition.lang = language;
     recognition.maxAlternatives = 1;
 
+    recognition.onstart = () => {
+      console.log('🎙️ Recognition onstart');
+      recognitionRunningRef.current = true;
+    };
+
     recognition.onresult = (event: any) => {
       if (!isListeningRef.current) return;
 
@@ -318,7 +367,6 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
         }
       }
 
-      // If we got final text, accumulate and reset timer
       if (finalTranscript.trim()) {
         accumulatedTranscriptRef.current += finalTranscript;
         console.log('📝 Accumulated transcript:', accumulatedTranscriptRef.current);
@@ -337,24 +385,24 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
           description: 'Permite acces la microfon în setări',
           variant: 'destructive'
         });
-      } else if (event.error === 'no-speech') {
-        // No speech detected - this is normal, just restart
-        console.log('No speech detected, continuing...');
+        isListeningRef.current = false;
+        setState(prev => ({ ...prev, isListening: false }));
+      } else if (event.error === 'aborted') {
+        // Normal abort, do nothing
       }
     };
 
     recognition.onend = () => {
-      console.log('🔄 Recognition ended, isListening:', isListeningRef.current, 'isActive:', isActiveRef.current);
+      console.log('🔄 Recognition onend');
+      recognitionRunningRef.current = false;
+      
+      // Only restart if we're supposed to be listening
       if (isListeningRef.current && isActiveRef.current) {
-        try {
-          setTimeout(() => {
-            if (isListeningRef.current && recognitionRef.current) {
-              recognitionRef.current.start();
-            }
-          }, 100);
-        } catch (e) {
-          console.warn('Could not restart recognition:', e);
-        }
+        setTimeout(() => {
+          if (isListeningRef.current && isActiveRef.current) {
+            safeStartRecognition();
+          }
+        }, 200);
       }
     };
 
@@ -362,21 +410,17 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
     return () => {
       cleanup();
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {}
-      }
+      safeStopRecognition();
     };
-  }, [language, toast, cleanup, resetSilenceTimer]);
+  }, [language, toast, cleanup, resetSilenceTimer, safeStartRecognition, safeStopRecognition]);
 
   // Start conversation
   const startConversation = useCallback(() => {
     console.log('🚀 Starting voice conversation');
     isActiveRef.current = true;
     setState(prev => ({ ...prev, isActive: true }));
-    startListeningInternal();
-  }, [startListeningInternal]);
+    // Don't auto-start listening here, wait for welcome message to finish
+  }, []);
 
   // Stop conversation
   const stopConversation = useCallback(() => {
@@ -415,9 +459,9 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
     tts.stop();
     setState(prev => ({ ...prev, isAISpeaking: false }));
     if (isActiveRef.current) {
-      setTimeout(() => startListeningInternal(), 300);
+      scheduleAutoStart();
     }
-  }, [tts, startListeningInternal]);
+  }, [tts, scheduleAutoStart]);
 
   return {
     // State
