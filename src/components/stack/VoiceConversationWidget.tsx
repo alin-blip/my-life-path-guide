@@ -4,13 +4,14 @@ import { AudioWaveform } from './voice/AudioWaveform';
 import { SilenceCountdown } from './voice/SilenceCountdown';
 import { StatusIndicator } from './voice/StatusIndicator';
 import { QuickActionButton } from './voice/QuickActionButton';
+import { VoiceSelector, DEFAULT_VOICE_ID } from './VoiceSelector';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Mic, MicOff, Phone, PhoneOff, Send, 
   Target, ListTodo, Sparkles, Zap, Heart, Plus,
-  SkipForward, Volume2
+  SkipForward, Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,6 +47,17 @@ const defaultQuickActions: QuickAction[] = [
   { icon: Sparkles, label: 'Final', message: 'Hai să încheiem sesiunea cu un rezumat.' }
 ];
 
+// Persist voice selection in localStorage
+const VOICE_STORAGE_KEY = 'voice-conversation-voice-id';
+
+const getStoredVoiceId = () => {
+  try {
+    return localStorage.getItem(VOICE_STORAGE_KEY) || DEFAULT_VOICE_ID;
+  } catch {
+    return DEFAULT_VOICE_ID;
+  }
+};
+
 export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = ({
   systemPrompt,
   welcomeMessage,
@@ -57,7 +69,22 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
   const [messages, setMessages] = useState<Message[]>([]);
   const [lastAIMessage, setLastAIMessage] = useState<string>('');
   const [isStarted, setIsStarted] = useState(false);
+  const [selectedVoiceId, setSelectedVoiceId] = useState(getStoredVoiceId);
   const { toast } = useToast();
+
+  // Handle voice change and persist
+  const handleVoiceChange = useCallback((voiceId: string) => {
+    setSelectedVoiceId(voiceId);
+    try {
+      localStorage.setItem(VOICE_STORAGE_KEY, voiceId);
+    } catch (e) {
+      console.warn('Could not persist voice selection');
+    }
+    toast({
+      title: '🎙️ Voce schimbată',
+      description: 'Noua voce va fi folosită pentru următorul răspuns.',
+    });
+  }, [toast]);
 
   // Handle sending message to AI
   const handleUserMessage = useCallback(async (text: string) => {
@@ -105,7 +132,8 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
     onUserMessage: handleUserMessage,
     onAIResponse: (text) => setLastAIMessage(text),
     silenceThreshold: 3000,
-    language: 'ro-RO'
+    language: 'ro-RO',
+    voiceId: selectedVoiceId
   });
 
   // Start conversation with welcome message
@@ -167,6 +195,15 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
             mesajul se trimite automat.
           </p>
         </div>
+
+        {/* Voice Selector before starting */}
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-xs text-muted-foreground">Alege vocea AI:</span>
+          <VoiceSelector
+            currentVoice={selectedVoiceId}
+            onVoiceChange={handleVoiceChange}
+          />
+        </div>
         
         <Button
           onClick={handleStart}
@@ -197,15 +234,25 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
           />
         </div>
         
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={voiceConversation.stopConversation}
-          className="gap-1"
-        >
-          <PhoneOff className="w-4 h-4" />
-          Închide
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Voice Selector - available during conversation */}
+          <VoiceSelector
+            currentVoice={selectedVoiceId}
+            onVoiceChange={handleVoiceChange}
+            disabled={voiceConversation.isAISpeaking}
+            compact
+          />
+          
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={voiceConversation.stopConversation}
+            className="gap-1"
+          >
+            <PhoneOff className="w-4 h-4" />
+            Închide
+          </Button>
+        </div>
       </div>
 
       {/* Messages Area */}
