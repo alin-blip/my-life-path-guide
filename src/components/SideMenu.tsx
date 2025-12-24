@@ -89,7 +89,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       icon: Layers, 
       path: '/stack',
       subItems: [
-        { title: 'Rage to Power', icon: Angry, path: '/stack?type=anger' },
+        { title: 'Daily Master Stack', icon: Activity, path: '/stack?type=daily-master' },
+        { title: 'Alchimia Furiei', icon: Angry, path: '/stack?type=anger' },
+        { title: 'Divin & Recunoștință', icon: Heart, path: '/stack?type=divine-gratitude' },
         { title: 'Divine Connection', icon: Heart, path: '/stack?type=divine-prayer' },
         { title: 'Gratitude Practice', icon: Heart, path: '/stack?type=gratitude' },
         { title: 'Principle Coaching', icon: Crown, path: '/stack?type=master-plan-quick' },
