@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useVoiceConversation } from '@/hooks/useVoiceConversation';
 import { AudioWaveform } from './voice/AudioWaveform';
 import { SilenceCountdown } from './voice/SilenceCountdown';
@@ -71,6 +71,9 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
   const [isStarted, setIsStarted] = useState(false);
   const [selectedVoiceId, setSelectedVoiceId] = useState(getStoredVoiceId);
   const { toast } = useToast();
+  
+  // Ref to hold speakAI function to avoid stale closure
+  const speakAIRef = useRef<((text: string) => void) | null>(null);
 
   // Handle voice change and persist
   const handleVoiceChange = useCallback((voiceId: string) => {
@@ -115,8 +118,9 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
       setMessages(prev => [...prev, aiMessage]);
       setLastAIMessage(aiText);
 
-      // Speak the response
-      voiceConversation.speakAI(aiText);
+      // Speak the response using ref
+      console.log('🔊 Calling speakAI via ref');
+      speakAIRef.current?.(aiText);
 
     } catch (error) {
       console.error('AI error:', error);
@@ -135,6 +139,11 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
     language: 'ro-RO',
     voiceId: selectedVoiceId
   });
+
+  // Keep speakAI ref updated
+  useEffect(() => {
+    speakAIRef.current = voiceConversation.speakAI;
+  }, [voiceConversation.speakAI]);
 
   // Start conversation with welcome message
   const handleStart = useCallback(() => {
