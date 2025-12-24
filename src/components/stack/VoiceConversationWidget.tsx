@@ -4,6 +4,7 @@ import { AudioWaveform } from './voice/AudioWaveform';
 import { SilenceCountdown } from './voice/SilenceCountdown';
 import { StatusIndicator } from './voice/StatusIndicator';
 import { QuickActionButton } from './voice/QuickActionButton';
+import { SavedConversationsModal } from './voice/SavedConversationsModal';
 import { VoiceSelector, DEFAULT_VOICE_ID } from './VoiceSelector';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -247,6 +248,24 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
     }
   }, [messages, toast]);
 
+  // Load saved conversation
+  const handleLoadConversation = useCallback((savedMessages: { role: 'user' | 'assistant'; content: string; timestamp: string }[]) => {
+    const loadedMessages: Message[] = savedMessages.map(m => ({
+      role: m.role,
+      content: m.content,
+      timestamp: new Date(m.timestamp)
+    }));
+    setMessages(loadedMessages);
+    setIsStarted(true);
+    voiceConversation.startConversation();
+    
+    // Set last AI message
+    const lastAI = loadedMessages.filter(m => m.role === 'assistant').pop();
+    if (lastAI) {
+      setLastAIMessage(lastAI.content);
+    }
+  }, [voiceConversation]);
+
   // Get current status
   const getStatus = () => {
     if (voiceConversation.isAISpeaking) return 'ai-speaking';
@@ -280,14 +299,17 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
           />
         </div>
         
-        <Button
-          onClick={handleStart}
-          size="lg"
-          className="gap-2 bg-gradient-to-r from-primary to-primary/80"
-        >
-          <Phone className="w-5 h-5" />
-          Începe Conversația
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleStart}
+            size="lg"
+            className="gap-2 bg-gradient-to-r from-primary to-primary/80"
+          >
+            <Phone className="w-5 h-5" />
+            Începe Conversația
+          </Button>
+          <SavedConversationsModal onLoadConversation={handleLoadConversation} />
+        </div>
       </Card>
     );
   }
@@ -418,6 +440,8 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
             )}
             Salvează
           </Button>
+          {/* History button */}
+          <SavedConversationsModal onLoadConversation={handleLoadConversation} />
         </div>
       </div>
 
