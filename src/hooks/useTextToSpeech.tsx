@@ -26,7 +26,7 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [playbackRate, setPlaybackRate] = useState(1.0);
+  const [playbackRate, setPlaybackRate] = useState(1.25); // Faster default playback
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioQueueRef = useRef<string[]>([]);
   const isSpeakingRef = useRef(false); // Prevent re-entrant speak calls
