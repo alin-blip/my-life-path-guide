@@ -74,6 +74,9 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
   
   // Ref to hold speakAI function to avoid stale closure
   const speakAIRef = useRef<((text: string) => void) | null>(null);
+  
+  // Ref for auto-scrolling messages
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Handle voice change and persist
   const handleVoiceChange = useCallback((voiceId: string) => {
@@ -144,6 +147,11 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
   useEffect(() => {
     speakAIRef.current = voiceConversation.speakAI;
   }, [voiceConversation.speakAI]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   // Start conversation with welcome message
   const handleStart = useCallback(() => {
@@ -285,6 +293,8 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
               </div>
             </div>
           ))}
+          {/* Auto-scroll anchor */}
+          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
