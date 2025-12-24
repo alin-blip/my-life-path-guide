@@ -9,6 +9,7 @@ import {
   Clock, Target, CheckCircle2, XCircle 
 } from 'lucide-react';
 import { format, startOfWeek, addDays } from 'date-fns';
+import { Biz4ObjectivesCard } from './Biz4ObjectivesCard';
 
 export const Biz4WeeklyReport: React.FC = () => {
   const { language } = useLanguage();
@@ -60,6 +61,9 @@ export const Biz4WeeklyReport: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Weekly Objectives */}
+      <Biz4ObjectivesCard report={report} />
+
       {/* Header Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border-purple-700/50">
