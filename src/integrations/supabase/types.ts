@@ -113,6 +113,78 @@ export type Database = {
         }
         Relationships: []
       }
+      biz4_daily_metrics: {
+        Row: {
+          close_completed: boolean | null
+          close_conversations_count: number | null
+          close_deals_won: number | null
+          content_completed: boolean | null
+          content_pieces_count: number | null
+          content_type: string | null
+          created_at: string | null
+          date: string
+          engage_comments_count: number | null
+          engage_completed: boolean | null
+          engage_minutes: number | null
+          id: string
+          outreach_channels: string[] | null
+          outreach_completed: boolean | null
+          outreach_prospects_count: number | null
+          podcast_completed: boolean | null
+          podcast_episode_number: number | null
+          updated_at: string | null
+          user_id: string
+          webinar_attendees_count: number | null
+          webinar_completed: boolean | null
+        }
+        Insert: {
+          close_completed?: boolean | null
+          close_conversations_count?: number | null
+          close_deals_won?: number | null
+          content_completed?: boolean | null
+          content_pieces_count?: number | null
+          content_type?: string | null
+          created_at?: string | null
+          date?: string
+          engage_comments_count?: number | null
+          engage_completed?: boolean | null
+          engage_minutes?: number | null
+          id?: string
+          outreach_channels?: string[] | null
+          outreach_completed?: boolean | null
+          outreach_prospects_count?: number | null
+          podcast_completed?: boolean | null
+          podcast_episode_number?: number | null
+          updated_at?: string | null
+          user_id: string
+          webinar_attendees_count?: number | null
+          webinar_completed?: boolean | null
+        }
+        Update: {
+          close_completed?: boolean | null
+          close_conversations_count?: number | null
+          close_deals_won?: number | null
+          content_completed?: boolean | null
+          content_pieces_count?: number | null
+          content_type?: string | null
+          created_at?: string | null
+          date?: string
+          engage_comments_count?: number | null
+          engage_completed?: boolean | null
+          engage_minutes?: number | null
+          id?: string
+          outreach_channels?: string[] | null
+          outreach_completed?: boolean | null
+          outreach_prospects_count?: number | null
+          podcast_completed?: boolean | null
+          podcast_episode_number?: number | null
+          updated_at?: string | null
+          user_id?: string
+          webinar_attendees_count?: number | null
+          webinar_completed?: boolean | null
+        }
+        Relationships: []
+      }
       book_reading_progress: {
         Row: {
           action_completed: boolean | null
