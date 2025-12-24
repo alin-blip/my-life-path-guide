@@ -18,6 +18,8 @@ import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerS
 import { MasterPlanStack } from '@/components/stack/master-plan/MasterPlanStack';
 import { MasterPlanQuickStack } from '@/components/stack/master-plan/MasterPlanQuickStack';
 import { GratitudeStack } from '@/components/stack/gratitude-stack/GratitudeStack';
+import { DailyMasterStack } from '@/components/stack/daily-master/DailyMasterStack';
+import { DivineGratitudeStack } from '@/components/stack/divine-gratitude/DivineGratitudeStack';
 import { getWeek } from 'date-fns';
 
 const CoachingPage = () => {
@@ -95,6 +97,12 @@ const CoachingPage = () => {
           break;
         case 'gratitude':
           setActiveStack('gratitude');
+          break;
+        case 'daily-master':
+          setActiveStack('daily-master');
+          break;
+        case 'divine-gratitude':
+          setActiveStack('divine-gratitude');
           break;
 
         // Backwards-compatible URLs
@@ -344,6 +352,10 @@ const renderActiveStack = () => {
         return <DivinePrayerStack {...stackProps} />;
       case "gratitude":
         return <GratitudeStack {...stackProps} />;
+      case "daily-master":
+        return <DailyMasterStack {...stackProps} />;
+      case "divine-gratitude":
+        return <DivineGratitudeStack {...stackProps} />;
       case "napoleon-hill":
         return <MasterPlanStack {...stackProps} />;
       case "napoleon-hill-quick":
