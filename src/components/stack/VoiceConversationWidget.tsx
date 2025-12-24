@@ -5,6 +5,8 @@ import { SilenceCountdown } from './voice/SilenceCountdown';
 import { StatusIndicator } from './voice/StatusIndicator';
 import { QuickActionButton } from './voice/QuickActionButton';
 import { SavedConversationsModal } from './voice/SavedConversationsModal';
+import { SpeedSlider } from './voice/SpeedSlider';
+import { ExportConversation } from './voice/ExportConversation';
 import { VoiceSelector, DEFAULT_VOICE_ID } from './VoiceSelector';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -73,6 +75,7 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
   const [selectedVoiceId, setSelectedVoiceId] = useState(getStoredVoiceId);
   const [isProcessingAI, setIsProcessingAI] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [speechSpeed, setSpeechSpeed] = useState(1.25);
   const { toast } = useToast();
   
   // Ref to hold speakAI function to avoid stale closure
@@ -146,7 +149,8 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
     onAIResponse: (text) => setLastAIMessage(text),
     silenceThreshold: 3000,
     language: 'ro-RO',
-    voiceId: selectedVoiceId
+    voiceId: selectedVoiceId,
+    playbackRate: speechSpeed
   });
 
   // Keep speakAI ref updated
@@ -332,6 +336,13 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
         </div>
         
         <div className="flex items-center gap-2">
+          {/* Speed Slider */}
+          <SpeedSlider
+            value={speechSpeed}
+            onChange={setSpeechSpeed}
+            disabled={voiceConversation.isAISpeaking}
+          />
+          
           {/* Voice Selector - available during conversation */}
           <VoiceSelector
             currentVoice={selectedVoiceId}
@@ -442,6 +453,8 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
           </Button>
           {/* History button */}
           <SavedConversationsModal onLoadConversation={handleLoadConversation} />
+          {/* Export button */}
+          <ExportConversation messages={messages} disabled={messages.length < 2} />
         </div>
       </div>
 

@@ -7,6 +7,7 @@ interface UseTextToSpeechOptions {
   onSpeakingStart?: () => void;
   onSpeakingEnd?: () => void;
   autoPlay?: boolean;
+  initialPlaybackRate?: number;
 }
 
 // TTS cache to avoid regenerating same audio - stores blob URLs
@@ -20,13 +21,14 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
     voiceId = 'pNInz6obpgDQGcFmaJgB', // Default ElevenLabs voice
     onSpeakingStart,
     onSpeakingEnd,
-    autoPlay = true
+    autoPlay = true,
+    initialPlaybackRate = 1.25
   } = options;
 
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [playbackRate, setPlaybackRate] = useState(1.25); // Faster default playback
+  const [playbackRate, setPlaybackRate] = useState(initialPlaybackRate);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioQueueRef = useRef<string[]>([]);
   const isSpeakingRef = useRef(false); // Prevent re-entrant speak calls
