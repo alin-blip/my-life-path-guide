@@ -26,7 +26,7 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
     onAIResponse,
     silenceThreshold = 3000,
     language = 'ro-RO',
-    voiceId = 'pNInz6obpgDQGcFmaJgB'
+    voiceId = 'EXAVITQu4vr4xnSDxMaL'
   } = options;
 
   const [state, setState] = useState<VoiceConversationState>({
@@ -44,31 +44,19 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const accumulatedTranscriptRef = useRef<string>('');
   const isListeningRef = useRef(false);
-  const lastSpeechTimeRef = useRef<number>(Date.now());
+  const isActiveRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
+  const onUserMessageRef = useRef(onUserMessage);
+
+  // Keep onUserMessage ref updated
+  useEffect(() => {
+    onUserMessageRef.current = onUserMessage;
+  }, [onUserMessage]);
 
   const { toast } = useToast();
-
-  // TTS hook for AI speaking
-  const tts = useTextToSpeech({
-    voiceId,
-    onSpeakingStart: () => {
-      console.log('🔊 AI started speaking');
-      setState(prev => ({ ...prev, isAISpeaking: true, isListening: false }));
-      stopListeningInternal();
-    },
-    onSpeakingEnd: () => {
-      console.log('🔇 AI finished speaking');
-      setState(prev => ({ ...prev, isAISpeaking: false }));
-      // Auto-start listening after AI finishes
-      if (state.isActive) {
-        setTimeout(() => startListeningInternal(), 500);
-      }
-    }
-  });
 
   // Cleanup function
   const cleanup = useCallback(() => {
@@ -89,92 +77,86 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       mediaStreamRef.current = null;
     }
     if (audioContextRef.current) {
-      audioContextRef.current.close();
+      audioContextRef.current.close().catch(() => {});
       audioContextRef.current = null;
     }
   }, []);
 
-  // Initialize Speech Recognition
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      console.error('Speech Recognition not supported');
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = language;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = (event: any) => {
-      if (!isListeningRef.current) return;
-
-      let finalTranscript = '';
-      let interimTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += result + ' ';
-        } else {
-          interimTranscript += result;
-        }
-      }
-
-      if (finalTranscript.trim()) {
-        accumulatedTranscriptRef.current += finalTranscript;
-        lastSpeechTimeRef.current = Date.now();
-        resetSilenceTimer();
-      }
-
-      const displayText = accumulatedTranscriptRef.current + interimTranscript;
-      setState(prev => ({ ...prev, currentTranscript: displayText }));
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      if (event.error === 'not-allowed') {
-        toast({
-          title: 'Acces microfon refuzat',
-          description: 'Permite acces la microfon în setări',
-          variant: 'destructive'
-        });
-      }
-    };
-
-    recognition.onend = () => {
-      if (isListeningRef.current && state.isActive) {
-        try {
-          recognition.start();
-        } catch (e) {
-          console.warn('Could not restart recognition');
-        }
-      }
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      cleanup();
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {}
-      }
-    };
-  }, [language, toast, cleanup, state.isActive]);
-
-  // Reset silence timer and start countdown
-  const resetSilenceTimer = useCallback(() => {
+  // Stop listening internal
+  const stopListeningInternal = useCallback(() => {
+    console.log('🔇 Stopping listening');
+    isListeningRef.current = false;
+    
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
     }
     if (countdownIntervalRef.current) {
       clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = null;
+    }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
+    try {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    } catch (e) {}
+
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      mediaStreamRef.current = null;
+    }
+
+    setState(prev => ({ 
+      ...prev, 
+      isListening: false, 
+      silenceTimer: 0,
+      audioLevel: 0
+    }));
+  }, []);
+
+  // Send user message - uses ref to avoid dependency issues
+  const sendUserMessage = useCallback(() => {
+    const message = accumulatedTranscriptRef.current.trim();
+    if (!message) {
+      console.log('📭 No message to send');
+      return;
+    }
+
+    console.log('📤 Sending user message:', message);
+    stopListeningInternal();
+    
+    setState(prev => ({ 
+      ...prev, 
+      isProcessing: true,
+      currentTranscript: ''
+    }));
+
+    accumulatedTranscriptRef.current = '';
+    
+    // Use ref to call the latest onUserMessage
+    onUserMessageRef.current(message);
+
+    // Processing will be set to false when AI responds
+    setTimeout(() => {
+      setState(prev => ({ ...prev, isProcessing: false }));
+    }, 500);
+  }, [stopListeningInternal]);
+
+  // Reset silence timer and start countdown
+  const resetSilenceTimer = useCallback(() => {
+    // Clear existing timers
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = null;
     }
 
     // Start countdown display
@@ -186,6 +168,7 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       if (countdown <= 0) {
         if (countdownIntervalRef.current) {
           clearInterval(countdownIntervalRef.current);
+          countdownIntervalRef.current = null;
         }
         setState(prev => ({ ...prev, silenceTimer: 0 }));
       } else {
@@ -195,12 +178,35 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
     // Auto-send after silence threshold
     silenceTimerRef.current = setTimeout(() => {
+      console.log('⏱️ Silence timer triggered');
       if (accumulatedTranscriptRef.current.trim() && isListeningRef.current) {
         console.log('🔄 Auto-sending after silence');
         sendUserMessage();
       }
     }, silenceThreshold);
-  }, [silenceThreshold]);
+  }, [silenceThreshold, sendUserMessage]);
+
+  // TTS hook for AI speaking
+  const tts = useTextToSpeech({
+    voiceId,
+    onSpeakingStart: () => {
+      console.log('🔊 AI started speaking');
+      setState(prev => ({ ...prev, isAISpeaking: true, isListening: false }));
+      stopListeningInternal();
+    },
+    onSpeakingEnd: () => {
+      console.log('🔇 AI finished speaking');
+      setState(prev => ({ ...prev, isAISpeaking: false }));
+      // Auto-start listening after AI finishes if conversation is active
+      if (isActiveRef.current) {
+        setTimeout(() => {
+          if (isActiveRef.current) {
+            startListeningInternal();
+          }
+        }, 500);
+      }
+    }
+  });
 
   // Monitor audio levels
   const startAudioMonitoring = useCallback(async () => {
@@ -242,12 +248,18 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
   // Internal start listening
   const startListeningInternal = useCallback(async () => {
-    if (!recognitionRef.current || isListeningRef.current) return;
+    if (!recognitionRef.current || isListeningRef.current) {
+      console.log('⚠️ Cannot start listening:', { 
+        hasRecognition: !!recognitionRef.current, 
+        isAlreadyListening: isListeningRef.current 
+      });
+      return;
+    }
 
     try {
+      console.log('🎤 Starting to listen');
       isListeningRef.current = true;
       accumulatedTranscriptRef.current = '';
-      lastSpeechTimeRef.current = Date.now();
       
       setState(prev => ({ 
         ...prev, 
@@ -258,6 +270,8 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
 
       await startAudioMonitoring();
       recognitionRef.current.start();
+      
+      // Start initial silence timer
       resetSilenceTimer();
       
       console.log('🎤 Voice conversation listening started');
@@ -268,68 +282,98 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
     }
   }, [startAudioMonitoring, resetSilenceTimer, silenceThreshold]);
 
-  // Internal stop listening
-  const stopListeningInternal = useCallback(() => {
-    isListeningRef.current = false;
-    
-    if (silenceTimerRef.current) {
-      clearTimeout(silenceTimerRef.current);
-      silenceTimerRef.current = null;
-    }
-    if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current);
-      countdownIntervalRef.current = null;
-    }
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
+  // Initialize Speech Recognition
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      console.error('Speech Recognition not supported');
+      toast({
+        title: 'Browser nesuportat',
+        description: 'Folosește Chrome sau Edge pentru recunoaștere vocală.',
+        variant: 'destructive'
+      });
+      return;
     }
 
-    try {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = language;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event: any) => {
+      if (!isListeningRef.current) return;
+
+      let finalTranscript = '';
+      let interimTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += result + ' ';
+        } else {
+          interimTranscript += result;
+        }
       }
-    } catch (e) {}
 
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach(track => track.stop());
-      mediaStreamRef.current = null;
-    }
+      // If we got final text, accumulate and reset timer
+      if (finalTranscript.trim()) {
+        accumulatedTranscriptRef.current += finalTranscript;
+        console.log('📝 Accumulated transcript:', accumulatedTranscriptRef.current);
+        resetSilenceTimer();
+      }
 
-    setState(prev => ({ 
-      ...prev, 
-      isListening: false, 
-      silenceTimer: 0,
-      audioLevel: 0
-    }));
-  }, []);
+      const displayText = accumulatedTranscriptRef.current + interimTranscript;
+      setState(prev => ({ ...prev, currentTranscript: displayText }));
+    };
 
-  // Send user message
-  const sendUserMessage = useCallback(() => {
-    const message = accumulatedTranscriptRef.current.trim();
-    if (!message) return;
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      if (event.error === 'not-allowed') {
+        toast({
+          title: 'Acces microfon refuzat',
+          description: 'Permite acces la microfon în setări',
+          variant: 'destructive'
+        });
+      } else if (event.error === 'no-speech') {
+        // No speech detected - this is normal, just restart
+        console.log('No speech detected, continuing...');
+      }
+    };
 
-    console.log('📤 Sending user message:', message);
-    stopListeningInternal();
-    
-    setState(prev => ({ 
-      ...prev, 
-      isProcessing: true,
-      currentTranscript: ''
-    }));
+    recognition.onend = () => {
+      console.log('🔄 Recognition ended, isListening:', isListeningRef.current, 'isActive:', isActiveRef.current);
+      if (isListeningRef.current && isActiveRef.current) {
+        try {
+          setTimeout(() => {
+            if (isListeningRef.current && recognitionRef.current) {
+              recognitionRef.current.start();
+            }
+          }, 100);
+        } catch (e) {
+          console.warn('Could not restart recognition:', e);
+        }
+      }
+    };
 
-    accumulatedTranscriptRef.current = '';
-    onUserMessage(message);
+    recognitionRef.current = recognition;
 
-    // Processing will be set to false when AI responds
-    setTimeout(() => {
-      setState(prev => ({ ...prev, isProcessing: false }));
-    }, 500);
-  }, [onUserMessage, stopListeningInternal]);
+    return () => {
+      cleanup();
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {}
+      }
+    };
+  }, [language, toast, cleanup, resetSilenceTimer]);
 
   // Start conversation
   const startConversation = useCallback(() => {
     console.log('🚀 Starting voice conversation');
+    isActiveRef.current = true;
     setState(prev => ({ ...prev, isActive: true }));
     startListeningInternal();
   }, [startListeningInternal]);
@@ -337,6 +381,7 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
   // Stop conversation
   const stopConversation = useCallback(() => {
     console.log('🛑 Stopping voice conversation');
+    isActiveRef.current = false;
     tts.stop();
     stopListeningInternal();
     cleanup();
@@ -369,10 +414,10 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
   const skipAISpeaking = useCallback(() => {
     tts.stop();
     setState(prev => ({ ...prev, isAISpeaking: false }));
-    if (state.isActive) {
+    if (isActiveRef.current) {
       setTimeout(() => startListeningInternal(), 300);
     }
-  }, [tts, state.isActive, startListeningInternal]);
+  }, [tts, startListeningInternal]);
 
   return {
     // State
