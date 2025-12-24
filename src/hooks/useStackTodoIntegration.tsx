@@ -54,6 +54,33 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
       
       console.log('💾 Saving idea to Supabase:', { idea, currentWeekKey });
       
+      // Check if user is authenticated first
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user) {
+        console.warn('⚠️ User not authenticated - saving to localStorage only');
+        
+        // Save to localStorage as fallback
+        const localStorageKey = `todo-ideas-${currentWeekKey}`;
+        const existingIdeas = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
+        existingIdeas.push(idea);
+        localStorage.setItem(localStorageKey, JSON.stringify(existingIdeas));
+        
+        toast({
+          title: '⚠️ Salvat local',
+          description: 'Loghează-te pentru a salva în cloud. Task-ul a fost salvat local.',
+          variant: 'default',
+        });
+        
+        // Trigger event for Door interface updates
+        window.dispatchEvent(new CustomEvent('doorDataUpdated', { 
+          detail: { type: 'ideaAdded', idea, local: true } 
+        }));
+        
+        return;
+      }
+      
       // Save directly to Supabase using the unified service
       await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
         id: idea.id,
@@ -73,7 +100,7 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
       // Success toast
       toast({
         title: '✅ Salvat în To Do',
-        description: `Task-ul "${idea.text.substring(0, 50)}..." a fost adăugat cu succes`,
+        description: `Task-ul "${idea.text.substring(0, 50)}${idea.text.length > 50 ? '...' : ''}" a fost adăugat cu succes`,
       });
       
       // Compatibility with existing function
@@ -83,11 +110,28 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
       
     } catch (error) {
       console.error("❌ Error saving idea to Supabase:", error);
-      toast({
-        title: "⚠️ Eroare salvare",
-        description: "Nu s-a putut salva ideea în cloud. Încearcă din nou.",
-        variant: "destructive",
-      });
+      
+      // Try localStorage fallback
+      try {
+        const now = new Date();
+        const currentWeekKey = `door-week-${now.getFullYear()}-${getWeek(now)}`;
+        const localStorageKey = `todo-ideas-${currentWeekKey}`;
+        const existingIdeas = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
+        existingIdeas.push(idea);
+        localStorage.setItem(localStorageKey, JSON.stringify(existingIdeas));
+        
+        toast({
+          title: '⚠️ Salvat local',
+          description: 'Conexiunea a eșuat. Task-ul a fost salvat local.',
+          variant: 'default',
+        });
+      } catch (localError) {
+        toast({
+          title: "❌ Eroare salvare",
+          description: "Nu s-a putut salva ideea. Încearcă din nou.",
+          variant: "destructive",
+        });
+      }
     }
   }, [onAddToHitList, toast]);
 

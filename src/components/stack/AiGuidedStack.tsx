@@ -1102,14 +1102,23 @@ Răspunde în română cu un ton cald și profesionist.`;
       <div className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
         <div>
           <h1 className="text-base sm:text-lg font-semibold">
-            {stackType === 'anger' ? 'AI Alchimia Furiei' : 
+            {stackType === 'anger' ? 'Alchimia Furiei' : 
              stackType === 'napoleon-hill' ? 'Napoleon Hill Coaching' :
              stackType === 'hormozi' ? 'Hormozi Business Coaching' :
              stackType === 'gods-school' ? "God's School" :
-             'AI Dialogul cu Divinitatea'}
+             stackType === 'daily-master' ? 'Daily Master Stack' :
+             stackType === 'divine-gratitude' ? 'Divin & Recunoștință' :
+             stackType === 'gratitude' ? 'Practică de Recunoștință' :
+             stackType === 'divine-prayer' ? 'Dialogul cu Divinitatea' :
+             'AI Coaching'}
           </h1>
           <p className="text-xs text-muted-foreground">
-            {stackType === 'napoleon-hill' ? 'Ghidare bazată pe "Think and Grow Rich"' :
+            {stackType === 'daily-master' ? 'Pregătirea ta zilnică pentru productivitate și claritate' :
+             stackType === 'divine-gratitude' ? 'Conexiune spirituală și practică de gratitudine' :
+             stackType === 'gratitude' ? 'Cultivarea recunoștinței în viață' :
+             stackType === 'anger' ? 'Transformă furia în claritate și putere' :
+             stackType === 'divine-prayer' ? 'Dialog ghidat cu divinitatea' :
+             stackType === 'napoleon-hill' ? 'Ghidare bazată pe "Think and Grow Rich"' :
              stackType === 'hormozi' ? 'Strategie business bazată pe $100M Offers' :
              'Conversație ghidată cu AI coach-ul tău'}
           </p>
