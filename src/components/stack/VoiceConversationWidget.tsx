@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Mic, MicOff, Phone, PhoneOff, Send, 
   Target, ListTodo, Sparkles, Zap, Heart, Plus,
-  SkipForward, Settings
+  SkipForward, Settings, Save, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -70,6 +70,8 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
   const [lastAIMessage, setLastAIMessage] = useState<string>('');
   const [isStarted, setIsStarted] = useState(false);
   const [selectedVoiceId, setSelectedVoiceId] = useState(getStoredVoiceId);
+  const [isProcessingAI, setIsProcessingAI] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   
   // Ref to hold speakAI function to avoid stale closure
@@ -99,6 +101,7 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
     // Add user message
     const userMessage: Message = { role: 'user', content: text, timestamp: new Date() };
     setMessages(prev => [...prev, userMessage]);
+    setIsProcessingAI(true);
 
     // Get AI response
     try {
@@ -120,6 +123,7 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
       const aiMessage: Message = { role: 'assistant', content: aiText, timestamp: new Date() };
       setMessages(prev => [...prev, aiMessage]);
       setLastAIMessage(aiText);
+      setIsProcessingAI(false);
 
       // Speak the response using ref
       console.log('🔊 Calling speakAI via ref');
@@ -127,6 +131,7 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
 
     } catch (error) {
       console.error('AI error:', error);
+      setIsProcessingAI(false);
       toast({
         title: 'Eroare',
         description: 'Nu am putut obține răspunsul AI.',
@@ -189,10 +194,63 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
     }
   }, [lastAIMessage, onAddToHitList, toast]);
 
+  // Save conversation to database
+  const handleSaveConversation = useCallback(async () => {
+    if (messages.length < 2) {
+      toast({
+        title: 'Conversație prea scurtă',
+        description: 'Trebuie să existe cel puțin un schimb de mesaje.',
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Create a summary from the conversation
+      const summary = messages
+        .map(m => `${m.role === 'user' ? 'Tu' : 'AI'}: ${m.content.substring(0, 100)}...`)
+        .join('\n');
+
+      const { error } = await supabase.from('stack_sessions').insert({
+        user_id: user.id,
+        session_id: `voice-conv-${Date.now()}`,
+        stack_type: 'voice-conversation',
+        completed: true,
+        answers: {
+          messages: messages.map(m => ({
+            role: m.role,
+            content: m.content,
+            timestamp: m.timestamp.toISOString()
+          })),
+          savedAt: new Date().toISOString()
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: '✅ Conversație salvată',
+        description: 'Poți accesa conversația din istoricul sesiunilor.',
+      });
+    } catch (error) {
+      console.error('Save error:', error);
+      toast({
+        title: 'Eroare',
+        description: 'Nu am putut salva conversația.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  }, [messages, toast]);
+
   // Get current status
   const getStatus = () => {
     if (voiceConversation.isAISpeaking) return 'ai-speaking';
-    if (voiceConversation.isProcessing || voiceConversation.isTTSLoading) return 'processing';
+    if (isProcessingAI || voiceConversation.isProcessing || voiceConversation.isTTSLoading) return 'processing';
     if (voiceConversation.isListening) return 'listening';
     return 'idle';
   };
@@ -293,6 +351,15 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
               </div>
             </div>
           ))}
+          {/* Loading indicator when AI is processing */}
+          {isProcessingAI && (
+            <div className="flex justify-start">
+              <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                <span className="text-sm text-muted-foreground">Se generează răspunsul...</span>
+              </div>
+            </div>
+          )}
           {/* Auto-scroll anchor */}
           <div ref={messagesEndRef} />
         </div>
@@ -336,6 +403,21 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
               disabled={!lastAIMessage}
             />
           )}
+          {/* Save conversation button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSaveConversation}
+            disabled={messages.length < 2 || isSaving}
+            className="gap-1 text-xs"
+          >
+            {isSaving ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <Save className="w-3 h-3" />
+            )}
+            Salvează
+          </Button>
         </div>
       </div>
 
