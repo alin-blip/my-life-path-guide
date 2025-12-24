@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "../StackIdeaModal";
 import { AiGuidedStack } from '../AiGuidedStack';
+import { VoiceConversationWidget } from '../VoiceConversationWidget';
 import { getDailyMasterQuestions, getDailyMasterSections, getDivinePrayerText } from './questions';
 import { dailyMasterService } from '@/services/dailyMasterService';
 import { useDailyMasterReminder } from '@/hooks/useDailyMasterReminder';
 import { Card } from '@/components/ui/card';
-import { Flame, Trophy, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Flame, Trophy, Calendar, Mic, MessageSquare, Target, ListTodo, Heart, Zap, Sparkles } from 'lucide-react';
 
 interface DailyMasterStackProps {
   onAddToHitList?: (action: string) => void;
@@ -21,6 +23,7 @@ export const DailyMasterStack: React.FC<DailyMasterStackProps> = ({ onAddToHitLi
   const { stats, refreshStats } = useDailyMasterReminder({ enabled: true });
   const [todaysTasks, setTodaysTasks] = useState<{ text: string; priority: string }[]>([]);
   const [systemPromptWithTasks, setSystemPromptWithTasks] = useState('');
+  const [voiceMode, setVoiceMode] = useState(false);
 
   const questions = getDailyMasterQuestions();
   const sections = getDailyMasterSections();
@@ -137,46 +140,94 @@ Gata să începem? Cum te simți chiar în acest moment, fizic și emoțional?`;
     refreshStats();
   };
 
+  // Quick actions for voice mode
+  const voiceQuickActions = [
+    { icon: Target, label: 'Plan', message: 'Care este planul meu pentru azi?' },
+    { icon: ListTodo, label: 'Tasks', message: 'Ce sarcini am de făcut azi?' },
+    { icon: Heart, label: 'Rugă', message: 'Hai să facem rugăciunea divină.' },
+    { icon: Zap, label: 'Putere', message: 'Dă-mi o afirmație puternică pentru ziua de azi!' },
+    { icon: Sparkles, label: 'Final', message: 'Hai să încheiem sesiunea cu un rezumat și angajament.' }
+  ];
+
   return (
     <>
-      {/* Streak indicator */}
+      {/* Header with mode toggle */}
       <div className="max-w-4xl mx-auto px-4 pt-4">
-        <div className="flex gap-3 mb-4">
-          <Card className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/30">
-            <Flame className="w-5 h-5 text-orange-500" />
-            <span className="font-semibold text-orange-500">{stats.currentStreak}</span>
-            <span className="text-sm text-muted-foreground">zile streak</span>
-          </Card>
-          
-          <Card className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-yellow-500/30">
-            <Trophy className="w-5 h-5 text-yellow-500" />
-            <span className="font-semibold text-yellow-500">{stats.longestStreak}</span>
-            <span className="text-sm text-muted-foreground">record</span>
-          </Card>
-          
-          <Card className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-blue-500/30">
-            <Calendar className="w-5 h-5 text-blue-500" />
-            <span className="font-semibold text-blue-500">{stats.totalCompletions}</span>
-            <span className="text-sm text-muted-foreground">total</span>
-          </Card>
-          
-          {stats.completedToday && (
-            <Card className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/30">
-              <span className="text-green-500">✅ Completat azi!</span>
+        <div className="flex items-center justify-between mb-4">
+          {/* Streak indicators */}
+          <div className="flex gap-3 flex-wrap">
+            <Card className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/30">
+              <Flame className="w-5 h-5 text-orange-500" />
+              <span className="font-semibold text-orange-500">{stats.currentStreak}</span>
+              <span className="text-sm text-muted-foreground hidden sm:inline">zile streak</span>
             </Card>
-          )}
+            
+            <Card className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-yellow-500/30">
+              <Trophy className="w-5 h-5 text-yellow-500" />
+              <span className="font-semibold text-yellow-500">{stats.longestStreak}</span>
+              <span className="text-sm text-muted-foreground hidden sm:inline">record</span>
+            </Card>
+            
+            <Card className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-blue-500/30">
+              <Calendar className="w-5 h-5 text-blue-500" />
+              <span className="font-semibold text-blue-500">{stats.totalCompletions}</span>
+              <span className="text-sm text-muted-foreground hidden sm:inline">total</span>
+            </Card>
+            
+            {stats.completedToday && (
+              <Card className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/30">
+                <span className="text-green-500">✅ Azi</span>
+              </Card>
+            )}
+          </div>
+
+          {/* Mode toggle */}
+          <div className="flex gap-2">
+            <Button
+              variant={voiceMode ? 'outline' : 'default'}
+              size="sm"
+              onClick={() => setVoiceMode(false)}
+              className="gap-2"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">Text</span>
+            </Button>
+            <Button
+              variant={voiceMode ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setVoiceMode(true)}
+              className="gap-2"
+            >
+              <Mic className="w-4 h-4" />
+              <span className="hidden sm:inline">Voce</span>
+            </Button>
+          </div>
         </div>
       </div>
 
-      <AiGuidedStack
-        onAddToHitList={onAddToHitList}
-        stackType="daily-master"
-        questions={allQuestions}
-        voiceOnlyMode={false}
-        audioMode={false}
-        systemPrompt={systemPromptWithTasks || buildSystemPrompt('')}
-        welcomeMessage={welcomeMessage}
-      />
+      {/* Conditional rendering based on mode */}
+      {voiceMode ? (
+        <div className="max-w-2xl mx-auto px-4 pb-4">
+          <VoiceConversationWidget
+            systemPrompt={systemPromptWithTasks || buildSystemPrompt('')}
+            welcomeMessage={welcomeMessage}
+            onComplete={handleComplete}
+            onAddToHitList={onAddToHitList}
+            quickActions={voiceQuickActions}
+            className="min-h-[500px]"
+          />
+        </div>
+      ) : (
+        <AiGuidedStack
+          onAddToHitList={onAddToHitList}
+          stackType="daily-master"
+          questions={allQuestions}
+          voiceOnlyMode={false}
+          audioMode={false}
+          systemPrompt={systemPromptWithTasks || buildSystemPrompt('')}
+          welcomeMessage={welcomeMessage}
+        />
+      )}
 
       <StackIdeaModal
         isOpen={isIdeaModalOpen}
