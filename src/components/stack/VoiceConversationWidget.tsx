@@ -199,25 +199,22 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
     }
   }, [lastAIMessage, onAddToHitList, toast]);
 
-  // Save conversation to database
-  const handleSaveConversation = useCallback(async () => {
+  // Save conversation to database (silent mode for auto-save)
+  const handleSaveConversation = useCallback(async (silent = false) => {
     if (messages.length < 2) {
-      toast({
-        title: 'Conversație prea scurtă',
-        description: 'Trebuie să existe cel puțin un schimb de mesaje.',
-      });
-      return;
+      if (!silent) {
+        toast({
+          title: 'Conversație prea scurtă',
+          description: 'Trebuie să existe cel puțin un schimb de mesaje.',
+        });
+      }
+      return false;
     }
 
     setIsSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
-
-      // Create a summary from the conversation
-      const summary = messages
-        .map(m => `${m.role === 'user' ? 'Tu' : 'AI'}: ${m.content.substring(0, 100)}...`)
-        .join('\n');
 
       const { error } = await supabase.from('stack_sessions').insert({
         user_id: user.id,
@@ -236,21 +233,47 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
 
       if (error) throw error;
 
-      toast({
-        title: '✅ Conversație salvată',
-        description: 'Poți accesa conversația din istoricul sesiunilor.',
-      });
+      if (!silent) {
+        toast({
+          title: '✅ Conversație salvată',
+          description: 'Poți accesa conversația din istoricul sesiunilor.',
+        });
+      }
+      return true;
     } catch (error) {
       console.error('Save error:', error);
-      toast({
-        title: 'Eroare',
-        description: 'Nu am putut salva conversația.',
-        variant: 'destructive'
-      });
+      if (!silent) {
+        toast({
+          title: 'Eroare',
+          description: 'Nu am putut salva conversația.',
+          variant: 'destructive'
+        });
+      }
+      return false;
     } finally {
       setIsSaving(false);
     }
   }, [messages, toast]);
+
+  // Handle closing conversation with auto-save
+  const handleCloseConversation = useCallback(async () => {
+    // Auto-save if there are enough messages
+    if (messages.length >= 2) {
+      const saved = await handleSaveConversation(true);
+      if (saved) {
+        toast({
+          title: '💾 Conversație salvată automat',
+          description: 'Poți accesa conversația din istoricul sesiunilor.',
+        });
+      }
+    }
+    
+    // Stop the conversation
+    voiceConversation.stopConversation();
+    setIsStarted(false);
+    setMessages([]);
+    setLastAIMessage('');
+  }, [messages.length, handleSaveConversation, voiceConversation, toast]);
 
   // Load saved conversation
   const handleLoadConversation = useCallback((savedMessages: { role: 'user' | 'assistant'; content: string; timestamp: string }[]) => {
@@ -354,10 +377,15 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
           <Button
             variant="destructive"
             size="sm"
-            onClick={voiceConversation.stopConversation}
+            onClick={handleCloseConversation}
+            disabled={isSaving}
             className="gap-1"
           >
-            <PhoneOff className="w-4 h-4" />
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <PhoneOff className="w-4 h-4" />
+            )}
             Închide
           </Button>
         </div>
@@ -440,7 +468,7 @@ export const VoiceConversationWidget: React.FC<VoiceConversationWidgetProps> = (
           <Button
             variant="outline"
             size="sm"
-            onClick={handleSaveConversation}
+            onClick={() => handleSaveConversation(false)}
             disabled={messages.length < 2 || isSaving}
             className="gap-1 text-xs"
           >
