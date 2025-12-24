@@ -52,6 +52,18 @@ export interface WeeklyReport {
   webinarCompleted: boolean;
 }
 
+export interface Biz4WeeklyObjectives {
+  id?: string;
+  user_id?: string;
+  week_key: string;
+  content_target: number;
+  engage_minutes_target: number;
+  prospects_target: number;
+  conversations_target: number;
+  deals_target: number;
+  notes?: string;
+}
+
 const getDefaultMetrics = (date: string): Biz4DailyMetrics => ({
   date,
   content_completed: false,
@@ -313,6 +325,65 @@ export const biz4MetricsService = {
     } catch (error) {
       console.error('Error getting incomplete actions:', error);
       return ['content', 'engage', 'outreach', 'close'];
+    }
+  },
+
+  async getWeeklyObjectives(weekKey: string): Promise<Biz4WeeklyObjectives> {
+    const defaultObjectives: Biz4WeeklyObjectives = {
+      week_key: weekKey,
+      content_target: 7,
+      engage_minutes_target: 210,
+      prospects_target: 50,
+      conversations_target: 10,
+      deals_target: 2,
+    };
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return defaultObjectives;
+
+      const { data, error } = await supabase
+        .from('biz4_weekly_objectives')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('week_key', weekKey)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching objectives:', error);
+        return defaultObjectives;
+      }
+
+      return data ? (data as Biz4WeeklyObjectives) : defaultObjectives;
+    } catch (error) {
+      console.error('Error in getWeeklyObjectives:', error);
+      return defaultObjectives;
+    }
+  },
+
+  async saveWeeklyObjectives(objectives: Biz4WeeklyObjectives): Promise<boolean> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      const { error } = await supabase
+        .from('biz4_weekly_objectives')
+        .upsert({
+          user_id: user.id,
+          ...objectives,
+        } as any, {
+          onConflict: 'user_id,week_key',
+        });
+
+      if (error) {
+        console.error('Error saving objectives:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in saveWeeklyObjectives:', error);
+      return false;
     }
   },
 };

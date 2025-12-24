@@ -185,6 +185,48 @@ export type Database = {
         }
         Relationships: []
       }
+      biz4_weekly_objectives: {
+        Row: {
+          content_target: number | null
+          conversations_target: number | null
+          created_at: string | null
+          deals_target: number | null
+          engage_minutes_target: number | null
+          id: string
+          notes: string | null
+          prospects_target: number | null
+          updated_at: string | null
+          user_id: string
+          week_key: string
+        }
+        Insert: {
+          content_target?: number | null
+          conversations_target?: number | null
+          created_at?: string | null
+          deals_target?: number | null
+          engage_minutes_target?: number | null
+          id?: string
+          notes?: string | null
+          prospects_target?: number | null
+          updated_at?: string | null
+          user_id: string
+          week_key: string
+        }
+        Update: {
+          content_target?: number | null
+          conversations_target?: number | null
+          created_at?: string | null
+          deals_target?: number | null
+          engage_minutes_target?: number | null
+          id?: string
+          notes?: string | null
+          prospects_target?: number | null
+          updated_at?: string | null
+          user_id?: string
+          week_key?: string
+        }
+        Relationships: []
+      }
       book_reading_progress: {
         Row: {
           action_completed: boolean | null
