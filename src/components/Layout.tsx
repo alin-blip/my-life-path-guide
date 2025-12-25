@@ -10,6 +10,8 @@ import { ReferralTracker } from './ReferralTracker';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { PlatformAssistantWidget } from './assistant/PlatformAssistantWidget';
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -125,5 +127,8 @@ export const Layout: React.FC<LayoutProps> = ({
           <main className="animate-fade-in">{children}</main>
         </div>
       </div>
+      
+      {/* Platform Assistant Widget */}
+      <PlatformAssistantWidget />
     </div>;
 };
