@@ -47,9 +47,13 @@ async function getUserId(): Promise<string | null> {
 
 export const doorUserTasksService = {
   async fetchGlobalHotList(): Promise<HotListItem[]> {
+    const userId = await getUserId();
+    if (!userId) return [];
+
     const { data, error } = await supabase
       .from('user_tasks')
       .select('id, title, task_type, priority, is_key_point')
+      .eq('user_id', userId)
       .eq('task_type', 'hot')
       .is('week_key', null)
       .order('position', { ascending: true });
@@ -73,9 +77,13 @@ export const doorUserTasksService = {
     hitList: HitListItem[];
     doList: DoListItem[];
   }> {
+    const userId = await getUserId();
+    if (!userId) return { hitList: [], doList: [] };
+
     const { data, error } = await supabase
       .from('user_tasks')
       .select('id, title, task_type, day_of_week, completed, priority, is_key_point')
+      .eq('user_id', userId)
       .eq('week_key', weekKey)
       .in('task_type', ['hit', 'do'])
       .order('position', { ascending: true });
