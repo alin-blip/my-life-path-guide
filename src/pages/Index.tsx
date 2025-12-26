@@ -17,10 +17,12 @@ import { ValueStackPricing } from "@/components/landing/ValueStackPricing";
 import { UrgencySection } from "@/components/landing/UrgencySection";
 import { ObjectionHandling } from "@/components/landing/ObjectionHandling";
 import { FinalCTA } from "@/components/landing/FinalCTA";
+import { useLanguage } from "@/context/LanguageContext";
 
 const Index = () => {
   const navigate = useNavigate();
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const { t } = useLanguage();
 
   // Forțează tema light permanent pe pagina index
   useEffect(() => {
@@ -66,20 +68,25 @@ const Index = () => {
           </div>
           
           <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4 md:mb-6 leading-tight animate-fade-in px-2" style={{ animationDelay: '0.2s' }}>
-            What if you could <span className="text-primary">Have It ALL</span>?<br />
-            Business, Health, Love & Peace
+            <span dangerouslySetInnerHTML={{ __html: t('landingHeroTitle').replace('<span>', '<span class="text-primary">').replace('</span>', '</span>') }} />
+            <br />
+            {t('landingHeroTitlePart2')}
           </h1>
           
           <p className="text-base sm:text-lg md:text-2xl text-slate-700 mb-3 md:mb-4 max-w-4xl mx-auto leading-relaxed animate-fade-in px-2" style={{ animationDelay: '0.3s' }}>
-            <span className="text-primary font-bold">Jump to Freedom</span> is the premium execution platform for entrepreneurs 
-            who refuse to choose between success and fulfillment — 
-            <span className="text-slate-900 font-bold"> have it ALL without sacrifice</span>
+            <span dangerouslySetInnerHTML={{ 
+              __html: t('landingHeroDesc')
+                .replace(/<span>/g, '<span class="text-primary font-bold">')
+                .replace(/<\/span>/g, '</span>')
+            }} />
           </p>
 
           <p className="text-sm sm:text-base md:text-lg text-slate-600 mb-6 md:mb-8 max-w-3xl mx-auto animate-fade-in px-2" style={{ animationDelay: '0.4s' }}>
-            Trusted by <span className="text-primary font-semibold">65,000+ achievers in 40+ countries</span> • 
-            <span className="text-primary font-semibold"> Have It All Lifestyle Challenge</span> • 
-            First results in <span className="text-primary font-semibold">48 hours</span>
+            <span dangerouslySetInnerHTML={{ 
+              __html: t('landingHeroTrusted')
+                .replace(/<span>/g, '<span class="text-primary font-semibold">')
+                .replace(/<\/span>/g, '</span>')
+            }} />
           </p>
           
           <div className="flex flex-col gap-3 sm:gap-4 justify-center mb-6 md:mb-8 animate-fade-in px-2" style={{ animationDelay: '0.5s' }}>
@@ -88,7 +95,7 @@ const Index = () => {
               onClick={() => navigate('/auth')}
               className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white px-6 sm:px-8 md:px-12 py-4 md:py-6 text-base sm:text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto sm:mx-auto"
             >
-              Începe Trial de 3 Zile
+              {t('landingStartTrial')}
             </Button>
             
             <Button 
@@ -97,22 +104,22 @@ const Index = () => {
               onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
               className="border-primary text-primary hover:bg-primary hover:text-white px-6 sm:px-8 md:px-12 py-4 md:py-6 text-base sm:text-lg md:text-xl font-semibold shadow transition-all w-full sm:w-auto sm:mx-auto"
             >
-              Vezi Pricing & ROI
+              {t('landingSeePricing')}
             </Button>
           </div>
 
           <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-8 text-slate-600 animate-fade-in text-sm sm:text-base" style={{ animationDelay: '0.6s' }}>
             <div className="flex items-center gap-2">
               <span className="text-primary font-bold text-base md:text-lg">✓</span>
-              <span className="font-medium">Transformare în 4 arii</span>
+              <span className="font-medium">{t('landingTransformIn4Areas')}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-primary font-bold text-base md:text-lg">✓</span>
-              <span className="font-medium">Sistem complet de viață</span>
+              <span className="font-medium">{t('landingCompleteLifeSystem')}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-primary font-bold text-base md:text-lg">✓</span>
-              <span className="font-medium">Trial 3 zile gratuit</span>
+              <span className="font-medium">{t('landing3DayFreeTrial')}</span>
             </div>
           </div>
 
@@ -150,7 +157,7 @@ const Index = () => {
               </div>
             </div>
             <p className="text-sm text-slate-500 mt-4 text-center">
-              🎬 See how the system works in practice
+              {t('landingVideoCaption')}
             </p>
           </div>
         </div>
@@ -198,10 +205,10 @@ const Index = () => {
         <div className="text-center">
           <div className="inline-flex items-center gap-3">
             <span className="text-sm text-slate-500">
-              Ai deja cont?
+              {t('landingAlreadyHaveAccount')}
             </span>
             <Button asChild variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-white">
-              <Link to="/auth">Autentificare</Link>
+              <Link to="/auth">{t('landingAuthenticate')}</Link>
             </Button>
           </div>
         </div>

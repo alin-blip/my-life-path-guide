@@ -2,10 +2,12 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, Shield, Clock, Rocket } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useLanguage } from "@/context/LanguageContext";
 
 export const FinalCTA = () => {
   const navigate = useNavigate();
   const { elementRef, isVisible } = useScrollAnimation();
+  const { t } = useLanguage();
 
   return (
     <section 
@@ -17,11 +19,11 @@ export const FinalCTA = () => {
       <div className="max-w-4xl mx-auto">
         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-primary rounded-2xl p-6 sm:p-8 md:p-12 text-center shadow-xl">
           <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-slate-900 mb-4 md:mb-6">
-            Start Now. See Results in 48 Hours.
+            {t('landingFinalCTATitle')}
           </h2>
           
           <p className="text-base sm:text-lg md:text-xl text-slate-600 mb-6 md:mb-8 max-w-2xl mx-auto">
-            Free 7-day trial (card required). Zero risk. Cancel anytime during trial with no charge.
+            {t('landingFinalCTASubtitle')}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 md:mb-8">
@@ -30,8 +32,8 @@ export const FinalCTA = () => {
                 <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div className="text-left sm:text-center">
-                <p className="text-slate-900 font-semibold text-sm sm:text-base mb-0 sm:mb-1">15-Minute Setup</p>
-                <p className="text-slate-500 text-xs sm:text-sm">Quick onboarding, then execute</p>
+                <p className="text-slate-900 font-semibold text-sm sm:text-base mb-0 sm:mb-1">{t('landing15MinSetup')}</p>
+                <p className="text-slate-500 text-xs sm:text-sm">{t('landingQuickOnboarding')}</p>
               </div>
             </div>
 
@@ -40,8 +42,8 @@ export const FinalCTA = () => {
                 <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div className="text-left sm:text-center">
-                <p className="text-slate-900 font-semibold text-sm sm:text-base mb-0 sm:mb-1">Results in 48h</p>
-                <p className="text-slate-500 text-xs sm:text-sm">Clarity + first wins</p>
+                <p className="text-slate-900 font-semibold text-sm sm:text-base mb-0 sm:mb-1">{t('landingResultsIn48h')}</p>
+                <p className="text-slate-500 text-xs sm:text-sm">{t('landingClarityFirstWins')}</p>
               </div>
             </div>
 
@@ -50,8 +52,8 @@ export const FinalCTA = () => {
                 <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <div className="text-left sm:text-center">
-                <p className="text-slate-900 font-semibold text-sm sm:text-base mb-0 sm:mb-1">Zero Risk Guarantee</p>
-                <p className="text-slate-500 text-xs sm:text-sm">7-day trial, cancel free</p>
+                <p className="text-slate-900 font-semibold text-sm sm:text-base mb-0 sm:mb-1">{t('landingZeroRiskGuarantee')}</p>
+                <p className="text-slate-500 text-xs sm:text-sm">{t('landing7DayTrialCancelFree')}</p>
               </div>
             </div>
           </div>
@@ -62,11 +64,11 @@ export const FinalCTA = () => {
             onClick={() => navigate('/auth')}
           >
             <Rocket className="w-5 h-5 mr-2" />
-            Start Your 7-Day Free Trial
+            {t('landingStartFreeTrial')}
           </Button>
 
           <p className="text-slate-500 text-xs sm:text-sm mt-4 md:mt-6">
-            500+ members transformed • Average +35% life satisfaction in 30 days • 7-day free trial
+            {t('landingMembersStats')}
           </p>
         </div>
       </div>

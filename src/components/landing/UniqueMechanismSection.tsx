@@ -1,17 +1,19 @@
 import { Card } from "@/components/ui/card";
 import { Dumbbell, Sparkles, Heart, Briefcase, Target } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useLanguage } from "@/context/LanguageContext";
 
 export const UniqueMechanismSection = () => {
   const { elementRef, isVisible } = useScrollAnimation();
+  const { t } = useLanguage();
 
   const protocols = [
     {
       number: "1",
       icon: Dumbbell,
-      title: "Body",
-      description: "Daily movement & nutrition rituals",
-      result: "Energy, strength, vitality",
+      titleKey: "body",
+      descriptionKey: "landingBodyDesc",
+      resultKey: "landingBodyResult",
       color: "text-green-600",
       bgColor: "bg-green-50",
       borderColor: "border-green-300"
@@ -19,9 +21,9 @@ export const UniqueMechanismSection = () => {
     {
       number: "2",
       icon: Sparkles,
-      title: "Being",
-      description: "Meditation, Stack & inner clarity",
-      result: "Peace, purpose, mental power",
+      titleKey: "being",
+      descriptionKey: "landingBeingDesc",
+      resultKey: "landingBeingResult",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-300"
@@ -29,9 +31,9 @@ export const UniqueMechanismSection = () => {
     {
       number: "3",
       icon: Heart,
-      title: "Balance",
-      description: "Adding value to relationships daily",
-      result: "Deep connections, love, legacy",
+      titleKey: "balance",
+      descriptionKey: "landingBalanceDesc",
+      resultKey: "landingBalanceResult",
       color: "text-pink-600",
       bgColor: "bg-pink-50",
       borderColor: "border-pink-300"
@@ -39,9 +41,9 @@ export const UniqueMechanismSection = () => {
     {
       number: "4",
       icon: Briefcase,
-      title: "Business",
-      description: "Strategic learning & application",
-      result: "Growth, income, impact",
+      titleKey: "business",
+      descriptionKey: "landingBusinessDesc",
+      resultKey: "landingBusinessResult",
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       borderColor: "border-blue-300"
@@ -49,9 +51,9 @@ export const UniqueMechanismSection = () => {
     {
       number: "5",
       icon: Target,
-      title: "The Door",
-      description: "Weekly planning & execution",
-      result: "Focus on what truly matters",
+      titleKey: "landingDoorTitle",
+      descriptionKey: "landingDoorDesc",
+      resultKey: "landingDoorResult",
       color: "text-amber-600",
       bgColor: "bg-amber-50",
       borderColor: "border-amber-300"
@@ -67,10 +69,14 @@ export const UniqueMechanismSection = () => {
     >
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-          The 5 Pillars of Freedom
+          {t('landing5Pillars')}
         </h2>
         <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-          This isn't a productivity tool. It's a <span className="text-primary font-bold">complete life system</span> that integrates Body, Being, Balance, and Business into one unified framework.
+          <span dangerouslySetInnerHTML={{ 
+            __html: t('landing5PillarsDesc')
+              .replace(/<span>/g, '<span class="text-primary font-bold">')
+              .replace(/<\/span>/g, '</span>')
+          }} />
         </p>
       </div>
 
@@ -88,10 +94,10 @@ export const UniqueMechanismSection = () => {
                 </div>
                 <Icon className={`h-8 w-8 ${protocol.color} group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`} />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">{protocol.title}</h3>
-              <p className="text-sm text-slate-600 mb-3">{protocol.description}</p>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">{t(protocol.titleKey)}</h3>
+              <p className="text-sm text-slate-600 mb-3">{t(protocol.descriptionKey)}</p>
               <div className={`border-t-2 ${protocol.borderColor} pt-3`}>
-                <p className={`text-sm font-semibold ${protocol.color}`}>→ {protocol.result}</p>
+                <p className={`text-sm font-semibold ${protocol.color}`}>→ {t(protocol.resultKey)}</p>
               </div>
             </Card>
           );
@@ -100,12 +106,14 @@ export const UniqueMechanismSection = () => {
 
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-primary/40 p-8 max-w-4xl mx-auto shadow-xl">
         <p className="text-lg text-slate-900 font-bold text-center mb-2">
-          🎯 Works Together as ONE SYSTEM
+          🎯 {t('landingSystemTitle')}
         </p>
         <p className="text-base text-slate-600 text-center">
-          Each pillar connects with the others. Body gives you energy. Being gives you clarity. 
-          Balance keeps you grounded. Business drives growth. The Door keeps you focused weekly. 
-          <span className="text-slate-900 font-semibold"> One without the others leads to imbalance.</span>
+          <span dangerouslySetInnerHTML={{ 
+            __html: t('landingSystemDesc')
+              .replace(/<span>/g, '<span class="text-slate-900 font-semibold">')
+              .replace(/<\/span>/g, '</span>')
+          }} />
         </p>
       </Card>
     </section>
