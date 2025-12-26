@@ -213,7 +213,7 @@ export const AssistantVoiceMode: React.FC<AssistantVoiceModeProps> = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={voiceConversation.stopAISpeech}
+              onClick={voiceConversation.skipAISpeaking}
               className="h-12 w-12"
             >
               <Square className="w-5 h-5" />
