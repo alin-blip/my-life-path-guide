@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Calendar, Trash2, History as HistoryIcon, Undo, Redo } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Trash2, History as HistoryIcon, Undo, Redo, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
@@ -23,6 +23,7 @@ interface DoorHeaderProps {
   onOpenHistory?: () => void;
   onClearWeek?: () => void;
   onClearHistory?: () => void;
+  onCleanDuplicates?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
   canUndo?: boolean;
@@ -38,6 +39,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
   onOpenHistory,
   onClearWeek,
   onClearHistory,
+  onCleanDuplicates,
   onUndo,
   onRedo,
   canUndo = false,
@@ -189,15 +191,27 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
                   <span>Șterge</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-popover border-border shadow-lg z-50">
-                {onClearWeek && (
+              <DropdownMenuContent align="end" className="w-52 bg-popover border-border shadow-lg z-50">
+                {onCleanDuplicates && (
                   <DropdownMenuItem 
-                    onClick={onClearWeek}
+                    onClick={onCleanDuplicates}
                     className="cursor-pointer hover:bg-accent focus:bg-accent"
                   >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Clear Săptămână
+                    <Copy className="w-4 h-4 mr-2" />
+                    Curăță Dublurile
                   </DropdownMenuItem>
+                )}
+                {onClearWeek && (
+                  <>
+                    {onCleanDuplicates && <DropdownMenuSeparator className="bg-border" />}
+                    <DropdownMenuItem 
+                      onClick={onClearWeek}
+                      className="cursor-pointer hover:bg-accent focus:bg-accent"
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Clear Săptămână
+                    </DropdownMenuItem>
+                  </>
                 )}
                 {onClearHistory && (
                   <>

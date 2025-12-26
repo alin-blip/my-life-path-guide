@@ -303,5 +303,54 @@ export const doorUserTasksService = {
     }
 
     return data || 0;
+  },
+
+  async removeDuplicateTasks(): Promise<{ removed: number; kept: number }> {
+    const userId = await getUserId();
+    if (!userId) throw new Error('User not authenticated');
+
+    // Fetch all tasks for the user
+    const { data: allTasks, error: fetchError } = await supabase
+      .from('user_tasks')
+      .select('id, title, task_type, week_key, day_of_week, completed')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true });
+
+    if (fetchError) throw fetchError;
+    if (!allTasks || allTasks.length === 0) return { removed: 0, kept: 0 };
+
+    // Group by unique key: title + task_type + week_key + day_of_week
+    const seen = new Map<string, string>();
+    const duplicateIds: string[] = [];
+
+    for (const task of allTasks) {
+      const key = `${task.title}|${task.task_type}|${task.week_key || 'null'}|${task.day_of_week || 'null'}`;
+      
+      if (seen.has(key)) {
+        // This is a duplicate - mark for deletion
+        duplicateIds.push(task.id);
+      } else {
+        // First occurrence - keep it
+        seen.set(key, task.id);
+      }
+    }
+
+    if (duplicateIds.length === 0) {
+      return { removed: 0, kept: allTasks.length };
+    }
+
+    // Delete duplicates in batches of 100
+    const batchSize = 100;
+    for (let i = 0; i < duplicateIds.length; i += batchSize) {
+      const batch = duplicateIds.slice(i, i + batchSize);
+      const { error: deleteError } = await supabase
+        .from('user_tasks')
+        .delete()
+        .in('id', batch);
+
+      if (deleteError) throw deleteError;
+    }
+
+    return { removed: duplicateIds.length, kept: allTasks.length - duplicateIds.length };
   }
 };

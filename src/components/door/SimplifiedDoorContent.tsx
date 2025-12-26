@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format, getWeek } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
 import { weeklyPlanningService, WeeklyPlanningData } from '@/services/weeklyPlanningService';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { Button } from '@/components/ui/button';
 import { History, ListTodo, Target, CheckSquare } from 'lucide-react';
 
@@ -60,6 +61,32 @@ export const SimplifiedDoorContent: React.FC = () => {
   const handleOpenHistory = () => {
     loadPlanningHistory();
     setIsHistoryOpen(true);
+  };
+
+  const handleCleanDuplicates = async () => {
+    try {
+      const result = await doorUserTasksService.removeDuplicateTasks();
+      if (result.removed > 0) {
+        toast({
+          title: '🧹 Dubluri eliminate',
+          description: `Am eliminat ${result.removed} task-uri duplicate. Au rămas ${result.kept} task-uri unice.`,
+        });
+        // Reload to reflect changes
+        setTimeout(() => window.location.reload(), 500);
+      } else {
+        toast({
+          title: '✅ Niciun duplicat',
+          description: 'Nu am găsit task-uri duplicate în baza de date.',
+        });
+      }
+    } catch (error) {
+      console.error('Error cleaning duplicates:', error);
+      toast({
+        title: '❌ Eroare',
+        description: 'Nu am putut curăța duplicatele. Încearcă din nou.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleSelectPlan = (plan: WeeklyPlanningData) => {
@@ -330,6 +357,7 @@ export const SimplifiedDoorContent: React.FC = () => {
         handleNextWeek={handleNextWeekWithNotification}
         isMobile={isMobile}
         onOpenHistory={handleOpenHistory}
+        onCleanDuplicates={handleCleanDuplicates}
         onClearWeek={() => {
           // Call the ClearWeekButton logic directly
           toast({
