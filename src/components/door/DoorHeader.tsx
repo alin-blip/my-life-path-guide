@@ -143,7 +143,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Undo (Ctrl+Z)</p>
+                  <p>{t('undoCtrl')}</p>
                 </TooltipContent>
               </Tooltip>
               
@@ -160,7 +160,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Redo (Ctrl+Shift+Z)</p>
+                  <p>{t('redoCtrl')}</p>
                   </TooltipContent>
               </Tooltip>
             </div>
@@ -175,7 +175,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
               className="gap-2 border-border/50 hover:border-border hover:bg-accent/50 transition-all rounded-lg shadow-sm"
             >
               <HistoryIcon className="w-4 h-4" />
-              <span>Istoric</span>
+              <span>{t('history')}</span>
             </Button>
           )}
           
@@ -188,7 +188,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
                   className="gap-2 border-border/50 hover:border-border hover:bg-accent/50 transition-all rounded-lg shadow-sm"
                 >
                   <Trash2 className="w-4 h-4" />
-                  <span>Șterge</span>
+                  <span>{t('deleteBtn')}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52 bg-popover border-border shadow-lg z-50">
@@ -198,7 +198,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
                     className="cursor-pointer hover:bg-accent focus:bg-accent"
                   >
                     <Copy className="w-4 h-4 mr-2" />
-                    Curăță Dublurile
+                    {t('cleanDuplicates')}
                   </DropdownMenuItem>
                 )}
                 {onClearWeek && (
@@ -209,7 +209,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
                       className="cursor-pointer hover:bg-accent focus:bg-accent"
                     >
                       <Calendar className="w-4 h-4 mr-2" />
-                      Clear Săptămână
+                      {t('clearWeek')}
                     </DropdownMenuItem>
                   </>
                 )}
@@ -221,7 +221,7 @@ export const DoorHeader: React.FC<DoorHeaderProps> = ({
                       className="cursor-pointer text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
-                      Șterge Istoric
+                      {t('deleteHistory')}
                     </DropdownMenuItem>
                   </>
                 )}

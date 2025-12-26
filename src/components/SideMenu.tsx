@@ -71,17 +71,17 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   };
 
   const menuItems: MenuItem[] = [
-    { title: 'Dashboard', icon: Home, path: '/dashboard' },
-    { title: '📖 Have It All Blueprint', icon: BookOpen, path: '/lifebook' },
-    { title: '🚀 Have It All Challenge', icon: Target, path: '/challenge' },
+    { title: t('dashboard'), icon: Home, path: '/dashboard' },
+    { title: t('haveItAllBlueprint'), icon: BookOpen, path: '/lifebook' },
+    { title: t('haveItAllChallenge'), icon: Target, path: '/challenge' },
     {
-      title: '📚 Master Plan',
+      title: t('masterPlan'),
       icon: Crown,
       path: '/master-plan',
       subItems: [
-        { title: 'My Projects', icon: Target, path: '/master-plan' },
-        { title: 'Active Journey', icon: BookOpen, path: '/master-plan?tab=journey' },
-        { title: 'Knowledge Base', icon: Upload, path: '/master-plan?tab=knowledge' },
+        { title: t('myProjects'), icon: Target, path: '/master-plan' },
+        { title: t('activeJourney'), icon: BookOpen, path: '/master-plan?tab=journey' },
+        { title: t('knowledgeBase'), icon: Upload, path: '/master-plan?tab=knowledge' },
       ]
     },
     { 
@@ -89,27 +89,27 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       icon: Layers, 
       path: '/stack',
       subItems: [
-        { title: 'Daily Master Stack', icon: Activity, path: '/stack?type=daily-master' },
-        { title: 'Alchimia Furiei', icon: Angry, path: '/stack?type=anger' },
-        { title: 'Divin & Recunoștință', icon: Heart, path: '/stack?type=divine-gratitude' },
-        { title: 'Divine Connection', icon: Heart, path: '/stack?type=divine-prayer' },
-        { title: 'Gratitude Practice', icon: Heart, path: '/stack?type=gratitude' },
-        { title: 'Principle Coaching', icon: Crown, path: '/stack?type=master-plan-quick' },
-        { title: 'Wisdom Oracle', icon: Headphones, path: '/stack?type=ai-live' },
-        { title: 'Business Empire', icon: Briefcase, path: '/stack?type=hormozi-coaching' },
-        { title: 'Masters Academy', icon: Target, path: '/stack?type=gods-school' },
-        { title: 'Reflection Journal', icon: Pencil, path: '/journal' },
-        { title: 'Voice Analysis', icon: Mic, path: '/voice-analysis' },
-        { title: 'Transformation Toolkit', icon: Box, path: '/stack-library' },
+        { title: t('dailyMasterStack'), icon: Activity, path: '/stack?type=daily-master' },
+        { title: t('angerAlchemy'), icon: Angry, path: '/stack?type=anger' },
+        { title: t('divineGratitude'), icon: Heart, path: '/stack?type=divine-gratitude' },
+        { title: t('divineConnection'), icon: Heart, path: '/stack?type=divine-prayer' },
+        { title: t('gratitudePractice'), icon: Heart, path: '/stack?type=gratitude' },
+        { title: t('principleCoaching'), icon: Crown, path: '/stack?type=master-plan-quick' },
+        { title: t('wisdomOracle'), icon: Headphones, path: '/stack?type=ai-live' },
+        { title: t('businessEmpire'), icon: Briefcase, path: '/stack?type=hormozi-coaching' },
+        { title: t('mastersAcademy'), icon: Target, path: '/stack?type=gods-school' },
+        { title: t('reflectionJournal'), icon: Pencil, path: '/journal' },
+        { title: t('voiceAnalysis'), icon: Mic, path: '/voice-analysis' },
+        { title: t('transformationToolkit'), icon: Box, path: '/stack-library' },
       ]
     },
     { title: t('commandCenter'), icon: Flag, path: '/door' },
-    { title: 'Business', icon: Briefcase, path: '/business' },
-    { title: 'Freedom Missions', icon: Target, path: '/game' },
-    { title: 'Notes', icon: FileText, path: '/notes' },
-    { title: 'Library', icon: BookOpenIcon, path: '/library' },
-    { title: 'Subscriptions', icon: CreditCard, path: '/pricing' },
-    { title: 'Admin', icon: Shield, path: '/admin' },
+    { title: t('business'), icon: Briefcase, path: '/business' },
+    { title: t('freedomMissions'), icon: Target, path: '/game' },
+    { title: t('notes'), icon: FileText, path: '/notes' },
+    { title: t('library'), icon: BookOpenIcon, path: '/library' },
+    { title: t('subscriptions'), icon: CreditCard, path: '/pricing' },
+    { title: t('admin'), icon: Shield, path: '/admin' },
   ];
 
   return (
@@ -214,11 +214,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       <div className="p-2 border-t border-border">
         <Link to="/settings" onClick={onItemClick} className={`sidebar-item ${currentPath === '/settings' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <Settings className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-          {!isCollapsed && <span className="text-sm">Settings</span>}
+          {!isCollapsed && <span className="text-sm">{t('settings')}</span>}
         </Link>
         <Link to="/support" onClick={onItemClick} className={`sidebar-item mt-1 ${currentPath === '/support' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <HelpCircle className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-          {!isCollapsed && <span className="text-sm">Support</span>}
+          {!isCollapsed && <span className="text-sm">{t('support')}</span>}
         </Link>
       </div>
     </div>
