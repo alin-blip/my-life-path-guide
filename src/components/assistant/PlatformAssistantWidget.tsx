@@ -40,8 +40,9 @@ export const PlatformAssistantWidget: React.FC = () => {
         className={cn(
           'fixed bottom-4 right-4 z-50 h-14 w-14 rounded-full shadow-lg',
           'bg-primary hover:bg-primary/90',
-          'transition-all duration-300 hover:scale-105',
-          'flex items-center justify-center'
+          'transition-all duration-300',
+          'flex items-center justify-center',
+          isOpen ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 hover:scale-105'
         )}
       >
         <Bot className="w-6 h-6" />
@@ -51,7 +52,7 @@ export const PlatformAssistantWidget: React.FC = () => {
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent 
           side="right" 
-          className="w-full sm:w-[400px] p-0 flex flex-col"
+          className="w-full sm:w-[400px] p-0 flex flex-col data-[state=open]:animate-enter data-[state=closed]:animate-exit"
         >
           <SheetHeader className="p-4 border-b border-border flex-shrink-0">
             <div className="flex items-center justify-between">

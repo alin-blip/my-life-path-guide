@@ -224,18 +224,22 @@ export const AssistantVoiceMode: React.FC<AssistantVoiceModeProps> = ({
           <Button
             variant={voiceConversation.isListening ? 'default' : 'outline'}
             size="icon"
-            onClick={voiceConversation.isActive ? voiceConversation.stopConversation : voiceConversation.startConversation}
+            onClick={() => {
+              if (voiceConversation.isActive) {
+                voiceConversation.stopConversation();
+              } else {
+                voiceConversation.startConversation();
+                // IMPORTANT: useVoiceConversation doesn’t auto-start listening unless AI speaks first.
+                voiceConversation.startListening();
+              }
+            }}
             disabled={isProcessing}
             className={cn(
               'h-14 w-14 rounded-full transition-all',
               voiceConversation.isListening && 'animate-pulse ring-2 ring-primary ring-offset-2'
             )}
           >
-            {voiceConversation.isListening ? (
-              <Mic className="w-6 h-6" />
-            ) : (
-              <MicOff className="w-6 h-6" />
-            )}
+            <Mic className="w-6 h-6" />
           </Button>
           
           {/* Volume indicator */}

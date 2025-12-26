@@ -19,55 +19,61 @@ export function useDoorRealtime({ currentWeekKey, onDataUpdate }: UseDoorRealtim
   useEffect(() => {
     if (!currentWeekKey) return;
 
-    // Set up real-time subscription for user_tasks changes
-    const channel = supabase
-      .channel(`door-realtime-${currentWeekKey}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_tasks'
-        },
-        async (payload) => {
-          console.log('Real-time update received:', payload);
-          
-          try {
-            // Re-fetch latest data when changes occur
-            // Global hot list (permanent inbox)
-            const hotList = await doorUserTasksService.fetchGlobalHotList();
-            
-            // Weekly hit/do lists
-            const { hitList, doList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
-            
-            onDataUpdate({ hotList, hitList, doList });
-            
-            // Show notification for real-time updates
-            if (payload.eventType === 'INSERT') {
-              toast({
-                title: "➕ Element nou adăugat",
-                description: "Un nou task a fost sincronizat",
-              });
-            } else if (payload.eventType === 'UPDATE') {
-              toast({
-                title: "📝 Modificare sincronizată",
-                description: "Task-ul a fost actualizat în timp real",
-              });
-            } else if (payload.eventType === 'DELETE') {
-              toast({
-                title: "🗑️ Element șters",
-                description: "Task-ul a fost eliminat și sincronizat",
-              });
+    let active = true;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    const setup = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!active || !user) return;
+
+      // Set up real-time subscription for user_tasks changes (ONLY current user)
+      channel = supabase
+        .channel(`door-realtime-${currentWeekKey}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'user_tasks',
+            filter: `user_id=eq.${user.id}`,
+          },
+          async (payload) => {
+            console.log('Real-time update received:', payload);
+
+            try {
+              const hotList = await doorUserTasksService.fetchGlobalHotList();
+              const { hitList, doList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
+              onDataUpdate({ hotList, hitList, doList });
+
+              if (payload.eventType === 'INSERT') {
+                toast({
+                  title: "➕ Element nou adăugat",
+                  description: "Un nou task a fost sincronizat",
+                });
+              } else if (payload.eventType === 'UPDATE') {
+                toast({
+                  title: "📝 Modificare sincronizată",
+                  description: "Task-ul a fost actualizat în timp real",
+                });
+              } else if (payload.eventType === 'DELETE') {
+                toast({
+                  title: "🗑️ Element șters",
+                  description: "Task-ul a fost eliminat și sincronizat",
+                });
+              }
+            } catch (error) {
+              console.error('Error handling real-time update:', error);
             }
-          } catch (error) {
-            console.error('Error handling real-time update:', error);
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+    };
+
+    setup();
 
     return () => {
-      supabase.removeChannel(channel);
+      active = false;
+      if (channel) supabase.removeChannel(channel);
     };
   }, [currentWeekKey, onDataUpdate, toast]);
 }
