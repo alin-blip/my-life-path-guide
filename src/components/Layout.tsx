@@ -96,9 +96,17 @@ export const Layout: React.FC<LayoutProps> = ({
         ${isMobile ? 'ml-0' : isMenuCollapsed ? 'ml-[70px]' : 'ml-[240px]'}
       `}>
         <div className={`${isMobile ? 'p-4 pt-16' : 'p-6'}`}>
-          {/* Header - Hidden on mobile to save space */}
+          {/* Header - Desktop */}
           {!isMobile && <div className="flex justify-between items-center mb-6">
-                
+              <div className="text-sm text-muted-foreground">
+                {formatDate()}
+              </div>
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
+                  {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                </Button>
+                <LanguageSelector />
+              </div>
             </div>}
           
           {/* Mobile Header - Simplified */}
