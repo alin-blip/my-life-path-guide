@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Languages } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface VoiceLanguageToggleProps {
   currentLanguage: 'ro-RO' | 'en-US';
@@ -14,13 +15,15 @@ export const VoiceLanguageToggle: React.FC<VoiceLanguageToggleProps> = ({
   onLanguageChange,
   disabled = false
 }) => {
+  const { t } = useLanguage();
+  
   const toggleLanguage = () => {
     const newLang = currentLanguage === 'ro-RO' ? 'en-US' : 'ro-RO';
     onLanguageChange(newLang);
   };
 
   const displayLang = currentLanguage === 'ro-RO' ? 'RO' : 'EN';
-  const fullLangName = currentLanguage === 'ro-RO' ? 'Română' : 'English';
+  const fullLangName = currentLanguage === 'ro-RO' ? t('romanian') : t('english');
 
   return (
     <TooltipProvider>
@@ -38,8 +41,8 @@ export const VoiceLanguageToggle: React.FC<VoiceLanguageToggleProps> = ({
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="text-xs">Limbă recunoaștere vocală: {fullLangName}</p>
-          <p className="text-xs text-muted-foreground">Click pentru a schimba</p>
+          <p className="text-xs">{t('voiceRecognitionLanguage')}: {fullLangName}</p>
+          <p className="text-xs text-muted-foreground">{t('clickToChange')}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

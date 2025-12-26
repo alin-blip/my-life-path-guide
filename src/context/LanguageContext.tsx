@@ -173,6 +173,7 @@ const translations: Translations = {
     "keyPoints": "Key Points:",
     "keyPoint": "Key point",
     "noTasksForDay": "No tasks for this day",
+    "noDoItemsForDay": "No DO items for this day",
     "dragItemsHere": "Drag items here from your IDEA list",
     "yourIdeaListEmpty": "Your idea list is empty",
     "addNewItemsToStart": "Add new items to get started",
@@ -529,7 +530,47 @@ const translations: Translations = {
     "outreachDesc": "Contact new prospects",
     "closeDesc": "Sales conversation/follow-up",
     "podcastDesc": "Record your weekly episode",
-    "webinarDesc": "Host your weekly webinar/live"
+    "webinarDesc": "Host your weekly webinar/live",
+    
+    // Menu items
+    "haveItAllBlueprint": "📖 Have It All Blueprint",
+    "haveItAllChallenge": "🚀 Have It All Challenge",
+    "masterPlan": "📚 Master Plan",
+    "myProjects": "My Projects",
+    "activeJourney": "Active Journey",
+    "knowledgeBase": "Knowledge Base",
+    "dailyMasterStack": "Daily Master Stack",
+    "angerAlchemy": "Anger Alchemy",
+    "divineGratitude": "Divine & Gratitude",
+    "divineConnection": "Divine Connection",
+    "gratitudePractice": "Gratitude Practice",
+    "principleCoaching": "Principle Coaching",
+    "wisdomOracle": "Wisdom Oracle",
+    "businessEmpire": "Business Empire",
+    "mastersAcademy": "Masters Academy",
+    "reflectionJournal": "Reflection Journal",
+    "voiceAnalysis": "Voice Analysis",
+    "transformationToolkit": "Transformation Toolkit",
+    "freedomMissions": "Freedom Missions",
+    "notes": "Notes",
+    "library": "Library",
+    "subscriptions": "Subscriptions",
+    "admin": "Admin",
+    "settings": "Settings",
+    "support": "Support",
+    
+    // DoorHeader
+    "history": "History",
+    "deleteBtn": "Delete",
+    "cleanDuplicates": "Clean Duplicates",
+    "clearWeek": "Clear Week",
+    "deleteHistory": "Delete History",
+    "undoCtrl": "Undo (Ctrl+Z)",
+    "redoCtrl": "Redo (Ctrl+Shift+Z)",
+    
+    // VoiceLanguageToggle
+    "voiceRecognitionLanguage": "Voice recognition language",
+    "clickToChange": "Click to change"
   },
   ro: {
     // Auth page
@@ -692,6 +733,7 @@ const translations: Translations = {
     "keyPoints": "Puncte Cheie:",
     "keyPoint": "Punct cheie",
     "noTasksForDay": "Nu există sarcini pentru această zi",
+    "noDoItemsForDay": "Nu există elemente DO pentru această zi",
     "dragItemsHere": "Trage elemente aici din lista ta de IDEI",
     "yourIdeaListEmpty": "Lista ta de idei este goală",
     "addNewItemsToStart": "Adaugă elemente noi pentru a începe",
@@ -1048,7 +1090,47 @@ const translations: Translations = {
     "outreachDesc": "Contactează prospecți noi",
     "closeDesc": "Conversație de vânzare/follow-up",
     "podcastDesc": "Înregistrează episodul săptămânal",
-    "webinarDesc": "Ține webinarul/live-ul săptămânal"
+    "webinarDesc": "Ține webinarul/live-ul săptămânal",
+    
+    // Menu items
+    "haveItAllBlueprint": "📖 Blueprint-ul Ai Tot",
+    "haveItAllChallenge": "🚀 Provocarea Ai Tot",
+    "masterPlan": "📚 Planul Master",
+    "myProjects": "Proiectele Mele",
+    "activeJourney": "Călătoria Activă",
+    "knowledgeBase": "Baza de Cunoștințe",
+    "dailyMasterStack": "Stack-ul Master Zilnic",
+    "angerAlchemy": "Alchimia Furiei",
+    "divineGratitude": "Divin și Recunoștință",
+    "divineConnection": "Conexiune Divină",
+    "gratitudePractice": "Practică de Recunoștință",
+    "principleCoaching": "Coaching Principii",
+    "wisdomOracle": "Oracolul Înțelepciunii",
+    "businessEmpire": "Imperiul de Afaceri",
+    "mastersAcademy": "Academia Maeștrilor",
+    "reflectionJournal": "Jurnal de Reflecție",
+    "voiceAnalysis": "Analiză Vocală",
+    "transformationToolkit": "Toolkit de Transformare",
+    "freedomMissions": "Misiuni pentru Libertate",
+    "notes": "Notițe",
+    "library": "Bibliotecă",
+    "subscriptions": "Abonamente",
+    "admin": "Admin",
+    "settings": "Setări",
+    "support": "Suport",
+    
+    // DoorHeader
+    "history": "Istoric",
+    "deleteBtn": "Șterge",
+    "cleanDuplicates": "Curăță Dublurile",
+    "clearWeek": "Șterge Săptămâna",
+    "deleteHistory": "Șterge Istoric",
+    "undoCtrl": "Anulează (Ctrl+Z)",
+    "redoCtrl": "Refă (Ctrl+Shift+Z)",
+    
+    // VoiceLanguageToggle
+    "voiceRecognitionLanguage": "Limbă recunoaștere vocală",
+    "clickToChange": "Click pentru a schimba"
   }
 };
 
