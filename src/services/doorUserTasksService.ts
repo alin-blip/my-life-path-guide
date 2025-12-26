@@ -175,12 +175,29 @@ export const doorUserTasksService = {
       .eq('week_key', weekKey)
       .in('task_type', ['hit', 'do']);
 
+    // Deduplicate hitList by title + day before saving
+    const seenHit = new Set<string>();
+    const uniqueHitList = params.hitList.filter(item => {
+      const key = `${item.text}|${item.day || 'null'}`;
+      if (seenHit.has(key)) return false;
+      seenHit.add(key);
+      return true;
+    });
+
+    // Deduplicate doList by title + day before saving
+    const seenDo = new Set<string>();
+    const uniqueDoList = params.doList.filter(item => {
+      const key = `${item.text}|${item.day || 'null'}`;
+      if (seenDo.has(key)) return false;
+      seenDo.add(key);
+      return true;
+    });
+
     const rows: any[] = [];
     let position = 0;
 
-    // Prepare all tasks for INSERT
-    for (const item of params.hitList) {
-      // Always generate new UUID for fresh insert
+    // Prepare all tasks for INSERT (using deduplicated lists)
+    for (const item of uniqueHitList) {
       rows.push({
         id: uuidv4(),
         user_id: userId,
@@ -196,7 +213,7 @@ export const doorUserTasksService = {
       });
     }
 
-    for (const item of params.doList) {
+    for (const item of uniqueDoList) {
       rows.push({
         id: uuidv4(),
         user_id: userId,
@@ -250,10 +267,38 @@ export const doorUserTasksService = {
       throw new Error('User not authenticated');
     }
 
+    // Check if duplicate exists before inserting
+    const effectiveWeekKey = idea.category === 'hot' ? null : weekKey;
+    const effectiveDay = idea.category !== 'hot' ? (idea.day ? String(idea.day) : 'M') : null;
+    
+    let query = supabase
+      .from('user_tasks')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('title', idea.text)
+      .eq('task_type', idea.category);
+    
+    if (effectiveWeekKey) {
+      query = query.eq('week_key', effectiveWeekKey);
+    } else {
+      query = query.is('week_key', null);
+    }
+    
+    if (effectiveDay) {
+      query = query.eq('day_of_week', effectiveDay);
+    }
+    
+    const { data: existing } = await query.limit(1);
+    
+    if (existing && existing.length > 0) {
+      console.log('⚠️ Duplicate task detected, skipping insert:', idea.text);
+      return existing; // Return existing instead of creating duplicate
+    }
+
     const payload: any = {
-      id: uuidv4(), // Generate unique ID to ensure insertion
+      id: uuidv4(),
       user_id: userId,
-      week_key: idea.category === 'hot' ? null : weekKey,
+      week_key: effectiveWeekKey,
       task_type: idea.category,
       list_type: idea.category,
       title: idea.text,
@@ -263,7 +308,7 @@ export const doorUserTasksService = {
     };
 
     if (idea.category !== 'hot') {
-      payload.day_of_week = idea.day ? String(idea.day) : 'M';
+      payload.day_of_week = effectiveDay;
     }
 
     console.log('📦 Inserting task payload:', payload);
