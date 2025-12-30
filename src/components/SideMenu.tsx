@@ -72,10 +72,10 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
   const menuItems: MenuItem[] = [
     { title: t('dashboard'), icon: Home, path: '/dashboard' },
-    { title: t('haveItAllBlueprint'), icon: BookOpen, path: '/lifebook' },
-    { title: t('haveItAllChallenge'), icon: Target, path: '/challenge' },
+    { title: t('lifeVision') || t('haveItAllBlueprint'), icon: BookOpen, path: '/lifebook' },
+    { title: t('ninetyDayChallenge') || t('haveItAllChallenge'), icon: Target, path: '/challenge' },
     {
-      title: t('masterPlan'),
+      title: t('successCoach') || t('masterPlan'),
       icon: Crown,
       path: '/master-plan',
       subItems: [
@@ -85,29 +85,29 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
     { 
-      title: t('transformationWorkshop'), 
+      title: t('aiCoaches') || t('transformationWorkshop'), 
       icon: Layers, 
       path: '/stack',
       subItems: [
-        { title: t('dailyMasterStack'), icon: Activity, path: '/stack?type=daily-master' },
-        { title: t('angerAlchemy'), icon: Angry, path: '/stack?type=anger' },
-        { title: t('divineGratitude'), icon: Heart, path: '/stack?type=divine-gratitude' },
-        { title: t('divineConnection'), icon: Heart, path: '/stack?type=divine-prayer' },
-        { title: t('gratitudePractice'), icon: Heart, path: '/stack?type=gratitude' },
-        { title: t('principleCoaching'), icon: Crown, path: '/stack?type=master-plan-quick' },
-        { title: t('wisdomOracle'), icon: Headphones, path: '/stack?type=ai-live' },
-        { title: t('businessEmpire'), icon: Briefcase, path: '/stack?type=hormozi-coaching' },
-        { title: t('mastersAcademy'), icon: Target, path: '/stack?type=gods-school' },
+        { title: t('dailyPlanner') || t('dailyMasterStack'), icon: Activity, path: '/stack?type=daily-master' },
+        { title: t('emotionCoach') || t('angerAlchemy'), icon: Angry, path: '/stack?type=anger' },
+        { title: t('mindsetCoach') || t('divineGratitude'), icon: Heart, path: '/stack?type=divine-gratitude' },
+        { title: t('mindsetCoach'), icon: Heart, path: '/stack?type=divine-prayer' },
+        { title: t('gratitudeJournal') || t('gratitudePractice'), icon: Heart, path: '/stack?type=gratitude' },
+        { title: t('successCoach') || t('principleCoaching'), icon: Crown, path: '/stack?type=master-plan-quick' },
+        { title: t('lifeCoach') || t('wisdomOracle'), icon: Headphones, path: '/stack?type=ai-live' },
+        { title: t('businessCoach') || t('businessEmpire'), icon: Briefcase, path: '/stack?type=hormozi-coaching' },
+        { title: t('masteryProgram') || t('mastersAcademy'), icon: Target, path: '/stack?type=gods-school' },
         { title: t('reflectionJournal'), icon: Pencil, path: '/journal' },
         { title: t('voiceAnalysis'), icon: Mic, path: '/voice-analysis' },
-        { title: t('transformationToolkit'), icon: Box, path: '/stack-library' },
+        { title: t('library'), icon: Box, path: '/stack-library' },
       ]
     },
     { title: t('commandCenter'), icon: Flag, path: '/door' },
-    { title: t('business'), icon: Briefcase, path: '/business' },
+    { title: t('businessTracker') || t('business'), icon: Briefcase, path: '/business' },
     { title: t('freedomMissions'), icon: Target, path: '/game' },
     { title: t('notes'), icon: FileText, path: '/notes' },
-    { title: t('library'), icon: BookOpenIcon, path: '/library' },
+    { title: t('learningHub') || t('library'), icon: BookOpenIcon, path: '/library' },
     { title: t('subscriptions'), icon: CreditCard, path: '/pricing' },
     { title: t('admin'), icon: Shield, path: '/admin' },
   ];
@@ -118,12 +118,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         <Link to="/" className="flex items-center justify-center md:justify-start gap-3">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
-            alt="Jump to Freedom logo"
+            alt="LifeOS logo"
             loading="lazy"
             className={`${isCollapsed ? 'h-7 w-auto' : 'h-9 w-auto'} drop-shadow`}
           />
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-lg text-foreground">Jump to Freedom</h1>
+            <h1 className="font-display font-bold text-lg text-foreground">LifeOS</h1>
           )}
         </Link>
       </div>

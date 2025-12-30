@@ -39,69 +39,73 @@ export interface FAQItem {
   answerRo: string;
 }
 
-// All Pages in the Platform
+// All Pages in the Platform - LifeOS Rebrand
 export const PAGES: PageInfo[] = [
   {
     path: '/stack',
-    name: 'Stack',
-    nameRo: 'Stack',
-    description: 'The Stack page is your daily morning ritual hub. Here you can access various guided sessions called "stacks" that help you start your day with intention, focus, and clarity.',
-    descriptionRo: 'Pagina Stack este centrul tău pentru ritualul de dimineață. Aici poți accesa diverse sesiuni ghidate numite "stack-uri" care te ajută să îți începi ziua cu intenție, focalizare și claritate.',
+    name: 'AI Coaches',
+    nameRo: 'Antrenori AI',
+    description: 'The AI Coaches page is your hub for AI-powered coaching sessions. Access various guided sessions that help you with business strategy, mindset, emotions, and daily planning.',
+    descriptionRo: 'Pagina Antrenori AI este centrul tău pentru sesiuni de coaching cu AI. Accesează diverse sesiuni ghidate care te ajută cu strategia de business, mindset, emoții și planificarea zilnică.',
     features: [
-      'Morning Stack - Your main morning routine with prayers and affirmations',
-      'Divine Prayer Stack - Spiritual guided prayer session',
-      'Daily Master Stack - Comprehensive daily productivity setup',
-      'Napoleon Hill Journey - Goal achievement methodology',
-      'AI Voice Coaching - Interactive AI-powered coaching sessions'
+      'Daily Planner - Your morning productivity setup',
+      'Business Coach - AI-powered business strategy coaching',
+      'Success Principles - Goal achievement methodology',
+      'Mindset Coach - Spiritual and mental clarity coaching',
+      'Life Coach - Interactive AI-powered life coaching',
+      'Emotion Coach - Process emotions constructively',
+      'Gratitude Journal - Daily gratitude practice'
     ],
     featuresRo: [
-      'Morning Stack - Rutina principală de dimineață cu rugăciuni și afirmații',
-      'Divine Prayer Stack - Sesiune ghidată de rugăciune spirituală',
-      'Daily Master Stack - Configurare completă pentru productivitate zilnică',
-      'Călătoria Napoleon Hill - Metodologie pentru atingerea obiectivelor',
-      'Coaching Vocal AI - Sesiuni interactive de coaching cu AI'
+      'Planificator Zilnic - Configurarea productivității de dimineață',
+      'Antrenor Business - Coaching de strategie de business cu AI',
+      'Principii de Succes - Metodologie pentru atingerea obiectivelor',
+      'Antrenor Mindset - Coaching pentru claritate spirituală și mentală',
+      'Antrenor de Viață - Sesiuni interactive de life coaching cu AI',
+      'Antrenor Emoțional - Procesează emoțiile constructiv',
+      'Jurnal de Recunoștință - Practică zilnică de recunoștință'
     ],
     quickTips: [
-      'Start with the Morning Stack for a complete routine',
+      'Start with the Daily Planner for a complete routine',
       'Use voice mode for hands-free sessions',
-      'Complete stacks earn you XP points'
+      'Complete sessions earn you XP points'
     ],
     quickTipsRo: [
-      'Începe cu Morning Stack pentru o rutină completă',
+      'Începe cu Planificatorul Zilnic pentru o rutină completă',
       'Folosește modul vocal pentru sesiuni hands-free',
-      'Completarea stack-urilor îți aduce puncte XP'
+      'Completarea sesiunilor îți aduce puncte XP'
     ]
   },
   {
     path: '/door',
-    name: 'Door',
-    nameRo: 'Door',
-    description: 'The Door page is your weekly planning and task management center. Organize your week with HIT Lists, HOT Lists, and DO Lists to maximize productivity.',
-    descriptionRo: 'Pagina Door este centrul tău pentru planificarea săptămânală și gestionarea task-urilor. Organizează-ți săptămâna cu liste HIT, HOT și DO pentru productivitate maximă.',
+    name: 'Command Center',
+    nameRo: 'Centrul de Comandă',
+    description: 'The Command Center is your weekly planning and task management hub. Organize your week with Weekly Goals, Today\'s Focus, and Daily Routine to maximize productivity.',
+    descriptionRo: 'Centrul de Comandă este centrul tău pentru planificarea săptămânală și gestionarea task-urilor. Organizează-ți săptămâna cu Obiective Săptămânale, Focusul de Azi și Rutina Zilnică pentru productivitate maximă.',
     features: [
       'Weekly Planning with AI assistance',
-      'HIT List - High Impact Tasks for the week',
-      'HOT List - Daily priority tasks',
-      'DO List - Routine daily tasks',
+      'Weekly Goals - High impact tasks for the week',
+      'Today\'s Focus - Daily priority tasks',
+      'Daily Routine - Recurring daily tasks',
       'Key Points system for important items',
       'Task archiving and history'
     ],
     featuresRo: [
       'Planificare săptămânală cu asistență AI',
-      'Lista HIT - Task-uri cu Impact Ridicat pentru săptămână',
-      'Lista HOT - Task-uri prioritare zilnice',
-      'Lista DO - Task-uri de rutină zilnice',
+      'Obiective Săptămânale - Task-uri cu impact ridicat pentru săptămână',
+      'Focusul de Azi - Task-uri prioritare zilnice',
+      'Rutina Zilnică - Task-uri de rutină zilnice',
       'Sistem de Key Points pentru elemente importante',
       'Arhivare și istoric task-uri'
     ],
     quickTips: [
       'Plan your week every Sunday or Monday',
-      'Move completed HIT items to the archive',
+      'Move completed items to the archive',
       'Use AI coaching to refine your weekly goals'
     ],
     quickTipsRo: [
       'Planifică-ți săptămâna duminică sau luni',
-      'Mută elementele HIT completate în arhivă',
+      'Mută elementele completate în arhivă',
       'Folosește coaching-ul AI pentru a-ți rafina obiectivele'
     ]
   },
@@ -231,10 +235,10 @@ export const PAGES: PageInfo[] = [
   },
   {
     path: '/biz4',
-    name: 'Biz4',
-    nameRo: 'Biz4',
-    description: 'The Biz4 page is your business development tracker. Focus on the 4 key business activities: Content, Outreach, Engage, and Close.',
-    descriptionRo: 'Pagina Biz4 este tracker-ul tău pentru dezvoltarea afacerii. Focalizează-te pe cele 4 activități cheie: Content, Outreach, Engage și Close.',
+    name: 'Business Tracker',
+    nameRo: 'Tracker Business',
+    description: 'The Business Tracker is your business development hub. Focus on the 4 key business activities: Content, Outreach, Engage, and Close.',
+    descriptionRo: 'Tracker-ul Business este centrul tău pentru dezvoltarea afacerii. Focalizează-te pe cele 4 activități cheie: Content, Outreach, Engage și Close.',
     features: [
       'Daily business activity tracking',
       'Content creation logs',
@@ -293,14 +297,14 @@ export const PAGES: PageInfo[] = [
   }
 ];
 
-// All Stacks Available
+// All AI Coaches Available - LifeOS Rebrand
 export const STACKS: StackInfo[] = [
   {
-    id: 'morning',
-    name: 'Morning Stack',
-    nameRo: 'Stack-ul de Dimineață',
-    description: 'Your comprehensive morning routine combining prayer, affirmations, and intention setting.',
-    descriptionRo: 'Rutina ta completă de dimineață care combină rugăciunea, afirmațiile și stabilirea intențiilor.',
+    id: 'daily-master',
+    name: 'Daily Planner',
+    nameRo: 'Planificator Zilnic',
+    description: 'Your comprehensive morning routine combining planning, intention setting, and productivity setup.',
+    descriptionRo: 'Rutina ta completă de dimineață care combină planificarea, stabilirea intențiilor și configurarea productivității.',
     duration: '15-20 minutes',
     benefits: [
       'Start your day with clarity',
@@ -317,10 +321,10 @@ export const STACKS: StackInfo[] = [
   },
   {
     id: 'divine-prayer',
-    name: 'Divine Prayer Stack',
-    nameRo: 'Stack-ul de Rugăciune Divină',
-    description: 'A guided spiritual prayer session for deep connection and reflection.',
-    descriptionRo: 'O sesiune ghidată de rugăciune spirituală pentru conexiune profundă și reflecție.',
+    name: 'Mindset Coach',
+    nameRo: 'Antrenor Mindset',
+    description: 'A guided spiritual and mindset session for deep connection and mental clarity.',
+    descriptionRo: 'O sesiune ghidată de spiritualitate și mindset pentru conexiune profundă și claritate mentală.',
     duration: '10-15 minutes',
     benefits: [
       'Deepen spiritual connection',
@@ -336,29 +340,29 @@ export const STACKS: StackInfo[] = [
     ]
   },
   {
-    id: 'daily-master',
-    name: 'Daily Master Stack',
-    nameRo: 'Stack-ul Maestru Zilnic',
-    description: 'A comprehensive productivity setup session to master your day.',
-    descriptionRo: 'O sesiune completă de configurare a productivității pentru a-ți stăpâni ziua.',
+    id: 'hormozi-coaching',
+    name: 'Business Coach',
+    nameRo: 'Antrenor Business',
+    description: 'AI-powered business coaching for strategy, growth, and entrepreneurial mindset.',
+    descriptionRo: 'Coaching de business cu AI pentru strategie, creștere și mindset antreprenorial.',
     duration: '20-30 minutes',
     benefits: [
-      'Plan your day effectively',
-      'Prioritize important tasks',
-      'Eliminate overwhelm',
-      'Increase daily productivity'
+      'Develop business strategy',
+      'Identify growth opportunities',
+      'Solve business challenges',
+      'Build entrepreneurial mindset'
     ],
     benefitsRo: [
-      'Planifică-ți ziua eficient',
-      'Prioritizează task-urile importante',
-      'Elimină copleșirea',
-      'Crește productivitatea zilnică'
+      'Dezvoltă strategia de business',
+      'Identifică oportunități de creștere',
+      'Rezolvă provocările de business',
+      'Construiește mindset antreprenorial'
     ]
   },
   {
     id: 'napoleon-hill',
-    name: 'Napoleon Hill Journey',
-    nameRo: 'Călătoria Napoleon Hill',
+    name: 'Success Principles',
+    nameRo: 'Principii de Succes',
     description: 'A 17-principle journey based on Think and Grow Rich methodology.',
     descriptionRo: 'O călătorie prin 17 principii bazată pe metodologia Think and Grow Rich.',
     duration: '30-45 minutes per session',
@@ -376,11 +380,11 @@ export const STACKS: StackInfo[] = [
     ]
   },
   {
-    id: 'ai-voice-coaching',
-    name: 'AI Voice Coaching',
-    nameRo: 'Coaching Vocal AI',
-    description: 'Interactive voice-based coaching sessions with an AI assistant.',
-    descriptionRo: 'Sesiuni interactive de coaching bazate pe voce cu un asistent AI.',
+    id: 'ai-live',
+    name: 'Life Coach',
+    nameRo: 'Antrenor de Viață',
+    description: 'Interactive voice-based life coaching sessions with an AI assistant.',
+    descriptionRo: 'Sesiuni interactive de life coaching bazate pe voce cu un asistent AI.',
     duration: 'Variable',
     benefits: [
       'Get personalized guidance',
@@ -394,30 +398,70 @@ export const STACKS: StackInfo[] = [
       'Primește feedback instant',
       'Practică exprimarea verbală'
     ]
+  },
+  {
+    id: 'anger',
+    name: 'Emotion Coach',
+    nameRo: 'Antrenor Emoțional',
+    description: 'Process and transform difficult emotions into constructive energy.',
+    descriptionRo: 'Procesează și transformă emoțiile dificile în energie constructivă.',
+    duration: '15-20 minutes',
+    benefits: [
+      'Process difficult emotions',
+      'Transform anger into action',
+      'Build emotional intelligence',
+      'Find constructive outlets'
+    ],
+    benefitsRo: [
+      'Procesează emoțiile dificile',
+      'Transformă furia în acțiune',
+      'Construiește inteligența emoțională',
+      'Găsește canale constructive'
+    ]
+  },
+  {
+    id: 'gratitude',
+    name: 'Gratitude Journal',
+    nameRo: 'Jurnal de Recunoștință',
+    description: 'Daily gratitude practice to cultivate appreciation and positive mindset.',
+    descriptionRo: 'Practică zilnică de recunoștință pentru a cultiva aprecierea și un mindset pozitiv.',
+    duration: '5-10 minutes',
+    benefits: [
+      'Cultivate gratitude',
+      'Shift perspective',
+      'Improve wellbeing',
+      'Build positive habits'
+    ],
+    benefitsRo: [
+      'Cultivă recunoștința',
+      'Schimbă perspectiva',
+      'Îmbunătățește bunăstarea',
+      'Construiește obiceiuri pozitive'
+    ]
   }
 ];
 
-// Platform Features
+// Platform Features - LifeOS Rebrand
 export const FEATURES: FeatureInfo[] = [
   {
-    name: 'HIT List',
-    nameRo: 'Lista HIT',
+    name: 'Weekly Goals',
+    nameRo: 'Obiective Săptămânale',
     description: 'High Impact Tasks - Your most important tasks for the week that will move the needle.',
     descriptionRo: 'Task-uri cu Impact Ridicat - Cele mai importante task-uri ale săptămânii care vor face diferența.',
     howToUse: 'Add 3-5 high-impact tasks at the beginning of each week. Focus on completing these before anything else.',
     howToUseRo: 'Adaugă 3-5 task-uri cu impact ridicat la începutul fiecărei săptămâni. Focalizează-te pe completarea acestora înainte de orice altceva.'
   },
   {
-    name: 'HOT List',
-    nameRo: 'Lista HOT',
+    name: 'Today\'s Focus',
+    nameRo: 'Focusul de Azi',
     description: 'Daily priority tasks that you must complete today.',
     descriptionRo: 'Task-uri prioritare zilnice pe care trebuie să le completezi astăzi.',
-    howToUse: 'Each morning, select 3 HOT tasks from your HIT list or add urgent items. Complete these first thing.',
-    howToUseRo: 'În fiecare dimineață, selectează 3 task-uri HOT din lista HIT sau adaugă elemente urgente. Completează-le primele.'
+    howToUse: 'Each morning, select 3 priority tasks from your weekly goals or add urgent items. Complete these first thing.',
+    howToUseRo: 'În fiecare dimineață, selectează 3 task-uri prioritare din obiectivele săptămânale sau adaugă elemente urgente. Completează-le primele.'
   },
   {
-    name: 'DO List',
-    nameRo: 'Lista DO',
+    name: 'Daily Routine',
+    nameRo: 'Rutina Zilnică',
     description: 'Routine tasks and recurring activities that maintain your daily operations.',
     descriptionRo: 'Task-uri de rutină și activități recurente care mențin operațiunile tale zilnice.',
     howToUse: 'Add repeating tasks like exercise, reading, or admin work. Check them off as you complete them.',
@@ -428,24 +472,24 @@ export const FEATURES: FeatureInfo[] = [
     nameRo: 'Sistemul XP',
     description: 'Experience points that track your progress and engagement with the platform.',
     descriptionRo: 'Puncte de experiență care urmăresc progresul și implicarea ta cu platforma.',
-    howToUse: 'Complete stacks, tasks, and activities to earn XP. Level up to unlock achievements and track your growth.',
-    howToUseRo: 'Completează stack-uri, task-uri și activități pentru a câștiga XP. Avansează în nivel pentru a debloca realizări și a-ți urmări creșterea.'
+    howToUse: 'Complete coaching sessions, tasks, and activities to earn XP. Level up to unlock achievements and track your growth.',
+    howToUseRo: 'Completează sesiuni de coaching, task-uri și activități pentru a câștiga XP. Avansează în nivel pentru a debloca realizări și a-ți urmări creșterea.'
   },
   {
-    name: 'AI Coaching',
-    nameRo: 'Coaching AI',
-    description: 'AI-powered coaching sessions that provide personalized guidance and support.',
-    descriptionRo: 'Sesiuni de coaching alimentate de AI care oferă ghidare și suport personalizat.',
-    howToUse: 'Access AI coaching from the Stack page. You can use text or voice to interact with your AI coach.',
-    howToUseRo: 'Accesează coaching-ul AI din pagina Stack. Poți folosi text sau voce pentru a interacționa cu coach-ul tău AI.'
+    name: 'AI Coaches',
+    nameRo: 'Antrenori AI',
+    description: 'AI-powered coaching sessions that provide personalized guidance and support across business, mindset, and life.',
+    descriptionRo: 'Sesiuni de coaching cu AI care oferă ghidare și suport personalizat în business, mindset și viață.',
+    howToUse: 'Access AI Coaches from the main menu. Choose from Business Coach, Life Coach, Mindset Coach, and more. Use text or voice to interact.',
+    howToUseRo: 'Accesează Antrenorii AI din meniul principal. Alege dintre Antrenor Business, Antrenor de Viață, Antrenor Mindset și alții. Folosește text sau voce pentru a interacționa.'
   },
   {
     name: 'Weekly Planning',
     nameRo: 'Planificare Săptămânală',
     description: 'Structured weekly planning sessions to set goals and priorities for the upcoming week.',
     descriptionRo: 'Sesiuni structurate de planificare săptămânală pentru a stabili obiective și priorități pentru săptămâna următoare.',
-    howToUse: 'Visit the Door page and use the Weekly Planning feature. Answer guided questions to create your week plan.',
-    howToUseRo: 'Vizitează pagina Door și folosește funcția Planificare Săptămânală. Răspunde la întrebări ghidate pentru a-ți crea planul săptămânii.'
+    howToUse: 'Visit the Command Center and use the Weekly Planning feature. Answer guided questions to create your week plan.',
+    howToUseRo: 'Vizitează Centrul de Comandă și folosește funcția Planificare Săptămânală. Răspunde la întrebări ghidate pentru a-ți crea planul săptămânii.'
   }
 ];
 
