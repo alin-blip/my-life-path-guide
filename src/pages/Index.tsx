@@ -45,8 +45,8 @@ const Index = () => {
   return (
     <div className="light min-h-screen bg-white">
       <Helmet>
-        <title>Jump to Freedom — Have It All Lifestyle: Total Transformation in Body, Mind, Relationships & Business</title>
-        <meta name="description" content="The complete life system for entrepreneurs who want it ALL — not just money. Energy in body, peace in mind, deep relationships, profitable business. 65,000+ achievers in 40+ countries. Free 3-day trial." />
+        <title>LifeOS — Success Without Sacrifice: AI-Powered Life Operating System for Entrepreneurs</title>
+        <meta name="description" content="LifeOS is the AI-powered Life Operating System that helps entrepreneurs grow their business WITHOUT losing their health, relationships, or peace of mind. 65,000+ achievers in 40+ countries." />
         <link rel="canonical" href={`${window.location.origin}/`} />
       </Helmet>
 
@@ -61,7 +61,7 @@ const Index = () => {
           <div className="inline-flex items-center justify-center mb-4 md:mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             <img
               src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
-              alt="Jump to Freedom logo"
+              alt="LifeOS logo"
               loading="lazy"
               className="h-12 md:h-20 w-auto drop-shadow"
             />
@@ -142,7 +142,7 @@ const Index = () => {
                 {videoPlaying ? (
                   <iframe
                     src="https://www.youtube.com/embed/sfuey_WNODs?rel=0&modestbranding=1&autoplay=1"
-                    title="Jump to Freedom - Have It All Lifestyle"
+                    title="LifeOS - Success Without Sacrifice"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="w-full h-full"
@@ -150,7 +150,7 @@ const Index = () => {
                 ) : (
                   <img 
                     src="https://img.youtube.com/vi/sfuey_WNODs/maxresdefault.jpg"
-                    alt="Jump to Freedom Video Preview"
+                    alt="LifeOS Video Preview"
                     className="w-full h-full object-cover"
                   />
                 )}
