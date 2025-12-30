@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,9 +12,10 @@ import { Leaderboard } from './admin/Leaderboard';
 import { CourseSubmissions } from './admin/CourseSubmissions';
 import { RevenueDashboard } from './admin/RevenueDashboard';
 import { AdminAIStudio } from './admin/AdminAIStudio';
+import { MarketingHub } from './admin/marketing/MarketingHub';
 import { 
   Shield, Users, BookOpen, Wrench, Settings, LayoutDashboard, 
-  Trophy, Upload, DollarSign, Lock, Bot
+  Trophy, Upload, DollarSign, Lock, Bot, Megaphone
 } from 'lucide-react';
 
 export const SecureAdminPanel: React.FC = () => {
@@ -89,6 +89,10 @@ export const SecureAdminPanel: React.FC = () => {
             <Bot className="h-4 w-4" />
             🤖 AI Studio
           </TabsTrigger>
+          <TabsTrigger value="marketing" className="flex items-center gap-1">
+            <Megaphone className="h-4 w-4" />
+            📢 Marketing
+          </TabsTrigger>
           <TabsTrigger value="dashboard" className="flex items-center gap-1">
             <LayoutDashboard className="h-4 w-4" />
             Dashboard
@@ -125,6 +129,10 @@ export const SecureAdminPanel: React.FC = () => {
         
         <TabsContent value="ai-studio" className="pt-4">
           <AdminAIStudio />
+        </TabsContent>
+        
+        <TabsContent value="marketing" className="pt-4">
+          <MarketingHub />
         </TabsContent>
         
         <TabsContent value="dashboard" className="space-y-6">
