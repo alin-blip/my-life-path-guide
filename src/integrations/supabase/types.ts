@@ -907,6 +907,42 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_assets: {
+        Row: {
+          asset_type: string
+          category: string | null
+          content: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          asset_type: string
+          category?: string | null
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          asset_type?: string
+          category?: string | null
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       migration_status: {
         Row: {
           backup_data: Json | null
