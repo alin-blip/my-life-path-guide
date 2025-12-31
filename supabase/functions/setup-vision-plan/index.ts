@@ -42,10 +42,30 @@ const taskTemplates: Record<Category, { title: string; titleRo: string; days: st
 
 function getWeekKey(): string {
   const now = new Date();
-  const startOfYear = new Date(now.getFullYear(), 0, 1);
-  const days = Math.floor((now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
-  const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
-  return `door-week-${now.getFullYear()}-${String(weekNumber).padStart(2, '0')}`;
+  
+  // Calculate ISO week number (same as date-fns getWeek with weekStartsOn: 1)
+  const jan4 = new Date(now.getFullYear(), 0, 4);
+  const startOfWeek = new Date(jan4);
+  startOfWeek.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+  
+  const diff = now.getTime() - startOfWeek.getTime();
+  const oneWeek = 7 * 24 * 60 * 60 * 1000;
+  let weekNumber = Math.floor(diff / oneWeek) + 1;
+  
+  // Handle edge case: if week number is 0 or negative, it's last week of previous year
+  // If week number > 52 and we're in early January, it might be week 1 of next year
+  let year = now.getFullYear();
+  
+  if (weekNumber < 1) {
+    // It's the last week of the previous year
+    year = year - 1;
+    weekNumber = 52; // Simplified, could be 52 or 53
+  } else if (weekNumber > 52 && now.getMonth() === 0) {
+    // Early January but week > 52 means it's week 1 of current year
+    weekNumber = 1;
+  }
+  
+  return `door-week-${year}-${String(weekNumber).padStart(2, '0')}`;
 }
 
 function getPriorityOrder(scores: VisionScores): Category[] {
