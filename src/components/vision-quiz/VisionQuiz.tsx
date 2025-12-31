@@ -192,19 +192,21 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
         language={language}
       />
 
-      <QuizQuestion
-        question={currentQuestion}
-        selectedAnswer={answers[currentQuestion.id] ?? null}
-        onSelect={handleSelectAnswer}
-        language={language}
-      />
+      <div key={currentQuestionIndex} className="animate-fade-in">
+        <QuizQuestion
+          question={currentQuestion}
+          selectedAnswer={answers[currentQuestion.id] ?? null}
+          onSelect={handleSelectAnswer}
+          language={language}
+        />
+      </div>
 
-      <div className="flex justify-between gap-4">
+      <div className="flex justify-between gap-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
         <Button
           variant="outline"
           onClick={handleBack}
           disabled={currentQuestionIndex === 0}
-          className="flex-1"
+          className="flex-1 transition-all duration-200 hover:scale-[1.02] disabled:opacity-50"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           {language === 'en' ? 'Back' : 'Înapoi'}
@@ -212,12 +214,12 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
         <Button
           onClick={handleNext}
           disabled={!hasAnswer}
-          className="flex-1"
+          className="flex-1 transition-all duration-200 hover:scale-[1.02] disabled:opacity-50"
         >
           {isLastQuestion 
             ? (language === 'en' ? 'See Results' : 'Vezi Rezultatele')
             : (language === 'en' ? 'Next' : 'Următoarea')}
-          <ArrowRight className="w-4 h-4 ml-2" />
+          <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
         </Button>
       </div>
     </div>
