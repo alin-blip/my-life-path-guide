@@ -1,14 +1,8 @@
+import { Navigate } from 'react-router-dom';
 
-import React from 'react';
-import { Layout } from '@/components/Layout';
-import { ObjectivesContent } from '@/components/objectives/ObjectivesContent';
-
+// Redirect to unified Command Center
 const Game = () => {
-  return (
-    <Layout>
-      <ObjectivesContent />
-    </Layout>
-  );
+  return <Navigate to="/door?tab=quarterly" replace />;
 };
 
 export default Game;

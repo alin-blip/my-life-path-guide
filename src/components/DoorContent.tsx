@@ -1,6 +1,6 @@
 import React from 'react';
-import { SimplifiedDoorContent } from '@/components/door/SimplifiedDoorContent';
+import { CommandCenterTabs } from '@/components/door/tabs/CommandCenterTabs';
 
 export const DoorContent: React.FC = () => {
-  return <SimplifiedDoorContent />;
+  return <CommandCenterTabs />;
 };
