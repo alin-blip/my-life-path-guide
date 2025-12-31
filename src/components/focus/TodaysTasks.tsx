@@ -1,26 +1,140 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { CheckCircle2, Circle, Clock } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { format, getWeek, getYear, startOfWeek } from 'date-fns';
 
 interface TodaysTasksProps {
   activeTaskId: string | null;
   onSelectTask: (taskId: string) => void;
 }
 
+interface Task {
+  id: string;
+  title: string;
+  completed: boolean;
+  day_of_week: string | null;
+}
+
+const DAY_MAP: Record<number, string> = {
+  1: 'M',
+  2: 'T', 
+  3: 'W',
+  4: 'Th',
+  5: 'F',
+  6: 'Sa',
+  0: 'Su',
+};
+
 export const TodaysTasks: React.FC<TodaysTasksProps> = ({
   activeTaskId,
   onSelectTask,
 }) => {
   const { language } = useLanguage();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock tasks - in real implementation, these would come from Door's daily tasks
-  const tasks = [
-    { id: '1', title: 'Complete project proposal', completed: true, pomodoros: 2 },
-    { id: '2', title: 'Review team feedback', completed: false, pomodoros: 1 },
-    { id: '3', title: 'Prepare presentation slides', completed: false, pomodoros: 3 },
-    { id: '4', title: 'Send client update email', completed: false, pomodoros: 1 },
-  ];
+  const getCurrentWeekKey = () => {
+    const now = new Date();
+    const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+    const weekNum = getWeek(weekStart, { weekStartsOn: 1 });
+    const year = getYear(weekStart);
+    return `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
+  };
+
+  const getTodayAbbrev = () => {
+    const dayOfWeek = new Date().getDay();
+    return DAY_MAP[dayOfWeek];
+  };
+
+  useEffect(() => {
+    const fetchTodaysTasks = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+
+        const weekKey = getCurrentWeekKey();
+        const todayAbbrev = getTodayAbbrev();
+
+        // Fetch Do List tasks for today
+        const { data, error } = await supabase
+          .from('user_tasks')
+          .select('id, title, completed, day_of_week')
+          .eq('user_id', user.id)
+          .eq('week_key', weekKey)
+          .eq('task_type', 'do')
+          .order('position', { ascending: true });
+
+        if (error) throw error;
+
+        // Filter for today's tasks (matching day_of_week or no day assigned)
+        const todaysTasks = (data || []).filter(task => {
+          if (!task.day_of_week) return true; // No day = show all
+          const normalizedDay = task.day_of_week.toLowerCase();
+          const todayLower = todayAbbrev.toLowerCase();
+          return normalizedDay === todayLower || 
+                 normalizedDay === todayAbbrev;
+        });
+
+        setTasks(todaysTasks);
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTodaysTasks();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('focus-tasks')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_tasks',
+        },
+        () => {
+          fetchTodaysTasks();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const toggleTaskCompletion = async (taskId: string, currentCompleted: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('user_tasks')
+        .update({ completed: !currentCompleted })
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      setTasks(prev => 
+        prev.map(t => t.id === taskId ? { ...t, completed: !currentCompleted } : t)
+      );
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-card border border-border rounded-xl p-6 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-card border border-border rounded-xl p-6">
@@ -35,11 +149,10 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
 
       <div className="space-y-2">
         {tasks.map((task) => (
-          <button
+          <div
             key={task.id}
-            onClick={() => !task.completed && onSelectTask(task.id)}
             className={cn(
-              "w-full flex items-center gap-3 p-3 rounded-lg transition-all text-left",
+              "w-full flex items-center gap-3 p-3 rounded-lg transition-all",
               task.completed 
                 ? "bg-muted/50 opacity-60" 
                 : activeTaskId === task.id
@@ -47,27 +160,37 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
                 : "hover:bg-muted/50"
             )}
           >
-            {task.completed ? (
-              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-            ) : (
-              <Circle className={cn(
-                "w-5 h-5 flex-shrink-0",
-                activeTaskId === task.id ? "text-primary" : "text-muted-foreground"
-              )} />
-            )}
+            <button
+              onClick={() => toggleTaskCompletion(task.id, task.completed)}
+              className="flex-shrink-0"
+            >
+              {task.completed ? (
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+              ) : (
+                <Circle className={cn(
+                  "w-5 h-5",
+                  activeTaskId === task.id ? "text-primary" : "text-muted-foreground"
+                )} />
+              )}
+            </button>
             
-            <span className={cn(
-              "flex-1 text-sm",
-              task.completed && "line-through text-muted-foreground"
-            )}>
+            <button
+              onClick={() => !task.completed && onSelectTask(task.id)}
+              className={cn(
+                "flex-1 text-left text-sm",
+                task.completed && "line-through text-muted-foreground"
+              )}
+            >
               {task.title}
-            </span>
+            </button>
 
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="w-3 h-3" />
-              <span>{task.pomodoros}</span>
-            </div>
-          </button>
+            {activeTaskId === task.id && !task.completed && (
+              <div className="flex items-center gap-1 text-xs text-primary font-medium">
+                <Clock className="w-3 h-3" />
+                <span>{language === 'en' ? 'Active' : 'Activ'}</span>
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
