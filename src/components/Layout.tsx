@@ -11,6 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { PlatformAssistantWidget } from './assistant/PlatformAssistantWidget';
+import { QuickAddButton } from './gtd/QuickAddButton';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -138,5 +139,8 @@ export const Layout: React.FC<LayoutProps> = ({
       
       {/* Platform Assistant Widget */}
       <PlatformAssistantWidget />
+      
+      {/* Quick Add Button */}
+      <QuickAddButton />
     </div>;
 };

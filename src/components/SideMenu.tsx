@@ -103,9 +103,19 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: t('library'), icon: Box, path: '/stack-library' },
       ]
     },
-    { title: t('commandCenter'), icon: Flag, path: '/door' },
+    { 
+      title: t('commandCenter'), 
+      icon: Flag, 
+      path: '/door',
+      subItems: [
+        { title: t('weeklyTasks') || 'Săptămâna', icon: Clock, path: '/door' },
+        { title: t('quarterlyGoals') || 'Obiective 90 Zile', icon: Target, path: '/door?tab=quarterly' },
+        { title: t('monthlyMission') || 'Misiune Lunară', icon: Flag, path: '/door?tab=monthly' },
+        { title: t('annualVision') || 'Viziune Anuală', icon: Crown, path: '/door?tab=annual' },
+      ]
+    },
+    { title: t('focusRoom') || 'Focus Room', icon: Clock, path: '/focus' },
     { title: t('businessTracker') || t('business'), icon: Briefcase, path: '/business' },
-    { title: t('freedomMissions'), icon: Target, path: '/game' },
     { title: t('notes'), icon: FileText, path: '/notes' },
     { title: t('learningHub') || t('library'), icon: BookOpenIcon, path: '/library' },
     { title: t('subscriptions'), icon: CreditCard, path: '/pricing' },

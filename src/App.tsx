@@ -30,6 +30,7 @@ const Challenge = lazy(() => import("./pages/Challenge"));
 const ChallengeDay = lazy(() => import("./pages/ChallengeDay"));
 const Door = lazy(() => import("./pages/Door"));
 const Game = lazy(() => import("./pages/Game"));
+const Focus = lazy(() => import("./pages/Focus"));
 const Core = lazy(() => import("./pages/Core"));
 const DailyFour = lazy(() => import("./pages/DailyFour"));
 const Chat = lazy(() => import("./pages/Chat"));
@@ -130,6 +131,11 @@ const App = () => (
                     <Route path="/game" element={
                       <ProtectedRoute>
                         <Game />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/focus" element={
+                      <ProtectedRoute>
+                        <Focus />
                       </ProtectedRoute>
                     } />
                     <Route path="/core" element={
