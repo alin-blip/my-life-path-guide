@@ -51,6 +51,8 @@ const Lifebook = lazy(() => import("./pages/Lifebook"));
 const About = lazy(() => import("./pages/About"));
 const DailyTimeline = lazy(() => import("./pages/DailyTimeline"));
 const Biz4Report = lazy(() => import("./pages/Biz4Report"));
+const Core4LeadMagnet = lazy(() => import("./pages/Core4LeadMagnet"));
+const Core4ThankYou = lazy(() => import("./pages/Core4ThankYou"));
 
 // Loading component for lazy routes
 const LoadingFallback = () => (
@@ -217,6 +219,8 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/about" element={<About />} />
+                    <Route path="/core4" element={<Core4LeadMagnet />} />
+                    <Route path="/core4-thank-you" element={<Core4ThankYou />} />
                     <Route path="/daily-timeline" element={
                       <ProtectedRoute>
                         <DailyTimeline />

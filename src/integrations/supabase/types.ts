@@ -611,6 +611,42 @@ export type Database = {
         }
         Relationships: []
       }
+      email_leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          ip_address: string | null
+          lead_magnet: string
+          metadata: Json | null
+          name: string | null
+          source: string | null
+          subscribed: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          ip_address?: string | null
+          lead_magnet?: string
+          metadata?: Json | null
+          name?: string | null
+          source?: string | null
+          subscribed?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string | null
+          lead_magnet?: string
+          metadata?: Json | null
+          name?: string | null
+          source?: string | null
+          subscribed?: boolean | null
+        }
+        Relationships: []
+      }
       error_logs: {
         Row: {
           component_name: string | null
