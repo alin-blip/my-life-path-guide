@@ -163,17 +163,20 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
           <Button 
             size="lg"
             variant="outline"
-            onClick={onStartTrial}
-            className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10"
+            onClick={() => {
+              const scoresParam = encodeURIComponent(JSON.stringify(scores));
+              window.location.href = `/auth?from=vision-plan&scores=${scoresParam}`;
+            }}
+            className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 animate-pulse hover:animate-none"
           >
             <Rocket className="w-4 h-4 mr-2" />
-            {language === 'en' ? 'Start Free Trial' : 'Începe Trial Gratuit'}
+            {language === 'en' ? 'Implement Now - 7 Days Free' : 'Implementează Acum - 7 Zile Gratuit'}
           </Button>
         </div>
         <p className="text-white/60 text-xs mt-3">
           {language === 'en' 
-            ? 'No credit card required • Cancel anytime' 
-            : 'Fără card de credit • Anulezi oricând'}
+            ? '✓ We create your tasks automatically • No credit card' 
+            : '✓ Creăm task-urile automat • Fără card de credit'}
         </p>
       </div>
     </div>

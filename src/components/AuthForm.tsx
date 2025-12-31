@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -27,9 +27,14 @@ export const AuthForm: React.FC = () => {
   
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { language } = useLanguage();
   const { validateEmail, logSecurityEvent } = useSecurity();
+  
+  // Check for vision plan flow
+  const isVisionPlanFlow = searchParams.get('from') === 'vision-plan';
+  const visionScores = searchParams.get('scores');
   
   const from = location.state?.from?.pathname || '/dashboard';
   const MAX_RATE_LIMIT = 5;
@@ -40,7 +45,11 @@ export const AuthForm: React.FC = () => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate(from, { replace: true });
+        // If vision plan flow, setup tasks first
+        if (isVisionPlanFlow && visionScores) {
+          await setupVisionPlan(session.user.id);
+        }
+        navigate(isVisionPlanFlow ? '/focus' : from, { replace: true });
       }
     };
     checkAuth();
@@ -51,7 +60,36 @@ export const AuthForm: React.FC = () => {
     }, RATE_LIMIT_WINDOW);
 
     return () => clearTimeout(timer);
-  }, [navigate, from]);
+  }, [navigate, from, isVisionPlanFlow, visionScores]);
+
+  const setupVisionPlan = async (userId: string) => {
+    if (!visionScores) return;
+    
+    try {
+      const scores = JSON.parse(decodeURIComponent(visionScores));
+      
+      // Store scores for welcome modal
+      localStorage.setItem('vision_plan_scores', JSON.stringify(scores));
+      localStorage.removeItem('vision_onboarding_complete');
+      
+      // Call edge function to create tasks
+      const { data, error } = await supabase.functions.invoke('setup-vision-plan', {
+        body: {
+          user_id: userId,
+          scores,
+          language: language === 'en' ? 'en' : 'ro',
+        },
+      });
+
+      if (error) {
+        console.error('Error setting up vision plan:', error);
+      } else {
+        console.log('Vision plan setup successful:', data);
+      }
+    } catch (e) {
+      console.error('Failed to setup vision plan:', e);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,7 +156,7 @@ export const AuthForm: React.FC = () => {
         setMode(AuthMode.LOGIN);
         logSecurityEvent('User registration attempt', { email });
       } else if (mode === AuthMode.LOGIN) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -126,7 +164,14 @@ export const AuthForm: React.FC = () => {
         if (error) throw error;
 
         logSecurityEvent('Successful login', { email });
-        navigate(from, { replace: true });
+        
+        // Handle vision plan flow
+        if (isVisionPlanFlow && visionScores && data.user) {
+          await setupVisionPlan(data.user.id);
+          navigate('/focus', { replace: true });
+        } else {
+          navigate(from, { replace: true });
+        }
       } else if (mode === AuthMode.FORGOT_PASSWORD) {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/auth`,
