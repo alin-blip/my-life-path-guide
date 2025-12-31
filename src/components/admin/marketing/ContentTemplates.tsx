@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Sparkles, Plus, Search, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Copy, Sparkles, Plus, Search, Loader2, Save, RotateCcw, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -14,6 +17,8 @@ interface Template {
   category: string;
   content: string;
   variables: string[];
+  isCustom?: boolean;
+  originalContent?: string;
 }
 
 // Brand Kit data for AI context
@@ -34,11 +39,6 @@ const BRAND_KIT = {
     'Tech-forward yet human',
     'Aspirational without toxic positivity',
   ],
-  colors: {
-    primary: '#9b87f5',
-    accent: '#D946EF',
-    success: '#22c55e',
-  },
   core4Framework: ['Business', 'Body', 'Being', 'Balance'],
   keyFeatures: [
     'CORE 4 Framework: Business + Body + Being + Balance',
@@ -60,9 +60,9 @@ const LEAN_CANVAS = {
   revenueStreams: 'Free tier, Pro ($29/mo), Enterprise ($99/mo)',
 };
 
-const TEMPLATES: Template[] = [
+const DEFAULT_TEMPLATES: Template[] = [
   {
-    id: '1',
+    id: 'default-1',
     title: 'Hook - Problem Agitation',
     category: 'Social Media',
     content: `You're working 80 hours a week...
@@ -79,7 +79,7 @@ You don't have to sacrifice EVERYTHING to build something great.
     variables: ['product_name'],
   },
   {
-    id: '2',
+    id: 'default-2',
     title: 'Webinar Opening Script',
     category: 'Video Script',
     content: `[HOOK - 0:00]
@@ -102,7 +102,7 @@ Today I'm going to show you {{product_name}} - the first Life Operating System..
     variables: ['product_name'],
   },
   {
-    id: '3',
+    id: 'default-3',
     title: 'Email - Welcome Sequence #1',
     category: 'Email',
     content: `Subject: Welcome to {{product_name}} - Let's design your life
@@ -127,7 +127,7 @@ The {{product_name}} Team`,
     variables: ['product_name', 'first_name'],
   },
   {
-    id: '4',
+    id: 'default-4',
     title: 'Facebook Ad - Problem/Solution',
     category: 'Ad Copy',
     content: `🔥 Tired of choosing between SUCCESS and SANITY?
@@ -148,7 +148,7 @@ All in ONE AI-powered platform.
     variables: ['product_name'],
   },
   {
-    id: '5',
+    id: 'default-5',
     title: 'LinkedIn Post - Thought Leadership',
     category: 'Social Media',
     content: `I used to think "work-life balance" was a myth.
@@ -176,7 +176,7 @@ What's one area of your life you've been neglecting for "success"?`,
     variables: ['product_name'],
   },
   {
-    id: '6',
+    id: 'default-6',
     title: 'YouTube Video Description',
     category: 'Video Script',
     content: `{{video_title}}
@@ -206,14 +206,94 @@ In this video, I break down the exact system I use to manage my entire life - bu
   },
 ];
 
+const CATEGORIES = ['Social Media', 'Video Script', 'Email', 'Ad Copy', 'Webinar'];
+
 export const ContentTemplates = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [templates, setTemplates] = useState<Template[]>(TEMPLATES);
+  const [templates, setTemplates] = useState<Template[]>(DEFAULT_TEMPLATES);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showNewDialog, setShowNewDialog] = useState(false);
+  const [newTemplate, setNewTemplate] = useState({ title: '', category: 'Social Media', content: '', variables: '' });
 
-  const categories = [...new Set(TEMPLATES.map((t) => t.category))];
+  const categories = [...new Set([...CATEGORIES, ...templates.map((t) => t.category)])];
+
+  // Load templates from database
+  useEffect(() => {
+    loadTemplates();
+  }, []);
+
+  const loadTemplates = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('marketing_assets')
+        .select('*')
+        .eq('asset_type', 'template')
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const dbTemplates: Template[] = data.map((item) => {
+          const content = item.content as { 
+            templateContent: string; 
+            variables: string[]; 
+            originalContent?: string;
+            isCustom?: boolean;
+          };
+          return {
+            id: item.id,
+            title: item.title,
+            category: item.category || 'Social Media',
+            content: content.templateContent || '',
+            variables: content.variables || [],
+            originalContent: content.originalContent,
+            isCustom: content.isCustom || false,
+          };
+        });
+        setTemplates(dbTemplates);
+      } else {
+        // Initialize with default templates in database
+        await initializeDefaultTemplates();
+      }
+    } catch (error) {
+      console.error('Error loading templates:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load templates',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const initializeDefaultTemplates = async () => {
+    try {
+      const inserts = DEFAULT_TEMPLATES.map((t) => ({
+        asset_type: 'template',
+        title: t.title,
+        category: t.category,
+        content: {
+          templateContent: t.content,
+          variables: t.variables,
+          originalContent: t.content,
+          isCustom: false,
+        },
+        is_active: true,
+      }));
+
+      const { error } = await supabase.from('marketing_assets').insert(inserts);
+      if (error) throw error;
+
+      await loadTemplates();
+    } catch (error) {
+      console.error('Error initializing templates:', error);
+    }
+  };
 
   const filteredTemplates = templates.filter((template) => {
     const matchesSearch =
@@ -232,9 +312,166 @@ export const ContentTemplates = () => {
     });
   };
 
+  const saveTemplate = async (template: Template) => {
+    setSavingId(template.id);
+    try {
+      const { error } = await supabase
+        .from('marketing_assets')
+        .update({
+          content: {
+            templateContent: template.content,
+            variables: template.variables,
+            originalContent: template.originalContent || template.content,
+            isCustom: template.isCustom || false,
+          },
+        })
+        .eq('id', template.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Saved!',
+        description: `"${template.title}" saved successfully`,
+      });
+    } catch (error) {
+      console.error('Error saving template:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save template',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const restoreTemplate = async (template: Template) => {
+    if (!template.originalContent) return;
+
+    setTemplates((prev) =>
+      prev.map((t) =>
+        t.id === template.id ? { ...t, content: template.originalContent! } : t
+      )
+    );
+
+    try {
+      const { error } = await supabase
+        .from('marketing_assets')
+        .update({
+          content: {
+            templateContent: template.originalContent,
+            variables: template.variables,
+            originalContent: template.originalContent,
+            isCustom: template.isCustom || false,
+          },
+        })
+        .eq('id', template.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Restored!',
+        description: `"${template.title}" restored to original`,
+      });
+    } catch (error) {
+      console.error('Error restoring template:', error);
+    }
+  };
+
+  const deleteTemplate = async (template: Template) => {
+    try {
+      const { error } = await supabase
+        .from('marketing_assets')
+        .update({ is_active: false })
+        .eq('id', template.id);
+
+      if (error) throw error;
+
+      setTemplates((prev) => prev.filter((t) => t.id !== template.id));
+
+      toast({
+        title: 'Deleted!',
+        description: `"${template.title}" has been removed`,
+      });
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete template',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const createNewTemplate = async () => {
+    if (!newTemplate.title.trim() || !newTemplate.content.trim()) {
+      toast({
+        title: 'Missing fields',
+        description: 'Please fill in title and content',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const variables = newTemplate.variables
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean);
+
+      const { data, error } = await supabase
+        .from('marketing_assets')
+        .insert({
+          asset_type: 'template',
+          title: newTemplate.title,
+          category: newTemplate.category,
+          content: {
+            templateContent: newTemplate.content,
+            variables,
+            originalContent: newTemplate.content,
+            isCustom: true,
+          },
+          is_active: true,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const content = data.content as { templateContent: string; variables: string[] };
+      setTemplates((prev) => [
+        ...prev,
+        {
+          id: data.id,
+          title: data.title,
+          category: data.category || 'Social Media',
+          content: content.templateContent,
+          variables: content.variables || [],
+          originalContent: content.templateContent,
+          isCustom: true,
+        },
+      ]);
+
+      setNewTemplate({ title: '', category: 'Social Media', content: '', variables: '' });
+      setShowNewDialog(false);
+
+      toast({
+        title: 'Template Created!',
+        description: `"${data.title}" has been added`,
+      });
+    } catch (error) {
+      console.error('Error creating template:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create template',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const generateWithAI = async (template: Template) => {
     setGeneratingId(template.id);
-    
+
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
@@ -246,7 +483,6 @@ export const ContentTemplates = () => {
         return;
       }
 
-      // Build context prompt with brand kit and lean canvas
       const contextPrompt = `Generate fresh content for a "${template.title}" template in the "${template.category}" category.
 
 ## BRAND CONTEXT
@@ -268,9 +504,9 @@ export const ContentTemplates = () => {
 ## TEMPLATE REQUIREMENTS
 - Category: ${template.category}
 - Title: ${template.title}
-- Variables to use: ${template.variables.map(v => `{{${v}}}`).join(', ')}
+- Variables to use: ${template.variables.map((v) => `{{${v}}}`).join(', ')}
 - Original template for reference: 
-${template.content}
+${template.originalContent || template.content}
 
 ## INSTRUCTIONS
 Create a NEW, FRESH version of this template that:
@@ -286,8 +522,12 @@ Generate ONLY the template content, no explanations.`;
       const response = await supabase.functions.invoke('admin-ai-assistant', {
         body: {
           messages: [{ role: 'user', content: contextPrompt }],
-          contentType: template.category === 'Social Media' ? 'social_post' : 
-                       template.category === 'Video Script' ? 'video_script' : undefined,
+          contentType:
+            template.category === 'Social Media'
+              ? 'social_post'
+              : template.category === 'Video Script'
+              ? 'video_script'
+              : undefined,
         },
       });
 
@@ -317,39 +557,31 @@ Generate ONLY the template content, no explanations.`;
                   generatedContent += content;
                 }
               } catch {
-                // Skip invalid JSON lines
+                // Skip invalid JSON
               }
             }
           }
         }
 
         if (generatedContent) {
-          setTemplates(prev => 
-            prev.map(t => 
-              t.id === template.id 
-                ? { ...t, content: generatedContent.trim() }
-                : t
-            )
+          const updatedTemplate = {
+            ...template,
+            content: generatedContent.trim(),
+            originalContent: template.originalContent || template.content,
+          };
+
+          setTemplates((prev) =>
+            prev.map((t) => (t.id === template.id ? updatedTemplate : t))
           );
 
+          // Auto-save to database
+          await saveTemplate(updatedTemplate);
+
           toast({
-            title: 'Content Generated!',
-            description: `"${template.title}" has been updated with fresh AI content`,
+            title: 'Content Generated & Saved!',
+            description: `"${template.title}" has been updated`,
           });
         }
-      } else if (typeof response.data === 'string') {
-        setTemplates(prev => 
-          prev.map(t => 
-            t.id === template.id 
-              ? { ...t, content: response.data.trim() }
-              : t
-          )
-        );
-
-        toast({
-          title: 'Content Generated!',
-          description: `"${template.title}" has been updated with fresh AI content`,
-        });
       }
     } catch (error) {
       console.error('AI generation error:', error);
@@ -362,6 +594,14 @@ Generate ONLY the template content, no explanations.`;
       setGeneratingId(null);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -404,7 +644,14 @@ Generate ONLY the template content, no explanations.`;
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-base">{template.title}</CardTitle>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    {template.title}
+                    {template.isCustom && (
+                      <Badge variant="outline" className="text-xs">
+                        Custom
+                      </Badge>
+                    )}
+                  </CardTitle>
                   <Badge variant="secondary" className="mt-1">
                     {template.category}
                   </Badge>
@@ -414,11 +661,35 @@ Generate ONLY the template content, no explanations.`;
                     variant="ghost"
                     size="sm"
                     onClick={() => copyTemplate(template.content, template.title)}
+                    title="Copy"
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => saveTemplate(template)}
+                    disabled={savingId === template.id}
+                    title="Save"
+                  >
+                    {savingId === template.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )}
+                  </Button>
+                  {template.originalContent && template.content !== template.originalContent && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => restoreTemplate(template)}
+                      title="Restore original"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={() => generateWithAI(template)}
                     disabled={generatingId !== null}
@@ -430,6 +701,17 @@ Generate ONLY the template content, no explanations.`;
                       <Sparkles className="h-4 w-4" />
                     )}
                   </Button>
+                  {template.isCustom && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteTemplate(template)}
+                      title="Delete"
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardHeader>
@@ -437,11 +719,9 @@ Generate ONLY the template content, no explanations.`;
               <Textarea
                 value={template.content}
                 onChange={(e) => {
-                  setTemplates(prev =>
-                    prev.map(t =>
-                      t.id === template.id
-                        ? { ...t, content: e.target.value }
-                        : t
+                  setTemplates((prev) =>
+                    prev.map((t) =>
+                      t.id === template.id ? { ...t, content: e.target.value } : t
                     )
                   );
                 }}
@@ -463,14 +743,82 @@ Generate ONLY the template content, no explanations.`;
       </div>
 
       {/* Add New Template */}
-      <Card className="border-dashed">
-        <CardContent className="flex items-center justify-center py-8">
-          <Button variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Template
-          </Button>
-        </CardContent>
-      </Card>
+      <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
+        <DialogTrigger asChild>
+          <Card className="border-dashed cursor-pointer hover:border-primary/50 transition-colors">
+            <CardContent className="flex items-center justify-center py-8">
+              <Button variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Add New Template
+              </Button>
+            </CardContent>
+          </Card>
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New Template</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input
+                  placeholder="e.g., Instagram Story Hook"
+                  value={newTemplate.title}
+                  onChange={(e) => setNewTemplate({ ...newTemplate, title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select
+                  value={newTemplate.category}
+                  onValueChange={(value) => setNewTemplate({ ...newTemplate, category: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Variables (comma-separated)</Label>
+              <Input
+                placeholder="e.g., product_name, first_name, link"
+                value={newTemplate.variables}
+                onChange={(e) => setNewTemplate({ ...newTemplate, variables: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">
+                Use {'{{variable_name}}'} in your content to reference these
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label>Content</Label>
+              <Textarea
+                placeholder="Write your template content here..."
+                value={newTemplate.content}
+                onChange={(e) => setNewTemplate({ ...newTemplate, content: e.target.value })}
+                className="min-h-[200px] font-mono text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNewDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={createNewTemplate}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Template
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
