@@ -147,15 +147,29 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
             ? 'Get your personalized action plan and start seeing results in 48 hours'
             : 'Primește planul tău personalizat de acțiune și vezi rezultate în 48 de ore'}
         </p>
-        <Button 
-          size="lg"
-          variant="secondary"
-          onClick={onStartTrial}
-          className="w-full sm:w-auto"
-        >
-          <Rocket className="w-4 h-4 mr-2" />
-          {language === 'en' ? 'Start Free 7-Day Trial' : 'Începe Trial Gratuit 7 Zile'}
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button 
+            size="lg"
+            variant="secondary"
+            onClick={() => {
+              const scoresParam = encodeURIComponent(JSON.stringify(scores));
+              window.location.href = `/vision-2026/plan?scores=${scoresParam}`;
+            }}
+            className="w-full sm:w-auto"
+          >
+            <Target className="w-4 h-4 mr-2" />
+            {language === 'en' ? 'View My 2026 Plan' : 'Vezi Planul Meu 2026'}
+          </Button>
+          <Button 
+            size="lg"
+            variant="outline"
+            onClick={onStartTrial}
+            className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10"
+          >
+            <Rocket className="w-4 h-4 mr-2" />
+            {language === 'en' ? 'Start Free Trial' : 'Începe Trial Gratuit'}
+          </Button>
+        </div>
         <p className="text-white/60 text-xs mt-3">
           {language === 'en' 
             ? 'No credit card required • Cancel anytime' 
