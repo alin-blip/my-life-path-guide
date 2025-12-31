@@ -12,6 +12,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { PlatformAssistantWidget } from './assistant/PlatformAssistantWidget';
 import { QuickAddButton } from './gtd/QuickAddButton';
+import { GoalRemindersNotification } from './door/GoalRemindersNotification';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -136,6 +137,9 @@ export const Layout: React.FC<LayoutProps> = ({
           <main className="animate-fade-in">{children}</main>
         </div>
       </div>
+      
+      {/* Goal Reminders Notification */}
+      <GoalRemindersNotification />
       
       {/* Platform Assistant Widget */}
       <PlatformAssistantWidget />

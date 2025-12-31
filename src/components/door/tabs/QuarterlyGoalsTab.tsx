@@ -8,11 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
-import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Dumbbell, Brain, Heart, Briefcase, Target, CheckCircle2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Dumbbell, Brain, Heart, Briefcase, Target, CheckCircle2, Bell, Link2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { GoalReminderDialog } from '@/components/door/GoalReminderDialog';
+import { LinkedMissionsSelector } from '@/components/door/LinkedMissionsSelector';
+import { goalRemindersService } from '@/services/goalRemindersService';
 
 interface QuarterlyGoal {
   id: string;
@@ -22,6 +25,8 @@ interface QuarterlyGoal {
   measurableResult?: string;
   progress: number;
   keyActions?: string[];
+  hasReminder?: boolean;
+  linkedMissionsCount?: number;
 }
 
 const CATEGORY_CONFIG = {
@@ -73,6 +78,14 @@ export const QuarterlyGoalsTab: React.FC = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<QuarterlyGoal | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  
+  // Reminder dialog state
+  const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
+  const [reminderGoal, setReminderGoal] = useState<{ id: string; title: string } | null>(null);
+  
+  // Link missions dialog state
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkGoal, setLinkGoal] = useState<{ id: string; title: string; category: string } | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -431,6 +444,30 @@ export const QuarterlyGoalsTab: React.FC = () => {
                             variant="ghost" 
                             size="icon" 
                             className="h-7 w-7"
+                            onClick={() => {
+                              setReminderGoal({ id: goal.id, title: goal.title });
+                              setReminderDialogOpen(true);
+                            }}
+                            title={language === 'en' ? 'Set reminder' : 'Setează reminder'}
+                          >
+                            <Bell className={cn("w-3.5 h-3.5", goal.hasReminder && "text-primary")} />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7"
+                            onClick={() => {
+                              setLinkGoal({ id: goal.id, title: goal.title, category: goal.category });
+                              setLinkDialogOpen(true);
+                            }}
+                            title={language === 'en' ? 'Link monthly missions' : 'Leagă misiuni lunare'}
+                          >
+                            <Link2 className={cn("w-3.5 h-3.5", goal.linkedMissionsCount && goal.linkedMissionsCount > 0 && "text-primary")} />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7"
                             onClick={() => handleEditGoal(goal)}
                           >
                             <Edit2 className="w-3.5 h-3.5" />
@@ -565,6 +602,27 @@ export const QuarterlyGoalsTab: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Reminder Dialog */}
+      {reminderGoal && (
+        <GoalReminderDialog
+          open={reminderDialogOpen}
+          onOpenChange={setReminderDialogOpen}
+          goalId={reminderGoal.id}
+          goalTitle={reminderGoal.title}
+        />
+      )}
+
+      {/* Link Missions Dialog */}
+      {linkGoal && (
+        <LinkedMissionsSelector
+          open={linkDialogOpen}
+          onOpenChange={setLinkDialogOpen}
+          quarterlyGoalId={linkGoal.id}
+          quarterlyGoalTitle={linkGoal.title}
+          category={linkGoal.category}
+        />
+      )}
     </div>
   );
 };
