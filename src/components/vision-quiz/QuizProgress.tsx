@@ -26,21 +26,21 @@ export const QuizProgress: React.FC<QuizProgressProps> = ({
   };
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full space-y-3 animate-fade-in">
       <div className="flex justify-between items-center text-sm">
-        <span className="text-muted-foreground">
+        <span className="text-muted-foreground font-medium transition-all duration-300">
           {language === 'en' ? 'Question' : 'Întrebarea'} {currentQuestion + 1}/{totalQuestions}
         </span>
         <span className={cn(
-          "px-3 py-1 rounded-full text-white text-xs font-medium",
+          "px-3 py-1 rounded-full text-white text-xs font-medium transition-all duration-500",
           categoryColors[currentCategory]
         )}>
           {language === 'en' ? categoryLabel.en : categoryLabel.ro}
         </span>
       </div>
-      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+      <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden shadow-inner">
         <div
-          className={cn("h-full transition-all duration-500 ease-out", categoryColors[currentCategory])}
+          className={cn("h-full transition-all duration-700 ease-out rounded-full", categoryColors[currentCategory])}
           style={{ width: `${progress}%` }}
         />
       </div>
