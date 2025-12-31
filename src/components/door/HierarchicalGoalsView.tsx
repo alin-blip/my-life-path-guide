@@ -21,7 +21,11 @@ import {
   CheckCircle2,
   Circle,
   Plus,
-  GripVertical
+  GripVertical,
+  Pencil,
+  Trash2,
+  X,
+  Check
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -34,6 +38,7 @@ interface LinkedMission {
   period: string;
   progress: number;
   completed: boolean;
+  position: number;
 }
 
 interface QuarterlyGoalWithMissions {
@@ -99,6 +104,10 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
   const [missionMonth, setMissionMonth] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Edit mission state
+  const [editingMissionId, setEditingMissionId] = useState<string | null>(null);
+  const [editingMissionTitle, setEditingMissionTitle] = useState('');
+
   const getQuarterMonths = () => {
     const quarterMonths: Record<number, number[]> = {
       1: [1, 2, 3],
@@ -158,12 +167,14 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
         progress: q.goal_data?.progress || 0,
         linkedMissions: linkedMissionsData
           .filter(m => m.parent_mission_id === q.id)
+          .sort((a, b) => (a.position || 0) - (b.position || 0))
           .map(m => ({
             id: m.id,
             title: m.title || '',
             period: m.period || '',
             progress: m.goal_data?.progress || 0,
-            completed: m.completed || false
+            completed: m.completed || false,
+            position: m.position || 0
           }))
       }));
 
@@ -277,7 +288,7 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
     
-    const { source, destination, draggableId } = result;
+    const { source, destination } = result;
     
     // Extract goalId from droppableId (format: "missions-{goalId}")
     const goalId = destination.droppableId.replace('missions-', '');
@@ -294,13 +305,158 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
     const [removed] = newMissions.splice(source.index, 1);
     newMissions.splice(destination.index, 0, removed);
     
+    // Update positions
+    const updatedMissions = newMissions.map((m, idx) => ({ ...m, position: idx }));
+    
     // Optimistic update
     const newGoals = [...goals];
-    newGoals[goalIndex] = { ...goal, linkedMissions: newMissions };
+    newGoals[goalIndex] = { ...goal, linkedMissions: updatedMissions };
     setGoals(newGoals);
     
-    // Note: Order persistence would require a position column in the database
-    // For now, this provides visual reordering within the session
+    // Persist positions to database
+    try {
+      const updates = updatedMissions.map(m => 
+        supabase
+          .from('missions')
+          .update({ position: m.position })
+          .eq('id', m.id)
+      );
+      await Promise.all(updates);
+    } catch (error) {
+      console.error('Error saving positions:', error);
+      fetchHierarchicalData(); // Revert on error
+    }
+  };
+
+  const handleEditMission = (mission: LinkedMission) => {
+    setEditingMissionId(mission.id);
+    setEditingMissionTitle(mission.title);
+  };
+
+  const handleSaveEdit = async (missionId: string) => {
+    if (!editingMissionTitle.trim()) return;
+    
+    try {
+      const { error } = await supabase
+        .from('missions')
+        .update({ title: editingMissionTitle.trim() })
+        .eq('id', missionId);
+
+      if (error) throw error;
+
+      // Also update corresponding task if exists
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.session?.user) {
+        await supabase
+          .from('user_tasks')
+          .update({ title: editingMissionTitle.trim() })
+          .eq('user_id', session.session.user.id)
+          .eq('task_id', missionId);
+      }
+
+      toast({
+        title: language === 'en' ? 'Mission updated' : 'Misiune actualizată'
+      });
+
+      setEditingMissionId(null);
+      fetchHierarchicalData();
+    } catch (error) {
+      console.error('Error updating mission:', error);
+      toast({
+        title: language === 'en' ? 'Error' : 'Eroare',
+        description: language === 'en' ? 'Failed to update mission' : 'Nu s-a putut actualiza misiunea',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleDeleteMission = async (missionId: string) => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) return;
+
+      // Delete the mission
+      const { error } = await supabase
+        .from('missions')
+        .delete()
+        .eq('id', missionId);
+
+      if (error) throw error;
+
+      // Also delete corresponding task if exists
+      await supabase
+        .from('user_tasks')
+        .delete()
+        .eq('user_id', session.session.user.id)
+        .eq('task_id', missionId);
+
+      toast({
+        title: language === 'en' ? 'Mission deleted' : 'Misiune ștearsă'
+      });
+
+      fetchHierarchicalData();
+    } catch (error) {
+      console.error('Error deleting mission:', error);
+      toast({
+        title: language === 'en' ? 'Error' : 'Eroare',
+        description: language === 'en' ? 'Failed to delete mission' : 'Nu s-a putut șterge misiunea',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const syncMissionToTask = async (mission: LinkedMission, goalCategory: string) => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) return;
+
+      // Get current week key
+      const now = new Date();
+      const weekKey = `door-week-${now.getFullYear()}-${String(Math.ceil((now.getDate() + new Date(now.getFullYear(), now.getMonth(), 1).getDay()) / 7)).padStart(2, '0')}`;
+
+      // Check if task already exists
+      const { data: existingTask } = await supabase
+        .from('user_tasks')
+        .select('id')
+        .eq('user_id', session.session.user.id)
+        .eq('task_id', mission.id)
+        .single();
+
+      if (existingTask) {
+        toast({
+          title: language === 'en' ? 'Task already exists' : 'Taskul există deja'
+        });
+        return;
+      }
+
+      // Create task from mission
+      const { error } = await supabase
+        .from('user_tasks')
+        .insert({
+          user_id: session.session.user.id,
+          task_id: mission.id,
+          title: mission.title,
+          list_type: 'hit',
+          task_type: 'monthly_mission',
+          week_key: weekKey,
+          completed: mission.completed,
+          priority: 1
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: language === 'en' ? 'Synced to tasks' : 'Sincronizat cu taskuri',
+        description: mission.title
+      });
+    } catch (error) {
+      console.error('Error syncing to task:', error);
+      toast({
+        title: language === 'en' ? 'Error' : 'Eroare',
+        description: language === 'en' ? 'Failed to sync' : 'Sincronizare eșuată',
+        variant: 'destructive'
+      });
+    }
   };
 
   if (loading) {
@@ -452,7 +608,7 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
                                                 className={cn(
-                                                  "flex items-center gap-3 p-2.5 rounded-lg bg-background border transition-all",
+                                                  "flex items-center gap-2 p-2.5 rounded-lg bg-background border transition-all group",
                                                   snapshot.isDragging && "shadow-lg ring-2 ring-primary/20"
                                                 )}
                                               >
@@ -462,29 +618,103 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
                                                 >
                                                   <GripVertical className="w-4 h-4" />
                                                 </div>
-                                                <div className="flex items-center gap-2 flex-1 min-w-0">
-                                                  {mission.completed ? (
-                                                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                                                  ) : (
-                                                    <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
-                                                  )}
-                                                  <Flag className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                                                  <span className={cn(
-                                                    "text-sm truncate",
-                                                    mission.completed && "text-muted-foreground line-through"
-                                                  )}>
-                                                    {mission.title}
-                                                  </span>
-                                                </div>
                                                 
-                                                <div className="flex items-center gap-2 shrink-0">
-                                                  <Badge variant="outline" className="text-xs">
-                                                    {formatMonth(mission.period)}
-                                                  </Badge>
-                                                  <span className="text-xs font-medium w-8 text-right">
-                                                    {mission.progress}%
-                                                  </span>
-                                                </div>
+                                                {editingMissionId === mission.id ? (
+                                                  // Edit mode
+                                                  <div className="flex items-center gap-2 flex-1">
+                                                    <Input
+                                                      value={editingMissionTitle}
+                                                      onChange={(e) => setEditingMissionTitle(e.target.value)}
+                                                      className="h-7 text-sm"
+                                                      autoFocus
+                                                      onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') handleSaveEdit(mission.id);
+                                                        if (e.key === 'Escape') setEditingMissionId(null);
+                                                      }}
+                                                    />
+                                                    <Button
+                                                      size="icon"
+                                                      variant="ghost"
+                                                      className="h-7 w-7 text-emerald-500"
+                                                      onClick={() => handleSaveEdit(mission.id)}
+                                                    >
+                                                      <Check className="w-4 h-4" />
+                                                    </Button>
+                                                    <Button
+                                                      size="icon"
+                                                      variant="ghost"
+                                                      className="h-7 w-7"
+                                                      onClick={() => setEditingMissionId(null)}
+                                                    >
+                                                      <X className="w-4 h-4" />
+                                                    </Button>
+                                                  </div>
+                                                ) : (
+                                                  // View mode
+                                                  <>
+                                                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                      {mission.completed ? (
+                                                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                                      ) : (
+                                                        <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
+                                                      )}
+                                                      <Flag className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                                      <span className={cn(
+                                                        "text-sm truncate",
+                                                        mission.completed && "text-muted-foreground line-through"
+                                                      )}>
+                                                        {mission.title}
+                                                      </span>
+                                                    </div>
+                                                    
+                                                    <div className="flex items-center gap-1 shrink-0">
+                                                      <Badge variant="outline" className="text-xs">
+                                                        {formatMonth(mission.period)}
+                                                      </Badge>
+                                                      <span className="text-xs font-medium w-8 text-right">
+                                                        {mission.progress}%
+                                                      </span>
+                                                      
+                                                      {/* Action buttons - visible on hover */}
+                                                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ml-2">
+                                                        <Button
+                                                          size="icon"
+                                                          variant="ghost"
+                                                          className="h-6 w-6"
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            syncMissionToTask(mission, goal.category);
+                                                          }}
+                                                          title={language === 'en' ? 'Sync to tasks' : 'Sincronizează'}
+                                                        >
+                                                          <Target className="w-3.5 h-3.5" />
+                                                        </Button>
+                                                        <Button
+                                                          size="icon"
+                                                          variant="ghost"
+                                                          className="h-6 w-6"
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleEditMission(mission);
+                                                          }}
+                                                        >
+                                                          <Pencil className="w-3.5 h-3.5" />
+                                                        </Button>
+                                                        <Button
+                                                          size="icon"
+                                                          variant="ghost"
+                                                          className="h-6 w-6 text-destructive hover:text-destructive"
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteMission(mission.id);
+                                                          }}
+                                                        >
+                                                          <Trash2 className="w-3.5 h-3.5" />
+                                                        </Button>
+                                                      </div>
+                                                    </div>
+                                                  </>
+                                                )}
                                               </div>
                                             )}
                                           </Draggable>
