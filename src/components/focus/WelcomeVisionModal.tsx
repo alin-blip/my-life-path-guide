@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Rocket, Sparkles, Target, Zap, Brain, Heart, Briefcase } from 'lucide-react';
+import { CheckCircle2, Rocket, Sparkles, Target, Zap, Brain, Heart, Briefcase, BarChart3 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface WelcomeVisionModalProps {
   open: boolean;
@@ -15,6 +16,7 @@ interface Task {
   id: string;
   title: string;
   is_key_point: boolean;
+  day_of_week: string | null;
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -27,6 +29,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
 export const WelcomeVisionModal: React.FC<WelcomeVisionModalProps> = ({ open, onClose }) => {
   const { language } = useLanguage();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [priorityArea, setPriorityArea] = useState<string>('');
 
@@ -39,16 +42,32 @@ export const WelcomeVisionModal: React.FC<WelcomeVisionModalProps> = ({ open, on
   const loadVisionTasks = async () => {
     if (!user) return;
 
+    // Get current week key
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const days = Math.floor((now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
+    const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+    const weekKey = `door-week-${now.getFullYear()}-${String(weekNumber).padStart(2, '0')}`;
+
     const { data, error } = await supabase
       .from('user_tasks')
-      .select('id, title, is_key_point')
+      .select('id, title, is_key_point, day_of_week')
       .eq('user_id', user.id)
-      .eq('task_type', 'vision-2026')
+      .eq('week_key', weekKey)
+      .eq('list_type', 'hit')
       .order('priority', { ascending: false })
-      .limit(7);
+      .limit(10);
 
     if (!error && data) {
-      setTasks(data);
+      // Deduplicate by title for display
+      const uniqueTasks = data.reduce((acc: Task[], task) => {
+        if (!acc.some(t => t.title === task.title)) {
+          acc.push(task);
+        }
+        return acc;
+      }, []);
+      setTasks(uniqueTasks);
+      
       // Try to detect priority area from localStorage
       const storedScores = localStorage.getItem('vision_plan_scores');
       if (storedScores) {
@@ -136,10 +155,23 @@ export const WelcomeVisionModal: React.FC<WelcomeVisionModalProps> = ({ open, on
           </p>
         </div>
 
-        <Button onClick={handleClose} className="w-full">
-          <Rocket className="w-4 h-4 mr-2" />
-          {language === 'en' ? 'Start My First Focus Session' : 'Începe Prima Sesiune de Focus'}
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button onClick={handleClose} className="w-full">
+            <Rocket className="w-4 h-4 mr-2" />
+            {language === 'en' ? 'Start My First Focus Session' : 'Începe Prima Sesiune de Focus'}
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              handleClose();
+              navigate('/vision-2026/dashboard');
+            }} 
+            className="w-full"
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            {language === 'en' ? 'View Progress Dashboard' : 'Vezi Dashboard Progres'}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

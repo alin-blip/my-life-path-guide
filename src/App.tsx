@@ -51,6 +51,7 @@ const Core4LeadMagnet = lazy(() => import("./pages/Core4LeadMagnet"));
 const Core4ThankYou = lazy(() => import("./pages/Core4ThankYou"));
 const Vision2026 = lazy(() => import("./pages/Vision2026"));
 const Vision2026Plan = lazy(() => import("./pages/Vision2026Plan"));
+const Vision2026Dashboard = lazy(() => import("./pages/Vision2026Dashboard"));
 
 // Loading component for lazy routes
 const LoadingFallback = () => (
@@ -201,6 +202,11 @@ const App = () => (
                     <Route path="/core4-thank-you" element={<Core4ThankYou />} />
                     <Route path="/vision-2026" element={<Vision2026 />} />
                     <Route path="/vision-2026/plan" element={<Vision2026Plan />} />
+                    <Route path="/vision-2026/dashboard" element={
+                      <ProtectedRoute>
+                        <Vision2026Dashboard />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/daily-timeline" element={
                       <ProtectedRoute>
                         <DailyTimeline />
