@@ -27,7 +27,8 @@ import {
   Crown,
   CreditCard,
   Mic,
-  Upload
+  Upload,
+  Sparkles
 } from 'lucide-react';
 
 interface SideMenuProps {
@@ -73,6 +74,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   const menuItems: MenuItem[] = [
     { title: t('dashboard'), icon: Home, path: '/dashboard' },
     { title: t('lifeVision') || t('haveItAllBlueprint'), icon: BookOpen, path: '/lifebook' },
+    { title: 'Vision 2026', icon: Sparkles, path: '/vision-2026/dashboard' },
     { title: t('ninetyDayChallenge') || t('haveItAllChallenge'), icon: Target, path: '/challenge' },
     {
       title: t('successCoach') || t('masterPlan'),
