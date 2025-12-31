@@ -29,17 +29,12 @@ const MasterPlanSystem = lazy(() => import("./pages/MasterPlanSystem"));
 const Challenge = lazy(() => import("./pages/Challenge"));
 const ChallengeDay = lazy(() => import("./pages/ChallengeDay"));
 const Door = lazy(() => import("./pages/Door"));
-const Game = lazy(() => import("./pages/Game"));
 const Focus = lazy(() => import("./pages/Focus"));
 const Core = lazy(() => import("./pages/Core"));
 const DailyFour = lazy(() => import("./pages/DailyFour"));
-const Chat = lazy(() => import("./pages/Chat"));
-const Tribe = lazy(() => import("./pages/Tribe"));
 const Journal = lazy(() => import("./pages/Journal"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const Profile = lazy(() => import("./pages/Profile"));
-const Fitness = lazy(() => import("./pages/Fitness"));
-const GeneralsTent = lazy(() => import("./pages/GeneralsTent"));
 const Settings = lazy(() => import("./pages/Settings").then(m => ({ default: m.Settings })));
 const Support = lazy(() => import("./pages/Support").then(m => ({ default: m.Support })));
 const Notes = lazy(() => import("./pages/Notes").then(m => ({ default: m.Notes })));
@@ -54,6 +49,7 @@ const DailyTimeline = lazy(() => import("./pages/DailyTimeline"));
 const Biz4Report = lazy(() => import("./pages/Biz4Report"));
 const Core4LeadMagnet = lazy(() => import("./pages/Core4LeadMagnet"));
 const Core4ThankYou = lazy(() => import("./pages/Core4ThankYou"));
+const Vision2026 = lazy(() => import("./pages/Vision2026"));
 
 // Loading component for lazy routes
 const LoadingFallback = () => (
@@ -128,11 +124,6 @@ const App = () => (
                         <Door />
                       </ProtectedRoute>
                     } />
-                    <Route path="/game" element={
-                      <ProtectedRoute>
-                        <Game />
-                      </ProtectedRoute>
-                    } />
                     <Route path="/focus" element={
                       <ProtectedRoute>
                         <Focus />
@@ -148,16 +139,6 @@ const App = () => (
                         <DailyFour />
                       </ProtectedRoute>
                     } />
-                    <Route path="/chat" element={
-                      <ProtectedRoute>
-                        <Chat />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/tribe" element={
-                      <ProtectedRoute>
-                        <Tribe />
-                      </ProtectedRoute>
-                    } />
                     <Route path="/journal" element={
                       <ProtectedRoute>
                         <Journal />
@@ -171,11 +152,6 @@ const App = () => (
                     <Route path="/profile" element={
                       <ProtectedRoute>
                         <Profile />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/fitness" element={
-                      <ProtectedRoute>
-                        <Fitness />
                       </ProtectedRoute>
                     } />
                     <Route path="/library" element={
@@ -196,11 +172,6 @@ const App = () => (
                     <Route path="/notes" element={
                       <ProtectedRoute>
                         <Notes />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/generals-tent" element={
-                      <ProtectedRoute>
-                        <GeneralsTent />
                       </ProtectedRoute>
                     } />
                     <Route path="/pricing" element={<Pricing />} />
@@ -227,6 +198,7 @@ const App = () => (
                     <Route path="/about" element={<About />} />
                     <Route path="/core4" element={<Core4LeadMagnet />} />
                     <Route path="/core4-thank-you" element={<Core4ThankYou />} />
+                    <Route path="/vision-2026" element={<Vision2026 />} />
                     <Route path="/daily-timeline" element={
                       <ProtectedRoute>
                         <DailyTimeline />
