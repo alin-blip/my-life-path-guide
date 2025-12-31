@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { CheckCircle2, Circle, Clock, Loader2 } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, Loader2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { format, getWeek, getYear, startOfWeek } from 'date-fns';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { v4 as uuidv4 } from 'uuid';
 
 interface TodaysTasksProps {
   activeTaskId: string | null;
@@ -34,6 +37,8 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
   const { language } = useLanguage();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
 
   const getCurrentWeekKey = () => {
     const now = new Date();
@@ -128,6 +133,48 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
     }
   };
 
+  const handleAddTask = async () => {
+    if (!newTaskTitle.trim()) return;
+    
+    setIsAdding(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const weekKey = getCurrentWeekKey();
+      const todayAbbrev = getTodayAbbrev();
+      const newTask = {
+        id: uuidv4(),
+        user_id: user.id,
+        title: newTaskTitle.trim(),
+        task_type: 'hit',
+        list_type: 'hit',
+        week_key: weekKey,
+        day_of_week: todayAbbrev,
+        completed: false,
+        position: tasks.length,
+      };
+
+      const { error } = await supabase
+        .from('user_tasks')
+        .insert(newTask);
+
+      if (error) throw error;
+
+      setTasks(prev => [...prev, { 
+        id: newTask.id, 
+        title: newTask.title, 
+        completed: false, 
+        day_of_week: todayAbbrev 
+      }]);
+      setNewTaskTitle('');
+    } catch (error) {
+      console.error('Error adding task:', error);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-card border border-border rounded-xl p-6 flex items-center justify-center">
@@ -194,13 +241,35 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
         ))}
       </div>
 
-      {tasks.length === 0 && (
-        <p className="text-center text-muted-foreground text-sm py-8">
+      {tasks.length === 0 && !newTaskTitle && (
+        <p className="text-center text-muted-foreground text-sm py-4">
           {language === 'en' 
-            ? 'No tasks for today. Add some from the Command Center!' 
-            : 'Nicio sarcină pentru azi. Adaugă din Command Center!'}
+            ? 'No tasks for today. Add one below!' 
+            : 'Nicio sarcină pentru azi. Adaugă una mai jos!'}
         </p>
       )}
+
+      <div className="flex gap-2 mt-4 pt-4 border-t border-border">
+        <Input
+          value={newTaskTitle}
+          onChange={(e) => setNewTaskTitle(e.target.value)}
+          placeholder={language === 'en' ? 'Add a new task...' : 'Adaugă o sarcină nouă...'}
+          className="flex-1"
+          onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
+          disabled={isAdding}
+        />
+        <Button 
+          size="icon" 
+          onClick={handleAddTask} 
+          disabled={!newTaskTitle.trim() || isAdding}
+        >
+          {isAdding ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Plus className="w-4 h-4" />
+          )}
+        </Button>
+      </div>
     </div>
   );
 };
