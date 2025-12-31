@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +20,8 @@ import {
   Briefcase,
   CheckCircle2,
   Circle,
-  Plus
+  Plus,
+  GripVertical
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -272,6 +274,35 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
     }
   };
 
+  const handleDragEnd = async (result: DropResult) => {
+    if (!result.destination) return;
+    
+    const { source, destination, draggableId } = result;
+    
+    // Extract goalId from droppableId (format: "missions-{goalId}")
+    const goalId = destination.droppableId.replace('missions-', '');
+    const sourceGoalId = source.droppableId.replace('missions-', '');
+    
+    // Only handle reordering within the same goal
+    if (goalId !== sourceGoalId) return;
+    
+    const goalIndex = goals.findIndex(g => g.id === goalId);
+    if (goalIndex === -1) return;
+    
+    const goal = goals[goalIndex];
+    const newMissions = [...goal.linkedMissions];
+    const [removed] = newMissions.splice(source.index, 1);
+    newMissions.splice(destination.index, 0, removed);
+    
+    // Optimistic update
+    const newGoals = [...goals];
+    newGoals[goalIndex] = { ...goal, linkedMissions: newMissions };
+    setGoals(newGoals);
+    
+    // Note: Order persistence would require a position column in the database
+    // For now, this provides visual reordering within the session
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -302,6 +333,7 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
 
   return (
     <>
+    <DragDropContext onDragEnd={handleDragEnd}>
       <div className="space-y-6">
         {Object.entries(CATEGORY_CONFIG).map(([category, config]) => {
           const categoryGoals = groupedGoals[category] || [];
@@ -399,36 +431,68 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
                                     {language === 'en' ? 'Linked Monthly Missions:' : 'Misiuni Lunare Legate:'}
                                   </p>
                                   
-                                  {goal.linkedMissions.map((mission) => (
-                                    <div 
-                                      key={mission.id}
-                                      className="flex items-center gap-3 p-2.5 rounded-lg bg-background border"
-                                    >
-                                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                                        {mission.completed ? (
-                                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                                        ) : (
-                                          <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
+                                  <Droppable droppableId={`missions-${goal.id}`}>
+                                    {(provided, snapshot) => (
+                                      <div
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}
+                                        className={cn(
+                                          "space-y-2 rounded-lg transition-colors",
+                                          snapshot.isDraggingOver && "bg-primary/5"
                                         )}
-                                        <Flag className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                                        <span className={cn(
-                                          "text-sm truncate",
-                                          mission.completed && "text-muted-foreground line-through"
-                                        )}>
-                                          {mission.title}
-                                        </span>
+                                      >
+                                        {goal.linkedMissions.map((mission, missionIndex) => (
+                                          <Draggable 
+                                            key={mission.id} 
+                                            draggableId={mission.id} 
+                                            index={missionIndex}
+                                          >
+                                            {(provided, snapshot) => (
+                                              <div
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                className={cn(
+                                                  "flex items-center gap-3 p-2.5 rounded-lg bg-background border transition-all",
+                                                  snapshot.isDragging && "shadow-lg ring-2 ring-primary/20"
+                                                )}
+                                              >
+                                                <div
+                                                  {...provided.dragHandleProps}
+                                                  className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"
+                                                >
+                                                  <GripVertical className="w-4 h-4" />
+                                                </div>
+                                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                  {mission.completed ? (
+                                                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                                  ) : (
+                                                    <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
+                                                  )}
+                                                  <Flag className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                                  <span className={cn(
+                                                    "text-sm truncate",
+                                                    mission.completed && "text-muted-foreground line-through"
+                                                  )}>
+                                                    {mission.title}
+                                                  </span>
+                                                </div>
+                                                
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                  <Badge variant="outline" className="text-xs">
+                                                    {formatMonth(mission.period)}
+                                                  </Badge>
+                                                  <span className="text-xs font-medium w-8 text-right">
+                                                    {mission.progress}%
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            )}
+                                          </Draggable>
+                                        ))}
+                                        {provided.placeholder}
                                       </div>
-                                      
-                                      <div className="flex items-center gap-2 shrink-0">
-                                        <Badge variant="outline" className="text-xs">
-                                          {formatMonth(mission.period)}
-                                        </Badge>
-                                        <span className="text-xs font-medium w-8 text-right">
-                                          {mission.progress}%
-                                        </span>
-                                      </div>
-                                    </div>
-                                  ))}
+                                    )}
+                                  </Droppable>
                                 </>
                               )}
                               
@@ -466,6 +530,7 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
           );
         })}
       </div>
+    </DragDropContext>
 
       {/* Add Monthly Mission Dialog */}
       <Dialog open={addMissionDialogOpen} onOpenChange={setAddMissionDialogOpen}>
