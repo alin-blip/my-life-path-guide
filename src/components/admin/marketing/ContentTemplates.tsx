@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Copy, Sparkles, Plus, Search } from 'lucide-react';
+import { Copy, Sparkles, Plus, Search, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Template {
   id: string;
@@ -14,6 +15,50 @@ interface Template {
   content: string;
   variables: string[];
 }
+
+// Brand Kit data for AI context
+const BRAND_KIT = {
+  productName: 'LifeOS',
+  tagline: 'Success Without Sacrifice',
+  uvp: "LifeOS is the first Life Operating System that integrates business growth with personal well-being through AI-powered coaching, giving entrepreneurs the structure to achieve success without sacrifice.",
+  secondaryTaglines: [
+    'The Operating System for Your Entire Life',
+    'Design Your Life. Execute Your Vision.',
+    'Where High Performance Meets Holistic Living',
+    'Build Your Empire Without Breaking Yourself',
+  ],
+  toneOfVoice: [
+    'Empowering, not preachy',
+    'Direct and actionable',
+    'Holistic but grounded',
+    'Tech-forward yet human',
+    'Aspirational without toxic positivity',
+  ],
+  colors: {
+    primary: '#9b87f5',
+    accent: '#D946EF',
+    success: '#22c55e',
+  },
+  core4Framework: ['Business', 'Body', 'Being', 'Balance'],
+  keyFeatures: [
+    'CORE 4 Framework: Business + Body + Being + Balance',
+    'AI Coaching Network with 4 specialized coaches',
+    'Command Center dashboard',
+    'Stack Sessions for daily rituals',
+    'Napoleon Hill 17 Principles integration',
+    'Lifebook System for life vision',
+  ],
+};
+
+// Lean Canvas data for AI context
+const LEAN_CANVAS = {
+  problem: 'Burnout epidemic (67% of entrepreneurs sacrifice health/relationships), tool fragmentation (8-12 apps), no holistic system',
+  solution: 'CORE 4 Framework, AI Coaching Network, Command Center, Stack Sessions',
+  unfairAdvantage: 'Category Creator (first Life Operating System), Data Network Effects, Holistic Integration',
+  customerSegments: 'Entrepreneurs 30-50, $100K-$1M revenue, high ambition, tech-savvy',
+  channels: 'YouTube, Podcast, Partnerships, SEO, LinkedIn, Email',
+  revenueStreams: 'Free tier, Pro ($29/mo), Enterprise ($99/mo)',
+};
 
 const TEMPLATES: Template[] = [
   {
@@ -165,10 +210,12 @@ export const ContentTemplates = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [templates, setTemplates] = useState<Template[]>(TEMPLATES);
+  const [generatingId, setGeneratingId] = useState<string | null>(null);
 
   const categories = [...new Set(TEMPLATES.map((t) => t.category))];
 
-  const filteredTemplates = TEMPLATES.filter((template) => {
+  const filteredTemplates = templates.filter((template) => {
     const matchesSearch =
       template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.content.toLowerCase().includes(searchQuery.toLowerCase());
@@ -183,6 +230,137 @@ export const ContentTemplates = () => {
       title: 'Template Copied!',
       description: `"${title}" copied to clipboard`,
     });
+  };
+
+  const generateWithAI = async (template: Template) => {
+    setGeneratingId(template.id);
+    
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast({
+          title: 'Authentication required',
+          description: 'Please log in to use AI generation',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Build context prompt with brand kit and lean canvas
+      const contextPrompt = `Generate fresh content for a "${template.title}" template in the "${template.category}" category.
+
+## BRAND CONTEXT
+- Product Name: ${BRAND_KIT.productName}
+- Primary Tagline: ${BRAND_KIT.tagline}
+- UVP: ${BRAND_KIT.uvp}
+- Tone of Voice: ${BRAND_KIT.toneOfVoice.join(', ')}
+- Key Features: ${BRAND_KIT.keyFeatures.join('; ')}
+- CORE 4 Framework: ${BRAND_KIT.core4Framework.join(', ')}
+
+## LEAN CANVAS CONTEXT
+- Problem: ${LEAN_CANVAS.problem}
+- Solution: ${LEAN_CANVAS.solution}
+- Unfair Advantage: ${LEAN_CANVAS.unfairAdvantage}
+- Target Customer: ${LEAN_CANVAS.customerSegments}
+- Channels: ${LEAN_CANVAS.channels}
+- Pricing: ${LEAN_CANVAS.revenueStreams}
+
+## TEMPLATE REQUIREMENTS
+- Category: ${template.category}
+- Title: ${template.title}
+- Variables to use: ${template.variables.map(v => `{{${v}}}`).join(', ')}
+- Original template for reference: 
+${template.content}
+
+## INSTRUCTIONS
+Create a NEW, FRESH version of this template that:
+1. Uses the brand voice and messaging
+2. Incorporates key product features naturally
+3. Addresses the target customer's pain points
+4. Keeps the same general structure but with fresh content
+5. Uses {{variable}} format for any placeholders
+6. Is ready to use with minimal editing
+
+Generate ONLY the template content, no explanations.`;
+
+      const response = await supabase.functions.invoke('admin-ai-assistant', {
+        body: {
+          messages: [{ role: 'user', content: contextPrompt }],
+          contentType: template.category === 'Social Media' ? 'social_post' : 
+                       template.category === 'Video Script' ? 'video_script' : undefined,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to generate content');
+      }
+
+      // Handle streaming response
+      if (response.data instanceof ReadableStream) {
+        const reader = response.data.getReader();
+        const decoder = new TextDecoder();
+        let generatedContent = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+              try {
+                const json = JSON.parse(line.slice(6));
+                const content = json.choices?.[0]?.delta?.content;
+                if (content) {
+                  generatedContent += content;
+                }
+              } catch {
+                // Skip invalid JSON lines
+              }
+            }
+          }
+        }
+
+        if (generatedContent) {
+          setTemplates(prev => 
+            prev.map(t => 
+              t.id === template.id 
+                ? { ...t, content: generatedContent.trim() }
+                : t
+            )
+          );
+
+          toast({
+            title: 'Content Generated!',
+            description: `"${template.title}" has been updated with fresh AI content`,
+          });
+        }
+      } else if (typeof response.data === 'string') {
+        setTemplates(prev => 
+          prev.map(t => 
+            t.id === template.id 
+              ? { ...t, content: response.data.trim() }
+              : t
+          )
+        );
+
+        toast({
+          title: 'Content Generated!',
+          description: `"${template.title}" has been updated with fresh AI content`,
+        });
+      }
+    } catch (error) {
+      console.error('AI generation error:', error);
+      toast({
+        title: 'Generation Failed',
+        description: error instanceof Error ? error.message : 'Could not generate content',
+        variant: 'destructive',
+      });
+    } finally {
+      setGeneratingId(null);
+    }
   };
 
   return (
@@ -239,8 +417,18 @@ export const ContentTemplates = () => {
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
-                    <Sparkles className="h-4 w-4" />
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => generateWithAI(template)}
+                    disabled={generatingId !== null}
+                    title="Generate with AI"
+                  >
+                    {generatingId === template.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </div>
@@ -248,7 +436,15 @@ export const ContentTemplates = () => {
             <CardContent>
               <Textarea
                 value={template.content}
-                readOnly
+                onChange={(e) => {
+                  setTemplates(prev =>
+                    prev.map(t =>
+                      t.id === template.id
+                        ? { ...t, content: e.target.value }
+                        : t
+                    )
+                  );
+                }}
                 className="min-h-[200px] text-xs font-mono resize-none"
               />
               {template.variables.length > 0 && (
