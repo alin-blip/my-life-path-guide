@@ -8,13 +8,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
-import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Dumbbell, Brain, Heart, Briefcase, Target, CheckCircle2, Bell, Link2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Dumbbell, Brain, Heart, Briefcase, Target, CheckCircle2, Bell, Link2, LayoutGrid, GitBranch } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { GoalReminderDialog } from '@/components/door/GoalReminderDialog';
 import { LinkedMissionsSelector } from '@/components/door/LinkedMissionsSelector';
+import { HierarchicalGoalsView } from '@/components/door/HierarchicalGoalsView';
 import { goalRemindersService } from '@/services/goalRemindersService';
 
 interface QuarterlyGoal {
@@ -78,7 +80,7 @@ export const QuarterlyGoalsTab: React.FC = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<QuarterlyGoal | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  
+  const [viewMode, setViewMode] = useState<'grid' | 'hierarchy'>('grid');
   // Reminder dialog state
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [reminderGoal, setReminderGoal] = useState<{ id: string; title: string } | null>(null);
@@ -355,7 +357,7 @@ export const QuarterlyGoalsTab: React.FC = () => {
   return (
     <div className="p-6">
       {/* Quarter Navigation */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
             {language === 'en' ? '90-Day Goals' : 'Obiective 90 Zile'}
@@ -381,8 +383,40 @@ export const QuarterlyGoalsTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Category Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* View Mode Toggle */}
+      <div className="flex items-center justify-end mb-4">
+        <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+          <Button
+            variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+            size="sm"
+            className="gap-2"
+            onClick={() => setViewMode('grid')}
+          >
+            <LayoutGrid className="w-4 h-4" />
+            {language === 'en' ? 'Grid' : 'Grilă'}
+          </Button>
+          <Button
+            variant={viewMode === 'hierarchy' ? 'secondary' : 'ghost'}
+            size="sm"
+            className="gap-2"
+            onClick={() => setViewMode('hierarchy')}
+          >
+            <GitBranch className="w-4 h-4" />
+            {language === 'en' ? 'Hierarchy' : 'Ierarhie'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Content based on view mode */}
+      {viewMode === 'hierarchy' ? (
+        <HierarchicalGoalsView 
+          currentQuarter={currentQuarter} 
+          currentYear={currentYear} 
+        />
+      ) : (
+        <>
+          {/* Category Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {Object.entries(CATEGORY_CONFIG).map(([key, config]) => {
           const categoryGoals = getCategoryGoals(key);
           const Icon = config.icon;
@@ -519,6 +553,8 @@ export const QuarterlyGoalsTab: React.FC = () => {
           );
         })}
       </div>
+        </>
+      )}
 
       {/* Add/Edit Goal Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
