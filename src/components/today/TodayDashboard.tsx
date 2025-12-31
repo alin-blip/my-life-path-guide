@@ -15,13 +15,15 @@ import {
   Users,
   Briefcase,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Moon
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ro, enUS } from 'date-fns/locale';
+import { EveningReviewModal } from '@/components/daily/EveningReviewModal';
 
 interface Task {
   id: string;
@@ -45,6 +47,7 @@ export const TodayDashboard: React.FC = () => {
   const [areaProgress, setAreaProgress] = useState<AreaProgress>({ body: 0, being: 0, balance: 0, business: 0 });
   const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showEveningReview, setShowEveningReview] = useState(false);
 
   const locale = language === 'ro' ? ro : enUS;
   const today = new Date();
@@ -280,20 +283,40 @@ export const TodayDashboard: React.FC = () => {
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Link to="/stack?type=daily-master">
           <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2 hover:bg-primary/10 hover:border-primary">
             <Play className="w-5 h-5 text-primary" />
-            <span className="text-sm">{language === 'ro' ? 'Start Stack Zilnic' : 'Start Daily Stack'}</span>
+            <span className="text-sm">{language === 'ro' ? 'Stack Zilnic' : 'Daily Stack'}</span>
           </Button>
         </Link>
         <Link to="/focus">
           <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2 hover:bg-accent/10 hover:border-accent">
             <Target className="w-5 h-5 text-accent" />
-            <span className="text-sm">{language === 'ro' ? 'Sesiune Focus' : 'Focus Session'}</span>
+            <span className="text-sm">{language === 'ro' ? 'Focus' : 'Focus'}</span>
           </Button>
         </Link>
+        <Link to="/door">
+          <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center gap-2 hover:bg-green-500/10 hover:border-green-500">
+            <Plus className="w-5 h-5 text-green-500" />
+            <span className="text-sm">{language === 'ro' ? 'Adaugă Task' : 'Add Task'}</span>
+          </Button>
+        </Link>
+        <Button 
+          variant="outline" 
+          className="w-full h-auto py-4 flex flex-col items-center gap-2 hover:bg-indigo-500/10 hover:border-indigo-500"
+          onClick={() => setShowEveningReview(true)}
+        >
+          <Moon className="w-5 h-5 text-indigo-500" />
+          <span className="text-sm">{language === 'ro' ? 'Review Seară' : 'Evening Review'}</span>
+        </Button>
       </div>
+
+      {/* Evening Review Modal */}
+      <EveningReviewModal 
+        open={showEveningReview} 
+        onOpenChange={setShowEveningReview} 
+      />
     </div>
   );
 };
