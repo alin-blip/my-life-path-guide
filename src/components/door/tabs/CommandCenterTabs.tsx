@@ -26,27 +26,27 @@ export const CommandCenterTabs: React.FC = () => {
   const tabs = [
     {
       value: 'weekly',
-      label: language === 'ro' ? 'Săptămâna' : 'This Week',
+      label: language === 'en' ? 'Weekly' : 'Săptămâna',
       icon: Calendar,
-      description: language === 'ro' ? 'Planifică & execută task-uri' : 'Plan & execute tasks'
+      description: language === 'en' ? 'Plan & execute weekly tasks' : 'Planifică & execută sarcini săptămânale'
     },
     {
       value: 'quarterly',
-      label: language === 'ro' ? '90 Zile' : '90 Days',
+      label: language === 'en' ? '90 Days' : '90 Zile',
       icon: Target,
-      description: language === 'ro' ? 'Obiective trimestriale' : 'Quarterly goals'
+      description: language === 'en' ? 'Quarterly goals & progress' : 'Obiective și progres trimestrial'
     },
     {
       value: 'monthly',
-      label: language === 'ro' ? 'Lunar' : 'Monthly',
+      label: language === 'en' ? 'Monthly' : 'Lunar',
       icon: Flag,
-      description: language === 'ro' ? 'Misiune lunară' : 'Monthly mission'
+      description: language === 'en' ? 'Monthly focus mission' : 'Misiune lunară de focus'
     },
     {
       value: 'annual',
-      label: language === 'ro' ? 'Anual' : 'Annual',
+      label: language === 'en' ? 'Annual' : 'Anual',
       icon: Crown,
-      description: language === 'ro' ? 'Viziune anuală' : 'Annual vision'
+      description: language === 'en' ? 'Annual vision & big goals' : 'Viziune anuală & obiective mari'
     }
   ];
 

@@ -452,42 +452,6 @@ export type Database = {
         }
         Relationships: []
       }
-      daily_checkins: {
-        Row: {
-          created_at: string
-          date: string
-          energy_level: number | null
-          gratitude_note: string | null
-          id: string
-          mood_score: number | null
-          top_priority: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          date?: string
-          energy_level?: number | null
-          gratitude_note?: string | null
-          id?: string
-          mood_score?: number | null
-          top_priority?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          date?: string
-          energy_level?: number | null
-          gratitude_note?: string | null
-          id?: string
-          mood_score?: number | null
-          top_priority?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       daily_progress: {
         Row: {
           created_at: string | null
@@ -1315,42 +1279,6 @@ export type Database = {
         }
         Relationships: []
       }
-      onboarding_progress: {
-        Row: {
-          completed_at: string | null
-          completed_days: number[]
-          created_at: string
-          current_day: number
-          id: string
-          is_completed: boolean
-          started_at: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          completed_at?: string | null
-          completed_days?: number[]
-          created_at?: string
-          current_day?: number
-          id?: string
-          is_completed?: boolean
-          started_at?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          completed_at?: string | null
-          completed_days?: number[]
-          created_at?: string
-          current_day?: number
-          id?: string
-          is_completed?: boolean
-          started_at?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       rate_limits: {
         Row: {
           created_at: string | null
@@ -1655,7 +1583,6 @@ export type Database = {
       }
       user_tasks: {
         Row: {
-          area: string | null
           completed: boolean | null
           created_at: string | null
           day: string | null
@@ -1674,7 +1601,6 @@ export type Database = {
           week_key: string | null
         }
         Insert: {
-          area?: string | null
           completed?: boolean | null
           created_at?: string | null
           day?: string | null
@@ -1693,7 +1619,6 @@ export type Database = {
           week_key?: string | null
         }
         Update: {
-          area?: string | null
           completed?: boolean | null
           created_at?: string | null
           day?: string | null
@@ -1860,57 +1785,6 @@ export type Database = {
           updated_at?: string
           user_id?: string
           week_key?: string
-        }
-        Relationships: []
-      }
-      weekly_reviews: {
-        Row: {
-          balance_progress: number | null
-          being_progress: number | null
-          body_progress: number | null
-          business_progress: number | null
-          created_at: string
-          id: string
-          improvements: string[] | null
-          lessons: string[] | null
-          next_week_focus: string | null
-          overall_rating: number | null
-          updated_at: string
-          user_id: string
-          week_key: string
-          wins: string[] | null
-        }
-        Insert: {
-          balance_progress?: number | null
-          being_progress?: number | null
-          body_progress?: number | null
-          business_progress?: number | null
-          created_at?: string
-          id?: string
-          improvements?: string[] | null
-          lessons?: string[] | null
-          next_week_focus?: string | null
-          overall_rating?: number | null
-          updated_at?: string
-          user_id: string
-          week_key: string
-          wins?: string[] | null
-        }
-        Update: {
-          balance_progress?: number | null
-          being_progress?: number | null
-          body_progress?: number | null
-          business_progress?: number | null
-          created_at?: string
-          id?: string
-          improvements?: string[] | null
-          lessons?: string[] | null
-          next_week_focus?: string | null
-          overall_rating?: number | null
-          updated_at?: string
-          user_id?: string
-          week_key?: string
-          wins?: string[] | null
         }
         Relationships: []
       }

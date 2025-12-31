@@ -22,8 +22,6 @@ import DashboardPage from "./pages/DashboardPage";
 import NotFound from "./pages/NotFound";
 
 // Lazy load heavy pages for better performance
-const Today = lazy(() => import("./pages/Today"));
-const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Stack = lazy(() => import("./pages/Stack"));
 const StackLibrary = lazy(() => import("./pages/StackLibrary"));
 const StackViewer = lazy(() => import("./pages/StackViewer"));
@@ -83,16 +81,6 @@ const App = () => (
                         <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
-                    <Route path="/azi" element={
-                      <ProtectedRoute>
-                        <Today />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/onboarding" element={
-                      <ProtectedRoute>
-                        <Onboarding />
-                      </ProtectedRoute>
-                    } />
                     <Route path="/dashboard" element={
                       <ProtectedRoute>
                         <DashboardPage />
