@@ -22,7 +22,7 @@ import { useLanguage } from "@/context/LanguageContext";
 const Index = () => {
   const navigate = useNavigate();
   const [videoPlaying, setVideoPlaying] = useState(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // Forțează tema light permanent pe pagina index
   useEffect(() => {
@@ -90,6 +90,14 @@ const Index = () => {
           </p>
           
           <div className="flex flex-col gap-3 sm:gap-4 justify-center mb-6 md:mb-8 animate-fade-in px-2" style={{ animationDelay: '0.5s' }}>
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/vision-2026')}
+              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 sm:px-8 md:px-12 py-4 md:py-6 text-base sm:text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto sm:mx-auto animate-pulse-subtle"
+            >
+              🎯 {language === 'ro' ? 'Planifică-ți 2026 GRATUIT' : 'Plan Your 2026 FREE'}
+            </Button>
+
             <Button 
               size="lg" 
               onClick={() => navigate('/auth')}
