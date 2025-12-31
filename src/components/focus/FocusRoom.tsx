@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { PomodoroTimer } from './PomodoroTimer';
 import { FocusStats } from './FocusStats';
 import { TodaysTasks } from './TodaysTasks';
+import { WelcomeVisionModal } from './WelcomeVisionModal';
 import { Target, Zap } from 'lucide-react';
 
 export const FocusRoom: React.FC = () => {
   const { language } = useLanguage();
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  useEffect(() => {
+    // Check if user came from vision onboarding
+    const isVisionOnboardingComplete = localStorage.getItem('vision_onboarding_complete');
+    const hasVisionScores = localStorage.getItem('vision_plan_scores');
+    
+    if (!isVisionOnboardingComplete && hasVisionScores) {
+      setShowWelcomeModal(true);
+    }
+  }, []);
 
   const handlePomodoroComplete = () => {
     setCompletedPomodoros(prev => prev + 1);
@@ -77,6 +89,12 @@ export const FocusRoom: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Welcome Vision Modal */}
+      <WelcomeVisionModal 
+        open={showWelcomeModal} 
+        onClose={() => setShowWelcomeModal(false)} 
+      />
     </div>
   );
 };

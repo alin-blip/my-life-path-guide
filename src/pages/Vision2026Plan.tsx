@@ -286,22 +286,25 @@ const Vision2026Plan: React.FC = () => {
           </h3>
           <p className="text-white/80 text-sm mb-4 max-w-md mx-auto">
             {lang === 'en'
-              ? 'LifeOS provides the daily systems, AI coaching, and accountability you need to actually follow through on these actions.'
-              : 'LifeOS oferă sistemele zilnice, coaching-ul AI și responsabilitatea de care ai nevoie pentru a pune în practică aceste acțiuni.'}
+              ? 'We\'ll create your first week of tasks automatically based on this plan. Start seeing results in 48 hours!'
+              : 'Vom crea automat task-urile primei săptămâni pe baza acestui plan. Vezi rezultate în 48 de ore!'}
           </p>
           <Button 
             size="lg"
             variant="secondary"
-            onClick={() => navigate('/auth')}
-            className="w-full sm:w-auto"
+            onClick={() => {
+              const scoresParam = searchParams.get('scores') || '';
+              navigate(`/auth?from=vision-plan&scores=${scoresParam}`);
+            }}
+            className="w-full sm:w-auto animate-pulse hover:animate-none"
           >
             <Rocket className="w-4 h-4 mr-2" />
-            {lang === 'en' ? 'Start Free 7-Day Trial' : 'Începe Trial Gratuit 7 Zile'}
+            {lang === 'en' ? 'Implement in LifeOS - 7 Days Free' : 'Implementează în LifeOS - 7 Zile Gratuit'}
           </Button>
           <p className="text-white/60 text-xs mt-3">
             {lang === 'en' 
-              ? 'No credit card required • Cancel anytime' 
-              : 'Fără card de credit • Anulezi oricând'}
+              ? '✓ Tasks created automatically • No credit card required' 
+              : '✓ Task-uri create automat • Fără card de credit'}
           </p>
         </Card>
 

@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.platform-assistant]
 verify_jwt = false
+
+[functions.setup-vision-plan]
+verify_jwt = false
