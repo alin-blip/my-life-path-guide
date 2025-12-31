@@ -743,6 +743,50 @@ export type Database = {
         }
         Relationships: []
       }
+      goal_reminders: {
+        Row: {
+          created_at: string
+          frequency: string
+          id: string
+          is_active: boolean
+          last_shown_at: string | null
+          mission_id: string
+          next_reminder_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          frequency: string
+          id?: string
+          is_active?: boolean
+          last_shown_at?: string | null
+          mission_id: string
+          next_reminder_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          last_shown_at?: string | null
+          mission_id?: string
+          next_reminder_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_reminders_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hot_list_items: {
         Row: {
           completed: boolean | null
@@ -1029,6 +1073,7 @@ export type Database = {
           is_impossible_game: boolean | null
           measurable_result: string | null
           mission_type: string
+          parent_mission_id: string | null
           period: string | null
           title: string | null
           updated_at: string | null
@@ -1044,6 +1089,7 @@ export type Database = {
           is_impossible_game?: boolean | null
           measurable_result?: string | null
           mission_type?: string
+          parent_mission_id?: string | null
           period?: string | null
           title?: string | null
           updated_at?: string | null
@@ -1059,12 +1105,21 @@ export type Database = {
           is_impossible_game?: boolean | null
           measurable_result?: string | null
           mission_type?: string
+          parent_mission_id?: string | null
           period?: string | null
           title?: string | null
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "missions_parent_mission_id_fkey"
+            columns: ["parent_mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       napoleon_hill_notifications: {
         Row: {
