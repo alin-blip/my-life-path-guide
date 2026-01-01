@@ -1743,6 +1743,63 @@ export type Database = {
         }
         Relationships: []
       }
+      vision_boards: {
+        Row: {
+          balance_image_url: string | null
+          balance_vision: string | null
+          being_image_url: string | null
+          being_vision: string | null
+          body_image_url: string | null
+          body_vision: string | null
+          business_image_url: string | null
+          business_vision: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          is_complete: boolean | null
+          quiz_answers: Json | null
+          source: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          balance_image_url?: string | null
+          balance_vision?: string | null
+          being_image_url?: string | null
+          being_vision?: string | null
+          body_image_url?: string | null
+          body_vision?: string | null
+          business_image_url?: string | null
+          business_vision?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_complete?: boolean | null
+          quiz_answers?: Json | null
+          source?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          balance_image_url?: string | null
+          balance_vision?: string | null
+          being_image_url?: string | null
+          being_vision?: string | null
+          body_image_url?: string | null
+          body_vision?: string | null
+          business_image_url?: string | null
+          business_vision?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_complete?: boolean | null
+          quiz_answers?: Json | null
+          source?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       voice_recordings: {
         Row: {
           created_at: string | null
