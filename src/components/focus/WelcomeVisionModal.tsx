@@ -6,6 +6,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { getWeekKey } from '@/utils/weekUtils';
 
 interface WelcomeVisionModalProps {
   open: boolean;
@@ -42,12 +43,8 @@ export const WelcomeVisionModal: React.FC<WelcomeVisionModalProps> = ({ open, on
   const loadVisionTasks = async () => {
     if (!user) return;
 
-    // Get current week key
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const days = Math.floor((now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
-    const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
-    const weekKey = `door-week-${now.getFullYear()}-${String(weekNumber).padStart(2, '0')}`;
+    // Get current week key using shared utility
+    const weekKey = getWeekKey();
 
     const { data, error } = await supabase
       .from('user_tasks')

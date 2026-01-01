@@ -3,10 +3,10 @@ import { useLanguage } from '@/context/LanguageContext';
 import { CheckCircle2, Circle, Clock, Loader2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
-import { format, getWeek, getYear, startOfWeek } from 'date-fns';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { v4 as uuidv4 } from 'uuid';
+import { getWeekKey, getTodayAbbrev } from '@/utils/weekUtils';
 
 interface TodaysTasksProps {
   activeTaskId: string | null;
@@ -20,16 +20,6 @@ interface Task {
   day_of_week: string | null;
 }
 
-const DAY_MAP: Record<number, string> = {
-  1: 'M',
-  2: 'T', 
-  3: 'W',
-  4: 'Th',
-  5: 'F',
-  6: 'Sa',
-  0: 'Su',
-};
-
 export const TodaysTasks: React.FC<TodaysTasksProps> = ({
   activeTaskId,
   onSelectTask,
@@ -40,19 +30,6 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
-  const getCurrentWeekKey = () => {
-    const now = new Date();
-    const weekStart = startOfWeek(now, { weekStartsOn: 1 });
-    const weekNum = getWeek(weekStart, { weekStartsOn: 1 });
-    const year = getYear(weekStart);
-    return `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
-  };
-
-  const getTodayAbbrev = () => {
-    const dayOfWeek = new Date().getDay();
-    return DAY_MAP[dayOfWeek];
-  };
-
   useEffect(() => {
     const fetchTodaysTasks = async () => {
       try {
@@ -62,7 +39,7 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
           return;
         }
 
-        const weekKey = getCurrentWeekKey();
+        const weekKey = getWeekKey();
         const todayAbbrev = getTodayAbbrev();
 
         // Fetch Hit List tasks for today (these are the daily tasks)
@@ -141,7 +118,7 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const weekKey = getCurrentWeekKey();
+      const weekKey = getWeekKey();
       const todayAbbrev = getTodayAbbrev();
       const newTask = {
         id: uuidv4(),

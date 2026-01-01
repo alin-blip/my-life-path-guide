@@ -43,29 +43,49 @@ const taskTemplates: Record<Category, { title: string; titleRo: string; days: st
 function getWeekKey(): string {
   const now = new Date();
   
-  // Calculate ISO week number (same as date-fns getWeek with weekStartsOn: 1)
-  const jan4 = new Date(now.getFullYear(), 0, 4);
-  const startOfWeek = new Date(jan4);
-  startOfWeek.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+  // ISO week calculation - matches date-fns getWeek with weekStartsOn: 1, firstWeekContainsDate: 4
+  // ISO weeks: Week 1 is the week containing January 4th
+  const year = now.getFullYear();
+  const jan4 = new Date(year, 0, 4);
   
-  const diff = now.getTime() - startOfWeek.getTime();
-  const oneWeek = 7 * 24 * 60 * 60 * 1000;
-  let weekNumber = Math.floor(diff / oneWeek) + 1;
+  // Find Monday of the week containing Jan 4
+  const jan4DayOfWeek = jan4.getDay() || 7; // Convert Sunday (0) to 7
+  const firstMondayOfYear = new Date(jan4);
+  firstMondayOfYear.setDate(jan4.getDate() - (jan4DayOfWeek - 1));
   
-  // Handle edge case: if week number is 0 or negative, it's last week of previous year
-  // If week number > 52 and we're in early January, it might be week 1 of next year
-  let year = now.getFullYear();
+  // Calculate which week the current date is in
+  const diffMs = now.getTime() - firstMondayOfYear.getTime();
+  const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000));
+  let weekNumber = Math.floor(diffDays / 7) + 1;
+  
+  // Handle edge cases at year boundaries
+  let weekYear = year;
   
   if (weekNumber < 1) {
-    // It's the last week of the previous year
-    year = year - 1;
-    weekNumber = 52; // Simplified, could be 52 or 53
-  } else if (weekNumber > 52 && now.getMonth() === 0) {
-    // Early January but week > 52 means it's week 1 of current year
-    weekNumber = 1;
+    // Date is in last week of previous year
+    weekYear = year - 1;
+    const prevYearJan4 = new Date(weekYear, 0, 4);
+    const prevYearJan4Day = prevYearJan4.getDay() || 7;
+    const prevYearFirstMonday = new Date(prevYearJan4);
+    prevYearFirstMonday.setDate(prevYearJan4.getDate() - (prevYearJan4Day - 1));
+    const prevDiffMs = now.getTime() - prevYearFirstMonday.getTime();
+    weekNumber = Math.floor(prevDiffMs / (7 * 24 * 60 * 60 * 1000)) + 1;
+  } else if (weekNumber > 52) {
+    // Check if it's actually week 1 of next year
+    const nextYearJan4 = new Date(year + 1, 0, 4);
+    const nextYearJan4Day = nextYearJan4.getDay() || 7;
+    const nextYearFirstMonday = new Date(nextYearJan4);
+    nextYearFirstMonday.setDate(nextYearJan4.getDate() - (nextYearJan4Day - 1));
+    
+    if (now >= nextYearFirstMonday) {
+      weekYear = year + 1;
+      weekNumber = 1;
+    }
   }
   
-  return `door-week-${year}-${String(weekNumber).padStart(2, '0')}`;
+  console.log(`Week calculation: date=${now.toISOString()}, weekYear=${weekYear}, weekNumber=${weekNumber}`);
+  
+  return `door-week-${weekYear}-${String(weekNumber).padStart(2, '0')}`;
 }
 
 function getPriorityOrder(scores: VisionScores): Category[] {
