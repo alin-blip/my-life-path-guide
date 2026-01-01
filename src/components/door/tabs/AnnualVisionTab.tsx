@@ -11,6 +11,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { GoalWizardModal } from '@/components/goal-wizard/GoalWizardModal';
+import { GoalCategory } from '@/types/goalWizard';
 
 interface AnnualVision {
   id: string;
@@ -76,6 +78,10 @@ export const AnnualVisionTab: React.FC = () => {
     oneWord: '',
     milestones: ['', '', '', '']
   });
+
+  // Goal Wizard state
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardCategory, setWizardCategory] = useState<GoalCategory>('body');
 
   useEffect(() => {
     const fetchVisions = async () => {
@@ -358,10 +364,22 @@ export const AnnualVisionTab: React.FC = () => {
                     <p className="text-muted-foreground mb-4">
                       {language === 'en' ? 'No vision set for this year' : 'Nicio viziune setată pentru acest an'}
                     </p>
-                    <Button variant="outline" onClick={() => handleAddVision(key)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      {language === 'en' ? 'Create Vision' : 'Creează Viziune'}
-                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                      <Button 
+                        onClick={() => {
+                          setWizardCategory(key as GoalCategory);
+                          setWizardOpen(true);
+                        }}
+                        className="gap-2"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        {language === 'en' ? 'AI Goal Wizard' : 'Wizard Obiective AI'}
+                      </Button>
+                      <Button variant="outline" onClick={() => handleAddVision(key)}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        {language === 'en' ? 'Quick Add' : 'Adaugă Rapid'}
+                      </Button>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -450,6 +468,18 @@ export const AnnualVisionTab: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Goal Wizard Modal */}
+      <GoalWizardModal
+        isOpen={wizardOpen}
+        onClose={() => setWizardOpen(false)}
+        category={wizardCategory}
+        missionType="annual"
+        period={`${currentYear}`}
+        onComplete={() => window.location.reload()}
+      />
     </div>
+  );
+};
   );
 };

@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.setup-vision-plan]
 verify_jwt = false
+
+[functions.goal-wizard-ai]
+verify_jwt = false
