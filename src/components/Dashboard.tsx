@@ -23,16 +23,23 @@ import { useSoundSettings } from '@/hooks/useSoundSettings';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { TransformedWarrior, WarriorBadge, MediaMaster, MediaBadge, WarriorPowerCard, MediaMasterCard } from '@/components/celebrations';
-import { LevelUpCelebration, XPPopupContainer } from '@/components/xp';
+
+// Import directly (avoid barrel export cycles)
+import { TransformedWarrior, WarriorBadge } from '@/components/celebrations/TransformedWarrior';
+import { MediaMaster, MediaBadge } from '@/components/celebrations/MediaMaster';
+import { WarriorPowerCard } from '@/components/celebrations/WarriorPowerCard';
+import { MediaMasterCard } from '@/components/celebrations/MediaMasterCard';
+
+import { LevelUpCelebration } from '@/components/xp/LevelUpCelebration';
+import { XPPopupContainer } from '@/components/xp/XPPopup';
 import { useXPSystem } from '@/hooks/useXPSystem';
 import { XPAwardEvent } from '@/services/xpService';
 import { useStreakTracking } from '@/hooks/useStreakTracking';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { BADGES, BadgeStats } from '@/components/challenge/badges/badgeDefinitions';
 import { 
-  StreakMilestoneCelebration, 
-  BadgeUnlockCelebration, 
+  StreakMilestoneCelebration,
+  BadgeUnlockCelebration,
   RewardsShowcase 
 } from '@/components/gamification';
 import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
