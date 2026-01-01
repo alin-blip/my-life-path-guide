@@ -36,6 +36,7 @@ import {
   RewardsShowcase 
 } from '@/components/gamification';
 import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
+import { VisionBoardWidget } from '@/components/vision-board/VisionBoardWidget';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -140,6 +141,7 @@ export const Dashboard: React.FC = () => {
 
   const [userProgressData, setUserProgressData] = useState<any>(null);
   const [userStatistics, setUserStatistics] = useState<any>(null);
+  const [visionBoard, setVisionBoard] = useState<any>(null);
   
   // Calculate badge stats
   const badgeStats: BadgeStats = useMemo(() => {
@@ -267,6 +269,15 @@ export const Dashboard: React.FC = () => {
           setUserStatistics(statsData);
           updateStats();
         }
+        
+        // Fetch Vision Board
+        const { data: visionBoardData } = await supabase
+          .from('vision_boards')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        setVisionBoard(visionBoardData);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -784,6 +795,11 @@ export const Dashboard: React.FC = () => {
       </div>
       
       <DailyCompactCard />
+      
+      {/* Vision Board Widget */}
+      <div className="mb-6">
+        <VisionBoardWidget visionBoard={visionBoard} language={language} />
+      </div>
       
       <div className="mb-6 md:mb-8 bg-card border border-border p-3 md:p-4 rounded-lg shadow-sm">
         <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
