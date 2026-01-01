@@ -6,7 +6,10 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { VisionBoardQuiz, VisionBoardGenerator, VisionBoardPreview, EmailCollection } from '@/components/vision-board';
+import { VisionBoardQuiz } from '@/components/vision-board/VisionBoardQuiz';
+import { VisionBoardGenerator } from '@/components/vision-board/VisionBoardGenerator';
+import { VisionBoardPreview } from '@/components/vision-board/VisionBoardPreview';
+import { EmailCollection } from '@/components/vision-board/EmailCollection';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
