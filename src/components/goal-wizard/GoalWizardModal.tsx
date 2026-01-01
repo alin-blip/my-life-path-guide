@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X, Sparkles, Dumbbell, Brain, Heart, Briefcase, CheckCircle2 } from 'lucide-react';
+import { X, Sparkles, Dumbbell, Brain, Heart, Briefcase, CheckCircle2, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -58,6 +58,11 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
   const [transcript, setTranscript] = useState('');
   const [voiceLanguage, setVoiceLanguage] = useState<'ro-RO' | 'en-US'>(language === 'en' ? 'en-US' : 'ro-RO');
   const [recognition, setRecognition] = useState<any>(null);
+  
+  // TTS state
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const CategoryIcon = CATEGORY_ICONS[category];
   const categoryInfo = CATEGORY_INFO[category];
@@ -117,6 +122,40 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
     }
   }, [isOpen, category, missionType, language]);
 
+  // TTS function
+  const playTTS = useCallback(async (text: string) => {
+    if (!text || isPlayingAudio) return;
+    
+    try {
+      setIsPlayingAudio(true);
+      const response = await supabase.functions.invoke('text-to-speech', {
+        body: { text, voice: voiceLanguage === 'ro-RO' ? 'nova' : 'alloy' }
+      });
+      
+      if (response.error) throw response.error;
+      
+      const audioContent = response.data?.audioContent;
+      if (audioContent) {
+        const audio = new Audio(`data:audio/mp3;base64,${audioContent}`);
+        audioRef.current = audio;
+        audio.onended = () => setIsPlayingAudio(false);
+        audio.onerror = () => setIsPlayingAudio(false);
+        await audio.play();
+      }
+    } catch (error) {
+      console.error('TTS error:', error);
+      setIsPlayingAudio(false);
+    }
+  }, [voiceLanguage, isPlayingAudio]);
+
+  const stopTTS = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setIsPlayingAudio(false);
+  }, []);
+
   const toggleMic = useCallback(() => {
     if (!recognition) return;
 
@@ -173,6 +212,11 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Play TTS if enabled
+      if (ttsEnabled && message) {
+        playTTS(message);
+      }
 
       // Update step progress
       if (nextStep && nextStep !== step) {
@@ -204,34 +248,60 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         throw new Error('Not authenticated');
       }
 
+      const userId = session.session.user.id;
+      const milestones = goalData.milestones || { threeMonths: '', oneMonth: '', weekOne: '' };
+
       const fullGoalData = {
         why: goalData.why || '',
         positiveImpact: goalData.positiveImpact || '',
         negativeConsequence: goalData.negativeConsequence || '',
-        milestones: goalData.milestones || { threeMonths: '', oneMonth: '', weekOne: '' },
+        milestones,
         impactOnOtherAreas: goalData.impactOnOtherAreas || [],
         sourceType: 'ai_wizard',
         conversationLog: messages.map(m => ({ role: m.role, content: m.content })),
         createdVia: 'goal-wizard'
       };
 
-      const { error } = await supabase
+      // Save the mission
+      const { error: missionError } = await supabase
         .from('missions')
         .insert([{
-          user_id: session.session.user.id,
+          user_id: userId,
           category,
           mission_type: missionType,
           period,
           title: goalData.objective || '',
-          measurable_result: goalData.milestones?.threeMonths || '',
+          measurable_result: milestones.threeMonths || '',
           goal_data: fullGoalData as any
         }]);
 
-      if (error) throw error;
+      if (missionError) throw missionError;
+
+      // Generate weekly tasks from Week 1 milestone
+      if (milestones.weekOne) {
+        const now = new Date();
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
+        const weekKey = `${weekStart.getFullYear()}-W${String(Math.ceil((weekStart.getDate() + 6 - weekStart.getDay()) / 7)).padStart(2, '0')}`;
+        
+        // Create a task for Week 1 action
+        await supabase.from('user_tasks').insert([{
+          user_id: userId,
+          title: `🎯 ${milestones.weekOne}`,
+          list_type: 'hot',
+          week_key: weekKey,
+          task_type: 'goal_wizard',
+          area: category,
+          completed: false,
+          priority: 1
+        }]);
+      }
 
       toast({
         title: language === 'en' ? 'Goal saved!' : 'Obiectiv salvat!',
-        description: goalData.objective
+        description: language === 'en' 
+          ? `${goalData.objective} - Weekly task created!`
+          : `${goalData.objective} - Task săptămânal creat!`
       });
 
       onComplete?.();
@@ -249,6 +319,8 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
   };
 
   const handleClose = () => {
+    // Stop TTS if playing
+    stopTTS();
     // Reset state
     setMessages([]);
     setGoalData({ category });
@@ -279,9 +351,27 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
                 </span>
               </div>
             </DialogTitle>
-            <Button variant="ghost" size="icon" onClick={handleClose}>
-              <X className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* TTS Toggle */}
+              <Button
+                variant={ttsEnabled ? "default" : "ghost"}
+                size="icon"
+                onClick={() => {
+                  if (ttsEnabled) stopTTS();
+                  setTtsEnabled(!ttsEnabled);
+                }}
+                title={language === 'en' ? 'Toggle voice responses' : 'Activează răspunsuri vocale'}
+              >
+                {ttsEnabled ? (
+                  <Volume2 className={cn("w-5 h-5", isPlayingAudio && "animate-pulse")} />
+                ) : (
+                  <VolumeX className="w-5 h-5" />
+                )}
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleClose}>
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </DialogHeader>
 

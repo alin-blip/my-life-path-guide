@@ -481,5 +481,3 @@ export const AnnualVisionTab: React.FC = () => {
     </div>
   );
 };
-  );
-};
