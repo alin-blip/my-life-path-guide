@@ -2,9 +2,8 @@
 import { MacroNutrients } from './fitnessService';
 import { DailyMealPlan, WeeklyMealPlan, Food, Meal } from './types/mealTypes';
 import { getCompatibleFoods } from './data/foodDatabase';
-import { MealGenerator } from './generators/mealGenerator';
 
-export * from './types/mealTypes';
+
 
 class MealPlanService {
   private mealGenerator: MealGenerator;

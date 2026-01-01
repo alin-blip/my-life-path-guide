@@ -37,11 +37,9 @@ import { XPAwardEvent } from '@/services/xpService';
 import { useStreakTracking } from '@/hooks/useStreakTracking';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { BADGES, BadgeStats } from '@/components/challenge/badges/badgeDefinitions';
-import { 
-  StreakMilestoneCelebration,
-  BadgeUnlockCelebration,
-  RewardsShowcase 
-} from '@/components/gamification';
+import { StreakMilestoneCelebration } from '@/components/gamification/StreakMilestoneCelebration';
+import { BadgeUnlockCelebration } from '@/components/gamification/BadgeUnlockCelebration';
+import { RewardsShowcase } from '@/components/gamification/RewardsShowcase';
 import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
 import { VisionBoardWidget } from '@/components/vision-board/VisionBoardWidget';
 
