@@ -1,9 +1,9 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sparkles, ArrowRight, Eye } from 'lucide-react';
+import { Sparkles, ArrowRight, Eye, Dumbbell, Heart, Users, Briefcase } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { VisionBoardCard } from './VisionBoardCard';
+import { cn } from '@/lib/utils';
 
 type Category = 'body' | 'being' | 'balance' | 'business';
 
@@ -23,6 +23,27 @@ interface VisionBoardWidgetProps {
   language: 'en' | 'ro';
 }
 
+const categoryColors: Record<Category, string> = {
+  body: 'from-blue-500 to-cyan-500',
+  being: 'from-purple-500 to-pink-500',
+  balance: 'from-green-500 to-emerald-500',
+  business: 'from-amber-500 to-orange-500'
+};
+
+const categoryLabels: Record<Category, { en: string; ro: string }> = {
+  body: { en: 'Body', ro: 'Corp' },
+  being: { en: 'Being', ro: 'Suflet' },
+  balance: { en: 'Balance', ro: 'Echilibru' },
+  business: { en: 'Business', ro: 'Business' }
+};
+
+const categoryIcons: Record<Category, React.ReactNode> = {
+  body: <Dumbbell className="h-4 w-4" />,
+  being: <Heart className="h-4 w-4" />,
+  balance: <Users className="h-4 w-4" />,
+  business: <Briefcase className="h-4 w-4" />
+};
+
 export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
   visionBoard,
   language
@@ -30,7 +51,6 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
   const navigate = useNavigate();
 
   if (!visionBoard) {
-    // Empty state - CTA to create vision board
     return (
       <Card className="bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20 overflow-hidden">
         <CardContent className="p-6 flex flex-col items-center text-center">
@@ -60,7 +80,6 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
     );
   }
 
-  // Has vision board - show preview
   const categories: Category[] = ['body', 'being', 'balance', 'business'];
 
   return (
@@ -69,7 +88,7 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            {language === 'en' ? 'Vision Board 2026' : 'Vision Board 2026'}
+            Vision Board 2026
           </CardTitle>
           <Button
             variant="ghost"
@@ -85,17 +104,44 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
       
       <CardContent className="pt-2">
         <div className="grid grid-cols-2 gap-2">
-          {categories.map((category) => (
-            <VisionBoardCard
-              key={category}
-              category={category}
-              imageUrl={visionBoard[`${category}_image_url` as keyof VisionBoardData] as string}
-              vision={visionBoard[`${category}_vision` as keyof VisionBoardData] as string}
-              language={language}
-              onClick={() => navigate('/vision-board/view')}
-              size="sm"
-            />
-          ))}
+          {categories.map((category) => {
+            const imageUrl = visionBoard[`${category}_image_url` as keyof VisionBoardData] as string | undefined;
+            
+            return (
+              <div
+                key={category}
+                className="aspect-square relative overflow-hidden rounded-xl cursor-pointer group"
+                onClick={() => navigate('/vision-board/view')}
+              >
+                {imageUrl ? (
+                  <img 
+                    src={imageUrl} 
+                    alt={categoryLabels[category][language]}
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  />
+                ) : (
+                  <div className={cn(
+                    "w-full h-full flex items-center justify-center bg-gradient-to-br",
+                    categoryColors[category]
+                  )}>
+                    <div className="text-white/50 scale-150">{categoryIcons[category]}</div>
+                  </div>
+                )}
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                
+                <div className="absolute inset-0 p-2 flex flex-col justify-end">
+                  <div className={cn(
+                    "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-medium w-fit bg-gradient-to-r",
+                    categoryColors[category]
+                  )}>
+                    {categoryIcons[category]}
+                    <span>{categoryLabels[category][language]}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
