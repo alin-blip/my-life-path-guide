@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Dumbbell, Brain, Heart, Briefcase, Target, CheckCircle2, Bell, Link2, LayoutGrid, GitBranch } from 'lucide-react';
+import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Dumbbell, Brain, Heart, Briefcase, Target, CheckCircle2, Bell, Link2, LayoutGrid, GitBranch, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,6 +18,8 @@ import { GoalReminderDialog } from '@/components/door/GoalReminderDialog';
 import { LinkedMissionsSelector } from '@/components/door/LinkedMissionsSelector';
 import { HierarchicalGoalsView } from '@/components/door/HierarchicalGoalsView';
 import { goalRemindersService } from '@/services/goalRemindersService';
+import { GoalWizardModal } from '@/components/goal-wizard/GoalWizardModal';
+import { GoalCategory } from '@/types/goalWizard';
 
 interface QuarterlyGoal {
   id: string;
@@ -88,6 +90,10 @@ export const QuarterlyGoalsTab: React.FC = () => {
   // Link missions dialog state
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [linkGoal, setLinkGoal] = useState<{ id: string; title: string; category: string } | null>(null);
+
+  // Goal Wizard state
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardCategory, setWizardCategory] = useState<GoalCategory>('body');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -460,7 +466,17 @@ export const QuarterlyGoalsTab: React.FC = () => {
                 {categoryGoals.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Target className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                    <p>{language === 'en' ? 'No goals set yet' : 'Niciun obiectiv setat încă'}</p>
+                    <p className="mb-4">{language === 'en' ? 'No goals set yet' : 'Niciun obiectiv setat încă'}</p>
+                    <Button 
+                      onClick={() => {
+                        setWizardCategory(key as GoalCategory);
+                        setWizardOpen(true);
+                      }}
+                      className="gap-2"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      {language === 'en' ? 'Start Goal Setting' : 'Începe Setarea Obiectivelor'}
+                    </Button>
                   </div>
                 ) : (
                   categoryGoals.map((goal, idx) => (
@@ -659,6 +675,19 @@ export const QuarterlyGoalsTab: React.FC = () => {
           category={linkGoal.category}
         />
       )}
+
+      {/* Goal Wizard Modal */}
+      <GoalWizardModal
+        isOpen={wizardOpen}
+        onClose={() => setWizardOpen(false)}
+        category={wizardCategory}
+        missionType="quarterly"
+        period={`Q${currentQuarter}-${currentYear}`}
+        onComplete={() => {
+          // Refresh goals
+          window.location.reload();
+        }}
+      />
     </div>
   );
 };
