@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { Activity, Heart, Users, Briefcase, Target, CheckCircle2, ArrowLeft, TrendingUp } from 'lucide-react';
+import { getWeekKey } from '@/utils/weekUtils';
 
 interface CategoryStats {
   category: string;
@@ -37,12 +38,8 @@ const Vision2026Dashboard = () => {
       }
     }
 
-    // Calculate current week key
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const days = Math.floor((now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
-    const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
-    const currentWeekKey = `door-week-${now.getFullYear()}-${String(weekNumber).padStart(2, '0')}`;
+    // Calculate current week key using shared utility
+    const currentWeekKey = getWeekKey();
     setWeekKey(currentWeekKey);
 
     fetchStats(currentWeekKey);
