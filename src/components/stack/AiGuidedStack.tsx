@@ -22,7 +22,7 @@ import jsPDF from 'jspdf';
 import { useStackSession } from '@/hooks/useStackSession';
 import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
 import { useConfettiCelebration } from '@/components/door/ConfettiCelebration';
-import { AlchemistTransformation } from '@/components/celebrations';
+import { AlchemistTransformation } from '@/components/celebrations/AlchemistTransformation';
 
 interface Message {
   role: 'user' | 'assistant';
