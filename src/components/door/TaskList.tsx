@@ -1,11 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { HitListItem, DoListItem, DayOfWeek } from '@/types/door';
 import { TaskListHeader } from './task-list/TaskListHeader';
 import { DayNavigation } from './task-list/DayNavigation';
 import { TaskItem } from './task-list/TaskItem';
 import { SwipeableTaskItem } from './SwipeableTaskItem';
 import { EmptyTaskList } from './task-list/EmptyTaskList';
+import { CategoryFilter } from './task-list/CategoryFilter';
+import { TaskCategory, filterByCategory } from '@/utils/taskCategoryUtils';
 
 interface TaskListProps {
   activeList: 'hit' | 'do';
@@ -42,6 +44,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   moveTaskBackToHotList,
   onDeleteTask
 }) => {
+  const [activeCategory, setActiveCategory] = useState<TaskCategory>('all');
   const normalizeDay = (d: any): DayOfWeek => {
     if (typeof d !== 'string') return d as DayOfWeek;
     const map: Record<string, DayOfWeek> = {
@@ -64,11 +67,16 @@ export const TaskList: React.FC<TaskListProps> = ({
     return (map[key] || d) as DayOfWeek;
   };
   
-  const filteredHitList = hitList.filter(item => normalizeDay(item.day) === activeDay);
-  const filteredDoList = doList.filter(item => normalizeDay(item.day) === activeDay);
+  // Filter by day first
+  const dayFilteredHitList = hitList.filter(item => normalizeDay(item.day) === activeDay);
+  const dayFilteredDoList = doList.filter(item => normalizeDay(item.day) === activeDay);
+  
+  // Then filter by category
+  const filteredHitList = filterByCategory(dayFilteredHitList, activeCategory);
+  const filteredDoList = filterByCategory(dayFilteredDoList, activeCategory);
   
   // Debug
-  console.debug('[TaskList] activeDay', activeDay, {
+  console.debug('[TaskList] activeDay', activeDay, 'activeCategory', activeCategory, {
     hitTotal: hitList.length,
     doTotal: doList.length,
     hitFiltered: filteredHitList.length,
@@ -109,6 +117,13 @@ export const TaskList: React.FC<TaskListProps> = ({
           ✅ Do ({doStats})
         </button>
       </div>
+
+      {/* Category Filter */}
+      <CategoryFilter
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+        isMobile={isMobile}
+      />
       
       <DayNavigation
         activeDay={activeDay}
