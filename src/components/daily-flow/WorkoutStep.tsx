@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Dumbbell, Play, Square, Plus, Trash2, Check, 
-  Utensils, History, CheckCircle2
+  Utensils, History, CheckCircle2, Copy
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkoutHistory } from './WorkoutHistory';
@@ -231,6 +231,66 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
     setExercises(exercises.filter(ex => ex.id !== id));
   };
 
+  const copyFromLastSession = async (exerciseId: string, exerciseName: string) => {
+    if (!exerciseName.trim()) {
+      toast.error('Selectează mai întâi un exercițiu');
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Caută ultima sesiune cu acest exercițiu
+      const { data, error } = await supabase
+        .from('workout_exercises')
+        .select('reps, weight_kg, sets, notes')
+        .eq('user_id', user.id)
+        .eq('exercise_name', exerciseName)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast.info('Nu am găsit date anterioare pentru acest exercițiu');
+        return;
+      }
+
+      // Grupează pe seturi și ia ultimele valori
+      const lastSets = data.map((record, idx) => ({
+        setNumber: idx + 1,
+        reps: record.reps || 0,
+        weight: record.weight_kg || 0,
+        completed: false
+      }));
+
+      setExercises(exercises.map(ex => {
+        if (ex.id !== exerciseId) return ex;
+        
+        // Actualizează seturile cu datele de la ultima sesiune
+        const newSets = ex.sets.map((set, idx) => {
+          if (idx < lastSets.length) {
+            return {
+              ...set,
+              reps: lastSets[idx].reps,
+              weight: lastSets[idx].weight,
+              completed: false
+            };
+          }
+          return set;
+        });
+
+        return { ...ex, sets: newSets };
+      }));
+
+      toast.success(`Copiate ${Math.min(lastSets.length, exercises.find(e => e.id === exerciseId)?.sets.length || 0)} seturi de la ultima sesiune`);
+    } catch (error) {
+      console.error('Error copying from last session:', error);
+      toast.error('Nu am putut copia datele');
+    }
+  };
+
   const saveExercises = async () => {
     if (!sessionId || exercises.length === 0) return;
 
@@ -362,6 +422,14 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
                       className="w-16"
                     />
                   </div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => copyFromLastSession(exercise.id, exercise.name)}
+                    title="Copiază de la ultima sesiune"
+                  >
+                    <Copy className="h-4 w-4 text-primary" />
+                  </Button>
                   <Button 
                     variant="ghost" 
                     size="icon"
