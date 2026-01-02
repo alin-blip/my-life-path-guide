@@ -761,23 +761,11 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
       
-      <DailyCompactCard />
-      
-      {/* Morning Routine - Unified Habits + Start Day Flow */}
-      <div className="mb-6">
-        <MorningRoutine />
-      </div>
-      
-      {/* Vision Board Widget */}
-      <div className="mb-6">
-        <VisionBoardWidget visionBoard={visionBoard} language={language} />
-      </div>
-      
       <div className="mb-6 md:mb-8 glass-card p-4 md:p-6 rounded-2xl animate-fade-in" style={{
       animationDelay: '0.1s'
     }}>
         <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 gradient-text">
-          {language === 'en' ? 'Warrior’s Path' : 'Calea Războinicului'}
+          {language === 'en' ? "Warrior's Path" : 'Calea Războinicului'}
         </h2>
         <div className="flex items-center justify-between">
           <div className="flex flex-col items-center z-10 relative">
@@ -885,6 +873,18 @@ export const Dashboard: React.FC = () => {
             <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground">GATEWAY</span>
           </div>
         </div>
+      </div>
+      
+      <DailyCompactCard />
+      
+      {/* Morning Routine - Unified Habits + Start Day Flow */}
+      <div className="mb-6">
+        <MorningRoutine />
+      </div>
+      
+      {/* Vision Board Widget */}
+      <div className="mb-6">
+        <VisionBoardWidget visionBoard={visionBoard} language={language} />
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6 animate-fade-in" style={{
