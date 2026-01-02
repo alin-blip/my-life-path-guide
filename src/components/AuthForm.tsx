@@ -425,6 +425,24 @@ export const AuthForm: React.FC = () => {
         </div>
       </form>
 
+      <div className="mt-8 text-center">
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              await supabase.auth.signOut({ scope: 'local' });
+              localStorage.removeItem('sb-exsbnfmaadjyfblperas-auth-token');
+            } catch {
+              // ignore
+            }
+            window.location.reload();
+          }}
+          className="text-xs text-muted-foreground hover:text-white underline"
+        >
+          {language === 'en' ? 'Having issues? Reset session' : 'Ai probleme? Resetează sesiunea'}
+        </button>
+      </div>
+
       <div className="fixed bottom-5 left-5">
         <button className="text-muted-foreground hover:text-white flex items-center text-sm">
           <HelpCircle className="h-4 w-4 mr-1" />

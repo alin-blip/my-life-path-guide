@@ -27,9 +27,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
 
 useEffect(() => {
+    const AUTH_TIMEOUT_MS = 8000; // 8 seconds max for auth init
+    let timeoutId: NodeJS.Timeout | null = null;
+    let didResolve = false;
+
+    const resetLocalSession = async () => {
+      try {
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch {
+        // ignore
+      }
+      setSession(null);
+      setUser(null);
+      setLoading(false);
+      setSubscribed(false);
+      setSubscriptionTier(null);
+      setSubscriptionEnd(null);
+      setSubscriptionLoading(false);
+    };
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        didResolve = true;
+        if (timeoutId) clearTimeout(timeoutId);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -48,19 +69,53 @@ useEffect(() => {
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      if (session?.user) {
-        refreshSubscription();
-      } else {
-        setSubscriptionLoading(false);
-      }
-    });
+    // Check for existing session with timeout protection
+    const initAuth = async () => {
+      try {
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise<null>((_, reject) => {
+          timeoutId = setTimeout(() => {
+            if (!didResolve) {
+              reject(new Error('Auth timeout'));
+            }
+          }, AUTH_TIMEOUT_MS);
+        });
 
-    return () => subscription.unsubscribe();
+        const result = await Promise.race([sessionPromise, timeoutPromise]);
+        
+        if (result && 'data' in result) {
+          didResolve = true;
+          if (timeoutId) clearTimeout(timeoutId);
+          const session = result.data.session;
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+          if (session?.user) {
+            refreshSubscription();
+          } else {
+            setSubscriptionLoading(false);
+          }
+        }
+      } catch (error: any) {
+        const msg = String(error?.message ?? '');
+        // If timeout or network error, reset local session
+        if (msg.includes('Auth timeout') || msg.includes('Failed to fetch')) {
+          console.warn('Auth init failed/timed out, resetting local session');
+          await resetLocalSession();
+        } else {
+          // Other errors: still stop loading
+          setLoading(false);
+          setSubscriptionLoading(false);
+        }
+      }
+    };
+
+    initAuth();
+
+    return () => {
+      subscription.unsubscribe();
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
   const refreshSubscription = async () => {
