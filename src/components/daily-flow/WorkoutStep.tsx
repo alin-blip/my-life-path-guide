@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { 
-  Dumbbell, Play, Square, Plus, Trash2, Check, Clock, 
-  Utensils, ChevronDown, History
+  Dumbbell, Play, Square, Plus, Trash2, Check, 
+  Utensils, History, CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkoutHistory } from './WorkoutHistory';
@@ -21,7 +21,6 @@ import {
 
 // Lista de exerciții predefinite
 const PRESET_EXERCISES = [
-  // Piept
   { name: 'Bench Press', category: 'Piept' },
   { name: 'Incline Bench Press', category: 'Piept' },
   { name: 'Decline Bench Press', category: 'Piept' },
@@ -29,7 +28,6 @@ const PRESET_EXERCISES = [
   { name: 'Dumbbell Flyes', category: 'Piept' },
   { name: 'Cable Crossover', category: 'Piept' },
   { name: 'Push-ups', category: 'Piept' },
-  // Spate
   { name: 'Deadlift', category: 'Spate' },
   { name: 'Barbell Row', category: 'Spate' },
   { name: 'Pull-ups', category: 'Spate' },
@@ -37,7 +35,6 @@ const PRESET_EXERCISES = [
   { name: 'Seated Cable Row', category: 'Spate' },
   { name: 'T-Bar Row', category: 'Spate' },
   { name: 'Face Pulls', category: 'Spate' },
-  // Picioare
   { name: 'Squat', category: 'Picioare' },
   { name: 'Front Squat', category: 'Picioare' },
   { name: 'Leg Press', category: 'Picioare' },
@@ -47,14 +44,12 @@ const PRESET_EXERCISES = [
   { name: 'Calf Raises', category: 'Picioare' },
   { name: 'Lunges', category: 'Picioare' },
   { name: 'Bulgarian Split Squat', category: 'Picioare' },
-  // Umeri
   { name: 'Overhead Press', category: 'Umeri' },
   { name: 'Lateral Raises', category: 'Umeri' },
   { name: 'Front Raises', category: 'Umeri' },
   { name: 'Rear Delt Flyes', category: 'Umeri' },
   { name: 'Arnold Press', category: 'Umeri' },
   { name: 'Shrugs', category: 'Umeri' },
-  // Brațe
   { name: 'Barbell Curl', category: 'Brațe' },
   { name: 'Dumbbell Curl', category: 'Brațe' },
   { name: 'Hammer Curl', category: 'Brațe' },
@@ -62,13 +57,11 @@ const PRESET_EXERCISES = [
   { name: 'Skull Crushers', category: 'Brațe' },
   { name: 'Tricep Dips', category: 'Brațe' },
   { name: 'Close Grip Bench Press', category: 'Brațe' },
-  // Core
   { name: 'Plank', category: 'Core' },
   { name: 'Crunches', category: 'Core' },
   { name: 'Russian Twists', category: 'Core' },
   { name: 'Leg Raises', category: 'Core' },
   { name: 'Ab Wheel Rollout', category: 'Core' },
-  // Cardio
   { name: 'Running', category: 'Cardio' },
   { name: 'Cycling', category: 'Cardio' },
   { name: 'Rowing', category: 'Cardio' },
@@ -76,12 +69,18 @@ const PRESET_EXERCISES = [
   { name: 'Burpees', category: 'Cardio' },
 ];
 
+interface SetLog {
+  setNumber: number;
+  reps: number;
+  weight: number;
+  completed: boolean;
+}
+
 interface Exercise {
   id: string;
   name: string;
-  sets: number;
-  reps: number;
-  weight: number;
+  plannedSets: number;
+  sets: SetLog[];
 }
 
 interface WorkoutStepProps {
@@ -97,7 +96,6 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
   const [mealPlanDone, setMealPlanDone] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
-  // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isWorkoutStarted && startTime) {
@@ -145,6 +143,9 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
     if (!sessionId) return;
 
     try {
+      // Salvează toate exercițiile înainte de a opri
+      await saveExercises();
+
       const { error } = await supabase
         .from('workout_sessions')
         .update({
@@ -167,17 +168,63 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
     const newExercise: Exercise = {
       id: crypto.randomUUID(),
       name: exerciseName || '',
-      sets: 3,
-      reps: 10,
-      weight: 0
+      plannedSets: 3,
+      sets: [
+        { setNumber: 1, reps: 0, weight: 0, completed: false },
+        { setNumber: 2, reps: 0, weight: 0, completed: false },
+        { setNumber: 3, reps: 0, weight: 0, completed: false },
+      ]
     };
     setExercises([...exercises, newExercise]);
   };
 
-  const updateExercise = (id: string, field: keyof Exercise, value: string | number) => {
+  const updateExerciseName = (id: string, name: string) => {
     setExercises(exercises.map(ex => 
-      ex.id === id ? { ...ex, [field]: value } : ex
+      ex.id === id ? { ...ex, name } : ex
     ));
+  };
+
+  const updatePlannedSets = (id: string, count: number) => {
+    setExercises(exercises.map(ex => {
+      if (ex.id !== id) return ex;
+      
+      const currentSets = ex.sets.length;
+      let newSets = [...ex.sets];
+      
+      if (count > currentSets) {
+        // Adaugă seturi noi
+        for (let i = currentSets; i < count; i++) {
+          newSets.push({ setNumber: i + 1, reps: 0, weight: 0, completed: false });
+        }
+      } else if (count < currentSets) {
+        // Elimină seturi
+        newSets = newSets.slice(0, count);
+      }
+      
+      return { ...ex, plannedSets: count, sets: newSets };
+    }));
+  };
+
+  const updateSet = (exerciseId: string, setIndex: number, field: 'reps' | 'weight', value: number) => {
+    setExercises(exercises.map(ex => {
+      if (ex.id !== exerciseId) return ex;
+      
+      const newSets = [...ex.sets];
+      newSets[setIndex] = { ...newSets[setIndex], [field]: value };
+      
+      return { ...ex, sets: newSets };
+    }));
+  };
+
+  const toggleSetCompleted = (exerciseId: string, setIndex: number) => {
+    setExercises(exercises.map(ex => {
+      if (ex.id !== exerciseId) return ex;
+      
+      const newSets = [...ex.sets];
+      newSets[setIndex] = { ...newSets[setIndex], completed: !newSets[setIndex].completed };
+      
+      return { ...ex, sets: newSets };
+    }));
   };
 
   const removeExercise = (id: string) => {
@@ -191,15 +238,23 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const exerciseRecords = exercises.map((ex, index) => ({
-        session_id: sessionId,
-        user_id: user.id,
-        exercise_name: ex.name,
-        sets: ex.sets,
-        reps: ex.reps,
-        weight_kg: ex.weight,
-        order_index: index
-      }));
+      // Salvează fiecare set ca un record separat cu informații despre set
+      const exerciseRecords = exercises.flatMap((ex, exIndex) => 
+        ex.sets
+          .filter(set => set.completed && set.reps > 0)
+          .map((set, setIdx) => ({
+            session_id: sessionId,
+            user_id: user.id,
+            exercise_name: ex.name,
+            sets: set.setNumber,
+            reps: set.reps,
+            weight_kg: set.weight,
+            order_index: exIndex * 100 + setIdx,
+            notes: `Set ${set.setNumber}/${ex.plannedSets}`
+          }))
+      );
+
+      if (exerciseRecords.length === 0) return;
 
       const { error } = await supabase
         .from('workout_exercises')
@@ -216,12 +271,15 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
 
   const canComplete = !isWorkoutStarted && (exercises.length > 0 || mealPlanDone);
 
-  // Grupează exercițiile pe categorii
   const groupedExercises = PRESET_EXERCISES.reduce((acc, ex) => {
     if (!acc[ex.category]) acc[ex.category] = [];
     acc[ex.category].push(ex.name);
     return acc;
   }, {} as Record<string, string[]>);
+
+  const getCompletedSetsCount = (exercise: Exercise) => {
+    return exercise.sets.filter(s => s.completed).length;
+  };
 
   return (
     <Card>
@@ -246,7 +304,7 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
           ) : (
             <Button onClick={stopWorkout} variant="destructive" className="gap-2">
               <Square className="h-4 w-4" />
-              Stop Workout
+              Stop & Salvează
             </Button>
           )}
         </div>
@@ -258,7 +316,7 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
               <h3 className="font-medium">Exerciții</h3>
               <div className="flex gap-2">
                 <Select onValueChange={(value) => addExercise(value)}>
-                  <SelectTrigger className="w-[200px]">
+                  <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Adaugă exercițiu..." />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
@@ -284,14 +342,26 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
             </div>
 
             {exercises.map((exercise) => (
-              <div key={exercise.id} className="p-4 rounded-lg border bg-card space-y-3">
+              <div key={exercise.id} className="p-4 rounded-lg border bg-card space-y-4">
+                {/* Header exercițiu */}
                 <div className="flex items-center gap-2">
                   <Input
                     placeholder="Nume exercițiu"
                     value={exercise.name}
-                    onChange={(e) => updateExercise(exercise.id, 'name', e.target.value)}
-                    className="flex-1"
+                    onChange={(e) => updateExerciseName(exercise.id, e.target.value)}
+                    className="flex-1 font-medium"
                   />
+                  <div className="flex items-center gap-1">
+                    <Label className="text-xs text-muted-foreground whitespace-nowrap">Seturi:</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={10}
+                      value={exercise.plannedSets}
+                      onChange={(e) => updatePlannedSets(exercise.id, parseInt(e.target.value) || 1)}
+                      className="w-16"
+                    />
+                  </div>
                   <Button 
                     variant="ghost" 
                     size="icon"
@@ -300,41 +370,61 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
-                
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <Label className="text-xs">Seturi</Label>
-                    <Input
-                      type="number"
-                      value={exercise.sets}
-                      onChange={(e) => updateExercise(exercise.id, 'sets', parseInt(e.target.value) || 0)}
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Repetări</Label>
-                    <Input
-                      type="number"
-                      value={exercise.reps}
-                      onChange={(e) => updateExercise(exercise.id, 'reps', parseInt(e.target.value) || 0)}
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Greutate (kg)</Label>
-                    <Input
-                      type="number"
-                      value={exercise.weight}
-                      onChange={(e) => updateExercise(exercise.id, 'weight', parseFloat(e.target.value) || 0)}
-                    />
-                  </div>
+
+                {/* Progres */}
+                <div className="text-sm text-muted-foreground">
+                  Completate: {getCompletedSetsCount(exercise)}/{exercise.plannedSets} seturi
+                </div>
+
+                {/* Sets individuali */}
+                <div className="space-y-2">
+                  {exercise.sets.map((set, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`flex items-center gap-2 p-2 rounded-md transition-colors ${
+                        set.completed ? 'bg-green-500/10 border border-green-500/30' : 'bg-muted/30'
+                      }`}
+                    >
+                      <Button
+                        variant={set.completed ? "default" : "outline"}
+                        size="sm"
+                        className={`h-8 w-8 p-0 ${set.completed ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                        onClick={() => toggleSetCompleted(exercise.id, idx)}
+                      >
+                        {set.completed ? (
+                          <CheckCircle2 className="h-4 w-4" />
+                        ) : (
+                          <span className="text-xs font-bold">{set.setNumber}</span>
+                        )}
+                      </Button>
+                      
+                      <div className="flex items-center gap-1 flex-1">
+                        <Input
+                          type="number"
+                          placeholder="Reps"
+                          value={set.reps || ''}
+                          onChange={(e) => updateSet(exercise.id, idx, 'reps', parseInt(e.target.value) || 0)}
+                          className="w-20 h-8 text-center"
+                        />
+                        <span className="text-muted-foreground text-sm">reps</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-1 flex-1">
+                        <Input
+                          type="number"
+                          placeholder="Kg"
+                          step="0.5"
+                          value={set.weight || ''}
+                          onChange={(e) => updateSet(exercise.id, idx, 'weight', parseFloat(e.target.value) || 0)}
+                          className="w-20 h-8 text-center"
+                        />
+                        <span className="text-muted-foreground text-sm">kg</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
-
-            {exercises.length > 0 && (
-              <Button variant="secondary" onClick={saveExercises} className="w-full">
-                Salvează Exercițiile
-              </Button>
-            )}
           </div>
         )}
 
@@ -365,7 +455,6 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
           {showHistory ? 'Ascunde Istoric' : 'Vezi Istoric Workout-uri'}
         </Button>
 
-        {/* Workout History */}
         {showHistory && (
           <div className="border rounded-lg p-4 bg-muted/20">
             <WorkoutHistory />
