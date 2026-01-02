@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Dumbbell, Brain, Heart, Briefcase, Target, CheckCircle2, Bell, Link2, LayoutGrid, GitBranch, Sparkles } from 'lucide-react';
+import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Dumbbell, Brain, Heart, Briefcase, Target, CheckCircle2, Bell, Link2, LayoutGrid, GitBranch, Sparkles, Crown, Flag } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +20,8 @@ import { HierarchicalGoalsView } from '@/components/door/HierarchicalGoalsView';
 import { goalRemindersService } from '@/services/goalRemindersService';
 import { GoalWizardModal } from '@/components/goal-wizard/GoalWizardModal';
 import { GoalCategory } from '@/types/goalWizard';
+import { HierarchyBadge } from '@/components/door/HierarchyBadge';
+import { useChildMissions } from '@/hooks/useHierarchyData';
 
 interface QuarterlyGoal {
   id: string;
@@ -31,6 +33,12 @@ interface QuarterlyGoal {
   keyActions?: string[];
   hasReminder?: boolean;
   linkedMissionsCount?: number;
+  parentMissionId?: string | null;
+  parentMission?: {
+    id: string;
+    title: string;
+    period: string;
+  } | null;
 }
 
 const CATEGORY_CONFIG = {
@@ -70,6 +78,38 @@ const CATEGORY_CONFIG = {
     borderColor: 'border-blue-500/30',
     gradient: 'from-blue-500/20 to-blue-600/10'
   }
+};
+
+// Child Missions Preview Component
+const ChildMissionsPreview: React.FC<{
+  goalId: string;
+  config: typeof CATEGORY_CONFIG[keyof typeof CATEGORY_CONFIG];
+  language: string;
+}> = ({ goalId, config, language }) => {
+  const { children: monthlyMissions, loading } = useChildMissions(goalId, 'monthly');
+
+  if (loading) return null;
+  if (monthlyMissions.length === 0) return null;
+
+  return (
+    <div className="mt-3 pt-3 border-t border-border/30 space-y-1">
+      <p className="text-xs text-muted-foreground mb-1">
+        {language === 'en' ? 'Monthly Missions:' : 'Misiuni Lunare:'}
+      </p>
+      {monthlyMissions.slice(0, 3).map((mission: any) => (
+        <div key={mission.id} className="flex items-center gap-2 text-xs">
+          <Flag className={cn("w-3 h-3", config.color)} />
+          <span className="text-muted-foreground">{mission.period}:</span>
+          <span className="text-foreground truncate">{mission.title}</span>
+        </div>
+      ))}
+      {monthlyMissions.length > 3 && (
+        <span className="text-xs text-muted-foreground">
+          +{monthlyMissions.length - 3} {language === 'en' ? 'more' : 'altele'}
+        </span>
+      )}
+    </div>
+  );
 };
 
 export const QuarterlyGoalsTab: React.FC = () => {
@@ -134,6 +174,23 @@ export const QuarterlyGoalsTab: React.FC = () => {
 
         if (error) throw error;
 
+        // Fetch parent missions for hierarchy display
+        const parentIds = (data || [])
+          .map((m: any) => m.parent_mission_id)
+          .filter(Boolean);
+
+        let parentMap: Record<string, any> = {};
+        if (parentIds.length > 0) {
+          const { data: parents } = await supabase
+            .from('missions')
+            .select('id, title, period')
+            .in('id', parentIds);
+          
+          parents?.forEach((p: any) => {
+            parentMap[p.id] = p;
+          });
+        }
+
         const mappedGoals: QuarterlyGoal[] = (data || []).map((m: any) => ({
           id: m.id,
           category: m.category,
@@ -141,7 +198,9 @@ export const QuarterlyGoalsTab: React.FC = () => {
           description: m.goal_data?.description || '',
           measurableResult: m.measurable_result || '',
           progress: m.goal_data?.progress || 0,
-          keyActions: m.goal_data?.keyActions || []
+          keyActions: m.goal_data?.keyActions || [],
+          parentMissionId: m.parent_mission_id,
+          parentMission: m.parent_mission_id ? parentMap[m.parent_mission_id] : null
         }));
 
         setGoals(mappedGoals);
@@ -484,6 +543,19 @@ export const QuarterlyGoalsTab: React.FC = () => {
                       key={goal.id}
                       className="p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors group"
                     >
+                      {/* Parent Hierarchy Badge */}
+                      {goal.parentMission && (
+                        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
+                          <span className="text-xs text-muted-foreground">
+                            {language === 'en' ? 'From:' : 'Din:'}
+                          </span>
+                          <HierarchyBadge 
+                            type="annual" 
+                            title={goal.parentMission.title} 
+                          />
+                        </div>
+                      )}
+                      
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
                           <span className={cn("text-sm font-medium", config.color)}>#{idx + 1}</span>
@@ -550,6 +622,9 @@ export const QuarterlyGoalsTab: React.FC = () => {
                         />
                         <span className="text-sm font-medium w-10 text-right">{goal.progress}%</span>
                       </div>
+                      
+                      {/* Child Missions Section */}
+                      <ChildMissionsPreview goalId={goal.id} config={config} language={language} />
                     </div>
                   ))
                 )}

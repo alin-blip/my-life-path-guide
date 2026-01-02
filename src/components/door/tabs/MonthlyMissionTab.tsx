@@ -8,13 +8,14 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { ChevronLeft, ChevronRight, Flag, Dumbbell, Brain, Heart, Briefcase, Plus, Edit2, Target, CheckCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flag, Dumbbell, Brain, Heart, Briefcase, Plus, Edit2, Target, CheckCircle, Crown } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
+import { format, addMonths, subMonths } from 'date-fns';
 import { ro, enUS } from 'date-fns/locale';
+import { HierarchyBadge } from '@/components/door/HierarchyBadge';
 
 interface MonthlyMission {
   id: string;
@@ -24,6 +25,13 @@ interface MonthlyMission {
   measurableResult?: string;
   progress: number;
   keyActions?: string[];
+  parentMissionId?: string | null;
+  parentMission?: {
+    id: string;
+    title: string;
+    period: string;
+    mission_type: string;
+  } | null;
 }
 
 const CATEGORY_CONFIG = {
@@ -97,6 +105,23 @@ export const MonthlyMissionTab: React.FC = () => {
 
         if (error) throw error;
 
+        // Fetch parent missions for hierarchy display
+        const parentIds = (data || [])
+          .map((m: any) => m.parent_mission_id)
+          .filter(Boolean);
+
+        let parentMap: Record<string, any> = {};
+        if (parentIds.length > 0) {
+          const { data: parents } = await supabase
+            .from('missions')
+            .select('id, title, period, mission_type')
+            .in('id', parentIds);
+          
+          parents?.forEach((p: any) => {
+            parentMap[p.id] = p;
+          });
+        }
+
         const mapped: MonthlyMission[] = (data || []).map((m: any) => ({
           id: m.id,
           category: m.category,
@@ -104,7 +129,9 @@ export const MonthlyMissionTab: React.FC = () => {
           description: m.goal_data?.description || '',
           measurableResult: m.measurable_result || '',
           progress: m.goal_data?.progress || 0,
-          keyActions: m.goal_data?.keyActions || []
+          keyActions: m.goal_data?.keyActions || [],
+          parentMissionId: m.parent_mission_id,
+          parentMission: m.parent_mission_id ? parentMap[m.parent_mission_id] : null
         }));
 
         setMissions(mapped);
@@ -327,6 +354,19 @@ export const MonthlyMissionTab: React.FC = () => {
               <CardContent className="p-5">
                 {mission ? (
                   <div className="space-y-4">
+                    {/* Parent Hierarchy Badge */}
+                    {mission.parentMission && (
+                      <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+                        <span className="text-xs text-muted-foreground">
+                          {language === 'en' ? 'Part of:' : 'Parte din:'}
+                        </span>
+                        <HierarchyBadge 
+                          type="quarterly" 
+                          title={mission.parentMission.title} 
+                        />
+                      </div>
+                    )}
+                    
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="font-semibold text-lg text-foreground">{mission.title}</h3>
