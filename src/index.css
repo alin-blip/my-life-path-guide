@@ -2,114 +2,308 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    /* Light Mode Base Colors */
-    --background: 0 0% 100%;
-    --foreground: 215 25% 20%;
+    /* Light Mode - Glass & Blur Modern Theme */
+    --background: 220 20% 97%;
+    --foreground: 220 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 20%;
+    --card-foreground: 220 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 20%;
+    --popover-foreground: 220 25% 15%;
 
-    --primary: 215 85% 50%;
+    --primary: 230 75% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 30% 92%;
-    --secondary-foreground: 215 85% 35%;
+    --secondary: 220 25% 92%;
+    --secondary-foreground: 230 60% 40%;
 
-    --muted: 210 25% 94%;
-    --muted-foreground: 215 20% 40%;
+    --muted: 220 20% 94%;
+    --muted-foreground: 220 15% 45%;
 
-    --accent: 205 90% 50%;
+    --accent: 280 70% 55%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 25% 88%;
-    --input: 210 25% 90%;
-    --ring: 215 85% 50%;
+    --border: 220 20% 88%;
+    --input: 220 20% 92%;
+    --ring: 230 75% 55%;
+    
+    --radius: 1rem;
+
+    /* Glass Effect Variables - Light Mode */
+    --glass-bg: 0 0% 100%;
+    --glass-opacity: 0.7;
+    --glass-blur: 20px;
+    --glass-border: 220 30% 92%;
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --glass-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.12);
+    
+    /* Gradient Tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(230, 75%, 55%), hsl(280, 70%, 55%));
+    --gradient-secondary: linear-gradient(135deg, hsl(220, 60%, 95%), hsl(280, 40%, 95%));
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(280, 70%, 90%) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, hsl(230, 75%, 90%) 0px, transparent 50%),
+                     radial-gradient(at 0% 50%, hsl(220, 60%, 95%) 0px, transparent 50%),
+                     radial-gradient(at 80% 50%, hsl(280, 50%, 92%) 0px, transparent 50%),
+                     radial-gradient(at 0% 100%, hsl(230, 60%, 92%) 0px, transparent 50%);
+    
+    /* Sidebar Variables */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 25% 25%;
+    --sidebar-primary: 230 75% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 280 70% 55%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 220 20% 92%;
+    --sidebar-ring: 230 75% 55%;
 
     /* Marine Power Colors - Light Mode */
-    --goddess-primary: 215 85% 50%;
-    --goddess-secondary: 210 75% 55%;
-    --sacred-pink: 205 85% 55%;
-    --divine-purple: 210 80% 50%;
-    --moon-silver: 220 20% 65%;
+    --goddess-primary: 230 75% 55%;
+    --goddess-secondary: 280 70% 55%;
+    --sacred-pink: 280 60% 60%;
+    --divine-purple: 270 70% 55%;
+    --moon-silver: 220 20% 70%;
     --goddess-gold: 45 90% 55%;
     
     /* Marine Gradients - Light Mode */
-    --goddess-gradient: linear-gradient(135deg, hsl(215, 85%, 52%), hsl(210, 80%, 60%));
-    --sacred-gradient: linear-gradient(135deg, hsl(205, 85%, 55%), hsl(215, 85%, 55%));
-    --divine-gradient: linear-gradient(135deg, hsl(210, 80%, 50%), hsl(200, 85%, 48%));
-    --moon-gradient: linear-gradient(135deg, hsl(220, 20%, 85%), hsl(210, 25%, 88%));
+    --goddess-gradient: linear-gradient(135deg, hsl(230, 75%, 55%), hsl(280, 70%, 55%));
+    --sacred-gradient: linear-gradient(135deg, hsl(280, 60%, 60%), hsl(230, 75%, 55%));
+    --divine-gradient: linear-gradient(135deg, hsl(270, 70%, 55%), hsl(230, 60%, 50%));
+    --moon-gradient: linear-gradient(135deg, hsl(220, 20%, 90%), hsl(280, 30%, 92%));
 
     /* Hero gradient - Light Mode */
-    --hero-start: 215 60% 97%;
-    --hero-end: 210 50% 95%;
+    --hero-start: 220 30% 98%;
+    --hero-end: 280 20% 96%;
   }
- 
+
   .dark {
-    /* Dark Mode Base Colors */
-    --background: 215 35% 9%;
-    --foreground: 210 20% 95%;
+    /* Dark Mode - Glass & Blur Modern Theme */
+    --background: 230 25% 8%;
+    --foreground: 220 20% 95%;
 
-    --card: 215 30% 12%;
-    --card-foreground: 210 20% 95%;
+    --card: 230 25% 12%;
+    --card-foreground: 220 20% 95%;
 
-    --popover: 215 30% 12%;
-    --popover-foreground: 210 20% 95%;
+    --popover: 230 25% 12%;
+    --popover-foreground: 220 20% 95%;
 
-    --primary: 215 85% 55%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 230 80% 60%;
+    --primary-foreground: 220 20% 98%;
 
-    --secondary: 215 30% 18%;
-    --secondary-foreground: 210 20% 95%;
+    --secondary: 230 25% 18%;
+    --secondary-foreground: 220 20% 92%;
 
-    --muted: 215 25% 16%;
-    --muted-foreground: 210 15% 65%;
+    --muted: 230 20% 16%;
+    --muted-foreground: 220 15% 65%;
 
-    --accent: 205 90% 55%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 280 75% 60%;
+    --accent-foreground: 220 20% 98%;
 
-    --destructive: 0 65% 45%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 220 20% 98%;
 
-    --border: 215 25% 22%;
-    --input: 215 25% 18%;
-    --ring: 215 85% 55%;
+    --border: 230 20% 20%;
+    --input: 230 20% 18%;
+    --ring: 230 80% 60%;
+    
+    /* Glass Effect Variables - Dark Mode */
+    --glass-bg: 230 25% 15%;
+    --glass-opacity: 0.6;
+    --glass-blur: 24px;
+    --glass-border: 230 20% 25%;
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --glass-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.4);
+    
+    /* Gradient Tokens - Dark Mode */
+    --gradient-primary: linear-gradient(135deg, hsl(230, 80%, 60%), hsl(280, 75%, 60%));
+    --gradient-secondary: linear-gradient(135deg, hsl(230, 30%, 15%), hsl(280, 30%, 18%));
+    --gradient-glass: linear-gradient(135deg, rgba(30,30,50,0.8), rgba(30,30,50,0.5));
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(280, 70%, 20%) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, hsl(230, 80%, 20%) 0px, transparent 50%),
+                     radial-gradient(at 0% 50%, hsl(230, 40%, 12%) 0px, transparent 50%),
+                     radial-gradient(at 80% 50%, hsl(280, 50%, 15%) 0px, transparent 50%),
+                     radial-gradient(at 0% 100%, hsl(230, 50%, 15%) 0px, transparent 50%);
+    
+    /* Sidebar Variables - Dark Mode */
+    --sidebar-background: 230 25% 10%;
+    --sidebar-foreground: 220 20% 85%;
+    --sidebar-primary: 230 80% 60%;
+    --sidebar-primary-foreground: 220 20% 98%;
+    --sidebar-accent: 280 75% 60%;
+    --sidebar-accent-foreground: 220 20% 98%;
+    --sidebar-border: 230 20% 18%;
+    --sidebar-ring: 230 80% 60%;
 
     /* Marine Power Colors - Dark Mode */
-    --goddess-primary: 215 85% 58%;
-    --goddess-secondary: 210 75% 65%;
-    --sacred-pink: 205 85% 62%;
-    --divine-purple: 210 80% 60%;
+    --goddess-primary: 230 80% 62%;
+    --goddess-secondary: 280 75% 62%;
+    --sacred-pink: 280 65% 65%;
+    --divine-purple: 270 75% 60%;
     --moon-silver: 220 20% 75%;
     --goddess-gold: 45 90% 65%;
     
     /* Marine Gradients - Dark Mode */
-    --goddess-gradient: linear-gradient(135deg, hsl(215, 85%, 58%), hsl(210, 80%, 62%));
-    --sacred-gradient: linear-gradient(135deg, hsl(205, 85%, 60%), hsl(215, 85%, 58%));
-    --divine-gradient: linear-gradient(135deg, hsl(210, 80%, 55%), hsl(200, 85%, 52%));
-    --moon-gradient: linear-gradient(135deg, hsl(220, 25%, 25%), hsl(210, 30%, 28%));
+    --goddess-gradient: linear-gradient(135deg, hsl(230, 80%, 60%), hsl(280, 75%, 60%));
+    --sacred-gradient: linear-gradient(135deg, hsl(280, 65%, 60%), hsl(230, 80%, 58%));
+    --divine-gradient: linear-gradient(135deg, hsl(270, 75%, 58%), hsl(230, 65%, 52%));
+    --moon-gradient: linear-gradient(135deg, hsl(230, 25%, 22%), hsl(280, 30%, 25%));
 
     /* Hero gradient - Dark Mode */
-    --hero-start: 215 45% 11%;
-    --hero-end: 210 40% 13%;
+    --hero-start: 230 30% 10%;
+    --hero-end: 280 25% 12%;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+/* ===== GLASS MORPHISM UTILITIES ===== */
+
+.glass {
+  background: hsl(var(--glass-bg) / var(--glass-opacity));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid hsl(var(--glass-border) / 0.5);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+  background: hsl(var(--glass-bg) / var(--glass-opacity));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid hsl(var(--glass-border) / 0.5);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  box-shadow: var(--glass-shadow-hover);
+  border-color: hsl(var(--primary) / 0.3);
+  transform: translateY(-2px);
+}
+
+.glass-button {
+  background: hsl(var(--glass-bg) / 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--glass-border) / 0.5);
+}
+
+.glass-input {
+  background: hsl(var(--glass-bg) / 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--glass-border) / 0.5);
+}
+
+.glass-sidebar {
+  background: hsl(var(--sidebar-background) / 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid hsl(var(--sidebar-border) / 0.5);
+}
+
+/* Mesh gradient background */
+.mesh-gradient {
+  background: var(--gradient-mesh);
+  background-attachment: fixed;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effects */
+.glow-primary {
+  box-shadow: 0 0 20px hsl(var(--primary) / 0.4),
+              0 0 40px hsl(var(--primary) / 0.2);
+}
+
+.glow-accent {
+  box-shadow: 0 0 20px hsl(var(--accent) / 0.4),
+              0 0 40px hsl(var(--accent) / 0.2);
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.5);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, 
+    transparent, 
+    hsl(var(--primary) / 0.1), 
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 5s ease infinite;
 }
 
 /* Safe area for mobile devices */
@@ -123,61 +317,11 @@
 
 /* Fixed sidebar styles */
 .sidebar-item {
-  @apply flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground rounded-md transition-colors hover:text-foreground hover:bg-muted;
+  @apply flex items-center gap-3 px-3 py-2.5 text-sm text-sidebar-foreground rounded-xl transition-all duration-200 hover:bg-sidebar-accent/10;
 }
 
 .sidebar-item.active {
-  @apply bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium;
-}
-
-/* Animation for confetti */
-@keyframes float {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100vh) rotate(720deg);
-    opacity: 0;
-  }
-}
-
-.animate-float {
-  animation: float 5s linear forwards;
-}
-
-/* Animation for pulses */
-@keyframes glow {
-  0%, 100% { 
-    box-shadow: 0 0 10px rgba(124, 58, 237, 0.5); 
-  }
-  50% { 
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.9); 
-  }
-}
-
-.animate-glow {
-  animation: glow 2s ease-in-out infinite;
-}
-
-/* Progress line animation */
-@keyframes progress-line {
-  from { width: 0%; }
-  to { width: 100%; }
-}
-
-.animate-progress-line {
-  animation: progress-line 1s ease-out forwards;
-}
-
-/* Circle fill animation */
-@keyframes circle-fill {
-  from { stroke-dasharray: 0 100; }
-  to { stroke-dasharray: var(--fill-percentage) 100; }
-}
-
-.animate-circle-fill {
-  animation: circle-fill 1s ease-out forwards;
+  @apply bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium shadow-lg;
 }
 
 /* Fix for sidebar layout */
@@ -185,51 +329,6 @@
   width: 280px !important;
   min-width: 280px !important;
   max-width: 280px !important;
-}
-
-/* Circle progress animation */
-@keyframes circle-progress {
-  from { transform: rotate(-90deg); }
-  to { transform: rotate(270deg); }
-}
-
-.circle-progress-animation {
-  animation: circle-progress 1.5s ease-out forwards;
-}
-
-/* Progress bar transition */
-.progress-bar-transition {
-  transition: width 0.4s ease-in-out;
-}
-
-/* Voice input animations */
-@keyframes voice-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.4;
-  }
-}
-
-.voice-pulse {
-  animation: voice-pulse 1.5s ease-in-out infinite;
-}
-
-/* AI speaking glow effect */
-@keyframes ai-glow {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
-  }
-}
-
-.ai-glow {
-  animation: ai-glow 2s ease-in-out infinite;
 }
 
 /* ===== CELEBRATION ANIMATIONS ===== */
@@ -398,22 +497,6 @@
   animation: flame-flicker 0.5s ease-in-out infinite;
 }
 
-/* Alchemist symbol appearance */
-@keyframes alchemist-appear {
-  0% { 
-    transform: scale(0) rotate(-180deg); 
-    opacity: 0; 
-  }
-  100% { 
-    transform: scale(1) rotate(0deg); 
-    opacity: 1; 
-  }
-}
-
-.animate-alchemist-appear {
-  animation: alchemist-appear 0.8s ease-out forwards;
-}
-
 /* Slow spin */
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
@@ -422,20 +505,6 @@
 
 .animate-spin-slow {
   animation: spin-slow 8s linear infinite;
-}
-
-/* Float orbit for alchemy orbs */
-@keyframes float-orbit {
-  0%, 100% { 
-    transform: translateY(0) scale(1); 
-  }
-  50% { 
-    transform: translateY(-10px) scale(1.1); 
-  }
-}
-
-.animate-float-orbit {
-  animation: float-orbit 2s ease-in-out infinite;
 }
 
 /* Power glow for WarriorPowerCard */
@@ -454,12 +523,57 @@
   animation: power-glow 3s ease-in-out infinite;
 }
 
-/* Warrior breathing animation */
-@keyframes warrior-breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+/* Progress bar transition */
+.progress-bar-transition {
+  transition: width 0.4s ease-in-out;
 }
 
-.animate-warrior-breathe {
-  animation: warrior-breathe 4s ease-in-out infinite;
+/* Voice input animations */
+@keyframes voice-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.4;
+  }
+}
+
+.voice-pulse {
+  animation: voice-pulse 1.5s ease-in-out infinite;
+}
+
+/* AI speaking glow effect */
+@keyframes ai-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px hsl(var(--accent) / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px hsl(var(--accent) / 0.8);
+  }
+}
+
+.ai-glow {
+  animation: ai-glow 2s ease-in-out infinite;
+}
+
+/* Animation for progress */
+@keyframes progress-line {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.animate-progress-line {
+  animation: progress-line 1s ease-out forwards;
+}
+
+/* Circle progress animation */
+@keyframes circle-fill {
+  from { stroke-dasharray: 0 100; }
+  to { stroke-dasharray: var(--fill-percentage) 100; }
+}
+
+.animate-circle-fill {
+  animation: circle-fill 1s ease-out forwards;
 }
