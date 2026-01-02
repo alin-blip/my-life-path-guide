@@ -17,33 +17,23 @@ import { GoalRemindersNotification } from './door/GoalRemindersNotification';
 interface LayoutProps {
   children: React.ReactNode;
 }
-export const Layout: React.FC<LayoutProps> = ({
-  children
-}) => {
+
+export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthPage = location.pathname === '/';
-  const {
-    user,
-    signOut
-  } = useAuth();
-  const {
-    language
-  } = useLanguage();
-  const {
-    isLoading,
-    shareReferralLink
-  } = useAffiliateLink();
-  const {
-    theme,
-    toggleTheme
-  } = useTheme();
+  const { user, signOut } = useAuth();
+  const { language } = useLanguage();
+  const { isLoading, shareReferralLink } = useAffiliateLink();
+  const { theme, toggleTheme } = useTheme();
+
   if (isAuthPage) {
     return <>{children}</>;
   }
+
   const toggleMenu = () => {
     if (isMobile) {
       setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -67,72 +57,109 @@ export const Layout: React.FC<LayoutProps> = ({
     if (day === 3 || day === 23) suffix = 'rd';
     return `${month} ${day}${suffix} ${year}`;
   };
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
   };
-  return <div className="flex min-h-screen bg-background">
+
+  return (
+    <div className="flex min-h-screen mesh-gradient">
       <ReferralTracker />
       
       {/* Mobile Overlay */}
-      {isMobile && isMobileMenuOpen && <div className="fixed inset-0 bg-black/50 z-30" onClick={() => setIsMobileMenuOpen(false)} />}
+      {isMobile && isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-background/60 backdrop-blur-sm z-30 transition-opacity" 
+          onClick={() => setIsMobileMenuOpen(false)} 
+        />
+      )}
       
       {/* Sidebar */}
       <div className={`
-        ${isMobile ? `fixed top-0 left-0 h-screen z-40 w-[280px] transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}` : `fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-20 ${isMenuCollapsed ? 'w-[70px]' : 'w-[240px]'}`} bg-card
+        ${isMobile 
+          ? `fixed top-0 left-0 h-screen z-40 w-[280px] transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}` 
+          : `fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-20 ${isMenuCollapsed ? 'w-[70px]' : 'w-[260px]'}`
+        } glass-sidebar
       `}>
-        <SideMenu isCollapsed={!isMobile && isMenuCollapsed} onItemClick={isMobile ? () => setIsMobileMenuOpen(false) : undefined} />
+        <SideMenu 
+          isCollapsed={!isMobile && isMenuCollapsed} 
+          onItemClick={isMobile ? () => setIsMobileMenuOpen(false) : undefined} 
+        />
       </div>
       
       {/* Menu Toggle Button */}
-      <button onClick={toggleMenu} className={`
-          fixed z-30 bg-blue-500 hover:bg-blue-600 p-2 rounded-full shadow-md transition-all duration-300
-          ${isMobile ? 'top-4 left-4' : `top-6 transition-all duration-300 ${isMenuCollapsed ? 'left-[86px]' : 'left-[256px]'}`}
-        `}>
-        {isMobile ? isMobileMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" /> : isMenuCollapsed ? <ChevronRight className="w-4 h-4 text-white" /> : <ChevronLeft className="w-4 h-4 text-white" />}
+      <button 
+        onClick={toggleMenu} 
+        className={`
+          fixed z-30 p-2.5 rounded-xl shadow-lg transition-all duration-300
+          bg-gradient-primary text-primary-foreground hover:shadow-xl hover:scale-105
+          ${isMobile 
+            ? 'top-4 left-4' 
+            : `top-6 transition-all duration-300 ${isMenuCollapsed ? 'left-[86px]' : 'left-[276px]'}`
+          }
+        `}
+      >
+        {isMobile 
+          ? (isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />) 
+          : (isMenuCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />)
+        }
       </button>
       
       {/* Main Content */}
       <div className={`
         flex-1 transition-all duration-300 ease-in-out
-        ${isMobile ? 'ml-0' : isMenuCollapsed ? 'ml-[70px]' : 'ml-[240px]'}
+        ${isMobile ? 'ml-0' : isMenuCollapsed ? 'ml-[70px]' : 'ml-[260px]'}
       `}>
-        <div className={`${isMobile ? 'p-4 pt-16' : 'p-6'}`}>
+        <div className={`${isMobile ? 'p-4 pt-16' : 'p-8'}`}>
           {/* Header - Desktop */}
-          {!isMobile && <div className="flex justify-between items-center mb-6">
-              <div className="text-sm text-muted-foreground">
-                {formatDate()}
+          {!isMobile && (
+            <div className="flex justify-between items-center mb-8">
+              <div className="glass-card px-4 py-2 rounded-xl">
+                <span className="text-sm font-medium text-muted-foreground">{formatDate()}</span>
               </div>
               <div className="flex items-center gap-3">
-                <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
+                <Button 
+                  variant="glass" 
+                  size="icon" 
+                  onClick={toggleTheme}
+                  className="rounded-xl"
+                >
                   {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
                 </Button>
                 <LanguageSelector />
               </div>
-            </div>}
+            </div>
+          )}
           
           {/* Mobile Header - Simplified */}
-          {isMobile && <div className="flex justify-between items-center mb-4">
-              <div className="text-xs text-muted-foreground">
-                {formatDate()}
+          {isMobile && (
+            <div className="flex justify-between items-center mb-4">
+              <div className="glass-card px-3 py-1.5 rounded-lg">
+                <span className="text-xs font-medium text-muted-foreground">{formatDate()}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
+                <Button 
+                  variant="glass" 
+                  size="icon" 
+                  onClick={toggleTheme}
+                  className="h-8 w-8 rounded-lg"
+                >
                   {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
                 </Button>
-                {!user ? <Button asChild variant="secondary" size="sm">
+                {!user ? (
+                  <Button asChild variant="default" size="sm">
                     <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
-                  </Button> : <>
-                    <Button asChild variant="secondary" size="sm">
-                      
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleSignOut}>
-                      {language === 'en' ? 'Log out' : 'Delogare'}
-                    </Button>
-                  </>}
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={handleSignOut}>
+                    {language === 'en' ? 'Log out' : 'Delogare'}
+                  </Button>
+                )}
                 <LanguageSelector />
               </div>
-            </div>}
+            </div>
+          )}
           
           <main className="animate-fade-in">{children}</main>
         </div>
@@ -146,5 +173,6 @@ export const Layout: React.FC<LayoutProps> = ({
       
       {/* Quick Add Button */}
       <QuickAddButton />
-    </div>;
+    </div>
+  );
 };

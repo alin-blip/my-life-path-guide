@@ -51,7 +51,6 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['community', 'introspecție']);
   const { t } = useLanguage();
 
-  // Auto-expand "Atelierul de Transformare" when on /stack route
   useEffect(() => {
     if (currentPath === '/stack' || currentPath.startsWith('/stack?')) {
       const transformationWorkshopKey = t('transformationWorkshop').toLowerCase();
@@ -125,22 +124,24 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   ];
 
   return (
-    <div className="h-full bg-card border-r border-border flex flex-col overflow-hidden">
-      <div className="p-4 border-b border-border">
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Logo Header */}
+      <div className="p-5 border-b border-border/30">
         <Link to="/" className="flex items-center justify-center md:justify-start gap-3">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
             alt="LifeOS logo"
             loading="lazy"
-            className={`${isCollapsed ? 'h-7 w-auto' : 'h-9 w-auto'} drop-shadow`}
+            className={`${isCollapsed ? 'h-7 w-auto' : 'h-10 w-auto'} drop-shadow`}
           />
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-lg text-foreground">LifeOS</h1>
+            <h1 className="font-display font-bold text-xl gradient-text">LifeOS</h1>
           )}
         </Link>
       </div>
       
-      <div className="flex-1 overflow-y-auto py-4 px-2">
+      {/* Navigation */}
+      <div className="flex-1 overflow-y-auto py-4 px-3">
         <nav>
           <ul className="space-y-1">
             {menuItems.filter(item => !item.hidden).map((item) => (
@@ -162,13 +163,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                       <Link to={item.path} className="flex items-center w-full" onClick={onItemClick}>
                         <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
                         {!isCollapsed && (
-                          <>
-                            <span className="text-sm ml-3">{item.title}</span>
-                          </>
+                          <span className="text-sm font-medium ml-3">{item.title}</span>
                         )}
                       </Link>
                       {!isCollapsed && (
-                        <div className="ml-auto">
+                        <div className="ml-auto opacity-60">
                           {expandedMenus.includes(item.title.toLowerCase()) 
                             ? <ChevronDown className="w-4 h-4" /> 
                             : <ChevronRight className="w-4 h-4" />}
@@ -177,18 +176,18 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                     </button>
                     
                     {!isCollapsed && expandedMenus.includes(item.title.toLowerCase()) && (
-                      <ul className="ml-6 mt-1 space-y-1">
+                      <ul className="ml-6 mt-1 space-y-0.5 border-l border-border/30 pl-3">
                         {item.subItems.map((subItem) => (
                           <li key={subItem.path}>
                             <Link
                               to={subItem.path}
                               onClick={onItemClick}
-                              className={`sidebar-item ${
+                              className={`sidebar-item text-sm ${
                                 currentPath === subItem.path ? 'active' : ''
                               }`}
                             >
-                              <subItem.icon className="w-4 h-4" />
-                              <span className="text-sm">{subItem.title}</span>
+                              <subItem.icon className="w-3.5 h-3.5" />
+                              <span>{subItem.title}</span>
                             </Link>
                           </li>
                         ))}
@@ -205,15 +204,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                   >
                     <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
                     {!isCollapsed && (
-                      <span className="text-sm">{item.title}</span>
+                      <span className="text-sm font-medium">{item.title}</span>
                     )}
                     {!isCollapsed && item.notification && (
-                      <div className="ml-auto bg-feminine-primary text-white text-xs py-0.5 px-1.5 rounded-full">
+                      <div className="ml-auto bg-primary text-primary-foreground text-xs py-0.5 px-2 rounded-full">
                         {item.notification > 99 ? '99+' : item.notification}
                       </div>
-                    )}
-                    {isCollapsed && item.notification && (
-                      <div className="absolute top-0 right-0 bg-feminine-primary w-2 h-2 rounded-full"></div>
                     )}
                   </Link>
                 )}
@@ -223,14 +219,15 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         </nav>
       </div>
       
-      <div className="p-2 border-t border-border">
+      {/* Footer */}
+      <div className="p-3 border-t border-border/30 space-y-1">
         <Link to="/settings" onClick={onItemClick} className={`sidebar-item ${currentPath === '/settings' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <Settings className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-          {!isCollapsed && <span className="text-sm">{t('settings')}</span>}
+          {!isCollapsed && <span className="text-sm font-medium">{t('settings')}</span>}
         </Link>
-        <Link to="/support" onClick={onItemClick} className={`sidebar-item mt-1 ${currentPath === '/support' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
+        <Link to="/support" onClick={onItemClick} className={`sidebar-item ${currentPath === '/support' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <HelpCircle className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-          {!isCollapsed && <span className="text-sm">{t('support')}</span>}
+          {!isCollapsed && <span className="text-sm font-medium">{t('support')}</span>}
         </Link>
       </div>
     </div>
