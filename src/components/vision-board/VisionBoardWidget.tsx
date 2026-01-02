@@ -53,7 +53,7 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
   if (!visionBoard) {
     return (
       <Card className="bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20 overflow-hidden">
-        <CardContent className="p-6 flex flex-col items-center text-center">
+        <CardContent className="p-4 pt-2 flex flex-col items-center text-center">
           <div className="w-14 h-14 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center mb-4">
             <Sparkles className="h-7 w-7 text-white" />
           </div>
