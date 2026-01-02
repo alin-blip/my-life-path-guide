@@ -6,13 +6,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { ChevronLeft, ChevronRight, Crown, Dumbbell, Brain, Heart, Briefcase, Plus, Edit2, Star, Sparkles } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronLeft, ChevronRight, Crown, Dumbbell, Brain, Heart, Briefcase, Plus, Edit2, Star, Sparkles, ChevronDown, Target, Flag } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { GoalWizardModal } from '@/components/goal-wizard/GoalWizardModal';
 import { GoalCategory } from '@/types/goalWizard';
+import { useChildMissions } from '@/hooks/useHierarchyData';
 
 interface AnnualVision {
   id: string;
@@ -60,6 +62,84 @@ const CATEGORY_CONFIG = {
     borderColor: 'border-blue-500/30',
     gradient: 'from-blue-600 to-blue-400'
   }
+};
+
+// Child Goals Section Component
+const ChildGoalsSection: React.FC<{
+  visionId: string;
+  category: string;
+  config: typeof CATEGORY_CONFIG[keyof typeof CATEGORY_CONFIG];
+  language: string;
+}> = ({ visionId, category, config, language }) => {
+  const { children: quarterlyGoals, loading } = useChildMissions(visionId, 'quarterly');
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (loading) {
+    return <div className="h-8 bg-muted/50 animate-pulse rounded mt-3" />;
+  }
+
+  if (quarterlyGoals.length === 0) {
+    return null;
+  }
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-4 pt-3 border-t border-border/50">
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" size="sm" className="w-full justify-between gap-2 h-auto py-2">
+          <div className="flex items-center gap-2">
+            <Target className={cn("w-4 h-4", config.color)} />
+            <span className="text-sm font-medium">
+              {language === 'en' ? 'Linked Goals' : 'Obiective Legate'} ({quarterlyGoals.length})
+            </span>
+          </div>
+          <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")} />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-2 space-y-2">
+        {quarterlyGoals.map((goal: any) => (
+          <div 
+            key={goal.id} 
+            className={cn("p-3 rounded-lg border", config.bgColor, config.borderColor)}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Badge variant="outline" className="text-xs">
+                <Target className="w-3 h-3 mr-1" />
+                {goal.period}
+              </Badge>
+            </div>
+            <p className="text-sm font-medium text-foreground">{goal.title}</p>
+            {goal.measurable_result && (
+              <p className="text-xs text-muted-foreground mt-1">{goal.measurable_result}</p>
+            )}
+            <ChildMonthlySection goalId={goal.id} config={config} language={language} />
+          </div>
+        ))}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
+
+// Child Monthly Section Component
+const ChildMonthlySection: React.FC<{
+  goalId: string;
+  config: typeof CATEGORY_CONFIG[keyof typeof CATEGORY_CONFIG];
+  language: string;
+}> = ({ goalId, config, language }) => {
+  const { children: monthlyMissions } = useChildMissions(goalId, 'monthly');
+
+  if (monthlyMissions.length === 0) return null;
+
+  return (
+    <div className="mt-2 pt-2 border-t border-border/30 space-y-1">
+      {monthlyMissions.map((mission: any) => (
+        <div key={mission.id} className="flex items-center gap-2 text-xs">
+          <Flag className={cn("w-3 h-3", config.color)} />
+          <span className="text-muted-foreground">{mission.period}:</span>
+          <span className="text-foreground truncate">{mission.title}</span>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export const AnnualVisionTab: React.FC = () => {
@@ -357,6 +437,14 @@ export const AnnualVisionTab: React.FC = () => {
                         </div>
                       </div>
                     )}
+
+                    {/* Child Goals Section */}
+                    <ChildGoalsSection 
+                      visionId={vision.id} 
+                      category={key} 
+                      config={config} 
+                      language={language} 
+                    />
                   </div>
                 ) : (
                   <div className="text-center py-10">
