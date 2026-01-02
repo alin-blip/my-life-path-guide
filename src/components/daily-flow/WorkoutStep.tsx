@@ -6,9 +6,10 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Dumbbell, Play, Square, Plus, Trash2, Check, Clock, 
-  Utensils, ChevronDown
+  Utensils, ChevronDown, History
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { WorkoutHistory } from './WorkoutHistory';
 import { format } from 'date-fns';
 import {
   Select,
@@ -94,6 +95,7 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [mealPlanDone, setMealPlanDone] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Timer effect
   useEffect(() => {
@@ -353,7 +355,24 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
           </div>
         </div>
 
-        <Button 
+        {/* Workout History Toggle */}
+        <Button
+          variant="outline"
+          onClick={() => setShowHistory(!showHistory)}
+          className="w-full gap-2"
+        >
+          <History className="h-4 w-4" />
+          {showHistory ? 'Ascunde Istoric' : 'Vezi Istoric Workout-uri'}
+        </Button>
+
+        {/* Workout History */}
+        {showHistory && (
+          <div className="border rounded-lg p-4 bg-muted/20">
+            <WorkoutHistory />
+          </div>
+        )}
+
+        <Button
           className="w-full gap-2" 
           onClick={onComplete}
           disabled={!canComplete}
