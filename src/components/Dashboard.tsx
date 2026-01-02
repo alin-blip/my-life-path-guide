@@ -8,7 +8,6 @@ import { useDoorContent } from '@/hooks/useDoorContent';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
 import { LearnDashboard } from './LearnDashboard';
-
 import { WeeklyProgress } from './WeeklyProgress';
 import { MonthlyObjectives } from './MonthlyObjectives';
 import { WeeklyObjectives } from './WeeklyObjectives';
@@ -29,7 +28,6 @@ import { TransformedWarrior, WarriorBadge } from '@/components/celebrations/Tran
 import { MediaMaster, MediaBadge } from '@/components/celebrations/MediaMaster';
 import { WarriorPowerCard } from '@/components/celebrations/WarriorPowerCard';
 import { MediaMasterCard } from '@/components/celebrations/MediaMasterCard';
-
 import { LevelUpCelebration } from '@/components/xp/LevelUpCelebration';
 import { XPPopupContainer } from '@/components/xp/XPPopup';
 import { useXPSystem } from '@/hooks/useXPSystem';
@@ -43,7 +41,6 @@ import { RewardsShowcase } from '@/components/gamification/RewardsShowcase';
 import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
 import { VisionBoardWidget } from '@/components/vision-board/VisionBoardWidget';
 import { MorningRoutine } from '@/components/habits/MorningRoutine';
-
 export const Dashboard: React.FC = () => {
   const {
     language,
@@ -53,7 +50,9 @@ export const Dashboard: React.FC = () => {
   const [activeLearnCategory, setActiveLearnCategory] = useState<string | null>(null);
   const [activeLearnSubcategory, setActiveLearnSubcategory] = useState<string>("courses");
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const {
     hitList,
     activeDay,
@@ -72,7 +71,6 @@ export const Dashboard: React.FC = () => {
     updateDailyActivity,
     updateWeeklyActivity
   } = useProgress();
-  
   const [monthlyMissions, setMonthlyMissions] = useState<MonthlyMission[]>([]);
   const [categoryMissions, setCategoryMissions] = useState<Record<MissionCategory, MonthlyMission | null>>({
     body: null,
@@ -80,82 +78,87 @@ export const Dashboard: React.FC = () => {
     balance: null,
     business: null
   });
-  
   const [streaks, setStreaks] = useState({
     stack: 0,
     core: 0,
     dailyFour: 0,
     door: 0
   });
-  
   const [totals, setTotals] = useState({
     stack: 0,
     core: 0,
     dailyFour: 0,
     door: 0
   });
-
   const [showConfetti, setShowConfetti] = useState(false);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date>(new Date());
   const [calendarOpen, setCalendarOpen] = useState(false);
-  
+
   // Celebration overlays
   const [showWarriorOverlay, setShowWarriorOverlay] = useState(false);
   const [showMediaOverlay, setShowMediaOverlay] = useState(false);
   const [hasShownCoreAnimation, setHasShownCoreAnimation] = useState(false);
   const [hasShownDailyAnimation, setHasShownDailyAnimation] = useState(false);
-  
+
   // Sound settings
-  const { playSuccessSound } = useSoundSettings();
-  
+  const {
+    playSuccessSound
+  } = useSoundSettings();
+
   // XP System
-  const { xpData, recentXPGain, showLevelUp, newLevel, dismissLevelUp, addXP } = useXPSystem();
-  
+  const {
+    xpData,
+    recentXPGain,
+    showLevelUp,
+    newLevel,
+    dismissLevelUp,
+    addXP
+  } = useXPSystem();
+
   // Streak tracking
-  const { streakData } = useStreakTracking();
-  
+  const {
+    streakData
+  } = useStreakTracking();
+
   // Reading progress for badge tracking
-  const { progress: readingProgress, getOverallStats } = useReadingProgress();
-  
+  const {
+    progress: readingProgress,
+    getOverallStats
+  } = useReadingProgress();
+
   // Track if we've awarded XP for Core 4 / Biz 4 today
   const [hasAwardedCoreXP, setHasAwardedCoreXP] = useState(false);
   const [hasAwardedDailyXP, setHasAwardedDailyXP] = useState(false);
-  
+
   // Gamification celebration states
   const [showStreakMilestone, setShowStreakMilestone] = useState(false);
   const [streakMilestoneValue, setStreakMilestoneValue] = useState<7 | 30 | 100 | 365>(7);
   const [showBadgeUnlock, setShowBadgeUnlock] = useState(false);
   const [unlockedBadge, setUnlockedBadge] = useState<typeof BADGES[0] | null>(null);
   const [previouslyEarnedBadges, setPreviouslyEarnedBadges] = useState<string[]>([]);
-  
+
   // Explainer modal states
   const [explainerModalType, setExplainerModalType] = useState<'core4' | 'biz4' | 'stack' | null>(null);
-  
   const prevCategoryComplete = useRef<Record<string, boolean>>({
     body: false,
     relationship: false,
     being: false,
     business: false
   });
-
   const categoryCounts = {
     body: 12,
     balance: 8,
     being: 15,
     business: 10
   };
-
   const [userProgressData, setUserProgressData] = useState<any>(null);
   const [userStatistics, setUserStatistics] = useState<any>(null);
   const [visionBoard, setVisionBoard] = useState<any>(null);
-  
+
   // Calculate badge stats
   const badgeStats: BadgeStats = useMemo(() => {
     const stats = getOverallStats();
-    const uniqueDays = new Set(
-      readingProgress.map(p => new Date(p.read_at).toDateString())
-    ).size;
-    
+    const uniqueDays = new Set(readingProgress.map(p => new Date(p.read_at).toDateString())).size;
     return {
       totalPagesRead: stats.totalPagesRead,
       totalActionsCompleted: stats.totalActionsCompleted,
@@ -166,17 +169,16 @@ export const Dashboard: React.FC = () => {
       totalDaysActive: uniqueDays
     };
   }, [readingProgress, getOverallStats, streakData]);
-  
+
   // Check for new badge unlocks
   const earnedBadges = useMemo(() => {
     return BADGES.filter(badge => badge.requirement(badgeStats));
   }, [badgeStats]);
-  
+
   // Trigger badge unlock celebration
   useEffect(() => {
     const earnedIds = earnedBadges.map(b => b.id);
     const newBadges = earnedIds.filter(id => !previouslyEarnedBadges.includes(id));
-    
     if (newBadges.length > 0 && previouslyEarnedBadges.length > 0) {
       const newBadge = BADGES.find(b => b.id === newBadges[0]);
       if (newBadge) {
@@ -184,10 +186,9 @@ export const Dashboard: React.FC = () => {
         setShowBadgeUnlock(true);
       }
     }
-    
     setPreviouslyEarnedBadges(earnedIds);
   }, [earnedBadges]);
-  
+
   // Check for streak milestones
   useEffect(() => {
     const checkMilestone = (streak: number): 7 | 30 | 100 | 365 | null => {
@@ -197,130 +198,126 @@ export const Dashboard: React.FC = () => {
       if (streak === 7) return 7;
       return null;
     };
-    
     const milestone = checkMilestone(streakData.currentStreak);
     if (milestone) {
       const shownKey = `streakMilestone_${milestone}_shown`;
       const alreadyShown = localStorage.getItem(shownKey);
-      
       if (!alreadyShown) {
         setStreakMilestoneValue(milestone);
         setShowStreakMilestone(true);
         localStorage.setItem(shownKey, 'true');
-        
+
         // Award XP bonus for milestone
-        const xpBonuses: Record<number, number> = { 7: 100, 30: 500, 100: 1000, 365: 5000 };
+        const xpBonuses: Record<number, number> = {
+          7: 100,
+          30: 500,
+          100: 1000,
+          365: 5000
+        };
         addXP(xpBonuses[milestone], `Streak Milestone: ${milestone} days`);
       }
     }
   }, [streakData.currentStreak, addXP]);
-
   useEffect(() => {
     syncData();
     updateStats();
     fetchUserData();
-    
+
     // Listen for progress updates
     const handleProgressUpdate = (event: any) => {
       console.log('Progress updated:', event.detail);
       updateStats();
       fetchUserData();
     };
-    
+
     // Listen for XP award events from xpService
     const handleXPAward = (event: CustomEvent<XPAwardEvent>) => {
-      const { amount, reason } = event.detail;
+      const {
+        amount,
+        reason
+      } = event.detail;
       addXP(amount, reason);
     };
-    
     window.addEventListener('progressUpdated', handleProgressUpdate);
     window.addEventListener('xp-award', handleXPAward as EventListener);
-    
     return () => {
       window.removeEventListener('progressUpdated', handleProgressUpdate);
       window.removeEventListener('xp-award', handleXPAward as EventListener);
     };
   }, [addXP]);
-
   useEffect(() => {
     fetchUserData();
   }, []);
-
   const fetchUserData = async () => {
     try {
       // Check if user is logged in
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (session?.user) {
         const userId = session.user.id;
-        
+
         // Get today's date in ISO format (YYYY-MM-DD)
         const today = new Date().toISOString().split('T')[0];
-        
+
         // TODO: Implement proper user progress tracking with authentication
         // For now, using local storage until authentication is implemented
         const progressKey = `userProgress_${today}`;
         const savedProgress = localStorage.getItem(progressKey);
         const progressData = savedProgress ? JSON.parse(savedProgress) : null;
         setUserProgressData(progressData);
-        
+
         // TODO: Implement proper user statistics tracking
         const statsKey = 'userStatistics';
         const savedStats = localStorage.getItem(statsKey);
         const statsData = savedStats ? JSON.parse(savedStats) : null;
-        
-        if (statsData) {
-        } else {
+        if (statsData) {} else {
           console.log('Fetched user statistics:', statsData);
           setUserStatistics(statsData);
           updateStats();
         }
-        
+
         // Fetch Vision Board
-        const { data: visionBoardData } = await supabase
-          .from('vision_boards')
-          .select('*')
-          .eq('user_id', userId)
-          .maybeSingle();
-        
+        const {
+          data: visionBoardData
+        } = await supabase.from('vision_boards').select('*').eq('user_id', userId).maybeSingle();
         setVisionBoard(visionBoardData);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
   };
-
   const [stackCount, setStackCount] = useState(0);
   const [journalCount, setJournalCount] = useState(0);
-
   const loadProgressCounts = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session?.user) {
         setStackCount(0);
         setJournalCount(0);
         return;
       }
-
       const today = new Date().toISOString().split('T')[0];
-      
-      // Check daily_progress table in Supabase
-      const { data: dailyProgress } = await supabase
-        .from('daily_progress')
-        .select('progress_data')
-        .eq('user_id', session.user.id)
-        .eq('date', today)
-        .maybeSingle();
 
+      // Check daily_progress table in Supabase
+      const {
+        data: dailyProgress
+      } = await supabase.from('daily_progress').select('progress_data').eq('user_id', session.user.id).eq('date', today).maybeSingle();
       const progressData = dailyProgress?.progress_data as any;
-      
+
       // Update stack count
       if (progressData?.stack?.completed || userProgressData?.stack_completed) {
         setStackCount(1);
       } else {
         setStackCount(0);
       }
-      
+
       // Update journal count
       if (progressData?.journal?.completed || userProgressData?.journal_completed) {
         setJournalCount(1);
@@ -333,29 +330,25 @@ export const Dashboard: React.FC = () => {
       setJournalCount(0);
     }
   };
-
   useEffect(() => {
     loadProgressCounts();
-    
+
     // Listen for progress updates
     const handleProgressUpdate = () => {
       loadProgressCounts();
     };
-    
     window.addEventListener('progressUpdated', handleProgressUpdate);
     return () => {
       window.removeEventListener('progressUpdated', handleProgressUpdate);
     };
   }, [userProgressData]);
-
   const updateStats = () => {
     const coreScore = getCoreScore();
     const dailyFourScore = getDailyFourScore();
     const weeklyTwoScore = getWeeklyTwoScore();
     const doorScore = hitList.filter(item => item.completed).length;
-    
     console.log(`Updating stats - Stack: ${stackCount}, Journal: ${journalCount}, Core: ${coreScore}, Daily: ${dailyFourScore}, Door: ${doorScore}`);
-    
+
     // Calculate streaks based on data
     // For a real implementation, you'd need to fetch a history of completions
     // from Supabase to calculate accurate streaks
@@ -365,7 +358,7 @@ export const Dashboard: React.FC = () => {
       dailyFour: userStatistics?.total_journals || (dailyFourScore > 0 ? Math.max(2, userStatistics?.total_journals || 0) : 0),
       door: doorScore > 0 ? 4 : 0
     });
-    
+
     // Calculate totals
     setTotals({
       stack: userStatistics?.total_stacks || (stackCount > 0 ? 1 : 0),
@@ -373,37 +366,29 @@ export const Dashboard: React.FC = () => {
       dailyFour: userStatistics?.total_journals || (journalCount > 0 ? 1 : 0),
       door: doorScore > 0 ? doorScore : 0
     });
-    
+
     // Check if all activities are completed to show confetti
-    if (stackCount > 0 && 
-        journalCount > 0 && 
-        coreScore === 8 && 
-        dailyFourScore === 4 && 
-        hitList.filter(item => item.completed).length === hitList.filter(item => item.day === activeDay).length && 
-        hitList.filter(item => item.day === activeDay).length > 0) {
+    if (stackCount > 0 && journalCount > 0 && coreScore === 8 && dailyFourScore === 4 && hitList.filter(item => item.completed).length === hitList.filter(item => item.day === activeDay).length && hitList.filter(item => item.day === activeDay).length > 0) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
     } else {
       setShowConfetti(false);
     }
-    
+
     // Check category completion for sound effects
     const fitnessCompleted = coreData[selectedDay]?.['fitness'] || false;
     const fuelCompleted = coreData[selectedDay]?.['fuel'] || false;
     const bodyNowComplete = fitnessCompleted && fuelCompleted;
-    
     const person1Completed = coreData[selectedDay]?.['person1'] || false;
     const person2Completed = coreData[selectedDay]?.['person2'] || false;
     const relationshipNowComplete = person1Completed && person2Completed;
-    
     const meditationCompleted = coreData[selectedDay]?.['meditation'] || false;
     const memoirsCompleted = coreData[selectedDay]?.['memoirs'] || false;
     const beingNowComplete = meditationCompleted && memoirsCompleted;
-    
     const discoverCompleted = coreData[selectedDay]?.['discover'] || false;
     const declareCompleted = coreData[selectedDay]?.['declare'] || false;
     const businessNowComplete = discoverCompleted && declareCompleted;
-    
+
     // Play sound when a category becomes complete
     if (bodyNowComplete && !prevCategoryComplete.current.body) {
       playSuccessSound();
@@ -417,7 +402,7 @@ export const Dashboard: React.FC = () => {
     if (businessNowComplete && !prevCategoryComplete.current.business) {
       playSuccessSound();
     }
-    
+
     // Update prev state
     prevCategoryComplete.current = {
       body: bodyNowComplete,
@@ -426,7 +411,6 @@ export const Dashboard: React.FC = () => {
       business: businessNowComplete
     };
   };
-
   const getCoreItems = () => {
     return [{
       id: 'fitness',
@@ -486,7 +470,6 @@ export const Dashboard: React.FC = () => {
       category: 'business'
     }];
   };
-
   const getDailyFourItems = () => {
     return [{
       id: 'video',
@@ -514,7 +497,6 @@ export const Dashboard: React.FC = () => {
       color: 'bg-blue-600'
     }];
   };
-
   const getWeeklyItems = () => {
     return [{
       id: 'podcast',
@@ -526,19 +508,15 @@ export const Dashboard: React.FC = () => {
       completed: dailyFourData[selectedDay]?.weeklyActivities?.find((a: any) => a.id === 'webinar')?.completed || false
     }];
   };
-
   const navigateTo = (path: string) => {
     navigate(path);
   };
-
   const handleLearnCategorySelect = (category: string) => {
     setActiveLearnCategory(category);
   };
-
   const handleLearnSubcategorySelect = (subcategory: string) => {
     setActiveLearnSubcategory(subcategory);
   };
-
   const handleToggleCoreActivity = (activityId: string) => {
     const isCurrentlyCompleted = coreData[selectedDay]?.[activityId] || false;
     updateCoreActivity(selectedDay, activityId, !isCurrentlyCompleted);
@@ -547,15 +525,13 @@ export const Dashboard: React.FC = () => {
       description: !isCurrentlyCompleted ? t('greatJob') : t('progressUpdated')
     });
   };
-
   const clearCorePair = (activityIds: string[]) => {
-    activityIds.forEach((id) => updateCoreActivity(selectedDay, id, false));
+    activityIds.forEach(id => updateCoreActivity(selectedDay, id, false));
     toast({
       title: language === 'en' ? 'Reset' : 'Reset',
       description: language === 'en' ? 'Category cleared.' : 'Categoria a fost resetată.'
     });
   };
-
   const handleToggleDailyActivity = (activityId: string) => {
     const activity = dailyFourData[selectedDay]?.dailyActivities?.find(a => a.id === activityId);
     const isCurrentlyCompleted = activity?.completed || false;
@@ -565,7 +541,6 @@ export const Dashboard: React.FC = () => {
       description: !isCurrentlyCompleted ? t('greatJob') : t('progressUpdated')
     });
   };
-
   const handleToggleWeeklyActivity = (activityId: string) => {
     const activity = dailyFourData[selectedDay]?.weeklyActivities?.find(a => a.id === activityId);
     const isCurrentlyCompleted = activity?.completed || false;
@@ -575,7 +550,6 @@ export const Dashboard: React.FC = () => {
       description: !isCurrentlyCompleted ? t('greatJob') : t('progressUpdated')
     });
   };
-
   const coreItems = getCoreItems();
   const dailyFourItems = getDailyFourItems();
   const weeklyItems = getWeeklyItems();
@@ -583,7 +557,6 @@ export const Dashboard: React.FC = () => {
   const dailyFourScore = getDailyFourScore();
   const weeklyTwoScore = getWeeklyTwoScore();
   const doorScore = hitList.filter(item => item.completed).length;
-
   const getPriorityIcon = (priority?: TaskPriority) => {
     switch (priority) {
       case 'urgent-important':
@@ -596,7 +569,6 @@ export const Dashboard: React.FC = () => {
         return null;
     }
   };
-
   const getPriorityColor = (priority?: TaskPriority) => {
     switch (priority) {
       case 'urgent-important':
@@ -609,61 +581,74 @@ export const Dashboard: React.FC = () => {
         return 'bg-card';
     }
   };
-
   const getCategoryIcon = (category: MissionCategory) => {
-    switch(category) {
-      case 'body': return <Dumbbell className="h-4 w-4 text-red-400" />;
-      case 'being': return <Brain className="h-4 w-4 text-blue-400" />;
-      case 'balance': return <Heart className="h-4 w-4 text-green-400" />;
-      case 'business': return <Briefcase className="h-4 w-4 text-purple-400" />;
-      default: return <Circle className="h-4 w-4" />;
+    switch (category) {
+      case 'body':
+        return <Dumbbell className="h-4 w-4 text-red-400" />;
+      case 'being':
+        return <Brain className="h-4 w-4 text-blue-400" />;
+      case 'balance':
+        return <Heart className="h-4 w-4 text-green-400" />;
+      case 'business':
+        return <Briefcase className="h-4 w-4 text-purple-400" />;
+      default:
+        return <Circle className="h-4 w-4" />;
     }
   };
-  
   const getCategoryColor = (category: MissionCategory) => {
-    switch(category) {
-      case 'body': return 'border-red-500/30 bg-red-500/10';
-      case 'being': return 'border-blue-500/30 bg-blue-500/10';
-      case 'balance': return 'border-green-500/30 bg-green-500/10';
-      case 'business': return 'border-purple-500/30 bg-purple-500/10';
-      default: return 'border-gray-500/30 bg-gray-500/10';
+    switch (category) {
+      case 'body':
+        return 'border-red-500/30 bg-red-500/10';
+      case 'being':
+        return 'border-blue-500/30 bg-blue-500/10';
+      case 'balance':
+        return 'border-green-500/30 bg-green-500/10';
+      case 'business':
+        return 'border-purple-500/30 bg-purple-500/10';
+      default:
+        return 'border-gray-500/30 bg-gray-500/10';
     }
   };
-  
   const getCategoryName = (category: MissionCategory) => {
     if (language === 'en') {
-      switch(category) {
-        case 'body': return 'Body';
-        case 'being': return 'Spirituality';
-        case 'balance': return 'Relationships';
-        case 'business': return 'Business';
-        default: return category;
+      switch (category) {
+        case 'body':
+          return 'Body';
+        case 'being':
+          return 'Spirituality';
+        case 'balance':
+          return 'Relationships';
+        case 'business':
+          return 'Business';
+        default:
+          return category;
       }
     } else {
-      switch(category) {
-        case 'body': return 'Corp';
-        case 'being': return 'Spiritualitate';
-        case 'balance': return 'Relații';
-        case 'business': return 'Afaceri';
-        default: return category;
+      switch (category) {
+        case 'body':
+          return 'Corp';
+        case 'being':
+          return 'Spiritualitate';
+        case 'balance':
+          return 'Relații';
+        case 'business':
+          return 'Afaceri';
+        default:
+          return category;
       }
     }
   };
-
   const hasStack = stackCount > 0 || journalCount > 0;
   const stackToCoreLine = hasStack ? 100 : 0;
   const totalCoreItems = 8;
   const completedCoreItems = Object.keys(coreData[selectedDay] || {}).filter(key => coreData[selectedDay][key]).length;
   const hasCompletedCore = completedCoreItems >= totalCoreItems;
-
   const totalDailyItems = 4;
   const completedDailyItems = dailyFourData[selectedDay]?.dailyActivities?.filter(a => a.completed).length || 0;
   const hasCompletedDailyFour = completedDailyItems >= totalDailyItems;
-
   const totalDoorItems = hitList.filter(item => item.day === activeDay).length;
   const doorProgress = totalDoorItems > 0 ? hitList.filter(item => item.day === activeDay && item.completed).length / totalDoorItems * 100 : 0;
   const hasCompletedDoor = totalDoorItems > 0 && hitList.filter(item => item.day === activeDay && item.completed).length === totalDoorItems;
-
   const coreProgress = Math.min(completedCoreItems / totalCoreItems * 100, 100);
   const dailyProgress = Math.min(completedDailyItems / totalDailyItems * 100, 100);
   const coreToDaily = hasStack ? coreProgress : 0;
@@ -674,7 +659,7 @@ export const Dashboard: React.FC = () => {
     if (hasCompletedCore && !hasShownCoreAnimation) {
       setShowWarriorOverlay(true);
       setHasShownCoreAnimation(true);
-      
+
       // Award XP for Core 4 completion (once per day)
       if (!hasAwardedCoreXP) {
         addXP(100, 'Core 4 completat');
@@ -688,7 +673,7 @@ export const Dashboard: React.FC = () => {
     if (hasCompletedDailyFour && !hasShownDailyAnimation) {
       setShowMediaOverlay(true);
       setHasShownDailyAnimation(true);
-      
+
       // Award XP for Biz 4 completion (once per day)
       if (!hasAwardedDailyXP) {
         addXP(100, 'Biz 4 completat');
@@ -704,36 +689,16 @@ export const Dashboard: React.FC = () => {
     setHasAwardedCoreXP(hasCompletedCore);
     setHasAwardedDailyXP(hasCompletedDailyFour);
   }, [selectedDay]);
-
   return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4">
       {/* Celebration Overlays */}
-      <TransformedWarrior 
-        isVisible={showWarriorOverlay} 
-        onClose={() => setShowWarriorOverlay(false)} 
-      />
-      <MediaMaster 
-        isVisible={showMediaOverlay} 
-        onClose={() => setShowMediaOverlay(false)} 
-      />
-      <LevelUpCelebration 
-        isOpen={showLevelUp} 
-        onClose={dismissLevelUp} 
-        newLevel={newLevel} 
-      />
+      <TransformedWarrior isVisible={showWarriorOverlay} onClose={() => setShowWarriorOverlay(false)} />
+      <MediaMaster isVisible={showMediaOverlay} onClose={() => setShowMediaOverlay(false)} />
+      <LevelUpCelebration isOpen={showLevelUp} onClose={dismissLevelUp} newLevel={newLevel} />
       <XPPopupContainer recentGain={recentXPGain} />
       
       {/* Gamification Celebrations */}
-      <StreakMilestoneCelebration
-        isOpen={showStreakMilestone}
-        onClose={() => setShowStreakMilestone(false)}
-        streakDays={streakData.currentStreak}
-        milestone={streakMilestoneValue}
-      />
-      <BadgeUnlockCelebration
-        isOpen={showBadgeUnlock}
-        onClose={() => setShowBadgeUnlock(false)}
-        badge={unlockedBadge}
-      />
+      <StreakMilestoneCelebration isOpen={showStreakMilestone} onClose={() => setShowStreakMilestone(false)} streakDays={streakData.currentStreak} milestone={streakMilestoneValue} />
+      <BadgeUnlockCelebration isOpen={showBadgeUnlock} onClose={() => setShowBadgeUnlock(false)} badge={unlockedBadge} />
 
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
           <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
@@ -769,31 +734,27 @@ export const Dashboard: React.FC = () => {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                mode="single"
-                selected={selectedCalendarDate}
-                onSelect={(date) => {
-                  if (date) {
-                    setSelectedCalendarDate(date);
-                    // Map date to day of week for Core/Daily
-                    const dayMap: Record<number, 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su'> = {
-                      0: 'Su', 1: 'Mo', 2: 'Tu', 3: 'We', 4: 'Th', 5: 'Fr', 6: 'Sa'
-                    };
-                    setSelectedDay(dayMap[date.getDay()]);
-                    setCalendarOpen(false);
-                  }
-                }}
-                initialFocus
-              />
+              <Calendar mode="single" selected={selectedCalendarDate} onSelect={date => {
+              if (date) {
+                setSelectedCalendarDate(date);
+                // Map date to day of week for Core/Daily
+                const dayMap: Record<number, 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su'> = {
+                  0: 'Su',
+                  1: 'Mo',
+                  2: 'Tu',
+                  3: 'We',
+                  4: 'Th',
+                  5: 'Fr',
+                  6: 'Sa'
+                };
+                setSelectedDay(dayMap[date.getDay()]);
+                setCalendarOpen(false);
+              }
+            }} initialFocus />
             </PopoverContent>
           </Popover>
           
-          <Button 
-            variant="glass" 
-            size="sm" 
-            onClick={() => navigateTo('/daily-timeline')}
-            className="flex items-center gap-2"
-          >
+          <Button variant="glass" size="sm" onClick={() => navigateTo('/daily-timeline')} className="flex items-center gap-2">
             <History className="w-4 h-4" />
             <span className="hidden md:inline">{language === 'en' ? 'Timeline' : 'Istoric'}</span>
           </Button>
@@ -812,7 +773,9 @@ export const Dashboard: React.FC = () => {
         <VisionBoardWidget visionBoard={visionBoard} language={language} />
       </div>
       
-      <div className="mb-6 md:mb-8 glass-card p-4 md:p-6 rounded-2xl animate-fade-in" style={{ animationDelay: '0.1s' }}>
+      <div className="mb-6 md:mb-8 glass-card p-4 md:p-6 rounded-2xl animate-fade-in" style={{
+      animationDelay: '0.1s'
+    }}>
         <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 gradient-text">
           {language === 'en' ? 'Warrior’s Path' : 'Calea Războinicului'}
         </h2>
@@ -833,20 +796,11 @@ export const Dashboard: React.FC = () => {
                   {language === 'en' ? 'START' : 'START'}
                 </Button>}
             </div>
-            <span 
-              className="mt-1 md:mt-2 text-xs text-center text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-              onClick={() => setExplainerModalType('stack')}
-              title="Click pentru explicații despre stack-uri"
-            >
+            <span className="mt-1 md:mt-2 text-xs text-center text-muted-foreground cursor-pointer hover:text-foreground transition-colors" onClick={() => setExplainerModalType('stack')} title="Click pentru explicații despre stack-uri">
               {t('stack')} <span className="opacity-60">ⓘ</span>
             </span>
             {/* Quick access to Gratitude Stack */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigateTo('/stack?type=gratitude')}
-              className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 p-1 h-auto"
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigateTo('/stack?type=gratitude')} className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 p-1 h-auto">
               <Sparkles className="w-3 h-3 mr-1" />
               <span className="hidden md:inline">Gratitude</span>
             </Button>
@@ -933,7 +887,9 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6 animate-fade-in" style={{
+      animationDelay: '0.2s'
+    }}>
         <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 glass-card p-1 rounded-xl">
           <TabsTrigger value="goddess-tools" className="rounded-lg data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300">
             {language === 'en' ? 'RoWarrior Tools' : 'Unelte RoWarrior'}
@@ -949,304 +905,7 @@ export const Dashboard: React.FC = () => {
             
             
             
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg uppercase font-extrabold gradient-text">
-                  {language === 'en' ? 'CORE & DAILY ACTIVITIES' : 'CORE & DAILY FOUR'}
-                </h3>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-                <div className="space-y-6">
-                  <div className="glass-card p-4 md:p-5 rounded-2xl">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 
-                        className="text-base md:text-lg font-bold gradient-text cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => setExplainerModalType('core4')}
-                        title="Click pentru explicații"
-                      >
-                        {language === 'en' ? 'CORE 4' : 'CORE 4'} <span className="text-xs opacity-60">ⓘ</span>
-                      </h3>
-                      <Button variant="glass" size="sm" onClick={() => navigateTo('/core')}>
-                        {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
-                      </Button>
-                    </div>
-                    
-                    {/* Show WarriorPowerCard when Core 4 is complete and animation has been shown */}
-                    {hasCompletedCore && hasShownCoreAnimation ? (
-                      <WarriorPowerCard />
-                    ) : (
-                      <div className="grid grid-cols-2 gap-1.5 md:gap-2">
-                        {/* Row 1: Body - Fitness & Fuel */}
-                        {(() => {
-                          const fitnessCompleted = coreData[selectedDay]?.['fitness'] || false;
-                          const fuelCompleted = coreData[selectedDay]?.['fuel'] || false;
-                          const bodyComplete = fitnessCompleted && fuelCompleted;
-                          
-                          return (
-                            <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
-                              {bodyComplete && (
-                                <div
-                                  className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
-                                  onClick={() => clearCorePair(['fitness', 'fuel'])}
-                                >
-                                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                                  <span className="text-white font-bold text-sm md:text-base">Body Done</span>
-                                </div>
-                              )}
-                              {coreItems.filter(item => item.id === 'fitness' || item.id === 'fuel').map(item => {
-                                const isCompleted = coreData[selectedDay]?.[item.id] || false;
-                                return (
-                                  <Card
-                                    key={item.id}
-                                    className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
-                                    border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
-                                    shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
-                                    transition-colors duration-200 hover:shadow-blue-500/10`}
-                                    onClick={() => handleToggleCoreActivity(item.id)}
-                                  >
-                                    <div className="relative flex items-center justify-center">
-                                      <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
-                                      {isCompleted && (
-                                        <div className="absolute -top-1 -right-1">
-                                          <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
-                                      {item.id === 'fitness' ? 'FITNESS' : 'FUEL'}
-                                    </div>
-                                  </Card>
-                                );
-                              })}
-                            </div>
-                          );
-                        })()}
-                        
-                        {/* Row 2: Relationship - Person 1 & Person 2 */}
-                        {(() => {
-                          const person1Completed = coreData[selectedDay]?.['person1'] || false;
-                          const person2Completed = coreData[selectedDay]?.['person2'] || false;
-                          const relationshipComplete = person1Completed && person2Completed;
-                          
-                          return (
-                            <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
-                              {relationshipComplete && (
-                                <div
-                                  className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
-                                  onClick={() => clearCorePair(['person1', 'person2'])}
-                                >
-                                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                                  <span className="text-white font-bold text-sm md:text-base">Relationship Done</span>
-                                </div>
-                              )}
-                              {coreItems.filter(item => item.id === 'person1' || item.id === 'person2').map(item => {
-                                const isCompleted = coreData[selectedDay]?.[item.id] || false;
-                                return (
-                                  <Card
-                                    key={item.id}
-                                    className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
-                                    border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
-                                    shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
-                                    transition-colors duration-200 hover:shadow-blue-500/10`}
-                                    onClick={() => handleToggleCoreActivity(item.id)}
-                                  >
-                                    <div className="relative flex items-center justify-center">
-                                      <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
-                                      {isCompleted && (
-                                        <div className="absolute -top-1 -right-1">
-                                          <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
-                                      {item.id === 'person1' ? 'PERSON 1' : 'PERSON 2'}
-                                    </div>
-                                  </Card>
-                                );
-                              })}
-                            </div>
-                          );
-                        })()}
-                        
-                        {/* Row 3: Being - Meditation & Memoirs */}
-                        {(() => {
-                          const meditationCompleted = coreData[selectedDay]?.['meditation'] || false;
-                          const memoirsCompleted = coreData[selectedDay]?.['memoirs'] || false;
-                          const beingComplete = meditationCompleted && memoirsCompleted;
-                          
-                          return (
-                            <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
-                              {beingComplete && (
-                                <div
-                                  className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
-                                  onClick={() => clearCorePair(['meditation', 'memoirs'])}
-                                >
-                                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                                  <span className="text-white font-bold text-sm md:text-base">Being Done</span>
-                                </div>
-                              )}
-                              {coreItems.filter(item => item.id === 'meditation' || item.id === 'memoirs').map(item => {
-                                const isCompleted = coreData[selectedDay]?.[item.id] || false;
-                                return (
-                                  <Card
-                                    key={item.id}
-                                    className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
-                                    border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
-                                    shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
-                                    transition-colors duration-200 hover:shadow-blue-500/10`}
-                                    onClick={() => handleToggleCoreActivity(item.id)}
-                                  >
-                                    <div className="relative flex items-center justify-center">
-                                      <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
-                                      {isCompleted && (
-                                        <div className="absolute -top-1 -right-1">
-                                          <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
-                                      {item.id === 'meditation' ? 'MEDITATION' : 'MEMOIRS'}
-                                    </div>
-                                  </Card>
-                                );
-                              })}
-                            </div>
-                          );
-                        })()}
-                        
-                        {/* Row 4: Business - Discover & Declare */}
-                        {(() => {
-                          const discoverCompleted = coreData[selectedDay]?.['discover'] || false;
-                          const declareCompleted = coreData[selectedDay]?.['declare'] || false;
-                          const businessComplete = discoverCompleted && declareCompleted;
-                          
-                          return (
-                            <div className="col-span-2 grid grid-cols-2 gap-1.5 md:gap-2 relative">
-                              {businessComplete && (
-                                <div
-                                  className="absolute inset-0 z-10 bg-green-600/90 rounded-lg flex items-center justify-center gap-2 cursor-pointer animate-enter"
-                                  onClick={() => clearCorePair(['discover', 'declare'])}
-                                >
-                                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                                  <span className="text-white font-bold text-sm md:text-base">Business Done</span>
-                                </div>
-                              )}
-                              {coreItems.filter(item => item.id === 'discover' || item.id === 'declare').map(item => {
-                                const isCompleted = coreData[selectedDay]?.[item.id] || false;
-                                return (
-                                  <Card
-                                    key={item.id}
-                                    className={`${isCompleted ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
-                                    border ${isCompleted ? 'border-blue-400/50' : 'border-blue-200/70 dark:border-blue-900/50'} 
-                                    shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer 
-                                    transition-colors duration-200 hover:shadow-blue-500/10`}
-                                    onClick={() => handleToggleCoreActivity(item.id)}
-                                  >
-                                    <div className="relative flex items-center justify-center">
-                                      <Activity className={`h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`} />
-                                      {isCompleted && (
-                                        <div className="absolute -top-1 -right-1">
-                                          <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
-                                      {item.id === 'discover' ? 'DISCOVER' : 'DECLARE'}
-                                    </div>
-                                  </Card>
-                                );
-                              })}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-accent/10 to-accent/5 dark:from-purple-900/50 dark:to-purple-800/30 p-3 md:p-4 rounded-lg border border-accent/20 backdrop-blur-sm">
-                    <div className="flex justify-between items-center mb-3 md:mb-4">
-                      <h3 
-                        className="text-base md:text-lg font-bold bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => setExplainerModalType('biz4')}
-                        title="Click pentru explicații"
-                      >
-                        {language === 'en' ? 'Biz 4' : 'Biz 4'} <span className="text-xs opacity-60">ⓘ</span>
-                      </h3>
-                      <Button variant="outline" className="border-accent/50 hover:bg-accent/10 text-xs md:text-sm" onClick={() => navigateTo('/daily-four')}>
-                        {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
-                      </Button>
-                    </div>
-                    
-                    {hasCompletedDailyFour && hasShownDailyAnimation ? (
-                      <MediaMasterCard />
-                    ) : (
-                      <div className="grid grid-cols-2 gap-1.5 md:gap-2 mb-3 md:mb-4">
-                        {dailyFourItems.map(item => {
-                          const isCompleted = item.completed;
-                          return (
-                            <Card
-                              key={item.id}
-                              className={`${isCompleted ? 'bg-gradient-to-br from-purple-600 to-purple-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
-                              border ${isCompleted ? 'border-purple-400/50' : 'border-purple-200/70 dark:border-purple-900/50'} 
-                              shadow-md p-2 md:p-3 flex flex-col items-center justify-center cursor-pointer
-                              transition-colors duration-200 hover:shadow-purple-500/10`}
-                              onClick={() => handleToggleDailyActivity(item.id)}
-                            >
-                              <div className="relative flex items-center justify-center">
-                                {React.cloneElement(item.icon as React.ReactElement, {
-                                  className: `h-4 w-4 md:h-6 md:w-6 ${isCompleted ? 'text-white' : 'text-primary'}`
-                                })}
-                                {isCompleted && (
-                                  <div className="absolute -top-1 -right-1">
-                                    <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                  </div>
-                                )}
-                              </div>
-                              <div className={`mt-1 md:mt-2 text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
-                                {item.title}
-                              </div>
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    )}
-                    
-                    <h3 className="text-xs md:text-sm font-bold bg-gradient-to-r from-goddess-gold to-goddess-gold/80 bg-clip-text text-transparent mb-2">
-                      {language === 'en' ? 'WEEKLY TWO' : 'WEEKLY TWO'}
-                    </h3>
-                    <div className="grid grid-cols-2 gap-1.5 md:gap-2">
-                      {weeklyItems.map(item => {
-                        const isCompleted = item.completed;
-                        return (
-                          <Card
-                            key={item.id}
-                            className={`${isCompleted ? 'bg-gradient-to-br from-pink-600 to-pink-800 text-white' : 'bg-card hover:bg-muted text-foreground'} 
-                            border ${isCompleted ? 'border-pink-400/50' : 'border-pink-200/70 dark:border-pink-900/50'} 
-                            shadow-md p-2 md:p-3 flex items-center justify-center cursor-pointer
-                            transition-colors duration-200 hover:shadow-pink-500/10`}
-                            onClick={() => handleToggleWeeklyActivity(item.id)}
-                          >
-                            <div className="relative flex items-center justify-center">
-                              <div className={`text-xs text-center font-medium ${isCompleted ? 'text-white' : 'text-foreground'}`}>
-                                {item.title}
-                              </div>
-                              {isCompleted && (
-                                <div className="absolute -top-1 -right-1">
-                                  <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
-                                </div>
-                              )}
-                            </div>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mb-6 md:mb-8">
               <div>
@@ -1410,19 +1069,15 @@ export const Dashboard: React.FC = () => {
                 </Card>
                 
                 {/* Rewards Showcase */}
-                <RewardsShowcase 
-                  currentLevel={xpData.currentLevel}
-                  onEquip={(rewardId) => {
-                    // Save equipped reward to localStorage
-                    const equippedKey = `equipped_${rewardId.split('_')[0]}`;
-                    localStorage.setItem(equippedKey, rewardId);
-                  }}
-                  equippedRewards={{
-                    theme: localStorage.getItem('equipped_theme') || undefined,
-                    avatar: localStorage.getItem('equipped_avatar') || undefined,
-                    frame: localStorage.getItem('equipped_frame') || undefined
-                  }}
-                />
+                <RewardsShowcase currentLevel={xpData.currentLevel} onEquip={rewardId => {
+                // Save equipped reward to localStorage
+                const equippedKey = `equipped_${rewardId.split('_')[0]}`;
+                localStorage.setItem(equippedKey, rewardId);
+              }} equippedRewards={{
+                theme: localStorage.getItem('equipped_theme') || undefined,
+                avatar: localStorage.getItem('equipped_avatar') || undefined,
+                frame: localStorage.getItem('equipped_frame') || undefined
+              }} />
               </div>
             </div>
           </div>
@@ -1434,10 +1089,6 @@ export const Dashboard: React.FC = () => {
       </Tabs>
       
       {/* Explainer Modal */}
-      <ExplainerModal 
-        open={explainerModalType !== null} 
-        onOpenChange={(open) => !open && setExplainerModalType(null)}
-        type={explainerModalType || 'core4'}
-      />
+      <ExplainerModal open={explainerModalType !== null} onOpenChange={open => !open && setExplainerModalType(null)} type={explainerModalType || 'core4'} />
     </div>;
 };
