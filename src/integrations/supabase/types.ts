@@ -563,6 +563,77 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_habit_completions: {
+        Row: {
+          completed_at: string | null
+          date: string
+          habit_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          date?: string
+          habit_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          date?: string
+          habit_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_habit_completions_habit_id_fkey"
+            columns: ["habit_id"]
+            isOneToOne: false
+            referencedRelation: "daily_habits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_habits: {
+        Row: {
+          category: string
+          created_at: string | null
+          habit_group: string
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          position: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          habit_group?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          position?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          habit_group?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          position?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_progress: {
         Row: {
           created_at: string | null
