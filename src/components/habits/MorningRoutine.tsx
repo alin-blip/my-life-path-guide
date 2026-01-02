@@ -6,10 +6,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sun, Plus, Settings, Play, Check, ChevronRight, Dumbbell, Heart, Brain, Briefcase, X } from 'lucide-react';
+import { Sun, Plus, Settings, Play, Check, ChevronRight, Dumbbell, Heart, Brain, Briefcase, X, Target, Loader2 } from 'lucide-react';
 import { useDailyHabits, HabitCategory } from '@/hooks/useDailyHabits';
 import { useDailyFlow } from '@/hooks/useDailyFlow';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { v4 as uuidv4 } from 'uuid';
+import { getWeekKey, getTodayAbbrev } from '@/utils/weekUtils';
+import { toast } from '@/hooks/use-toast';
 
 const CATEGORY_CONFIG: Record<HabitCategory, { 
   title: string; 
@@ -54,6 +58,11 @@ export const MorningRoutine: React.FC = () => {
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitCategory, setNewHabitCategory] = useState<HabitCategory>('body');
   const [newHabitIcon, setNewHabitIcon] = useState('✨');
+  
+  // Top 4 Priorities state
+  const [priorities, setPriorities] = useState<string[]>(['', '', '', '']);
+  const [isAddingPriorities, setIsAddingPriorities] = useState(false);
+  const [showPriorityInputs, setShowPriorityInputs] = useState(false);
 
   const activeHabits = habits.filter(h => h.is_active);
   const completedHabits = activeHabits.filter(h => isHabitCompleted(h.id));
@@ -110,6 +119,82 @@ export const MorningRoutine: React.FC = () => {
     }
     handleFlowNext();
   };
+
+  // Priority functions
+  const handlePriorityChange = (index: number, value: string) => {
+    const newPriorities = [...priorities];
+    newPriorities[index] = value;
+    setPriorities(newPriorities);
+  };
+
+  const handleAddPriorities = async () => {
+    const validPriorities = priorities.filter(p => p.trim());
+    if (validPriorities.length === 0) return;
+
+    setIsAddingPriorities(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: 'Te rog să te autentifici',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      const weekKey = getWeekKey();
+      const todayAbbrev = getTodayAbbrev();
+
+      const tasksToInsert = validPriorities.map((title, index) => ({
+        id: uuidv4(),
+        user_id: user.id,
+        title: title.trim(),
+        task_type: 'hit' as const,
+        list_type: 'hit' as const,
+        week_key: weekKey,
+        day_of_week: todayAbbrev,
+        completed: false,
+        position: index,
+        priority: index === 0 ? 3 : index === 1 ? 2 : 0
+      }));
+
+      const { error } = await supabase
+        .from('user_tasks')
+        .insert(tasksToInsert);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Priorități adăugate!',
+        description: `${validPriorities.length} sarcini adăugate pentru azi`
+      });
+
+      setPriorities(['', '', '', '']);
+      setShowPriorityInputs(false);
+    } catch (error) {
+      console.error('Error adding priorities:', error);
+      toast({
+        title: 'Eroare',
+        description: 'Nu s-au putut adăuga sarcinile',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsAddingPriorities(false);
+    }
+  };
+
+  const handlePriorityKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === 'Enter') {
+      if (index < 3) {
+        const nextInput = document.getElementById(`morning-priority-input-${index + 1}`);
+        nextInput?.focus();
+      } else {
+        handleAddPriorities();
+      }
+    }
+  };
+
+  const hasAnyPriority = priorities.some(p => p.trim());
 
   if (isLoading) {
     return (
@@ -315,6 +400,78 @@ export const MorningRoutine: React.FC = () => {
             Adaugă habits pentru rutina ta de dimineață
           </p>
         )}
+
+        {/* Top 4 Priorities Section */}
+        <div className="border-t border-border/50 pt-4 mt-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Target className="h-5 w-5 text-amber-500" />
+            <h4 className="font-medium text-sm">Top 4 Priorități pentru Azi</h4>
+          </div>
+
+          {!showPriorityInputs ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPriorityInputs(true)}
+              className="w-full gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Adaugă Top 4 Priorități
+            </Button>
+          ) : (
+            <div className="space-y-2">
+              {priorities.map((priority, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <span className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold",
+                    index === 0 ? 'bg-red-500/20 text-red-400' : 
+                    index === 1 ? 'bg-orange-500/20 text-orange-400' : 
+                    index === 2 ? 'bg-yellow-500/20 text-yellow-400' : 
+                    'bg-muted text-muted-foreground'
+                  )}>
+                    {index + 1}
+                  </span>
+                  <Input
+                    id={`morning-priority-input-${index}`}
+                    value={priority}
+                    onChange={(e) => handlePriorityChange(index, e.target.value)}
+                    onKeyDown={(e) => handlePriorityKeyDown(e, index)}
+                    placeholder={`Prioritatea ${index + 1}...`}
+                    className="flex-1 h-9 text-sm"
+                    disabled={isAddingPriorities}
+                  />
+                </div>
+              ))}
+
+              <div className="flex gap-2 mt-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowPriorityInputs(false);
+                    setPriorities(['', '', '', '']);
+                  }}
+                  disabled={isAddingPriorities}
+                >
+                  Anulează
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleAddPriorities}
+                  disabled={!hasAnyPriority || isAddingPriorities}
+                  className="gap-2"
+                >
+                  {isAddingPriorities ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Plus className="h-4 w-4" />
+                  )}
+                  Adaugă
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       </CardContent>
 
       {/* Settings Dialog */}
