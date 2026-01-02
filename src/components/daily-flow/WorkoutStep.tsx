@@ -6,10 +6,74 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Dumbbell, Play, Square, Plus, Trash2, Check, Clock, 
-  Utensils 
+  Utensils, ChevronDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Lista de exerciții predefinite
+const PRESET_EXERCISES = [
+  // Piept
+  { name: 'Bench Press', category: 'Piept' },
+  { name: 'Incline Bench Press', category: 'Piept' },
+  { name: 'Decline Bench Press', category: 'Piept' },
+  { name: 'Dumbbell Press', category: 'Piept' },
+  { name: 'Dumbbell Flyes', category: 'Piept' },
+  { name: 'Cable Crossover', category: 'Piept' },
+  { name: 'Push-ups', category: 'Piept' },
+  // Spate
+  { name: 'Deadlift', category: 'Spate' },
+  { name: 'Barbell Row', category: 'Spate' },
+  { name: 'Pull-ups', category: 'Spate' },
+  { name: 'Lat Pulldown', category: 'Spate' },
+  { name: 'Seated Cable Row', category: 'Spate' },
+  { name: 'T-Bar Row', category: 'Spate' },
+  { name: 'Face Pulls', category: 'Spate' },
+  // Picioare
+  { name: 'Squat', category: 'Picioare' },
+  { name: 'Front Squat', category: 'Picioare' },
+  { name: 'Leg Press', category: 'Picioare' },
+  { name: 'Romanian Deadlift', category: 'Picioare' },
+  { name: 'Leg Curl', category: 'Picioare' },
+  { name: 'Leg Extension', category: 'Picioare' },
+  { name: 'Calf Raises', category: 'Picioare' },
+  { name: 'Lunges', category: 'Picioare' },
+  { name: 'Bulgarian Split Squat', category: 'Picioare' },
+  // Umeri
+  { name: 'Overhead Press', category: 'Umeri' },
+  { name: 'Lateral Raises', category: 'Umeri' },
+  { name: 'Front Raises', category: 'Umeri' },
+  { name: 'Rear Delt Flyes', category: 'Umeri' },
+  { name: 'Arnold Press', category: 'Umeri' },
+  { name: 'Shrugs', category: 'Umeri' },
+  // Brațe
+  { name: 'Barbell Curl', category: 'Brațe' },
+  { name: 'Dumbbell Curl', category: 'Brațe' },
+  { name: 'Hammer Curl', category: 'Brațe' },
+  { name: 'Tricep Pushdown', category: 'Brațe' },
+  { name: 'Skull Crushers', category: 'Brațe' },
+  { name: 'Tricep Dips', category: 'Brațe' },
+  { name: 'Close Grip Bench Press', category: 'Brațe' },
+  // Core
+  { name: 'Plank', category: 'Core' },
+  { name: 'Crunches', category: 'Core' },
+  { name: 'Russian Twists', category: 'Core' },
+  { name: 'Leg Raises', category: 'Core' },
+  { name: 'Ab Wheel Rollout', category: 'Core' },
+  // Cardio
+  { name: 'Running', category: 'Cardio' },
+  { name: 'Cycling', category: 'Cardio' },
+  { name: 'Rowing', category: 'Cardio' },
+  { name: 'Jump Rope', category: 'Cardio' },
+  { name: 'Burpees', category: 'Cardio' },
+];
 
 interface Exercise {
   id: string;
@@ -97,10 +161,10 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
     }
   };
 
-  const addExercise = () => {
+  const addExercise = (exerciseName?: string) => {
     const newExercise: Exercise = {
       id: crypto.randomUUID(),
-      name: '',
+      name: exerciseName || '',
       sets: 3,
       reps: 10,
       weight: 0
@@ -150,6 +214,13 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
 
   const canComplete = !isWorkoutStarted && (exercises.length > 0 || mealPlanDone);
 
+  // Grupează exercițiile pe categorii
+  const groupedExercises = PRESET_EXERCISES.reduce((acc, ex) => {
+    if (!acc[ex.category]) acc[ex.category] = [];
+    acc[ex.category].push(ex.name);
+    return acc;
+  }, {} as Record<string, string[]>);
+
   return (
     <Card>
       <CardHeader>
@@ -183,10 +254,31 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-medium">Exerciții</h3>
-              <Button variant="outline" size="sm" onClick={addExercise} className="gap-1">
-                <Plus className="h-4 w-4" />
-                Adaugă
-              </Button>
+              <div className="flex gap-2">
+                <Select onValueChange={(value) => addExercise(value)}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Adaugă exercițiu..." />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px]">
+                    {Object.entries(groupedExercises).map(([category, exList]) => (
+                      <div key={category}>
+                        <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground bg-muted/50">
+                          {category}
+                        </div>
+                        {exList.map((name) => (
+                          <SelectItem key={name} value={name}>
+                            {name}
+                          </SelectItem>
+                        ))}
+                      </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" size="sm" onClick={() => addExercise()} className="gap-1">
+                  <Plus className="h-4 w-4" />
+                  Custom
+                </Button>
+              </div>
             </div>
 
             {exercises.map((exercise) => (
