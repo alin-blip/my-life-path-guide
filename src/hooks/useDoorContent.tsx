@@ -138,6 +138,7 @@ export function useDoorContent() {
   return {
     currentDate,
     currentDateRange,
+    currentWeekKey,
     hotList,
     hitList: filteredHitList,
     doList: filteredDoList,

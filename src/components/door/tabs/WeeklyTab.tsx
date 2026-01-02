@@ -92,6 +92,7 @@ export const WeeklyTab: React.FC = () => {
   const {
     currentDate,
     currentDateRange,
+    currentWeekKey,
     filteredHotList,
     hitList,
     doList,
@@ -414,6 +415,7 @@ export const WeeklyTab: React.FC = () => {
                     handleDropOnKeyPoint={handleDropOnKeyPoint}
                     setSelectedDomino={setSelectedDomino}
                     setDominoKeyPoints={setDominoKeyPoints}
+                    weekKey={currentWeekKey}
                   />
                 </div>
               )}
@@ -508,6 +510,7 @@ export const WeeklyTab: React.FC = () => {
                 handleDropOnKeyPoint={handleDropOnKeyPoint}
                 setSelectedDomino={setSelectedDomino}
                 setDominoKeyPoints={setDominoKeyPoints}
+                weekKey={currentWeekKey}
               />
             </div>
 

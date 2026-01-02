@@ -17,6 +17,8 @@ import { KeyPointMetadataPopover } from './KeyPointMetadataPopover';
 import { weeklyPlanningService, WeeklyPlanningData } from '@/services/weeklyPlanningService';
 import { exportWeeklyPlanToPDF } from '@/services/pdfExportService';
 import { getISOWeek, getYear } from 'date-fns';
+import { useWeeklyHierarchy } from '@/hooks/useWeeklyHierarchy';
+import { HierarchyChain } from './HierarchyBadge';
 
 interface DominoDoorProps {
   selectedDomino: HotListItem | null;
@@ -32,6 +34,7 @@ interface DominoDoorProps {
   handleDropOnKeyPoint?: (keyPointId: string) => void;
   setSelectedDomino?: (domino: HotListItem | null) => void;
   setDominoKeyPoints?: (keyPoints: DominoKeyPoint[]) => void;
+  weekKey?: string;
 }
 
 const KeyPointIcons = [
@@ -54,7 +57,8 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   addNewKeyPoint,
   handleDropOnKeyPoint,
   setSelectedDomino,
-  setDominoKeyPoints
+  setDominoKeyPoints,
+  weekKey
 }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -64,6 +68,26 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [allPlans, setAllPlans] = useState<WeeklyPlanningData[]>([]);
+
+  // Fetch hierarchy for the current week
+  const { hierarchy } = useWeeklyHierarchy(weekKey || null);
+
+  // Build hierarchy chain for display
+  const hierarchyChain = React.useMemo(() => {
+    const chain: Array<{ type: 'annual' | 'quarterly' | 'monthly' | 'weekly'; title: string }> = [];
+    
+    if (hierarchy.annual?.title) {
+      chain.push({ type: 'annual', title: hierarchy.annual.title });
+    }
+    if (hierarchy.quarterly?.title) {
+      chain.push({ type: 'quarterly', title: hierarchy.quarterly.title });
+    }
+    if (hierarchy.monthly?.title) {
+      chain.push({ type: 'monthly', title: hierarchy.monthly.title });
+    }
+    
+    return chain;
+  }, [hierarchy]);
 
   useEffect(() => {
     loadAllPlans();
@@ -315,6 +339,16 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
               </Button>
             </div>
           </div>
+
+          {/* Hierarchy Chain - Shows linked monthly/quarterly/annual goals */}
+          {hierarchyChain.length > 0 && (
+            <div className="animate-fade-in">
+              <p className="text-muted-foreground text-xs font-medium mb-2 uppercase tracking-wide">
+                {t('linkedGoals') || 'Obiective legate'}
+              </p>
+              <HierarchyChain chain={hierarchyChain} />
+            </div>
+          )}
 
           {/* Selected Domino Goal Display */}
           <div className={`${
