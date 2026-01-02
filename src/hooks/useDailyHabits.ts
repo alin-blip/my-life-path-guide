@@ -51,6 +51,17 @@ export const useDailyHabits = (date: Date = new Date()) => {
   const dateString = format(date, 'yyyy-MM-dd');
 
   const seedDefaultHabits = useCallback(async (userId: string) => {
+    // Check if habits already exist to prevent duplicates
+    const { data: existingHabits } = await supabase
+      .from('daily_habits')
+      .select('id')
+      .eq('user_id', userId)
+      .limit(1);
+    
+    if (existingHabits && existingHabits.length > 0) {
+      return; // Already has habits, don't seed
+    }
+
     const allDefaults = [...DEFAULT_CORE4_HABITS, ...DEFAULT_BIZ4_HABITS];
     
     const habitsToInsert = allDefaults.map((habit, index) => ({
