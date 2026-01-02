@@ -58,14 +58,21 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
   const [transcript, setTranscript] = useState('');
   const [voiceLanguage, setVoiceLanguage] = useState<'ro-RO' | 'en-US'>(language === 'en' ? 'en-US' : 'ro-RO');
   const [recognition, setRecognition] = useState<any>(null);
+  const transcriptRef = useRef<string>('');
   
   // TTS state
   const [ttsEnabled, setTtsEnabled] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const handleSendMessageRef = useRef<(text: string) => void>(() => {});
 
   const CategoryIcon = CATEGORY_ICONS[category];
   const categoryInfo = CATEGORY_INFO[category];
+
+  // Keep transcript ref in sync
+  useEffect(() => {
+    transcriptRef.current = transcript;
+  }, [transcript]);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -77,7 +84,7 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         rec.interimResults = true;
         rec.lang = voiceLanguage;
         
-        rec.onresult = (event) => {
+        rec.onresult = (event: any) => {
           let finalTranscript = '';
           for (let i = event.resultIndex; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
@@ -85,19 +92,25 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
             }
           }
           if (finalTranscript) {
-            setTranscript(prev => prev + ' ' + finalTranscript);
+            setTranscript(prev => {
+              const newTranscript = prev ? prev + ' ' + finalTranscript : finalTranscript;
+              transcriptRef.current = newTranscript;
+              return newTranscript;
+            });
           }
         };
 
         rec.onend = () => {
           setIsListening(false);
-          if (transcript.trim()) {
-            handleSendMessage(transcript.trim());
+          const currentTranscript = transcriptRef.current.trim();
+          if (currentTranscript) {
+            handleSendMessageRef.current(currentTranscript);
             setTranscript('');
+            transcriptRef.current = '';
           }
         };
 
-        rec.onerror = (event) => {
+        rec.onerror = (event: any) => {
           console.error('Speech recognition error:', event.error);
           setIsListening(false);
         };
@@ -170,7 +183,7 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
     }
   }, [recognition, isListening, voiceLanguage]);
 
-  const handleSendMessage = async (text: string) => {
+  const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isProcessing) return;
 
     const userMessage: GoalWizardMessage = {
@@ -237,7 +250,12 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [category, step, messages, goalData, language, missionType, isProcessing, ttsEnabled, playTTS, toast]);
+
+  // Keep handleSendMessage ref in sync for speech recognition callback
+  useEffect(() => {
+    handleSendMessageRef.current = handleSendMessage;
+  }, [handleSendMessage]);
 
   const handleSaveGoal = async () => {
     try {
