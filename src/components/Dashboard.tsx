@@ -706,7 +706,7 @@ export const Dashboard: React.FC = () => {
     setHasAwardedDailyXP(hasCompletedDailyFour);
   }, [selectedDay]);
 
-  return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4 bg-gradient-to-b from-background to-muted">
+  return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4">
       {/* Celebration Overlays */}
       <TransformedWarrior 
         isVisible={showWarriorOverlay} 
@@ -756,15 +756,15 @@ export const Dashboard: React.FC = () => {
             </div>)}
         </div>}
       
-      <div className="flex justify-between items-center mb-4 md:mb-6">
-        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+      <div className="flex justify-between items-center mb-4 md:mb-6 animate-fade-in">
+        <h1 className="text-2xl md:text-3xl font-bold gradient-text">
           {language === 'en' ? 'My Daily' : 'Zilnica mea'}
         </h1>
         
         <div className="flex items-center gap-2">
           <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <Button variant="glass" size="sm" className="flex items-center gap-2">
                 <CalendarIcon className="w-4 h-4" />
                 <span className="hidden md:inline">{format(selectedCalendarDate, 'dd MMM yyyy')}</span>
               </Button>
@@ -790,7 +790,7 @@ export const Dashboard: React.FC = () => {
           </Popover>
           
           <Button 
-            variant="outline" 
+            variant="glass" 
             size="sm" 
             onClick={() => navigateTo('/daily-timeline')}
             className="flex items-center gap-2"
@@ -818,8 +818,8 @@ export const Dashboard: React.FC = () => {
         <VisionBoardWidget visionBoard={visionBoard} language={language} />
       </div>
       
-      <div className="mb-6 md:mb-8 bg-card border border-border p-3 md:p-4 rounded-lg shadow-sm">
-        <h2 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+      <div className="mb-6 md:mb-8 glass-card p-4 md:p-6 rounded-2xl animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 gradient-text">
           {language === 'en' ? 'Warrior’s Path' : 'Calea Războinicului'}
         </h2>
         <div className="flex items-center justify-between">
@@ -939,12 +939,12 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 bg-card">
-          <TabsTrigger value="goddess-tools" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-feminine-primary data-[state=active]:to-feminine-purple">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 glass-card p-1 rounded-xl">
+          <TabsTrigger value="goddess-tools" className="rounded-lg data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300">
             {language === 'en' ? 'RoWarrior Tools' : 'Unelte RoWarrior'}
           </TabsTrigger>
-          <TabsTrigger value="courses" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600">
+          <TabsTrigger value="courses" className="rounded-lg data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300">
             {language === 'en' ? 'Courses' : 'Cursuri'}
           </TabsTrigger>
         </TabsList>
@@ -957,23 +957,23 @@ export const Dashboard: React.FC = () => {
             
             <div className="mb-8">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg uppercase font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <h3 className="text-lg uppercase font-extrabold gradient-text">
                   {language === 'en' ? 'CORE & DAILY ACTIVITIES' : 'CORE & DAILY FOUR'}
                 </h3>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
                 <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-blue-900/50 dark:to-blue-800/30 p-3 md:p-4 rounded-lg border border-primary/20 backdrop-blur-sm">
-                    <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <div className="glass-card p-4 md:p-5 rounded-2xl">
+                    <div className="flex justify-between items-center mb-4">
                       <h3 
-                        className="text-base md:text-lg font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
+                        className="text-base md:text-lg font-bold gradient-text cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => setExplainerModalType('core4')}
                         title="Click pentru explicații"
                       >
                         {language === 'en' ? 'CORE 4' : 'CORE 4'} <span className="text-xs opacity-60">ⓘ</span>
                       </h3>
-                      <Button variant="outline" className="border-primary/50 hover:bg-primary/10 text-xs md:text-sm" onClick={() => navigateTo('/core')}>
+                      <Button variant="glass" size="sm" onClick={() => navigateTo('/core')}>
                         {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
                       </Button>
                     </div>
