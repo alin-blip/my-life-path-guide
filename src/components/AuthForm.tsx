@@ -43,15 +43,38 @@ export const AuthForm: React.FC = () => {
   useEffect(() => {
     // Check if user is already logged in
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        // If vision plan flow, setup tasks first
-        if (isVisionPlanFlow && visionScores) {
-          await setupVisionPlan(session.user.id);
+      try {
+        const { data, error } = await supabase.auth.getSession();
+
+        if (error) {
+          const msg = String((error as any)?.message ?? '');
+          // If the browser can't reach the auth server (common with adblock/VPN/offline), clear local session.
+          if (msg.includes('Failed to fetch')) {
+            await supabase.auth.signOut({ scope: 'local' });
+            toast({
+              title: language === 'en' ? 'Connection issue' : 'Problemă de conexiune',
+              description: language === 'en'
+                ? 'Cannot reach authentication service. Please reload and try again.'
+                : 'Nu pot contacta serviciul de autentificare. Reîncarcă pagina și încearcă din nou.',
+              variant: 'destructive',
+            });
+          }
+          return;
         }
-        navigate(isVisionPlanFlow ? '/focus' : from, { replace: true });
+
+        const session = data.session;
+        if (session) {
+          // If vision plan flow, setup tasks first
+          if (isVisionPlanFlow && visionScores) {
+            await setupVisionPlan(session.user.id);
+          }
+          navigate(isVisionPlanFlow ? '/focus' : from, { replace: true });
+        }
+      } catch {
+        // ignore
       }
     };
+
     checkAuth();
 
     // Reset rate limit counter after window
@@ -60,7 +83,7 @@ export const AuthForm: React.FC = () => {
     }, RATE_LIMIT_WINDOW);
 
     return () => clearTimeout(timer);
-  }, [navigate, from, isVisionPlanFlow, visionScores]);
+  }, [navigate, from, isVisionPlanFlow, visionScores, toast, language]);
 
   const setupVisionPlan = async (userId: string) => {
     if (!visionScores) return;
@@ -190,15 +213,43 @@ export const AuthForm: React.FC = () => {
     } catch (error: any) {
       logSecurityEvent('Authentication error', { email, error: error.message, mode });
       
-      // Generic error message to prevent information disclosure
-      const genericMessage = language === 'en' 
-        ? "Authentication failed. Please check your credentials and try again." 
-        : "Autentificare eșuată. Te rog verifică datele și încearcă din nou.";
-        
+      const msg = String(error?.message ?? '');
+      const name = String(error?.name ?? '');
+      const status = (error as any)?.status;
+
+      const isNetwork = msg.includes('Failed to fetch') || name === 'AuthRetryableFetchError' || status === 0;
+      const isInvalidCreds = msg.toLowerCase().includes('invalid login credentials');
+      const isEmailNotConfirmed = msg.toLowerCase().includes('email not confirmed');
+
+      if (isNetwork) {
+        // Reset local session to avoid refresh-token loops
+        try {
+          await supabase.auth.signOut({ scope: 'local' });
+        } catch {
+          // ignore
+        }
+      }
+
+      const description = isNetwork
+        ? (language === 'en'
+          ? 'Connection issue. Please reload the page (and disable adblock/VPN if needed) then try again.'
+          : 'Problemă de conexiune. Reîncarcă pagina (și dezactivează adblock/VPN dacă e cazul) apoi încearcă din nou.')
+        : isEmailNotConfirmed
+          ? (language === 'en'
+            ? 'Please confirm your email before signing in.'
+            : 'Te rog confirmă emailul înainte să te autentifici.')
+          : isInvalidCreds
+            ? (language === 'en'
+              ? 'Email or password is incorrect.'
+              : 'Emailul sau parola sunt greșite.')
+            : (language === 'en'
+              ? 'Authentication failed. Please try again.'
+              : 'Autentificare eșuată. Te rog încearcă din nou.');
+
       toast({
-        title: language === 'en' ? "Authentication Error" : "Eroare de Autentificare",
-        description: genericMessage,
-        variant: "destructive",
+        title: language === 'en' ? 'Authentication Error' : 'Eroare de Autentificare',
+        description,
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
