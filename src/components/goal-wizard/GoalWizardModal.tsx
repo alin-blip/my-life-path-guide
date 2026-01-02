@@ -268,6 +268,17 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
 
       const userId = session.session.user.id;
       const milestones = goalData.milestones || { threeMonths: '', oneMonth: '', weekOne: '' };
+      const now = new Date();
+      const year = now.getFullYear();
+      const currentQuarter = Math.ceil((now.getMonth() + 1) / 3);
+      const quarterKey = `Q${currentQuarter}-${year}`;
+      const monthKey = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      
+      // Calculate week key
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
+      const weekNumber = Math.ceil((weekStart.getDate() + 6 - weekStart.getDay()) / 7);
+      const weekKey = `${year}-W${String(weekNumber).padStart(2, '0')}`;
 
       const fullGoalData = {
         why: goalData.why || '',
@@ -280,46 +291,172 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         createdVia: 'goal-wizard'
       };
 
-      // Save the mission
-      const { error: missionError } = await supabase
-        .from('missions')
-        .insert([{
-          user_id: userId,
-          category,
-          mission_type: missionType,
-          period,
-          title: goalData.objective || '',
-          measurable_result: milestones.threeMonths || '',
-          goal_data: fullGoalData as any
-        }]);
+      let annualMissionId: string | null = null;
+      let quarterlyMissionId: string | null = null;
+      let monthlyMissionId: string | null = null;
 
-      if (missionError) throw missionError;
+      // === CASCADE SAVING ===
+      
+      if (missionType === 'annual') {
+        // 1. Create ANNUAL mission
+        const { data: annualMission, error: annualError } = await supabase
+          .from('missions')
+          .insert([{
+            user_id: userId,
+            category,
+            mission_type: 'annual',
+            period: String(year),
+            title: goalData.objective || '',
+            measurable_result: (milestones as any).annual || goalData.objective || '',
+            goal_data: fullGoalData as any
+          }])
+          .select('id')
+          .single();
 
-      // Generate weekly tasks from Week 1 milestone
+        if (annualError) throw annualError;
+        annualMissionId = annualMission?.id || null;
+
+        // 2. Create QUARTERLY mission (Q1 - 90 days) linked to annual
+        const { data: quarterlyMission, error: quarterlyError } = await supabase
+          .from('missions')
+          .insert([{
+            user_id: userId,
+            category,
+            mission_type: 'quarterly',
+            period: quarterKey,
+            parent_mission_id: annualMissionId,
+            title: milestones.threeMonths || `${quarterKey} - ${goalData.objective}`,
+            measurable_result: milestones.threeMonths || '',
+            goal_data: {
+              parentObjective: goalData.objective,
+              derivedFrom: 'annual',
+              sourceType: 'cascade'
+            } as any
+          }])
+          .select('id')
+          .single();
+
+        if (quarterlyError) throw quarterlyError;
+        quarterlyMissionId = quarterlyMission?.id || null;
+
+        // 3. Create MONTHLY mission linked to quarterly
+        const { data: monthlyMission, error: monthlyError } = await supabase
+          .from('missions')
+          .insert([{
+            user_id: userId,
+            category,
+            mission_type: 'monthly',
+            period: monthKey,
+            parent_mission_id: quarterlyMissionId,
+            title: milestones.oneMonth || `Luna 1 - ${milestones.threeMonths?.substring(0, 50)}`,
+            measurable_result: milestones.oneMonth || '',
+            goal_data: {
+              parentMilestone: milestones.threeMonths,
+              derivedFrom: 'quarterly',
+              sourceType: 'cascade'
+            } as any
+          }])
+          .select('id')
+          .single();
+
+        if (monthlyError) throw monthlyError;
+        monthlyMissionId = monthlyMission?.id || null;
+
+      } else {
+        // For quarterly missions, create quarterly + monthly + weekly
+        const { data: quarterlyMission, error: quarterlyError } = await supabase
+          .from('missions')
+          .insert([{
+            user_id: userId,
+            category,
+            mission_type: 'quarterly',
+            period: period || quarterKey,
+            title: goalData.objective || '',
+            measurable_result: milestones.threeMonths || '',
+            goal_data: fullGoalData as any
+          }])
+          .select('id')
+          .single();
+
+        if (quarterlyError) throw quarterlyError;
+        quarterlyMissionId = quarterlyMission?.id || null;
+
+        // Create monthly linked to quarterly
+        const { data: monthlyMission, error: monthlyError } = await supabase
+          .from('missions')
+          .insert([{
+            user_id: userId,
+            category,
+            mission_type: 'monthly',
+            period: monthKey,
+            parent_mission_id: quarterlyMissionId,
+            title: milestones.oneMonth || `Luna 1 - ${goalData.objective?.substring(0, 50)}`,
+            measurable_result: milestones.oneMonth || '',
+            goal_data: {
+              parentMilestone: milestones.threeMonths,
+              derivedFrom: 'quarterly',
+              sourceType: 'cascade'
+            } as any
+          }])
+          .select('id')
+          .single();
+
+        if (monthlyError) throw monthlyError;
+        monthlyMissionId = monthlyMission?.id || null;
+      }
+
+      // 4. Create WEEKLY task linked to area and mission hierarchy
       if (milestones.weekOne) {
-        const now = new Date();
-        const weekStart = new Date(now);
-        weekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
-        const weekKey = `${weekStart.getFullYear()}-W${String(Math.ceil((weekStart.getDate() + 6 - weekStart.getDay()) / 7)).padStart(2, '0')}`;
-        
-        // Create a task for Week 1 action
         await supabase.from('user_tasks').insert([{
           user_id: userId,
           title: `🎯 ${milestones.weekOne}`,
           list_type: 'hot',
           week_key: weekKey,
-          task_type: 'goal_wizard',
+          task_type: 'goal_cascade',
           area: category,
           completed: false,
           priority: 1
         }]);
       }
 
+      // Update weekly planning with domino if exists
+      const dominoTitle = milestones.weekOne || goalData.objective;
+      if (dominoTitle) {
+        const { data: existingPlan } = await supabase
+          .from('weekly_planning')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('week_key', weekKey)
+          .single();
+
+        if (existingPlan) {
+          await supabase
+            .from('weekly_planning')
+            .update({ 
+              domino_title: dominoTitle,
+              week_goal: goalData.objective || ''
+            })
+            .eq('id', existingPlan.id);
+        } else {
+          await supabase.from('weekly_planning').insert([{
+            user_id: userId,
+            week_key: weekKey,
+            domino_title: dominoTitle,
+            week_goal: goalData.objective || '',
+            key_points: []
+          }]);
+        }
+      }
+
+      const createdLevels = missionType === 'annual' 
+        ? (language === 'en' ? 'Annual → Quarterly → Monthly → Weekly' : 'Anual → 90 Zile → Lunar → Săptămânal')
+        : (language === 'en' ? 'Quarterly → Monthly → Weekly' : '90 Zile → Lunar → Săptămânal');
+
       toast({
-        title: language === 'en' ? 'Goal saved!' : 'Obiectiv salvat!',
+        title: language === 'en' ? 'Goal cascade saved!' : 'Obiective salvate în cascadă!',
         description: language === 'en' 
-          ? `${goalData.objective} - Weekly task created!`
-          : `${goalData.objective} - Task săptămânal creat!`
+          ? `Created: ${createdLevels}`
+          : `Create: ${createdLevels}`
       });
 
       onComplete?.();
