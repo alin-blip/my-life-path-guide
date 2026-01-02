@@ -42,8 +42,7 @@ import { BadgeUnlockCelebration } from '@/components/gamification/BadgeUnlockCel
 import { RewardsShowcase } from '@/components/gamification/RewardsShowcase';
 import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
 import { VisionBoardWidget } from '@/components/vision-board/VisionBoardWidget';
-import { DailyHabitsSection } from '@/components/habits/DailyHabitsSection';
-import { StartDayFlow } from '@/components/habits/StartDayFlow';
+import { MorningRoutine } from '@/components/habits/MorningRoutine';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -803,14 +802,9 @@ export const Dashboard: React.FC = () => {
       
       <DailyCompactCard />
       
-      {/* Daily Habits Section - Core 4 + Biz 4 + Custom */}
+      {/* Morning Routine - Unified Habits + Start Day Flow */}
       <div className="mb-6">
-        <DailyHabitsSection date={selectedCalendarDate} />
-      </div>
-      
-      {/* Start Your Day Flow */}
-      <div className="mb-6">
-        <StartDayFlow />
+        <MorningRoutine />
       </div>
       
       {/* Vision Board Widget */}
