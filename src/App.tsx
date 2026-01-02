@@ -53,6 +53,7 @@ const Vision2026 = lazy(() => import("./pages/Vision2026"));
 const Vision2026Plan = lazy(() => import("./pages/Vision2026Plan"));
 const Vision2026Dashboard = lazy(() => import("./pages/Vision2026Dashboard"));
 const VisionBoard2026 = lazy(() => import("./pages/VisionBoard2026"));
+const DailyFlow = lazy(() => import("./pages/DailyFlow"));
 
 // Loading component for lazy routes
 const LoadingFallback = () => (
@@ -214,6 +215,11 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/vision-board" element={<VisionBoard2026 />} />
+                    <Route path="/daily-flow" element={
+                      <ProtectedRoute>
+                        <DailyFlow />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/biz4-report" element={
                       <ProtectedRoute>
                         <Biz4Report />
