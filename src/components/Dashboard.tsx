@@ -42,6 +42,8 @@ import { BadgeUnlockCelebration } from '@/components/gamification/BadgeUnlockCel
 import { RewardsShowcase } from '@/components/gamification/RewardsShowcase';
 import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
 import { VisionBoardWidget } from '@/components/vision-board/VisionBoardWidget';
+import { StartDayCard } from '@/components/daily-flow/StartDayCard';
+import { WeeklyFlowStats } from '@/components/daily-flow/WeeklyFlowStats';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -800,6 +802,16 @@ export const Dashboard: React.FC = () => {
       </div>
       
       <DailyCompactCard />
+      
+      {/* Start Day Card */}
+      <div className="mb-6">
+        <StartDayCard />
+      </div>
+      
+      {/* Weekly Flow Stats */}
+      <div className="mb-6">
+        <WeeklyFlowStats />
+      </div>
       
       {/* Vision Board Widget */}
       <div className="mb-6">
