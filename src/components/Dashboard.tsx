@@ -42,8 +42,8 @@ import { BadgeUnlockCelebration } from '@/components/gamification/BadgeUnlockCel
 import { RewardsShowcase } from '@/components/gamification/RewardsShowcase';
 import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
 import { VisionBoardWidget } from '@/components/vision-board/VisionBoardWidget';
-import { StartDayCard } from '@/components/daily-flow/StartDayCard';
-import { WeeklyFlowStats } from '@/components/daily-flow/WeeklyFlowStats';
+import { DailyHabitsSection } from '@/components/habits/DailyHabitsSection';
+import { StartDayFlow } from '@/components/habits/StartDayFlow';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -803,14 +803,14 @@ export const Dashboard: React.FC = () => {
       
       <DailyCompactCard />
       
-      {/* Start Day Card */}
+      {/* Daily Habits Section - Core 4 + Biz 4 + Custom */}
       <div className="mb-6">
-        <StartDayCard />
+        <DailyHabitsSection date={selectedCalendarDate} />
       </div>
       
-      {/* Weekly Flow Stats */}
+      {/* Start Your Day Flow */}
       <div className="mb-6">
-        <WeeklyFlowStats />
+        <StartDayFlow />
       </div>
       
       {/* Vision Board Widget */}
