@@ -310,6 +310,45 @@ export type Database = {
           },
         ]
       }
+      content_creation: {
+        Row: {
+          completed: boolean | null
+          content_description: string | null
+          content_type: string | null
+          created_at: string | null
+          date: string
+          id: string
+          steps_completed: Json | null
+          updated_at: string | null
+          user_id: string
+          video_description: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          content_description?: string | null
+          content_type?: string | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          steps_completed?: Json | null
+          updated_at?: string | null
+          user_id: string
+          video_description?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          content_description?: string | null
+          content_type?: string | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          steps_completed?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          video_description?: string | null
+        }
+        Relationships: []
+      }
       course_modules: {
         Row: {
           course_id: string
@@ -484,6 +523,42 @@ export type Database = {
           mood_score?: number | null
           top_priority?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_flow_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_step: string | null
+          date: string
+          id: string
+          started_at: string | null
+          steps_completed: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_step?: string | null
+          date?: string
+          id?: string
+          started_at?: string | null
+          steps_completed?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_step?: string | null
+          date?: string
+          id?: string
+          started_at?: string | null
+          steps_completed?: Json | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1381,6 +1456,48 @@ export type Database = {
         }
         Relationships: []
       }
+      relationship_actions: {
+        Row: {
+          action_description: string | null
+          completed: boolean | null
+          created_at: string | null
+          date: string
+          id: string
+          message_sent: string | null
+          person_name: string | null
+          person_type: string
+          quality_time_description: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_description?: string | null
+          completed?: boolean | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          message_sent?: string | null
+          person_name?: string | null
+          person_type: string
+          quality_time_description?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_description?: string | null
+          completed?: boolean | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          message_sent?: string | null
+          person_name?: string | null
+          person_type?: string
+          quality_time_description?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       scheduled_posts: {
         Row: {
           content: string
@@ -1968,6 +2085,92 @@ export type Database = {
           user_id?: string
           week_key?: string
           wins?: string[] | null
+        }
+        Relationships: []
+      }
+      workout_exercises: {
+        Row: {
+          created_at: string | null
+          duration_seconds: number | null
+          exercise_name: string
+          id: string
+          notes: string | null
+          order_index: number | null
+          reps: number | null
+          session_id: string | null
+          sets: number | null
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          exercise_name: string
+          id?: string
+          notes?: string | null
+          order_index?: number | null
+          reps?: number | null
+          session_id?: string | null
+          sets?: number | null
+          user_id: string
+          weight_kg?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          exercise_name?: string
+          id?: string
+          notes?: string | null
+          order_index?: number | null
+          reps?: number | null
+          session_id?: string | null
+          sets?: number | null
+          user_id?: string
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_exercises_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_sessions: {
+        Row: {
+          created_at: string | null
+          date: string
+          ended_at: string | null
+          id: string
+          notes: string | null
+          started_at: string | null
+          total_duration_minutes: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string
+          ended_at?: string | null
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          total_duration_minutes?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          ended_at?: string | null
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          total_duration_minutes?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
