@@ -2,73 +2,64 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Settings, ChevronDown, ChevronUp, Zap, Briefcase, Sparkles } from 'lucide-react';
-import { useDailyHabits, HabitGroup } from '@/hooks/useDailyHabits';
+import { Settings, Heart, Brain, Scale, Briefcase } from 'lucide-react';
+import { useDailyHabits, HabitCategory } from '@/hooks/useDailyHabits';
 import { HabitCard } from './HabitCard';
 import { HabitSettingsModal } from './HabitSettingsModal';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
-interface HabitGroupSectionProps {
+interface CategorySectionProps {
+  category: HabitCategory;
   title: string;
   icon: React.ReactNode;
-  group: HabitGroup;
   habits: ReturnType<typeof useDailyHabits>['habits'];
   isHabitCompleted: (id: string) => boolean;
   onToggle: (id: string) => void;
-  progress: { total: number; completed: number; percentage: number };
 }
 
-const HabitGroupSection: React.FC<HabitGroupSectionProps> = ({
+const CategorySection: React.FC<CategorySectionProps> = ({
   title,
   icon,
-  group,
   habits,
   isHabitCompleted,
   onToggle,
-  progress,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const completedCount = habits.filter(h => isHabitCompleted(h.id)).length;
+  const totalCount = habits.length;
 
   if (habits.length === 0) return null;
 
   return (
-    <div className="space-y-3">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center justify-between w-full text-left"
-      >
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
-          <span className="font-semibold text-sm">{title}</span>
-          <span className="text-xs text-muted-foreground">
-            {progress.completed}/{progress.total}
-          </span>
+          <span className="font-medium text-sm">{title}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Progress value={progress.percentage} className="w-16 h-2" />
-          {isExpanded ? (
-            <ChevronUp className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          )}
-        </div>
-      </button>
-
-      {isExpanded && (
-        <div className="grid grid-cols-4 gap-2">
-          {habits.map(habit => (
-            <HabitCard
-              key={habit.id}
-              habit={habit}
-              isCompleted={isHabitCompleted(habit.id)}
-              onToggle={() => onToggle(habit.id)}
-            />
-          ))}
-        </div>
-      )}
+        <span className="text-xs text-muted-foreground">
+          {completedCount}/{totalCount}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {habits.map(habit => (
+          <HabitCard
+            key={habit.id}
+            habit={habit}
+            isCompleted={isHabitCompleted(habit.id)}
+            onToggle={() => onToggle(habit.id)}
+          />
+        ))}
+      </div>
     </div>
   );
+};
+
+const CATEGORY_CONFIG: Record<HabitCategory, { title: string; icon: React.ReactNode; color: string }> = {
+  body: { title: 'Body', icon: <Heart className="h-4 w-4 text-red-400" />, color: 'text-red-400' },
+  being: { title: 'Being', icon: <Brain className="h-4 w-4 text-purple-400" />, color: 'text-purple-400' },
+  balance: { title: 'Balance', icon: <Scale className="h-4 w-4 text-blue-400" />, color: 'text-blue-400' },
+  business: { title: 'Business', icon: <Briefcase className="h-4 w-4 text-green-400" />, color: 'text-green-400' },
 };
 
 interface DailyHabitsSectionProps {
@@ -82,24 +73,18 @@ export const DailyHabitsSection: React.FC<DailyHabitsSectionProps> = ({ date = n
     isLoading,
     toggleHabit,
     isHabitCompleted,
-    getGroupProgress,
-    getHabitsByGroup,
     addHabit,
     updateHabit,
     deleteHabit,
     refetch,
   } = useDailyHabits(date);
 
-  const core4Habits = getHabitsByGroup('core4');
-  const biz4Habits = getHabitsByGroup('biz4');
-  const customHabits = getHabitsByGroup('custom');
+  // Group habits by category
+  const getHabitsByCategory = (category: HabitCategory) => 
+    habits.filter(h => h.category === category && h.is_active);
 
-  const core4Progress = getGroupProgress('core4');
-  const biz4Progress = getGroupProgress('biz4');
-  const customProgress = getGroupProgress('custom');
-
-  const totalCompleted = core4Progress.completed + biz4Progress.completed + customProgress.completed;
-  const totalHabits = core4Progress.total + biz4Progress.total + customProgress.total;
+  const totalCompleted = habits.filter(h => h.is_active && isHabitCompleted(h.id)).length;
+  const totalHabits = habits.filter(h => h.is_active).length;
   const totalPercentage = totalHabits > 0 ? (totalCompleted / totalHabits) * 100 : 0;
 
   if (isLoading) {
@@ -144,37 +129,23 @@ export const DailyHabitsSection: React.FC<DailyHabitsSectionProps> = ({ date = n
           <Progress value={totalPercentage} className="h-2 mt-2" />
         </CardHeader>
         <CardContent className="space-y-4">
-          <HabitGroupSection
-            title="Core 4"
-            icon={<Zap className="h-4 w-4 text-yellow-400" />}
-            group="core4"
-            habits={core4Habits}
-            isHabitCompleted={isHabitCompleted}
-            onToggle={toggleHabit}
-            progress={core4Progress}
-          />
-
-          <HabitGroupSection
-            title="Biz 4"
-            icon={<Briefcase className="h-4 w-4 text-green-400" />}
-            group="biz4"
-            habits={biz4Habits}
-            isHabitCompleted={isHabitCompleted}
-            onToggle={toggleHabit}
-            progress={biz4Progress}
-          />
-
-          {customHabits.length > 0 && (
-            <HabitGroupSection
-              title="Custom"
-              icon={<Sparkles className="h-4 w-4 text-purple-400" />}
-              group="custom"
-              habits={customHabits}
-              isHabitCompleted={isHabitCompleted}
-              onToggle={toggleHabit}
-              progress={customProgress}
-            />
-          )}
+          {(['body', 'being', 'balance', 'business'] as HabitCategory[]).map(category => {
+            const categoryHabits = getHabitsByCategory(category);
+            if (categoryHabits.length === 0) return null;
+            
+            const config = CATEGORY_CONFIG[category];
+            return (
+              <CategorySection
+                key={category}
+                category={category}
+                title={config.title}
+                icon={config.icon}
+                habits={categoryHabits}
+                isHabitCompleted={isHabitCompleted}
+                onToggle={toggleHabit}
+              />
+            );
+          })}
         </CardContent>
       </Card>
 
