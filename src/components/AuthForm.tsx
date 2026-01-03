@@ -1,13 +1,25 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { Eye, EyeOff, HelpCircle } from 'lucide-react';
+import { Eye, EyeOff, HelpCircle, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSecurity } from './SecurityProvider';
 import { SecureInput } from './SecureInput';
+
+const AUTH_TIMEOUT_MS = 12000; // 12 second timeout for auth operations
+
+// Helper to wrap auth calls with timeout
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error('AUTH_TIMEOUT')), ms)
+    ),
+  ]);
+}
 
 enum AuthMode {
   LOGIN,
@@ -24,6 +36,7 @@ export const AuthForm: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [rateLimitCount, setRateLimitCount] = useState(0);
+  const [authServiceStatus, setAuthServiceStatus] = useState<'checking' | 'ok' | 'error'>('checking');
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,6 +53,24 @@ export const AuthForm: React.FC = () => {
   const MAX_RATE_LIMIT = 5;
   const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
 
+  // Check auth service connectivity on mount
+  useEffect(() => {
+    const checkAuthService = async () => {
+      try {
+        const healthUrl = `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/health`;
+        const res = await fetch(healthUrl, {
+          method: 'GET',
+          headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+          signal: AbortSignal.timeout(8000),
+        });
+        setAuthServiceStatus(res.ok ? 'ok' : 'error');
+      } catch {
+        setAuthServiceStatus('error');
+      }
+    };
+    checkAuthService();
+  }, []);
+
   useEffect(() => {
     // Check if user is already logged in
     const checkAuth = async () => {
@@ -48,23 +79,15 @@ export const AuthForm: React.FC = () => {
 
         if (error) {
           const msg = String((error as any)?.message ?? '');
-          // If the browser can't reach the auth server (common with adblock/VPN/offline), clear local session.
           if (msg.includes('Failed to fetch')) {
             await supabase.auth.signOut({ scope: 'local' });
-            toast({
-              title: language === 'en' ? 'Connection issue' : 'Problemă de conexiune',
-              description: language === 'en'
-                ? 'Cannot reach authentication service. Please reload and try again.'
-                : 'Nu pot contacta serviciul de autentificare. Reîncarcă pagina și încearcă din nou.',
-              variant: 'destructive',
-            });
+            setAuthServiceStatus('error');
           }
           return;
         }
 
         const session = data.session;
         if (session) {
-          // If vision plan flow, setup tasks first
           if (isVisionPlanFlow && visionScores) {
             await setupVisionPlan(session.user.id);
           }
@@ -77,7 +100,6 @@ export const AuthForm: React.FC = () => {
 
     checkAuth();
 
-    // Reset rate limit counter after window
     const timer = setTimeout(() => {
       setRateLimitCount(0);
     }, RATE_LIMIT_WINDOW);
@@ -161,13 +183,16 @@ export const AuthForm: React.FC = () => {
           return;
         }
 
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`
-          }
-        });
+        const { error } = await withTimeout(
+          supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`
+            }
+          }),
+          AUTH_TIMEOUT_MS
+        );
 
         if (error) throw error;
 
@@ -179,16 +204,18 @@ export const AuthForm: React.FC = () => {
         setMode(AuthMode.LOGIN);
         logSecurityEvent('User registration attempt', { email });
       } else if (mode === AuthMode.LOGIN) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { data, error } = await withTimeout(
+          supabase.auth.signInWithPassword({
+            email,
+            password,
+          }),
+          AUTH_TIMEOUT_MS
+        );
 
         if (error) throw error;
 
         logSecurityEvent('Successful login', { email });
         
-        // Handle vision plan flow
         if (isVisionPlanFlow && visionScores && data.user) {
           await setupVisionPlan(data.user.id);
           navigate('/focus', { replace: true });
@@ -196,9 +223,12 @@ export const AuthForm: React.FC = () => {
           navigate(from, { replace: true });
         }
       } else if (mode === AuthMode.FORGOT_PASSWORD) {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth`,
-        });
+        const { error } = await withTimeout(
+          supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/auth`,
+          }),
+          AUTH_TIMEOUT_MS
+        );
 
         if (error) throw error;
 
@@ -217,12 +247,13 @@ export const AuthForm: React.FC = () => {
       const name = String(error?.name ?? '');
       const status = (error as any)?.status;
 
-      const isNetwork = msg.includes('Failed to fetch') || name === 'AuthRetryableFetchError' || status === 0;
+      const isTimeout = msg === 'AUTH_TIMEOUT';
+      const isNetwork = isTimeout || msg.includes('Failed to fetch') || name === 'AuthRetryableFetchError' || status === 0;
       const isInvalidCreds = msg.toLowerCase().includes('invalid login credentials');
       const isEmailNotConfirmed = msg.toLowerCase().includes('email not confirmed');
 
       if (isNetwork) {
-        // Reset local session to avoid refresh-token loops
+        setAuthServiceStatus('error');
         try {
           await supabase.auth.signOut({ scope: 'local' });
         } catch {
@@ -230,21 +261,25 @@ export const AuthForm: React.FC = () => {
         }
       }
 
-      const description = isNetwork
+      const description = isTimeout
         ? (language === 'en'
-          ? 'Connection issue. Please reload the page (and disable adblock/VPN if needed) then try again.'
-          : 'Problemă de conexiune. Reîncarcă pagina (și dezactivează adblock/VPN dacă e cazul) apoi încearcă din nou.')
-        : isEmailNotConfirmed
+          ? 'Request timed out. Check your network or disable VPN/adblock.'
+          : 'Cererea a expirat. Verifică rețeaua sau dezactivează VPN/adblock.')
+        : isNetwork
           ? (language === 'en'
-            ? 'Please confirm your email before signing in.'
-            : 'Te rog confirmă emailul înainte să te autentifici.')
-          : isInvalidCreds
+            ? 'Connection issue. Please reload the page (and disable adblock/VPN if needed) then try again.'
+            : 'Problemă de conexiune. Reîncarcă pagina (și dezactivează adblock/VPN dacă e cazul) apoi încearcă din nou.')
+          : isEmailNotConfirmed
             ? (language === 'en'
-              ? 'Email or password is incorrect.'
-              : 'Emailul sau parola sunt greșite.')
-            : (language === 'en'
-              ? 'Authentication failed. Please try again.'
-              : 'Autentificare eșuată. Te rog încearcă din nou.');
+              ? 'Please confirm your email before signing in.'
+              : 'Te rog confirmă emailul înainte să te autentifici.')
+            : isInvalidCreds
+              ? (language === 'en'
+                ? 'Email or password is incorrect.'
+                : 'Emailul sau parola sunt greșite.')
+              : (language === 'en'
+                ? 'Authentication failed. Please try again.'
+                : 'Autentificare eșuată. Te rog încearcă din nou.');
 
       toast({
         title: language === 'en' ? 'Authentication Error' : 'Eroare de Autentificare',
@@ -277,6 +312,35 @@ export const AuthForm: React.FC = () => {
           {mode === AuthMode.REGISTER && (language === 'en' ? "Create your account to Have It All" : "Creează-ți contul pentru a avea totul")}
           {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "Enter your email to reset your password" : "Introdu email-ul pentru a reseta parola")}
         </p>
+      </div>
+
+      {/* Auth service status indicator */}
+      <div className="mb-4 flex items-center justify-center gap-2 text-sm">
+        {authServiceStatus === 'checking' && (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            <span className="text-muted-foreground">{language === 'en' ? 'Checking connection...' : 'Verificare conexiune...'}</span>
+          </>
+        )}
+        {authServiceStatus === 'ok' && (
+          <>
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <span className="text-green-500">{language === 'en' ? 'Auth service reachable' : 'Serviciu de autentificare disponibil'}</span>
+          </>
+        )}
+        {authServiceStatus === 'error' && (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 text-destructive">
+              <XCircle className="h-4 w-4" />
+              <span>{language === 'en' ? 'Cannot reach auth service' : 'Nu pot contacta serviciul de autentificare'}</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {language === 'en'
+                ? 'Try disabling VPN/AdBlock, or use a different network.'
+                : 'Încearcă să dezactivezi VPN/AdBlock sau folosește altă rețea.'}
+            </p>
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 animate-slide-up">

@@ -24,7 +24,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const isAuthPage = location.pathname === '/';
+  const isAuthPage = location.pathname === '/' || location.pathname === '/auth';
   const { user, signOut } = useAuth();
   const { language } = useLanguage();
   const { isLoading, shareReferralLink } = useAffiliateLink();
