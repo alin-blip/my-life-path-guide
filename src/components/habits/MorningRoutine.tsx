@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -48,6 +49,7 @@ const CATEGORY_CONFIG: Record<HabitCategory, {
 };
 
 export const MorningRoutine: React.FC = () => {
+  const navigate = useNavigate();
   const { habits, completions, isLoading, toggleHabit, addHabit, deleteHabit, isHabitCompleted } = useDailyHabits();
   const { session, startDay, completeStep, isStepCompleted, completedCount: flowCompletedCount } = useDailyFlow();
   
@@ -334,6 +336,35 @@ export const MorningRoutine: React.FC = () => {
       </CardHeader>
 
       <CardContent className="pt-2 space-y-4">
+        {/* Champion Routine (Execution Room) */}
+        <div className="rounded-lg border border-border/50 bg-background/40 p-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium">Rutina de Campion</p>
+              <p className="text-xs text-muted-foreground line-clamp-1">
+                Execuție ghidată: Gratitudine → Meditație → Exercițiu → Meal Planning → Content → Task-uri
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/champion-routine-history')}
+              >
+                Istoric
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => navigate('/daily-flow')}
+                className="gap-1"
+              >
+                Deschide
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
         {/* Start Day Button */}
         <Button
           onClick={handleStartDay}
