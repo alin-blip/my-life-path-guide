@@ -1,7 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Timer, ArrowRight, Play, Square, RotateCcw, AlertCircle } from 'lucide-react';
+import { Timer, ArrowRight, Play, Square, RotateCcw, AlertCircle, SkipForward, CheckCircle2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface MeditationStepProps {
   initialDuration: number;
@@ -15,6 +25,7 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
   const [isRunning, setIsRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [savedDuration, setSavedDuration] = useState(initialDuration);
+  const [showSkipDialog, setShowSkipDialog] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -52,6 +63,19 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
     setIsRunning(false);
     setSeconds(0);
     setSavedDuration(0);
+  };
+
+  const handleSkipWithoutMeditation = () => {
+    setShowSkipDialog(false);
+    onComplete(0);
+    onNext();
+  };
+
+  const handleAlreadyMeditated = () => {
+    setShowSkipDialog(false);
+    // Mark as completed with minimum time
+    onComplete(MIN_MEDITATION_SECONDS);
+    onNext();
   };
 
   const totalTime = savedDuration + seconds;
@@ -174,48 +198,94 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
         )}
 
         {/* Action buttons */}
-        <div className="flex gap-3">
-          {!hasMinimumTime || isRunning ? (
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-3">
+            {!hasMinimumTime || isRunning ? (
+              <Button 
+                onClick={handleStartStop} 
+                size="lg" 
+                className={`flex-1 gap-2 ${isRunning ? 'bg-red-500 hover:bg-red-600' : 'bg-purple-500 hover:bg-purple-600'}`}
+              >
+                {isRunning ? (
+                  <>
+                    <Square className="h-5 w-5" />
+                    Stop & Salvează
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-5 w-5" />
+                    {hasCompleted ? 'Continuă Meditația' : 'Start'}
+                  </>
+                )}
+              </Button>
+            ) : (
+              <>
+                <Button 
+                  onClick={handleReset} 
+                  size="lg" 
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <RotateCcw className="h-5 w-5" />
+                  Adaugă timp
+                </Button>
+                <Button 
+                  onClick={onNext} 
+                  size="lg" 
+                  className="flex-1 gap-2"
+                >
+                  Continuă
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+              </>
+            )}
+          </div>
+
+          {/* Skip button - always visible when not running */}
+          {!isRunning && !hasMinimumTime && (
             <Button 
-              onClick={handleStartStop} 
+              onClick={() => setShowSkipDialog(true)} 
               size="lg" 
-              className={`flex-1 gap-2 ${isRunning ? 'bg-red-500 hover:bg-red-600' : 'bg-purple-500 hover:bg-purple-600'}`}
+              variant="ghost"
+              className="w-full gap-2 text-muted-foreground hover:text-foreground"
             >
-              {isRunning ? (
-                <>
-                  <Square className="h-5 w-5" />
-                  Stop & Salvează
-                </>
-              ) : (
-                <>
-                  <Play className="h-5 w-5" />
-                  {hasCompleted ? 'Continuă Meditația' : 'Start'}
-                </>
-              )}
+              <SkipForward className="h-4 w-4" />
+              Sari peste acest pas
             </Button>
-          ) : (
-            <>
-              <Button 
-                onClick={handleReset} 
-                size="lg" 
-                variant="outline"
-                className="gap-2"
-              >
-                <RotateCcw className="h-5 w-5" />
-                Adaugă timp
-              </Button>
-              <Button 
-                onClick={onNext} 
-                size="lg" 
-                className="flex-1 gap-2"
-              >
-                Continuă
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </>
           )}
         </div>
       </Card>
+
+      {/* Skip confirmation dialog */}
+      <AlertDialog open={showSkipDialog} onOpenChange={setShowSkipDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-amber-500" />
+              Sari peste meditație?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              <span className="text-amber-500 font-medium">Atenție:</span> Ziua de astăzi va fi memorată fără meditație.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleAlreadyMeditated}
+              className="bg-green-600 hover:bg-green-700 gap-2"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Am meditat deja
+            </AlertDialogAction>
+            <AlertDialogAction 
+              onClick={handleSkipWithoutMeditation}
+              className="bg-amber-600 hover:bg-amber-700"
+            >
+              OK, sar meditația
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
