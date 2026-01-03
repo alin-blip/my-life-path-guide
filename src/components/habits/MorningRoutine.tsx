@@ -234,6 +234,29 @@ export const MorningRoutine: React.FC = () => {
               <X className="h-4 w-4" />
             </Button>
           </div>
+
+          {/* Champion Routine quick access (visible even in Flow Mode) */}
+          <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-background/40 p-2">
+            <p className="text-xs font-medium">Rutina de Campion</p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8"
+                onClick={() => navigate('/champion-routine-history')}
+              >
+                Istoric
+              </Button>
+              <Button
+                size="sm"
+                className="h-8"
+                onClick={() => navigate('/daily-flow')}
+              >
+                Deschide
+              </Button>
+            </div>
+          </div>
+
           <Progress 
             value={((currentFlowIndex + (isCurrentCompleted ? 1 : 0)) / activeHabits.length) * 100} 
             className="h-2 mt-2 [&>div]:bg-amber-500"
