@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dumbbell, ArrowRight, Check } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dumbbell, ArrowRight, Check, CheckCircle2 } from 'lucide-react';
 import { ActivitySelector, ActivityType } from '../ActivitySelector';
 import { CardioTimer } from '../CardioTimer';
 import { WorkoutStep } from '@/components/daily-flow/WorkoutStep';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface ExerciseStepProps {
   completed: boolean;
@@ -12,9 +16,19 @@ interface ExerciseStepProps {
   onNext: () => void;
 }
 
+interface ManualActivityData {
+  minutes: string;
+  kg: string;
+  calories: string;
+}
+
 export function ExerciseStep({ completed, onComplete, onNext }: ExerciseStepProps) {
   const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(null);
   const [activityCompleted, setActivityCompleted] = useState(false);
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [manualData, setManualData] = useState<ManualActivityData>({ minutes: '', kg: '', calories: '' });
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
 
   const handleActivitySelect = (type: ActivityType) => {
     setSelectedActivity(type);
@@ -33,6 +47,59 @@ export function ExerciseStep({ completed, onComplete, onNext }: ExerciseStepProp
 
   const handleSkipActivity = () => {
     onNext();
+  };
+
+  const handleSaveManualActivity = async () => {
+    if (!manualData.minutes || parseInt(manualData.minutes) <= 0) {
+      toast({
+        title: "Eroare",
+        description: "Te rog introdu numărul de minute.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const today = new Date().toISOString().split('T')[0];
+      const durationSeconds = parseInt(manualData.minutes) * 60;
+
+      // Save to activity_sessions table
+      const { error } = await supabase
+        .from('activity_sessions')
+        .insert({
+          user_id: user.id,
+          activity_type: 'manual',
+          date: today,
+          duration_seconds: durationSeconds,
+          notes: manualData.kg || manualData.calories 
+            ? `${manualData.kg ? `${manualData.kg} kg` : ''}${manualData.kg && manualData.calories ? ', ' : ''}${manualData.calories ? `${manualData.calories} kcal` : ''}`
+            : null
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Salvat!",
+        description: "Activitatea fizică a fost înregistrată.",
+      });
+
+      setActivityCompleted(true);
+      onComplete(true);
+      setShowManualEntry(false);
+    } catch (error) {
+      console.error('Error saving manual activity:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu s-a putut salva activitatea.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // If showing workout, use the full WorkoutStep component
@@ -127,8 +194,82 @@ export function ExerciseStep({ completed, onComplete, onNext }: ExerciseStepProp
           ))}
         </div>
 
-        {/* Skip button */}
+        {/* Manual entry form */}
+        {showManualEntry && (
+          <Card className="p-6 space-y-4 bg-muted/30 border-primary/20">
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+              Am făcut deja activitate
+            </h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="minutes">Minute *</Label>
+                <Input
+                  id="minutes"
+                  type="number"
+                  placeholder="ex: 30"
+                  value={manualData.minutes}
+                  onChange={(e) => setManualData(prev => ({ ...prev, minutes: e.target.value }))}
+                  min="1"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="kg">Greutate (kg) - opțional</Label>
+                  <Input
+                    id="kg"
+                    type="number"
+                    placeholder="ex: 50"
+                    value={manualData.kg}
+                    onChange={(e) => setManualData(prev => ({ ...prev, kg: e.target.value }))}
+                    min="0"
+                    step="0.5"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="calories">Calorii - opțional</Label>
+                  <Input
+                    id="calories"
+                    type="number"
+                    placeholder="ex: 200"
+                    value={manualData.calories}
+                    onChange={(e) => setManualData(prev => ({ ...prev, calories: e.target.value }))}
+                    min="0"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleSaveManualActivity}
+                  disabled={isSaving}
+                  className="flex-1"
+                >
+                  {isSaving ? 'Se salvează...' : 'Salvează'}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowManualEntry(false)}
+                >
+                  Anulează
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Action buttons */}
         <div className="flex flex-col gap-3">
+          {!showManualEntry && !completed && (
+            <Button 
+              variant="outline"
+              onClick={() => setShowManualEntry(true)} 
+              size="lg" 
+              className="w-full gap-2 border-primary/30 hover:bg-primary/10"
+            >
+              <CheckCircle2 className="h-5 w-5" />
+              Am făcut deja
+            </Button>
+          )}
           {completed && (
             <Button 
               onClick={onNext} 
