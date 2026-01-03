@@ -360,6 +360,10 @@ export type Database = {
           created_at: string | null
           daily_todos: Json | null
           date: string
+          evening_completed: boolean | null
+          evening_reflection_done_well: string | null
+          evening_reflection_learned: string | null
+          evening_reflection_not_done: string | null
           exercise_completed: boolean | null
           gratitude_items: Json | null
           id: string
@@ -388,6 +392,10 @@ export type Database = {
           created_at?: string | null
           daily_todos?: Json | null
           date?: string
+          evening_completed?: boolean | null
+          evening_reflection_done_well?: string | null
+          evening_reflection_learned?: string | null
+          evening_reflection_not_done?: string | null
           exercise_completed?: boolean | null
           gratitude_items?: Json | null
           id?: string
@@ -416,6 +424,10 @@ export type Database = {
           created_at?: string | null
           daily_todos?: Json | null
           date?: string
+          evening_completed?: boolean | null
+          evening_reflection_done_well?: string | null
+          evening_reflection_learned?: string | null
+          evening_reflection_not_done?: string | null
           exercise_completed?: boolean | null
           gratitude_items?: Json | null
           id?: string
