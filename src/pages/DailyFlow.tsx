@@ -8,7 +8,7 @@ import {
   Sun, Dumbbell, Heart, Briefcase, CheckSquare, Target, 
   Play, Check, ChevronRight, ArrowLeft
 } from 'lucide-react';
-import { MorningRoutineStep } from '@/components/daily-flow/MorningRoutineStep';
+import { ChampionRoutineStep } from '@/components/champion-routine/ChampionRoutineStep';
 import { WorkoutStep } from '@/components/daily-flow/WorkoutStep';
 import { RelationshipStep } from '@/components/daily-flow/RelationshipStep';
 import { ContentStep } from '@/components/daily-flow/ContentStep';
@@ -19,7 +19,7 @@ import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 
 const FLOW_STEPS = [
-  { id: 'morning', label: 'Rutina de Dimineață', icon: Sun, color: 'text-amber-500' },
+  { id: 'morning', label: 'Rutina de Campion', icon: Sun, color: 'text-amber-500' },
   { id: 'fitness', label: 'Fitness', icon: Dumbbell, color: 'text-green-500' },
   { id: 'relationships', label: 'Relații', icon: Heart, color: 'text-pink-500' },
   { id: 'business', label: 'Business / Content', icon: Briefcase, color: 'text-blue-500' },
@@ -62,7 +62,7 @@ const DailyFlow = () => {
   const renderActiveStep = () => {
     switch (activeStep) {
       case 'morning':
-        return <MorningRoutineStep onComplete={() => handleStepComplete('morning')} />;
+        return <ChampionRoutineStep onComplete={() => handleStepComplete('morning')} />;
       case 'fitness':
         return <WorkoutStep onComplete={() => handleStepComplete('fitness')} />;
       case 'relationships':
