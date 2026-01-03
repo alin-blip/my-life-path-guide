@@ -4,6 +4,7 @@ import { Dumbbell, PersonStanding, Bike, Footprints } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export type ActivityType = 'workout' | 'running' | 'cycling' | 'walking';
+export type CardioActivityType = 'running' | 'cycling' | 'walking';
 
 interface ActivitySelectorProps {
   onSelect: (type: ActivityType) => void;

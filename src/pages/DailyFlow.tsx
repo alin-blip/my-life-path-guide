@@ -8,7 +8,7 @@ import {
   Sun, Dumbbell, Heart, Briefcase, CheckSquare, Target, 
   Play, Check, ChevronRight, ArrowLeft
 } from 'lucide-react';
-import { ChampionRoutineStep } from '@/components/champion-routine/ChampionRoutineStep';
+import { ChampionRoutineFlow } from '@/components/champion-routine/ChampionRoutineFlow';
 import { WorkoutStep } from '@/components/daily-flow/WorkoutStep';
 import { RelationshipStep } from '@/components/daily-flow/RelationshipStep';
 import { ContentStep } from '@/components/daily-flow/ContentStep';
@@ -62,7 +62,7 @@ const DailyFlow = () => {
   const renderActiveStep = () => {
     switch (activeStep) {
       case 'morning':
-        return <ChampionRoutineStep onComplete={() => handleStepComplete('morning')} />;
+        return <ChampionRoutineFlow onComplete={() => handleStepComplete('morning')} />;
       case 'fitness':
         return <WorkoutStep onComplete={() => handleStepComplete('fitness')} />;
       case 'relationships':
