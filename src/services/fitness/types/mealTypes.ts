@@ -7,7 +7,8 @@ export interface Food {
   protein: number;
   carbs: number;
   fat: number;
-  category: 'protein' | 'carb' | 'fat' | 'vegetable' | 'fruit' | 'dairy' | 'other';
+  category: 'protein' | 'carb' | 'fat' | 'vegetable' | 'fruit' | 'dairy' | 'beverage' | 'snack' | 'meal' | 'other';
+  servingSize?: string;
 }
 
 export interface Meal {
