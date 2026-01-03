@@ -53,19 +53,50 @@ export const AuthForm: React.FC = () => {
   const MAX_RATE_LIMIT = 5;
   const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
 
-  // Check auth service connectivity on mount
+  const [backendSlowdown, setBackendSlowdown] = useState(false);
+
+  // Check auth service connectivity on mount - two-step check
   useEffect(() => {
     const checkAuthService = async () => {
+      const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const apiKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const healthUrl = `${baseUrl}/auth/v1/health`;
+
+      // Step 1: Network reachability (without apikey)
       try {
-        const healthUrl = `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/health`;
-        const res = await fetch(healthUrl, {
+        const networkRes = await fetch(healthUrl, {
           method: 'GET',
-          headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+          signal: AbortSignal.timeout(5000),
+        });
+        // Even 401/403 means network is OK
+        if (!networkRes.ok && networkRes.status !== 401 && networkRes.status !== 403) {
+          setAuthServiceStatus('error');
+          return;
+        }
+      } catch {
+        // Network unreachable
+        setAuthServiceStatus('error');
+        return;
+      }
+
+      // Step 2: Full auth readiness (with apikey - tests backend DB)
+      try {
+        const authRes = await fetch(healthUrl, {
+          method: 'GET',
+          headers: { apikey: apiKey },
           signal: AbortSignal.timeout(8000),
         });
-        setAuthServiceStatus(res.ok ? 'ok' : 'error');
+        if (authRes.ok) {
+          setAuthServiceStatus('ok');
+        } else {
+          // Network OK but backend not ready
+          setAuthServiceStatus('error');
+          setBackendSlowdown(true);
+        }
       } catch {
+        // Network OK but backend timed out
         setAuthServiceStatus('error');
+        setBackendSlowdown(true);
       }
     };
     checkAuthService();
@@ -335,9 +366,13 @@ export const AuthForm: React.FC = () => {
               <span>{language === 'en' ? 'Cannot reach auth service' : 'Nu pot contacta serviciul de autentificare'}</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {language === 'en'
-                ? 'Try disabling VPN/AdBlock, or use a different network.'
-                : 'Încearcă să dezactivezi VPN/AdBlock sau folosește altă rețea.'}
+              {backendSlowdown
+                ? (language === 'en'
+                  ? 'Backend temporarily unavailable. Please try again in a few minutes.'
+                  : 'Backend temporar indisponibil. Te rog încearcă din nou în câteva minute.')
+                : (language === 'en'
+                  ? 'Try disabling VPN/AdBlock, or use a different network.'
+                  : 'Încearcă să dezactivezi VPN/AdBlock sau folosește altă rețea.')}
             </p>
           </div>
         )}
