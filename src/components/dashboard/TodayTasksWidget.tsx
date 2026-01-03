@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle2, Plus, ListTodo, Star, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { format } from 'date-fns';
+import { format, startOfWeek, addDays } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 
@@ -13,8 +13,21 @@ interface Task {
   id: string;
   title: string;
   completed: boolean;
-  isBigOne?: boolean;
+  day_of_week: string | null;
+  list_type: string;
 }
+
+// Get week key for a date (Monday-based)
+const getWeekKey = (date: Date): string => {
+  const monday = startOfWeek(date, { weekStartsOn: 1 });
+  return format(monday, 'yyyy-MM-dd');
+};
+
+// Get day abbreviation from date
+const getDayAbbrev = (date: Date): string => {
+  const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+  return days[date.getDay()];
+};
 
 export const TodayTasksWidget = () => {
   const { t, i18n } = useTranslation();
@@ -26,6 +39,8 @@ export const TodayTasksWidget = () => {
 
   const today = new Date();
   const dateLocale = i18n.language === 'ro' ? ro : undefined;
+  const weekKey = getWeekKey(today);
+  const todayAbbrev = getDayAbbrev(today);
 
   useEffect(() => {
     loadTodayData();
@@ -38,18 +53,35 @@ export const TodayTasksWidget = () => {
 
       const todayStr = format(today, 'yyyy-MM-dd');
 
-      // Load from champion_routine_logs
+      // Load Big One from champion_routine_logs
       const { data: routineLog } = await supabase
         .from('champion_routine_logs')
-        .select('big_one_today, daily_todos')
+        .select('big_one_today')
         .eq('user_id', user.id)
         .eq('date', todayStr)
         .maybeSingle();
 
       if (routineLog) {
         setBigOne(routineLog.big_one_today || '');
-        const todos = (routineLog.daily_todos as unknown as Task[]) || [];
-        setTasks(Array.isArray(todos) ? todos : []);
+      }
+
+      // Load tasks from hot_list_items for today (hit and do lists with today's day)
+      const { data: tasksData } = await supabase
+        .from('hot_list_items')
+        .select('id, title, completed, day_of_week, list_type')
+        .eq('user_id', user.id)
+        .eq('week_key', weekKey)
+        .in('list_type', ['hit', 'do'])
+        .or(`day_of_week.eq.${todayAbbrev},day_of_week.is.null`);
+
+      if (tasksData) {
+        setTasks(tasksData.map(t => ({
+          id: t.id,
+          title: t.title,
+          completed: t.completed || false,
+          day_of_week: t.day_of_week,
+          list_type: t.list_type
+        })));
       }
     } catch (error) {
       console.error('Error loading today data:', error);
@@ -58,7 +90,84 @@ export const TodayTasksWidget = () => {
     }
   };
 
-  const saveTasks = async (updatedTasks: Task[], updatedBigOne?: string) => {
+  const handleAddTask = async () => {
+    if (!newTaskTitle.trim()) return;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('hot_list_items')
+        .insert({
+          user_id: user.id,
+          week_key: weekKey,
+          list_type: 'do',
+          title: newTaskTitle.trim(),
+          day_of_week: todayAbbrev,
+          completed: false,
+          item_id: crypto.randomUUID()
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setTasks([...tasks, {
+          id: data.id,
+          title: data.title,
+          completed: false,
+          day_of_week: data.day_of_week,
+          list_type: data.list_type
+        }]);
+      }
+      setNewTaskTitle('');
+      setIsAddingTask(false);
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
+  };
+
+  const handleToggleTask = async (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    try {
+      const { error } = await supabase
+        .from('hot_list_items')
+        .update({ completed: !task.completed })
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      setTasks(tasks.map(t =>
+        t.id === taskId ? { ...t, completed: !t.completed } : t
+      ));
+    } catch (error) {
+      console.error('Error toggling task:', error);
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('hot_list_items')
+        .delete()
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      setTasks(tasks.filter(t => t.id !== taskId));
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
+
+  const handleSetBigOne = async (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -73,15 +182,10 @@ export const TodayTasksWidget = () => {
         .eq('date', todayStr)
         .maybeSingle();
 
-      const tasksJson = JSON.parse(JSON.stringify(updatedTasks));
-
       if (existing) {
         await supabase
           .from('champion_routine_logs')
-          .update({
-            daily_todos: tasksJson,
-            big_one_today: updatedBigOne !== undefined ? updatedBigOne : bigOne,
-          })
+          .update({ big_one_today: task.title })
           .eq('user_id', user.id)
           .eq('date', todayStr);
       } else {
@@ -90,50 +194,13 @@ export const TodayTasksWidget = () => {
           .insert({
             user_id: user.id,
             date: todayStr,
-            daily_todos: tasksJson,
-            big_one_today: updatedBigOne !== undefined ? updatedBigOne : bigOne,
+            big_one_today: task.title
           });
       }
-    } catch (error) {
-      console.error('Error saving tasks:', error);
-    }
-  };
 
-  const handleAddTask = async () => {
-    if (!newTaskTitle.trim()) return;
-
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      title: newTaskTitle.trim(),
-      completed: false,
-    };
-
-    const updatedTasks = [...tasks, newTask];
-    setTasks(updatedTasks);
-    setNewTaskTitle('');
-    setIsAddingTask(false);
-    await saveTasks(updatedTasks);
-  };
-
-  const handleToggleTask = async (taskId: string) => {
-    const updatedTasks = tasks.map(task =>
-      task.id === taskId ? { ...task, completed: !task.completed } : task
-    );
-    setTasks(updatedTasks);
-    await saveTasks(updatedTasks);
-  };
-
-  const handleDeleteTask = async (taskId: string) => {
-    const updatedTasks = tasks.filter(task => task.id !== taskId);
-    setTasks(updatedTasks);
-    await saveTasks(updatedTasks);
-  };
-
-  const handleSetBigOne = async (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
       setBigOne(task.title);
-      await saveTasks(tasks, task.title);
+    } catch (error) {
+      console.error('Error setting big one:', error);
     }
   };
 
@@ -194,41 +261,47 @@ export const TodayTasksWidget = () => {
 
         {/* Task List */}
         <div className="space-y-2 max-h-[200px] overflow-y-auto">
-          {tasks.map(task => (
-            <div 
-              key={task.id}
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 group"
-            >
-              <Checkbox
-                checked={task.completed}
-                onCheckedChange={() => handleToggleTask(task.id)}
-              />
-              <span className={`flex-1 text-sm ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                {task.title}
-              </span>
-              <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
-                {!bigOne && (
+          {tasks.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              {i18n.language === 'ro' ? 'Nu ai taskuri pentru azi' : 'No tasks for today'}
+            </p>
+          ) : (
+            tasks.map(task => (
+              <div 
+                key={task.id}
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 group"
+              >
+                <Checkbox
+                  checked={task.completed}
+                  onCheckedChange={() => handleToggleTask(task.id)}
+                />
+                <span className={`flex-1 text-sm ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                  {task.title}
+                </span>
+                <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
+                  {!bigOne && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => handleSetBigOne(task.id)}
+                      title={i18n.language === 'ro' ? 'Setează ca Big One' : 'Set as Big One'}
+                    >
+                      <Star className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7"
-                    onClick={() => handleSetBigOne(task.id)}
-                    title={i18n.language === 'ro' ? 'Setează ca Big One' : 'Set as Big One'}
+                    className="h-7 w-7 text-destructive"
+                    onClick={() => handleDeleteTask(task.id)}
                   >
-                    <Star className="h-3.5 w-3.5" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </Button>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-destructive"
-                  onClick={() => handleDeleteTask(task.id)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Add Task */}
