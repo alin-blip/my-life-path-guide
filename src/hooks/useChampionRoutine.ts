@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { format } from 'date-fns';
+import { Json } from '@/integrations/supabase/types';
 
 interface ChampionPerson {
   id: string;
@@ -17,6 +18,20 @@ interface ChampionSettings {
   default_autosuggestion: string;
   routine_steps_order: string[];
   active_steps: string[];
+}
+
+interface Meal {
+  id: string;
+  type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  description: string;
+  calories: number;
+  protein: number;
+}
+
+interface Todo {
+  id: string;
+  text: string;
+  completed: boolean;
 }
 
 interface ChampionLog {
@@ -35,6 +50,15 @@ interface ChampionLog {
   exercise_completed: boolean;
   priorities: string[];
   relationship_actions: { person_id: string; action: string; completed: boolean }[];
+  // New fields for Execution Room
+  meals_logged: Meal[];
+  total_calories: number;
+  total_protein: number;
+  content_script: string | null;
+  content_topic: string | null;
+  pomodoro_sessions: number;
+  big_one_today: string | null;
+  daily_todos: Todo[];
 }
 
 const DEFAULT_AUTOSUGGESTION = 'Every day, in every way, I am getting better and better.';
@@ -91,7 +115,15 @@ export function useChampionRoutine() {
           ...logData,
           gratitude_items: logData.gratitude_items as string[] || [],
           priorities: logData.priorities as string[] || [],
-          relationship_actions: logData.relationship_actions as { person_id: string; action: string; completed: boolean }[] || []
+          relationship_actions: logData.relationship_actions as { person_id: string; action: string; completed: boolean }[] || [],
+          meals_logged: (logData.meals_logged as unknown as Meal[]) || [],
+          total_calories: logData.total_calories || 0,
+          total_protein: logData.total_protein || 0,
+          content_script: logData.content_script || null,
+          content_topic: logData.content_topic || null,
+          pomodoro_sessions: logData.pomodoro_sessions || 0,
+          big_one_today: logData.big_one_today || null,
+          daily_todos: (logData.daily_todos as unknown as Todo[]) || [],
         });
       } else {
         // Create new log for today
@@ -110,7 +142,15 @@ export function useChampionRoutine() {
             ...newLog,
             gratitude_items: [],
             priorities: [],
-            relationship_actions: []
+            relationship_actions: [],
+            meals_logged: [],
+            total_calories: 0,
+            total_protein: 0,
+            content_script: null,
+            content_topic: null,
+            pomodoro_sessions: 0,
+            big_one_today: null,
+            daily_todos: [],
           });
         }
       }
@@ -139,6 +179,32 @@ export function useChampionRoutine() {
       }
     } catch (error) {
       console.error('Error updating log:', error);
+    }
+  };
+
+  const updateMeals = async (meals: Meal[], calories: number, protein: number) => {
+    if (!user || !todayLog) return;
+
+    try {
+      const { error } = await supabase
+        .from('champion_routine_logs')
+        .update({ 
+          meals_logged: meals as unknown as Json,
+          total_calories: calories,
+          total_protein: protein
+        })
+        .eq('id', todayLog.id);
+
+      if (!error) {
+        setTodayLog(prev => prev ? { 
+          ...prev, 
+          meals_logged: meals,
+          total_calories: calories,
+          total_protein: protein
+        } : null);
+      }
+    } catch (error) {
+      console.error('Error updating meals:', error);
     }
   };
 
@@ -230,6 +296,7 @@ export function useChampionRoutine() {
     isConfigured: settings?.is_configured ?? false,
     autosuggestion: todayLog?.autosuggestion_text || settings?.default_autosuggestion || DEFAULT_AUTOSUGGESTION,
     updateLog,
+    updateMeals,
     addPerson,
     updatePerson,
     removePerson,

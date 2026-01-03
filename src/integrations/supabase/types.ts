@@ -353,18 +353,26 @@ export type Database = {
         Row: {
           autosuggestion_completed: boolean | null
           autosuggestion_text: string | null
+          big_one_today: string | null
           breathing_completed: boolean | null
+          content_script: string | null
+          content_topic: string | null
           created_at: string | null
+          daily_todos: Json | null
           date: string
           exercise_completed: boolean | null
           gratitude_items: Json | null
           id: string
           journaling_completed: boolean | null
           light_exposure: boolean | null
+          meals_logged: Json | null
           meditation_duration_seconds: number | null
+          pomodoro_sessions: number | null
           priorities: Json | null
           reading_completed: boolean | null
           relationship_actions: Json | null
+          total_calories: number | null
+          total_protein: number | null
           updated_at: string | null
           user_id: string
           visualization_completed: boolean | null
@@ -373,18 +381,26 @@ export type Database = {
         Insert: {
           autosuggestion_completed?: boolean | null
           autosuggestion_text?: string | null
+          big_one_today?: string | null
           breathing_completed?: boolean | null
+          content_script?: string | null
+          content_topic?: string | null
           created_at?: string | null
+          daily_todos?: Json | null
           date?: string
           exercise_completed?: boolean | null
           gratitude_items?: Json | null
           id?: string
           journaling_completed?: boolean | null
           light_exposure?: boolean | null
+          meals_logged?: Json | null
           meditation_duration_seconds?: number | null
+          pomodoro_sessions?: number | null
           priorities?: Json | null
           reading_completed?: boolean | null
           relationship_actions?: Json | null
+          total_calories?: number | null
+          total_protein?: number | null
           updated_at?: string | null
           user_id: string
           visualization_completed?: boolean | null
@@ -393,18 +409,26 @@ export type Database = {
         Update: {
           autosuggestion_completed?: boolean | null
           autosuggestion_text?: string | null
+          big_one_today?: string | null
           breathing_completed?: boolean | null
+          content_script?: string | null
+          content_topic?: string | null
           created_at?: string | null
+          daily_todos?: Json | null
           date?: string
           exercise_completed?: boolean | null
           gratitude_items?: Json | null
           id?: string
           journaling_completed?: boolean | null
           light_exposure?: boolean | null
+          meals_logged?: Json | null
           meditation_duration_seconds?: number | null
+          pomodoro_sessions?: number | null
           priorities?: Json | null
           reading_completed?: boolean | null
           relationship_actions?: Json | null
+          total_calories?: number | null
+          total_protein?: number | null
           updated_at?: string | null
           user_id?: string
           visualization_completed?: boolean | null

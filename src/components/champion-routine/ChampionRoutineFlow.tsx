@@ -9,15 +9,12 @@ import { debounce } from '@/lib/utils';
 // Step components
 import { GratitudeStep } from './steps/GratitudeStep';
 import { HydrationStep } from './steps/HydrationStep';
-import { LightExposureStep } from './steps/LightExposureStep';
-import { BreathingStep } from './steps/BreathingStep';
 import { MeditationStep } from './steps/MeditationStep';
 import { AutosuggestionStep } from './steps/AutosuggestionStep';
-import { VisualizationStep } from './steps/VisualizationStep';
-import { ReadingStep } from './steps/ReadingStep';
-import { JournalingStep } from './steps/JournalingStep';
-import { PrioritiesStep } from './steps/PrioritiesStep';
 import { ExerciseStep } from './steps/ExerciseStep';
+import { MealPlanningStep } from './steps/MealPlanningStep';
+import { ContentCreationStep } from './steps/ContentCreationStep';
+import { DailyTasksStep } from './steps/DailyTasksStep';
 import { RelationshipStep } from './steps/RelationshipStep';
 import { CompletionStep } from './steps/CompletionStep';
 
@@ -32,48 +29,61 @@ interface ChampionRoutineFlowProps {
 type RoutineStepId = 
   | 'gratitude' 
   | 'hydration' 
-  | 'light' 
-  | 'breathing' 
   | 'meditation' 
   | 'autosuggestion' 
-  | 'visualization' 
-  | 'reading' 
-  | 'journaling'
-  | 'priorities'
   | 'exercise' 
+  | 'mealPlanning'
+  | 'contentCreation'
+  | 'dailyTasks'
   | 'relationships'
   | 'completion';
 
+// New optimized order for Execution Room
 const ROUTINE_STEPS: RoutineStepId[] = [
-  'gratitude',
-  'hydration',
-  'light',
-  'breathing',
-  'meditation',
-  'autosuggestion',
-  'visualization',
-  'reading',
-  'journaling',
-  'priorities',
-  'exercise',
-  'relationships',
-  'completion',
+  'gratitude',        // 1. Being - Recunoștință
+  'hydration',        // 2. Being - Hidratare
+  'meditation',       // 3. Being - Meditație (min 10 min)
+  'autosuggestion',   // 4. Being - Autosugestie
+  'exercise',         // 5. Body - Exerciții cu timer
+  'mealPlanning',     // 6. Body - Meal Planning
+  'contentCreation',  // 7. Business - Content + AI Script + Pomodoro
+  'dailyTasks',       // 8. Business - Tasks / Big One
+  'relationships',    // 9. Balance - Relații
+  'completion',       // 10. Finalizare
 ];
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
   gratitude: 'Recunoștință',
   hydration: 'Hidratare',
-  light: 'Lumină',
-  breathing: 'Respirație',
   meditation: 'Meditație',
   autosuggestion: 'Autosugestie',
-  visualization: 'Vizualizare',
-  reading: 'Citit',
-  journaling: 'Journaling',
-  priorities: 'Priorități',
   exercise: 'Exerciții',
+  mealPlanning: 'Meal Planning',
+  contentCreation: 'Content Creation',
+  dailyTasks: 'Daily Tasks',
   relationships: 'Relații',
   completion: 'Finalizare',
+};
+
+const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete'> = {
+  gratitude: 'being',
+  hydration: 'being',
+  meditation: 'being',
+  autosuggestion: 'being',
+  exercise: 'body',
+  mealPlanning: 'body',
+  contentCreation: 'business',
+  dailyTasks: 'business',
+  relationships: 'balance',
+  completion: 'complete',
+};
+
+const CATEGORY_COLORS = {
+  being: 'text-purple-500',
+  body: 'text-red-500',
+  business: 'text-blue-500',
+  balance: 'text-pink-500',
+  complete: 'text-green-500',
 };
 
 export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
@@ -84,6 +94,7 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
     isConfigured,
     autosuggestion,
     updateLog,
+    updateMeals,
     updateAutosuggestion,
     saveSettings,
   } = useChampionRoutine();
@@ -98,11 +109,12 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
   );
 
   const currentStepId = ROUTINE_STEPS[currentStepIndex];
+  const currentCategory = STEP_CATEGORIES[currentStepId];
   const progress = ((currentStepIndex + 1) / ROUTINE_STEPS.length) * 100;
 
   const goToNextStep = () => {
     // Skip relationships step if no people configured
-    if (currentStepId === 'exercise' && people.length === 0) {
+    if (currentStepId === 'dailyTasks' && people.length === 0) {
       setCurrentStepIndex(ROUTINE_STEPS.indexOf('completion'));
     } else if (currentStepIndex < ROUTINE_STEPS.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
@@ -113,7 +125,7 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
     if (currentStepIndex > 0) {
       // Skip relationships step if no people configured when going back
       if (currentStepId === 'completion' && people.length === 0) {
-        setCurrentStepIndex(ROUTINE_STEPS.indexOf('exercise'));
+        setCurrentStepIndex(ROUTINE_STEPS.indexOf('dailyTasks'));
       } else {
         setCurrentStepIndex(currentStepIndex - 1);
       }
@@ -137,17 +149,17 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
             <div className="text-center space-y-4">
               <h1 className="text-3xl font-bold">Rutina de Campion</h1>
               <p className="text-muted-foreground text-lg">
-                Configurează-ți rutina personalizată pentru cele 4 arii ale vieții
+                Execution Room - Deep Work pentru cele 4 arii ale vieții
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: Dumbbell, label: 'Body', color: 'from-orange-500/20 to-red-500/20 border-orange-500/30' },
-                { icon: Sparkles, label: 'Being', color: 'from-purple-500/20 to-indigo-500/20 border-purple-500/30' },
-                { icon: Heart, label: 'Balance', color: 'from-pink-500/20 to-rose-500/20 border-pink-500/30' },
-                { icon: Target, label: 'Business', color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30' },
-              ].map(({ icon: Icon, label, color }) => (
+                { icon: Sparkles, label: 'Being', desc: 'Meditație, Recunoștință', color: 'from-purple-500/20 to-indigo-500/20 border-purple-500/30' },
+                { icon: Dumbbell, label: 'Body', desc: 'Exerciții, Nutriție', color: 'from-orange-500/20 to-red-500/20 border-orange-500/30' },
+                { icon: Target, label: 'Business', desc: 'Content, Tasks', color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30' },
+                { icon: Heart, label: 'Balance', desc: 'Relații', color: 'from-pink-500/20 to-rose-500/20 border-pink-500/30' },
+              ].map(({ icon: Icon, label, desc, color }) => (
                 <Card
                   key={label}
                   className={`p-6 bg-gradient-to-br ${color} cursor-pointer hover:scale-105 transition-transform`}
@@ -156,14 +168,14 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
                   <div className="flex flex-col items-center gap-2">
                     <Icon className="h-10 w-10" />
                     <span className="font-medium">{label}</span>
+                    <span className="text-xs text-muted-foreground">{desc}</span>
                   </div>
                 </Card>
               ))}
             </div>
 
-            <Button onClick={() => setSettingsOpen(true)} size="lg" className="w-full">
-              <Settings className="h-4 w-4 mr-2" />
-              Personalizează Rutina de Campion
+            <Button onClick={() => saveSettings({})} size="lg" className="w-full">
+              Începe Rutina de Campion
             </Button>
           </Card>
         </div>
@@ -176,15 +188,12 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
   const completedStepsCount = [
     (todayLog?.gratitude_items || []).some(i => i?.trim()),
     todayLog?.water_drunk,
-    todayLog?.light_exposure,
-    todayLog?.breathing_completed,
-    (todayLog?.meditation_duration_seconds || 0) > 0,
+    (todayLog?.meditation_duration_seconds || 0) >= 600, // 10 minutes
     todayLog?.autosuggestion_completed,
-    todayLog?.visualization_completed,
-    todayLog?.reading_completed,
-    todayLog?.journaling_completed,
-    (todayLog?.priorities || []).some(i => i?.trim()),
     todayLog?.exercise_completed,
+    (todayLog?.meals_logged || []).length > 0,
+    todayLog?.content_script || todayLog?.pomodoro_sessions > 0,
+    todayLog?.big_one_today || (todayLog?.daily_todos || []).some(t => t.completed),
     (todayLog?.relationship_actions || []).some(a => a.completed),
   ].filter(Boolean).length;
 
@@ -206,22 +215,6 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
             onNext={goToNextStep}
           />
         );
-      case 'light':
-        return (
-          <LightExposureStep
-            completed={todayLog?.light_exposure || false}
-            onComplete={(value) => updateLog('light_exposure', value)}
-            onNext={goToNextStep}
-          />
-        );
-      case 'breathing':
-        return (
-          <BreathingStep
-            completed={todayLog?.breathing_completed || false}
-            onComplete={(value) => updateLog('breathing_completed', value)}
-            onNext={goToNextStep}
-          />
-        );
       case 'meditation':
         return (
           <MeditationStep
@@ -240,43 +233,43 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
             onNext={goToNextStep}
           />
         );
-      case 'visualization':
-        return (
-          <VisualizationStep
-            completed={todayLog?.visualization_completed || false}
-            onComplete={(value) => updateLog('visualization_completed', value)}
-            onNext={goToNextStep}
-          />
-        );
-      case 'reading':
-        return (
-          <ReadingStep
-            completed={todayLog?.reading_completed || false}
-            onComplete={(value) => updateLog('reading_completed', value)}
-            onNext={goToNextStep}
-          />
-        );
-      case 'journaling':
-        return (
-          <JournalingStep
-            completed={todayLog?.journaling_completed || false}
-            onComplete={(value) => updateLog('journaling_completed', value)}
-            onNext={goToNextStep}
-          />
-        );
-      case 'priorities':
-        return (
-          <PrioritiesStep
-            items={todayLog?.priorities || []}
-            onChange={(items) => debouncedUpdateLog('priorities', items)}
-            onNext={goToNextStep}
-          />
-        );
       case 'exercise':
         return (
           <ExerciseStep
             completed={todayLog?.exercise_completed || false}
             onComplete={(value) => updateLog('exercise_completed', value)}
+            onNext={goToNextStep}
+          />
+        );
+      case 'mealPlanning':
+        return (
+          <MealPlanningStep
+            meals={todayLog?.meals_logged || []}
+            totalCalories={todayLog?.total_calories || 0}
+            totalProtein={todayLog?.total_protein || 0}
+            onChange={updateMeals}
+            onNext={goToNextStep}
+          />
+        );
+      case 'contentCreation':
+        return (
+          <ContentCreationStep
+            topic={todayLog?.content_topic || ''}
+            script={todayLog?.content_script || ''}
+            pomodoroSessions={todayLog?.pomodoro_sessions || 0}
+            onTopicChange={(topic) => updateLog('content_topic', topic)}
+            onScriptChange={(script) => updateLog('content_script', script)}
+            onPomodoroComplete={(sessions) => updateLog('pomodoro_sessions', sessions)}
+            onNext={goToNextStep}
+          />
+        );
+      case 'dailyTasks':
+        return (
+          <DailyTasksStep
+            bigOneToday={todayLog?.big_one_today || ''}
+            todos={todayLog?.daily_todos || []}
+            onBigOneChange={(text) => updateLog('big_one_today', text)}
+            onTodosChange={(todos) => updateLog('daily_todos', todos)}
             onNext={goToNextStep}
           />
         );
@@ -293,7 +286,7 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
         return (
           <CompletionStep
             completedSteps={completedStepsCount}
-            totalSteps={12}
+            totalSteps={9}
             meditationDuration={todayLog?.meditation_duration_seconds || 0}
           />
         );
@@ -315,9 +308,14 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                 )}
-                <span className="text-sm font-medium">
-                  {STEP_LABELS[currentStepId]}
-                </span>
+                <div className="flex flex-col">
+                  <span className={`text-xs uppercase font-medium ${CATEGORY_COLORS[currentCategory]}`}>
+                    {currentCategory}
+                  </span>
+                  <span className="text-sm font-medium">
+                    {STEP_LABELS[currentStepId]}
+                  </span>
+                </div>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground">
