@@ -1,0 +1,254 @@
+import React, { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Video, Sparkles, ArrowRight, Loader2, Edit3, Check } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { PomodoroTimer } from '../PomodoroTimer';
+
+interface ContentCreationStepProps {
+  topic: string;
+  script: string;
+  pomodoroSessions: number;
+  onTopicChange: (topic: string) => void;
+  onScriptChange: (script: string) => void;
+  onPomodoroComplete: (sessions: number) => void;
+  onNext: () => void;
+}
+
+type ContentPhase = 'topic' | 'script' | 'create';
+
+export function ContentCreationStep({
+  topic,
+  script,
+  pomodoroSessions,
+  onTopicChange,
+  onScriptChange,
+  onPomodoroComplete,
+  onNext,
+}: ContentCreationStepProps) {
+  const [phase, setPhase] = useState<ContentPhase>(topic ? (script ? 'create' : 'script') : 'topic');
+  const [localTopic, setLocalTopic] = useState(topic || '');
+  const [localScript, setLocalScript] = useState(script || '');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [contentType, setContentType] = useState<'reel' | 'video' | 'post'>('reel');
+
+  const handleGenerateScript = async () => {
+    if (!localTopic.trim()) {
+      toast.error('Te rog introdu un topic pentru video');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-script', {
+        body: { 
+          topic: localTopic,
+          contentType: contentType === 'reel' ? 'Reel/TikTok scurt' : contentType === 'video' ? 'YouTube video' : 'social media post'
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.script) {
+        setLocalScript(data.script);
+        onScriptChange(data.script);
+        onTopicChange(localTopic);
+        setPhase('script');
+        toast.success('Script generat cu succes!');
+      }
+    } catch (error: any) {
+      console.error('Error generating script:', error);
+      if (error.message?.includes('429')) {
+        toast.error('Prea multe cereri. Încearcă din nou în câteva secunde.');
+      } else if (error.message?.includes('402')) {
+        toast.error('Credits insuficiente. Adaugă credite în workspace.');
+      } else {
+        toast.error('Nu am putut genera scriptul. Încearcă din nou.');
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleConfirmScript = () => {
+    onScriptChange(localScript);
+    setPhase('create');
+  };
+
+  const handlePomodoroComplete = (sessions: number) => {
+    onPomodoroComplete(sessions);
+    toast.success(`🍅 Sesiune Pomodoro ${sessions} completă!`);
+  };
+
+  // Phase 1: Topic input
+  if (phase === 'topic') {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+        <Card className="w-full max-w-2xl p-8 space-y-6 bg-gradient-to-br from-blue-500/10 via-cyan-500/5 to-transparent border-blue-500/20">
+          <div className="text-center space-y-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-500/20 mb-4">
+              <Video className="h-10 w-10 text-blue-500" />
+            </div>
+            <h1 className="text-3xl font-bold">Content Creation</h1>
+            <p className="text-muted-foreground text-lg">
+              Ce video vei crea astăzi? AI-ul te va ajuta cu scriptul.
+            </p>
+          </div>
+
+          {/* Content type selector */}
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { value: 'reel', label: 'Reel/TikTok', emoji: '📱' },
+              { value: 'video', label: 'YouTube', emoji: '🎬' },
+              { value: 'post', label: 'Post', emoji: '📝' },
+            ].map((type) => (
+              <Button
+                key={type.value}
+                variant={contentType === type.value ? "default" : "outline"}
+                onClick={() => setContentType(type.value as any)}
+                className="flex-col h-auto py-4"
+              >
+                <span className="text-2xl mb-1">{type.emoji}</span>
+                <span>{type.label}</span>
+              </Button>
+            ))}
+          </div>
+
+          {/* Topic input */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Despre ce este videoul?</label>
+            <Textarea
+              placeholder="Ex: 5 obiceiuri matinale care îți schimbă viața..."
+              value={localTopic}
+              onChange={(e) => setLocalTopic(e.target.value)}
+              className="min-h-[100px] resize-none"
+            />
+          </div>
+
+          <Button 
+            onClick={handleGenerateScript}
+            disabled={isGenerating || !localTopic.trim()}
+            size="lg"
+            className="w-full gap-2"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Generez scriptul...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-5 w-5" />
+                Generează Script cu AI
+              </>
+            )}
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            onClick={onNext}
+            className="w-full text-muted-foreground"
+          >
+            Sari peste content creation
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
+  // Phase 2: Script review/edit
+  if (phase === 'script') {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+        <Card className="w-full max-w-2xl p-8 space-y-6 bg-gradient-to-br from-blue-500/10 via-cyan-500/5 to-transparent border-blue-500/20">
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl font-bold">Script pentru: {localTopic}</h1>
+            <p className="text-muted-foreground">
+              Revizuiește și editează scriptul generat
+            </p>
+          </div>
+
+          {isEditing ? (
+            <Textarea
+              value={localScript}
+              onChange={(e) => setLocalScript(e.target.value)}
+              className="min-h-[400px] font-mono text-sm"
+            />
+          ) : (
+            <div className="bg-muted/30 rounded-lg p-4 max-h-[400px] overflow-y-auto">
+              <pre className="whitespace-pre-wrap text-sm font-sans">{localScript}</pre>
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsEditing(!isEditing)}
+              className="gap-2"
+            >
+              <Edit3 className="h-4 w-4" />
+              {isEditing ? 'Vizualizare' : 'Editează'}
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => setPhase('topic')}
+            >
+              Regenerează
+            </Button>
+            <Button 
+              onClick={handleConfirmScript}
+              className="flex-1 gap-2"
+            >
+              <Check className="h-4 w-4" />
+              Confirmă Script
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Phase 3: Create with Pomodoro
+  return (
+    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+      <Card className="w-full max-w-2xl p-8 space-y-6 bg-gradient-to-br from-red-500/10 via-orange-500/5 to-transparent border-red-500/20">
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-bold">🎬 Creează Videoul</h1>
+          <p className="text-muted-foreground">
+            Folosește Pomodoro pentru a te concentra pe creare
+          </p>
+        </div>
+
+        {/* Script preview */}
+        <div className="p-3 rounded-lg bg-muted/20 border">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium">Topic:</span>
+            <Button variant="ghost" size="sm" onClick={() => setPhase('script')}>
+              Vezi Script
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">{topic}</p>
+        </div>
+
+        {/* Pomodoro Timer */}
+        <PomodoroTimer 
+          onComplete={handlePomodoroComplete}
+          initialSessions={pomodoroSessions}
+        />
+
+        <Button 
+          onClick={onNext}
+          size="lg"
+          className="w-full gap-2"
+        >
+          Continuă
+          <ArrowRight className="h-5 w-5" />
+        </Button>
+      </Card>
+    </div>
+  );
+}

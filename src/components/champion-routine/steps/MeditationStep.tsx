@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Timer, ArrowRight, Play, Square, RotateCcw } from 'lucide-react';
+import { Timer, ArrowRight, Play, Square, RotateCcw, AlertCircle } from 'lucide-react';
 
 interface MeditationStepProps {
   initialDuration: number;
   onComplete: (seconds: number) => void;
   onNext: () => void;
 }
+
+const MIN_MEDITATION_SECONDS = 10 * 60; // 10 minutes minimum
 
 export function MeditationStep({ initialDuration, onComplete, onNext }: MeditationStepProps) {
   const [isRunning, setIsRunning] = useState(false);
@@ -54,6 +56,11 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
 
   const totalTime = savedDuration + seconds;
   const hasCompleted = savedDuration > 0;
+  const hasMinimumTime = savedDuration >= MIN_MEDITATION_SECONDS;
+  const remainingForMinimum = MIN_MEDITATION_SECONDS - totalTime;
+
+  // Progress towards 10 minutes
+  const progressPercentage = Math.min((totalTime / MIN_MEDITATION_SECONDS) * 100, 100);
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
@@ -65,7 +72,7 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
           </div>
           <h1 className="text-3xl font-bold">Meditație</h1>
           <p className="text-muted-foreground text-lg max-w-md mx-auto">
-            Ia-ți un moment pentru liniște și prezență. Nu există timp minim - meditează cât simți că ai nevoie.
+            Minimum 10 minute de prezență și liniște.
           </p>
         </div>
 
@@ -81,11 +88,44 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
               <div className="absolute inset-0 rounded-full border-4 border-purple-500/50 animate-ping" style={{ animationDuration: '3s' }} />
             )}
             
+            {/* Progress ring */}
+            <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+              <circle
+                cx="112"
+                cy="112"
+                r="100"
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="none"
+                className="text-muted/20"
+              />
+              <circle
+                cx="112"
+                cy="112"
+                r="100"
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="none"
+                strokeDasharray={2 * Math.PI * 100}
+                strokeDashoffset={2 * Math.PI * 100 * (1 - progressPercentage / 100)}
+                className="text-purple-500 transition-all duration-1000"
+                strokeLinecap="round"
+              />
+            </svg>
+            
             <div className="text-center z-10">
               <p className="text-6xl font-mono font-bold text-foreground">
-                {formatTime(seconds)}
+                {formatTime(isRunning ? seconds : totalTime)}
               </p>
-              {savedDuration > 0 && !isRunning && (
+              {isRunning && (
+                <p className="text-sm text-purple-400 mt-2">
+                  {remainingForMinimum > 0 
+                    ? `${formatTime(remainingForMinimum)} pentru 10 min`
+                    : '✓ 10 min atinse!'
+                  }
+                </p>
+              )}
+              {!isRunning && savedDuration > 0 && (
                 <p className="text-sm text-purple-400 mt-2">
                   Total: {formatTime(savedDuration)}
                 </p>
@@ -94,10 +134,32 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
           </div>
 
           {/* Status text */}
-          <p className={`text-lg ${isRunning ? 'text-purple-400' : 'text-muted-foreground'}`}>
-            {isRunning ? '🧘 Meditezi...' : hasCompleted ? '✨ Sesiune salvată' : 'Apasă Start pentru a începe'}
-          </p>
+          <div className="text-center">
+            <p className={`text-lg ${isRunning ? 'text-purple-400' : 'text-muted-foreground'}`}>
+              {isRunning 
+                ? '🧘 Meditezi...' 
+                : hasMinimumTime 
+                  ? '✨ Felicitări! Ai atins 10 minute.' 
+                  : hasCompleted 
+                    ? `Mai ai nevoie de ${formatTime(MIN_MEDITATION_SECONDS - savedDuration)} pentru 10 min`
+                    : 'Apasă Start pentru a începe'
+              }
+            </p>
+          </div>
         </div>
+
+        {/* Minimum requirement notice */}
+        {!hasMinimumTime && !isRunning && (
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+            <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-amber-500 mb-1">Minim 10 minute recomandat</p>
+              <p className="text-muted-foreground">
+                Pentru a beneficia de efectele meditației, practică cel puțin 10 minute.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Tips when not running */}
         {!isRunning && !hasCompleted && (
@@ -113,7 +175,7 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
 
         {/* Action buttons */}
         <div className="flex gap-3">
-          {!hasCompleted || isRunning ? (
+          {!hasMinimumTime || isRunning ? (
             <Button 
               onClick={handleStartStop} 
               size="lg" 
@@ -127,7 +189,7 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
               ) : (
                 <>
                   <Play className="h-5 w-5" />
-                  Start
+                  {hasCompleted ? 'Continuă Meditația' : 'Start'}
                 </>
               )}
             </Button>
