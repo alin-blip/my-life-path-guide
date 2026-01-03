@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_sessions: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          date: string
+          distance_km: number | null
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          notes: string | null
+          started_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          date?: string
+          distance_km?: number | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          date?: string
+          distance_km?: number | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_generated_images: {
         Row: {
           category: string | null
@@ -309,6 +348,135 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      champion_routine_logs: {
+        Row: {
+          autosuggestion_completed: boolean | null
+          autosuggestion_text: string | null
+          breathing_completed: boolean | null
+          created_at: string | null
+          date: string
+          exercise_completed: boolean | null
+          gratitude_items: Json | null
+          id: string
+          journaling_completed: boolean | null
+          light_exposure: boolean | null
+          meditation_duration_seconds: number | null
+          priorities: Json | null
+          reading_completed: boolean | null
+          relationship_actions: Json | null
+          updated_at: string | null
+          user_id: string
+          visualization_completed: boolean | null
+          water_drunk: boolean | null
+        }
+        Insert: {
+          autosuggestion_completed?: boolean | null
+          autosuggestion_text?: string | null
+          breathing_completed?: boolean | null
+          created_at?: string | null
+          date?: string
+          exercise_completed?: boolean | null
+          gratitude_items?: Json | null
+          id?: string
+          journaling_completed?: boolean | null
+          light_exposure?: boolean | null
+          meditation_duration_seconds?: number | null
+          priorities?: Json | null
+          reading_completed?: boolean | null
+          relationship_actions?: Json | null
+          updated_at?: string | null
+          user_id: string
+          visualization_completed?: boolean | null
+          water_drunk?: boolean | null
+        }
+        Update: {
+          autosuggestion_completed?: boolean | null
+          autosuggestion_text?: string | null
+          breathing_completed?: boolean | null
+          created_at?: string | null
+          date?: string
+          exercise_completed?: boolean | null
+          gratitude_items?: Json | null
+          id?: string
+          journaling_completed?: boolean | null
+          light_exposure?: boolean | null
+          meditation_duration_seconds?: number | null
+          priorities?: Json | null
+          reading_completed?: boolean | null
+          relationship_actions?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          visualization_completed?: boolean | null
+          water_drunk?: boolean | null
+        }
+        Relationships: []
+      }
+      champion_routine_people: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          position: number | null
+          relationship_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          position?: number | null
+          relationship_type?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          position?: number | null
+          relationship_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      champion_routine_settings: {
+        Row: {
+          active_steps: Json | null
+          created_at: string | null
+          default_autosuggestion: string | null
+          id: string
+          is_configured: boolean | null
+          routine_steps_order: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active_steps?: Json | null
+          created_at?: string | null
+          default_autosuggestion?: string | null
+          id?: string
+          is_configured?: boolean | null
+          routine_steps_order?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active_steps?: Json | null
+          created_at?: string | null
+          default_autosuggestion?: string | null
+          id?: string
+          is_configured?: boolean | null
+          routine_steps_order?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       content_creation: {
         Row: {
