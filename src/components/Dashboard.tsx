@@ -35,13 +35,15 @@ import { XPAwardEvent } from '@/services/xpService';
 import { useStreakTracking } from '@/hooks/useStreakTracking';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { BADGES, BadgeStats } from '@/components/challenge/badges/badgeDefinitions';
-import { StreakMilestoneCelebration } from '@/components/gamification/StreakMilestoneCelebration';
+// StreakMilestoneCelebration removed
 import { BadgeUnlockCelebration } from '@/components/gamification/BadgeUnlockCelebration';
 import { RewardsShowcase } from '@/components/gamification/RewardsShowcase';
 import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
 import { VisionBoardWidget } from '@/components/vision-board/VisionBoardWidget';
 import { MorningRoutine } from '@/components/habits/MorningRoutine';
 import { ObjectivesCard } from '@/components/dashboard/ObjectivesCard';
+import { EveningRoutineCard } from '@/components/dashboard/EveningRoutineCard';
+import { DailyHabitsSection } from '@/components/habits/DailyHabitsSection';
 export const Dashboard: React.FC = () => {
   const {
     language,
@@ -131,9 +133,7 @@ export const Dashboard: React.FC = () => {
   const [hasAwardedCoreXP, setHasAwardedCoreXP] = useState(false);
   const [hasAwardedDailyXP, setHasAwardedDailyXP] = useState(false);
 
-  // Gamification celebration states
-  const [showStreakMilestone, setShowStreakMilestone] = useState(false);
-  const [streakMilestoneValue, setStreakMilestoneValue] = useState<7 | 30 | 100 | 365>(7);
+  // Gamification celebration states (streak milestone removed)
   const [showBadgeUnlock, setShowBadgeUnlock] = useState(false);
   const [unlockedBadge, setUnlockedBadge] = useState<typeof BADGES[0] | null>(null);
   const [previouslyEarnedBadges, setPreviouslyEarnedBadges] = useState<string[]>([]);
@@ -190,35 +190,7 @@ export const Dashboard: React.FC = () => {
     setPreviouslyEarnedBadges(earnedIds);
   }, [earnedBadges]);
 
-  // Check for streak milestones
-  useEffect(() => {
-    const checkMilestone = (streak: number): 7 | 30 | 100 | 365 | null => {
-      if (streak === 365) return 365;
-      if (streak === 100) return 100;
-      if (streak === 30) return 30;
-      if (streak === 7) return 7;
-      return null;
-    };
-    const milestone = checkMilestone(streakData.currentStreak);
-    if (milestone) {
-      const shownKey = `streakMilestone_${milestone}_shown`;
-      const alreadyShown = localStorage.getItem(shownKey);
-      if (!alreadyShown) {
-        setStreakMilestoneValue(milestone);
-        setShowStreakMilestone(true);
-        localStorage.setItem(shownKey, 'true');
-
-        // Award XP bonus for milestone
-        const xpBonuses: Record<number, number> = {
-          7: 100,
-          30: 500,
-          100: 1000,
-          365: 5000
-        };
-        addXP(xpBonuses[milestone], `Streak Milestone: ${milestone} days`);
-      }
-    }
-  }, [streakData.currentStreak, addXP]);
+  // Streak milestone celebration removed
   useEffect(() => {
     syncData();
     updateStats();
@@ -697,8 +669,7 @@ export const Dashboard: React.FC = () => {
       <LevelUpCelebration isOpen={showLevelUp} onClose={dismissLevelUp} newLevel={newLevel} />
       <XPPopupContainer recentGain={recentXPGain} />
       
-      {/* Gamification Celebrations */}
-      <StreakMilestoneCelebration isOpen={showStreakMilestone} onClose={() => setShowStreakMilestone(false)} streakDays={streakData.currentStreak} milestone={streakMilestoneValue} />
+      {/* Badge Unlock Celebration */}
       <BadgeUnlockCelebration isOpen={showBadgeUnlock} onClose={() => setShowBadgeUnlock(false)} badge={unlockedBadge} />
 
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
@@ -731,88 +702,20 @@ export const Dashboard: React.FC = () => {
         <MorningRoutine />
       </div>
       
+      {/* Daily Habits Section - Quick habits check without starting full routine */}
+      <div className="mb-6">
+        <DailyHabitsSection />
+      </div>
+      
       {/* Vision Board Widget */}
       <div className="mb-6">
         <VisionBoardWidget visionBoard={visionBoard} language={language} />
       </div>
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6 animate-fade-in" style={{
-      animationDelay: '0.2s'
-    }}>
-        <TabsList className="grid grid-cols-2 md:w-[400px] mb-4 glass-card p-1 rounded-xl">
-          <TabsTrigger value="goddess-tools" className="rounded-lg data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300">
-            {language === 'en' ? 'RoWarrior Tools' : 'Unelte RoWarrior'}
-          </TabsTrigger>
-          <TabsTrigger value="courses" className="rounded-lg data-[state=active]:bg-gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300">
-            {language === 'en' ? 'Courses' : 'Cursuri'}
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="goddess-tools" className="space-y-6">
-          <div className="mb-8">
-            
-            
-            
-            
-            
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mb-6 md:mb-8">
-              <div>
-                <div className="flex justify-between items-center mb-3 md:mb-4">
-                  <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-400 dark:to-emerald-300 bg-clip-text text-transparent">
-                    {language === 'en' ? 'HIT LIST' : 'LISTA HIT'}
-                  </h3>
-                </div>
-                <Card className="bg-card border border-green-500/30 dark:border-green-500/20 shadow-lg shadow-green-500/5 hover:shadow-green-500/10 transition-all duration-300">
-                  <CardContent className="p-3 md:p-4">
-                    <div className="space-y-2">
-                      {hitList.filter(item => item.day === activeDay).length > 0 ? hitList.filter(item => item.day === activeDay).map(item => <div key={item.id} className={`flex items-center p-2 rounded-md transition-all duration-200 ${item.completed ? 'bg-green-500/10' : getPriorityColor(item.priority)}`}>
-                            <Button variant="ghost" size="sm" className={`w-6 h-6 rounded-full mr-3 p-0 flex items-center justify-center ${item.completed ? 'bg-green-500 text-white' : 'bg-transparent border border-gray-400 text-gray-400'}`} onClick={() => toggleHitListItemCompletion(item.id)}>
-                              {item.completed && <CheckCircle2 className="w-3 h-3" />}
-                            </Button>
-                            <span className={`flex-grow ${item.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
-                              {item.text}
-                            </span>
-                            {!item.completed && getPriorityIcon(item.priority)}
-                          </div>) : <div className="text-center text-muted-foreground py-4">
-                          <p>{language === 'en' ? 'No HIT items for today' : 'Nu există elemente HIT pentru astăzi'}</p>
-                        </div>}
-                    </div>
-                    <div className="mt-6 flex justify-end">
-                      <Button variant="outline" onClick={() => navigateTo('/door')} className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0">
-                        {language === 'en' ? 'VIEW' : 'VIZUALIZEAZĂ'}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <WeeklyObjectives />
-                </div>
-                <div>
-                  <MonthlyObjectives />
-                </div>
-              </div>
-            </div>
-          </div>
-          
-            <div>
-              
-              
-              <div className="grid grid-cols-1 gap-4 md:gap-6 mb-6 md:mb-8">
-                
-                
-                
-            </div>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="courses">
-          <LearnDashboard onCategorySelect={handleLearnCategorySelect} activeCategory={activeLearnCategory} categoryCounts={categoryCounts} onSubcategorySelect={handleLearnSubcategorySelect} activeSubcategory={activeLearnSubcategory} />
-        </TabsContent>
-      </Tabs>
+      {/* Evening Routine Card */}
+      <div className="mb-6">
+        <EveningRoutineCard />
+      </div>
       
       {/* Explainer Modal */}
       <ExplainerModal open={explainerModalType !== null} onOpenChange={open => !open && setExplainerModalType(null)} type={explainerModalType || 'core4'} />
