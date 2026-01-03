@@ -44,6 +44,8 @@ import { MorningRoutine } from '@/components/habits/MorningRoutine';
 import { ObjectivesCard } from '@/components/dashboard/ObjectivesCard';
 import { EveningRoutineCard } from '@/components/dashboard/EveningRoutineCard';
 import { DailyHabitsSection } from '@/components/habits/DailyHabitsSection';
+import { TodayTasksWidget } from '@/components/dashboard/TodayTasksWidget';
+import { SundayPlanningModal } from '@/components/dashboard/SundayPlanningModal';
 export const Dashboard: React.FC = () => {
   const {
     language,
@@ -138,6 +140,9 @@ export const Dashboard: React.FC = () => {
   const [unlockedBadge, setUnlockedBadge] = useState<typeof BADGES[0] | null>(null);
   const [previouslyEarnedBadges, setPreviouslyEarnedBadges] = useState<string[]>([]);
 
+  // Sunday Planning Modal
+  const [showSundayPlanning, setShowSundayPlanning] = useState(false);
+
   // Explainer modal states
   const [explainerModalType, setExplainerModalType] = useState<'core4' | 'biz4' | 'stack' | null>(null);
   const prevCategoryComplete = useRef<Record<string, boolean>>({
@@ -195,6 +200,16 @@ export const Dashboard: React.FC = () => {
     syncData();
     updateStats();
     fetchUserData();
+
+    // Check if it's Sunday and we haven't shown the planning modal this week
+    const today = new Date();
+    const isSunday = today.getDay() === 0;
+    const shownWeek = localStorage.getItem('sundayPlanningShown');
+    const currentWeek = `${today.getFullYear()}-${String(Math.ceil((today.getTime() - new Date(today.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))).padStart(2, '0')}`;
+    
+    if (isSunday && shownWeek !== currentWeek) {
+      setShowSundayPlanning(true);
+    }
 
     // Listen for progress updates
     const handleProgressUpdate = (event: any) => {
@@ -707,6 +722,11 @@ export const Dashboard: React.FC = () => {
         <DailyHabitsSection />
       </div>
       
+      {/* Today's Tasks Widget */}
+      <div className="mb-6">
+        <TodayTasksWidget />
+      </div>
+      
       {/* Vision Board Widget */}
       <div className="mb-6">
         <VisionBoardWidget visionBoard={visionBoard} language={language} />
@@ -716,6 +736,12 @@ export const Dashboard: React.FC = () => {
       <div className="mb-6">
         <EveningRoutineCard />
       </div>
+      
+      {/* Sunday Planning Modal */}
+      <SundayPlanningModal 
+        isOpen={showSundayPlanning} 
+        onClose={() => setShowSundayPlanning(false)} 
+      />
       
       {/* Explainer Modal */}
       <ExplainerModal open={explainerModalType !== null} onOpenChange={open => !open && setExplainerModalType(null)} type={explainerModalType || 'core4'} />
