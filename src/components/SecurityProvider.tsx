@@ -33,26 +33,40 @@ export const SecurityProvider: React.FC<{ children: ReactNode }> = ({ children }
     return emailRegex.test(email) && email.length <= 254;
   };
 
-  const logSecurityEvent = async (
+  const logSecurityEvent = (
     event: string, 
     details?: any, 
     severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
   ) => {
     console.warn(`Security Event: ${event}`, details);
     
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      await supabase.from('security_events').insert({
-        user_id: user?.id || null,
-        event_type: event,
-        event_details: details || {},
-        severity,
-        user_agent: navigator.userAgent
-      });
-    } catch (error) {
-      console.error('Failed to log security event:', error);
-    }
+    // Fire-and-forget with short timeout to never block UI
+    const LOG_TIMEOUT_MS = 2000;
+    
+    const doLog = async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), LOG_TIMEOUT_MS);
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        await supabase.from('security_events').insert({
+          user_id: user?.id || null,
+          event_type: event,
+          event_details: details || {},
+          severity,
+          user_agent: navigator.userAgent
+        });
+        
+        clearTimeout(timeoutId);
+      } catch (error) {
+        // Silent fail - logging should never block UI
+        console.warn('Security event logging skipped:', error);
+      }
+    };
+    
+    // Execute without awaiting
+    doLog();
   };
 
   return (
