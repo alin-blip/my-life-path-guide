@@ -311,20 +311,27 @@ export function NutritionSetupQuiz({ onComplete, initialSettings }: NutritionSet
               </div>
 
               {/* Summary */}
-              <div className="p-4 rounded-lg bg-muted/30 border">
+              <div className="p-4 rounded-lg bg-muted/30 border space-y-3">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold text-red-500">{macros.proteinGrams}g</div>
                     <div className="text-xs text-muted-foreground">Proteine</div>
+                    <div className="text-xs text-muted-foreground">({macros.proteinGrams * 4} kcal)</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-blue-500">{macros.carbsGrams}g</div>
                     <div className="text-xs text-muted-foreground">Carbohidrați</div>
+                    <div className="text-xs text-muted-foreground">({macros.carbsGrams * 4} kcal)</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-yellow-500">{macros.fatsGrams}g</div>
                     <div className="text-xs text-muted-foreground">Grăsimi</div>
+                    <div className="text-xs text-muted-foreground">({macros.fatsGrams * 9} kcal)</div>
                   </div>
+                </div>
+                <div className="text-center pt-2 border-t">
+                  <span className="text-sm text-muted-foreground">Total: </span>
+                  <span className="font-semibold">{macros.proteinGrams * 4 + macros.carbsGrams * 4 + macros.fatsGrams * 9} kcal</span>
                 </div>
               </div>
             </div>
