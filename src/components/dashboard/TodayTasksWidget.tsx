@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle2, Plus, ListTodo, Star, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { format, startOfWeek, addDays } from 'date-fns';
+import { format, startOfWeek } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 
@@ -42,11 +42,7 @@ export const TodayTasksWidget = () => {
   const weekKey = getWeekKey(today);
   const todayAbbrev = getDayAbbrev(today);
 
-  useEffect(() => {
-    loadTodayData();
-  }, []);
-
-  const loadTodayData = async () => {
+  const loadTodayData = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -88,7 +84,35 @@ export const TodayTasksWidget = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [weekKey, todayAbbrev]);
+
+  // Initial load + real-time subscription
+  useEffect(() => {
+    loadTodayData();
+
+    // Set up real-time subscription for hot_list_items changes
+    const channel = supabase
+      .channel('today-tasks-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'hot_list_items'
+        },
+        (payload) => {
+          console.log('Real-time update in TodayTasksWidget:', payload);
+          // Reload data when any change happens
+          loadTodayData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [loadTodayData]);
+
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
