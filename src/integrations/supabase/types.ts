@@ -472,33 +472,69 @@ export type Database = {
       champion_routine_settings: {
         Row: {
           active_steps: Json | null
+          activity_level: string | null
+          age: number | null
+          calorie_target: number | null
+          carbs_percent: number | null
+          carbs_target: number | null
           created_at: string | null
           default_autosuggestion: string | null
+          fats_percent: number | null
+          fats_target: number | null
+          height_cm: number | null
           id: string
           is_configured: boolean | null
+          nutrition_configured: boolean | null
+          protein_percent: number | null
+          protein_target: number | null
           routine_steps_order: Json | null
           updated_at: string | null
           user_id: string
+          weight_kg: number | null
         }
         Insert: {
           active_steps?: Json | null
+          activity_level?: string | null
+          age?: number | null
+          calorie_target?: number | null
+          carbs_percent?: number | null
+          carbs_target?: number | null
           created_at?: string | null
           default_autosuggestion?: string | null
+          fats_percent?: number | null
+          fats_target?: number | null
+          height_cm?: number | null
           id?: string
           is_configured?: boolean | null
+          nutrition_configured?: boolean | null
+          protein_percent?: number | null
+          protein_target?: number | null
           routine_steps_order?: Json | null
           updated_at?: string | null
           user_id: string
+          weight_kg?: number | null
         }
         Update: {
           active_steps?: Json | null
+          activity_level?: string | null
+          age?: number | null
+          calorie_target?: number | null
+          carbs_percent?: number | null
+          carbs_target?: number | null
           created_at?: string | null
           default_autosuggestion?: string | null
+          fats_percent?: number | null
+          fats_target?: number | null
+          height_cm?: number | null
           id?: string
           is_configured?: boolean | null
+          nutrition_configured?: boolean | null
+          protein_percent?: number | null
+          protein_target?: number | null
           routine_steps_order?: Json | null
           updated_at?: string | null
           user_id?: string
+          weight_kg?: number | null
         }
         Relationships: []
       }
