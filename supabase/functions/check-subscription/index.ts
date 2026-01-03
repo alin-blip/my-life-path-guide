@@ -36,11 +36,16 @@ serve(async (req) => {
     
     // Handle expired/invalid session gracefully - return 401 instead of 500
     if (userError) {
-      const isSessionError = userError.message?.includes("Session") || 
-                             userError.message?.includes("session") ||
-                             userError.message?.includes("JWT");
+      const msg = userError.message || '';
+      const isSessionError = msg.includes("Session") || 
+                             msg.includes("session") ||
+                             msg.includes("JWT") ||
+                             msg.includes("sub claim") ||
+                             msg.includes("invalid claim") ||
+                             msg.includes("expired") ||
+                             msg.includes("Invalid token");
       if (isSessionError) {
-        log("Session expired or invalid", { message: userError.message });
+        log("Session expired or invalid", { message: msg });
         return new Response(JSON.stringify({ 
           subscribed: false, 
           error: "session_expired",
@@ -50,7 +55,7 @@ serve(async (req) => {
           status: 401,
         });
       }
-      throw new Error(`Auth error: ${userError.message}`);
+      throw new Error(`Auth error: ${msg}`);
     }
     
     const user = userData.user;
