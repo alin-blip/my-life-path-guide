@@ -3,7 +3,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { UtensilsCrossed, Plus, ArrowRight, Flame, Beef, Trash2 } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { UtensilsCrossed, Plus, ArrowRight, Flame, Beef, Trash2, Search, X } from 'lucide-react';
+import { foods, foodCategories, searchFoods, FoodItem } from '@/services/fitness/data/foodDatabase';
 
 interface Meal {
   id: string;
@@ -41,6 +44,9 @@ export function MealPlanningStep({
   const [calories, setCalories] = useState('');
   const [protein, setProtein] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [showFoodPicker, setShowFoodPicker] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const totalCaloriesComputed = meals.reduce((acc, m) => acc + m.calories, 0);
   const totalProteinComputed = meals.reduce((acc, m) => acc + m.protein, 0);
@@ -67,6 +73,21 @@ export function MealPlanningStep({
     setShowForm(false);
   };
 
+  const handleSelectFood = (food: FoodItem) => {
+    const newMeal: Meal = {
+      id: Date.now().toString(),
+      type: selectedType,
+      description: `${food.name}${food.servingSize ? ` (${food.servingSize})` : ''}`,
+      calories: food.calories,
+      protein: food.protein,
+    };
+
+    setMeals([...meals, newMeal]);
+    setShowFoodPicker(false);
+    setSearchQuery('');
+    setSelectedCategory('all');
+  };
+
   const handleRemoveMeal = (id: string) => {
     setMeals(meals.filter(m => m.id !== id));
   };
@@ -74,6 +95,8 @@ export function MealPlanningStep({
   const getMealTypeInfo = (type: Meal['type']) => {
     return MEAL_TYPES.find(t => t.value === type) || MEAL_TYPES[0];
   };
+
+  const filteredFoods = searchFoods(searchQuery, selectedCategory);
 
   // Targets (can be made configurable later)
   const calorieTarget = 2000;
@@ -89,7 +112,7 @@ export function MealPlanningStep({
           </div>
           <h1 className="text-3xl font-bold">Meal Planning</h1>
           <p className="text-muted-foreground text-lg">
-            Ce mănânci astăzi? Înregistrează mesele și urmărește caloriile și proteinele.
+            Ce mănânci astăzi? Selectează din baza de date sau adaugă manual.
           </p>
         </div>
 
@@ -161,23 +184,120 @@ export function MealPlanningStep({
           </div>
         )}
 
-        {/* Add meal form */}
-        {showForm ? (
+        {/* Meal Type Selector */}
+        <div className="grid grid-cols-4 gap-2">
+          {MEAL_TYPES.map((type) => (
+            <Button
+              key={type.value}
+              variant={selectedType === type.value ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedType(type.value)}
+              className="flex-col h-auto py-2"
+            >
+              <span className="text-lg">{type.emoji}</span>
+              <span className="text-xs">{type.label}</span>
+            </Button>
+          ))}
+        </div>
+
+        {/* Add options */}
+        <div className="grid grid-cols-2 gap-2">
+          <Dialog open={showFoodPicker} onOpenChange={setShowFoodPicker}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="gap-2 border-primary/50 text-primary hover:bg-primary/10">
+                <Search className="h-4 w-4" />
+                Selectează din Baza de Date
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh]">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <UtensilsCrossed className="h-5 w-5" />
+                  Selectează Aliment - {getMealTypeInfo(selectedType).label}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Caută aliment..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                  {searchQuery && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                      onClick={() => setSearchQuery('')}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+
+                {/* Category filter */}
+                <div className="flex flex-wrap gap-2">
+                  {foodCategories.map((cat) => (
+                    <Button
+                      key={cat.value}
+                      variant={selectedCategory === cat.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedCategory(cat.value)}
+                    >
+                      {cat.label}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Food list */}
+                <ScrollArea className="h-[400px] pr-4">
+                  <div className="space-y-2">
+                    {filteredFoods.map((food, index) => (
+                      <button
+                        key={`${food.name}-${index}`}
+                        onClick={() => handleSelectFood(food)}
+                        className="w-full flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 border transition-colors text-left"
+                      >
+                        <div>
+                          <p className="font-medium">{food.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {food.servingSize && `${food.servingSize} • `}
+                            {food.calories} kcal • {food.protein}g proteine
+                          </p>
+                        </div>
+                        <div className="text-right text-sm">
+                          <span className="text-orange-500">{food.calories}</span>
+                          <span className="text-muted-foreground"> kcal</span>
+                        </div>
+                      </button>
+                    ))}
+                    {filteredFoods.length === 0 && (
+                      <p className="text-center text-muted-foreground py-8">
+                        Niciun aliment găsit
+                      </p>
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Button 
+            variant="outline" 
+            onClick={() => setShowForm(!showForm)}
+            className="gap-2 border-dashed"
+          >
+            <Plus className="h-4 w-4" />
+            Adaugă Manual
+          </Button>
+        </div>
+
+        {/* Manual add form */}
+        {showForm && (
           <div className="space-y-4 p-4 rounded-lg border bg-background/50">
-            <div className="grid grid-cols-4 gap-2">
-              {MEAL_TYPES.map((type) => (
-                <Button
-                  key={type.value}
-                  variant={selectedType === type.value ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedType(type.value)}
-                  className="flex-col h-auto py-2"
-                >
-                  <span className="text-lg">{type.emoji}</span>
-                  <span className="text-xs">{type.label}</span>
-                </Button>
-              ))}
-            </div>
             <Textarea
               placeholder="Ce mănânci? (ex: Omletă cu legume și pâine integrală)"
               value={description}
@@ -213,15 +333,6 @@ export function MealPlanningStep({
               </Button>
             </div>
           </div>
-        ) : (
-          <Button 
-            variant="outline" 
-            onClick={() => setShowForm(true)}
-            className="w-full gap-2 border-dashed"
-          >
-            <Plus className="h-4 w-4" />
-            Adaugă Masă
-          </Button>
         )}
 
         {/* Continue button */}

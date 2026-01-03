@@ -1,10 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, Settings } from 'lucide-react';
+import { ChevronLeft, Settings, History, Bell } from 'lucide-react';
 import { useChampionRoutine } from '@/hooks/useChampionRoutine';
 import { ChampionRoutineSettings } from './ChampionRoutineSettings';
+import { NotificationSettings } from './NotificationSettings';
 import { debounce } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
 // Step components
 import { GratitudeStep } from './steps/GratitudeStep';
@@ -87,6 +90,8 @@ const CATEGORY_COLORS = {
 };
 
 export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const {
     people,
     todayLog,
@@ -101,6 +106,7 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
 
   // Debounced update for text inputs
   const debouncedUpdateLog = useCallback(
@@ -317,17 +323,30 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   {currentStepIndex + 1}/{ROUTINE_STEPS.length}
                 </span>
-                <Button variant="ghost" size="sm" onClick={() => setSettingsOpen(true)}>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/champion-routine-history')} title="Istoric">
+                  <History className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setShowNotificationSettings(!showNotificationSettings)} title="Notificări">
+                  <Bell className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setSettingsOpen(true)} title="Setări">
                   <Settings className="h-4 w-4" />
                 </Button>
               </div>
             </div>
             <Progress value={progress} className="h-1" />
           </div>
+        </div>
+      )}
+
+      {/* Notification Settings Panel */}
+      {showNotificationSettings && user && (
+        <div className="max-w-2xl mx-auto px-4 py-2">
+          <NotificationSettings userId={user.id} />
         </div>
       )}
 

@@ -5,6 +5,7 @@ export { MeditationTimer } from './MeditationTimer';
 export { ActivitySelector } from './ActivitySelector';
 export { CardioTimer } from './CardioTimer';
 export { PomodoroTimer } from './PomodoroTimer';
+export { NotificationSettings } from './NotificationSettings';
 export { GratitudeInput } from './GratitudeInput';
 export { PrioritiesInput } from './PrioritiesInput';
 export { RelationshipCard } from './RelationshipCard';
