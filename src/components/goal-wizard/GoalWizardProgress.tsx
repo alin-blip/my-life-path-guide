@@ -1,24 +1,43 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { GoalWizardStep, WIZARD_STEPS } from '@/types/goalWizard';
+import { GoalWizardStep, WIZARD_STEPS, GoalProject } from '@/types/goalWizard';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface GoalWizardProgressProps {
   currentStep: GoalWizardStep;
   completedSteps: GoalWizardStep[];
+  projects?: GoalProject[];
+  currentProjectIndex?: number;
 }
 
 export const GoalWizardProgress: React.FC<GoalWizardProgressProps> = ({
   currentStep,
-  completedSteps
+  completedSteps,
+  projects = [],
+  currentProjectIndex = 0
 }) => {
   const { language } = useLanguage();
   
   const currentIndex = WIZARD_STEPS.findIndex(s => s.id === currentStep);
+  const isMilestoneStep = ['milestone_3m', 'milestone_1m', 'week1_action'].includes(currentStep);
+  const currentProject = projects[currentProjectIndex];
+  const totalProjects = projects.length;
 
   return (
     <div className="w-full px-4 py-3 bg-muted/50 border-b border-border">
+      {/* Project indicator for milestone steps */}
+      {isMilestoneStep && totalProjects > 1 && currentProject && (
+        <div className="text-center mb-2">
+          <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">
+            {language === 'en' 
+              ? `Project ${currentProjectIndex + 1}/${totalProjects}: ${currentProject.name}`
+              : `Proiect ${currentProjectIndex + 1}/${totalProjects}: ${currentProject.name}`
+            }
+          </span>
+        </div>
+      )}
+      
       <div className="flex items-center justify-between max-w-3xl mx-auto">
         {WIZARD_STEPS.map((step, index) => {
           const isCompleted = completedSteps.includes(step.id);
