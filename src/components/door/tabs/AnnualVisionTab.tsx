@@ -299,8 +299,8 @@ export const AnnualVisionTab: React.FC = () => {
     }
   };
 
-  const getCategoryVision = (category: string) => {
-    return visions.find(v => v.category === category);
+  const getCategoryVisions = (category: string) => {
+    return visions.filter(v => v.category === category);
   };
 
   if (loading) {
@@ -345,7 +345,7 @@ export const AnnualVisionTab: React.FC = () => {
       {/* Vision Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {Object.entries(CATEGORY_CONFIG).map(([key, config]) => {
-          const vision = getCategoryVision(key);
+          const categoryVisions = getCategoryVisions(key);
           const Icon = config.icon;
 
           return (
@@ -354,7 +354,7 @@ export const AnnualVisionTab: React.FC = () => {
               className={cn(
                 "overflow-hidden border-2 transition-all duration-300 hover:shadow-xl",
                 config.borderColor,
-                !vision && 'border-dashed'
+                categoryVisions.length === 0 && 'border-dashed'
               )}
             >
               {/* Gradient Header */}
@@ -376,75 +376,90 @@ export const AnnualVisionTab: React.FC = () => {
                     </div>
                   </div>
                   
-                  {vision?.oneWord && (
-                    <Badge variant="secondary" className={cn("text-sm px-3 py-1.5", config.bgColor, config.color)}>
-                      <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-                      {vision.oneWord}
-                    </Badge>
+                  {categoryVisions.length > 0 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => {
+                        setWizardCategory(key as GoalCategory);
+                        setWizardOpen(true);
+                      }}
+                      className="gap-1"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
                   )}
                 </div>
               </CardHeader>
 
               <CardContent className="p-5">
-                {vision ? (
+                {categoryVisions.length > 0 ? (
                   <div className="space-y-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Star className={cn("w-5 h-5", config.color)} />
-                          <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                            {language === 'en' ? 'Big Goal' : 'Obiectiv Mare'}
-                          </span>
-                        </div>
-                        <h3 className="text-xl font-bold text-foreground leading-tight">
-                          {vision.bigGoal}
-                        </h3>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleEditVision(vision)}
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-
-                    {vision.why && (
-                      <div className="p-3 rounded-lg bg-muted/50">
-                        <p className="text-sm text-muted-foreground italic">
-                          "{vision.why}"
-                        </p>
-                      </div>
-                    )}
-
-                    {vision.milestones && vision.milestones.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium mb-2 text-muted-foreground">
-                          {language === 'en' ? 'Key Milestones' : 'Repere Importante'}
-                        </p>
-                        <div className="grid grid-cols-2 gap-2">
-                          {vision.milestones.map((milestone, idx) => (
-                            <div 
-                              key={idx} 
-                              className={cn(
-                                "p-2 rounded-lg text-sm text-center",
-                                config.bgColor
-                              )}
-                            >
-                              Q{idx + 1}: {milestone}
+                    {categoryVisions.map((vision, idx) => (
+                      <div key={vision.id} className={cn(
+                        "space-y-3",
+                        idx > 0 && "pt-4 border-t border-border/50"
+                      )}>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Star className={cn("w-5 h-5", config.color)} />
+                              <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                                {language === 'en' ? 'Big Goal' : 'Obiectiv Mare'}
+                                {categoryVisions.length > 1 && ` ${idx + 1}`}
+                              </span>
                             </div>
-                          ))}
+                            <h3 className="text-xl font-bold text-foreground leading-tight">
+                              {vision.bigGoal}
+                            </h3>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleEditVision(vision)}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
                         </div>
-                      </div>
-                    )}
 
-                    {/* Child Goals Section */}
-                    <ChildGoalsSection 
-                      visionId={vision.id} 
-                      category={key} 
-                      config={config} 
-                      language={language} 
-                    />
+                        {vision.why && (
+                          <div className="p-3 rounded-lg bg-muted/50">
+                            <p className="text-sm text-muted-foreground italic">
+                              "{vision.why}"
+                            </p>
+                          </div>
+                        )}
+
+                        {vision.milestones && vision.milestones.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium mb-2 text-muted-foreground">
+                              {language === 'en' ? 'Key Milestones' : 'Repere Importante'}
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                              {vision.milestones.map((milestone, midx) => (
+                                <div 
+                                  key={midx} 
+                                  className={cn(
+                                    "p-2 rounded-lg text-sm text-center",
+                                    config.bgColor
+                                  )}
+                                >
+                                  Q{midx + 1}: {milestone}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Child Goals Section */}
+                        <ChildGoalsSection 
+                          visionId={vision.id} 
+                          category={key} 
+                          config={config} 
+                          language={language} 
+                        />
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="text-center py-10">
