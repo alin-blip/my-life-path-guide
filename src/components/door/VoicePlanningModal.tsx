@@ -17,10 +17,17 @@ interface Message {
   content: string;
 }
 
+interface SelectedObjective {
+  category: string;
+  objectiveId: string;
+  title: string;
+}
+
 interface VoicePlanningModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onPlanningComplete: (data: PlanningResult) => void;
+  onPlanningComplete: (data?: PlanningResult) => void;
+  selectedObjectives?: SelectedObjective[];
 }
 
 export const VoicePlanningModal: React.FC<VoicePlanningModalProps> = ({
