@@ -274,8 +274,8 @@ export const MonthlyMissionTab: React.FC = () => {
     }
   };
 
-  const getCategoryMission = (category: string) => {
-    return missions.find(m => m.category === category);
+  const getCategoryMissions = (category: string) => {
+    return missions.filter(m => m.category === category);
   };
 
   if (loading) {
@@ -320,8 +320,12 @@ export const MonthlyMissionTab: React.FC = () => {
       {/* Category Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {Object.entries(CATEGORY_CONFIG).map(([key, config]) => {
-          const mission = getCategoryMission(key);
+          const categoryMissions = getCategoryMissions(key);
           const Icon = config.icon;
+          const hasMissions = categoryMissions.length > 0;
+          const avgProgress = hasMissions 
+            ? Math.round(categoryMissions.reduce((sum, m) => sum + m.progress, 0) / categoryMissions.length)
+            : 0;
 
           return (
             <Card 
@@ -329,7 +333,7 @@ export const MonthlyMissionTab: React.FC = () => {
               className={cn(
                 "overflow-hidden border-2 transition-all duration-300",
                 config.borderColor,
-                mission ? 'hover:shadow-lg' : 'border-dashed'
+                hasMissions ? 'hover:shadow-lg' : 'border-dashed'
               )}
             >
               <CardHeader className={cn(config.bgColor, "pb-4")}>
@@ -338,88 +342,122 @@ export const MonthlyMissionTab: React.FC = () => {
                     <div className={cn("p-2.5 rounded-xl bg-background/50")}>
                       <Icon className={cn("w-6 h-6", config.color)} />
                     </div>
-                    <CardTitle className="text-xl">
-                      {config.label[language === 'en' ? 'en' : 'ro']}
-                    </CardTitle>
+                    <div>
+                      <CardTitle className="text-xl">
+                        {config.label[language === 'en' ? 'en' : 'ro']}
+                      </CardTitle>
+                      {hasMissions && categoryMissions.length > 1 && (
+                        <p className="text-sm text-muted-foreground">
+                          {categoryMissions.length} {language === 'en' ? 'missions' : 'misiuni'}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   
-                  {mission && (
+                  {hasMissions && (
                     <Badge variant="secondary" className={cn("text-lg px-3 py-1", config.color)}>
-                      {mission.progress}%
+                      {avgProgress}%
                     </Badge>
                   )}
                 </div>
               </CardHeader>
 
               <CardContent className="p-5">
-                {mission ? (
-                  <div className="space-y-4">
-                    {/* Parent Hierarchy Badge */}
-                    {mission.parentMission && (
-                      <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-                        <span className="text-xs text-muted-foreground">
-                          {language === 'en' ? 'Part of:' : 'Parte din:'}
-                        </span>
-                        <HierarchyBadge 
-                          type="quarterly" 
-                          title={mission.parentMission.title} 
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg text-foreground">{mission.title}</h3>
-                        {mission.measurableResult && (
-                          <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
-                            <Target className="w-3.5 h-3.5" />
-                            {mission.measurableResult}
-                          </p>
+                {hasMissions ? (
+                  <div className="space-y-6">
+                    {categoryMissions.map((mission, missionIndex) => (
+                      <div 
+                        key={mission.id}
+                        className={cn(
+                          missionIndex > 0 && "pt-4 border-t border-border/50"
+                        )}
+                      >
+                        {/* Parent Hierarchy Badge */}
+                        {mission.parentMission && (
+                          <div className="flex items-center gap-2 pb-2 mb-2 border-b border-border/30">
+                            <span className="text-xs text-muted-foreground">
+                              {language === 'en' ? 'Part of:' : 'Parte din:'}
+                            </span>
+                            <HierarchyBadge 
+                              type="quarterly" 
+                              title={mission.parentMission.title} 
+                            />
+                          </div>
+                        )}
+                        
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              {categoryMissions.length > 1 && (
+                                <span className={cn("text-xs font-medium px-1.5 py-0.5 rounded", config.bgColor, config.color)}>
+                                  #{missionIndex + 1}
+                                </span>
+                              )}
+                              <h3 className="font-semibold text-lg text-foreground">{mission.title}</h3>
+                            </div>
+                            {mission.measurableResult && (
+                              <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
+                                <Target className="w-3.5 h-3.5" />
+                                {mission.measurableResult}
+                              </p>
+                            )}
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleEditMission(mission)}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+
+                        {mission.description && (
+                          <p className="text-sm text-muted-foreground mt-2">{mission.description}</p>
+                        )}
+
+                        <div className="mt-3">
+                          <div className="flex justify-between text-sm mb-2">
+                            <span className="text-muted-foreground">
+                              {language === 'en' ? 'Progress' : 'Progres'}
+                            </span>
+                            <span className="font-medium">{mission.progress}%</span>
+                          </div>
+                          <Slider
+                            value={[mission.progress]}
+                            onValueChange={([val]) => handleUpdateProgress(mission.id, val)}
+                            max={100}
+                            step={5}
+                          />
+                        </div>
+
+                        {mission.keyActions && mission.keyActions.length > 0 && (
+                          <div className="pt-2 mt-2">
+                            <p className="text-sm font-medium mb-2">
+                              {language === 'en' ? 'Key Actions' : 'Acțiuni Cheie'}
+                            </p>
+                            <div className="space-y-1.5">
+                              {mission.keyActions.map((action, idx) => (
+                                <div key={idx} className="flex items-center gap-2 text-sm">
+                                  <CheckCircle className={cn("w-3.5 h-3.5", config.color)} />
+                                  <span className="text-foreground">{action}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         )}
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleEditMission(mission)}
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    ))}
 
-                    {mission.description && (
-                      <p className="text-sm text-muted-foreground">{mission.description}</p>
-                    )}
-
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-muted-foreground">
-                          {language === 'en' ? 'Progress' : 'Progres'}
-                        </span>
-                        <span className="font-medium">{mission.progress}%</span>
-                      </div>
-                      <Slider
-                        value={[mission.progress]}
-                        onValueChange={([val]) => handleUpdateProgress(mission.id, val)}
-                        max={100}
-                        step={5}
-                      />
-                    </div>
-
-                    {mission.keyActions && mission.keyActions.length > 0 && (
-                      <div className="pt-2">
-                        <p className="text-sm font-medium mb-2">
-                          {language === 'en' ? 'Key Actions' : 'Acțiuni Cheie'}
-                        </p>
-                        <div className="space-y-1.5">
-                          {mission.keyActions.map((action, idx) => (
-                            <div key={idx} className="flex items-center gap-2 text-sm">
-                              <CheckCircle className={cn("w-3.5 h-3.5", config.color)} />
-                              <span className="text-foreground">{action}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    {/* Add More Button */}
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="w-full mt-2"
+                      onClick={() => handleAddMission(key)}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      {language === 'en' ? 'Add Mission' : 'Adaugă Misiune'}
+                    </Button>
                   </div>
                 ) : (
                   <div className="text-center py-8">

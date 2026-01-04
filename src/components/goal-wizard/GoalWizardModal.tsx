@@ -14,15 +14,13 @@ import {
   GoalWizardMessage, 
   GoalWizardData,
   GoalProject,
-  WIZARD_STEPS,
   CATEGORY_INFO 
 } from '@/types/goalWizard';
 import { DayOfWeek } from '@/types/door';
 import { GoalWizardProgress } from './GoalWizardProgress';
 import { GoalWizardChat } from './GoalWizardChat';
 import { GoalWizardVoiceInput } from './GoalWizardVoiceInput';
-import { WeekTaskTypeDialog } from './WeekTaskTypeDialog';
-import { MassiveObjectiveDialog } from './MassiveObjectiveDialog';
+import { ProjectSelectionDialog, ProjectSaveSelection, KeyItem } from './ProjectSelectionDialog';
 
 interface GoalWizardModalProps {
   isOpen: boolean;
@@ -62,11 +60,8 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
   const [projects, setProjects] = useState<GoalProject[]>([]);
   const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
   
-  // Week task type dialog state (for each project)
-  const [showWeekTaskTypeDialog, setShowWeekTaskTypeDialog] = useState(false);
-  const [showMassiveObjectiveDialog, setShowMassiveObjectiveDialog] = useState(false);
-  const [pendingProjectIndex, setPendingProjectIndex] = useState(0);
-  const [savedProjectsCount, setSavedProjectsCount] = useState(0);
+  // Project selection dialog state
+  const [showProjectSelectionDialog, setShowProjectSelectionDialog] = useState(false);
   
   // Voice input state
   const [isListening, setIsListening] = useState(false);
@@ -148,9 +143,8 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
       };
       setMessages([welcomeMessage]);
     }
-  }, [isOpen, category, missionType, language]);
+  }, [isOpen, messages.length, category, language, missionType, categoryInfo]);
 
-  // TTS function
   const playTTS = useCallback(async (text: string) => {
     if (!text || isPlayingAudio) return;
     
@@ -229,12 +223,10 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
 
       // Update goal data and projects based on extracted info
       if (extractedData) {
-        // Handle project count
         if (extractedData.projectCount) {
           setGoalData(prev => ({ ...prev, projectCount: extractedData.projectCount }));
         }
         
-        // Handle new project name
         if (extractedData.newProjectName) {
           const newProject: GoalProject = {
             id: uuidv4(),
@@ -244,7 +236,6 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
           setProjects(prev => [...prev, newProject]);
         }
         
-        // Handle project milestones
         if (extractedData.projectMilestone && projects[currentProjectIndex]) {
           setProjects(prev => prev.map((p, i) => {
             if (i === currentProjectIndex) {
@@ -260,7 +251,6 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
           }));
         }
         
-        // Handle global data
         if (extractedData.why) {
           setGoalData(prev => ({ ...prev, why: extractedData.why }));
         }
@@ -272,15 +262,12 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         }
       }
 
-      // Advance to next project if needed (for milestone steps)
       if (shouldAdvanceProject && currentProjectIndex < projects.length - 1) {
         setCurrentProjectIndex(prev => prev + 1);
       } else if (shouldAdvanceProject && currentProjectIndex >= projects.length - 1) {
-        // All projects done for this milestone step, reset index for next step
         setCurrentProjectIndex(0);
       }
 
-      // Add AI response
       const aiMessage: GoalWizardMessage = {
         id: uuidv4(),
         role: 'assistant',
@@ -289,16 +276,13 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
       };
       setMessages(prev => [...prev, aiMessage]);
       
-      // Play TTS if enabled
       if (ttsEnabled && message) {
         playTTS(message);
       }
 
-      // Update step progress
       if (nextStep && nextStep !== step) {
         setCompletedSteps(prev => [...prev, step]);
         setStep(nextStep);
-        // Reset project index when entering new milestone step
         if (['milestone_3m', 'milestone_1m', 'week1_action'].includes(nextStep)) {
           setCurrentProjectIndex(0);
         }
@@ -319,13 +303,12 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
     }
   }, [category, step, messages, goalData, projects, currentProjectIndex, language, missionType, isProcessing, ttsEnabled, playTTS, toast]);
 
-  // Keep handleSendMessage ref in sync for speech recognition callback
   useEffect(() => {
     handleSendMessageRef.current = handleSendMessage;
   }, [handleSendMessage]);
 
-  // This is called when user clicks "Save Goal" - now iterates through projects
-  const handleSaveGoal = async () => {
+  // Open project selection dialog
+  const handleSaveGoal = () => {
     if (projects.length === 0) {
       toast({
         title: language === 'en' ? 'Error' : 'Eroare',
@@ -334,314 +317,187 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
       });
       return;
     }
-    
-    // Start saving first project
-    setPendingProjectIndex(0);
-    setSavedProjectsCount(0);
-    
-    const firstProject = projects[0];
-    if (firstProject.milestones.weekOne) {
-      setShowWeekTaskTypeDialog(true);
-    } else {
-      await saveProjectAsHitList(0);
-    }
+    setShowProjectSelectionDialog(true);
   };
 
-  // Save a single project with weekOne task as Hit List
-  const saveProjectAsHitList = async (projectIndex: number) => {
+  // Save selected projects from dialog
+  const handleSaveSelectedProjects = async (selections: ProjectSaveSelection[]) => {
+    if (selections.length === 0) return;
+
+    setIsProcessing(true);
+
     try {
-      setIsProcessing(true);
-      
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) {
         throw new Error('Not authenticated');
       }
 
       const userId = session.session.user.id;
-      const project = projects[projectIndex];
       const now = new Date();
       const year = now.getFullYear();
       const currentQuarter = Math.ceil((now.getMonth() + 1) / 3);
       const quarterKey = `Q${currentQuarter}-${year}`;
       const monthKey = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      
-      // Calculate CURRENT week key (Monday-based, format: door-week-YYYY-WW)
       const weekStart = startOfWeek(now, { weekStartsOn: 1 });
       const weekKey = `door-week-${format(weekStart, 'yyyy')}-${String(getWeek(now, { weekStartsOn: 1 })).padStart(2, '0')}`;
-      
-      // Get today's day abbreviation
       const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
       const todayAbbrev = days[now.getDay()];
 
-      const fullGoalData = {
-        why: goalData.why || '',
-        positiveImpact: goalData.positiveImpact || '',
-        negativeConsequence: goalData.negativeConsequence || '',
-        milestones: project.milestones,
-        projectName: project.name,
-        sourceType: 'ai_wizard_multi',
-        createdVia: 'goal-wizard'
-      };
+      for (const selection of selections) {
+        const project = projects[selection.projectIndex];
+        if (!project) continue;
 
-      if (missionType === 'annual') {
-        // Create ANNUAL mission
-        const { data: annualMission, error: annualError } = await supabase
-          .from('missions')
-          .insert([{
+        const fullGoalData = {
+          why: goalData.why || '',
+          positiveImpact: goalData.positiveImpact || '',
+          negativeConsequence: goalData.negativeConsequence || '',
+          milestones: project.milestones,
+          projectName: project.name,
+          sourceType: selection.saveType === 'massive' ? 'ai_wizard_multi_massive' : 'ai_wizard_multi',
+          createdVia: 'goal-wizard'
+        };
+
+        if (missionType === 'annual') {
+          // Create ANNUAL mission
+          const { data: annualMission, error: annualError } = await supabase
+            .from('missions')
+            .insert([{
+              user_id: userId,
+              category,
+              mission_type: 'annual',
+              period: String(year),
+              title: project.name,
+              measurable_result: project.name,
+              goal_data: fullGoalData as any
+            }])
+            .select('id')
+            .single();
+
+          if (annualError) throw annualError;
+
+          // Create QUARTERLY mission
+          const { data: quarterlyMission, error: quarterlyError } = await supabase
+            .from('missions')
+            .insert([{
+              user_id: userId,
+              category,
+              mission_type: 'quarterly',
+              period: quarterKey,
+              parent_mission_id: annualMission?.id,
+              title: project.milestones.threeMonths || `${quarterKey} - ${project.name}`,
+              measurable_result: project.milestones.threeMonths || '',
+              goal_data: { parentObjective: project.name, derivedFrom: 'annual', sourceType: 'cascade' } as any
+            }])
+            .select('id')
+            .single();
+
+          if (quarterlyError) throw quarterlyError;
+
+          // Create MONTHLY mission
+          await supabase.from('missions').insert([{
             user_id: userId,
             category,
-            mission_type: 'annual',
-            period: String(year),
-            title: project.name,
-            measurable_result: project.name,
-            goal_data: fullGoalData as any
-          }])
-          .select('id')
-          .single();
+            mission_type: 'monthly',
+            period: monthKey,
+            parent_mission_id: quarterlyMission?.id,
+            title: project.milestones.oneMonth || `Luna 1 - ${project.milestones.threeMonths?.substring(0, 50)}`,
+            measurable_result: project.milestones.oneMonth || '',
+            goal_data: { parentMilestone: project.milestones.threeMonths, derivedFrom: 'quarterly', sourceType: 'cascade' } as any
+          }]);
+        }
 
-        if (annualError) throw annualError;
+        // Save tasks based on type
+        if (selection.saveType === 'hit') {
+          // Hit List - simple weekly task
+          if (project.milestones.weekOne) {
+            await supabase.from('hot_list_items').insert([{
+              user_id: userId,
+              item_id: uuidv4(),
+              title: project.milestones.weekOne,
+              list_type: 'hit',
+              week_key: weekKey,
+              day_of_week: todayAbbrev,
+              completed: false,
+              priority: 1
+            }]);
+          }
+        } else if (selection.saveType === 'massive' && selection.keys) {
+          // Massive Objective with keys
+          const validKeys = selection.keys.filter(k => k.text.trim() !== '');
+          
+          if (validKeys.length > 0) {
+            const keyPoints = validKeys.map((k, index) => ({
+              id: index + 1,
+              title: k.text,
+              objective: project.milestones.weekOne || '',
+              why: goalData.why || '',
+              positiveImpact: goalData.positiveImpact || '',
+              negativeImpact: goalData.negativeConsequence || '',
+              projectName: project.name,
+              steps: [],
+              day: k.day
+            }));
 
-        // Create QUARTERLY mission
-        const { data: quarterlyMission, error: quarterlyError } = await supabase
-          .from('missions')
-          .insert([{
-            user_id: userId,
-            category,
-            mission_type: 'quarterly',
-            period: quarterKey,
-            parent_mission_id: annualMission?.id,
-            title: project.milestones.threeMonths || `${quarterKey} - ${project.name}`,
-            measurable_result: project.milestones.threeMonths || '',
-            goal_data: { parentObjective: project.name, derivedFrom: 'annual', sourceType: 'cascade' } as any
-          }])
-          .select('id')
-          .single();
+            const { data: existingPlan } = await supabase
+              .from('weekly_planning')
+              .select('id, key_points')
+              .eq('user_id', userId)
+              .eq('week_key', weekKey)
+              .single();
 
-        if (quarterlyError) throw quarterlyError;
+            if (existingPlan) {
+              const existingKeyPoints = (existingPlan.key_points as any[]) || [];
+              await supabase
+                .from('weekly_planning')
+                .update({ key_points: [...existingKeyPoints, ...keyPoints] })
+                .eq('id', existingPlan.id);
+            } else {
+              await supabase.from('weekly_planning').insert([{
+                user_id: userId,
+                week_key: weekKey,
+                domino_title: project.milestones.weekOne || project.name,
+                week_goal: project.name,
+                key_points: keyPoints
+              }]);
+            }
 
-        // Create MONTHLY mission
-        await supabase.from('missions').insert([{
-          user_id: userId,
-          category,
-          mission_type: 'monthly',
-          period: monthKey,
-          parent_mission_id: quarterlyMission?.id,
-          title: project.milestones.oneMonth || `Luna 1 - ${project.milestones.threeMonths?.substring(0, 50)}`,
-          measurable_result: project.milestones.oneMonth || '',
-          goal_data: { parentMilestone: project.milestones.threeMonths, derivedFrom: 'quarterly', sourceType: 'cascade' } as any
-        }]);
+            // Create key tasks in hot_list_items
+            const keyTasks = validKeys.map((k) => ({
+              user_id: userId,
+              item_id: uuidv4(),
+              title: `🔑 ${k.text}`,
+              list_type: 'hit',
+              week_key: weekKey,
+              day_of_week: k.day,
+              completed: false,
+              priority: 2
+            }));
+
+            await supabase.from('hot_list_items').insert(keyTasks);
+          }
+        }
       }
 
-      // Create weekly task in hot_list_items (for dashboard sync)
-      if (project.milestones.weekOne) {
-        await supabase.from('hot_list_items').insert([{
-          user_id: userId,
-          item_id: uuidv4(),
-          title: project.milestones.weekOne,
-          list_type: 'hit',
-          week_key: weekKey,
-          day_of_week: todayAbbrev,
-          completed: false,
-          priority: 1
-        }]);
-      }
-
-      // Move to next project
-      await handleNextProject(projectIndex);
-    } catch (error) {
-      console.error('Error saving project:', error);
       toast({
-        title: language === 'en' ? 'Error' : 'Eroare',
-        description: language === 'en' ? 'Failed to save project' : 'Nu s-a putut salva proiectul',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Save a single project as Massive Objective
-  const saveProjectAsMassiveObjective = async (projectIndex: number, keys: { id: number; text: string; day: DayOfWeek | null }[]) => {
-    try {
-      setIsProcessing(true);
-      
-      const { data: session } = await supabase.auth.getSession();
-      if (!session?.session?.user) {
-        throw new Error('Not authenticated');
-      }
-
-      const userId = session.session.user.id;
-      const project = projects[projectIndex];
-      const now = new Date();
-      const year = now.getFullYear();
-      const currentQuarter = Math.ceil((now.getMonth() + 1) / 3);
-      const quarterKey = `Q${currentQuarter}-${year}`;
-      const monthKey = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      
-      // Calculate CURRENT week key (Monday-based, format: door-week-YYYY-WW)
-      const weekStart = startOfWeek(now, { weekStartsOn: 1 });
-      const weekKey = `door-week-${format(weekStart, 'yyyy')}-${String(getWeek(now, { weekStartsOn: 1 })).padStart(2, '0')}`;
-
-      const fullGoalData = {
-        why: goalData.why || '',
-        positiveImpact: goalData.positiveImpact || '',
-        negativeConsequence: goalData.negativeConsequence || '',
-        milestones: project.milestones,
-        projectName: project.name,
-        sourceType: 'ai_wizard_multi_massive',
-        createdVia: 'goal-wizard'
-      };
-
-      if (missionType === 'annual') {
-        const { data: annualMission, error: annualError } = await supabase
-          .from('missions')
-          .insert([{
-            user_id: userId,
-            category,
-            mission_type: 'annual',
-            period: String(year),
-            title: project.name,
-            measurable_result: project.name,
-            goal_data: fullGoalData as any
-          }])
-          .select('id')
-          .single();
-
-        if (annualError) throw annualError;
-
-        const { data: quarterlyMission, error: quarterlyError } = await supabase
-          .from('missions')
-          .insert([{
-            user_id: userId,
-            category,
-            mission_type: 'quarterly',
-            period: quarterKey,
-            parent_mission_id: annualMission?.id,
-            title: project.milestones.threeMonths || `${quarterKey} - ${project.name}`,
-            measurable_result: project.milestones.threeMonths || '',
-            goal_data: { parentObjective: project.name, derivedFrom: 'annual', sourceType: 'cascade' } as any
-          }])
-          .select('id')
-          .single();
-
-        if (quarterlyError) throw quarterlyError;
-
-        await supabase.from('missions').insert([{
-          user_id: userId,
-          category,
-          mission_type: 'monthly',
-          period: monthKey,
-          parent_mission_id: quarterlyMission?.id,
-          title: project.milestones.oneMonth || `Luna 1 - ${project.milestones.threeMonths?.substring(0, 50)}`,
-          measurable_result: project.milestones.oneMonth || '',
-          goal_data: { parentMilestone: project.milestones.threeMonths, derivedFrom: 'quarterly', sourceType: 'cascade' } as any
-        }]);
-      }
-
-      // Save Massive Objective
-      const keyPoints = keys.map((k, index) => ({
-        id: index + 1,
-        title: k.text,
-        objective: project.milestones.weekOne || '',
-        why: goalData.why || '',
-        positiveImpact: goalData.positiveImpact || '',
-        negativeImpact: goalData.negativeConsequence || '',
-        projectName: project.name,
-        steps: [],
-        day: k.day
-      }));
-
-      const { data: existingPlan } = await supabase
-        .from('weekly_planning')
-        .select('id, key_points')
-        .eq('user_id', userId)
-        .eq('week_key', weekKey)
-        .single();
-
-      if (existingPlan) {
-        const existingKeyPoints = (existingPlan.key_points as any[]) || [];
-        await supabase
-          .from('weekly_planning')
-          .update({ 
-            key_points: [...existingKeyPoints, ...keyPoints]
-          })
-          .eq('id', existingPlan.id);
-      } else {
-        await supabase.from('weekly_planning').insert([{
-          user_id: userId,
-          week_key: weekKey,
-          domino_title: project.milestones.weekOne || project.name,
-          week_goal: project.name,
-          key_points: keyPoints
-        }]);
-      }
-
-      // Create key tasks in hot_list_items (for dashboard sync)
-      const keyTasks = keys.map((k) => ({
-        user_id: userId,
-        item_id: uuidv4(),
-        title: `🔑 ${k.text}`,
-        list_type: 'hit',
-        week_key: weekKey,
-        day_of_week: k.day,
-        completed: false,
-        priority: 2
-      }));
-
-      await supabase.from('hot_list_items').insert(keyTasks);
-
-      setShowMassiveObjectiveDialog(false);
-      await handleNextProject(projectIndex);
-    } catch (error) {
-      console.error('Error saving massive objective:', error);
-      toast({
-        title: language === 'en' ? 'Error' : 'Eroare',
-        description: language === 'en' ? 'Failed to save' : 'Nu s-a putut salva',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Handle moving to next project or finishing
-  const handleNextProject = async (currentIndex: number) => {
-    const nextIndex = currentIndex + 1;
-    setSavedProjectsCount(nextIndex);
-    
-    if (nextIndex < projects.length) {
-      // More projects to save
-      setPendingProjectIndex(nextIndex);
-      const nextProject = projects[nextIndex];
-      
-      if (nextProject.milestones.weekOne) {
-        setShowWeekTaskTypeDialog(true);
-      } else {
-        await saveProjectAsHitList(nextIndex);
-      }
-    } else {
-      // All projects saved
-      toast({
-        title: language === 'en' ? 'All goals saved!' : 'Toate obiectivele salvate!',
+        title: language === 'en' ? 'Goals saved!' : 'Obiective salvate!',
         description: language === 'en' 
-          ? `Saved ${projects.length} project(s) successfully`
-          : `${projects.length} proiect(e) salvate cu succes`
+          ? `Saved ${selections.length} project(s) successfully`
+          : `${selections.length} proiect(e) salvate cu succes`
       });
-      
-      setShowWeekTaskTypeDialog(false);
+
+      setShowProjectSelectionDialog(false);
       onComplete?.();
       onClose();
+    } catch (error) {
+      console.error('Error saving projects:', error);
+      toast({
+        title: language === 'en' ? 'Error' : 'Eroare',
+        description: language === 'en' ? 'Failed to save projects' : 'Nu s-au putut salva proiectele',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsProcessing(false);
     }
-  };
-
-  const handleSelectHitList = () => {
-    setShowWeekTaskTypeDialog(false);
-    saveProjectAsHitList(pendingProjectIndex);
-  };
-
-  const handleSelectMassiveObjective = () => {
-    setShowWeekTaskTypeDialog(false);
-    setShowMassiveObjectiveDialog(true);
   };
 
   const handleClose = () => {
@@ -654,14 +510,9 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
     setCompletedSteps([]);
     setIsComplete(false);
     setTranscript('');
-    setShowWeekTaskTypeDialog(false);
-    setShowMassiveObjectiveDialog(false);
-    setPendingProjectIndex(0);
-    setSavedProjectsCount(0);
+    setShowProjectSelectionDialog(false);
     onClose();
   };
-
-  const currentProject = projects[pendingProjectIndex];
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -738,7 +589,7 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
                 {language === 'en' ? 'Cancel' : 'Anulează'}
               </Button>
               <Button className="flex-1" onClick={handleSaveGoal} disabled={isProcessing}>
-                {language === 'en' ? 'Save All Goals' : 'Salvează Toate Obiectivele'}
+                {language === 'en' ? 'Choose & Save Projects' : 'Alege & Salvează Proiecte'}
               </Button>
             </div>
           </div>
@@ -755,23 +606,13 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         )}
       </DialogContent>
 
-      {/* Week Task Type Dialog */}
-      <WeekTaskTypeDialog
-        isOpen={showWeekTaskTypeDialog}
-        onClose={() => setShowWeekTaskTypeDialog(false)}
-        weekOneTask={currentProject?.milestones?.weekOne || ''}
+      {/* Project Selection Dialog */}
+      <ProjectSelectionDialog
+        isOpen={showProjectSelectionDialog}
+        onClose={() => setShowProjectSelectionDialog(false)}
+        projects={projects}
         category={category}
-        onSelectHitList={handleSelectHitList}
-        onSelectMassiveObjective={handleSelectMassiveObjective}
-      />
-
-      {/* Massive Objective Dialog */}
-      <MassiveObjectiveDialog
-        isOpen={showMassiveObjectiveDialog}
-        onClose={() => setShowMassiveObjectiveDialog(false)}
-        dominoTitle={currentProject?.milestones?.weekOne || currentProject?.name || ''}
-        category={category}
-        onSave={(keys) => saveProjectAsMassiveObjective(pendingProjectIndex, keys)}
+        onSaveProjects={handleSaveSelectedProjects}
       />
     </Dialog>
   );
