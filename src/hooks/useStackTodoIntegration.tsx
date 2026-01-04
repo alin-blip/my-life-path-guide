@@ -48,9 +48,10 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
 
   const saveIdeaToTodoList = useCallback(async (idea: StackIdea) => {
     try {
-      // Generate current week key
+      // Generate current week key - consistent with DOOR format
       const now = new Date();
-      const currentWeekKey = `door-week-${now.getFullYear()}-${getWeek(now)}`;
+      const weekNum = getWeek(now, { weekStartsOn: 1 });
+      const currentWeekKey = `door-week-${now.getFullYear()}-${String(weekNum).padStart(2, '0')}`;
       
       console.log('💾 Saving idea to Supabase:', { idea, currentWeekKey });
       
