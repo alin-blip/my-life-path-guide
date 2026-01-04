@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle2, Plus, ListTodo, Star, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { format, startOfWeek } from 'date-fns';
+import { format, startOfWeek, getWeek } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 
@@ -17,10 +17,11 @@ interface Task {
   list_type: string;
 }
 
-// Get week key for a date (Monday-based)
+// Get week key for a date (Monday-based) - consistent with DOOR format
 const getWeekKey = (date: Date): string => {
-  const monday = startOfWeek(date, { weekStartsOn: 1 });
-  return format(monday, 'yyyy-MM-dd');
+  const weekNum = getWeek(date, { weekStartsOn: 1 });
+  const year = date.getFullYear();
+  return `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
 };
 
 // Get day abbreviation from date
@@ -28,6 +29,7 @@ const getDayAbbrev = (date: Date): string => {
   const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
   return days[date.getDay()];
 };
+
 
 export const TodayTasksWidget = () => {
   const { t, i18n } = useTranslation();

@@ -7,6 +7,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
+import { startOfWeek, format, getWeek } from 'date-fns';
 import { 
   GoalCategory, 
   GoalWizardStep, 
@@ -364,11 +365,13 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
       const quarterKey = `Q${currentQuarter}-${year}`;
       const monthKey = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}`;
       
-      // Calculate NEXT week key
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - now.getDay() + 8);
-      const weekNumber = Math.ceil((weekStart.getDate() + 6 - weekStart.getDay()) / 7);
-      const weekKey = `${weekStart.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
+      // Calculate CURRENT week key (Monday-based, format: door-week-YYYY-WW)
+      const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+      const weekKey = `door-week-${format(weekStart, 'yyyy')}-${String(getWeek(now, { weekStartsOn: 1 })).padStart(2, '0')}`;
+      
+      // Get today's day abbreviation
+      const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+      const todayAbbrev = days[now.getDay()];
 
       const fullGoalData = {
         why: goalData.why || '',
@@ -429,18 +432,17 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         }]);
       }
 
-      // Create weekly task
+      // Create weekly task in hot_list_items (for dashboard sync)
       if (project.milestones.weekOne) {
-        await supabase.from('user_tasks').insert([{
+        await supabase.from('hot_list_items').insert([{
           user_id: userId,
+          item_id: uuidv4(),
           title: project.milestones.weekOne,
           list_type: 'hit',
-          task_type: 'hit',
           week_key: weekKey,
-          area: category,
+          day_of_week: todayAbbrev,
           completed: false,
-          priority: 1,
-          day_of_week: 'M'
+          priority: 1
         }]);
       }
 
@@ -476,10 +478,9 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
       const quarterKey = `Q${currentQuarter}-${year}`;
       const monthKey = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}`;
       
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - now.getDay() + 8);
-      const weekNumber = Math.ceil((weekStart.getDate() + 6 - weekStart.getDay()) / 7);
-      const weekKey = `${weekStart.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
+      // Calculate CURRENT week key (Monday-based, format: door-week-YYYY-WW)
+      const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+      const weekKey = `door-week-${format(weekStart, 'yyyy')}-${String(getWeek(now, { weekStartsOn: 1 })).padStart(2, '0')}`;
 
       const fullGoalData = {
         why: goalData.why || '',
@@ -575,23 +576,19 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         }]);
       }
 
-      // Create key tasks
-      const keyTasks = keys.map((k, index) => ({
-        id: uuidv4(),
+      // Create key tasks in hot_list_items (for dashboard sync)
+      const keyTasks = keys.map((k) => ({
         user_id: userId,
+        item_id: uuidv4(),
         title: `🔑 ${k.text}`,
         list_type: 'hit',
-        task_type: 'hit',
         week_key: weekKey,
         day_of_week: k.day,
-        area: category,
         completed: false,
-        priority: 2,
-        is_key_point: true,
-        position: index
+        priority: 2
       }));
 
-      await supabase.from('user_tasks').insert(keyTasks);
+      await supabase.from('hot_list_items').insert(keyTasks);
 
       setShowMassiveObjectiveDialog(false);
       await handleNextProject(projectIndex);

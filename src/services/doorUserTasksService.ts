@@ -267,53 +267,41 @@ export const doorUserTasksService = {
       throw new Error('User not authenticated');
     }
 
-    // Check if duplicate exists before inserting
-    const effectiveWeekKey = idea.category === 'hot' ? null : weekKey;
-    const effectiveDay = idea.category !== 'hot' ? (idea.day ? String(idea.day) : 'M') : null;
-    
-    let query = supabase
-      .from('user_tasks')
+    // Determine the current day abbreviation if not provided
+    const days: DayOfWeek[] = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+    const todayAbbrev = days[new Date().getDay()];
+    const effectiveDay = idea.day || todayAbbrev;
+
+    // Check if duplicate exists in hot_list_items
+    const { data: existing } = await supabase
+      .from('hot_list_items')
       .select('id')
       .eq('user_id', userId)
       .eq('title', idea.text)
-      .eq('task_type', idea.category);
-    
-    if (effectiveWeekKey) {
-      query = query.eq('week_key', effectiveWeekKey);
-    } else {
-      query = query.is('week_key', null);
-    }
-    
-    if (effectiveDay) {
-      query = query.eq('day_of_week', effectiveDay);
-    }
-    
-    const { data: existing } = await query.limit(1);
+      .eq('week_key', weekKey)
+      .eq('list_type', idea.category)
+      .limit(1);
     
     if (existing && existing.length > 0) {
       console.log('⚠️ Duplicate task detected, skipping insert:', idea.text);
-      return existing; // Return existing instead of creating duplicate
+      return existing;
     }
 
-    const payload: any = {
-      id: uuidv4(),
+    // Save to hot_list_items for dashboard sync
+    const payload = {
       user_id: userId,
-      week_key: effectiveWeekKey,
-      task_type: idea.category,
+      item_id: idea.id || uuidv4(),
+      week_key: weekKey,
       list_type: idea.category,
       title: idea.text,
+      day_of_week: effectiveDay,
       priority: toDbPriority(idea.priority),
-      position: 0,
       completed: false
     };
 
-    if (idea.category !== 'hot') {
-      payload.day_of_week = effectiveDay;
-    }
+    console.log('📦 Inserting task into hot_list_items:', payload);
 
-    console.log('📦 Inserting task payload:', payload);
-
-    const { data, error } = await supabase.from('user_tasks').insert(payload).select();
+    const { data, error } = await supabase.from('hot_list_items').insert(payload).select();
     
     if (error) {
       console.error('❌ Error inserting task:', error);
