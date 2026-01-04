@@ -1,6 +1,8 @@
 export type GoalCategory = 'body' | 'being' | 'balance' | 'business';
 
 export type GoalWizardStep = 
+  | 'project_count'
+  | 'project_names'
   | 'objective'
   | 'why'
   | 'positive_impact'
@@ -23,13 +25,22 @@ export interface GoalMilestones {
   weekOne: string;
 }
 
+export interface GoalProject {
+  id: string;
+  name: string;
+  milestones: GoalMilestones;
+}
+
 export interface GoalWizardData {
   category: GoalCategory;
-  objective: string;
+  projectCount?: number;
+  projects?: GoalProject[];
+  currentProjectIndex?: number;
+  objective?: string; // Legacy - will be derived from projects
   why: string;
   positiveImpact: string;
   negativeConsequence: string;
-  milestones: GoalMilestones;
+  milestones?: GoalMilestones; // Legacy - will be per project
   impactOnOtherAreas?: string[];
 }
 
@@ -43,10 +54,11 @@ export interface GoalWizardState {
 }
 
 export const WIZARD_STEPS: { id: GoalWizardStep; label: { en: string; ro: string } }[] = [
-  { id: 'objective', label: { en: 'Objective', ro: 'Obiectiv' } },
+  { id: 'project_count', label: { en: 'Projects', ro: 'Proiecte' } },
+  { id: 'project_names', label: { en: 'Names', ro: 'Denumiri' } },
   { id: 'why', label: { en: 'Why?', ro: 'De ce?' } },
-  { id: 'positive_impact', label: { en: 'Positive Impact', ro: 'Impact Pozitiv' } },
-  { id: 'negative_impact', label: { en: 'Negative Risk', ro: 'Risc Negativ' } },
+  { id: 'positive_impact', label: { en: 'Impact+', ro: 'Impact+' } },
+  { id: 'negative_impact', label: { en: 'Risk', ro: 'Risc' } },
   { id: 'milestone_3m', label: { en: '3 Months', ro: '3 Luni' } },
   { id: 'milestone_1m', label: { en: '1 Month', ro: '1 Lună' } },
   { id: 'week1_action', label: { en: 'Week 1', ro: 'Săpt. 1' } },

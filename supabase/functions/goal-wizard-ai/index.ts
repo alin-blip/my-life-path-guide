@@ -12,7 +12,20 @@ interface Message {
   content: string;
 }
 
+interface GoalProject {
+  id: string;
+  name: string;
+  milestones: {
+    threeMonths: string;
+    oneMonth: string;
+    weekOne: string;
+  };
+}
+
 interface GoalData {
+  projectCount?: number;
+  projects?: GoalProject[];
+  currentProjectIndex?: number;
   objective?: string;
   why?: string;
   positiveImpact?: string;
@@ -20,46 +33,12 @@ interface GoalData {
   milestones?: {
     annual?: string;
     q1?: string;
-    q2?: string;
-    q3?: string;
-    q4?: string;
     threeMonths?: string;
     monthly?: string;
     oneMonth?: string;
     weekOne?: string;
   };
 }
-
-const STEP_PROMPTS: Record<string, { ro: string; en: string }> = {
-  objective: {
-    ro: 'Utilizatorul tocmai și-a definit obiectivul principal. Extrage obiectivul din răspuns și întreabă DE CE vrea să realizeze acest lucru. Fii empatic și curioasă despre motivația lor profundă.',
-    en: 'The user just defined their main objective. Extract the objective and ask WHY they want to achieve this. Be empathetic and curious about their deep motivation.'
-  },
-  why: {
-    ro: 'Utilizatorul a explicat motivația. Extrage motivul și întreabă: "Imaginează-ți că ai reușit. Cum arată viața ta? Ce se schimbă? Cum afectează celelalte arii din viața ta?"',
-    en: 'The user explained their motivation. Extract it and ask: "Imagine you succeeded. How does your life look? What changes? How does it affect other areas of your life?"'
-  },
-  positive_impact: {
-    ro: 'Utilizatorul a descris impactul pozitiv. Extrage-l și întreabă despre cealaltă față: "Și acum, ce se întâmplă dacă nu reușești? Ce pierzi? Ce riști?"',
-    en: 'The user described positive impact. Extract it and ask about the flip side: "Now, what happens if you don\'t succeed? What do you lose? What do you risk?"'
-  },
-  negative_impact: {
-    ro: 'Utilizatorul a descris consecințele negative. Extrage-le și spune: "Perfect. Acum să setăm milestone-uri concrete. La finalul celor 3 luni (primul Quartely), unde trebuie să fii? Ce progres măsurabil trebuie să existe?"',
-    en: 'The user described negative consequences. Extract them and say: "Perfect. Now let\'s set concrete milestones. By the end of 3 months (first Quarter), where do you need to be? What measurable progress should exist?"'
-  },
-  milestone_3m: {
-    ro: 'Utilizatorul a definit milestone-ul de 3 luni (Q1). Extrage-l și întreabă: "Excelent! Și la finalul primei luni, ce progres trebuie să existe pentru a fi pe drumul cel bun?"',
-    en: 'The user defined the 3-month milestone (Q1). Extract it and ask: "Excellent! And by the end of the first month, what progress needs to exist to be on track?"'
-  },
-  milestone_1m: {
-    ro: 'Utilizatorul a definit milestone-ul de 1 lună. Extrage-l și întreabă: "Foarte bine! Și acum, cel mai important: ce acțiune SPECIFICĂ vei face în PRIMA SĂPTĂMÂNĂ? Când exact? Cât timp vei aloca?"',
-    en: 'The user defined the 1-month milestone. Extract it and ask: "Great! Now, most importantly: what SPECIFIC action will you take in the FIRST WEEK? When exactly? How much time will you allocate?"'
-  },
-  week1_action: {
-    ro: 'Utilizatorul a definit acțiunea pentru prima săptămână. Extrage-o și creează un rezumat complet al obiectivului, motivației, impactului, și milestone-urilor. Încheie cu: "Ești gata să salvezi acest obiectiv?"',
-    en: 'The user defined week 1 action. Extract it and create a complete summary of the objective, motivation, impact, and milestones. End with: "Are you ready to save this goal?"'
-  }
-};
 
 const CATEGORY_NAMES: Record<string, { ro: string; en: string }> = {
   body: { ro: 'Corp', en: 'Body' },
@@ -82,104 +61,131 @@ serve(async (req) => {
 
     const lang = language as 'en' | 'ro';
     const categoryName = CATEGORY_NAMES[category as keyof typeof CATEGORY_NAMES]?.[lang] || category;
-    const stepPrompt = STEP_PROMPTS[step as keyof typeof STEP_PROMPTS]?.[lang] || '';
     const periodText = missionType === 'annual' 
       ? (lang === 'en' ? '12 months' : '12 luni')
       : (lang === 'en' ? '90 days' : '90 de zile');
 
-    const cascadeInstructions = missionType === 'annual' 
-      ? (language === 'en' 
-          ? `\n\nIMPORTANT CASCADE STRUCTURE: When the user saves this goal, it will automatically create:
-- 1 Annual Goal (12 months)
-- 1 Quarterly Goal (Q1 - first 90 days, derived from annual)
-- 1 Monthly Goal (Month 1, derived from Q1)
-- Weekly Tasks (derived from month 1)
+    // Get current project info if in project-specific steps
+    const projects = currentGoalData?.projects || [];
+    const currentProjectIndex = currentGoalData?.currentProjectIndex || 0;
+    const currentProject = projects[currentProjectIndex];
+    const totalProjects = currentGoalData?.projectCount || projects.length || 1;
 
-So when extracting milestones, think about this hierarchy:
-- annual: The full year objective
-- threeMonths/q1: What should be achieved by end of Q1 (90 days)
-- oneMonth/monthly: What should be achieved by end of Month 1
-- weekOne: Specific action for Week 1`
-          : `\n\nIMPORTANT STRUCTURA CASCADĂ: Când utilizatorul salvează acest obiectiv, se vor crea automat:
-- 1 Obiectiv Anual (12 luni)
-- 1 Obiectiv Trimestrial (Q1 - primele 90 zile, derivat din anual)
-- 1 Obiectiv Lunar (Luna 1, derivat din Q1)
-- Task-uri Săptămânale (derivate din luna 1)
+    // Build step-specific instructions
+    let stepInstructions = '';
+    
+    if (step === 'project_count') {
+      stepInstructions = lang === 'en'
+        ? `Ask the user how many annual objectives/projects they want to set for ${categoryName} (1-5). Be warm and enthusiastic about helping them plan multiple projects.`
+        : `Întreabă utilizatorul câte obiective/proiecte anuale vrea să seteze pentru ${categoryName} (1-5). Fii cald și entuziast în a-i ajuta să planifice mai multe proiecte.`;
+    } else if (step === 'project_names') {
+      const collectedProjects = projects.length;
+      if (collectedProjects < totalProjects) {
+        const projectNum = collectedProjects + 1;
+        stepInstructions = lang === 'en'
+          ? `The user wants ${totalProjects} projects. You've collected ${collectedProjects} so far. Ask for project #${projectNum}: "What is your project/objective #${projectNum}?" Extract the project name from their response.`
+          : `Utilizatorul vrea ${totalProjects} proiecte. Ai colectat ${collectedProjects} până acum. Întreabă despre proiectul #${projectNum}: "Care este proiectul/obiectivul #${projectNum}?" Extrage numele proiectului din răspuns.`;
+      }
+    } else if (step === 'why') {
+      stepInstructions = lang === 'en'
+        ? `The user has defined ${totalProjects} project(s): ${projects.map((p: GoalProject) => `"${p.name}"`).join(', ')}. Ask WHY these projects are important to them. What's their deep motivation?`
+        : `Utilizatorul a definit ${totalProjects} proiect(e): ${projects.map((p: GoalProject) => `"${p.name}"`).join(', ')}. Întreabă DE CE sunt aceste proiecte importante pentru ei. Care e motivația lor profundă?`;
+    } else if (step === 'positive_impact') {
+      stepInstructions = lang === 'en'
+        ? `Extract the motivation and ask about positive impact: "Imagine you succeeded with all projects. How does your life look? What changes?"`
+        : `Extrage motivația și întreabă despre impactul pozitiv: "Imaginează-ți că ai reușit cu toate proiectele. Cum arată viața ta? Ce se schimbă?"`;
+    } else if (step === 'negative_impact') {
+      stepInstructions = lang === 'en'
+        ? `Extract positive impact and ask about negative consequences: "And what happens if you don't succeed? What do you lose?"`
+        : `Extrage impactul pozitiv și întreabă despre consecințele negative: "Și ce se întâmplă dacă nu reușești? Ce pierzi?"`;
+    } else if (step === 'milestone_3m') {
+      const projectName = currentProject?.name || `Project ${currentProjectIndex + 1}`;
+      stepInstructions = lang === 'en'
+        ? `Now collect 3-month milestones per project. Current: "${projectName}" (${currentProjectIndex + 1}/${totalProjects}). Ask: "For **${projectName}**, where do you need to be at the end of 3 months (Q1)?"`
+        : `Acum colectează milestone-urile de 3 luni per proiect. Curent: "${projectName}" (${currentProjectIndex + 1}/${totalProjects}). Întreabă: "Pentru **${projectName}**, unde trebuie să fii la finalul celor 3 luni (Q1)?"`;
+    } else if (step === 'milestone_1m') {
+      const projectName = currentProject?.name || `Project ${currentProjectIndex + 1}`;
+      stepInstructions = lang === 'en'
+        ? `Collect 1-month milestone for "${projectName}" (${currentProjectIndex + 1}/${totalProjects}). Ask: "For **${projectName}**, what progress needs to exist by end of month 1?"`
+        : `Colectează milestone-ul de 1 lună pentru "${projectName}" (${currentProjectIndex + 1}/${totalProjects}). Întreabă: "Pentru **${projectName}**, ce progres trebuie să existe la finalul lunii 1?"`;
+    } else if (step === 'week1_action') {
+      const projectName = currentProject?.name || `Project ${currentProjectIndex + 1}`;
+      stepInstructions = lang === 'en'
+        ? `Collect week 1 action for "${projectName}" (${currentProjectIndex + 1}/${totalProjects}). Ask: "For **${projectName}**, what SPECIFIC action will you take in the FIRST WEEK?"`
+        : `Colectează acțiunea pentru săptămâna 1 pentru "${projectName}" (${currentProjectIndex + 1}/${totalProjects}). Întreabă: "Pentru **${projectName}**, ce acțiune SPECIFICĂ vei face în PRIMA SĂPTĂMÂNĂ?"`;
+    } else if (step === 'confirmation') {
+      const projectsSummary = projects.map((p: GoalProject, i: number) => 
+        `${i + 1}. ${p.name}\n   - 3 luni: ${p.milestones?.threeMonths || 'N/A'}\n   - 1 lună: ${p.milestones?.oneMonth || 'N/A'}\n   - Săpt. 1: ${p.milestones?.weekOne || 'N/A'}`
+      ).join('\n\n');
+      
+      stepInstructions = lang === 'en'
+        ? `Create a complete summary of ALL projects with their milestones. End with: "Are you ready to save these objectives?"\n\nProjects:\n${projectsSummary}`
+        : `Creează un rezumat complet al TUTUROR proiectelor cu milestone-urile lor. Încheie cu: "Ești gata să salvezi aceste obiective?"\n\nProiecte:\n${projectsSummary}`;
+    }
 
-Când extragi milestone-uri, gândește-te la această ierarhie:
-- annual: Obiectivul complet pe un an
-- threeMonths/q1: Ce trebuie atins la finalul Q1 (90 zile)
-- oneMonth/monthly: Ce trebuie atins la finalul Lunii 1
-- weekOne: Acțiune specifică pentru Săptămâna 1`)
-      : '';
-
-    const systemPrompt = language === 'en' 
+    const systemPrompt = lang === 'en' 
       ? `You are a supportive goal-setting coach helping users define deep, meaningful objectives for their ${categoryName} area over the next ${periodText}.
 
 Your role:
 1. Guide the conversation step by step
 2. Be empathetic, encouraging, and insightful
-3. Ask deep questions that help users clarify their vision
-4. Extract structured data from their responses
+3. Support MULTIPLE projects/objectives (1-5 per category)
+4. Ask questions ONE PROJECT AT A TIME for milestones
 5. Keep responses concise but warm (2-4 sentences max, unless summarizing)
-${cascadeInstructions}
 
 Current step: ${step}
-${stepPrompt}
+${stepInstructions}
 
-Current goal data collected so far:
+Current goal data:
 ${JSON.stringify(currentGoalData, null, 2)}
 
-IMPORTANT: Your response must be in JSON format with these fields:
+IMPORTANT: Your response must be in JSON format:
 {
-  "message": "Your response to show the user (in ${language === 'en' ? 'English' : 'Romanian'})",
-  "nextStep": "the next step ID (objective, why, positive_impact, negative_impact, milestone_3m, milestone_1m, week1_action, or confirmation)",
-  "extractedData": { extracted goal data fields },
-  "isComplete": false
-}
-
-For extractedData, use these field names:
-- objective: Main goal statement
-- why: Deep motivation
-- positiveImpact: What success looks like
-- negativeConsequence: What failure costs
-- milestones.annual: Full year target (for annual missions)
-- milestones.threeMonths: Q1 target (90 days)
-- milestones.oneMonth: First month target
-- milestones.weekOne: First week specific action`
+  "message": "Your response in ${lang === 'en' ? 'English' : 'Romanian'}",
+  "nextStep": "step ID (project_count, project_names, why, positive_impact, negative_impact, milestone_3m, milestone_1m, week1_action, or confirmation)",
+  "extractedData": {
+    "projectCount": number (if extracting count),
+    "newProjectName": "project name" (if extracting a project name),
+    "currentProjectIndex": number (for milestone steps),
+    "projectMilestone": { "threeMonths": "", "oneMonth": "", "weekOne": "" } (milestone for current project),
+    "why": "motivation",
+    "positiveImpact": "positive impact",
+    "negativeConsequence": "negative consequences"
+  },
+  "isComplete": false,
+  "shouldAdvanceProject": true/false (set true after collecting current project's milestone to move to next project)
+}`
       : `Ești un coach de stabilire obiective care ajută utilizatorii să definească obiective profunde și semnificative pentru aria ${categoryName} pe următoarele ${periodText}.
 
 Rolul tău:
 1. Ghidează conversația pas cu pas
 2. Fii empatic, încurajator și perspicace
-3. Pune întrebări profunde care îi ajută să-și clarifice viziunea
-4. Extrage date structurate din răspunsurile lor
+3. Suportă MULTIPLE proiecte/obiective (1-5 per categorie)
+4. Pune întrebări PENTRU UN SINGUR PROIECT la un moment dat pentru milestone-uri
 5. Păstrează răspunsurile concise dar calde (2-4 propoziții maxim, cu excepția rezumatelor)
-${cascadeInstructions}
 
 Pasul curent: ${step}
-${stepPrompt}
+${stepInstructions}
 
-Date obiectiv colectate până acum:
+Date obiectiv colectate:
 ${JSON.stringify(currentGoalData, null, 2)}
 
-IMPORTANT: Răspunsul tău trebuie să fie în format JSON cu aceste câmpuri:
+IMPORTANT: Răspunsul tău trebuie să fie în format JSON:
 {
-  "message": "Răspunsul tău către utilizator (în Română)",
-  "nextStep": "ID-ul pasului următor (objective, why, positive_impact, negative_impact, milestone_3m, milestone_1m, week1_action, sau confirmation)",
-  "extractedData": { câmpurile de date extrase },
-  "isComplete": false
-}
-
-Pentru extractedData, folosește aceste nume de câmpuri:
-- objective: Declarația obiectivului principal
-- why: Motivația profundă
-- positiveImpact: Cum arată succesul
-- negativeConsequence: Costul eșecului
-- milestones.annual: Ținta pe un an întreg (pentru misiuni anuale)
-- milestones.threeMonths: Ținta Q1 (90 zile)
-- milestones.oneMonth: Ținta primei luni
-- milestones.weekOne: Acțiunea specifică prima săptămână`;
+  "message": "Răspunsul tău în Română",
+  "nextStep": "ID pas (project_count, project_names, why, positive_impact, negative_impact, milestone_3m, milestone_1m, week1_action, sau confirmation)",
+  "extractedData": {
+    "projectCount": number (dacă extragi numărul),
+    "newProjectName": "numele proiectului" (dacă extragi un nume de proiect),
+    "currentProjectIndex": number (pentru pașii de milestone),
+    "projectMilestone": { "threeMonths": "", "oneMonth": "", "weekOne": "" } (milestone pentru proiectul curent),
+    "why": "motivația",
+    "positiveImpact": "impactul pozitiv",
+    "negativeConsequence": "consecințele negative"
+  },
+  "isComplete": false,
+  "shouldAdvanceProject": true/false (setează true după ce colectezi milestone-ul proiectului curent pentru a trece la următorul)
+}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -228,35 +234,12 @@ Pentru extractedData, folosește aceste nume de câmpuri:
       parsed = JSON.parse(content);
     } catch (e) {
       console.error('Failed to parse AI response:', content);
-      // Fallback response
       parsed = {
         message: content,
         nextStep: step,
         extractedData: {},
         isComplete: false
       };
-    }
-
-    // Handle nested milestones in extractedData
-    if (parsed.extractedData) {
-      const extracted = parsed.extractedData;
-      const hasMilestoneFields = extracted['milestones.annual'] || 
-                                  extracted['milestones.threeMonths'] || 
-                                  extracted['milestones.oneMonth'] || 
-                                  extracted['milestones.weekOne'];
-      
-      if (hasMilestoneFields) {
-        extracted.milestones = {
-          annual: extracted['milestones.annual'] || currentGoalData?.milestones?.annual || '',
-          threeMonths: extracted['milestones.threeMonths'] || currentGoalData?.milestones?.threeMonths || '',
-          oneMonth: extracted['milestones.oneMonth'] || currentGoalData?.milestones?.oneMonth || '',
-          weekOne: extracted['milestones.weekOne'] || currentGoalData?.milestones?.weekOne || ''
-        };
-        delete extracted['milestones.annual'];
-        delete extracted['milestones.threeMonths'];
-        delete extracted['milestones.oneMonth'];
-        delete extracted['milestones.weekOne'];
-      }
     }
 
     console.log('Goal wizard response:', parsed);
