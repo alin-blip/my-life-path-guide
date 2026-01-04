@@ -20,11 +20,18 @@ interface Message {
   content: string;
 }
 
+interface SelectedObjective {
+  category: string;
+  objectiveId: string;
+  title: string;
+}
+
 interface DoorPlanningModalProps {
   isOpen: boolean;
   onClose: () => void;
   previousWeekData?: PreviousWeekData;
-  onPlanningComplete: (data: PlanningResult) => void;
+  onPlanningComplete: (data?: PlanningResult) => void;
+  selectedObjectives?: SelectedObjective[];
 }
 
 export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
