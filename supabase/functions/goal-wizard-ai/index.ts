@@ -231,15 +231,46 @@ IMPORTANT: Răspunsul tău trebuie să fie în format JSON:
 
     let parsed;
     try {
-      parsed = JSON.parse(content);
+      // Clean the content - remove markdown code blocks if present
+      let cleanContent = content.trim();
+      if (cleanContent.startsWith('```json')) {
+        cleanContent = cleanContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      } else if (cleanContent.startsWith('```')) {
+        cleanContent = cleanContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+      
+      parsed = JSON.parse(cleanContent);
     } catch (e) {
       console.error('Failed to parse AI response:', content);
+      // Try to extract message from raw content if it looks like JSON
+      const messageMatch = content.match(/"message"\s*:\s*"([^"]+(?:\\.[^"]*)*)"/)
+      const extractedMessage = messageMatch ? messageMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n') : content;
+      
       parsed = {
-        message: content,
+        message: extractedMessage,
         nextStep: step,
         extractedData: {},
         isComplete: false
       };
+    }
+
+    // Ensure message is a clean string, not JSON
+    if (parsed.message && typeof parsed.message === 'string') {
+      // Check if message accidentally contains JSON
+      if (parsed.message.startsWith('{') && parsed.message.includes('"message"')) {
+        try {
+          const innerParsed = JSON.parse(parsed.message);
+          if (innerParsed.message) {
+            parsed.message = innerParsed.message;
+            if (innerParsed.nextStep) parsed.nextStep = innerParsed.nextStep;
+            if (innerParsed.extractedData) parsed.extractedData = innerParsed.extractedData;
+            if (innerParsed.isComplete !== undefined) parsed.isComplete = innerParsed.isComplete;
+            if (innerParsed.shouldAdvanceProject !== undefined) parsed.shouldAdvanceProject = innerParsed.shouldAdvanceProject;
+          }
+        } catch {
+          // Keep original message if inner parse fails
+        }
+      }
     }
 
     console.log('Goal wizard response:', parsed);
