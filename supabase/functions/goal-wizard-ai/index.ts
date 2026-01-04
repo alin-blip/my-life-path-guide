@@ -133,6 +133,13 @@ Your role:
 4. Ask questions ONE PROJECT AT A TIME for milestones
 5. Keep responses concise but warm (2-4 sentences max, unless summarizing)
 
+CRITICAL RULES:
+- EVERY response MUST end with a QUESTION to continue the conversation flow
+- NEVER give a response without a question - the user cannot continue otherwise
+- The question must be clear and guide the user to the next step
+- Example: After acknowledging their input, don't just say "Great!" - always add the question for the next step
+- If the user says "ok", "da", "yes", or similar acknowledgments, immediately ask the next question
+
 Current step: ${step}
 ${stepInstructions}
 
@@ -141,7 +148,7 @@ ${JSON.stringify(currentGoalData, null, 2)}
 
 IMPORTANT: Your response must be in JSON format:
 {
-  "message": "Your response in ${lang === 'en' ? 'English' : 'Romanian'}",
+  "message": "Your response in ${lang === 'en' ? 'English' : 'Romanian'} - MUST END WITH A QUESTION",
   "nextStep": "step ID (project_count, project_names, why, positive_impact, negative_impact, milestone_3m, milestone_1m, week1_action, or confirmation)",
   "extractedData": {
     "projectCount": number (if extracting count),
@@ -164,6 +171,13 @@ Rolul tău:
 4. Pune întrebări PENTRU UN SINGUR PROIECT la un moment dat pentru milestone-uri
 5. Păstrează răspunsurile concise dar calde (2-4 propoziții maxim, cu excepția rezumatelor)
 
+REGULI CRITICE:
+- FIECARE răspuns TREBUIE să se termine cu o ÎNTREBARE pentru a continua fluxul conversației
+- NU da NICIODATĂ un răspuns fără întrebare - utilizatorul nu poate continua altfel
+- Întrebarea trebuie să fie clară și să ghideze utilizatorul spre pasul următor
+- Exemplu: După ce recunoști ce a spus, nu spune doar "Excelent!" - adaugă mereu întrebarea pentru pasul următor
+- Dacă utilizatorul zice "ok", "da", "bine", sau confirmări similare, întreabă imediat următoarea întrebare
+
 Pasul curent: ${step}
 ${stepInstructions}
 
@@ -172,7 +186,7 @@ ${JSON.stringify(currentGoalData, null, 2)}
 
 IMPORTANT: Răspunsul tău trebuie să fie în format JSON:
 {
-  "message": "Răspunsul tău în Română",
+  "message": "Răspunsul tău în Română - TREBUIE SĂ SE TERMINE CU O ÎNTREBARE",
   "nextStep": "ID pas (project_count, project_names, why, positive_impact, negative_impact, milestone_3m, milestone_1m, week1_action, sau confirmation)",
   "extractedData": {
     "projectCount": number (dacă extragi numărul),
