@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle2, Plus, ListTodo, Star, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { format, startOfWeek, getWeek } from 'date-fns';
+import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
+import { getTodayAbbrev, getWeekKey } from '@/utils/weekUtils';
 
 interface Task {
   id: string;
@@ -16,20 +17,6 @@ interface Task {
   day_of_week: string | null;
   list_type: string;
 }
-
-// Get week key for a date (Monday-based) - consistent with DOOR format
-const getWeekKey = (date: Date): string => {
-  const weekNum = getWeek(date, { weekStartsOn: 1 });
-  const year = date.getFullYear();
-  return `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
-};
-
-// Get day abbreviation from date
-const getDayAbbrev = (date: Date): string => {
-  const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
-  return days[date.getDay()];
-};
-
 
 export const TodayTasksWidget = () => {
   const { t, i18n } = useTranslation();
@@ -42,14 +29,14 @@ export const TodayTasksWidget = () => {
   const today = new Date();
   const dateLocale = i18n.language === 'ro' ? ro : undefined;
   const weekKey = getWeekKey(today);
-  const todayAbbrev = getDayAbbrev(today);
+  const todayAbbrev = getTodayAbbrev();
 
   const loadTodayData = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const todayStr = format(today, 'yyyy-MM-dd');
+      const todayStr = format(new Date(), 'yyyy-MM-dd');
 
       // Load Big One from champion_routine_logs
       const { data: routineLog } = await supabase
@@ -63,23 +50,25 @@ export const TodayTasksWidget = () => {
         setBigOne(routineLog.big_one_today || '');
       }
 
-      // Load tasks from hot_list_items for today (hit and do lists with today's day)
+      // Load tasks from user_tasks for today (hit and do lists with today's day)
       const { data: tasksData } = await supabase
-        .from('hot_list_items')
-        .select('id, title, completed, day_of_week, list_type')
+        .from('user_tasks')
+        .select('id, title, completed, day_of_week, task_type')
         .eq('user_id', user.id)
         .eq('week_key', weekKey)
-        .in('list_type', ['hit', 'do'])
+        .in('task_type', ['hit', 'do'])
         .or(`day_of_week.eq.${todayAbbrev},day_of_week.is.null`);
 
       if (tasksData) {
-        setTasks(tasksData.map(t => ({
-          id: t.id,
-          title: t.title,
-          completed: t.completed || false,
-          day_of_week: t.day_of_week,
-          list_type: t.list_type
-        })));
+        setTasks(
+          tasksData.map((task) => ({
+            id: task.id,
+            title: task.title,
+            completed: task.completed || false,
+            day_of_week: task.day_of_week,
+            list_type: task.task_type || 'do',
+          }))
+        );
       }
     } catch (error) {
       console.error('Error loading today data:', error);
@@ -92,29 +81,34 @@ export const TodayTasksWidget = () => {
   useEffect(() => {
     loadTodayData();
 
-    // Set up real-time subscription for hot_list_items changes
-    const channel = supabase
-      .channel('today-tasks-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'hot_list_items'
-        },
-        (payload) => {
-          console.log('Real-time update in TodayTasksWidget:', payload);
-          // Reload data when any change happens
-          loadTodayData();
-        }
-      )
-      .subscribe();
+    let channel: any = null;
+
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      channel = supabase
+        .channel('today-tasks-realtime')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'user_tasks',
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload) => {
+            console.log('Real-time update in TodayTasksWidget:', payload);
+            loadTodayData();
+          }
+        )
+        .subscribe();
+    })();
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
   }, [loadTodayData]);
-
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
@@ -124,29 +118,33 @@ export const TodayTasksWidget = () => {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from('hot_list_items')
+        .from('user_tasks')
         .insert({
           user_id: user.id,
           week_key: weekKey,
+          task_type: 'do',
           list_type: 'do',
           title: newTaskTitle.trim(),
           day_of_week: todayAbbrev,
           completed: false,
-          item_id: crypto.randomUUID()
+          position: tasks.length,
         })
-        .select()
+        .select('id, title, completed, day_of_week, task_type')
         .single();
 
       if (error) throw error;
 
       if (data) {
-        setTasks([...tasks, {
-          id: data.id,
-          title: data.title,
-          completed: false,
-          day_of_week: data.day_of_week,
-          list_type: data.list_type
-        }]);
+        setTasks([
+          ...tasks,
+          {
+            id: data.id,
+            title: data.title,
+            completed: data.completed || false,
+            day_of_week: data.day_of_week,
+            list_type: data.task_type || 'do',
+          },
+        ]);
       }
       setNewTaskTitle('');
       setIsAddingTask(false);
@@ -156,20 +154,18 @@ export const TodayTasksWidget = () => {
   };
 
   const handleToggleTask = async (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find((t) => t.id === taskId);
     if (!task) return;
 
     try {
       const { error } = await supabase
-        .from('hot_list_items')
+        .from('user_tasks')
         .update({ completed: !task.completed })
         .eq('id', taskId);
 
       if (error) throw error;
 
-      setTasks(tasks.map(t =>
-        t.id === taskId ? { ...t, completed: !t.completed } : t
-      ));
+      setTasks(tasks.map((t) => (t.id === taskId ? { ...t, completed: !t.completed } : t)));
     } catch (error) {
       console.error('Error toggling task:', error);
     }
@@ -177,14 +173,11 @@ export const TodayTasksWidget = () => {
 
   const handleDeleteTask = async (taskId: string) => {
     try {
-      const { error } = await supabase
-        .from('hot_list_items')
-        .delete()
-        .eq('id', taskId);
+      const { error } = await supabase.from('user_tasks').delete().eq('id', taskId);
 
       if (error) throw error;
 
-      setTasks(tasks.filter(t => t.id !== taskId));
+      setTasks(tasks.filter((t) => t.id !== taskId));
     } catch (error) {
       console.error('Error deleting task:', error);
     }
@@ -198,7 +191,7 @@ export const TodayTasksWidget = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const todayStr = format(today, 'yyyy-MM-dd');
+      const todayStr = format(new Date(), 'yyyy-MM-dd');
 
       // Check if record exists
       const { data: existing } = await supabase

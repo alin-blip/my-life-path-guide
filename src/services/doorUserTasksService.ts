@@ -258,10 +258,10 @@ export const doorUserTasksService = {
     day?: DayOfWeek;
   }) {
     console.log('🔄 addIdeaToWeek called:', { weekKey, idea });
-    
+
     const userId = await getUserId();
     console.log('👤 User ID:', userId);
-    
+
     if (!userId) {
       console.error('❌ No user authenticated for addIdeaToWeek');
       throw new Error('User not authenticated');
@@ -272,42 +272,56 @@ export const doorUserTasksService = {
     const todayAbbrev = days[new Date().getDay()];
     const effectiveDay = idea.day || todayAbbrev;
 
-    // Check if duplicate exists in hot_list_items
-    const { data: existing } = await supabase
-      .from('hot_list_items')
+    // Check if duplicate exists in user_tasks
+    const dupQuery = supabase
+      .from('user_tasks')
       .select('id')
       .eq('user_id', userId)
       .eq('title', idea.text)
-      .eq('week_key', weekKey)
-      .eq('list_type', idea.category)
-      .limit(1);
-    
+      .eq('task_type', idea.category);
+
+    const { data: existing } = idea.category === 'hot'
+      ? await dupQuery.is('week_key', null).limit(1)
+      : await dupQuery.eq('week_key', weekKey).limit(1);
+
     if (existing && existing.length > 0) {
       console.log('⚠️ Duplicate task detected, skipping insert:', idea.text);
       return existing;
     }
 
-    // Save to hot_list_items for dashboard sync
-    const payload = {
+    // Save to user_tasks for Door + dashboard sync
+    const payload: any = {
+      id: uuidv4(),
       user_id: userId,
-      item_id: idea.id || uuidv4(),
-      week_key: weekKey,
-      list_type: idea.category,
       title: idea.text,
-      day_of_week: effectiveDay,
+      task_type: idea.category,
+      list_type: idea.category,
+      completed: false,
       priority: toDbPriority(idea.priority),
-      completed: false
+      selected: false,
+      is_key_point: false,
+      position: null,
+      area: null,
+      task_id: idea.id || null,
     };
 
-    console.log('📦 Inserting task into hot_list_items:', payload);
+    if (idea.category === 'hot') {
+      payload.week_key = null;
+      payload.day_of_week = null;
+    } else {
+      payload.week_key = weekKey;
+      payload.day_of_week = effectiveDay;
+    }
 
-    const { data, error } = await supabase.from('hot_list_items').insert(payload).select();
-    
+    console.log('📦 Inserting task into user_tasks:', payload);
+
+    const { data, error } = await supabase.from('user_tasks').insert(payload).select();
+
     if (error) {
       console.error('❌ Error inserting task:', error);
       throw error;
     }
-    
+
     console.log('✅ Task inserted successfully:', data);
     return data;
   },
