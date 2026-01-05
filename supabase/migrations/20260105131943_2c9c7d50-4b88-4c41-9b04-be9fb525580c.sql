@@ -1,0 +1,25 @@
+-- Add premium fields to widget_templates
+ALTER TABLE public.widget_templates 
+ADD COLUMN IF NOT EXISTS is_premium boolean DEFAULT false,
+ADD COLUMN IF NOT EXISTS price integer DEFAULT 0;
+
+-- Insert official widget templates (free and premium)
+INSERT INTO public.widget_templates (name, description, config, category, icon, is_official, is_premium, price, usage_count)
+VALUES
+  -- Free templates
+  ('Water Tracker', 'Urmărește consumul zilnic de apă - obiectiv 8 pahare', '{"type": "counter", "layout": "vertical", "visualization": "progress_bar", "color": "cyan", "icon": "Droplet", "fields": [{"name": "glasses", "type": "number", "label": "Pahare"}], "goal": 8, "unit": "pahare"}', 'health', 'Droplet', true, false, 0, 0),
+  ('Meditation Timer', 'Tracking pentru minutele de meditație zilnice', '{"type": "goal", "layout": "vertical", "visualization": "progress_bar", "color": "purple", "icon": "Brain", "fields": [{"name": "minutes", "type": "number", "label": "Minute"}], "goal": 20, "unit": "min"}', 'mindset', 'Brain', true, false, 0, 0),
+  ('Reading Tracker', 'Urmărește paginile citite zilnic', '{"type": "counter", "layout": "vertical", "visualization": "progress_bar", "color": "orange", "icon": "Book", "fields": [{"name": "pages", "type": "number", "label": "Pagini"}], "goal": 30, "unit": "pagini"}', 'learning', 'Book', true, false, 0, 0),
+  ('Sleep Tracker', 'Monitorizează orele de somn', '{"type": "goal", "layout": "vertical", "visualization": "progress_bar", "color": "blue", "icon": "Moon", "fields": [{"name": "hours", "type": "number", "label": "Ore"}], "goal": 8, "unit": "ore"}', 'health', 'Moon', true, false, 0, 0),
+  ('Daily Mood', 'Evaluează-ți starea de spirit zilnică', '{"type": "goal", "layout": "vertical", "visualization": "number", "color": "yellow", "icon": "Smile", "fields": [{"name": "mood", "type": "number", "label": "Stare"}], "goal": 10, "unit": "/10"}', 'mindset', 'Smile', true, false, 0, 0),
+  
+  -- Premium templates 49 RON
+  ('Advanced Workout Logger', 'Tracker complet pentru antrenamente cu serii, repetări și greutăți. Include progres săptămânal.', '{"type": "checklist", "layout": "vertical", "visualization": "list", "color": "red", "icon": "Dumbbell", "fields": [{"name": "exercises", "type": "text", "label": "Exerciții"}]}', 'fitness', 'Dumbbell', true, true, 49, 0),
+  ('Nutrition Pro', 'Urmărire avansată a macronutrienților cu obiective personalizate pentru proteine, carbohidrați și grăsimi', '{"type": "goal", "layout": "vertical", "visualization": "progress_bar", "color": "green", "icon": "Apple", "fields": [{"name": "protein", "type": "number", "label": "Proteine"}, {"name": "carbs", "type": "number", "label": "Carbohidrați"}, {"name": "fats", "type": "number", "label": "Grăsimi"}], "goal": 2000, "unit": "kcal"}', 'health', 'Apple', true, true, 49, 0),
+  ('Habit Stacker', 'Combină multiple obiceiuri într-un singur tracker cu progres vizual pentru fiecare', '{"type": "checklist", "layout": "vertical", "visualization": "list", "color": "purple", "icon": "Star", "fields": [{"name": "habits", "type": "text", "label": "Obiceiuri"}]}', 'productivity', 'Star', true, true, 49, 0),
+  ('Focus Timer Pro', 'Pomodoro timer avansat cu statistici și obiective zilnice pentru productivitate maximă', '{"type": "counter", "layout": "vertical", "visualization": "progress_bar", "color": "orange", "icon": "Clock", "fields": [{"name": "sessions", "type": "number", "label": "Sesiuni"}], "goal": 8, "unit": "sesiuni"}', 'productivity', 'Clock', true, true, 49, 0),
+  ('Goal Crusher', 'Tracker pentru obiective pe termen lung cu milestone-uri și progres detaliat', '{"type": "goal", "layout": "vertical", "visualization": "progress_bar", "color": "yellow", "icon": "Trophy", "fields": [{"name": "progress", "type": "number", "label": "Progres"}], "goal": 100, "unit": "%"}', 'productivity', 'Trophy', true, true, 49, 0),
+  ('Mindfulness Journal', 'Jurnal avansat pentru reflecții zilnice cu prompts ghidate și tracking emoțional', '{"type": "notes", "layout": "vertical", "visualization": "list", "color": "cyan", "icon": "Heart", "fields": [{"name": "notes", "type": "text", "label": "Reflecții"}]}', 'mindset', 'Heart', true, true, 49, 0),
+  ('Financial Tracker', 'Urmărire cheltuieli și economii zilnice cu obiective financiare lunare', '{"type": "goal", "layout": "vertical", "visualization": "progress_bar", "color": "green", "icon": "Target", "fields": [{"name": "savings", "type": "number", "label": "Economii"}], "goal": 1000, "unit": "RON"}', 'finance', 'Target', true, true, 49, 0),
+  ('Energy Monitor', 'Monitorizează nivelul de energie pe parcursul zilei pentru a-ți optimiza productivitatea', '{"type": "goal", "layout": "vertical", "visualization": "number", "color": "red", "icon": "Flame", "fields": [{"name": "energy", "type": "number", "label": "Energie"}], "goal": 10, "unit": "/10"}', 'health', 'Flame', true, true, 49, 0)
+ON CONFLICT DO NOTHING;

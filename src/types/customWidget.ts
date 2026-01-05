@@ -62,6 +62,8 @@ export interface WidgetTemplate {
   category?: string;
   icon?: string;
   is_official: boolean;
+  is_premium?: boolean;
+  price?: number;
   usage_count: number;
   creator_user_id?: string;
   created_at: string;
