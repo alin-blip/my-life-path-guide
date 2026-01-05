@@ -12,12 +12,14 @@ import { useNutritionSettings } from '@/hooks/useNutritionSettings';
 
 interface Meal {
   id: string;
-  type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  description: string;
+  name?: string;
+  type?: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  description?: string;
   calories: number;
   protein: number;
   carbs?: number;
   fats?: number;
+  time?: string;
 }
 
 interface MealPlanningStepProps {
