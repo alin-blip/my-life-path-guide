@@ -14,6 +14,7 @@ interface ExerciseStepProps {
   completed: boolean;
   onComplete: (value: boolean) => void;
   onNext: () => void;
+  onSkip?: () => void;
 }
 
 interface ManualActivityData {
@@ -22,7 +23,7 @@ interface ManualActivityData {
   calories: string;
 }
 
-export function ExerciseStep({ completed, onComplete, onNext }: ExerciseStepProps) {
+export function ExerciseStep({ completed, onComplete, onNext, onSkip }: ExerciseStepProps) {
   const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(null);
   const [activityCompleted, setActivityCompleted] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
@@ -46,7 +47,11 @@ export function ExerciseStep({ completed, onComplete, onNext }: ExerciseStepProp
   };
 
   const handleSkipActivity = () => {
-    onNext();
+    if (onSkip) {
+      onSkip();
+    } else {
+      onNext();
+    }
   };
 
   const handleSaveManualActivity = async () => {
