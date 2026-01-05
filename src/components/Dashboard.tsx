@@ -51,6 +51,8 @@ import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { FoundationNotifications } from '@/components/onboarding/FoundationNotifications';
 import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNotification';
 import { useFoundationStatus } from '@/hooks/useFoundationStatus';
+import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
+import { WidgetGrid, WidgetSelector } from '@/components/dashboard/widgets';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -151,6 +153,15 @@ export const Dashboard: React.FC = () => {
   // Onboarding Wizard
   const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
   const foundationStatus = useFoundationStatus();
+
+  // Dashboard Widgets
+  const { 
+    widgets, 
+    toggleWidget, 
+    reorderWidgets, 
+    resizeWidget, 
+    getEnabledWidgets 
+  } = useDashboardWidgets();
 
   // Explainer modal states
   const [explainerModalType, setExplainerModalType] = useState<'core4' | 'biz4' | 'stack' | null>(null);
@@ -740,6 +751,44 @@ export const Dashboard: React.FC = () => {
       <ObjectivesCard />
       
       <DailyCompactCard />
+      
+      {/* Custom Widgets Section */}
+      {getEnabledWidgets().length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">
+              {language === 'ro' ? 'Widget-urile Mele' : 'My Widgets'}
+            </h3>
+            <WidgetSelector widgets={widgets} onToggle={toggleWidget} />
+          </div>
+          <WidgetGrid
+            widgets={widgets}
+            onReorder={reorderWidgets}
+            onRemove={(id) => toggleWidget(id, false)}
+            onResize={resizeWidget}
+            streakData={{
+              currentStreak: streakData?.currentStreak || 0,
+              longestStreak: streakData?.longestStreak || 0
+            }}
+          />
+        </div>
+      )}
+      
+      {/* Add Widgets Button when no widgets enabled */}
+      {getEnabledWidgets().length === 0 && (
+        <div className="mb-6">
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-8">
+              <p className="text-muted-foreground mb-4">
+                {language === 'ro' 
+                  ? 'Personalizează dashboard-ul cu widget-uri pentru tracking' 
+                  : 'Customize your dashboard with tracking widgets'}
+              </p>
+              <WidgetSelector widgets={widgets} onToggle={toggleWidget} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
       
       {/* Morning Routine - Unified Habits + Start Day Flow */}
       <div className="mb-6">

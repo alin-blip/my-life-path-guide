@@ -1,0 +1,117 @@
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Settings2, PieChart, Dumbbell, Flame, Heart, Zap, CheckSquare, BookOpen, Droplets } from 'lucide-react';
+import { AVAILABLE_WIDGETS } from '@/config/dashboardWidgets';
+import { DashboardWidget } from '@/types/dashboardWidget';
+import { useLanguage } from '@/context/LanguageContext';
+import { cn } from '@/lib/utils';
+
+const iconMap: Record<string, React.ReactNode> = {
+  PieChart: <PieChart className="h-5 w-5" />,
+  Dumbbell: <Dumbbell className="h-5 w-5" />,
+  Flame: <Flame className="h-5 w-5" />,
+  Heart: <Heart className="h-5 w-5" />,
+  Zap: <Zap className="h-5 w-5" />,
+  CheckSquare: <CheckSquare className="h-5 w-5" />,
+  BookOpen: <BookOpen className="h-5 w-5" />,
+  Droplets: <Droplets className="h-5 w-5" />
+};
+
+const categoryColors: Record<string, string> = {
+  fitness: 'bg-green-500/10 text-green-500 border-green-500/20',
+  productivity: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  mindset: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+  tracking: 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+};
+
+interface WidgetSelectorProps {
+  widgets: DashboardWidget[];
+  onToggle: (widgetId: string, enabled: boolean) => void;
+}
+
+export const WidgetSelector: React.FC<WidgetSelectorProps> = ({ widgets, onToggle }) => {
+  const { language } = useLanguage();
+  const [open, setOpen] = React.useState(false);
+
+  const isWidgetEnabled = (widgetId: string) => {
+    const widget = widgets.find(w => w.id === widgetId);
+    return widget?.enabled ?? false;
+  };
+
+  const getCategoryLabel = (category: string) => {
+    const labels: Record<string, { en: string; ro: string }> = {
+      fitness: { en: 'Fitness', ro: 'Fitness' },
+      productivity: { en: 'Productivity', ro: 'Productivitate' },
+      mindset: { en: 'Mindset', ro: 'Mentalitate' },
+      tracking: { en: 'Tracking', ro: 'Urmărire' }
+    };
+    return labels[category]?.[language] || category;
+  };
+
+  const groupedWidgets = AVAILABLE_WIDGETS.reduce((acc, widget) => {
+    if (!acc[widget.category]) {
+      acc[widget.category] = [];
+    }
+    acc[widget.category].push(widget);
+    return acc;
+  }, {} as Record<string, typeof AVAILABLE_WIDGETS>);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <Settings2 className="h-4 w-4" />
+          {language === 'ro' ? 'Personalizează' : 'Customize'}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {language === 'ro' ? 'Personalizează Dashboard' : 'Customize Dashboard'}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6 py-4">
+          {Object.entries(groupedWidgets).map(([category, categoryWidgets]) => (
+            <div key={category} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  'px-2 py-0.5 rounded-full text-xs font-medium border',
+                  categoryColors[category]
+                )}>
+                  {getCategoryLabel(category)}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {categoryWidgets.map((widget) => (
+                  <div
+                    key={widget.id}
+                    className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        'p-2 rounded-lg',
+                        categoryColors[widget.category]
+                      )}>
+                        {iconMap[widget.icon]}
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{widget.name[language]}</p>
+                        <p className="text-xs text-muted-foreground">{widget.description[language]}</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={isWidgetEnabled(widget.id)}
+                      onCheckedChange={(checked) => onToggle(widget.id, checked)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
