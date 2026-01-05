@@ -37,7 +37,7 @@ const CATEGORY_CONFIG = {
   },
   being: {
     icon: Brain,
-    label: { en: 'Being', ro: 'Ființă' },
+    label: { en: 'Spirituality', ro: 'Spiritualitate' },
     question: { en: 'What does your most evolved self look like?', ro: 'Cum arată versiunea ta cea mai evoluată?' },
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10',
@@ -46,7 +46,7 @@ const CATEGORY_CONFIG = {
   },
   balance: {
     icon: Heart,
-    label: { en: 'Balance', ro: 'Echilibru' },
+    label: { en: 'Relationships', ro: 'Relații' },
     question: { en: 'What do your ideal relationships look like?', ro: 'Cum arată relațiile tale ideale?' },
     color: 'text-rose-500',
     bgColor: 'bg-rose-500/10',
