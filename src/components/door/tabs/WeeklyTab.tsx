@@ -135,7 +135,8 @@ export const WeeklyTab: React.FC = () => {
     moveKeyPointToHotList,
     moveTaskBackToHotList,
     addNewKeyPoint,
-    navigateToDate
+    navigateToDate,
+    refreshLists
   } = useDoorContent();
 
   // Streak tracking
@@ -444,6 +445,7 @@ export const WeeklyTab: React.FC = () => {
                     doDoneCount={doDoneCount}
                     moveTaskBackToHotList={moveTaskBackToHotList}
                     isMobile={isMobile}
+                    onTasksAdded={refreshLists}
                   />
                 </div>
               )}
@@ -535,6 +537,7 @@ export const WeeklyTab: React.FC = () => {
                 doDoneCount={doDoneCount}
                 moveTaskBackToHotList={moveTaskBackToHotList}
                 isMobile={false}
+                onTasksAdded={refreshLists}
               />
             </div>
           </div>

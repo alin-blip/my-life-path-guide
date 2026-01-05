@@ -25,6 +25,7 @@ interface TaskListProps {
   isMobile?: boolean;
   moveTaskBackToHotList?: (taskId: string, listType: 'hit' | 'do') => void;
   onDeleteTask?: (taskId: string, listType: 'hit' | 'do') => void;
+  onTasksAdded?: () => void;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({
@@ -42,7 +43,8 @@ export const TaskList: React.FC<TaskListProps> = ({
   doDoneCount,
   isMobile = false,
   moveTaskBackToHotList,
-  onDeleteTask
+  onDeleteTask,
+  onTasksAdded
 }) => {
   const [activeCategory, setActiveCategory] = useState<TaskCategory>('all');
   const normalizeDay = (d: any): DayOfWeek => {
@@ -163,7 +165,7 @@ export const TaskList: React.FC<TaskListProps> = ({
               )
             ))
           ) : (
-            <EmptyTaskList activeList="hit" isMobile={isMobile} />
+            <EmptyTaskList activeList="hit" isMobile={isMobile} onTasksAdded={onTasksAdded} />
           )
         ) : (
           filteredDoList.length > 0 ? (
@@ -194,7 +196,7 @@ export const TaskList: React.FC<TaskListProps> = ({
               )
             ))
           ) : (
-            <EmptyTaskList activeList="do" isMobile={isMobile} />
+            <EmptyTaskList activeList="do" isMobile={isMobile} onTasksAdded={onTasksAdded} />
           )
         )}
       </div>
