@@ -138,7 +138,6 @@ export const Dashboard: React.FC = () => {
   // Gamification celebration states (streak milestone removed)
   const [showBadgeUnlock, setShowBadgeUnlock] = useState(false);
   const [unlockedBadge, setUnlockedBadge] = useState<typeof BADGES[0] | null>(null);
-  const [previouslyEarnedBadges, setPreviouslyEarnedBadges] = useState<string[]>([]);
 
   // Sunday Planning Modal
   const [showSundayPlanning, setShowSundayPlanning] = useState(false);
@@ -183,15 +182,17 @@ export const Dashboard: React.FC = () => {
 
   // Trigger badge unlock celebration
   // NOTE: We intentionally suppress streak badge popups (they were perceived as a "streak popup" when switching tabs).
+  const previouslyEarnedBadgesRef = useRef<string[]>([]);
   useEffect(() => {
     const earnedIds = earnedBadges.map((b) => b.id);
-    const newBadgeIds = earnedIds.filter((id) => !previouslyEarnedBadges.includes(id));
+    const prevIds = previouslyEarnedBadgesRef.current;
+    const newBadgeIds = earnedIds.filter((id) => !prevIds.includes(id));
 
     // Exclude streak badges from modal celebrations
     const firstNonStreakNewId = newBadgeIds.find((id) => !id.startsWith('streak_'));
 
     // Avoid showing a celebration on first load (previouslyEarnedBadges empty)
-    if (firstNonStreakNewId && previouslyEarnedBadges.length > 0) {
+    if (firstNonStreakNewId && prevIds.length > 0) {
       const newBadge = BADGES.find((b) => b.id === firstNonStreakNewId);
       if (newBadge) {
         setUnlockedBadge(newBadge);
@@ -199,8 +200,8 @@ export const Dashboard: React.FC = () => {
       }
     }
 
-    setPreviouslyEarnedBadges(earnedIds);
-  }, [earnedBadges, previouslyEarnedBadges]);
+    previouslyEarnedBadgesRef.current = earnedIds;
+  }, [earnedBadges]);
 
   // Streak milestone celebration removed
   useEffect(() => {
