@@ -61,14 +61,14 @@ const CATEGORY_CONFIG = {
   },
   being: {
     icon: Brain,
-    label: { en: 'Being', ro: 'Ființă' },
+    label: { en: 'Spirituality', ro: 'Spiritualitate' },
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10',
     borderColor: 'border-purple-500/30'
   },
   balance: {
     icon: Heart,
-    label: { en: 'Balance', ro: 'Echilibru' },
+    label: { en: 'Relationships', ro: 'Relații' },
     color: 'text-rose-500',
     bgColor: 'bg-rose-500/10',
     borderColor: 'border-rose-500/30'

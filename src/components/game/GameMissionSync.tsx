@@ -74,9 +74,9 @@ export const GameMissionSync: React.FC = () => {
     } else {
       switch(category) {
         case 'body': return 'Corp';
-        case 'being': return 'Ființă';
-        case 'balance': return 'Echilibru';
-        case 'business': return 'Afacere';
+        case 'being': return 'Spiritualitate';
+        case 'balance': return 'Relații';
+        case 'business': return 'Afaceri';
         default: return String(category).charAt(0).toUpperCase() + String(category).slice(1);
       }
     }

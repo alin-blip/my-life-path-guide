@@ -78,13 +78,13 @@ export const CATEGORY_INFO: Record<GoalCategory, {
     bgColor: 'bg-emerald-500/10'
   },
   being: {
-    label: { en: 'Being', ro: 'Ființă' },
+    label: { en: 'Spirituality', ro: 'Spiritualitate' },
     icon: 'Brain',
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10'
   },
   balance: {
-    label: { en: 'Balance', ro: 'Echilibru' },
+    label: { en: 'Relationships', ro: 'Relații' },
     icon: 'Heart',
     color: 'text-rose-500',
     bgColor: 'bg-rose-500/10'
