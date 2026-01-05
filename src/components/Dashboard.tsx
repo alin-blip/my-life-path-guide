@@ -44,7 +44,6 @@ import { MorningRoutine } from '@/components/habits/MorningRoutine';
 import { ObjectivesCard } from '@/components/dashboard/ObjectivesCard';
 import { EveningRoutineCard } from '@/components/dashboard/EveningRoutineCard';
 import { DailyHabitsSection } from '@/components/habits/DailyHabitsSection';
-import { TodayTasksWidget } from '@/components/dashboard/TodayTasksWidget';
 import { SundayPlanningModal } from '@/components/dashboard/SundayPlanningModal';
 export const Dashboard: React.FC = () => {
   const {
@@ -730,9 +729,9 @@ export const Dashboard: React.FC = () => {
         <DailyHabitsSection />
       </div>
       
-      {/* Today's Tasks Widget */}
+      {/* Vision Board Widget */}
       <div className="mb-6">
-        <TodayTasksWidget />
+        <VisionBoardWidget visionBoard={visionBoard} language={language} />
       </div>
       
       {/* Vision Board Widget */}
