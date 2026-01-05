@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Sparkles, Image, Target } from 'lucide-react';
+import { Loader2, Sparkles, RefreshCw, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -67,10 +67,13 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
         return;
       }
 
+      // Get most recent vision board entry
       const { data, error } = await supabase
         .from('vision_boards')
         .select('body_image_url, being_image_url, balance_image_url, business_image_url')
         .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) throw error;
@@ -191,7 +194,7 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
     return (
       <div 
         key={category}
-        className={`relative rounded-xl overflow-hidden border border-border/50 aspect-video bg-gradient-to-br ${categoryGradients[category]}`}
+        className={`relative rounded-xl overflow-hidden border border-border/50 aspect-[16/9] bg-gradient-to-br ${categoryGradients[category]}`}
       >
         {/* Background Image or Gradient */}
         {imageUrl ? (
@@ -203,7 +206,7 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
         ) : null}
         
         {/* Overlay */}
-        <div className={`absolute inset-0 ${imageUrl ? 'bg-black/40' : ''} flex flex-col items-center justify-center p-3`}>
+        <div className={`absolute inset-0 ${imageUrl ? 'bg-black/30' : ''} flex flex-col items-center justify-center p-3`}>
           {isGeneratingThis ? (
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="h-6 w-6 animate-spin text-white" />
@@ -216,7 +219,21 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
               <span className="text-white font-semibold text-sm mb-1 drop-shadow-lg">
                 {categoryLabels[category][language === 'ro' ? 'ro' : 'en']}
               </span>
-              {!imageUrl && (
+              {imageUrl ? (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="text-xs h-6 px-2 bg-white/20 hover:bg-white/30 text-white border-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    generateVisionForCategory(category);
+                  }}
+                  disabled={isGenerating}
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  {language === 'ro' ? 'Regenerează' : 'Regenerate'}
+                </Button>
+              ) : (
                 <Button
                   size="sm"
                   variant="secondary"
@@ -268,12 +285,17 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
     <div className="mb-4">
       {/* Vision Board Grid */}
       <div className="grid grid-cols-2 gap-3 mb-3">
-        {categories.map(renderCategoryVision)}
+        {categories.map(cat => (
+          <div key={cat} className="group">
+            {renderCategoryVision(cat)}
+          </div>
+        ))}
       </div>
 
-      {/* Generate All Button - only show if there are objectives without images */}
-      {categoriesWithoutImages.length > 0 && hasAnyAnnualObjectives && (
-        <div className="flex justify-center">
+      {/* Buttons row */}
+      <div className="flex justify-center gap-2 flex-wrap">
+        {/* Generate All Button - show if there are objectives without images */}
+        {categoriesWithoutImages.length > 0 && hasAnyAnnualObjectives && (
           <Button
             variant="outline"
             size="sm"
@@ -289,12 +311,35 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
             ) : (
               <>
                 <Sparkles className="h-4 w-4" />
-                {language === 'ro' ? 'Generează Vision Board din Obiective' : 'Generate Vision Board from Objectives'}
+                {language === 'ro' ? 'Generează Vision Board' : 'Generate Vision Board'}
               </>
             )}
           </Button>
-        </div>
-      )}
+        )}
+        
+        {/* Regenerate All Button - show if all categories have images */}
+        {hasAnyImages && categoriesWithoutImages.length === 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={generateAllVisions}
+            disabled={isGenerating}
+            className="text-sm gap-2 text-muted-foreground"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {language === 'ro' ? 'Se regenerează...' : 'Regenerating...'}
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                {language === 'ro' ? 'Regenerează Toate' : 'Regenerate All'}
+              </>
+            )}
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

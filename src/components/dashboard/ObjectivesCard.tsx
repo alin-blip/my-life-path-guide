@@ -457,14 +457,12 @@ export const ObjectivesCard: React.FC = () => {
                   {getPeriodTitle(period)}
                 </h3>
                 
-                {/* Vision Board - only show on annual tab */}
-                {period === 'annual' && (
-                  <ObjectiveVisionBoard 
-                    language={language}
-                    annualMissions={missions.annual}
-                    onRefresh={loadMissions}
-                  />
-                )}
+                {/* Vision Board - show in all tabs */}
+                <ObjectiveVisionBoard 
+                  language={language}
+                  annualMissions={missions.annual}
+                  onRefresh={loadMissions}
+                />
                 
                 {/* Always show category sections */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
