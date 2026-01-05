@@ -33,11 +33,11 @@ export const GameJourneyMap: React.FC<GameJourneyMapProps> = ({ category }) => {
       case 'body':
         return language === 'en' ? 'Body' : 'Corp';
       case 'being':
-        return language === 'en' ? 'Being' : 'Ființă';
+        return language === 'en' ? 'Spirituality' : 'Spiritualitate';
       case 'balance':
-        return language === 'en' ? 'Balance' : 'Echilibru';
+        return language === 'en' ? 'Relationships' : 'Relații';
       case 'business':
-        return language === 'en' ? 'Business' : 'Afacere';
+        return language === 'en' ? 'Business' : 'Afaceri';
     }
   };
 
