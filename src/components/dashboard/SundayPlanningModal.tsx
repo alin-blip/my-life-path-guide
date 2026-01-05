@@ -21,9 +21,9 @@ interface SundayPlanningModalProps {
 }
 
 const CATEGORY_CONFIG = {
-  body: { emoji: '💪', labelRo: 'Body', labelEn: 'Body', color: 'text-green-500' },
-  being: { emoji: '🧠', labelRo: 'Being', labelEn: 'Being', color: 'text-purple-500' },
-  balance: { emoji: '⚖️', labelRo: 'Balance', labelEn: 'Balance', color: 'text-blue-500' },
+  body: { emoji: '💪', labelRo: 'Corp', labelEn: 'Body', color: 'text-green-500' },
+  being: { emoji: '🧠', labelRo: 'Spiritualitate', labelEn: 'Spirituality', color: 'text-purple-500' },
+  balance: { emoji: '⚖️', labelRo: 'Relații', labelEn: 'Relationships', color: 'text-blue-500' },
   business: { emoji: '💼', labelRo: 'Business', labelEn: 'Business', color: 'text-amber-500' },
 };
 

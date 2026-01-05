@@ -14,6 +14,7 @@ import { ro, enUS } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { getTodayAbbrev, getWeekKey } from '@/utils/weekUtils';
 import { Separator } from '@/components/ui/separator';
+import { ObjectiveVisionBoard } from './ObjectiveVisionBoard';
 
 interface Mission {
   id: string;
@@ -316,8 +317,8 @@ export const ObjectivesCard: React.FC = () => {
 
   const getCategoryName = (category: MissionCategory) => {
     const names: Record<string, Record<MissionCategory, string>> = {
-      en: { body: 'Body', being: 'Being', balance: 'Balance', business: 'Business' },
-      ro: { body: 'Corp', being: 'Ființă', balance: 'Echilibru', business: 'Business' }
+      en: { body: 'Body', being: 'Spirituality', balance: 'Relationships', business: 'Business' },
+      ro: { body: 'Corp', being: 'Spiritualitate', balance: 'Relații', business: 'Business' }
     };
     return names[language]?.[category] || category;
   };
@@ -455,6 +456,15 @@ export const ObjectivesCard: React.FC = () => {
                 <h3 className="text-sm font-semibold text-muted-foreground mb-3">
                   {getPeriodTitle(period)}
                 </h3>
+                
+                {/* Vision Board - only show on annual tab */}
+                {period === 'annual' && (
+                  <ObjectiveVisionBoard 
+                    language={language}
+                    annualMissions={missions.annual}
+                    onRefresh={loadMissions}
+                  />
+                )}
                 
                 {/* Always show category sections */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

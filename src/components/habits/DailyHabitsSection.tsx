@@ -8,27 +8,31 @@ import { HabitSettingsModal } from './HabitSettingsModal';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const CATEGORY_CONFIG: Record<HabitCategory, { title: string; icon: React.ReactNode; bgColor: string; borderColor: string }> = {
+const CATEGORY_CONFIG: Record<HabitCategory, { titleEn: string; titleRo: string; icon: React.ReactNode; bgColor: string; borderColor: string }> = {
   body: { 
-    title: 'Body', 
+    titleEn: 'Body', 
+    titleRo: 'Corp',
     icon: <Heart className="h-4 w-4" />, 
     bgColor: 'bg-red-500/10',
     borderColor: 'border-red-500/30'
   },
   being: { 
-    title: 'Being', 
+    titleEn: 'Spirituality', 
+    titleRo: 'Spiritualitate',
     icon: <Brain className="h-4 w-4" />, 
     bgColor: 'bg-purple-500/10',
     borderColor: 'border-purple-500/30'
   },
   balance: { 
-    title: 'Balance', 
+    titleEn: 'Relationships', 
+    titleRo: 'Relații',
     icon: <Scale className="h-4 w-4" />, 
     bgColor: 'bg-blue-500/10',
     borderColor: 'border-blue-500/30'
   },
   business: { 
-    title: 'Business', 
+    titleEn: 'Business', 
+    titleRo: 'Business',
     icon: <Briefcase className="h-4 w-4" />, 
     bgColor: 'bg-green-500/10',
     borderColor: 'border-green-500/30'
@@ -117,7 +121,7 @@ export const DailyHabitsSection: React.FC<DailyHabitsSectionProps> = ({ date = n
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     {config.icon}
-                    <span className="font-medium text-sm">{config.title}</span>
+                    <span className="font-medium text-sm">{config.titleRo}</span>
                   </div>
                   <span className="text-xs text-muted-foreground">
                     {completedCount}/{categoryHabits.length}

@@ -161,10 +161,10 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: Sparkles, label: 'Being', desc: 'Meditație, Recunoștință', color: 'from-purple-500/20 to-indigo-500/20 border-purple-500/30' },
-                { icon: Dumbbell, label: 'Body', desc: 'Exerciții, Nutriție', color: 'from-orange-500/20 to-red-500/20 border-orange-500/30' },
+                { icon: Sparkles, label: 'Spiritualitate', desc: 'Meditație, Recunoștință', color: 'from-purple-500/20 to-indigo-500/20 border-purple-500/30' },
+                { icon: Dumbbell, label: 'Corp', desc: 'Exerciții, Nutriție', color: 'from-orange-500/20 to-red-500/20 border-orange-500/30' },
                 { icon: Target, label: 'Business', desc: 'Content, Tasks', color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30' },
-                { icon: Heart, label: 'Balance', desc: 'Relații', color: 'from-pink-500/20 to-rose-500/20 border-pink-500/30' },
+                { icon: Heart, label: 'Relații', desc: 'Relații importante', color: 'from-pink-500/20 to-rose-500/20 border-pink-500/30' },
               ].map(({ icon: Icon, label, desc, color }) => (
                 <Card
                   key={label}
