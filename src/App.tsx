@@ -256,6 +256,11 @@ const App = () => (
                         <WorkoutHistory />
                       </ProtectedRoute>
                     } />
+                    <Route path="/widget-dashboard" element={
+                      <ProtectedRoute>
+                        <WidgetDashboard />
+                      </ProtectedRoute>
+                    } />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Suspense>
