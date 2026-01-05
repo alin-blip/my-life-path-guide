@@ -170,22 +170,33 @@ export const doorUserTasksService = {
     // Fetch existing tasks to preserve IDs and only update what changed
     const { data: existingTasks, error: fetchErr } = await supabase
       .from('user_tasks')
-      .select('id, title, day_of_week, task_type, completed, priority, is_key_point, position')
+      .select('id, task_id, title, day_of_week, task_type, completed, priority, is_key_point, position')
       .eq('user_id', userId)
       .eq('week_key', weekKey)
       .in('task_type', ['hit', 'do']);
 
     if (fetchErr) throw fetchErr;
 
-    const existingMap = new Map<string, any>();
+    const byRowId = new Map<string, any>();
+    const byTaskId = new Map<string, any>();
+    const byNaturalKey = new Map<string, any>();
+
+    const normalizeTitle = (t: any) => String(t ?? '').trim().toLowerCase();
+    const makeKey = (title: any, day: any, taskType: 'hit' | 'do') => {
+      const d = normalizeDay(day) ?? 'null';
+      return `${normalizeTitle(title)}|${d}|${taskType}`;
+    };
+
     for (const task of existingTasks ?? []) {
-      existingMap.set(task.id, task);
+      if (task?.id) byRowId.set(String(task.id), task);
+      if (task?.task_id) byTaskId.set(String(task.task_id), task);
+      byNaturalKey.set(makeKey(task.title, task.day_of_week, task.task_type as 'hit' | 'do'), task);
     }
 
     // Deduplicate hitList by title + day before saving
     const seenHit = new Set<string>();
     const uniqueHitList = params.hitList.filter(item => {
-      const key = `${item.text}|${item.day || 'null'}`;
+      const key = `${normalizeTitle(item.text)}|${normalizeDay(item.day) ?? 'null'}`;
       if (seenHit.has(key)) return false;
       seenHit.add(key);
       return true;
@@ -194,7 +205,7 @@ export const doorUserTasksService = {
     // Deduplicate doList by title + day before saving
     const seenDo = new Set<string>();
     const uniqueDoList = params.doList.filter(item => {
-      const key = `${item.text}|${item.day || 'null'}`;
+      const key = `${normalizeTitle(item.text)}|${normalizeDay(item.day) ?? 'null'}`;
       if (seenDo.has(key)) return false;
       seenDo.add(key);
       return true;
@@ -205,10 +216,11 @@ export const doorUserTasksService = {
     const upsertRows: any[] = [];
     let position = 0;
 
-    // Prepare hit list rows - preserve existing IDs
+    // Prepare hit list rows - preserve existing IDs (match by row id OR task_id OR natural key)
     for (const item of uniqueHitList) {
-      const existingTask = existingMap.get(item.id);
-      const taskId = existingTask ? item.id : uuidv4();
+      const naturalKey = makeKey(item.text, item.day, 'hit');
+      const existingTask = byRowId.get(item.id) || byTaskId.get(item.id) || byNaturalKey.get(naturalKey);
+      const taskId = existingTask ? String(existingTask.id) : uuidv4();
       currentIds.add(taskId);
 
       upsertRows.push({
@@ -217,6 +229,7 @@ export const doorUserTasksService = {
         week_key: weekKey,
         task_type: 'hit',
         list_type: 'hit',
+        task_id: existingTask?.task_id ? String(existingTask.task_id) : String(item.id),
         title: item.text,
         day_of_week: item.day ? String(item.day) : null,
         completed: Boolean(item.completed),
@@ -226,10 +239,11 @@ export const doorUserTasksService = {
       });
     }
 
-    // Prepare do list rows - preserve existing IDs
+    // Prepare do list rows - preserve existing IDs (match by row id OR task_id OR natural key)
     for (const item of uniqueDoList) {
-      const existingTask = existingMap.get(item.id);
-      const taskId = existingTask ? item.id : uuidv4();
+      const naturalKey = makeKey(item.text, item.day, 'do');
+      const existingTask = byRowId.get(item.id) || byTaskId.get(item.id) || byNaturalKey.get(naturalKey);
+      const taskId = existingTask ? String(existingTask.id) : uuidv4();
       currentIds.add(taskId);
 
       upsertRows.push({
@@ -238,6 +252,7 @@ export const doorUserTasksService = {
         week_key: weekKey,
         task_type: 'do',
         list_type: 'do',
+        task_id: existingTask?.task_id ? String(existingTask.task_id) : String(item.id),
         title: item.text,
         day_of_week: item.day ? String(item.day) : null,
         completed: Boolean(item.completed),
@@ -248,13 +263,14 @@ export const doorUserTasksService = {
 
     // Delete only tasks that are no longer in the lists
     const idsToDelete = (existingTasks ?? [])
-      .filter(task => !currentIds.has(task.id))
+      .filter(task => !currentIds.has(String(task.id)))
       .map(task => task.id);
 
     if (idsToDelete.length > 0) {
       await supabase
         .from('user_tasks')
         .delete()
+        .eq('user_id', userId)
         .in('id', idsToDelete);
     }
 
