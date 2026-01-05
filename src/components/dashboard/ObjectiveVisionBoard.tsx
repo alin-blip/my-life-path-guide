@@ -67,24 +67,62 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
         return;
       }
 
-      // Get most recent vision board entry
+      // Get ALL vision board entries for this user to consolidate images
       const { data, error } = await supabase
         .from('vision_boards')
-        .select('body_image_url, being_image_url, balance_image_url, business_image_url')
+        .select('id, body_image_url, being_image_url, balance_image_url, business_image_url, created_at')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      if (data) {
-        setVisionImages({
-          body: data.body_image_url,
-          being: data.being_image_url,
-          balance: data.balance_image_url,
-          business: data.business_image_url
-        });
+      if (data && data.length > 0) {
+        // Consolidate images from all records (most recent wins)
+        const consolidated: VisionImages = { body: null, being: null, balance: null, business: null };
+        
+        // Go through all records from oldest to newest to get the latest image for each category
+        for (const record of [...data].reverse()) {
+          if (record.body_image_url && !consolidated.body) consolidated.body = record.body_image_url;
+          if (record.being_image_url && !consolidated.being) consolidated.being = record.being_image_url;
+          if (record.balance_image_url && !consolidated.balance) consolidated.balance = record.balance_image_url;
+          if (record.business_image_url && !consolidated.business) consolidated.business = record.business_image_url;
+        }
+        
+        // Override with most recent values
+        for (const record of data) {
+          if (record.body_image_url) consolidated.body = record.body_image_url;
+          if (record.being_image_url) consolidated.being = record.being_image_url;
+          if (record.balance_image_url) consolidated.balance = record.balance_image_url;
+          if (record.business_image_url) consolidated.business = record.business_image_url;
+        }
+
+        setVisionImages(consolidated);
+
+        // If there are multiple records, consolidate them into one
+        if (data.length > 1) {
+          const primaryId = data[0].id;
+          
+          // Update the primary record with all consolidated images
+          await supabase
+            .from('vision_boards')
+            .update({
+              body_image_url: consolidated.body,
+              being_image_url: consolidated.being,
+              balance_image_url: consolidated.balance,
+              business_image_url: consolidated.business,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', primaryId);
+
+          // Delete the duplicate records
+          const idsToDelete = data.slice(1).map(r => r.id);
+          await supabase
+            .from('vision_boards')
+            .delete()
+            .in('id', idsToDelete);
+          
+          console.log('Consolidated vision board records');
+        }
       }
     } catch (error) {
       console.error('Error loading vision images:', error);
@@ -128,19 +166,23 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
         // Update vision board in database
         const updateField = `${category}_image_url`;
         
-        // Check if vision board exists
+        // Check if vision board exists - get the most recent one
         const { data: existing } = await supabase
           .from('vision_boards')
           .select('id')
           .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
           .maybeSingle();
 
         if (existing) {
+          // Update existing record by ID
           await supabase
             .from('vision_boards')
             .update({ [updateField]: data.imageUrl, updated_at: new Date().toISOString() })
-            .eq('user_id', user.id);
+            .eq('id', existing.id);
         } else {
+          // Create new record
           await supabase
             .from('vision_boards')
             .insert({ 
