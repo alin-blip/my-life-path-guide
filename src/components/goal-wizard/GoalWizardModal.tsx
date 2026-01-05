@@ -406,19 +406,21 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
           }]);
         }
 
-        // Save tasks based on type
+        // Save tasks based on type - use user_tasks table (not hot_list_items)
         if (selection.saveType === 'hit') {
           // Hit List - simple weekly task
           if (project.milestones.weekOne) {
-            await supabase.from('hot_list_items').insert([{
+            await supabase.from('user_tasks').insert([{
               user_id: userId,
-              item_id: uuidv4(),
+              task_id: uuidv4(),
               title: project.milestones.weekOne,
               list_type: 'hit',
+              task_type: 'hit',
               week_key: weekKey,
               day_of_week: todayAbbrev,
               completed: false,
-              priority: 1
+              priority: 1,
+              is_key_point: false
             }]);
           }
         } else if (selection.saveType === 'massive' && selection.keys) {
@@ -461,19 +463,21 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
               }]);
             }
 
-            // Create key tasks in hot_list_items
+            // Create key tasks in user_tasks table
             const keyTasks = validKeys.map((k) => ({
               user_id: userId,
-              item_id: uuidv4(),
+              task_id: uuidv4(),
               title: `🔑 ${k.text}`,
               list_type: 'hit',
+              task_type: 'hit',
               week_key: weekKey,
               day_of_week: k.day,
               completed: false,
-              priority: 2
+              priority: 2,
+              is_key_point: true
             }));
 
-            await supabase.from('hot_list_items').insert(keyTasks);
+            await supabase.from('user_tasks').insert(keyTasks);
           }
         }
       }
