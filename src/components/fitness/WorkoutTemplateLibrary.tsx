@@ -12,25 +12,38 @@ import {
 } from '@/components/ui/dialog';
 import { 
   Download, Search, Star, Users, Calendar,
-  Dumbbell, Trophy, Target, Flame
+  Dumbbell, Trophy, Target, Flame, Loader2
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import type { WorkoutTemplate } from '@/types/workout';
 import { WORKOUT_CATEGORIES, DIFFICULTY_LEVELS, DAYS_OF_WEEK } from '@/types/workout';
+import { useWorkoutProgram } from '@/hooks/useWorkoutProgram';
+import { toast } from 'sonner';
 
-interface WorkoutTemplateLibraryProps {
-  templates: WorkoutTemplate[];
-  onApplyTemplate: (template: WorkoutTemplate) => void;
-}
-
-export function WorkoutTemplateLibrary({
-  templates,
-  onApplyTemplate,
-}: WorkoutTemplateLibraryProps) {
+export function WorkoutTemplateLibrary() {
   const { language } = useLanguage();
+  const { templates, loading: isLoadingTemplates, applyTemplate } = useWorkoutProgram();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<WorkoutTemplate | null>(null);
+
+  const handleApplyTemplate = async (template: WorkoutTemplate) => {
+    try {
+      await applyTemplate(template);
+      toast.success(language === 'en' ? 'Template applied!' : 'Template aplicat!');
+      setPreviewTemplate(null);
+    } catch (error) {
+      toast.error(language === 'en' ? 'Error applying template' : 'Eroare la aplicarea template-ului');
+    }
+  };
+
+  if (isLoadingTemplates) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const filteredTemplates = templates.filter((template) => {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -115,7 +128,7 @@ export function WorkoutTemplateLibrary({
             size="sm" 
             onClick={(e) => {
               e.stopPropagation();
-              onApplyTemplate(template);
+              handleApplyTemplate(template);
             }}
           >
             <Download className="w-4 h-4 mr-2" />
@@ -267,8 +280,7 @@ export function WorkoutTemplateLibrary({
             </Button>
             <Button onClick={() => {
               if (previewTemplate) {
-                onApplyTemplate(previewTemplate);
-                setPreviewTemplate(null);
+                handleApplyTemplate(previewTemplate);
               }
             }}>
               <Download className="w-4 h-4 mr-2" />

@@ -31,7 +31,9 @@ import {
   Sparkles,
   Bot,
   Brain,
-  History
+  History,
+  LayoutGrid,
+  Calendar
 } from 'lucide-react';
 
 interface SideMenuProps {
@@ -84,9 +86,22 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       icon: Activity,
       path: '/workout',
       subItems: [
-        { title: 'Workout', icon: Activity, path: '/workout' },
+        { title: 'Workout Azi', icon: Activity, path: '/workout' },
+        { title: 'Program Săptămânal', icon: Calendar, path: '/workout?tab=weekly' },
+        { title: 'Template-uri', icon: Layers, path: '/workout?tab=templates' },
         { title: 'Istoric Antrenamente', icon: History, path: '/workout-history' },
         { title: t('nutrition') || 'Nutriție', icon: Activity, path: '/nutrition' },
+      ]
+    },
+    // WIDGET DASHBOARD
+    {
+      title: '🎨 Widget Dashboard',
+      icon: LayoutGrid,
+      path: '/widget-dashboard',
+      subItems: [
+        { title: 'Widget-urile Mele', icon: Box, path: '/widget-dashboard' },
+        { title: 'Creează Widget', icon: Sparkles, path: '/widget-dashboard?create=true' },
+        { title: 'Biblioteca', icon: Layers, path: '/widget-dashboard?tab=library' },
       ]
     },
     // SPIRITUALITATE
