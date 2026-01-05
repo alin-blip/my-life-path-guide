@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, Settings, History, Bell } from 'lucide-react';
-import { useChampionRoutine } from '@/hooks/useChampionRoutine';
+import { useChampionRoutine, ChampionLog } from '@/hooks/useChampionRoutine';
 import { ChampionRoutineSettings } from './ChampionRoutineSettings';
 import { NotificationSettings } from './NotificationSettings';
 import { debounce } from '@/lib/utils';
@@ -29,7 +29,7 @@ interface ChampionRoutineFlowProps {
   onComplete?: () => void;
 }
 
-type RoutineStepId = 
+export type RoutineStepId = 
   | 'gratitude' 
   | 'hydration' 
   | 'meditation' 
@@ -41,8 +41,8 @@ type RoutineStepId =
   | 'relationships'
   | 'completion';
 
-// New optimized order for Execution Room
-const ROUTINE_STEPS: RoutineStepId[] = [
+// Default order for Execution Room
+const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'gratitude',        // 1. Being - Recunoștință
   'hydration',        // 2. Being - Hidratare
   'meditation',       // 3. Being - Meditație (min 10 min)
@@ -89,11 +89,42 @@ const CATEGORY_COLORS = {
   complete: 'text-green-500',
 };
 
+// Check if a step is completed based on log data
+const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolean => {
+  if (!log) return false;
+  
+  switch (stepId) {
+    case 'gratitude':
+      return (log.gratitude_items || []).some(i => i?.trim());
+    case 'hydration':
+      return log.water_drunk === true;
+    case 'meditation':
+      return (log.meditation_duration_seconds || 0) >= 600; // 10 minutes
+    case 'autosuggestion':
+      return log.autosuggestion_completed === true;
+    case 'exercise':
+      return log.exercise_completed === true;
+    case 'mealPlanning':
+      return (log.meals_logged || []).length > 0;
+    case 'contentCreation':
+      return !!log.content_script || (log.pomodoro_sessions || 0) > 0;
+    case 'dailyTasks':
+      return !!log.big_one_today || (log.daily_todos || []).some(t => t.completed);
+    case 'relationships':
+      return (log.relationship_actions || []).some(a => a.completed);
+    case 'completion':
+      return false; // Completion is never "completed" - it's the end screen
+    default:
+      return false;
+  }
+};
+
 export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const {
     people,
+    settings,
     todayLog,
     isLoading,
     isConfigured,
@@ -104,9 +135,64 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
     saveSettings,
   } = useChampionRoutine();
 
+  // Get active and ordered steps based on settings
+  const routineSteps = useMemo((): RoutineStepId[] => {
+    const activeSteps = settings?.active_steps || [];
+    const stepsOrder = settings?.routine_steps_order || [];
+
+    // If no custom order, use default
+    if (stepsOrder.length === 0) {
+      return DEFAULT_ROUTINE_STEPS;
+    }
+
+    // Filter by active steps (if activeSteps is empty, all are active)
+    let steps = stepsOrder.filter(id => 
+      DEFAULT_ROUTINE_STEPS.includes(id as RoutineStepId)
+    ) as RoutineStepId[];
+
+    // Filter out inactive steps
+    if (activeSteps.length > 0) {
+      steps = steps.filter(id => activeSteps.includes(id) || id === 'completion');
+    }
+
+    // Always ensure completion is at the end
+    if (!steps.includes('completion')) {
+      steps.push('completion');
+    }
+
+    // Skip relationships if no people configured
+    if (people.length === 0) {
+      steps = steps.filter(id => id !== 'relationships');
+    }
+
+    return steps;
+  }, [settings, people]);
+
+  // Find first incomplete step
+  const getFirstIncompleteStepIndex = useCallback((log: ChampionLog | null): number => {
+    for (let i = 0; i < routineSteps.length; i++) {
+      const stepId = routineSteps[i];
+      if (stepId === 'completion') {
+        return i; // If we reach completion, show it
+      }
+      if (!isStepCompleted(stepId, log)) {
+        return i;
+      }
+    }
+    return 0;
+  }, [routineSteps]);
+
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+
+  // Set initial step to first incomplete when data loads
+  useEffect(() => {
+    if (!isLoading && todayLog && isConfigured) {
+      const firstIncomplete = getFirstIncompleteStepIndex(todayLog);
+      setCurrentStepIndex(firstIncomplete);
+    }
+  }, [isLoading, todayLog, isConfigured, getFirstIncompleteStepIndex]);
 
   // Debounced update for text inputs
   const debouncedUpdateLog = useCallback(
@@ -114,27 +200,19 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
     [updateLog]
   );
 
-  const currentStepId = ROUTINE_STEPS[currentStepIndex];
+  const currentStepId = routineSteps[currentStepIndex];
   const currentCategory = STEP_CATEGORIES[currentStepId];
-  const progress = ((currentStepIndex + 1) / ROUTINE_STEPS.length) * 100;
+  const progress = ((currentStepIndex + 1) / routineSteps.length) * 100;
 
   const goToNextStep = () => {
-    // Skip relationships step if no people configured
-    if (currentStepId === 'dailyTasks' && people.length === 0) {
-      setCurrentStepIndex(ROUTINE_STEPS.indexOf('completion'));
-    } else if (currentStepIndex < ROUTINE_STEPS.length - 1) {
+    if (currentStepIndex < routineSteps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
     }
   };
 
   const goToPreviousStep = () => {
     if (currentStepIndex > 0) {
-      // Skip relationships step if no people configured when going back
-      if (currentStepId === 'completion' && people.length === 0) {
-        setCurrentStepIndex(ROUTINE_STEPS.indexOf('dailyTasks'));
-      } else {
-        setCurrentStepIndex(currentStepIndex - 1);
-      }
+      setCurrentStepIndex(currentStepIndex - 1);
     }
   };
 
@@ -191,17 +269,9 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
   }
 
   // Calculate completed steps for final screen
-  const completedStepsCount = [
-    (todayLog?.gratitude_items || []).some(i => i?.trim()),
-    todayLog?.water_drunk,
-    (todayLog?.meditation_duration_seconds || 0) >= 600, // 10 minutes
-    todayLog?.autosuggestion_completed,
-    todayLog?.exercise_completed,
-    (todayLog?.meals_logged || []).length > 0,
-    todayLog?.content_script || todayLog?.pomodoro_sessions > 0,
-    todayLog?.big_one_today || (todayLog?.daily_todos || []).some(t => t.completed),
-    (todayLog?.relationship_actions || []).some(a => a.completed),
-  ].filter(Boolean).length;
+  const completedStepsCount = routineSteps.filter(
+    stepId => stepId !== 'completion' && isStepCompleted(stepId, todayLog)
+  ).length;
 
   const renderStep = () => {
     switch (currentStepId) {
@@ -292,7 +362,7 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
         return (
           <CompletionStep
             completedSteps={completedStepsCount}
-            totalSteps={9}
+            totalSteps={routineSteps.length - 1}
             meditationDuration={todayLog?.meditation_duration_seconds || 0}
           />
         );
@@ -325,7 +395,7 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
-                  {currentStepIndex + 1}/{ROUTINE_STEPS.length}
+                  {currentStepIndex + 1}/{routineSteps.length}
                 </span>
                 <Button variant="ghost" size="sm" onClick={() => navigate('/champion-routine-history')} title="Istoric">
                   <History className="h-4 w-4" />

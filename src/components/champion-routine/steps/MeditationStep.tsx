@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Timer, ArrowRight, Play, Square, RotateCcw, AlertCircle, SkipForward, CheckCircle2 } from 'lucide-react';
@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { format } from 'date-fns';
 
 interface MeditationStepProps {
   initialDuration: number;
@@ -20,14 +21,73 @@ interface MeditationStepProps {
 }
 
 const MIN_MEDITATION_SECONDS = 10 * 60; // 10 minutes minimum
+const STORAGE_KEY_PREFIX = 'meditation_session_';
+const AUTO_SAVE_INTERVAL = 10000; // 10 seconds
+
+interface StoredSession {
+  seconds: number;
+  savedDuration: number;
+  isRunning: boolean;
+  lastUpdate: number;
+}
 
 export function MeditationStep({ initialDuration, onComplete, onNext }: MeditationStepProps) {
-  const [isRunning, setIsRunning] = useState(false);
-  const [seconds, setSeconds] = useState(0);
-  const [savedDuration, setSavedDuration] = useState(initialDuration);
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const storageKey = `${STORAGE_KEY_PREFIX}${today}`;
+  
+  // Initialize from localStorage or props
+  const getInitialState = useCallback((): { seconds: number; savedDuration: number; wasRunning: boolean } => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const session: StoredSession = JSON.parse(stored);
+        // Check if session is from today and recent (within last hour)
+        const isRecent = Date.now() - session.lastUpdate < 3600000;
+        if (isRecent) {
+          return {
+            seconds: session.isRunning ? session.seconds : 0,
+            savedDuration: Math.max(session.savedDuration, initialDuration),
+            wasRunning: session.isRunning
+          };
+        }
+      }
+    } catch (e) {
+      console.error('Error reading meditation session:', e);
+    }
+    return { seconds: 0, savedDuration: initialDuration, wasRunning: false };
+  }, [storageKey, initialDuration]);
+
+  const initialState = getInitialState();
+  const [isRunning, setIsRunning] = useState(initialState.wasRunning);
+  const [seconds, setSeconds] = useState(initialState.seconds);
+  const [savedDuration, setSavedDuration] = useState(initialState.savedDuration);
   const [showSkipDialog, setShowSkipDialog] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Save to localStorage
+  const saveToStorage = useCallback((currentSeconds: number, currentSaved: number, running: boolean) => {
+    try {
+      const session: StoredSession = {
+        seconds: currentSeconds,
+        savedDuration: currentSaved,
+        isRunning: running,
+        lastUpdate: Date.now()
+      };
+      localStorage.setItem(storageKey, JSON.stringify(session));
+    } catch (e) {
+      console.error('Error saving meditation session:', e);
+    }
+  }, [storageKey]);
+
+  // Save to database
+  const saveToDatabase = useCallback((totalSeconds: number) => {
+    if (totalSeconds > 0) {
+      onComplete(totalSeconds);
+    }
+  }, [onComplete]);
+
+  // Timer interval
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
@@ -41,6 +101,50 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
     };
   }, [isRunning]);
 
+  // Auto-save every 10 seconds when running
+  useEffect(() => {
+    if (isRunning) {
+      autoSaveRef.current = setInterval(() => {
+        const total = savedDuration + seconds;
+        saveToStorage(seconds, savedDuration, true);
+        saveToDatabase(total);
+      }, AUTO_SAVE_INTERVAL);
+    } else if (autoSaveRef.current) {
+      clearInterval(autoSaveRef.current);
+    }
+    return () => {
+      if (autoSaveRef.current) clearInterval(autoSaveRef.current);
+    };
+  }, [isRunning, seconds, savedDuration, saveToStorage, saveToDatabase]);
+
+  // Handle visibility change - save when tab becomes hidden
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && isRunning) {
+        const total = savedDuration + seconds;
+        saveToStorage(seconds, savedDuration, true);
+        saveToDatabase(total);
+      }
+    };
+
+    const handleBeforeUnload = () => {
+      if (isRunning) {
+        const total = savedDuration + seconds;
+        saveToStorage(seconds, savedDuration, true);
+        // Sync save to database
+        saveToDatabase(total);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isRunning, seconds, savedDuration, saveToStorage, saveToDatabase]);
+
   const formatTime = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
@@ -53,9 +157,11 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
       const total = savedDuration + seconds;
       setSavedDuration(total);
       setSeconds(0);
+      saveToStorage(0, total, false);
       onComplete(total);
     } else {
       setIsRunning(true);
+      saveToStorage(seconds, savedDuration, true);
     }
   };
 
@@ -63,18 +169,25 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
     setIsRunning(false);
     setSeconds(0);
     setSavedDuration(0);
+    saveToStorage(0, 0, false);
   };
 
   const handleSkipWithoutMeditation = () => {
     setShowSkipDialog(false);
+    localStorage.removeItem(storageKey);
     onComplete(0);
     onNext();
   };
 
   const handleAlreadyMeditated = () => {
     setShowSkipDialog(false);
-    // Mark as completed with minimum time
+    localStorage.removeItem(storageKey);
     onComplete(MIN_MEDITATION_SECONDS);
+    onNext();
+  };
+
+  const handleContinue = () => {
+    localStorage.removeItem(storageKey);
     onNext();
   };
 
@@ -172,6 +285,14 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
           </div>
         </div>
 
+        {/* Auto-save indicator */}
+        {isRunning && (
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            Progresul se salvează automat
+          </div>
+        )}
+
         {/* Minimum requirement notice */}
         {!hasMinimumTime && !isRunning && (
           <div className="flex items-start gap-3 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
@@ -230,7 +351,7 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
                   Adaugă timp
                 </Button>
                 <Button 
-                  onClick={onNext} 
+                  onClick={handleContinue} 
                   size="lg" 
                   className="flex-1 gap-2"
                 >

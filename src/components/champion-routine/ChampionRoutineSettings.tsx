@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2, User, Heart, Briefcase, Dumbbell, Sparkles, Save } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Trash2, User, Heart, Briefcase, Dumbbell, Sparkles, Save, ListOrdered } from 'lucide-react';
 import { useChampionRoutine } from '@/hooks/useChampionRoutine';
 import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
+import { StepsOrderEditor } from './StepsOrderEditor';
 
 interface ChampionRoutineSettingsProps {
   open: boolean;
@@ -37,8 +39,18 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   
   const [newPersonName, setNewPersonName] = useState('');
   const [newPersonType, setNewPersonType] = useState('partner');
-  const [autosuggestion, setAutosuggestion] = useState(settings?.default_autosuggestion || 'Every day, in every way, I am getting better and better.');
-  const [activeArea, setActiveArea] = useState<string | null>(null);
+  const [autosuggestion, setAutosuggestion] = useState('');
+  const [activeSteps, setActiveSteps] = useState<string[]>([]);
+  const [stepsOrder, setStepsOrder] = useState<string[]>([]);
+
+  // Initialize state from settings
+  useEffect(() => {
+    if (settings) {
+      setAutosuggestion(settings.default_autosuggestion || 'Every day, in every way, I am getting better and better.');
+      setActiveSteps(settings.active_steps || []);
+      setStepsOrder(settings.routine_steps_order || []);
+    }
+  }, [settings]);
 
   const handleAddPerson = async () => {
     if (!newPersonName.trim()) {
@@ -69,8 +81,20 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
     toast.success('Autosugestie salvată');
   };
 
+  const handleSaveStepsOrder = async () => {
+    await saveSettings({ 
+      routine_steps_order: stepsOrder,
+      active_steps: activeSteps
+    });
+    toast.success('Ordinea pașilor salvată');
+  };
+
   const handleSaveAndClose = async () => {
-    await saveSettings({ is_configured: true });
+    await saveSettings({ 
+      is_configured: true,
+      routine_steps_order: stepsOrder,
+      active_steps: activeSteps
+    });
     toast.success('Setări salvate!');
     onOpenChange(false);
   };
@@ -82,29 +106,38 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
           <DialogTitle className="text-xl">Personalizează Rutina de Campion</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Areas Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {AREAS.map(({ key, icon: Icon, label, color }) => (
-              <Card
-                key={key}
-                onClick={() => setActiveArea(activeArea === key ? null : key)}
-                className={`
-                  p-4 cursor-pointer transition-all duration-200 hover:scale-105
-                  bg-gradient-to-br ${color}
-                  ${activeArea === key ? 'ring-2 ring-primary' : ''}
-                `}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className="h-6 w-6" />
-                  <span className="font-medium">{label}</span>
-                </div>
-              </Card>
-            ))}
-          </div>
+        <Tabs defaultValue="steps" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="steps" className="gap-2">
+              <ListOrdered className="h-4 w-4" />
+              Pași
+            </TabsTrigger>
+            <TabsTrigger value="people" className="gap-2">
+              <Heart className="h-4 w-4" />
+              Persoane
+            </TabsTrigger>
+            <TabsTrigger value="autosuggestion" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Autosugestie
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Balance - People Management */}
-          {activeArea === 'balance' && (
+          {/* Steps Order Tab */}
+          <TabsContent value="steps" className="space-y-4 mt-4">
+            <StepsOrderEditor
+              activeSteps={activeSteps}
+              stepsOrder={stepsOrder}
+              onActiveStepsChange={setActiveSteps}
+              onStepsOrderChange={setStepsOrder}
+            />
+            <Button onClick={handleSaveStepsOrder} className="w-full">
+              <Save className="h-4 w-4 mr-2" />
+              Salvează Ordinea
+            </Button>
+          </TabsContent>
+
+          {/* People Tab */}
+          <TabsContent value="people" className="space-y-4 mt-4">
             <Card className="p-4 space-y-4">
               <h3 className="font-medium flex items-center gap-2">
                 <Heart className="h-5 w-5 text-pink-500" />
@@ -113,6 +146,11 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
               
               {/* Existing People */}
               <div className="space-y-2">
+                {people.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Nu ai adăugat persoane. Adaugă persoanele importante din viața ta.
+                  </p>
+                )}
                 {people.map((person) => (
                   <div key={person.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
                     <User className="h-4 w-4 text-muted-foreground" />
@@ -139,6 +177,7 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
                   onChange={(e) => setNewPersonName(e.target.value)}
                   placeholder="Nume..."
                   className="flex-1"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddPerson()}
                 />
                 <Select value={newPersonType} onValueChange={setNewPersonType}>
                   <SelectTrigger className="w-[140px]">
@@ -157,10 +196,10 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
                 </Button>
               </div>
             </Card>
-          )}
+          </TabsContent>
 
-          {/* Being - Autosuggestion */}
-          {activeArea === 'being' && (
+          {/* Autosuggestion Tab */}
+          <TabsContent value="autosuggestion" className="space-y-4 mt-4">
             <Card className="p-4 space-y-4">
               <h3 className="font-medium flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-amber-500" />
@@ -188,41 +227,14 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
                 Salvează Autosugestia
               </Button>
             </Card>
-          )}
+          </TabsContent>
+        </Tabs>
 
-          {/* Body - Info */}
-          {activeArea === 'body' && (
-            <Card className="p-4">
-              <h3 className="font-medium flex items-center gap-2 mb-3">
-                <Dumbbell className="h-5 w-5 text-orange-500" />
-                Body - Fitness & Sănătate
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Această secțiune include pași pentru apă, lumină naturală, exerciții și activitate fizică.
-                Poți alege între Workout, Running, Cycling sau Walking în rutina zilnică.
-              </p>
-            </Card>
-          )}
-
-          {/* Business - Info */}
-          {activeArea === 'business' && (
-            <Card className="p-4">
-              <h3 className="font-medium flex items-center gap-2 mb-3">
-                <Briefcase className="h-5 w-5 text-blue-500" />
-                Business - Productivitate
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Această secțiune include definirea priorităților zilnice (Top 3) și vizualizarea succesului.
-              </p>
-            </Card>
-          )}
-
-          {/* Save Button */}
-          <Button onClick={handleSaveAndClose} className="w-full" size="lg">
-            <Save className="h-4 w-4 mr-2" />
-            Salvează și Închide
-          </Button>
-        </div>
+        {/* Save Button */}
+        <Button onClick={handleSaveAndClose} className="w-full mt-4" size="lg">
+          <Save className="h-4 w-4 mr-2" />
+          Salvează și Închide
+        </Button>
       </DialogContent>
     </Dialog>
   );

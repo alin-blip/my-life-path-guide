@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,15 +17,68 @@ interface CardioTimerProps {
   onBack: () => void;
 }
 
+const STORAGE_KEY_PREFIX = 'cardio_session_';
+const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
+
+interface StoredSession {
+  seconds: number;
+  distance: string;
+  notes: string;
+  isRunning: boolean;
+  startTime: string | null;
+  lastUpdate: number;
+}
+
 export function CardioTimer({ activityType, onComplete, onBack }: CardioTimerProps) {
-  const [isRunning, setIsRunning] = useState(false);
-  const [seconds, setSeconds] = useState(0);
-  const [distance, setDistance] = useState<string>('');
-  const [notes, setNotes] = useState<string>('');
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const storageKey = `${STORAGE_KEY_PREFIX}${activityType}_${today}`;
+
+  // Initialize from localStorage
+  const getInitialState = useCallback((): StoredSession => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const session: StoredSession = JSON.parse(stored);
+        // Check if session is from today and recent (within last 2 hours)
+        const isRecent = Date.now() - session.lastUpdate < 7200000;
+        if (isRecent) {
+          return session;
+        }
+      }
+    } catch (e) {
+      console.error('Error reading cardio session:', e);
+    }
+    return { seconds: 0, distance: '', notes: '', isRunning: false, startTime: null, lastUpdate: Date.now() };
+  }, [storageKey]);
+
+  const initialState = getInitialState();
+  const [isRunning, setIsRunning] = useState(initialState.isRunning);
+  const [seconds, setSeconds] = useState(initialState.seconds);
+  const [distance, setDistance] = useState<string>(initialState.distance);
+  const [notes, setNotes] = useState<string>(initialState.notes);
   const [isSaved, setIsSaved] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef<Date | null>(null);
+  const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<Date | null>(initialState.startTime ? new Date(initialState.startTime) : null);
 
+  // Save to localStorage
+  const saveToStorage = useCallback((currentSeconds: number, running: boolean) => {
+    try {
+      const session: StoredSession = {
+        seconds: currentSeconds,
+        distance,
+        notes,
+        isRunning: running,
+        startTime: startTimeRef.current?.toISOString() || null,
+        lastUpdate: Date.now()
+      };
+      localStorage.setItem(storageKey, JSON.stringify(session));
+    } catch (e) {
+      console.error('Error saving cardio session:', e);
+    }
+  }, [storageKey, distance, notes]);
+
+  // Timer interval
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
@@ -38,6 +91,50 @@ export function CardioTimer({ activityType, onComplete, onBack }: CardioTimerPro
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [isRunning]);
+
+  // Auto-save every 30 seconds when running
+  useEffect(() => {
+    if (isRunning) {
+      autoSaveRef.current = setInterval(() => {
+        saveToStorage(seconds, true);
+      }, AUTO_SAVE_INTERVAL);
+    } else if (autoSaveRef.current) {
+      clearInterval(autoSaveRef.current);
+    }
+    return () => {
+      if (autoSaveRef.current) clearInterval(autoSaveRef.current);
+    };
+  }, [isRunning, seconds, saveToStorage]);
+
+  // Handle visibility change - save when tab becomes hidden
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && isRunning) {
+        saveToStorage(seconds, true);
+      }
+    };
+
+    const handleBeforeUnload = () => {
+      if (isRunning) {
+        saveToStorage(seconds, true);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isRunning, seconds, saveToStorage]);
+
+  // Save distance and notes changes to storage
+  useEffect(() => {
+    if (seconds > 0 || distance || notes) {
+      saveToStorage(seconds, isRunning);
+    }
+  }, [distance, notes]);
 
   const formatTime = (totalSeconds: number) => {
     const hrs = Math.floor(totalSeconds / 3600);
@@ -52,7 +149,10 @@ export function CardioTimer({ activityType, onComplete, onBack }: CardioTimerPro
 
   const handleStart = () => {
     setIsRunning(true);
-    startTimeRef.current = new Date();
+    if (!startTimeRef.current) {
+      startTimeRef.current = new Date();
+    }
+    saveToStorage(seconds, true);
   };
 
   const handleStop = async () => {
@@ -80,6 +180,9 @@ export function CardioTimer({ activityType, onComplete, onBack }: CardioTimerPro
 
       if (error) throw error;
 
+      // Clear localStorage after successful save
+      localStorage.removeItem(storageKey);
+      
       setIsSaved(true);
       toast.success(`${getActivityLabel()} salvat! 🎉`);
       onComplete({ 
@@ -90,6 +193,8 @@ export function CardioTimer({ activityType, onComplete, onBack }: CardioTimerPro
     } catch (error) {
       console.error('Error saving activity:', error);
       toast.error('Nu am putut salva activitatea');
+      // Keep in localStorage for retry
+      saveToStorage(seconds, false);
     }
   };
 
@@ -146,6 +251,14 @@ export function CardioTimer({ activityType, onComplete, onBack }: CardioTimerPro
             {formatTime(seconds)}
           </p>
         </div>
+        
+        {/* Auto-save indicator */}
+        {isRunning && (
+          <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            Progresul se salvează automat
+          </div>
+        )}
       </div>
 
       {/* Distance and Notes - visible when running or stopped */}
