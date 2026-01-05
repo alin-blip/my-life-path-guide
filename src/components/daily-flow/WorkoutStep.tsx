@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Dumbbell, Play, Square, Plus, Trash2, Check, 
-  Utensils, History, CheckCircle2, Copy
+  Utensils, History, CheckCircle2, Copy, Save
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkoutHistory } from './WorkoutHistory';
@@ -329,6 +329,59 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
     }
   };
 
+  // Salvează un singur exercițiu
+  const saveExercise = async (exerciseId: string) => {
+    if (!sessionId) return;
+
+    const exercise = exercises.find(ex => ex.id === exerciseId);
+    if (!exercise || !exercise.name.trim()) {
+      toast.error('Completează numele exercițiului');
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Șterge înregistrările anterioare pentru acest exercițiu din această sesiune
+      await supabase
+        .from('workout_exercises')
+        .delete()
+        .eq('session_id', sessionId)
+        .eq('exercise_name', exercise.name);
+
+      // Salvează toate seturile cu reps > 0 (indiferent dacă sunt completate)
+      const exerciseRecords = exercise.sets
+        .filter(set => set.reps > 0 || set.weight > 0)
+        .map((set, idx) => ({
+          session_id: sessionId,
+          user_id: user.id,
+          exercise_name: exercise.name,
+          sets: set.setNumber,
+          reps: set.reps,
+          weight_kg: set.weight,
+          order_index: idx,
+          notes: set.completed ? `Set ${set.setNumber}/${exercise.plannedSets} ✓` : `Set ${set.setNumber}/${exercise.plannedSets}`
+        }));
+
+      if (exerciseRecords.length === 0) {
+        toast.info('Adaugă cel puțin un set cu reps sau greutate');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('workout_exercises')
+        .insert(exerciseRecords);
+
+      if (error) throw error;
+
+      toast.success(`${exercise.name} salvat! 💾`);
+    } catch (error) {
+      console.error('Error saving exercise:', error);
+      toast.error('Nu am putut salva exercițiul');
+    }
+  };
+
   const canComplete = !isWorkoutStarted && (exercises.length > 0 || mealPlanDone);
 
   const groupedExercises = PRESET_EXERCISES.reduce((acc, ex) => {
@@ -429,6 +482,15 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
                     title="Copiază de la ultima sesiune"
                   >
                     <Copy className="h-4 w-4 text-primary" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => saveExercise(exercise.id)}
+                    title="Salvează progresul"
+                    className="text-green-500 hover:text-green-600 hover:bg-green-500/10"
+                  >
+                    <Save className="h-4 w-4" />
                   </Button>
                   <Button 
                     variant="ghost" 
