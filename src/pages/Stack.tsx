@@ -13,6 +13,7 @@ import { AngerStack } from '@/components/stack/AngerStack';
 import { AiLiveCoaching } from '@/components/stack/AiLiveCoaching';
 import { HormoziCoachingStack } from '@/components/stack/HormoziCoachingStack';
 import { GodsSchoolStack } from '@/components/stack/gods-school/GodsSchoolStack';
+import { IntrospectionStack } from '@/components/stack/introspection-stack/IntrospectionStack';
 import { useLocation } from 'react-router-dom';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
 import { MasterPlanStack } from '@/components/stack/master-plan/MasterPlanStack';
@@ -103,6 +104,9 @@ const CoachingPage = () => {
           break;
         case 'divine-gratitude':
           setActiveStack('divine-gratitude');
+          break;
+        case 'introspection':
+          setActiveStack('introspection');
           break;
 
         // Backwards-compatible URLs
@@ -356,6 +360,8 @@ const renderActiveStack = () => {
         return <DailyMasterStack {...stackProps} />;
       case "divine-gratitude":
         return <DivineGratitudeStack {...stackProps} />;
+      case "introspection":
+        return <IntrospectionStack {...stackProps} />;
       case "napoleon-hill":
         return <MasterPlanStack {...stackProps} />;
       case "napoleon-hill-quick":

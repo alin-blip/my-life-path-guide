@@ -28,7 +28,10 @@ import {
   CreditCard,
   Mic,
   Upload,
-  Sparkles
+  Sparkles,
+  Bot,
+  Brain,
+  History
 } from 'lucide-react';
 
 interface SideMenuProps {
@@ -82,6 +85,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       path: '/workout',
       subItems: [
         { title: 'Workout', icon: Activity, path: '/workout' },
+        { title: 'Istoric Antrenamente', icon: History, path: '/workout-history' },
         { title: t('nutrition') || 'Nutriție', icon: Activity, path: '/nutrition' },
       ]
     },
@@ -96,7 +100,18 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: 'Recunoștință Divină', icon: Heart, path: '/stack?type=divine-gratitude' },
         { title: 'Școala lui Dumnezeu', icon: Heart, path: '/stack?type=gods-school' },
         { title: 'Transformarea Furiei', icon: Angry, path: '/stack?type=anger' },
+        { title: 'Introspecție', icon: Brain, path: '/stack?type=introspection' },
         { title: 'Journaling', icon: Pencil, path: '/journal' },
+      ]
+    },
+    // COACHING AI
+    {
+      title: '🤖 Coaching AI',
+      icon: Bot,
+      path: '/stack?type=ai-live',
+      subItems: [
+        { title: 'AI Live Coaching', icon: Bot, path: '/stack?type=ai-live' },
+        { title: 'Hormozi Coaching', icon: Bot, path: '/stack?type=hormozi-coaching' },
       ]
     },
     // RELAȚII
