@@ -45,6 +45,13 @@ import { ObjectivesCard } from '@/components/dashboard/ObjectivesCard';
 import { EveningRoutineCard } from '@/components/dashboard/EveningRoutineCard';
 import { DailyHabitsSection } from '@/components/habits/DailyHabitsSection';
 import { SundayPlanningModal } from '@/components/dashboard/SundayPlanningModal';
+
+// Onboarding components
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { FoundationNotifications } from '@/components/onboarding/FoundationNotifications';
+import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNotification';
+import { useFoundationStatus } from '@/hooks/useFoundationStatus';
+
 export const Dashboard: React.FC = () => {
   const {
     language,
@@ -141,6 +148,10 @@ export const Dashboard: React.FC = () => {
   // Sunday Planning Modal
   const [showSundayPlanning, setShowSundayPlanning] = useState(false);
 
+  // Onboarding Wizard
+  const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
+  const foundationStatus = useFoundationStatus();
+
   // Explainer modal states
   const [explainerModalType, setExplainerModalType] = useState<'core4' | 'biz4' | 'stack' | null>(null);
   const prevCategoryComplete = useRef<Record<string, boolean>>({
@@ -215,6 +226,17 @@ export const Dashboard: React.FC = () => {
     
     if (isSunday && shownWeek !== currentWeek) {
       setShowSundayPlanning(true);
+    }
+
+    // Check if we should show onboarding wizard for new users
+    const wizardCompleted = localStorage.getItem('onboarding-wizard-completed');
+    const wizardSkipped = localStorage.getItem('onboarding-wizard-skipped');
+    if (!wizardCompleted && !wizardSkipped && !foundationStatus.isLoading && !foundationStatus.isFoundationComplete) {
+      // Delay a bit to let the page load
+      const timer = setTimeout(() => {
+        setShowOnboardingWizard(true);
+      }, 1500);
+      return () => clearTimeout(timer);
     }
 
     // Listen for progress updates
@@ -733,6 +755,18 @@ export const Dashboard: React.FC = () => {
         isOpen={showSundayPlanning} 
         onClose={() => setShowSundayPlanning(false)} 
       />
+      
+      {/* Weekly Planning Notification (Monday) */}
+      <WeeklyPlanningNotification />
+      
+      {/* Onboarding Wizard */}
+      <OnboardingWizard 
+        isOpen={showOnboardingWizard} 
+        onClose={() => setShowOnboardingWizard(false)} 
+      />
+      
+      {/* Foundation Notifications (corner) */}
+      <FoundationNotifications onOpenWizard={() => setShowOnboardingWizard(true)} />
       
       {/* Explainer Modal */}
       <ExplainerModal open={explainerModalType !== null} onOpenChange={open => !open && setExplainerModalType(null)} type={explainerModalType || 'core4'} />
