@@ -2492,7 +2492,9 @@ export type Database = {
           icon: string | null
           id: string
           is_official: boolean | null
+          is_premium: boolean | null
           name: string
+          price: number | null
           updated_at: string | null
           usage_count: number | null
         }
@@ -2505,7 +2507,9 @@ export type Database = {
           icon?: string | null
           id?: string
           is_official?: boolean | null
+          is_premium?: boolean | null
           name: string
+          price?: number | null
           updated_at?: string | null
           usage_count?: number | null
         }
@@ -2518,7 +2522,9 @@ export type Database = {
           icon?: string | null
           id?: string
           is_official?: boolean | null
+          is_premium?: boolean | null
           name?: string
+          price?: number | null
           updated_at?: string | null
           usage_count?: number | null
         }
