@@ -2186,6 +2186,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_widget_purchases: {
+        Row: {
+          created_at: string | null
+          has_full_access: boolean | null
+          id: string
+          purchased_at: string | null
+          template_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          has_full_access?: boolean | null
+          id?: string
+          purchased_at?: string | null
+          template_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          has_full_access?: boolean | null
+          id?: string
+          purchased_at?: string | null
+          template_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_widget_purchases_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "widget_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_xp: {
         Row: {
           created_at: string
