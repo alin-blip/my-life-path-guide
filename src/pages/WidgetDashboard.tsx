@@ -21,9 +21,12 @@ import { AVAILABLE_WIDGETS } from '@/config/dashboardWidgets';
 import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
 import { toast } from 'sonner';
 import * as LucideIcons from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 
 export default function WidgetDashboard() {
   const { language } = useLanguage();
+  const { user } = useAuth();
   const {
     widgets,
     templates,
@@ -46,6 +49,32 @@ export default function WidgetDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [widgetDataMap, setWidgetDataMap] = useState<Record<string, any>>({});
+  const [hasFullAccess, setHasFullAccess] = useState(false);
+  const [purchasedTemplates, setPurchasedTemplates] = useState<string[]>([]);
+
+  // Check user's premium access
+  useEffect(() => {
+    const checkPremiumAccess = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('user_widget_purchases')
+        .select('template_id, has_full_access')
+        .eq('user_id', user.id);
+      
+      if (!error && data) {
+        const fullAccess = data.some(p => p.has_full_access);
+        setHasFullAccess(fullAccess);
+        
+        const purchased = data
+          .filter(p => p.template_id)
+          .map(p => p.template_id as string);
+        setPurchasedTemplates(purchased);
+      }
+    };
+    
+    checkPremiumAccess();
+  }, [user]);
 
   // Load widget data for all widgets
   useEffect(() => {
@@ -77,8 +106,12 @@ export default function WidgetDashboard() {
     await toggleWidget(widgetId, isActive);
   };
 
+  const canAccessPremium = (templateId: string) => {
+    return hasFullAccess || purchasedTemplates.includes(templateId);
+  };
+
   const handleApplyTemplate = async (template: WidgetTemplate) => {
-    if (template.is_premium) {
+    if (template.is_premium && !canAccessPremium(template.id)) {
       toast.info(language === 'en' 
         ? `Premium widget - ${template.price} RON` 
         : `Widget premium - ${template.price} RON`);
@@ -338,6 +371,7 @@ export default function WidgetDashboard() {
                       getCategoryLabel={getCategoryLabel}
                       onApply={() => handleApplyTemplate(template)}
                       isPremium
+                      hasAccess={canAccessPremium(template.id)}
                     />
                   ))}
                 </div>
@@ -373,14 +407,23 @@ interface TemplateCardProps {
   getCategoryLabel: (category?: string) => string | undefined;
   onApply: () => void;
   isPremium?: boolean;
+  hasAccess?: boolean;
 }
 
-function TemplateCard({ template, language, getCategoryLabel, onApply, isPremium }: TemplateCardProps) {
+function TemplateCard({ template, language, getCategoryLabel, onApply, isPremium, hasAccess }: TemplateCardProps) {
+  const unlocked = hasAccess || !isPremium;
+  
   return (
-    <Card className={`glass-card hover:border-primary/50 transition-colors relative overflow-hidden ${isPremium ? 'border-yellow-500/30' : ''}`}>
-      {isPremium && (
+    <Card className={`glass-card hover:border-primary/50 transition-colors relative overflow-hidden ${isPremium && !hasAccess ? 'border-yellow-500/30' : ''} ${hasAccess ? 'border-green-500/30' : ''}`}>
+      {isPremium && !hasAccess && (
         <div className="absolute top-0 right-0 bg-gradient-to-l from-yellow-500 to-orange-500 text-white text-xs px-3 py-1 rounded-bl-lg font-medium">
           {template.price} RON
+        </div>
+      )}
+      {isPremium && hasAccess && (
+        <div className="absolute top-0 right-0 bg-gradient-to-l from-green-500 to-emerald-500 text-white text-xs px-3 py-1 rounded-bl-lg font-medium flex items-center gap-1">
+          <Check className="w-3 h-3" />
+          {language === 'en' ? 'Unlocked' : 'Deblocat'}
         </div>
       )}
       <CardHeader className="p-4 pb-2">
@@ -411,18 +454,18 @@ function TemplateCard({ template, language, getCategoryLabel, onApply, isPremium
           <Button 
             size="sm" 
             onClick={onApply}
-            variant={isPremium ? 'outline' : 'default'}
-            className={isPremium ? 'border-yellow-500/50 text-yellow-600 hover:bg-yellow-500/10' : ''}
+            variant={unlocked ? 'default' : 'outline'}
+            className={!unlocked ? 'border-yellow-500/50 text-yellow-600 hover:bg-yellow-500/10' : ''}
           >
-            {isPremium ? (
-              <>
-                <Lock className="w-4 h-4 mr-2" />
-                {language === 'en' ? 'Unlock' : 'Deblochează'}
-              </>
-            ) : (
+            {unlocked ? (
               <>
                 <Plus className="w-4 h-4 mr-2" />
                 {language === 'en' ? 'Add' : 'Adaugă'}
+              </>
+            ) : (
+              <>
+                <Lock className="w-4 h-4 mr-2" />
+                {language === 'en' ? 'Unlock' : 'Deblochează'}
               </>
             )}
           </Button>
