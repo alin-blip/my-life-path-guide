@@ -774,15 +774,7 @@ export const Dashboard: React.FC = () => {
         </div>
       )}
       
-      {/* Morning Routine - Unified Habits + Start Day Flow */}
-      <div className="mb-6">
-        <MorningRoutine />
-      </div>
-      
-      {/* Daily Habits Section - Quick habits check without starting full routine */}
-      <div className="mb-6">
-        <DailyHabitsSection />
-      </div>
+      {/* Champion Routine Widget handles both Morning Routine + Daily Habits in WidgetGrid */}
       
       
       {/* Evening Routine Card */}
