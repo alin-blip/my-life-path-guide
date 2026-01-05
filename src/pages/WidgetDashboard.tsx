@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import {
   Box, Plus, Sparkles, Download, Search, Star, Users, 
-  Grid3X3, List, Trash2, Settings
+  Grid3X3, LayoutDashboard, Trash2
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCustomWidgets } from '@/hooks/useCustomWidgets';
@@ -14,6 +16,7 @@ import { CustomWidgetRenderer } from '@/components/dashboard/widgets/CustomWidge
 import { AIWidgetBuilder } from '@/components/dashboard/widgets/AIWidgetBuilder';
 import type { WidgetTemplate } from '@/types/customWidget';
 import { WIDGET_CATEGORIES } from '@/types/customWidget';
+import { Layout } from '@/components/Layout';
 
 export default function WidgetDashboard() {
   const { language } = useLanguage();
@@ -61,6 +64,10 @@ export default function WidgetDashboard() {
     }));
   };
 
+  const handleToggleDashboard = async (widgetId: string, isActive: boolean) => {
+    await toggleWidget(widgetId, isActive);
+  };
+
   const filteredTemplates = templates.filter((template) => {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.description?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -78,95 +85,111 @@ export default function WidgetDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <Layout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="container max-w-6xl mx-auto py-6 px-4 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Box className="w-6 h-6 text-primary" />
-            {language === 'en' ? 'Widget Dashboard' : 'Dashboard Widget-uri'}
-          </h1>
-          <p className="text-muted-foreground">
-            {language === 'en' 
-              ? 'Create and manage your custom tracking widgets'
-              : 'Creează și gestionează widget-urile tale personalizate'}
-          </p>
+    <Layout>
+      <div className="container max-w-6xl mx-auto py-6 px-4 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Box className="w-6 h-6 text-primary" />
+              {language === 'en' ? 'Widget Dashboard' : 'Dashboard Widget-uri'}
+            </h1>
+            <p className="text-muted-foreground">
+              {language === 'en' 
+                ? 'Create and manage your custom tracking widgets'
+                : 'Creează și gestionează widget-urile tale personalizate'}
+            </p>
+          </div>
+          
+          <Button onClick={() => setShowBuilder(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            {language === 'en' ? 'Create Widget' : 'Creează Widget'}
+          </Button>
         </div>
-        
-        <Button onClick={() => setShowBuilder(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          {language === 'en' ? 'Create Widget' : 'Creează Widget'}
-        </Button>
-      </div>
 
-      {showBuilder && (
-        <AIWidgetBuilder
-          onCreateWidget={async (name, config, description) => {
-            await createWidget(name, config, description);
-            setShowBuilder(false);
-          }}
-          onCancel={() => setShowBuilder(false)}
-        />
-      )}
+        {showBuilder && (
+          <AIWidgetBuilder
+            onCreateWidget={async (name, config, description) => {
+              await createWidget(name, config, description);
+              setShowBuilder(false);
+            }}
+            onCancel={() => setShowBuilder(false)}
+          />
+        )}
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="glass-card">
-          <TabsTrigger value="my-widgets" className="flex items-center gap-2">
-            <Grid3X3 className="w-4 h-4" />
-            {language === 'en' ? 'My Widgets' : 'Widget-urile Mele'}
-            <Badge variant="secondary">{widgets.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="library" className="flex items-center gap-2">
-            <Download className="w-4 h-4" />
-            {language === 'en' ? 'Library' : 'Bibliotecă'}
-          </TabsTrigger>
-        </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="glass-card">
+            <TabsTrigger value="my-widgets" className="flex items-center gap-2">
+              <Grid3X3 className="w-4 h-4" />
+              {language === 'en' ? 'My Widgets' : 'Widget-urile Mele'}
+              <Badge variant="secondary">{widgets.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="library" className="flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              {language === 'en' ? 'Library' : 'Bibliotecă'}
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="my-widgets" className="space-y-4">
-          {widgets.length === 0 ? (
-            <Card className="glass-card">
-              <CardContent className="py-12 text-center">
-                <Box className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-medium mb-2">
-                  {language === 'en' ? 'No Widgets Yet' : 'Niciun Widget Încă'}
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  {language === 'en' 
-                    ? 'Create your first custom widget to start tracking'
-                    : 'Creează primul tău widget personalizat pentru a începe tracking-ul'}
-                </p>
-                <div className="flex gap-2 justify-center">
-                  <Button onClick={() => setShowBuilder(true)}>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    {language === 'en' ? 'Create with AI' : 'Creează cu AI'}
-                  </Button>
-                  <Button variant="outline" onClick={() => setActiveTab('library')}>
-                    <Download className="w-4 h-4 mr-2" />
-                    {language === 'en' ? 'Browse Library' : 'Vezi Biblioteca'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {widgets.map((widget) => (
-                <CustomWidgetRenderer
-                  key={widget.id}
-                  widget={widget}
-                  data={widgetDataMap[widget.id]}
-                  onSaveData={(data) => handleSaveWidgetData(widget.id, data)}
-                  onDelete={() => deleteWidget(widget.id)}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
+          <TabsContent value="my-widgets" className="space-y-4">
+            {widgets.length === 0 ? (
+              <Card className="glass-card">
+                <CardContent className="py-12 text-center">
+                  <Box className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-medium mb-2">
+                    {language === 'en' ? 'No Widgets Yet' : 'Niciun Widget Încă'}
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    {language === 'en' 
+                      ? 'Create your first custom widget to start tracking'
+                      : 'Creează primul tău widget personalizat pentru a începe tracking-ul'}
+                  </p>
+                  <div className="flex gap-2 justify-center">
+                    <Button onClick={() => setShowBuilder(true)}>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      {language === 'en' ? 'Create with AI' : 'Creează cu AI'}
+                    </Button>
+                    <Button variant="outline" onClick={() => setActiveTab('library')}>
+                      <Download className="w-4 h-4 mr-2" />
+                      {language === 'en' ? 'Browse Library' : 'Vezi Biblioteca'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {widgets.map((widget) => (
+                  <div key={widget.id} className="space-y-2">
+                    <CustomWidgetRenderer
+                      widget={widget}
+                      data={widgetDataMap[widget.id]}
+                      onSaveData={(data) => handleSaveWidgetData(widget.id, data)}
+                      onDelete={() => deleteWidget(widget.id)}
+                    />
+                    {/* Dashboard Toggle */}
+                    <div className="flex items-center justify-between px-3 py-2 bg-muted/50 rounded-lg">
+                      <Label htmlFor={`dashboard-${widget.id}`} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <LayoutDashboard className="w-4 h-4" />
+                        {language === 'en' ? 'Show on Dashboard' : 'Afișează pe Dashboard'}
+                      </Label>
+                      <Switch
+                        id={`dashboard-${widget.id}`}
+                        checked={widget.is_active}
+                        onCheckedChange={(checked) => handleToggleDashboard(widget.id, checked)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
 
         <TabsContent value="library" className="space-y-6">
           {/* Search and Filters */}
@@ -262,6 +285,7 @@ export default function WidgetDashboard() {
         </TabsContent>
       </Tabs>
     </div>
+  </Layout>
   );
 }
 
