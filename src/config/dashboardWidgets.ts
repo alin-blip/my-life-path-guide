@@ -2,6 +2,14 @@ import { WidgetDefinition } from '@/types/dashboardWidget';
 
 export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
   {
+    id: 'champion-routine',
+    name: { en: 'Champion Routine', ro: 'Rutina de Campion' },
+    description: { en: 'Morning routine with daily habits in 4 quadrants', ro: 'Rutină dimineață cu obiceiuri zilnice în 4 cadrane' },
+    icon: 'Sparkles',
+    defaultSize: 'large',
+    category: 'routine'
+  },
+  {
     id: 'macros',
     name: { en: 'Macronutrients', ro: 'Macronutrienți' },
     description: { en: 'Track your daily protein, carbs and fats intake', ro: 'Urmărește consumul zilnic de proteine, carbohidrați și grăsimi' },
@@ -68,9 +76,9 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
 ];
 
 export const DEFAULT_WIDGETS = [
-  { id: 'streak', enabled: true, order: 1, size: 'small' as const },
-  { id: 'tasks', enabled: true, order: 2, size: 'medium' as const },
-  { id: 'calories', enabled: true, order: 3, size: 'small' as const }
+  { id: 'champion-routine', enabled: true, order: 1, size: 'large' as const },
+  { id: 'streak', enabled: true, order: 2, size: 'small' as const },
+  { id: 'tasks', enabled: true, order: 3, size: 'medium' as const }
 ];
 
 export const getWidgetDefinition = (id: string): WidgetDefinition | undefined => {

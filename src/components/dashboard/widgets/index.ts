@@ -9,3 +9,4 @@ export { StreakWidget } from './StreakWidget';
 export { TasksWidget } from './TasksWidget';
 export { ReadingWidget } from './ReadingWidget';
 export { WaterWidget } from './WaterWidget';
+export { ChampionRoutineWidget } from './ChampionRoutineWidget';

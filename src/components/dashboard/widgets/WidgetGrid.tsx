@@ -9,6 +9,7 @@ import { StreakWidget } from './StreakWidget';
 import { TasksWidget } from './TasksWidget';
 import { ReadingWidget } from './ReadingWidget';
 import { WaterWidget } from './WaterWidget';
+import { ChampionRoutineWidget } from './ChampionRoutineWidget';
 
 interface WidgetGridProps {
   widgets: DashboardWidget[];
@@ -43,6 +44,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
     };
 
     switch (widget.id) {
+      case 'champion-routine':
+        return <ChampionRoutineWidget />;
       case 'macros':
         return <MacroWidget {...commonProps} />;
       case 'workout':
