@@ -58,6 +58,7 @@ const Vision2026Dashboard = lazy(() => import("./pages/Vision2026Dashboard"));
 const VisionBoard2026 = lazy(() => import("./pages/VisionBoard2026"));
 const DailyFlow = lazy(() => import("./pages/DailyFlow"));
 const ChampionRoutineHistory = lazy(() => import("./pages/ChampionRoutineHistory"));
+const WorkoutHistory = lazy(() => import("./pages/WorkoutHistory"));
 
 // Loading component for lazy routes
 const LoadingFallback = () => (
@@ -247,6 +248,11 @@ const App = () => (
                     <Route path="/relationships" element={
                       <ProtectedRoute>
                         <Relationships />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/workout-history" element={
+                      <ProtectedRoute>
+                        <WorkoutHistory />
                       </ProtectedRoute>
                     } />
                         <Route path="*" element={<NotFound />} />
