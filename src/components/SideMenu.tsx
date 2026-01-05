@@ -76,6 +76,29 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     { title: 'Vision 2026', icon: Sparkles, path: '/vision-2026/dashboard' },
     { title: t('ninetyDayChallenge') || t('haveItAllChallenge'), icon: Target, path: '/challenge' },
     {
+      title: 'Core 4',
+      icon: Heart,
+      path: '/core',
+      subItems: [
+        // CORP
+        { title: '💪 Corp', icon: Activity, path: '/core/body' },
+        { title: 'Workout', icon: Activity, path: '/workout' },
+        { title: t('nutrition') || 'Nutriție', icon: Activity, path: '/nutrition' },
+        // SPIRITUALITATE
+        { title: '🧘 Spiritualitate', icon: Heart, path: '/core/spirit' },
+        { title: t('aiStacks') || 'Stack-uri AI', icon: Layers, path: '/stack' },
+        { title: 'Journaling', icon: Pencil, path: '/journal' },
+        // RELAȚII  
+        { title: '💕 Relații', icon: Heart, path: '/core/relationships' },
+        { title: t('importantPeople') || 'Persoane Importante', icon: Heart, path: '/relationships' },
+        // BUSINESS
+        { title: '💼 Business', icon: Briefcase, path: '/core/business' },
+        { title: t('tasks') || 'Task-uri', icon: Flag, path: '/door' },
+        { title: t('successPrinciples') || 'Principii Succes', icon: Crown, path: '/stack?type=master-plan-quick' },
+        { title: 'Focus Room', icon: Clock, path: '/focus' },
+      ]
+    },
+    {
       title: t('successCoach') || t('masterPlan'),
       icon: Crown,
       path: '/master-plan',
@@ -83,25 +106,6 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: t('myProjects'), icon: Target, path: '/master-plan' },
         { title: t('activeJourney'), icon: BookOpen, path: '/master-plan?tab=journey' },
         { title: t('knowledgeBase'), icon: Upload, path: '/master-plan?tab=knowledge' },
-      ]
-    },
-    { 
-      title: t('aiCoaches') || t('transformationWorkshop'), 
-      icon: Layers, 
-      path: '/stack',
-      subItems: [
-        { title: t('dailyPlanner') || t('dailyMasterStack'), icon: Activity, path: '/stack?type=daily-master' },
-        { title: t('emotionCoach') || t('angerAlchemy'), icon: Angry, path: '/stack?type=anger' },
-        { title: t('mindsetCoach') || t('divineGratitude'), icon: Heart, path: '/stack?type=divine-gratitude' },
-        { title: t('mindsetCoach'), icon: Heart, path: '/stack?type=divine-prayer' },
-        { title: t('gratitudeJournal') || t('gratitudePractice'), icon: Heart, path: '/stack?type=gratitude' },
-        { title: t('successCoach') || t('principleCoaching'), icon: Crown, path: '/stack?type=master-plan-quick' },
-        { title: t('lifeCoach') || t('wisdomOracle'), icon: Headphones, path: '/stack?type=ai-live' },
-        { title: t('businessCoach') || t('businessEmpire'), icon: Briefcase, path: '/stack?type=hormozi-coaching' },
-        { title: t('masteryProgram') || t('mastersAcademy'), icon: Target, path: '/stack?type=gods-school' },
-        { title: t('reflectionJournal'), icon: Pencil, path: '/journal' },
-        { title: t('voiceAnalysis'), icon: Mic, path: '/voice-analysis' },
-        { title: t('library'), icon: Box, path: '/stack-library' },
       ]
     },
     { 
@@ -115,7 +119,6 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: t('annualVision') || 'Viziune Anuală', icon: Crown, path: '/door?tab=annual' },
       ]
     },
-    { title: t('focusRoom') || 'Focus Room', icon: Clock, path: '/focus' },
     { title: t('businessTracker') || t('business'), icon: Briefcase, path: '/business' },
     { title: t('notes'), icon: FileText, path: '/notes' },
     { title: t('learningHub') || t('library'), icon: BookOpenIcon, path: '/library' },

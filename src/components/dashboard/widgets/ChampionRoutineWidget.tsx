@@ -1,20 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Settings, Sparkles, Heart, Brain, Scale, Briefcase, Check, Play, ChevronDown, Dumbbell, Utensils, ListTodo, Flame, Beef } from 'lucide-react';
+import { Settings, Sparkles, Heart, Brain, Scale, Briefcase, Check, Play } from 'lucide-react';
 import { useDailyHabits, HabitCategory } from '@/hooks/useDailyHabits';
 import { HabitSettingsModal } from '@/components/habits/HabitSettingsModal';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
-import { useChampionRoutine, Meal, Todo } from '@/hooks/useChampionRoutine';
+import { useChampionRoutine } from '@/hooks/useChampionRoutine';
 import { useLanguage } from '@/context/LanguageContext';
-import { supabase } from '@/integrations/supabase/client';
-import { format } from 'date-fns';
-import { QuickWorkoutAction, QuickMealAction, QuickTaskAction, QuickGratitudeAction } from './quick-actions';
-import { useNutritionSettings } from '@/hooks/useNutritionSettings';
 
 const CATEGORY_CONFIG: Record<HabitCategory, { titleEn: string; titleRo: string; icon: React.ReactNode; bgColor: string; borderColor: string }> = {
   body: { 
@@ -51,20 +46,11 @@ interface ChampionRoutineWidgetProps {
   date?: Date;
 }
 
-interface WorkoutSession {
-  id: string;
-  activity_type: string;
-  duration_seconds: number | null;
-}
-
 export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ date = new Date() }) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [showSettings, setShowSettings] = useState(false);
-  const [quickActionsOpen, setQuickActionsOpen] = useState(true);
-  const [workoutSessions, setWorkoutSessions] = useState<WorkoutSession[]>([]);
-  const { todayLog, isLoading: routineLoading, isConfigured } = useChampionRoutine();
-  const { settings: nutritionSettings } = useNutritionSettings();
+  const { todayLog, isLoading: routineLoading } = useChampionRoutine();
   
   const {
     habits,
@@ -74,32 +60,7 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
     addHabit,
     updateHabit,
     deleteHabit,
-    refetch,
   } = useDailyHabits(date);
-
-  const today = format(new Date(), 'yyyy-MM-dd');
-
-  // Fetch workout sessions for today
-  const fetchWorkoutSessions = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase
-        .from('activity_sessions')
-        .select('id, activity_type, duration_seconds')
-        .eq('user_id', user.id)
-        .eq('date', today);
-
-      setWorkoutSessions(data || []);
-    } catch (error) {
-      console.error('Error fetching workout sessions:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchWorkoutSessions();
-  }, [today]);
 
   const getHabitsByCategory = (category: HabitCategory) => 
     habits.filter(h => h.category === category && h.is_active);
@@ -127,20 +88,6 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
   };
 
   const routineProgress = getRoutineProgress();
-
-  // Quick action data
-  const meals = (todayLog?.meals_logged as Meal[]) || [];
-  const totalCalories = todayLog?.total_calories || 0;
-  const totalProtein = todayLog?.total_protein || 0;
-  const calorieTarget = nutritionSettings?.calorie_target || 2000;
-  const proteinTarget = nutritionSettings?.protein_target || 150;
-  
-  const todos = (todayLog?.daily_todos as Todo[]) || [];
-  const completedTodos = todos.filter(t => t.completed).length;
-  
-  const gratitudeItems = (todayLog?.gratitude_items as string[]) || [];
-  
-  const workoutMinutes = workoutSessions.reduce((acc, s) => acc + (s.duration_seconds ? Math.round(s.duration_seconds / 60) : 0), 0);
 
   if (habitsLoading || routineLoading) {
     return (
@@ -210,121 +157,6 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
               }
             </Button>
           </div>
-
-          {/* Quick Actions - Expandable */}
-          <Collapsible open={quickActionsOpen} onOpenChange={setQuickActionsOpen}>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="w-full justify-between p-2 h-auto">
-                <span className="text-sm font-medium">
-                  {language === 'en' ? 'Quick Actions' : 'Acțiuni Rapide'}
-                </span>
-                <ChevronDown className={cn(
-                  "h-4 w-4 transition-transform",
-                  quickActionsOpen && "rotate-180"
-                )} />
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-3 pt-2">
-              {/* Quick Actions Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                {/* Workout Card */}
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Dumbbell className="h-4 w-4 text-red-500" />
-                      <span className="text-sm font-medium">Antrenament</span>
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-2">
-                    {workoutSessions.length > 0 ? (
-                      <span className="text-green-500 font-medium">
-                        {workoutSessions.length} sesiuni • {workoutMinutes} min
-                      </span>
-                    ) : (
-                      <span>Nicio activitate azi</span>
-                    )}
-                  </div>
-                  <QuickWorkoutAction onUpdate={fetchWorkoutSessions} />
-                </div>
-
-                {/* Nutrition Card */}
-                <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Utensils className="h-4 w-4 text-green-500" />
-                      <span className="text-sm font-medium">Nutriție</span>
-                    </div>
-                  </div>
-                  <div className="text-xs space-y-1 mb-2">
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1">
-                        <Flame className="h-3 w-3 text-orange-400" />
-                        Calorii
-                      </span>
-                      <span className={totalCalories >= calorieTarget ? "text-green-500 font-medium" : ""}>
-                        {totalCalories}/{calorieTarget}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1">
-                        <Beef className="h-3 w-3 text-red-400" />
-                        Proteine
-                      </span>
-                      <span className={totalProtein >= proteinTarget ? "text-green-500 font-medium" : ""}>
-                        {totalProtein}g/{proteinTarget}g
-                      </span>
-                    </div>
-                  </div>
-                  <QuickMealAction onUpdate={refetch} />
-                </div>
-
-                {/* Tasks Card */}
-                <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <ListTodo className="h-4 w-4 text-blue-500" />
-                      <span className="text-sm font-medium">Task-uri</span>
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-2">
-                    {todayLog?.big_one_today ? (
-                      <div className="truncate">
-                        <span className="text-primary font-medium">Big One:</span> {todayLog.big_one_today}
-                      </div>
-                    ) : (
-                      <span>Setează Big One</span>
-                    )}
-                    {todos.length > 0 && (
-                      <div className="text-green-500 font-medium mt-0.5">
-                        {completedTodos}/{todos.length} complete
-                      </div>
-                    )}
-                  </div>
-                  <QuickTaskAction onUpdate={refetch} />
-                </div>
-
-                {/* Gratitude Card */}
-                <div className="rounded-lg border border-pink-500/30 bg-pink-500/10 p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Heart className="h-4 w-4 text-pink-500" />
-                      <span className="text-sm font-medium">Recunoștință</span>
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-2">
-                    {gratitudeItems.length > 0 ? (
-                      <span className={gratitudeItems.length >= 3 ? "text-green-500 font-medium" : ""}>
-                        {gratitudeItems.length}/3 complete
-                      </span>
-                    ) : (
-                      <span>Nicio recunoștință</span>
-                    )}
-                  </div>
-                  <QuickGratitudeAction onUpdate={refetch} />
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
 
           {/* Daily Habits - 4 Quadrants Grid */}
           <div className="space-y-3">
@@ -451,22 +283,22 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
                               key={habit.id}
                               onClick={() => toggleHabit(habit.id)}
                               className={cn(
-                                "w-full flex items-center gap-2 p-2 rounded-md transition-all text-left",
+                                "w-full flex items-center gap-2 p-1.5 rounded-md transition-all text-left",
                                 completed 
                                   ? "bg-green-500/20 text-green-400" 
                                   : "bg-background/50 hover:bg-background/80"
                               )}
                             >
                               <div className={cn(
-                                "h-5 w-5 rounded border flex items-center justify-center shrink-0",
+                                "h-4 w-4 rounded border flex items-center justify-center shrink-0",
                                 completed 
                                   ? "bg-green-500 border-green-500" 
                                   : "border-muted-foreground/50"
                               )}>
-                                {completed && <Check className="h-3 w-3 text-white" />}
+                                {completed && <Check className="h-2.5 w-2.5 text-white" />}
                               </div>
                               <span className={cn(
-                                "text-sm",
+                                "text-xs truncate",
                                 completed && "line-through opacity-70"
                               )}>
                                 {habit.name}
@@ -495,7 +327,7 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
         onAdd={addHabit}
         onUpdate={updateHabit}
         onDelete={deleteHabit}
-        onRefetch={refetch}
+        onRefetch={async () => {}}
       />
     </>
   );
