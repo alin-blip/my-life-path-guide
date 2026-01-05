@@ -354,10 +354,7 @@ export function WeeklyWorkoutPlanner() {
         </TabsContent>
 
         <TabsContent value="templates">
-          <WorkoutTemplateLibrary
-            templates={templates}
-            onApplyTemplate={applyTemplate}
-          />
+          <WorkoutTemplateLibrary />
         </TabsContent>
       </Tabs>
     </div>
