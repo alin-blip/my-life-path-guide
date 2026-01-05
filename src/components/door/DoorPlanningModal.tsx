@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PlanningResult, PreviousWeekData } from '@/types/door';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
 import { weeklyPlanningDraftService } from '@/services/weeklyPlanningDraftService';
-import { getISOWeek, getYear } from 'date-fns';
+import { getISOWeek, getYear, addWeeks, startOfWeek } from 'date-fns';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
 import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
@@ -41,7 +41,11 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   onPlanningComplete,
 }) => {
   const today = new Date();
-  const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
+  // Calculate next week's key for planning (Sunday planning is for next week)
+  const nextWeek = addWeeks(startOfWeek(today, { weekStartsOn: 1 }), 1);
+  const weekNum = getISOWeek(nextWeek);
+  const year = getYear(nextWeek);
+  const currentWeekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
   const draftKey = `doorPlanningDraft_${currentWeekKey}`;
   
   // Load draft from database first, fallback to localStorage

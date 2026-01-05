@@ -6,7 +6,7 @@ import { Loader2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlanningResult } from '@/types/door';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
-import { getISOWeek, getYear } from 'date-fns';
+import { getISOWeek, getYear, addWeeks, startOfWeek } from 'date-fns';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
 import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
@@ -96,7 +96,11 @@ export const VoicePlanningModal: React.FC<VoicePlanningModalProps> = ({
 
         if (data?.planningData) {
           const today = new Date();
-          const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
+          // Calculate next week's key for planning (Sunday planning is for next week)
+          const nextWeek = addWeeks(startOfWeek(today, { weekStartsOn: 1 }), 1);
+          const weekNum = getISOWeek(nextWeek);
+          const year = getYear(nextWeek);
+          const currentWeekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
           
           await weeklyPlanningService.savePlan({
             weekKey: currentWeekKey,
