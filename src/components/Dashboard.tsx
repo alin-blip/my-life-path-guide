@@ -213,6 +213,7 @@ export const Dashboard: React.FC = () => {
   }, [earnedBadges]);
 
   // Streak milestone celebration removed
+  // Initial data fetch - runs only once on mount
   useEffect(() => {
     syncData();
     updateStats();
@@ -227,19 +228,26 @@ export const Dashboard: React.FC = () => {
     if (isSunday && shownWeek !== currentWeek) {
       setShowSundayPlanning(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    // Check if we should show onboarding wizard for new users
+  // Separate effect for onboarding wizard - only triggers when foundation status is loaded
+  useEffect(() => {
+    if (foundationStatus.isLoading) return;
+    
     const wizardCompleted = localStorage.getItem('onboarding-wizard-completed');
     const wizardSkipped = localStorage.getItem('onboarding-wizard-skipped');
-    if (!wizardCompleted && !wizardSkipped && !foundationStatus.isLoading && !foundationStatus.isFoundationComplete) {
-      // Delay a bit to let the page load
+    
+    if (!wizardCompleted && !wizardSkipped && !foundationStatus.isFoundationComplete) {
       const timer = setTimeout(() => {
         setShowOnboardingWizard(true);
       }, 1500);
       return () => clearTimeout(timer);
     }
+  }, [foundationStatus.isLoading, foundationStatus.isFoundationComplete]);
 
-    // Listen for progress updates
+  // Listen for progress updates and XP events
+  useEffect(() => {
     const handleProgressUpdate = (event: any) => {
       console.log('Progress updated:', event.detail);
       updateStats();
@@ -248,14 +256,13 @@ export const Dashboard: React.FC = () => {
 
     // Listen for XP award events from xpService
     const handleXPAward = (event: CustomEvent<XPAwardEvent>) => {
-      const {
-        amount,
-        reason
-      } = event.detail;
+      const { amount, reason } = event.detail;
       addXP(amount, reason);
     };
+    
     window.addEventListener('progressUpdated', handleProgressUpdate);
     window.addEventListener('xp-award', handleXPAward as EventListener);
+    
     return () => {
       window.removeEventListener('progressUpdated', handleProgressUpdate);
       window.removeEventListener('xp-award', handleXPAward as EventListener);
