@@ -75,24 +75,41 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     { title: t('lifeVision') || t('haveItAllBlueprint'), icon: BookOpen, path: '/lifebook' },
     { title: 'Vision 2026', icon: Sparkles, path: '/vision-2026/dashboard' },
     { title: t('ninetyDayChallenge') || t('haveItAllChallenge'), icon: Target, path: '/challenge' },
+    // CORP
     {
-      title: 'Core 4',
-      icon: Heart,
-      path: '/core',
+      title: '💪 Corp',
+      icon: Activity,
+      path: '/workout',
       subItems: [
-        // CORP
-        { title: '💪 Corp', icon: Activity, path: '/core/body' },
         { title: 'Workout', icon: Activity, path: '/workout' },
         { title: t('nutrition') || 'Nutriție', icon: Activity, path: '/nutrition' },
-        // SPIRITUALITATE
-        { title: '🧘 Spiritualitate', icon: Heart, path: '/core/spirit' },
+      ]
+    },
+    // SPIRITUALITATE
+    {
+      title: '🧘 Spiritualitate',
+      icon: Heart,
+      path: '/stack',
+      subItems: [
         { title: t('aiStacks') || 'Stack-uri AI', icon: Layers, path: '/stack' },
         { title: 'Journaling', icon: Pencil, path: '/journal' },
-        // RELAȚII  
-        { title: '💕 Relații', icon: Heart, path: '/core/relationships' },
+      ]
+    },
+    // RELAȚII
+    {
+      title: '💕 Relații',
+      icon: Heart,
+      path: '/relationships',
+      subItems: [
         { title: t('importantPeople') || 'Persoane Importante', icon: Heart, path: '/relationships' },
-        // BUSINESS
-        { title: '💼 Business', icon: Briefcase, path: '/core/business' },
+      ]
+    },
+    // BUSINESS
+    {
+      title: '💼 Business',
+      icon: Briefcase,
+      path: '/door',
+      subItems: [
         { title: t('tasks') || 'Task-uri', icon: Flag, path: '/door' },
         { title: t('successPrinciples') || 'Principii Succes', icon: Crown, path: '/stack?type=master-plan-quick' },
         { title: 'Focus Room', icon: Clock, path: '/focus' },
