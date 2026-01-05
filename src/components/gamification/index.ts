@@ -1,4 +1,3 @@
-export { StreakMilestoneCelebration } from './StreakMilestoneCelebration';
 export { BadgeUnlockCelebration } from './BadgeUnlockCelebration';
 export { DailyChallenges } from './DailyChallenges';
 export { WeeklyRecap } from './WeeklyRecap';
