@@ -38,7 +38,7 @@ export interface Todo {
   completed: boolean;
 }
 
-interface ChampionLog {
+export interface ChampionLog {
   id: string;
   date: string;
   water_drunk: boolean;
