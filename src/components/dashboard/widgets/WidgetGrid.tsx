@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { DashboardWidget } from '@/types/dashboardWidget';
 import { MacroWidget } from './MacroWidget';
@@ -10,25 +10,93 @@ import { TasksWidget } from './TasksWidget';
 import { ReadingWidget } from './ReadingWidget';
 import { WaterWidget } from './WaterWidget';
 import { ChampionRoutineWidget } from './ChampionRoutineWidget';
+import { CustomWidgetRenderer } from './CustomWidgetRenderer';
+import type { CustomWidget, WidgetData } from '@/types/customWidget';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 
 interface WidgetGridProps {
   widgets: DashboardWidget[];
+  customWidgets?: CustomWidget[];
   onReorder: (fromIndex: number, toIndex: number) => void;
   onRemove: (widgetId: string) => void;
   onResize: (widgetId: string, size: DashboardWidget['size']) => void;
+  onRemoveCustomWidget?: (widgetId: string) => void;
   streakData?: { currentStreak: number; longestStreak: number };
 }
 
 export const WidgetGrid: React.FC<WidgetGridProps> = ({
   widgets,
+  customWidgets = [],
   onReorder,
   onRemove,
   onResize,
+  onRemoveCustomWidget,
   streakData
 }) => {
+  const { user } = useAuth();
+  const [customWidgetData, setCustomWidgetData] = useState<Record<string, WidgetData | null>>({});
+
   const enabledWidgets = widgets
     .filter(w => w.enabled)
     .sort((a, b) => a.order - b.order);
+
+  // Fetch custom widget data
+  useEffect(() => {
+    const fetchCustomWidgetData = async () => {
+      if (!user?.id || customWidgets.length === 0) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      const dataMap: Record<string, WidgetData | null> = {};
+
+      for (const widget of customWidgets) {
+        const { data } = await supabase
+          .from('widget_data')
+          .select('*')
+          .eq('widget_id', widget.id)
+          .eq('user_id', user.id)
+          .eq('date', today)
+          .maybeSingle();
+
+        dataMap[widget.id] = data ? {
+          ...data,
+          data: data.data as Record<string, unknown>,
+        } as WidgetData : null;
+      }
+
+      setCustomWidgetData(dataMap);
+    };
+
+    fetchCustomWidgetData();
+  }, [user?.id, customWidgets]);
+
+  const handleSaveCustomWidgetData = async (widgetId: string, data: Record<string, unknown>) => {
+    if (!user?.id) return;
+
+    const today = new Date().toISOString().split('T')[0];
+
+    await supabase
+      .from('widget_data')
+      .upsert({
+        widget_id: widgetId,
+        user_id: user.id,
+        date: today,
+        data: data as any,
+      }, {
+        onConflict: 'widget_id,user_id,date',
+      });
+
+    setCustomWidgetData(prev => ({
+      ...prev,
+      [widgetId]: {
+        id: widgetId,
+        widget_id: widgetId,
+        user_id: user.id,
+        date: today,
+        data,
+      } as WidgetData,
+    }));
+  };
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -67,38 +135,57 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
     }
   };
 
-  if (enabledWidgets.length === 0) {
+  const hasWidgets = enabledWidgets.length > 0 || customWidgets.length > 0;
+
+  if (!hasWidgets) {
     return null;
   }
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="widgets" direction="horizontal">
-        {(provided) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-          >
-            {enabledWidgets.map((widget, index) => (
-              <Draggable key={widget.id} draggableId={widget.id} index={index}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    className={`${snapshot.isDragging ? 'opacity-75' : ''} ${
-                      widget.id === 'champion-routine' ? 'md:col-span-2 lg:col-span-3' : ''
-                    }`}
-                  >
-                    {renderWidget(widget, provided.dragHandleProps)}
-                  </div>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+    <div className="space-y-4">
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="widgets" direction="horizontal">
+          {(provided) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              {enabledWidgets.map((widget, index) => (
+                <Draggable key={widget.id} draggableId={widget.id} index={index}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className={`${snapshot.isDragging ? 'opacity-75' : ''} ${
+                        widget.id === 'champion-routine' ? 'md:col-span-2 lg:col-span-3' : ''
+                      }`}
+                    >
+                      {renderWidget(widget, provided.dragHandleProps)}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+
+      {/* Custom Widgets Section */}
+      {customWidgets.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {customWidgets.map((widget) => (
+            <CustomWidgetRenderer
+              key={widget.id}
+              widget={widget}
+              data={customWidgetData[widget.id]}
+              onSaveData={(data) => handleSaveCustomWidgetData(widget.id, data)}
+              onDelete={onRemoveCustomWidget ? () => onRemoveCustomWidget(widget.id) : undefined}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };

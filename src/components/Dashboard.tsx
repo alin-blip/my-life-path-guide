@@ -158,10 +158,13 @@ export const Dashboard: React.FC = () => {
   // Dashboard Widgets
   const { 
     widgets, 
+    customWidgets,
     toggleWidget, 
+    toggleCustomWidgetOnDashboard,
     reorderWidgets, 
     resizeWidget, 
-    getEnabledWidgets 
+    getEnabledWidgets,
+    getActiveCustomWidgets 
   } = useDashboardWidgets();
 
   // Explainer modal states
@@ -753,9 +756,11 @@ export const Dashboard: React.FC = () => {
           </div>
           <WidgetGrid
             widgets={widgets.filter(w => w.id !== 'champion-routine')}
+            customWidgets={getActiveCustomWidgets()}
             onReorder={reorderWidgets}
             onRemove={(id) => toggleWidget(id, false)}
             onResize={resizeWidget}
+            onRemoveCustomWidget={(id) => toggleCustomWidgetOnDashboard(id, false)}
             streakData={{
               currentStreak: streakData?.currentStreak || 0,
               longestStreak: streakData?.longestStreak || 0

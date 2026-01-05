@@ -3,9 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { DashboardWidget, DashboardWidgetsConfig } from '@/types/dashboardWidget';
 import { DEFAULT_WIDGETS } from '@/config/dashboardWidgets';
 import { Json } from '@/integrations/supabase/types';
+import type { CustomWidget, WidgetConfig } from '@/types/customWidget';
 
 export const useDashboardWidgets = () => {
   const [widgets, setWidgets] = useState<DashboardWidget[]>(DEFAULT_WIDGETS);
+  const [customWidgets, setCustomWidgets] = useState<CustomWidget[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchWidgets = useCallback(async () => {
@@ -16,6 +18,7 @@ export const useDashboardWidgets = () => {
         return;
       }
 
+      // Fetch dashboard widget preferences
       const { data, error } = await supabase
         .from('user_preferences')
         .select('dashboard_widgets')
@@ -24,7 +27,6 @@ export const useDashboardWidgets = () => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching widgets:', error);
-        return;
       }
 
       if (data?.dashboard_widgets) {
@@ -34,6 +36,24 @@ export const useDashboardWidgets = () => {
           const filteredWidgets = config.widgets.filter(w => w.id !== 'champion-routine');
           setWidgets(filteredWidgets);
         }
+      }
+
+      // Fetch custom widgets that are active (shown on dashboard)
+      const { data: customData, error: customError } = await supabase
+        .from('custom_widgets')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('order_index');
+
+      if (customError) {
+        console.error('Error fetching custom widgets:', customError);
+      } else if (customData) {
+        const parsedCustomWidgets = customData.map(w => ({
+          ...w,
+          config: w.config as unknown as WidgetConfig,
+        })) as CustomWidget[];
+        setCustomWidgets(parsedCustomWidgets);
       }
     } catch (error) {
       console.error('Error fetching widgets:', error);
@@ -116,6 +136,20 @@ export const useDashboardWidgets = () => {
     await saveWidgets(newWidgets);
   };
 
+  const toggleCustomWidgetOnDashboard = async (widgetId: string, isActive: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('custom_widgets')
+        .update({ is_active: isActive })
+        .eq('id', widgetId);
+
+      if (error) throw error;
+      await fetchWidgets();
+    } catch (error) {
+      console.error('Error toggling custom widget:', error);
+    }
+  };
+
   const reorderWidgets = async (fromIndex: number, toIndex: number) => {
     const enabledWidgets = widgets.filter(w => w.enabled).sort((a, b) => a.order - b.order);
     const [movedWidget] = enabledWidgets.splice(fromIndex, 1);
@@ -143,13 +177,20 @@ export const useDashboardWidgets = () => {
       .sort((a, b) => a.order - b.order);
   };
 
+  const getActiveCustomWidgets = () => {
+    return customWidgets.filter(w => w.is_active);
+  };
+
   return {
     widgets,
+    customWidgets,
     loading,
     toggleWidget,
+    toggleCustomWidgetOnDashboard,
     reorderWidgets,
     resizeWidget,
     getEnabledWidgets,
+    getActiveCustomWidgets,
     saveWidgets,
     refetch: fetchWidgets
   };
