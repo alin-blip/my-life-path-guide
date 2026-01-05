@@ -69,20 +69,30 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
   const totalHabits = habits.filter(h => h.is_active).length;
   const totalPercentage = totalHabits > 0 ? (totalCompleted / totalHabits) * 100 : 0;
 
-  // Calculate routine progress
+  // Calculate routine progress based on actual routine log fields
   const getRoutineProgress = () => {
     if (!todayLog) return 0;
     let completed = 0;
-    let total = 8;
+    let total = 9; // 9 steps in the routine (excluding completion)
     
-    if (todayLog.breathing_completed) completed++;
+    // Gratitude - at least one item filled
+    if ((todayLog.gratitude_items as any[])?.some((i: any) => i?.trim?.())) completed++;
+    // Hydration
     if (todayLog.water_drunk) completed++;
-    if (todayLog.light_exposure) completed++;
+    // Meditation - at least 10 minutes
+    if ((todayLog.meditation_duration_seconds || 0) >= 600) completed++;
+    // Autosuggestion
     if (todayLog.autosuggestion_completed) completed++;
-    if (todayLog.visualization_completed) completed++;
+    // Exercise
     if (todayLog.exercise_completed) completed++;
-    if ((todayLog.gratitude_items as any[])?.length >= 3) completed++;
-    if (todayLog.reading_completed) completed++;
+    // Meal planning - at least one meal logged
+    if ((todayLog.meals_logged as any[])?.length > 0) completed++;
+    // Content creation - has script or pomodoro sessions
+    if (todayLog.content_script || (todayLog.pomodoro_sessions || 0) > 0) completed++;
+    // Daily tasks - has big one or completed todos
+    if (todayLog.big_one_today || (todayLog.daily_todos as any[])?.some((t: any) => t?.completed)) completed++;
+    // Relationships - has completed actions
+    if ((todayLog.relationship_actions as any[])?.some((a: any) => a?.completed)) completed++;
     
     return Math.round((completed / total) * 100);
   };
@@ -164,14 +174,25 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
               <span className="text-sm font-medium text-muted-foreground">
                 {language === 'en' ? 'Daily Habits' : 'Obiceiuri Zilnice'}
               </span>
-              <span className={cn(
-                "text-xs px-2 py-0.5 rounded-full font-medium",
-                totalPercentage === 100 
-                  ? "bg-green-500/20 text-green-400" 
-                  : "bg-muted text-muted-foreground"
-              )}>
-                {totalCompleted}/{totalHabits}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "text-xs px-2 py-0.5 rounded-full font-medium",
+                  totalPercentage === 100 
+                    ? "bg-green-500/20 text-green-400" 
+                    : "bg-muted text-muted-foreground"
+                )}>
+                  {totalCompleted}/{totalHabits}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-muted-foreground hover:text-primary"
+                  onClick={() => setShowSettings(true)}
+                  title={language === 'en' ? 'Add habit' : 'Adaugă obicei'}
+                >
+                  <span className="text-lg">+</span>
+                </Button>
+              </div>
             </div>
             
             {/* 2x2 Grid for Desktop */}
@@ -201,8 +222,8 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
                     </div>
                     
                     {categoryHabits.length > 0 ? (
-                      <div className="space-y-1">
-                        {categoryHabits.slice(0, 3).map(habit => {
+                      <div className="space-y-1 max-h-40 overflow-y-auto">
+                        {categoryHabits.map(habit => {
                           const completed = isHabitCompleted(habit.id);
                           return (
                             <button
@@ -232,11 +253,6 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
                             </button>
                           );
                         })}
-                        {categoryHabits.length > 3 && (
-                          <span className="text-xs text-muted-foreground pl-6">
-                            +{categoryHabits.length - 3} more
-                          </span>
-                        )}
                       </div>
                     ) : (
                       <p className="text-xs text-muted-foreground italic">

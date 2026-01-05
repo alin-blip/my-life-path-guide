@@ -182,17 +182,58 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
     return 0;
   }, [routineSteps]);
 
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  
+  // Track skipped steps in localStorage
+  const today = new Date().toISOString().split('T')[0];
+  const skippedStepsKey = `champion_skipped_steps_${today}`;
+  
+  const getSkippedSteps = useCallback((): RoutineStepId[] => {
+    try {
+      const saved = localStorage.getItem(skippedStepsKey);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  }, [skippedStepsKey]);
+  
+  const addSkippedStep = useCallback((stepId: RoutineStepId) => {
+    const skipped = getSkippedSteps();
+    if (!skipped.includes(stepId)) {
+      skipped.push(stepId);
+      localStorage.setItem(skippedStepsKey, JSON.stringify(skipped));
+    }
+  }, [getSkippedSteps, skippedStepsKey]);
 
-  // Set initial step to first incomplete when data loads
+  // Set initial step to first incomplete when data loads (considering skipped steps)
   useEffect(() => {
     if (!isLoading && todayLog && isConfigured) {
-      const firstIncomplete = getFirstIncompleteStepIndex(todayLog);
+      const skippedSteps = getSkippedSteps();
+      
+      // Find first step that is neither completed nor skipped
+      let firstIncomplete = 0;
+      for (let i = 0; i < routineSteps.length; i++) {
+        const stepId = routineSteps[i];
+        if (stepId === 'completion') {
+          firstIncomplete = i;
+          break;
+        }
+        const isCompleted = isStepCompleted(stepId, todayLog);
+        const isSkipped = skippedSteps.includes(stepId);
+        if (!isCompleted && !isSkipped) {
+          firstIncomplete = i;
+          break;
+        }
+        // If all steps are completed or skipped, go to completion
+        if (i === routineSteps.length - 2) {
+          firstIncomplete = routineSteps.length - 1; // completion step
+        }
+      }
       setCurrentStepIndex(firstIncomplete);
     }
-  }, [isLoading, todayLog, isConfigured, getFirstIncompleteStepIndex]);
+  }, [isLoading, todayLog, isConfigured, routineSteps, getSkippedSteps]);
 
   // Debounced update for text inputs
   const debouncedUpdateLog = useCallback(
@@ -214,6 +255,11 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
     }
+  };
+  
+  const skipCurrentStep = () => {
+    addSkippedStep(currentStepId);
+    goToNextStep();
   };
 
   if (isLoading) {
@@ -297,6 +343,7 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
             initialDuration={todayLog?.meditation_duration_seconds || 0}
             onComplete={(seconds) => updateLog('meditation_duration_seconds', seconds)}
             onNext={goToNextStep}
+            onSkip={skipCurrentStep}
           />
         );
       case 'autosuggestion':
@@ -315,6 +362,7 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
             completed={todayLog?.exercise_completed || false}
             onComplete={(value) => updateLog('exercise_completed', value)}
             onNext={goToNextStep}
+            onSkip={skipCurrentStep}
           />
         );
       case 'mealPlanning':

@@ -18,6 +18,7 @@ interface MeditationStepProps {
   initialDuration: number;
   onComplete: (seconds: number) => void;
   onNext: () => void;
+  onSkip?: () => void;
 }
 
 const MIN_MEDITATION_SECONDS = 10 * 60; // 10 minutes minimum
@@ -31,7 +32,7 @@ interface StoredSession {
   lastUpdate: number;
 }
 
-export function MeditationStep({ initialDuration, onComplete, onNext }: MeditationStepProps) {
+export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: MeditationStepProps) {
   const today = format(new Date(), 'yyyy-MM-dd');
   const storageKey = `${STORAGE_KEY_PREFIX}${today}`;
   
@@ -176,7 +177,11 @@ export function MeditationStep({ initialDuration, onComplete, onNext }: Meditati
     setShowSkipDialog(false);
     localStorage.removeItem(storageKey);
     onComplete(0);
-    onNext();
+    if (onSkip) {
+      onSkip();
+    } else {
+      onNext();
+    }
   };
 
   const handleAlreadyMeditated = () => {
