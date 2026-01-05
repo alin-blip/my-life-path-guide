@@ -200,26 +200,10 @@ export const Dashboard: React.FC = () => {
     return BADGES.filter(badge => badge.requirement(badgeStats));
   }, [badgeStats]);
 
-  // Trigger badge unlock celebration
-  // NOTE: We intentionally suppress streak badge popups (they were perceived as a "streak popup" when switching tabs).
+  // Badge unlock celebration disabled to prevent popup spam
   const previouslyEarnedBadgesRef = useRef<string[]>([]);
   useEffect(() => {
     const earnedIds = earnedBadges.map((b) => b.id);
-    const prevIds = previouslyEarnedBadgesRef.current;
-    const newBadgeIds = earnedIds.filter((id) => !prevIds.includes(id));
-
-    // Exclude streak badges from modal celebrations
-    const firstNonStreakNewId = newBadgeIds.find((id) => !id.startsWith('streak_'));
-
-    // Avoid showing a celebration on first load (previouslyEarnedBadges empty)
-    if (firstNonStreakNewId && prevIds.length > 0) {
-      const newBadge = BADGES.find((b) => b.id === firstNonStreakNewId);
-      if (newBadge) {
-        setUnlockedBadge(newBadge);
-        setShowBadgeUnlock(true);
-      }
-    }
-
     previouslyEarnedBadgesRef.current = earnedIds;
   }, [earnedBadges]);
 
