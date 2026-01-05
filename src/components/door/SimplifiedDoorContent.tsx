@@ -191,7 +191,8 @@ export const SimplifiedDoorContent: React.FC = () => {
     moveKeyPointToHotList,
     moveTaskBackToHotList,
     addNewKeyPoint,
-    navigateToDate
+    navigateToDate,
+    refreshLists
   } = useDoorContent();
 
   const isMobile = useIsMobile();
@@ -488,6 +489,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                     doDoneCount={doDoneCount}
                     moveTaskBackToHotList={moveTaskBackToHotList}
                     isMobile={isMobile}
+                    onTasksAdded={refreshLists}
                   />
                 </div>
               )}
@@ -581,6 +583,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                 doDoneCount={doDoneCount}
                 moveTaskBackToHotList={moveTaskBackToHotList}
                 isMobile={false}
+                onTasksAdded={refreshLists}
               />
             </div>
           </div>

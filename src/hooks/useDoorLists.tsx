@@ -302,6 +302,20 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     }
   };
 
+  // Manual refresh function to reload data from Supabase
+  const refreshLists = async () => {
+    try {
+      const loadedHotList = await doorUserTasksService.fetchGlobalHotList();
+      const { hitList: loadedHitList, doList: loadedDoList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
+      
+      setHotList(loadedHotList);
+      setHitList(loadedHitList);
+      setDoList(loadedDoList);
+    } catch (error) {
+      console.error('Error refreshing Door data:', error);
+    }
+  };
+
   return {
     hotList,
     setHotList,
@@ -321,6 +335,7 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     deleteHotListItem,
     toggleHitListItemCompletion,
     toggleDoListItemCompletion,
-    moveTaskBackToHotList
+    moveTaskBackToHotList,
+    refreshLists
   };
 }

@@ -42,7 +42,8 @@ export function useDoorContent() {
     deleteHotListItem,
     toggleHitListItemCompletion,
     toggleDoListItemCompletion,
-    moveTaskBackToHotList
+    moveTaskBackToHotList,
+    refreshLists
   } = useDoorLists({ 
     currentWeekKey, 
     onDataChange: dataChangeCallback 
@@ -185,6 +186,7 @@ export function useDoorContent() {
     moveKeyPointToHotList,
     moveTaskBackToHotList,
     addNewKeyPoint,
-    navigateToDate
+    navigateToDate,
+    refreshLists
   };
 }
