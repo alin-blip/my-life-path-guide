@@ -428,6 +428,14 @@ export const ObjectivesCard: React.FC = () => {
   return (
     <Card className="glass-card mb-6 animate-fade-in">
       <CardContent className="p-4">
+        {/* Vision Board - always show first */}
+        <ObjectiveVisionBoard 
+          language={language}
+          annualMissions={missions.annual}
+          onRefresh={loadMissions}
+        />
+
+        {/* Tabs for objectives */}
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as MissionPeriod)}>
           <TabsList className="grid grid-cols-3 mb-4 glass-card p-1 rounded-xl w-full">
             <TabsTrigger 
@@ -457,14 +465,7 @@ export const ObjectivesCard: React.FC = () => {
                   {getPeriodTitle(period)}
                 </h3>
                 
-                {/* Vision Board - show in all tabs */}
-                <ObjectiveVisionBoard 
-                  language={language}
-                  annualMissions={missions.annual}
-                  onRefresh={loadMissions}
-                />
-                
-                {/* Always show category sections */}
+                {/* Category sections */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {categories.map(renderCategorySection)}
                 </div>
