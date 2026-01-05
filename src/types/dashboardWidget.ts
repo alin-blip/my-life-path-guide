@@ -17,5 +17,5 @@ export interface WidgetDefinition {
   description: { en: string; ro: string };
   icon: string;
   defaultSize: WidgetSize;
-  category: 'fitness' | 'productivity' | 'mindset' | 'tracking';
+  category: 'fitness' | 'productivity' | 'mindset' | 'tracking' | 'routine';
 }
