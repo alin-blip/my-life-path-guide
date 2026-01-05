@@ -731,6 +731,48 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_widgets: {
+        Row: {
+          config: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_public: boolean | null
+          is_template: boolean | null
+          name: string
+          order_index: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          is_template?: boolean | null
+          name: string
+          order_index?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          is_template?: boolean | null
+          name?: string
+          order_index?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_checkins: {
         Row: {
           created_at: string
@@ -2402,6 +2444,130 @@ export type Database = {
         }
         Relationships: []
       }
+      widget_data: {
+        Row: {
+          created_at: string | null
+          data: Json
+          date: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+          widget_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json
+          date?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          widget_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json
+          date?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          widget_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "widget_data_widget_id_fkey"
+            columns: ["widget_id"]
+            isOneToOne: false
+            referencedRelation: "custom_widgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      widget_templates: {
+        Row: {
+          category: string | null
+          config: Json
+          created_at: string | null
+          creator_user_id: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_official: boolean | null
+          name: string
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          category?: string | null
+          config?: Json
+          created_at?: string | null
+          creator_user_id?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_official?: boolean | null
+          name: string
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          category?: string | null
+          config?: Json
+          created_at?: string | null
+          creator_user_id?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_official?: boolean | null
+          name?: string
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
+      workout_day_exercises: {
+        Row: {
+          created_at: string | null
+          day_id: string
+          exercise_name: string
+          id: string
+          notes: string | null
+          order_index: number | null
+          target_reps: string | null
+          target_sets: number | null
+          target_weight_kg: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_id: string
+          exercise_name: string
+          id?: string
+          notes?: string | null
+          order_index?: number | null
+          target_reps?: string | null
+          target_sets?: number | null
+          target_weight_kg?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          day_id?: string
+          exercise_name?: string
+          id?: string
+          notes?: string | null
+          order_index?: number | null
+          target_reps?: string | null
+          target_sets?: number | null
+          target_weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_day_exercises_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "workout_program_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workout_exercises: {
         Row: {
           created_at: string | null
@@ -2452,6 +2618,83 @@ export type Database = {
           },
         ]
       }
+      workout_program_days: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          id: string
+          is_rest_day: boolean | null
+          name: string | null
+          order_index: number | null
+          program_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          id?: string
+          is_rest_day?: boolean | null
+          name?: string | null
+          order_index?: number | null
+          program_id: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          id?: string
+          is_rest_day?: boolean | null
+          name?: string | null
+          order_index?: number | null
+          program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_program_days_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "workout_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_programs: {
+        Row: {
+          created_at: string | null
+          created_by_admin: boolean | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_public: boolean | null
+          is_template: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by_admin?: boolean | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          is_template?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by_admin?: boolean | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          is_template?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       workout_sessions: {
         Row: {
           created_at: string | null
@@ -2487,6 +2730,62 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      workout_templates: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          creator_user_id: string | null
+          days_per_week: number | null
+          description: string | null
+          difficulty: string | null
+          id: string
+          is_official: boolean | null
+          name: string
+          program_data: Json | null
+          source_program_id: string | null
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          creator_user_id?: string | null
+          days_per_week?: number | null
+          description?: string | null
+          difficulty?: string | null
+          id?: string
+          is_official?: boolean | null
+          name: string
+          program_data?: Json | null
+          source_program_id?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          creator_user_id?: string | null
+          days_per_week?: number | null
+          description?: string | null
+          difficulty?: string | null
+          id?: string
+          is_official?: boolean | null
+          name?: string
+          program_data?: Json | null
+          source_program_id?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_templates_source_program_id_fkey"
+            columns: ["source_program_id"]
+            isOneToOne: false
+            referencedRelation: "workout_programs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       xp_history: {
         Row: {
