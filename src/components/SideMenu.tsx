@@ -91,7 +91,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       icon: Heart,
       path: '/stack',
       subItems: [
-        { title: t('aiStacks') || 'Stack-uri AI', icon: Layers, path: '/stack' },
+        { title: 'Rugăciune Divină', icon: Heart, path: '/stack?type=divine-prayer' },
+        { title: 'Recunoștință', icon: Heart, path: '/stack?type=gratitude' },
+        { title: 'Recunoștință Divină', icon: Heart, path: '/stack?type=divine-gratitude' },
+        { title: 'Școala lui Dumnezeu', icon: Heart, path: '/stack?type=gods-school' },
+        { title: 'Transformarea Furiei', icon: Angry, path: '/stack?type=anger' },
         { title: 'Journaling', icon: Pencil, path: '/journal' },
       ]
     },

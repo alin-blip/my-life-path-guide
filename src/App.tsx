@@ -23,6 +23,9 @@ import NotFound from "./pages/NotFound";
 
 // Lazy load heavy pages for better performance
 const Stack = lazy(() => import("./pages/Stack"));
+const Workout = lazy(() => import("./pages/Workout"));
+const Nutrition = lazy(() => import("./pages/Nutrition"));
+const Relationships = lazy(() => import("./pages/Relationships"));
 const StackLibrary = lazy(() => import("./pages/StackLibrary"));
 const StackViewer = lazy(() => import("./pages/StackViewer"));
 const MasterPlanSystem = lazy(() => import("./pages/MasterPlanSystem"));
@@ -229,6 +232,21 @@ const App = () => (
                     <Route path="/champion-routine-history" element={
                       <ProtectedRoute>
                         <ChampionRoutineHistory />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/workout" element={
+                      <ProtectedRoute>
+                        <Workout />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/nutrition" element={
+                      <ProtectedRoute>
+                        <Nutrition />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/relationships" element={
+                      <ProtectedRoute>
+                        <Relationships />
                       </ProtectedRoute>
                     } />
                         <Route path="*" element={<NotFound />} />
