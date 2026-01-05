@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { PlanningResult } from '@/types/door';
+import { toDoorWeekKey } from '@/utils/weekKey';
 
 export interface WeeklyPlanningData {
   id?: string;
@@ -31,12 +32,17 @@ export const weeklyPlanningService = {
       return false;
     }
 
+    // Normalize week_key to door-week format
+    const normalizedKey = planData.weekKey.startsWith('door-week-') 
+      ? planData.weekKey 
+      : toDoorWeekKey(planData.weekKey);
+
     try {
       const { error } = await supabase
         .from('weekly_planning')
         .upsert({
           user_id: userId,
-          week_key: planData.weekKey,
+          week_key: normalizedKey,
           domino_title: planData.dominoTitle,
           week_goal: planData.weekGoal,
           key_points: planData.keyPoints,
@@ -63,12 +69,17 @@ export const weeklyPlanningService = {
     const userId = await getUserId();
     if (!userId) return null;
 
+    // Normalize week_key to door-week format for lookup
+    const normalizedKey = weekKey.startsWith('door-week-') 
+      ? weekKey 
+      : toDoorWeekKey(weekKey);
+
     try {
       const { data, error } = await supabase
         .from('weekly_planning')
         .select('*')
         .eq('user_id', userId)
-        .eq('week_key', weekKey)
+        .eq('week_key', normalizedKey)
         .single();
 
       if (error || !data) {

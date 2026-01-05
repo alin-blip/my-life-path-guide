@@ -5,7 +5,6 @@ import { useToast } from '@/hooks/use-toast';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { useDoorStorageLogger } from './useDoorStorageLogger';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
-import { toPlanningWeekKey } from '@/utils/weekKey';
 
 interface LoadStateSetters {
   setHotList: React.Dispatch<React.SetStateAction<HotListItem[]>>;
@@ -39,9 +38,9 @@ export function useDoorStorageLoad() {
       setters.setDoList(doList);
 
       // Try to load Domino + Key Points from weekly_planning
+      // Use currentWeekKey directly - service handles format normalization
       try {
-        const planningKey = toPlanningWeekKey(currentWeekKey);
-        const plan = await weeklyPlanningService.getPlanForWeek(planningKey);
+        const plan = await weeklyPlanningService.getPlanForWeek(currentWeekKey);
         
         if (plan && plan.dominoTitle) {
           // Reconstruct selectedDomino from plan
@@ -88,7 +87,6 @@ export function useDoorStorageLoad() {
 
           logStorageAction('Loaded weekly plan from cloud', {
             weekKey: currentWeekKey,
-            planningKey,
             dominoTitle: plan.dominoTitle,
             keyPointsCount: plan.keyPoints.length,
           });

@@ -3,7 +3,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useDoorStorageLogger } from './useDoorStorageLogger';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
-import { toPlanningWeekKey } from '@/utils/weekKey';
 
 interface SaveStateData {
   currentWeekKey: string;
@@ -41,9 +40,10 @@ export function useDoorStorageSave() {
       });
 
       // Save Domino + Key Points to weekly_planning
+      // Use currentWeekKey directly - service handles format normalization
       if (data.selectedDomino || data.dominoKeyPoints.some(kp => kp.text || kp.metadata)) {
         try {
-          const planningKey = toPlanningWeekKey(data.currentWeekKey);
+          const planningKey = data.currentWeekKey;
           
           // Load existing plan to preserve weekGoal and other data
           const existingPlan = await weeklyPlanningService.getPlanForWeek(planningKey);
