@@ -114,8 +114,8 @@ const areaColors = {
 
 const areaLabels = {
   body: { en: 'Body', ro: 'Corp' },
-  being: { en: 'Being', ro: 'Spirit' },
-  balance: { en: 'Balance', ro: 'Relații' },
+  being: { en: 'Spirituality', ro: 'Spiritualitate' },
+  balance: { en: 'Relationships', ro: 'Relații' },
   business: { en: 'Business', ro: 'Business' }
 };
 

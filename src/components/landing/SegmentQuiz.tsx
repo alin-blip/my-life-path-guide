@@ -20,7 +20,7 @@ const segments = [
     id: "being",
     label: "Spirit & Scop",
     icon: "🙏",
-    title: "Being",
+    title: "Spiritualitate",
     benefits: [
       "Claritate asupra scopului și direcției de viață",
       "Protocol de rugăciune și meditație adaptată pentru antreprenori",
@@ -31,7 +31,7 @@ const segments = [
     id: "balance",
     label: "Relații & Familie",
     icon: "❤️",
-    title: "Balance",
+    title: "Relații",
     benefits: [
       "Reconstruiești conexiunea cu familia și partenerul",
       "Sistem de obiective comune pentru relațiile importante",

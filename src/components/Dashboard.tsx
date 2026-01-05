@@ -39,7 +39,7 @@ import { BADGES, BadgeStats } from '@/components/challenge/badges/badgeDefinitio
 import { BadgeUnlockCelebration } from '@/components/gamification/BadgeUnlockCelebration';
 import { RewardsShowcase } from '@/components/gamification/RewardsShowcase';
 import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
-import { VisionBoardWidget } from '@/components/vision-board/VisionBoardWidget';
+
 import { MorningRoutine } from '@/components/habits/MorningRoutine';
 import { ObjectivesCard } from '@/components/dashboard/ObjectivesCard';
 import { EveningRoutineCard } from '@/components/dashboard/EveningRoutineCard';
@@ -157,7 +157,6 @@ export const Dashboard: React.FC = () => {
   };
   const [userProgressData, setUserProgressData] = useState<any>(null);
   const [userStatistics, setUserStatistics] = useState<any>(null);
-  const [visionBoard, setVisionBoard] = useState<any>(null);
 
   // Calculate badge stats
   const badgeStats: BadgeStats = useMemo(() => {
@@ -273,12 +272,6 @@ export const Dashboard: React.FC = () => {
           setUserStatistics(statsData);
           updateStats();
         }
-
-        // Fetch Vision Board
-        const {
-          data: visionBoardData
-        } = await supabase.from('vision_boards').select('*').eq('user_id', userId).maybeSingle();
-        setVisionBoard(visionBoardData);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -729,15 +722,6 @@ export const Dashboard: React.FC = () => {
         <DailyHabitsSection />
       </div>
       
-      {/* Vision Board Widget */}
-      <div className="mb-6">
-        <VisionBoardWidget visionBoard={visionBoard} language={language} />
-      </div>
-      
-      {/* Vision Board Widget */}
-      <div className="mb-6">
-        <VisionBoardWidget visionBoard={visionBoard} language={language} />
-      </div>
       
       {/* Evening Routine Card */}
       <div className="mb-6">

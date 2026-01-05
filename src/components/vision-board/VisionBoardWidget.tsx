@@ -32,8 +32,8 @@ const categoryColors: Record<Category, string> = {
 
 const categoryLabels: Record<Category, { en: string; ro: string }> = {
   body: { en: 'Body', ro: 'Corp' },
-  being: { en: 'Being', ro: 'Suflet' },
-  balance: { en: 'Balance', ro: 'Echilibru' },
+  being: { en: 'Spirituality', ro: 'Spiritualitate' },
+  balance: { en: 'Relationships', ro: 'Relații' },
   business: { en: 'Business', ro: 'Business' }
 };
 
