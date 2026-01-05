@@ -67,13 +67,21 @@ export const GamePlan: React.FC<GamePlanProps> = ({ category }) => {
   };
   
   const translateCategory = (cat: GameCategory): string => {
-    if (language === 'en') return cat.charAt(0).toUpperCase() + cat.slice(1);
+    if (language === 'en') {
+      const enTranslations: Record<GameCategory, string> = {
+        body: 'Body',
+        being: 'Spirituality',
+        balance: 'Relationships',
+        business: 'Business'
+      };
+      return enTranslations[cat];
+    }
     
     const translations: Record<GameCategory, string> = {
       body: 'Corp',
-      being: 'Ființă',
-      balance: 'Echilibru',
-      business: 'Afacere'
+      being: 'Spiritualitate',
+      balance: 'Relații',
+      business: 'Afaceri'
     };
     
     return translations[cat];
