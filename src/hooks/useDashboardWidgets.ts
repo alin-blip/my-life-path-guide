@@ -30,16 +30,9 @@ export const useDashboardWidgets = () => {
       if (data?.dashboard_widgets) {
         const config = data.dashboard_widgets as unknown as DashboardWidgetsConfig;
         if (config.widgets && Array.isArray(config.widgets)) {
-          // Ensure champion-routine is always first and enabled
-          const hasChampionRoutine = config.widgets.some(w => w.id === 'champion-routine');
-          if (hasChampionRoutine) {
-            setWidgets(config.widgets);
-          } else {
-            // Add champion-routine as first widget if missing
-            const championWidget = { id: 'champion-routine', enabled: true, order: 0, size: 'large' as const };
-            const reorderedWidgets = config.widgets.map(w => ({ ...w, order: w.order + 1 }));
-            setWidgets([championWidget, ...reorderedWidgets]);
-          }
+          // Filter out champion-routine as it's displayed separately now
+          const filteredWidgets = config.widgets.filter(w => w.id !== 'champion-routine');
+          setWidgets(filteredWidgets);
         }
       }
     } catch (error) {

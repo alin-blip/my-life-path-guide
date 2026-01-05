@@ -53,6 +53,7 @@ import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNoti
 import { useFoundationStatus } from '@/hooks/useFoundationStatus';
 import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
 import { WidgetGrid, WidgetSelector } from '@/components/dashboard/widgets';
+import { ChampionRoutineWidget } from '@/components/dashboard/widgets/ChampionRoutineWidget';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -736,17 +737,22 @@ export const Dashboard: React.FC = () => {
       
       <DailyCompactCard />
       
+      {/* Champion Routine Widget - Fixed position, always visible */}
+      <div className="mb-6">
+        <ChampionRoutineWidget />
+      </div>
+      
       {/* Custom Widgets Section */}
-      {getEnabledWidgets().length > 0 && (
+      {getEnabledWidgets().filter(w => w.id !== 'champion-routine').length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">
               {language === 'ro' ? 'Widget-urile Mele' : 'My Widgets'}
             </h3>
-            <WidgetSelector widgets={widgets} onToggle={toggleWidget} />
+            <WidgetSelector widgets={widgets.filter(w => w.id !== 'champion-routine')} onToggle={toggleWidget} />
           </div>
           <WidgetGrid
-            widgets={widgets}
+            widgets={widgets.filter(w => w.id !== 'champion-routine')}
             onReorder={reorderWidgets}
             onRemove={(id) => toggleWidget(id, false)}
             onResize={resizeWidget}
@@ -759,7 +765,7 @@ export const Dashboard: React.FC = () => {
       )}
       
       {/* Add Widgets Button when no widgets enabled */}
-      {getEnabledWidgets().length === 0 && (
+      {getEnabledWidgets().filter(w => w.id !== 'champion-routine').length === 0 && (
         <div className="mb-6">
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-8">
@@ -768,13 +774,11 @@ export const Dashboard: React.FC = () => {
                   ? 'Personalizează dashboard-ul cu widget-uri pentru tracking' 
                   : 'Customize your dashboard with tracking widgets'}
               </p>
-              <WidgetSelector widgets={widgets} onToggle={toggleWidget} />
+              <WidgetSelector widgets={widgets.filter(w => w.id !== 'champion-routine')} onToggle={toggleWidget} />
             </CardContent>
           </Card>
         </div>
       )}
-      
-      {/* Champion Routine Widget handles both Morning Routine + Daily Habits in WidgetGrid */}
       
       
       {/* Evening Routine Card */}

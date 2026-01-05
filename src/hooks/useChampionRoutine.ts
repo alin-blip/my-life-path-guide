@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { format } from 'date-fns';
 import { Json } from '@/integrations/supabase/types';
 
-interface ChampionPerson {
+export interface ChampionPerson {
   id: string;
   name: string;
   relationship_type: string;
@@ -12,7 +12,7 @@ interface ChampionPerson {
   is_active: boolean;
 }
 
-interface ChampionSettings {
+export interface ChampionSettings {
   id: string;
   is_configured: boolean;
   default_autosuggestion: string;
@@ -20,15 +20,19 @@ interface ChampionSettings {
   active_steps: string[];
 }
 
-interface Meal {
+export interface Meal {
   id: string;
-  type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  description: string;
+  name?: string;
+  type?: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  description?: string;
   calories: number;
   protein: number;
+  carbs?: number;
+  fats?: number;
+  time?: string;
 }
 
-interface Todo {
+export interface Todo {
   id: string;
   text: string;
   completed: boolean;

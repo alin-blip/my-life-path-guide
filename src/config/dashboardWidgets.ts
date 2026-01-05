@@ -1,14 +1,7 @@
 import { WidgetDefinition } from '@/types/dashboardWidget';
 
 export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
-  {
-    id: 'champion-routine',
-    name: { en: 'Champion Routine', ro: 'Rutina de Campion' },
-    description: { en: 'Morning routine with daily habits in 4 quadrants', ro: 'Rutină dimineață cu obiceiuri zilnice în 4 cadrane' },
-    icon: 'Sparkles',
-    defaultSize: 'large',
-    category: 'routine'
-  },
+  // champion-routine is now displayed separately, not as a configurable widget
   {
     id: 'macros',
     name: { en: 'Macronutrients', ro: 'Macronutrienți' },
@@ -76,9 +69,8 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
 ];
 
 export const DEFAULT_WIDGETS = [
-  { id: 'champion-routine', enabled: true, order: 1, size: 'large' as const },
-  { id: 'streak', enabled: true, order: 2, size: 'small' as const },
-  { id: 'tasks', enabled: true, order: 3, size: 'medium' as const }
+  { id: 'streak', enabled: true, order: 1, size: 'small' as const },
+  { id: 'tasks', enabled: true, order: 2, size: 'medium' as const }
 ];
 
 export const getWidgetDefinition = (id: string): WidgetDefinition | undefined => {
