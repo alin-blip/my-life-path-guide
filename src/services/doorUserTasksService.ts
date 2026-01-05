@@ -167,13 +167,20 @@ export const doorUserTasksService = {
     const userId = await getUserId();
     if (!userId) throw new Error('User not authenticated');
 
-    // DELETE all existing tasks for this week to avoid duplicates
-    await supabase
+    // Fetch existing tasks to preserve IDs and only update what changed
+    const { data: existingTasks, error: fetchErr } = await supabase
       .from('user_tasks')
-      .delete()
+      .select('id, title, day_of_week, task_type, completed, priority, is_key_point, position')
       .eq('user_id', userId)
       .eq('week_key', weekKey)
       .in('task_type', ['hit', 'do']);
+
+    if (fetchErr) throw fetchErr;
+
+    const existingMap = new Map<string, any>();
+    for (const task of existingTasks ?? []) {
+      existingMap.set(task.id, task);
+    }
 
     // Deduplicate hitList by title + day before saving
     const seenHit = new Set<string>();
@@ -193,13 +200,19 @@ export const doorUserTasksService = {
       return true;
     });
 
-    const rows: any[] = [];
+    // Collect all current task IDs from the lists
+    const currentIds = new Set<string>();
+    const upsertRows: any[] = [];
     let position = 0;
 
-    // Prepare all tasks for INSERT (using deduplicated lists)
+    // Prepare hit list rows - preserve existing IDs
     for (const item of uniqueHitList) {
-      rows.push({
-        id: uuidv4(),
+      const existingTask = existingMap.get(item.id);
+      const taskId = existingTask ? item.id : uuidv4();
+      currentIds.add(taskId);
+
+      upsertRows.push({
+        id: taskId,
         user_id: userId,
         week_key: weekKey,
         task_type: 'hit',
@@ -213,9 +226,14 @@ export const doorUserTasksService = {
       });
     }
 
+    // Prepare do list rows - preserve existing IDs
     for (const item of uniqueDoList) {
-      rows.push({
-        id: uuidv4(),
+      const existingTask = existingMap.get(item.id);
+      const taskId = existingTask ? item.id : uuidv4();
+      currentIds.add(taskId);
+
+      upsertRows.push({
+        id: taskId,
         user_id: userId,
         week_key: weekKey,
         task_type: 'do',
@@ -228,18 +246,30 @@ export const doorUserTasksService = {
       });
     }
 
-    if (rows.length === 0) {
+    // Delete only tasks that are no longer in the lists
+    const idsToDelete = (existingTasks ?? [])
+      .filter(task => !currentIds.has(task.id))
+      .map(task => task.id);
+
+    if (idsToDelete.length > 0) {
+      await supabase
+        .from('user_tasks')
+        .delete()
+        .in('id', idsToDelete);
+    }
+
+    if (upsertRows.length === 0) {
       return { count: 0 };
     }
 
-    // INSERT fresh data
-    const { error: insertErr } = await supabase
+    // UPSERT to update existing or insert new tasks
+    const { error: upsertErr } = await supabase
       .from('user_tasks')
-      .insert(rows);
+      .upsert(upsertRows, { onConflict: 'id' });
 
-    if (insertErr) throw insertErr;
+    if (upsertErr) throw upsertErr;
 
-    return { count: rows.length };
+    return { count: upsertRows.length };
   },
 
   async archiveWeekTasks(weekKey: string, taskTypes?: ('hit' | 'do' | 'hot')[]) {
