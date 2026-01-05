@@ -11,18 +11,18 @@ export const useCategoryLabel = (category: MissionCategory) => {
   
   if (language === 'en') {
     switch(category) {
-      case 'body': return 'SACRED VESSEL';
-      case 'being': return 'DIVINE CONNECTION';
-      case 'balance': return 'SACRED RELATIONSHIPS';
-      case 'business': return "QUEEN'S EMPIRE";
+      case 'body': return 'BODY';
+      case 'being': return 'SPIRITUALITY';
+      case 'balance': return 'RELATIONSHIPS';
+      case 'business': return "BUSINESS";
       default: return String(category).toUpperCase();
     }
   } else {
     switch(category) {
-      case 'body': return 'VAS SACRU';
-      case 'being': return 'CONEXIUNE DIVINĂ';
-      case 'balance': return 'RELAȚII SACRE';
-      case 'business': return 'IMPERIUL REGINEI';
+      case 'body': return 'CORP';
+      case 'being': return 'SPIRITUALITATE';
+      case 'balance': return 'RELAȚII';
+      case 'business': return 'AFACERI';
       default: return String(category).toUpperCase();
     }
   }
@@ -43,18 +43,18 @@ export const getCategoryColor = (category: MissionCategory): string => {
 export const getCategoryName = (category: MissionCategory, language: string): string => {
   if (language === 'en') {
     switch (category) {
-      case 'body': return 'Sacred Vessel';
-      case 'being': return 'Divine Connection';
-      case 'balance': return 'Sacred Relationships';
-      case 'business': return "Queen's Empire";
+      case 'body': return 'Body';
+      case 'being': return 'Spirituality';
+      case 'balance': return 'Relationships';
+      case 'business': return "Business";
       default: return category;
     }
   } else {
     switch (category) {
-      case 'body': return 'Vas Sacru';
-      case 'being': return 'Conexiune Divină';
-      case 'balance': return 'Relații Sacre';
-      case 'business': return 'Imperiul Reginei';
+      case 'body': return 'Corp';
+      case 'being': return 'Spiritualitate';
+      case 'balance': return 'Relații';
+      case 'business': return 'Afaceri';
       default: return category;
     }
   }

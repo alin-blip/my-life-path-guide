@@ -218,8 +218,8 @@ export const quizQuestions: QuizQuestion[] = [
 
 export const categoryLabels: Record<QuizCategory, { en: string; ro: string }> = {
   body: { en: 'Body', ro: 'Corp' },
-  being: { en: 'Being', ro: 'Ființă' },
-  balance: { en: 'Balance', ro: 'Echilibru' },
+  being: { en: 'Spirituality', ro: 'Spiritualitate' },
+  balance: { en: 'Relationships', ro: 'Relații' },
   business: { en: 'Business', ro: 'Business' },
 };
 

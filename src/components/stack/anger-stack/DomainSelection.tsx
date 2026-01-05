@@ -14,8 +14,8 @@ export const DomainSelection: React.FC<DomainSelectionProps> = ({ domain, onDoma
 
   const domains = [
     { value: "body", label: language === 'en' ? "Body" : "Corp" },
-    { value: "being", label: language === 'en' ? "Being/Spirituality" : "Ființă/Spiritualitate" },
-    { value: "balance", label: language === 'en' ? "Balance/Relationships" : "Echilibru/Relații" },
+    { value: "being", label: language === 'en' ? "Spirituality" : "Spiritualitate" },
+    { value: "balance", label: language === 'en' ? "Relationships" : "Relații" },
     { value: "business", label: language === 'en' ? "Business" : "Afaceri" }
   ];
 
