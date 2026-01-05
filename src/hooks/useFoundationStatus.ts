@@ -122,14 +122,12 @@ export const useFoundationStatus = (): FoundationStatus => {
           .eq('date', todayStr)
           .limit(1),
         
-        // 6. Vision Board
+        // 6. Vision Board - get ALL records to consolidate
         supabase
           .from('vision_boards')
           .select('body_image_url, being_image_url, balance_image_url, business_image_url')
           .eq('user_id', userId)
           .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
       ]);
 
       // Process annual categories
@@ -150,13 +148,20 @@ export const useFoundationStatus = (): FoundationStatus => {
       // Process routine
       setHasStartedRoutineToday((routineResult.data?.length || 0) > 0);
 
-      // Process vision board
-      const vb = visionBoardResult.data;
+      // Process vision board - consolidate from all records
+      const visionRecords = visionBoardResult.data || [];
       const visionCategories: GoalCategory[] = [];
-      if (vb?.body_image_url) visionCategories.push('body');
-      if (vb?.being_image_url) visionCategories.push('being');
-      if (vb?.balance_image_url) visionCategories.push('balance');
-      if (vb?.business_image_url) visionCategories.push('business');
+      
+      // Check across all records for any existing images
+      const hasBody = visionRecords.some(r => r.body_image_url);
+      const hasBeing = visionRecords.some(r => r.being_image_url);
+      const hasBalance = visionRecords.some(r => r.balance_image_url);
+      const hasBusiness = visionRecords.some(r => r.business_image_url);
+      
+      if (hasBody) visionCategories.push('body');
+      if (hasBeing) visionCategories.push('being');
+      if (hasBalance) visionCategories.push('balance');
+      if (hasBusiness) visionCategories.push('business');
       setVisionBoardCategories(visionCategories);
 
     } catch (error) {
