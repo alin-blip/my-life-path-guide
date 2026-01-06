@@ -11,5 +11,6 @@ export { ReadingWidget } from './ReadingWidget';
 export { WaterWidget } from './WaterWidget';
 export { ChampionRoutineWidget } from './ChampionRoutineWidget';
 export { IdeasWidget } from './IdeasWidget';
+export { JournalWidget } from './JournalWidget';
 export { IdeaEmpowermentDialog } from './IdeaEmpowermentDialog';
 export { CategoryBadge } from './CategoryBadge';

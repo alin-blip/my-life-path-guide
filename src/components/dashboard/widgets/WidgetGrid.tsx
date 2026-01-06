@@ -11,6 +11,7 @@ import { ReadingWidget } from './ReadingWidget';
 import { WaterWidget } from './WaterWidget';
 import { ChampionRoutineWidget } from './ChampionRoutineWidget';
 import { IdeasWidget } from './IdeasWidget';
+import { JournalWidget } from './JournalWidget';
 import { CustomWidgetRenderer } from './CustomWidgetRenderer';
 import type { CustomWidget, WidgetData } from '@/types/customWidget';
 import { supabase } from '@/integrations/supabase/client';
@@ -133,6 +134,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
         return <WaterWidget {...commonProps} />;
       case 'ideas':
         return <IdeasWidget {...commonProps} />;
+      case 'journal':
+        return <JournalWidget {...commonProps} />;
       default:
         return null;
     }
