@@ -3,37 +3,29 @@ import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { 
   Home, 
-  User, 
   BookOpen, 
-  Layers, 
-  Box, 
-  Flag, 
-  FileText, 
+  Target,
+  Activity,
+  Brain,
+  Briefcase,
   Settings, 
   HelpCircle,
   Shield,
   ChevronDown,
   ChevronRight,
   Heart,
-  Activity,
-  Angry,
-  Briefcase,
-  Clock,
-  Map,
-  Headphones,
-  BookOpen as BookOpenIcon,
-  Pencil,
-  Target,
   Crown,
-  CreditCard,
-  Mic,
-  Upload,
   Sparkles,
   Bot,
-  Brain,
-  History,
-  LayoutGrid,
-  Calendar
+  Pencil,
+  Dumbbell,
+  Apple,
+  Flag,
+  Clock,
+  FileText,
+  Trophy,
+  Users,
+  Flame
 } from 'lucide-react';
 
 interface SideMenuProps {
@@ -53,19 +45,19 @@ interface MenuItem {
 export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) => {
   const location = useLocation();
   const currentPath = location.pathname;
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['community', 'introspecție']);
-  const { t } = useLanguage();
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+  const { t, language } = useLanguage();
 
+  // Auto-expand menu containing current path
   useEffect(() => {
-    if (currentPath === '/stack' || currentPath.startsWith('/stack?')) {
-      const transformationWorkshopKey = t('transformationWorkshop').toLowerCase();
-      setExpandedMenus(prev => 
-        prev.includes(transformationWorkshopKey) 
-          ? prev 
-          : [...prev, transformationWorkshopKey]
-      );
-    }
-  }, [currentPath, t]);
+    menuItems.forEach(item => {
+      if (item.subItems?.some(sub => currentPath.startsWith(sub.path.split('?')[0]))) {
+        setExpandedMenus(prev => 
+          prev.includes(item.title.toLowerCase()) ? prev : [...prev, item.title.toLowerCase()]
+        );
+      }
+    });
+  }, [currentPath]);
 
   const toggleExpand = (title: string) => {
     setExpandedMenus(prev => 
@@ -75,107 +67,87 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     );
   };
 
+  // 6 SECȚIUNI PRINCIPALE
   const menuItems: MenuItem[] = [
-    { title: t('dashboard'), icon: Home, path: '/dashboard' },
-    { title: t('lifeVision') || t('haveItAllBlueprint'), icon: BookOpen, path: '/lifebook' },
-    { title: 'Vision 2026', icon: Sparkles, path: '/vision-2026/dashboard' },
-    { title: t('ninetyDayChallenge') || t('haveItAllChallenge'), icon: Target, path: '/challenge' },
-    // CORP
+    // 1. DASHBOARD
+    { 
+      title: language === 'ro' ? '🏠 Dashboard' : '🏠 Dashboard', 
+      icon: Home, 
+      path: '/dashboard' 
+    },
+
+    // 2. OBIECTIVE
     {
-      title: '💪 Corp',
+      title: language === 'ro' ? '🎯 Obiective' : '🎯 Goals',
+      icon: Target,
+      path: '/lifebook',
+      subItems: [
+        { title: language === 'ro' ? 'Viziune de Viață' : 'Life Vision', icon: BookOpen, path: '/lifebook' },
+        { title: 'Vision 2026', icon: Sparkles, path: '/vision-2026/dashboard' },
+        { title: language === 'ro' ? 'Challenge 90 Zile' : '90-Day Challenge', icon: Flame, path: '/challenge' },
+        { title: language === 'ro' ? 'Obiective Săptămânale' : 'Weekly Goals', icon: Flag, path: '/door' },
+      ]
+    },
+
+    // 3. PERFORMANȚĂ
+    {
+      title: language === 'ro' ? '💪 Performanță' : '💪 Performance',
       icon: Activity,
-      path: '/workout',
+      path: '/daily-flow',
       subItems: [
-        { title: 'Workout Azi', icon: Activity, path: '/workout' },
-        { title: 'Program Săptămânal', icon: Calendar, path: '/workout?tab=weekly' },
-        { title: 'Template-uri', icon: Layers, path: '/workout?tab=templates' },
-        { title: 'Istoric Antrenamente', icon: History, path: '/workout-history' },
-        { title: t('nutrition') || 'Nutriție', icon: Activity, path: '/nutrition' },
+        { title: language === 'ro' ? 'Rutina Campionului' : 'Champion Routine', icon: Crown, path: '/daily-flow' },
+        { title: language === 'ro' ? 'Antrenament' : 'Workout', icon: Dumbbell, path: '/workout' },
+        { title: language === 'ro' ? 'Nutriție' : 'Nutrition', icon: Apple, path: '/nutrition' },
+        { title: language === 'ro' ? 'Focus Room' : 'Focus Room', icon: Clock, path: '/focus' },
       ]
     },
-    // WIDGET DASHBOARD
+
+    // 4. MINDSET
     {
-      title: '🎨 Widget Dashboard',
-      icon: LayoutGrid,
-      path: '/widget-dashboard',
-      subItems: [
-        { title: 'Widget-urile Mele', icon: Box, path: '/widget-dashboard' },
-        { title: 'Creează Widget', icon: Sparkles, path: '/widget-dashboard?create=true' },
-        { title: 'Biblioteca', icon: Layers, path: '/widget-dashboard?tab=library' },
-      ]
-    },
-    // SPIRITUALITATE
-    {
-      title: '🧘 Spiritualitate',
-      icon: Heart,
+      title: language === 'ro' ? '🧠 Mindset' : '🧠 Mindset',
+      icon: Brain,
       path: '/stack',
       subItems: [
-        { title: 'Rugăciune Divină', icon: Heart, path: '/stack?type=divine-prayer' },
-        { title: 'Recunoștință', icon: Heart, path: '/stack?type=gratitude' },
-        { title: 'Recunoștință Divină', icon: Heart, path: '/stack?type=divine-gratitude' },
-        { title: 'Școala lui Dumnezeu', icon: Heart, path: '/stack?type=gods-school' },
-        { title: 'Transformarea Furiei', icon: Angry, path: '/stack?type=anger' },
-        { title: 'Introspecție', icon: Brain, path: '/stack?type=introspection' },
-        { title: 'Journaling', icon: Pencil, path: '/journal' },
+        { title: language === 'ro' ? 'Stacks Zilnice' : 'Daily Stacks', icon: Heart, path: '/stack' },
+        { title: language === 'ro' ? 'Jurnal' : 'Journal', icon: Pencil, path: '/journal' },
+        { title: language === 'ro' ? 'AI Performance Coach' : 'AI Performance Coach', icon: Bot, path: '/performance-coach' },
+        { title: language === 'ro' ? 'Napoleon Hill Coach' : 'Napoleon Hill Coach', icon: Crown, path: '/master-plan' },
       ]
     },
-    // COACHING AI
+
+    // 5. BUSINESS
     {
-      title: '🤖 Coaching AI',
-      icon: Bot,
-      path: '/stack?type=ai-live',
-      subItems: [
-        { title: 'AI Live Coaching', icon: Bot, path: '/stack?type=ai-live' },
-        { title: 'Hormozi Coaching', icon: Bot, path: '/stack?type=hormozi-coaching' },
-      ]
-    },
-    // RELAȚII
-    {
-      title: '💕 Relații',
-      icon: Heart,
-      path: '/relationships',
-      subItems: [
-        { title: t('importantPeople') || 'Persoane Importante', icon: Heart, path: '/relationships' },
-      ]
-    },
-    // BUSINESS
-    {
-      title: '💼 Business',
+      title: language === 'ro' ? '💼 Business' : '💼 Business',
       icon: Briefcase,
       path: '/door',
       subItems: [
-        { title: t('tasks') || 'Task-uri', icon: Flag, path: '/door' },
-        { title: t('successPrinciples') || 'Principii Succes', icon: Crown, path: '/stack?type=master-plan-quick' },
-        { title: 'Focus Room', icon: Clock, path: '/focus' },
+        { title: language === 'ro' ? 'Task-uri' : 'Tasks', icon: Flag, path: '/door' },
+        { title: language === 'ro' ? 'Master Plan' : 'Master Plan', icon: Crown, path: '/master-plan' },
+        { title: language === 'ro' ? 'Business Tracker' : 'Business Tracker', icon: Briefcase, path: '/business' },
+        { title: language === 'ro' ? 'Note' : 'Notes', icon: FileText, path: '/notes' },
       ]
     },
+
+    // 6. COMUNITATE & GAMIFICARE
     {
-      title: t('successCoach') || t('masterPlan'),
-      icon: Crown,
-      path: '/master-plan',
+      title: language === 'ro' ? '🏆 Comunitate' : '🏆 Community',
+      icon: Trophy,
+      path: '/leaderboard',
       subItems: [
-        { title: t('myProjects'), icon: Target, path: '/master-plan' },
-        { title: t('activeJourney'), icon: BookOpen, path: '/master-plan?tab=journey' },
-        { title: t('knowledgeBase'), icon: Upload, path: '/master-plan?tab=knowledge' },
+        { title: language === 'ro' ? 'Clasament' : 'Leaderboard', icon: Trophy, path: '/leaderboard' },
+        { title: language === 'ro' ? 'Achievements' : 'Achievements', icon: Sparkles, path: '/achievements' },
+        { title: language === 'ro' ? 'Parteneri' : 'Partners', icon: Users, path: '/partners' },
       ]
     },
-    { 
-      title: t('commandCenter'), 
-      icon: Flag, 
-      path: '/door',
-      subItems: [
-        { title: t('weeklyTasks') || 'Săptămâna', icon: Clock, path: '/door' },
-        { title: t('quarterlyGoals') || 'Obiective 90 Zile', icon: Target, path: '/door?tab=quarterly' },
-        { title: t('monthlyMission') || 'Misiune Lunară', icon: Flag, path: '/door?tab=monthly' },
-        { title: t('annualVision') || 'Viziune Anuală', icon: Crown, path: '/door?tab=annual' },
-      ]
-    },
-    { title: t('businessTracker') || t('business'), icon: Briefcase, path: '/business' },
-    { title: t('notes'), icon: FileText, path: '/notes' },
-    { title: t('learningHub') || t('library'), icon: BookOpenIcon, path: '/library' },
-    { title: t('subscriptions'), icon: CreditCard, path: '/pricing' },
-    { title: t('admin'), icon: Shield, path: '/admin' },
+
+    // Admin (hidden for normal users)
+    { title: 'Admin', icon: Shield, path: '/admin', hidden: false },
   ];
+
+  const isPathActive = (path: string) => {
+    const basePath = path.split('?')[0];
+    return currentPath === basePath || currentPath.startsWith(basePath + '/');
+  };
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -199,13 +171,13 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         <nav>
           <ul className="space-y-1">
             {menuItems.filter(item => !item.hidden).map((item) => (
-              <li key={item.path}>
+              <li key={item.path + item.title}>
                 {item.subItems ? (
                   <div>
                     <button
                       className={`sidebar-item w-full flex items-center ${
-                        currentPath === item.path || 
-                        (item.subItems && item.subItems.some(subItem => currentPath === subItem.path)) 
+                        isPathActive(item.path) || 
+                        item.subItems.some(subItem => isPathActive(subItem.path))
                           ? 'active' : ''
                       } ${isCollapsed ? 'justify-center' : ''}`}
                       onClick={() => {
@@ -214,7 +186,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                         }
                       }}
                     >
-                      <Link to={item.path} className="flex items-center w-full" onClick={onItemClick}>
+                      <Link to={item.subItems[0]?.path || item.path} className="flex items-center" onClick={onItemClick}>
                         <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
                         {!isCollapsed && (
                           <span className="text-sm font-medium ml-3">{item.title}</span>
@@ -237,7 +209,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                               to={subItem.path}
                               onClick={onItemClick}
                               className={`sidebar-item text-sm ${
-                                currentPath === subItem.path ? 'active' : ''
+                                isPathActive(subItem.path) ? 'active' : ''
                               }`}
                             >
                               <subItem.icon className="w-3.5 h-3.5" />
@@ -252,7 +224,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                   <Link
                     to={item.path}
                     onClick={onItemClick}
-                    className={`sidebar-item ${currentPath === item.path ? 'active' : ''} ${
+                    className={`sidebar-item ${isPathActive(item.path) ? 'active' : ''} ${
                       isCollapsed ? 'justify-center' : ''
                     }`}
                   >

@@ -26,26 +26,67 @@ export const XP_REWARDS = {
   ACTION_COMPLETED: 10,
   CHALLENGE_DAY_COMPLETED: 75,
   WEEKLY_PLANNING: 40,
+  QUEST_DAILY: 50,
+  QUEST_WEEKLY: 200,
+  QUEST_MONTHLY: 500,
+  QUEST_SPECIAL: 1000,
+  PERFECT_DAY: 150,
+  WORKOUT_COMPLETED: 75,
+  NUTRITION_LOGGED: 25,
 } as const;
 
-// Level thresholds - XP required to reach each level
+// Level thresholds - XP required to reach each level (max 100)
 const calculateXPForLevel = (level: number): number => {
-  // Progressive formula: each level requires more XP
-  // Level 1: 0, Level 2: 100, Level 3: 250, Level 4: 450, etc.
   if (level <= 1) return 0;
-  return Math.floor(50 * level * (level - 1));
+  // Progressive formula for 100 levels
+  return Math.floor(100 * level * (level - 1) / 2);
 };
 
 const getLevelFromXP = (totalXP: number): number => {
   let level = 1;
-  while (calculateXPForLevel(level + 1) <= totalXP) {
+  while (level < 100 && calculateXPForLevel(level + 1) <= totalXP) {
     level++;
   }
   return level;
 };
 
 const getXPToNextLevel = (level: number): number => {
+  if (level >= 100) return 0;
   return calculateXPForLevel(level + 1) - calculateXPForLevel(level);
+};
+
+// 11 TITLURI NVELURI (1-100)
+export const LEVEL_TITLES = [
+  { minLevel: 1, maxLevel: 5, title: { en: 'Beginner', ro: 'Începător' }, color: 'text-gray-400' },
+  { minLevel: 6, maxLevel: 12, title: { en: 'Apprentice', ro: 'Ucenic' }, color: 'text-green-400' },
+  { minLevel: 13, maxLevel: 20, title: { en: 'Practitioner', ro: 'Practicant' }, color: 'text-blue-400' },
+  { minLevel: 21, maxLevel: 30, title: { en: 'Advanced', ro: 'Avansat' }, color: 'text-purple-400' },
+  { minLevel: 31, maxLevel: 40, title: { en: 'Expert', ro: 'Expert' }, color: 'text-yellow-400' },
+  { minLevel: 41, maxLevel: 50, title: { en: 'Master', ro: 'Maestru' }, color: 'text-orange-400' },
+  { minLevel: 51, maxLevel: 60, title: { en: 'Veteran Elite', ro: 'Veteran Elite' }, color: 'text-red-400' },
+  { minLevel: 61, maxLevel: 70, title: { en: 'Champion', ro: 'Campion' }, color: 'text-pink-400' },
+  { minLevel: 71, maxLevel: 80, title: { en: 'Legend', ro: 'Legendă' }, color: 'text-cyan-400' },
+  { minLevel: 81, maxLevel: 90, title: { en: 'Grandmaster', ro: 'Grandmaster' }, color: 'text-amber-400' },
+  { minLevel: 91, maxLevel: 100, title: { en: 'Transcendent', ro: 'Transcendent' }, color: 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500' },
+];
+
+export const getLevelTitle = (level: number, language: 'en' | 'ro' = 'en'): string => {
+  const tier = LEVEL_TITLES.find(t => level >= t.minLevel && level <= t.maxLevel);
+  return tier ? tier.title[language] : LEVEL_TITLES[0].title[language];
+};
+
+export const getLevelTitleColor = (level: number): string => {
+  const tier = LEVEL_TITLES.find(t => level >= t.minLevel && level <= t.maxLevel);
+  return tier ? tier.color : LEVEL_TITLES[0].color;
+};
+
+export const getLevelProgress = (level: number): number => {
+  // Progress within current tier (0-100%)
+  const tier = LEVEL_TITLES.find(t => level >= t.minLevel && level <= t.maxLevel);
+  if (!tier) return 0;
+  const tierRange = tier.maxLevel - tier.minLevel + 1;
+  const levelInTier = level - tier.minLevel;
+  return (levelInTier / tierRange) * 100;
 };
 
 export const useXPSystem = () => {
@@ -68,7 +109,7 @@ export const useXPSystem = () => {
     const xpForNextLevel = calculateXPForLevel(currentLevel + 1);
     const xpToNextLevel = xpForNextLevel - xpForCurrentLevel;
     const xpInCurrentLevel = totalXP - xpForCurrentLevel;
-    const progressPercent = (xpInCurrentLevel / xpToNextLevel) * 100;
+    const progressPercent = xpToNextLevel > 0 ? (xpInCurrentLevel / xpToNextLevel) * 100 : 100;
 
     return {
       totalXP,
@@ -94,7 +135,6 @@ export const useXPSystem = () => {
       if (data) {
         setXPData(calculateXPData(data.total_xp));
       } else {
-        // Initialize user XP if doesn't exist
         const { error: insertError } = await supabase
           .from('user_xp')
           .insert({
@@ -122,7 +162,6 @@ export const useXPSystem = () => {
       const newTotalXP = xpData.totalXP + amount;
       const newXPData = calculateXPData(newTotalXP);
 
-      // Update user_xp table
       const { error: updateError } = await supabase
         .from('user_xp')
         .upsert({
@@ -136,7 +175,6 @@ export const useXPSystem = () => {
 
       if (updateError) throw updateError;
 
-      // Log XP gain in history
       const { error: historyError } = await supabase
         .from('xp_history')
         .insert({
@@ -147,17 +185,14 @@ export const useXPSystem = () => {
 
       if (historyError) console.error('Error logging XP history:', historyError);
 
-      // Update local state
       setXPData(newXPData);
       setRecentXPGain({ amount, reason });
 
-      // Check for level up
       if (newXPData.currentLevel > previousLevel) {
         setNewLevel(newXPData.currentLevel);
         setShowLevelUp(true);
       }
 
-      // Clear recent XP gain after animation
       setTimeout(() => setRecentXPGain(null), 2000);
 
       return true;
@@ -185,19 +220,4 @@ export const useXPSystem = () => {
     dismissLevelUp,
     refetch: fetchXPData,
   };
-};
-
-// Helper hook for getting level title
-export const getLevelTitle = (level: number): string => {
-  if (level >= 50) return 'Legendary Master';
-  if (level >= 40) return 'Grand Champion';
-  if (level >= 30) return 'Elite Warrior';
-  if (level >= 25) return 'Master';
-  if (level >= 20) return 'Expert';
-  if (level >= 15) return 'Veteran';
-  if (level >= 10) return 'Skilled';
-  if (level >= 7) return 'Apprentice';
-  if (level >= 5) return 'Initiate';
-  if (level >= 3) return 'Novice';
-  return 'Beginner';
 };
