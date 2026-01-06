@@ -12,6 +12,7 @@ import { WaterWidget } from './WaterWidget';
 import { ChampionRoutineWidget } from './ChampionRoutineWidget';
 import { IdeasWidget } from './IdeasWidget';
 import { JournalWidget } from './JournalWidget';
+import { NapoleonHillCoachWidget } from './NapoleonHillCoachWidget';
 import { CustomWidgetRenderer } from './CustomWidgetRenderer';
 import type { CustomWidget, WidgetData } from '@/types/customWidget';
 import { supabase } from '@/integrations/supabase/client';
@@ -136,6 +137,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
         return <IdeasWidget {...commonProps} />;
       case 'journal':
         return <JournalWidget {...commonProps} />;
+      case 'napoleon-coach':
+        return <NapoleonHillCoachWidget {...commonProps} />;
       default:
         return null;
     }

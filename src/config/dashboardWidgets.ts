@@ -81,6 +81,17 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     icon: 'Droplets',
     defaultSize: 'small',
     category: 'fitness'
+  },
+  {
+    id: 'napoleon-coach',
+    name: { en: 'Success Coach', ro: 'Coach Succes' },
+    description: { 
+      en: 'AI coaching based on Napoleon Hill\'s 13 success principles', 
+      ro: 'Coaching AI bazat pe cele 13 principii ale succesului Napoleon Hill' 
+    },
+    icon: 'Brain',
+    defaultSize: 'medium',
+    category: 'mindset'
   }
 ];
 
