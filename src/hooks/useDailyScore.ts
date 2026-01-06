@@ -205,7 +205,7 @@ export const useDailyScore = () => {
     if (!progress.routine.done) {
       actions.push({
         type: 'routine',
-        title: 'Începe Rutina de Dimineață',
+        title: 'Începe Rutina de Campion',
         route: '/champion-routine',
         priority: 1
       });
