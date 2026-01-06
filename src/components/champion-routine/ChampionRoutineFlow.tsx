@@ -182,9 +182,10 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
     return 0;
   }, [routineSteps]);
 
-const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [hasUserNavigated, setHasUserNavigated] = useState(false);
   
   // Track skipped steps in localStorage
   const today = new Date().toISOString().split('T')[0];
@@ -207,33 +208,14 @@ const [currentStepIndex, setCurrentStepIndex] = useState(0);
     }
   }, [getSkippedSteps, skippedStepsKey]);
 
-  // Set initial step to first incomplete when data loads (considering skipped steps)
+  // Start from step 0 always - user can navigate freely
+  // Only auto-navigate if explicitly requested (not on initial load)
   useEffect(() => {
-    if (!isLoading && todayLog && isConfigured) {
-      const skippedSteps = getSkippedSteps();
-      
-      // Find first step that is neither completed nor skipped
-      let firstIncomplete = 0;
-      for (let i = 0; i < routineSteps.length; i++) {
-        const stepId = routineSteps[i];
-        if (stepId === 'completion') {
-          firstIncomplete = i;
-          break;
-        }
-        const isCompleted = isStepCompleted(stepId, todayLog);
-        const isSkipped = skippedSteps.includes(stepId);
-        if (!isCompleted && !isSkipped) {
-          firstIncomplete = i;
-          break;
-        }
-        // If all steps are completed or skipped, go to completion
-        if (i === routineSteps.length - 2) {
-          firstIncomplete = routineSteps.length - 1; // completion step
-        }
-      }
-      setCurrentStepIndex(firstIncomplete);
+    if (!isLoading && isConfigured && !hasUserNavigated) {
+      // Always start from step 0 - let user go through routine from beginning
+      setCurrentStepIndex(0);
     }
-  }, [isLoading, todayLog, isConfigured, routineSteps, getSkippedSteps]);
+  }, [isLoading, isConfigured, hasUserNavigated]);
 
   // Debounced update for text inputs
   const debouncedUpdateLog = useCallback(
