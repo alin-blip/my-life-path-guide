@@ -116,16 +116,15 @@ export const DailyCommandCenterWidget: React.FC = () => {
     }
   };
 
-  // Get habits organized by category
-  const core4Habits = getHabitsByGroup('core4');
-  const biz4Habits = getHabitsByGroup('biz4');
+  // Get ALL habits organized by category (from all groups: core4, biz4, custom)
+  const allActiveHabits = habits.filter(h => h.is_active);
   
-  // Organize habits by category
+  // Organize habits by category (include all groups)
   const habitsByCategory: Record<string, typeof habits> = {
-    body: core4Habits.filter(h => h.category === 'body'),
-    being: core4Habits.filter(h => h.category === 'being'),
-    balance: core4Habits.filter(h => h.category === 'balance'),
-    business: biz4Habits,
+    body: allActiveHabits.filter(h => h.category === 'body'),
+    being: allActiveHabits.filter(h => h.category === 'being'),
+    balance: allActiveHabits.filter(h => h.category === 'balance'),
+    business: allActiveHabits.filter(h => h.category === 'business'),
   };
 
   return (
