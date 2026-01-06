@@ -3,12 +3,15 @@ export type DayOfWeek = 'M' | 'T' | 'W' | 'Th' | 'F' | 'Sa' | 'Su';
 
 export type TaskPriority = 'none' | 'important' | 'urgent' | 'urgent-important';
 
+export type IdeaCategory = 'work' | 'personal' | 'urgent' | 'project';
+
 export type HotListItem = {
   id: string;
   text: string;
   selected: boolean;
   priority: TaskPriority;
-  isKeyPoint?: boolean; // Added isKeyPoint property
+  isKeyPoint?: boolean;
+  category?: IdeaCategory;
 };
 
 export type HitListItem = {
