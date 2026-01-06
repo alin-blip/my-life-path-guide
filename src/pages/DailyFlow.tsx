@@ -1,13 +1,17 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { ChampionRoutineFlow } from '@/components/champion-routine/ChampionRoutineFlow';
+import { ChampionRoutineFlow, RoutineStepId } from '@/components/champion-routine/ChampionRoutineFlow';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 
 const DailyFlow = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const today = format(new Date(), "EEEE, d MMMM yyyy", { locale: ro });
+  
+  // Get initial step from query param
+  const initialStep = searchParams.get('step') as RoutineStepId | null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,7 +28,10 @@ const DailyFlow = () => {
         </div>
 
         {/* Champion Routine Flow - Execution Room */}
-        <ChampionRoutineFlow onComplete={() => navigate('/dashboard')} />
+        <ChampionRoutineFlow 
+          onComplete={() => navigate('/dashboard')} 
+          initialStep={initialStep || undefined}
+        />
       </div>
     </div>
   );
