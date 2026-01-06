@@ -11,18 +11,22 @@ import { WeeklyPlanningHistory } from '@/components/door/WeeklyPlanningHistory';
 import { WeekSelector } from '@/components/door/WeekSelector';
 import { MobileBottomNav } from '@/components/door/MobileBottomNav';
 import { SwipeableSection } from '@/components/door/SwipeableSection';
-import { WeeklyProgressRing } from '@/components/door/WeeklyProgressRing';
-import { DoorHelpButton } from '@/components/door/DoorHelpButton';
-import { QuickActionBar } from '@/components/door/QuickActionBar';
 import { ConfettiCelebration } from '@/components/door/ConfettiCelebration';
-import { GoalProgressHeader } from '@/components/door/GoalProgressHeader';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { format, getWeek } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
 import { weeklyPlanningService, WeeklyPlanningData } from '@/services/weeklyPlanningService';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
-import { ListTodo, Target, CheckSquare } from 'lucide-react';
+import { ListTodo, Target, CheckSquare, MoreHorizontal, Undo2, Redo2, History, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 export const WeeklyTab: React.FC = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -326,43 +330,80 @@ export const WeeklyTab: React.FC = () => {
     else if (mobileSection === 'focus') setMobileSection('todo');
   };
 
+  // Completed tasks count for header
+  const totalTasks = hitAchievedCount + doAchievedCount;
+  const completedTasks = hitDoneCount + doDoneCount;
+
   return (
     <div className="overflow-x-hidden w-full max-w-full">
-      <div className={`${isMobile ? 'px-2 pt-2 pb-20 w-full max-w-full overflow-hidden' : 'px-6 py-6'}`}>
-        {/* Goal Progress Header - shows 90 day objectives */}
-        {!isMobile && <GoalProgressHeader />}
-        
-        {/* Weekly Planning Notification */}
-        {!isMobile && <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />}
-        
+      <div className={`${isMobile ? 'px-2 pt-2 pb-20 w-full max-w-full overflow-hidden' : 'px-6 py-4'}`}>
         {/* Confetti Celebration */}
         <ConfettiCelebration
-          totalTasks={hitAchievedCount + doAchievedCount}
-          completedTasks={hitDoneCount + doDoneCount}
+          totalTasks={totalTasks}
+          completedTasks={completedTasks}
         />
         
-        {/* Week Selector with Progress Ring */}
+        {/* Simplified Header - Notion Style */}
         {!isMobile && (
-          <div className="flex items-center justify-between gap-3 mb-6">
-            <div className="flex items-center gap-2">
-              <WeeklyProgressRing
-                totalTasks={hitAchievedCount + doAchievedCount}
-                completedTasks={hitDoneCount + doDoneCount}
-                focusKeyPoints={dominoKeyPoints.length}
-                completedKeyPoints={dominoKeyPoints.filter(kp => kp.completed).length}
-                streak={streakData.currentStreak}
-              />
-              <DoorHelpButton />
-            </div>
-            
+          <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-border">
+            {/* Left: Week selector */}
             <WeekSelector
               currentDate={currentDate}
               onPreviousWeek={handlePrevWeekWithNotification}
               onNextWeek={handleNextWeekWithNotification}
               onSelectDate={navigateToDate}
             />
+            
+            {/* Right: Actions dropdown */}
+            <div className="flex items-center gap-2">
+              {/* Progress indicator - minimal */}
+              {totalTasks > 0 && (
+                <span className="text-sm text-muted-foreground bg-muted px-3 py-1.5 rounded-lg">
+                  {completedTasks}/{totalTasks} ✓
+                </span>
+              )}
+              
+              {/* Actions Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem 
+                    onClick={() => undo()} 
+                    disabled={!canUndo}
+                    className="cursor-pointer"
+                  >
+                    <Undo2 className="w-4 h-4 mr-2" />
+                    Undo
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => redo()} 
+                    disabled={!canRedo}
+                    className="cursor-pointer"
+                  >
+                    <Redo2 className="w-4 h-4 mr-2" />
+                    Redo
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleOpenHistory} className="cursor-pointer">
+                    <History className="w-4 h-4 mr-2" />
+                    Istoric planuri
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCleanDuplicates} className="cursor-pointer">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Curăță duplicate
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         )}
+
+        {/* Weekly Planning Notification - only on desktop */}
+        {!isMobile && <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />}
 
         {/* Mobile: Swipeable Single Section View */}
         {isMobile ? (
@@ -459,23 +500,16 @@ export const WeeklyTab: React.FC = () => {
             />
           </>
         ) : (
-          /* Desktop: 3-Column Layout */
+          /* Desktop: 3-Column Layout - Clean Notion Style */
           <div className="grid grid-cols-3 gap-6 animate-fade-in">
             {/* To Do Column */}
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold text-foreground">📋 To Do</h2>
-                <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{filteredHotList.length}</span>
-              </div>
-              
-              <div className="mb-4">
-                <QuickActionBar 
-                  onAddIdea={addNewTarget}
-                  onAddTemplate={(text) => {
-                    addNewTarget();
-                  }}
-                  isMobile={false}
-                />
+            <div className="bg-card border border-border rounded-xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base font-medium text-foreground flex items-center gap-2">
+                  <ListTodo className="w-4 h-4 text-primary" />
+                  Idei
+                </h2>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">{filteredHotList.length}</span>
               </div>
               
               <HotList 
@@ -517,10 +551,13 @@ export const WeeklyTab: React.FC = () => {
             </div>
 
             {/* Tasks Column */}
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300" onDragOver={handleDragOver} onDrop={handleDrop}>
+            <div className="bg-card border border-border rounded-xl p-5" onDragOver={handleDragOver} onDrop={handleDrop}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-foreground">📋 Sarcini Zilnice</h2>
-                <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{stats.tasks}</span>
+                <h2 className="text-base font-medium text-foreground flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-green-500" />
+                  Sarcini
+                </h2>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">{stats.tasks}</span>
               </div>
               <TaskList 
                 hitList={hitList}

@@ -1,13 +1,9 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { HitListItem, DoListItem, DayOfWeek } from '@/types/door';
-import { TaskListHeader } from './task-list/TaskListHeader';
 import { DayNavigation } from './task-list/DayNavigation';
 import { TaskItem } from './task-list/TaskItem';
 import { SwipeableTaskItem } from './SwipeableTaskItem';
 import { EmptyTaskList } from './task-list/EmptyTaskList';
-import { CategoryFilter } from './task-list/CategoryFilter';
-import { TaskCategory, filterByCategory } from '@/utils/taskCategoryUtils';
 
 interface TaskListProps {
   activeList: 'hit' | 'do';
@@ -46,7 +42,6 @@ export const TaskList: React.FC<TaskListProps> = ({
   onDeleteTask,
   onTasksAdded
 }) => {
-  const [activeCategory, setActiveCategory] = useState<TaskCategory>('all');
   const normalizeDay = (d: any): DayOfWeek => {
     if (typeof d !== 'string') return d as DayOfWeek;
     const map: Record<string, DayOfWeek> = {
@@ -69,21 +64,9 @@ export const TaskList: React.FC<TaskListProps> = ({
     return (map[key] || d) as DayOfWeek;
   };
   
-  // Filter by day first
-  const dayFilteredHitList = hitList.filter(item => normalizeDay(item.day) === activeDay);
-  const dayFilteredDoList = doList.filter(item => normalizeDay(item.day) === activeDay);
-  
-  // Then filter by category
-  const filteredHitList = filterByCategory(dayFilteredHitList, activeCategory);
-  const filteredDoList = filterByCategory(dayFilteredDoList, activeCategory);
-  
-  // Debug
-  console.debug('[TaskList] activeDay', activeDay, 'activeCategory', activeCategory, {
-    hitTotal: hitList.length,
-    doTotal: doList.length,
-    hitFiltered: filteredHitList.length,
-    doFiltered: filteredDoList.length,
-  });
+  // Filter by day
+  const filteredHitList = hitList.filter(item => normalizeDay(item.day) === activeDay);
+  const filteredDoList = doList.filter(item => normalizeDay(item.day) === activeDay);
   
   const hitStats = `${hitDoneCount}/${hitAchievedCount}`;
   const doStats = `${doDoneCount}/${doAchievedCount}`;
@@ -92,48 +75,40 @@ export const TaskList: React.FC<TaskListProps> = ({
     <div 
       className={isMobile ? 'max-h-[70vh] overflow-y-auto overflow-x-hidden w-full max-w-full' : ''}
       onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => {
-        console.debug('[TaskList] Drop ignored (tasks column)');
-      }}
     >
-      {/* Task Type Tabs */}
-      <div className="flex mb-4">
+      {/* Task Type Tabs - Simplified */}
+      <div className="flex mb-3 bg-muted/50 p-1 rounded-lg">
         <button
-          className={`px-3 py-2 text-sm font-medium rounded-l-md border ${
+          className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
             activeList === 'hit' 
-              ? 'bg-primary/10 text-primary border-primary/20' 
-              : 'bg-muted text-muted-foreground border-border hover:bg-accent'
+              ? 'bg-card text-foreground shadow-sm' 
+              : 'text-muted-foreground hover:text-foreground'
           }`}
           onClick={() => setActiveList('hit')}
         >
-          📋 To Do ({hitStats})
+          To Do ({hitStats})
         </button>
         <button
-          className={`px-3 py-2 text-sm font-medium rounded-r-md border-t border-r border-b ${
+          className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
             activeList === 'do' 
-              ? 'bg-primary/10 text-primary border-primary/20' 
-              : 'bg-muted text-muted-foreground border-border hover:bg-accent'
+              ? 'bg-card text-foreground shadow-sm' 
+              : 'text-muted-foreground hover:text-foreground'
           }`}
           onClick={() => setActiveList('do')}
         >
-          ✅ Do ({doStats})
+          Done ({doStats})
         </button>
       </div>
-
-      {/* Category Filter */}
-      <CategoryFilter
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        isMobile={isMobile}
-      />
       
+      {/* Day Navigation */}
       <DayNavigation
         activeDay={activeDay}
         selectDayOfWeek={selectDayOfWeek}
         isMobile={isMobile}
       />
       
-      <div className={`space-y-2 ${isMobile ? 'max-h-[calc(70vh-120px)] overflow-y-auto' : ''}`}>
+      {/* Task List */}
+      <div className={`space-y-1 ${isMobile ? 'max-h-[calc(70vh-120px)] overflow-y-auto' : ''}`}>
         {activeList === 'hit' ? (
           filteredHitList.length > 0 ? (
             filteredHitList.map(item => (
