@@ -158,15 +158,7 @@ export const DailyCommandCenterWidget: React.FC = () => {
   };
 
   const handleHabitClick = async (habit: any) => {
-    const stepName = Object.entries(HABIT_TO_STEP_MAP).find(
-      ([key]) => habit.name.toLowerCase().includes(key.toLowerCase())
-    )?.[1];
-
-    if (stepName) {
-      navigate(`/daily-flow?step=${stepName}`);
-    } else {
-      await toggleHabit(habit.id);
-    }
+    await toggleHabit(habit.id);
   };
 
   const handleAddHabitClick = (category: string) => {
