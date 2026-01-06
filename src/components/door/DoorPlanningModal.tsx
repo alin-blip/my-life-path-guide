@@ -6,9 +6,11 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic, CheckCircle, Cloud, CloudOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { PlanningResult, PreviousWeekData } from '@/types/door';
+import { PlanningResult, PreviousWeekData, DayOfWeek } from '@/types/door';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
 import { weeklyPlanningDraftService } from '@/services/weeklyPlanningDraftService';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
+import { v4 as uuidv4 } from 'uuid';
 import { getISOWeek, getYear, addWeeks, startOfWeek } from 'date-fns';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
@@ -437,13 +439,44 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                 if (saveSuccess) {
                   console.log('✅ Planning saved successfully to database');
                   
+                  // Add steps to daily tasks (HIT/DO lists)
+                  let stepsAdded = 0;
+                  for (const keyPoint of planningData.keyPoints || []) {
+                    for (const step of keyPoint.steps || []) {
+                      // Handle both old format (string) and new format (object with day/listType)
+                      const stepText = typeof step === 'string' ? step : step.text;
+                      const stepDay = typeof step === 'object' ? step.day : null;
+                      const stepListType = typeof step === 'object' ? step.listType : 'do';
+                      
+                      if (stepText && stepDay) {
+                        try {
+                          await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
+                            id: uuidv4(),
+                            text: `[${keyPoint.title}] ${stepText}`,
+                            category: stepListType as 'hit' | 'do',
+                            priority: 'important',
+                            day: stepDay as DayOfWeek
+                          });
+                          stepsAdded++;
+                          console.log(`✅ Step added to ${stepListType} list for ${stepDay}: ${stepText}`);
+                        } catch (stepError) {
+                          console.error('Error adding step to tasks:', stepError);
+                        }
+                      }
+                    }
+                  }
+                  
+                  console.log(`📋 Total ${stepsAdded} steps added to daily tasks`);
+                  
                   // Clear draft from both localStorage and database
                   localStorage.removeItem(draftKey);
                   await weeklyPlanningDraftService.deleteDraft(currentWeekKey);
                   
                   toast({
                     title: 'Plan salvat cu succes!',
-                    description: 'Planul săptămânii a fost salvat în baza de date.',
+                    description: stepsAdded > 0 
+                      ? `Planul și ${stepsAdded} pași au fost adăugați în sarcinile zilnice.`
+                      : 'Planul săptămânii a fost salvat în baza de date.',
                   });
                   
                   onPlanningComplete(planningData);
