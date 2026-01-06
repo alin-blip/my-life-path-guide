@@ -6,6 +6,8 @@ import { Dumbbell, Briefcase, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PerformanceCoachChat } from '@/components/ai/PerformanceCoachChat';
 import { NapoleonHillCoachWidget } from '@/components/dashboard/widgets/NapoleonHillCoachWidget';
+import performanceCoachImg from '@/assets/performance-coach.png';
+import napoleonHillImg from '@/assets/napoleon-hill-coach.png';
 
 export const DualCoachCard: React.FC = () => {
   const [performanceCoachOpen, setPerformanceCoachOpen] = useState(false);
@@ -14,176 +16,125 @@ export const DualCoachCard: React.FC = () => {
   return (
     <>
       <Card className="relative overflow-hidden border-primary/20 bg-gradient-to-r from-blue-950/50 via-background to-amber-950/30">
-        {/* Background effects */}
-        <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,transparent,black)]" />
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-amber-500/5" />
         
         <CardContent className="relative p-4 md:p-6">
           {/* Header */}
           <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-2">
-              <Sparkles className="h-3 w-3 text-primary" />
-              <span className="text-xs font-medium text-primary">AI COACHES</span>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 to-amber-500/20 border border-primary/20 mb-2">
+              <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+              <span className="text-sm font-semibold tracking-wide text-foreground">YOUR AI COACHES</span>
+              <Sparkles className="h-4 w-4 text-primary animate-pulse" />
             </div>
-            <h3 className="text-lg font-semibold">Alege-ți Coach-ul</h3>
+            <p className="text-sm text-muted-foreground">Alege un coach și începe transformarea</p>
           </div>
 
           {/* Two Coach Cards */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Performance Coach - Left */}
-            <div className="relative group">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => setPerformanceCoachOpen(true)}
+            >
               <div className={cn(
-                "relative flex flex-col items-center p-4 rounded-xl",
-                "bg-gradient-to-b from-blue-500/10 to-blue-900/20",
-                "border border-blue-500/30 hover:border-blue-400/50",
-                "transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20"
+                "relative flex flex-col items-center p-5 rounded-2xl",
+                "bg-gradient-to-b from-blue-600/20 via-blue-900/30 to-blue-950/40",
+                "border-2 border-blue-500/40 hover:border-blue-400/70",
+                "transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/30",
+                "hover:scale-[1.02] hover:-translate-y-1"
               )}>
-                {/* Coach Avatar */}
-                <div className="relative mb-4">
-                  {/* Blue aura/glow effect */}
-                  <div className="absolute inset-0 blur-xl bg-blue-500/30 rounded-full scale-150 group-hover:scale-175 transition-transform" />
-                  <div className="absolute inset-0 blur-md bg-blue-400/20 rounded-full scale-125" />
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* Coach Image */}
+                <div className="relative mb-4 w-32 h-40 rounded-xl overflow-hidden">
+                  {/* Blue aura behind image */}
+                  <div className="absolute inset-0 bg-blue-500/30 blur-2xl scale-150 group-hover:scale-175 transition-transform duration-500" />
+                  <div className="absolute inset-[-20%] bg-blue-400/20 blur-xl animate-pulse" />
                   
-                  {/* Stylized body silhouette */}
-                  <div className="relative w-20 h-24 flex items-center justify-center">
-                    <svg 
-                      viewBox="0 0 60 80" 
-                      className="w-full h-full drop-shadow-lg"
-                      fill="none"
-                    >
-                      {/* Shadow/aura layer */}
-                      <ellipse cx="30" cy="75" rx="20" ry="5" className="fill-blue-500/20" />
-                      
-                      {/* Body silhouette */}
-                      <path 
-                        d="M30 8C34.4183 8 38 11.5817 38 16C38 20.4183 34.4183 24 30 24C25.5817 24 22 20.4183 22 16C22 11.5817 25.5817 8 30 8Z" 
-                        className="fill-blue-400"
-                      />
-                      <path 
-                        d="M30 26C38 26 44 32 44 40V52C44 54 42 56 40 56H20C18 56 16 54 16 52V40C16 32 22 26 30 26Z" 
-                        className="fill-blue-500"
-                      />
-                      <path 
-                        d="M16 36L8 44M44 36L52 44" 
-                        stroke="currentColor" 
-                        strokeWidth="4" 
-                        strokeLinecap="round"
-                        className="stroke-blue-400"
-                      />
-                      <path 
-                        d="M22 56L20 72M38 56L40 72" 
-                        stroke="currentColor" 
-                        strokeWidth="4" 
-                        strokeLinecap="round"
-                        className="stroke-blue-500"
-                      />
-                      
-                      {/* Energy lines */}
-                      <path 
-                        d="M4 30L10 35M56 30L50 35M4 50L12 48M56 50L48 48" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        strokeLinecap="round"
-                        className="stroke-blue-300/60"
-                      />
-                    </svg>
-                  </div>
+                  <img 
+                    src={performanceCoachImg}
+                    alt="Performance Coach"
+                    className="relative w-full h-full object-cover object-top rounded-xl border-2 border-blue-400/50 shadow-lg shadow-blue-500/30 group-hover:shadow-blue-400/50 transition-shadow duration-300"
+                  />
+                  
+                  {/* Energy lines overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-transparent to-transparent" />
                 </div>
 
                 {/* Coach Info */}
-                <h4 className="font-semibold text-blue-100 text-center mb-1">
-                  Personal Performance
+                <h4 className="text-lg font-bold text-blue-100 text-center mb-1 tracking-wide">
+                  PERSONAL PERFORMANCE
                 </h4>
-                <p className="text-xs text-blue-200/70 text-center mb-4 line-clamp-2">
-                  Antrenează-ți corpul și mintea pentru performanță maximă
+                <p className="text-xs text-blue-200/80 text-center mb-4 max-w-[200px]">
+                  Antrenează-ți corpul și mintea pentru peak performance
                 </p>
 
                 {/* CTA Button */}
                 <Button 
-                  onClick={() => setPerformanceCoachOpen(true)}
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white"
-                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPerformanceCoachOpen(true);
+                  }}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-400/50 transition-all duration-300"
+                  size="lg"
                 >
-                  <Dumbbell className="h-4 w-4 mr-2" />
+                  <Dumbbell className="h-5 w-5 mr-2" />
                   Start Coaching
                 </Button>
               </div>
             </div>
 
             {/* Napoleon Hill Coach - Right */}
-            <div className="relative group">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => setNapoleonCoachOpen(true)}
+            >
               <div className={cn(
-                "relative flex flex-col items-center p-4 rounded-xl",
-                "bg-gradient-to-b from-amber-500/10 to-amber-900/20",
-                "border border-amber-500/30 hover:border-amber-400/50",
-                "transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20"
+                "relative flex flex-col items-center p-5 rounded-2xl",
+                "bg-gradient-to-b from-amber-600/20 via-amber-900/30 to-amber-950/40",
+                "border-2 border-amber-500/40 hover:border-amber-400/70",
+                "transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/30",
+                "hover:scale-[1.02] hover:-translate-y-1"
               )}>
-                {/* Coach Avatar */}
-                <div className="relative mb-4">
-                  {/* Golden aura/glow effect */}
-                  <div className="absolute inset-0 blur-xl bg-amber-500/30 rounded-full scale-150 group-hover:scale-175 transition-transform" />
-                  <div className="absolute inset-0 blur-md bg-amber-400/20 rounded-full scale-125" />
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* Coach Image */}
+                <div className="relative mb-4 w-32 h-40 rounded-xl overflow-hidden">
+                  {/* Golden aura behind image */}
+                  <div className="absolute inset-0 bg-amber-500/30 blur-2xl scale-150 group-hover:scale-175 transition-transform duration-500" />
+                  <div className="absolute inset-[-20%] bg-amber-400/20 blur-xl animate-pulse" />
                   
-                  {/* Napoleon Hill portrait silhouette */}
-                  <div className="relative w-20 h-24 flex items-center justify-center">
-                    <svg 
-                      viewBox="0 0 60 80" 
-                      className="w-full h-full drop-shadow-lg"
-                      fill="none"
-                    >
-                      {/* Shadow layer */}
-                      <ellipse cx="30" cy="75" rx="18" ry="4" className="fill-amber-500/20" />
-                      
-                      {/* Head with hair */}
-                      <ellipse cx="30" cy="20" rx="14" ry="16" className="fill-amber-600" />
-                      <path 
-                        d="M16 16C16 10 22 6 30 6C38 6 44 10 44 16V14C44 10 38 8 30 8C22 8 16 10 16 14V16Z" 
-                        className="fill-amber-800"
-                      />
-                      
-                      {/* Suit */}
-                      <path 
-                        d="M30 38C42 38 50 46 50 56V72H10V56C10 46 18 38 30 38Z" 
-                        className="fill-amber-900"
-                      />
-                      
-                      {/* Collar/tie */}
-                      <path 
-                        d="M26 38L30 50L34 38" 
-                        className="fill-amber-100"
-                      />
-                      <path 
-                        d="M29 50L30 65L31 50" 
-                        className="fill-amber-700"
-                      />
-                      
-                      {/* Lapels */}
-                      <path 
-                        d="M22 40L26 38L24 55L18 50Z" 
-                        className="fill-amber-800"
-                      />
-                      <path 
-                        d="M38 40L34 38L36 55L42 50Z" 
-                        className="fill-amber-800"
-                      />
-                    </svg>
-                  </div>
+                  <img 
+                    src={napoleonHillImg}
+                    alt="Napoleon Hill Coach"
+                    className="relative w-full h-full object-cover object-top rounded-xl border-2 border-amber-400/50 shadow-lg shadow-amber-500/30 group-hover:shadow-amber-400/50 transition-shadow duration-300"
+                  />
+                  
+                  {/* Vintage overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-amber-900/60 via-transparent to-transparent" />
                 </div>
 
                 {/* Coach Info */}
-                <h4 className="font-semibold text-amber-100 text-center mb-1">
-                  Napoleon Hill
+                <h4 className="text-lg font-bold text-amber-100 text-center mb-1 tracking-wide">
+                  NAPOLEON HILL
                 </h4>
-                <p className="text-xs text-amber-200/70 text-center mb-4 line-clamp-2">
+                <p className="text-xs text-amber-200/80 text-center mb-4 max-w-[200px]">
                   Gândește și vei deveni bogat - Principii de succes
                 </p>
 
                 {/* CTA Button */}
                 <Button 
-                  onClick={() => setNapoleonCoachOpen(true)}
-                  className="w-full bg-amber-600 hover:bg-amber-500 text-white"
-                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setNapoleonCoachOpen(true);
+                  }}
+                  className="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-semibold shadow-lg shadow-amber-500/30 hover:shadow-amber-400/50 transition-all duration-300"
+                  size="lg"
                 >
-                  <Briefcase className="h-4 w-4 mr-2" />
+                  <Briefcase className="h-5 w-5 mr-2" />
                   Start Coaching
                 </Button>
               </div>
