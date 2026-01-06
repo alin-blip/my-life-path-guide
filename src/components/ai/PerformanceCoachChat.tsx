@@ -1,0 +1,241 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Send, Mic, MicOff, Volume2, VolumeX, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useVoiceToText } from '@/hooks/useVoiceToText';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+const SYSTEM_PROMPT = `Ești un Personal Performance Coach de elită, specializat în optimizarea performanței fizice și mentale. 
+
+Expertiza ta include:
+- Antrenament și fitness (forță, cardio, flexibilitate, recuperare)
+- Nutriție pentru performanță (macronutrienți, timing, suplimente)
+- Somn și recuperare (calitate, durată, rutine)
+- Energie și vitalitate (biohacking, obiceiuri zilnice)
+- Mindset pentru performanță (focus, motivație, reziliență)
+- Prevenirea epuizării și burnout-ului
+
+Stilul tău de coaching:
+- Direct și orientat spre acțiune
+- Bazat pe știință și dovezi
+- Motivant dar realist
+- Personalizat pentru nevoile utilizatorului
+- Oferă planuri concrete și măsurabile
+
+La fiecare interacțiune:
+1. Identifică provocarea specifică
+2. Oferă soluții practice imediate
+3. Sugerează un plan de acțiune pe termen scurt
+4. Încurajează și motivează
+
+Răspunde în română, concis și la obiect. Folosește emoji-uri când e potrivit pentru a face comunicarea mai dinamică.`;
+
+export const PerformanceCoachChat: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content: 'Salut, campionule! 💪 Sunt coach-ul tău de performanță personală. Spune-mi: ce vrei să optimizezi azi? Energia, antrenamentul, somnul, nutriția sau altceva?'
+    }
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  const voiceBaseRef = useRef<string>('');
+
+  const { 
+    isListening, 
+    toggleListening, 
+    resetTranscript,
+    isSupported: voiceSupported 
+  } = useVoiceToText({
+    language: 'ro',
+    onTranscript: (text) => {
+      const base = voiceBaseRef.current;
+      const combined = [base, text].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+      setInputMessage(combined);
+    }
+  });
+
+  const { speak, stop: stopSpeaking, isSpeaking } = useTextToSpeech({
+    onSpeakingStart: () => {
+      if (isListening) {
+        toggleListening();
+      }
+    }
+  });
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const sendMessage = async (messageText?: string) => {
+    const textToSend = messageText || inputMessage.trim();
+    if (!textToSend || isLoading) return;
+
+    if (isListening) {
+      toggleListening();
+    }
+    voiceBaseRef.current = '';
+
+    const userMessage: Message = { role: 'user', content: textToSend };
+    setMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('performance-coach', {
+        body: {
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            content: m.content
+          })),
+          systemPrompt: SYSTEM_PROMPT
+        }
+      });
+
+      if (error) throw error;
+
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: data.response || data.message || 'Îmi pare rău, a apărut o eroare.'
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+
+      if (ttsEnabled && assistantMessage.content) {
+        speak(assistantMessage.content);
+      }
+    } catch (error: any) {
+      console.error('Error sending message:', error);
+      toast({
+        title: 'Eroare',
+        description: error.message || 'Nu am putut trimite mesajul.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const toggleTTS = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+    }
+    setTtsEnabled(prev => !prev);
+  };
+
+  const handleMicToggle = () => {
+    if (!isListening) {
+      voiceBaseRef.current = inputMessage.trim();
+      resetTranscript();
+    }
+    toggleListening();
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Messages Area */}
+      <ScrollArea ref={scrollRef} className="flex-1 p-4">
+        <div className="space-y-4">
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={cn(
+                "flex",
+                message.role === 'user' ? "justify-end" : "justify-start"
+              )}
+            >
+              <div
+                className={cn(
+                  "max-w-[85%] rounded-2xl px-4 py-2",
+                  message.role === 'user'
+                    ? "bg-blue-600 text-white"
+                    : "bg-muted"
+                )}
+              >
+                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              </div>
+            </div>
+          ))}
+          
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-muted rounded-2xl px-4 py-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+              </div>
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+
+      {/* Input Area */}
+      <div className="border-t p-4">
+        <div className="flex items-center gap-2">
+          {/* TTS Toggle */}
+          <Button
+            size="icon"
+            variant={ttsEnabled ? "default" : "outline"}
+            onClick={toggleTTS}
+            className="h-9 w-9 flex-shrink-0"
+            title={ttsEnabled ? "Dezactivează voce" : "Activează voce"}
+          >
+            {ttsEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+          </Button>
+
+          {/* Input Field */}
+          <Input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Scrie un mesaj..."
+            className="flex-1"
+            disabled={isLoading}
+          />
+
+          {/* Voice Input */}
+          {voiceSupported && (
+            <Button
+              size="icon"
+              variant={isListening ? "destructive" : "outline"}
+              onClick={handleMicToggle}
+              className="h-9 w-9 flex-shrink-0"
+            >
+              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </Button>
+          )}
+
+          {/* Send Button */}
+          <Button
+            size="icon"
+            onClick={() => sendMessage()}
+            disabled={!inputMessage.trim() || isLoading}
+            className="h-9 w-9 flex-shrink-0"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};

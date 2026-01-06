@@ -52,8 +52,9 @@ import { FoundationNotifications } from '@/components/onboarding/FoundationNotif
 import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNotification';
 import { useFoundationStatus } from '@/hooks/useFoundationStatus';
 import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
-import { WidgetGrid, WidgetSelector } from '@/components/dashboard/widgets';
+import { WidgetGrid, WidgetSelector, DailyCommandCenterWidget } from '@/components/dashboard/widgets';
 import { ChampionRoutineWidget } from '@/components/dashboard/widgets/ChampionRoutineWidget';
+import { DualCoachCard } from '@/components/dashboard/DualCoachCard';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -737,6 +738,16 @@ export const Dashboard: React.FC = () => {
       
       {/* Objectives Card - Lunar, 90 Zile, Anual */}
       <ObjectivesCard />
+      
+      {/* Daily Command Center - Main Score Widget */}
+      <div className="mb-6">
+        <DailyCommandCenterWidget />
+      </div>
+      
+      {/* Dual AI Coach Card - Performance + Napoleon Hill */}
+      <div className="mb-6">
+        <DualCoachCard />
+      </div>
       
       <DailyCompactCard />
       

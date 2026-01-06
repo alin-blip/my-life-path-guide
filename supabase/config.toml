@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.generate-script]
 verify_jwt = false
+
+[functions.performance-coach]
+verify_jwt = false
