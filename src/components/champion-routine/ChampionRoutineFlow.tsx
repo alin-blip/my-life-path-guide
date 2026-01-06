@@ -27,6 +27,7 @@ import { Dumbbell, Sparkles, Heart, Target } from 'lucide-react';
 
 interface ChampionRoutineFlowProps {
   onComplete?: () => void;
+  initialStep?: RoutineStepId;
 }
 
 export type RoutineStepId = 
@@ -119,7 +120,7 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
   }
 };
 
-export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
+export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutineFlowProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const {
@@ -208,14 +209,24 @@ export function ChampionRoutineFlow({ onComplete }: ChampionRoutineFlowProps) {
     }
   }, [getSkippedSteps, skippedStepsKey]);
 
-  // Start from step 0 always - user can navigate freely
-  // Only auto-navigate if explicitly requested (not on initial load)
+  // Start from initialStep if provided, otherwise step 0
   useEffect(() => {
     if (!isLoading && isConfigured && !hasUserNavigated) {
-      // Always start from step 0 - let user go through routine from beginning
-      setCurrentStepIndex(0);
+      if (initialStep) {
+        // Find the index of the initial step
+        const stepIndex = routineSteps.indexOf(initialStep);
+        if (stepIndex !== -1) {
+          setCurrentStepIndex(stepIndex);
+          setHasUserNavigated(true);
+        } else {
+          setCurrentStepIndex(0);
+        }
+      } else {
+        // Always start from step 0 - let user go through routine from beginning
+        setCurrentStepIndex(0);
+      }
     }
-  }, [isLoading, isConfigured, hasUserNavigated]);
+  }, [isLoading, isConfigured, hasUserNavigated, initialStep, routineSteps]);
 
   // Debounced update for text inputs
   const debouncedUpdateLog = useCallback(

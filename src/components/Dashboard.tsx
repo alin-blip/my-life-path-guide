@@ -751,10 +751,7 @@ export const Dashboard: React.FC = () => {
       
       <DailyCompactCard />
       
-      {/* Champion Routine Widget - Fixed position, always visible */}
-      <div className="mb-6">
-        <ChampionRoutineWidget />
-      </div>
+      {/* ChampionRoutineWidget removed - integrated into DailyCommandCenterWidget */}
       
       {/* Custom Widgets Section */}
       {getEnabledWidgets().filter(w => w.id !== 'champion-routine').length > 0 && (

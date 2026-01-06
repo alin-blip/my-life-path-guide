@@ -75,12 +75,34 @@ export const useDailyScore = () => {
           .maybeSingle();
 
         if (routineData) {
-          const routineComplete = !!(
-            routineData.breathing_completed &&
-            routineData.gratitude_items &&
-            routineData.visualization_completed &&
-            routineData.reading_completed
-          );
+          // Count completed routine steps
+          let completedSteps = 0;
+          const totalSteps = 10;
+          
+          if (routineData.water_drunk) completedSteps++;
+          if (routineData.breathing_completed) completedSteps++;
+          if ((routineData.meditation_duration_seconds || 0) >= 600) completedSteps++;
+          
+          // Handle gratitude_items as Json type
+          const gratitudeItems = routineData.gratitude_items as string[] | null;
+          if (Array.isArray(gratitudeItems) && gratitudeItems.some((i: string) => i?.trim())) completedSteps++;
+          
+          if (routineData.autosuggestion_completed) completedSteps++;
+          if (routineData.visualization_completed) completedSteps++;
+          if (routineData.exercise_completed) completedSteps++;
+          
+          // Handle meals_logged as Json type
+          const mealsLogged = routineData.meals_logged as any[] | null;
+          if (Array.isArray(mealsLogged) && mealsLogged.length > 0) completedSteps++;
+          
+          if (routineData.content_script || (routineData.pomodoro_sessions || 0) > 0) completedSteps++;
+          
+          // Handle relationship_actions as Json type
+          const relationshipActions = routineData.relationship_actions as any[] | null;
+          if (Array.isArray(relationshipActions) && relationshipActions.some((a: any) => a?.completed)) completedSteps++;
+          
+          // Consider routine complete if at least 70% of steps are done
+          const routineComplete = completedSteps >= Math.floor(totalSteps * 0.7);
           setRoutineCompleted(routineComplete);
         }
 
