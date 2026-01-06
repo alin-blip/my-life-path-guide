@@ -1653,6 +1653,42 @@ export type Database = {
           },
         ]
       }
+      monthly_scores: {
+        Row: {
+          average_score: number | null
+          created_at: string
+          id: string
+          month_key: string
+          perfect_days: number | null
+          total_xp_earned: number | null
+          updated_at: string
+          user_id: string
+          weekly_scores: Json | null
+        }
+        Insert: {
+          average_score?: number | null
+          created_at?: string
+          id?: string
+          month_key: string
+          perfect_days?: number | null
+          total_xp_earned?: number | null
+          updated_at?: string
+          user_id: string
+          weekly_scores?: Json | null
+        }
+        Update: {
+          average_score?: number | null
+          created_at?: string
+          id?: string
+          month_key?: string
+          perfect_days?: number | null
+          total_xp_earned?: number | null
+          updated_at?: string
+          user_id?: string
+          weekly_scores?: Json | null
+        }
+        Relationships: []
+      }
       napoleon_hill_notifications: {
         Row: {
           created_at: string | null
@@ -1841,6 +1877,45 @@ export type Database = {
           started_at?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      quests: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          quest_type: string
+          target_value: number
+          title: string
+          xp_reward: number
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          quest_type: string
+          target_value?: number
+          title: string
+          xp_reward?: number
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          quest_type?: string
+          target_value?: number
+          title?: string
+          xp_reward?: number
         }
         Relationships: []
       }
@@ -2077,6 +2152,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_description: string | null
+          achievement_id: string
+          achievement_name: string
+          category: string
+          icon: string | null
+          id: string
+          unlocked_at: string
+          user_id: string
+          xp_reward: number | null
+        }
+        Insert: {
+          achievement_description?: string | null
+          achievement_id: string
+          achievement_name: string
+          category: string
+          icon?: string | null
+          id?: string
+          unlocked_at?: string
+          user_id: string
+          xp_reward?: number | null
+        }
+        Update: {
+          achievement_description?: string | null
+          achievement_id?: string
+          achievement_name?: string
+          category?: string
+          icon?: string | null
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string | null
@@ -2130,6 +2241,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_quest_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          current_value: number
+          id: string
+          quest_id: string
+          reset_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          id?: string
+          quest_id: string
+          reset_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          id?: string
+          quest_id?: string
+          reset_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_quest_progress_quest_id_fkey"
+            columns: ["quest_id"]
+            isOneToOne: false
+            referencedRelation: "quests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -2544,6 +2699,48 @@ export type Database = {
           user_id?: string
           week_key?: string
           wins?: string[] | null
+        }
+        Relationships: []
+      }
+      weekly_scores: {
+        Row: {
+          average_score: number | null
+          created_at: string
+          daily_scores: Json | null
+          id: string
+          objectives_completed: number | null
+          objectives_total: number | null
+          streak_bonus: number | null
+          total_score: number | null
+          updated_at: string
+          user_id: string
+          week_key: string
+        }
+        Insert: {
+          average_score?: number | null
+          created_at?: string
+          daily_scores?: Json | null
+          id?: string
+          objectives_completed?: number | null
+          objectives_total?: number | null
+          streak_bonus?: number | null
+          total_score?: number | null
+          updated_at?: string
+          user_id: string
+          week_key: string
+        }
+        Update: {
+          average_score?: number | null
+          created_at?: string
+          daily_scores?: Json | null
+          id?: string
+          objectives_completed?: number | null
+          objectives_total?: number | null
+          streak_bonus?: number | null
+          total_score?: number | null
+          updated_at?: string
+          user_id?: string
+          week_key?: string
         }
         Relationships: []
       }

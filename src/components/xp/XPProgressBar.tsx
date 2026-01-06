@@ -1,7 +1,7 @@
 import React from 'react';
-import { Zap, Star } from 'lucide-react';
+import { Zap, Star, Crown } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { useXPSystem, getLevelTitle } from '@/hooks/useXPSystem';
+import { useXPSystem, getLevelTitle, getLevelTitleColor, LEVEL_TITLES } from '@/hooks/useXPSystem';
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
 
@@ -25,7 +25,14 @@ export const XPProgressBar: React.FC<XPProgressBarProps> = ({
     );
   }
 
-  const levelTitle = getLevelTitle(xpData.currentLevel);
+  const levelTitle = getLevelTitle(xpData.currentLevel, language as 'en' | 'ro');
+  const titleColor = getLevelTitleColor(xpData.currentLevel);
+  const currentTier = LEVEL_TITLES.find(
+    t => xpData.currentLevel >= t.minLevel && xpData.currentLevel <= t.maxLevel
+  );
+  const nextTier = LEVEL_TITLES.find(
+    t => t.minLevel > xpData.currentLevel
+  );
 
   if (compact) {
     return (
@@ -44,7 +51,7 @@ export const XPProgressBar: React.FC<XPProgressBarProps> = ({
         </div>
         <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
           <Zap className="w-3 h-3 text-yellow-500" />
-          <span>{xpData.totalXP}</span>
+          <span>{xpData.totalXP.toLocaleString()}</span>
         </div>
       </div>
     );
@@ -58,24 +65,45 @@ export const XPProgressBar: React.FC<XPProgressBarProps> = ({
     )}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
-          {/* Level Badge */}
+          {/* Level Badge - Enhanced */}
           <div className="relative">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center shadow-lg shadow-yellow-500/30">
-              <span className="text-lg font-black text-white">
+            <div className={cn(
+              "w-14 h-14 rounded-full flex items-center justify-center shadow-lg",
+              xpData.currentLevel >= 91 
+                ? "bg-gradient-to-br from-yellow-400 via-pink-500 to-purple-600 shadow-purple-500/40"
+                : xpData.currentLevel >= 71
+                ? "bg-gradient-to-br from-cyan-400 to-blue-600 shadow-cyan-500/40"
+                : xpData.currentLevel >= 51
+                ? "bg-gradient-to-br from-red-400 to-orange-600 shadow-orange-500/40"
+                : "bg-gradient-to-br from-yellow-400 to-amber-600 shadow-yellow-500/30"
+            )}>
+              <span className="text-xl font-black text-white">
                 {xpData.currentLevel}
               </span>
             </div>
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-background border-2 border-yellow-500 flex items-center justify-center">
-              <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-background border-2 border-yellow-500 flex items-center justify-center">
+              {xpData.currentLevel >= 61 ? (
+                <Crown className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+              ) : (
+                <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+              )}
             </div>
           </div>
 
           {/* Level Info */}
           <div>
-            <h3 className="font-bold text-foreground">
+            <h3 className="font-bold text-foreground flex items-center gap-2">
               {language === 'ro' ? 'Nivel' : 'Level'} {xpData.currentLevel}
+              <span className="text-xs text-muted-foreground">/ 100</span>
             </h3>
-            <p className="text-sm text-muted-foreground">{levelTitle}</p>
+            <p className={cn("text-sm font-semibold", titleColor)}>
+              {levelTitle}
+            </p>
+            {nextTier && xpData.currentLevel < 100 && (
+              <p className="text-[10px] text-muted-foreground">
+                {language === 'ro' ? 'Urmează:' : 'Next:'} {nextTier.title[language as 'en' | 'ro']} (Lv.{nextTier.minLevel})
+              </p>
+            )}
           </div>
         </div>
 
@@ -91,33 +119,64 @@ export const XPProgressBar: React.FC<XPProgressBarProps> = ({
         </div>
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar - Enhanced */}
       <div className="space-y-2">
-        <div className="relative">
-          <Progress 
-            value={xpData.progressPercent} 
-            className="h-3 bg-muted"
-          />
+        <div className="relative h-4 bg-muted rounded-full overflow-hidden">
           <div 
-            className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 rounded-full transition-all duration-500"
+            className={cn(
+              "absolute inset-y-0 left-0 rounded-full transition-all duration-500",
+              xpData.currentLevel >= 91 
+                ? "bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500"
+                : xpData.currentLevel >= 71
+                ? "bg-gradient-to-r from-cyan-400 to-blue-500"
+                : xpData.currentLevel >= 51
+                ? "bg-gradient-to-r from-red-400 to-orange-500"
+                : "bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500"
+            )}
+            style={{ width: `${xpData.progressPercent}%` }}
+          />
+          {/* Glow effect */}
+          <div 
+            className="absolute inset-y-0 left-0 rounded-full blur-sm opacity-50"
             style={{ 
               width: `${xpData.progressPercent}%`,
-              opacity: 0.9,
+              background: 'linear-gradient(90deg, transparent, white, transparent)'
             }}
           />
         </div>
 
         {showDetails && (
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>
-              {xpData.xpInCurrentLevel} / {xpData.xpToNextLevel} XP
+            <span className="font-medium">
+              {xpData.xpInCurrentLevel.toLocaleString()} / {xpData.xpToNextLevel.toLocaleString()} XP
             </span>
-            <span>
-              {language === 'ro' ? 'Până la nivelul' : 'To level'} {xpData.currentLevel + 1}
-            </span>
+            {xpData.currentLevel < 100 && (
+              <span>
+                {language === 'ro' ? 'Până la nivelul' : 'To level'} {xpData.currentLevel + 1}
+              </span>
+            )}
+            {xpData.currentLevel >= 100 && (
+              <span className="text-yellow-500 font-bold">
+                {language === 'ro' ? '🎉 NIVEL MAXIM!' : '🎉 MAX LEVEL!'}
+              </span>
+            )}
           </div>
         )}
       </div>
+
+      {/* Tier Progress */}
+      {currentTier && showDetails && (
+        <div className="mt-3 pt-3 border-t border-border/30">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">
+              {language === 'ro' ? 'Rang' : 'Rank'}: <span className={cn("font-semibold", titleColor)}>{levelTitle}</span>
+            </span>
+            <span className="text-muted-foreground">
+              Lv.{currentTier.minLevel} - Lv.{currentTier.maxLevel}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
