@@ -16,3 +16,4 @@ export { NapoleonHillCoachWidget } from './NapoleonHillCoachWidget';
 export { IdeaEmpowermentDialog } from './IdeaEmpowermentDialog';
 export { CategoryBadge } from './CategoryBadge';
 export { DailyCommandCenterWidget } from './DailyCommandCenterWidget';
+export { NutritionHubWidget } from './NutritionHubWidget';
