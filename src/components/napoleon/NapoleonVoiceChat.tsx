@@ -50,13 +50,29 @@ export const NapoleonVoiceChat: React.FC<NapoleonVoiceChatProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const transcriptRef = useRef<string>(''); // Keep ref in sync for callbacks
+  const messagesRef = useRef<Message[]>([]); // Keep messages ref for callbacks
+  const shouldRestartMicRef = useRef(false);
+  const sendMessageRef = useRef<(text: string) => Promise<void>>();
+
+  // Update refs when state changes
+  useEffect(() => {
+    transcriptRef.current = currentTranscript;
+  }, [currentTranscript]);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   // TTS Hook
   const { speak, stop: stopSpeaking, isSpeaking, isLoading: ttsLoading } = useTextToSpeech({
     onSpeakingEnd: () => {
-      // After AI finishes speaking, restart mic
-      if (!isProcessing) {
-        startVoice();
+      // After AI finishes speaking, restart mic if we should
+      if (shouldRestartMicRef.current && !isProcessing) {
+        shouldRestartMicRef.current = false;
+        setTimeout(() => {
+          startVoice();
+        }, 300);
       }
     }
   });
@@ -74,14 +90,20 @@ export const NapoleonVoiceChat: React.FC<NapoleonVoiceChatProps> = ({
     voiceLanguage: 'ro-RO',
     onTranscript: (text) => {
       if (text.trim()) {
-        setCurrentTranscript(text);
+        // Accumulate transcript instead of replacing
+        setCurrentTranscript(prev => {
+          const newText = prev ? `${prev} ${text}` : text;
+          return newText.trim();
+        });
       }
     },
     onMicStop: () => {
       // When user stops mic, send the message if there's text
-      if (currentTranscript.trim()) {
-        sendMessage(currentTranscript.trim());
+      const textToSend = transcriptRef.current.trim();
+      if (textToSend && sendMessageRef.current) {
+        sendMessageRef.current(textToSend);
         setCurrentTranscript('');
+        transcriptRef.current = '';
       }
     }
   });
@@ -99,11 +121,12 @@ export const NapoleonVoiceChat: React.FC<NapoleonVoiceChatProps> = ({
     const userMessage: Message = { role: 'user', content: text };
     setMessages(prev => [...prev, userMessage]);
     setIsProcessing(true);
+    shouldRestartMicRef.current = true; // Mark to restart mic after TTS
 
     try {
       const { data, error } = await supabase.functions.invoke('ai-coach', {
         body: {
-          messages: [...messages, userMessage].map(m => ({
+          messages: [...messagesRef.current, userMessage].map(m => ({
             role: m.role,
             content: m.content
           })),
@@ -122,18 +145,24 @@ export const NapoleonVoiceChat: React.FC<NapoleonVoiceChatProps> = ({
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      setIsProcessing(false);
       
       // Speak the response
       speak(responseText);
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Eroare la comunicare cu coach-ul');
-      // Restart mic on error
-      startVoice();
-    } finally {
       setIsProcessing(false);
+      shouldRestartMicRef.current = false;
+      // Restart mic on error
+      setTimeout(() => startVoice(), 300);
     }
-  }, [messages, isProcessing, speak, startVoice]);
+  }, [isProcessing, speak, startVoice]);
+
+  // Keep sendMessage ref updated
+  useEffect(() => {
+    sendMessageRef.current = sendMessage;
+  }, [sendMessage]);
 
   const handleMainButtonClick = useCallback(() => {
     if (isSpeaking) {
