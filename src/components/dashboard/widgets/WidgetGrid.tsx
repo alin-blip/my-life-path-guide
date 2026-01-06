@@ -10,6 +10,7 @@ import { TasksWidget } from './TasksWidget';
 import { ReadingWidget } from './ReadingWidget';
 import { WaterWidget } from './WaterWidget';
 import { ChampionRoutineWidget } from './ChampionRoutineWidget';
+import { IdeasWidget } from './IdeasWidget';
 import { CustomWidgetRenderer } from './CustomWidgetRenderer';
 import type { CustomWidget, WidgetData } from '@/types/customWidget';
 import { supabase } from '@/integrations/supabase/client';
@@ -130,6 +131,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
         return <ReadingWidget {...commonProps} />;
       case 'water':
         return <WaterWidget {...commonProps} />;
+      case 'ideas':
+        return <IdeasWidget {...commonProps} />;
       default:
         return null;
     }

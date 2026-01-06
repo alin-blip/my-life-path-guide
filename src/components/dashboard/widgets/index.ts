@@ -10,3 +10,6 @@ export { TasksWidget } from './TasksWidget';
 export { ReadingWidget } from './ReadingWidget';
 export { WaterWidget } from './WaterWidget';
 export { ChampionRoutineWidget } from './ChampionRoutineWidget';
+export { IdeasWidget } from './IdeasWidget';
+export { IdeaEmpowermentDialog } from './IdeaEmpowermentDialog';
+export { CategoryBadge } from './CategoryBadge';

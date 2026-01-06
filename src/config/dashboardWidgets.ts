@@ -51,6 +51,14 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     category: 'productivity'
   },
   {
+    id: 'ideas',
+    name: { en: 'Ideas', ro: 'Idei' },
+    description: { en: 'Capture and manage your ideas', ro: 'Captează și gestionează ideile tale' },
+    icon: 'Lightbulb',
+    defaultSize: 'medium',
+    category: 'productivity'
+  },
+  {
     id: 'reading',
     name: { en: 'Reading Progress', ro: 'Progres Lectură' },
     description: { en: 'Track your reading progress', ro: 'Urmărește progresul de lectură' },

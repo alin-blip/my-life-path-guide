@@ -1299,6 +1299,71 @@ export type Database = {
         }
         Relationships: []
       }
+      idea_empowerment: {
+        Row: {
+          created_at: string | null
+          essence: string | null
+          feeling_achieved: string | null
+          how_overcome: string | null
+          id: string
+          is_massive: boolean | null
+          negative_impact: string | null
+          obstacles: string | null
+          other_obstacles: string | null
+          positive_impact: string | null
+          task_id: string | null
+          updated_at: string | null
+          user_id: string
+          who_involved: string | null
+          why_exactly: string | null
+          why_want: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          essence?: string | null
+          feeling_achieved?: string | null
+          how_overcome?: string | null
+          id?: string
+          is_massive?: boolean | null
+          negative_impact?: string | null
+          obstacles?: string | null
+          other_obstacles?: string | null
+          positive_impact?: string | null
+          task_id?: string | null
+          updated_at?: string | null
+          user_id: string
+          who_involved?: string | null
+          why_exactly?: string | null
+          why_want?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          essence?: string | null
+          feeling_achieved?: string | null
+          how_overcome?: string | null
+          id?: string
+          is_massive?: boolean | null
+          negative_impact?: string | null
+          obstacles?: string | null
+          other_obstacles?: string | null
+          positive_impact?: string | null
+          task_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+          who_involved?: string | null
+          why_exactly?: string | null
+          why_want?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_empowerment_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "user_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_base_files: {
         Row: {
           content_preview: string | null
@@ -2129,6 +2194,7 @@ export type Database = {
       user_tasks: {
         Row: {
           area: string | null
+          category: string | null
           completed: boolean | null
           created_at: string | null
           day: string | null
@@ -2148,6 +2214,7 @@ export type Database = {
         }
         Insert: {
           area?: string | null
+          category?: string | null
           completed?: boolean | null
           created_at?: string | null
           day?: string | null
@@ -2167,6 +2234,7 @@ export type Database = {
         }
         Update: {
           area?: string | null
+          category?: string | null
           completed?: boolean | null
           created_at?: string | null
           day?: string | null
