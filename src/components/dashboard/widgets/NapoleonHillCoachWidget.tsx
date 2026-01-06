@@ -63,9 +63,9 @@ export const NapoleonHillCoachWidget: React.FC<NapoleonHillCoachWidgetProps> = (
   const [ttsEnabled, setTtsEnabled] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { speak, stop: stopSpeaking, isSpeaking } = useTextToSpeech({
-    voiceId: 'alloy'
-  });
+  // Keep the typed text that existed when voice dictation started,
+  // then continuously REPLACE with (base + live transcript) to avoid duplicates.
+  const voiceBaseRef = useRef<string>('');
 
   const { 
     isListening, 
@@ -76,7 +76,19 @@ export const NapoleonHillCoachWidget: React.FC<NapoleonHillCoachWidgetProps> = (
   } = useVoiceToText({
     language: 'ro',
     onTranscript: (text) => {
-      setInputMessage(prev => prev + ' ' + text);
+      const base = voiceBaseRef.current;
+      const combined = [base, text].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+      setInputMessage(combined);
+    }
+  });
+
+  const { speak, stop: stopSpeaking, isSpeaking } = useTextToSpeech({
+    // Use hook default voiceId (valid for our backend TTS)
+    onSpeakingStart: () => {
+      // Stop mic while playing TTS (prevents audio focus issues)
+      if (isListening) {
+        toggleListening();
+      }
     }
   });
 
@@ -89,6 +101,12 @@ export const NapoleonHillCoachWidget: React.FC<NapoleonHillCoachWidgetProps> = (
   const sendMessage = async (messageText?: string) => {
     const textToSend = messageText || inputMessage.trim();
     if (!textToSend || isLoading) return;
+
+    // Stop dictation before sending (and reset base) to avoid conflicts with TTS and typing.
+    if (isListening) {
+      toggleListening();
+    }
+    voiceBaseRef.current = '';
 
     const userMessage: Message = { role: 'user', content: textToSend };
     setMessages(prev => [...prev, userMessage]);
@@ -139,7 +157,16 @@ export const NapoleonHillCoachWidget: React.FC<NapoleonHillCoachWidgetProps> = (
     if (isSpeaking) {
       stopSpeaking();
     }
-    setTtsEnabled(!ttsEnabled);
+    setTtsEnabled(prev => !prev);
+  };
+
+  const handleMicToggle = () => {
+    if (!isListening) {
+      // Capture what user already typed, then start fresh transcript.
+      voiceBaseRef.current = inputMessage.trim();
+      resetTranscript();
+    }
+    toggleListening();
   };
 
   const isSmall = size === 'small';
@@ -200,7 +227,7 @@ export const NapoleonHillCoachWidget: React.FC<NapoleonHillCoachWidgetProps> = (
               <Button
                 size="icon"
                 variant={isListening ? "destructive" : "outline"}
-                onClick={toggleListening}
+                onClick={handleMicToggle}
                 className="h-8 w-8"
               >
                 {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
