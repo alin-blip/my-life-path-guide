@@ -311,7 +311,7 @@ export const DailyCommandCenterWidget: React.FC = () => {
                     </span>
                   </div>
                   <div className="space-y-1">
-                    {categoryHabits.slice(0, 4).map((habit) => {
+                    {categoryHabits.map((habit) => {
                       const completed = isHabitCompleted(habit.id);
                       return (
                         <button
@@ -333,11 +333,6 @@ export const DailyCommandCenterWidget: React.FC = () => {
                         </button>
                       );
                     })}
-                    {categoryHabits.length > 4 && (
-                      <span className="text-xs text-muted-foreground pl-5">
-                        +{categoryHabits.length - 4} more
-                      </span>
-                    )}
                     {/* Add habit button */}
                     <button
                       onClick={() => handleAddHabitClick(category)}
