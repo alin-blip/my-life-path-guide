@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.performance-coach]
 verify_jwt = false
+
+[functions.relationship-coach]
+verify_jwt = false
+
+[functions.therapist-coach]
+verify_jwt = false

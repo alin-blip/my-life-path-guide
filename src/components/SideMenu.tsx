@@ -89,9 +89,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 3. PERFORMANȚĂ
+    // 3. PERFORMANȚĂ (BODY)
     {
-      title: language === 'ro' ? '💪 Performanță' : '💪 Performance',
+      title: language === 'ro' ? '💪 Body' : '💪 Body',
       icon: Activity,
       path: '/daily-flow',
       subItems: [
@@ -99,23 +99,34 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: language === 'ro' ? 'Antrenament' : 'Workout', icon: Dumbbell, path: '/workout' },
         { title: language === 'ro' ? 'Nutriție' : 'Nutrition', icon: Apple, path: '/nutrition' },
         { title: language === 'ro' ? 'Focus Room' : 'Focus Room', icon: Clock, path: '/focus' },
+        { title: language === 'ro' ? 'Performance Coach' : 'Performance Coach', icon: Bot, path: '/performance-coach' },
+        { title: language === 'ro' ? 'Therapist Coach' : 'Therapist Coach', icon: Brain, path: '/therapist-coach' },
       ]
     },
 
-    // 4. MINDSET
+    // 4. RELAȚII (BALANCE)
+    {
+      title: language === 'ro' ? '❤️ Relații' : '❤️ Relationships',
+      icon: Heart,
+      path: '/relationships',
+      subItems: [
+        { title: language === 'ro' ? 'Persoane Importante' : 'Important People', icon: Users, path: '/relationships' },
+        { title: language === 'ro' ? 'Relationship Coach' : 'Relationship Coach', icon: Heart, path: '/relationship-coach' },
+      ]
+    },
+
+    // 5. MINDSET
     {
       title: language === 'ro' ? '🧠 Mindset' : '🧠 Mindset',
       icon: Brain,
       path: '/stack',
       subItems: [
-        { title: language === 'ro' ? 'Stacks Zilnice' : 'Daily Stacks', icon: Heart, path: '/stack' },
+        { title: language === 'ro' ? 'Stacks Zilnice' : 'Daily Stacks', icon: Sparkles, path: '/stack' },
         { title: language === 'ro' ? 'Jurnal' : 'Journal', icon: Pencil, path: '/journal' },
-        { title: language === 'ro' ? 'AI Performance Coach' : 'AI Performance Coach', icon: Bot, path: '/performance-coach' },
-        { title: language === 'ro' ? 'Napoleon Hill Coach' : 'Napoleon Hill Coach', icon: Crown, path: '/master-plan' },
       ]
     },
 
-    // 5. BUSINESS
+    // 6. BUSINESS
     {
       title: language === 'ro' ? '💼 Business' : '💼 Business',
       icon: Briefcase,
@@ -124,11 +135,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: language === 'ro' ? 'Task-uri' : 'Tasks', icon: Flag, path: '/door' },
         { title: language === 'ro' ? 'Master Plan' : 'Master Plan', icon: Crown, path: '/master-plan' },
         { title: language === 'ro' ? 'Business Tracker' : 'Business Tracker', icon: Briefcase, path: '/business' },
+        { title: language === 'ro' ? 'Napoleon Hill Coach' : 'Napoleon Hill Coach', icon: Crown, path: '/master-plan' },
         { title: language === 'ro' ? 'Note' : 'Notes', icon: FileText, path: '/notes' },
       ]
     },
 
-    // 6. COMUNITATE & GAMIFICARE
+    // 7. COMUNITATE & GAMIFICARE
     {
       title: language === 'ro' ? '🏆 Comunitate' : '🏆 Community',
       icon: Trophy,
