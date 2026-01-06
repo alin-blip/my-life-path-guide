@@ -113,14 +113,38 @@ Pentru FIECARE cheie (1-4), întrebi:
 - "Care este rezultatul pozitiv dacă realizezi? Ce impact va avea în business?"
 - "Care este rezultatul negativ dacă NU faci asta? Cum afectează business-ul și echipa?"
 - "Care sunt pașii concreți pentru a realiza asta?"
-- "Cine este responsabil?"
-- "Când este deadline-ul?"
+
+═══════════════════════════════════════════════════════════════════
+ALOCARE PAȘI PE ZILE (FOARTE IMPORTANT!)
+═══════════════════════════════════════════════════════════════════
+
+După ce utilizatorul îți spune pașii, pentru FIECARE pas individual întrebi:
+1. "În ce zi execuți pasul '[numele pasului]'?" (Luni/Marți/Miercuri/Joi/Vineri/Sâmbătă/Duminică sau L/M/Mi/J/V/S/D)
+2. "Este o sarcină prioritară (HIT) sau de făcut (DO)?"
+   - HIT = sarcini critice, prioritare, care trebuie făcute neapărat
+   - DO = sarcini importante dar mai flexibile
+
+Exemplu conversație:
+User: "Pașii sunt: cercetare piață, creare prezentare, întâlnire client"
+Tu: "Perfect! Să alocăm fiecare pas pe zile. Pentru 'cercetare piață' - în ce zi îl execuți?"
+User: "Luni"
+Tu: "Este HIT (prioritar) sau DO (de făcut)?"
+User: "HIT"
+Tu: "Notat! Pentru 'creare prezentare' - în ce zi?"
+... (continui pentru fiecare pas)
+
+═══════════════════════════════════════════════════════════════════
+
+După alocare continuă cu:
+- "Cine este responsabil pentru această cheie?"
+- "Când este deadline-ul final?"
 
 IMPORTANT:
 - Pune câte o întrebare pe rând
 - Fii concis și prietenos
+- NU sări peste alocarea pașilor pe zile - este esențială pentru planul complet
 - Când utilizatorul răspunde, confirmă și treci la următoarea întrebare
-- La final, când ai toate informațiile (Domino title + 4 chei complete), folosește tool-ul "save_planning" pentru a salva planul structurat`;
+- La final, când ai toate informațiile (Domino title + 4 chei complete cu pași alocați pe zile), folosește tool-ul "save_planning" pentru a salva planul structurat`;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -265,8 +289,24 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
                     negativeImpact: { type: "string", description: "Rezultatul negativ dacă nu se face" },
                     steps: {
                       type: "array",
-                      items: { type: "string" },
-                      description: "Pașii concreți pentru realizare"
+                      description: "Pașii concreți cu ziua și tipul de sarcină",
+                      items: {
+                        type: "object",
+                        properties: {
+                          text: { type: "string", description: "Descrierea pasului" },
+                          day: { 
+                            type: "string", 
+                            enum: ["M", "T", "W", "Th", "F", "Sa", "Su"],
+                            description: "Ziua în care se execută: M=Luni, T=Marți, W=Miercuri, Th=Joi, F=Vineri, Sa=Sâmbătă, Su=Duminică" 
+                          },
+                          listType: { 
+                            type: "string", 
+                            enum: ["hit", "do"],
+                            description: "Tipul listei - hit (prioritar) sau do (de făcut)" 
+                          }
+                        },
+                        required: ["text", "day", "listType"]
+                      }
                     },
                     responsible: { type: "string", description: "Cine este responsabil" },
                     deadline: { type: "string", description: "Când este deadline-ul" }
