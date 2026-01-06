@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Target, Plus, ArrowRight, Trash2, Star } from 'lucide-react';
+import { Target, Plus, ArrowRight, Trash2, Star, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
 interface Todo {
   id: string;
@@ -27,51 +29,179 @@ export function DailyTasksStep({
   onNext,
 }: DailyTasksStepProps) {
   const [localBigOne, setLocalBigOne] = useState(bigOneToday || '');
-  const [todos, setTodos] = useState<Todo[]>(
-    initialTodos?.length > 0 
-      ? initialTodos 
-      : [
-          { id: '1', text: '', completed: false },
-          { id: '2', text: '', completed: false },
-          { id: '3', text: '', completed: false },
-        ]
-  );
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  
+  const today = format(new Date(), 'yyyy-MM-dd');
 
-  const handleBigOneChange = (value: string) => {
+  // Load tasks from user_tasks table
+  const loadTasks = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+    
+    setUserId(user.id);
+
+    const { data: tasks } = await supabase
+      .from('user_tasks')
+      .select('id, title, completed')
+      .eq('user_id', user.id)
+      .eq('day', today)
+      .eq('list_type', 'daily')
+      .order('created_at', { ascending: true });
+
+    if (tasks && tasks.length > 0) {
+      const mappedTodos = tasks.map(t => ({
+        id: t.id,
+        text: t.title,
+        completed: t.completed || false
+      }));
+      setTodos(mappedTodos);
+      onTodosChange(mappedTodos);
+    } else {
+      // Initialize with 3 empty placeholders if no tasks exist
+      setTodos([
+        { id: 'temp-1', text: '', completed: false },
+        { id: 'temp-2', text: '', completed: false },
+        { id: 'temp-3', text: '', completed: false },
+      ]);
+    }
+
+    // Load Big One from champion_routine_logs
+    const { data: logData } = await supabase
+      .from('champion_routine_logs')
+      .select('big_one_today')
+      .eq('user_id', user.id)
+      .eq('date', today)
+      .maybeSingle();
+
+    if (logData?.big_one_today) {
+      setLocalBigOne(logData.big_one_today);
+    }
+
+    setIsLoading(false);
+  }, [today, onTodosChange]);
+
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
+
+  const handleBigOneChange = async (value: string) => {
     setLocalBigOne(value);
     onBigOneChange(value);
   };
 
-  const handleTodoChange = (id: string, text: string) => {
+  const handleTodoChange = async (id: string, text: string) => {
     const updated = todos.map(t => t.id === id ? { ...t, text } : t);
     setTodos(updated);
     onTodosChange(updated);
   };
 
-  const handleTodoToggle = (id: string) => {
+  // Save task to database (debounced save on blur)
+  const saveTaskToDb = async (id: string, text: string) => {
+    if (!userId || !text.trim()) return;
+
+    // If it's a temp id, create new task
+    if (id.startsWith('temp-')) {
+      const { data } = await supabase
+        .from('user_tasks')
+        .insert({
+          user_id: userId,
+          title: text.trim(),
+          day: today,
+          list_type: 'daily',
+          completed: false
+        })
+        .select()
+        .single();
+
+      if (data) {
+        // Replace temp id with real id
+        setTodos(prev => prev.map(t => 
+          t.id === id ? { ...t, id: data.id } : t
+        ));
+      }
+    } else {
+      // Update existing task
+      await supabase
+        .from('user_tasks')
+        .update({ title: text.trim() })
+        .eq('id', id);
+    }
+  };
+
+  const handleTodoToggle = async (id: string) => {
+    const todo = todos.find(t => t.id === id);
+    if (!todo || !todo.text.trim()) return;
+
     const updated = todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
     setTodos(updated);
     onTodosChange(updated);
+
+    // Sync to database
+    if (!id.startsWith('temp-')) {
+      await supabase
+        .from('user_tasks')
+        .update({ completed: !todo.completed })
+        .eq('id', id);
+    }
   };
 
-  const handleAddTodo = () => {
-    if (!newTodo.trim()) return;
-    const updated = [...todos, { id: Date.now().toString(), text: newTodo.trim(), completed: false }];
-    setTodos(updated);
-    onTodosChange(updated);
-    setNewTodo('');
+  const handleAddTodo = async () => {
+    if (!newTodo.trim() || !userId) return;
+
+    const { data } = await supabase
+      .from('user_tasks')
+      .insert({
+        user_id: userId,
+        title: newTodo.trim(),
+        day: today,
+        list_type: 'daily',
+        completed: false
+      })
+      .select()
+      .single();
+
+    if (data) {
+      const newTodoItem = { id: data.id, text: data.title, completed: false };
+      const updated = [...todos.filter(t => t.text.trim() || !t.id.startsWith('temp-')), newTodoItem];
+      setTodos(updated);
+      onTodosChange(updated);
+      setNewTodo('');
+    }
   };
 
-  const handleRemoveTodo = (id: string) => {
-    if (todos.length <= 3) return; // Keep at least 3
+  const handleRemoveTodo = async (id: string) => {
+    const realTodos = todos.filter(t => t.text.trim() || !t.id.startsWith('temp-'));
+    if (realTodos.length <= 1) return;
+
     const updated = todos.filter(t => t.id !== id);
     setTodos(updated);
     onTodosChange(updated);
+
+    // Delete from database
+    if (!id.startsWith('temp-')) {
+      await supabase
+        .from('user_tasks')
+        .delete()
+        .eq('id', id);
+    }
   };
 
   const completedCount = todos.filter(t => t.completed && t.text.trim()).length;
   const totalCount = todos.filter(t => t.text.trim()).length;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
@@ -128,10 +258,11 @@ export function DailyTasksStep({
                     placeholder={`Task ${index + 1}...`}
                     value={todo.text}
                     onChange={(e) => handleTodoChange(todo.id, e.target.value)}
+                    onBlur={() => saveTaskToDb(todo.id, todo.text)}
                     className={`${index < 3 ? 'pl-8' : ''} ${todo.completed ? 'line-through text-muted-foreground' : ''}`}
                   />
                 </div>
-                {index >= 3 && (
+                {todos.filter(t => t.text.trim()).length > 1 && todo.text.trim() && (
                   <Button
                     variant="ghost"
                     size="icon"
