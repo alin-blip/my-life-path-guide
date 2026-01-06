@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useDailyScore } from '@/hooks/useDailyScore';
 import { useDailyHabits } from '@/hooks/useDailyHabits';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
   Target, 
   ArrowRight, 
@@ -18,10 +18,13 @@ import {
   Dumbbell,
   Brain,
   Users,
-  Briefcase
+  Briefcase,
+  Plus,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChampionRoutineSettings } from '@/components/champion-routine/ChampionRoutineSettings';
+import { AddHabitDialog } from '@/components/habits/AddHabitDialog';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 // Map habit names to routine steps
@@ -51,19 +54,72 @@ const HABIT_TO_STEP_MAP: Record<string, string> = {
   'citeste': 'dailyTasks',
 };
 
-// Category icons and colors
-const CATEGORY_CONFIG: Record<string, { icon: React.ElementType; color: string; bgColor: string }> = {
-  body: { icon: Dumbbell, color: 'text-red-500', bgColor: 'bg-red-500/10' },
-  being: { icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-  balance: { icon: Users, color: 'text-pink-500', bgColor: 'bg-pink-500/10' },
-  business: { icon: Briefcase, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
+// Default category config
+const DEFAULT_CATEGORY_CONFIG: Record<string, { icon: React.ElementType; color: string; bgColor: string; label: string }> = {
+  body: { icon: Dumbbell, color: 'text-red-500', bgColor: 'bg-red-500/10', label: 'Corp' },
+  being: { icon: Brain, color: 'text-purple-500', bgColor: 'bg-purple-500/10', label: 'Spiritualitate' },
+  balance: { icon: Users, color: 'text-pink-500', bgColor: 'bg-pink-500/10', label: 'Relații' },
+  business: { icon: Briefcase, color: 'text-blue-500', bgColor: 'bg-blue-500/10', label: 'Business' },
 };
+
+// Colors for custom categories
+const CUSTOM_CATEGORY_COLORS = [
+  { color: 'text-emerald-500', bgColor: 'bg-emerald-500/10' },
+  { color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
+  { color: 'text-cyan-500', bgColor: 'bg-cyan-500/10' },
+  { color: 'text-violet-500', bgColor: 'bg-violet-500/10' },
+  { color: 'text-rose-500', bgColor: 'bg-rose-500/10' },
+  { color: 'text-teal-500', bgColor: 'bg-teal-500/10' },
+];
 
 export const DailyCommandCenterWidget: React.FC = () => {
   const { data, loading } = useDailyScore();
-  const { habits, isHabitCompleted, toggleHabit, getHabitsByGroup } = useDailyHabits();
+  const { habits, isHabitCompleted, toggleHabit, addHabit, refetch } = useDailyHabits();
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [addHabitOpen, setAddHabitOpen] = useState(false);
+  const [addHabitCategory, setAddHabitCategory] = useState<string>('body');
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+
+  // Get all unique categories from habits (including custom ones)
+  const allCategories = useMemo(() => {
+    const categoriesFromHabits = [...new Set(habits.map(h => h.category))];
+    const defaultCats = ['body', 'being', 'balance', 'business'];
+    const allCats = [...new Set([...defaultCats, ...categoriesFromHabits, ...customCategories])];
+    return allCats;
+  }, [habits, customCategories]);
+
+  // Build category config dynamically
+  const categoryConfig = useMemo(() => {
+    const config: Record<string, { icon: React.ElementType; color: string; bgColor: string; label: string }> = { ...DEFAULT_CATEGORY_CONFIG };
+    
+    let customIndex = 0;
+    allCategories.forEach(cat => {
+      if (!config[cat]) {
+        const colorSet = CUSTOM_CATEGORY_COLORS[customIndex % CUSTOM_CATEGORY_COLORS.length];
+        config[cat] = {
+          icon: Sparkles,
+          ...colorSet,
+          label: cat.charAt(0).toUpperCase() + cat.slice(1).replace(/_/g, ' '),
+        };
+        customIndex++;
+      }
+    });
+    
+    return config;
+  }, [allCategories]);
+
+  // Organize habits by category
+  const habitsByCategory = useMemo(() => {
+    const allActiveHabits = habits.filter(h => h.is_active);
+    const byCategory: Record<string, typeof habits> = {};
+    
+    allCategories.forEach(cat => {
+      byCategory[cat] = allActiveHabits.filter(h => h.category === cat);
+    });
+    
+    return byCategory;
+  }, [habits, allCategories]);
 
   if (loading) {
     return (
@@ -102,30 +158,37 @@ export const DailyCommandCenterWidget: React.FC = () => {
   };
 
   const handleHabitClick = async (habit: any) => {
-    // Check if this habit has a corresponding routine step
     const stepName = Object.entries(HABIT_TO_STEP_MAP).find(
       ([key]) => habit.name.toLowerCase().includes(key.toLowerCase())
     )?.[1];
 
     if (stepName) {
-      // Navigate to the routine with the specific step
       navigate(`/daily-flow?step=${stepName}`);
     } else {
-      // Toggle the habit directly
       await toggleHabit(habit.id);
     }
   };
 
-  // Get ALL habits organized by category (from all groups: core4, biz4, custom)
-  const allActiveHabits = habits.filter(h => h.is_active);
-  
-  // Organize habits by category (include all groups)
-  const habitsByCategory: Record<string, typeof habits> = {
-    body: allActiveHabits.filter(h => h.category === 'body'),
-    being: allActiveHabits.filter(h => h.category === 'being'),
-    balance: allActiveHabits.filter(h => h.category === 'balance'),
-    business: allActiveHabits.filter(h => h.category === 'business'),
+  const handleAddHabitClick = (category: string) => {
+    setAddHabitCategory(category);
+    setAddHabitOpen(true);
   };
+
+  const handleAddHabit = async (habitData: any) => {
+    await addHabit(habitData);
+    await refetch();
+  };
+
+  const handleAddCategory = (category: string) => {
+    if (!customCategories.includes(category)) {
+      setCustomCategories(prev => [...prev, category]);
+    }
+  };
+
+  // Filter categories to show (only those with habits or that have been added)
+  const categoriesToShow = allCategories.filter(cat => 
+    habitsByCategory[cat]?.length > 0 || customCategories.includes(cat)
+  );
 
   return (
     <>
@@ -134,7 +197,6 @@ export const DailyCommandCenterWidget: React.FC = () => {
         "bg-gradient-to-br",
         getScoreGradient(totalScore)
       )}>
-        {/* Background decoration */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/5 rounded-full blur-2xl" />
         
@@ -231,13 +293,12 @@ export const DailyCommandCenterWidget: React.FC = () => {
             </div>
           </div>
 
-          {/* Habits Grid - 4 Categories */}
+          {/* Habits Grid - Dynamic Categories */}
           <div className="grid grid-cols-2 gap-3 mb-4">
-            {Object.entries(habitsByCategory).map(([category, categoryHabits]) => {
-              const config = CATEGORY_CONFIG[category];
-              if (!config || categoryHabits.length === 0) return null;
-              
-              const Icon = config.icon;
+            {categoriesToShow.map((category) => {
+              const config = categoryConfig[category];
+              const categoryHabits = habitsByCategory[category] || [];
+              const Icon = config?.icon || Sparkles;
               const completedCount = categoryHabits.filter(h => isHabitCompleted(h.id)).length;
               
               return (
@@ -245,15 +306,13 @@ export const DailyCommandCenterWidget: React.FC = () => {
                   key={category}
                   className={cn(
                     "p-3 rounded-lg border border-border/50",
-                    config.bgColor
+                    config?.bgColor || 'bg-muted/10'
                   )}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Icon className={cn("h-4 w-4", config.color)} />
-                    <span className="text-xs font-medium capitalize">
-                      {category === 'being' ? 'Spiritualitate' : 
-                       category === 'balance' ? 'Relații' : 
-                       category === 'body' ? 'Corp' : 'Business'}
+                    <Icon className={cn("h-4 w-4", config?.color || 'text-muted-foreground')} />
+                    <span className="text-xs font-medium">
+                      {config?.label || category}
                     </span>
                     <span className="text-xs text-muted-foreground ml-auto">
                       {completedCount}/{categoryHabits.length}
@@ -287,10 +346,30 @@ export const DailyCommandCenterWidget: React.FC = () => {
                         +{categoryHabits.length - 4} more
                       </span>
                     )}
+                    {/* Add habit button */}
+                    <button
+                      onClick={() => handleAddHabitClick(category)}
+                      className="flex items-center gap-2 w-full text-left text-xs py-1 px-1 rounded hover:bg-background/50 transition-colors text-muted-foreground hover:text-foreground"
+                    >
+                      <Plus className="h-3 w-3 flex-shrink-0" />
+                      <span>Adaugă habit</span>
+                    </button>
                   </div>
                 </div>
               );
             })}
+
+            {/* Add new category card */}
+            <button
+              onClick={() => {
+                setAddHabitCategory('');
+                setAddHabitOpen(true);
+              }}
+              className="p-3 rounded-lg border border-dashed border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-2 min-h-[100px]"
+            >
+              <Plus className="h-5 w-5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Adaugă categorie</span>
+            </button>
           </div>
 
           {/* Action Buttons */}
@@ -324,6 +403,16 @@ export const DailyCommandCenterWidget: React.FC = () => {
           <ChampionRoutineSettings open={settingsOpen} onOpenChange={setSettingsOpen} />
         </DialogContent>
       </Dialog>
+
+      {/* Add Habit Dialog */}
+      <AddHabitDialog
+        open={addHabitOpen}
+        onOpenChange={setAddHabitOpen}
+        onAdd={handleAddHabit}
+        defaultCategory={addHabitCategory}
+        availableCategories={allCategories}
+        onAddCategory={handleAddCategory}
+      />
     </>
   );
 };
