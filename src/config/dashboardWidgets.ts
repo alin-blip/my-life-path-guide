@@ -59,6 +59,14 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     category: 'productivity'
   },
   {
+    id: 'journal',
+    name: { en: 'Journal', ro: 'Jurnal' },
+    description: { en: 'Quick journal entry for your thoughts', ro: 'Intrare rapidă în jurnal pentru gândurile tale' },
+    icon: 'NotebookPen',
+    defaultSize: 'medium',
+    category: 'mindset'
+  },
+  {
     id: 'reading',
     name: { en: 'Reading Progress', ro: 'Progres Lectură' },
     description: { en: 'Track your reading progress', ro: 'Urmărește progresul de lectură' },
