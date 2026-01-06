@@ -228,6 +228,11 @@ const App = () => (
                         <DailyFlow />
                       </ProtectedRoute>
                     } />
+                    <Route path="/champion-routine" element={
+                      <ProtectedRoute>
+                        <DailyFlow />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/biz4-report" element={
                       <ProtectedRoute>
                         <Biz4Report />
