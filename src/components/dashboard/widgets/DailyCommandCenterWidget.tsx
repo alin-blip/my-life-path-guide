@@ -140,7 +140,7 @@ export const DailyCommandCenterWidget: React.FC = () => {
         {/* Quick Stats Row */}
         <div className="grid grid-cols-3 gap-2 mb-4">
           <div className="flex flex-col items-center p-2 rounded-lg bg-background/30">
-            <span className="text-xs text-muted-foreground">Rutină</span>
+            <span className="text-xs text-muted-foreground">Rutină Campion</span>
             <span className={cn("text-sm font-semibold", progress.routine.done ? "text-green-500" : "text-muted-foreground")}>
               {progress.routine.done ? '✓' : '−'}
             </span>
