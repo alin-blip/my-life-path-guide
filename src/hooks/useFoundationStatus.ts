@@ -53,6 +53,7 @@ export const useFoundationStatus = (): FoundationStatus => {
   const [hasQuarterly, setHasQuarterly] = useState(false);
   const [hasMonthly, setHasMonthly] = useState(false);
   const [hasTodayTasks, setHasTodayTasks] = useState(false);
+  const [hasWeeklyPlanning, setHasWeeklyPlanning] = useState(false);
   const [hasStartedRoutineToday, setHasStartedRoutineToday] = useState(false);
   const [visionBoardCategories, setVisionBoardCategories] = useState<GoalCategory[]>([]);
 
@@ -73,12 +74,16 @@ export const useFoundationStatus = (): FoundationStatus => {
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const todayDayName = dayNames[today.getDay()];
 
+      // Build week key in the door-week format
+      const doorWeekKey = `door-week-${getYear(today)}-${getISOWeek(today).toString().padStart(2, '0')}`;
+
       // Fetch all data in parallel
       const [
         annualMissionsResult,
         quarterlyMissionsResult,
         monthlyMissionsResult,
         todayTasksResult,
+        weeklyPlanningResult,
         routineResult,
         visionBoardResult
       ] = await Promise.all([
@@ -105,16 +110,24 @@ export const useFoundationStatus = (): FoundationStatus => {
           .eq('mission_type', 'monthly')
           .limit(1),
         
-        // 4. Today's tasks (Domino Door)
+        // 4. Today's tasks (Domino Door) - check multiple week_key formats
         supabase
           .from('user_tasks')
           .select('id')
           .eq('user_id', userId)
-          .eq('week_key', weekKey)
+          .or(`week_key.eq.${weekKey},week_key.eq.${doorWeekKey}`)
           .or(`day_of_week.eq.${todayDayName},day.eq.${todayStr}`)
           .limit(1),
         
-        // 5. Champion routine today
+        // 5. Weekly planning (check if user has done AI planning this week)
+        supabase
+          .from('weekly_planning')
+          .select('id, key_points')
+          .eq('user_id', userId)
+          .or(`week_key.eq.${weekKey},week_key.eq.${doorWeekKey}`)
+          .limit(1),
+        
+        // 6. Champion routine today
         supabase
           .from('champion_routine_logs')
           .select('id')
@@ -122,7 +135,7 @@ export const useFoundationStatus = (): FoundationStatus => {
           .eq('date', todayStr)
           .limit(1),
         
-        // 6. Vision Board - get ALL records to consolidate
+        // 7. Vision Board - get ALL records to consolidate
         supabase
           .from('vision_boards')
           .select('body_image_url, being_image_url, balance_image_url, business_image_url')
@@ -144,6 +157,13 @@ export const useFoundationStatus = (): FoundationStatus => {
 
       // Process today tasks
       setHasTodayTasks((todayTasksResult.data?.length || 0) > 0);
+
+      // Process weekly planning (has key_points with content)
+      const weeklyPlanData = weeklyPlanningResult.data?.[0];
+      const hasKeyPoints = weeklyPlanData?.key_points && 
+        Array.isArray(weeklyPlanData.key_points) && 
+        (weeklyPlanData.key_points as any[]).length > 0;
+      setHasWeeklyPlanning(hasKeyPoints || false);
 
       // Process routine
       setHasStartedRoutineToday((routineResult.data?.length || 0) > 0);
@@ -270,7 +290,8 @@ export const useFoundationStatus = (): FoundationStatus => {
       });
     }
 
-    if (!hasTodayTasks) {
+    // Only show Domino Door notification if no tasks AND no weekly planning done
+    if (!hasTodayTasks && !hasWeeklyPlanning) {
       items.push({
         id: 'tasks',
         type: 'tasks',
@@ -303,16 +324,16 @@ export const useFoundationStatus = (): FoundationStatus => {
     }
 
     return items.sort((a, b) => a.priority - b.priority);
-  }, [hasAllAnnualCategories, missingAnnualCategories, hasQuarterly, hasMonthly, hasVisionBoard, hasTodayTasks, hasStartedRoutineToday]);
+  }, [hasAllAnnualCategories, missingAnnualCategories, hasQuarterly, hasMonthly, hasVisionBoard, hasTodayTasks, hasWeeklyPlanning, hasStartedRoutineToday]);
 
-  // Calculate completion
-  const totalItems = 6; // annual, quarterly, monthly, vision, tasks, routine
+  // Calculate completion - count hasTodayTasks OR hasWeeklyPlanning as done
+  const totalItems = 6; // annual, quarterly, monthly, vision, tasks/planning, routine
   const completedItems = [
     hasAllAnnualCategories,
     hasQuarterly,
     hasMonthly,
     hasVisionBoard,
-    hasTodayTasks,
+    hasTodayTasks || hasWeeklyPlanning, // Either tasks or weekly planning counts
     hasStartedRoutineToday
   ].filter(Boolean).length;
 
