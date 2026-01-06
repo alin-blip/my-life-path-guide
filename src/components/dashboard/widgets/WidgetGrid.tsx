@@ -18,6 +18,25 @@ import type { CustomWidget, WidgetData } from '@/types/customWidget';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 
+// Fix for react-beautiful-dnd with React 18 StrictMode
+const StrictModeDroppable = ({ children, ...props }: React.ComponentProps<typeof Droppable>) => {
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    const animation = requestAnimationFrame(() => setEnabled(true));
+    return () => {
+      cancelAnimationFrame(animation);
+      setEnabled(false);
+    };
+  }, []);
+
+  if (!enabled) {
+    return null;
+  }
+
+  return <Droppable {...props}>{children}</Droppable>;
+};
+
 interface WidgetGridProps {
   widgets: DashboardWidget[];
   customWidgets?: CustomWidget[];
@@ -153,7 +172,7 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
   return (
     <div className="space-y-4">
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="widgets" direction="horizontal">
+        <StrictModeDroppable droppableId="widgets" direction="horizontal">
           {(provided) => (
             <div
               ref={provided.innerRef}
@@ -178,7 +197,7 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
               {provided.placeholder}
             </div>
           )}
-        </Droppable>
+        </StrictModeDroppable>
       </DragDropContext>
 
       {/* Custom Widgets Section */}
