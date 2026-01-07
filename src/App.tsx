@@ -65,6 +65,7 @@ const Achievements = lazy(() => import("./pages/Achievements"));
 const RelationshipCoach = lazy(() => import("./pages/RelationshipCoach"));
 const TherapistCoach = lazy(() => import("./pages/TherapistCoach"));
 const PerformanceCoachPage = lazy(() => import("./pages/PerformanceCoach"));
+const EmotionalTracker = lazy(() => import("./pages/EmotionalTracker"));
 
 // Loading component for lazy routes
 const LoadingFallback = () => (
@@ -294,6 +295,11 @@ const App = () => (
                     <Route path="/performance-coach" element={
                       <ProtectedRoute>
                         <PerformanceCoachPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/emotional-tracker" element={
+                      <ProtectedRoute>
+                        <EmotionalTracker />
                       </ProtectedRoute>
                     } />
                         <Route path="*" element={<NotFound />} />
