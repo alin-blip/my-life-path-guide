@@ -122,6 +122,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       path: '/stack',
       subItems: [
         { title: language === 'ro' ? 'Stacks Zilnice' : 'Daily Stacks', icon: Sparkles, path: '/stack' },
+        { title: language === 'ro' ? 'Emotional Tracker' : 'Emotional Tracker', icon: Heart, path: '/emotional-tracker' },
         { title: language === 'ro' ? 'Jurnal' : 'Journal', icon: Pencil, path: '/journal' },
       ]
     },
