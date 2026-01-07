@@ -92,6 +92,17 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     icon: 'Brain',
     defaultSize: 'medium',
     category: 'mindset'
+  },
+  {
+    id: 'emotional-tracker',
+    name: { en: 'Emotional Tracker', ro: 'Tracker Emoțional' },
+    description: { 
+      en: 'Track your emotions, discover patterns and develop emotional intelligence', 
+      ro: 'Urmărește-ți emoțiile, descoperă pattern-uri și dezvoltă-ți inteligența emoțională' 
+    },
+    icon: 'Heart',
+    defaultSize: 'medium',
+    category: 'mindset'
   }
 ];
 

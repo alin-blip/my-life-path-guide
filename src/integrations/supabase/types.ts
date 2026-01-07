@@ -1111,6 +1111,90 @@ export type Database = {
         }
         Relationships: []
       }
+      emotional_checkins: {
+        Row: {
+          context: string | null
+          created_at: string
+          emotion: string
+          energy_level: number
+          id: string
+          intensity: number
+          notes: string | null
+          reaction: string | null
+          result: string | null
+          trigger: string | null
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          emotion: string
+          energy_level: number
+          id?: string
+          intensity: number
+          notes?: string | null
+          reaction?: string | null
+          result?: string | null
+          trigger?: string | null
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          emotion?: string
+          energy_level?: number
+          id?: string
+          intensity?: number
+          notes?: string | null
+          reaction?: string | null
+          result?: string | null
+          trigger?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emotional_patterns: {
+        Row: {
+          ai_insight: string | null
+          created_at: string
+          description: string
+          first_detected: string
+          frequency: number
+          id: string
+          is_active: boolean
+          last_detected: string
+          pattern_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_insight?: string | null
+          created_at?: string
+          description: string
+          first_detected?: string
+          frequency?: number
+          id?: string
+          is_active?: boolean
+          last_detected?: string
+          pattern_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_insight?: string | null
+          created_at?: string
+          description?: string
+          first_detected?: string
+          frequency?: number
+          id?: string
+          is_active?: boolean
+          last_detected?: string
+          pattern_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       error_logs: {
         Row: {
           component_name: string | null
