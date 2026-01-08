@@ -4,9 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Trash2, User, Heart, Briefcase, Dumbbell, Sparkles, Save, ListOrdered } from 'lucide-react';
+import { Plus, Trash2, User, Heart, Briefcase, Dumbbell, Sparkles, Save, ListOrdered, Link2 } from 'lucide-react';
 import { useChampionRoutine } from '@/hooks/useChampionRoutine';
 import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
@@ -42,6 +45,8 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   const [autosuggestion, setAutosuggestion] = useState('');
   const [activeSteps, setActiveSteps] = useState<string[]>([]);
   const [stepsOrder, setStepsOrder] = useState<string[]>([]);
+  const [habitSteps, setHabitSteps] = useState<string[]>([]);
+  const [includeDailyTasks, setIncludeDailyTasks] = useState(true);
 
   // Initialize state from settings
   useEffect(() => {
@@ -49,6 +54,8 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
       setAutosuggestion(settings.default_autosuggestion || 'Every day, in every way, I am getting better and better.');
       setActiveSteps(settings.active_steps || []);
       setStepsOrder(settings.routine_steps_order || []);
+      setHabitSteps(settings.habit_steps || []);
+      setIncludeDailyTasks(settings.include_daily_tasks !== false);
     }
   }, [settings]);
 
@@ -84,16 +91,28 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   const handleSaveStepsOrder = async () => {
     await saveSettings({ 
       routine_steps_order: stepsOrder,
-      active_steps: activeSteps
+      active_steps: activeSteps,
+      habit_steps: habitSteps,
+      include_daily_tasks: includeDailyTasks
     });
     toast.success('Ordinea pașilor salvată');
+  };
+
+  const handleHabitStepToggle = (stepId: string, checked: boolean) => {
+    if (checked) {
+      setHabitSteps([...habitSteps, stepId]);
+    } else {
+      setHabitSteps(habitSteps.filter(s => s !== stepId));
+    }
   };
 
   const handleSaveAndClose = async () => {
     await saveSettings({ 
       is_configured: true,
       routine_steps_order: stepsOrder,
-      active_steps: activeSteps
+      active_steps: activeSteps,
+      habit_steps: habitSteps,
+      include_daily_tasks: includeDailyTasks
     });
     toast.success('Setări salvate!');
     onOpenChange(false);
@@ -107,10 +126,14 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
         </DialogHeader>
 
         <Tabs defaultValue="steps" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="steps" className="gap-2">
               <ListOrdered className="h-4 w-4" />
               Pași
+            </TabsTrigger>
+            <TabsTrigger value="sync" className="gap-2">
+              <Link2 className="h-4 w-4" />
+              Sincronizare
             </TabsTrigger>
             <TabsTrigger value="people" className="gap-2">
               <Heart className="h-4 w-4" />
@@ -133,6 +156,67 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
             <Button onClick={handleSaveStepsOrder} className="w-full">
               <Save className="h-4 w-4 mr-2" />
               Salvează Ordinea
+            </Button>
+          </TabsContent>
+
+          {/* Sync Tab - NEW */}
+          <TabsContent value="sync" className="space-y-4 mt-4">
+            <Card className="p-4 space-y-6">
+              <h3 className="font-medium flex items-center gap-2">
+                <Link2 className="h-5 w-5 text-blue-500" />
+                Sincronizare Habits & Tasks
+              </h3>
+              
+              {/* Include Today's Tasks */}
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label htmlFor="include-tasks">Include Sarcinile de Azi în rutină</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Adaugă sarcinile ca pas final înainte de finalizare
+                  </p>
+                </div>
+                <Switch 
+                  id="include-tasks"
+                  checked={includeDailyTasks} 
+                  onCheckedChange={setIncludeDailyTasks} 
+                />
+              </div>
+              
+              {/* Habit Categories to Include */}
+              <div className="space-y-3">
+                <div>
+                  <Label>Categorii de habits în rutină</Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Selectează categoriile care să apară ca pași în rutina de campion
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  {[
+                    { id: 'habit_body', label: 'Corp', icon: Dumbbell, color: 'text-red-500' },
+                    { id: 'habit_being', label: 'Spirit', icon: Sparkles, color: 'text-purple-500' },
+                    { id: 'habit_balance', label: 'Relații', icon: Heart, color: 'text-pink-500' },
+                    { id: 'habit_business', label: 'Business', icon: Briefcase, color: 'text-blue-500' },
+                  ].map(({ id, label, icon: Icon, color }) => (
+                    <div key={id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50">
+                      <Checkbox 
+                        id={id}
+                        checked={habitSteps.includes(id)}
+                        onCheckedChange={(checked) => handleHabitStepToggle(id, checked === true)}
+                      />
+                      <Icon className={`h-4 w-4 ${color}`} />
+                      <Label htmlFor={id} className="cursor-pointer flex-1">
+                        {label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+            
+            <Button onClick={handleSaveStepsOrder} className="w-full">
+              <Save className="h-4 w-4 mr-2" />
+              Salvează Sincronizarea
             </Button>
           </TabsContent>
 

@@ -18,6 +18,9 @@ export interface ChampionSettings {
   default_autosuggestion: string;
   routine_steps_order: string[];
   active_steps: string[];
+  habit_steps?: string[];
+  include_daily_tasks?: boolean;
+  step_configs?: Record<string, any>;
 }
 
 export interface Meal {
@@ -102,7 +105,10 @@ export function useChampionRoutine() {
         setSettings({
           ...settingsData,
           routine_steps_order: settingsData.routine_steps_order as string[] || [],
-          active_steps: settingsData.active_steps as string[] || []
+          active_steps: settingsData.active_steps as string[] || [],
+          habit_steps: settingsData.habit_steps as string[] || [],
+          include_daily_tasks: settingsData.include_daily_tasks ?? true,
+          step_configs: settingsData.step_configs as Record<string, any> || {}
         });
       }
 
@@ -274,7 +280,10 @@ export function useChampionRoutine() {
       setSettings({
         ...data,
         routine_steps_order: data.routine_steps_order as string[] || [],
-        active_steps: data.active_steps as string[] || []
+        active_steps: data.active_steps as string[] || [],
+        habit_steps: data.habit_steps as string[] || [],
+        include_daily_tasks: data.include_daily_tasks ?? true,
+        step_configs: data.step_configs as Record<string, any> || {}
       });
     }
     return { data, error };

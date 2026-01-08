@@ -8,6 +8,7 @@ import { NotificationSettings } from './NotificationSettings';
 import { debounce } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { HabitCategory } from '@/hooks/useDailyHabits';
 
 // Step components
 import { GratitudeStep } from './steps/GratitudeStep';
@@ -20,6 +21,8 @@ import { ContentCreationStep } from './steps/ContentCreationStep';
 import { DailyTasksStep } from './steps/DailyTasksStep';
 import { RelationshipStep } from './steps/RelationshipStep';
 import { CompletionStep } from './steps/CompletionStep';
+import { HabitCheckStep } from './steps/HabitCheckStep';
+import { TodaysTasksStep } from './steps/TodaysTasksStep';
 
 // Setup UI components
 import { Card } from '@/components/ui/card';
@@ -40,6 +43,11 @@ export type RoutineStepId =
   | 'contentCreation'
   | 'dailyTasks'
   | 'relationships'
+  | 'habit_body'
+  | 'habit_being'
+  | 'habit_balance'
+  | 'habit_business'
+  | 'todaysTasks'
   | 'completion';
 
 // Default order for Execution Room
@@ -66,10 +74,15 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
   contentCreation: 'Content Creation',
   dailyTasks: 'Daily Tasks',
   relationships: 'Relații',
+  habit_body: 'Habits: Corp',
+  habit_being: 'Habits: Spirit',
+  habit_balance: 'Habits: Relații',
+  habit_business: 'Habits: Business',
+  todaysTasks: 'Sarcinile de Azi',
   completion: 'Finalizare',
 };
 
-const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete'> = {
+const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks'> = {
   gratitude: 'being',
   hydration: 'being',
   meditation: 'being',
@@ -79,6 +92,11 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
   contentCreation: 'business',
   dailyTasks: 'business',
   relationships: 'balance',
+  habit_body: 'habits',
+  habit_being: 'habits',
+  habit_balance: 'habits',
+  habit_business: 'habits',
+  todaysTasks: 'tasks',
   completion: 'complete',
 };
 
@@ -87,6 +105,8 @@ const CATEGORY_COLORS = {
   body: 'text-red-500',
   business: 'text-blue-500',
   balance: 'text-pink-500',
+  habits: 'text-amber-500',
+  tasks: 'text-emerald-500',
   complete: 'text-green-500',
 };
 
@@ -140,31 +160,49 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   const routineSteps = useMemo((): RoutineStepId[] => {
     const activeSteps = settings?.active_steps || [];
     const stepsOrder = settings?.routine_steps_order || [];
+    const habitSteps = (settings?.habit_steps as string[]) || [];
+    const includeDailyTasks = settings?.include_daily_tasks !== false;
 
     // If no custom order, use default
+    let steps: RoutineStepId[];
     if (stepsOrder.length === 0) {
-      return DEFAULT_ROUTINE_STEPS;
-    }
+      steps = [...DEFAULT_ROUTINE_STEPS];
+    } else {
+      // Filter by active steps (if activeSteps is empty, all are active)
+      steps = stepsOrder.filter(id => 
+        DEFAULT_ROUTINE_STEPS.includes(id as RoutineStepId)
+      ) as RoutineStepId[];
 
-    // Filter by active steps (if activeSteps is empty, all are active)
-    let steps = stepsOrder.filter(id => 
-      DEFAULT_ROUTINE_STEPS.includes(id as RoutineStepId)
-    ) as RoutineStepId[];
-
-    // Filter out inactive steps
-    if (activeSteps.length > 0) {
-      steps = steps.filter(id => activeSteps.includes(id) || id === 'completion');
-    }
-
-    // Always ensure completion is at the end
-    if (!steps.includes('completion')) {
-      steps.push('completion');
+      // Filter out inactive steps
+      if (activeSteps.length > 0) {
+        steps = steps.filter(id => activeSteps.includes(id) || id === 'completion');
+      }
     }
 
     // Skip relationships if no people configured
     if (people.length === 0) {
       steps = steps.filter(id => id !== 'relationships');
     }
+
+    // Remove completion temporarily to add habit/task steps before it
+    steps = steps.filter(id => id !== 'completion');
+
+    // Add habit steps if configured
+    if (habitSteps.length > 0) {
+      habitSteps.forEach(habitStep => {
+        if (['habit_body', 'habit_being', 'habit_balance', 'habit_business'].includes(habitStep)) {
+          steps.push(habitStep as RoutineStepId);
+        }
+      });
+    }
+
+    // Add today's tasks step if enabled
+    if (includeDailyTasks) {
+      steps.push('todaysTasks');
+    }
+
+    // Always ensure completion is at the end
+    steps.push('completion');
 
     return steps;
   }, [settings, people]);
@@ -399,6 +437,16 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             onNext={goToNextStep}
           />
         );
+      case 'habit_body':
+        return <HabitCheckStep category="body" onNext={goToNextStep} />;
+      case 'habit_being':
+        return <HabitCheckStep category="being" onNext={goToNextStep} />;
+      case 'habit_balance':
+        return <HabitCheckStep category="balance" onNext={goToNextStep} />;
+      case 'habit_business':
+        return <HabitCheckStep category="business" onNext={goToNextStep} />;
+      case 'todaysTasks':
+        return <TodaysTasksStep onNext={goToNextStep} />;
       case 'completion':
         return (
           <CompletionStep
@@ -414,9 +462,9 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
 
   return (
     <div className="relative min-h-screen">
-      {/* Header with progress */}
+      {/* Header with progress - Focus Mode styling */}
       {currentStepId !== 'completion' && (
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="sticky top-0 z-10 bg-black/40 backdrop-blur-xl border-b border-white/10">
           <div className="max-w-2xl mx-auto px-4 py-3">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -429,22 +477,22 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
                   <span className={`text-xs uppercase font-medium ${CATEGORY_COLORS[currentCategory]}`}>
                     {currentCategory}
                   </span>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium text-white">
                     {STEP_LABELS[currentStepId]}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-white/60">
                   {currentStepIndex + 1}/{routineSteps.length}
                 </span>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/champion-routine-history')} title="Istoric">
+                <Button variant="ghost" size="sm" onClick={() => navigate('/champion-routine-history')} title="Istoric" className="text-white/70 hover:text-white hover:bg-white/10">
                   <History className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setShowNotificationSettings(!showNotificationSettings)} title="Notificări">
+                <Button variant="ghost" size="sm" onClick={() => setShowNotificationSettings(!showNotificationSettings)} title="Notificări" className="text-white/70 hover:text-white hover:bg-white/10">
                   <Bell className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setSettingsOpen(true)} title="Setări">
+                <Button variant="ghost" size="sm" onClick={() => setSettingsOpen(true)} title="Setări" className="text-white/70 hover:text-white hover:bg-white/10">
                   <Settings className="h-4 w-4" />
                 </Button>
               </div>
