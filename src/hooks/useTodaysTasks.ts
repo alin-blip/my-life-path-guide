@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { getWeekKey, getTodayAbbrev } from '@/utils/weekUtils';
 
 export interface TodayTask {
   id: string;
@@ -18,7 +19,8 @@ export const useTodaysTasks = () => {
   const [bigOne, setBigOne] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const today = format(new Date(), 'EEEE').toLowerCase();
+  const weekKey = getWeekKey();
+  const todayAbbrev = getTodayAbbrev();
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -28,18 +30,26 @@ export const useTodaysTasks = () => {
         return;
       }
 
-      // Fetch today's tasks
+      // Fetch today's tasks from Door system (hit list)
       const { data: tasksData, error: tasksError } = await supabase
         .from('user_tasks')
         .select('*')
         .eq('user_id', user.id)
-        .eq('day_of_week', today)
-        .eq('list_type', 'daily')
-        .order('created_at', { ascending: true });
+        .eq('week_key', weekKey)
+        .eq('task_type', 'hit')
+        .order('position', { ascending: true });
 
       if (tasksError) throw tasksError;
 
-      setTasks(tasksData || []);
+      // Filter for today's tasks
+      const todaysTasks = (tasksData || []).filter(task => {
+        if (!task.day_of_week) return false;
+        const normalizedDay = task.day_of_week.toLowerCase();
+        const todayLower = todayAbbrev.toLowerCase();
+        return normalizedDay === todayLower || normalizedDay === todayAbbrev;
+      });
+
+      setTasks(todaysTasks);
 
       // Fetch Big One from champion routine log
       const todayDate = format(new Date(), 'yyyy-MM-dd');
@@ -58,7 +68,7 @@ export const useTodaysTasks = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [today]);
+  }, [weekKey, todayAbbrev]);
 
   useEffect(() => {
     fetchTasks();
@@ -127,9 +137,11 @@ export const useTodaysTasks = () => {
           user_id: user.id,
           title: title.trim(),
           completed: false,
-          day_of_week: today,
-          list_type: 'daily',
-          task_type: 'daily'
+          day_of_week: todayAbbrev,
+          week_key: weekKey,
+          task_type: 'hit',
+          list_type: 'hit',
+          position: tasks.length
         })
         .select()
         .single();
