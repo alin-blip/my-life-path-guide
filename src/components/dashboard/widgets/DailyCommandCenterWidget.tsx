@@ -286,6 +286,7 @@ export const DailyCommandCenterWidget: React.FC = () => {
           </div>
 
           {/* Habits Grid - Dynamic Categories */}
+          <h3 className="text-sm font-semibold text-foreground mb-2">Habit Tracker</h3>
           <div className="grid grid-cols-2 gap-3 mb-4">
             {categoriesToShow.map((category) => {
               const config = categoryConfig[category];
