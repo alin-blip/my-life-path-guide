@@ -336,14 +336,6 @@ export const DailyCommandCenterWidget: React.FC = () => {
               <h3 className="text-lg font-bold text-foreground">Habit Tracker</h3>
               <p className="text-xs text-muted-foreground">Track your daily habits</p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setHabitSettingsOpen(true)}
-              className="h-8 w-8 p-0"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
           </div>
           <DragDropContext onDragEnd={handleDragEnd}>
             <div className="grid grid-cols-2 gap-3 mb-4">

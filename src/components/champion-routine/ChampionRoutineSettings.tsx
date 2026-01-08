@@ -48,14 +48,31 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   const [habitSteps, setHabitSteps] = useState<string[]>([]);
   const [includeDailyTasks, setIncludeDailyTasks] = useState(true);
 
+  const ALL_STEP_IDS = [
+    'gratitude', 'hydration', 'meditation', 'autosuggestion', 
+    'exercise', 'mealPlanning', 'contentCreation', 'dailyTasks', 'relationships'
+  ];
+
   // Initialize state from settings
   useEffect(() => {
     if (settings) {
       setAutosuggestion(settings.default_autosuggestion || 'Every day, in every way, I am getting better and better.');
-      setActiveSteps(settings.active_steps || []);
-      setStepsOrder(settings.routine_steps_order || []);
+      setActiveSteps(
+        settings.active_steps && settings.active_steps.length > 0 
+          ? settings.active_steps 
+          : ALL_STEP_IDS
+      );
+      setStepsOrder(
+        settings.routine_steps_order && settings.routine_steps_order.length > 0 
+          ? settings.routine_steps_order 
+          : ALL_STEP_IDS
+      );
       setHabitSteps(settings.habit_steps || []);
       setIncludeDailyTasks(settings.include_daily_tasks !== false);
+    } else {
+      // First time setup - set defaults
+      setActiveSteps(ALL_STEP_IDS);
+      setStepsOrder(ALL_STEP_IDS);
     }
   }, [settings]);
 
