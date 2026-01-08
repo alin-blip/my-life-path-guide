@@ -285,8 +285,24 @@ export const DailyCommandCenterWidget: React.FC = () => {
             </div>
           </div>
 
+          {/* Main Action Button - Start Routine */}
+          <Button 
+            onClick={handleActionClick}
+            className="w-full mb-4 group"
+            variant={nextAction.type === 'complete' ? 'secondary' : 'default'}
+          >
+            <Zap className="h-4 w-4 mr-2" />
+            <span className="truncate">{nextAction.title}</span>
+            {nextAction.route && (
+              <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            )}
+          </Button>
+
           {/* Habits Grid - Dynamic Categories */}
-          <h3 className="text-sm font-semibold text-foreground mb-2">Habit Tracker</h3>
+          <div className="text-center mb-4">
+            <h3 className="text-lg font-bold text-foreground">Habit Tracker</h3>
+            <p className="text-xs text-muted-foreground">Track your daily habits</p>
+          </div>
           <div className="grid grid-cols-2 gap-3 mb-4">
             {categoriesToShow.map((category) => {
               const config = categoryConfig[category];
@@ -360,26 +376,16 @@ export const DailyCommandCenterWidget: React.FC = () => {
             </button>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2">
+          {/* Settings Button */}
+          <div className="flex justify-center">
             <Button 
               variant="outline"
               size="sm"
               onClick={() => setSettingsOpen(true)}
               className="flex-shrink-0"
             >
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Button 
-              onClick={handleActionClick}
-              className="flex-1 group"
-              variant={nextAction.type === 'complete' ? 'secondary' : 'default'}
-            >
-              <Zap className="h-4 w-4 mr-2" />
-              <span className="truncate">{nextAction.title}</span>
-              {nextAction.route && (
-                <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              )}
+              <Settings className="h-4 w-4 mr-2" />
+              <span className="text-xs">Setări</span>
             </Button>
           </div>
         </CardContent>
