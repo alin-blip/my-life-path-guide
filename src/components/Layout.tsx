@@ -10,8 +10,7 @@ import { ReferralTracker } from './ReferralTracker';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { PlatformAssistantWidget } from './assistant/PlatformAssistantWidget';
-import { QuickAddButton } from './gtd/QuickAddButton';
+import { AccountabilityCoachWidget } from './accountability/AccountabilityCoachWidget';
 import { GoalRemindersNotification } from './door/GoalRemindersNotification';
 
 interface LayoutProps {
@@ -168,11 +167,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Goal Reminders Notification */}
       <GoalRemindersNotification />
       
-      {/* Platform Assistant Widget */}
-      <PlatformAssistantWidget />
-      
-      {/* Quick Add Button */}
-      <QuickAddButton />
+      {/* Accountability Coach Widget */}
+      <AccountabilityCoachWidget />
     </div>
   );
 };
