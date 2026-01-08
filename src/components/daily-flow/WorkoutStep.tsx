@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Dumbbell, Play, Square, Plus, Trash2, Check, 
-  Utensils, History, CheckCircle2, Copy, Save
+  Utensils, History, CheckCircle2, Copy, Save, RotateCcw
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkoutHistory } from './WorkoutHistory';
@@ -87,15 +87,86 @@ interface WorkoutStepProps {
   onComplete: () => void;
 }
 
+interface StoredWorkoutSession {
+  isWorkoutStarted: boolean;
+  startTime: string | null;
+  elapsedTime: number;
+  exercises: Exercise[];
+  sessionId: string | null;
+  lastUpdate: number;
+}
+
+const today = format(new Date(), 'yyyy-MM-dd');
+const WORKOUT_SESSION_KEY = `workout_session_${today}`;
+const SESSION_MAX_AGE = 7200000; // 2 hours
+
+const getStoredSession = (): StoredWorkoutSession | null => {
+  try {
+    const stored = localStorage.getItem(WORKOUT_SESSION_KEY);
+    if (stored) {
+      const session = JSON.parse(stored) as StoredWorkoutSession;
+      if (Date.now() - session.lastUpdate < SESSION_MAX_AGE) {
+        return session;
+      }
+    }
+  } catch {
+    // Ignore errors
+  }
+  return null;
+};
+
 export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
-  const [isWorkoutStarted, setIsWorkoutStarted] = useState(false);
-  const [startTime, setStartTime] = useState<Date | null>(null);
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  // Initialize state from localStorage
+  const storedSession = getStoredSession();
+  
+  const [isWorkoutStarted, setIsWorkoutStarted] = useState(storedSession?.isWorkoutStarted || false);
+  const [startTime, setStartTime] = useState<Date | null>(
+    storedSession?.startTime ? new Date(storedSession.startTime) : null
+  );
+  const [elapsedTime, setElapsedTime] = useState(() => {
+    // Recalculate elapsed time based on stored startTime
+    if (storedSession?.isWorkoutStarted && storedSession.startTime) {
+      return Math.floor((Date.now() - new Date(storedSession.startTime).getTime()) / 1000);
+    }
+    return storedSession?.elapsedTime || 0;
+  });
+  const [exercises, setExercises] = useState<Exercise[]>(storedSession?.exercises || []);
+  const [sessionId, setSessionId] = useState<string | null>(storedSession?.sessionId || null);
   const [mealPlanDone, setMealPlanDone] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showRecoveryBanner, setShowRecoveryBanner] = useState(
+    storedSession?.isWorkoutStarted && storedSession.exercises.length > 0
+  );
+  
+  const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Save to localStorage
+  const saveToStorage = useCallback(() => {
+    const session: StoredWorkoutSession = {
+      isWorkoutStarted,
+      startTime: startTime?.toISOString() || null,
+      elapsedTime,
+      exercises,
+      sessionId,
+      lastUpdate: Date.now()
+    };
+    try {
+      localStorage.setItem(WORKOUT_SESSION_KEY, JSON.stringify(session));
+    } catch {
+      // Ignore storage errors
+    }
+  }, [isWorkoutStarted, startTime, elapsedTime, exercises, sessionId]);
+
+  // Clear stored session
+  const clearStoredSession = useCallback(() => {
+    try {
+      localStorage.removeItem(WORKOUT_SESSION_KEY);
+    } catch {
+      // Ignore errors
+    }
+  }, []);
+
+  // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isWorkoutStarted && startTime) {
@@ -105,6 +176,63 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
     }
     return () => clearInterval(interval);
   }, [isWorkoutStarted, startTime]);
+
+  // Auto-save every 30 seconds when workout is active
+  useEffect(() => {
+    if (isWorkoutStarted || exercises.length > 0) {
+      autoSaveRef.current = setInterval(() => {
+        saveToStorage();
+      }, 30000);
+    }
+    
+    return () => {
+      if (autoSaveRef.current) {
+        clearInterval(autoSaveRef.current);
+      }
+    };
+  }, [isWorkoutStarted, exercises.length, saveToStorage]);
+
+  // Save on state changes
+  useEffect(() => {
+    if (isWorkoutStarted || exercises.length > 0) {
+      saveToStorage();
+    }
+  }, [exercises, isWorkoutStarted, saveToStorage]);
+
+  // Save on visibility change and before unload
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && (isWorkoutStarted || exercises.length > 0)) {
+        saveToStorage();
+      }
+    };
+    
+    const handleBeforeUnload = () => {
+      if (isWorkoutStarted || exercises.length > 0) {
+        saveToStorage();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isWorkoutStarted, exercises.length, saveToStorage]);
+
+  // Handle reset workout
+  const resetWorkout = useCallback(() => {
+    setIsWorkoutStarted(false);
+    setStartTime(null);
+    setElapsedTime(0);
+    setExercises([]);
+    setSessionId(null);
+    setShowRecoveryBanner(false);
+    clearStoredSession();
+    toast.info('Workout resetat');
+  }, [clearStoredSession]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -157,6 +285,7 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
       if (error) throw error;
 
       setIsWorkoutStarted(false);
+      clearStoredSession(); // Clear localStorage after successful save
       toast.success('Workout salvat! 🎉');
     } catch (error) {
       console.error('Error stopping workout:', error);
@@ -403,6 +532,44 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Recovery Banner */}
+        {showRecoveryBanner && !isWorkoutStarted && exercises.length > 0 && (
+          <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-amber-600 dark:text-amber-400">
+                  Sesiune găsită în memorie
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {exercises.length} exerciții, {formatTime(elapsedTime)} înregistrat
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={resetWorkout}
+                  className="gap-1"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Resetează
+                </Button>
+                <Button 
+                  size="sm"
+                  onClick={() => {
+                    setShowRecoveryBanner(false);
+                    toast.success('Continuă de unde ai rămas!');
+                  }}
+                  className="gap-1"
+                >
+                  <Play className="h-4 w-4" />
+                  Continuă
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Workout Timer */}
         <div className="p-4 rounded-lg bg-muted/50 text-center">
           <div className="text-4xl font-mono font-bold text-foreground mb-4">
