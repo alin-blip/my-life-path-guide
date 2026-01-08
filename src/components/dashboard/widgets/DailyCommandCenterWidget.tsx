@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDailyScore } from '@/hooks/useDailyScore';
 import { useDailyHabits } from '@/hooks/useDailyHabits';
+import { useTodaysTasks } from '@/hooks/useTodaysTasks';
 
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -23,7 +24,9 @@ import {
   Users,
   Briefcase,
   Plus,
-  Sparkles
+  Sparkles,
+  ListTodo,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChampionRoutineSettings } from '@/components/champion-routine/ChampionRoutineSettings';
@@ -78,11 +81,14 @@ const CUSTOM_CATEGORY_COLORS = [
 export const DailyCommandCenterWidget: React.FC = () => {
   const { data, loading } = useDailyScore();
   const { habits, isHabitCompleted, toggleHabit, addHabit, refetch } = useDailyHabits();
+  const { tasks, bigOne: tasksBigOne, toggleTask, addTask, deleteTask, completedCount: tasksCompleted, totalCount: tasksTotal, isLoading: tasksLoading } = useTodaysTasks();
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [addHabitOpen, setAddHabitOpen] = useState(false);
   const [addHabitCategory, setAddHabitCategory] = useState<string>('body');
   const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [isAddingTask, setIsAddingTask] = useState(false);
 
   // Get all unique categories from habits (including custom ones)
   const allCategories = useMemo(() => {
@@ -377,6 +383,128 @@ export const DailyCommandCenterWidget: React.FC = () => {
               <Plus className="h-5 w-5 text-muted-foreground" />
               <span className="text-xs text-muted-foreground">Adaugă categorie</span>
             </button>
+          </div>
+
+          {/* Today's Tasks Section */}
+          <div className="mt-4 pt-4 border-t border-border/30">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <ListTodo className="h-5 w-5 text-primary" />
+                <span className="text-lg font-semibold">Today's Tasks</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {tasksCompleted}/{tasksTotal}
+              </span>
+            </div>
+            
+            {/* Progress bar */}
+            {tasksTotal > 0 && (
+              <div className="w-full bg-muted rounded-full h-2 mb-3">
+                <div 
+                  className="bg-primary h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${tasksTotal > 0 ? (tasksCompleted / tasksTotal) * 100 : 0}%` }}
+                />
+              </div>
+            )}
+
+            {/* Big One Today */}
+            {tasksBigOne && (
+              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mb-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-primary mb-1">
+                  <Star className="h-4 w-4 fill-primary" />
+                  Big One Today
+                </div>
+                <p className="text-foreground font-medium">{tasksBigOne}</p>
+              </div>
+            )}
+
+            {/* Task List */}
+            <div className="space-y-2 max-h-[200px] overflow-y-auto">
+              {tasksLoading ? (
+                <div className="animate-pulse space-y-2">
+                  <div className="h-8 bg-muted rounded"></div>
+                  <div className="h-8 bg-muted rounded"></div>
+                </div>
+              ) : tasks.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Nu ai taskuri pentru azi
+                </p>
+              ) : (
+                tasks.map(task => (
+                  <div 
+                    key={task.id}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 group"
+                  >
+                    <Checkbox
+                      checked={task.completed}
+                      onCheckedChange={() => toggleTask(task.id)}
+                    />
+                    <span className={cn(
+                      "flex-1 text-sm",
+                      task.completed ? "line-through text-muted-foreground" : ""
+                    )}>
+                      {task.title}
+                    </span>
+                    <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-destructive"
+                        onClick={() => deleteTask(task.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Add Task */}
+            {isAddingTask ? (
+              <div className="flex gap-2 mt-3">
+                <Input
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  placeholder="Ce ai de făcut azi?"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newTaskTitle.trim()) {
+                      addTask(newTaskTitle);
+                      setNewTaskTitle('');
+                      setIsAddingTask(false);
+                    }
+                  }}
+                  autoFocus
+                />
+                <Button size="sm" onClick={() => {
+                  if (newTaskTitle.trim()) {
+                    addTask(newTaskTitle);
+                    setNewTaskTitle('');
+                    setIsAddingTask(false);
+                  }
+                }}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full mt-3"
+                onClick={() => setIsAddingTask(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Adaugă task
+              </Button>
+            )}
+
+            {/* Completion message */}
+            {tasksTotal > 0 && tasksCompleted === tasksTotal && (
+              <div className="flex items-center justify-center gap-2 text-sm text-green-600 dark:text-green-400 py-2">
+                <CheckCircle2 className="h-4 w-4" />
+                Toate taskurile completate!
+              </div>
+            )}
           </div>
 
           {/* Settings Button */}
