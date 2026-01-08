@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/context/LanguageContext';
 import { useFoundationStatus, FoundationItem } from '@/hooks/useFoundationStatus';
+import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 
 interface FoundationNotificationsProps {
@@ -13,10 +14,14 @@ interface FoundationNotificationsProps {
 
 export const FoundationNotifications: React.FC<FoundationNotificationsProps> = ({ onOpenWizard }) => {
   const { language } = useLanguage();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { pendingItems, completionPercentage, isFoundationComplete, isLoading } = useFoundationStatus();
   const [isMinimized, setIsMinimized] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
+
+  // Get user's first name from email
+  const userName = user?.email?.split('@')[0] || '';
 
   // Check if dismissed recently
   useEffect(() => {
@@ -81,10 +86,12 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
             </div>
             <div>
               <h3 className="font-semibold text-sm text-foreground">
-                {language === 'en' ? 'Coach Reminder' : 'Reminder de la Coach'}
+                {language === 'en' ? `Hey ${userName}! 👋` : `Hey ${userName}! 👋`}
               </h3>
               <p className="text-xs text-muted-foreground">
-                {pendingItems.length} {language === 'en' ? 'items remaining' : 'elemente rămase'}
+                {language === 'en' 
+                  ? `Here's what we have to do today` 
+                  : `Uite ce avem de făcut azi`}
               </p>
             </div>
           </div>

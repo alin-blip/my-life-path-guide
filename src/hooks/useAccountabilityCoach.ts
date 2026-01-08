@@ -131,6 +131,7 @@ export const useAccountabilityCoach = (options: UseAccountabilityCoachOptions = 
           messages: allMessages,
           systemPrompt,
           language,
+          userContext: contextSummary,
         },
       });
       
