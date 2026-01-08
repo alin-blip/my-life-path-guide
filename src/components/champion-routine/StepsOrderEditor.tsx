@@ -88,7 +88,7 @@ export function StepsOrderEditor({
                 if (!step) return null;
 
                 const Icon = step.icon;
-                const isActive = activeSteps.length === 0 || activeSteps.includes(stepId);
+                const isActive = activeSteps.includes(stepId);
 
                 return (
                   <Draggable key={stepId} draggableId={stepId} index={index}>
