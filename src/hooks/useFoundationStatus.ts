@@ -301,8 +301,8 @@ export const useFoundationStatus = (): FoundationStatus => {
       });
     }
 
-    // Only show Domino Door notification if no tasks AND no weekly planning done
-    if (!hasTodayTasks && !hasWeeklyPlanning) {
+    // Show Domino Door notification if no tasks for today
+    if (!hasTodayTasks) {
       items.push({
         id: 'tasks',
         type: 'tasks',
@@ -337,14 +337,14 @@ export const useFoundationStatus = (): FoundationStatus => {
     return items.sort((a, b) => a.priority - b.priority);
   }, [hasAllAnnualCategories, missingAnnualCategories, hasQuarterly, hasMonthly, hasVisionBoard, hasTodayTasks, hasWeeklyPlanning, hasStartedRoutineToday]);
 
-  // Calculate completion - count hasTodayTasks OR hasWeeklyPlanning as done
-  const totalItems = 6; // annual, quarterly, monthly, vision, tasks/planning, routine
+  // Calculate completion
+  const totalItems = 6; // annual, quarterly, monthly, vision, tasks, routine
   const completedItems = [
     hasAllAnnualCategories,
     hasQuarterly,
     hasMonthly,
     hasVisionBoard,
-    hasTodayTasks || hasWeeklyPlanning, // Either tasks or weekly planning counts
+    hasTodayTasks,
     hasStartedRoutineToday
   ].filter(Boolean).length;
 
