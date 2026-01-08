@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Trophy, Target, Sparkles } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, AlertTriangle, Target, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/context/LanguageContext';
 import { useFoundationStatus, FoundationItem } from '@/hooks/useFoundationStatus';
-import { cn } from '@/lib/utils';
 
 interface FoundationNotificationsProps {
   onOpenWizard: () => void;
@@ -18,23 +17,9 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
   const [isMinimized, setIsMinimized] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
-  // Check if dismissed recently
-  useEffect(() => {
-    const dismissedAt = localStorage.getItem('foundation-notifications-dismissed');
-    if (dismissedAt) {
-      const dismissedTime = parseInt(dismissedAt, 10);
-      const fourHours = 4 * 60 * 60 * 1000;
-      if (Date.now() - dismissedTime < fourHours) {
-        setIsDismissed(true);
-      } else {
-        localStorage.removeItem('foundation-notifications-dismissed');
-      }
-    }
-  }, []);
-
+  // Session-only dismiss - reappears on next navigation/refresh
   const handleDismiss = () => {
     setIsDismissed(true);
-    localStorage.setItem('foundation-notifications-dismissed', Date.now().toString());
   };
 
   const handleAction = (item: FoundationItem) => {
@@ -81,7 +66,7 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
             </div>
             <div>
               <h3 className="font-semibold text-sm text-foreground">
-                {language === 'en' ? 'Your Foundation' : 'Fundația ta'}
+                {language === 'en' ? 'Accountability Coach: Your Foundation' : 'Accountability Coach: Fundația ta'}
               </h3>
               <p className="text-xs text-muted-foreground">
                 {pendingItems.length} {language === 'en' ? 'items remaining' : 'elemente rămase'}

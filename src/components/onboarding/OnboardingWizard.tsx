@@ -182,7 +182,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
             <div className="flex items-center gap-2 mb-8">
               <Sparkles className="w-6 h-6 text-primary" />
               <span className="font-semibold text-lg">
-                {language === 'en' ? 'Wizard Setup' : 'Wizard Setup'}
+                Accountability Coach
               </span>
             </div>
             
