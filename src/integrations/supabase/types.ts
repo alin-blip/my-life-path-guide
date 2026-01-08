@@ -529,13 +529,16 @@ export type Database = {
           default_autosuggestion: string | null
           fats_percent: number | null
           fats_target: number | null
+          habit_steps: Json | null
           height_cm: number | null
           id: string
+          include_daily_tasks: boolean | null
           is_configured: boolean | null
           nutrition_configured: boolean | null
           protein_percent: number | null
           protein_target: number | null
           routine_steps_order: Json | null
+          step_configs: Json | null
           updated_at: string | null
           user_id: string
           weight_kg: number | null
@@ -551,13 +554,16 @@ export type Database = {
           default_autosuggestion?: string | null
           fats_percent?: number | null
           fats_target?: number | null
+          habit_steps?: Json | null
           height_cm?: number | null
           id?: string
+          include_daily_tasks?: boolean | null
           is_configured?: boolean | null
           nutrition_configured?: boolean | null
           protein_percent?: number | null
           protein_target?: number | null
           routine_steps_order?: Json | null
+          step_configs?: Json | null
           updated_at?: string | null
           user_id: string
           weight_kg?: number | null
@@ -573,13 +579,16 @@ export type Database = {
           default_autosuggestion?: string | null
           fats_percent?: number | null
           fats_target?: number | null
+          habit_steps?: Json | null
           height_cm?: number | null
           id?: string
+          include_daily_tasks?: boolean | null
           is_configured?: boolean | null
           nutrition_configured?: boolean | null
           protein_percent?: number | null
           protein_target?: number | null
           routine_steps_order?: Json | null
+          step_configs?: Json | null
           updated_at?: string | null
           user_id?: string
           weight_kg?: number | null

@@ -2,8 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useDailyScore } from '@/hooks/useDailyScore';
 import { useDailyHabits } from '@/hooks/useDailyHabits';
+import { useTodaysTasks } from '@/hooks/useTodaysTasks';
 import { useNavigate } from 'react-router-dom';
 import { 
   Target, 
@@ -20,7 +23,9 @@ import {
   Users,
   Briefcase,
   Plus,
-  Sparkles
+  Sparkles,
+  ListTodo,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChampionRoutineSettings } from '@/components/champion-routine/ChampionRoutineSettings';
@@ -75,11 +80,13 @@ const CUSTOM_CATEGORY_COLORS = [
 export const DailyCommandCenterWidget: React.FC = () => {
   const { data, loading } = useDailyScore();
   const { habits, isHabitCompleted, toggleHabit, addHabit, refetch } = useDailyHabits();
+  const { tasks, toggleTask, addTask, deleteTask, completedCount: tasksCompleted, totalCount: tasksTotal } = useTodaysTasks();
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [addHabitOpen, setAddHabitOpen] = useState(false);
   const [addHabitCategory, setAddHabitCategory] = useState<string>('body');
   const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
 
   // Get all unique categories from habits (including custom ones)
   const allCategories = useMemo(() => {
@@ -376,8 +383,89 @@ export const DailyCommandCenterWidget: React.FC = () => {
             </button>
           </div>
 
+          {/* Today's Tasks Section */}
+          <div className="mt-4 pt-4 border-t border-border/30">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <ListTodo className="h-5 w-5 text-amber-500" />
+                Sarcinile de Azi
+              </h3>
+              <span className="text-xs text-muted-foreground">
+                {tasksCompleted}/{tasksTotal}
+              </span>
+            </div>
+            
+            {/* Tasks List */}
+            <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+              {tasks.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-3">
+                  Nu ai sarcini pentru azi. Adaugă una mai jos!
+                </p>
+              ) : (
+                tasks.map(task => (
+                  <div
+                    key={task.id}
+                    className={cn(
+                      "flex items-center gap-2 p-2 rounded-lg transition-all group",
+                      task.completed 
+                        ? "bg-green-500/10 border border-green-500/20" 
+                        : "bg-muted/30 border border-transparent hover:bg-muted/50"
+                    )}
+                  >
+                    <Checkbox 
+                      checked={task.completed}
+                      onCheckedChange={() => toggleTask(task.id)}
+                      className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                    />
+                    <span className={cn(
+                      "flex-1 text-sm",
+                      task.completed ? "text-muted-foreground line-through" : "text-foreground"
+                    )}>
+                      {task.title}
+                    </span>
+                    <button
+                      onClick={() => deleteTask(task.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-destructive/20 rounded"
+                    >
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Quick Add Task */}
+            <div className="flex gap-2">
+              <Input
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && newTaskTitle.trim()) {
+                    addTask(newTaskTitle);
+                    setNewTaskTitle('');
+                  }
+                }}
+                placeholder="Adaugă un task..."
+                className="text-sm h-8"
+              />
+              <Button 
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  if (newTaskTitle.trim()) {
+                    addTask(newTaskTitle);
+                    setNewTaskTitle('');
+                  }
+                }}
+                className="h-8 px-2"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
           {/* Settings Button */}
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-4">
             <Button 
               variant="outline"
               size="sm"
