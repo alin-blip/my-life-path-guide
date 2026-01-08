@@ -127,10 +127,10 @@ export const useFoundationStatus = (): FoundationStatus => {
           .or(`week_key.eq.${weekKey},week_key.eq.${doorWeekKey}`)
           .limit(1),
         
-        // 6. Champion routine today
+        // 6. Champion routine today - check if at least one action was completed
         supabase
           .from('champion_routine_logs')
-          .select('id')
+          .select('id, breathing_completed, meditation_duration_seconds, visualization_completed, reading_completed, autosuggestion_completed, exercise_completed, journaling_completed, gratitude_items')
           .eq('user_id', userId)
           .eq('date', todayStr)
           .limit(1),
@@ -165,8 +165,19 @@ export const useFoundationStatus = (): FoundationStatus => {
         (weeklyPlanData.key_points as any[]).length > 0;
       setHasWeeklyPlanning(hasKeyPoints || false);
 
-      // Process routine
-      setHasStartedRoutineToday((routineResult.data?.length || 0) > 0);
+      // Process routine - check if at least one action was completed
+      const routineLog = routineResult.data?.[0];
+      const hasCompletedRoutineAction = routineLog && (
+        routineLog.breathing_completed ||
+        (routineLog.meditation_duration_seconds && routineLog.meditation_duration_seconds > 0) ||
+        routineLog.visualization_completed ||
+        routineLog.reading_completed ||
+        routineLog.autosuggestion_completed ||
+        routineLog.exercise_completed ||
+        routineLog.journaling_completed ||
+        (routineLog.gratitude_items && Array.isArray(routineLog.gratitude_items) && (routineLog.gratitude_items as any[]).length > 0)
+      );
+      setHasStartedRoutineToday(hasCompletedRoutineAction || false);
 
       // Process vision board - consolidate from all records
       const visionRecords = visionBoardResult.data || [];
