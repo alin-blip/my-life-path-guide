@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDailyScore } from '@/hooks/useDailyScore';
-import { useDailyHabits } from '@/hooks/useDailyHabits';
+import { useDailyHabits, DailyHabit } from '@/hooks/useDailyHabits';
 import { useTodaysTasks } from '@/hooks/useTodaysTasks';
 
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +31,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ChampionRoutineSettings } from '@/components/champion-routine/ChampionRoutineSettings';
 import { AddHabitDialog } from '@/components/habits/AddHabitDialog';
+import { HabitSettingsModal } from '@/components/habits/HabitSettingsModal';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 // Map habit names to routine steps
@@ -80,10 +81,11 @@ const CUSTOM_CATEGORY_COLORS = [
 
 export const DailyCommandCenterWidget: React.FC = () => {
   const { data, loading } = useDailyScore();
-  const { habits, isHabitCompleted, toggleHabit, addHabit, refetch } = useDailyHabits();
+  const { habits, isHabitCompleted, toggleHabit, addHabit, updateHabit, deleteHabit, refetch } = useDailyHabits();
   const { tasks, bigOne: tasksBigOne, toggleTask, addTask, deleteTask, completedCount: tasksCompleted, totalCount: tasksTotal, isLoading: tasksLoading } = useTodaysTasks();
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [habitSettingsOpen, setHabitSettingsOpen] = useState(false);
   const [addHabitOpen, setAddHabitOpen] = useState(false);
   const [addHabitCategory, setAddHabitCategory] = useState<string>('body');
   const [customCategories, setCustomCategories] = useState<string[]>([]);
@@ -308,9 +310,19 @@ export const DailyCommandCenterWidget: React.FC = () => {
           </Button>
 
           {/* Habits Grid - Dynamic Categories */}
-          <div className="text-center mb-4">
-            <h3 className="text-lg font-bold text-foreground">Habit Tracker</h3>
-            <p className="text-xs text-muted-foreground">Track your daily habits</p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-bold text-foreground">Habit Tracker</h3>
+              <p className="text-xs text-muted-foreground">Track your daily habits</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setHabitSettingsOpen(true)}
+              className="h-8 w-8 p-0"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
           </div>
           <div className="grid grid-cols-2 gap-3 mb-4">
             {categoriesToShow.map((category) => {
@@ -537,6 +549,20 @@ export const DailyCommandCenterWidget: React.FC = () => {
         defaultCategory={addHabitCategory}
         availableCategories={allCategories}
         onAddCategory={handleAddCategory}
+      />
+
+      {/* Habit Settings Modal */}
+      <HabitSettingsModal
+        open={habitSettingsOpen}
+        onOpenChange={setHabitSettingsOpen}
+        habits={habits as DailyHabit[]}
+        onAdd={async (habit) => {
+          const result = await addHabit(habit);
+          return result;
+        }}
+        onUpdate={updateHabit}
+        onDelete={deleteHabit}
+        onRefetch={refetch}
       />
     </>
   );
