@@ -46,9 +46,60 @@ const DEFAULT_BIZ4_HABITS: Omit<DailyHabit, 'id' | 'user_id' | 'created_at' | 'u
 export const useDailyHabits = (date: Date = new Date()) => {
   const [habits, setHabits] = useState<DailyHabit[]>([]);
   const [completions, setCompletions] = useState<HabitCompletion[]>([]);
+  const [habitStreaks, setHabitStreaks] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   const dateString = format(date, 'yyyy-MM-dd');
+
+  // Calculate streak for a single habit
+  const calculateHabitStreak = useCallback(async (habitId: string, userId: string): Promise<number> => {
+    const { data: completions } = await supabase
+      .from('daily_habit_completions')
+      .select('date')
+      .eq('habit_id', habitId)
+      .eq('user_id', userId)
+      .order('date', { ascending: false });
+
+    if (!completions || completions.length === 0) return 0;
+
+    let streak = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < completions.length; i++) {
+      const completionDate = new Date(completions[i].date);
+      completionDate.setHours(0, 0, 0, 0);
+      
+      const expectedDate = new Date(today);
+      expectedDate.setDate(today.getDate() - streak);
+      
+      const diffDays = Math.floor((expectedDate.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 0) {
+        streak++;
+      } else if (diffDays === 1 && streak === 0) {
+        // Yesterday counts as start of streak if today not done yet
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }, []);
+
+  // Fetch all streaks for habits
+  const fetchAllStreaks = useCallback(async (habitsToCheck: DailyHabit[], userId: string) => {
+    const streaks: Record<string, number> = {};
+    
+    await Promise.all(
+      habitsToCheck.map(async (habit) => {
+        streaks[habit.id] = await calculateHabitStreak(habit.id, userId);
+      })
+    );
+    
+    setHabitStreaks(streaks);
+  }, [calculateHabitStreak]);
 
   const seedDefaultHabits = useCallback(async (userId: string) => {
     // Check if habits already exist to prevent duplicates
@@ -103,6 +154,7 @@ export const useDailyHabits = (date: Date = new Date()) => {
     }
 
     // If no habits exist, seed defaults
+    let finalHabits: DailyHabit[] = [];
     if (!habitsData || habitsData.length === 0) {
       await seedDefaultHabits(user.id);
       // Refetch after seeding
@@ -113,10 +165,15 @@ export const useDailyHabits = (date: Date = new Date()) => {
         .order('habit_group', { ascending: true })
         .order('position', { ascending: true });
       
-      setHabits((seededHabits as DailyHabit[]) || []);
+      finalHabits = (seededHabits as DailyHabit[]) || [];
+      setHabits(finalHabits);
     } else {
-      setHabits(habitsData as DailyHabit[]);
+      finalHabits = habitsData as DailyHabit[];
+      setHabits(finalHabits);
     }
+    
+    // Fetch streaks for all habits
+    await fetchAllStreaks(finalHabits, user.id);
 
     // Fetch completions for today
     const { data: completionsData, error: completionsError } = await supabase
@@ -132,7 +189,7 @@ export const useDailyHabits = (date: Date = new Date()) => {
     }
 
     setIsLoading(false);
-  }, [dateString, seedDefaultHabits]);
+  }, [dateString, seedDefaultHabits, fetchAllStreaks]);
 
   useEffect(() => {
     fetchHabits();
@@ -231,6 +288,35 @@ export const useDailyHabits = (date: Date = new Date()) => {
     return habits.filter(h => h.habit_group === group && h.is_active);
   }, [habits]);
 
+  // Get streak for a habit
+  const getHabitStreak = useCallback((habitId: string) => {
+    return habitStreaks[habitId] || 0;
+  }, [habitStreaks]);
+
+  // Reorder habits (for drag-and-drop)
+  const reorderHabits = useCallback(async (reorderedHabits: DailyHabit[]) => {
+    // Update local state immediately
+    setHabits(prev => {
+      const otherHabits = prev.filter(h => !reorderedHabits.find(r => r.id === h.id));
+      return [...otherHabits, ...reorderedHabits].sort((a, b) => {
+        if (a.habit_group !== b.habit_group) {
+          return a.habit_group.localeCompare(b.habit_group);
+        }
+        return (a.position || 0) - (b.position || 0);
+      });
+    });
+
+    // Update positions in database
+    await Promise.all(
+      reorderedHabits.map((habit, index) =>
+        supabase
+          .from('daily_habits')
+          .update({ position: index })
+          .eq('id', habit.id)
+      )
+    );
+  }, []);
+
   return {
     habits,
     completions,
@@ -242,6 +328,8 @@ export const useDailyHabits = (date: Date = new Date()) => {
     isHabitCompleted,
     getGroupProgress,
     getHabitsByGroup,
+    getHabitStreak,
+    reorderHabits,
     refetch: fetchHabits,
   };
 };
