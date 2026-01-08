@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useDailyScore } from '@/hooks/useDailyScore';
 import { useDailyHabits, DailyHabit } from '@/hooks/useDailyHabits';
 import { useTodaysTasks } from '@/hooks/useTodaysTasks';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -26,7 +27,8 @@ import {
   Plus,
   Sparkles,
   ListTodo,
-  Trash2
+  Trash2,
+  GripVertical
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChampionRoutineSettings } from '@/components/champion-routine/ChampionRoutineSettings';
@@ -81,7 +83,7 @@ const CUSTOM_CATEGORY_COLORS = [
 
 export const DailyCommandCenterWidget: React.FC = () => {
   const { data, loading } = useDailyScore();
-  const { habits, isHabitCompleted, toggleHabit, addHabit, updateHabit, deleteHabit, refetch } = useDailyHabits();
+  const { habits, isHabitCompleted, toggleHabit, addHabit, updateHabit, deleteHabit, refetch, getHabitStreak, reorderHabits } = useDailyHabits();
   const { tasks, bigOne: tasksBigOne, toggleTask, addTask, deleteTask, completedCount: tasksCompleted, totalCount: tasksTotal, isLoading: tasksLoading } = useTodaysTasks();
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -186,6 +188,25 @@ export const DailyCommandCenterWidget: React.FC = () => {
     if (!customCategories.includes(category)) {
       setCustomCategories(prev => [...prev, category]);
     }
+  };
+
+  // Handle drag end for habit reordering
+  const handleDragEnd = async (result: DropResult) => {
+    if (!result.destination) return;
+    
+    const category = result.source.droppableId;
+    const categoryHabits = [...(habitsByCategory[category] || [])];
+    
+    const [reorderedItem] = categoryHabits.splice(result.source.index, 1);
+    categoryHabits.splice(result.destination.index, 0, reorderedItem);
+    
+    // Update positions
+    const updatedHabits = categoryHabits.map((habit, index) => ({
+      ...habit,
+      position: index,
+    }));
+    
+    await reorderHabits(updatedHabits);
   };
 
   // Filter categories to show (only those with habits or that have been added)
@@ -324,78 +345,113 @@ export const DailyCommandCenterWidget: React.FC = () => {
               <Settings className="h-4 w-4" />
             </Button>
           </div>
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            {categoriesToShow.map((category) => {
-              const config = categoryConfig[category];
-              const categoryHabits = habitsByCategory[category] || [];
-              const Icon = config?.icon || Sparkles;
-              const completedCount = categoryHabits.filter(h => isHabitCompleted(h.id)).length;
-              
-              return (
-                <div 
-                  key={category}
-                  className={cn(
-                    "p-3 rounded-lg border border-border/50",
-                    config?.bgColor || 'bg-muted/10'
-                  )}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon className={cn("h-4 w-4", config?.color || 'text-muted-foreground')} />
-                    <span className="text-xs font-medium">
-                      {config?.label || category}
-                    </span>
-                    <span className="text-xs text-muted-foreground ml-auto">
-                      {completedCount}/{categoryHabits.length}
-                    </span>
-                  </div>
-                  <div className="space-y-1">
-                    {categoryHabits.map((habit) => {
-                      const completed = isHabitCompleted(habit.id);
-                      return (
-                        <button
-                          key={habit.id}
-                          onClick={() => handleHabitClick(habit)}
-                          className={cn(
-                            "flex items-center gap-2 w-full text-left text-xs py-1 px-1 rounded hover:bg-background/50 transition-colors",
-                            completed && "text-muted-foreground"
-                          )}
-                        >
-                          {completed ? (
-                            <CheckCircle2 className="h-3 w-3 text-green-500 flex-shrink-0" />
-                          ) : (
-                            <Circle className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                          )}
-                          <span className={cn("truncate", completed && "line-through")}>
-                            {habit.name}
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {categoriesToShow.map((category) => {
+                const config = categoryConfig[category];
+                const categoryHabits = habitsByCategory[category] || [];
+                const Icon = config?.icon || Sparkles;
+                const completedCount = categoryHabits.filter(h => isHabitCompleted(h.id)).length;
+                
+                return (
+                  <Droppable key={category} droppableId={category}>
+                    {(provided, snapshot) => (
+                      <div 
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={cn(
+                          "p-3 rounded-lg border border-border/50",
+                          config?.bgColor || 'bg-muted/10',
+                          snapshot.isDraggingOver && 'ring-2 ring-primary/50'
+                        )}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <Icon className={cn("h-4 w-4", config?.color || 'text-muted-foreground')} />
+                          <span className="text-xs font-medium">
+                            {config?.label || category}
                           </span>
-                        </button>
-                      );
-                    })}
-                    {/* Add habit button */}
-                    <button
-                      onClick={() => handleAddHabitClick(category)}
-                      className="flex items-center gap-2 w-full text-left text-xs py-1 px-1 rounded hover:bg-background/50 transition-colors text-muted-foreground hover:text-foreground"
-                    >
-                      <Plus className="h-3 w-3 flex-shrink-0" />
-                      <span>Adaugă habit</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                          <span className="text-xs text-muted-foreground ml-auto">
+                            {completedCount}/{categoryHabits.length}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          {categoryHabits.map((habit, index) => {
+                            const completed = isHabitCompleted(habit.id);
+                            const streak = getHabitStreak(habit.id);
+                            return (
+                              <Draggable key={habit.id} draggableId={habit.id} index={index}>
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    className={cn(
+                                      "flex items-center gap-1 text-xs py-1 px-1 rounded transition-colors",
+                                      "hover:bg-background/50",
+                                      snapshot.isDragging && "shadow-lg bg-background",
+                                      completed && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {/* Drag handle */}
+                                    <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
+                                      <GripVertical className="h-3 w-3 text-muted-foreground/50" />
+                                    </div>
+                                    
+                                    {/* Toggle button */}
+                                    <button 
+                                      onClick={() => handleHabitClick(habit)}
+                                      className="flex items-center gap-1.5 flex-1 min-w-0"
+                                    >
+                                      {completed ? (
+                                        <CheckCircle2 className="h-3 w-3 text-green-500 flex-shrink-0" />
+                                      ) : (
+                                        <Circle className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                      )}
+                                      <span className={cn("truncate", completed && "line-through")}>
+                                        {habit.name}
+                                      </span>
+                                    </button>
+                                    
+                                    {/* Streak indicator */}
+                                    {streak > 1 && (
+                                      <span className="flex items-center text-orange-500 text-[10px] flex-shrink-0">
+                                        <Flame className="h-2.5 w-2.5" />
+                                        {streak}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </Draggable>
+                            );
+                          })}
+                          {provided.placeholder}
+                          {/* Add habit button */}
+                          <button
+                            onClick={() => handleAddHabitClick(category)}
+                            className="flex items-center gap-2 w-full text-left text-xs py-1 px-1 rounded hover:bg-background/50 transition-colors text-muted-foreground hover:text-foreground"
+                          >
+                            <Plus className="h-3 w-3 flex-shrink-0 ml-4" />
+                            <span>Adaugă habit</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </Droppable>
+                );
+              })}
 
-            {/* Add new category card */}
-            <button
-              onClick={() => {
-                setAddHabitCategory('');
-                setAddHabitOpen(true);
-              }}
-              className="p-3 rounded-lg border border-dashed border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-2 min-h-[100px]"
-            >
-              <Plus className="h-5 w-5 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Adaugă categorie</span>
-            </button>
-          </div>
+              {/* Add new category card */}
+              <button
+                onClick={() => {
+                  setAddHabitCategory('');
+                  setAddHabitOpen(true);
+                }}
+                className="p-3 rounded-lg border border-dashed border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-2 min-h-[100px]"
+              >
+                <Plus className="h-5 w-5 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">Adaugă categorie</span>
+              </button>
+            </div>
+          </DragDropContext>
 
           {/* Today's Tasks Section */}
           <div className="mt-4 pt-4 border-t border-border/30">
