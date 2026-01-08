@@ -221,7 +221,6 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     return 0;
   }, [routineSteps]);
 
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [hasUserNavigated, setHasUserNavigated] = useState(false);
@@ -229,6 +228,68 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   // Track skipped steps in localStorage
   const today = new Date().toISOString().split('T')[0];
   const skippedStepsKey = `champion_skipped_steps_${today}`;
+  const routineProgressKey = `champion_routine_progress_${today}`;
+  
+  // Get saved progress from localStorage
+  const getSavedProgress = useCallback((): { stepIndex: number; lastUpdate: number } | null => {
+    try {
+      const saved = localStorage.getItem(routineProgressKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Only restore if less than 4 hours old
+        if (Date.now() - parsed.lastUpdate < 14400000) {
+          return parsed;
+        }
+      }
+    } catch {
+      // Ignore errors
+    }
+    return null;
+  }, [routineProgressKey]);
+  
+  // Initialize currentStepIndex from localStorage
+  const [currentStepIndex, setCurrentStepIndex] = useState(() => {
+    const saved = getSavedProgress();
+    return saved ? saved.stepIndex : 0;
+  });
+  
+  // Save progress to localStorage whenever step changes
+  const saveProgress = useCallback((stepIndex: number) => {
+    try {
+      localStorage.setItem(routineProgressKey, JSON.stringify({
+        stepIndex,
+        lastUpdate: Date.now()
+      }));
+    } catch {
+      // Ignore storage errors
+    }
+  }, [routineProgressKey]);
+  
+  // Auto-save on step change
+  useEffect(() => {
+    saveProgress(currentStepIndex);
+  }, [currentStepIndex, saveProgress]);
+  
+  // Save on visibility change and before unload
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        saveProgress(currentStepIndex);
+      }
+    };
+    
+    const handleBeforeUnload = () => {
+      saveProgress(currentStepIndex);
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [currentStepIndex, saveProgress]);
   
   const getSkippedSteps = useCallback((): RoutineStepId[] => {
     try {
@@ -247,7 +308,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     }
   }, [getSkippedSteps, skippedStepsKey]);
 
-  // Start from initialStep if provided, otherwise step 0
+  // Start from initialStep if provided, or restore from localStorage
   useEffect(() => {
     if (!isLoading && isConfigured && !hasUserNavigated) {
       if (initialStep) {
@@ -260,11 +321,15 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
           setCurrentStepIndex(0);
         }
       } else {
-        // Always start from step 0 - let user go through routine from beginning
-        setCurrentStepIndex(0);
+        // Check if we have saved progress
+        const savedProgress = getSavedProgress();
+        if (savedProgress && savedProgress.stepIndex < routineSteps.length) {
+          setCurrentStepIndex(savedProgress.stepIndex);
+        }
+        // Otherwise stay at current step (already initialized from localStorage or 0)
       }
     }
-  }, [isLoading, isConfigured, hasUserNavigated, initialStep, routineSteps]);
+  }, [isLoading, isConfigured, hasUserNavigated, initialStep, routineSteps, getSavedProgress]);
 
   // Debounced update for text inputs
   const debouncedUpdateLog = useCallback(
