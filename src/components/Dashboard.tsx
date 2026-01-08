@@ -231,16 +231,17 @@ export const Dashboard: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Separate effect for onboarding wizard - only triggers when foundation status is loaded
+  // Daily popup - shows once per day if there are pending items
   useEffect(() => {
     if (foundationStatus.isLoading) return;
     
-    const wizardCompleted = localStorage.getItem('onboarding-wizard-completed');
-    const wizardSkipped = localStorage.getItem('onboarding-wizard-skipped');
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const shownToday = localStorage.getItem('onboarding-wizard-shown-today');
     
-    if (!wizardCompleted && !wizardSkipped && !foundationStatus.isFoundationComplete) {
+    if (shownToday !== today && !foundationStatus.isFoundationComplete) {
       const timer = setTimeout(() => {
         setShowOnboardingWizard(true);
+        localStorage.setItem('onboarding-wizard-shown-today', today);
       }, 1500);
       return () => clearTimeout(timer);
     }
