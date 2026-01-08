@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Trophy, Target } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Sparkles, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/context/LanguageContext';
 import { useFoundationStatus, FoundationItem } from '@/hooks/useFoundationStatus';
-import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 
 interface FoundationNotificationsProps {
@@ -14,14 +13,10 @@ interface FoundationNotificationsProps {
 
 export const FoundationNotifications: React.FC<FoundationNotificationsProps> = ({ onOpenWizard }) => {
   const { language } = useLanguage();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { pendingItems, completionPercentage, isFoundationComplete, isLoading } = useFoundationStatus();
   const [isMinimized, setIsMinimized] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-
-  // Get user's first name from email
-  const userName = user?.email?.split('@')[0] || '';
 
   // Check if dismissed recently
   useEffect(() => {
@@ -86,12 +81,10 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
             </div>
             <div>
               <h3 className="font-semibold text-sm text-foreground">
-                {language === 'en' ? `Hey ${userName}! 👋` : `Hey ${userName}! 👋`}
+                {language === 'en' ? 'Your Foundation' : 'Fundația ta'}
               </h3>
               <p className="text-xs text-muted-foreground">
-                {language === 'en' 
-                  ? `Here's what we have to do today` 
-                  : `Uite ce avem de făcut azi`}
+                {pendingItems.length} {language === 'en' ? 'items remaining' : 'elemente rămase'}
               </p>
             </div>
           </div>
@@ -170,11 +163,11 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
       {/* Footer */}
       <div className="sticky bottom-0 bg-card/95 backdrop-blur-sm border-t border-border p-3">
         <Button
-          className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
           onClick={onOpenWizard}
         >
-          <Trophy className="w-4 h-4 mr-2" />
-          {language === 'en' ? 'Open Coach Guide' : 'Deschide Ghidul Coach'}
+          <Sparkles className="w-4 h-4 mr-2" />
+          {language === 'en' ? 'Complete Setup Wizard' : 'Wizard Complet de Configurare'}
         </Button>
       </div>
     </div>

@@ -26,6 +26,3 @@ verify_jwt = false
 
 [functions.therapist-coach]
 verify_jwt = false
-
-[functions.accountability-coach]
-verify_jwt = false

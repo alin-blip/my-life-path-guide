@@ -67,7 +67,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     );
   };
 
-  // 7 SECȚIUNI PRINCIPALE
+  // 6 SECȚIUNI PRINCIPALE
   const menuItems: MenuItem[] = [
     // 1. DASHBOARD
     { 
@@ -76,19 +76,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       path: '/dashboard' 
     },
 
-    // 2. PEAK PERFORMANCE (NEW)
-    {
-      title: language === 'ro' ? '🔥 Peak Performance' : '🔥 Peak Performance',
-      icon: Flame,
-      path: '/accountability-coach',
-      subItems: [
-        { title: 'AI Accountability Coach', icon: Trophy, path: '/accountability-coach' },
-        { title: language === 'ro' ? 'Rutina Campionului' : 'Champion Routine', icon: Crown, path: '/daily-flow' },
-        { title: language === 'ro' ? 'Focus Room' : 'Focus Room', icon: Clock, path: '/focus' },
-      ]
-    },
-
-    // 3. OBIECTIVE
+    // 2. OBIECTIVE
     {
       title: language === 'ro' ? '🎯 Obiective' : '🎯 Goals',
       icon: Target,
@@ -101,20 +89,22 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 4. PERFORMANȚĂ (BODY)
+    // 3. PERFORMANȚĂ (BODY)
     {
       title: language === 'ro' ? '💪 Body' : '💪 Body',
       icon: Activity,
-      path: '/workout',
+      path: '/daily-flow',
       subItems: [
+        { title: language === 'ro' ? 'Rutina Campionului' : 'Champion Routine', icon: Crown, path: '/daily-flow' },
         { title: language === 'ro' ? 'Antrenament' : 'Workout', icon: Dumbbell, path: '/workout' },
         { title: language === 'ro' ? 'Nutriție' : 'Nutrition', icon: Apple, path: '/nutrition' },
+        { title: language === 'ro' ? 'Focus Room' : 'Focus Room', icon: Clock, path: '/focus' },
         { title: language === 'ro' ? 'Performance Coach' : 'Performance Coach', icon: Bot, path: '/performance-coach' },
         { title: language === 'ro' ? 'Therapist Coach' : 'Therapist Coach', icon: Brain, path: '/therapist-coach' },
       ]
     },
 
-    // 5. RELAȚII (BALANCE)
+    // 4. RELAȚII (BALANCE)
     {
       title: language === 'ro' ? '❤️ Relații' : '❤️ Relationships',
       icon: Heart,
@@ -125,7 +115,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 6. MINDSET
+    // 5. MINDSET
     {
       title: language === 'ro' ? '🧠 Mindset' : '🧠 Mindset',
       icon: Brain,
@@ -138,7 +128,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 7. BUSINESS
+    // 6. BUSINESS
     {
       title: language === 'ro' ? '💼 Business' : '💼 Business',
       icon: Briefcase,
@@ -152,7 +142,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 8. COMUNITATE & GAMIFICARE
+    // 7. COMUNITATE & GAMIFICARE
     {
       title: language === 'ro' ? '🏆 Comunitate' : '🏆 Community',
       icon: Trophy,
