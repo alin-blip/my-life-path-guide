@@ -302,42 +302,6 @@ export type Database = {
         }
         Relationships: []
       }
-      burnout_alerts: {
-        Row: {
-          acknowledged_at: string | null
-          alert_type: string
-          created_at: string
-          description: string
-          id: string
-          metric_value: number | null
-          recommendations: string[] | null
-          severity: string
-          user_id: string
-        }
-        Insert: {
-          acknowledged_at?: string | null
-          alert_type: string
-          created_at?: string
-          description: string
-          id?: string
-          metric_value?: number | null
-          recommendations?: string[] | null
-          severity: string
-          user_id: string
-        }
-        Update: {
-          acknowledged_at?: string | null
-          alert_type?: string
-          created_at?: string
-          description?: string
-          id?: string
-          metric_value?: number | null
-          recommendations?: string[] | null
-          severity?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       challenge_progress: {
         Row: {
           actions_completed: Json | null
@@ -2272,57 +2236,6 @@ export type Database = {
         }
         Relationships: []
       }
-      time_entries: {
-        Row: {
-          activity: string
-          category: string
-          created_at: string
-          date: string
-          duration_minutes: number
-          ended_at: string | null
-          energy_after: number | null
-          energy_before: number | null
-          id: string
-          notes: string | null
-          satisfaction: number | null
-          started_at: string | null
-          user_id: string
-          was_planned: boolean | null
-        }
-        Insert: {
-          activity: string
-          category: string
-          created_at?: string
-          date?: string
-          duration_minutes?: number
-          ended_at?: string | null
-          energy_after?: number | null
-          energy_before?: number | null
-          id?: string
-          notes?: string | null
-          satisfaction?: number | null
-          started_at?: string | null
-          user_id: string
-          was_planned?: boolean | null
-        }
-        Update: {
-          activity?: string
-          category?: string
-          created_at?: string
-          date?: string
-          duration_minutes?: number
-          ended_at?: string | null
-          energy_after?: number | null
-          energy_before?: number | null
-          id?: string
-          notes?: string | null
-          satisfaction?: number | null
-          started_at?: string | null
-          user_id?: string
-          was_planned?: boolean | null
-        }
-        Relationships: []
-      }
       user_achievements: {
         Row: {
           achievement_description: string | null
@@ -2912,45 +2825,6 @@ export type Database = {
           updated_at?: string
           user_id?: string
           week_key?: string
-        }
-        Relationships: []
-      }
-      weekly_time_reports: {
-        Row: {
-          ai_recommendations: string[] | null
-          ai_summary: string | null
-          category_breakdown: Json | null
-          created_at: string
-          energy_average: number | null
-          id: string
-          roi_score: number | null
-          total_hours: number | null
-          user_id: string
-          week_start: string
-        }
-        Insert: {
-          ai_recommendations?: string[] | null
-          ai_summary?: string | null
-          category_breakdown?: Json | null
-          created_at?: string
-          energy_average?: number | null
-          id?: string
-          roi_score?: number | null
-          total_hours?: number | null
-          user_id: string
-          week_start: string
-        }
-        Update: {
-          ai_recommendations?: string[] | null
-          ai_summary?: string | null
-          category_breakdown?: Json | null
-          created_at?: string
-          energy_average?: number | null
-          id?: string
-          roi_score?: number | null
-          total_hours?: number | null
-          user_id?: string
-          week_start?: string
         }
         Relationships: []
       }
