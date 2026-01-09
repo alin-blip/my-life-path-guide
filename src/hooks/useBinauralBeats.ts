@@ -26,7 +26,13 @@ export function useBinauralBeats() {
   const mergerRef = useRef<ChannelMergerNode | null>(null);
 
   const start = useCallback((type: BinauralType = 'theta') => {
-    // Stop any existing audio
+    // If already playing the same type, don't restart
+    if (isPlaying && currentType === type && audioContextRef.current) {
+      console.log('🎵 Binaural beats already playing:', type);
+      return;
+    }
+    
+    // Stop any existing audio only if switching types
     if (audioContextRef.current) {
       stop();
     }
