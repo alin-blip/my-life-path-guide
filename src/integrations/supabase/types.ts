@@ -1240,6 +1240,48 @@ export type Database = {
         }
         Relationships: []
       }
+      empowerment_meditations: {
+        Row: {
+          audio_url: string | null
+          binaural_type: string | null
+          created_at: string | null
+          duration_seconds: number | null
+          id: string
+          is_active: boolean | null
+          meditation_script: string
+          objectives_snapshot: Json | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_url?: string | null
+          binaural_type?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          is_active?: boolean | null
+          meditation_script: string
+          objectives_snapshot?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_url?: string | null
+          binaural_type?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          is_active?: boolean | null
+          meditation_script?: string
+          objectives_snapshot?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       error_logs: {
         Row: {
           component_name: string | null

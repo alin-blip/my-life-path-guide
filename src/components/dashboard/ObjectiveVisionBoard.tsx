@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Sparkles, RefreshCw, Target } from 'lucide-react';
+import { Loader2, Sparkles, RefreshCw, Target, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { GenerateMeditationButton } from '@/components/meditation/GenerateMeditationButton';
 
 type Category = 'body' | 'being' | 'balance' | 'business';
 
@@ -325,6 +326,15 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
 
   return (
     <div className="mb-4">
+      {/* Vision Board Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Eye className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-bold">Vision Board</h2>
+        </div>
+        <GenerateMeditationButton objectives={annualMissions} language={language} />
+      </div>
+
       {/* Vision Board Grid */}
       <div className="grid grid-cols-2 gap-3 mb-3">
         {categories.map(cat => (

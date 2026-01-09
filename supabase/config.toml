@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.accountability-coach]
 verify_jwt = false
+
+[functions.generate-empowerment-meditation]
+verify_jwt = false
