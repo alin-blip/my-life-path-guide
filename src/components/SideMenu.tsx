@@ -84,7 +84,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       path: '/accountability-coach',
       subItems: [
         { title: 'AI Accountability Coach', icon: Trophy, path: '/accountability-coach' },
-        { title: language === 'ro' ? 'Rutina Campionului' : 'Champion Routine', icon: Crown, path: '/daily-flow' },
+        { title: language === 'ro' ? 'Rutina Campionului' : 'Champion Routine', icon: Crown, path: '/champion-routine' },
         { title: language === 'ro' ? 'Focus Room' : 'Focus Room', icon: Clock, path: '/focus' },
       ]
     },

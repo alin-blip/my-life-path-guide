@@ -11,7 +11,7 @@ interface StepsOrderEditorProps {
   onStepsOrderChange: (order: string[]) => void;
 }
 
-const ALL_STEPS = [
+export const ALL_STEPS = [
   { id: 'lightExposure', label: 'Lumină Naturală', icon: Sparkles, category: 'being' },
   { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being' },
   { id: 'breathing', label: 'Respirație', icon: Timer, category: 'being' },

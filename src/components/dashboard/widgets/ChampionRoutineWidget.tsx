@@ -2,14 +2,26 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Settings, Sparkles, Heart, Brain, Scale, Briefcase, Check, Play } from 'lucide-react';
+import { Settings, Sparkles, Heart, Brain, Scale, Briefcase, Check, Play, Pencil, Trash2 } from 'lucide-react';
 import { useDailyHabits, HabitCategory } from '@/hooks/useDailyHabits';
 import { HabitSettingsModal } from '@/components/habits/HabitSettingsModal';
+import { HabitQuickEdit } from '@/components/habits/HabitQuickEdit';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import { useChampionRoutine } from '@/hooks/useChampionRoutine';
 import { useLanguage } from '@/context/LanguageContext';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const CATEGORY_CONFIG: Record<HabitCategory, { titleEn: string; titleRo: string; icon: React.ReactNode; bgColor: string; borderColor: string }> = {
   body: { 
@@ -50,6 +62,11 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [showSettings, setShowSettings] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; habitId: string; habitName: string }>({
+    open: false,
+    habitId: '',
+    habitName: ''
+  });
   const { todayLog, isLoading: routineLoading } = useChampionRoutine();
   
   const {
@@ -61,6 +78,19 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
     updateHabit,
     deleteHabit,
   } = useDailyHabits(date);
+
+  const handleEditHabit = async (id: string, name: string, category: HabitCategory) => {
+    await updateHabit(id, { name, category });
+    toast.success(language === 'ro' ? 'Habit actualizat!' : 'Habit updated!');
+  };
+
+  const handleDeleteHabit = async () => {
+    if (deleteConfirm.habitId) {
+      await deleteHabit(deleteConfirm.habitId);
+      toast.success(language === 'ro' ? 'Habit șters!' : 'Habit deleted!');
+      setDeleteConfirm({ open: false, habitId: '', habitName: '' });
+    }
+  };
 
   const getHabitsByCategory = (category: HabitCategory) => 
     habits.filter(h => h.category === category && h.is_active);
@@ -226,31 +256,58 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
                         {categoryHabits.map(habit => {
                           const completed = isHabitCompleted(habit.id);
                           return (
-                            <button
+                            <div
                               key={habit.id}
-                              onClick={() => toggleHabit(habit.id)}
                               className={cn(
-                                "w-full flex items-center gap-2 p-1.5 rounded-md transition-all text-left",
+                                "group relative flex items-center gap-2 p-1.5 rounded-md transition-all",
                                 completed 
                                   ? "bg-green-500/20 text-green-400" 
                                   : "bg-background/50 hover:bg-background/80"
                               )}
                             >
-                              <div className={cn(
-                                "h-4 w-4 rounded border flex items-center justify-center shrink-0",
-                                completed 
-                                  ? "bg-green-500 border-green-500" 
-                                  : "border-muted-foreground/50"
-                              )}>
-                                {completed && <Check className="h-2.5 w-2.5 text-white" />}
+                              <button
+                                onClick={() => toggleHabit(habit.id)}
+                                className="flex items-center gap-2 flex-1 text-left"
+                              >
+                                <div className={cn(
+                                  "h-4 w-4 rounded border flex items-center justify-center shrink-0",
+                                  completed 
+                                    ? "bg-green-500 border-green-500" 
+                                    : "border-muted-foreground/50"
+                                )}>
+                                  {completed && <Check className="h-2.5 w-2.5 text-white" />}
+                                </div>
+                                <span className={cn(
+                                  "text-xs truncate",
+                                  completed && "line-through opacity-70"
+                                )}>
+                                  {habit.name}
+                                </span>
+                              </button>
+                              
+                              {/* Edit/Delete buttons - appear on hover */}
+                              <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity">
+                                <HabitQuickEdit
+                                  habitId={habit.id}
+                                  habitName={habit.name}
+                                  habitCategory={habit.category}
+                                  onSave={handleEditHabit}
+                                >
+                                  <button className="p-1 rounded hover:bg-muted/50 text-muted-foreground hover:text-foreground">
+                                    <Pencil className="h-3 w-3" />
+                                  </button>
+                                </HabitQuickEdit>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteConfirm({ open: true, habitId: habit.id, habitName: habit.name });
+                                  }}
+                                  className="p-1 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
                               </div>
-                              <span className={cn(
-                                "text-xs truncate",
-                                completed && "line-through opacity-70"
-                              )}>
-                                {habit.name}
-                              </span>
-                            </button>
+                            </div>
                           );
                         })}
                       </div>
@@ -295,31 +352,57 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
                         {categoryHabits.map(habit => {
                           const completed = isHabitCompleted(habit.id);
                           return (
-                            <button
+                            <div
                               key={habit.id}
-                              onClick={() => toggleHabit(habit.id)}
                               className={cn(
-                                "w-full flex items-center gap-2 p-1.5 rounded-md transition-all text-left",
+                                "group relative flex items-center gap-2 p-1.5 rounded-md transition-all",
                                 completed 
                                   ? "bg-green-500/20 text-green-400" 
                                   : "bg-background/50 hover:bg-background/80"
                               )}
                             >
-                              <div className={cn(
-                                "h-4 w-4 rounded border flex items-center justify-center shrink-0",
-                                completed 
-                                  ? "bg-green-500 border-green-500" 
-                                  : "border-muted-foreground/50"
-                              )}>
-                                {completed && <Check className="h-2.5 w-2.5 text-white" />}
+                              <button
+                                onClick={() => toggleHabit(habit.id)}
+                                className="flex items-center gap-2 flex-1 text-left"
+                              >
+                                <div className={cn(
+                                  "h-4 w-4 rounded border flex items-center justify-center shrink-0",
+                                  completed 
+                                    ? "bg-green-500 border-green-500" 
+                                    : "border-muted-foreground/50"
+                                )}>
+                                  {completed && <Check className="h-2.5 w-2.5 text-white" />}
+                                </div>
+                                <span className={cn(
+                                  "text-xs truncate",
+                                  completed && "line-through opacity-70"
+                                )}>
+                                  {habit.name}
+                                </span>
+                              </button>
+                              
+                              <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity">
+                                <HabitQuickEdit
+                                  habitId={habit.id}
+                                  habitName={habit.name}
+                                  habitCategory={habit.category}
+                                  onSave={handleEditHabit}
+                                >
+                                  <button className="p-1 rounded hover:bg-muted/50 text-muted-foreground hover:text-foreground">
+                                    <Pencil className="h-3 w-3" />
+                                  </button>
+                                </HabitQuickEdit>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteConfirm({ open: true, habitId: habit.id, habitName: habit.name });
+                                  }}
+                                  className="p-1 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
                               </div>
-                              <span className={cn(
-                                "text-xs truncate",
-                                completed && "line-through opacity-70"
-                              )}>
-                                {habit.name}
-                              </span>
-                            </button>
+                            </div>
                           );
                         })}
                       </div>
@@ -345,6 +428,27 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
         onDelete={deleteHabit}
         onRefetch={async () => {}}
       />
+
+      <AlertDialog open={deleteConfirm.open} onOpenChange={(open) => setDeleteConfirm(prev => ({ ...prev, open }))}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {language === 'ro' ? 'Șterge habit' : 'Delete habit'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'ro' 
+                ? `Ești sigur că vrei să ștergi "${deleteConfirm.habitName}"?`
+                : `Are you sure you want to delete "${deleteConfirm.habitName}"?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{language === 'ro' ? 'Anulează' : 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteHabit} className="bg-destructive hover:bg-destructive/90">
+              {language === 'ro' ? 'Șterge' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
