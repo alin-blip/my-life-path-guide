@@ -42,7 +42,8 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
   
   // Get step config
   const { config } = useStepConfig<MeditationStepConfig>('meditation');
-  const minMeditationSeconds = (config.defaultDurationMinutes || 10) * 60;
+  const defaultDurationMinutes = config?.defaultDurationMinutes ?? 10;
+  const minMeditationSeconds = defaultDurationMinutes * 60;
   
   // Empowerment meditation hook
   const { meditation, isLoading: isMeditationLoading, hasMeditation } = useEmpowermentMeditation();
