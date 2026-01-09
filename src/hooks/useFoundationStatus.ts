@@ -110,7 +110,7 @@ export const useFoundationStatus = (): FoundationStatus => {
           .eq('mission_type', 'monthly')
           .limit(1),
         
-        // 4. Today's tasks (Domino Door) - check multiple week_key formats
+        // 4. Today's tasks (Domino Door) - check user_tasks AND weekly_planning.domino_data
         supabase
           .from('user_tasks')
           .select('id')
@@ -119,10 +119,10 @@ export const useFoundationStatus = (): FoundationStatus => {
           .or(`day_of_week.eq.${todayDayName},day.eq.${todayStr}`)
           .limit(1),
         
-        // 5. Weekly planning (check if user has done AI planning this week)
+        // 5. Weekly planning (check if user has done AI planning this week AND has domino set)
         supabase
           .from('weekly_planning')
-          .select('id, key_points')
+          .select('id, key_points, domino_title')
           .eq('user_id', userId)
           .or(`week_key.eq.${weekKey},week_key.eq.${doorWeekKey}`)
           .limit(1),
@@ -155,11 +155,14 @@ export const useFoundationStatus = (): FoundationStatus => {
       // Process monthly
       setHasMonthly((monthlyMissionsResult.data?.length || 0) > 0);
 
-      // Process today tasks
-      setHasTodayTasks((todayTasksResult.data?.length || 0) > 0);
+      // Process today tasks - check user_tasks OR domino_title in weekly_planning
+      const hasUserTasks = (todayTasksResult.data?.length || 0) > 0;
+      const weeklyPlanData = weeklyPlanningResult.data?.[0];
+      const hasDominoTitle = weeklyPlanData?.domino_title && 
+        weeklyPlanData.domino_title.trim().length > 0;
+      setHasTodayTasks(hasUserTasks || hasDominoTitle || false);
 
       // Process weekly planning (has key_points with content)
-      const weeklyPlanData = weeklyPlanningResult.data?.[0];
       const hasKeyPoints = weeklyPlanData?.key_points && 
         Array.isArray(weeklyPlanData.key_points) && 
         (weeklyPlanData.key_points as any[]).length > 0;
@@ -328,7 +331,7 @@ export const useFoundationStatus = (): FoundationStatus => {
         },
         action: {
           label: { en: 'Start', ro: 'Începe' },
-          route: '/dashboard'
+          route: '/champion-routine'
         },
         priority: 6
       });
