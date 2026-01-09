@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { useEmpowermentMeditation } from '@/hooks/useEmpowermentMeditation';
 import { EmpowermentMeditationPlayer } from '@/components/champion-routine/EmpowermentMeditationPlayer';
 import { BinauralType } from '@/hooks/useBinauralBeats';
+import { useStepConfig, MeditationStepConfig } from '@/hooks/useStepConfig';
 
 interface MeditationStepProps {
   initialDuration: number;
@@ -25,7 +26,6 @@ interface MeditationStepProps {
   onSkip?: () => void;
 }
 
-const MIN_MEDITATION_SECONDS = 10 * 60; // 10 minutes minimum
 const STORAGE_KEY_PREFIX = 'meditation_session_';
 const AUTO_SAVE_INTERVAL = 10000; // 10 seconds
 
@@ -40,16 +40,23 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
   const today = format(new Date(), 'yyyy-MM-dd');
   const storageKey = `${STORAGE_KEY_PREFIX}${today}`;
   
+  // Get step config
+  const { config } = useStepConfig<MeditationStepConfig>('meditation');
+  const minMeditationSeconds = (config.defaultDurationMinutes || 10) * 60;
+  
   // Empowerment meditation hook
   const { meditation, isLoading: isMeditationLoading, hasMeditation } = useEmpowermentMeditation();
-  const [activeTab, setActiveTab] = useState<string>(hasMeditation ? 'guided' : 'timer');
+  
+  // Set default tab based on config
+  const defaultTab = config.defaultMode === 'guided' && hasMeditation ? 'guided' : 'timer';
+  const [activeTab, setActiveTab] = useState<string>(defaultTab);
 
   // Update tab when meditation loads
   useEffect(() => {
-    if (hasMeditation && !isMeditationLoading) {
+    if (config.defaultMode === 'guided' && hasMeditation && !isMeditationLoading) {
       setActiveTab('guided');
     }
-  }, [hasMeditation, isMeditationLoading]);
+  }, [hasMeditation, isMeditationLoading, config.defaultMode]);
   
   // Initialize from localStorage or props
   const getInitialState = useCallback((): { seconds: number; savedDuration: number; wasRunning: boolean } => {
@@ -202,7 +209,7 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
   const handleAlreadyMeditated = () => {
     setShowSkipDialog(false);
     localStorage.removeItem(storageKey);
-    onComplete(MIN_MEDITATION_SECONDS);
+    onComplete(minMeditationSeconds);
     onNext();
   };
 
@@ -213,11 +220,11 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
 
   const totalTime = savedDuration + seconds;
   const hasCompleted = savedDuration > 0;
-  const hasMinimumTime = savedDuration >= MIN_MEDITATION_SECONDS;
-  const remainingForMinimum = MIN_MEDITATION_SECONDS - totalTime;
+  const hasMinimumTime = savedDuration >= minMeditationSeconds;
+  const remainingForMinimum = minMeditationSeconds - totalTime;
 
-  // Progress towards 10 minutes
-  const progressPercentage = Math.min((totalTime / MIN_MEDITATION_SECONDS) * 100, 100);
+  // Progress towards configured minutes
+  const progressPercentage = Math.min((totalTime / minMeditationSeconds) * 100, 100);
 
   // Handle guided meditation complete
   const handleGuidedComplete = (durationSeconds: number) => {
@@ -320,9 +327,9 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
                   {isRunning 
                     ? '🧘 Meditezi...' 
                     : hasMinimumTime 
-                      ? '✨ Felicitări! Ai atins 10 minute.' 
+                      ? `✨ Felicitări! Ai atins ${config.defaultDurationMinutes || 10} minute.` 
                       : hasCompleted 
-                        ? `Mai ai nevoie de ${formatTime(MIN_MEDITATION_SECONDS - savedDuration)} pentru 10 min`
+                        ? `Mai ai nevoie de ${formatTime(minMeditationSeconds - savedDuration)} pentru ${config.defaultDurationMinutes || 10} min`
                         : 'Apasă Start pentru a începe'
                   }
                 </p>
@@ -504,9 +511,9 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
               {isRunning 
                 ? '🧘 Meditezi...' 
                 : hasMinimumTime 
-                  ? '✨ Felicitări! Ai atins 10 minute.' 
+                  ? `✨ Felicitări! Ai atins ${config.defaultDurationMinutes || 10} minute.` 
                   : hasCompleted 
-                    ? `Mai ai nevoie de ${formatTime(MIN_MEDITATION_SECONDS - savedDuration)} pentru 10 min`
+                    ? `Mai ai nevoie de ${formatTime(minMeditationSeconds - savedDuration)} pentru ${config.defaultDurationMinutes || 10} min`
                     : 'Apasă Start pentru a începe'
               }
             </p>

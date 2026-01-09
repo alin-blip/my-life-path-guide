@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { TodaysWorkoutDashboard } from '@/components/fitness/TodaysWorkoutDashbo
 import { useTodayWorkout } from '@/hooks/useTodayWorkout';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useStepConfig, ExerciseStepConfig } from '@/hooks/useStepConfig';
 
 interface ExerciseStepProps {
   completed: boolean;
@@ -26,6 +27,7 @@ interface ManualActivityData {
 }
 
 export function ExerciseStep({ completed, onComplete, onNext, onSkip }: ExerciseStepProps) {
+  const { config } = useStepConfig<ExerciseStepConfig>('exercise');
   const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(null);
   const [activityCompleted, setActivityCompleted] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
@@ -35,6 +37,13 @@ export function ExerciseStep({ completed, onComplete, onNext, onSkip }: Exercise
   
   // Check if there's a planned workout
   const { hasActiveProgram, hasTodayWorkout } = useTodayWorkout();
+
+  // Apply default activity from config on mount
+  useEffect(() => {
+    if (config.defaultActivity && config.skipActivitySelector && !selectedActivity) {
+      setSelectedActivity(config.defaultActivity as ActivityType);
+    }
+  }, [config.defaultActivity, config.skipActivitySelector, selectedActivity]);
 
   const handleActivitySelect = (type: ActivityType) => {
     setSelectedActivity(type);
