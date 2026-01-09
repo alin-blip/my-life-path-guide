@@ -596,6 +596,15 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             completedSteps={completedStepsCount}
             totalSteps={routineSteps.length - 1}
             meditationDuration={todayLog?.meditation_duration_seconds || 0}
+            routineSteps={routineSteps}
+            todayLog={todayLog}
+            skippedSteps={getSkippedSteps()}
+            onGoToStep={(stepId) => {
+              const index = routineSteps.indexOf(stepId);
+              if (index !== -1) {
+                setCurrentStepIndex(index);
+              }
+            }}
           />
         );
       default:
