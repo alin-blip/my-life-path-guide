@@ -1,26 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trophy, PartyPopper, Calendar, ArrowRight, Sparkles, Zap, Flame, Star } from 'lucide-react';
+import { Trophy, PartyPopper, Calendar, ArrowRight, Sparkles, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useNavigate } from 'react-router-dom';
-import { useRoutineXP, ROUTINE_XP_REWARDS, getLevelTitle, getLevelColor } from '@/hooks/useRoutineXP';
+import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from '../StreakDisplay';
 import { XPDisplay, LevelUpModal } from '../XPDisplay';
+import { RoutineBreakdown } from '../RoutineBreakdown';
+import { RoutineStepId } from '../ChampionRoutineFlow';
+import { ChampionLog } from '@/hooks/useChampionRoutine';
 import { cn } from '@/lib/utils';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface CompletionStepProps {
   completedSteps: number;
   totalSteps: number;
   meditationDuration: number;
   onViewHistory?: () => void;
+  routineSteps?: RoutineStepId[];
+  todayLog?: ChampionLog | null;
+  skippedSteps?: RoutineStepId[];
+  onGoToStep?: (stepId: RoutineStepId) => void;
 }
 
 export function CompletionStep({ 
   completedSteps, 
   totalSteps, 
   meditationDuration,
-  onViewHistory 
+  onViewHistory,
+  routineSteps = [],
+  todayLog = null,
+  skippedSteps = [],
+  onGoToStep
 }: CompletionStepProps) {
   const navigate = useNavigate();
   const [showConfetti, setShowConfetti] = useState(false);
@@ -224,6 +236,24 @@ export function CompletionStep({
               <p className="text-sm text-muted-foreground">Completare</p>
             </div>
           </div>
+
+          {/* Routine Breakdown - Collapsible */}
+          {routineSteps.length > 0 && onGoToStep && (
+            <Collapsible defaultOpen={!isPerfect}>
+              <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                <span className="font-medium">Vezi breakdown rutină</span>
+                <ChevronDown className="h-5 w-5 transition-transform data-[state=open]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-4">
+                <RoutineBreakdown
+                  routineSteps={routineSteps}
+                  todayLog={todayLog}
+                  skippedSteps={skippedSteps}
+                  onGoToStep={onGoToStep}
+                />
+              </CollapsibleContent>
+            </Collapsible>
+          )}
 
           {/* Motivational message */}
           <div className="p-6 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 text-center">
