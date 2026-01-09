@@ -1,25 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { DailyHabit, HabitCategory, HabitGroup } from '@/hooks/useDailyHabits';
-import { cn } from '@/lib/utils';
+import { DailyHabit } from '@/hooks/useDailyHabits';
+import { HabitSettingsPanel } from './HabitSettingsPanel';
 
 interface HabitSettingsModalProps {
   open: boolean;
@@ -29,26 +16,8 @@ interface HabitSettingsModalProps {
   onUpdate: (id: string, updates: Partial<DailyHabit>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onRefetch: () => Promise<void>;
+  onReorder?: (habits: DailyHabit[]) => Promise<void>;
 }
-
-const categoryLabels: Record<HabitCategory, string> = {
-  body: 'Body',
-  being: 'Being',
-  balance: 'Balance',
-  business: 'Business',
-};
-
-const groupLabels: Record<HabitGroup, string> = {
-  core4: 'Core 4',
-  biz4: 'Biz 4',
-  custom: 'Custom',
-};
-
-const iconOptions = [
-  'check', 'dumbbell', 'apple', 'heart', 'users', 'brain', 'book-open',
-  'search', 'megaphone', 'pen-tool', 'message-circle', 'send', 'handshake',
-  'star', 'target', 'coffee', 'sun', 'moon', 'music', 'camera',
-];
 
 export const HabitSettingsModal: React.FC<HabitSettingsModalProps> = ({
   open,
@@ -58,37 +27,8 @@ export const HabitSettingsModal: React.FC<HabitSettingsModalProps> = ({
   onUpdate,
   onDelete,
   onRefetch,
+  onReorder,
 }) => {
-  const [activeTab, setActiveTab] = useState<HabitGroup>('core4');
-  const [isAdding, setIsAdding] = useState(false);
-  const [newHabit, setNewHabit] = useState({
-    name: '',
-    category: 'business' as HabitCategory,
-    icon: 'check',
-  });
-
-  const handleAddHabit = async () => {
-    if (!newHabit.name.trim()) return;
-
-    await onAdd({
-      ...newHabit,
-      habit_group: activeTab,
-      is_active: true,
-      position: habits.filter(h => h.habit_group === activeTab).length,
-    });
-
-    setNewHabit({ name: '', category: 'business', icon: 'check' });
-    setIsAdding(false);
-  };
-
-  const handleDeleteHabit = async (id: string) => {
-    if (confirm('Ești sigur că vrei să ștergi acest habit?')) {
-      await onDelete(id);
-    }
-  };
-
-  const filteredHabits = habits.filter(h => h.habit_group === activeTab);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
@@ -96,156 +36,13 @@ export const HabitSettingsModal: React.FC<HabitSettingsModalProps> = ({
           <DialogTitle>Configurare Habits</DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as HabitGroup)}>
-          <TabsList className="grid grid-cols-3 w-full">
-            <TabsTrigger value="core4">Core 4</TabsTrigger>
-            <TabsTrigger value="biz4">Biz 4</TabsTrigger>
-            <TabsTrigger value="custom">Custom</TabsTrigger>
-          </TabsList>
-
-          {(['core4', 'biz4', 'custom'] as HabitGroup[]).map(group => (
-            <TabsContent key={group} value={group} className="space-y-3 mt-4">
-              {filteredHabits.map(habit => (
-                <div
-                  key={habit.id}
-                  className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
-                >
-                  <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
-                  
-                  <div className="flex-1 space-y-2">
-                    <Input
-                      value={habit.name}
-                      onChange={(e) => onUpdate(habit.id, { name: e.target.value })}
-                      className="h-8"
-                    />
-                    
-                    <div className="flex gap-2">
-                      <Select
-                        value={habit.category}
-                        onValueChange={(v) => onUpdate(habit.id, { category: v as HabitCategory })}
-                      >
-                        <SelectTrigger className="h-7 text-xs flex-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(categoryLabels).map(([value, label]) => (
-                            <SelectItem key={value} value={value}>
-                              {label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-
-                      <Select
-                        value={habit.icon}
-                        onValueChange={(v) => onUpdate(habit.id, { icon: v })}
-                      >
-                        <SelectTrigger className="h-7 text-xs w-24">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {iconOptions.map(icon => (
-                            <SelectItem key={icon} value={icon}>
-                              {icon}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={habit.is_active}
-                      onCheckedChange={(checked) => onUpdate(habit.id, { is_active: checked })}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => handleDeleteHabit(habit.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-
-              {isAdding ? (
-                <div className="p-3 bg-primary/10 rounded-lg border border-primary/30 space-y-3">
-                  <Input
-                    placeholder="Nume habit"
-                    value={newHabit.name}
-                    onChange={(e) => setNewHabit(prev => ({ ...prev, name: e.target.value }))}
-                    autoFocus
-                  />
-                  
-                  <div className="flex gap-2">
-                    <Select
-                      value={newHabit.category}
-                      onValueChange={(v) => setNewHabit(prev => ({ ...prev, category: v as HabitCategory }))}
-                    >
-                      <SelectTrigger className="flex-1">
-                        <SelectValue placeholder="Categorie" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(categoryLabels).map(([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <Select
-                      value={newHabit.icon}
-                      onValueChange={(v) => setNewHabit(prev => ({ ...prev, icon: v }))}
-                    >
-                      <SelectTrigger className="w-28">
-                        <SelectValue placeholder="Icon" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {iconOptions.map(icon => (
-                          <SelectItem key={icon} value={icon}>
-                            {icon}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => setIsAdding(false)}
-                    >
-                      Anulează
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="flex-1"
-                      onClick={handleAddHabit}
-                      disabled={!newHabit.name.trim()}
-                    >
-                      Adaugă
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setIsAdding(true)}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Adaugă Habit
-                </Button>
-              )}
-            </TabsContent>
-          ))}
-        </Tabs>
+        <HabitSettingsPanel
+          habits={habits}
+          onAdd={onAdd}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+          onReorder={onReorder}
+        />
       </DialogContent>
     </Dialog>
   );

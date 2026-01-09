@@ -9,11 +9,13 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Trash2, User, Heart, Briefcase, Dumbbell, Sparkles, Save, ListOrdered, Link2 } from 'lucide-react';
+import { Plus, Trash2, User, Heart, Briefcase, Dumbbell, Sparkles, Save, ListOrdered, Link2, Settings2 } from 'lucide-react';
 import { useChampionRoutine } from '@/hooks/useChampionRoutine';
+import { useDailyHabits } from '@/hooks/useDailyHabits';
 import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
 import { StepsOrderEditor } from './StepsOrderEditor';
+import { HabitSettingsPanel } from '@/components/habits/HabitSettingsPanel';
 
 interface ChampionRoutineSettingsProps {
   open: boolean;
@@ -39,6 +41,7 @@ const AREAS = [
 export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineSettingsProps) {
   const { t } = useLanguage();
   const { people, settings, addPerson, updatePerson, removePerson, saveSettings, updateAutosuggestion } = useChampionRoutine();
+  const { habits, addHabit, updateHabit, deleteHabit, reorderHabits, refetch: refetchHabits } = useDailyHabits();
   
   const [newPersonName, setNewPersonName] = useState('');
   const [newPersonType, setNewPersonType] = useState('partner');
@@ -47,6 +50,7 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   const [stepsOrder, setStepsOrder] = useState<string[]>([]);
   const [habitSteps, setHabitSteps] = useState<string[]>([]);
   const [includeDailyTasks, setIncludeDailyTasks] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const ALL_STEP_IDS = [
     'gratitude', 'hydration', 'meditation', 'autosuggestion', 
@@ -101,18 +105,39 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   };
 
   const handleSaveAutosuggestion = async () => {
-    await updateAutosuggestion(autosuggestion);
-    toast.success('Autosugestie salvată');
+    setIsSaving(true);
+    try {
+      await updateAutosuggestion(autosuggestion);
+      toast.success('Autosugestie salvată');
+    } catch (err) {
+      toast.error('Eroare la salvare autosugestie');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSaveStepsOrder = async () => {
-    await saveSettings({ 
-      routine_steps_order: stepsOrder,
-      active_steps: activeSteps,
-      habit_steps: habitSteps,
-      include_daily_tasks: includeDailyTasks
-    });
-    toast.success('Ordinea pașilor salvată');
+    setIsSaving(true);
+    try {
+      const { error } = await saveSettings({ 
+        routine_steps_order: stepsOrder,
+        active_steps: activeSteps,
+        habit_steps: habitSteps,
+        include_daily_tasks: includeDailyTasks
+      });
+      
+      if (error) {
+        console.error('Save settings error:', error);
+        toast.error('Eroare la salvare. Încearcă din nou.');
+      } else {
+        toast.success('Ordinea pașilor salvată');
+      }
+    } catch (err) {
+      console.error('Save settings exception:', err);
+      toast.error('Eroare la salvare');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleHabitStepToggle = (stepId: string, checked: boolean) => {
@@ -124,15 +149,29 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   };
 
   const handleSaveAndClose = async () => {
-    await saveSettings({ 
-      is_configured: true,
-      routine_steps_order: stepsOrder,
-      active_steps: activeSteps,
-      habit_steps: habitSteps,
-      include_daily_tasks: includeDailyTasks
-    });
-    toast.success('Setări salvate!');
-    onOpenChange(false);
+    setIsSaving(true);
+    try {
+      const { error } = await saveSettings({ 
+        is_configured: true,
+        routine_steps_order: stepsOrder,
+        active_steps: activeSteps,
+        habit_steps: habitSteps,
+        include_daily_tasks: includeDailyTasks
+      });
+      
+      if (error) {
+        console.error('Save and close error:', error);
+        toast.error('Eroare la salvare. Încearcă din nou.');
+      } else {
+        toast.success('Setări salvate!');
+        onOpenChange(false);
+      }
+    } catch (err) {
+      console.error('Save and close exception:', err);
+      toast.error('Eroare la salvare');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -143,22 +182,26 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
         </DialogHeader>
 
         <Tabs defaultValue="steps" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="steps" className="gap-2">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="steps" className="gap-1 text-xs px-2">
               <ListOrdered className="h-4 w-4" />
-              Pași
+              <span className="hidden sm:inline">Pași</span>
             </TabsTrigger>
-            <TabsTrigger value="sync" className="gap-2">
+            <TabsTrigger value="sync" className="gap-1 text-xs px-2">
               <Link2 className="h-4 w-4" />
-              Sincronizare
+              <span className="hidden sm:inline">Sync</span>
             </TabsTrigger>
-            <TabsTrigger value="people" className="gap-2">
+            <TabsTrigger value="habits" className="gap-1 text-xs px-2">
+              <Settings2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Habits</span>
+            </TabsTrigger>
+            <TabsTrigger value="people" className="gap-1 text-xs px-2">
               <Heart className="h-4 w-4" />
-              Persoane
+              <span className="hidden sm:inline">Persoane</span>
             </TabsTrigger>
-            <TabsTrigger value="autosuggestion" className="gap-2">
+            <TabsTrigger value="autosuggestion" className="gap-1 text-xs px-2">
               <Sparkles className="h-4 w-4" />
-              Autosugestie
+              <span className="hidden sm:inline">Auto</span>
             </TabsTrigger>
           </TabsList>
 
@@ -170,13 +213,13 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
               onActiveStepsChange={setActiveSteps}
               onStepsOrderChange={setStepsOrder}
             />
-            <Button onClick={handleSaveStepsOrder} className="w-full">
+            <Button onClick={handleSaveStepsOrder} className="w-full" disabled={isSaving}>
               <Save className="h-4 w-4 mr-2" />
-              Salvează Ordinea
+              {isSaving ? 'Se salvează...' : 'Salvează Ordinea'}
             </Button>
           </TabsContent>
 
-          {/* Sync Tab - NEW */}
+          {/* Sync Tab */}
           <TabsContent value="sync" className="space-y-4 mt-4">
             <Card className="p-4 space-y-6">
               <h3 className="font-medium flex items-center gap-2">
@@ -231,10 +274,27 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
               </div>
             </Card>
             
-            <Button onClick={handleSaveStepsOrder} className="w-full">
+            <Button onClick={handleSaveStepsOrder} className="w-full" disabled={isSaving}>
               <Save className="h-4 w-4 mr-2" />
-              Salvează Sincronizarea
+              {isSaving ? 'Se salvează...' : 'Salvează Sincronizarea'}
             </Button>
+          </TabsContent>
+
+          {/* Habits Tab - NEW */}
+          <TabsContent value="habits" className="space-y-4 mt-4">
+            <Card className="p-4">
+              <h3 className="font-medium flex items-center gap-2 mb-4">
+                <Settings2 className="h-5 w-5 text-amber-500" />
+                Configurare Habits
+              </h3>
+              <HabitSettingsPanel
+                habits={habits}
+                onAdd={addHabit}
+                onUpdate={updateHabit}
+                onDelete={deleteHabit}
+                onReorder={reorderHabits}
+              />
+            </Card>
           </TabsContent>
 
           {/* People Tab */}
@@ -323,18 +383,18 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
                 </ul>
               </div>
 
-              <Button onClick={handleSaveAutosuggestion} className="w-full">
+              <Button onClick={handleSaveAutosuggestion} className="w-full" disabled={isSaving}>
                 <Save className="h-4 w-4 mr-2" />
-                Salvează Autosugestia
+                {isSaving ? 'Se salvează...' : 'Salvează Autosugestia'}
               </Button>
             </Card>
           </TabsContent>
         </Tabs>
 
         {/* Save Button */}
-        <Button onClick={handleSaveAndClose} className="w-full mt-4" size="lg">
+        <Button onClick={handleSaveAndClose} className="w-full mt-4" size="lg" disabled={isSaving}>
           <Save className="h-4 w-4 mr-2" />
-          Salvează și Închide
+          {isSaving ? 'Se salvează...' : 'Salvează și Închide'}
         </Button>
       </DialogContent>
     </Dialog>
