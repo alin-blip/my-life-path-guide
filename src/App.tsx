@@ -69,6 +69,7 @@ const EmotionalTracker = lazy(() => import("./pages/EmotionalTracker"));
 const TimeTracker = lazy(() => import("./pages/TimeTracker"));
 const AccountabilityCoach = lazy(() => import("./pages/AccountabilityCoach"));
 const EmpowermentMeditation = lazy(() => import("./pages/EmpowermentMeditation"));
+const ChampionRoutine = lazy(() => import("./pages/ChampionRoutine"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -236,7 +237,7 @@ const App = () => (
                     } />
                     <Route path="/champion-routine" element={
                       <ProtectedRoute>
-                        <DailyFlow />
+                        <ChampionRoutine />
                       </ProtectedRoute>
                     } />
                     <Route path="/empowerment-meditation" element={
