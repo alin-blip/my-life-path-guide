@@ -15,8 +15,8 @@ interface Person {
 
 interface PeopleStepProps {
   people: Person[];
-  onAddPerson: (name: string, type: string) => Promise<void>;
-  onRemovePerson: (id: string) => Promise<void>;
+  onAddPerson: (name: string, type: string) => Promise<any>;
+  onRemovePerson: (id: string) => Promise<any>;
 }
 
 const RELATIONSHIP_TYPES = [
