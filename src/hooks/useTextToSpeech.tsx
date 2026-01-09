@@ -52,6 +52,10 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
     onSpeakingEnd?.();
   }, [onSpeakingEnd]);
 
+  // Keep voiceId in a ref so speak() always uses current value
+  const voiceIdRef = useRef(voiceId);
+  voiceIdRef.current = voiceId;
+
   const speak = useCallback(async (text: string) => {
     if (!text || text.trim().length === 0) {
       console.warn('No text provided for TTS');
@@ -72,13 +76,15 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
       return;
     }
 
+    const currentVoiceId = voiceIdRef.current;
+    
     try {
       isSpeakingRef.current = true; // Lock immediately to avoid race conditions
       setIsLoading(true);
-      console.log('🔊 Generating TTS for:', text.substring(0, 50) + '...');
+      console.log('🔊 Generating TTS for:', text.substring(0, 50) + '...', 'with voice:', currentVoiceId);
 
       // Check cache first
-      const cacheKey = `${voiceId}:${text}`;
+      const cacheKey = `${currentVoiceId}:${text}`;
       let audioUrl: string;
       let audioBlob: Blob;
 
@@ -98,7 +104,7 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
             },
-            body: JSON.stringify({ text, voiceId }),
+            body: JSON.stringify({ text, voiceId: currentVoiceId }),
           }
         );
 
