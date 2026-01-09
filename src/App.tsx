@@ -68,8 +68,8 @@ const PerformanceCoachPage = lazy(() => import("./pages/PerformanceCoach"));
 const EmotionalTracker = lazy(() => import("./pages/EmotionalTracker"));
 const TimeTracker = lazy(() => import("./pages/TimeTracker"));
 const AccountabilityCoach = lazy(() => import("./pages/AccountabilityCoach"));
+const EmpowermentMeditation = lazy(() => import("./pages/EmpowermentMeditation"));
 
-// Loading component for lazy routes
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
@@ -237,6 +237,11 @@ const App = () => (
                     <Route path="/champion-routine" element={
                       <ProtectedRoute>
                         <DailyFlow />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/empowerment-meditation" element={
+                      <ProtectedRoute>
+                        <EmpowermentMeditation />
                       </ProtectedRoute>
                     } />
                     <Route path="/biz4-report" element={

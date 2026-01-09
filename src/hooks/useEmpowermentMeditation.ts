@@ -130,6 +130,55 @@ export function useEmpowermentMeditation() {
     }
   }, []);
 
+  // Update/save meditation script
+  const saveMeditation = useCallback(async (script: string, title?: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Trebuie să fii autentificat');
+        return false;
+      }
+
+      if (meditation) {
+        // Update existing
+        const { error } = await supabase
+          .from('empowerment_meditations')
+          .update({
+            meditation_script: script,
+            title: title || meditation.title,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', meditation.id);
+
+        if (error) throw error;
+
+        setMeditation(prev => prev ? { ...prev, meditation_script: script, title: title || prev.title } : null);
+      } else {
+        // Create new
+        const { data: newMeditation, error } = await supabase
+          .from('empowerment_meditations')
+          .insert({
+            user_id: user.id,
+            title: title || 'Meditație Personalizată',
+            meditation_script: script,
+            binaural_type: 'theta',
+            is_active: true
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        setMeditation(newMeditation as unknown as EmpowermentMeditation);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error saving meditation:', error);
+      toast.error('Eroare la salvarea meditației');
+      return false;
+    }
+  }, [meditation]);
+
   // Delete meditation
   const deleteMeditation = useCallback(async () => {
     if (!meditation) return;
@@ -155,6 +204,7 @@ export function useEmpowermentMeditation() {
     isLoading,
     isGenerating,
     generateMeditation,
+    saveMeditation,
     deleteMeditation,
     refetch: fetchMeditation,
     hasMeditation: !!meditation
