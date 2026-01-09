@@ -55,6 +55,7 @@ import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
 import { WidgetGrid, WidgetSelector, DailyCommandCenterWidget } from '@/components/dashboard/widgets';
 import { ChampionRoutineWidget } from '@/components/dashboard/widgets/ChampionRoutineWidget';
 import { DualCoachCard } from '@/components/dashboard/DualCoachCard';
+import { EmpowermentMeditationCard } from '@/components/dashboard/EmpowermentMeditationCard';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -750,6 +751,10 @@ export const Dashboard: React.FC = () => {
         <DualCoachCard />
       </div>
       
+      {/* Empowerment Meditation Card */}
+      <div className="mb-6">
+        <EmpowermentMeditationCard />
+      </div>
       <DailyCompactCard />
       
       {/* ChampionRoutineWidget removed - integrated into DailyCommandCenterWidget */}
