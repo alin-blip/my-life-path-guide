@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Timer, ArrowRight, Play, Square, RotateCcw, AlertCircle, SkipForward, CheckCircle2 } from 'lucide-react';
+import { Timer, ArrowRight, Play, Square, RotateCcw, AlertCircle, SkipForward, CheckCircle2, Headphones } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,7 +12,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
+import { useEmpowermentMeditation } from '@/hooks/useEmpowermentMeditation';
+import { EmpowermentMeditationPlayer } from '@/components/champion-routine/EmpowermentMeditationPlayer';
+import { BinauralType } from '@/hooks/useBinauralBeats';
 
 interface MeditationStepProps {
   initialDuration: number;
@@ -35,6 +39,17 @@ interface StoredSession {
 export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: MeditationStepProps) {
   const today = format(new Date(), 'yyyy-MM-dd');
   const storageKey = `${STORAGE_KEY_PREFIX}${today}`;
+  
+  // Empowerment meditation hook
+  const { meditation, isLoading: isMeditationLoading, hasMeditation } = useEmpowermentMeditation();
+  const [activeTab, setActiveTab] = useState<string>(hasMeditation ? 'guided' : 'timer');
+
+  // Update tab when meditation loads
+  useEffect(() => {
+    if (hasMeditation && !isMeditationLoading) {
+      setActiveTab('guided');
+    }
+  }, [hasMeditation, isMeditationLoading]);
   
   // Initialize from localStorage or props
   const getInitialState = useCallback((): { seconds: number; savedDuration: number; wasRunning: boolean } => {
@@ -204,19 +219,227 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
   // Progress towards 10 minutes
   const progressPercentage = Math.min((totalTime / MIN_MEDITATION_SECONDS) * 100, 100);
 
+  // Handle guided meditation complete
+  const handleGuidedComplete = (durationSeconds: number) => {
+    onComplete(durationSeconds);
+    onNext();
+  };
+
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
-      <Card className="w-full max-w-2xl p-8 space-y-8 bg-gradient-to-br from-purple-500/10 via-violet-500/5 to-transparent border-purple-500/20">
+      <Card className="w-full max-w-2xl p-8 space-y-6 bg-gradient-to-br from-purple-500/10 via-violet-500/5 to-transparent border-purple-500/20">
         {/* Icon and Title */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-purple-500/20 mb-4">
-            <Timer className="h-12 w-12 text-purple-500" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-500/20 mb-2">
+            <Timer className="h-10 w-10 text-purple-500" />
           </div>
           <h1 className="text-3xl font-bold">Meditație</h1>
-          <p className="text-muted-foreground text-lg max-w-md mx-auto">
+          <p className="text-muted-foreground max-w-md mx-auto">
             Minimum 10 minute de prezență și liniște.
           </p>
         </div>
+
+        {/* Tabs for Timer vs Guided Meditation */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="timer" className="gap-2">
+              <Timer className="h-4 w-4" />
+              Timer
+            </TabsTrigger>
+            <TabsTrigger value="guided" disabled={!hasMeditation && isMeditationLoading} className="gap-2">
+              <Headphones className="h-4 w-4" />
+              Meditație Ghidată
+              {!hasMeditation && !isMeditationLoading && (
+                <span className="text-xs text-muted-foreground">(generează din Dashboard)</span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Timer Tab Content */}
+          <TabsContent value="timer" className="mt-6">
+            {/* Timer display */}
+            <div className="flex flex-col items-center py-6 space-y-6">
+              <div className={`relative w-48 h-48 rounded-full flex items-center justify-center ${
+                isRunning 
+                  ? 'bg-gradient-to-br from-purple-500/30 to-violet-500/30 animate-pulse' 
+                  : 'bg-gradient-to-br from-purple-500/20 to-violet-500/20'
+              }`}>
+                {/* Outer ring animation when running */}
+                {isRunning && (
+                  <div className="absolute inset-0 rounded-full border-4 border-purple-500/50 animate-ping" style={{ animationDuration: '3s' }} />
+                )}
+                
+                {/* Progress ring */}
+                <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+                  <circle
+                    cx="96"
+                    cy="96"
+                    r="88"
+                    stroke="currentColor"
+                    strokeWidth="6"
+                    fill="none"
+                    className="text-muted/20"
+                  />
+                  <circle
+                    cx="96"
+                    cy="96"
+                    r="88"
+                    stroke="currentColor"
+                    strokeWidth="6"
+                    fill="none"
+                    strokeDasharray={2 * Math.PI * 88}
+                    strokeDashoffset={2 * Math.PI * 88 * (1 - progressPercentage / 100)}
+                    className="text-purple-500 transition-all duration-1000"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                
+                <div className="text-center z-10">
+                  <p className="text-5xl font-mono font-bold text-foreground">
+                    {formatTime(isRunning ? seconds : totalTime)}
+                  </p>
+                  {isRunning && (
+                    <p className="text-xs text-purple-400 mt-1">
+                      {remainingForMinimum > 0 
+                        ? `${formatTime(remainingForMinimum)} pentru 10 min`
+                        : '✓ 10 min atinse!'
+                      }
+                    </p>
+                  )}
+                  {!isRunning && savedDuration > 0 && (
+                    <p className="text-xs text-purple-400 mt-1">
+                      Total: {formatTime(savedDuration)}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Status text */}
+              <div className="text-center">
+                <p className={`text-sm ${isRunning ? 'text-purple-400' : 'text-muted-foreground'}`}>
+                  {isRunning 
+                    ? '🧘 Meditezi...' 
+                    : hasMinimumTime 
+                      ? '✨ Felicitări! Ai atins 10 minute.' 
+                      : hasCompleted 
+                        ? `Mai ai nevoie de ${formatTime(MIN_MEDITATION_SECONDS - savedDuration)} pentru 10 min`
+                        : 'Apasă Start pentru a începe'
+                  }
+                </p>
+              </div>
+            </div>
+
+            {/* Auto-save indicator */}
+            {isRunning && (
+              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mb-4">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                Progresul se salvează automat
+              </div>
+            )}
+
+            {/* Minimum requirement notice */}
+            {!hasMinimumTime && !isRunning && (
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 mb-4">
+                <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                <div className="text-xs">
+                  <p className="font-medium text-amber-500 mb-1">Minim 10 minute recomandat</p>
+                  <p className="text-muted-foreground">
+                    Pentru a beneficia de efectele meditației, practică cel puțin 10 minute.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3">
+                {!hasMinimumTime || isRunning ? (
+                  <Button 
+                    onClick={handleStartStop} 
+                    size="lg" 
+                    className={`flex-1 gap-2 ${isRunning ? 'bg-red-500 hover:bg-red-600' : 'bg-purple-500 hover:bg-purple-600'}`}
+                  >
+                    {isRunning ? (
+                      <>
+                        <Square className="h-5 w-5" />
+                        Stop & Salvează
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-5 w-5" />
+                        {hasCompleted ? 'Continuă Meditația' : 'Start'}
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <>
+                    <Button 
+                      onClick={handleReset} 
+                      size="lg" 
+                      variant="outline"
+                      className="gap-2"
+                    >
+                      <RotateCcw className="h-5 w-5" />
+                      Adaugă timp
+                    </Button>
+                    <Button 
+                      onClick={handleContinue} 
+                      size="lg" 
+                      className="flex-1 gap-2"
+                    >
+                      Continuă
+                      <ArrowRight className="h-5 w-5" />
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {/* Skip button */}
+              {!isRunning && !hasMinimumTime && (
+                <Button 
+                  onClick={() => setShowSkipDialog(true)} 
+                  size="lg" 
+                  variant="ghost"
+                  className="w-full gap-2 text-muted-foreground hover:text-foreground"
+                >
+                  <SkipForward className="h-4 w-4" />
+                  Sari peste acest pas
+                </Button>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Guided Meditation Tab Content */}
+          <TabsContent value="guided" className="mt-6">
+            {hasMeditation && meditation ? (
+              <EmpowermentMeditationPlayer
+                meditationScript={meditation.meditation_script}
+                binauralType={(meditation.binaural_type || 'theta') as BinauralType}
+                onComplete={handleGuidedComplete}
+                onCancel={() => setActiveTab('timer')}
+              />
+            ) : (
+              <div className="text-center py-12 space-y-4">
+                <Headphones className="h-12 w-12 mx-auto text-muted-foreground/50" />
+                <div>
+                  <p className="text-lg font-medium mb-2">Nu ai încă o meditație ghidată</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Generează o meditație personalizată din obiectivele tale anuale în Dashboard → Vision Board
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setActiveTab('timer')}
+                  className="gap-2"
+                >
+                  <Timer className="h-4 w-4" />
+                  Folosește Timer
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </Card>
 
         {/* Timer display */}
         <div className="flex flex-col items-center py-8 space-y-6">
@@ -310,77 +533,6 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
             </div>
           </div>
         )}
-
-        {/* Tips when not running */}
-        {!isRunning && !hasCompleted && (
-          <div className="p-4 rounded-lg bg-muted/30 border border-muted text-sm">
-            <p className="font-medium mb-2">💡 Sugestii pentru meditație:</p>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li>Găsește o poziție confortabilă</li>
-              <li>Concentrează-te pe respirație</li>
-              <li>Lasă gândurile să treacă fără să le judeci</li>
-            </ul>
-          </div>
-        )}
-
-        {/* Action buttons */}
-        <div className="flex flex-col gap-3">
-          <div className="flex gap-3">
-            {!hasMinimumTime || isRunning ? (
-              <Button 
-                onClick={handleStartStop} 
-                size="lg" 
-                className={`flex-1 gap-2 ${isRunning ? 'bg-red-500 hover:bg-red-600' : 'bg-purple-500 hover:bg-purple-600'}`}
-              >
-                {isRunning ? (
-                  <>
-                    <Square className="h-5 w-5" />
-                    Stop & Salvează
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-5 w-5" />
-                    {hasCompleted ? 'Continuă Meditația' : 'Start'}
-                  </>
-                )}
-              </Button>
-            ) : (
-              <>
-                <Button 
-                  onClick={handleReset} 
-                  size="lg" 
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <RotateCcw className="h-5 w-5" />
-                  Adaugă timp
-                </Button>
-                <Button 
-                  onClick={handleContinue} 
-                  size="lg" 
-                  className="flex-1 gap-2"
-                >
-                  Continuă
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              </>
-            )}
-          </div>
-
-          {/* Skip button - always visible when not running */}
-          {!isRunning && !hasMinimumTime && (
-            <Button 
-              onClick={() => setShowSkipDialog(true)} 
-              size="lg" 
-              variant="ghost"
-              className="w-full gap-2 text-muted-foreground hover:text-foreground"
-            >
-              <SkipForward className="h-4 w-4" />
-              Sari peste acest pas
-            </Button>
-          )}
-        </div>
-      </Card>
 
       {/* Skip confirmation dialog */}
       <AlertDialog open={showSkipDialog} onOpenChange={setShowSkipDialog}>
