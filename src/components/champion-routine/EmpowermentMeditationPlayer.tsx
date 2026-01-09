@@ -137,7 +137,7 @@ export function EmpowermentMeditationPlayer({
     startTimeRef.current = Date.now();
     binauralStartedRef.current = false;
 
-    // Start binaural beats first if enabled
+    // Start binaural beats if enabled
     if (binauralEnabled) {
       console.log('🎵 Starting binaural beats:', currentBinauralType);
       binaural.start(currentBinauralType);
@@ -145,11 +145,9 @@ export function EmpowermentMeditationPlayer({
       binauralStartedRef.current = true;
     }
 
-    // Start TTS after binaural settles (3 seconds)
-    setTimeout(() => {
-      console.log('🔊 Starting meditation narration...');
-      tts.speak(meditationScript);
-    }, 3000);
+    // Start TTS immediately - no delay!
+    console.log('🔊 Starting meditation narration immediately...');
+    tts.speak(meditationScript);
   }, [binauralEnabled, currentBinauralType, binauralVolume, meditationScript, binaural, tts]);
 
   const handlePause = useCallback(() => {
