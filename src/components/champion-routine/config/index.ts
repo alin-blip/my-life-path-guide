@@ -2,3 +2,8 @@ export { StepConfigDialog } from './StepConfigDialog';
 export { ExerciseStepConfigComponent } from './ExerciseStepConfig';
 export { MeditationStepConfigComponent } from './MeditationStepConfig';
 export { ReadingStepConfigComponent } from './ReadingStepConfig';
+export { BreathingStepConfigComponent } from './BreathingStepConfig';
+export { LightExposureStepConfigComponent } from './LightExposureStepConfig';
+export { GratitudeStepConfigComponent } from './GratitudeStepConfig';
+export { VisualizationStepConfigComponent } from './VisualizationStepConfig';
+export { JournalingStepConfigComponent } from './JournalingStepConfig';

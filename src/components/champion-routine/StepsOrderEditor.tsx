@@ -3,8 +3,17 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { GripVertical, Sparkles, Droplets, Timer, Brain, Dumbbell, Utensils, FileText, ListTodo, Heart, Settings2 } from 'lucide-react';
-import { ExerciseStepConfigComponent, MeditationStepConfigComponent, ReadingStepConfigComponent } from './config';
+import { GripVertical, Sparkles, Droplets, Timer, Brain, Dumbbell, Utensils, FileText, ListTodo, Heart, Settings2, Wind, Sun, Eye, PenTool } from 'lucide-react';
+import { 
+  ExerciseStepConfigComponent, 
+  MeditationStepConfigComponent, 
+  ReadingStepConfigComponent,
+  BreathingStepConfigComponent,
+  LightExposureStepConfigComponent,
+  GratitudeStepConfigComponent,
+  VisualizationStepConfigComponent,
+  JournalingStepConfigComponent 
+} from './config';
 
 interface StepsOrderEditorProps {
   activeSteps: string[];
@@ -14,14 +23,14 @@ interface StepsOrderEditorProps {
 }
 
 export const ALL_STEPS = [
-  { id: 'lightExposure', label: 'Lumină Naturală', icon: Sparkles, category: 'being', hasConfig: false },
+  { id: 'lightExposure', label: 'Lumină Naturală', icon: Sun, category: 'being', hasConfig: true },
   { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being', hasConfig: false },
-  { id: 'breathing', label: 'Respirație', icon: Timer, category: 'being', hasConfig: false },
+  { id: 'breathing', label: 'Respirație', icon: Wind, category: 'being', hasConfig: true },
   { id: 'meditation', label: 'Meditație', icon: Timer, category: 'being', hasConfig: true },
-  { id: 'gratitude', label: 'Recunoștință', icon: Sparkles, category: 'being', hasConfig: false },
-  { id: 'visualization', label: 'Vizualizare', icon: Brain, category: 'being', hasConfig: false },
+  { id: 'gratitude', label: 'Recunoștință', icon: Heart, category: 'being', hasConfig: true },
+  { id: 'visualization', label: 'Vizualizare', icon: Eye, category: 'being', hasConfig: true },
   { id: 'autosuggestion', label: 'Autosugestie', icon: Brain, category: 'being', hasConfig: false },
-  { id: 'journaling', label: 'Journaling', icon: FileText, category: 'being', hasConfig: false },
+  { id: 'journaling', label: 'Journaling', icon: PenTool, category: 'being', hasConfig: true },
   { id: 'reading', label: 'Citit', icon: FileText, category: 'being', hasConfig: true },
   { id: 'exercise', label: 'Exerciții', icon: Dumbbell, category: 'body', hasConfig: true },
   { id: 'mealPlanning', label: 'Meal Planning', icon: Utensils, category: 'body', hasConfig: false },
@@ -174,6 +183,26 @@ export function StepsOrderEditor({
       />
       <ReadingStepConfigComponent 
         open={configDialogOpen === 'reading'} 
+        onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
+      />
+      <BreathingStepConfigComponent 
+        open={configDialogOpen === 'breathing'} 
+        onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
+      />
+      <LightExposureStepConfigComponent 
+        open={configDialogOpen === 'lightExposure'} 
+        onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
+      />
+      <GratitudeStepConfigComponent 
+        open={configDialogOpen === 'gratitude'} 
+        onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
+      />
+      <VisualizationStepConfigComponent 
+        open={configDialogOpen === 'visualization'} 
+        onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
+      />
+      <JournalingStepConfigComponent 
+        open={configDialogOpen === 'journaling'} 
         onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
       />
     </div>
