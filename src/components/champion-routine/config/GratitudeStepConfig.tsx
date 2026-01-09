@@ -17,18 +17,20 @@ export function GratitudeStepConfigComponent({ open, onOpenChange }: GratitudeSt
   const [isSaving, setIsSaving] = useState(false);
   
   const [localConfig, setLocalConfig] = useState<GratitudeStepConfig>({
-    itemCount: config.itemCount || 3,
-    showExamples: config.showExamples !== false,
-    dailyPrompt: config.dailyPrompt || false,
+    itemCount: 3,
+    showExamples: true,
+    dailyPrompt: false,
   });
 
   useEffect(() => {
-    setLocalConfig({
-      itemCount: config.itemCount || 3,
-      showExamples: config.showExamples !== false,
-      dailyPrompt: config.dailyPrompt || false,
-    });
-  }, [config]);
+    if (open) {
+      setLocalConfig({
+        itemCount: config.itemCount || 3,
+        showExamples: config.showExamples !== false,
+        dailyPrompt: config.dailyPrompt || false,
+      });
+    }
+  }, [open, config.itemCount, config.showExamples, config.dailyPrompt]);
 
   const handleSave = async () => {
     setIsSaving(true);

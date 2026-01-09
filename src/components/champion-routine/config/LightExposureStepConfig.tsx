@@ -18,18 +18,20 @@ export function LightExposureStepConfigComponent({ open, onOpenChange }: LightEx
   const [isSaving, setIsSaving] = useState(false);
   
   const [localConfig, setLocalConfig] = useState<LightExposureStepConfig>({
-    durationMinutes: config.durationMinutes || 10,
-    showTimer: config.showTimer !== false,
-    reminderType: config.reminderType || 'none',
+    durationMinutes: 10,
+    showTimer: true,
+    reminderType: 'none',
   });
 
   useEffect(() => {
-    setLocalConfig({
-      durationMinutes: config.durationMinutes || 10,
-      showTimer: config.showTimer !== false,
-      reminderType: config.reminderType || 'none',
-    });
-  }, [config]);
+    if (open) {
+      setLocalConfig({
+        durationMinutes: config.durationMinutes || 10,
+        showTimer: config.showTimer !== false,
+        reminderType: config.reminderType || 'none',
+      });
+    }
+  }, [open, config.durationMinutes, config.showTimer, config.reminderType]);
 
   const handleSave = async () => {
     setIsSaving(true);
