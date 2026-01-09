@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dumbbell, ArrowRight, Check, CheckCircle2 } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dumbbell, ArrowRight, Check, CheckCircle2, ClipboardList, PenLine } from 'lucide-react';
 import { ActivitySelector, ActivityType } from '../ActivitySelector';
 import { CardioTimer } from '../CardioTimer';
 import { WorkoutStep } from '@/components/daily-flow/WorkoutStep';
@@ -33,6 +34,7 @@ export function ExerciseStep({ completed, onComplete, onNext, onSkip }: Exercise
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [manualData, setManualData] = useState<ManualActivityData>({ minutes: '', kg: '', calories: '' });
   const [isSaving, setIsSaving] = useState(false);
+  const [workoutMode, setWorkoutMode] = useState<'template' | 'manual'>('template');
   const { toast } = useToast();
   
   // Check if there's a planned workout
@@ -139,7 +141,24 @@ export function ExerciseStep({ completed, onComplete, onNext, onSkip }: Exercise
             </Button>
           )}
         </div>
-        {hasActiveProgram && hasTodayWorkout ? (
+        
+        {/* Toggle between template and manual */}
+        <div className="px-4">
+          <Tabs value={workoutMode} onValueChange={(v) => setWorkoutMode(v as 'template' | 'manual')}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="template" className="gap-2">
+                <ClipboardList className="h-4 w-4" />
+                Template
+              </TabsTrigger>
+              <TabsTrigger value="manual" className="gap-2">
+                <PenLine className="h-4 w-4" />
+                Manual
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        {workoutMode === 'template' && hasActiveProgram && hasTodayWorkout ? (
           <TodaysWorkoutDashboard onComplete={handleWorkoutComplete} />
         ) : (
           <WorkoutStep onComplete={handleWorkoutComplete} />
