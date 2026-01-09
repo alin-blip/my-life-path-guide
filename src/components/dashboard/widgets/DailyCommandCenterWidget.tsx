@@ -582,12 +582,8 @@ export const DailyCommandCenterWidget: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Settings Dialog */}
-      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <ChampionRoutineSettings open={settingsOpen} onOpenChange={setSettingsOpen} />
-        </DialogContent>
-      </Dialog>
+      {/* Settings Dialog - ChampionRoutineSettings has its own Dialog */}
+      <ChampionRoutineSettings open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       {/* Add Habit Dialog */}
       <AddHabitDialog

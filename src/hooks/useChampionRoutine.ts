@@ -263,8 +263,8 @@ export function useChampionRoutine() {
     return { error };
   };
 
-  const saveSettings = async (newSettings: Partial<ChampionSettings>) => {
-    if (!user) return;
+  const saveSettings = async (newSettings: Partial<ChampionSettings>): Promise<{ data: any; error: any }> => {
+    if (!user) return { data: null, error: new Error('No user') };
 
     const { data, error } = await supabase
       .from('champion_routine_settings')
@@ -272,7 +272,7 @@ export function useChampionRoutine() {
         user_id: user.id,
         ...newSettings,
         is_configured: true
-      })
+      }, { onConflict: 'user_id' })
       .select()
       .single();
 
