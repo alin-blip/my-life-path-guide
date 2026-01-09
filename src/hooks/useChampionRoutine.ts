@@ -21,6 +21,37 @@ export interface ChampionSettings {
   habit_steps?: string[];
   include_daily_tasks?: boolean;
   step_configs?: Record<string, any>;
+  // Profile & Nutrition
+  weight_kg?: number;
+  height_cm?: number;
+  age?: number;
+  activity_level?: string;
+  nutrition_configured?: boolean;
+  calorie_target?: number;
+  protein_target?: number;
+  protein_percent?: number;
+  carbs_target?: number;
+  carbs_percent?: number;
+  fats_target?: number;
+  fats_percent?: number;
+  // Workout
+  workout_goal?: string;
+  workout_level?: string;
+  workout_location?: string;
+  workout_days_per_week?: number;
+  workout_target_groups?: string[];
+  // Meditation
+  meditation_default_mode?: string;
+  meditation_default_duration?: number;
+  binaural_enabled?: boolean;
+  binaural_default_type?: string;
+  // Reading
+  reading_book_title?: string;
+  reading_pages_per_day?: number;
+  // Light exposure
+  light_exposure_duration?: number;
+  // Setup
+  setup_completed_at?: string;
 }
 
 export interface Meal {
@@ -108,7 +139,8 @@ export function useChampionRoutine() {
           active_steps: settingsData.active_steps as string[] || [],
           habit_steps: settingsData.habit_steps as string[] || [],
           include_daily_tasks: settingsData.include_daily_tasks ?? true,
-          step_configs: settingsData.step_configs as Record<string, any> || {}
+          step_configs: settingsData.step_configs as Record<string, any> || {},
+          workout_target_groups: settingsData.workout_target_groups as string[] || []
         });
       }
 
@@ -283,7 +315,8 @@ export function useChampionRoutine() {
         active_steps: data.active_steps as string[] || [],
         habit_steps: data.habit_steps as string[] || [],
         include_daily_tasks: data.include_daily_tasks ?? true,
-        step_configs: data.step_configs as Record<string, any> || {}
+        step_configs: data.step_configs as Record<string, any> || {},
+        workout_target_groups: data.workout_target_groups as string[] || []
       });
     }
     return { data, error };
