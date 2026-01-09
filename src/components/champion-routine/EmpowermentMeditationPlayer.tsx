@@ -10,7 +10,7 @@ import {
   Headphones,
   Waves,
   SkipForward,
-  RotateCcw
+  User
 } from 'lucide-react';
 import { useBinauralBeats, BinauralType } from '@/hooks/useBinauralBeats';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
@@ -23,6 +23,15 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+
+const AVAILABLE_VOICES = [
+  { id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam - Voce profundă', gender: 'male' },
+  { id: 'CwhRBWXzGAHq8TQ4Fs17', name: 'Roger - Voce calmă', gender: 'male' },
+  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah - Profesională', gender: 'female' },
+  { id: 'FGY2WhTYpPnrIDTdsKH5', name: 'Laura - Voce caldă', gender: 'female' },
+  { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George - Accent britanic', gender: 'male' },
+  { id: 'XrExE9yKIg1WjnnlVkGX', name: 'Matilda - Relaxantă', gender: 'female' },
+];
 
 interface EmpowermentMeditationPlayerProps {
   meditationScript: string;
@@ -41,25 +50,43 @@ export function EmpowermentMeditationPlayer({
   const [isPaused, setIsPaused] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [binauralEnabled, setBinauralEnabled] = useState(true);
-  const [binauralVolume, setBinauralVolume] = useState(0.2);
+  const [binauralVolume, setBinauralVolume] = useState(0.15);
   const [currentBinauralType, setCurrentBinauralType] = useState<BinauralType>(binauralType);
+  const [selectedVoice, setSelectedVoice] = useState(() => 
+    localStorage.getItem('meditation-voice') || 'CwhRBWXzGAHq8TQ4Fs17'
+  );
+  const [hasFinishedSpeaking, setHasFinishedSpeaking] = useState(false);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
+  const binauralStartedRef = useRef(false);
 
   const binaural = useBinauralBeats();
+  
   const tts = useTextToSpeech({
-    voiceId: 'pNInz6obpgDQGcFmaJgB', // Default calm voice
+    voiceId: selectedVoice,
+    initialPlaybackRate: 0.9, // Slower for meditation
     onSpeakingEnd: () => {
-      // When TTS ends, fade out binaural and complete
-      if (binaural.isPlaying) {
-        binaural.fadeOut(3000);
-      }
-      setTimeout(() => {
-        handleComplete();
-      }, 3500);
+      console.log('🧘 TTS finished speaking');
+      setHasFinishedSpeaking(true);
     }
   });
+
+  // Handle completion separately when speaking ends
+  useEffect(() => {
+    if (hasFinishedSpeaking && isPlaying) {
+      console.log('🎵 Fading out binaural...');
+      // Fade out binaural over 5 seconds
+      if (binaural.isPlaying) {
+        binaural.fadeOut(5000);
+      }
+      // Complete after fade
+      const timer = setTimeout(() => {
+        handleComplete();
+      }, 5500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasFinishedSpeaking, isPlaying]);
 
   // Timer effect
   useEffect(() => {
@@ -87,6 +114,16 @@ export function EmpowermentMeditationPlayer({
     };
   }, []);
 
+  // Start binaural when playing and enabled
+  useEffect(() => {
+    if (isPlaying && binauralEnabled && !binauralStartedRef.current) {
+      console.log('🎵 Starting binaural beats:', currentBinauralType);
+      binaural.start(currentBinauralType);
+      binaural.changeVolume(binauralVolume);
+      binauralStartedRef.current = true;
+    }
+  }, [isPlaying, binauralEnabled, currentBinauralType, binauralVolume]);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -96,18 +133,23 @@ export function EmpowermentMeditationPlayer({
   const handleStart = useCallback(() => {
     setIsPlaying(true);
     setIsPaused(false);
+    setHasFinishedSpeaking(false);
     startTimeRef.current = Date.now();
+    binauralStartedRef.current = false;
 
-    // Start binaural beats if enabled
+    // Start binaural beats first if enabled
     if (binauralEnabled) {
+      console.log('🎵 Starting binaural beats:', currentBinauralType);
       binaural.start(currentBinauralType);
       binaural.changeVolume(binauralVolume);
+      binauralStartedRef.current = true;
     }
 
-    // Start TTS after a short delay for binaural to settle
+    // Start TTS after binaural settles (3 seconds)
     setTimeout(() => {
+      console.log('🔊 Starting meditation narration...');
       tts.speak(meditationScript);
-    }, 2000);
+    }, 3000);
   }, [binauralEnabled, currentBinauralType, binauralVolume, meditationScript, binaural, tts]);
 
   const handlePause = useCallback(() => {
@@ -124,6 +166,8 @@ export function EmpowermentMeditationPlayer({
   const handleStop = useCallback(() => {
     setIsPlaying(false);
     setIsPaused(false);
+    setHasFinishedSpeaking(false);
+    binauralStartedRef.current = false;
     binaural.stop();
     tts.stop();
     setElapsedSeconds(0);
@@ -134,9 +178,12 @@ export function EmpowermentMeditationPlayer({
     const duration = elapsedSeconds;
     setIsPlaying(false);
     setIsPaused(false);
+    setHasFinishedSpeaking(false);
+    binauralStartedRef.current = false;
     binaural.stop();
+    tts.stop();
     onComplete(duration);
-  }, [elapsedSeconds, binaural, onComplete]);
+  }, [elapsedSeconds, binaural, tts, onComplete]);
 
   const handleSkip = useCallback(() => {
     tts.skip();
@@ -163,14 +210,21 @@ export function EmpowermentMeditationPlayer({
       if (enabled) {
         binaural.start(currentBinauralType);
         binaural.changeVolume(binauralVolume);
+        binauralStartedRef.current = true;
       } else {
         binaural.stop();
+        binauralStartedRef.current = false;
       }
     }
   }, [isPlaying, currentBinauralType, binauralVolume, binaural]);
 
-  // Estimated duration based on word count
-  const estimatedDuration = Math.round(meditationScript.split(' ').length / 120 * 60);
+  const handleVoiceChange = useCallback((voiceId: string) => {
+    setSelectedVoice(voiceId);
+    localStorage.setItem('meditation-voice', voiceId);
+  }, []);
+
+  // Estimated duration based on word count (slower rate for meditation)
+  const estimatedDuration = Math.round(meditationScript.split(' ').length / 100 * 60);
 
   return (
     <div className="space-y-6">
@@ -188,7 +242,10 @@ export function EmpowermentMeditationPlayer({
           
           {/* Binaural wave animation */}
           {binaural.isPlaying && (
-            <div className="absolute inset-4 rounded-full border border-indigo-400/30 animate-ping" style={{ animationDuration: '2s' }} />
+            <>
+              <div className="absolute inset-4 rounded-full border border-indigo-400/30 animate-ping" style={{ animationDuration: '2s' }} />
+              <div className="absolute inset-8 rounded-full border border-purple-400/20 animate-ping" style={{ animationDuration: '3s' }} />
+            </>
           )}
 
           <div className="text-center z-10">
@@ -207,8 +264,36 @@ export function EmpowermentMeditationPlayer({
           {!isPlaying && 'Apasă Play pentru a începe meditația ghidată'}
           {isPlaying && !isPaused && tts.isLoading && '🎵 Se pregătește audio...'}
           {isPlaying && !isPaused && tts.isSpeaking && '🧘 Meditație în curs...'}
+          {isPlaying && !isPaused && !tts.isLoading && !tts.isSpeaking && binaural.isPlaying && '🎵 Frecvențe binaurale active...'}
           {isPlaying && isPaused && '⏸️ Pauză'}
         </p>
+      </div>
+
+      {/* Voice Selection */}
+      <div className="p-4 rounded-lg bg-muted/30 border border-muted space-y-3">
+        <div className="flex items-center gap-2 mb-2">
+          <User className="h-4 w-4 text-purple-400" />
+          <Label className="text-sm font-medium">Voce Ghid</Label>
+        </div>
+        <Select
+          value={selectedVoice}
+          onValueChange={handleVoiceChange}
+          disabled={isPlaying}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {AVAILABLE_VOICES.map((voice) => (
+              <SelectItem key={voice.id} value={voice.id}>
+                <div className="flex items-center gap-2">
+                  <span>{voice.gender === 'female' ? '👩' : '👨'}</span>
+                  <span>{voice.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Binaural Controls */}
@@ -219,6 +304,11 @@ export function EmpowermentMeditationPlayer({
             <Label htmlFor="binaural-toggle" className="text-sm font-medium">
               Frecvențe Binaurale
             </Label>
+            {binaural.isPlaying && (
+              <span className="text-xs px-2 py-0.5 bg-indigo-500/20 text-indigo-400 rounded-full animate-pulse">
+                ACTIV
+              </span>
+            )}
           </div>
           <Switch
             id="binaural-toggle"
@@ -239,6 +329,12 @@ export function EmpowermentMeditationPlayer({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="delta">
+                    <div className="flex flex-col">
+                      <span>Delta (2 Hz)</span>
+                      <span className="text-xs text-muted-foreground">Somn profund, vindecare</span>
+                    </div>
+                  </SelectItem>
                   <SelectItem value="theta">
                     <div className="flex flex-col">
                       <span>Theta (6 Hz)</span>
@@ -267,8 +363,8 @@ export function EmpowermentMeditationPlayer({
                 value={[binauralVolume]}
                 onValueChange={handleBinauralVolumeChange}
                 min={0}
-                max={0.5}
-                step={0.05}
+                max={0.4}
+                step={0.02}
                 className="flex-1"
               />
               <Volume2 className="h-3 w-3 text-muted-foreground" />
@@ -302,7 +398,7 @@ export function EmpowermentMeditationPlayer({
               </Button>
             )}
             
-            <Button size="lg" variant="ghost" onClick={handleSkip} className="gap-2">
+            <Button size="lg" variant="ghost" onClick={handleSkip} className="gap-2" title="Sari la final">
               <SkipForward className="h-5 w-5" />
             </Button>
 
