@@ -522,6 +522,8 @@ export type Database = {
           active_steps: Json | null
           activity_level: string | null
           age: number | null
+          binaural_default_type: string | null
+          binaural_enabled: boolean | null
           calorie_target: number | null
           carbs_percent: number | null
           carbs_target: number | null
@@ -534,19 +536,32 @@ export type Database = {
           id: string
           include_daily_tasks: boolean | null
           is_configured: boolean | null
+          light_exposure_duration: number | null
+          meditation_default_duration: number | null
+          meditation_default_mode: string | null
           nutrition_configured: boolean | null
           protein_percent: number | null
           protein_target: number | null
+          reading_book_title: string | null
+          reading_pages_per_day: number | null
           routine_steps_order: Json | null
+          setup_completed_at: string | null
           step_configs: Json | null
           updated_at: string | null
           user_id: string
           weight_kg: number | null
+          workout_days_per_week: number | null
+          workout_goal: string | null
+          workout_level: string | null
+          workout_location: string | null
+          workout_target_groups: Json | null
         }
         Insert: {
           active_steps?: Json | null
           activity_level?: string | null
           age?: number | null
+          binaural_default_type?: string | null
+          binaural_enabled?: boolean | null
           calorie_target?: number | null
           carbs_percent?: number | null
           carbs_target?: number | null
@@ -559,19 +574,32 @@ export type Database = {
           id?: string
           include_daily_tasks?: boolean | null
           is_configured?: boolean | null
+          light_exposure_duration?: number | null
+          meditation_default_duration?: number | null
+          meditation_default_mode?: string | null
           nutrition_configured?: boolean | null
           protein_percent?: number | null
           protein_target?: number | null
+          reading_book_title?: string | null
+          reading_pages_per_day?: number | null
           routine_steps_order?: Json | null
+          setup_completed_at?: string | null
           step_configs?: Json | null
           updated_at?: string | null
           user_id: string
           weight_kg?: number | null
+          workout_days_per_week?: number | null
+          workout_goal?: string | null
+          workout_level?: string | null
+          workout_location?: string | null
+          workout_target_groups?: Json | null
         }
         Update: {
           active_steps?: Json | null
           activity_level?: string | null
           age?: number | null
+          binaural_default_type?: string | null
+          binaural_enabled?: boolean | null
           calorie_target?: number | null
           carbs_percent?: number | null
           carbs_target?: number | null
@@ -584,14 +612,25 @@ export type Database = {
           id?: string
           include_daily_tasks?: boolean | null
           is_configured?: boolean | null
+          light_exposure_duration?: number | null
+          meditation_default_duration?: number | null
+          meditation_default_mode?: string | null
           nutrition_configured?: boolean | null
           protein_percent?: number | null
           protein_target?: number | null
+          reading_book_title?: string | null
+          reading_pages_per_day?: number | null
           routine_steps_order?: Json | null
+          setup_completed_at?: string | null
           step_configs?: Json | null
           updated_at?: string | null
           user_id?: string
           weight_kg?: number | null
+          workout_days_per_week?: number | null
+          workout_goal?: string | null
+          workout_level?: string | null
+          workout_location?: string | null
+          workout_target_groups?: Json | null
         }
         Relationships: []
       }
