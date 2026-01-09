@@ -126,17 +126,10 @@ export function useDoorStorageLoad() {
           hitItems: hitList.length,
           doItems: doList.length,
         });
-
-        toast({
-          title: '👋 Date încărcate din cloud',
-          description: `Săptămâna ${currentWeekKey.split('-').pop()} a fost încărcată din Supabase`,
-        });
+        // Silent load - no toast notification
       } else {
         logStorageAction('No cloud data for week - using defaults', { weekKey: currentWeekKey });
-        toast({
-          title: '🆕 Săptămână nouă',
-          description: 'Nu există încă sarcini salvate în cloud pentru această săptămână.',
-        });
+        // Silent load - no toast notification for new week either
       }
     } catch (error: any) {
       logStorageAction('Error loading from Supabase', { error: error.message });
