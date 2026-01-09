@@ -1,19 +1,82 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTodaysTasks } from '@/hooks/useTodaysTasks';
-import { Check, ArrowRight, ListTodo, Plus, Trash2, Star } from 'lucide-react';
+import { Check, ArrowRight, ListTodo, Plus, Trash2, Star, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
 interface TodaysTasksStepProps {
   onNext: () => void;
 }
 
 export const TodaysTasksStep: React.FC<TodaysTasksStepProps> = ({ onNext }) => {
-  const { tasks, bigOne, isLoading, toggleTask, addTask, deleteTask, progress } = useTodaysTasks();
+  const { tasks, bigOne: doorBigOne, isLoading, toggleTask, addTask, deleteTask, progress } = useTodaysTasks();
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [bigOneInput, setBigOneInput] = useState('');
+  const [isSavingBigOne, setIsSavingBigOne] = useState(false);
+
+  // Load Big One from champion_routine_logs
+  useEffect(() => {
+    const loadBigOne = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const { data } = await supabase
+        .from('champion_routine_logs')
+        .select('big_one_today')
+        .eq('user_id', user.id)
+        .eq('date', today)
+        .maybeSingle();
+
+      if (data?.big_one_today) {
+        setBigOneInput(data.big_one_today);
+      } else if (doorBigOne) {
+        // Fallback to Door system big one
+        setBigOneInput(doorBigOne);
+      }
+    };
+
+    if (!isLoading) {
+      loadBigOne();
+    }
+  }, [isLoading, doorBigOne]);
+
+  const saveBigOne = async (value: string) => {
+    setIsSavingBigOne(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setIsSavingBigOne(false);
+      return;
+    }
+
+    const today = format(new Date(), 'yyyy-MM-dd');
+    await supabase
+      .from('champion_routine_logs')
+      .upsert({
+        user_id: user.id,
+        date: today,
+        big_one_today: value,
+      }, {
+        onConflict: 'user_id,date'
+      });
+
+    setIsSavingBigOne(false);
+  };
+
+  const handleBigOneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBigOneInput(e.target.value);
+  };
+
+  const handleBigOneBlur = () => {
+    if (bigOneInput.trim()) {
+      saveBigOne(bigOneInput);
+    }
+  };
 
   const handleAddTask = async () => {
     if (newTaskTitle.trim()) {
@@ -49,20 +112,27 @@ export const TodaysTasksStep: React.FC<TodaysTasksStepProps> = ({ onNext }) => {
         </div>
         <CardTitle className="text-white text-xl">Sarcinile de Azi</CardTitle>
         <p className="text-white/60 text-sm">
-          Verifică și completează sarcinile importante
+          Setează prioritatea principală și verifică sarcinile
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Big One */}
-        {bigOne && (
-          <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
-            <div className="flex items-center gap-2 mb-1">
-              <Star className="h-4 w-4 text-amber-500" />
-              <span className="text-xs font-medium text-amber-500">BIG ONE</span>
-            </div>
-            <p className="text-white font-medium">{bigOne}</p>
+        {/* Big One - Editable */}
+        <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+          <div className="flex items-center gap-2 mb-2">
+            <Target className="h-4 w-4 text-amber-500" />
+            <span className="text-xs font-medium text-amber-500">BIG ONE TODAY</span>
+            {isSavingBigOne && (
+              <span className="text-xs text-amber-400/60 ml-auto">Se salvează...</span>
+            )}
           </div>
-        )}
+          <Input
+            value={bigOneInput}
+            onChange={handleBigOneChange}
+            onBlur={handleBigOneBlur}
+            placeholder="Care este prioritatea ta nr. 1 pentru azi?"
+            className="bg-amber-500/5 border-amber-500/20 text-white placeholder:text-amber-300/40 font-medium"
+          />
+        </div>
 
         {/* Progress */}
         <div className="space-y-2">

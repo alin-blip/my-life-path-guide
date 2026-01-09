@@ -130,6 +130,69 @@ export const useDailyHabits = (date: Date = new Date()) => {
     }
   }, []);
 
+  // Auto-complete habits based on champion_routine_logs
+  const syncHabitsFromRoutineLog = useCallback(async (userId: string, habitsToSync: DailyHabit[], existingCompletions: HabitCompletion[]) => {
+    // Fetch today's routine log
+    const { data: routineLog } = await supabase
+      .from('champion_routine_logs')
+      .select('exercise_completed, reading_completed, meditation_duration_seconds, journaling_completed')
+      .eq('user_id', userId)
+      .eq('date', dateString)
+      .maybeSingle();
+
+    if (!routineLog) return;
+
+    const completionsToAdd: string[] = [];
+
+    // Map routine log fields to habit names
+    const routineToHabitMap: Record<string, string[]> = {
+      exercise_completed: ['Fitness'],
+      reading_completed: ['Memoirs'],
+      journaling_completed: ['Memoirs'],
+    };
+
+    // Check meditation (at least 10 minutes = 600 seconds)
+    if ((routineLog.meditation_duration_seconds || 0) >= 600) {
+      routineToHabitMap['meditation_completed'] = ['Meditation'];
+    }
+
+    for (const [logField, habitNames] of Object.entries(routineToHabitMap)) {
+      const fieldValue = logField === 'meditation_completed' 
+        ? (routineLog.meditation_duration_seconds || 0) >= 600
+        : routineLog[logField as keyof typeof routineLog];
+      
+      if (fieldValue) {
+        for (const habitName of habitNames) {
+          const habit = habitsToSync.find(h => 
+            h.name.toLowerCase() === habitName.toLowerCase() && h.is_active
+          );
+          
+          if (habit && !existingCompletions.some(c => c.habit_id === habit.id)) {
+            completionsToAdd.push(habit.id);
+          }
+        }
+      }
+    }
+
+    // Add missing completions
+    if (completionsToAdd.length > 0) {
+      const { data: newCompletions } = await supabase
+        .from('daily_habit_completions')
+        .insert(
+          completionsToAdd.map(habitId => ({
+            user_id: userId,
+            habit_id: habitId,
+            date: dateString,
+          }))
+        )
+        .select();
+
+      if (newCompletions) {
+        setCompletions(prev => [...prev, ...(newCompletions as HabitCompletion[])]);
+      }
+    }
+  }, [dateString]);
+
   const fetchHabits = useCallback(async () => {
     setIsLoading(true);
     
@@ -182,14 +245,19 @@ export const useDailyHabits = (date: Date = new Date()) => {
       .eq('user_id', user.id)
       .eq('date', dateString);
 
+    let currentCompletions: HabitCompletion[] = [];
     if (completionsError) {
       console.error('Error fetching completions:', completionsError);
     } else {
-      setCompletions((completionsData as HabitCompletion[]) || []);
+      currentCompletions = (completionsData as HabitCompletion[]) || [];
+      setCompletions(currentCompletions);
     }
 
+    // Sync habits from routine log (auto-check completed activities)
+    await syncHabitsFromRoutineLog(user.id, finalHabits, currentCompletions);
+
     setIsLoading(false);
-  }, [dateString, seedDefaultHabits, fetchAllStreaks]);
+  }, [dateString, seedDefaultHabits, fetchAllStreaks, syncHabitsFromRoutineLog]);
 
   useEffect(() => {
     fetchHabits();

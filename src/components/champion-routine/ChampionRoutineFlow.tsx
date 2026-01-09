@@ -18,7 +18,7 @@ import { AutosuggestionStep } from './steps/AutosuggestionStep';
 import { ExerciseStep } from './steps/ExerciseStep';
 import { MealPlanningStep } from './steps/MealPlanningStep';
 import { ContentCreationStep } from './steps/ContentCreationStep';
-import { DailyTasksStep } from './steps/DailyTasksStep';
+// DailyTasksStep removed - using TodaysTasksStep only
 import { RelationshipStep } from './steps/RelationshipStep';
 import { CompletionStep } from './steps/CompletionStep';
 import { HabitCheckStep } from './steps/HabitCheckStep';
@@ -77,9 +77,8 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'exercise',         // 10. Body - Exerciții cu timer
   'mealPlanning',     // 11. Body - Meal Planning
   'contentCreation',  // 12. Business - Content + AI Script + Pomodoro
-  'dailyTasks',       // 13. Business - Tasks / Big One
-  'relationships',    // 14. Balance - Relații
-  'completion',       // 15. Finalizare
+  'relationships',    // 13. Balance - Relații
+  'completion',       // 14. Finalizare
 ];
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
@@ -521,16 +520,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             onNext={goToNextStep}
           />
         );
-      case 'dailyTasks':
-        return (
-          <DailyTasksStep
-            bigOneToday={todayLog?.big_one_today || ''}
-            todos={todayLog?.daily_todos || []}
-            onBigOneChange={(text) => updateLog('big_one_today', text)}
-            onTodosChange={(todos) => updateLog('daily_todos', todos)}
-            onNext={goToNextStep}
-          />
-        );
+      // dailyTasks case removed - using todaysTasks only
       case 'relationships':
         return (
           <RelationshipStep
