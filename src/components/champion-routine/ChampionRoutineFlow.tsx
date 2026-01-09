@@ -23,6 +23,14 @@ import { RelationshipStep } from './steps/RelationshipStep';
 import { CompletionStep } from './steps/CompletionStep';
 import { HabitCheckStep } from './steps/HabitCheckStep';
 import { TodaysTasksStep } from './steps/TodaysTasksStep';
+import { BreathingStep } from './steps/BreathingStep';
+import { VisualizationStep } from './steps/VisualizationStep';
+import { ReadingStep } from './steps/ReadingStep';
+import { JournalingStep } from './steps/JournalingStep';
+import { LightExposureStep } from './steps/LightExposureStep';
+import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
+import { StreakDisplay } from './StreakDisplay';
+import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
 
 // Setup UI components
 import { Card } from '@/components/ui/card';
@@ -43,6 +51,11 @@ export type RoutineStepId =
   | 'contentCreation'
   | 'dailyTasks'
   | 'relationships'
+  | 'breathing'
+  | 'visualization'
+  | 'reading'
+  | 'journaling'
+  | 'lightExposure'
   | 'habit_body'
   | 'habit_being'
   | 'habit_balance'
@@ -50,18 +63,23 @@ export type RoutineStepId =
   | 'todaysTasks'
   | 'completion';
 
-// Default order for Execution Room
+// Default order for Execution Room (all available steps)
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
-  'gratitude',        // 1. Being - Recunoștință
+  'lightExposure',    // 1. Being - Lumină naturală dimineața
   'hydration',        // 2. Being - Hidratare
-  'meditation',       // 3. Being - Meditație (min 10 min)
-  'autosuggestion',   // 4. Being - Autosugestie
-  'exercise',         // 5. Body - Exerciții cu timer
-  'mealPlanning',     // 6. Body - Meal Planning
-  'contentCreation',  // 7. Business - Content + AI Script + Pomodoro
-  'dailyTasks',       // 8. Business - Tasks / Big One
-  'relationships',    // 9. Balance - Relații
-  'completion',       // 10. Finalizare
+  'breathing',        // 3. Being - Box Breathing
+  'meditation',       // 4. Being - Meditație (min 10 min)
+  'gratitude',        // 5. Being - Recunoștință
+  'visualization',    // 6. Being - Vizualizare
+  'autosuggestion',   // 7. Being - Autosugestie
+  'journaling',       // 8. Being - Journaling
+  'reading',          // 9. Being - Citit 10 pagini
+  'exercise',         // 10. Body - Exerciții cu timer
+  'mealPlanning',     // 11. Body - Meal Planning
+  'contentCreation',  // 12. Business - Content + AI Script + Pomodoro
+  'dailyTasks',       // 13. Business - Tasks / Big One
+  'relationships',    // 14. Balance - Relații
+  'completion',       // 15. Finalizare
 ];
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
@@ -74,6 +92,11 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
   contentCreation: 'Content Creation',
   dailyTasks: 'Daily Tasks',
   relationships: 'Relații',
+  breathing: 'Respirație',
+  visualization: 'Vizualizare',
+  reading: 'Citit',
+  journaling: 'Journaling',
+  lightExposure: 'Lumină Naturală',
   habit_body: 'Habits: Corp',
   habit_being: 'Habits: Spirit',
   habit_balance: 'Habits: Relații',
@@ -87,6 +110,11 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
   hydration: 'being',
   meditation: 'being',
   autosuggestion: 'being',
+  breathing: 'being',
+  visualization: 'being',
+  reading: 'being',
+  journaling: 'being',
+  lightExposure: 'being',
   exercise: 'body',
   mealPlanning: 'body',
   contentCreation: 'business',
@@ -133,6 +161,16 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
       return !!log.big_one_today || (log.daily_todos || []).some(t => t.completed);
     case 'relationships':
       return (log.relationship_actions || []).some(a => a.completed);
+    case 'breathing':
+      return log.breathing_completed === true;
+    case 'visualization':
+      return log.visualization_completed === true;
+    case 'reading':
+      return log.reading_completed === true;
+    case 'journaling':
+      return log.journaling_completed === true;
+    case 'lightExposure':
+      return log.light_exposure === true;
     case 'completion':
       return false; // Completion is never "completed" - it's the end screen
     default:
@@ -499,6 +537,46 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             people={people}
             actions={todayLog?.relationship_actions || []}
             onActionsChange={(actions) => updateLog('relationship_actions', actions)}
+            onNext={goToNextStep}
+          />
+        );
+      case 'breathing':
+        return (
+          <BreathingStep
+            completed={todayLog?.breathing_completed || false}
+            onComplete={(value) => updateLog('breathing_completed', value)}
+            onNext={goToNextStep}
+          />
+        );
+      case 'visualization':
+        return (
+          <VisualizationStep
+            completed={todayLog?.visualization_completed || false}
+            onComplete={(value) => updateLog('visualization_completed', value)}
+            onNext={goToNextStep}
+          />
+        );
+      case 'reading':
+        return (
+          <ReadingStep
+            completed={todayLog?.reading_completed || false}
+            onComplete={(value) => updateLog('reading_completed', value)}
+            onNext={goToNextStep}
+          />
+        );
+      case 'journaling':
+        return (
+          <JournalingStep
+            completed={todayLog?.journaling_completed || false}
+            onComplete={(value) => updateLog('journaling_completed', value)}
+            onNext={goToNextStep}
+          />
+        );
+      case 'lightExposure':
+        return (
+          <LightExposureStep
+            completed={todayLog?.light_exposure || false}
+            onComplete={(value) => updateLog('light_exposure', value)}
             onNext={goToNextStep}
           />
         );

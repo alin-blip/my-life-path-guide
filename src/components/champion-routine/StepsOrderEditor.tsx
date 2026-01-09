@@ -12,10 +12,15 @@ interface StepsOrderEditorProps {
 }
 
 const ALL_STEPS = [
-  { id: 'gratitude', label: 'Recunoștință', icon: Sparkles, category: 'being' },
+  { id: 'lightExposure', label: 'Lumină Naturală', icon: Sparkles, category: 'being' },
   { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being' },
+  { id: 'breathing', label: 'Respirație', icon: Timer, category: 'being' },
   { id: 'meditation', label: 'Meditație', icon: Timer, category: 'being' },
+  { id: 'gratitude', label: 'Recunoștință', icon: Sparkles, category: 'being' },
+  { id: 'visualization', label: 'Vizualizare', icon: Brain, category: 'being' },
   { id: 'autosuggestion', label: 'Autosugestie', icon: Brain, category: 'being' },
+  { id: 'journaling', label: 'Journaling', icon: FileText, category: 'being' },
+  { id: 'reading', label: 'Citit', icon: FileText, category: 'being' },
   { id: 'exercise', label: 'Exerciții', icon: Dumbbell, category: 'body' },
   { id: 'mealPlanning', label: 'Meal Planning', icon: Utensils, category: 'body' },
   { id: 'contentCreation', label: 'Content Creation', icon: FileText, category: 'business' },
