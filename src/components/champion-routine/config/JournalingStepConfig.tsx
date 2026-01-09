@@ -26,18 +26,20 @@ export function JournalingStepConfigComponent({ open, onOpenChange }: Journaling
   const [isSaving, setIsSaving] = useState(false);
   
   const [localConfig, setLocalConfig] = useState<JournalingStepConfig>({
-    promptType: config.promptType || 'morning',
-    wordCountGoal: config.wordCountGoal || 200,
-    showTemplates: config.showTemplates !== false,
+    promptType: 'morning',
+    wordCountGoal: 200,
+    showTemplates: true,
   });
 
   useEffect(() => {
-    setLocalConfig({
-      promptType: config.promptType || 'morning',
-      wordCountGoal: config.wordCountGoal || 200,
-      showTemplates: config.showTemplates !== false,
-    });
-  }, [config]);
+    if (open) {
+      setLocalConfig({
+        promptType: config.promptType || 'morning',
+        wordCountGoal: config.wordCountGoal || 200,
+        showTemplates: config.showTemplates !== false,
+      });
+    }
+  }, [open, config.promptType, config.wordCountGoal, config.showTemplates]);
 
   const handleSave = async () => {
     setIsSaving(true);

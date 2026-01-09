@@ -25,20 +25,22 @@ export function VisualizationStepConfigComponent({ open, onOpenChange }: Visuali
   const [isSaving, setIsSaving] = useState(false);
   
   const [localConfig, setLocalConfig] = useState<VisualizationStepConfig>({
-    durationMinutes: config.durationMinutes || 5,
-    ambientMusic: config.ambientMusic || false,
-    guidedMode: config.guidedMode !== false,
-    focusArea: config.focusArea || 'day',
+    durationMinutes: 5,
+    ambientMusic: false,
+    guidedMode: true,
+    focusArea: 'day',
   });
 
   useEffect(() => {
-    setLocalConfig({
-      durationMinutes: config.durationMinutes || 5,
-      ambientMusic: config.ambientMusic || false,
-      guidedMode: config.guidedMode !== false,
-      focusArea: config.focusArea || 'day',
-    });
-  }, [config]);
+    if (open) {
+      setLocalConfig({
+        durationMinutes: config.durationMinutes || 5,
+        ambientMusic: config.ambientMusic || false,
+        guidedMode: config.guidedMode !== false,
+        focusArea: config.focusArea || 'day',
+      });
+    }
+  }, [open, config.durationMinutes, config.ambientMusic, config.guidedMode, config.focusArea]);
 
   const handleSave = async () => {
     setIsSaving(true);

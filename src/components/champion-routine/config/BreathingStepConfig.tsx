@@ -25,20 +25,22 @@ export function BreathingStepConfigComponent({ open, onOpenChange }: BreathingSt
   const [isSaving, setIsSaving] = useState(false);
   
   const [localConfig, setLocalConfig] = useState<BreathingStepConfig>({
-    technique: config.technique || 'box',
-    cycles: config.cycles || 5,
-    phaseDuration: config.phaseDuration || 4,
-    showGuide: config.showGuide !== false,
+    technique: 'box',
+    cycles: 5,
+    phaseDuration: 4,
+    showGuide: true,
   });
 
   useEffect(() => {
-    setLocalConfig({
-      technique: config.technique || 'box',
-      cycles: config.cycles || 5,
-      phaseDuration: config.phaseDuration || 4,
-      showGuide: config.showGuide !== false,
-    });
-  }, [config]);
+    if (open) {
+      setLocalConfig({
+        technique: config.technique || 'box',
+        cycles: config.cycles || 5,
+        phaseDuration: config.phaseDuration || 4,
+        showGuide: config.showGuide !== false,
+      });
+    }
+  }, [open, config.technique, config.cycles, config.phaseDuration, config.showGuide]);
 
   const handleSave = async () => {
     setIsSaving(true);
