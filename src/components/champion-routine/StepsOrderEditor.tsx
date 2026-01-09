@@ -131,12 +131,14 @@ export function StepsOrderEditor({
 
                         {step.hasConfig && isActive && (
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            className="h-8 w-8 p-0"
+                            className="h-8 px-2 gap-1.5 text-xs"
                             onClick={(e) => handleConfigClick(e, stepId)}
+                            title="Configurare pas"
                           >
-                            <Settings2 className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                            <Settings2 className="h-3.5 w-3.5" />
+                            Setări
                           </Button>
                         )}
 
