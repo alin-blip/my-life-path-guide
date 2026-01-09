@@ -18,8 +18,8 @@ import { EmpowermentMeditationPlayer } from '@/components/champion-routine/Empow
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { MeditationTemplateList } from '@/components/meditation/templates/MeditationTemplateList';
 
 export default function EmpowermentMeditation() {
   const { meditation, isLoading, saveMeditation, deleteMeditation } = useEmpowermentMeditation();
@@ -297,39 +297,20 @@ export default function EmpowermentMeditation() {
               </CardContent>
             </Card>
 
-            {/* Templates Section - Future */}
+            {/* Templates Section */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">
-                  📚 {language === 'ro' ? 'Template-uri' : 'Templates'}
+                  📚 {language === 'ro' ? 'Template-uri Personalizate' : 'Personalized Templates'}
                 </CardTitle>
                 <CardDescription>
-                  {language === 'ro' ? 'Meditații pre-create pentru diferite scopuri' : 'Pre-made meditations for different purposes'}
+                  {language === 'ro' 
+                    ? 'Meditații generate automat pe baza obiectivelor și datelor tale' 
+                    : 'Meditations automatically generated based on your goals and data'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-3">
-                  {[
-                    { title: 'Relaxare Profundă', duration: '10 min', icon: '🌊' },
-                    { title: 'Vizualizare Succes', duration: '15 min', icon: '🎯' },
-                    { title: 'Energie Matinală', duration: '5 min', icon: '☀️' },
-                    { title: 'Somn Liniștit', duration: '20 min', icon: '🌙' },
-                  ].map((template, idx) => (
-                    <div 
-                      key={idx}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer opacity-50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{template.icon}</span>
-                        <div>
-                          <p className="font-medium">{template.title}</p>
-                          <p className="text-xs text-muted-foreground">{template.duration}</p>
-                        </div>
-                      </div>
-                      <span className="text-xs text-muted-foreground">Coming soon</span>
-                    </div>
-                  ))}
-                </div>
+                <MeditationTemplateList />
               </CardContent>
             </Card>
           </TabsContent>

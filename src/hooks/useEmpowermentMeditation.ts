@@ -24,6 +24,9 @@ interface GenerateOptions {
     business?: string;
   };
   language?: string;
+  templateId?: string;
+  templateContext?: string;
+  templateTitle?: string;
 }
 
 export function useEmpowermentMeditation() {
@@ -75,13 +78,18 @@ export function useEmpowermentMeditation() {
         return false;
       }
 
-      console.log('Generating meditation with objectives:', options.objectives);
+      console.log('Generating meditation with options:', { 
+        objectives: options.objectives, 
+        templateId: options.templateId 
+      });
 
       // Call edge function to generate meditation
       const { data, error } = await supabase.functions.invoke('generate-empowerment-meditation', {
         body: {
           objectives: options.objectives,
-          language: options.language || 'ro'
+          language: options.language || 'ro',
+          templateId: options.templateId,
+          templateContext: options.templateContext
         }
       });
 
@@ -101,11 +109,12 @@ export function useEmpowermentMeditation() {
         .eq('user_id', user.id);
 
       // Save new meditation
+      const meditationTitle = options.templateTitle || 'Meditație de Empowerment';
       const { data: newMeditation, error: insertError } = await supabase
         .from('empowerment_meditations')
         .insert({
           user_id: user.id,
-          title: 'Meditație de Empowerment',
+          title: meditationTitle,
           meditation_script: data.meditationScript,
           binaural_type: 'theta',
           duration_seconds: data.estimatedDuration || 600,
