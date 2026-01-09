@@ -7,6 +7,8 @@ import { Dumbbell, ArrowRight, Check, CheckCircle2 } from 'lucide-react';
 import { ActivitySelector, ActivityType } from '../ActivitySelector';
 import { CardioTimer } from '../CardioTimer';
 import { WorkoutStep } from '@/components/daily-flow/WorkoutStep';
+import { TodaysWorkoutDashboard } from '@/components/fitness/TodaysWorkoutDashboard';
+import { useTodayWorkout } from '@/hooks/useTodayWorkout';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,6 +32,9 @@ export function ExerciseStep({ completed, onComplete, onNext, onSkip }: Exercise
   const [manualData, setManualData] = useState<ManualActivityData>({ minutes: '', kg: '', calories: '' });
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  
+  // Check if there's a planned workout
+  const { hasActiveProgram, hasTodayWorkout } = useTodayWorkout();
 
   const handleActivitySelect = (type: ActivityType) => {
     setSelectedActivity(type);
@@ -107,7 +112,7 @@ export function ExerciseStep({ completed, onComplete, onNext, onSkip }: Exercise
     }
   };
 
-  // If showing workout, use the full WorkoutStep component
+  // If showing workout, use the dashboard if there's a plan, otherwise WorkoutStep
   if (selectedActivity === 'workout') {
     return (
       <div className="space-y-4">
@@ -125,7 +130,11 @@ export function ExerciseStep({ completed, onComplete, onNext, onSkip }: Exercise
             </Button>
           )}
         </div>
-        <WorkoutStep onComplete={handleWorkoutComplete} />
+        {hasActiveProgram && hasTodayWorkout ? (
+          <TodaysWorkoutDashboard onComplete={handleWorkoutComplete} />
+        ) : (
+          <WorkoutStep onComplete={handleWorkoutComplete} />
+        )}
       </div>
     );
   }

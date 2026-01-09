@@ -18,6 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TodaysWorkoutDashboard } from '@/components/fitness/TodaysWorkoutDashboard';
+import { useTodayWorkout } from '@/hooks/useTodayWorkout';
 
 // Lista de exerciții predefinite
 const PRESET_EXERCISES = [
@@ -116,6 +118,9 @@ const getStoredSession = (): StoredWorkoutSession | null => {
 };
 
 export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
+  // Check for planned workout
+  const { hasTodayWorkout, hasActiveProgram, loading: planLoading } = useTodayWorkout();
+  
   // Initialize state from localStorage
   const storedSession = getStoredSession();
   
@@ -523,6 +528,23 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
     return exercise.sets.filter(s => s.completed).length;
   };
 
+  // If there's a planned workout from the weekly program, use the new dashboard
+  if (hasActiveProgram && hasTodayWorkout && !planLoading) {
+    return <TodaysWorkoutDashboard onComplete={onComplete} />;
+  }
+
+  // Loading state for plan check
+  if (planLoading) {
+    return (
+      <Card>
+        <CardContent className="p-8 flex items-center justify-center">
+          <Dumbbell className="h-6 w-6 text-muted-foreground animate-bounce" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Manual workout UI (fallback when no program)
   return (
     <Card>
       <CardHeader>
