@@ -38,11 +38,34 @@ export interface ReadingStepConfig {
 export interface LightExposureStepConfig {
   durationMinutes?: number;
   showTimer?: boolean;
+  reminderType?: 'none' | 'notification' | 'sound';
 }
 
 export interface BreathingStepConfig {
   technique?: 'box' | '478' | 'wim_hof' | 'custom';
+  cycles?: number;
+  phaseDuration?: number;
+  showGuide?: boolean;
+}
+
+export interface GratitudeStepConfig {
+  itemCount?: number;
+  showExamples?: boolean;
+  dailyPrompt?: boolean;
+}
+
+export interface VisualizationStepConfig {
   durationMinutes?: number;
+  ambientMusic?: boolean;
+  guidedMode?: boolean;
+  focusArea?: 'day' | 'goals' | 'success' | 'health';
+}
+
+export interface JournalingStepConfig {
+  promptType?: 'morning' | 'reflection' | 'goals' | 'gratitude' | 'custom';
+  customPrompts?: string[];
+  wordCountGoal?: number;
+  showTemplates?: boolean;
 }
 
 export type StepConfig = 
@@ -51,6 +74,9 @@ export type StepConfig =
   | ReadingStepConfig 
   | LightExposureStepConfig
   | BreathingStepConfig
+  | GratitudeStepConfig
+  | VisualizationStepConfig
+  | JournalingStepConfig
   | Record<string, any>;
 
 export function useStepConfig<T extends StepConfig = StepConfig>(stepId: RoutineStepId) {
