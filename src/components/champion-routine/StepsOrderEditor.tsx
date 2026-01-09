@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { GripVertical, Sparkles, Droplets, Timer, Brain, Dumbbell, Utensils, FileText, ListTodo, Heart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { GripVertical, Sparkles, Droplets, Timer, Brain, Dumbbell, Utensils, FileText, ListTodo, Heart, Settings2 } from 'lucide-react';
+import { ExerciseStepConfigComponent, MeditationStepConfigComponent, ReadingStepConfigComponent } from './config';
 
 interface StepsOrderEditorProps {
   activeSteps: string[];
@@ -12,20 +14,20 @@ interface StepsOrderEditorProps {
 }
 
 export const ALL_STEPS = [
-  { id: 'lightExposure', label: 'Lumină Naturală', icon: Sparkles, category: 'being' },
-  { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being' },
-  { id: 'breathing', label: 'Respirație', icon: Timer, category: 'being' },
-  { id: 'meditation', label: 'Meditație', icon: Timer, category: 'being' },
-  { id: 'gratitude', label: 'Recunoștință', icon: Sparkles, category: 'being' },
-  { id: 'visualization', label: 'Vizualizare', icon: Brain, category: 'being' },
-  { id: 'autosuggestion', label: 'Autosugestie', icon: Brain, category: 'being' },
-  { id: 'journaling', label: 'Journaling', icon: FileText, category: 'being' },
-  { id: 'reading', label: 'Citit', icon: FileText, category: 'being' },
-  { id: 'exercise', label: 'Exerciții', icon: Dumbbell, category: 'body' },
-  { id: 'mealPlanning', label: 'Meal Planning', icon: Utensils, category: 'body' },
-  { id: 'contentCreation', label: 'Content Creation', icon: FileText, category: 'business' },
-  { id: 'dailyTasks', label: 'Daily Tasks', icon: ListTodo, category: 'business' },
-  { id: 'relationships', label: 'Relații', icon: Heart, category: 'balance' },
+  { id: 'lightExposure', label: 'Lumină Naturală', icon: Sparkles, category: 'being', hasConfig: false },
+  { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being', hasConfig: false },
+  { id: 'breathing', label: 'Respirație', icon: Timer, category: 'being', hasConfig: false },
+  { id: 'meditation', label: 'Meditație', icon: Timer, category: 'being', hasConfig: true },
+  { id: 'gratitude', label: 'Recunoștință', icon: Sparkles, category: 'being', hasConfig: false },
+  { id: 'visualization', label: 'Vizualizare', icon: Brain, category: 'being', hasConfig: false },
+  { id: 'autosuggestion', label: 'Autosugestie', icon: Brain, category: 'being', hasConfig: false },
+  { id: 'journaling', label: 'Journaling', icon: FileText, category: 'being', hasConfig: false },
+  { id: 'reading', label: 'Citit', icon: FileText, category: 'being', hasConfig: true },
+  { id: 'exercise', label: 'Exerciții', icon: Dumbbell, category: 'body', hasConfig: true },
+  { id: 'mealPlanning', label: 'Meal Planning', icon: Utensils, category: 'body', hasConfig: false },
+  { id: 'contentCreation', label: 'Content Creation', icon: FileText, category: 'business', hasConfig: false },
+  { id: 'dailyTasks', label: 'Daily Tasks', icon: ListTodo, category: 'business', hasConfig: false },
+  { id: 'relationships', label: 'Relații', icon: Heart, category: 'balance', hasConfig: false },
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -41,6 +43,8 @@ export function StepsOrderEditor({
   onActiveStepsChange, 
   onStepsOrderChange 
 }: StepsOrderEditorProps) {
+  const [configDialogOpen, setConfigDialogOpen] = useState<string | null>(null);
+
   // Ensure we have a valid order (include all steps)
   const orderedSteps = stepsOrder.length > 0 
     ? stepsOrder.filter(id => ALL_STEPS.some(s => s.id === id))
@@ -69,6 +73,11 @@ export function StepsOrderEditor({
 
   const getStepData = (stepId: string) => {
     return ALL_STEPS.find(s => s.id === stepId);
+  };
+
+  const handleConfigClick = (e: React.MouseEvent, stepId: string) => {
+    e.stopPropagation();
+    setConfigDialogOpen(stepId);
   };
 
   return (
@@ -120,6 +129,17 @@ export function StepsOrderEditor({
                           <span className="font-medium">{step.label}</span>
                         </div>
 
+                        {step.hasConfig && isActive && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => handleConfigClick(e, stepId)}
+                          >
+                            <Settings2 className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                          </Button>
+                        )}
+
                         <Switch
                           checked={isActive}
                           onCheckedChange={() => toggleStep(stepId)}
@@ -136,8 +156,24 @@ export function StepsOrderEditor({
       </DragDropContext>
 
       <p className="text-xs text-muted-foreground text-center pt-2">
-        Dezactivează pașii pe care nu vrei să îi incluzi în rutina zilnică
+        Dezactivează pașii pe care nu vrei să îi incluzi în rutina zilnică. 
+        <br />
+        Apasă <Settings2 className="h-3 w-3 inline mx-1" /> pentru a configura pașii.
       </p>
+
+      {/* Config Dialogs */}
+      <ExerciseStepConfigComponent 
+        open={configDialogOpen === 'exercise'} 
+        onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
+      />
+      <MeditationStepConfigComponent 
+        open={configDialogOpen === 'meditation'} 
+        onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
+      />
+      <ReadingStepConfigComponent 
+        open={configDialogOpen === 'reading'} 
+        onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, ArrowRight, Check } from 'lucide-react';
+import { useStepConfig, ReadingStepConfig } from '@/hooks/useStepConfig';
 
 interface ReadingStepProps {
   completed: boolean;
@@ -10,10 +11,19 @@ interface ReadingStepProps {
 }
 
 export function ReadingStep({ completed, onComplete, onNext }: ReadingStepProps) {
+  const { config } = useStepConfig<ReadingStepConfig>('reading');
+  const pagesPerDay = config.pagesPerDay || 10;
+  const currentBook = config.currentBook;
+  const showRecommendations = config.showRecommendations !== false;
+
   const handleConfirm = () => {
     onComplete(true);
     setTimeout(() => onNext(), 500);
   };
+
+  // Calculate yearly stats
+  const pagesPerYear = pagesPerDay * 365;
+  const booksPerYear = Math.floor(pagesPerYear / 250);
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
@@ -31,10 +41,18 @@ export function ReadingStep({ completed, onComplete, onNext }: ReadingStepProps)
           </div>
           <h1 className="text-3xl font-bold">Citit</h1>
           <p className="text-muted-foreground text-lg max-w-md mx-auto">
-            Citește minimum 10 pagini dintr-o carte de dezvoltare personală. 
+            Citește minimum {pagesPerDay} pagini dintr-o carte de dezvoltare personală. 
             Cunoașterea este putere.
           </p>
         </div>
+
+        {/* Current book display */}
+        {currentBook && (
+          <div className="text-center p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <p className="text-sm text-muted-foreground mb-1">Cartea curentă:</p>
+            <p className="text-lg font-semibold text-emerald-500">{currentBook}</p>
+          </div>
+        )}
 
         {/* Book visualization */}
         <div className="flex justify-center py-8">
@@ -49,8 +67,8 @@ export function ReadingStep({ completed, onComplete, onNext }: ReadingStepProps)
         {/* Statistics */}
         <div className="grid grid-cols-3 gap-4 text-center">
           {[
-            { value: '10', label: 'pagini/zi', subtext: '= 3,650 pagini/an' },
-            { value: '15', label: 'cărți/an', subtext: 'dacă citești 10 pag/zi' },
+            { value: pagesPerDay.toString(), label: 'pagini/zi', subtext: `= ${pagesPerYear.toLocaleString()} pagini/an` },
+            { value: booksPerYear.toString(), label: 'cărți/an', subtext: `dacă citești ${pagesPerDay} pag/zi` },
             { value: '1%', label: 'mai bun', subtext: 'în fiecare zi' },
           ].map(({ value, label, subtext }) => (
             <div key={label} className="p-4 rounded-lg bg-muted/30">
@@ -62,15 +80,17 @@ export function ReadingStep({ completed, onComplete, onNext }: ReadingStepProps)
         </div>
 
         {/* Reading tips */}
-        <div className="p-4 rounded-lg bg-muted/30 border border-muted text-sm">
-          <p className="font-medium mb-2">📚 Recomandări de cărți:</p>
-          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-            <li>Think and Grow Rich - Napoleon Hill</li>
-            <li>Atomic Habits - James Clear</li>
-            <li>The 7 Habits of Highly Effective People</li>
-            <li>The Power of Now - Eckhart Tolle</li>
-          </ul>
-        </div>
+        {showRecommendations && (
+          <div className="p-4 rounded-lg bg-muted/30 border border-muted text-sm">
+            <p className="font-medium mb-2">📚 Recomandări de cărți:</p>
+            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              <li>Think and Grow Rich - Napoleon Hill</li>
+              <li>Atomic Habits - James Clear</li>
+              <li>The 7 Habits of Highly Effective People</li>
+              <li>The Power of Now - Eckhart Tolle</li>
+            </ul>
+          </div>
+        )}
 
         {/* Action button */}
         {!completed ? (
@@ -80,7 +100,7 @@ export function ReadingStep({ completed, onComplete, onNext }: ReadingStepProps)
             className="w-full gap-2 bg-emerald-500 hover:bg-emerald-600"
           >
             <BookOpen className="h-5 w-5" />
-            Am citit minimum 10 pagini
+            Am citit minimum {pagesPerDay} pagini
           </Button>
         ) : (
           <Button 
