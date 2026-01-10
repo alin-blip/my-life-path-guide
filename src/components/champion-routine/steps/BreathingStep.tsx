@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Wind, ArrowRight, Check, Play, Pause } from 'lucide-react';
+import { useStepConfig, BreathingStepConfig } from '@/hooks/useStepConfig';
 
 interface BreathingStepProps {
   completed: boolean;
@@ -9,25 +10,51 @@ interface BreathingStepProps {
   onNext: () => void;
 }
 
+// Technique phase durations
+const TECHNIQUE_PHASES = {
+  box: { inhale: 4, hold: 4, exhale: 4 },
+  '478': { inhale: 4, hold: 7, exhale: 8 },
+  wim_hof: { inhale: 2, hold: 0, exhale: 2 },
+  custom: { inhale: 4, hold: 4, exhale: 4 },
+};
+
 export function BreathingStep({ completed, onComplete, onNext }: BreathingStepProps) {
+  const { config } = useStepConfig<BreathingStepConfig>('breathing');
+  
   const [isActive, setIsActive] = useState(false);
   const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
   const [cycles, setCycles] = useState(0);
   const [secondsInPhase, setSecondsInPhase] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Box breathing: 4 sec inhale, 4 sec hold, 4 sec exhale
-  const PHASE_DURATION = 4;
-  const TARGET_CYCLES = 5;
+  // Use config values with fallbacks
+  const technique = config.technique || 'box';
+  const TARGET_CYCLES = config.cycles || 5;
+  const customPhaseDuration = config.phaseDuration || 4;
+  
+  // Get phase durations based on technique
+  const phaseDurations = useMemo(() => {
+    if (technique === 'custom') {
+      return { inhale: customPhaseDuration, hold: customPhaseDuration, exhale: customPhaseDuration };
+    }
+    return TECHNIQUE_PHASES[technique] || TECHNIQUE_PHASES.box;
+  }, [technique, customPhaseDuration]);
+  
+  const currentPhaseDuration = phaseDurations[phase];
 
   useEffect(() => {
     if (isActive && cycles < TARGET_CYCLES) {
       intervalRef.current = setInterval(() => {
         setSecondsInPhase(prev => {
-          if (prev >= PHASE_DURATION - 1) {
+          if (prev >= currentPhaseDuration - 1) {
             // Move to next phase
             if (phase === 'inhale') {
-              setPhase('hold');
+              // Skip hold phase if duration is 0 (e.g., Wim Hof)
+              if (phaseDurations.hold === 0) {
+                setPhase('exhale');
+              } else {
+                setPhase('hold');
+              }
             } else if (phase === 'hold') {
               setPhase('exhale');
             } else {
@@ -44,14 +71,14 @@ export function BreathingStep({ completed, onComplete, onNext }: BreathingStepPr
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isActive, phase, cycles]);
+  }, [isActive, phase, cycles, currentPhaseDuration, phaseDurations.hold, TARGET_CYCLES]);
 
   useEffect(() => {
     if (cycles >= TARGET_CYCLES && !completed) {
       setIsActive(false);
       onComplete(true);
     }
-  }, [cycles, completed, onComplete]);
+  }, [cycles, completed, onComplete, TARGET_CYCLES]);
 
   const toggleBreathing = () => {
     if (cycles >= TARGET_CYCLES) {
@@ -71,7 +98,7 @@ export function BreathingStep({ completed, onComplete, onNext }: BreathingStepPr
   };
 
   const getCircleScale = () => {
-    const progress = secondsInPhase / PHASE_DURATION;
+    const progress = currentPhaseDuration > 0 ? secondsInPhase / currentPhaseDuration : 0;
     switch (phase) {
       case 'inhale': return 1 + progress * 0.5;
       case 'hold': return 1.5;
@@ -100,7 +127,7 @@ export function BreathingStep({ completed, onComplete, onNext }: BreathingStepPr
           </div>
           <h1 className="text-3xl font-bold">Respirație Profundă</h1>
           <p className="text-muted-foreground text-lg max-w-md mx-auto">
-            5 cicluri de respirație box breathing pentru calm și claritate mentală.
+            {TARGET_CYCLES} cicluri de respirație {technique === 'box' ? 'box breathing' : technique === '478' ? '4-7-8' : technique === 'wim_hof' ? 'Wim Hof' : 'personalizată'} pentru calm și claritate mentală.
           </p>
         </div>
 
@@ -115,7 +142,7 @@ export function BreathingStep({ completed, onComplete, onNext }: BreathingStepPr
                 {isActive ? (
                   <>
                     <p className="text-2xl font-bold text-foreground">{getPhaseText()}</p>
-                    <p className="text-4xl font-mono">{PHASE_DURATION - secondsInPhase}</p>
+                    <p className="text-4xl font-mono">{Math.max(0, currentPhaseDuration - secondsInPhase)}</p>
                   </>
                 ) : (
                   <Play className="h-12 w-12 text-foreground" />
@@ -145,12 +172,12 @@ export function BreathingStep({ completed, onComplete, onNext }: BreathingStepPr
         )}
 
         {/* Instructions */}
-        <div className="grid grid-cols-3 gap-4 text-center text-sm">
+        <div className={`grid gap-4 text-center text-sm ${phaseDurations.hold === 0 ? 'grid-cols-2' : 'grid-cols-3'}`}>
           {[
-            { label: 'Inspiră', seconds: '4 sec', active: phase === 'inhale' && isActive },
-            { label: 'Ține', seconds: '4 sec', active: phase === 'hold' && isActive },
-            { label: 'Expiră', seconds: '4 sec', active: phase === 'exhale' && isActive },
-          ].map(({ label, seconds, active }) => (
+            { label: 'Inspiră', seconds: `${phaseDurations.inhale} sec`, active: phase === 'inhale' && isActive, show: true },
+            { label: 'Ține', seconds: `${phaseDurations.hold} sec`, active: phase === 'hold' && isActive, show: phaseDurations.hold > 0 },
+            { label: 'Expiră', seconds: `${phaseDurations.exhale} sec`, active: phase === 'exhale' && isActive, show: true },
+          ].filter(item => item.show).map(({ label, seconds, active }) => (
             <div 
               key={label} 
               className={`p-3 rounded-lg transition-all ${
