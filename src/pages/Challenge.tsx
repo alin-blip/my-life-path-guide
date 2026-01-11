@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Flame, Heart, Target, Zap, Gift, BookOpen, Crown,
-  Play, Lock, CheckCircle2, ArrowRight, Rocket, Dumbbell, Brain, Users
+  Play, Lock, CheckCircle2, ArrowRight, Rocket, Dumbbell, Brain, Users,
+  Sparkles, Bell, Trophy, Map
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
@@ -28,77 +29,77 @@ interface ChallengeDay {
 const challengeDays: ChallengeDay[] = [
   {
     day: 1,
-    titleEn: "🔥 IGNITE YOUR DESIRE",
-    titleRo: "🔥 APRINDE-ȚI DORINȚA",
-    subtitleEn: "Define your 'Have It All' vision",
-    subtitleRo: "Definește-ți viziunea 'Have It All'",
-    icon: Flame,
-    color: "from-orange-500 to-red-500",
+    titleEn: "🚀 PLATFORM TOUR",
+    titleRo: "🚀 TOUR PLATFORMĂ",
+    subtitleEn: "Discover all the tools at your disposal",
+    subtitleRo: "Descoperă toate instrumentele disponibile",
+    icon: Map,
+    color: "from-purple-500 to-indigo-500",
     actionPath: "/challenge/1",
-    focusAreas: ['being']
-  },
-  {
-    day: 2,
-    titleEn: "💪 BODY MASTERY",
-    titleRo: "💪 STĂPÂNIREA CORPULUI",
-    subtitleEn: "30 min movement + Green fuel",
-    subtitleRo: "30 min mișcare + Combustibil verde",
-    icon: Dumbbell,
-    color: "from-green-500 to-emerald-500",
-    actionPath: "/challenge/2",
-    focusAreas: ['body']
-  },
-  {
-    day: 3,
-    titleEn: "✨ SOUL CONNECTION",
-    titleRo: "✨ CONEXIUNE SPIRITUALĂ",
-    subtitleEn: "Meditation + Gratitude + Stack",
-    subtitleRo: "Meditație + Gratitudine + Stack",
-    icon: Brain,
-    color: "from-purple-500 to-violet-500",
-    actionPath: "/challenge/3",
-    focusAreas: ['body', 'being']
-  },
-  {
-    day: 4,
-    titleEn: "💕 LOVE & CONNECTION",
-    titleRo: "💕 DRAGOSTE ȘI CONEXIUNE",
-    subtitleEn: "Add value to 2 people you love",
-    subtitleRo: "Adaugă valoare la 2 persoane dragi",
-    icon: Heart,
-    color: "from-pink-500 to-rose-500",
-    actionPath: "/challenge/4",
-    focusAreas: ['body', 'being', 'balance']
-  },
-  {
-    day: 5,
-    titleEn: "💰 BUSINESS EDGE",
-    titleRo: "💰 AVANTAJ DE BUSINESS",
-    subtitleEn: "Learn, discover, apply",
-    subtitleRo: "Învață, descoperă, aplică",
-    icon: BookOpen,
-    color: "from-blue-500 to-cyan-500",
-    actionPath: "/challenge/5",
     focusAreas: ['body', 'being', 'balance', 'business']
   },
   {
+    day: 2,
+    titleEn: "💪✨ BODY + BEING",
+    titleRo: "💪✨ CORP + SPIRIT",
+    subtitleEn: "Set objectives for health & inner peace",
+    subtitleRo: "Setează obiective pentru sănătate și pace interioară",
+    icon: Target,
+    color: "from-green-500 to-purple-500",
+    actionPath: "/challenge/2",
+    focusAreas: ['body', 'being']
+  },
+  {
+    day: 3,
+    titleEn: "💕💰 BALANCE + BUSINESS",
+    titleRo: "💕💰 RELAȚII + BUSINESS",
+    subtitleEn: "Set objectives for relationships & career",
+    subtitleRo: "Setează obiective pentru relații și carieră",
+    icon: Target,
+    color: "from-pink-500 to-blue-500",
+    actionPath: "/challenge/3",
+    focusAreas: ['balance', 'business']
+  },
+  {
+    day: 4,
+    titleEn: "🏆 CHAMPION ROUTINE",
+    titleRo: "🏆 RUTINA CAMPIONULUI",
+    subtitleEn: "Configure your winning morning routine",
+    subtitleRo: "Configurează-ți rutina matinală câștigătoare",
+    icon: Crown,
+    color: "from-amber-500 to-orange-500",
+    actionPath: "/challenge/4",
+    focusAreas: ['body', 'being', 'balance', 'business']
+  },
+  {
+    day: 5,
+    titleEn: "✨ AI VISION",
+    titleRo: "✨ VIZIUNE AI",
+    subtitleEn: "Generate images & personalized meditation",
+    subtitleRo: "Generează imagini și meditație personalizată",
+    icon: Sparkles,
+    color: "from-cyan-500 to-blue-500",
+    actionPath: "/challenge/5",
+    focusAreas: ['being']
+  },
+  {
     day: 6,
-    titleEn: "⚡ INTEGRATION DAY",
-    titleRo: "⚡ ZIUA INTEGRĂRII",
-    subtitleEn: "Practice ALL 4 areas",
-    subtitleRo: "Practică TOATE 4 ariile",
-    icon: Zap,
-    color: "from-yellow-500 to-amber-500",
+    titleEn: "🔔 ACCOUNTABILITY",
+    titleRo: "🔔 ACCOUNTABILITY",
+    subtitleEn: "Set up your notification system",
+    subtitleRo: "Configurează-ți sistemul de notificări",
+    icon: Bell,
+    color: "from-red-500 to-pink-500",
     actionPath: "/challenge/6",
     focusAreas: ['body', 'being', 'balance', 'business']
   },
   {
     day: 7,
-    titleEn: "🏆 PUTTING IT ALL TOGETHER",
-    titleRo: "🏆 PUNEM TOTUL ÎMPREUNĂ",
-    subtitleEn: "Complete walkthrough + Premium upgrade",
-    subtitleRo: "Walkthrough complet + Upgrade Premium",
-    icon: Crown,
+    titleEn: "🎯 PUTTING IT ALL TOGETHER",
+    titleRo: "🎯 PUNEM TOTUL ÎMPREUNĂ",
+    subtitleEn: "Complete recap + Premium upgrade",
+    subtitleRo: "Recapitulare completă + Upgrade Premium",
+    icon: Trophy,
     color: "from-amber-500 to-yellow-600",
     actionPath: "/challenge/7",
     focusAreas: ['body', 'being', 'balance', 'business']
