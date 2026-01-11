@@ -7,18 +7,21 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
 import { 
   Rocket, ArrowRight, CheckCircle2, Dumbbell, Brain, 
-  Heart, Crown, Play, Users, Sparkles, Gift,
+  Heart, Crown, Users, Sparkles, Gift,
   Star, Target, Calendar, Map, Bell, Trophy
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
-
+import { useChallengeStats } from '@/hooks/useChallengeStats';
+import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeCard';
 const Challenge7ZileLanding = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { totalParticipants, getCompletionsForDay, loading: statsLoading } = useChallengeStats();
   
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -248,10 +251,23 @@ const Challenge7ZileLanding = () => {
                 : 'Challenge-ul GRATUIT care te ajută să stăpânești Corpul, Spiritul, Relațiile și Business-ul — Ai TOTUL!'}
             </p>
 
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-8">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-8"
+            >
               <Users className="h-4 w-4" />
-              <span>{language === 'en' ? '2,500+ people joined' : '2.500+ persoane înscrise'}</span>
-            </div>
+              <span>
+                {statsLoading 
+                  ? (language === 'en' ? 'Loading...' : 'Se încarcă...')
+                  : (language === 'en' 
+                      ? `${Math.max(2500, totalParticipants).toLocaleString()}+ people joined` 
+                      : `${Math.max(2500, totalParticipants).toLocaleString()}+ persoane înscrise`
+                    )
+                }
+              </span>
+            </motion.div>
 
             {/* Lead Capture Form */}
             {!isSubscribed ? (
@@ -347,30 +363,20 @@ const Challenge7ZileLanding = () => {
             </p>
             
             <div className="space-y-3">
-              {challengeDays.map((day) => {
-                const Icon = day.icon;
-                return (
-                  <Card key={day.day} className="p-4 flex items-center gap-4 bg-card border-border/50 hover:border-primary/30 transition-all">
-                    <div className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${day.color} flex items-center justify-center`}>
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-xs font-medium text-primary">
-                          {language === 'en' ? `Day ${day.day}` : `Ziua ${day.day}`}
-                        </span>
-                      </div>
-                      <h3 className="font-bold text-foreground truncate">
-                        {language === 'en' ? day.titleEn : day.titleRo}
-                      </h3>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {language === 'en' ? day.descEn : day.descRo}
-                      </p>
-                    </div>
-                    <Play className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                  </Card>
-                );
-              })}
+              {challengeDays.map((day) => (
+                <AnimatedChallengeCard
+                  key={day.day}
+                  day={day.day}
+                  icon={day.icon}
+                  titleEn={day.titleEn}
+                  titleRo={day.titleRo}
+                  descEn={day.descEn}
+                  descRo={day.descRo}
+                  color={day.color}
+                  completions={getCompletionsForDay(day.day)}
+                  language={language}
+                />
+              ))}
             </div>
           </div>
         </section>
