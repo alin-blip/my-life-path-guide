@@ -1,13 +1,15 @@
 export type Plan = {
-  id: "trial" | "basic" | "pro";
+  id: "trial" | "basic" | "pro" | "monthly" | "annual" | "premium-coach";
   name: string;
   price: string;
+  priceValue?: number;
   period?: string;
   highlight?: string;
   result?: string;
   benefits: string[];
   cta: string;
   featured?: boolean;
+  coachingIncluded?: boolean;
 };
 
 export const plans: Plan[] = [
@@ -59,5 +61,60 @@ export const plans: Plan[] = [
     ],
     cta: "Alege Pro",
     featured: true,
+  },
+  {
+    id: "monthly",
+    name: "Lunar",
+    price: "97 LEI",
+    priceValue: 9700,
+    period: "/ lună",
+    highlight: "Flexibilitate maximă",
+    result: "Acces complet la platformă cu plată lunară flexibilă.",
+    benefits: [
+      "Toate modulele platformei",
+      "Coaching AI pentru obiective",
+      "Goal Wizard cu milestone-uri",
+      "Rutina Campionului",
+      "Planificare săptămânală în Door",
+    ],
+    cta: "Alege Lunar",
+  },
+  {
+    id: "annual",
+    name: "Anual",
+    price: "997 LEI",
+    priceValue: 99700,
+    period: "/ an",
+    highlight: "-15% Discount",
+    result: "Economisești 167 LEI pe an cu acces complet la toate funcționalitățile.",
+    benefits: [
+      "Tot ce include planul lunar",
+      "Meditații AI personalizate nelimitate",
+      "Export și backup date",
+      "Support prioritar",
+      "Acces la toate update-urile viitoare",
+    ],
+    cta: "Alege Anual",
+    featured: true,
+  },
+  {
+    id: "premium-coach",
+    name: "Premium + Coaching",
+    price: "197 LEI",
+    priceValue: 19700,
+    period: "/ lună",
+    highlight: "Cu Alin Radu",
+    result: "Coaching de grup săptămânal LIVE pentru accelerare maximă.",
+    benefits: [
+      "Tot ce include planul anual",
+      "Coaching de grup săptămânal LIVE cu Alin Radu",
+      "Sesiuni Q&A exclusive",
+      "Comunitate VIP cu membri premium",
+      "Resurse exclusive de coaching",
+      "Acces prioritar la funcționalități noi",
+    ],
+    cta: "Alege Premium",
+    featured: true,
+    coachingIncluded: true,
   },
 ];
