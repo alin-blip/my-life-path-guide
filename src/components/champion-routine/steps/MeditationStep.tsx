@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { useEmpowermentMeditation } from '@/hooks/useEmpowermentMeditation';
 import { EmpowermentMeditationPlayer } from '@/components/champion-routine/EmpowermentMeditationPlayer';
+import { MeditationSelector } from '@/components/champion-routine/MeditationSelector';
 import { BinauralType } from '@/hooks/useBinauralBeats';
 import { useStepConfig, MeditationStepConfig } from '@/hooks/useStepConfig';
 
@@ -45,8 +46,16 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
   const defaultDurationMinutes = config?.defaultDurationMinutes ?? 10;
   const minMeditationSeconds = defaultDurationMinutes * 60;
   
-  // Empowerment meditation hook
-  const { meditation, isLoading: isMeditationLoading, hasMeditation } = useEmpowermentMeditation();
+  // Empowerment meditation hook - now with all meditations
+  const { 
+    meditation, 
+    allMeditations,
+    isLoading: isMeditationLoading, 
+    hasMeditation,
+    selectMeditation,
+    toggleFavorite,
+    deleteMeditationById
+  } = useEmpowermentMeditation();
   
   // Set default tab based on config
   const defaultTab = config.defaultMode === 'guided' && hasMeditation ? 'guided' : 'timer';
@@ -418,7 +427,19 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
           </TabsContent>
 
           {/* Guided Meditation Tab Content */}
-          <TabsContent value="guided" className="mt-6">
+          <TabsContent value="guided" className="mt-6 space-y-4">
+            {/* Meditation Selector - shows when user has meditations */}
+            {allMeditations.length > 0 && (
+              <MeditationSelector
+                meditations={allMeditations}
+                selectedId={meditation?.id}
+                onSelect={selectMeditation}
+                onToggleFavorite={toggleFavorite}
+                onDelete={deleteMeditationById}
+              />
+            )}
+
+            {/* Player for selected meditation */}
             {hasMeditation && meditation ? (
               <EmpowermentMeditationPlayer
                 meditationScript={meditation.meditation_script}

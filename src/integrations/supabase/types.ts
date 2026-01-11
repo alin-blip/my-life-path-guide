@@ -1287,6 +1287,7 @@ export type Database = {
           duration_seconds: number | null
           id: string
           is_active: boolean | null
+          is_favorite: boolean | null
           meditation_script: string
           objectives_snapshot: Json | null
           title: string
@@ -1300,6 +1301,7 @@ export type Database = {
           duration_seconds?: number | null
           id?: string
           is_active?: boolean | null
+          is_favorite?: boolean | null
           meditation_script: string
           objectives_snapshot?: Json | null
           title?: string
@@ -1313,6 +1315,7 @@ export type Database = {
           duration_seconds?: number | null
           id?: string
           is_active?: boolean | null
+          is_favorite?: boolean | null
           meditation_script?: string
           objectives_snapshot?: Json | null
           title?: string

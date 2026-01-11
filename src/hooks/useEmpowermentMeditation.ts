@@ -12,6 +12,7 @@ interface EmpowermentMeditation {
   duration_seconds: number | null;
   objectives_snapshot: Record<string, string> | null;
   is_active: boolean;
+  is_favorite: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -31,11 +32,12 @@ interface GenerateOptions {
 
 export function useEmpowermentMeditation() {
   const [meditation, setMeditation] = useState<EmpowermentMeditation | null>(null);
+  const [allMeditations, setAllMeditations] = useState<EmpowermentMeditation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Fetch user's active meditation
-  const fetchMeditation = useCallback(async () => {
+  // Fetch ALL user meditations (sorted: favorites first, then by date)
+  const fetchAllMeditations = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -47,27 +49,103 @@ export function useEmpowermentMeditation() {
         .from('empowerment_meditations')
         .select('*')
         .eq('user_id', user.id)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order('is_favorite', { ascending: false })
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       
-      // Cast to proper type since Supabase types might not be updated yet
-      setMeditation(data as unknown as EmpowermentMeditation | null);
+      const meditations = (data || []) as unknown as EmpowermentMeditation[];
+      setAllMeditations(meditations);
+      
+      // Set first meditation as current (or null if none)
+      setMeditation(meditations[0] || null);
     } catch (error) {
-      console.error('Error fetching meditation:', error);
+      console.error('Error fetching meditations:', error);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchMeditation();
-  }, [fetchMeditation]);
+    fetchAllMeditations();
+  }, [fetchAllMeditations]);
 
-  // Generate new meditation
+  // Select a specific meditation
+  const selectMeditation = useCallback((meditationId: string) => {
+    const selected = allMeditations.find(m => m.id === meditationId);
+    if (selected) {
+      setMeditation(selected);
+    }
+  }, [allMeditations]);
+
+  // Toggle favorite status
+  const toggleFavorite = useCallback(async (meditationId: string) => {
+    const med = allMeditations.find(m => m.id === meditationId);
+    if (!med) return;
+
+    const newFavoriteStatus = !med.is_favorite;
+
+    try {
+      const { error } = await supabase
+        .from('empowerment_meditations')
+        .update({ is_favorite: newFavoriteStatus })
+        .eq('id', meditationId);
+
+      if (error) throw error;
+
+      // Update local state and re-sort
+      setAllMeditations(prev => {
+        const updated = prev.map(m => 
+          m.id === meditationId ? { ...m, is_favorite: newFavoriteStatus } : m
+        );
+        // Re-sort: favorites first, then by date
+        return updated.sort((a, b) => {
+          if (a.is_favorite !== b.is_favorite) {
+            return b.is_favorite ? 1 : -1;
+          }
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+      });
+
+      // Update current meditation if it's the one being toggled
+      if (meditation?.id === meditationId) {
+        setMeditation(prev => prev ? { ...prev, is_favorite: newFavoriteStatus } : null);
+      }
+
+      toast.success(newFavoriteStatus ? 'Adăugat la favorite' : 'Eliminat din favorite');
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      toast.error('Eroare la actualizarea favoritului');
+    }
+  }, [allMeditations, meditation]);
+
+  // Delete a specific meditation
+  const deleteMeditationById = useCallback(async (meditationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('empowerment_meditations')
+        .delete()
+        .eq('id', meditationId);
+
+      if (error) throw error;
+
+      // Update local state
+      const remaining = allMeditations.filter(m => m.id !== meditationId);
+      setAllMeditations(remaining);
+
+      // If deleted meditation was selected, select the first remaining
+      if (meditation?.id === meditationId) {
+        setMeditation(remaining[0] || null);
+      }
+
+      toast.success('Meditația a fost ștearsă');
+    } catch (error) {
+      console.error('Error deleting meditation:', error);
+      toast.error('Eroare la ștergerea meditației');
+    }
+  }, [allMeditations, meditation]);
+
+  // Generate new meditation (no longer deactivates old ones)
   const generateMeditation = useCallback(async (options: GenerateOptions): Promise<boolean> => {
     setIsGenerating(true);
     
@@ -102,13 +180,7 @@ export function useEmpowermentMeditation() {
         throw new Error('Nu s-a generat scriptul meditației');
       }
 
-      // Deactivate old meditations
-      await supabase
-        .from('empowerment_meditations')
-        .update({ is_active: false })
-        .eq('user_id', user.id);
-
-      // Save new meditation
+      // Save new meditation (WITHOUT deactivating old ones)
       const meditationTitle = options.templateTitle || 'Meditație de Empowerment';
       const { data: newMeditation, error: insertError } = await supabase
         .from('empowerment_meditations')
@@ -119,14 +191,20 @@ export function useEmpowermentMeditation() {
           binaural_type: 'theta',
           duration_seconds: data.estimatedDuration || 600,
           objectives_snapshot: options.objectives,
-          is_active: true
+          is_active: true,
+          is_favorite: false
         })
         .select()
         .single();
 
       if (insertError) throw insertError;
 
-      setMeditation(newMeditation as unknown as EmpowermentMeditation);
+      const newMed = newMeditation as unknown as EmpowermentMeditation;
+      
+      // Add to local state at the beginning
+      setAllMeditations(prev => [newMed, ...prev]);
+      setMeditation(newMed);
+      
       toast.success('Meditația a fost generată cu succes!');
       return true;
 
@@ -161,7 +239,9 @@ export function useEmpowermentMeditation() {
 
         if (error) throw error;
 
-        setMeditation(prev => prev ? { ...prev, meditation_script: script, title: title || prev.title } : null);
+        const updatedMed = { ...meditation, meditation_script: script, title: title || meditation.title };
+        setMeditation(updatedMed);
+        setAllMeditations(prev => prev.map(m => m.id === meditation.id ? updatedMed : m));
       } else {
         // Create new
         const { data: newMeditation, error } = await supabase
@@ -171,13 +251,17 @@ export function useEmpowermentMeditation() {
             title: title || 'Meditație Personalizată',
             meditation_script: script,
             binaural_type: 'theta',
-            is_active: true
+            is_active: true,
+            is_favorite: false
           })
           .select()
           .single();
 
         if (error) throw error;
-        setMeditation(newMeditation as unknown as EmpowermentMeditation);
+        
+        const newMed = newMeditation as unknown as EmpowermentMeditation;
+        setMeditation(newMed);
+        setAllMeditations(prev => [newMed, ...prev]);
       }
 
       return true;
@@ -188,34 +272,24 @@ export function useEmpowermentMeditation() {
     }
   }, [meditation]);
 
-  // Delete meditation
+  // Delete current meditation (legacy - use deleteMeditationById instead)
   const deleteMeditation = useCallback(async () => {
     if (!meditation) return;
-
-    try {
-      const { error } = await supabase
-        .from('empowerment_meditations')
-        .delete()
-        .eq('id', meditation.id);
-
-      if (error) throw error;
-
-      setMeditation(null);
-      toast.success('Meditația a fost ștearsă');
-    } catch (error) {
-      console.error('Error deleting meditation:', error);
-      toast.error('Eroare la ștergerea meditației');
-    }
-  }, [meditation]);
+    await deleteMeditationById(meditation.id);
+  }, [meditation, deleteMeditationById]);
 
   return {
     meditation,
+    allMeditations,
     isLoading,
     isGenerating,
+    selectMeditation,
+    toggleFavorite,
+    deleteMeditationById,
     generateMeditation,
     saveMeditation,
     deleteMeditation,
-    refetch: fetchMeditation,
-    hasMeditation: !!meditation
+    refetch: fetchAllMeditations,
+    hasMeditation: allMeditations.length > 0
   };
 }
