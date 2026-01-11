@@ -52,6 +52,13 @@ export interface ChampionSettings {
   light_exposure_duration?: number;
   // Setup
   setup_completed_at?: string;
+  // Journaling settings
+  journaling_min_words?: number;
+  journaling_show_prompts?: boolean;
+  // Business - Learn & Apply
+  learn_task_type?: string;
+  learn_task_description?: string;
+  apply_teach_description?: string;
 }
 
 export interface Meal {
@@ -97,6 +104,11 @@ export interface ChampionLog {
   pomodoro_sessions: number;
   big_one_today: string | null;
   daily_todos: Todo[];
+  // Business - Learn & Apply
+  learn_completed: boolean;
+  learn_notes: string | null;
+  apply_completed: boolean;
+  apply_notes: string | null;
 }
 
 const DEFAULT_AUTOSUGGESTION = 'Every day, in every way, I am getting better and better.';
@@ -166,6 +178,10 @@ export function useChampionRoutine() {
           pomodoro_sessions: logData.pomodoro_sessions || 0,
           big_one_today: logData.big_one_today || null,
           daily_todos: (logData.daily_todos as unknown as Todo[]) || [],
+          learn_completed: logData.learn_completed || false,
+          learn_notes: logData.learn_notes || null,
+          apply_completed: logData.apply_completed || false,
+          apply_notes: logData.apply_notes || null,
         });
       } else {
         // Create new log for today
@@ -193,6 +209,10 @@ export function useChampionRoutine() {
             pomodoro_sessions: 0,
             big_one_today: null,
             daily_todos: [],
+            learn_completed: false,
+            learn_notes: null,
+            apply_completed: false,
+            apply_notes: null,
           });
         }
       }

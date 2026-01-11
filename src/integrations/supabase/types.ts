@@ -387,6 +387,8 @@ export type Database = {
       }
       champion_routine_logs: {
         Row: {
+          apply_completed: boolean | null
+          apply_notes: string | null
           autosuggestion_completed: boolean | null
           autosuggestion_text: string | null
           big_one_today: string | null
@@ -404,6 +406,8 @@ export type Database = {
           gratitude_items: Json | null
           id: string
           journaling_completed: boolean | null
+          learn_completed: boolean | null
+          learn_notes: string | null
           light_exposure: boolean | null
           meals_logged: Json | null
           meditation_duration_seconds: number | null
@@ -419,6 +423,8 @@ export type Database = {
           water_drunk: boolean | null
         }
         Insert: {
+          apply_completed?: boolean | null
+          apply_notes?: string | null
           autosuggestion_completed?: boolean | null
           autosuggestion_text?: string | null
           big_one_today?: string | null
@@ -436,6 +442,8 @@ export type Database = {
           gratitude_items?: Json | null
           id?: string
           journaling_completed?: boolean | null
+          learn_completed?: boolean | null
+          learn_notes?: string | null
           light_exposure?: boolean | null
           meals_logged?: Json | null
           meditation_duration_seconds?: number | null
@@ -451,6 +459,8 @@ export type Database = {
           water_drunk?: boolean | null
         }
         Update: {
+          apply_completed?: boolean | null
+          apply_notes?: string | null
           autosuggestion_completed?: boolean | null
           autosuggestion_text?: string | null
           big_one_today?: string | null
@@ -468,6 +478,8 @@ export type Database = {
           gratitude_items?: Json | null
           id?: string
           journaling_completed?: boolean | null
+          learn_completed?: boolean | null
+          learn_notes?: string | null
           light_exposure?: boolean | null
           meals_logged?: Json | null
           meditation_duration_seconds?: number | null
@@ -522,6 +534,7 @@ export type Database = {
           active_steps: Json | null
           activity_level: string | null
           age: number | null
+          apply_teach_description: string | null
           binaural_default_type: string | null
           binaural_enabled: boolean | null
           calorie_target: number | null
@@ -536,6 +549,10 @@ export type Database = {
           id: string
           include_daily_tasks: boolean | null
           is_configured: boolean | null
+          journaling_min_words: number | null
+          journaling_show_prompts: boolean | null
+          learn_task_description: string | null
+          learn_task_type: string | null
           light_exposure_duration: number | null
           meditation_default_duration: number | null
           meditation_default_mode: string | null
@@ -560,6 +577,7 @@ export type Database = {
           active_steps?: Json | null
           activity_level?: string | null
           age?: number | null
+          apply_teach_description?: string | null
           binaural_default_type?: string | null
           binaural_enabled?: boolean | null
           calorie_target?: number | null
@@ -574,6 +592,10 @@ export type Database = {
           id?: string
           include_daily_tasks?: boolean | null
           is_configured?: boolean | null
+          journaling_min_words?: number | null
+          journaling_show_prompts?: boolean | null
+          learn_task_description?: string | null
+          learn_task_type?: string | null
           light_exposure_duration?: number | null
           meditation_default_duration?: number | null
           meditation_default_mode?: string | null
@@ -598,6 +620,7 @@ export type Database = {
           active_steps?: Json | null
           activity_level?: string | null
           age?: number | null
+          apply_teach_description?: string | null
           binaural_default_type?: string | null
           binaural_enabled?: boolean | null
           calorie_target?: number | null
@@ -612,6 +635,10 @@ export type Database = {
           id?: string
           include_daily_tasks?: boolean | null
           is_configured?: boolean | null
+          journaling_min_words?: number | null
+          journaling_show_prompts?: boolean | null
+          learn_task_description?: string | null
+          learn_task_type?: string | null
           light_exposure_duration?: number | null
           meditation_default_duration?: number | null
           meditation_default_mode?: string | null

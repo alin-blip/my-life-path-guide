@@ -22,35 +22,35 @@ export const HabitCheckStep: React.FC<HabitCheckStepProps> = ({ category, onNext
   const { habits, toggleHabit, isHabitCompleted, isLoading } = useDailyHabits();
   const { settings, todayLog, people } = useChampionRoutine();
   
+  // Core habit names that are always excluded (handled by routine steps)
+  const CORE_HABIT_NAMES = [
+    'fitness', 'workout', 'exercise',
+    'meditation', 'meditație',
+    'jurnal', 'memoirs', 'journal',
+    'breathing', 'respirație',
+    'visualization', 'vizualizare',
+    'reading', 'citit',
+    'învață', 'learn', 'discover',
+    'aplică', 'apply', 'declare'
+  ];
+  
   // Get names to exclude based on active routine steps and completions
   const excludedHabitNames = useMemo(() => {
-    const excluded: string[] = [];
+    const excluded: string[] = [...CORE_HABIT_NAMES];
     const activeSteps = settings?.active_steps || [];
     
-    // If meditation step is active in routine, exclude meditation habits
-    if (activeSteps.includes('meditation')) {
-      excluded.push('meditation', 'meditație');
-    }
-    
-    // If journaling step is active in routine, exclude journal habits
-    if (activeSteps.includes('journaling')) {
-      excluded.push('jurnal', 'memoirs', 'journal');
-    }
-    
-    // If exercise step was completed today, exclude fitness habits
+    // If exercise step was completed today, ensure fitness is excluded
     if (todayLog?.exercise_completed) {
       excluded.push('fitness', 'workout');
-    }
-    
-    // If reading step is active in routine, exclude reading habits
-    if (activeSteps.includes('reading')) {
-      excluded.push('reading', 'citit');
     }
     
     // If relationships step is active, exclude people names from champion_routine_people
     if (activeSteps.includes('relationships') && people.length > 0) {
       people.forEach(p => excluded.push(p.name.toLowerCase()));
     }
+    
+    // Also exclude Person 1, Person 2 placeholders
+    excluded.push('person 1', 'person 2', 'persoana 1', 'persoana 2');
     
     return excluded;
   }, [settings?.active_steps, todayLog?.exercise_completed, people]);
