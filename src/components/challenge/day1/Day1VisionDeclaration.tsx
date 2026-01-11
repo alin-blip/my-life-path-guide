@@ -82,9 +82,11 @@ export const Day1VisionDeclaration: React.FC<Day1VisionDeclarationProps> = ({
     onVisionChange({ ...visionData, [key]: value });
   };
   
+  const normalizedTargetDate = visionData.target_date || defaultDate;
+
   const allFieldsFilled = AREAS.every(area => 
     (visionData[area.key as keyof VisionData] || '').trim().length >= 10
-  ) && (visionData.target_date || '').length > 0;
+  ) && normalizedTargetDate.length > 0;
   
   // Generate the full declaration
   const generateDeclaration = () => {
@@ -201,15 +203,15 @@ I will read this declaration every morning and act according to it.`;
       <Button
         onClick={() => {
           const declaration = generateDeclaration();
+          const normalizedData: VisionData = {
+            ...visionData,
+            target_date: normalizedTargetDate,
+            vision_declaration: declaration,
+          };
+
           // Update both the declaration and notify parent with complete data
-          onVisionChange({ 
-            ...visionData, 
-            vision_declaration: declaration 
-          });
-          onComplete({ 
-            ...visionData, 
-            vision_declaration: declaration 
-          });
+          onVisionChange(normalizedData);
+          onComplete(normalizedData);
         }}
         disabled={!allFieldsFilled}
         className="w-full bg-gradient-to-r from-purple-500 to-indigo-500"

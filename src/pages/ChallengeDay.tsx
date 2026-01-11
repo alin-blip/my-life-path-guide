@@ -595,11 +595,14 @@ const ChallengeDayPage = () => {
               onComplete={async (finalVisionData) => {
                 if (isAuthenticated) {
                   // Save with the final data including vision_declaration
-                  await saveDay1Responses({
+                  const saved = await saveDay1Responses({
                     ...day1Responses,
                     ...finalVisionData
                   });
+
+                  if (!saved) return;
                 }
+
                 updateDay1Responses(finalVisionData);
                 setDay1Step(2);
               }}
