@@ -20,7 +20,7 @@ interface VisionData {
 interface Day1VisionDeclarationProps {
   visionData: VisionData;
   onVisionChange: (data: VisionData) => void;
-  onComplete: () => void;
+  onComplete: (finalData: VisionData) => void;
   userName?: string;
 }
 
@@ -200,8 +200,16 @@ I will read this declaration every morning and act according to it.`;
       {/* Complete Button */}
       <Button
         onClick={() => {
-          handleFieldChange('vision_declaration', generateDeclaration());
-          onComplete();
+          const declaration = generateDeclaration();
+          // Update both the declaration and notify parent with complete data
+          onVisionChange({ 
+            ...visionData, 
+            vision_declaration: declaration 
+          });
+          onComplete({ 
+            ...visionData, 
+            vision_declaration: declaration 
+          });
         }}
         disabled={!allFieldsFilled}
         className="w-full bg-gradient-to-r from-purple-500 to-indigo-500"
