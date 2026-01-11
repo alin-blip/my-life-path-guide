@@ -589,7 +589,8 @@ const ChallengeDayPage = () => {
                 vision_relationships: day1Responses.vision_relationships || '',
                 vision_business: day1Responses.vision_business || '',
                 vision_declaration: day1Responses.vision_declaration || '',
-                target_date: day1Responses.target_date || ''
+                target_date: day1Responses.target_date || '',
+                what_i_will_give: day1Responses.what_i_will_give || ''
               }}
               onVisionChange={(data) => updateDay1Responses(data)}
               onComplete={async (finalVisionData) => {
