@@ -31,6 +31,7 @@ const StackViewer = lazy(() => import("./pages/StackViewer"));
 const MasterPlanSystem = lazy(() => import("./pages/MasterPlanSystem"));
 const Challenge = lazy(() => import("./pages/Challenge"));
 const ChallengeDay = lazy(() => import("./pages/ChallengeDay"));
+const Challenge7ZileLanding = lazy(() => import("./pages/Challenge7ZileLanding"));
 const Door = lazy(() => import("./pages/Door"));
 const Focus = lazy(() => import("./pages/Focus"));
 const Core = lazy(() => import("./pages/Core"));
@@ -123,16 +124,9 @@ const App = () => (
                         <MasterPlanSystem />
                       </ProtectedRoute>
                     } />
-                    <Route path="/challenge" element={
-                      <ProtectedRoute>
-                        <Challenge />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/challenge/:day" element={
-                      <ProtectedRoute>
-                        <ChallengeDay />
-                      </ProtectedRoute>
-                    } />
+                    <Route path="/challenge-7-zile" element={<Challenge7ZileLanding />} />
+                    <Route path="/challenge" element={<Challenge />} />
+                    <Route path="/challenge/:day" element={<ChallengeDay />} />
                     <Route path="/learn" element={
                       <ProtectedRoute>
                         <Challenge />

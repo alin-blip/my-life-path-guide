@@ -346,7 +346,8 @@ const ChallengeDayPage = () => {
     markVideoWatched, 
     completeAction, 
     completeDay,
-    loading 
+    loading,
+    isAuthenticated
   } = useChallengeProgress();
 
   const [videoWatched, setVideoWatched] = useState(false);
@@ -409,11 +410,19 @@ const ChallengeDayPage = () => {
   const exercises = language === 'en' ? content.exercisesEn : content.exercisesRo;
 
   const handleWatchVideo = async () => {
+    if (!isAuthenticated) {
+      navigate(`/auth?redirect=/challenge/${dayNumber}`);
+      return;
+    }
     setVideoWatched(true);
     await markVideoWatched(dayNumber);
   };
 
   const handleToggleExercise = async (exerciseId: string) => {
+    if (!isAuthenticated) {
+      navigate(`/auth?redirect=/challenge/${dayNumber}`);
+      return;
+    }
     if (completedExercises.includes(exerciseId)) return;
     
     const newCompleted = [...completedExercises, exerciseId];
@@ -422,6 +431,10 @@ const ChallengeDayPage = () => {
   };
 
   const handleCompleteDay = async () => {
+    if (!isAuthenticated) {
+      navigate(`/auth?redirect=/challenge/${dayNumber}&action=complete`);
+      return;
+    }
     await completeDay(dayNumber);
     if (dayNumber < 7) {
       navigate(`/challenge/${dayNumber + 1}`);
@@ -445,6 +458,30 @@ const ChallengeDayPage = () => {
   return (
     <Layout>
       <div className="w-full max-w-4xl mx-auto px-4 py-8">
+        {/* Login Banner for Unauthenticated Users */}
+        {!isAuthenticated && (
+          <Card className="p-4 mb-6 bg-amber-500/10 border-amber-500/30">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-center sm:text-left">
+                <p className="font-medium text-foreground">
+                  {language === 'en' ? '🔐 Save Your Progress' : '🔐 Salvează-ți Progresul'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'en' 
+                    ? 'Create a free account to track your challenge progress' 
+                    : 'Creează un cont gratuit pentru a-ți urmări progresul'}
+                </p>
+              </div>
+              <Button 
+                onClick={() => navigate(`/auth?redirect=/challenge/${dayNumber}`)}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 whitespace-nowrap"
+              >
+                {language === 'en' ? 'Create Free Account' : 'Creează Cont Gratuit'}
+              </Button>
+            </div>
+          </Card>
+        )}
+        
         {/* Header */}
         <div className="mb-8">
           <Button 
