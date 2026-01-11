@@ -8,9 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
-  Rocket, ArrowRight, CheckCircle2, Flame, Dumbbell, Brain, 
-  Heart, BookOpen, Zap, Crown, Play, Users, Sparkles, Gift,
-  Star, Target, Calendar
+  Rocket, ArrowRight, CheckCircle2, Dumbbell, Brain, 
+  Heart, Crown, Play, Users, Sparkles, Gift,
+  Star, Target, Calendar, Map, Bell, Trophy
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
@@ -81,65 +81,65 @@ const Challenge7ZileLanding = () => {
   const challengeDays = [
     {
       day: 1,
-      icon: Flame,
-      titleEn: "Ignite Your Desire",
-      titleRo: "Aprinde-ți Dorința",
-      descEn: "Define your 'Have It All' vision",
-      descRo: "Definește-ți viziunea 'Have It All'",
-      color: "from-orange-500 to-red-500"
+      icon: Map,
+      titleEn: "Platform Tour",
+      titleRo: "Tour Platformă",
+      descEn: "Discover all the tools at your disposal",
+      descRo: "Descoperă toate instrumentele disponibile",
+      color: "from-purple-500 to-indigo-500"
     },
     {
       day: 2,
-      icon: Dumbbell,
-      titleEn: "Body Mastery",
-      titleRo: "Stăpânirea Corpului",
-      descEn: "30 min movement + Green fuel",
-      descRo: "30 min mișcare + Combustibil verde",
-      color: "from-green-500 to-emerald-500"
+      icon: Target,
+      titleEn: "Body + Being",
+      titleRo: "Corp + Spirit",
+      descEn: "Set objectives for health & inner peace",
+      descRo: "Obiective pentru sănătate și spirit",
+      color: "from-green-500 to-purple-500"
     },
     {
       day: 3,
-      icon: Brain,
-      titleEn: "Soul Connection",
-      titleRo: "Conexiune Spirituală",
-      descEn: "Meditation + Gratitude practice",
-      descRo: "Meditație + Practică de gratitudine",
-      color: "from-purple-500 to-violet-500"
+      icon: Target,
+      titleEn: "Balance + Business",
+      titleRo: "Relații + Business",
+      descEn: "Set objectives for relationships & career",
+      descRo: "Obiective pentru relații și carieră",
+      color: "from-pink-500 to-blue-500"
     },
     {
       day: 4,
-      icon: Heart,
-      titleEn: "Love & Connection",
-      titleRo: "Dragoste și Conexiune",
-      descEn: "Add value to people you love",
-      descRo: "Adaugă valoare oamenilor dragi",
-      color: "from-pink-500 to-rose-500"
+      icon: Crown,
+      titleEn: "Champion Routine",
+      titleRo: "Rutina Campionului",
+      descEn: "Configure your winning morning routine",
+      descRo: "Configurează rutina matinală câștigătoare",
+      color: "from-amber-500 to-orange-500"
     },
     {
       day: 5,
-      icon: BookOpen,
-      titleEn: "Business Edge",
-      titleRo: "Avantaj de Business",
-      descEn: "Learn, discover, apply",
-      descRo: "Învață, descoperă, aplică",
-      color: "from-blue-500 to-cyan-500"
+      icon: Sparkles,
+      titleEn: "AI Vision",
+      titleRo: "Viziune AI",
+      descEn: "Generate images & personalized meditation",
+      descRo: "Generează imagini și meditație personalizată",
+      color: "from-cyan-500 to-blue-500"
     },
     {
       day: 6,
-      icon: Zap,
-      titleEn: "Integration Day",
-      titleRo: "Ziua Integrării",
-      descEn: "Practice ALL 4 areas together",
-      descRo: "Practică TOATE cele 4 arii împreună",
-      color: "from-yellow-500 to-amber-500"
+      icon: Bell,
+      titleEn: "Accountability",
+      titleRo: "Accountability",
+      descEn: "Set up your notification system",
+      descRo: "Configurează sistemul de notificări",
+      color: "from-red-500 to-pink-500"
     },
     {
       day: 7,
-      icon: Crown,
+      icon: Trophy,
       titleEn: "Putting It All Together",
       titleRo: "Punem Totul Împreună",
-      descEn: "Complete walkthrough + Next steps",
-      descRo: "Walkthrough complet + Pași următori",
+      descEn: "Complete recap + Premium upgrade",
+      descRo: "Recapitulare completă + Upgrade Premium",
       color: "from-amber-500 to-yellow-600"
     }
   ];
