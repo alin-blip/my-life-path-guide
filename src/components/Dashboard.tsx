@@ -54,6 +54,7 @@ import { useFoundationStatus } from '@/hooks/useFoundationStatus';
 import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
 import { WidgetGrid, WidgetSelector, DailyCommandCenterWidget } from '@/components/dashboard/widgets';
 import { ChampionRoutineWidget } from '@/components/dashboard/widgets/ChampionRoutineWidget';
+import { VisionDeclarationWidget } from '@/components/dashboard/widgets/VisionDeclarationWidget';
 import { DualCoachCard } from '@/components/dashboard/DualCoachCard';
 import { EmpowermentMeditationCard } from '@/components/dashboard/EmpowermentMeditationCard';
 
@@ -744,6 +745,11 @@ export const Dashboard: React.FC = () => {
       {/* Daily Command Center - Main Score Widget */}
       <div className="mb-6">
         <DailyCommandCenterWidget />
+      </div>
+      
+      {/* Vision Declaration Widget - Napoleon Hill */}
+      <div className="mb-6">
+        <VisionDeclarationWidget />
       </div>
       
       {/* Dual AI Coach Card - Performance + Napoleon Hill */}

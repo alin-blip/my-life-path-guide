@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/context/LanguageContext';
-import { ScrollText, ArrowRight, Crown, Calendar, Dumbbell, Sparkles, Heart, Briefcase } from 'lucide-react';
+import { ScrollText, ArrowRight, Crown, Calendar, Dumbbell, Sparkles, Heart, Briefcase, HandHeart } from 'lucide-react';
 import { addYears, format } from 'date-fns';
 
 interface VisionData {
@@ -15,6 +15,7 @@ interface VisionData {
   vision_business?: string;
   vision_declaration?: string;
   target_date?: string;
+  what_i_will_give?: string;
 }
 
 interface Day1VisionDeclarationProps {
@@ -64,6 +65,16 @@ const AREAS = [
     bgColor: 'bg-blue-500/10 border-blue-500/20',
     placeholderRo: 'Ex: Voi câștiga 10.000€/lună, voi avea afacerea mea, voi fi promovat...',
     placeholderEn: 'Ex: I will earn 10,000€/month, have my own business, get promoted...'
+  },
+  {
+    key: 'what_i_will_give',
+    labelRo: 'CE VOI OFERI ÎN SCHIMB',
+    labelEn: 'WHAT I WILL GIVE IN RETURN',
+    icon: HandHeart,
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10 border-amber-500/20',
+    placeholderRo: 'Ex: Voi oferi 8 ore de muncă focalizată zilnic, voi servi 100 de clienți cu excelență...',
+    placeholderEn: 'Ex: I will offer 8 hours of focused work daily, serve 100 clients with excellence...'
   }
 ];
 
@@ -88,35 +99,68 @@ export const Day1VisionDeclaration: React.FC<Day1VisionDeclarationProps> = ({
     (visionData[area.key as keyof VisionData] || '').trim().length >= 10
   ) && normalizedTargetDate.length > 0;
   
-  // Generate the full declaration
+  // Generate the full declaration - Napoleon Hill's 6 Steps to Riches style
   const generateDeclaration = () => {
     const date = visionData.target_date || defaultDate;
     const formattedDate = format(new Date(date), 'dd MMMM yyyy');
+    const today = format(new Date(), 'dd MMMM yyyy');
     
     if (isRo) {
-      return `Eu, ${userName || '[Numele tău]'}, declar solemn că până la data de ${formattedDate}, voi fi transformat complet.
+      return `DECLARAȚIA MEA DE VIZIUNE
+(În stilul celor 6 Pași Napoleon Hill)
 
-În domeniul CORP: ${visionData.vision_body || '___'}
+Eu, ${userName || '[Numele tău]'}, am un SCOP DEFINIT:
 
-În domeniul SPIRIT: ${visionData.vision_spirit || '___'}
+Până la data de ${formattedDate}, voi fi transformat complet:
 
-În domeniul RELAȚII: ${visionData.vision_relationships || '___'}
+📌 CORP: ${visionData.vision_body || '___'}
 
-În domeniul BUSINESS: ${visionData.vision_business || '___'}
+📌 SPIRIT: ${visionData.vision_spirit || '___'}
 
-Voi citi această declarație în fiecare dimineață și voi acționa conform ei.`;
+📌 RELAȚII: ${visionData.vision_relationships || '___'}
+
+📌 BUSINESS: ${visionData.vision_business || '___'}
+
+💎 ÎN SCHIMB, EU OFER: ${visionData.what_i_will_give || '___'}
+
+📋 PLANUL MEU DE ACȚIUNE:
+- Voi urma Champion Routine zilnic
+- Voi executa cele 4 arii Core fără excepție
+- Voi citi această declarație în fiecare dimineață și seară
+
+Această declarație este sigilată cu credință absolută.
+Voi acționa CA ȘI CUM este deja realizată.
+
+Data: ${today}
+Semnătura mentală: ${userName || '[Numele tău]'}`;
     } else {
-      return `I, ${userName || '[Your Name]'}, solemnly declare that by ${formattedDate}, I will be completely transformed.
+      return `MY VISION DECLARATION
+(In the style of Napoleon Hill's 6 Steps)
 
-In the area of BODY: ${visionData.vision_body || '___'}
+I, ${userName || '[Your Name]'}, have a DEFINITE PURPOSE:
 
-In the area of BEING: ${visionData.vision_spirit || '___'}
+By ${formattedDate}, I will be completely transformed:
 
-In the area of RELATIONSHIPS: ${visionData.vision_relationships || '___'}
+📌 BODY: ${visionData.vision_body || '___'}
 
-In the area of BUSINESS: ${visionData.vision_business || '___'}
+📌 BEING: ${visionData.vision_spirit || '___'}
 
-I will read this declaration every morning and act according to it.`;
+📌 RELATIONSHIPS: ${visionData.vision_relationships || '___'}
+
+📌 BUSINESS: ${visionData.vision_business || '___'}
+
+💎 IN RETURN, I WILL GIVE: ${visionData.what_i_will_give || '___'}
+
+📋 MY ACTION PLAN:
+- I will follow the Champion Routine daily
+- I will execute all 4 Core areas without exception
+- I will read this declaration every morning and evening
+
+This declaration is sealed with absolute faith.
+I will act AS IF it is already accomplished.
+
+Date: ${today}
+Mental Signature: ${userName || '[Your Name]'}`;
     }
   };
   
