@@ -194,13 +194,13 @@ const challengeContent: ChallengeDayContent[] = [
   },
   {
     day: 4,
-    titleEn: "🏆 CHAMPION ROUTINE",
-    titleRo: "🏆 RUTINA CAMPIONULUI",
-    principleEn: "Day 4: Configure Your Winning Morning Routine",
-    principleRo: "Ziua 4: Configurează-ți Rutina Matinală Câștigătoare",
-    descriptionEn: "Champions are made in the morning! Today you'll configure your personalized Champion Routine — a science-backed morning ritual that sets you up for success in all 4 pillars every single day.",
-    descriptionRo: "Campionii se fac dimineața! Astăzi vei configura Rutina Campionului personalizată — un ritual matinal bazat pe știință care te pregătește pentru succes în toți 4 pilonii în fiecare zi.",
-    videoPlaceholder: "🎬 Video: The Champion Morning Routine (Coming Soon)",
+    titleEn: "🏆 CHAMPION ROUTINE + PERSONALIZATION",
+    titleRo: "🏆 RUTINA CAMPIONULUI + PERSONALIZARE",
+    principleEn: "Day 4: Configure Your Routine & Personalize Dashboard",
+    principleRo: "Ziua 4: Configurează Rutina și Personalizează Dashboard-ul",
+    descriptionEn: "Champions are made in the morning! Today you'll configure your personalized Champion Routine and customize your dashboard with the widgets that matter most to you.",
+    descriptionRo: "Campionii se fac dimineața! Astăzi vei configura Rutina Campionului personalizată și vei personaliza dashboard-ul cu widget-urile care contează cel mai mult pentru tine.",
+    videoPlaceholder: "🎬 Video: The Champion Morning Routine & Dashboard Setup (Coming Soon)",
     icon: Crown,
     color: "from-amber-500 to-orange-500",
     actionPath: "/champion-routine",
@@ -211,7 +211,8 @@ const challengeContent: ChallengeDayContent[] = [
       "Select your morning practice activities",
       "Set durations for each activity",
       "Configure your wake-up time",
-      "Preview your complete routine"
+      "Personalize your dashboard widgets",
+      "Select your goal categories"
     ],
     stepsRo: [
       "Privește videoclipul despre Rutina Campionului",
@@ -219,21 +220,26 @@ const challengeContent: ChallengeDayContent[] = [
       "Selectează activitățile de practică matinală",
       "Setează duratele pentru fiecare activitate",
       "Configurează ora de trezire",
-      "Previzualizează rutina completă"
+      "Personalizează widget-urile dashboard-ului",
+      "Selectează categoriile de obiective"
     ],
     exercisesEn: [
       { id: "ex1", title: "Open Champion Routine", description: "Navigate to the Champion Routine setup wizard", link: "/champion-routine", linkLabel: "Configure Routine" },
       { id: "ex2", title: "Select Body Activities", description: "Choose morning exercise and movement practices", area: "body" },
       { id: "ex3", title: "Select Being Activities", description: "Choose meditation, journaling, and gratitude practices", area: "being" },
       { id: "ex4", title: "Set Durations", description: "Configure how long each activity should take", area: "being" },
-      { id: "ex5", title: "Complete Setup", description: "Finalize and save your personalized morning routine", link: "/champion-routine", linkLabel: "Complete Setup" }
+      { id: "ex5", title: "Complete Routine Setup", description: "Finalize and save your personalized morning routine", link: "/champion-routine", linkLabel: "Complete Setup" },
+      { id: "ex6", title: "Personalize Dashboard", description: "Choose which widgets to display on your dashboard", link: "/dashboard/settings", linkLabel: "Dashboard Settings" },
+      { id: "ex7", title: "Select Goal Categories", description: "Choose between 4 or 12 categories for your objectives", link: "/dashboard/settings", linkLabel: "Category Settings" }
     ],
     exercisesRo: [
       { id: "ex1", title: "Deschide Champion Routine", description: "Navighează la wizardul de configurare Champion Routine", link: "/champion-routine", linkLabel: "Configurează Rutina" },
       { id: "ex2", title: "Selectează Activități Corp", description: "Alege exercițiile de dimineață și practicile de mișcare", area: "body" },
       { id: "ex3", title: "Selectează Activități Spirit", description: "Alege practicile de meditație, jurnalizare și gratitudine", area: "being" },
       { id: "ex4", title: "Setează Duratele", description: "Configurează cât ar trebui să dureze fiecare activitate", area: "being" },
-      { id: "ex5", title: "Completează Setup-ul", description: "Finalizează și salvează rutina matinală personalizată", link: "/champion-routine", linkLabel: "Completează Setup" }
+      { id: "ex5", title: "Completează Setup Rutină", description: "Finalizează și salvează rutina matinală personalizată", link: "/champion-routine", linkLabel: "Completează Setup" },
+      { id: "ex6", title: "Personalizează Dashboard", description: "Alege ce widget-uri să afișezi pe dashboard", link: "/dashboard/settings", linkLabel: "Setări Dashboard" },
+      { id: "ex7", title: "Selectează Categorii Obiective", description: "Alege între 4 sau 12 categorii pentru obiectivele tale", link: "/dashboard/settings", linkLabel: "Setări Categorii" }
     ]
   },
   {
