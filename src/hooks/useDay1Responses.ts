@@ -16,6 +16,7 @@ interface Day1Responses {
   vision_relationships?: string;
   vision_business?: string;
   target_date?: string;
+  what_i_will_give?: string;
   commitment_confirmed?: boolean;
 }
 

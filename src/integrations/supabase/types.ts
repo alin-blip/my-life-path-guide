@@ -356,6 +356,7 @@ export type Database = {
           vision_declaration: string | null
           vision_relationships: string | null
           vision_spirit: string | null
+          what_i_will_give: string | null
         }
         Insert: {
           commitment_confirmed?: boolean | null
@@ -374,6 +375,7 @@ export type Database = {
           vision_declaration?: string | null
           vision_relationships?: string | null
           vision_spirit?: string | null
+          what_i_will_give?: string | null
         }
         Update: {
           commitment_confirmed?: boolean | null
@@ -392,6 +394,7 @@ export type Database = {
           vision_declaration?: string | null
           vision_relationships?: string | null
           vision_spirit?: string | null
+          what_i_will_give?: string | null
         }
         Relationships: []
       }
@@ -476,6 +479,7 @@ export type Database = {
           total_protein: number | null
           updated_at: string | null
           user_id: string
+          vision_declaration_read: boolean | null
           visualization_completed: boolean | null
           water_drunk: boolean | null
         }
@@ -512,6 +516,7 @@ export type Database = {
           total_protein?: number | null
           updated_at?: string | null
           user_id: string
+          vision_declaration_read?: boolean | null
           visualization_completed?: boolean | null
           water_drunk?: boolean | null
         }
@@ -548,6 +553,7 @@ export type Database = {
           total_protein?: number | null
           updated_at?: string | null
           user_id?: string
+          vision_declaration_read?: boolean | null
           visualization_completed?: boolean | null
           water_drunk?: boolean | null
         }

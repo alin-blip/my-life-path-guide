@@ -109,6 +109,8 @@ export interface ChampionLog {
   learn_notes: string | null;
   apply_completed: boolean;
   apply_notes: string | null;
+  // Vision Declaration - Napoleon Hill
+  vision_declaration_read: boolean;
 }
 
 const DEFAULT_AUTOSUGGESTION = 'Every day, in every way, I am getting better and better.';
@@ -182,6 +184,7 @@ export function useChampionRoutine() {
           learn_notes: logData.learn_notes || null,
           apply_completed: logData.apply_completed || false,
           apply_notes: logData.apply_notes || null,
+          vision_declaration_read: logData.vision_declaration_read || false,
         });
       } else {
         // Create new log for today
@@ -213,6 +216,7 @@ export function useChampionRoutine() {
             learn_notes: null,
             apply_completed: false,
             apply_notes: null,
+            vision_declaration_read: false,
           });
         }
       }

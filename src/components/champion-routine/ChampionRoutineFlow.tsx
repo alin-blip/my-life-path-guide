@@ -29,6 +29,7 @@ import { ReadingStep } from './steps/ReadingStep';
 import { JournalingStep } from './steps/JournalingStep';
 import { LightExposureStep } from './steps/LightExposureStep';
 import { LearnStep } from './steps/LearnStep';
+import { VisionDeclarationStep } from './steps/VisionDeclarationStep';
 import { ApplyStep } from './steps/ApplyStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
@@ -48,6 +49,7 @@ export type RoutineStepId =
   | 'hydration' 
   | 'meditation' 
   | 'autosuggestion' 
+  | 'visionDeclaration'
   | 'exercise' 
   | 'mealPlanning'
   | 'contentCreation'
@@ -69,22 +71,23 @@ export type RoutineStepId =
 
 // Default order for Execution Room (all available steps)
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
-  'lightExposure',    // 1. Being - Lumină naturală dimineața
-  'hydration',        // 2. Being - Hidratare
-  'breathing',        // 3. Being - Box Breathing
-  'meditation',       // 4. Being - Meditație (min 10 min)
-  'gratitude',        // 5. Being - Recunoștință
-  'visualization',    // 6. Being - Vizualizare
-  'autosuggestion',   // 7. Being - Autosugestie
-  'journaling',       // 8. Being - Journaling
-  'reading',          // 9. Being - Citit 10 pagini
-  'exercise',         // 10. Body - Exerciții cu timer
-  'mealPlanning',     // 11. Body - Meal Planning
-  'learn',            // 12. Business - Învață ceva nou
-  'apply',            // 13. Business - Aplică/Predă
-  'contentCreation',  // 14. Business - Content + AI Script + Pomodoro
-  'relationships',    // 15. Balance - Relații
-  'completion',       // 16. Finalizare
+  'lightExposure',      // 1. Being - Lumină naturală dimineața
+  'hydration',          // 2. Being - Hidratare
+  'breathing',          // 3. Being - Box Breathing
+  'meditation',         // 4. Being - Meditație (min 10 min)
+  'gratitude',          // 5. Being - Recunoștință
+  'visualization',      // 6. Being - Vizualizare
+  'autosuggestion',     // 7. Being - Autosugestie
+  'visionDeclaration',  // 8. Being - Citire Declarație Viziune (Napoleon Hill)
+  'journaling',         // 9. Being - Journaling
+  'reading',            // 10. Being - Citit 10 pagini
+  'exercise',           // 11. Body - Exerciții cu timer
+  'mealPlanning',       // 12. Body - Meal Planning
+  'learn',              // 13. Business - Învață ceva nou
+  'apply',              // 14. Business - Aplică/Predă
+  'contentCreation',    // 15. Business - Content + AI Script + Pomodoro
+  'relationships',      // 16. Balance - Relații
+  'completion',         // 17. Finalizare
 ];
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
@@ -92,6 +95,7 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
   hydration: 'Hidratare',
   meditation: 'Meditație',
   autosuggestion: 'Autosugestie',
+  visionDeclaration: 'Declarație Viziune',
   exercise: 'Exerciții',
   mealPlanning: 'Meal Planning',
   contentCreation: 'Content Creation',
@@ -117,6 +121,7 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
   hydration: 'being',
   meditation: 'being',
   autosuggestion: 'being',
+  visionDeclaration: 'being',
   breathing: 'being',
   visualization: 'being',
   reading: 'being',
@@ -160,6 +165,8 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
       return (log.meditation_duration_seconds || 0) >= 600; // 10 minutes
     case 'autosuggestion':
       return log.autosuggestion_completed === true;
+    case 'visionDeclaration':
+      return (log as any).vision_declaration_read === true;
     case 'exercise':
       return log.exercise_completed === true;
     case 'mealPlanning':
@@ -501,6 +508,15 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             onTextChange={updateAutosuggestion}
             onComplete={(value) => updateLog('autosuggestion_completed', value)}
             onNext={goToNextStep}
+          />
+        );
+      case 'visionDeclaration':
+        return (
+          <VisionDeclarationStep
+            completed={(todayLog as any)?.vision_declaration_read || false}
+            onComplete={(value) => updateLog('vision_declaration_read' as any, value)}
+            onNext={goToNextStep}
+            onSkip={skipCurrentStep}
           />
         );
       case 'exercise':
