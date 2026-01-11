@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.generate-empowerment-meditation]
 verify_jwt = false
+
+[functions.send-challenge-reminder]
+verify_jwt = false
