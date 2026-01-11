@@ -31,7 +31,7 @@ const DEFAULT_CORE4_HABITS: Omit<DailyHabit, 'id' | 'user_id' | 'created_at' | '
   { name: 'Person 1', category: 'balance', habit_group: 'core4', icon: 'heart', is_active: true, position: 2 },
   { name: 'Person 2', category: 'balance', habit_group: 'core4', icon: 'users', is_active: true, position: 3 },
   { name: 'Meditation', category: 'being', habit_group: 'core4', icon: 'brain', is_active: true, position: 4 },
-  { name: 'Memoirs', category: 'being', habit_group: 'core4', icon: 'book-open', is_active: true, position: 5 },
+  { name: 'Jurnal', category: 'being', habit_group: 'core4', icon: 'book-open', is_active: true, position: 5 },
   { name: 'Discover', category: 'business', habit_group: 'core4', icon: 'search', is_active: true, position: 6 },
   { name: 'Declare', category: 'business', habit_group: 'core4', icon: 'megaphone', is_active: true, position: 7 },
 ];
@@ -146,14 +146,16 @@ export const useDailyHabits = (date: Date = new Date()) => {
 
     // Map routine log fields to habit names
     const routineToHabitMap: Record<string, string[]> = {
-      exercise_completed: ['Fitness'],
-      reading_completed: ['Memoirs'],
-      journaling_completed: ['Memoirs'],
+      exercise_completed: ['Fitness', 'Workout'],
+      reading_completed: ['Reading', 'Citit'],
+      journaling_completed: ['Jurnal', 'Memoirs', 'Journal'],
+      breathing_completed: ['Breathing', 'Respirație'],
+      visualization_completed: ['Visualization', 'Vizualizare'],
     };
 
-    // Check meditation (at least 10 minutes = 600 seconds)
-    if ((routineLog.meditation_duration_seconds || 0) >= 600) {
-      routineToHabitMap['meditation_completed'] = ['Meditation'];
+    // Check meditation (at least 5 minutes = 300 seconds)
+    if ((routineLog.meditation_duration_seconds || 0) >= 300) {
+      routineToHabitMap['meditation_completed'] = ['Meditation', 'Meditație'];
     }
 
     for (const [logField, habitNames] of Object.entries(routineToHabitMap)) {
