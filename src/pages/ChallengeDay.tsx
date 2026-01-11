@@ -15,7 +15,8 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { ChallengeAnswersHistory } from '@/components/challenge/ChallengeAnswersHistory';
 import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Complete';
-
+import { Day1WhyQuestions, Day1VisionDeclaration, Day1PlatformTour, Day1Commitment } from '@/components/challenge/day1';
+import { useDay1Responses } from '@/hooks/useDay1Responses';
 interface Exercise {
   id: string;
   title: string;
@@ -362,6 +363,16 @@ const ChallengeDayPage = () => {
 
   const [videoWatched, setVideoWatched] = useState(false);
   const [completedExercises, setCompletedExercises] = useState<string[]>([]);
+  const [day1Step, setDay1Step] = useState(0); // 0: Why, 1: Vision, 2: Tour, 3: Commitment
+  
+  // Day 1 responses hook
+  const { 
+    responses: day1Responses, 
+    isLoading: day1Loading, 
+    isSaving: day1Saving,
+    saveResponses: saveDay1Responses,
+    updateResponses: updateDay1Responses 
+  } = useDay1Responses();
 
   const content = challengeContent.find(c => c.day === dayNumber);
   
@@ -464,6 +475,163 @@ const ChallengeDayPage = () => {
     acc[area].push(ex);
     return acc;
   }, {} as Record<string, Exercise[]>);
+
+  // Special render for Day 1 - Napoleon Hill style with 4 steps
+  if (dayNumber === 1) {
+    const day1Progress = (day1Step / 3) * 100;
+    
+    const handleDay1Complete = async () => {
+      if (!isAuthenticated) {
+        navigate('/auth?redirect=/challenge/1');
+        return;
+      }
+      
+      const saved = await saveDay1Responses({
+        ...day1Responses,
+        commitment_confirmed: true
+      });
+      
+      if (saved) {
+        await completeDay(1);
+        navigate('/challenge/2');
+      }
+    };
+
+    return (
+      <Layout>
+        <div className="w-full max-w-3xl mx-auto px-4 py-8">
+          {/* Login Banner */}
+          {!isAuthenticated && (
+            <Card className="p-4 mb-6 bg-amber-500/10 border-amber-500/30">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-center sm:text-left">
+                  <p className="font-medium text-foreground">
+                    {language === 'en' ? '🔐 Save Your Progress' : '🔐 Salvează-ți Progresul'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {language === 'en' 
+                      ? 'Create a free account to track your challenge progress' 
+                      : 'Creează un cont gratuit pentru a-ți urmări progresul'}
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => navigate('/auth?redirect=/challenge/1')}
+                  className="bg-gradient-to-r from-amber-500 to-orange-500"
+                >
+                  {language === 'en' ? 'Create Free Account' : 'Creează Cont Gratuit'}
+                </Button>
+              </div>
+            </Card>
+          )}
+          
+          {/* Header */}
+          <div className="mb-8">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/challenge')}
+              className="mb-4"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              {language === 'en' ? 'Back to Challenge' : 'Înapoi la Provocare'}
+            </Button>
+            
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500">
+                <Flame className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <Badge variant="outline" className="mb-1">
+                  {language === 'en' ? 'Day 1' : 'Ziua 1'}
+                </Badge>
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                  {language === 'en' ? '🔥 THE FOUNDATION' : '🔥 FUNDAȚIA TRANSFORMĂRII'}
+                </h1>
+              </div>
+            </div>
+            
+            <p className="text-muted-foreground mb-4">
+              {language === 'en' 
+                ? 'Discover your BIG WHY and create your vision declaration in Napoleon Hill style.' 
+                : 'Descoperă-ți MARELE DE CE și creează declarația ta de viziune în stilul Napoleon Hill.'}
+            </p>
+            
+            <Progress value={day1Progress} className="h-2" />
+            <p className="text-xs text-muted-foreground mt-1">
+              {language === 'en' ? 'Step' : 'Pasul'} {day1Step + 1} / 4
+            </p>
+          </div>
+          
+          {/* Day 1 Steps */}
+          {day1Step === 0 && (
+            <Day1WhyQuestions
+              responses={{
+                question_1: day1Responses.question_1 || '',
+                question_2: day1Responses.question_2 || '',
+                question_3: day1Responses.question_3 || '',
+                question_4: day1Responses.question_4 || '',
+                question_5: day1Responses.question_5 || ''
+              }}
+              onResponsesChange={(data) => updateDay1Responses(data)}
+              onComplete={async () => {
+                if (isAuthenticated) {
+                  await saveDay1Responses(day1Responses);
+                }
+                setDay1Step(1);
+              }}
+            />
+          )}
+          
+          {day1Step === 1 && (
+            <Day1VisionDeclaration
+              visionData={{
+                vision_body: day1Responses.vision_body || '',
+                vision_spirit: day1Responses.vision_spirit || '',
+                vision_relationships: day1Responses.vision_relationships || '',
+                vision_business: day1Responses.vision_business || '',
+                vision_declaration: day1Responses.vision_declaration || '',
+                target_date: day1Responses.target_date || ''
+              }}
+              onVisionChange={(data) => updateDay1Responses(data)}
+              onComplete={async () => {
+                if (isAuthenticated) {
+                  await saveDay1Responses(day1Responses);
+                }
+                setDay1Step(2);
+              }}
+            />
+          )}
+          
+          {day1Step === 2 && (
+            <Day1PlatformTour
+              onComplete={() => setDay1Step(3)}
+            />
+          )}
+          
+          {day1Step === 3 && (
+            <Day1Commitment
+              isCommitted={day1Responses.commitment_confirmed || false}
+              onCommitmentChange={(committed) => updateDay1Responses({ commitment_confirmed: committed })}
+              onComplete={handleDay1Complete}
+              isLoading={day1Saving}
+            />
+          )}
+          
+          {/* Step Navigation */}
+          {day1Step > 0 && (
+            <div className="mt-6">
+              <Button
+                variant="ghost"
+                onClick={() => setDay1Step(day1Step - 1)}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                {language === 'en' ? 'Previous Step' : 'Pasul Anterior'}
+              </Button>
+            </div>
+          )}
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

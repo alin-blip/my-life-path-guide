@@ -338,6 +338,63 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_day1_responses: {
+        Row: {
+          commitment_confirmed: boolean | null
+          created_at: string | null
+          id: string
+          question_1: string | null
+          question_2: string | null
+          question_3: string | null
+          question_4: string | null
+          question_5: string | null
+          target_date: string | null
+          updated_at: string | null
+          user_id: string
+          vision_body: string | null
+          vision_business: string | null
+          vision_declaration: string | null
+          vision_relationships: string | null
+          vision_spirit: string | null
+        }
+        Insert: {
+          commitment_confirmed?: boolean | null
+          created_at?: string | null
+          id?: string
+          question_1?: string | null
+          question_2?: string | null
+          question_3?: string | null
+          question_4?: string | null
+          question_5?: string | null
+          target_date?: string | null
+          updated_at?: string | null
+          user_id: string
+          vision_body?: string | null
+          vision_business?: string | null
+          vision_declaration?: string | null
+          vision_relationships?: string | null
+          vision_spirit?: string | null
+        }
+        Update: {
+          commitment_confirmed?: boolean | null
+          created_at?: string | null
+          id?: string
+          question_1?: string | null
+          question_2?: string | null
+          question_3?: string | null
+          question_4?: string | null
+          question_5?: string | null
+          target_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+          vision_body?: string | null
+          vision_business?: string | null
+          vision_declaration?: string | null
+          vision_relationships?: string | null
+          vision_spirit?: string | null
+        }
+        Relationships: []
+      }
       challenge_progress: {
         Row: {
           actions_completed: Json | null
