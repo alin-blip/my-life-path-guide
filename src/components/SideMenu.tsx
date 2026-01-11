@@ -97,7 +97,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       subItems: [
         { title: language === 'ro' ? 'Viziune de Viață' : 'Life Vision', icon: BookOpen, path: '/lifebook' },
         { title: 'Vision 2026', icon: Sparkles, path: '/vision-2026/dashboard' },
-        { title: language === 'ro' ? 'Challenge 90 Zile' : '90-Day Challenge', icon: Flame, path: '/challenge' },
+        { title: language === 'ro' ? 'Challenge 7 Zile' : '7-Day Challenge', icon: Flame, path: '/challenge' },
         { title: language === 'ro' ? 'Obiective Săptămânale' : 'Weekly Goals', icon: Flag, path: '/door' },
       ]
     },
