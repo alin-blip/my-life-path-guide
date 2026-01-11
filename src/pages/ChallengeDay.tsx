@@ -14,6 +14,7 @@ import {
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { ChallengeAnswersHistory } from '@/components/challenge/ChallengeAnswersHistory';
+import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Complete';
 
 interface Exercise {
   id: string;
@@ -314,51 +315,21 @@ const challengeContent: ChallengeDayContent[] = [
   },
   {
     day: 7,
-    titleEn: "🏆 FREEDOM BLUEPRINT",
-    titleRo: "🏆 PLANUL LIBERTĂȚII",
-    principleEn: "Weekly Planning: Crystalize Your Habits Into Structure",
-    principleRo: "Planificare Săptămânală: Cristalizează-ți Obiceiurile în Structură",
-    descriptionEn: "The final step: Transform your 6-day experience into a sustainable weekly plan. Use The Door to set your Domino goal, 5 Key Points, and schedule your Have It All activities!",
-    descriptionRo: "Pasul final: Transformă experiența de 6 zile într-un plan săptămânal sustenabil. Folosește Door pentru a-ți stabili obiectivul Domino, 5 Puncte Cheie și programează activitățile Have It All!",
-    videoPlaceholder: "🎬 Video: Freedom Blueprint — Plan Like a General (Coming Soon)",
+    titleEn: "🏆 PUTTING IT ALL TOGETHER",
+    titleRo: "🏆 PUNEM TOTUL ÎMPREUNĂ",
+    principleEn: "Complete Platform Walkthrough + Premium Upgrade",
+    principleRo: "Walkthrough Complet al Platformei + Upgrade Premium",
+    descriptionEn: "Congratulations! You've completed the challenge. Now let's put it all together and unlock the full power of the platform.",
+    descriptionRo: "Felicitări! Ai completat challenge-ul. Acum hai să punem totul laolaltă și să deblochezi puterea completă a platformei.",
+    videoPlaceholder: "",
     icon: Crown,
     color: "from-amber-500 to-yellow-600",
-    actionPath: "/door",
+    actionPath: "/challenge/7",
     focusAreas: ['body', 'being', 'balance', 'business'],
-    stepsEn: [
-      "Watch the video about weekly planning",
-      "Complete your daily Have It All practices one more time",
-      "Open The Door and complete your weekly planning",
-      "Set your Domino Goal (THE one thing that matters most)",
-      "Define your 5 Key Points for the week",
-      "Schedule your Have It All activities in the weekly calendar",
-      "🎉 Celebrate completing the challenge!"
-    ],
-    stepsRo: [
-      "Privește videoclipul despre planificarea săptămânală",
-      "Completează practicile zilnice Have It All încă o dată",
-      "Deschide Door și completează planificarea săptămânală",
-      "Stabilește Obiectivul Domino (UNICUL lucru care contează cel mai mult)",
-      "Definește 5 Puncte Cheie pentru săptămână",
-      "Programează activitățile Have It All în calendarul săptămânal",
-      "🎉 Sărbătorește completarea provocării!"
-    ],
-    exercisesEn: [
-      { id: "ex1", title: "Complete Daily Practice", description: "Do your Body + Being + Balance + Business routine", area: "being" },
-      { id: "ex2", title: "Weekly Planning Session", description: "Open The Door and answer the planning questions", area: "business", link: "/door", linkLabel: "Open The Door" },
-      { id: "ex3", title: "Set Domino Goal", description: "Define the ONE goal that makes everything else easier", area: "business" },
-      { id: "ex4", title: "5 Key Points", description: "Identify your 5 non-negotiable tasks for the week", area: "business" },
-      { id: "ex5", title: "Schedule Have It All", description: "Block time in your week for Body, Being, Balance, Business", area: "being", link: "/lifebook", linkLabel: "Life Design Blueprint" },
-      { id: "ex6", title: "🎉 Challenge Complete!", description: "You did it! You're now a Have It All Achiever!", area: "being" }
-    ],
-    exercisesRo: [
-      { id: "ex1", title: "Completează Practica Zilnică", description: "Fă rutina Corp + Spirit + Relații + Business", area: "being" },
-      { id: "ex2", title: "Sesiune Planificare Săptămânală", description: "Deschide Door și răspunde la întrebările de planificare", area: "business", link: "/door", linkLabel: "Deschide Door" },
-      { id: "ex3", title: "Stabilește Obiectivul Domino", description: "Definește UN obiectiv care face totul mai ușor", area: "business" },
-      { id: "ex4", title: "5 Puncte Cheie", description: "Identifică 5 taskuri non-negociabile pentru săptămână", area: "business" },
-      { id: "ex5", title: "Programează Have It All", description: "Blochează timp în săptămână pentru Corp, Spirit, Relații, Business", area: "being", link: "/lifebook", linkLabel: "Life Design Blueprint" },
-      { id: "ex6", title: "🎉 Challenge Complet!", description: "Ai reușit! Ești acum un Realizator Have It All!", area: "being" }
-    ]
+    stepsEn: [],
+    stepsRo: [],
+    exercisesEn: [],
+    exercisesRo: []
   }
 ];
 
@@ -382,6 +353,11 @@ const ChallengeDayPage = () => {
   const [completedExercises, setCompletedExercises] = useState<string[]>([]);
 
   const content = challengeContent.find(c => c.day === dayNumber);
+  
+  // Special render for Day 7
+  if (dayNumber === 7) {
+    return <ChallengeDay7Complete />;
+  }
   
   if (!content) {
     return (

@@ -47,16 +47,35 @@ serve(async (req) => {
     // Map plan -> pricing
     let unitAmount = 0; // in bani (RON)
     let trialDays: number | undefined;
+    let interval: "month" | "year" = "month";
+    let productName = "Operator Pro";
+
     switch (plan) {
       case "basic":
         unitAmount = 9700; // 97 LEI
+        productName = "Operator Basic";
         break;
       case "pro":
         unitAmount = 19700; // 197 LEI
+        productName = "Operator Pro";
         break;
       case "trial":
         unitAmount = 19700; // Pro with trial
+        productName = "Operator Pro (Trial)";
         trialDays = 3;
+        break;
+      case "monthly":
+        unitAmount = 9700; // 97 LEI
+        productName = "Jump to Freedom - Lunar";
+        break;
+      case "annual":
+        unitAmount = 99700; // 997 LEI
+        interval = "year";
+        productName = "Jump to Freedom - Anual";
+        break;
+      case "premium-coach":
+        unitAmount = 19700; // 197 LEI
+        productName = "Jump to Freedom - Premium + Coaching";
         break;
       default:
         throw new Error("Plan invalid");
@@ -70,14 +89,18 @@ serve(async (req) => {
         {
           price_data: {
             currency: "ron",
-            product_data: { name: plan === "basic" ? "Operator Basic" : "Operator Pro" },
+            product_data: { name: productName },
             unit_amount: unitAmount,
-            recurring: { interval: "month" },
+            recurring: { interval },
           },
           quantity: 1,
         },
       ],
       subscription_data: trialDays ? { trial_period_days: trialDays } : undefined,
+      metadata: {
+        plan_id: plan,
+        coaching_included: plan === "premium-coach" ? "true" : "false"
+      },
       success_url: `${req.headers.get("origin")}/pricing?success=true`,
       cancel_url: `${req.headers.get("origin")}/pricing?canceled=true`,
       allow_promotion_codes: true,
