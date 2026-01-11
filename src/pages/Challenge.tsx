@@ -128,7 +128,8 @@ const ChallengePage = () => {
     progressPercentage, 
     currentDay,
     isDayUnlocked, 
-    isDayCompleted 
+    isDayCompleted,
+    isAuthenticated
   } = useChallengeProgress();
 
   const handleStartDay = (day: ChallengeDay) => {
@@ -185,6 +186,30 @@ const ChallengePage = () => {
           </div>
         </div>
 
+        {/* Login Banner for Unauthenticated Users */}
+        {!isAuthenticated && (
+          <Card className="p-4 mb-6 bg-amber-500/10 border-amber-500/30">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-center sm:text-left">
+                <p className="font-medium text-foreground">
+                  {language === 'en' ? '🔐 Save Your Progress' : '🔐 Salvează-ți Progresul'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'en' 
+                    ? 'Create a free account to track your challenge progress' 
+                    : 'Creează un cont gratuit pentru a-ți urmări progresul'}
+                </p>
+              </div>
+              <Button 
+                onClick={() => navigate('/auth?redirect=/challenge')}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 whitespace-nowrap"
+              >
+                {language === 'en' ? 'Create Free Account' : 'Creează Cont Gratuit'}
+              </Button>
+            </div>
+          </Card>
+        )}
+
         {/* Progress Card */}
         <Card className="p-6 mb-8 bg-card border-primary/20">
           <div className="flex items-center justify-between mb-4">
@@ -197,9 +222,11 @@ const ChallengePage = () => {
           </div>
           <Progress value={progressPercentage} className="h-3 mb-2" />
           <p className="text-xs text-muted-foreground text-center">
-            {progressPercentage === 100 
-              ? (language === 'en' ? '🎉 Challenge Complete! You are a Have It All Achiever!' : '🎉 Challenge Complet! Ești un Realizator Have It All!')
-              : (language === 'en' ? `Day ${currentDay} of 7 - Keep going!` : `Ziua ${currentDay} din 7 - Continuă!`)}
+            {!isAuthenticated 
+              ? (language === 'en' ? 'Login to track your progress' : 'Autentifică-te pentru a-ți urmări progresul')
+              : progressPercentage === 100 
+                ? (language === 'en' ? '🎉 Challenge Complete! You are a Have It All Achiever!' : '🎉 Challenge Complet! Ești un Realizator Have It All!')
+                : (language === 'en' ? `Day ${currentDay} of 7 - Keep going!` : `Ziua ${currentDay} din 7 - Continuă!`)}
           </p>
         </Card>
 

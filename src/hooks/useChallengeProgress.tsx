@@ -18,9 +18,13 @@ export const useChallengeProgress = () => {
   const [loading, setLoading] = useState(true);
   const [currentDay, setCurrentDay] = useState(1);
 
+  // Check if user is authenticated
+  const isAuthenticated = !!user?.id;
+
   const fetchProgress = useCallback(async () => {
     if (!user?.id) {
       setLoading(false);
+      setProgress([]);
       return;
     }
 
@@ -185,11 +189,15 @@ export const useChallengeProgress = () => {
   };
 
   const isDayUnlocked = (dayNumber: number) => {
+    // For unauthenticated users, all days are unlocked (preview mode)
+    if (!isAuthenticated) return true;
     if (dayNumber === 1) return true;
     return progress.some(d => d.day_number === dayNumber - 1 && d.completed);
   };
 
   const isDayCompleted = (dayNumber: number) => {
+    // For unauthenticated users, nothing is completed
+    if (!isAuthenticated) return false;
     return progress.some(d => d.day_number === dayNumber && d.completed);
   };
 
@@ -212,6 +220,7 @@ export const useChallengeProgress = () => {
     isDayUnlocked,
     isDayCompleted,
     getDayProgress,
-    refetch: fetchProgress
+    refetch: fetchProgress,
+    isAuthenticated
   };
 };
