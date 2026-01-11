@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Crown, Play, Settings, Users, Zap, ListChecks, MessageSquare, GripVertical } from 'lucide-react';
+import { Crown, Play, Settings, Users, Zap, ListChecks, MessageSquare, GripVertical, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -133,6 +133,14 @@ const ChampionRoutine = () => {
     <div className="container mx-auto p-6 max-w-4xl space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate(-1)}
+          className="mr-1"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
         <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl">
           <Crown className="h-8 w-8 text-white" />
         </div>
