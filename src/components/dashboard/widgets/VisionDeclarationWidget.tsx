@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ScrollText, ArrowRight, Edit3, BookOpen, Sparkles } from 'lucide-react';
+import { ScrollText, ArrowRight, Edit3, BookOpen, Sparkles, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 interface VisionData {
   vision_body?: string | null;
@@ -19,13 +20,42 @@ interface VisionData {
   what_i_will_give?: string | null;
 }
 
-export const VisionDeclarationWidget: React.FC = () => {
+interface VisionDeclarationWidgetProps {
+  onHide?: () => void;
+}
+
+export const VisionDeclarationWidget: React.FC<VisionDeclarationWidgetProps> = ({ onHide }) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const isRo = language === 'ro';
   const [visionData, setVisionData] = useState<VisionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showFullDeclaration, setShowFullDeclaration] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+
+  useEffect(() => {
+    const checkHiddenState = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data } = await supabase
+          .from('user_preferences')
+          .select('dashboard_widgets')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data?.dashboard_widgets) {
+          const config = data.dashboard_widgets as { hideVisionWidget?: boolean };
+          setIsHidden(config.hideVisionWidget === true);
+        }
+      } catch (error) {
+        console.error('Error checking hidden state:', error);
+      }
+    };
+
+    checkHiddenState();
+  }, []);
 
   useEffect(() => {
     const fetchVisionData = async () => {
@@ -54,6 +84,44 @@ export const VisionDeclarationWidget: React.FC = () => {
 
     fetchVisionData();
   }, []);
+
+  const handleHide = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Get current preferences
+      const { data: existing } = await supabase
+        .from('user_preferences')
+        .select('dashboard_widgets')
+        .eq('user_id', user.id)
+        .single();
+
+      const currentConfig = (existing?.dashboard_widgets || {}) as Record<string, unknown>;
+      const newConfig = { ...currentConfig, hideVisionWidget: true };
+
+      if (existing) {
+        await supabase
+          .from('user_preferences')
+          .update({ dashboard_widgets: newConfig, updated_at: new Date().toISOString() })
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('user_preferences')
+          .insert({ user_id: user.id, dashboard_widgets: newConfig });
+      }
+
+      setIsHidden(true);
+      onHide?.();
+      toast.success(isRo ? 'Widget ascuns. Poți să-l reactivezi din Setări Dashboard.' : 'Widget hidden. You can re-enable it from Dashboard Settings.');
+    } catch (error) {
+      console.error('Error hiding widget:', error);
+    }
+  };
+
+  if (isHidden) {
+    return null;
+  }
 
   if (isLoading) {
     return (
@@ -123,14 +191,25 @@ export const VisionDeclarationWidget: React.FC = () => {
               {isRo ? 'Declarația Mea de Viziune' : 'My Vision Declaration'}
             </CardTitle>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/challenge/1')}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Edit3 className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/challenge/1')}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleHide}
+              className="text-muted-foreground hover:text-destructive"
+              title={isRo ? 'Ascunde widget' : 'Hide widget'}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
