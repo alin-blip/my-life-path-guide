@@ -28,6 +28,8 @@ import { VisualizationStep } from './steps/VisualizationStep';
 import { ReadingStep } from './steps/ReadingStep';
 import { JournalingStep } from './steps/JournalingStep';
 import { LightExposureStep } from './steps/LightExposureStep';
+import { LearnStep } from './steps/LearnStep';
+import { ApplyStep } from './steps/ApplyStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
@@ -56,6 +58,8 @@ export type RoutineStepId =
   | 'reading'
   | 'journaling'
   | 'lightExposure'
+  | 'learn'
+  | 'apply'
   | 'habit_body'
   | 'habit_being'
   | 'habit_balance'
@@ -76,9 +80,11 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'reading',          // 9. Being - Citit 10 pagini
   'exercise',         // 10. Body - Exerciții cu timer
   'mealPlanning',     // 11. Body - Meal Planning
-  'contentCreation',  // 12. Business - Content + AI Script + Pomodoro
-  'relationships',    // 13. Balance - Relații
-  'completion',       // 14. Finalizare
+  'learn',            // 12. Business - Învață ceva nou
+  'apply',            // 13. Business - Aplică/Predă
+  'contentCreation',  // 14. Business - Content + AI Script + Pomodoro
+  'relationships',    // 15. Balance - Relații
+  'completion',       // 16. Finalizare
 ];
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
@@ -96,6 +102,8 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
   reading: 'Citit',
   journaling: 'Journaling',
   lightExposure: 'Lumină Naturală',
+  learn: 'Învață',
+  apply: 'Aplică/Predă',
   habit_body: 'Habits: Corp',
   habit_being: 'Habits: Spirit',
   habit_balance: 'Habits: Relații',
@@ -116,6 +124,8 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
   lightExposure: 'being',
   exercise: 'body',
   mealPlanning: 'body',
+  learn: 'business',
+  apply: 'business',
   contentCreation: 'business',
   dailyTasks: 'business',
   relationships: 'balance',
@@ -154,6 +164,10 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
       return log.exercise_completed === true;
     case 'mealPlanning':
       return (log.meals_logged || []).length > 0;
+    case 'learn':
+      return log.learn_completed === true;
+    case 'apply':
+      return log.apply_completed === true;
     case 'contentCreation':
       return !!log.content_script || (log.pomodoro_sessions || 0) > 0;
     case 'dailyTasks':
@@ -517,6 +531,26 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             onTopicChange={(topic) => updateLog('content_topic', topic)}
             onScriptChange={(script) => updateLog('content_script', script)}
             onPomodoroComplete={(sessions) => updateLog('pomodoro_sessions', sessions)}
+            onNext={goToNextStep}
+          />
+        );
+      case 'learn':
+        return (
+          <LearnStep
+            completed={todayLog?.learn_completed || false}
+            notes={todayLog?.learn_notes || null}
+            onComplete={(value) => updateLog('learn_completed', value)}
+            onNotesChange={(notes) => updateLog('learn_notes', notes)}
+            onNext={goToNextStep}
+          />
+        );
+      case 'apply':
+        return (
+          <ApplyStep
+            completed={todayLog?.apply_completed || false}
+            notes={todayLog?.apply_notes || null}
+            onComplete={(value) => updateLog('apply_completed', value)}
+            onNotesChange={(notes) => updateLog('apply_notes', notes)}
             onNext={goToNextStep}
           />
         );

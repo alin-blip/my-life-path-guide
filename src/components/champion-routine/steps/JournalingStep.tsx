@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { PenTool, ArrowRight, Check, Lightbulb } from 'lucide-react';
+import { useChampionRoutine } from '@/hooks/useChampionRoutine';
 
 interface JournalingStepProps {
   completed: boolean;
@@ -18,8 +19,13 @@ const JOURNAL_PROMPTS = [
 ];
 
 export function JournalingStep({ completed, onComplete, onNext }: JournalingStepProps) {
+  const { settings } = useChampionRoutine();
   const [journalText, setJournalText] = useState('');
   const [showPrompts, setShowPrompts] = useState(false);
+
+  // Get settings for journaling
+  const minWords = (settings as any)?.journaling_min_words || 0;
+  const showPromptsEnabled = (settings as any)?.journaling_show_prompts !== false;
 
   const handleConfirm = () => {
     onComplete(true);
@@ -27,6 +33,7 @@ export function JournalingStep({ completed, onComplete, onNext }: JournalingStep
   };
 
   const wordCount = journalText.trim().split(/\s+/).filter(w => w.length > 0).length;
+  const canConfirm = minWords === 0 || wordCount >= minWords;
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
@@ -58,21 +65,25 @@ export function JournalingStep({ completed, onComplete, onNext }: JournalingStep
             disabled={completed}
           />
           <div className="flex justify-between items-center text-xs text-muted-foreground">
-            <span>{wordCount} cuvinte</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowPrompts(!showPrompts)}
-              className="gap-1 text-xs h-7"
-            >
-              <Lightbulb className="h-3 w-3" />
-              {showPrompts ? 'Ascunde' : 'Inspirație'}
-            </Button>
+            <span className={!canConfirm ? 'text-orange-500 font-medium' : ''}>
+              {wordCount} {minWords > 0 ? `/ ${minWords}` : ''} cuvinte
+            </span>
+            {showPromptsEnabled && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPrompts(!showPrompts)}
+                className="gap-1 text-xs h-7"
+              >
+                <Lightbulb className="h-3 w-3" />
+                {showPrompts ? 'Ascunde' : 'Inspirație'}
+              </Button>
+            )}
           </div>
         </div>
 
         {/* Journal prompts - collapsible */}
-        {showPrompts && (
+        {showPromptsEnabled && showPrompts && (
           <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
             <p className="text-xs font-medium text-muted-foreground">
               Întrebări pentru reflecție:
@@ -97,10 +108,13 @@ export function JournalingStep({ completed, onComplete, onNext }: JournalingStep
             onClick={handleConfirm} 
             size="lg" 
             className="w-full gap-2 bg-orange-500 hover:bg-orange-600"
-            disabled={wordCount < 3}
+            disabled={!canConfirm}
           >
             <PenTool className="h-5 w-5" />
-            Am terminat ({wordCount} cuvinte)
+            {minWords > 0 && !canConfirm 
+              ? `Încă ${minWords - wordCount} cuvinte...` 
+              : `Am terminat (${wordCount} cuvinte)`
+            }
           </Button>
         ) : (
           <Button 

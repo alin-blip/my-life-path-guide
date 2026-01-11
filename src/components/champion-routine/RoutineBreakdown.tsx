@@ -45,6 +45,8 @@ const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string
   reading: BookOpen,
   exercise: Dumbbell,
   mealPlanning: Utensils,
+  learn: BookOpen,
+  apply: Sparkles,
   contentCreation: Video,
   dailyTasks: ListTodo,
   relationships: Users,
@@ -63,6 +65,8 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
   autosuggestion: 'Autosugestie',
   exercise: 'Exerciții',
   mealPlanning: 'Meal Planning',
+  learn: 'Învață',
+  apply: 'Aplică/Predă',
   contentCreation: 'Content Creation',
   dailyTasks: 'Daily Tasks',
   relationships: 'Relații',
@@ -91,6 +95,8 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
   lightExposure: 'being',
   exercise: 'body',
   mealPlanning: 'body',
+  learn: 'business',
+  apply: 'business',
   contentCreation: 'business',
   dailyTasks: 'business',
   relationships: 'balance',
@@ -129,6 +135,10 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
       return log.exercise_completed === true;
     case 'mealPlanning':
       return (log.meals_logged || []).length > 0;
+    case 'learn':
+      return log.learn_completed === true;
+    case 'apply':
+      return log.apply_completed === true;
     case 'contentCreation':
       return !!log.content_script || (log.pomodoro_sessions || 0) > 0;
     case 'dailyTasks':
