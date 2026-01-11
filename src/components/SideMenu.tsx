@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
+import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { 
   Home, 
   BookOpen, 
@@ -26,8 +27,13 @@ import {
   Trophy,
   Users,
   Flame,
-  Headphones
+  Headphones,
+  LayoutGrid,
+  Timer,
+  Calendar,
+  BarChart3
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface SideMenuProps {
   isCollapsed: boolean;
@@ -39,6 +45,7 @@ interface MenuItem {
   icon: React.ElementType;
   path: string;
   notification?: number;
+  badge?: string;
   subItems?: MenuItem[];
   hidden?: boolean;
 }
@@ -47,7 +54,10 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   const location = useLocation();
   const currentPath = location.pathname;
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
+  const { completedDaysCount } = useChallengeProgress();
+  
+  const completedDays = completedDaysCount;
 
   // Auto-expand menu containing current path
   useEffect(() => {
@@ -68,41 +78,62 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     );
   };
 
-  // 7 SECȚIUNI PRINCIPALE
   const menuItems: MenuItem[] = [
-    // 1. DASHBOARD
+    // 1. DASHBOARD with submenu
     { 
       title: language === 'ro' ? '🏠 Dashboard' : '🏠 Dashboard', 
       icon: Home, 
-      path: '/dashboard' 
-    },
-
-    // 2. PEAK PERFORMANCE (NEW)
-    {
-      title: language === 'ro' ? '🔥 Peak Performance' : '🔥 Peak Performance',
-      icon: Flame,
-      path: '/accountability-coach',
+      path: '/dashboard',
       subItems: [
-        { title: 'AI Accountability Coach', icon: Trophy, path: '/accountability-coach' },
-        { title: language === 'ro' ? 'Rutina Campionului' : 'Champion Routine', icon: Crown, path: '/champion-routine' },
-        { title: language === 'ro' ? 'Focus Room' : 'Focus Room', icon: Clock, path: '/focus' },
+        { title: language === 'ro' ? 'Overview' : 'Overview', icon: LayoutGrid, path: '/dashboard' },
+        { title: language === 'ro' ? 'Setări Dashboard' : 'Dashboard Settings', icon: Settings, path: '/dashboard/settings' },
       ]
     },
 
-    // 3. OBIECTIVE
+    // 2. CHALLENGE 7 ZILE - TOP LEVEL WITH BADGE
+    { 
+      title: language === 'ro' ? '🚀 Challenge 7 Zile' : '🚀 7-Day Challenge', 
+      icon: Flame, 
+      path: '/challenge',
+      badge: completedDays > 0 ? `${completedDays}/7` : undefined
+    },
+
+    // 3. VIZIUNE & OBIECTIVE
     {
-      title: language === 'ro' ? '🎯 Obiective' : '🎯 Goals',
+      title: language === 'ro' ? '🎯 Viziune & Obiective' : '🎯 Vision & Goals',
       icon: Target,
       path: '/lifebook',
       subItems: [
         { title: language === 'ro' ? 'Viziune de Viață' : 'Life Vision', icon: BookOpen, path: '/lifebook' },
-        { title: 'Vision 2026', icon: Sparkles, path: '/vision-2026/dashboard' },
-        { title: language === 'ro' ? 'Challenge 7 Zile' : '7-Day Challenge', icon: Flame, path: '/challenge' },
+        { title: 'Vision Board 2026', icon: Sparkles, path: '/vision-2026/dashboard' },
+        { title: language === 'ro' ? 'Obiective Anuale' : 'Annual Goals', icon: Target, path: '/vision-2026/dashboard' },
+        { title: language === 'ro' ? 'Planuri 90 Zile' : '90-Day Plans', icon: Calendar, path: '/vision-2026/dashboard' },
+        { title: language === 'ro' ? 'Obiective Lunare' : 'Monthly Goals', icon: Flag, path: '/door' },
         { title: language === 'ro' ? 'Obiective Săptămânale' : 'Weekly Goals', icon: Flag, path: '/door' },
       ]
     },
 
-    // 4. PERFORMANȚĂ (BODY)
+    // 4. RUTINA CAMPIONULUI - SEPARATE SECTION
+    {
+      title: language === 'ro' ? '🏆 Rutina Campionului' : '🏆 Champion Routine',
+      icon: Crown,
+      path: '/champion-routine',
+      subItems: [
+        { title: language === 'ro' ? 'Start Rutină' : 'Start Routine', icon: Crown, path: '/champion-routine' },
+        { title: language === 'ro' ? 'Configurează Rutină' : 'Configure Routine', icon: Settings, path: '/champion-routine?setup=true' },
+        { title: language === 'ro' ? 'Habit Tracking' : 'Habit Tracking', icon: BarChart3, path: '/champion-routine-history' },
+        { title: language === 'ro' ? 'Statistici' : 'Statistics', icon: BarChart3, path: '/champion-routine-history' },
+      ]
+    },
+
+    // 5. FOCUS ROOM - TOP LEVEL
+    { 
+      title: language === 'ro' ? '⏱️ Focus Room' : '⏱️ Focus Room', 
+      icon: Timer, 
+      path: '/focus' 
+    },
+
+    // 6. BODY
     {
       title: language === 'ro' ? '💪 Body' : '💪 Body',
       icon: Activity,
@@ -115,7 +146,21 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 5. RELAȚII (BALANCE)
+    // 7. MINDSET
+    {
+      title: language === 'ro' ? '🧠 Mindset' : '🧠 Mindset',
+      icon: Brain,
+      path: '/stack',
+      subItems: [
+        { title: language === 'ro' ? 'Stacks Zilnice' : 'Daily Stacks', icon: Sparkles, path: '/stack' },
+        { title: language === 'ro' ? 'Meditație Empowerment' : 'Empowerment Meditation', icon: Headphones, path: '/empowerment-meditation' },
+        { title: language === 'ro' ? 'Jurnal' : 'Journal', icon: Pencil, path: '/journal' },
+        { title: language === 'ro' ? 'Emotional Tracker' : 'Emotional Tracker', icon: Heart, path: '/emotional-tracker' },
+        { title: language === 'ro' ? 'Time Tracker' : 'Time Tracker', icon: Clock, path: '/time-tracker' },
+      ]
+    },
+
+    // 8. RELAȚII
     {
       title: language === 'ro' ? '❤️ Relații' : '❤️ Relationships',
       icon: Heart,
@@ -126,21 +171,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 6. MINDSET
-    {
-      title: language === 'ro' ? '🧠 Mindset' : '🧠 Mindset',
-      icon: Brain,
-      path: '/stack',
-      subItems: [
-        { title: language === 'ro' ? 'Stacks Zilnice' : 'Daily Stacks', icon: Sparkles, path: '/stack' },
-        { title: language === 'ro' ? 'Meditație Empowerment' : 'Empowerment Meditation', icon: Headphones, path: '/empowerment-meditation' },
-        { title: language === 'ro' ? 'Emotional Tracker' : 'Emotional Tracker', icon: Heart, path: '/emotional-tracker' },
-        { title: language === 'ro' ? 'Time Tracker' : 'Time Tracker', icon: Clock, path: '/time-tracker' },
-        { title: language === 'ro' ? 'Jurnal' : 'Journal', icon: Pencil, path: '/journal' },
-      ]
-    },
-
-    // 7. BUSINESS
+    // 9. BUSINESS
     {
       title: language === 'ro' ? '💼 Business' : '💼 Business',
       icon: Briefcase,
@@ -154,15 +185,28 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 8. COMUNITATE & GAMIFICARE
+    // 10. COMUNITATE
     {
-      title: language === 'ro' ? '🏆 Comunitate' : '🏆 Community',
+      title: language === 'ro' ? '🏅 Comunitate' : '🏅 Community',
       icon: Trophy,
       path: '/leaderboard',
       subItems: [
         { title: language === 'ro' ? 'Clasament' : 'Leaderboard', icon: Trophy, path: '/leaderboard' },
         { title: language === 'ro' ? 'Achievements' : 'Achievements', icon: Sparkles, path: '/achievements' },
         { title: language === 'ro' ? 'Parteneri' : 'Partners', icon: Users, path: '/partners' },
+      ]
+    },
+
+    // 11. AI COACHES (optional grouping)
+    {
+      title: language === 'ro' ? '🤖 AI Coaches' : '🤖 AI Coaches',
+      icon: Bot,
+      path: '/accountability-coach',
+      subItems: [
+        { title: 'AI Accountability Coach', icon: Trophy, path: '/accountability-coach' },
+        { title: language === 'ro' ? 'Performance Coach' : 'Performance Coach', icon: Bot, path: '/performance-coach' },
+        { title: language === 'ro' ? 'Relationship Coach' : 'Relationship Coach', icon: Heart, path: '/relationship-coach' },
+        { title: language === 'ro' ? 'Therapist Coach' : 'Therapist Coach', icon: Brain, path: '/therapist-coach' },
       ]
     },
 
@@ -218,6 +262,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                           <span className="text-sm font-medium ml-3">{item.title}</span>
                         )}
                       </Link>
+                      {!isCollapsed && item.badge && (
+                        <Badge variant="secondary" className="ml-2 text-xs px-1.5 py-0.5">
+                          {item.badge}
+                        </Badge>
+                      )}
                       {!isCollapsed && (
                         <div className="ml-auto opacity-60">
                           {expandedMenus.includes(item.title.toLowerCase()) 
@@ -256,7 +305,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                   >
                     <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
                     {!isCollapsed && (
-                      <span className="text-sm font-medium">{item.title}</span>
+                      <>
+                        <span className="text-sm font-medium">{item.title}</span>
+                        {item.badge && (
+                          <Badge variant="secondary" className="ml-2 text-xs px-1.5 py-0.5">
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </>
                     )}
                     {!isCollapsed && item.notification && (
                       <div className="ml-auto bg-primary text-primary-foreground text-xs py-0.5 px-2 rounded-full">
@@ -275,11 +331,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       <div className="p-3 border-t border-border/30 space-y-1">
         <Link to="/settings" onClick={onItemClick} className={`sidebar-item ${currentPath === '/settings' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <Settings className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-          {!isCollapsed && <span className="text-sm font-medium">{t('settings')}</span>}
+          {!isCollapsed && <span className="text-sm font-medium">{language === 'ro' ? 'Setări' : 'Settings'}</span>}
         </Link>
         <Link to="/support" onClick={onItemClick} className={`sidebar-item ${currentPath === '/support' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <HelpCircle className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-          {!isCollapsed && <span className="text-sm font-medium">{t('support')}</span>}
+          {!isCollapsed && <span className="text-sm font-medium">{language === 'ro' ? 'Suport' : 'Support'}</span>}
         </Link>
       </div>
     </div>

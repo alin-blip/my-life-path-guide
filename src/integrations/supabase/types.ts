@@ -2605,6 +2605,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_goal_categories: {
+        Row: {
+          category_key: string
+          color: string | null
+          created_at: string | null
+          display_name: string
+          display_name_ro: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          order_index: number | null
+          parent_category: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category_key: string
+          color?: string | null
+          created_at?: string | null
+          display_name: string
+          display_name_ro?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          order_index?: number | null
+          parent_category?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category_key?: string
+          color?: string | null
+          created_at?: string | null
+          display_name?: string
+          display_name_ro?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          order_index?: number | null
+          parent_category?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string | null
