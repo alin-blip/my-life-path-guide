@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDailyHabits, HabitCategory } from '@/hooks/useDailyHabits';
+import { useChampionRoutine } from '@/hooks/useChampionRoutine';
 import { Check, ArrowRight, Dumbbell, Heart, Users, Briefcase } from 'lucide-react';
 
 interface HabitCheckStepProps {
@@ -19,8 +20,54 @@ const CATEGORY_CONFIG: Record<HabitCategory, { title: string; icon: React.Elemen
 
 export const HabitCheckStep: React.FC<HabitCheckStepProps> = ({ category, onNext }) => {
   const { habits, toggleHabit, isHabitCompleted, isLoading } = useDailyHabits();
+  const { settings, todayLog, people } = useChampionRoutine();
   
-  const categoryHabits = habits.filter(h => h.category === category && h.is_active !== false);
+  // Get names to exclude based on active routine steps and completions
+  const excludedHabitNames = useMemo(() => {
+    const excluded: string[] = [];
+    const activeSteps = settings?.active_steps || [];
+    
+    // If meditation step is active in routine, exclude meditation habits
+    if (activeSteps.includes('meditation')) {
+      excluded.push('meditation', 'meditație');
+    }
+    
+    // If journaling step is active in routine, exclude journal habits
+    if (activeSteps.includes('journaling')) {
+      excluded.push('jurnal', 'memoirs', 'journal');
+    }
+    
+    // If exercise step was completed today, exclude fitness habits
+    if (todayLog?.exercise_completed) {
+      excluded.push('fitness', 'workout');
+    }
+    
+    // If reading step is active in routine, exclude reading habits
+    if (activeSteps.includes('reading')) {
+      excluded.push('reading', 'citit');
+    }
+    
+    // If relationships step is active, exclude people names from champion_routine_people
+    if (activeSteps.includes('relationships') && people.length > 0) {
+      people.forEach(p => excluded.push(p.name.toLowerCase()));
+    }
+    
+    return excluded;
+  }, [settings?.active_steps, todayLog?.exercise_completed, people]);
+  
+  // Filter habits: category match, active, and NOT in excluded list
+  const categoryHabits = useMemo(() => {
+    return habits.filter(h => {
+      if (h.category !== category || h.is_active === false) return false;
+      
+      const habitNameLower = h.name.toLowerCase();
+      // Check if habit name matches any excluded name
+      return !excludedHabitNames.some(excluded => 
+        habitNameLower.includes(excluded) || excluded.includes(habitNameLower)
+      );
+    });
+  }, [habits, category, excludedHabitNames]);
+  
   const config = CATEGORY_CONFIG[category];
   const Icon = config.icon;
   
