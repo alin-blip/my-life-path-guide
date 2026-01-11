@@ -592,10 +592,15 @@ const ChallengeDayPage = () => {
                 target_date: day1Responses.target_date || ''
               }}
               onVisionChange={(data) => updateDay1Responses(data)}
-              onComplete={async () => {
+              onComplete={async (finalVisionData) => {
                 if (isAuthenticated) {
-                  await saveDay1Responses(day1Responses);
+                  // Save with the final data including vision_declaration
+                  await saveDay1Responses({
+                    ...day1Responses,
+                    ...finalVisionData
+                  });
                 }
+                updateDay1Responses(finalVisionData);
                 setDay1Step(2);
               }}
             />
