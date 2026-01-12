@@ -3,7 +3,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { GripVertical, Sparkles, Droplets, Timer, Brain, Dumbbell, Utensils, FileText, ListTodo, Heart, Settings2, Wind, Sun, Eye, PenTool } from 'lucide-react';
+import { GripVertical, Sparkles, Droplets, Timer, Brain, Dumbbell, Utensils, FileText, ListTodo, Heart, Settings2, Wind, Sun, Eye, PenTool, Sunrise } from 'lucide-react';
 import { 
   ExerciseStepConfigComponent, 
   MeditationStepConfigComponent, 
@@ -23,6 +23,7 @@ interface StepsOrderEditorProps {
 }
 
 export const ALL_STEPS = [
+  { id: 'emotionalCheck', label: 'Check-in Emoțional', icon: Sunrise, category: 'emotional', hasConfig: false },
   { id: 'lightExposure', label: 'Lumină Naturală', icon: Sun, category: 'being', hasConfig: true },
   { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being', hasConfig: false },
   { id: 'breathing', label: 'Respirație', icon: Wind, category: 'being', hasConfig: true },
@@ -40,6 +41,7 @@ export const ALL_STEPS = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
+  emotional: 'border-l-amber-500',
   being: 'border-l-purple-500',
   body: 'border-l-orange-500',
   business: 'border-l-blue-500',
