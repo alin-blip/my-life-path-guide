@@ -416,15 +416,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     goToNextStep();
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
-  // Auto-configure for new users and start directly
+  // Auto-configure for new users and start directly (must be before any returns)
   useEffect(() => {
     if (!isLoading && !isConfigured) {
       // Auto-save default settings so user can start immediately
@@ -432,8 +424,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     }
   }, [isLoading, isConfigured, saveSettings]);
 
-  // Show loading while auto-configuring
-  if (!isConfigured) {
+  if (isLoading || !isConfigured) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
