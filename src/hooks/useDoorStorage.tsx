@@ -133,6 +133,15 @@ export function useDoorStorage(props: UseDoorStorageProps) {
     };
   }, [reloadData]);
 
+  // Stable references for weekly plan save data to avoid infinite loops
+  const selectedDominoTextRef = useRef<string>('');
+  const keyPointsSignatureRef = useRef<string>('');
+
+  // Compute a signature for key points to detect real changes
+  const getKeyPointsSignature = useCallback((kps: DominoKeyPoint[]) => {
+    return kps.map(kp => `${kp.id}:${kp.text || ''}:${kp.completed ? '1' : '0'}`).join('|');
+  }, []);
+
   // SEPARATE EFFECT: Auto-save Weekly Plan only (domino + key points)
   // This does NOT trigger saveGlobalHotList or saveWeekLists
   useEffect(() => {
@@ -140,12 +149,24 @@ export function useDoorStorage(props: UseDoorStorageProps) {
       return;
     }
 
+    const newDominoText = props.selectedDomino?.text || '';
+    const newKeyPointsSig = getKeyPointsSignature(props.dominoKeyPoints);
+
+    // Skip if nothing actually changed
+    if (newDominoText === selectedDominoTextRef.current && newKeyPointsSig === keyPointsSignatureRef.current) {
+      return;
+    }
+
+    // Update refs
+    selectedDominoTextRef.current = newDominoText;
+    keyPointsSignatureRef.current = newKeyPointsSig;
+
     // Clear previous timeout
     if (weeklyPlanSaveTimeoutRef.current) {
       clearTimeout(weeklyPlanSaveTimeoutRef.current);
     }
 
-    // Debounced save - 1 second delay for weekly plan
+    // Debounced save - 1.5 second delay for weekly plan
     weeklyPlanSaveTimeoutRef.current = setTimeout(() => {
       if (props.currentWeekKey) {
         // Save draft immediately (sync)
@@ -158,14 +179,14 @@ export function useDoorStorage(props: UseDoorStorageProps) {
           dominoKeyPoints: props.dominoKeyPoints
         });
       }
-    }, 1000);
+    }, 1500);
 
     return () => {
       if (weeklyPlanSaveTimeoutRef.current) {
         clearTimeout(weeklyPlanSaveTimeoutRef.current);
       }
     };
-  }, [props.selectedDomino, props.dominoKeyPoints, props.currentWeekKey, saveDraft, saveWeeklyPlanOnly]);
+  }, [props.selectedDomino?.text, props.selectedDomino?.id, props.dominoKeyPoints, props.currentWeekKey, getKeyPointsSignature]);
 
   // Emergency save on visibility change and beforeunload
   useEffect(() => {
