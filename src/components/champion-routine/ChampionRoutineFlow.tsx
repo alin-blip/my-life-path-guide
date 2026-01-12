@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, Settings, History, Bell } from 'lucide-react';
+import { ChevronLeft, Settings, History, Bell, Sliders } from 'lucide-react';
 import { useChampionRoutine, ChampionLog } from '@/hooks/useChampionRoutine';
 import { ChampionRoutineSettings } from './ChampionRoutineSettings';
 import { NotificationSettings } from './NotificationSettings';
@@ -42,6 +42,8 @@ import { RoutineTimeline } from './RoutineTimeline';
 import { LiveXPDisplay } from './LiveXPDisplay';
 import { SkipConfirmDialog } from './SkipConfirmDialog';
 import { StepCompletionAnimation } from './StepCompletionAnimation';
+import { RoutineSetupWizard } from './RoutineSetupWizard';
+import { QuickSettingsPanel } from './QuickSettingsPanel';
 
 // Setup UI components
 import { Card } from '@/components/ui/card';
@@ -348,10 +350,12 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   }, [routineSteps]);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [hasUserNavigated, setHasUserNavigated] = useState(false);
   const [showSkipDialog, setShowSkipDialog] = useState(false);
   const [showStepCompletion, setShowStepCompletion] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   
   // Emotional check state
   const [selectedEmotion, setSelectedEmotion] = useState<Emotion | null>(
@@ -500,19 +504,32 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     goToNextStep();
   };
 
-  // Auto-configure for new users and start directly (must be before any returns)
+  // Show wizard for new users
   useEffect(() => {
     if (!isLoading && !isConfigured) {
-      // Auto-save default settings so user can start immediately
-      saveSettings({});
+      setShowWizard(true);
     }
-  }, [isLoading, isConfigured, saveSettings]);
+  }, [isLoading, isConfigured]);
 
-  if (isLoading || !isConfigured) {
+  // Show loading only during initial load
+  if (isLoading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
       </div>
+    );
+  }
+
+  // Show setup wizard for new users
+  if (showWizard || !isConfigured) {
+    return (
+      <RoutineSetupWizard
+        onComplete={() => setShowWizard(false)}
+        onSkip={() => {
+          saveSettings({ is_configured: true });
+          setShowWizard(false);
+        }}
+      />
     );
   }
 
@@ -779,10 +796,10 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
                 <Button variant="ghost" size="sm" onClick={() => navigate('/champion-routine-history')} title="Istoric" className="text-white/70 hover:text-white hover:bg-white/10">
                   <History className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setShowNotificationSettings(!showNotificationSettings)} title="Notificări" className="text-white/70 hover:text-white hover:bg-white/10">
-                  <Bell className="h-4 w-4" />
+                <Button variant="ghost" size="sm" onClick={() => setQuickSettingsOpen(true)} title="Setări Rapide" className="text-white/70 hover:text-white hover:bg-white/10">
+                  <Sliders className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setSettingsOpen(true)} title="Setări" className="text-white/70 hover:text-white hover:bg-white/10">
+                <Button variant="ghost" size="sm" onClick={() => setSettingsOpen(true)} title="Setări Avansate" className="text-white/70 hover:text-white hover:bg-white/10">
                   <Settings className="h-4 w-4" />
                 </Button>
               </div>
@@ -819,7 +836,9 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         {renderStep()}
       </div>
 
+      {/* Settings Modals */}
       <ChampionRoutineSettings open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <QuickSettingsPanel open={quickSettingsOpen} onOpenChange={setQuickSettingsOpen} />
       
       {/* Skip Confirmation Dialog */}
       <SkipConfirmDialog
