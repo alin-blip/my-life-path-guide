@@ -231,10 +231,41 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
 
   // Get active and ordered steps based on settings
   const routineSteps = useMemo((): RoutineStepId[] => {
-    const activeSteps = settings?.active_steps || [];
-    const stepsOrder = settings?.routine_steps_order || [];
+    let activeSteps = settings?.active_steps || [];
+    let stepsOrder = settings?.routine_steps_order || [];
     const habitSteps = (settings?.habit_steps as string[]) || [];
     const includeDailyTasks = settings?.include_daily_tasks !== false;
+
+    // Auto-include new steps for existing users
+    const requiredNewSteps = ['emotionalCheck', 'visionDeclaration'];
+    requiredNewSteps.forEach(stepId => {
+      if (activeSteps.length > 0 && !activeSteps.includes(stepId)) {
+        activeSteps = [...activeSteps];
+        if (stepId === 'emotionalCheck') {
+          activeSteps.unshift(stepId);
+        } else {
+          const autoIndex = activeSteps.indexOf('autosuggestion');
+          if (autoIndex !== -1) {
+            activeSteps.splice(autoIndex + 1, 0, stepId);
+          } else {
+            activeSteps.push(stepId);
+          }
+        }
+      }
+      if (stepsOrder.length > 0 && !stepsOrder.includes(stepId)) {
+        stepsOrder = [...stepsOrder];
+        if (stepId === 'emotionalCheck') {
+          stepsOrder.unshift(stepId);
+        } else {
+          const autoIndex = stepsOrder.indexOf('autosuggestion');
+          if (autoIndex !== -1) {
+            stepsOrder.splice(autoIndex + 1, 0, stepId);
+          } else {
+            stepsOrder.push(stepId);
+          }
+        }
+      }
+    });
 
     // If no custom order, use default
     let steps: RoutineStepId[];

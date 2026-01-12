@@ -58,20 +58,56 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
     'exercise', 'mealPlanning', 'contentCreation', 'dailyTasks', 'relationships'
   ];
 
-  // Initialize state from settings
+  // Initialize state from settings - merge new steps into existing settings
   useEffect(() => {
     if (settings) {
       setAutosuggestion(settings.default_autosuggestion || 'Every day, in every way, I am getting better and better.');
-      setActiveSteps(
-        settings.active_steps && settings.active_steps.length > 0 
-          ? settings.active_steps 
-          : ALL_STEP_IDS
-      );
-      setStepsOrder(
-        settings.routine_steps_order && settings.routine_steps_order.length > 0 
-          ? settings.routine_steps_order 
-          : ALL_STEP_IDS
-      );
+      
+      // Merge existing active_steps with any new steps not in the list
+      let currentActiveSteps = settings.active_steps && settings.active_steps.length > 0 
+        ? [...settings.active_steps] 
+        : [...ALL_STEP_IDS];
+      
+      // Add new steps that might be missing from older saved settings
+      const newStepsToAdd = ['emotionalCheck', 'visionDeclaration'];
+      newStepsToAdd.forEach(stepId => {
+        if (!currentActiveSteps.includes(stepId)) {
+          // Add emotionalCheck at the beginning, visionDeclaration after autosuggestion
+          if (stepId === 'emotionalCheck') {
+            currentActiveSteps.unshift(stepId);
+          } else if (stepId === 'visionDeclaration') {
+            const autoIndex = currentActiveSteps.indexOf('autosuggestion');
+            if (autoIndex !== -1) {
+              currentActiveSteps.splice(autoIndex + 1, 0, stepId);
+            } else {
+              currentActiveSteps.push(stepId);
+            }
+          }
+        }
+      });
+      setActiveSteps(currentActiveSteps);
+      
+      // Same for steps order
+      let currentStepsOrder = settings.routine_steps_order && settings.routine_steps_order.length > 0 
+        ? [...settings.routine_steps_order] 
+        : [...ALL_STEP_IDS];
+      
+      newStepsToAdd.forEach(stepId => {
+        if (!currentStepsOrder.includes(stepId)) {
+          if (stepId === 'emotionalCheck') {
+            currentStepsOrder.unshift(stepId);
+          } else if (stepId === 'visionDeclaration') {
+            const autoIndex = currentStepsOrder.indexOf('autosuggestion');
+            if (autoIndex !== -1) {
+              currentStepsOrder.splice(autoIndex + 1, 0, stepId);
+            } else {
+              currentStepsOrder.push(stepId);
+            }
+          }
+        }
+      });
+      setStepsOrder(currentStepsOrder);
+      
       setHabitSteps(settings.habit_steps || []);
       setIncludeDailyTasks(settings.include_daily_tasks !== false);
     } else {
