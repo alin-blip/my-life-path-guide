@@ -152,72 +152,84 @@ export const QuarterlyGoalsTab: React.FC = () => {
     setCurrentYear(now.getFullYear());
   }, []);
 
+  const fetchGoals = async () => {
+    try {
+      setLoading(true);
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
+        setLoading(false);
+        return;
+      }
+
+      const quarterKey = `Q${currentQuarter}-${currentYear}`;
+      
+      const { data, error } = await supabase
+        .from('missions')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .eq('mission_type', 'quarterly')
+        .eq('period', quarterKey);
+
+      if (error) throw error;
+
+      // Fetch parent missions for hierarchy display
+      const parentIds = (data || [])
+        .map((m: any) => m.parent_mission_id)
+        .filter(Boolean);
+
+      let parentMap: Record<string, any> = {};
+      if (parentIds.length > 0) {
+        const { data: parents } = await supabase
+          .from('missions')
+          .select('id, title, period')
+          .in('id', parentIds);
+        
+        parents?.forEach((p: any) => {
+          parentMap[p.id] = p;
+        });
+      }
+
+      const mappedGoals: QuarterlyGoal[] = (data || []).map((m: any) => ({
+        id: m.id,
+        category: m.category,
+        title: m.title || '',
+        description: m.goal_data?.description || '',
+        measurableResult: m.measurable_result || '',
+        progress: m.goal_data?.progress || 0,
+        keyActions: m.goal_data?.keyActions || [],
+        parentMissionId: m.parent_mission_id,
+        parentMission: m.parent_mission_id ? parentMap[m.parent_mission_id] : null
+      }));
+
+      setGoals(mappedGoals);
+    } catch (error) {
+      console.error('Error fetching quarterly goals:', error);
+      toast({
+        title: language === 'en' ? 'Error' : 'Eroare',
+        description: language === 'en' ? 'Failed to load goals' : 'Nu s-au putut încărca obiectivele',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch goals
   useEffect(() => {
-    const fetchGoals = async () => {
-      try {
-        setLoading(true);
-        const { data: session } = await supabase.auth.getSession();
-        if (!session?.session?.user) {
-          setLoading(false);
-          return;
-        }
-
-        const quarterKey = `Q${currentQuarter}-${currentYear}`;
-        
-        const { data, error } = await supabase
-          .from('missions')
-          .select('*')
-          .eq('user_id', session.session.user.id)
-          .eq('mission_type', 'quarterly')
-          .eq('period', quarterKey);
-
-        if (error) throw error;
-
-        // Fetch parent missions for hierarchy display
-        const parentIds = (data || [])
-          .map((m: any) => m.parent_mission_id)
-          .filter(Boolean);
-
-        let parentMap: Record<string, any> = {};
-        if (parentIds.length > 0) {
-          const { data: parents } = await supabase
-            .from('missions')
-            .select('id, title, period')
-            .in('id', parentIds);
-          
-          parents?.forEach((p: any) => {
-            parentMap[p.id] = p;
-          });
-        }
-
-        const mappedGoals: QuarterlyGoal[] = (data || []).map((m: any) => ({
-          id: m.id,
-          category: m.category,
-          title: m.title || '',
-          description: m.goal_data?.description || '',
-          measurableResult: m.measurable_result || '',
-          progress: m.goal_data?.progress || 0,
-          keyActions: m.goal_data?.keyActions || [],
-          parentMissionId: m.parent_mission_id,
-          parentMission: m.parent_mission_id ? parentMap[m.parent_mission_id] : null
-        }));
-
-        setGoals(mappedGoals);
-      } catch (error) {
-        console.error('Error fetching quarterly goals:', error);
-        toast({
-          title: language === 'en' ? 'Error' : 'Eroare',
-          description: language === 'en' ? 'Failed to load goals' : 'Nu s-au putut încărca obiectivele',
-          variant: 'destructive'
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchGoals();
   }, [currentQuarter, currentYear, language, toast]);
+
+  // Listen for refresh events
+  useEffect(() => {
+    const handleRefresh = () => {
+      fetchGoals();
+    };
+    
+    window.addEventListener('quarterlyGoalsUpdated', handleRefresh);
+    return () => {
+      window.removeEventListener('quarterlyGoalsUpdated', handleRefresh);
+    };
+  }, [currentQuarter, currentYear]);
 
   const handlePreviousQuarter = () => {
     if (currentQuarter === 1) {
@@ -759,8 +771,9 @@ export const QuarterlyGoalsTab: React.FC = () => {
         missionType="quarterly"
         period={`Q${currentQuarter}-${currentYear}`}
         onComplete={() => {
-          // Refresh goals
-          window.location.reload();
+          // Refresh data without page reload
+          setWizardOpen(false);
+          window.dispatchEvent(new CustomEvent('quarterlyGoalsUpdated'));
         }}
       />
     </div>

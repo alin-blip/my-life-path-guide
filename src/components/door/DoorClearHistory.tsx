@@ -26,13 +26,13 @@ export const DoorClearHistory: React.FC<DoorClearHistoryProps> = ({
         description: `${deletedCount} taskuri au fost șterse din cloud. Toate datele locale au fost curățate.`,
       });
 
-      // Notify parent component
+      // Notify parent component (this should trigger data refresh)
       onHistoryCleared?.();
       
-      // Refresh page to ensure clean state
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      // Dispatch event for other components to refresh
+      window.dispatchEvent(new CustomEvent('doorDataUpdated', { 
+        detail: { type: 'historyCleared' } 
+      }));
       
     } catch (error: any) {
       console.error('Error clearing history:', error);

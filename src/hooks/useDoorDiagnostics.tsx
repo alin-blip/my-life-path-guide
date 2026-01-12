@@ -122,8 +122,10 @@ export function useDoorDiagnostics() {
           description: "Datele Door au fost restaurate cu succes",
         });
         
-        // Refresh the page to reload data
-        window.location.reload();
+        // Trigger data refresh without page reload
+        window.dispatchEvent(new CustomEvent('doorDataUpdated', { 
+          detail: { type: 'dataImported' } 
+        }));
       } catch (error) {
         toast({
           title: "Eroare import",

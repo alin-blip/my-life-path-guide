@@ -163,45 +163,57 @@ export const AnnualVisionTab: React.FC = () => {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [wizardCategory, setWizardCategory] = useState<GoalCategory>('body');
 
-  useEffect(() => {
-    const fetchVisions = async () => {
-      try {
-        setLoading(true);
-        const { data: session } = await supabase.auth.getSession();
-        if (!session?.session?.user) {
-          setLoading(false);
-          return;
-        }
-
-        const yearKey = `${currentYear}`;
-
-        const { data, error } = await supabase
-          .from('missions')
-          .select('*')
-          .eq('user_id', session.session.user.id)
-          .eq('mission_type', 'annual')
-          .eq('period', yearKey);
-
-        if (error) throw error;
-
-        const mapped: AnnualVision[] = (data || []).map((m: any) => ({
-          id: m.id,
-          category: m.category,
-          bigGoal: m.title || '',
-          why: m.goal_data?.why || '',
-          oneWord: m.goal_data?.oneWord || '',
-          milestones: m.goal_data?.milestones || []
-        }));
-
-        setVisions(mapped);
-      } catch (error) {
-        console.error('Error fetching annual visions:', error);
-      } finally {
+  const fetchVisions = async () => {
+    try {
+      setLoading(true);
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
         setLoading(false);
+        return;
       }
-    };
 
+      const yearKey = `${currentYear}`;
+
+      const { data, error } = await supabase
+        .from('missions')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .eq('mission_type', 'annual')
+        .eq('period', yearKey);
+
+      if (error) throw error;
+
+      const mapped: AnnualVision[] = (data || []).map((m: any) => ({
+        id: m.id,
+        category: m.category,
+        bigGoal: m.title || '',
+        why: m.goal_data?.why || '',
+        oneWord: m.goal_data?.oneWord || '',
+        milestones: m.goal_data?.milestones || []
+      }));
+
+      setVisions(mapped);
+    } catch (error) {
+      console.error('Error fetching annual visions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchVisions();
+  }, [currentYear]);
+
+  // Listen for refresh events
+  useEffect(() => {
+    const handleRefresh = () => {
+      fetchVisions();
+    };
+    
+    window.addEventListener('annualGoalsUpdated', handleRefresh);
+    return () => {
+      window.removeEventListener('annualGoalsUpdated', handleRefresh);
+    };
   }, [currentYear]);
 
   const handleAddVision = (category: string) => {
@@ -579,7 +591,12 @@ export const AnnualVisionTab: React.FC = () => {
         category={wizardCategory}
         missionType="annual"
         period={`${currentYear}`}
-        onComplete={() => window.location.reload()}
+        onComplete={() => {
+          // Refresh data without page reload
+          setWizardOpen(false);
+          // Trigger refetch by toggling state
+          window.dispatchEvent(new CustomEvent('annualGoalsUpdated'));
+        }}
       />
     </div>
   );
