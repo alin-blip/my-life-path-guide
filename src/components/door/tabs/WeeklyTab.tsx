@@ -76,7 +76,8 @@ export const WeeklyTab: React.FC = () => {
           title: '🧹 Dubluri eliminate',
           description: `Am eliminat ${result.removed} task-uri duplicate. Au rămas ${result.kept} task-uri unice.`,
         });
-        setTimeout(() => window.location.reload(), 500);
+        // Refresh data without page reload
+        setTimeout(() => refreshLists(), 500);
       } else {
         toast({
           title: '✅ Niciun duplicat',
@@ -111,6 +112,8 @@ export const WeeklyTab: React.FC = () => {
     doDoneCount,
     isDominoCompleted,
     editingNewItem,
+    saveStatus,
+    lastCloudSaveTime,
     setSearchTerm,
     setActiveList,
     setSelectedDomino,
@@ -458,6 +461,8 @@ export const WeeklyTab: React.FC = () => {
                     setSelectedDomino={setSelectedDomino}
                     setDominoKeyPoints={setDominoKeyPoints}
                     weekKey={currentWeekKey}
+                    saveStatus={saveStatus}
+                    lastSaveTime={lastCloudSaveTime}
                   />
                 </div>
               )}
@@ -547,6 +552,8 @@ export const WeeklyTab: React.FC = () => {
                 setSelectedDomino={setSelectedDomino}
                 setDominoKeyPoints={setDominoKeyPoints}
                 weekKey={currentWeekKey}
+                saveStatus={saveStatus}
+                lastSaveTime={lastCloudSaveTime}
               />
             </div>
 
