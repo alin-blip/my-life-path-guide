@@ -232,7 +232,39 @@ export function useChampionRoutine() {
   }, [fetchData]);
 
   const updateLog = async (field: keyof ChampionLog, value: any) => {
-    if (!user || !todayLog) return;
+    if (!user) return;
+
+    // If no log exists yet, wait a bit and retry - the log might be creating
+    if (!todayLog) {
+      console.warn('updateLog called but todayLog is null, attempting direct update');
+      try {
+        // Try to find the log by date and user
+        const { data: existingLog } = await supabase
+          .from('champion_routine_logs')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('date', today)
+          .single();
+        
+        if (existingLog) {
+          const { error } = await supabase
+            .from('champion_routine_logs')
+            .update({ [field]: value })
+            .eq('id', existingLog.id);
+          
+          if (!error) {
+            console.log(`Successfully updated ${field} via direct query`);
+          } else {
+            console.error('Error updating log via direct query:', error);
+          }
+        } else {
+          console.error('No log found for today');
+        }
+      } catch (error) {
+        console.error('Error in direct log update:', error);
+      }
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -242,6 +274,8 @@ export function useChampionRoutine() {
 
       if (!error) {
         setTodayLog(prev => prev ? { ...prev, [field]: value } : null);
+      } else {
+        console.error('Error updating log:', error);
       }
     } catch (error) {
       console.error('Error updating log:', error);
