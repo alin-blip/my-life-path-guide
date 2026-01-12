@@ -53,7 +53,7 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   const [isSaving, setIsSaving] = useState(false);
 
   const ALL_STEP_IDS = [
-    'lightExposure', 'hydration', 'breathing', 'meditation', 'gratitude',
+    'emotionalCheck', 'lightExposure', 'hydration', 'breathing', 'meditation', 'gratitude',
     'visualization', 'autosuggestion', 'journaling', 'reading',
     'exercise', 'mealPlanning', 'contentCreation', 'dailyTasks', 'relationships'
   ];
