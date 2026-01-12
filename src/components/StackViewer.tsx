@@ -7,7 +7,7 @@ import { ArrowLeft, Plus, Calendar, MessageCircle, Share2, Download } from "luci
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { useDoorContent } from "@/hooks/useDoorContent";
+import { useDoor } from "@/context/DoorContext";
 
 type StackContent = {
   id: string;
@@ -25,7 +25,7 @@ export const StackViewer = () => {
   const [stack, setStack] = useState<StackContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingToHotList, setIsAddingToHotList] = useState(false);
-  const { setHotList, hotList } = useDoorContent();
+  const { setHotList, hotList } = useDoor();
 
   useEffect(() => {
     if (id) {

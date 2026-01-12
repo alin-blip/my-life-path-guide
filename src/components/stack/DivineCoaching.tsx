@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, ArrowRight, Check, Plus, Send, Clock, CheckCircle } from 'lucide-react';
-import { useDoorContent } from '@/hooks/useDoorContent';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from "@/integrations/supabase/client";

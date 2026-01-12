@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDoorContent } from '@/hooks/useDoorContent';
+import { useDoor } from '@/context/DoorContext';
 import { useDoorUndo } from '@/hooks/useDoorUndo';
 import { useStreakTracking } from '@/hooks/useStreakTracking';
 import { DoorHeader } from '@/components/door/DoorHeader';
@@ -193,7 +193,7 @@ export const SimplifiedDoorContent: React.FC = () => {
     addNewKeyPoint,
     navigateToDate,
     refreshLists
-  } = useDoorContent();
+  } = useDoor();
 
   const isMobile = useIsMobile();
   const { toast } = useToast();
