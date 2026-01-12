@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -379,11 +380,22 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     previousWeekData?: PreviousWeekData;
     messages: Message[];
   }) => {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw sessionError;
+
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) {
+      throw new Error('Not authenticated');
+    }
+
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/door-ai-planning`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        // required for function gateway
+        'apikey': `${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        // user auth for RLS + auth context inside the function
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ mode, previousWeekData, messages: chatMessages }),
     });
