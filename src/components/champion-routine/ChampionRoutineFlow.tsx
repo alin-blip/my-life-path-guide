@@ -19,7 +19,6 @@ import { AutosuggestionStep } from './steps/AutosuggestionStep';
 import { ExerciseStep } from './steps/ExerciseStep';
 import { MealPlanningStep } from './steps/MealPlanningStep';
 import { ContentCreationStep } from './steps/ContentCreationStep';
-// DailyTasksStep removed - using TodaysTasksStep only
 import { RelationshipStep } from './steps/RelationshipStep';
 import { CompletionStep } from './steps/CompletionStep';
 import { HabitCheckStep } from './steps/HabitCheckStep';
@@ -37,6 +36,12 @@ import { EmotionalTransformStep } from './steps/EmotionalTransformStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
+
+// New UX components
+import { RoutineTimeline } from './RoutineTimeline';
+import { LiveXPDisplay } from './LiveXPDisplay';
+import { SkipConfirmDialog } from './SkipConfirmDialog';
+import { StepCompletionAnimation } from './StepCompletionAnimation';
 
 // Setup UI components
 import { Card } from '@/components/ui/card';
@@ -345,6 +350,8 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [hasUserNavigated, setHasUserNavigated] = useState(false);
+  const [showSkipDialog, setShowSkipDialog] = useState(false);
+  const [showStepCompletion, setShowStepCompletion] = useState(false);
   
   // Emotional check state
   const [selectedEmotion, setSelectedEmotion] = useState<Emotion | null>(
@@ -483,8 +490,13 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     }
   };
   
-  const skipCurrentStep = () => {
+  const handleSkipRequest = () => {
+    setShowSkipDialog(true);
+  };
+  
+  const confirmSkip = () => {
     addSkippedStep(currentStepId);
+    setShowSkipDialog(false);
     goToNextStep();
   };
 
@@ -582,7 +594,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             initialDuration={todayLog?.meditation_duration_seconds || 0}
             onComplete={(seconds) => updateLog('meditation_duration_seconds', seconds)}
             onNext={goToNextStep}
-            onSkip={skipCurrentStep}
+            onSkip={handleSkipRequest}
           />
         );
       case 'autosuggestion':
@@ -601,7 +613,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             completed={(todayLog as any)?.vision_declaration_read || false}
             onComplete={(value) => updateLog('vision_declaration_read' as any, value)}
             onNext={goToNextStep}
-            onSkip={skipCurrentStep}
+            onSkip={handleSkipRequest}
           />
         );
       case 'exercise':
@@ -610,7 +622,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             completed={todayLog?.exercise_completed || false}
             onComplete={(value) => updateLog('exercise_completed', value)}
             onNext={goToNextStep}
-            onSkip={skipCurrentStep}
+            onSkip={handleSkipRequest}
           />
         );
       case 'mealPlanning':
@@ -739,14 +751,15 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
 
   return (
     <div className="relative min-h-screen">
-      {/* Header with progress - Focus Mode styling */}
+      {/* Header with Timeline and XP - Focus Mode styling */}
       {currentStepId !== 'completion' && (
         <div className="sticky top-0 z-10 bg-black/40 backdrop-blur-xl border-b border-white/10">
           <div className="max-w-2xl mx-auto px-4 py-3">
+            {/* Top row: Navigation & Actions */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 {currentStepIndex > 0 && (
-                  <Button variant="ghost" size="sm" onClick={goToPreviousStep}>
+                  <Button variant="ghost" size="sm" onClick={goToPreviousStep} className="text-white/70 hover:text-white hover:bg-white/10">
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                 )}
@@ -759,10 +772,10 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
                   </span>
                 </div>
               </div>
+              
+              {/* XP & Actions */}
               <div className="flex items-center gap-2">
-                <span className="text-sm text-white/60">
-                  {currentStepIndex + 1}/{routineSteps.length}
-                </span>
+                <LiveXPDisplay compact />
                 <Button variant="ghost" size="sm" onClick={() => navigate('/champion-routine-history')} title="Istoric" className="text-white/70 hover:text-white hover:bg-white/10">
                   <History className="h-4 w-4" />
                 </Button>
@@ -774,7 +787,22 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
                 </Button>
               </div>
             </div>
-            <Progress value={progress} className="h-1" />
+            
+            {/* Interactive Timeline */}
+            <RoutineTimeline
+              steps={routineSteps}
+              currentStepIndex={currentStepIndex}
+              todayLog={todayLog}
+              skippedSteps={getSkippedSteps()}
+              stepLabels={STEP_LABELS}
+              categoryColors={CATEGORY_COLORS}
+              stepCategories={STEP_CATEGORIES}
+              isStepCompleted={isStepCompleted}
+              onStepClick={(index) => {
+                setCurrentStepIndex(index);
+                setHasUserNavigated(true);
+              }}
+            />
           </div>
         </div>
       )}
@@ -792,6 +820,20 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
       </div>
 
       <ChampionRoutineSettings open={settingsOpen} onOpenChange={setSettingsOpen} />
+      
+      {/* Skip Confirmation Dialog */}
+      <SkipConfirmDialog
+        open={showSkipDialog}
+        onOpenChange={setShowSkipDialog}
+        stepName={STEP_LABELS[currentStepId]}
+        onConfirmSkip={confirmSkip}
+      />
+      
+      {/* Step Completion Animation */}
+      <StepCompletionAnimation
+        show={showStepCompletion}
+        onComplete={() => setShowStepCompletion(false)}
+      />
     </div>
   );
 }
