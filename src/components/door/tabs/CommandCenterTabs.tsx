@@ -1,11 +1,12 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Target, Flag, Crown } from 'lucide-react';
+import { Calendar, Target, Flag, Crown, Compass } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { WeeklyTab } from './WeeklyTab';
 import { QuarterlyGoalsTab } from './QuarterlyGoalsTab';
 import { MonthlyMissionTab } from './MonthlyMissionTab';
 import { AnnualVisionTab } from './AnnualVisionTab';
+import { LifeVisionTab } from './LifeVisionTab';
 import { useSearchParams } from 'react-router-dom';
 
 export const CommandCenterTabs: React.FC = () => {
@@ -27,6 +28,12 @@ export const CommandCenterTabs: React.FC = () => {
   };
 
   const tabs = [
+    {
+      value: 'lifevision',
+      label: language === 'en' ? 'Vision' : 'Viziune',
+      icon: Compass,
+      description: language === 'en' ? 'Life vision (5-10 years)' : 'Viziune de viață (5-10 ani)'
+    },
     {
       value: 'annual',
       label: language === 'en' ? 'Annual' : 'Anual',
@@ -59,12 +66,12 @@ export const CommandCenterTabs: React.FC = () => {
         {/* Tab Navigation */}
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
           <div className="container mx-auto px-4 py-3">
-            <TabsList className="w-full grid grid-cols-4 gap-1 bg-muted/50 p-1 rounded-xl h-auto">
+            <TabsList className="w-full grid grid-cols-5 gap-1 bg-muted/50 p-1 rounded-xl h-auto">
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className="flex items-center gap-2 py-3 px-4 text-sm font-medium rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
+                  className="flex items-center gap-2 py-3 px-3 text-sm font-medium rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
                 >
                   <tab.icon className="w-4 h-4" />
                   <span className="hidden sm:inline">{tab.label}</span>
@@ -76,8 +83,12 @@ export const CommandCenterTabs: React.FC = () => {
 
         {/* Tab Content */}
         <div className="container mx-auto">
-          <TabsContent value="weekly" forceMount className="mt-0 outline-none">
-            <WeeklyTab />
+          <TabsContent value="lifevision" forceMount className="mt-0 outline-none">
+            <LifeVisionTab />
+          </TabsContent>
+          
+          <TabsContent value="annual" forceMount className="mt-0 outline-none">
+            <AnnualVisionTab />
           </TabsContent>
           
           <TabsContent value="quarterly" forceMount className="mt-0 outline-none">
@@ -88,8 +99,8 @@ export const CommandCenterTabs: React.FC = () => {
             <MonthlyMissionTab />
           </TabsContent>
           
-          <TabsContent value="annual" forceMount className="mt-0 outline-none">
-            <AnnualVisionTab />
+          <TabsContent value="weekly" forceMount className="mt-0 outline-none">
+            <WeeklyTab />
           </TabsContent>
         </div>
       </Tabs>
