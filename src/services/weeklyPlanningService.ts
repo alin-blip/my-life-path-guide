@@ -28,7 +28,7 @@ export const weeklyPlanningService = {
   async savePlan(planData: WeeklyPlanningData): Promise<boolean> {
     const userId = await getUserId();
     if (!userId) {
-      console.error('No user ID found');
+      console.error('No user ID found - user might not be authenticated');
       return false;
     }
 
@@ -38,29 +38,36 @@ export const weeklyPlanningService = {
       : toDoorWeekKey(planData.weekKey);
 
     try {
-      const { error } = await supabase
+      console.log('📤 Saving weekly plan:', {
+        weekKey: normalizedKey,
+        dominoTitle: planData.dominoTitle,
+        keyPointsCount: planData.keyPoints?.length || 0
+      });
+
+      const { data, error } = await supabase
         .from('weekly_planning')
         .upsert({
           user_id: userId,
           week_key: normalizedKey,
-          domino_title: planData.dominoTitle,
-          week_goal: planData.weekGoal,
-          key_points: planData.keyPoints,
+          domino_title: planData.dominoTitle || '',
+          week_goal: planData.weekGoal || '',
+          key_points: planData.keyPoints || [],
           review_data: planData.reviewData || {},
           updated_at: new Date().toISOString(),
         }, {
           onConflict: 'user_id,week_key'
-        });
+        })
+        .select();
 
       if (error) {
-        console.error('Error saving weekly plan:', error);
+        console.error('Error saving weekly plan:', error.message, error.details, error.hint);
         return false;
       }
 
-      console.log('✅ Weekly plan saved successfully');
+      console.log('✅ Weekly plan saved successfully:', data);
       return true;
-    } catch (error) {
-      console.error('Error in savePlan:', error);
+    } catch (error: any) {
+      console.error('Exception in savePlan:', error?.message || error);
       return false;
     }
   },

@@ -487,20 +487,30 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                   }, 500);
                 } else {
                   console.error('❌ Failed to save planning to database');
+                  // Don't block the conversation - allow retry
                   toast({
                     title: 'Eroare la salvare',
-                    description: 'Planul nu a putut fi salvat. Datele rămân în draft.',
+                    description: 'Planul nu a putut fi salvat în cloud. Încearcă din nou sau salvează manual.',
                     variant: 'destructive',
                   });
+                  
+                  // Store in localStorage as backup so user doesn't lose work
+                  try {
+                    localStorage.setItem(`planning_backup_${currentWeekKey}`, JSON.stringify(planningData));
+                    console.log('📦 Planning data backed up to localStorage');
+                  } catch (backupError) {
+                    console.error('Error backing up:', backupError);
+                  }
                 }
-                return;
+                // Don't return here - let the conversation continue
               } catch (e) {
                 console.error('❌ Error parsing or saving planning data:', e);
                 toast({
-                  title: 'Eroare',
-                  description: 'A apărut o eroare la procesarea planului. Datele rămân în draft.',
+                  title: 'Eroare la procesare',
+                  description: 'A apărut o eroare. Datele rămân în draft. Poți încerca din nou.',
                   variant: 'destructive',
                 });
+                // Don't return - conversation can continue
               }
             }
           }
