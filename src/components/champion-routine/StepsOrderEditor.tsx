@@ -24,6 +24,7 @@ interface StepsOrderEditorProps {
 
 export const ALL_STEPS = [
   { id: 'emotionalCheck', label: 'Check-in Emoțional', icon: Sunrise, category: 'emotional', hasConfig: false },
+  { id: 'emotionalTransform', label: 'Transformare Emoțională', icon: Sparkles, category: 'emotional', hasConfig: false },
   { id: 'lightExposure', label: 'Lumină Naturală', icon: Sun, category: 'being', hasConfig: true },
   { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being', hasConfig: false },
   { id: 'breathing', label: 'Respirație', icon: Wind, category: 'being', hasConfig: true },

@@ -76,8 +76,9 @@ export type RoutineStepId =
 
 // Default order for Execution Room (all available steps)
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
-  'emotionalCheck',     // 0. Check-in Emoțional - PRIMUL
-  'lightExposure',      // 1. Being - Lumină naturală dimineața
+  'emotionalCheck',       // 0. Check-in Emoțional - PRIMUL
+  'emotionalTransform',   // 0.5. Transformare Emoțională (dacă e necesar)
+  'lightExposure',        // 1. Being - Lumină naturală dimineața
   'hydration',          // 2. Being - Hidratare
   'breathing',          // 3. Being - Box Breathing
   'meditation',         // 4. Being - Meditație (min 10 min)
@@ -237,12 +238,20 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     const includeDailyTasks = settings?.include_daily_tasks !== false;
 
     // Auto-include new steps for existing users
-    const requiredNewSteps = ['emotionalCheck', 'visionDeclaration'];
+    const requiredNewSteps = ['emotionalCheck', 'emotionalTransform', 'visionDeclaration'];
     requiredNewSteps.forEach(stepId => {
       if (activeSteps.length > 0 && !activeSteps.includes(stepId)) {
         activeSteps = [...activeSteps];
         if (stepId === 'emotionalCheck') {
           activeSteps.unshift(stepId);
+        } else if (stepId === 'emotionalTransform') {
+          // Insert right after emotionalCheck
+          const checkIndex = activeSteps.indexOf('emotionalCheck');
+          if (checkIndex !== -1) {
+            activeSteps.splice(checkIndex + 1, 0, stepId);
+          } else {
+            activeSteps.unshift(stepId);
+          }
         } else {
           const autoIndex = activeSteps.indexOf('autosuggestion');
           if (autoIndex !== -1) {
@@ -256,6 +265,14 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         stepsOrder = [...stepsOrder];
         if (stepId === 'emotionalCheck') {
           stepsOrder.unshift(stepId);
+        } else if (stepId === 'emotionalTransform') {
+          // Insert right after emotionalCheck
+          const checkIndex = stepsOrder.indexOf('emotionalCheck');
+          if (checkIndex !== -1) {
+            stepsOrder.splice(checkIndex + 1, 0, stepId);
+          } else {
+            stepsOrder.unshift(stepId);
+          }
         } else {
           const autoIndex = stepsOrder.indexOf('autosuggestion');
           if (autoIndex !== -1) {

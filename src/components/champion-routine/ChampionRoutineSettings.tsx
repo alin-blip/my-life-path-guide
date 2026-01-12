@@ -53,7 +53,7 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   const [isSaving, setIsSaving] = useState(false);
 
   const ALL_STEP_IDS = [
-    'emotionalCheck', 'lightExposure', 'hydration', 'breathing', 'meditation', 'gratitude',
+    'emotionalCheck', 'emotionalTransform', 'lightExposure', 'hydration', 'breathing', 'meditation', 'gratitude',
     'visualization', 'autosuggestion', 'visionDeclaration', 'journaling', 'reading',
     'exercise', 'mealPlanning', 'contentCreation', 'dailyTasks', 'relationships'
   ];
@@ -69,12 +69,19 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
         : [...ALL_STEP_IDS];
       
       // Add new steps that might be missing from older saved settings
-      const newStepsToAdd = ['emotionalCheck', 'visionDeclaration'];
+      const newStepsToAdd = ['emotionalCheck', 'emotionalTransform', 'visionDeclaration'];
       newStepsToAdd.forEach(stepId => {
         if (!currentActiveSteps.includes(stepId)) {
-          // Add emotionalCheck at the beginning, visionDeclaration after autosuggestion
+          // Add emotionalCheck at the beginning, emotionalTransform after it, visionDeclaration after autosuggestion
           if (stepId === 'emotionalCheck') {
             currentActiveSteps.unshift(stepId);
+          } else if (stepId === 'emotionalTransform') {
+            const checkIndex = currentActiveSteps.indexOf('emotionalCheck');
+            if (checkIndex !== -1) {
+              currentActiveSteps.splice(checkIndex + 1, 0, stepId);
+            } else {
+              currentActiveSteps.unshift(stepId);
+            }
           } else if (stepId === 'visionDeclaration') {
             const autoIndex = currentActiveSteps.indexOf('autosuggestion');
             if (autoIndex !== -1) {
@@ -96,6 +103,13 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
         if (!currentStepsOrder.includes(stepId)) {
           if (stepId === 'emotionalCheck') {
             currentStepsOrder.unshift(stepId);
+          } else if (stepId === 'emotionalTransform') {
+            const checkIndex = currentStepsOrder.indexOf('emotionalCheck');
+            if (checkIndex !== -1) {
+              currentStepsOrder.splice(checkIndex + 1, 0, stepId);
+            } else {
+              currentStepsOrder.unshift(stepId);
+            }
           } else if (stepId === 'visionDeclaration') {
             const autoIndex = currentStepsOrder.indexOf('autosuggestion');
             if (autoIndex !== -1) {
