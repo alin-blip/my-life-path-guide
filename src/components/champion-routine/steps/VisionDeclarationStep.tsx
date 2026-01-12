@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ScrollText, ArrowRight, Volume2, Check, ExternalLink } from 'lucide-react';
+import { ScrollText, ArrowRight, Volume2, Check, ExternalLink, Loader2, VolumeX } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface VisionData {
   vision_body?: string | null;
@@ -36,6 +37,8 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
   const [visionData, setVisionData] = useState<VisionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const fetchVisionData = async () => {
@@ -65,7 +68,81 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
     fetchVisionData();
   }, []);
 
-  const handleTextToSpeech = () => {
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.src = '';
+      }
+    };
+  }, [audioElement]);
+
+  const handleElevenLabsTTS = async () => {
+    if (!visionData?.vision_declaration) return;
+    
+    // If already playing, stop
+    if (isSpeaking && audioElement) {
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      setIsSpeaking(false);
+      return;
+    }
+
+    setIsGeneratingAudio(true);
+    
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ 
+            text: visionData.vision_declaration,
+            // Using Romanian-friendly voice
+            voiceId: 'onwK4e9ZLuTAKqWW03F9' // Daniel - good for Romanian
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`TTS request failed: ${response.status}`);
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      const audio = new Audio(audioUrl);
+      setAudioElement(audio);
+      
+      audio.onended = () => {
+        setIsSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+      
+      audio.onerror = () => {
+        setIsSpeaking(false);
+        toast.error(isRo ? 'Eroare la redare audio' : 'Audio playback error');
+      };
+      
+      await audio.play();
+      setIsSpeaking(true);
+      
+    } catch (error) {
+      console.error('TTS error:', error);
+      toast.error(isRo ? 'Eroare la generare audio. Se folosește vocea browser-ului.' : 'Audio generation error. Using browser voice.');
+      // Fallback to browser TTS
+      handleBrowserTTS();
+    } finally {
+      setIsGeneratingAudio(false);
+    }
+  };
+
+  const handleBrowserTTS = () => {
     if (!visionData?.vision_declaration) return;
     
     if (isSpeaking) {
@@ -112,7 +189,7 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
             <ScrollText className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-foreground">
-            {isRo ? 'Declarația de Viziune' : 'Vision Declaration'}
+            {isRo ? 'Declarația Mea de Viziune' : 'My Vision Declaration'}
           </h2>
           <p className="text-muted-foreground max-w-md mx-auto">
             {isRo 
@@ -152,7 +229,7 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
           <ScrollText className="h-8 w-8 text-white" />
         </div>
         <h2 className="text-2xl font-bold text-foreground">
-          {isRo ? 'Citește Declarația de Viziune' : 'Read Vision Declaration'}
+          {isRo ? 'Declarația Mea de Viziune' : 'My Vision Declaration'}
         </h2>
         <p className="text-sm text-muted-foreground">
           {isRo 
@@ -168,18 +245,31 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
         </p>
       </div>
 
-      {/* Text-to-speech button */}
-      <div className="flex justify-center">
+      {/* Audio buttons */}
+      <div className="flex justify-center gap-3">
         <Button
-          variant="outline"
-          size="sm"
-          onClick={handleTextToSpeech}
-          className={`border-amber-500/30 ${isSpeaking ? 'bg-amber-500/20' : ''}`}
+          variant="default"
+          size="lg"
+          onClick={handleElevenLabsTTS}
+          disabled={isGeneratingAudio}
+          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
         >
-          <Volume2 className={`h-4 w-4 mr-2 ${isSpeaking ? 'animate-pulse' : ''}`} />
-          {isSpeaking 
-            ? (isRo ? 'Oprește' : 'Stop') 
-            : (isRo ? 'Ascultă declarația' : 'Listen to declaration')}
+          {isGeneratingAudio ? (
+            <>
+              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+              {isRo ? 'Se generează...' : 'Generating...'}
+            </>
+          ) : isSpeaking ? (
+            <>
+              <VolumeX className="h-5 w-5 mr-2" />
+              {isRo ? 'Oprește' : 'Stop'}
+            </>
+          ) : (
+            <>
+              <Volume2 className="h-5 w-5 mr-2" />
+              {isRo ? '🎧 Ascultă Declarația' : '🎧 Listen to Declaration'}
+            </>
+          )}
         </Button>
       </div>
 

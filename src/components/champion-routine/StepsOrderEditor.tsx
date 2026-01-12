@@ -3,7 +3,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { GripVertical, Sparkles, Droplets, Timer, Brain, Dumbbell, Utensils, FileText, ListTodo, Heart, Settings2, Wind, Sun, Eye, PenTool, Sunrise } from 'lucide-react';
+import { GripVertical, Sparkles, Droplets, Timer, Brain, Dumbbell, Utensils, FileText, ListTodo, Heart, Settings2, Wind, Sun, Eye, PenTool, Sunrise, ScrollText } from 'lucide-react';
 import { 
   ExerciseStepConfigComponent, 
   MeditationStepConfigComponent, 
@@ -31,6 +31,7 @@ export const ALL_STEPS = [
   { id: 'gratitude', label: 'Recunoștință', icon: Heart, category: 'being', hasConfig: true },
   { id: 'visualization', label: 'Vizualizare', icon: Eye, category: 'being', hasConfig: true },
   { id: 'autosuggestion', label: 'Autosugestie', icon: Brain, category: 'being', hasConfig: false },
+  { id: 'visionDeclaration', label: 'Declarație Viziune', icon: ScrollText, category: 'being', hasConfig: false },
   { id: 'journaling', label: 'Journaling', icon: PenTool, category: 'being', hasConfig: true },
   { id: 'reading', label: 'Citit', icon: FileText, category: 'being', hasConfig: true },
   { id: 'exercise', label: 'Exerciții', icon: Dumbbell, category: 'body', hasConfig: true },
