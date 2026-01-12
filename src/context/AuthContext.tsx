@@ -26,22 +26,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
 
-  // Prevent "app looks like it reloads" flashes when switching browser tabs
-  const visibilityInitInFlightRef = useRef(false);
-
   useEffect(() => {
-    const AUTH_TIMEOUT_MS = 15000; // 15s max for auth init (avoid false sign-outs on slow tab restore)
-    let timeoutId: NodeJS.Timeout | null = null;
-    let retryTimerId: NodeJS.Timeout | null = null;
-    let didResolve = false;
-
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        didResolve = true;
-        if (timeoutId) clearTimeout(timeoutId);
-        if (retryTimerId) clearTimeout(retryTimerId);
-
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -68,89 +56,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    const initAuth = async (opts?: { silent?: boolean }) => {
-      const silent = Boolean(opts?.silent);
-
-      // Critical: reset this per init; otherwise timeouts never trigger on subsequent initAuth() calls
-      didResolve = false;
-
-      if (silent) {
-        if (visibilityInitInFlightRef.current) return;
-        visibilityInitInFlightRef.current = true;
-      }
-
+    // Initial session check
+    const initAuth = async () => {
       try {
-        // Only show the global auth loading screen on first load / explicit init.
-        // On browser tab switches we do a silent refresh to avoid "app reload" flashes.
-        if (!silent) {
-          setLoading(true);
+        setLoading(true);
+        const { data } = await supabase.auth.getSession();
+        const session = data.session;
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+
+        if (session?.user) {
+          refreshSubscription();
+        } else {
+          setSubscriptionLoading(false);
         }
-
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          timeoutId = setTimeout(() => {
-            if (!didResolve) reject(new Error('Auth timeout'));
-          }, AUTH_TIMEOUT_MS);
-        });
-
-        const result = await Promise.race([sessionPromise, timeoutPromise]);
-
-        if (result && 'data' in result) {
-          didResolve = true;
-          if (timeoutId) clearTimeout(timeoutId);
-
-          const session = result.data.session;
-          setSession(session);
-          setUser(session?.user ?? null);
-          setLoading(false);
-
-          if (session?.user) {
-            refreshSubscription({ silent });
-          } else {
-            setSubscriptionLoading(false);
-          }
-        }
-      } catch (error: any) {
-        const msg = String(error?.message ?? '');
-
-        // IMPORTANT: do NOT sign out / clear local tokens on timeouts.
-        // On mobile/tab-restore, networking can be slow and would incorrectly log the user out.
-        if (msg.includes('Auth timeout') || msg.includes('Failed to fetch')) {
-          console.warn('[auth] init delayed, will retry (no sign out):', msg);
-
-          if (retryTimerId) clearTimeout(retryTimerId);
-          retryTimerId = setTimeout(() => {
-            initAuth({ silent: true });
-          }, 1500);
-
-          return;
-        }
-
-        // Other errors: stop loading to avoid infinite spinners
+      } catch (error) {
+        console.error('[auth] init error:', error);
         setLoading(false);
         setSubscriptionLoading(false);
-      } finally {
-        if (silent) {
-          visibilityInitInFlightRef.current = false;
-        }
-      }
-    };
-
-    const handleVisibilityChange = () => {
-      // When the tab becomes visible again, re-check the session *silently*.
-      if (!document.hidden) {
-        initAuth({ silent: true });
       }
     };
 
     initAuth();
-    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       subscription.unsubscribe();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      if (timeoutId) clearTimeout(timeoutId);
-      if (retryTimerId) clearTimeout(retryTimerId);
     };
   }, []);
 
