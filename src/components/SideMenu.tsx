@@ -113,16 +113,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 4. RUTINA CAMPIONULUI - SEPARATE SECTION
+    // 4. RUTINA ZILNICĂ - UNIFIED ENTRY POINT
     {
-      title: language === 'ro' ? '🏆 Rutina Campionului' : '🏆 Champion Routine',
+      title: language === 'ro' ? '🌅 Rutina Zilnică' : '🌅 Daily Routine',
       icon: Crown,
-      path: '/champion-routine',
+      path: '/daily-flow',
       subItems: [
-        { title: language === 'ro' ? 'Start Rutină' : 'Start Routine', icon: Crown, path: '/champion-routine' },
-        { title: language === 'ro' ? 'Configurează Rutină' : 'Configure Routine', icon: Settings, path: '/champion-routine?setup=true' },
-        { title: language === 'ro' ? 'Habit Tracking' : 'Habit Tracking', icon: BarChart3, path: '/champion-routine-history' },
-        { title: language === 'ro' ? 'Statistici' : 'Statistics', icon: BarChart3, path: '/champion-routine-history' },
+        { title: language === 'ro' ? 'Start Rutină' : 'Start Routine', icon: Crown, path: '/daily-flow' },
+        { title: language === 'ro' ? 'Istoric & Statistici' : 'History & Stats', icon: BarChart3, path: '/champion-routine-history' },
       ]
     },
 

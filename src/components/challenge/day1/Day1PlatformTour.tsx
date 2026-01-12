@@ -31,9 +31,9 @@ const PLATFORM_MODULES = [
     gradient: 'from-purple-500 to-pink-500'
   },
   {
-    id: 'champion-routine',
-    titleRo: 'Rutina Campionului',
-    titleEn: 'Champion Routine',
+    id: 'daily-routine',
+    titleRo: 'Rutina Zilnică',
+    titleEn: 'Daily Routine',
     descriptionRo: 'Rutina ta matinală personalizată: meditație, jurnaling, exerciții și mai mult.',
     descriptionEn: 'Your personalized morning routine: meditation, journaling, exercise and more.',
     icon: Crown,
