@@ -23,6 +23,9 @@ interface GeneratedImages {
   business?: string;
 }
 
+// Get current year for period
+const getCurrentPeriod = () => new Date().getFullYear().toString();
+
 const VisionBoard2026 = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
@@ -72,8 +75,10 @@ const VisionBoard2026 = () => {
   const handleSave = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      const period = getCurrentPeriod();
       
-      await supabase.from('vision_boards').insert({
+      // 1. Save to vision_boards (for images only)
+      await supabase.from('vision_boards').upsert({
         user_id: session?.user?.id || null,
         email: email,
         body_image_url: images.body,
@@ -89,17 +94,72 @@ const VisionBoard2026 = () => {
         source: 'lead_magnet'
       });
 
-      toast({
-        title: language === 'en' ? 'Saved!' : 'Salvat!',
-        description: language === 'en' 
-          ? 'Your Vision Board has been saved. Create an account to access it anytime!' 
-          : 'Vision Board-ul tău a fost salvat. Creează un cont pentru a-l accesa oricând!'
-      });
+      // 2. If user is authenticated, sync to missions (Door Annual)
+      if (session?.user?.id) {
+        const categories: Category[] = ['body', 'being', 'balance', 'business'];
+        
+        for (const category of categories) {
+          if (answers[category]) {
+            // Check if mission already exists for this category/period
+            const { data: existingMission } = await supabase
+              .from('missions')
+              .select('id')
+              .eq('user_id', session.user.id)
+              .eq('category', category)
+              .eq('mission_type', 'annual')
+              .eq('period', period)
+              .maybeSingle();
 
-      if (!session?.user) {
-        navigate('/auth');
+            if (existingMission) {
+              // Update existing mission
+              await supabase
+                .from('missions')
+                .update({
+                  title: answers[category],
+                  goal_data: { 
+                    vision: answers[category], 
+                    imageUrl: images[category],
+                    source: 'vision_board_2026'
+                  },
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', existingMission.id);
+            } else {
+              // Create new mission
+              await supabase.from('missions').insert({
+                user_id: session.user.id,
+                category,
+                mission_type: 'annual',
+                period,
+                title: answers[category],
+                goal_data: { 
+                  vision: answers[category], 
+                  imageUrl: images[category],
+                  source: 'vision_board_2026'
+                },
+                position: categories.indexOf(category)
+              });
+            }
+          }
+        }
+
+        toast({
+          title: language === 'en' ? 'Saved & Synced!' : 'Salvat & Sincronizat!',
+          description: language === 'en' 
+            ? 'Your Vision Board has been synced to your Annual Objectives!' 
+            : 'Vision Board-ul tău a fost sincronizat cu Obiectivele Anuale!'
+        });
+
+        // Redirect to Door annual tab
+        navigate('/door?tab=annual');
       } else {
-        navigate('/dashboard');
+        toast({
+          title: language === 'en' ? 'Saved!' : 'Salvat!',
+          description: language === 'en' 
+            ? 'Create an account to sync with your objectives!' 
+            : 'Creează un cont pentru a sincroniza cu obiectivele tale!'
+        });
+        navigate('/auth');
       }
     } catch (error) {
       console.error('Save error:', error);

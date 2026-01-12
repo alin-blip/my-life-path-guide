@@ -161,7 +161,7 @@ export const WeeklyObjectives: React.FC = () => {
         <Button 
           variant="outline" 
           size="sm"
-          onClick={() => navigate('/game')}
+          onClick={() => navigate('/door?tab=weekly')}
           className="bg-purple-600/20 border-purple-500/50 hover:bg-purple-700/30 text-white"
         >
           <Edit className="h-4 w-4 mr-2" />
@@ -272,7 +272,7 @@ export const WeeklyObjectives: React.FC = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => navigate('/game')}
+              onClick={() => navigate('/door?tab=weekly')}
               className="mt-4 bg-purple-600/20 border-purple-500/50 hover:bg-purple-700/30 text-white"
             >
               <Edit className="h-4 w-4 mr-2" />
