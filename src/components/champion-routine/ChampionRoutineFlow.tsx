@@ -5,9 +5,10 @@ import { ChevronLeft, Settings, History, Bell, Sliders } from 'lucide-react';
 import { useChampionRoutine, ChampionLog } from '@/hooks/useChampionRoutine';
 import { ChampionRoutineSettings } from './ChampionRoutineSettings';
 import { NotificationSettings } from './NotificationSettings';
-import { debounce } from '@/lib/utils';
+import { debounce, cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { HabitCategory } from '@/hooks/useDailyHabits';
 import { Emotion } from '@/components/emotional/EmotionPicker';
 
@@ -766,17 +767,30 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     }
   };
 
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
     <div className="relative min-h-screen">
-      {/* Header with Timeline and XP - Focus Mode styling */}
+      {/* Header with Timeline and XP - Theme aware styling */}
       {currentStepId !== 'completion' && (
-        <div className="sticky top-0 z-10 bg-black/40 backdrop-blur-xl border-b border-white/10">
+        <div className={cn(
+          "sticky top-0 z-10 backdrop-blur-xl border-b",
+          isDark 
+            ? "bg-background/40 border-border/30" 
+            : "bg-background/70 border-border/50"
+        )}>
           <div className="max-w-2xl mx-auto px-4 py-3">
             {/* Top row: Navigation & Actions */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 {currentStepIndex > 0 && (
-                  <Button variant="ghost" size="sm" onClick={goToPreviousStep} className="text-white/70 hover:text-white hover:bg-white/10">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={goToPreviousStep} 
+                    className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                  >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                 )}
@@ -784,7 +798,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
                   <span className={`text-xs uppercase font-medium ${CATEGORY_COLORS[currentCategory]}`}>
                     {currentCategory}
                   </span>
-                  <span className="text-sm font-medium text-white">
+                  <span className="text-sm font-medium text-foreground">
                     {STEP_LABELS[currentStepId]}
                   </span>
                 </div>
@@ -793,13 +807,31 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
               {/* XP & Actions */}
               <div className="flex items-center gap-2">
                 <LiveXPDisplay compact />
-                <Button variant="ghost" size="sm" onClick={() => navigate('/champion-routine-history')} title="Istoric" className="text-white/70 hover:text-white hover:bg-white/10">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/champion-routine-history')} 
+                  title="Istoric" 
+                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                >
                   <History className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setQuickSettingsOpen(true)} title="Setări Rapide" className="text-white/70 hover:text-white hover:bg-white/10">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setQuickSettingsOpen(true)} 
+                  title="Setări Rapide" 
+                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                >
                   <Sliders className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setSettingsOpen(true)} title="Setări Avansate" className="text-white/70 hover:text-white hover:bg-white/10">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSettingsOpen(true)} 
+                  title="Setări Avansate" 
+                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                >
                   <Settings className="h-4 w-4" />
                 </Button>
               </div>
