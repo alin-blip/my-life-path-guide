@@ -8,6 +8,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ProgressProvider } from "@/context/ProgressContext";
+import { DoorProvider } from "@/context/DoorContext";
 import { SecurityProvider } from "@/components/SecurityProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -94,9 +95,10 @@ const App = () => (
                 <MigrationProvider>
                   <LanguageProvider>
                     <SecurityProvider>
-                      <ProgressProvider>
-                      <DataMigrationModal />
-                      <Suspense fallback={<LoadingFallback />}>
+                      <DoorProvider>
+                        <ProgressProvider>
+                        <DataMigrationModal />
+                        <Suspense fallback={<LoadingFallback />}>
                         <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
@@ -322,10 +324,11 @@ const App = () => (
                     } />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
-                    </Suspense>
-                    </ProgressProvider>
-                  </SecurityProvider>
-                </LanguageProvider>
+                      </Suspense>
+                      </ProgressProvider>
+                      </DoorProvider>
+                    </SecurityProvider>
+                  </LanguageProvider>
               </MigrationProvider>
             </AuthProvider>
           </BrowserRouter>

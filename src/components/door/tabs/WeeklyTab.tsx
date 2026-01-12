@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDoorContent } from '@/hooks/useDoorContent';
+import { useDoor } from '@/context/DoorContext';
 import { useDoorUndo } from '@/hooks/useDoorUndo';
 import { useStreakTracking } from '@/hooks/useStreakTracking';
 import { HotList } from '@/components/door/HotList';
@@ -144,7 +144,7 @@ export const WeeklyTab: React.FC = () => {
     addNewKeyPoint,
     navigateToDate,
     refreshLists
-  } = useDoorContent();
+  } = useDoor();
 
   // Streak tracking
   const { streakData, updateDailyProgress } = useStreakTracking();

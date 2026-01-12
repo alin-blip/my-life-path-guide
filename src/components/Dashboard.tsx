@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Heart, Brain, Briefcase, PenLine, MessageSquare, Send, Handshake, ArrowRight, RefreshCw, Compass, DollarSign, Users, Clock, Award, AlertTriangle, Check, Sparkles, Calendar as CalendarIcon, History } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useDoorContent } from '@/hooks/useDoorContent';
+import { useDoor } from '@/context/DoorContext';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
 import { LearnDashboard } from './LearnDashboard';
@@ -74,7 +74,7 @@ export const Dashboard: React.FC = () => {
     hitList,
     activeDay,
     toggleHitListItemCompletion
-  } = useDoorContent();
+  } = useDoor();
   const {
     selectedDay,
     setSelectedDay,

@@ -5,7 +5,7 @@ import { StackExplanation } from '@/components/stack/StackExplanation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useState, useEffect } from 'react';
-import { useDoorContent } from '@/hooks/useDoorContent';
+import { useDoor } from '@/context/DoorContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
 import { doorUserTasksService } from '@/services/doorUserTasksService';
@@ -32,7 +32,7 @@ const CoachingPage = () => {
   const [stackMode, setStackMode] = useState<'audio' | 'text' | 'selecting'>('selecting');
   const [initialPrinciple, setInitialPrinciple] = useState<number | null>(null);
   const [challengeDay, setChallengeDay] = useState<number | null>(null);
-  const { hitList, setHitList, hotList, setHotList } = useDoorContent();
+  const { hitList, setHitList, hotList, setHotList } = useDoor();
   const { toast } = useToast();
   const [isSupabaseAvailable, setIsSupabaseAvailable] = useState(false);
   const location = useLocation();

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useProgress } from '@/context/ProgressContext';
-import { useDoorContent } from '@/hooks/useDoorContent';
+import { useDoor } from '@/context/DoorContext';
 import { supabase } from '@/integrations/supabase/client';
 
 interface BigOne {
@@ -44,7 +44,7 @@ const getGreeting = (): string => {
 
 export const useDailyScore = () => {
   const { coreData, dailyFourData, selectedDay, getCoreScore, getDailyFourScore } = useProgress();
-  const { hitList, activeDay } = useDoorContent();
+  const { hitList, activeDay } = useDoor();
   
   const [routineCompleted, setRoutineCompleted] = useState(false);
   const [readingCompleted, setReadingCompleted] = useState(false);
