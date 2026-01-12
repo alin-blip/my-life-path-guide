@@ -25,19 +25,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [subscribed, setSubscribed] = useState(false);
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
+  
+  // Track if initial auth is complete to avoid re-triggering loading state
+  const initialAuthComplete = useRef(false);
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+        // Only update if something actually changed, and don't re-trigger loading
+        // after initial auth is complete (prevents flicker on tab switch)
+        if (initialAuthComplete.current) {
+          // After initial load, only update user/session silently
+          setSession(session);
+          setUser(session?.user ?? null);
+          // Don't set loading to false again, it's already false
+        } else {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+          initialAuthComplete.current = true;
+        }
 
         // Defer subscription check to avoid deadlocks
         setTimeout(() => {
           if (session?.user) {
-            refreshSubscription();
+            refreshSubscription({ silent: initialAuthComplete.current });
           } else {
             // Reset subscription state when logged out
             setSubscribed(false);
@@ -59,12 +72,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Initial session check
     const initAuth = async () => {
       try {
-        setLoading(true);
         const { data } = await supabase.auth.getSession();
         const session = data.session;
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        initialAuthComplete.current = true;
 
         if (session?.user) {
           refreshSubscription();
@@ -75,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('[auth] init error:', error);
         setLoading(false);
         setSubscriptionLoading(false);
+        initialAuthComplete.current = true;
       }
     };
 
