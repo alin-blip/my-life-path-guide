@@ -34,6 +34,8 @@ interface RoutineBreakdownProps {
 }
 
 const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string }>> = {
+  emotionalCheck: Heart,
+  emotionalTransform: Sparkles,
   lightExposure: Sun,
   hydration: Droplets,
   breathing: Wind,
@@ -60,6 +62,8 @@ const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string
 };
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
+  emotionalCheck: 'Check-in Emoțional',
+  emotionalTransform: 'Transformare Emoțională',
   gratitude: 'Recunoștință',
   hydration: 'Hidratare',
   meditation: 'Meditație',
@@ -85,7 +89,9 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
   completion: 'Finalizare',
 };
 
-const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks'> = {
+const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
+  emotionalCheck: 'emotional',
+  emotionalTransform: 'emotional',
   gratitude: 'being',
   hydration: 'being',
   meditation: 'being',
@@ -112,6 +118,7 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
 };
 
 const CATEGORY_CONFIG = {
+  emotional: { label: 'Emoțional', color: 'text-amber-500', bgColor: 'bg-amber-500/10', borderColor: 'border-amber-500/30' },
   being: { label: 'Mindset', color: 'text-purple-500', bgColor: 'bg-purple-500/10', borderColor: 'border-purple-500/30' },
   body: { label: 'Corp', color: 'text-red-500', bgColor: 'bg-red-500/10', borderColor: 'border-red-500/30' },
   business: { label: 'Business', color: 'text-blue-500', bgColor: 'bg-blue-500/10', borderColor: 'border-blue-500/30' },

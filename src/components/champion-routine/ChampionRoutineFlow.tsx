@@ -9,6 +9,7 @@ import { debounce } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { HabitCategory } from '@/hooks/useDailyHabits';
+import { Emotion } from '@/components/emotional/EmotionPicker';
 
 // Step components
 import { GratitudeStep } from './steps/GratitudeStep';
@@ -31,6 +32,8 @@ import { LightExposureStep } from './steps/LightExposureStep';
 import { LearnStep } from './steps/LearnStep';
 import { VisionDeclarationStep } from './steps/VisionDeclarationStep';
 import { ApplyStep } from './steps/ApplyStep';
+import { EmotionalCheckStep } from './steps/EmotionalCheckStep';
+import { EmotionalTransformStep } from './steps/EmotionalTransformStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
@@ -45,6 +48,8 @@ interface ChampionRoutineFlowProps {
 }
 
 export type RoutineStepId = 
+  | 'emotionalCheck'
+  | 'emotionalTransform'
   | 'gratitude' 
   | 'hydration' 
   | 'meditation' 
@@ -71,6 +76,7 @@ export type RoutineStepId =
 
 // Default order for Execution Room (all available steps)
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
+  'emotionalCheck',     // 0. Check-in Emoțional - PRIMUL
   'lightExposure',      // 1. Being - Lumină naturală dimineața
   'hydration',          // 2. Being - Hidratare
   'breathing',          // 3. Being - Box Breathing
@@ -91,6 +97,8 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
 ];
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
+  emotionalCheck: 'Check-in Emoțional',
+  emotionalTransform: 'Transformare Emoțională',
   gratitude: 'Recunoștință',
   hydration: 'Hidratare',
   meditation: 'Meditație',
@@ -116,7 +124,9 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
   completion: 'Finalizare',
 };
 
-const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks'> = {
+const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
+  emotionalCheck: 'emotional',
+  emotionalTransform: 'emotional',
   gratitude: 'being',
   hydration: 'being',
   meditation: 'being',
@@ -143,6 +153,7 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
 };
 
 const CATEGORY_COLORS = {
+  emotional: 'text-amber-500',
   being: 'text-purple-500',
   body: 'text-red-500',
   business: 'text-blue-500',
@@ -157,6 +168,10 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
   if (!log) return false;
   
   switch (stepId) {
+    case 'emotionalCheck':
+      return !!(log as any).morning_emotion;
+    case 'emotionalTransform':
+      return (log as any).emotional_transform_completed === true;
     case 'gratitude':
       return (log.gratitude_items || []).some(i => i?.trim());
     case 'hydration':
@@ -282,6 +297,15 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [hasUserNavigated, setHasUserNavigated] = useState(false);
+  
+  // Emotional check state
+  const [selectedEmotion, setSelectedEmotion] = useState<Emotion | null>(
+    (todayLog as any)?.morning_emotion as Emotion || null
+  );
+  const [emotionIntensity, setEmotionIntensity] = useState<number>(
+    (todayLog as any)?.morning_emotion_intensity || 5
+  );
+  const [needsEmotionalTransform, setNeedsEmotionalTransform] = useState(false);
   
   // Track skipped steps in localStorage
   const today = new Date().toISOString().split('T')[0];
@@ -439,6 +463,55 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
 
   const renderStep = () => {
     switch (currentStepId) {
+      case 'emotionalCheck':
+        return (
+          <EmotionalCheckStep
+            emotion={selectedEmotion}
+            intensity={emotionIntensity}
+            onEmotionChange={(emotion) => {
+              setSelectedEmotion(emotion);
+              updateLog('morning_emotion' as any, emotion);
+            }}
+            onIntensityChange={(intensity) => {
+              setEmotionIntensity(intensity);
+              updateLog('morning_emotion_intensity' as any, intensity);
+            }}
+            onNext={() => {
+              setNeedsEmotionalTransform(false);
+              // Skip emotionalTransform and go to next step after it
+              const transformIndex = routineSteps.indexOf('emotionalTransform');
+              if (transformIndex !== -1 && transformIndex === currentStepIndex + 1) {
+                setCurrentStepIndex(transformIndex + 1);
+              } else {
+                goToNextStep();
+              }
+            }}
+            onStartTransform={() => {
+              setNeedsEmotionalTransform(true);
+              goToNextStep();
+            }}
+          />
+        );
+      case 'emotionalTransform':
+        if (!needsEmotionalTransform && !selectedEmotion) {
+          // Skip if no emotional transform needed
+          goToNextStep();
+          return null;
+        }
+        return (
+          <EmotionalTransformStep
+            emotion={selectedEmotion || 'neutral'}
+            intensity={emotionIntensity}
+            onComplete={(transformedEnergy) => {
+              updateLog('emotional_transform_completed' as any, true);
+              updateLog('transformed_energy' as any, transformedEnergy);
+              goToNextStep();
+            }}
+            onSkip={() => {
+              goToNextStep();
+            }}
+          />
+        );
       case 'gratitude':
         return (
           <GratitudeStep
