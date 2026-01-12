@@ -75,7 +75,7 @@ export function LearnStep({ completed, notes, onComplete, onNotesChange, onNext 
             <p className="text-sm text-muted-foreground mb-2">
               Nu ai setat un task de învățare
             </p>
-            <Link to="/champion-routine" className="text-xs text-primary hover:underline flex items-center justify-center gap-1">
+            <Link to="/daily-flow" className="text-xs text-primary hover:underline flex items-center justify-center gap-1">
               <Settings className="h-3 w-3" />
               Configurează în setări
             </Link>
