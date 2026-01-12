@@ -146,12 +146,39 @@ IMPORTANT:
 - Când utilizatorul răspunde, confirmă și treci la următoarea întrebare
 - La final, când ai toate informațiile (Domino title + 4 chei complete cu pași alocați pe zile), folosește tool-ul "save_planning" pentru a salva planul structurat`;
 
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.80.0';
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Validate user authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log('Authenticated user:', user.id);
+
     const { mode, previousWeekData, messages }: PlanningRequest = await req.json();
     
     console.log('📥 Received request:', {

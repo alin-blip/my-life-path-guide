@@ -90,30 +90,22 @@ const Index = () => {
           </p>
           
           <div className="flex flex-col gap-3 sm:gap-4 justify-center mb-6 md:mb-8 animate-fade-in px-2" style={{ animationDelay: '0.5s' }}>
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/vision-2026')}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 sm:px-8 md:px-12 py-4 md:py-6 text-base sm:text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto sm:mx-auto animate-pulse-subtle"
-            >
-              🎯 {language === 'ro' ? 'Planifică-ți 2026 GRATUIT' : 'Plan Your 2026 FREE'}
-            </Button>
-
+            {/* Single Primary CTA - Clear focus */}
             <Button 
               size="lg" 
               onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white px-6 sm:px-8 md:px-12 py-4 md:py-6 text-base sm:text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto sm:mx-auto"
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white px-6 sm:px-8 md:px-12 py-5 md:py-7 text-base sm:text-lg md:text-xl font-bold shadow-xl hover:shadow-2xl transition-all w-full sm:w-auto sm:mx-auto ring-4 ring-primary/20"
             >
-              {t('landingStartTrial')}
+              🚀 {t('landingStartTrial')}
             </Button>
             
-            <Button 
-              size="lg" 
-              variant="outline"
+            {/* Secondary link - less prominent */}
+            <button 
               onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              className="border-primary text-primary hover:bg-primary hover:text-white px-6 sm:px-8 md:px-12 py-4 md:py-6 text-base sm:text-lg md:text-xl font-semibold shadow transition-all w-full sm:w-auto sm:mx-auto"
+              className="text-primary hover:text-primary/80 font-medium text-sm sm:text-base underline underline-offset-4 transition-colors"
             >
               {t('landingSeePricing')}
-            </Button>
+            </button>
           </div>
 
           <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-8 text-slate-600 animate-fade-in text-sm sm:text-base" style={{ animationDelay: '0.6s' }}>
