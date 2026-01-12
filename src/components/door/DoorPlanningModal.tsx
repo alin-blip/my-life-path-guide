@@ -121,6 +121,15 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const saveTimerRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
 
+  // Keep history bounded to avoid backend 100-message limit
+  const MAX_MESSAGES_IN_STATE = 100;
+  const MAX_MESSAGES_TO_SEND = 40;
+  const messagesRef = useRef<Message[]>([]);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
   // Voice input integration
   const [inputMode, setInputMode] = useState<'text' | 'voice'>(() => {
     const saved = localStorage.getItem('doorPlanningInputMode');
@@ -136,33 +145,43 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     toggleMic
   } = useVoiceInput({
     onTranscript: async (transcript) => {
-      const userMessage: Message = { role: 'user', content: transcript };
-      setMessages(prev => [...prev, userMessage]);
+      const trimmed = transcript.trim();
+      if (!trimmed) return;
+
+      const userMessage: Message = { role: 'user', content: trimmed };
+      const nextMessages = [...messagesRef.current, userMessage];
+      const cappedMessages = nextMessages.slice(-MAX_MESSAGES_IN_STATE);
+      const messagesForAI = cappedMessages.slice(-MAX_MESSAGES_TO_SEND);
+
+      setMessages(cappedMessages);
       setInput('');
       setIsLoading(true);
       setQuestionsAnswered(prev => prev + 1);
 
-      // Salvare imediată în database după voice input
-      const updatedMessages = [...messages, userMessage];
+      // Save draft (cloud) - best effort
       const updatedQuestionsAnswered = questionsAnswered + 1;
-      
-      setIsSaving(true);
-      await weeklyPlanningDraftService.saveDraft(currentWeekKey, {
-        messages: updatedMessages,
-        questionsAnswered: updatedQuestionsAnswered,
-        isSkippingReview,
-      });
-      setLastCloudSave(new Date());
-      setIsSaving(false);
-      console.log('☁️ Voice message saved to cloud immediately');
+      try {
+        setIsSaving(true);
+        await weeklyPlanningDraftService.saveDraft(currentWeekKey, {
+          messages: cappedMessages,
+          questionsAnswered: updatedQuestionsAnswered,
+          isSkippingReview,
+        });
+        setLastCloudSave(new Date());
+        console.log('☁️ Voice message saved to cloud immediately');
+      } catch (e) {
+        console.error('Error saving voice draft:', e);
+      } finally {
+        setIsSaving(false);
+      }
 
       try {
         const mode = previousWeekData && !isSkippingReview && questionsAnswered < 4 ? 'review' : 'new';
-        
+
         await streamChat({
           mode,
           previousWeekData: mode === 'review' ? previousWeekData : undefined,
-          messages: updatedMessages,
+          messages: messagesForAI,
         });
       } catch (error) {
         console.error('Error sending voice message:', error);
@@ -336,32 +355,39 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input.trim() };
-    const updatedMessages = [...messages, userMessage];
+    const nextMessages = [...messagesRef.current, userMessage];
+    const cappedMessages = nextMessages.slice(-MAX_MESSAGES_IN_STATE);
+    const messagesForAI = cappedMessages.slice(-MAX_MESSAGES_TO_SEND);
     const updatedQuestionsAnswered = questionsAnswered + 1;
-    
-    setMessages(updatedMessages);
+
+    setMessages(cappedMessages);
     setInput('');
     setIsLoading(true);
     setQuestionsAnswered(updatedQuestionsAnswered);
 
-    // Salvare imediată în database după text input
-    setIsSaving(true);
-    await weeklyPlanningDraftService.saveDraft(currentWeekKey, {
-      messages: updatedMessages,
-      questionsAnswered: updatedQuestionsAnswered,
-      isSkippingReview,
-    });
-    setLastCloudSave(new Date());
-    setIsSaving(false);
-    console.log('☁️ Text message saved to cloud immediately');
+    // Save draft (cloud) - best effort
+    try {
+      setIsSaving(true);
+      await weeklyPlanningDraftService.saveDraft(currentWeekKey, {
+        messages: cappedMessages,
+        questionsAnswered: updatedQuestionsAnswered,
+        isSkippingReview,
+      });
+      setLastCloudSave(new Date());
+      console.log('☁️ Text message saved to cloud immediately');
+    } catch (e) {
+      console.error('Error saving text draft:', e);
+    } finally {
+      setIsSaving(false);
+    }
 
     try {
       const mode = previousWeekData && !isSkippingReview && questionsAnswered < 4 ? 'review' : 'new';
-      
+
       await streamChat({
         mode,
         previousWeekData: mode === 'review' ? previousWeekData : undefined,
-        messages: updatedMessages,
+        messages: messagesForAI,
       });
     } catch (error) {
       console.error('Error sending message:', error);
@@ -380,6 +406,10 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     previousWeekData?: PreviousWeekData;
     messages: Message[];
   }) => {
+    const safeMessages = Array.isArray(chatMessages)
+      ? chatMessages.slice(-MAX_MESSAGES_TO_SEND)
+      : [];
+
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     if (sessionError) throw sessionError;
 
@@ -397,11 +427,12 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
         // user auth for RLS + auth context inside the function
         'Authorization': `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ mode, previousWeekData, messages: chatMessages }),
+      body: JSON.stringify({ mode, previousWeekData, messages: safeMessages }),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text().catch(() => '');
+      throw new Error(`HTTP ${response.status}: ${errorText || 'Request failed'}`);
     }
 
     const reader = response.body?.getReader();
