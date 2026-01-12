@@ -424,47 +424,20 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     );
   }
 
-  // Show setup UI for new users
+  // Auto-configure for new users and start directly
+  useEffect(() => {
+    if (!isLoading && !isConfigured) {
+      // Auto-save default settings so user can start immediately
+      saveSettings({});
+    }
+  }, [isLoading, isConfigured, saveSettings]);
+
+  // Show loading while auto-configuring
   if (!isConfigured) {
     return (
-      <>
-        <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
-          <Card className="w-full max-w-2xl p-8 space-y-8">
-            <div className="text-center space-y-4">
-              <h1 className="text-3xl font-bold">Rutina de Campion</h1>
-              <p className="text-muted-foreground text-lg">
-                Execution Room - Deep Work pentru cele 4 arii ale vieții
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { icon: Sparkles, label: 'Spiritualitate', desc: 'Meditație, Recunoștință', color: 'from-purple-500/20 to-indigo-500/20 border-purple-500/30' },
-                { icon: Dumbbell, label: 'Corp', desc: 'Exerciții, Nutriție', color: 'from-orange-500/20 to-red-500/20 border-orange-500/30' },
-                { icon: Target, label: 'Business', desc: 'Content, Tasks', color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30' },
-                { icon: Heart, label: 'Relații', desc: 'Relații importante', color: 'from-pink-500/20 to-rose-500/20 border-pink-500/30' },
-              ].map(({ icon: Icon, label, desc, color }) => (
-                <Card
-                  key={label}
-                  className={`p-6 bg-gradient-to-br ${color} cursor-pointer hover:scale-105 transition-transform`}
-                  onClick={() => setSettingsOpen(true)}
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <Icon className="h-10 w-10" />
-                    <span className="font-medium">{label}</span>
-                    <span className="text-xs text-muted-foreground">{desc}</span>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            <Button onClick={() => saveSettings({})} size="lg" className="w-full">
-              Începe Rutina de Campion
-            </Button>
-          </Card>
-        </div>
-        <ChampionRoutineSettings open={settingsOpen} onOpenChange={setSettingsOpen} />
-      </>
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
     );
   }
 
