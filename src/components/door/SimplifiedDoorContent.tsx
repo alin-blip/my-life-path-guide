@@ -71,8 +71,8 @@ export const SimplifiedDoorContent: React.FC = () => {
           title: '🧹 Dubluri eliminate',
           description: `Am eliminat ${result.removed} task-uri duplicate. Au rămas ${result.kept} task-uri unice.`,
         });
-        // Reload to reflect changes
-        setTimeout(() => window.location.reload(), 500);
+        // Refresh data without page reload
+        setTimeout(() => refreshLists(), 500);
       } else {
         toast({
           title: '✅ Niciun duplicat',
@@ -360,16 +360,14 @@ export const SimplifiedDoorContent: React.FC = () => {
         onOpenHistory={handleOpenHistory}
         onCleanDuplicates={handleCleanDuplicates}
         onClearWeek={() => {
-          // Call the ClearWeekButton logic directly
           toast({
             title: '✅ Săptămână arhivată',
             description: 'Reîncărcare date...',
           });
-          setTimeout(() => {
-            window.location.reload();
-          }, 500);
+          // Refresh data without page reload
+          setTimeout(() => refreshLists(), 500);
         }}
-        onClearHistory={() => window.location.reload()}
+        onClearHistory={() => refreshLists()}
         onUndo={undo}
         onRedo={redo}
         canUndo={canUndo}

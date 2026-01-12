@@ -90,8 +90,8 @@ export function useDoorContent() {
     checkDominoCompletion
   });
 
-  // Set up storage
-  useDoorStorage({
+  // Set up storage - now also returns saveStatus and lastCloudSaveTime
+  const { saveStatus, lastCloudSaveTime } = useDoorStorage({
     currentWeekKey,
     hotList,
     hitList,
@@ -106,8 +106,8 @@ export function useDoorContent() {
     setDoList,
     setSelectedDomino,
     setDominoKeyPoints,
-    setIsDominoCompleted, // This was the missing variable
-    selectDayOfWeek, // Changed from setActiveDay to selectDayOfWeek which is the function we have
+    setIsDominoCompleted,
+    selectDayOfWeek,
     setActiveList,
     checkDominoCompletion
   });
@@ -156,6 +156,9 @@ export function useDoorContent() {
     doDoneCount,
     isDominoCompleted,
     editingNewItem,
+    // NEW: Save status for UI indicator
+    saveStatus,
+    lastCloudSaveTime,
     setSearchTerm,
     setActiveList,
     setHotList,

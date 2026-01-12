@@ -14,6 +14,9 @@ import { weeklyPlanningService } from '@/services/weeklyPlanningService';
 import { getISOWeek, getYear } from 'date-fns';
 import { useWeeklyHierarchy } from '@/hooks/useWeeklyHierarchy';
 import { HierarchyChain } from './HierarchyBadge';
+import { WeeklyPlanSaveStatus } from './WeeklyPlanSaveStatus';
+
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'offline';
 
 interface DominoDoorProps {
   selectedDomino: HotListItem | null;
@@ -30,6 +33,8 @@ interface DominoDoorProps {
   setSelectedDomino?: (domino: HotListItem | null) => void;
   setDominoKeyPoints?: (keyPoints: DominoKeyPoint[]) => void;
   weekKey?: string;
+  saveStatus?: SaveStatus;
+  lastSaveTime?: Date | null;
 }
 
 const KeyPointIcons = [
@@ -53,7 +58,9 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   handleDropOnKeyPoint,
   setSelectedDomino,
   setDominoKeyPoints,
-  weekKey
+  weekKey,
+  saveStatus = 'idle',
+  lastSaveTime
 }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -161,6 +168,13 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                 </Badge>
               )}
             </div>
+            
+            {/* Save Status Indicator */}
+            <WeeklyPlanSaveStatus 
+              status={saveStatus} 
+              lastSaveTime={lastSaveTime}
+              className="mr-2"
+            />
             
             <div className="flex items-center gap-1">
               {/* AI Planning Button */}

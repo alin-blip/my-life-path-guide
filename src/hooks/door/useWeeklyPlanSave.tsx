@@ -1,0 +1,125 @@
+import { useCallback, useRef, useState } from 'react';
+import { HotListItem, DominoKeyPoint } from '@/types/door';
+import { weeklyPlanningService } from '@/services/weeklyPlanningService';
+import { useDoorStorageLogger } from './useDoorStorageLogger';
+import { useWeeklyPlanDraft } from './useWeeklyPlanDraft';
+
+interface WeeklyPlanData {
+  currentWeekKey: string;
+  selectedDomino: HotListItem | null;
+  dominoKeyPoints: DominoKeyPoint[];
+}
+
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'offline';
+
+export function useWeeklyPlanSave() {
+  const { logStorageAction } = useDoorStorageLogger();
+  const { saveDraft, clearDraft } = useWeeklyPlanDraft();
+  
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const [lastCloudSaveTime, setLastCloudSaveTime] = useState<Date | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isSavingRef = useRef(false);
+
+  // Debounced save to cloud (only weekly plan, NOT lists)
+  const saveWeeklyPlanOnly = useCallback(async (data: WeeklyPlanData): Promise<boolean> => {
+    const { currentWeekKey, selectedDomino, dominoKeyPoints } = data;
+    
+    if (!currentWeekKey) return false;
+    
+    // Always save to local draft first (instant, synchronous)
+    saveDraft(currentWeekKey, selectedDomino, dominoKeyPoints);
+
+    // Skip if no meaningful data to save
+    if (!selectedDomino && !dominoKeyPoints.some(kp => kp.text || kp.metadata)) {
+      return true;
+    }
+
+    // Prevent concurrent saves
+    if (isSavingRef.current) {
+      console.log('⏳ Save already in progress, skipping...');
+      return false;
+    }
+
+    isSavingRef.current = true;
+    setSaveStatus('saving');
+
+    try {
+      // Load existing plan to preserve weekGoal
+      const existingPlan = await weeklyPlanningService.getPlanForWeek(currentWeekKey);
+      
+      const planPayload = {
+        weekKey: currentWeekKey,
+        dominoTitle: selectedDomino?.text || existingPlan?.dominoTitle || '',
+        weekGoal: existingPlan?.weekGoal || '',
+        keyPoints: dominoKeyPoints.map((kp, index) => ({
+          id: index + 1,
+          title: kp.text || '',
+          objective: kp.metadata?.objective || '',
+          why: kp.metadata?.why || '',
+          positiveImpact: kp.metadata?.positiveImpact || '',
+          negativeImpact: kp.metadata?.negativeImpact || '',
+          steps: kp.metadata?.steps || [],
+          responsible: kp.metadata?.responsible || 'Eu',
+          deadline: kp.metadata?.deadline || '',
+        })),
+      };
+
+      const saved = await weeklyPlanningService.savePlan(planPayload);
+      
+      if (saved) {
+        logStorageAction('✅ Weekly plan saved to cloud', {
+          weekKey: currentWeekKey,
+          dominoTitle: planPayload.dominoTitle,
+          keyPointsCount: planPayload.keyPoints.filter(kp => kp.title).length,
+        });
+        
+        // Clear local draft after successful cloud save
+        clearDraft(currentWeekKey);
+        
+        setSaveStatus('saved');
+        setLastCloudSaveTime(new Date());
+        
+        // Reset to idle after 3 seconds
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current);
+        }
+        saveTimeoutRef.current = setTimeout(() => {
+          setSaveStatus('idle');
+        }, 3000);
+        
+        return true;
+      } else {
+        setSaveStatus('error');
+        logStorageAction('⚠️ Failed to save weekly plan', { weekKey: currentWeekKey });
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Error saving weekly plan:', error);
+      logStorageAction('❌ Error saving weekly plan', { error: error.message });
+      setSaveStatus('offline');
+      // Data is still in localStorage draft, so not lost
+      return false;
+    } finally {
+      isSavingRef.current = false;
+    }
+  }, [saveDraft, clearDraft, logStorageAction]);
+
+  // Force immediate save (for emergency/visibility change)
+  const forceSaveWeeklyPlan = useCallback(async (data: WeeklyPlanData): Promise<boolean> => {
+    // Cancel any pending debounced save
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    // Save immediately
+    return saveWeeklyPlanOnly(data);
+  }, [saveWeeklyPlanOnly]);
+
+  return {
+    saveWeeklyPlanOnly,
+    forceSaveWeeklyPlan,
+    saveStatus,
+    lastCloudSaveTime
+  };
+}
