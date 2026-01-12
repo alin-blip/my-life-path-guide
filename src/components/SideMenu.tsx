@@ -98,18 +98,18 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       badge: completedDays > 0 ? `${completedDays}/7` : undefined
     },
 
-    // 3. VIZIUNE & OBIECTIVE
+    // 3. VIZIUNE & OBIECTIVE - Simplified and unified around Door
     {
       title: language === 'ro' ? '🎯 Viziune & Obiective' : '🎯 Vision & Goals',
       icon: Target,
-      path: '/lifebook',
+      path: '/door',
       subItems: [
-        { title: language === 'ro' ? 'Viziune de Viață' : 'Life Vision', icon: BookOpen, path: '/lifebook' },
-        { title: 'Vision Board 2026', icon: Sparkles, path: '/vision-2026/dashboard' },
-        { title: language === 'ro' ? 'Obiective Anuale' : 'Annual Goals', icon: Target, path: '/vision-2026/dashboard' },
-        { title: language === 'ro' ? 'Planuri 90 Zile' : '90-Day Plans', icon: Calendar, path: '/vision-2026/dashboard' },
-        { title: language === 'ro' ? 'Obiective Lunare' : 'Monthly Goals', icon: Flag, path: '/door' },
-        { title: language === 'ro' ? 'Obiective Săptămânale' : 'Weekly Goals', icon: Flag, path: '/door' },
+        { title: language === 'ro' ? 'Command Center' : 'Command Center', icon: Target, path: '/door' },
+        { title: language === 'ro' ? 'Obiective Anuale' : 'Annual Goals', icon: Sparkles, path: '/door?tab=annual' },
+        { title: language === 'ro' ? 'Planuri 90 Zile' : '90-Day Plans', icon: Calendar, path: '/door?tab=quarterly' },
+        { title: language === 'ro' ? 'Obiective Lunare' : 'Monthly Goals', icon: Flag, path: '/door?tab=monthly' },
+        { title: language === 'ro' ? 'Obiective Săptămânale' : 'Weekly Goals', icon: Flag, path: '/door?tab=weekly' },
+        { title: language === 'ro' ? 'Viziune de Viață (5-10 ani)' : 'Life Vision (5-10 yrs)', icon: BookOpen, path: '/lifebook' },
       ]
     },
 
@@ -169,15 +169,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 9. BUSINESS
+    // 9. BUSINESS - Simplified, remove duplicate Door link
     {
       title: language === 'ro' ? '💼 Business' : '💼 Business',
       icon: Briefcase,
-      path: '/door',
+      path: '/business',
       subItems: [
-        { title: language === 'ro' ? 'Task-uri' : 'Tasks', icon: Flag, path: '/door' },
-        { title: language === 'ro' ? 'Master Plan' : 'Master Plan', icon: Crown, path: '/master-plan' },
         { title: language === 'ro' ? 'Business Tracker' : 'Business Tracker', icon: Briefcase, path: '/business' },
+        { title: language === 'ro' ? 'Master Plan' : 'Master Plan', icon: Crown, path: '/master-plan' },
         { title: language === 'ro' ? 'Napoleon Hill Coach' : 'Napoleon Hill Coach', icon: Crown, path: '/master-plan' },
         { title: language === 'ro' ? 'Note' : 'Notes', icon: FileText, path: '/notes' },
       ]
