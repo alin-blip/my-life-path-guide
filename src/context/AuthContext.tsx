@@ -26,34 +26,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
 
-useEffect(() => {
-    const AUTH_TIMEOUT_MS = 8000; // 8 seconds max for auth init
+  useEffect(() => {
+    const AUTH_TIMEOUT_MS = 15000; // 15s max for auth init (avoid false sign-outs on slow tab restore)
     let timeoutId: NodeJS.Timeout | null = null;
+    let retryTimerId: NodeJS.Timeout | null = null;
     let didResolve = false;
-
-    const resetLocalSession = async () => {
-      try {
-        await supabase.auth.signOut({ scope: 'local' });
-      } catch {
-        // ignore
-      }
-      setSession(null);
-      setUser(null);
-      setLoading(false);
-      setSubscribed(false);
-      setSubscriptionTier(null);
-      setSubscriptionEnd(null);
-      setSubscriptionLoading(false);
-    };
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         didResolve = true;
         if (timeoutId) clearTimeout(timeoutId);
+        if (retryTimerId) clearTimeout(retryTimerId);
+
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
         // Defer subscription check to avoid deadlocks
         setTimeout(() => {
           if (session?.user) {
@@ -66,30 +55,39 @@ useEffect(() => {
             setSubscriptionLoading(false);
           }
         }, 0);
+
+        if (import.meta.env.DEV) {
+          console.log('[auth] state change:', event, {
+            hasSession: Boolean(session),
+            userId: session?.user?.id,
+          });
+        }
       }
     );
 
-    // Check for existing session with timeout protection
     const initAuth = async () => {
       try {
+        // keep loading true until we resolve
+        setLoading(true);
+
         const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise<null>((_, reject) => {
+        const timeoutPromise = new Promise<never>((_, reject) => {
           timeoutId = setTimeout(() => {
-            if (!didResolve) {
-              reject(new Error('Auth timeout'));
-            }
+            if (!didResolve) reject(new Error('Auth timeout'));
           }, AUTH_TIMEOUT_MS);
         });
 
         const result = await Promise.race([sessionPromise, timeoutPromise]);
-        
+
         if (result && 'data' in result) {
           didResolve = true;
           if (timeoutId) clearTimeout(timeoutId);
+
           const session = result.data.session;
           setSession(session);
           setUser(session?.user ?? null);
           setLoading(false);
+
           if (session?.user) {
             refreshSubscription();
           } else {
@@ -98,44 +96,77 @@ useEffect(() => {
         }
       } catch (error: any) {
         const msg = String(error?.message ?? '');
-        // If timeout or network error, reset local session
+
+        // IMPORTANT: do NOT sign out / clear local tokens on timeouts.
+        // On mobile/tab-restore, networking can be slow and would incorrectly log the user out.
         if (msg.includes('Auth timeout') || msg.includes('Failed to fetch')) {
-          console.warn('Auth init failed/timed out, resetting local session');
-          await resetLocalSession();
-        } else {
-          // Other errors: still stop loading
-          setLoading(false);
-          setSubscriptionLoading(false);
+          console.warn('[auth] init delayed, will retry (no sign out):', msg);
+
+          if (retryTimerId) clearTimeout(retryTimerId);
+          retryTimerId = setTimeout(() => {
+            didResolve = false;
+            initAuth();
+          }, 1500);
+
+          return;
         }
+
+        // Other errors: stop loading to avoid infinite spinners
+        setLoading(false);
+        setSubscriptionLoading(false);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      // When the tab becomes visible again, re-check the session.
+      // This helps after browser tab discard / throttling.
+      if (!document.hidden) {
+        initAuth();
       }
     };
 
     initAuth();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (timeoutId) clearTimeout(timeoutId);
+      if (retryTimerId) clearTimeout(retryTimerId);
     };
   }, []);
 
   const refreshSubscription = async () => {
     try {
       setSubscriptionLoading(true);
-      const { data, error } = await supabase.functions.invoke('check-subscription');
-      
-      // Handle session expired error - sign out and reset state
-      if (error || (data as any)?.error === 'session_expired') {
-        console.warn('Session expired or subscription check failed, signing out');
+
+      const invokeCheck = () => supabase.functions.invoke('check-subscription');
+
+      let { data, error } = await invokeCheck();
+
+      // If token is stale/expired, try to refresh once instead of logging out.
+      if ((data as any)?.error === 'session_expired') {
+        console.warn('[auth] subscription check says session_expired; attempting refreshSession()');
+
+        const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError || !refreshed.session) {
+          console.warn('[auth] refreshSession failed; signing out');
+          await supabase.auth.signOut();
+          return;
+        }
+
+        // Retry once with the refreshed session
+        ({ data, error } = await invokeCheck());
+      }
+
+      if (error) {
+        console.warn('[auth] subscription check failed (no sign out):', error);
         setSubscribed(false);
         setSubscriptionTier(null);
         setSubscriptionEnd(null);
-        // If session is expired, sign out to clear stale tokens
-        if ((data as any)?.error === 'session_expired') {
-          await supabase.auth.signOut();
-        }
         return;
       }
-      
+
       const subscribed = Boolean((data as any)?.subscribed);
       setSubscribed(subscribed);
       setSubscriptionTier(((data as any)?.subscription_tier ?? null));
@@ -149,7 +180,6 @@ useEffect(() => {
       setSubscriptionLoading(false);
     }
   };
-
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
