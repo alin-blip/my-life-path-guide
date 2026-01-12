@@ -54,7 +54,7 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
 
   const ALL_STEP_IDS = [
     'emotionalCheck', 'lightExposure', 'hydration', 'breathing', 'meditation', 'gratitude',
-    'visualization', 'autosuggestion', 'journaling', 'reading',
+    'visualization', 'autosuggestion', 'visionDeclaration', 'journaling', 'reading',
     'exercise', 'mealPlanning', 'contentCreation', 'dailyTasks', 'relationships'
   ];
 
