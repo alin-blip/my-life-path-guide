@@ -58,23 +58,24 @@ export const FinalCTA = () => {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col gap-3 justify-center">
+            {/* Single focused CTA */}
             <Button 
               size="lg"
-              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 sm:px-10 py-4 sm:py-6 text-base sm:text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all"
-              onClick={() => navigate('/vision-2026')}
-            >
-              🎯 {t('landingPlanYour2026') || 'Planifică-ți 2026 GRATUIT'}
-            </Button>
-            
-            <Button 
-              size="lg"
-              className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-white px-8 sm:px-10 py-4 sm:py-6 text-base sm:text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transition-all"
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white px-10 sm:px-12 py-5 sm:py-7 text-lg sm:text-xl md:text-2xl font-bold shadow-xl hover:shadow-2xl transition-all ring-4 ring-primary/20"
               onClick={() => navigate('/auth')}
             >
-              <Rocket className="w-5 h-5 mr-2" />
+              <Rocket className="w-6 h-6 mr-2" />
               {t('landingStartFreeTrial')}
             </Button>
+            
+            {/* Vision 2026 as secondary text link */}
+            <button 
+              onClick={() => navigate('/vision-2026')}
+              className="text-primary hover:text-primary/80 font-medium text-sm underline underline-offset-4 transition-colors"
+            >
+              🎯 {t('landingPlanYour2026') || 'Sau planifică-ți 2026 gratuit'}
+            </button>
           </div>
 
           <p className="text-slate-500 text-xs sm:text-sm mt-4 md:mt-6">
