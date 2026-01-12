@@ -458,6 +458,7 @@ export type Database = {
           created_at: string | null
           daily_todos: Json | null
           date: string
+          emotional_transform_completed: boolean | null
           evening_completed: boolean | null
           evening_reflection_done_well: string | null
           evening_reflection_learned: string | null
@@ -471,12 +472,15 @@ export type Database = {
           light_exposure: boolean | null
           meals_logged: Json | null
           meditation_duration_seconds: number | null
+          morning_emotion: string | null
+          morning_emotion_intensity: number | null
           pomodoro_sessions: number | null
           priorities: Json | null
           reading_completed: boolean | null
           relationship_actions: Json | null
           total_calories: number | null
           total_protein: number | null
+          transformed_energy: string | null
           updated_at: string | null
           user_id: string
           vision_declaration_read: boolean | null
@@ -495,6 +499,7 @@ export type Database = {
           created_at?: string | null
           daily_todos?: Json | null
           date?: string
+          emotional_transform_completed?: boolean | null
           evening_completed?: boolean | null
           evening_reflection_done_well?: string | null
           evening_reflection_learned?: string | null
@@ -508,12 +513,15 @@ export type Database = {
           light_exposure?: boolean | null
           meals_logged?: Json | null
           meditation_duration_seconds?: number | null
+          morning_emotion?: string | null
+          morning_emotion_intensity?: number | null
           pomodoro_sessions?: number | null
           priorities?: Json | null
           reading_completed?: boolean | null
           relationship_actions?: Json | null
           total_calories?: number | null
           total_protein?: number | null
+          transformed_energy?: string | null
           updated_at?: string | null
           user_id: string
           vision_declaration_read?: boolean | null
@@ -532,6 +540,7 @@ export type Database = {
           created_at?: string | null
           daily_todos?: Json | null
           date?: string
+          emotional_transform_completed?: boolean | null
           evening_completed?: boolean | null
           evening_reflection_done_well?: string | null
           evening_reflection_learned?: string | null
@@ -545,12 +554,15 @@ export type Database = {
           light_exposure?: boolean | null
           meals_logged?: Json | null
           meditation_duration_seconds?: number | null
+          morning_emotion?: string | null
+          morning_emotion_intensity?: number | null
           pomodoro_sessions?: number | null
           priorities?: Json | null
           reading_completed?: boolean | null
           relationship_actions?: Json | null
           total_calories?: number | null
           total_protein?: number | null
+          transformed_energy?: string | null
           updated_at?: string | null
           user_id?: string
           vision_declaration_read?: boolean | null
