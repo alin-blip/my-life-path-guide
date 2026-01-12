@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -11,7 +11,7 @@ interface AuthContextType {
   subscribed: boolean;
   subscriptionTier: string | null;
   subscriptionEnd: string | null;
-  refreshSubscription: () => Promise<void>;
+  refreshSubscription: (opts?: { silent?: boolean }) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -25,6 +25,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [subscribed, setSubscribed] = useState(false);
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
+
+  // Prevent "app looks like it reloads" flashes when switching browser tabs
+  const visibilityInitInFlightRef = useRef(false);
 
   useEffect(() => {
     const AUTH_TIMEOUT_MS = 15000; // 15s max for auth init (avoid false sign-outs on slow tab restore)
@@ -65,10 +68,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    const initAuth = async () => {
+    const initAuth = async (opts?: { silent?: boolean }) => {
+      const silent = Boolean(opts?.silent);
+
+      // Critical: reset this per init; otherwise timeouts never trigger on subsequent initAuth() calls
+      didResolve = false;
+
+      if (silent) {
+        if (visibilityInitInFlightRef.current) return;
+        visibilityInitInFlightRef.current = true;
+      }
+
       try {
-        // keep loading true until we resolve
-        setLoading(true);
+        // Only show the global auth loading screen on first load / explicit init.
+        // On browser tab switches we do a silent refresh to avoid "app reload" flashes.
+        if (!silent) {
+          setLoading(true);
+        }
 
         const sessionPromise = supabase.auth.getSession();
         const timeoutPromise = new Promise<never>((_, reject) => {
@@ -89,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setLoading(false);
 
           if (session?.user) {
-            refreshSubscription();
+            refreshSubscription({ silent });
           } else {
             setSubscriptionLoading(false);
           }
@@ -104,8 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           if (retryTimerId) clearTimeout(retryTimerId);
           retryTimerId = setTimeout(() => {
-            didResolve = false;
-            initAuth();
+            initAuth({ silent: true });
           }, 1500);
 
           return;
@@ -114,14 +129,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Other errors: stop loading to avoid infinite spinners
         setLoading(false);
         setSubscriptionLoading(false);
+      } finally {
+        if (silent) {
+          visibilityInitInFlightRef.current = false;
+        }
       }
     };
 
     const handleVisibilityChange = () => {
-      // When the tab becomes visible again, re-check the session.
-      // This helps after browser tab discard / throttling.
+      // When the tab becomes visible again, re-check the session *silently*.
       if (!document.hidden) {
-        initAuth();
+        initAuth({ silent: true });
       }
     };
 
@@ -136,9 +154,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const refreshSubscription = async () => {
+  const refreshSubscription = async (opts?: { silent?: boolean }) => {
+    const silent = Boolean(opts?.silent);
+
     try {
-      setSubscriptionLoading(true);
+      if (!silent) setSubscriptionLoading(true);
 
       const invokeCheck = () => supabase.functions.invoke('check-subscription');
 
@@ -177,7 +197,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
     } finally {
-      setSubscriptionLoading(false);
+      if (!silent) setSubscriptionLoading(false);
     }
   };
   const signOut = async () => {

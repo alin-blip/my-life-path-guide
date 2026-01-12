@@ -15,12 +15,15 @@ export const CommandCenterTabs: React.FC = () => {
   const currentTab = searchParams.get('tab') || 'weekly';
   
   const handleTabChange = (value: string) => {
-    if (value === 'weekly') {
-      searchParams.delete('tab');
-    } else {
-      searchParams.set('tab', value);
-    }
-    setSearchParams(searchParams);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (value === 'weekly') {
+        next.delete('tab');
+      } else {
+        next.set('tab', value);
+      }
+      return next;
+    }, { replace: true });
   };
 
   const tabs = [
