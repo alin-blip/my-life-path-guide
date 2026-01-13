@@ -212,6 +212,26 @@ const Index = () => {
             </Button>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="py-8 mt-12 border-t border-slate-200">
+          <div className="flex flex-wrap gap-4 justify-center text-sm text-slate-500">
+            <Link to="/terms" className="hover:text-primary transition-colors">
+              {language === 'en' ? 'Terms of Service' : 'Termeni și Condiții'}
+            </Link>
+            <span className="text-slate-300">|</span>
+            <Link to="/privacy" className="hover:text-primary transition-colors">
+              {language === 'en' ? 'Privacy Policy' : 'Politica de Confidențialitate'}
+            </Link>
+            <span className="text-slate-300">|</span>
+            <Link to="/support" className="hover:text-primary transition-colors">
+              {language === 'en' ? 'Support' : 'Suport'}
+            </Link>
+          </div>
+          <p className="text-center text-xs text-slate-400 mt-4">
+            © {new Date().getFullYear()} Jump to Freedom. {language === 'en' ? 'All rights reserved.' : 'Toate drepturile rezervate.'}
+          </p>
+        </footer>
       </div>
     </div>
   );
