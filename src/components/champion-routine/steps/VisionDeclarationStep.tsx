@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ScrollText, ArrowRight, Volume2, Check, ExternalLink, Loader2, VolumeX } from 'lucide-react';
+import { ScrollText, ArrowRight, Volume2, Check, ExternalLink, Loader2, VolumeX, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { VoiceSelector, DEFAULT_VOICE_ID } from '@/components/stack/VoiceSelector';
 
 interface VisionData {
   vision_body?: string | null;
@@ -25,6 +26,22 @@ interface VisionDeclarationStepProps {
   onSkip?: () => void;
 }
 
+// Clean text for TTS - remove emoji and special formatting
+const cleanTextForTTS = (text: string): string => {
+  return text
+    // Remove emoji
+    .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]/gu, '')
+    // Remove common emoji shortcuts like 📌 💎 📋
+    .replace(/[📌💎📋🔥✨💪💕💰🏆🎯🚀💡🎧]/g, '')
+    // Replace square brackets content
+    .replace(/\[.*?\]/g, '')
+    // Clean up multiple spaces and newlines
+    .replace(/\n+/g, '\n')
+    .replace(/\s+/g, ' ')
+    .replace(/\n /g, '\n')
+    .trim();
+};
+
 export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
   completed,
   onComplete,
@@ -39,6 +56,10 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [selectedVoice, setSelectedVoice] = useState(() => 
+    localStorage.getItem('vision_voice_id') || DEFAULT_VOICE_ID
+  );
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
     const fetchVisionData = async () => {
@@ -47,6 +68,13 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
         if (!user) {
           setIsLoading(false);
           return;
+        }
+
+        // Extract user name from email
+        if (user.email) {
+          const namePart = user.email.split('@')[0];
+          const cleanName = namePart.replace(/[0-9._-]/g, ' ').trim().split(' ')[0];
+          setUserName(cleanName.charAt(0).toUpperCase() + cleanName.slice(1).toLowerCase());
         }
 
         const { data, error } = await supabase
@@ -78,6 +106,11 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
     };
   }, [audioElement]);
 
+  const handleVoiceChange = (voiceId: string) => {
+    setSelectedVoice(voiceId);
+    localStorage.setItem('vision_voice_id', voiceId);
+  };
+
   const handleElevenLabsTTS = async () => {
     if (!visionData?.vision_declaration) return;
     
@@ -92,6 +125,17 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
     setIsGeneratingAudio(true);
     
     try {
+      // Get user session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error(isRo ? 'Nu ești autentificat' : 'Not authenticated');
+        setIsGeneratingAudio(false);
+        return;
+      }
+
+      // Clean text for TTS
+      const processedText = cleanTextForTTS(visionData.vision_declaration);
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
         {
@@ -99,17 +143,18 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
           headers: {
             'Content-Type': 'application/json',
             'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ 
-            text: visionData.vision_declaration,
-            // Using Romanian-friendly voice
-            voiceId: 'onwK4e9ZLuTAKqWW03F9' // Daniel - good for Romanian
+            text: processedText,
+            voiceId: selectedVoice
           }),
         }
       );
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('TTS API error:', errorText);
         throw new Error(`TTS request failed: ${response.status}`);
       }
 
@@ -151,7 +196,8 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(visionData.vision_declaration);
+    const processedText = cleanTextForTTS(visionData.vision_declaration);
+    const utterance = new SpeechSynthesisUtterance(processedText);
     utterance.lang = isRo ? 'ro-RO' : 'en-US';
     utterance.rate = 0.9;
     utterance.onend = () => setIsSpeaking(false);
@@ -161,10 +207,42 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
     setIsSpeaking(true);
   };
 
+  // Regenerate declaration with real name
+  const handleRegenerateWithName = async () => {
+    if (!visionData?.vision_declaration || !userName) return;
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Replace placeholder names with actual name
+      let updatedDeclaration = visionData.vision_declaration
+        .replace(/\[Numele tău\]/g, userName)
+        .replace(/\[Your Name\]/g, userName);
+
+      const { error } = await supabase
+        .from('challenge_day1_responses')
+        .update({ vision_declaration: updatedDeclaration })
+        .eq('user_id', user.id);
+
+      if (!error) {
+        setVisionData({ ...visionData, vision_declaration: updatedDeclaration });
+        toast.success(isRo ? 'Declarația a fost actualizată cu numele tău!' : 'Declaration updated with your name!');
+      }
+    } catch (error) {
+      console.error('Error updating declaration:', error);
+      toast.error(isRo ? 'Eroare la actualizare' : 'Update error');
+    }
+  };
+
   const handleMarkAsRead = () => {
     onComplete(true);
     onNext();
   };
+
+  // Check if declaration has placeholder name
+  const hasPlaceholderName = visionData?.vision_declaration?.includes('[Numele tău]') || 
+                              visionData?.vision_declaration?.includes('[Your Name]');
 
   if (isLoading) {
     return (
@@ -238,6 +316,19 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
         </p>
       </div>
 
+      {/* Regenerate with name button if placeholder exists */}
+      {hasPlaceholderName && userName && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRegenerateWithName}
+          className="w-full border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          {isRo ? `Actualizează cu numele "${userName}"` : `Update with name "${userName}"`}
+        </Button>
+      )}
+
       {/* Declaration text */}
       <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-6 rounded-lg border border-amber-500/30">
         <p className="whitespace-pre-line text-foreground font-serif italic leading-relaxed">
@@ -245,8 +336,14 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
         </p>
       </div>
 
-      {/* Audio buttons */}
-      <div className="flex justify-center gap-3">
+      {/* Voice selector and audio buttons */}
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
+        <VoiceSelector
+          currentVoice={selectedVoice}
+          onVoiceChange={handleVoiceChange}
+          disabled={isGeneratingAudio || isSpeaking}
+        />
+        
         <Button
           variant="default"
           size="lg"
@@ -267,7 +364,7 @@ export const VisionDeclarationStep: React.FC<VisionDeclarationStepProps> = ({
           ) : (
             <>
               <Volume2 className="h-5 w-5 mr-2" />
-              {isRo ? '🎧 Ascultă Declarația' : '🎧 Listen to Declaration'}
+              {isRo ? 'Ascultă Declarația' : 'Listen to Declaration'}
             </>
           )}
         </Button>
