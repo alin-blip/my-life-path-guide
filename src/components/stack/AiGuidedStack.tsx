@@ -656,7 +656,7 @@ Răspunde în română cu un ton cald și profesionist.`;
 
   const addToHitList = () => {
     if (finalAction) {
-      captureIdea(finalAction, 'hot', 'important');
+      captureIdea(finalAction, 'hit', 'important');
       setActionAddedToHitList(true);
       setShowAddToTodoDialog(false);
       
@@ -666,7 +666,7 @@ Răspunde în română cu un ton cald și profesionist.`;
       // Show success toast
       toast({
         title: "✨ Acțiune adăugată!",
-        description: "Acțiunea a fost salvată în lista de idei.",
+        description: "Acțiunea a fost salvată în Hit List.",
       });
     }
   };
