@@ -697,15 +697,16 @@ const translations: Translations = {
     
     // Landing Page - Final CTA
     "landingFinalCTATitle": "Start Now. See Results in 48 Hours.",
-    "landingFinalCTASubtitle": "Free 7-day trial (card required). Zero risk. Cancel anytime during trial with no charge.",
+    "landingFinalCTASubtitle": "Free 3-day trial (card required). Zero risk. Cancel anytime during trial with no charge.",
     "landing15MinSetup": "15-Minute Setup",
     "landingQuickOnboarding": "Quick onboarding, then execute",
     "landingResultsIn48h": "Results in 48h",
     "landingClarityFirstWins": "Clarity + first wins",
     "landingZeroRiskGuarantee": "Zero Risk Guarantee",
-    "landing7DayTrialCancelFree": "7-day trial, cancel free",
-    "landingStartFreeTrial": "Start Your 7-Day Free Trial",
-    "landingMembersStats": "500+ members transformed • Average +35% life satisfaction in 30 days • 7-day free trial",
+    "landing3DayTrialCancelFree": "3-day trial, cancel free",
+    "landingStartFreeTrial": "Start Your 3-Day Free Trial",
+    "landingMembersStats": "500+ members transformed • Average +35% life satisfaction in 30 days • 3-day free trial",
+    "landingPlanYour2026": "Or plan your 2026 for free",
     "undoCtrl": "Undo (Ctrl+Z)",
     "redoCtrl": "Redo (Ctrl+Shift+Z)",
     
@@ -1404,15 +1405,16 @@ const translations: Translations = {
     
     // Landing Page - Final CTA
     "landingFinalCTATitle": "Începe Acum. Vezi Rezultate în 48 de Ore.",
-    "landingFinalCTASubtitle": "Trial gratuit de 7 zile (card necesar). Zero risc. Anulează oricând în timpul trial-ului fără taxe.",
+    "landingFinalCTASubtitle": "Trial gratuit de 3 zile (card necesar). Zero risc. Anulează oricând în timpul trial-ului fără taxe.",
     "landing15MinSetup": "Configurare în 15 Minute",
     "landingQuickOnboarding": "Onboarding rapid, apoi execuți",
     "landingResultsIn48h": "Rezultate în 48h",
     "landingClarityFirstWins": "Claritate + primele victorii",
     "landingZeroRiskGuarantee": "Garanție Zero Risc",
-    "landing7DayTrialCancelFree": "Trial 7 zile, anulare gratuită",
-    "landingStartFreeTrial": "Începe Trial-ul Gratuit de 7 Zile",
-    "landingMembersStats": "500+ membri transformați • Media +35% satisfacție de viață în 30 zile • Trial 7 zile gratuit"
+    "landing3DayTrialCancelFree": "Trial 3 zile, anulare gratuită",
+    "landingStartFreeTrial": "Începe Trial-ul Gratuit de 3 Zile",
+    "landingMembersStats": "500+ membri transformați • Media +35% satisfacție de viață în 30 zile • Trial 3 zile gratuit",
+    "landingPlanYour2026": "Sau planifică-ți 2026 gratuit"
   }
 };
 

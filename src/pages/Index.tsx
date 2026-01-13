@@ -74,6 +74,10 @@ const Index = () => {
         {/* Footer */}
         <footer className="py-8 mt-8 border-t border-border">
           <div className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
+            <Link to="/pricing" className="hover:text-primary transition-colors">
+              {language === 'en' ? 'Pricing' : 'Prețuri'}
+            </Link>
+            <span className="text-border">|</span>
             <Link to="/terms" className="hover:text-primary transition-colors">
               {language === 'en' ? 'Terms of Service' : 'Termeni și Condiții'}
             </Link>
@@ -91,7 +95,7 @@ const Index = () => {
             </Link>
           </div>
           <p className="text-center text-xs text-muted-foreground mt-4">
-            © {new Date().getFullYear()} Jump to Freedom. {language === 'en' ? 'All rights reserved.' : 'Toate drepturile rezervate.'}
+            © {new Date().getFullYear()} LifeOS. {language === 'en' ? 'All rights reserved.' : 'Toate drepturile rezervate.'}
           </p>
         </footer>
       </div>
