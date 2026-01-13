@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { HotListItem, HitListItem, DoListItem, DayOfWeek } from '@/types/door';
+import { DayOfWeek } from '@/types/door';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
-import { getWeek, getYear } from 'date-fns';
+import { getWeekKey } from '@/utils/weekUtils';
 
 interface StackIdea {
   id: string;
@@ -48,10 +48,8 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
 
   const saveIdeaToTodoList = useCallback(async (idea: StackIdea) => {
     try {
-      // Generate current week key - consistent with DOOR format
-      const now = new Date();
-      const weekNum = getWeek(now, { weekStartsOn: 1 });
-      const currentWeekKey = `door-week-${now.getFullYear()}-${String(weekNum).padStart(2, '0')}`;
+      // Generate current week key - consistent with DOOR format using centralized utility
+      const currentWeekKey = getWeekKey();
       
       console.log('💾 Saving idea to Supabase:', { idea, currentWeekKey });
       
@@ -115,7 +113,7 @@ export function useStackTodoIntegration({ onAddToHitList }: UseStackTodoIntegrat
       // Try localStorage fallback
       try {
         const now = new Date();
-        const currentWeekKey = `door-week-${now.getFullYear()}-${getWeek(now)}`;
+        const currentWeekKey = getWeekKey(now);
         const localStorageKey = `todo-ideas-${currentWeekKey}`;
         const existingIdeas = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
         existingIdeas.push(idea);
