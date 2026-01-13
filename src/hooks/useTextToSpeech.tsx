@@ -95,6 +95,12 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
         // Create fresh URL from blob to avoid revoked URLs
         audioUrl = URL.createObjectURL(audioBlob);
       } else {
+        // Get user session for authentication
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error('Not authenticated');
+        }
+
         // Generate new audio using direct fetch to get binary response
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
@@ -102,13 +108,16 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              'Authorization': `Bearer ${session.access_token}`,
+              'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             },
             body: JSON.stringify({ text, voiceId: currentVoiceId }),
           }
         );
 
         if (!response.ok) {
+          const errorText = await response.text();
+          console.error('TTS API error:', errorText);
           throw new Error('Failed to generate speech');
         }
 
