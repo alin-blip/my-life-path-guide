@@ -15,7 +15,7 @@ serve(async (req) => {
   try {
     // Validate user authentication
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -28,15 +28,20 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
+    // Use getClaims() for JWT validation instead of getUser()
+    const token = authHeader.replace('Bearer ', '');
+    const { data, error: authError } = await supabaseClient.auth.getClaims(token);
+    
+    if (authError || !data?.claims) {
+      console.error('Auth error:', authError);
       return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    console.log('Authenticated user:', user.id);
+    const userId = data.claims.sub;
+    console.log('Authenticated user:', userId);
 
     const { text, voiceId = 'pNInz6obpgDQGcFmaJgB' } = await req.json();
 
