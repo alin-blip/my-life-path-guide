@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
 import { Eye, EyeOff, HelpCircle, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -496,6 +496,19 @@ export const AuthForm: React.FC = () => {
             </>
           )}
         </Button>
+
+        {mode === AuthMode.REGISTER && (
+          <p className="text-xs text-muted-foreground text-center">
+            {language === 'en' ? 'By signing up, you agree to our ' : 'Prin înregistrare, ești de acord cu '}
+            <Link to="/terms" className="text-feminine-primary hover:underline">
+              {language === 'en' ? 'Terms of Service' : 'Termenii și Condițiile'}
+            </Link>
+            {language === 'en' ? ' and ' : ' și '}
+            <Link to="/privacy" className="text-feminine-primary hover:underline">
+              {language === 'en' ? 'Privacy Policy' : 'Politica de Confidențialitate'}
+            </Link>
+          </p>
+        )}
 
         <div className="text-center mt-4">
           {mode === AuthMode.LOGIN ? (

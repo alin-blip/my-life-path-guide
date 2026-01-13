@@ -73,6 +73,8 @@ const AccountabilityCoach = lazy(() => import("./pages/AccountabilityCoach"));
 const EmpowermentMeditation = lazy(() => import("./pages/EmpowermentMeditation"));
 const ChampionRoutine = lazy(() => import("./pages/ChampionRoutine"));
 const DashboardSettingsPage = lazy(() => import("./pages/DashboardSettingsPage"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -322,6 +324,8 @@ const App = () => (
                         <AccountabilityCoach />
                       </ProtectedRoute>
                     } />
+                    <Route path="/terms" element={<TermsOfService />} />
+                    <Route path="/privacy" element={<PrivacyPolicy />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                       </Suspense>
