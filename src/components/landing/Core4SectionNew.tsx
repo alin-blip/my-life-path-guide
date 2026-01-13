@@ -134,8 +134,8 @@ export const Core4SectionNew = () => {
             </p>
             <p className="text-lg font-bold text-primary">
               {language === 'en' 
-                ? "You build them simultaneously. That's the Jump to Freedom philosophy."
-                : 'Le construiești simultan. Asta e filozofia Jump to Freedom.'
+                ? "You build them simultaneously. That's the LifeOS philosophy."
+                : 'Le construiești simultan. Asta e filozofia LifeOS.'
               }
             </p>
           </div>

@@ -53,7 +53,7 @@ export const FinalCTA = () => {
               </div>
               <div className="text-left sm:text-center">
                 <p className="text-slate-900 font-semibold text-sm sm:text-base mb-0 sm:mb-1">{t('landingZeroRiskGuarantee')}</p>
-                <p className="text-slate-500 text-xs sm:text-sm">{t('landing7DayTrialCancelFree')}</p>
+                <p className="text-slate-500 text-xs sm:text-sm">{t('landing3DayTrialCancelFree')}</p>
               </div>
             </div>
           </div>
