@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { useLanguage } from '@/context/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -17,6 +17,7 @@ import { ChallengeAnswersHistory } from '@/components/challenge/ChallengeAnswers
 import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Complete';
 import { Day1WhyQuestions, Day1VisionDeclaration, Day1PlatformTour, Day1Commitment } from '@/components/challenge/day1';
 import { useDay1Responses } from '@/hooks/useDay1Responses';
+import { supabase } from '@/integrations/supabase/client';
 interface Exercise {
   id: string;
   title: string;
@@ -482,6 +483,24 @@ const ChallengeDayPage = () => {
     return acc;
   }, {} as Record<string, Exercise[]>);
 
+  // State for user's name
+  const [userName, setUserName] = useState('');
+
+  // Fetch user name for vision declaration
+  useEffect(() => {
+    const fetchUserName = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email) {
+        // Extract name from email and capitalize
+        const namePart = user.email.split('@')[0];
+        // Remove numbers and special chars, capitalize first letter
+        const cleanName = namePart.replace(/[0-9._-]/g, ' ').trim().split(' ')[0];
+        setUserName(cleanName.charAt(0).toUpperCase() + cleanName.slice(1).toLowerCase());
+      }
+    };
+    fetchUserName();
+  }, []);
+
   // Special render for Day 1 - Napoleon Hill style with 4 steps
   if (dayNumber === 1) {
     const day1Progress = (day1Step / 3) * 100;
@@ -613,6 +632,7 @@ const ChallengeDayPage = () => {
                 updateDay1Responses(finalVisionData);
                 setDay1Step(2);
               }}
+              userName={userName}
             />
           )}
           
