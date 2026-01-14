@@ -145,7 +145,7 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
                 <Sparkles className="h-5 w-5 text-primary" />
               </div>
               <CardTitle className="text-lg">
-                {language === 'en' ? 'Daily Routine' : 'Rutina Zilnică'}
+                {language === 'en' ? 'Warrior Routine' : 'Rutina Războinicului'}
               </CardTitle>
             </div>
             <Button
@@ -185,7 +185,7 @@ export const ChampionRoutineWidget: React.FC<ChampionRoutineWidgetProps> = ({ da
               
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-medium text-foreground">
-                  {language === 'en' ? 'Morning Routine' : 'Rutină Dimineață'}
+                  {language === 'en' ? 'Warrior Routine' : 'Rutina Războinicului'}
                 </span>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {routineProgress === 100 

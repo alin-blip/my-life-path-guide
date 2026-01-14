@@ -782,8 +782,10 @@ export type Database = {
           description: string | null
           duration: string | null
           id: string
+          is_free: boolean | null
           order_index: number
           pdf_url: string | null
+          section_name: string | null
           text_content: string | null
           title: string
           updated_at: string | null
@@ -795,8 +797,10 @@ export type Database = {
           description?: string | null
           duration?: string | null
           id?: string
+          is_free?: boolean | null
           order_index: number
           pdf_url?: string | null
+          section_name?: string | null
           text_content?: string | null
           title: string
           updated_at?: string | null
@@ -808,8 +812,10 @@ export type Database = {
           description?: string | null
           duration?: string | null
           id?: string
+          is_free?: boolean | null
           order_index?: number
           pdf_url?: string | null
+          section_name?: string | null
           text_content?: string | null
           title?: string
           updated_at?: string | null
@@ -2616,6 +2622,47 @@ export type Database = {
           xp_reward?: number | null
         }
         Relationships: []
+      }
+      user_course_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          module_id: string | null
+          updated_at: string | null
+          user_id: string
+          watched_seconds: number | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          module_id?: string | null
+          updated_at?: string | null
+          user_id: string
+          watched_seconds?: number | null
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          module_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+          watched_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_course_progress_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_goal_categories: {
         Row: {

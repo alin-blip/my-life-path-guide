@@ -13,7 +13,7 @@ export const MorningRoutine: React.FC = () => {
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
           <Sun className="h-5 w-5 text-amber-400" />
-          <CardTitle className="text-lg">Rutina de Campion</CardTitle>
+          <CardTitle className="text-lg">Rutina Războinicului</CardTitle>
         </div>
         <p className="text-xs text-muted-foreground mt-1">
           Execuție ghidată: Gratitudine → Meditație → Exercițiu → Meal Planning → Content → Task-uri

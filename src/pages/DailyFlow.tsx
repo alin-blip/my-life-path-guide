@@ -88,12 +88,12 @@ const DailyFlow = () => {
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">{greeting.emoji}</span>
-                  <h1 className={cn(
-                    "text-lg font-semibold truncate",
-                    theme === 'dark' ? "text-white" : "text-foreground"
-                  )}>
-                    Rutina Zilnică
+                    <span className="text-xl">{greeting.emoji}</span>
+                    <h1 className={cn(
+                      "text-lg font-semibold truncate",
+                      theme === 'dark' ? "text-white" : "text-foreground"
+                    )}>
+                      Rutina Războinicului
                   </h1>
                 </div>
                 <p className={cn(

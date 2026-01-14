@@ -13,9 +13,10 @@ import { CourseSubmissions } from './admin/CourseSubmissions';
 import { RevenueDashboard } from './admin/RevenueDashboard';
 import { AdminAIStudio } from './admin/AdminAIStudio';
 import { MarketingHub } from './admin/marketing/MarketingHub';
+import { WarriorsWayManager } from './admin/WarriorsWayManager';
 import { 
   Shield, Users, BookOpen, Wrench, Settings, LayoutDashboard, 
-  Trophy, Upload, DollarSign, Lock, Bot, Megaphone
+  Trophy, Upload, DollarSign, Lock, Bot, Megaphone, GraduationCap
 } from 'lucide-react';
 
 export const SecureAdminPanel: React.FC = () => {
@@ -105,6 +106,10 @@ export const SecureAdminPanel: React.FC = () => {
             <BookOpen className="h-4 w-4" />
             Courses
           </TabsTrigger>
+          <TabsTrigger value="warriors-way" className="flex items-center gap-1">
+            <GraduationCap className="h-4 w-4" />
+            ⚔️ W. Way
+          </TabsTrigger>
           <TabsTrigger value="submissions" className="flex items-center gap-1">
             <Upload className="h-4 w-4" />
             Submissions
@@ -193,6 +198,10 @@ export const SecureAdminPanel: React.FC = () => {
         
         <TabsContent value="courses" className="pt-4">
           <CourseManager />
+        </TabsContent>
+        
+        <TabsContent value="warriors-way" className="pt-4">
+          <WarriorsWayManager />
         </TabsContent>
         
         <TabsContent value="submissions" className="pt-4">
