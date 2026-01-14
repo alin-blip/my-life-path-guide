@@ -1,6 +1,7 @@
 import React from 'react';
-import { QuizQuestion as QuizQuestionType, QuizOption } from './quizData';
+import { QuizQuestion as QuizQuestionType } from './quizData';
 import { cn } from '@/lib/utils';
+import { CheckCircle2 } from 'lucide-react';
 
 interface QuizQuestionProps {
   question: QuizQuestionType;
@@ -15,59 +16,78 @@ export const QuizQuestion: React.FC<QuizQuestionProps> = ({
   onSelect,
   language,
 }) => {
-  const categoryColors: Record<string, { bg: string; border: string; text: string }> = {
-    body: { bg: 'bg-green-500/10', border: 'border-green-500', text: 'text-green-600' },
-    being: { bg: 'bg-purple-500/10', border: 'border-purple-500', text: 'text-purple-600' },
-    balance: { bg: 'bg-pink-500/10', border: 'border-pink-500', text: 'text-pink-600' },
-    business: { bg: 'bg-blue-500/10', border: 'border-blue-500', text: 'text-blue-600' },
+  const categoryStyles: Record<string, { gradient: string; glow: string; border: string }> = {
+    body: { 
+      gradient: 'from-green-500 to-emerald-400', 
+      glow: 'shadow-green-500/30',
+      border: 'border-green-500/50'
+    },
+    being: { 
+      gradient: 'from-purple-500 to-violet-400', 
+      glow: 'shadow-purple-500/30',
+      border: 'border-purple-500/50'
+    },
+    balance: { 
+      gradient: 'from-pink-500 to-rose-400', 
+      glow: 'shadow-pink-500/30',
+      border: 'border-pink-500/50'
+    },
+    business: { 
+      gradient: 'from-blue-500 to-cyan-400', 
+      glow: 'shadow-blue-500/30',
+      border: 'border-blue-500/50'
+    },
   };
 
-  const colors = categoryColors[question.category];
+  const styles = categoryStyles[question.category];
 
   return (
-    <div className="space-y-6 animate-fade-in" key={question.id}>
-      <h2 className="text-xl md:text-2xl font-semibold text-foreground text-center leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
+    <div className="space-y-6" key={question.id}>
+      <h2 className="text-xl md:text-2xl font-semibold text-white text-center leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
         {language === 'en' ? question.question : question.questionRo}
       </h2>
 
       <div className="space-y-3">
-        {question.options.map((option, index) => (
-          <button
-            key={index}
-            onClick={() => onSelect(option.points)}
-            className={cn(
-              "w-full p-4 rounded-xl border-2 transition-all duration-300 ease-out text-left",
-              "hover:scale-[1.02] hover:shadow-lg animate-fade-in",
-              selectedAnswer === option.points
-                ? cn(colors.bg, colors.border, "shadow-lg scale-[1.02]")
-                : "border-border hover:border-muted-foreground/30 bg-card hover:bg-muted/30"
-            )}
-            style={{ animationDelay: `${0.15 + index * 0.08}s` }}
-          >
-            <div className="flex items-center justify-between">
-              <span className={cn(
-                "font-medium transition-colors duration-200",
-                selectedAnswer === option.points ? colors.text : "text-foreground"
-              )}>
-                {language === 'en' ? option.label : option.labelRo}
-              </span>
-              <div className={cn(
-                "w-5 h-5 rounded-full border-2 transition-all duration-300 flex items-center justify-center",
-                selectedAnswer === option.points 
-                  ? cn(colors.border, colors.bg, "scale-110") 
-                  : "border-muted-foreground/30"
-              )}>
-                {selectedAnswer === option.points && (
-                  <div className={cn("w-2.5 h-2.5 rounded-full animate-scale-in", 
-                    question.category === 'body' ? 'bg-green-500' :
-                    question.category === 'being' ? 'bg-purple-500' :
-                    question.category === 'balance' ? 'bg-pink-500' : 'bg-blue-500'
-                  )} />
-                )}
+        {question.options.map((option, index) => {
+          const isSelected = selectedAnswer === option.points;
+          return (
+            <button
+              key={index}
+              onClick={() => onSelect(option.points)}
+              className={cn(
+                "w-full p-4 rounded-xl border-2 transition-all duration-300 ease-out text-left group",
+                "hover:scale-[1.02] animate-fade-in backdrop-blur-sm",
+                isSelected
+                  ? cn(
+                      "bg-gradient-to-r border-transparent shadow-xl",
+                      styles.gradient,
+                      styles.glow
+                    )
+                  : "bg-white/5 border-white/20 hover:bg-white/10 hover:border-white/30"
+              )}
+              style={{ animationDelay: `${0.15 + index * 0.08}s` }}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className={cn(
+                  "font-medium transition-colors duration-200",
+                  isSelected ? "text-white" : "text-white/80 group-hover:text-white"
+                )}>
+                  {language === 'en' ? option.label : option.labelRo}
+                </span>
+                <div className={cn(
+                  "w-6 h-6 rounded-full border-2 transition-all duration-300 flex items-center justify-center shrink-0",
+                  isSelected 
+                    ? "border-white bg-white/20" 
+                    : "border-white/30 group-hover:border-white/50"
+                )}>
+                  {isSelected && (
+                    <CheckCircle2 className="w-5 h-5 text-white animate-scale-in" />
+                  )}
+                </div>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

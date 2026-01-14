@@ -5,7 +5,7 @@ import { quizQuestions, QuizCategory } from './quizData';
 import { QuizProgress } from './QuizProgress';
 import { QuizQuestion } from './QuizQuestion';
 import { QuizResults } from './QuizResults';
-import { ArrowRight, ArrowLeft, Mail, Loader2 } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Mail, Loader2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -103,13 +103,8 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
       setStep('results');
     } catch (error) {
       console.error('Error saving lead:', error);
-      toast({
-        title: language === 'en' ? 'Error' : 'Eroare',
-        description: language === 'en' 
-          ? 'Something went wrong. Please try again.' 
-          : 'Ceva nu a mers bine. Încearcă din nou.',
-        variant: 'destructive',
-      });
+      // Still show results even if save fails
+      setStep('results');
     } finally {
       setIsSubmitting(false);
     }
@@ -131,96 +126,104 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
 
   if (step === 'email') {
     return (
-      <div className="max-w-md mx-auto space-y-6 animate-fade-in">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Mail className="w-8 h-8 text-primary" />
+      <div className="max-w-md mx-auto animate-fade-in">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+              <Mail className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">
+              {language === 'en' ? 'Almost There!' : 'Aproape Gata!'}
+            </h2>
+            <p className="text-white/70">
+              {language === 'en' 
+                ? 'Enter your email to see your personalized 2026 Vision Score and action plan'
+                : 'Introdu email-ul pentru a vedea Scorul Viziunii 2026 și planul de acțiune personalizat'}
+            </p>
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            {language === 'en' ? 'Almost There!' : 'Aproape Gata!'}
-          </h2>
-          <p className="text-muted-foreground">
+
+          <form onSubmit={handleEmailSubmit} className="space-y-4">
+            <Input
+              type="text"
+              placeholder={language === 'en' ? 'Your name (optional)' : 'Numele tău (opțional)'}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-amber-500/50 focus:ring-amber-500/20"
+            />
+            <Input
+              type="email"
+              placeholder={language === 'en' ? 'Your email address' : 'Adresa ta de email'}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-amber-500/50 focus:ring-amber-500/20"
+            />
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white font-bold py-6 shadow-lg shadow-orange-500/30 border-0" 
+              size="lg"
+              disabled={!email.trim() || isSubmitting}
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4 mr-2" />
+              )}
+              {language === 'en' ? 'See My Results' : 'Vezi Rezultatele'}
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </form>
+
+          <p className="text-center text-xs text-white/50 mt-6">
             {language === 'en' 
-              ? 'Enter your email to see your personalized 2026 Vision Score and action plan'
-              : 'Introdu email-ul pentru a vedea Scorul Viziunii 2026 și planul de acțiune personalizat'}
+              ? 'We respect your privacy. No spam, ever.'
+              : 'Respectăm confidențialitatea ta. Fără spam, niciodată.'}
           </p>
         </div>
-
-        <form onSubmit={handleEmailSubmit} className="space-y-4">
-          <Input
-            type="text"
-            placeholder={language === 'en' ? 'Your name (optional)' : 'Numele tău (opțional)'}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Input
-            type="email"
-            placeholder={language === 'en' ? 'Your email address' : 'Adresa ta de email'}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <Button 
-            type="submit" 
-            className="w-full" 
-            size="lg"
-            disabled={!email.trim() || isSubmitting}
-          >
-            {isSubmitting ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : null}
-            {language === 'en' ? 'See My Results' : 'Vezi Rezultatele'}
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </form>
-
-        <p className="text-center text-xs text-muted-foreground">
-          {language === 'en' 
-            ? 'We respect your privacy. No spam, ever.'
-            : 'Respectăm confidențialitatea ta. Fără spam, niciodată.'}
-        </p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-lg mx-auto space-y-8">
-      <QuizProgress
-        currentQuestion={currentQuestionIndex}
-        totalQuestions={quizQuestions.length}
-        currentCategory={currentQuestion.category}
-        language={language}
-      />
-
-      <div key={currentQuestionIndex} className="animate-fade-in">
-        <QuizQuestion
-          question={currentQuestion}
-          selectedAnswer={answers[currentQuestion.id] ?? null}
-          onSelect={handleSelectAnswer}
+    <div className="max-w-lg mx-auto">
+      <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
+        <QuizProgress
+          currentQuestion={currentQuestionIndex}
+          totalQuestions={quizQuestions.length}
+          currentCategory={currentQuestion.category}
           language={language}
         />
-      </div>
 
-      <div className="flex justify-between gap-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-        <Button
-          variant="outline"
-          onClick={handleBack}
-          disabled={currentQuestionIndex === 0}
-          className="flex-1 transition-all duration-200 hover:scale-[1.02] disabled:opacity-50"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          {language === 'en' ? 'Back' : 'Înapoi'}
-        </Button>
-        <Button
-          onClick={handleNext}
-          disabled={!hasAnswer}
-          className="flex-1 transition-all duration-200 hover:scale-[1.02] disabled:opacity-50"
-        >
-          {isLastQuestion 
-            ? (language === 'en' ? 'See Results' : 'Vezi Rezultatele')
-            : (language === 'en' ? 'Next' : 'Următoarea')}
-          <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-        </Button>
+        <div key={currentQuestionIndex} className="mt-8 animate-fade-in">
+          <QuizQuestion
+            question={currentQuestion}
+            selectedAnswer={answers[currentQuestion.id] ?? null}
+            onSelect={handleSelectAnswer}
+            language={language}
+          />
+        </div>
+
+        <div className="flex justify-between gap-4 mt-8 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            disabled={currentQuestionIndex === 0}
+            className="flex-1 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {language === 'en' ? 'Back' : 'Înapoi'}
+          </Button>
+          <Button
+            onClick={handleNext}
+            disabled={!hasAnswer}
+            className="flex-1 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white font-semibold disabled:opacity-30 border-0"
+          >
+            {isLastQuestion 
+              ? (language === 'en' ? 'See Results' : 'Vezi Rezultatele')
+              : (language === 'en' ? 'Next' : 'Următoarea')}
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
       </div>
     </div>
   );
