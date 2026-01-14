@@ -52,17 +52,40 @@ export const MODULE_DESCRIPTIONS: Record<string, Omit<ModuleData, 'id' | 'title'
       'Atenția - direcția puterii',
       'Banii și Relațiile - multiplicatorii'
     ],
-    actionPrompt: 'Fă un audit al celor 5 investiții. Unde pierzi cel mai mult? Unde poți optimiza?'
+    actionPrompt: 'Care dintre cele 5 investiții îți lipsește cel mai mult? Unde pierzi cel mai mult?'
   },
   'intro-5': {
-    description: 'Cel Mai Mare Adevăr pe care trebuie să-l înțelegi: viața nu ți se întâmplă, viața se întâmplă PENTRU tine.',
+    description: 'Cele 5 Protocoale care creează întregul sistem Warrior: Codul, Stack-ul, Core 4, Ușa și Jocul.',
     keyPoints: [
-      'Schimbarea perspectivei victimă → creator',
-      'Responsabilitatea totală pentru viața ta',
-      'Fiecare obstacol este o oportunitate',
-      'Tu ești arhitectul destinului tău'
+      'CODUL - fundamentul adevărului, Formula Warrior (Fapte, Sentimente, Focus, Rezultate)',
+      'STACK-UL - sistemul de întrebări pentru navigarea gândurilor și emoțiilor',
+      'CORE 4 - Corp, Spirit, Relații, Business - planul zilnic complet',
+      'UȘA - accesarea unei realități superioare, deschiderea posibilităților',
+      'JOCUL - angajamentul de a câștiga obiective imposibile'
     ],
-    actionPrompt: 'Identifică o situație dificilă actuală și rescrie povestea din perspectiva "se întâmplă PENTRU mine".'
+    actionPrompt: 'Care protocol îți pare cel mai provocator? Pe care vrei să-l stăpânești primul?'
+  },
+  'intro-6': {
+    description: 'Cele 5 Legi fundamentale care ghidează călătoria de la bărbat la Rege și la construirea unui Regat.',
+    keyPoints: [
+      'AI ÎNCREDERE ÎN PROCES - sistemul a fost testat pe zeci de mii de oameni',
+      'DETALIILE CONTEAZĂ - lucrurile mici te distrug sau te construiesc',
+      'FII AICI, ACUM - prezența este putere, fără prezență nu primești nimic',
+      'NU RENUNȚA NICIODATĂ - călătoria e grea dar simplă',
+      'AI GRIJĂ DE FRAȚII TĂI - nu ești singur, oferim când putem, luăm când avem nevoie'
+    ],
+    actionPrompt: 'Care lege ți se pare cea mai dificilă de respectat? Care necesită cea mai multă atenție?'
+  },
+  'intro-7': {
+    description: 'Coeficientul Puterii și Warrior Time-Warp - sistemul de compunere exponențială a vitezei și rezultatelor.',
+    keyPoints: [
+      'WARRIOR TIME-WARP - comprimarea timpului prin intensitate și angajament',
+      'Rezultatele care îți luau luni se vor produce în zile',
+      'Be the Man → Be the King → Build the Kingdom - accelerarea pe fiecare nivel',
+      'Întrebarea nu este "funcționează?" ci "TU VEI FACE MUNCA?"',
+      'Cel mai mare iad: întâlnirea cu omul care ar fi trebuit să fii'
+    ],
+    actionPrompt: 'Răspunde sincer: TU funcționezi? Tu vei face munca? Care este angajamentul tău?'
   },
 
   // FUNDAMENT Section
