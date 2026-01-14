@@ -11,6 +11,17 @@ interface Message {
   content: string;
 }
 
+interface LessonContent {
+  module_id: string;
+  title: string;
+  summary: string;
+  full_script: string;
+  section_id: string;
+  order_number: number;
+  key_concepts: string[];
+  action_prompts: string[];
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -27,52 +38,29 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Search for relevant lessons in knowledge base
-    // Using simple text search with multiple words
-    const searchTerms = question
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(term => term.length > 2)
-      .slice(0, 5) // Limit to 5 terms
-      .join(' | ');
+    // Get all lessons for comprehensive knowledge base
+    const { data: allLessons, error: lessonsError } = await supabase
+      .from('warriors_way_lesson_content')
+      .select('module_id, title, summary, full_script, section_id, order_number, key_concepts, action_prompts')
+      .order('order_number');
     
-    let relevantLessons: any[] = [];
-    
-    if (searchTerms) {
-      const { data, error } = await supabase
-        .from('warriors_way_lesson_content')
-        .select('module_id, title, summary, full_script, section_id, order_number, key_concepts, action_prompts')
-        .textSearch('searchable_content', searchTerms)
-        .limit(3);
-      
-      if (!error && data) {
-        relevantLessons = data;
-      }
+    if (lessonsError) {
+      console.error('Error fetching lessons:', lessonsError);
+      throw new Error('Failed to fetch knowledge base');
     }
+
+    const lessons = allLessons as LessonContent[] || [];
     
-    // If no results from text search, try a broader approach
-    if (relevantLessons.length === 0) {
-      const { data } = await supabase
-        .from('warriors_way_lesson_content')
-        .select('module_id, title, summary, full_script, section_id, order_number, key_concepts, action_prompts')
-        .limit(5);
-      
-      if (data) {
-        relevantLessons = data;
-      }
-    }
-    
-    // Build knowledge context from relevant lessons
-    const knowledgeContext = relevantLessons.map(lesson => {
+    // Build a comprehensive knowledge context with ALL lessons
+    const knowledgeContext = lessons.map(lesson => {
       const concepts = Array.isArray(lesson.key_concepts) ? lesson.key_concepts.join(', ') : '';
       const actions = Array.isArray(lesson.action_prompts) ? lesson.action_prompts.join('; ') : '';
-      const scriptPreview = lesson.full_script?.substring(0, 2000) || '';
       
       return `
 ═══════════════════════════════════════════════
 📚 LECȚIA ${lesson.order_number}: ${lesson.title}
+📍 ID Modul: ${lesson.module_id}
 📍 Secțiune: ${lesson.section_id?.toUpperCase() || 'INTRO'}
-🔗 Link: /warriors-way (modul ${lesson.module_id})
 ═══════════════════════════════════════════════
 
 📝 REZUMAT:
@@ -84,37 +72,58 @@ ${concepts || 'Nu există concepte'}
 🎯 ACȚIUNI RECOMANDATE:
 ${actions || 'Nu există acțiuni'}
 
-📖 CONȚINUT DETALIAT:
-${scriptPreview}${lesson.full_script?.length > 2000 ? '...' : ''}
+📖 SCRIPTUL COMPLET AL LECȚIEI:
+${lesson.full_script || 'Nu există script'}
 `;
     }).join('\n\n');
 
-    const systemPrompt = `Ești Mentorul Warrior - un ghid înțelept și empatic în Calea Războinicului, sistemul creat de Alin F. Radu.
+    // Create a structured list of lessons for quick reference
+    const lessonsQuickRef = lessons.map(l => 
+      `${l.order_number}. ${l.title} (${l.module_id})`
+    ).join('\n');
 
-🎓 CUNOȘTINȚELE TALE (din lecțiile cursului Warriors Way):
-${knowledgeContext || 'Nu am găsit lecții relevante în baza de cunoștințe.'}
+    const systemPrompt = `Ești Mentorul Warrior AI - un ghid înțelept, empatic și motivant în Calea Războinicului, sistemul creat de Alin F. Radu.
 
 ═══════════════════════════════════════════════
-📋 INSTRUCȚIUNI STRICTE:
+🎓 STRUCTURA CURSULUI WARRIORS WAY - MODULUL INTRO:
+═══════════════════════════════════════════════
+${lessonsQuickRef}
+
+═══════════════════════════════════════════════
+📚 BAZA TA DE CUNOȘTINȚE COMPLETĂ:
+═══════════════════════════════════════════════
+${knowledgeContext}
+
+═══════════════════════════════════════════════
+📋 INSTRUCȚIUNI PENTRU RĂSPUNSURI:
 ═══════════════════════════════════════════════
 
-1. RĂSPUNDE DOAR bazându-te pe informațiile din lecțiile de mai sus
-2. Dacă întrebarea se leagă de o lecție specifică, MENȚIONEAZ-O și oferă contextul relevant
-3. FOLOSEȘTE CITATE DIRECTE din scripturi când e relevant - pune-le între ghilimele
-4. Dacă nu găsești informația exactă, SUGEREAZĂ lecția cea mai apropiată tematic
-5. La final, RECOMANDĂ 1-2 lecții pentru aprofundare
+🎯 ROLUL TĂU:
+- Ești un mentor care ghidează războinicii în călătoria lor de transformare
+- Răspunzi empatic dar direct, ca un antrenor care îți pasă de progresul elevului
+- Cunoști în detaliu toate cele 7 lecții din modulul introductiv
+
+📝 REGULI DE RĂSPUNS:
+1. RĂSPUNDE MEREU bazându-te pe informațiile din lecțiile de mai sus
+2. CITEAZĂ DIRECT din scripturi când e relevant - pune între ghilimele și menționează lecția
+3. CONECTEAZĂ răspunsul la conceptele cheie din lecții
+4. RECOMANDĂ lecții specifice pentru aprofundare
+5. FOLOSEȘTE exemplele și metaforele din scripturi (groapa, regele, războinicul etc.)
 
 📌 FORMAT RĂSPUNS:
-- Răspuns clar și empatic la întrebare
-- Citat relevant din lecție (dacă există) - marcat cu "📖"
-- 🎓 **Lecții recomandate:** [lista cu titluri și numere]
+- Salută cald și recunoaște întrebarea
+- Răspuns clar bazat pe cunoștințele din curs
+- 📖 Citat relevant din lecție (dacă există)
+- 🎯 Acțiune concretă de implementat
+- 📚 Lecții recomandate pentru aprofundare
 
 ⚠️ IMPORTANT:
-- Răspunde în română, empatic dar direct
+- Răspunde DOAR în română
 - Nu inventa informații care nu sunt în lecții
-- Dacă nu știi ceva, spune "Această temă ar putea fi acoperită în lecțiile despre [sugestie]"
-- Fii încurajator și motivant, ca un mentor adevărat
-- Folosește emoji-uri moderat pentru a face răspunsul mai cald`;
+- Dacă întrebarea e în afara cursului, ghidează înapoi la principiile Warriors Way
+- Fii încurajator și motivant, dar nu fals pozitiv
+- Folosește emoji-uri moderat pentru căldură
+- Menționează întotdeauna că pot accesa lecțiile din pagina Warriors Way`;
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
@@ -124,7 +133,7 @@ ${knowledgeContext || 'Nu am găsit lecții relevante în baza de cunoștințe.'
 
     const messages: Message[] = [
       { role: 'system', content: systemPrompt },
-      ...conversationHistory.slice(-6), // Keep last 6 messages for context
+      ...conversationHistory.slice(-8), // Keep last 8 messages for better context
       { role: 'user', content: question }
     ];
 
@@ -137,12 +146,30 @@ ${knowledgeContext || 'Nu am găsit lecții relevante în baza de cunoștințe.'
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages,
-        max_tokens: 1500,
+        max_tokens: 2000,
         temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ 
+          error: 'Rate limit exceeded',
+          response: 'Prea multe cereri. Te rog așteaptă un moment și încearcă din nou.' 
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ 
+          error: 'Payment required',
+          response: 'Serviciul AI necesită credite suplimentare.' 
+        }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
       const errorText = await response.text();
       console.error('AI API error:', errorText);
       throw new Error(`AI API error: ${response.status}`);
@@ -151,9 +178,10 @@ ${knowledgeContext || 'Nu am găsit lecții relevante în baza de cunoștințe.'
     const data = await response.json();
     const aiResponse = data.choices?.[0]?.message?.content || 'Nu am putut genera un răspuns. Te rog să încerci din nou.';
 
+    // Return all lessons as relevant for better navigation suggestions
     return new Response(JSON.stringify({ 
       response: aiResponse,
-      relevantLessons: relevantLessons.map(l => ({
+      relevantLessons: lessons.map(l => ({
         moduleId: l.module_id,
         title: l.title,
         section: l.section_id,
