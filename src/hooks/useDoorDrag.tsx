@@ -43,7 +43,13 @@ export function useDoorDrag({
 
   const handleDragOverDomino = (e: React.DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    // Match dropEffect with effectAllowed for cross-compatibility
+    const allowed = e.dataTransfer.effectAllowed;
+    if (allowed === 'copy' || allowed === 'copyMove' || allowed === 'copyLink') {
+      e.dataTransfer.dropEffect = 'copy';
+    } else {
+      e.dataTransfer.dropEffect = 'move';
+    }
   };
 
   const handleDropOnDomino = (e: React.DragEvent) => {

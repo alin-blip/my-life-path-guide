@@ -312,7 +312,8 @@ export const MonthlyMissionTab: React.FC = () => {
     
     e.dataTransfer.setData('application/json', JSON.stringify(dominoData));
     e.dataTransfer.setData('text/plain', mission.title);
-    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.effectAllowed = 'copyMove';
+    console.debug('[DnD] MonthlyMission dragStart', { id: mission.id, effectAllowed: 'copyMove' });
   };
 
   const handleMissionDragEnd = () => {
