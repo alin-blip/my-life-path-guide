@@ -76,19 +76,19 @@ export const CommandCenterTabs: React.FC = () => {
 
         {/* Tab Content */}
         <div className="container mx-auto">
-          <TabsContent value="annual" forceMount className="mt-0 outline-none">
+          <TabsContent value="annual" className="mt-0 outline-none">
             <AnnualVisionTab />
           </TabsContent>
           
-          <TabsContent value="quarterly" forceMount className="mt-0 outline-none">
+          <TabsContent value="quarterly" className="mt-0 outline-none">
             <QuarterlyGoalsTab />
           </TabsContent>
           
-          <TabsContent value="monthly" forceMount className="mt-0 outline-none">
+          <TabsContent value="monthly" className="mt-0 outline-none">
             <MonthlyMissionTab />
           </TabsContent>
           
-          <TabsContent value="weekly" forceMount className="mt-0 outline-none">
+          <TabsContent value="weekly" className="mt-0 outline-none">
             <WeeklyTab />
           </TabsContent>
         </div>
