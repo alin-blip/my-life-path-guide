@@ -61,15 +61,36 @@ export function WorkoutDayCard({
     setTempExercise({});
   };
 
-  const handleAddNewExercise = () => {
+  const [newExerciseId, setNewExerciseId] = useState<string | null>(null);
+
+  const handleAddNewExercise = async () => {
     const nextOrder = (day.exercises?.length || 0);
-    onAddExercise(day.id, {
-      exercise_name: language === 'en' ? 'New Exercise' : 'Exercițiu Nou',
+    // Add with empty name so user must enter it
+    await onAddExercise(day.id, {
+      exercise_name: '',
       target_sets: 3,
       target_reps: '10',
       order_index: nextOrder,
     });
+    // Mark as pending edit - will be handled when exercises update
+    setNewExerciseId('pending');
   };
+
+  // Auto-start editing the newest exercise when added
+  React.useEffect(() => {
+    if (newExerciseId === 'pending' && day.exercises && day.exercises.length > 0) {
+      const lastExercise = day.exercises[day.exercises.length - 1];
+      if (lastExercise && !lastExercise.exercise_name) {
+        setEditingExercise(lastExercise.id);
+        setTempExercise({
+          exercise_name: '',
+          target_sets: lastExercise.target_sets || 3,
+          target_reps: lastExercise.target_reps || '10',
+        });
+        setNewExerciseId(null);
+      }
+    }
+  }, [day.exercises, newExerciseId]);
 
   if (isCompact) {
     return (
@@ -196,37 +217,75 @@ export function WorkoutDayCard({
                 <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
                 
                 {editingExercise === exercise.id ? (
-                  <div className="flex-1 flex items-center gap-2">
+                  <div className="flex-1 flex flex-col gap-2">
                     <Input
                       value={tempExercise.exercise_name || ''}
                       onChange={(e) => setTempExercise({ ...tempExercise, exercise_name: e.target.value })}
-                      className="h-8 flex-1"
+                      className="h-9"
+                      placeholder={language === 'en' ? 'Exercise name...' : 'Nume exercițiu...'}
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSaveExercise(exercise.id);
+                        } else if (e.key === 'Escape') {
+                          // If it's a new exercise with no name, delete it
+                          if (!exercise.exercise_name) {
+                            onDeleteExercise(exercise.id);
+                          }
+                          setEditingExercise(null);
+                        }
+                      }}
                     />
-                    <Input
-                      type="number"
-                      value={tempExercise.target_sets || 3}
-                      onChange={(e) => setTempExercise({ ...tempExercise, target_sets: parseInt(e.target.value) })}
-                      className="h-8 w-16"
-                      placeholder="Sets"
-                    />
-                    <span className="text-muted-foreground">×</span>
-                    <Input
-                      value={tempExercise.target_reps || ''}
-                      onChange={(e) => setTempExercise({ ...tempExercise, target_reps: e.target.value })}
-                      className="h-8 w-20"
-                      placeholder="Reps"
-                    />
-                    <Button size="sm" variant="ghost" onClick={() => handleSaveExercise(exercise.id)}>
-                      <Check className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setEditingExercise(null)}>
-                      <X className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <Label className="text-xs text-muted-foreground">Sets:</Label>
+                        <Input
+                          type="number"
+                          value={tempExercise.target_sets || 3}
+                          onChange={(e) => setTempExercise({ ...tempExercise, target_sets: parseInt(e.target.value) || 3 })}
+                          className="h-8 w-16"
+                          min={1}
+                          max={20}
+                        />
+                      </div>
+                      <span className="text-muted-foreground">×</span>
+                      <div className="flex items-center gap-1">
+                        <Label className="text-xs text-muted-foreground">Reps:</Label>
+                        <Input
+                          value={tempExercise.target_reps || ''}
+                          onChange={(e) => setTempExercise({ ...tempExercise, target_reps: e.target.value })}
+                          className="h-8 w-20"
+                          placeholder="10"
+                        />
+                      </div>
+                      <div className="flex-1" />
+                      <Button size="sm" variant="default" onClick={() => handleSaveExercise(exercise.id)}>
+                        <Check className="w-4 h-4 mr-1" />
+                        {language === 'en' ? 'Save' : 'Salvează'}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => {
+                          if (!exercise.exercise_name) {
+                            onDeleteExercise(exercise.id);
+                          }
+                          setEditingExercise(null);
+                        }}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <>
                     <span className="text-sm text-muted-foreground w-6">{index + 1}.</span>
-                    <span className="flex-1 text-sm font-medium">{exercise.exercise_name}</span>
+                    <span 
+                      className="flex-1 text-sm font-medium cursor-pointer hover:text-primary transition-colors"
+                      onClick={() => handleStartEditExercise(exercise)}
+                    >
+                      {exercise.exercise_name || (language === 'en' ? 'Click to name...' : 'Click pentru nume...')}
+                    </span>
                     <Badge variant="outline" className="text-xs">
                       {exercise.target_sets} × {exercise.target_reps}
                     </Badge>
