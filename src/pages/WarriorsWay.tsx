@@ -29,7 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 const COURSE_SECTIONS = [
   {
     id: 'intro',
-    title: 'INTRO - Warrior Launch Accelerator',
+    title: 'Călătoria unui Războinic',
     description: 'Introducere în Calea Războinicului - 7 Lecții Fundamentale',
     isFree: true,
     modules: [
@@ -44,7 +44,7 @@ const COURSE_SECTIONS = [
   },
   {
     id: 'codul',
-    title: 'MODUL 1 - CODUL',
+    title: 'Calea',
     description: 'Principiile fundamentale ale transformării Warriors Way',
     isFree: false,
     modules: [
