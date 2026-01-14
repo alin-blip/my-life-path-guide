@@ -599,10 +599,15 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
           </div>
           
           {!isWorkoutStarted ? (
-            <Button onClick={startWorkout} className="gap-2">
-              <Play className="h-4 w-4" />
-              Start Workout
-            </Button>
+            <div className="space-y-3">
+              <Button onClick={startWorkout} className="gap-2" size="lg">
+                <Play className="h-5 w-5" />
+                Start Workout Manual
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                Apasă pentru a adăuga exerciții cu seturi, kg și repetări
+              </p>
+            </div>
           ) : (
             <Button onClick={stopWorkout} variant="destructive" className="gap-2">
               <Square className="h-4 w-4" />
