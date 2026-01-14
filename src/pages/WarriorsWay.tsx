@@ -58,15 +58,15 @@ const COURSE_SECTIONS = [
   },
   {
     id: 'codul',
-    title: 'CODUL - Principiile Războinicului',
-    description: 'Codul după care trăiește un Războinic',
+    title: 'MODUL 1 - CODUL',
+    description: 'Principiile fundamentale ale transformării Warriors Way',
     isFree: false,
     modules: [
-      { id: 'cod-1', title: 'Prăpastia și Vârful', duration: '15 min', order: 13 },
-      { id: 'cod-2', title: 'Fundamentul Adevărului', duration: '12 min', order: 14 },
-      { id: 'cod-3', title: 'Cele 4 Principii ale Codului', duration: '18 min', order: 15 },
-      { id: 'cod-4', title: 'Trăind după Cod', duration: '10 min', order: 16 },
-      { id: 'cod-5', title: 'Codul în Acțiune', duration: '12 min', order: 17 },
+      { id: 'cod-1', title: 'Prăpastia Sărăciei', duration: '15 min', order: 8 },
+      { id: 'cod-2', title: 'Vârful Prosperității', duration: '14 min', order: 9 },
+      { id: 'cod-3', title: 'Principiile Puterii', duration: '16 min', order: 10 },
+      { id: 'cod-4', title: 'Calea Producției', duration: '18 min', order: 11 },
+      { id: 'cod-5', title: 'Propulsia Puterii', duration: '15 min', order: 12 },
     ]
   },
   {
