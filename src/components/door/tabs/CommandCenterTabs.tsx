@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Crown, Target, Flag } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Crown, Target, Flag, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { QuarterlyGoalsTab } from './QuarterlyGoalsTab';
 import { MonthlyMissionTab } from './MonthlyMissionTab';
 import { AnnualVisionTab } from './AnnualVisionTab';
 import { WeeklySection } from '@/components/door/WeeklySection';
+import { CompactMissionCards } from '@/components/door/CompactMissionCards';
 import { useSearchParams } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 export const CommandCenterTabs: React.FC = () => {
   const { language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isExpanded, setIsExpanded] = useState(false);
   
   // Default to monthly, no weekly tab anymore
   const currentTab = searchParams.get('tab') || 'monthly';
@@ -25,6 +29,11 @@ export const CommandCenterTabs: React.FC = () => {
       }
       return next;
     }, { replace: true });
+    
+    // Auto-expand when switching tabs
+    if (!isExpanded) {
+      setIsExpanded(true);
+    }
   };
 
   // Only 3 tabs: Lunar, 90 Zile, Anual
@@ -51,41 +60,66 @@ export const CommandCenterTabs: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Objectives Section with Tabs */}
-      <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-        {/* Tab Navigation */}
-        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
-          <div className="container mx-auto px-4 py-3">
-            <TabsList className="w-full grid grid-cols-3 gap-1 bg-muted/50 p-1 rounded-xl h-auto">
-              {tabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  className="flex items-center gap-2 py-3 px-3 text-sm font-medium rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
-                >
-                  <tab.icon className="w-4 h-4" />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+      {/* Objectives Section with Tabs - Collapsible */}
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+        <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+          {/* Tab Navigation */}
+          <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
+            <div className="container mx-auto px-4 py-3">
+              <TabsList className="w-full grid grid-cols-3 gap-1 bg-muted/50 p-1 rounded-xl h-auto">
+                {tabs.map((tab) => (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className="flex items-center gap-2 py-3 px-3 text-sm font-medium rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
           </div>
-        </div>
 
-        {/* Tab Content - Objectives */}
-        <div className="container mx-auto">
-          <TabsContent value="monthly" className="mt-0 outline-none">
-            <MonthlyMissionTab />
-          </TabsContent>
-          
-          <TabsContent value="quarterly" className="mt-0 outline-none">
-            <QuarterlyGoalsTab />
-          </TabsContent>
-          
-          <TabsContent value="annual" className="mt-0 outline-none">
-            <AnnualVisionTab />
-          </TabsContent>
-        </div>
-      </Tabs>
+          {/* Compact Cards - Always visible when collapsed */}
+          {!isExpanded && (
+            <CollapsibleTrigger asChild>
+              <div className="cursor-pointer hover:bg-muted/30 transition-colors">
+                <CompactMissionCards />
+              </div>
+            </CollapsibleTrigger>
+          )}
+
+          {/* Full Tab Content - Only when expanded */}
+          <CollapsibleContent>
+            <div className="container mx-auto">
+              <TabsContent value="monthly" className="mt-0 outline-none">
+                <MonthlyMissionTab />
+              </TabsContent>
+              
+              <TabsContent value="quarterly" className="mt-0 outline-none">
+                <QuarterlyGoalsTab />
+              </TabsContent>
+              
+              <TabsContent value="annual" className="mt-0 outline-none">
+                <AnnualVisionTab />
+              </TabsContent>
+            </div>
+          </CollapsibleContent>
+
+          {/* Collapse/Expand Toggle when expanded */}
+          {isExpanded && (
+            <CollapsibleTrigger asChild>
+              <div className="flex justify-center py-2 cursor-pointer hover:bg-muted/30 transition-colors border-b border-border">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <ChevronDown className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-180")} />
+                  <span>{language === 'en' ? 'Collapse' : 'Restrânge'}</span>
+                </div>
+              </div>
+            </CollapsibleTrigger>
+          )}
+        </Tabs>
+      </Collapsible>
 
       {/* Weekly Section - Always Visible Below */}
       <div className="border-t border-border bg-muted/30">

@@ -169,6 +169,52 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const completedKeys = dominoKeyPoints.filter(kp => kp.completed && kp.text.trim()).length;
   const totalKeys = dominoKeyPoints.filter(kp => kp.text.trim()).length;
 
+  // Handle drop directly for monthly missions when setters are available
+  const handleLocalDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    // Try to handle monthly mission drop directly
+    const jsonData = e.dataTransfer.getData('application/json');
+    if (jsonData && setSelectedDomino && setDominoKeyPoints) {
+      try {
+        const data = JSON.parse(jsonData);
+        if (data.type === 'monthly-mission') {
+          // Set the mission as domino
+          setSelectedDomino({
+            id: `monthly-${data.id}`,
+            text: data.text,
+            selected: true,
+            priority: 'urgent-important'
+          });
+          
+          // Auto-populate key points from keyActions
+          if (data.keyActions && data.keyActions.length > 0) {
+            const newKeyPoints = data.keyActions.slice(0, 4).map((action: string, idx: number) => ({
+              id: `key${idx + 1}`,
+              text: action,
+              completed: false
+            }));
+            setDominoKeyPoints(newKeyPoints);
+          }
+          
+          toast({
+            title: '🎯 Domino setat!',
+            description: `"${data.text}" este acum focusul tău săptămânal.`
+          });
+          
+          console.debug('[DominoDoor] Monthly mission dropped directly', { id: data.id, text: data.text });
+          return;
+        }
+      } catch (parseError) {
+        console.debug('[DominoDoor] Drop data parse failed, falling back to handler');
+      }
+    }
+    
+    // Fall back to the provided handler
+    handleDropOnDomino(e);
+  };
+
   return (
     <div 
       className={cn(
@@ -179,14 +225,17 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
         isMobile ? 'p-4' : 'h-full p-5'
       )}
       onDragOver={(e) => {
+        e.preventDefault();
         handleDragOverDomino(e);
         setIsDragOver(true);
       }}
-      onDragLeave={() => setIsDragOver(false)}
-      onDrop={(e) => {
-        handleDropOnDomino(e);
-        setIsDragOver(false);
+      onDragLeave={(e) => {
+        // Only set false if leaving the container entirely
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setIsDragOver(false);
+        }
       }}
+      onDrop={handleLocalDrop}
     >
       {selectedDomino ? (
         <div className={`space-y-4 animate-fade-in`}>
