@@ -3130,6 +3130,7 @@ export type Database = {
       warriors_way_lesson_content: {
         Row: {
           action_prompts: Json | null
+          aha_moment: string | null
           created_at: string | null
           full_script: string
           id: string
@@ -3142,9 +3143,11 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string | null
+          video_url: string | null
         }
         Insert: {
           action_prompts?: Json | null
+          aha_moment?: string | null
           created_at?: string | null
           full_script: string
           id?: string
@@ -3157,9 +3160,11 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string | null
+          video_url?: string | null
         }
         Update: {
           action_prompts?: Json | null
+          aha_moment?: string | null
           created_at?: string | null
           full_script?: string
           id?: string
@@ -3172,6 +3177,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string | null
+          video_url?: string | null
         }
         Relationships: []
       }
