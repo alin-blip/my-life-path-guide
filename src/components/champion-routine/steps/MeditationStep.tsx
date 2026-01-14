@@ -230,7 +230,8 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
 
   const totalTime = savedDuration + seconds;
   const hasCompleted = savedDuration > 0;
-  const hasMinimumTime = savedDuration >= minMeditationSeconds;
+  // Allow completing if user has meditated at least 1 minute (60 seconds)
+  const hasMinimumTime = savedDuration >= 60;
   const remainingForMinimum = minMeditationSeconds - totalTime;
 
   // Progress towards configured minutes
