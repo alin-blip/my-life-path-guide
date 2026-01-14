@@ -11,7 +11,7 @@ export const HeroSection = () => {
 
   const keyFeatures = [
     { icon: Brain, text: language === 'en' ? '4 AI Coaches (Body, Mindset, Relationships, Business)' : '4 Coachi AI (Corp, Mindset, Relații, Business)' },
-    { icon: Sparkles, text: language === 'en' ? 'Champion Routine - 30 min/day that changes everything' : 'Rutină de Campion - 30 min/zi care schimbă totul' },
+    { icon: Sparkles, text: language === 'en' ? 'Warrior Routine - 30 min/day that changes everything' : 'Rutina Războinicului - 30 min/zi care schimbă totul' },
     { icon: Target, text: language === 'en' ? 'The Door - Intelligent weekly planning system' : 'The Door - Sistem de planificare săptămânală inteligent' },
   ];
 
@@ -28,7 +28,7 @@ export const HeroSection = () => {
         <nav className="flex items-center justify-between mb-8 md:mb-12">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
-            alt="LifeOS logo"
+            alt="WarriorOS logo"
             loading="eager"
             className="h-10 md:h-14 w-auto"
           />
@@ -130,7 +130,7 @@ export const HeroSection = () => {
               {videoPlaying ? (
                 <iframe
                   src="https://www.youtube.com/embed/sfuey_WNODs?rel=0&modestbranding=1&autoplay=1"
-                  title="LifeOS - Success Without Sacrifice"
+                  title="WarriorOS - Success Without Sacrifice"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="w-full h-full"
@@ -138,14 +138,14 @@ export const HeroSection = () => {
               ) : (
                 <img 
                   src="https://img.youtube.com/vi/sfuey_WNODs/maxresdefault.jpg"
-                  alt="LifeOS Video Preview"
+                  alt="WarriorOS Video Preview"
                   className="w-full h-full object-cover"
                 />
               )}
             </div>
           </div>
           <p className="text-sm text-muted-foreground mt-4 text-center">
-            {language === 'en' ? '🎬 Watch: How LifeOS transforms entrepreneurs in 90 days' : '🎬 Vezi: Cum LifeOS transformă antreprenorii în 90 de zile'}
+            {language === 'en' ? '🎬 Watch: How WarriorOS transforms entrepreneurs in 90 days' : '🎬 Vezi: Cum WarriorOS transformă antreprenorii în 90 de zile'}
           </p>
         </div>
 

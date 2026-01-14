@@ -13,13 +13,13 @@ export const ValueStackPricing = () => {
 
   const texts = {
     title: language === 'en' 
-      ? "What Are You Losing Without LifeOS?" 
-      : "Ce Pierzi în Viață Fără LifeOS?",
+      ? "What Are You Losing Without WarriorOS?" 
+      : "Ce Pierzi în Viață Fără WarriorOS?",
     subtitle: language === 'en'
       ? "It's not just about money. You're losing health, relationships, clarity, and prosperity. The real cost? Impossible to calculate."
       : "Nu e doar despre bani. Pierzi sănătate, relații, claritate spirituală și prosperitate. Costul real? Imposibil de calculat.",
     mostPopular: language === 'en' ? "Most Popular" : "Cel mai popular",
-    planName: "LifeOS Pro",
+    planName: "WarriorOS Pro",
     price: language === 'en' ? "€39" : "197 LEI",
     perMonth: language === 'en' ? "/ month" : "/ lună",
     transformationTitle: language === 'en' 
@@ -31,7 +31,7 @@ export const ValueStackPricing = () => {
     businessProfit: language === 'en' ? "💼 Business: +15-30% profit" : "💼 Business: +15-30% profit",
     priceless: language === 'en' ? "Priceless" : "Nepretuit",
     businessValue: language === 'en' ? "€5k-€30k/quarter" : "€25k-€150k/trimestru",
-    investmentLabel: language === 'en' ? "LifeOS Pro Investment" : "Investiție LifeOS Pro",
+    investmentLabel: language === 'en' ? "WarriorOS Pro Investment" : "Investiție WarriorOS Pro",
     businessPayoff: language === 'en' 
       ? "Business results alone pay for themselves in the first week"
       : "Doar partea de Business se plătește singur în prima săptămână",

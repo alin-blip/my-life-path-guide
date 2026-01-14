@@ -30,7 +30,7 @@ export const FeaturesShowcase = () => {
     },
     {
       icon: Sparkles,
-      title: language === 'en' ? 'Champion Routine' : 'Rutina de Campion',
+      title: language === 'en' ? 'Warrior Routine' : 'Rutina Războinicului',
       description: language === 'en'
         ? 'Customizable morning routine with meditation, breathing, visualization, and exercise.'
         : 'Rutină de dimineață configurabilă cu meditație, respirație, vizualizare și exerciții.',

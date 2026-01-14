@@ -34,8 +34,8 @@ const Index = () => {
   return (
     <div className="light min-h-screen bg-background">
       <Helmet>
-        <title>LifeOS — Success Without Sacrifice: AI-Powered Life System for Entrepreneurs</title>
-        <meta name="description" content="LifeOS is the AI-powered Life Operating System that helps entrepreneurs grow their business WITHOUT losing their health, relationships, or peace of mind. Transform all 4 life areas simultaneously." />
+        <title>WarriorOS — Success Without Sacrifice: AI-Powered Life System for Warriors</title>
+        <meta name="description" content="WarriorOS is the AI-powered Warrior Operating System that helps entrepreneurs grow their business WITHOUT losing their health, relationships, or peace of mind. Transform all 4 life areas simultaneously." />
         <link rel="canonical" href={`${window.location.origin}/`} />
       </Helmet>
 
@@ -95,7 +95,7 @@ const Index = () => {
             </Link>
           </div>
           <p className="text-center text-xs text-muted-foreground mt-4">
-            © {new Date().getFullYear()} LifeOS. {language === 'en' ? 'All rights reserved.' : 'Toate drepturile rezervate.'}
+            © {new Date().getFullYear()} WarriorOS. {language === 'en' ? 'All rights reserved.' : 'Toate drepturile rezervate.'}
           </p>
         </footer>
       </div>
