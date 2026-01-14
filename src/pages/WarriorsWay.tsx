@@ -48,11 +48,11 @@ const COURSE_SECTIONS = [
     description: 'Principiile fundamentale ale transformării Warriors Way',
     isFree: false,
     modules: [
-      { id: 'cod-1', title: 'Prăpastia Sărăciei', duration: '15 min', order: 8 },
-      { id: 'cod-2', title: 'Vârful Prosperității', duration: '14 min', order: 9 },
-      { id: 'cod-3', title: 'Principiile Puterii', duration: '16 min', order: 10 },
-      { id: 'cod-4', title: 'Calea Producției', duration: '18 min', order: 11 },
-      { id: 'cod-5', title: 'Propulsia Puterii', duration: '15 min', order: 12 },
+      { id: 'cod-1', title: 'Prăpastia Sărăciei', duration: '15 min', order: 8, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=HgycdM2Kv9bbG8jElkMm8fdeRETDDyQMppNRwshHc1NqOnExY&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'cod-2', title: 'Vârful Prosperității', duration: '14 min', order: 9, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=mMLUkw-8JK6VJzsGVXUMh9xrO3g7MDHZEUkmUAM6mKhRPiYoJ&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'cod-3', title: 'Principiile Puterii', duration: '16 min', order: 10, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=IKAdFRdcxkNJ1nU_KlwzbC9zBGq6VkXGU0spVXvRaJ8_bC0y7&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'cod-4', title: 'Calea Producției', duration: '18 min', order: 11, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=X2GKGVhFhlDJ3dwf1eMxG9ZR4haC2D3AAw1rIF2Wrhw-xiJ1M&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'cod-5', title: 'Propulsia Puterii', duration: '15 min', order: 12, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=T8MRie5Ru2yX1gcRiwCM9OdXcyUcUVDrdDIEMR-3bPRzD0g-h&videoRatio=1.777778&type=v&skinColor=%232758EB' },
     ]
   },
   {
