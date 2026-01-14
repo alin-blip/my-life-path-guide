@@ -13,8 +13,8 @@ export const SocialProofNew = () => {
       role: language === 'en' ? 'E-commerce Founder' : 'Fondator E-commerce',
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
       quote: language === 'en'
-        ? "In 90 days I went from 70-hour work weeks to 45 hours, while revenue grew 30%. The Champion Routine changed everything."
-        : "În 90 de zile am trecut de la săptămâni de 70 ore la 45 ore, iar veniturile au crescut cu 30%. Rutina de Campion a schimbat totul.",
+        ? "In 90 days I went from 70-hour work weeks to 45 hours, while revenue grew 30%. The Warrior Routine changed everything."
+        : "În 90 de zile am trecut de la săptămâni de 70 ore la 45 ore, iar veniturile au crescut cu 30%. Rutina Războinicului a schimbat totul.",
       result: "+30% revenue, -35% work hours",
     },
     {
@@ -31,8 +31,8 @@ export const SocialProofNew = () => {
       role: language === 'en' ? 'Agency Owner' : 'Proprietar Agenție',
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
       quote: language === 'en'
-        ? "I was on the edge of burnout. After 60 days with LifeOS, I lost 8kg, sleep 7 hours/night, and actually enjoy weekends with my kids."
-        : "Eram la limita burnout-ului. După 60 de zile cu LifeOS, am slăbit 8kg, dorm 7 ore/noapte și chiar mă bucur de weekenduri cu copiii.",
+        ? "I was on the edge of burnout. After 60 days with WarriorOS, I lost 8kg, sleep 7 hours/night, and actually enjoy weekends with my kids."
+        : "Eram la limita burnout-ului. După 60 de zile cu WarriorOS, am slăbit 8kg, dorm 7 ore/noapte și chiar mă bucur de weekenduri cu copiii.",
       result: "-8kg, +2h sleep/night",
     },
   ];

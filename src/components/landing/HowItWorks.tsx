@@ -23,7 +23,7 @@ export const HowItWorks = () => {
       number: "02",
       icon: Play,
       title: language === 'en' ? 'Execute' : 'Execută',
-      subtitle: language === 'en' ? 'Champion Routine' : 'Rutina de Campion',
+      subtitle: language === 'en' ? 'Warrior Routine' : 'Rutina Războinicului',
       description: language === 'en'
         ? 'Follow your personalized daily routine. Morning rituals, focused work, evening reflection. 30 minutes that transform your day.'
         : 'Urmează rutina ta zilnică personalizată. Ritualuri de dimineață, muncă focusată, reflecție seara. 30 minute care îți transformă ziua.',
