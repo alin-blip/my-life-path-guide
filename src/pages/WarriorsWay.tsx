@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import { WarriorVideoPlayer } from '@/components/warriors-way/WarriorVideoPlayer
 import { PremiumGate } from '@/components/warriors-way/PremiumGate';
 import { useWarriorsCourse } from '@/hooks/useWarriorsCourse';
 import { WarriorAiMentor, WarriorAiMentorButton } from '@/components/warriors-way/WarriorAiMentor';
+import { supabase } from '@/integrations/supabase/client';
 
 // Course structure - INTRO has 7 modules now
 const COURSE_SECTIONS = [
@@ -126,12 +127,40 @@ const WarriorsWay: React.FC = () => {
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [showAiMentor, setShowAiMentor] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { progress, isModuleCompleted, markModuleComplete, overallProgress } = useWarriorsCourse();
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+      
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      setIsAdmin(!!data);
+    };
+    
+    checkAdminRole();
+  }, [user]);
 
   const totalModules = COURSE_SECTIONS.reduce((acc, section) => acc + section.modules.length, 0);
   const completedModules = progress.filter(p => p.completed).length;
 
   const handleModuleClick = (moduleId: string, sectionIsFree: boolean) => {
+    // Admin has full access
+    if (isAdmin) {
+      setSelectedModule(moduleId);
+      return;
+    }
+    
     if (!sectionIsFree && !user) {
       setShowPremiumGate(true);
       return;
