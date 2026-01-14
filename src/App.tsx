@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
@@ -34,7 +34,6 @@ const Challenge = lazy(() => import("./pages/Challenge"));
 const ChallengeDay = lazy(() => import("./pages/ChallengeDay"));
 const Challenge7ZileLanding = lazy(() => import("./pages/Challenge7ZileLanding"));
 const Door = lazy(() => import("./pages/Door"));
-const Objectives = lazy(() => import("./pages/Objectives"));
 const Focus = lazy(() => import("./pages/Focus"));
 const Core = lazy(() => import("./pages/Core"));
 const DailyFour = lazy(() => import("./pages/DailyFour"));
@@ -146,26 +145,6 @@ const App = () => (
                     <Route path="/door" element={
                       <ProtectedRoute>
                         <Door />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/objectives" element={
-                      <ProtectedRoute>
-                        <Objectives />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/monthly-objectives" element={
-                      <ProtectedRoute>
-                        <Navigate to="/objectives?type=monthly" replace />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/quarterly-objectives" element={
-                      <ProtectedRoute>
-                        <Navigate to="/objectives?type=quarterly" replace />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/annual-objectives" element={
-                      <ProtectedRoute>
-                        <Navigate to="/objectives?type=annual" replace />
                       </ProtectedRoute>
                     } />
                     <Route path="/focus" element={
