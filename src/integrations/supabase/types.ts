@@ -3100,6 +3100,33 @@ export type Database = {
         }
         Relationships: []
       }
+      warriors_way_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          module_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          module_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          module_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       weekly_planning: {
         Row: {
           created_at: string | null
