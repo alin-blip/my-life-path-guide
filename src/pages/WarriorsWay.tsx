@@ -42,21 +42,6 @@ const COURSE_SECTIONS = [
     ]
   },
   {
-    id: 'fundament',
-    title: 'FUNDAMENT - Baza Sistemului',
-    description: 'Principiile fundamentale ale Warrior\'s Way',
-    isFree: false,
-    modules: [
-      { id: 'fund-1', title: 'Ce Înseamnă să Ai Totul', duration: '12 min', order: 6 },
-      { id: 'fund-2', title: 'Experiență, Expresie și Expansiune', duration: '15 min', order: 7 },
-      { id: 'fund-3', title: 'Paradoxul Vieții', duration: '10 min', order: 8 },
-      { id: 'fund-4', title: 'Alegerea Ta', duration: '8 min', order: 9 },
-      { id: 'fund-5', title: 'Cele 4 Opțiuni', duration: '14 min', order: 10 },
-      { id: 'fund-6', title: 'Care Este Costul?', duration: '10 min', order: 11 },
-      { id: 'fund-7', title: 'Filosofia Elitelor', duration: '12 min', order: 12 },
-    ]
-  },
-  {
     id: 'codul',
     title: 'MODUL 1 - CODUL',
     description: 'Principiile fundamentale ale transformării Warriors Way',
