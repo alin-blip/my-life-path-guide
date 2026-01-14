@@ -14,27 +14,31 @@ import {
   BookOpen,
   Sparkles,
   ChevronRight,
-  Star
+  Star,
+  MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import { WarriorVideoPlayer } from '@/components/warriors-way/WarriorVideoPlayer';
 import { PremiumGate } from '@/components/warriors-way/PremiumGate';
 import { useWarriorsCourse } from '@/hooks/useWarriorsCourse';
+import { WarriorAiMentor, WarriorAiMentorButton } from '@/components/warriors-way/WarriorAiMentor';
 
-// Course structure based on the 40 chapters
+// Course structure - INTRO has 7 modules now
 const COURSE_SECTIONS = [
   {
     id: 'intro',
-    title: 'INTRO - Bine Ai Venit',
-    description: 'Introducere în Calea Războinicului',
+    title: 'INTRO - Warrior Launch Accelerator',
+    description: 'Introducere în Calea Războinicului - 7 Lecții Fundamentale',
     isFree: true,
     modules: [
-      { id: 'intro-1', title: 'Bine ai venit la Warrior\'s Way', duration: '8 min', order: 1 },
-      { id: 'intro-2', title: 'Cele 6 Etape ale Jocului', duration: '12 min', order: 2 },
-      { id: 'intro-3', title: 'Cele 7 Nivele ale Jocului', duration: '10 min', order: 3 },
-      { id: 'intro-4', title: 'Cele 5 Investiții', duration: '15 min', order: 4 },
-      { id: 'intro-5', title: 'Cel Mai Mare Adevăr', duration: '10 min', order: 5 },
+      { id: 'intro-1', title: 'Punctul de Start - Groapa', duration: '15 min', order: 1 },
+      { id: 'intro-2', title: 'Cele 6 Etape ale Creșterii și Expansiunii', duration: '12 min', order: 2 },
+      { id: 'intro-3', title: 'Cele 7 Etape ale Ascensiunii Tale', duration: '14 min', order: 3 },
+      { id: 'intro-4', title: 'Cele 5 Investiții Esențiale ale Regelui Războinic', duration: '10 min', order: 4 },
+      { id: 'intro-5', title: 'Cele 5 Protocoale ale Războinicului', duration: '18 min', order: 5 },
+      { id: 'intro-6', title: 'Cele 5 Legi ale Războinicului', duration: '12 min', order: 6 },
+      { id: 'intro-7', title: 'Coeficientul Puterii & Warrior Time-Warp', duration: '10 min', order: 7 },
     ]
   },
   {
@@ -136,6 +140,7 @@ const WarriorsWay: React.FC = () => {
   const { user } = useAuth();
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [showPremiumGate, setShowPremiumGate] = useState(false);
+  const [showAiMentor, setShowAiMentor] = useState(false);
   const { progress, isModuleCompleted, markModuleComplete, overallProgress } = useWarriorsCourse();
 
   const totalModules = COURSE_SECTIONS.reduce((acc, section) => acc + section.modules.length, 0);
@@ -342,6 +347,21 @@ const WarriorsWay: React.FC = () => {
         {showPremiumGate && (
           <PremiumGate onClose={() => setShowPremiumGate(false)} />
         )}
+
+        {/* AI Mentor */}
+        <WarriorAiMentorButton onClick={() => setShowAiMentor(true)} />
+        <WarriorAiMentor 
+          isOpen={showAiMentor} 
+          onClose={() => setShowAiMentor(false)}
+          onNavigateToModule={(moduleId) => {
+            const section = COURSE_SECTIONS.find(s => s.modules.some(m => m.id === moduleId));
+            if (section?.isFree) {
+              setSelectedModule(moduleId);
+            } else {
+              setShowPremiumGate(true);
+            }
+          }}
+        />
       </div>
     </Layout>
   );

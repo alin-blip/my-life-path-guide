@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.send-challenge-reminder]
 verify_jwt = false
+
+[functions.warrior-ai-coach]
+verify_jwt = false
