@@ -35,6 +35,7 @@ import {
   FileText,
   Pencil,
   Save,
+  Calendar,
 } from 'lucide-react';
 import { useTodayWorkout, ExerciseProgress, SetProgress } from '@/hooks/useTodayWorkout';
 import { DAYS_OF_WEEK } from '@/types/workout';
@@ -100,6 +101,8 @@ export function TodaysWorkoutDashboard({ onComplete }: TodaysWorkoutDashboardPro
     updateExerciseSetsCount,
     getCompletedProgress,
     formatTime,
+    selectedDayOfWeek,
+    setSelectedDayOfWeek,
   } = useTodayWorkout();
 
   const [showAddExercise, setShowAddExercise] = useState(false);
@@ -350,6 +353,31 @@ export function TodaysWorkoutDashboard({ onComplete }: TodaysWorkoutDashboardPro
 
         {/* Template Tab Content */}
         <TabsContent value="template" className="m-0">
+          {/* Day Selector */}
+          <div className="p-3 border-b bg-muted/30">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Selectează ziua:</span>
+            </div>
+            <div className="flex gap-1 overflow-x-auto pb-1">
+              {DAYS_OF_WEEK.map((day) => (
+                <Button
+                  key={day.value}
+                  variant={selectedDayOfWeek === day.value ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedDayOfWeek(day.value)}
+                  disabled={isStarted}
+                  className={cn(
+                    "min-w-[60px] text-xs",
+                    selectedDayOfWeek === day.value && "font-bold"
+                  )}
+                >
+                  {day.label.slice(0, 3)}
+                </Button>
+              ))}
+            </div>
+          </div>
+
           {/* Header with gradient */}
           <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-6 border-b">
             <div className="flex items-center justify-between mb-4">
