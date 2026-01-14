@@ -34,7 +34,7 @@ const COURSE_SECTIONS = [
     modules: [
       { id: 'intro-1', title: 'Punctul de Start - Groapa', duration: '15 min', order: 1, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=PI-nU1i6vo7AF0RdV1FiSMTC6GkmBF9tBxoHaAoVbPEKW0hQC&videoRatio=1.777778&type=v&skinColor=%232758EB' },
       { id: 'intro-2', title: 'Cele 6 Etape ale Creșterii și Expansiunii', duration: '12 min', order: 2 },
-      { id: 'intro-3', title: 'Cele 7 Etape ale Ascensiunii Tale', duration: '14 min', order: 3 },
+      { id: 'intro-3', title: 'Cele 7 Etape ale Ascensiunii Tale', duration: '14 min', order: 3, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=odU6l-9Gh1OVbAFYjRyBjUCFWt9zoRzqX3Wy4WIwcBk_BEdIP&videoRatio=1.777778&type=v&skinColor=%232758EB' },
       { id: 'intro-4', title: 'Cele 5 Investiții Esențiale ale Regelui Războinic', duration: '10 min', order: 4 },
       { id: 'intro-5', title: 'Cele 5 Protocoale ale Războinicului', duration: '18 min', order: 5 },
       { id: 'intro-6', title: 'Cele 5 Legi ale Războinicului', duration: '12 min', order: 6 },
