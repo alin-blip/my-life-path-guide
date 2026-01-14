@@ -44,13 +44,8 @@ export const CommandCenterTabs: React.FC = () => {
   ];
 
   const handleViewAllObjectives = () => {
-    if (currentObjectivesTab === 'monthly') {
-      navigate('/monthly-objectives');
-    } else if (currentObjectivesTab === 'quarterly') {
-      navigate('/quarterly-objectives');
-    } else {
-      navigate('/annual-objectives');
-    }
+    // Navigate to core page with the objectives type as query param
+    navigate(`/core?type=${currentObjectivesTab}`);
   };
 
   return (
