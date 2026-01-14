@@ -44,8 +44,7 @@ export const CommandCenterTabs: React.FC = () => {
   ];
 
   const handleViewAllObjectives = () => {
-    // Navigate to core page with the objectives type as query param
-    navigate(`/core?type=${currentObjectivesTab}`);
+    navigate(`/objectives?type=${currentObjectivesTab}`);
   };
 
   return (
