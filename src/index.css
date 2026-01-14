@@ -497,6 +497,80 @@
   animation: flame-flicker 0.5s ease-in-out infinite;
 }
 
+/* ===== DRAG & DROP ANIMATIONS ===== */
+
+/* Drop zone pulse */
+@keyframes drop-zone-pulse {
+  0%, 100% {
+    border-color: hsl(var(--primary) / 0.5);
+    background-color: hsl(var(--primary) / 0.05);
+  }
+  50% {
+    border-color: hsl(var(--primary));
+    background-color: hsl(var(--primary) / 0.15);
+  }
+}
+
+.animate-drop-zone-pulse {
+  animation: drop-zone-pulse 1s ease-in-out infinite;
+}
+
+/* Success pop */
+@keyframes success-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-success-pop {
+  animation: success-pop 0.3s ease-out forwards;
+}
+
+/* Drag item shrink */
+@keyframes drag-shrink {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+}
+
+.animate-drag-shrink {
+  animation: drag-shrink 0.2s ease-out forwards;
+}
+
+/* Processing shimmer */
+@keyframes processing-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-processing-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--primary) / 0.1) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: processing-shimmer 1.5s ease-in-out infinite;
+}
+
 /* ===== FOCUS MODE STARS ===== */
 
 @keyframes twinkle {

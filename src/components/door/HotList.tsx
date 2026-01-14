@@ -4,6 +4,7 @@ import { Check, X, GripVertical, Search, Plus, Target } from 'lucide-react';
 import { HotListItem, TaskPriority } from '@/types/door';
 import { useLanguage } from '@/context/LanguageContext';
 import { DoorEmptyState } from './DoorEmptyState';
+import { cn } from '@/lib/utils';
 
 interface HotListProps {
   filteredHotList: HotListItem[];
@@ -44,6 +45,7 @@ export const HotList: React.FC<HotListProps> = ({
   const [editValues, setEditValues] = useState<{ [id: string]: string }>({});
   const [newItemText, setNewItemText] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
 
@@ -143,16 +145,29 @@ export const HotList: React.FC<HotListProps> = ({
             return (
               <div 
                 key={item.id} 
-                className={`group flex items-center gap-2 rounded-lg hover:bg-muted/50 transition-colors ${
-                  getPriorityIndicator(item.priority)
-                } ${isMobile ? 'p-2' : 'p-2'}`}
+                className={cn(
+                  "group relative flex items-center gap-2 rounded-lg hover:bg-muted/50 transition-all",
+                  getPriorityIndicator(item.priority),
+                  isMobile ? 'p-2' : 'p-2',
+                  draggingItemId === item.id && "opacity-50 scale-95 ring-2 ring-primary"
+                )}
                 draggable={!isEditing}
                 onDragStart={(e) => {
+                  setDraggingItemId(item.id);
                   handleDragStart(e, item);
                   handleDragStartToDomino(e, item);
                 }}
-                onDragEnd={handleDragEnd}
+                onDragEnd={() => {
+                  setDraggingItemId(null);
+                  handleDragEnd();
+                }}
               >
+                {/* Dragging Badge */}
+                {draggingItemId === item.id && (
+                  <div className="absolute -top-2 -right-2 z-10 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full animate-fade-in shadow-lg">
+                    {t('dragging') || 'Moving...'}
+                  </div>
+                )}
                 {/* Drag handle */}
                 <div className={`cursor-grab text-muted-foreground/50 group-hover:text-muted-foreground ${isMobile ? '' : ''}`}>
                   <GripVertical className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />

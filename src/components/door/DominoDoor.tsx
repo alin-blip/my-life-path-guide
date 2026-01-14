@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { VoiceTextarea } from '@/components/ui/VoiceTextarea';
-import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, RefreshCw } from 'lucide-react';
+import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, RefreshCw, Loader2, ArrowDown } from 'lucide-react';
 import { HotListItem, DominoKeyPoint, PlanningResult } from '@/types/door';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -69,6 +69,8 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const [showExplanation, setShowExplanation] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [showAIKeyPointsPrompt, setShowAIKeyPointsPrompt] = useState(false);
+  const [isProcessingDrop, setIsProcessingDrop] = useState(false);
+  const [showDropSuccess, setShowDropSuccess] = useState(false);
 
   // Auto-restore AI Planning if there's an unfinished draft (prevents "reset" on tab switches)
   const planningWeekKey = React.useMemo(() => {
@@ -171,9 +173,12 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const totalKeys = dominoKeyPoints.filter(kp => kp.text.trim()).length;
 
   // Handle drop directly for monthly missions when setters are available
-  const handleLocalDrop = (e: React.DragEvent) => {
+  const handleLocalDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
+    
+    // Show processing state
+    setIsProcessingDrop(true);
     
     // Try to handle monthly mission drop directly
     const jsonData = e.dataTransfer.getData('application/json');
@@ -181,6 +186,9 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
       try {
         const data = JSON.parse(jsonData);
         if (data.type === 'monthly-mission') {
+          // Brief delay for processing animation
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
           // Set the mission as domino
           setSelectedDomino({
             id: `monthly-${data.id}`,
@@ -191,31 +199,36 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           
           // Auto-populate key points from keyActions
           if (data.keyActions && data.keyActions.length > 0) {
-              const newKeyPoints = data.keyActions.slice(0, 4).map((action: string, idx: number) => ({
-                id: `key${idx + 1}`,
-                text: action,
-                completed: false
-              }));
-              setDominoKeyPoints(newKeyPoints);
-            } else {
-              // No keyActions, show prompt to generate with AI
-              setDominoKeyPoints([
-                { id: 'key1', text: '', completed: false },
-                { id: 'key2', text: '', completed: false },
-                { id: 'key3', text: '', completed: false },
-                { id: 'key4', text: '', completed: false }
-              ]);
-              setShowAIKeyPointsPrompt(true);
-            }
-            
-            toast({
-              title: '🎯 Domino setat!',
-              description: data.keyActions?.length > 0 
-                ? `"${data.text}" este acum focusul tău săptămânal.`
-                : `"${data.text}" setat. Generează key points cu AI!`
-            });
-            
-            console.debug('[DominoDoor] Monthly mission dropped directly', { id: data.id, text: data.text });
+            const newKeyPoints = data.keyActions.slice(0, 4).map((action: string, idx: number) => ({
+              id: `key${idx + 1}`,
+              text: action,
+              completed: false
+            }));
+            setDominoKeyPoints(newKeyPoints);
+          } else {
+            // No keyActions, show prompt to generate with AI
+            setDominoKeyPoints([
+              { id: 'key1', text: '', completed: false },
+              { id: 'key2', text: '', completed: false },
+              { id: 'key3', text: '', completed: false },
+              { id: 'key4', text: '', completed: false }
+            ]);
+            setShowAIKeyPointsPrompt(true);
+          }
+          
+          // Show success state
+          setIsProcessingDrop(false);
+          setShowDropSuccess(true);
+          setTimeout(() => setShowDropSuccess(false), 1000);
+          
+          toast({
+            title: '🎯 Domino setat!',
+            description: data.keyActions?.length > 0 
+              ? `"${data.text}" este acum focusul tău săptămânal.`
+              : `"${data.text}" setat. Generează key points cu AI!`
+          });
+          
+          console.debug('[DominoDoor] Monthly mission dropped directly', { id: data.id, text: data.text });
           return;
         }
       } catch (parseError) {
@@ -224,13 +237,18 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
     }
     
     // Fall back to the provided handler
+    setIsProcessingDrop(false);
     handleDropOnDomino(e);
+    
+    // Show success for regular drops too
+    setShowDropSuccess(true);
+    setTimeout(() => setShowDropSuccess(false), 1000);
   };
 
   return (
     <div 
       className={cn(
-        "bg-card rounded-xl border transition-all duration-200",
+        "relative bg-card rounded-xl border transition-all duration-200",
         isDragOver 
           ? "border-primary ring-2 ring-primary/30 ring-offset-2 ring-offset-background" 
           : "border-border",
@@ -249,6 +267,41 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
       }}
       onDrop={handleLocalDrop}
     >
+      {/* Processing Overlay */}
+      {isProcessingDrop && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-xl">
+          <div className="flex items-center gap-2 text-primary animate-fade-in">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm font-medium">Se procesează...</span>
+          </div>
+        </div>
+      )}
+      
+      {/* Success Overlay */}
+      {showDropSuccess && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-green-500/10 rounded-xl pointer-events-none">
+          <div className="flex items-center gap-2 text-green-600 animate-success-pop">
+            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+              <Check className="w-5 h-5 text-white" />
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Drop Zone Indicator */}
+      {isDragOver && !isProcessingDrop && !showDropSuccess && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center rounded-xl bg-primary/10 border-2 border-dashed border-primary animate-drop-zone-pulse pointer-events-none">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center animate-bounce">
+              <ArrowDown className="w-5 h-5 text-primary" />
+            </div>
+            <span className="text-sm font-medium text-primary">
+              {t('setWeeklyFocus') || 'Set as weekly focus'}
+            </span>
+          </div>
+        </div>
+      )}
+      
       {selectedDomino ? (
         <div className={`space-y-4 animate-fade-in`}>
           {/* Header - Simplified */}

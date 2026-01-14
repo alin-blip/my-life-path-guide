@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { HitListItem, DoListItem, DayOfWeek } from '@/types/door';
 import { DayNavigation } from './task-list/DayNavigation';
 import { TaskItem } from './task-list/TaskItem';
 import { SwipeableTaskItem } from './SwipeableTaskItem';
 import { EmptyTaskList } from './task-list/EmptyTaskList';
+import { cn } from '@/lib/utils';
+import { ArrowDown, Check } from 'lucide-react';
 
 interface TaskListProps {
   activeList: 'hit' | 'do';
@@ -22,6 +24,9 @@ interface TaskListProps {
   moveTaskBackToHotList?: (taskId: string, listType: 'hit' | 'do') => void;
   onDeleteTask?: (taskId: string, listType: 'hit' | 'do') => void;
   onTasksAdded?: () => void;
+  isDragOver?: boolean;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent) => void;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({
@@ -40,8 +45,38 @@ export const TaskList: React.FC<TaskListProps> = ({
   isMobile = false,
   moveTaskBackToHotList,
   onDeleteTask,
-  onTasksAdded
+  onTasksAdded,
+  isDragOver: propIsDragOver,
+  onDragOver: propOnDragOver,
+  onDrop: propOnDrop
 }) => {
+  const [localIsDragOver, setLocalIsDragOver] = useState(false);
+  const [showDropSuccess, setShowDropSuccess] = useState(false);
+  
+  const isDragOver = propIsDragOver !== undefined ? propIsDragOver : localIsDragOver;
+  
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setLocalIsDragOver(true);
+    propOnDragOver?.(e);
+  };
+  
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setLocalIsDragOver(false);
+    }
+  };
+  
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setLocalIsDragOver(false);
+    propOnDrop?.(e);
+    
+    // Show success indicator
+    setShowDropSuccess(true);
+    setTimeout(() => setShowDropSuccess(false), 1000);
+  };
+  
   const normalizeDay = (d: any): DayOfWeek => {
     if (typeof d !== 'string') return d as DayOfWeek;
     const map: Record<string, DayOfWeek> = {
@@ -73,9 +108,39 @@ export const TaskList: React.FC<TaskListProps> = ({
   
   return (
     <div 
-      className={isMobile ? 'max-h-[70vh] overflow-y-auto overflow-x-hidden w-full max-w-full' : ''}
-      onDragOver={(e) => e.preventDefault()}
+      className={cn(
+        "relative transition-all duration-200",
+        isMobile ? 'max-h-[70vh] overflow-y-auto overflow-x-hidden w-full max-w-full' : '',
+        isDragOver && "ring-2 ring-primary/30 ring-offset-2 ring-offset-background rounded-xl"
+      )}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
+      {/* Drop Zone Indicator */}
+      {isDragOver && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center rounded-xl bg-primary/10 border-2 border-dashed border-primary animate-drop-zone-pulse pointer-events-none">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center animate-bounce">
+              <ArrowDown className="w-5 h-5 text-primary" />
+            </div>
+            <span className="text-sm font-medium text-primary">
+              Add to tasks
+            </span>
+          </div>
+        </div>
+      )}
+      
+      {/* Success Overlay */}
+      {showDropSuccess && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-green-500/10 rounded-xl pointer-events-none">
+          <div className="flex items-center gap-2 text-green-600 animate-success-pop">
+            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+              <Check className="w-5 h-5 text-white" />
+            </div>
+          </div>
+        </div>
+      )}
       {/* Task Type Tabs - Simplified */}
       <div className="flex mb-3 bg-muted/50 p-1 rounded-lg">
         <button

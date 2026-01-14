@@ -59,6 +59,7 @@ export const CompactMissionCards: React.FC = () => {
   const [missions, setMissions] = useState<MonthlyMission[]>([]);
   const [loading, setLoading] = useState(true);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [recentlyDragged, setRecentlyDragged] = useState<string | null>(null);
 
   const currentDate = new Date();
   const monthKey = format(currentDate, 'yyyy-MM');
@@ -133,7 +134,12 @@ export const CompactMissionCards: React.FC = () => {
     console.debug('[DnD] Lunar dragStart', { id: mission.id, effectAllowed: 'copyMove' });
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (e: React.DragEvent) => {
+    // Show brief success indicator if dropped successfully
+    if (e.dataTransfer.dropEffect !== 'none' && draggingId) {
+      setRecentlyDragged(draggingId);
+      setTimeout(() => setRecentlyDragged(null), 1500);
+    }
     setDraggingId(null);
   };
 
@@ -184,16 +190,34 @@ export const CompactMissionCards: React.FC = () => {
             <div
               key={key}
               className={cn(
-                "rounded-xl border-2 p-3 transition-all duration-200",
+                "relative rounded-xl border-2 p-3 transition-all duration-200",
                 config.borderColor,
                 config.bgColor,
                 mission && "cursor-grab active:cursor-grabbing hover:shadow-lg hover:scale-[1.02]",
-                draggingId === mission?.id && "opacity-50 ring-2 ring-primary"
+                draggingId === mission?.id && "opacity-50 ring-2 ring-primary scale-95",
+                recentlyDragged === mission?.id && "ring-2 ring-green-500 bg-green-500/10"
               )}
               draggable={!!mission}
               onDragStart={(e) => mission && handleDragStart(e, mission)}
               onDragEnd={handleDragEnd}
             >
+              {/* Dragging Badge */}
+              {draggingId === mission?.id && (
+                <div className="absolute -top-2 -right-2 z-10 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full animate-fade-in shadow-lg">
+                  {language === 'en' ? 'Dragging...' : 'Se mută...'}
+                </div>
+              )}
+              
+              {/* Success Badge */}
+              {recentlyDragged === mission?.id && (
+                <div className="absolute -top-2 -right-2 z-10 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full animate-success-pop shadow-lg flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {language === 'en' ? 'Added!' : 'Adăugat!'}
+                </div>
+              )}
+
               {/* Header */}
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
