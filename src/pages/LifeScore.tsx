@@ -11,10 +11,8 @@ import {
   ArrowRight,
   Sparkles,
   TrendingUp,
-  Brain,
-  Heart,
-  Briefcase,
-  Dumbbell
+  CheckCircle2,
+  Play
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { motion } from 'framer-motion';
@@ -37,15 +35,33 @@ const LifeScore = () => {
   }, []);
 
   const pillars = [
-    { icon: Dumbbell, label: language === 'en' ? 'Body' : 'Corp', color: '#22c55e', emoji: '💪' },
-    { icon: Brain, label: language === 'en' ? 'Being' : 'Ființă', color: '#8b5cf6', emoji: '🧘' },
-    { icon: Heart, label: language === 'en' ? 'Balance' : 'Echilibru', color: '#ec4899', emoji: '❤️' },
-    { icon: Briefcase, label: 'Business', color: '#3b82f6', emoji: '🚀' },
+    { label: language === 'en' ? 'Body' : 'Corp', emoji: '💪', gradient: 'from-emerald-500 to-teal-500' },
+    { label: language === 'en' ? 'Being' : 'Ființă', emoji: '🧘', gradient: 'from-violet-500 to-purple-500' },
+    { label: language === 'en' ? 'Balance' : 'Echilibru', emoji: '❤️', gradient: 'from-rose-500 to-pink-500' },
+    { label: 'Business', emoji: '🚀', gradient: 'from-blue-500 to-indigo-500' },
+  ];
+
+  const benefits = [
+    { 
+      icon: Clock, 
+      text: language === 'en' ? 'Only 60 seconds' : 'Doar 60 secunde',
+      subtext: language === 'en' ? '5 quick questions' : '5 întrebări rapide'
+    },
+    { 
+      icon: Target, 
+      text: language === 'en' ? 'Instant clarity' : 'Claritate instant',
+      subtext: language === 'en' ? 'Know your focus area' : 'Află aria de focus'
+    },
+    { 
+      icon: TrendingUp, 
+      text: language === 'en' ? 'Free forever' : 'Gratuit pentru totdeauna',
+      subtext: language === 'en' ? 'No signup needed' : 'Fără înregistrare'
+    },
   ];
 
   if (showQuiz) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950">
         <Helmet>
           <title>{language === 'en' ? 'Life Score 60s Quiz | LifeOS' : 'Quiz Life Score 60s | LifeOS'}</title>
         </Helmet>
@@ -54,7 +70,7 @@ const LifeScore = () => {
           <LanguageSelector />
         </div>
 
-        <div className="container mx-auto px-4 py-8 md:py-16">
+        <div className="container mx-auto px-4 py-8 md:py-12">
           <LifeScoreQuiz language={language} />
         </div>
       </div>
@@ -62,7 +78,7 @@ const LifeScore = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 overflow-hidden">
       <Helmet>
         <title>{language === 'en' ? 'Life Score 60s - Quick Life Assessment | LifeOS' : 'Life Score 60s - Evaluare Rapidă | LifeOS'}</title>
         <meta 
@@ -73,66 +89,70 @@ const LifeScore = () => {
         />
       </Helmet>
 
+      {/* Ambient Background Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-500/20 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[150px]" />
+      </div>
+
       <div className="absolute top-4 right-4 z-10">
         <LanguageSelector />
       </div>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent" />
-        
-        {/* Floating elements */}
-        <div className="absolute top-20 left-10 text-4xl animate-bounce opacity-50">⚡</div>
-        <div className="absolute top-40 right-20 text-3xl animate-pulse opacity-50">🎯</div>
-        <div className="absolute bottom-20 left-20 text-3xl animate-bounce opacity-50" style={{ animationDelay: '0.5s' }}>✨</div>
-
-        <div className="container mx-auto px-4 py-16 md:py-24 relative">
+      <section className="relative min-h-screen flex items-center justify-center py-20">
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div 
-            className="max-w-3xl mx-auto text-center"
-            initial={{ opacity: 0, y: 20 }}
+            className="max-w-4xl mx-auto text-center"
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.8 }}
           >
-            {/* Badge */}
+            {/* Top Badge */}
             <motion.div 
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-700 px-5 py-2.5 rounded-full mb-6 border border-amber-500/30"
+              className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl text-white/90 px-6 py-3 rounded-full mb-8 border border-white/20 shadow-lg"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <Clock className="w-4 h-4" />
-              <span className="text-sm font-bold">
-                {language === 'en' ? '60 SECONDS • 5 QUESTIONS • FREE' : '60 SECUNDE • 5 ÎNTREBĂRI • GRATUIT'}
+              <div className="flex items-center gap-1">
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span className="text-sm font-semibold text-amber-400">60s</span>
+              </div>
+              <div className="w-px h-4 bg-white/30" />
+              <span className="text-sm font-medium">
+                {language === 'en' ? '5 Questions • 100% Free' : '5 Întrebări • 100% Gratuit'}
               </span>
-              <Zap className="w-4 h-4" />
             </motion.div>
 
-            {/* Headline */}
+            {/* Main Headline */}
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight"
+              className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-[1.1] tracking-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
               {language === 'en' 
-                ? <>Discover Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">Life Score</span> in 60 Seconds</>
-                : <>Descoperă <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">Scorul Vieții</span> în 60 Secunde</>}
+                ? <>Discover Your <br/><span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Life Score</span></>
+                : <>Descoperă-ți <br/><span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Scorul Vieții</span></>}
             </motion.h1>
 
             {/* Subheadline */}
             <motion.p 
-              className="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto"
+              className="text-xl md:text-2xl text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
               {language === 'en'
-                ? '5 quick questions to reveal where you\'re winning and where you need focus across Body, Being, Balance & Business.'
-                : '5 întrebări rapide pentru a dezvălui unde câștigi și unde ai nevoie de focus în Corp, Ființă, Echilibru și Business.'}
+                ? 'Find out where you\'re thriving and where you need focus — in just 60 seconds.'
+                : 'Află unde excelezi și unde ai nevoie de focus — în doar 60 de secunde.'}
             </motion.p>
 
             {/* CTA Button */}
             <motion.div
+              className="mb-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
@@ -140,164 +160,229 @@ const LifeScore = () => {
               <Button 
                 size="lg" 
                 onClick={() => setShowQuiz(true)}
-                className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 text-white px-10 py-7 text-xl font-bold shadow-2xl hover:shadow-primary/30 transition-all hover:scale-105 group"
+                className="relative bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-600 hover:via-orange-600 hover:to-rose-600 text-white px-12 py-8 text-xl font-bold rounded-2xl shadow-[0_20px_60px_rgba(251,146,60,0.4)] hover:shadow-[0_25px_70px_rgba(251,146,60,0.5)] transition-all duration-300 hover:scale-105 group border-0"
               >
-                {language === 'en' ? 'Start Now' : 'Începe Acum'}
-                <ArrowRight className="w-6 h-6 ml-2 transition-transform group-hover:translate-x-1" />
+                <Play className="w-6 h-6 mr-3 transition-transform group-hover:scale-110" />
+                {language === 'en' ? 'Start Free Quiz' : 'Începe Quiz-ul Gratuit'}
+                <ArrowRight className="w-6 h-6 ml-3 transition-transform group-hover:translate-x-1" />
               </Button>
             </motion.div>
 
-            {/* Quick stats */}
+            {/* 4 Pillars */}
             <motion.div 
-              className="flex flex-wrap justify-center gap-8 mt-10 text-sm text-slate-500"
+              className="flex flex-wrap justify-center gap-3 mb-12"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
             >
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-primary" />
-                <span>{language === 'en' ? 'Instant results' : 'Rezultate instant'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-primary" />
-                <span>{language === 'en' ? 'Personalized insights' : 'Insight-uri personalizate'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span>{language === 'en' ? 'No signup required' : 'Fără înregistrare'}</span>
-              </div>
+              {pillars.map((pillar, index) => (
+                <motion.div
+                  key={index}
+                  className={`flex items-center gap-2 bg-gradient-to-r ${pillar.gradient} px-5 py-2.5 rounded-full text-white font-medium shadow-lg`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 + index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                >
+                  <span className="text-lg">{pillar.emoji}</span>
+                  <span>{pillar.label}</span>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Benefits Row */}
+            <motion.div 
+              className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+            >
+              {benefits.map((benefit, index) => (
+                <div 
+                  key={index}
+                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 text-center"
+                >
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center">
+                    <benefit.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-white font-semibold mb-1">{benefit.text}</h3>
+                  <p className="text-white/50 text-sm">{benefit.subtext}</p>
+                </div>
+              ))}
             </motion.div>
           </motion.div>
         </div>
+
+        {/* Scroll indicator */}
+        <motion.div 
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+        >
+          <div className="flex flex-col items-center gap-2 text-white/40">
+            <span className="text-xs uppercase tracking-widest">
+              {language === 'en' ? 'Learn more' : 'Află mai mult'}
+            </span>
+            <motion.div 
+              className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-1"
+              animate={{ y: [0, 5, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              <div className="w-1.5 h-3 bg-white/50 rounded-full" />
+            </motion.div>
+          </div>
+        </motion.div>
       </section>
 
-      {/* 4 Pillars Preview */}
-      <section className="py-12 bg-white/50">
+      {/* How it works */}
+      <section className="py-24 relative">
         <div className="container mx-auto px-4">
           <motion.div 
-            className="text-center mb-8"
+            className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              {language === 'en' ? 'We measure 4 life pillars' : 'Măsurăm 4 piloni ai vieții'}
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              {language === 'en' ? 'How It Works' : 'Cum Funcționează'}
             </h2>
-            <p className="text-slate-600">
+            <p className="text-white/60 text-lg">
               {language === 'en' 
-                ? 'One question per pillar + overall satisfaction'
-                : 'O întrebare per pilon + satisfacția generală'}
+                ? 'Three simple steps to clarity'
+                : 'Trei pași simpli către claritate'}
             </p>
           </motion.div>
 
-          <div className="flex flex-wrap justify-center gap-4 max-w-2xl mx-auto">
-            {pillars.map((pillar, index) => (
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {[
+              {
+                step: '01',
+                title: language === 'en' ? 'Answer 5 Questions' : 'Răspunde la 5 Întrebări',
+                description: language === 'en' 
+                  ? 'Quick, emoji-based answers. One per life pillar. No overthinking.'
+                  : 'Răspunsuri rapide cu emoji. Una per pilon. Fără gândire excesivă.',
+                icon: '🎯'
+              },
+              {
+                step: '02',
+                title: language === 'en' ? 'Get Your Score' : 'Primești Scorul',
+                description: language === 'en' 
+                  ? 'See your overall Life Score percentage and breakdown by category.'
+                  : 'Vezi procentul Scorului Vieții și defalcarea pe categorii.',
+                icon: '📊'
+              },
+              {
+                step: '03',
+                title: language === 'en' ? 'Know Your Focus' : 'Află-ți Focusul',
+                description: language === 'en' 
+                  ? 'Discover which area of your life needs the most attention right now.'
+                  : 'Descoperă care arie a vieții are nevoie de cea mai mare atenție.',
+                icon: '🎯'
+              },
+            ].map((item, index) => (
               <motion.div
                 key={index}
-                className="flex items-center gap-2 bg-white rounded-full px-5 py-3 shadow-md border border-slate-100"
-                initial={{ opacity: 0, y: 20 }}
+                className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 text-center group hover:bg-white/10 transition-colors"
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
               >
-                <span className="text-xl">{pillar.emoji}</span>
-                <span className="font-medium" style={{ color: pillar.color }}>
-                  {pillar.label}
-                </span>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-bold px-4 py-1 rounded-full">
+                  {item.step}
+                </div>
+                <span className="text-5xl mb-6 block">{item.icon}</span>
+                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                <p className="text-white/60">{item.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="py-16">
+      {/* Social Proof */}
+      <section className="py-16 border-y border-white/10">
         <div className="container mx-auto px-4">
           <motion.div 
-            className="max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            className="flex flex-wrap justify-center items-center gap-8 md:gap-16"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div className="space-y-3">
-                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
-                  <span className="text-3xl">1️⃣</span>
-                </div>
-                <h3 className="font-semibold text-slate-900">
-                  {language === 'en' ? 'Answer 5 Questions' : 'Răspunde la 5 Întrebări'}
-                </h3>
-                <p className="text-sm text-slate-600">
-                  {language === 'en' 
-                    ? 'Quick, emoji-based answers. No overthinking needed.'
-                    : 'Răspunsuri rapide cu emoji. Fără gândire excesivă.'}
-                </p>
-              </div>
-              <div className="space-y-3">
-                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
-                  <span className="text-3xl">2️⃣</span>
-                </div>
-                <h3 className="font-semibold text-slate-900">
-                  {language === 'en' ? 'Get Your Score' : 'Primește Scorul'}
-                </h3>
-                <p className="text-sm text-slate-600">
-                  {language === 'en' 
-                    ? 'See your Life Score percentage and breakdown by pillar.'
-                    : 'Vezi procentul Scorului Vieții și defalcarea pe piloni.'}
-                </p>
-              </div>
-              <div className="space-y-3">
-                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
-                  <span className="text-3xl">3️⃣</span>
-                </div>
-                <h3 className="font-semibold text-slate-900">
-                  {language === 'en' ? 'Discover Your Focus' : 'Descoperă Focusul'}
-                </h3>
-                <p className="text-sm text-slate-600">
-                  {language === 'en' 
-                    ? 'Learn which life area needs the most attention right now.'
-                    : 'Află care arie a vieții are nevoie de cea mai mare atenție acum.'}
-                </p>
-              </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-white mb-1">5,000+</div>
+              <div className="text-white/50 text-sm">{language === 'en' ? 'Quizzes taken' : 'Quiz-uri completate'}</div>
+            </div>
+            <div className="w-px h-12 bg-white/20 hidden md:block" />
+            <div className="text-center">
+              <div className="text-4xl font-bold text-white mb-1">60s</div>
+              <div className="text-white/50 text-sm">{language === 'en' ? 'Average time' : 'Timp mediu'}</div>
+            </div>
+            <div className="w-px h-12 bg-white/20 hidden md:block" />
+            <div className="text-center">
+              <div className="text-4xl font-bold text-white mb-1">4.9★</div>
+              <div className="text-white/50 text-sm">{language === 'en' ? 'User rating' : 'Rating utilizatori'}</div>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="py-16">
+      <section className="py-24">
         <div className="container mx-auto px-4">
           <motion.div 
-            className="max-w-xl mx-auto"
+            className="max-w-2xl mx-auto text-center"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 md:p-10 text-center text-white relative overflow-hidden">
-              {/* Decorative elements */}
-              <div className="absolute top-4 right-4 text-4xl opacity-20">⚡</div>
-              <div className="absolute bottom-4 left-4 text-4xl opacity-20">🎯</div>
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-[2rem] p-10 md:p-12">
+              <motion.div
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-[0_10px_40px_rgba(251,146,60,0.4)]"
+              >
+                <Sparkles className="w-10 h-10 text-white" />
+              </motion.div>
               
-              <Zap className="w-12 h-12 mx-auto mb-4 text-amber-400" />
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 {language === 'en' 
                   ? 'Ready in 60 Seconds?' 
                   : 'Gata în 60 Secunde?'}
               </h2>
-              <p className="text-white/80 mb-6">
+              <p className="text-white/70 text-lg mb-8">
                 {language === 'en'
-                  ? 'No signup. No long forms. Just 5 quick questions and instant clarity.'
-                  : 'Fără înregistrare. Fără formulare lungi. Doar 5 întrebări rapide și claritate instant.'}
+                  ? 'No signup. No payment. Just quick clarity on where you stand.'
+                  : 'Fără înregistrare. Fără plată. Doar claritate rapidă despre unde te afli.'}
               </p>
-              <Button 
-                size="lg"
-                onClick={() => setShowQuiz(true)}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-6 text-lg font-bold shadow-lg"
-              >
-                {language === 'en' ? 'Start My Life Score' : 'Începe Scorul Meu'}
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+
+              <div className="space-y-4">
+                <Button 
+                  size="lg"
+                  onClick={() => setShowQuiz(true)}
+                  className="w-full sm:w-auto bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-600 hover:via-orange-600 hover:to-rose-600 text-white px-10 py-7 text-lg font-bold rounded-xl shadow-[0_15px_50px_rgba(251,146,60,0.3)] hover:shadow-[0_20px_60px_rgba(251,146,60,0.4)] transition-all hover:scale-105"
+                >
+                  <Zap className="w-5 h-5 mr-2" />
+                  {language === 'en' ? 'Start My Life Score' : 'Începe Scorul Meu'}
+                </Button>
+
+                <div className="flex flex-wrap justify-center gap-4 text-sm text-white/50">
+                  <div className="flex items-center gap-1">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>{language === 'en' ? 'Free forever' : 'Gratuit mereu'}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>{language === 'en' ? 'No signup' : 'Fără înregistrare'}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>{language === 'en' ? 'Instant results' : 'Rezultate instant'}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
