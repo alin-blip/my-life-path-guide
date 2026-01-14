@@ -1,23 +1,24 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Target, Flag, Crown } from 'lucide-react';
+import { Crown, Target, Flag } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { WeeklyTab } from './WeeklyTab';
 import { QuarterlyGoalsTab } from './QuarterlyGoalsTab';
 import { MonthlyMissionTab } from './MonthlyMissionTab';
 import { AnnualVisionTab } from './AnnualVisionTab';
+import { WeeklySection } from '@/components/door/WeeklySection';
 import { useSearchParams } from 'react-router-dom';
 
 export const CommandCenterTabs: React.FC = () => {
   const { language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const currentTab = searchParams.get('tab') || 'weekly';
+  // Default to monthly, no weekly tab anymore
+  const currentTab = searchParams.get('tab') || 'monthly';
   
   const handleTabChange = (value: string) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      if (value === 'weekly') {
+      if (value === 'monthly') {
         next.delete('tab');
       } else {
         next.set('tab', value);
@@ -26,12 +27,13 @@ export const CommandCenterTabs: React.FC = () => {
     }, { replace: true });
   };
 
+  // Only 3 tabs: Lunar, 90 Zile, Anual
   const tabs = [
     {
-      value: 'annual',
-      label: language === 'en' ? 'Annual' : 'Anual',
-      icon: Crown,
-      description: language === 'en' ? 'Annual vision & big goals' : 'Viziune anuală & obiective mari'
+      value: 'monthly',
+      label: language === 'en' ? 'Monthly' : 'Lunar',
+      icon: Flag,
+      description: language === 'en' ? 'Monthly focus mission' : 'Misiune lunară de focus'
     },
     {
       value: 'quarterly',
@@ -40,26 +42,21 @@ export const CommandCenterTabs: React.FC = () => {
       description: language === 'en' ? 'Quarterly goals & progress' : 'Obiective și progres trimestrial'
     },
     {
-      value: 'monthly',
-      label: language === 'en' ? 'Monthly' : 'Lunar',
-      icon: Flag,
-      description: language === 'en' ? 'Monthly focus mission' : 'Misiune lunară de focus'
-    },
-    {
-      value: 'weekly',
-      label: language === 'en' ? 'Weekly' : 'Săptămâna',
-      icon: Calendar,
-      description: language === 'en' ? 'Plan & execute weekly tasks' : 'Planifică & execută sarcini săptămânale'
+      value: 'annual',
+      label: language === 'en' ? 'Annual' : 'Anual',
+      icon: Crown,
+      description: language === 'en' ? 'Annual vision & big goals' : 'Viziune anuală & obiective mari'
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Objectives Section with Tabs */}
       <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
         {/* Tab Navigation */}
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
           <div className="container mx-auto px-4 py-3">
-            <TabsList className="w-full grid grid-cols-4 gap-1 bg-muted/50 p-1 rounded-xl h-auto">
+            <TabsList className="w-full grid grid-cols-3 gap-1 bg-muted/50 p-1 rounded-xl h-auto">
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.value}
@@ -74,25 +71,28 @@ export const CommandCenterTabs: React.FC = () => {
           </div>
         </div>
 
-        {/* Tab Content */}
+        {/* Tab Content - Objectives */}
         <div className="container mx-auto">
-          <TabsContent value="annual" forceMount className="mt-0 outline-none">
-            <AnnualVisionTab />
-          </TabsContent>
-          
-          <TabsContent value="quarterly" forceMount className="mt-0 outline-none">
-            <QuarterlyGoalsTab />
-          </TabsContent>
-          
-          <TabsContent value="monthly" forceMount className="mt-0 outline-none">
+          <TabsContent value="monthly" className="mt-0 outline-none">
             <MonthlyMissionTab />
           </TabsContent>
           
-          <TabsContent value="weekly" forceMount className="mt-0 outline-none">
-            <WeeklyTab />
+          <TabsContent value="quarterly" className="mt-0 outline-none">
+            <QuarterlyGoalsTab />
+          </TabsContent>
+          
+          <TabsContent value="annual" className="mt-0 outline-none">
+            <AnnualVisionTab />
           </TabsContent>
         </div>
       </Tabs>
+
+      {/* Weekly Section - Always Visible Below */}
+      <div className="border-t border-border bg-muted/30">
+        <div className="container mx-auto">
+          <WeeklySection />
+        </div>
+      </div>
     </div>
   );
 };
