@@ -32,7 +32,9 @@ import {
   Timer,
   Calendar,
   BarChart3,
-  History
+  History,
+  GraduationCap,
+  Swords
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -100,9 +102,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       badge: completedDays > 0 ? `${completedDays}/7` : undefined
     },
 
-    // 3. VIZIUNE & OBIECTIVE
+    // 3. VIZIUNE & OBIECTIVE - The Door
     {
-      title: language === 'ro' ? '🎯 Viziune & Obiective' : '🎯 Vision & Goals',
+      title: language === 'ro' ? '🎯 The Door / Viziune' : '🎯 The Door / Vision',
       icon: Target,
       path: '/door',
       subItems: [
@@ -114,13 +116,13 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 4. RUTINA ZILNICĂ (include Focus Room)
+    // 4. RUTINA RĂZBOINICULUI (Warrior Routine)
     {
-      title: language === 'ro' ? '🌅 Rutina Zilnică' : '🌅 Daily Routine',
-      icon: Crown,
+      title: language === 'ro' ? '⚔️ Rutina Războinicului' : '⚔️ Warrior Routine',
+      icon: Swords,
       path: '/daily-flow',
       subItems: [
-        { title: language === 'ro' ? 'Start Rutină' : 'Start Routine', icon: Crown, path: '/daily-flow' },
+        { title: language === 'ro' ? 'Start Rutină' : 'Start Routine', icon: Swords, path: '/daily-flow' },
         { title: language === 'ro' ? 'Focus Room' : 'Focus Room', icon: Timer, path: '/focus' },
         { title: language === 'ro' ? 'Istoric & Statistici' : 'History & Stats', icon: BarChart3, path: '/champion-routine-history' },
       ]
@@ -182,7 +184,15 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 9. COMUNITATE
+    // 9. LEARN THE W. WAY - Course Section
+    {
+      title: "📚 Learn the W. Way",
+      icon: GraduationCap,
+      path: '/warriors-way',
+      badge: 'NEW'
+    },
+
+    // 10. COMUNITATE
     {
       title: language === 'ro' ? '🏅 Comunitate' : '🏅 Community',
       icon: Trophy,
@@ -193,7 +203,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 10. TOOLS (Advanced Features)
+    // 11. TOOLS (Advanced Features)
     {
       title: language === 'ro' ? '🛠️ Tools' : '🛠️ Tools',
       icon: Settings,
@@ -310,12 +320,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         <Link to="/" className="flex items-center justify-center md:justify-start gap-3">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
-            alt="LifeOS logo"
+            alt="WarriorOS logo"
             loading="lazy"
             className={`${isCollapsed ? 'h-7 w-auto' : 'h-10 w-auto'} drop-shadow`}
           />
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-xl gradient-text">LifeOS</h1>
+            <h1 className="font-display font-bold text-xl gradient-text">WarriorOS</h1>
           )}
         </Link>
       </div>
