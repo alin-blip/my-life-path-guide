@@ -68,6 +68,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const [showAIPlanningModal, setShowAIPlanningModal] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showAIKeyPointsPrompt, setShowAIKeyPointsPrompt] = useState(false);
 
   // Auto-restore AI Planning if there's an unfinished draft (prevents "reset" on tab switches)
   const planningWeekKey = React.useMemo(() => {
@@ -190,20 +191,31 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           
           // Auto-populate key points from keyActions
           if (data.keyActions && data.keyActions.length > 0) {
-            const newKeyPoints = data.keyActions.slice(0, 4).map((action: string, idx: number) => ({
-              id: `key${idx + 1}`,
-              text: action,
-              completed: false
-            }));
-            setDominoKeyPoints(newKeyPoints);
-          }
-          
-          toast({
-            title: '🎯 Domino setat!',
-            description: `"${data.text}" este acum focusul tău săptămânal.`
-          });
-          
-          console.debug('[DominoDoor] Monthly mission dropped directly', { id: data.id, text: data.text });
+              const newKeyPoints = data.keyActions.slice(0, 4).map((action: string, idx: number) => ({
+                id: `key${idx + 1}`,
+                text: action,
+                completed: false
+              }));
+              setDominoKeyPoints(newKeyPoints);
+            } else {
+              // No keyActions, show prompt to generate with AI
+              setDominoKeyPoints([
+                { id: 'key1', text: '', completed: false },
+                { id: 'key2', text: '', completed: false },
+                { id: 'key3', text: '', completed: false },
+                { id: 'key4', text: '', completed: false }
+              ]);
+              setShowAIKeyPointsPrompt(true);
+            }
+            
+            toast({
+              title: '🎯 Domino setat!',
+              description: data.keyActions?.length > 0 
+                ? `"${data.text}" este acum focusul tău săptămânal.`
+                : `"${data.text}" setat. Generează key points cu AI!`
+            });
+            
+            console.debug('[DominoDoor] Monthly mission dropped directly', { id: data.id, text: data.text });
           return;
         }
       } catch (parseError) {
@@ -317,6 +329,32 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
               </div>
             )}
           </div>
+
+          {/* AI Key Points Generation Prompt */}
+          {(showAIKeyPointsPrompt || dominoKeyPoints.every(kp => !kp.text.trim())) && (
+            <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20 rounded-lg p-4 animate-fade-in">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  <p className="text-sm text-foreground">
+                    Generează cele 4 chei cu AI pentru obiectivul tău
+                  </p>
+                </div>
+                <Button
+                  onClick={() => {
+                    setShowAIKeyPointsPrompt(false);
+                    localStorage.removeItem(planningDismissedKey);
+                    setShowAIPlanningModal(true);
+                  }}
+                  size="sm"
+                  className="gap-2 bg-primary hover:bg-primary/90"
+                >
+                  <Rocket className="w-4 h-4" />
+                  Generează Key Points
+                </Button>
+              </div>
+            </div>
+          )}
           
           {/* Key Points - Clean List */}
           <div className="space-y-2">
