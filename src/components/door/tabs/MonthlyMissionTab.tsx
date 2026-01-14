@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { ChevronLeft, ChevronRight, Flag, Dumbbell, Brain, Heart, Briefcase, Plus, Edit2, Target, CheckCircle, Crown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flag, Dumbbell, Brain, Heart, Briefcase, Plus, Edit2, Target, CheckCircle, Crown, Eye, GripVertical } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +16,8 @@ import { cn } from '@/lib/utils';
 import { format, addMonths, subMonths } from 'date-fns';
 import { ro, enUS } from 'date-fns/locale';
 import { HierarchyBadge } from '@/components/door/HierarchyBadge';
+import { MissionDetailsModal } from '@/components/door/MissionDetailsModal';
+import { useDoor } from '@/context/DoorContext';
 
 interface MonthlyMission {
   id: string;
@@ -74,6 +76,17 @@ export const MonthlyMissionTab: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMission, setEditingMission] = useState<MonthlyMission | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [detailMission, setDetailMission] = useState<MonthlyMission | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [draggingMissionId, setDraggingMissionId] = useState<string | null>(null);
+  
+  // Get DoorContext for setting domino - wrapped in try/catch for safety
+  let doorContext: ReturnType<typeof useDoor> | null = null;
+  try {
+    doorContext = useDoor();
+  } catch {
+    // Component might be used outside DoorProvider
+  }
   
   const [formData, setFormData] = useState({
     title: '',
@@ -278,6 +291,72 @@ export const MonthlyMissionTab: React.FC = () => {
     return missions.filter(m => m.category === category);
   };
 
+  // Handle opening detail modal
+  const openDetailModal = (mission: MonthlyMission) => {
+    setDetailMission(mission);
+    setIsDetailModalOpen(true);
+  };
+
+  // Handle drag start for monthly mission
+  const handleMissionDragStart = (e: React.DragEvent, mission: MonthlyMission) => {
+    setDraggingMissionId(mission.id);
+    
+    const dominoData = {
+      type: 'monthly-mission',
+      id: mission.id,
+      text: mission.title,
+      measurableResult: mission.measurableResult,
+      keyActions: mission.keyActions,
+      category: mission.category
+    };
+    
+    e.dataTransfer.setData('application/json', JSON.stringify(dominoData));
+    e.dataTransfer.setData('text/plain', mission.title);
+    e.dataTransfer.effectAllowed = 'copy';
+  };
+
+  const handleMissionDragEnd = () => {
+    setDraggingMissionId(null);
+  };
+
+  // Handle setting mission as domino from modal
+  const handleSetAsDomino = (mission: MonthlyMission) => {
+    if (!doorContext) {
+      toast({
+        title: language === 'en' ? 'Error' : 'Eroare',
+        description: language === 'en' 
+          ? 'Cannot set domino from this context' 
+          : 'Nu se poate seta domino din acest context',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    doorContext.setSelectedDomino({
+      id: `monthly-${mission.id}`,
+      text: mission.title,
+      selected: true,
+      priority: 'urgent-important'
+    });
+
+    // Auto-populate key points from keyActions
+    if (mission.keyActions && mission.keyActions.length > 0) {
+      const newKeyPoints = mission.keyActions.slice(0, 4).map((action, idx) => ({
+        id: `key${idx + 1}`,
+        text: action,
+        completed: false
+      }));
+      doorContext.setDominoKeyPoints(newKeyPoints);
+    }
+
+    toast({
+      title: '🎯 Domino setat!',
+      description: `"${mission.title}" este acum focusul tău săptămânal.`
+    });
+
+    setIsDetailModalOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -369,8 +448,15 @@ export const MonthlyMissionTab: React.FC = () => {
                       <div 
                         key={mission.id}
                         className={cn(
-                          missionIndex > 0 && "pt-4 border-t border-border/50"
+                          "rounded-lg p-3 -m-3 transition-all",
+                          "cursor-grab active:cursor-grabbing",
+                          "hover:bg-muted/50 hover:ring-2 hover:ring-primary/20",
+                          draggingMissionId === mission.id && "opacity-50 ring-2 ring-primary",
+                          missionIndex > 0 && "mt-4 pt-4 border-t border-border/50"
                         )}
+                        draggable
+                        onDragStart={(e) => handleMissionDragStart(e, mission)}
+                        onDragEnd={handleMissionDragEnd}
                       >
                         {/* Parent Hierarchy Badge */}
                         {mission.parentMission && (
@@ -386,29 +472,48 @@ export const MonthlyMissionTab: React.FC = () => {
                         )}
                         
                         <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              {categoryMissions.length > 1 && (
-                                <span className={cn("text-xs font-medium px-1.5 py-0.5 rounded", config.bgColor, config.color)}>
-                                  #{missionIndex + 1}
-                                </span>
+                          <div className="flex items-start gap-2 flex-1">
+                            {/* Drag Handle */}
+                            <GripVertical className="w-4 h-4 text-muted-foreground/50 mt-1 flex-shrink-0" />
+                            
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                {categoryMissions.length > 1 && (
+                                  <span className={cn("text-xs font-medium px-1.5 py-0.5 rounded", config.bgColor, config.color)}>
+                                    #{missionIndex + 1}
+                                  </span>
+                                )}
+                                <h3 className="font-semibold text-lg text-foreground">{mission.title}</h3>
+                              </div>
+                              {mission.measurableResult && (
+                                <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
+                                  <Target className="w-3.5 h-3.5" />
+                                  {mission.measurableResult}
+                                </p>
                               )}
-                              <h3 className="font-semibold text-lg text-foreground">{mission.title}</h3>
                             </div>
-                            {mission.measurableResult && (
-                              <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
-                                <Target className="w-3.5 h-3.5" />
-                                {mission.measurableResult}
-                              </p>
-                            )}
                           </div>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => handleEditMission(mission)}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
+                          
+                          <div className="flex items-center gap-1">
+                            {/* View Details Button */}
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => openDetailModal(mission)}
+                              title={language === 'en' ? 'View details' : 'Vezi detalii'}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            {/* Edit Button */}
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => handleEditMission(mission)}
+                              title={language === 'en' ? 'Edit' : 'Editează'}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
 
                         {mission.description && (
@@ -558,6 +663,15 @@ export const MonthlyMissionTab: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Mission Details Modal */}
+      <MissionDetailsModal
+        mission={detailMission}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        onSetAsDomino={doorContext ? handleSetAsDomino : undefined}
+        onUpdateProgress={handleUpdateProgress}
+      />
     </div>
   );
 };

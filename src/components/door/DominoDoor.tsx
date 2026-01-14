@@ -15,6 +15,7 @@ import { addWeeks, getISOWeek, getYear, startOfWeek } from 'date-fns';
 import { useWeeklyHierarchy } from '@/hooks/useWeeklyHierarchy';
 import { HierarchyChain } from './HierarchyBadge';
 import { WeeklyPlanSaveStatus } from './WeeklyPlanSaveStatus';
+import { cn } from '@/lib/utils';
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'offline';
 
@@ -66,6 +67,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const { toast } = useToast();
   const [showAIPlanningModal, setShowAIPlanningModal] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // Auto-restore AI Planning if there's an unfinished draft (prevents "reset" on tab switches)
   const planningWeekKey = React.useMemo(() => {
@@ -169,11 +171,22 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
 
   return (
     <div 
-      className={`bg-card rounded-xl border border-border ${
+      className={cn(
+        "bg-card rounded-xl border transition-all duration-200",
+        isDragOver 
+          ? "border-primary ring-2 ring-primary/30 ring-offset-2 ring-offset-background" 
+          : "border-border",
         isMobile ? 'p-4' : 'h-full p-5'
-      }`}
-      onDragOver={handleDragOverDomino}
-      onDrop={handleDropOnDomino}
+      )}
+      onDragOver={(e) => {
+        handleDragOverDomino(e);
+        setIsDragOver(true);
+      }}
+      onDragLeave={() => setIsDragOver(false)}
+      onDrop={(e) => {
+        handleDropOnDomino(e);
+        setIsDragOver(false);
+      }}
     >
       {selectedDomino ? (
         <div className={`space-y-4 animate-fade-in`}>

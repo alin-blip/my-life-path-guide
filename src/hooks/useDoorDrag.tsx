@@ -48,6 +48,42 @@ export function useDoorDrag({
 
   const handleDropOnDomino = (e: React.DragEvent) => {
     e.preventDefault();
+    
+    // Check if it's a monthly mission being dropped
+    const jsonData = e.dataTransfer.getData('application/json');
+    if (jsonData) {
+      try {
+        const data = JSON.parse(jsonData);
+        if (data.type === 'monthly-mission') {
+          // Set monthly mission as domino
+          const dominoItem = {
+            id: `monthly-${data.id}`,
+            text: data.text,
+            selected: true as const,
+            priority: 'urgent-important' as const
+          };
+          handleDominoSelection(dominoItem);
+          
+          // Auto-populate key points from keyActions
+          if (data.keyActions && data.keyActions.length > 0) {
+            const newKeyPoints = data.keyActions.slice(0, 4).map((action: string, idx: number) => ({
+              id: `key${idx + 1}`,
+              text: action,
+              completed: false
+            }));
+            setDominoKeyPoints(newKeyPoints);
+          }
+          
+          console.debug('[DnD] Monthly mission set as Domino', { id: data.id, title: data.text });
+          return;
+        }
+      } catch (parseError) {
+        // Not JSON, continue with normal HotListItem flow
+        console.debug('[DnD] Drop data is not JSON, continuing with HotListItem flow');
+      }
+    }
+    
+    // Existing logic for HotListItem
     console.debug('[DnD] Drop on Domino', { hasDraggedItem: !!draggedItem });
     
     if (draggedItem) {
