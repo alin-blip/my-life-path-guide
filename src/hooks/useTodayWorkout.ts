@@ -51,12 +51,19 @@ const getStoredSession = (): StoredTodaySession | null => {
   return null;
 };
 
+// Helper to get current day of week (0=Monday, 6=Sunday)
+const getCurrentDayOfWeek = () => {
+  const jsDay = new Date().getDay();
+  return jsDay === 0 ? 6 : jsDay - 1;
+};
+
 export function useTodayWorkout() {
   const { user } = useAuth();
-  const { activeProgram, getTodayWorkout, loading: programLoading } = useWorkoutProgram();
+  const { activeProgram, loading: programLoading } = useWorkoutProgram();
   
   const storedSession = getStoredSession();
   
+  const [selectedDayOfWeek, setSelectedDayOfWeek] = useState<number>(getCurrentDayOfWeek());
   const [todayPlan, setTodayPlan] = useState<WorkoutProgramDay | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(storedSession?.sessionId || null);
   const [isStarted, setIsStarted] = useState(!!storedSession?.sessionId);
@@ -74,36 +81,63 @@ export function useTodayWorkout() {
   
   const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Get today's workout plan
+  // Get workout for selected day
+  const getWorkoutForDay = useCallback((dayOfWeek: number) => {
+    if (!activeProgram?.days) return null;
+    return activeProgram.days.find(d => d.day_of_week === dayOfWeek) || null;
+  }, [activeProgram]);
+
+  // Initialize exercises from workout plan
+  const initializeExercises = useCallback((workout: WorkoutProgramDay | null) => {
+    if (workout?.exercises && workout.exercises.length > 0) {
+      const initialExercises: ExerciseProgress[] = workout.exercises.map((ex, idx) => ({
+        id: crypto.randomUUID(),
+        planId: ex.id,
+        name: ex.exercise_name,
+        targetSets: ex.target_sets,
+        targetReps: ex.target_reps || '10',
+        targetWeight: ex.target_weight_kg,
+        sets: Array.from({ length: ex.target_sets }, (_, i) => ({
+          setNumber: i + 1,
+          reps: 0,
+          weight: ex.target_weight_kg || 0,
+          completed: false,
+        })),
+        isExpanded: idx === 0,
+      }));
+      setExercises(initialExercises);
+    } else {
+      setExercises([]);
+    }
+  }, []);
+
+  // Load workout when program is ready or selected day changes
   useEffect(() => {
     if (!programLoading && activeProgram) {
-      const workout = getTodayWorkout();
-      setTodayPlan(workout || null);
+      const workout = getWorkoutForDay(selectedDayOfWeek);
+      setTodayPlan(workout);
       
-      // Initialize exercises from plan if no stored session
-      if (workout?.exercises && !storedSession?.exercises?.length) {
-        const initialExercises: ExerciseProgress[] = workout.exercises.map((ex, idx) => ({
-          id: crypto.randomUUID(),
-          planId: ex.id,
-          name: ex.exercise_name,
-          targetSets: ex.target_sets,
-          targetReps: ex.target_reps || '10',
-          targetWeight: ex.target_weight_kg,
-          sets: Array.from({ length: ex.target_sets }, (_, i) => ({
-            setNumber: i + 1,
-            reps: 0,
-            weight: ex.target_weight_kg || 0,
-            completed: false,
-          })),
-          isExpanded: idx === 0, // First exercise expanded by default
-        }));
-        setExercises(initialExercises);
+      // Only initialize exercises if no active session and it's the first load
+      if (!storedSession?.exercises?.length && !isStarted) {
+        initializeExercises(workout);
       }
       setLoading(false);
     } else if (!programLoading) {
       setLoading(false);
     }
-  }, [programLoading, activeProgram, getTodayWorkout]);
+  }, [programLoading, activeProgram, selectedDayOfWeek, getWorkoutForDay, initializeExercises, isStarted]);
+
+  // Handle day change - reinitialize exercises if not in an active session
+  const handleSetSelectedDayOfWeek = useCallback((day: number) => {
+    if (isStarted) {
+      toast.error('Nu poți schimba ziua în timpul antrenamentului');
+      return;
+    }
+    setSelectedDayOfWeek(day);
+    const workout = getWorkoutForDay(day);
+    setTodayPlan(workout);
+    initializeExercises(workout);
+  }, [isStarted, getWorkoutForDay, initializeExercises]);
 
   // Timer effect
   useEffect(() => {
@@ -435,6 +469,7 @@ export function useTodayWorkout() {
     loading: loading || programLoading,
     hasActiveProgram: !!activeProgram,
     hasTodayWorkout: !!(todayPlan && !todayPlan.is_rest_day && todayPlan.exercises?.length),
+    selectedDayOfWeek,
     
     // Actions
     startSession,
@@ -447,6 +482,7 @@ export function useTodayWorkout() {
     addExtraExercise,
     removeExercise,
     updateExerciseSetsCount,
+    setSelectedDayOfWeek: handleSetSelectedDayOfWeek,
     
     // Helpers
     getCompletedProgress,
