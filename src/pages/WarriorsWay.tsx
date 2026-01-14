@@ -32,13 +32,13 @@ const COURSE_SECTIONS = [
     description: 'Introducere în Calea Războinicului - 7 Lecții Fundamentale',
     isFree: true,
     modules: [
-      { id: 'intro-1', title: 'Punctul de Start - Groapa', duration: '15 min', order: 1 },
+      { id: 'intro-1', title: 'Punctul de Start - Groapa', duration: '15 min', order: 1, videoUrl: 'https://share.viimly.com/embed/PI-nU1i6vo7AF0RdV1FiSMTC6GkmBF9tBxoHaAoVbPEKW0hQC' },
       { id: 'intro-2', title: 'Cele 6 Etape ale Creșterii și Expansiunii', duration: '12 min', order: 2 },
-      { id: 'intro-3', title: 'Cele 7 Etape ale Ascensiunii Tale', duration: '14 min', order: 3 },
-      { id: 'intro-4', title: 'Cele 5 Investiții Esențiale ale Regelui Războinic', duration: '10 min', order: 4 },
-      { id: 'intro-5', title: 'Cele 5 Protocoale ale Războinicului', duration: '18 min', order: 5 },
-      { id: 'intro-6', title: 'Cele 5 Legi ale Războinicului', duration: '12 min', order: 6 },
-      { id: 'intro-7', title: 'Coeficientul Puterii & Warrior Time-Warp', duration: '10 min', order: 7 },
+      { id: 'intro-3', title: 'Cele 7 Etape ale Ascensiunii Tale', duration: '14 min', order: 3, videoUrl: 'https://share.viimly.com/embed/odU6l-9Gh1OVbAFYjRyBjUCFWt9zoRzqX3Wy4WIwcBk_BEdIP' },
+      { id: 'intro-4', title: 'Cele 5 Investiții Esențiale ale Regelui Războinic', duration: '10 min', order: 4, videoUrl: 'https://share.viimly.com/embed/AroPOR3eRYPE05OEAF8zdiByDO-tbEO5Oydc_RaBZB4SWjjwc' },
+      { id: 'intro-5', title: 'Cele 5 Protocoale ale Războinicului', duration: '18 min', order: 5, videoUrl: 'https://share.viimly.com/embed/FEaO0VFEEcDEOk_SUj4U6LTVigwGXhTc7dOCxosObKE941gCT' },
+      { id: 'intro-6', title: 'Cele 5 Legi ale Războinicului', duration: '12 min', order: 6, videoUrl: 'https://share.viimly.com/embed/ixE7kMVqXo3Y0gRGodFa6h1QU9zG0DrqQ9YdPR-pdaIKT1AEd' },
+      { id: 'intro-7', title: 'Coeficientul Puterii & Warrior Time-Warp', duration: '10 min', order: 7, videoUrl: 'https://share.viimly.com/embed/zsuXB6lSkHVvVFsFP3garLJoRRQTKGf4hgsBZUsIftyCGlUcA' },
     ]
   },
   {
@@ -333,6 +333,7 @@ const WarriorsWay: React.FC = () => {
               moduleId={selectedModule}
               moduleTitle={currentModule?.title}
               moduleOrder={currentModule?.order}
+              videoUrl={(currentModule as any)?.videoUrl}
               onClose={handleCloseVideo}
               onComplete={() => markModuleComplete(selectedModule)}
               hasPrevious={!!previousModule}
