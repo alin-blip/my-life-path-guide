@@ -3127,6 +3127,54 @@ export type Database = {
         }
         Relationships: []
       }
+      warriors_way_lesson_content: {
+        Row: {
+          action_prompts: Json | null
+          created_at: string | null
+          full_script: string
+          id: string
+          key_concepts: Json | null
+          module_id: string
+          order_number: number
+          searchable_content: unknown
+          section_id: string
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_prompts?: Json | null
+          created_at?: string | null
+          full_script: string
+          id?: string
+          key_concepts?: Json | null
+          module_id: string
+          order_number: number
+          searchable_content?: unknown
+          section_id: string
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_prompts?: Json | null
+          created_at?: string | null
+          full_script?: string
+          id?: string
+          key_concepts?: Json | null
+          module_id?: string
+          order_number?: number
+          searchable_content?: unknown
+          section_id?: string
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       weekly_planning: {
         Row: {
           created_at: string | null
