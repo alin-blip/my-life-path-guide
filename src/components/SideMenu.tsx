@@ -111,7 +111,6 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: language === 'ro' ? 'Planuri 90 Zile' : '90-Day Plans', icon: Calendar, path: '/door?tab=quarterly' },
         { title: language === 'ro' ? 'Obiective Lunare' : 'Monthly Goals', icon: Flag, path: '/door?tab=monthly' },
         { title: language === 'ro' ? 'Obiective Săptămânale' : 'Weekly Goals', icon: Flag, path: '/door?tab=weekly' },
-        { title: language === 'ro' ? 'Viziune de Viață' : 'Life Vision', icon: BookOpen, path: '/lifebook' },
       ]
     },
 
@@ -191,6 +190,16 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       subItems: [
         { title: language === 'ro' ? 'Clasament' : 'Leaderboard', icon: Trophy, path: '/leaderboard' },
         { title: language === 'ro' ? 'Achievements' : 'Achievements', icon: Sparkles, path: '/achievements' },
+      ]
+    },
+
+    // 10. TOOLS (Advanced Features)
+    {
+      title: language === 'ro' ? '🛠️ Tools' : '🛠️ Tools',
+      icon: Settings,
+      path: '/tools',
+      subItems: [
+        { title: language === 'ro' ? 'Lifebook (Viziune Viață)' : 'Lifebook (Life Vision)', icon: BookOpen, path: '/lifebook' },
       ]
     },
 
