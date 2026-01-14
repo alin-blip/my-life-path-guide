@@ -311,13 +311,32 @@ const WarriorsWay: React.FC = () => {
         </div>
 
         {/* Video Player Modal */}
-        {selectedModule && (
-          <WarriorVideoPlayer
-            moduleId={selectedModule}
-            onClose={handleCloseVideo}
-            onComplete={() => markModuleComplete(selectedModule)}
-          />
-        )}
+        {selectedModule && (() => {
+          // Find the module data for the selected module
+          const allModules = COURSE_SECTIONS.flatMap(s => s.modules);
+          const currentModule = allModules.find(m => m.id === selectedModule);
+          const currentIndex = allModules.findIndex(m => m.id === selectedModule);
+          const previousModule = currentIndex > 0 ? allModules[currentIndex - 1] : null;
+          const nextModule = currentIndex < allModules.length - 1 ? allModules[currentIndex + 1] : null;
+          
+          // Check if next module is accessible (free section)
+          const nextSection = COURSE_SECTIONS.find(s => s.modules.some(m => m.id === nextModule?.id));
+          const canGoNext = nextSection?.isFree;
+          
+          return (
+            <WarriorVideoPlayer
+              moduleId={selectedModule}
+              moduleTitle={currentModule?.title}
+              moduleOrder={currentModule?.order}
+              onClose={handleCloseVideo}
+              onComplete={() => markModuleComplete(selectedModule)}
+              hasPrevious={!!previousModule}
+              hasNext={!!nextModule && canGoNext}
+              onPrevious={() => previousModule && setSelectedModule(previousModule.id)}
+              onNext={() => nextModule && canGoNext && setSelectedModule(nextModule.id)}
+            />
+          );
+        })()}
 
         {/* Premium Gate Modal */}
         {showPremiumGate && (
