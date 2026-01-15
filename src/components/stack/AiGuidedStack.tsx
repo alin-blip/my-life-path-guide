@@ -38,6 +38,7 @@ interface Message {
 
 interface AiGuidedStackProps {
   onAddToHitList?: (action: string) => void;
+  onComplete?: (transformedEnergy?: string) => void;
   stackType: 'anger' | 'divine-prayer' | 'gods-school' | 'hormozi' | 'napoleon-hill' | 'gratitude' | 'daily-master' | 'divine-gratitude' | 'introspection' | 'ai-live';
   questions: any[];
   onModeSwitch?: () => void;
@@ -49,10 +50,13 @@ interface AiGuidedStackProps {
   knowledgeBaseFiles?: string[];
   challengeDay?: number | null;
   forceNewSession?: boolean;
+  /** When true, AiGuidedStack skips its own export-options/key-points UI (parent handles it) */
+  externalExportFlow?: boolean;
 }
 
 export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({ 
-  onAddToHitList, 
+  onAddToHitList,
+  onComplete: externalOnComplete,
   stackType, 
   questions,
   onModeSwitch,
@@ -63,7 +67,8 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   welcomeMessage: customWelcomeMessage,
   knowledgeBaseFiles = [],
   challengeDay,
-  forceNewSession = false
+  forceNewSession = false,
+  externalExportFlow = false
 }) => {
   const [mode, setMode] = useState<'setup' | 'chat' | 'complete' | 'export-options' | 'key-points'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -584,10 +589,15 @@ Răspunde în română cu un ton cald și profesionist.`;
       if (error) throw error;
 
       setFinalAction(data.message);
-      setMode('export-options'); // Show export options instead of going directly to complete
       
-      // Don't show the old dialog - we use the new export options flow
-      // setShowAddToTodoDialog(true);
+      // If parent handles export flow, call onComplete and skip internal export UI
+      if (externalExportFlow && externalOnComplete) {
+        // Call parent's onComplete with the extracted action
+        externalOnComplete(data.message);
+      } else {
+        // Show internal export options
+        setMode('export-options');
+      }
 
       // Save session to Stack Library (Arsenal)
       try {

@@ -409,6 +409,14 @@ export const InlineStackWrapper: React.FC<InlineStackWrapperProps> = ({
           <AiGuidedStack
             stackType={actualStackType as any}
             questions={[]}
+            externalExportFlow={true}
+            onComplete={(action) => {
+              // When stack finishes, extract action and show our export options
+              if (action) {
+                setExtractedAction(action);
+              }
+              setFlowState('export-options');
+            }}
             onAddToHitList={(action) => {
               handleActionExtracted(action);
               onAddToHitList?.(action);
@@ -419,17 +427,6 @@ export const InlineStackWrapper: React.FC<InlineStackWrapperProps> = ({
           />
         </div>
       </Card>
-
-      {/* Complete button */}
-      <div className="flex justify-end pt-2">
-        <Button
-          onClick={handleStackComplete}
-          className="gap-2"
-        >
-          <Check className="w-4 h-4" />
-          Finalizează Stack
-        </Button>
-      </div>
     </div>
   );
 };
