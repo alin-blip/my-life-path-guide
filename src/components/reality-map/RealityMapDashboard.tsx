@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { 
   Shield, Sparkles, Target, TrendingUp, 
   RefreshCw, Eye, ChevronRight, Zap,
-  Award, Flame, Trophy
+  Award, Flame, Trophy, ArrowRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
@@ -342,6 +343,9 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
             </Card>
           ))}
         </motion.div>
+
+        {/* Vision Board CTA */}
+        <VisionBoardCTA scores={scores} />
       </div>
     </div>
   );
@@ -357,4 +361,57 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
     
     return count;
   }
+};
+
+// Vision Board CTA Component
+const VisionBoardCTA: React.FC<{ scores: WarriorPowerScores }> = ({ scores }) => {
+  const navigate = useNavigate();
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.7 }}
+      className="mt-8"
+    >
+      <Card className="p-6 border-2 border-accent/30 bg-gradient-to-r from-accent/10 via-background to-primary/10 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-primary/20 to-transparent rounded-full blur-3xl" />
+        
+        <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
+          <div className="flex-shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          
+          <div className="flex-1 text-center md:text-left">
+            <h3 className="text-xl font-bold mb-2">Transformă Scorurile în Viziune</h3>
+            <p className="text-muted-foreground">
+              Ai harta realității tale. Acum creează imaginea destinației 
+              cu Vision Board 2026 — obiective vizuale pentru fiecare dimensiune.
+            </p>
+          </div>
+          
+          <div className="flex flex-col gap-2">
+            <Button 
+              onClick={() => navigate('/vision-board-2026', { state: { fromRealityMap: true, scores } })}
+              className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+            >
+              <Sparkles className="w-4 h-4" />
+              Creează Vision Board
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/pricing')}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Sau începe trial-ul
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
 };

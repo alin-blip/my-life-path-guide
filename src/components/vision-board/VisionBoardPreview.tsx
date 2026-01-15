@@ -1,7 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Share2, Save, Dumbbell, Heart, Users, Briefcase, Upload, RefreshCw, Sparkles } from 'lucide-react';
+import { Download, Share2, Save, Dumbbell, Heart, Users, Briefcase, Upload, RefreshCw, Sparkles, Zap, Compass, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type Category = 'body' | 'being' | 'balance' | 'business';
@@ -55,6 +56,7 @@ export const VisionBoardPreview: React.FC<VisionBoardPreviewProps> = ({
   onRegenerateImage,
   editable = false
 }) => {
+  const navigate = useNavigate();
   const categories: Category[] = ['body', 'being', 'balance', 'business'];
 
   const handleFileChange = (category: Category, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -176,6 +178,61 @@ export const VisionBoardPreview: React.FC<VisionBoardPreviewProps> = ({
           <Save className="h-4 w-4" />
           {language === 'en' ? 'Save to Dashboard' : 'Salvează în Dashboard'}
         </Button>
+      </div>
+
+      {/* Next Steps Section */}
+      <div className="mt-10 space-y-4">
+        <h3 className="text-center font-bold text-xl text-foreground">
+          {language === 'en' ? "What's Next?" : 'Ce Urmează?'}
+        </h3>
+        
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card 
+            className="p-5 border-2 border-primary/50 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group"
+            onClick={() => navigate('/pricing')}
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Zap className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-bold text-foreground">
+                {language === 'en' ? 'Start 3-Day Trial' : 'Începe Trial 3 Zile'}
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {language === 'en' 
+                ? 'Transform your vision into an action plan with personalized AI coaching.'
+                : 'Transformă viziunea în plan de acțiune cu AI Coaching personalizat.'}
+            </p>
+            <div className="flex items-center gap-1 text-primary text-sm font-medium mt-3 group-hover:gap-2 transition-all">
+              {language === 'en' ? 'Get Started' : 'Începe Acum'}
+              <ArrowRight className="h-4 w-4" />
+            </div>
+          </Card>
+          
+          <Card 
+            className="p-5 border border-border hover:border-muted-foreground/50 hover:bg-muted/30 transition-all cursor-pointer group"
+            onClick={() => navigate('/door?tab=annual')}
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-muted">
+                <Compass className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <span className="font-bold text-foreground">
+                {language === 'en' ? 'Explore Platform' : 'Explorează Platforma'}
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {language === 'en' 
+                ? 'See your saved objectives and discover more features.'
+                : 'Vezi obiectivele salvate și descoperă mai multe funcționalități.'}
+            </p>
+            <div className="flex items-center gap-1 text-muted-foreground text-sm font-medium mt-3 group-hover:gap-2 transition-all">
+              {language === 'en' ? 'Explore' : 'Explorează'}
+              <ArrowRight className="h-4 w-4" />
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
