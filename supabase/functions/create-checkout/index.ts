@@ -101,7 +101,7 @@ serve(async (req) => {
         plan_id: plan,
         coaching_included: plan === "premium-coach" ? "true" : "false"
       },
-      success_url: `${req.headers.get("origin")}/pricing?success=true`,
+      success_url: `${req.headers.get("origin")}/door?tab=annual&checkout=success`,
       cancel_url: `${req.headers.get("origin")}/pricing?canceled=true`,
       allow_promotion_codes: true,
     });
