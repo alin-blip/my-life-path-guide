@@ -124,6 +124,20 @@ const COURSE_SECTIONS = [
       { id: 'door-34', title: 'Ușa: Rezumat Cuprinzător', duration: '14 min', order: 41, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=kwYMDsu6jIyyIyEsa3R_0IfPEW1ScCsET9cdfnpJ0RiOPSpob&videoRatio=1.777778&type=v&skinColor=%232758EB' },
     ]
   },
+  {
+    id: 'way',
+    title: 'The Warriors Way',
+    description: 'Construiește-ți viața în jurul Căii Războinicului: de la hărți la jocul zilnic și Cortul Generalului',
+    isFree: false,
+    modules: [
+      { id: 'way-35', title: 'Construiește-ți Viața în Jurul Căii', duration: '18 min', order: 42, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=LsEoqFUcFXjWwxUDmTU7VoRPHRgTMBciv0JKfnFNMAbWElipb&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'way-36', title: 'Harta de Focalizare și Misiunea Lunii', duration: '16 min', order: 43, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=gYHVs0gaNTGaj1tSxhOut4GIDoxbHjK6nVZA09tWSx-bDN1g6&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'way-37', title: 'Harta Focului: Victorii Săptămânale', duration: '15 min', order: 44, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=MBs2431jKF-MO3l1OidrDTjzWUL_QzdhNVd1F1E2ZDasE0GKF&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'way-38', title: 'Jocul Zilnic: Măiestria de Astăzi', duration: '17 min', order: 45, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=z8dcxRsOixzNiK8TxF0gTyHO80qYVN8IKJMlbFg26jsRxyfRE&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'way-39', title: 'Cortul Generalului', duration: '16 min', order: 46, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=qtPEkwCbtMlOkEOaGwF_3KFOxSpgZBC94wgNa1phIq9R9CU9R&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'way-40', title: 'Odiseea Războinicului Recapturată', duration: '20 min', order: 47, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=BQ3DRmhqiB9eQulgX21jc097rVkM1gA29wRNNHjjchKME1MFG&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+    ]
+  },
 ];
 
 const WarriorsWay: React.FC = () => {
