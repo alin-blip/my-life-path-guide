@@ -100,16 +100,48 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Authentication check
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
+    // Verify user with anon key first
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
+
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Use service role for database operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { user_id, scores, language = 'ro' } = await req.json();
 
-    if (!user_id || !scores) {
+    // Ensure user_id matches authenticated user
+    if (user_id !== user.id) {
+      return new Response(JSON.stringify({ error: 'Forbidden: user_id mismatch' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!scores) {
       return new Response(
-        JSON.stringify({ error: 'Missing user_id or scores' }),
+        JSON.stringify({ error: 'Missing scores' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
