@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getWeek, getYear } from 'date-fns';
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
+import { getWeekKey } from '@/utils/weekUtils';
 
 export function useObjectivesWeek() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -7,9 +8,8 @@ export function useObjectivesWeek() {
   const [currentWeekKey, setCurrentWeekKey] = useState('');
 
   useEffect(() => {
-    const weekNumber = getWeek(currentDate);
-    const year = getYear(currentDate);
-    const weekKey = `week-${year}-${weekNumber}`;
+    // Use the same weekKey format as weekly_planning table
+    const weekKey = getWeekKey(currentDate);
     setCurrentWeekKey(weekKey);
     
     const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
@@ -28,12 +28,7 @@ export function useObjectivesWeek() {
 
   const isCurrentWeek = () => {
     const now = new Date();
-    const currentWeekNumber = getWeek(now);
-    const currentYear = getYear(now);
-    const selectedWeekNumber = getWeek(currentDate);
-    const selectedYear = getYear(currentDate);
-    
-    return currentWeekNumber === selectedWeekNumber && currentYear === selectedYear;
+    return getWeekKey(now) === getWeekKey(currentDate);
   };
 
   return {

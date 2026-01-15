@@ -100,6 +100,9 @@ export const KeyPointsDefinitionFlow: React.FC<KeyPointsDefinitionFlowProps> = (
         keyPoints: formattedKeyPoints
       });
 
+      // Emit event to sync /door immediately
+      window.dispatchEvent(new CustomEvent('doorDataUpdated', { detail: { type: 'weekly-plan', weekKey } }));
+
       toast.success('Domino Door setat cu cele 4 chei! 🎯');
       onComplete();
     } catch (error) {

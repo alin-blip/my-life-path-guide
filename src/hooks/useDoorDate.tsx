@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getWeek, getYear, parseISO, isValid } from 'date-fns';
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, parseISO, isValid } from 'date-fns';
 import { DayOfWeek } from '@/types/door';
+import { getWeekKey } from '@/utils/weekUtils';
 
 export function useDoorDate() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -60,12 +61,9 @@ export function useDoorDate() {
   }, []);
   
   useEffect(() => {
-    const weekNumber = getWeek(currentDate, { weekStartsOn: 1 }); // ISO week
-    const year = getYear(currentDate);
-    // FIX: Use proper ISO week format for consistency with weekly_planning
-    const weekKey = `door-week-${year}-${String(weekNumber).padStart(2, '0')}`;
+    // Use centralized getWeekKey for consistency across all features
+    const weekKey = getWeekKey(currentDate);
     setCurrentWeekKey(weekKey);
-    
     
     const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
     const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
