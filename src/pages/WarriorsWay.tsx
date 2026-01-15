@@ -15,7 +15,8 @@ import {
   Sparkles,
   ChevronRight,
   Star,
-  MessageSquare
+  MessageSquare,
+  Crown
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -23,7 +24,25 @@ import { WarriorVideoPlayer } from '@/components/warriors-way/WarriorVideoPlayer
 import { PremiumGate } from '@/components/warriors-way/PremiumGate';
 import { useWarriorsCourse } from '@/hooks/useWarriorsCourse';
 import { WarriorAiMentor, WarriorAiMentorButton } from '@/components/warriors-way/WarriorAiMentor';
+import { WarriorTrainerSalesPage } from '@/components/warriors-way/WarriorTrainerSalesPage';
 import { supabase } from '@/integrations/supabase/client';
+
+interface CourseModule {
+  id: string;
+  title: string;
+  duration: string;
+  order: number;
+  videoUrl?: string;
+}
+
+interface CourseSection {
+  id: string;
+  title: string;
+  description: string;
+  isFree: boolean;
+  isUpgrade?: boolean;
+  modules: CourseModule[];
+}
 
 // Course structure - INTRO has 7 modules now
 const COURSE_SECTIONS = [
@@ -138,6 +157,20 @@ const COURSE_SECTIONS = [
       { id: 'way-40', title: 'Odiseea Războinicului Recapturată', duration: '20 min', order: 47, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=BQ3DRmhqiB9eQulgX21jc097rVkM1gA29wRNNHjjchKME1MFG&videoRatio=1.777778&type=v&skinColor=%232758EB' },
     ]
   },
+  {
+    id: 'trainer',
+    title: 'Warrior Trainer',
+    description: 'Programul intensiv de transformare: Devino antrenorul propriei tale vieți și ajută-i pe alții să se trezească',
+    isFree: false,
+    isUpgrade: true,
+    modules: [
+      { id: 'trainer-intro', title: 'Bine ai venit la Warrior Trainer', duration: '25 min', order: 48, videoUrl: '' },
+      { id: 'trainer-1', title: 'De la Participant la Lider', duration: '30 min', order: 49, videoUrl: '' },
+      { id: 'trainer-2', title: 'Arta Coaching-ului Warrior', duration: '35 min', order: 50, videoUrl: '' },
+      { id: 'trainer-3', title: 'Construiește-ți Comunitatea', duration: '30 min', order: 51, videoUrl: '' },
+      { id: 'trainer-4', title: 'Certificare și Următorii Pași', duration: '25 min', order: 52, videoUrl: '' },
+    ]
+  },
 ];
 
 const WarriorsWay: React.FC = () => {
@@ -146,6 +179,7 @@ const WarriorsWay: React.FC = () => {
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [showAiMentor, setShowAiMentor] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showTrainerSales, setShowTrainerSales] = useState(false);
   const { progress, isModuleCompleted, markModuleComplete, overallProgress } = useWarriorsCourse();
 
   // Check if user is admin
@@ -169,22 +203,28 @@ const WarriorsWay: React.FC = () => {
     checkAdminRole();
   }, [user]);
 
-  const totalModules = COURSE_SECTIONS.reduce((acc, section) => acc + section.modules.length, 0);
+  const totalModules = (COURSE_SECTIONS as CourseSection[]).reduce((acc, section) => acc + section.modules.length, 0);
   const completedModules = progress.filter(p => p.completed).length;
 
-  const handleModuleClick = (moduleId: string, sectionIsFree: boolean) => {
+  const handleModuleClick = (moduleId: string, section: CourseSection) => {
+    // Check if this is the Trainer upgrade section
+    if (section.isUpgrade) {
+      setShowTrainerSales(true);
+      return;
+    }
+
     // Admin has full access
     if (isAdmin) {
       setSelectedModule(moduleId);
       return;
     }
     
-    if (!sectionIsFree && !user) {
+    if (!section.isFree && !user) {
       setShowPremiumGate(true);
       return;
     }
     // For now, allow access to free content, show gate for premium
-    if (!sectionIsFree) {
+    if (!section.isFree) {
       setShowPremiumGate(true);
       return;
     }
@@ -194,6 +234,27 @@ const WarriorsWay: React.FC = () => {
   const handleCloseVideo = () => {
     setSelectedModule(null);
   };
+
+  // Show Trainer Sales Page
+  if (showTrainerSales) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-4">
+          <Button 
+            variant="ghost" 
+            onClick={() => setShowTrainerSales(false)}
+            className="mb-4"
+          >
+            ← Înapoi la curs
+          </Button>
+          <WarriorTrainerSalesPage onEnroll={() => {
+            // Handle enrollment logic here
+            setShowTrainerSales(false);
+          }} />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -267,7 +328,13 @@ const WarriorsWay: React.FC = () => {
                               GRATUIT
                             </Badge>
                           )}
-                          {!section.isFree && (
+                          {(section as CourseSection).isUpgrade && (
+                            <Badge variant="secondary" className="bg-gradient-to-r from-amber-500/20 to-orange-600/20 text-amber-400 border-amber-500/30">
+                              <Crown className="h-3 w-3 mr-1" />
+                              UPGRADE
+                            </Badge>
+                          )}
+                          {!section.isFree && !(section as CourseSection).isUpgrade && (
                             <Badge variant="secondary" className="bg-amber-500/20 text-amber-500">
                               <Lock className="h-3 w-3 mr-1" />
                               PREMIUM
@@ -293,7 +360,7 @@ const WarriorsWay: React.FC = () => {
                         return (
                           <button
                             key={module.id}
-                            onClick={() => handleModuleClick(module.id, section.isFree)}
+                            onClick={() => handleModuleClick(module.id, section as CourseSection)}
                             className={cn(
                               "w-full flex items-center gap-4 p-4 rounded-lg transition-all text-left",
                               isCompleted 
