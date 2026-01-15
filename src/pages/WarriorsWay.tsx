@@ -82,6 +82,20 @@ const COURSE_SECTIONS = [
     ]
   },
   {
+    id: 'stack',
+    title: 'Stack-ul',
+    description: 'Procesul de reîncadrare a poveștilor și transformare prin oprire, supunere, luptă și lovitură',
+    isFree: false,
+    modules: [
+      { id: 'stack-16', title: 'Reîncadrarea Poveștilor', duration: '16 min', order: 23, videoUrl: '' },
+      { id: 'stack-17', title: 'Stop: Răgazul Războinicului', duration: '15 min', order: 24, videoUrl: '' },
+      { id: 'stack-18', title: 'Supunerea: Adevărul Războinicului', duration: '17 min', order: 25, videoUrl: '' },
+      { id: 'stack-19', title: 'Lupta: Bătălia pentru Claritate', duration: '18 min', order: 26, videoUrl: '' },
+      { id: 'stack-20', title: 'Lovitura: Apelul la Acțiune', duration: '16 min', order: 27, videoUrl: '' },
+      { id: 'stack-21', title: 'Rezumatul Stack-ului', duration: '14 min', order: 28, videoUrl: '' },
+    ]
+  },
+  {
     id: 'formula',
     title: 'FORMULA WARRIOR - FACT Framework',
     description: 'Fapte, Sentimente, Focus, Fructe',
