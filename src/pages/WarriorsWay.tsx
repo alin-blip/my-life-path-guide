@@ -96,68 +96,17 @@ const COURSE_SECTIONS = [
     ]
   },
   {
-    id: 'formula',
-    title: 'FORMULA WARRIOR - FACT Framework',
-    description: 'Fapte, Sentimente, Focus, Fructe',
-    isFree: false,
-    modules: [
-      { id: 'form-1', title: 'FACT - Fapte Reale', duration: '12 min', order: 18 },
-      { id: 'form-2', title: 'FEELINGS - Sentimente Sincere', duration: '15 min', order: 19 },
-      { id: 'form-3', title: 'FOCUS - Focus Relevant', duration: '12 min', order: 20 },
-      { id: 'form-4', title: 'FRUIT - Rezultate Tangibile', duration: '10 min', order: 21 },
-    ]
-  },
-  {
-    id: 'jocul',
-    title: 'JOCUL - Hărțile Libertății',
-    description: 'Jocurile Imposibile și Hărțile tale',
-    isFree: false,
-    modules: [
-      { id: 'joc-1', title: 'Frame Map - Harta Realității', duration: '15 min', order: 22 },
-      { id: 'joc-2', title: 'Freedom Map - Harta Libertății', duration: '18 min', order: 23 },
-      { id: 'joc-3', title: 'Fire Map - Harta Focului', duration: '12 min', order: 24 },
-      { id: 'joc-4', title: 'Focus Map - Harta Concentrării', duration: '14 min', order: 25 },
-      { id: 'joc-5', title: 'The Great Tapestry', duration: '10 min', order: 26 },
-    ]
-  },
-  {
-    id: 'stack',
-    title: 'STACK-UL - Arma Mentală',
-    description: 'Cele 4 Etape ale Stack-ului',
-    isFree: false,
-    modules: [
-      { id: 'stack-1', title: 'Stop - Oprește Haosul', duration: '12 min', order: 27 },
-      { id: 'stack-2', title: 'Submit - Supunere Divină', duration: '15 min', order: 28 },
-      { id: 'stack-3', title: 'Struggle - Lupta cu Sinele', duration: '18 min', order: 29 },
-      { id: 'stack-4', title: 'Strike - Lovitura Finală', duration: '12 min', order: 30 },
-    ]
-  },
-  {
     id: 'core4',
-    title: 'CORE 4 - Cele 4 Domenii',
-    description: 'Body, Being, Balance, Business',
+    title: 'Core 4',
+    description: 'Stăpânirea și puterea în cele 4 domenii fundamentale: Corp, Ființă, Echilibru și Afacere',
     isFree: false,
     modules: [
-      { id: 'core-1', title: 'Body - Puterea Corpului', duration: '15 min', order: 31 },
-      { id: 'core-2', title: 'Being - Spiritualitatea', duration: '18 min', order: 32 },
-      { id: 'core-3', title: 'Balance - Relațiile', duration: '15 min', order: 33 },
-      { id: 'core-4', title: 'Business - Prosperitatea', duration: '20 min', order: 34 },
-      { id: 'core-5', title: 'Jocul Zilnic Core 4', duration: '12 min', order: 35 },
-    ]
-  },
-  {
-    id: 'door',
-    title: 'UȘA - Sistemul de Producție',
-    description: 'Potențial, Plan, Producție, Profit',
-    isFree: false,
-    modules: [
-      { id: 'door-1', title: 'Ușa - Stâlpul Perspectivei', duration: '15 min', order: 36 },
-      { id: 'door-2', title: 'Ușa Posibilităților - Hot List', duration: '12 min', order: 37 },
-      { id: 'door-3', title: 'Ușa Războiului - Cadranele Deciziei', duration: '18 min', order: 38 },
-      { id: 'door-4', title: 'War Stack și Planificarea', duration: '15 min', order: 39 },
-      { id: 'door-5', title: 'Blackjack - Scorul 21', duration: '12 min', order: 40 },
-      { id: 'door-6', title: 'Jocul Final al Profitului', duration: '10 min', order: 41 },
-      { id: 'door-7', title: 'Cortul Generalului', duration: '15 min', order: 42 },
+      { id: 'core4-22', title: 'Stăpânirea și Puterea', duration: '18 min', order: 29, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=4IRSFt32AW9mfmGVMiANew4S2N0peGzCIgtbiTkUCNavJ31AX&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'core4-23', title: 'Corpul: Fitness și Alimentație', duration: '16 min', order: 30, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=BBoWMbDX34aqYVxPAd8ZhQbIXonUzk-_Pd2xEX4jiZMLN3BdY&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'core4-24', title: 'Ființa: Meditația și Memoriile', duration: '15 min', order: 31, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=VtjGFcfNxLiGU9MRiUI76oiB21sERz6_M985QIxdS6VXD0lsQ&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'core4-25', title: 'Echilibrul: Partener și Posteritate', duration: '17 min', order: 32, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=hTBc1jK3SErP31xRy1ZItI3YWQX7SjzROzB8J543UYq-diUFP&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'core4-26', title: 'Afacerea: Descoperirea și Declararea', duration: '16 min', order: 33, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=DkPRhcA5ixWXRRDhUju1sCNwEg1DYvT7tx0OFS9sMO6WUUtdE&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'core4-27', title: 'Joacă Jocul Zilnic Core 4', duration: '14 min', order: 34, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=HcmF3t3PGo7dtl5NhzAEsdczCExc2zHlzIW2FTAZEYKrKUQ8b&videoRatio=1.777778&type=v&skinColor=%232758EB' },
     ]
   },
 ];
