@@ -1271,33 +1271,39 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          gender: string | null
           id: string
           ip_address: string | null
           lead_magnet: string
           metadata: Json | null
           name: string | null
+          phone: string | null
           source: string | null
           subscribed: boolean | null
         }
         Insert: {
           created_at?: string
           email: string
+          gender?: string | null
           id?: string
           ip_address?: string | null
           lead_magnet?: string
           metadata?: Json | null
           name?: string | null
+          phone?: string | null
           source?: string | null
           subscribed?: boolean | null
         }
         Update: {
           created_at?: string
           email?: string
+          gender?: string | null
           id?: string
           ip_address?: string | null
           lead_magnet?: string
           metadata?: Json | null
           name?: string | null
+          phone?: string | null
           source?: string | null
           subscribed?: boolean | null
         }
@@ -3097,6 +3103,45 @@ export type Database = {
           storage_path?: string
           transcript?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      warrior_power_results: {
+        Row: {
+          created_at: string
+          email: string
+          gender: string | null
+          id: string
+          name: string | null
+          phone: string | null
+          scores: Json
+          total_score: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          gender?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          scores?: Json
+          total_score?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          gender?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          scores?: Json
+          total_score?: number
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
