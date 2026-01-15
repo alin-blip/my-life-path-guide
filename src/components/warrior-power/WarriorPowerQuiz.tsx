@@ -166,7 +166,9 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
           {/* Clickable Level Cards */}
           <div className="space-y-3 mb-6">
             {currentQuestion.levels.map((level, idx) => {
-              const config = LEVEL_CONFIG[level.name as keyof typeof LEVEL_CONFIG];
+              const levelKey = level.name.toUpperCase() as keyof typeof LEVEL_CONFIG;
+              const config = LEVEL_CONFIG[levelKey];
+              if (!config) return null;
               const isSelected = selectedLevel === level.name;
               
               return (
@@ -298,12 +300,12 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
             >
               <div className={cn(
                 "inline-flex items-center gap-3 px-6 py-3 rounded-full border-2",
-                LEVEL_CONFIG[selectedLevel as keyof typeof LEVEL_CONFIG]?.bg,
-                LEVEL_CONFIG[selectedLevel as keyof typeof LEVEL_CONFIG]?.border
+                selectedLevel && LEVEL_CONFIG[selectedLevel.toUpperCase() as keyof typeof LEVEL_CONFIG]?.bg,
+                selectedLevel && LEVEL_CONFIG[selectedLevel.toUpperCase() as keyof typeof LEVEL_CONFIG]?.border
               )}>
-                <span className="text-2xl">{LEVEL_CONFIG[selectedLevel as keyof typeof LEVEL_CONFIG]?.icon}</span>
+                <span className="text-2xl">{selectedLevel && LEVEL_CONFIG[selectedLevel.toUpperCase() as keyof typeof LEVEL_CONFIG]?.icon}</span>
                 <div>
-                  <span className={cn("font-bold", LEVEL_CONFIG[selectedLevel as keyof typeof LEVEL_CONFIG]?.text)}>
+                  <span className={cn("font-bold", selectedLevel && LEVEL_CONFIG[selectedLevel.toUpperCase() as keyof typeof LEVEL_CONFIG]?.text)}>
                     {selectedLevel}
                   </span>
                   <span className="text-muted-foreground mx-2">•</span>
