@@ -3161,6 +3161,7 @@ export type Database = {
       }
       warriors_way_comments: {
         Row: {
+          author_name: string | null
           content: string
           created_at: string | null
           id: string
@@ -3171,6 +3172,7 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          author_name?: string | null
           content: string
           created_at?: string | null
           id?: string
@@ -3181,6 +3183,7 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          author_name?: string | null
           content?: string
           created_at?: string | null
           id?: string

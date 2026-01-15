@@ -39,7 +39,7 @@ export const useModuleComments = (moduleId: string) => {
       // Process comments to build tree structure
       const commentsWithUsers = (data || []).map(comment => ({
         ...comment,
-        display_name: comment.user_id.substring(0, 8) + '...',
+        display_name: (comment as any).author_name || comment.user_id.substring(0, 8) + '...',
         replies: [] as ModuleComment[]
       }));
 
