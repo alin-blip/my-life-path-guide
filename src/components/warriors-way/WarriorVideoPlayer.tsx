@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, CheckCircle2, ChevronLeft, ChevronRight, Play, Target, Lightbulb, ArrowUp, Zap, Plus, Loader2 } from 'lucide-react';
-import { ModuleComments } from './ModuleComments';
+import { X, CheckCircle2, ChevronLeft, ChevronRight, Play, Target, Lightbulb, ArrowUp, Zap, Plus, Loader2, MessageCircle, Check } from 'lucide-react';
+import { ModuleComments, ModuleCommentsRef } from './ModuleComments';
 import { useWarriorsLessonContent } from '@/hooks/useWarriorsLessonContent';
 import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+
+// Action prompt types
+interface ActionPromptObject {
+  text: string;
+  type: 'reflection' | 'task';
+  prompt?: string; // Pre-fill message for reflection
+  destination?: 'todo' | 'stack'; // Where task goes
+}
 
 interface WarriorVideoPlayerProps {
   moduleId: string;
@@ -36,6 +45,8 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
 }) => {
   const { content, isLoading } = useWarriorsLessonContent(moduleId);
   const { captureIdea } = useStackTodoIntegration();
+  const commentsRef = useRef<ModuleCommentsRef>(null);
+  const [completedActions, setCompletedActions] = useState<Set<number>>(new Set());
   const hasVideo = !!videoUrl;
 
   const handleMarkComplete = () => {
@@ -43,14 +54,50 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
     onClose();
   };
 
-  const handleAddToTasks = (task: string) => {
-    // Salvează în Hit List pentru ziua curentă
-    captureIdea(task, 'hit', 'none');
+  // Parse action prompts - handle both old format (string[]) and new format (object[])
+  const parseActionPrompts = (prompts: unknown): ActionPromptObject[] => {
+    if (!prompts || !Array.isArray(prompts)) return [];
+    
+    return prompts.map((prompt) => {
+      // Old format: just a string
+      if (typeof prompt === 'string') {
+        return {
+          text: prompt,
+          type: 'task' as const,
+          destination: 'todo' as const
+        };
+      }
+      // New format: object with type, prompt, destination
+      return prompt as ActionPromptObject;
+    });
+  };
+
+  const handleActionClick = (action: ActionPromptObject, index: number) => {
+    // Mark as completed
+    setCompletedActions(prev => new Set(prev).add(index));
+
+    if (action.type === 'reflection') {
+      // Pre-fill comment and scroll to comments section
+      if (commentsRef.current && action.prompt) {
+        commentsRef.current.prefillAndFocus(action.prompt);
+      } else if (commentsRef.current) {
+        commentsRef.current.scrollIntoView();
+      }
+      toast.success('💭 Reflectează și împărtășește!', {
+        description: 'Scrie-ți gândurile mai jos'
+      });
+    } else {
+      // Task type - add to todo/stack
+      captureIdea(action.text, 'hit', 'none');
+      toast.success('✅ Adăugat în To Do!', {
+        description: action.text.substring(0, 50) + (action.text.length > 50 ? '...' : '')
+      });
+    }
   };
 
   // Parse key_concepts and action_prompts from JSONB
   const keyConcepts = content?.key_concepts || [];
-  const actionPrompts = content?.action_prompts || [];
+  const actionPrompts = parseActionPrompts(content?.action_prompts);
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -164,7 +211,7 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
                   </Card>
                 )}
 
-                {/* Action Prompts with Buttons */}
+                {/* Action Prompts with Dual System */}
                 {actionPrompts.length > 0 && (
                   <Card className="border-amber-500/20 bg-gradient-to-r from-amber-500/5 to-orange-500/5">
                     <CardContent className="pt-6 space-y-4">
@@ -172,27 +219,72 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
                         <Target className="h-5 w-5 text-amber-500" />
                         <h4 className="font-semibold text-amber-500">🎯 Acțiuni Recomandate:</h4>
                       </div>
+                      <p className="text-xs text-muted-foreground -mt-2">
+                        În comentariu mai jos - reflectează și contribuie în comunitate
+                      </p>
                       <div className="space-y-3">
-                        {actionPrompts.map((action: string, index: number) => (
-                          <div 
-                            key={index} 
-                            className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-amber-500/10"
-                          >
-                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500/20 text-amber-500 text-sm font-medium flex items-center justify-center">
-                              {index + 1}
-                            </span>
-                            <span className="flex-1 text-sm text-muted-foreground">{action}</span>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="shrink-0 text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
-                              onClick={() => handleAddToTasks(action)}
+                        {actionPrompts.map((action, index) => {
+                          const isCompleted = completedActions.has(index);
+                          const isReflection = action.type === 'reflection';
+                          
+                          return (
+                            <div 
+                              key={index} 
+                              className={cn(
+                                "flex items-start gap-3 p-3 rounded-lg border transition-all",
+                                isCompleted 
+                                  ? "bg-green-500/10 border-green-500/30" 
+                                  : "bg-background/50 border-amber-500/10"
+                              )}
                             >
-                              <Plus className="h-4 w-4 mr-1" />
-                              Adaugă
-                            </Button>
-                          </div>
-                        ))}
+                              <span className={cn(
+                                "flex-shrink-0 w-6 h-6 rounded-full text-sm font-medium flex items-center justify-center transition-colors",
+                                isCompleted
+                                  ? "bg-green-500 text-white"
+                                  : "bg-amber-500/20 text-amber-500"
+                              )}>
+                                {isCompleted ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                              </span>
+                              <span className={cn(
+                                "flex-1 text-sm",
+                                isCompleted ? "text-green-700 dark:text-green-300" : "text-muted-foreground"
+                              )}>
+                                {action.text}
+                              </span>
+                              <Button 
+                                variant={isCompleted ? "default" : "ghost"}
+                                size="sm"
+                                className={cn(
+                                  "shrink-0 transition-all",
+                                  isCompleted 
+                                    ? "bg-green-500 hover:bg-green-600 text-white pointer-events-none"
+                                    : isReflection
+                                      ? "text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
+                                      : "text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
+                                )}
+                                onClick={() => handleActionClick(action, index)}
+                                disabled={isCompleted}
+                              >
+                                {isCompleted ? (
+                                  <>
+                                    <Check className="h-4 w-4 mr-1" />
+                                    Făcut
+                                  </>
+                                ) : isReflection ? (
+                                  <>
+                                    <MessageCircle className="h-4 w-4 mr-1" />
+                                    Reflectă
+                                  </>
+                                ) : (
+                                  <>
+                                    <Plus className="h-4 w-4 mr-1" />
+                                    Adaugă
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          );
+                        })}
                       </div>
                     </CardContent>
                   </Card>
@@ -201,7 +293,7 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
             )}
 
             {/* Comments Section */}
-            <ModuleComments moduleId={moduleId} />
+            <ModuleComments ref={commentsRef} moduleId={moduleId} />
           </div>
         </ScrollArea>
 
