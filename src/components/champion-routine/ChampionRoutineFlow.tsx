@@ -253,19 +253,32 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     const includeDailyTasks = settings?.include_daily_tasks !== false;
 
     // Auto-include new steps for existing users
-    const requiredNewSteps = ['emotionalCheck', 'emotionalTransform', 'visionDeclaration'];
+    const requiredNewSteps = ['emotionalCheck', 'stackSelection', 'emotionalTransform', 'visionDeclaration'];
     requiredNewSteps.forEach(stepId => {
       if (activeSteps.length > 0 && !activeSteps.includes(stepId)) {
         activeSteps = [...activeSteps];
         if (stepId === 'emotionalCheck') {
           activeSteps.unshift(stepId);
-        } else if (stepId === 'emotionalTransform') {
+        } else if (stepId === 'stackSelection') {
           // Insert right after emotionalCheck
           const checkIndex = activeSteps.indexOf('emotionalCheck');
           if (checkIndex !== -1) {
             activeSteps.splice(checkIndex + 1, 0, stepId);
           } else {
             activeSteps.unshift(stepId);
+          }
+        } else if (stepId === 'emotionalTransform') {
+          // Insert right after stackSelection
+          const stackIndex = activeSteps.indexOf('stackSelection');
+          if (stackIndex !== -1) {
+            activeSteps.splice(stackIndex + 1, 0, stepId);
+          } else {
+            const checkIndex = activeSteps.indexOf('emotionalCheck');
+            if (checkIndex !== -1) {
+              activeSteps.splice(checkIndex + 1, 0, stepId);
+            } else {
+              activeSteps.unshift(stepId);
+            }
           }
         } else {
           const autoIndex = activeSteps.indexOf('autosuggestion');
@@ -280,13 +293,26 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         stepsOrder = [...stepsOrder];
         if (stepId === 'emotionalCheck') {
           stepsOrder.unshift(stepId);
-        } else if (stepId === 'emotionalTransform') {
+        } else if (stepId === 'stackSelection') {
           // Insert right after emotionalCheck
           const checkIndex = stepsOrder.indexOf('emotionalCheck');
           if (checkIndex !== -1) {
             stepsOrder.splice(checkIndex + 1, 0, stepId);
           } else {
             stepsOrder.unshift(stepId);
+          }
+        } else if (stepId === 'emotionalTransform') {
+          // Insert right after stackSelection
+          const stackIndex = stepsOrder.indexOf('stackSelection');
+          if (stackIndex !== -1) {
+            stepsOrder.splice(stackIndex + 1, 0, stepId);
+          } else {
+            const checkIndex = stepsOrder.indexOf('emotionalCheck');
+            if (checkIndex !== -1) {
+              stepsOrder.splice(checkIndex + 1, 0, stepId);
+            } else {
+              stepsOrder.unshift(stepId);
+            }
           }
         } else {
           const autoIndex = stepsOrder.indexOf('autosuggestion');
