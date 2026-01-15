@@ -223,12 +223,12 @@ export const useDailyScore = () => {
   const getNextAction = useCallback((progress: ProgressSection): NextAction => {
     const actions: NextAction[] = [];
 
-    // Priority 1: Champion Routine not started
+    // Priority 1: Warrior Routine not started
     if (!progress.routine.done) {
       actions.push({
         type: 'routine',
-        title: 'Începe Rutina de Campion',
-        route: '/champion-routine',
+        title: 'Începe Rutina Războinicului',
+        route: '/daily-flow',
         priority: 1
       });
     }
