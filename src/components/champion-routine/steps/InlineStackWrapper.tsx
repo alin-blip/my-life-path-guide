@@ -1,13 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Check, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, Sparkles, ListTodo, Target, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/context/ThemeContext';
 import { AiGuidedStack } from '@/components/stack/AiGuidedStack';
 import { Emotion } from '@/components/emotional/EmotionPicker';
 import { saveToStackLibrary, updateDailyProgress } from '@/utils/stackProgress';
 import { toast } from 'sonner';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
+import { getWeekKey } from '@/utils/weekUtils';
+import { v4 as uuidv4 } from 'uuid';
+import { KeyPointsDefinitionFlow } from './KeyPointsDefinitionFlow';
 
 // Positive emotions list
 const POSITIVE_EMOTIONS = [
@@ -100,6 +104,27 @@ Să începem! Ce te-a adus în această stare pozitivă?`;
 Să începem! Ce te-a adus în această stare? Ce s-a întâmplat?`;
 };
 
+// Extract action from AI response
+const extractActionFromResponse = (text: string): string | null => {
+  // Look for pattern: 🎯 Acțiune pentru Hit List: [action]
+  const pattern = /🎯\s*Acțiune pentru Hit List:\s*(.+?)(?:\n|$)/i;
+  const match = text.match(pattern);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+  
+  // Fallback: look for any action-like statement
+  const fallbackPattern = /acțiune[:\s]+(.+?)(?:\.|!|\n|$)/i;
+  const fallbackMatch = text.match(fallbackPattern);
+  if (fallbackMatch && fallbackMatch[1]) {
+    return fallbackMatch[1].trim();
+  }
+  
+  return null;
+};
+
+type FlowState = 'stack' | 'export-options' | 'key-points';
+
 interface InlineStackWrapperProps {
   stackType: string;
   emotion: Emotion | null;
@@ -118,7 +143,9 @@ export const InlineStackWrapper: React.FC<InlineStackWrapperProps> = ({
   onAddToHitList
 }) => {
   const { theme } = useTheme();
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [flowState, setFlowState] = useState<FlowState>('stack');
+  const [extractedAction, setExtractedAction] = useState<string | null>(null);
+  const [isAddingToHitList, setIsAddingToHitList] = useState(false);
 
   const isPositive = emotion && POSITIVE_EMOTIONS.includes(emotion);
   const emotionString = emotion || 'neutral';
@@ -128,7 +155,6 @@ export const InlineStackWrapper: React.FC<InlineStackWrapperProps> = ({
     if (stackType === 'adaptive-transform') {
       return getAdaptiveTransformPrompt(emotionString, intensity, !!isPositive);
     }
-    // For other stacks, return undefined to use their default prompts
     return undefined;
   }, [stackType, emotionString, intensity, isPositive]);
 
@@ -140,7 +166,7 @@ export const InlineStackWrapper: React.FC<InlineStackWrapperProps> = ({
     return undefined;
   }, [stackType, emotionString, isPositive]);
 
-  // Handle completion and save to library
+  // Handle stack completion - show export options
   const handleStackComplete = useCallback(async () => {
     try {
       // Save to stack library
@@ -159,18 +185,181 @@ export const InlineStackWrapper: React.FC<InlineStackWrapperProps> = ({
       console.error('Error saving stack:', error);
     }
     
-    setIsCompleted(true);
+    // Show export options instead of completing immediately
+    setFlowState('export-options');
+  }, [stackType, emotion]);
+
+  // Handle adding to Hit List
+  const handleAddToHitList = async () => {
+    if (!extractedAction) {
+      toast.error('Nu am găsit o acțiune de adăugat');
+      return;
+    }
+
+    setIsAddingToHitList(true);
+    try {
+      const weekKey = getWeekKey();
+      
+      await doorUserTasksService.addIdeaToWeek(weekKey, {
+        id: uuidv4(),
+        text: extractedAction,
+        category: 'hit',
+        priority: 'urgent-important'
+      });
+
+      toast.success('Acțiune adăugată la Sarcini! ✅');
+      onComplete(extractedAction);
+    } catch (error) {
+      console.error('Error adding to Hit List:', error);
+      toast.error('Nu am putut adăuga acțiunea');
+    } finally {
+      setIsAddingToHitList(false);
+    }
+  };
+
+  // Handle continue without adding
+  const handleContinueWithoutAdding = () => {
     onComplete();
-  }, [stackType, emotion, onComplete]);
+  };
+
+  // Handle key points flow completion
+  const handleKeyPointsComplete = () => {
+    onComplete(extractedAction || undefined);
+  };
+
+  // Capture action from AI response when it's mentioned
+  const handleActionExtracted = useCallback((action: string) => {
+    if (action && !extractedAction) {
+      setExtractedAction(action);
+    }
+  }, [extractedAction]);
 
   // Determine the actual stack type to use
   const actualStackType = stackType === 'adaptive-transform' 
-    ? 'ai-live' // Use ai-live as base for adaptive transform
+    ? 'ai-live'
     : stackType;
 
   const systemPromptOverride = getSystemPrompt();
   const welcomeMessage = getStackWelcomeMessage();
 
+  // Export Options Screen
+  if (flowState === 'export-options') {
+    return (
+      <div className="space-y-4">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setFlowState('stack')}
+            className={cn(
+              "gap-1",
+              theme === 'dark' ? 'text-white/70 hover:text-white' : ''
+            )}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Înapoi la Stack
+          </Button>
+        </div>
+
+        <Card className={cn(
+          "p-6 border-2 text-center",
+          theme === 'dark' 
+            ? 'bg-black/40 border-white/10' 
+            : 'bg-white/90 border-border'
+        )}>
+          <div className="space-y-6">
+            {/* Success header */}
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                <Check className="w-6 h-6 text-green-500" />
+              </div>
+            </div>
+            
+            <div>
+              <h3 className={cn(
+                "text-xl font-semibold mb-1",
+                theme === 'dark' ? 'text-white' : ''
+              )}>
+                Stack Completat! 🎉
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Ce vrei să faci cu această energie?
+              </p>
+            </div>
+
+            {/* Extracted action display */}
+            {extractedAction && (
+              <div className={cn(
+                "p-4 rounded-lg border",
+                theme === 'dark' 
+                  ? 'bg-primary/10 border-primary/30' 
+                  : 'bg-primary/5 border-primary/20'
+              )}>
+                <p className="text-xs text-muted-foreground mb-1">Acțiune identificată:</p>
+                <p className={cn(
+                  "font-medium",
+                  theme === 'dark' ? 'text-white' : ''
+                )}>
+                  "{extractedAction}"
+                </p>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex flex-col gap-3">
+              <Button 
+                onClick={handleAddToHitList}
+                variant="outline"
+                className="gap-2 w-full justify-center py-6"
+                disabled={!extractedAction || isAddingToHitList}
+              >
+                <ListTodo className="w-5 h-5" />
+                <div className="text-left">
+                  <div className="font-medium">Adaugă la Sarcini</div>
+                  <div className="text-xs text-muted-foreground">Salvează în Hit List pentru azi</div>
+                </div>
+              </Button>
+              
+              <Button 
+                onClick={() => setFlowState('key-points')}
+                className="gap-2 w-full justify-center py-6"
+              >
+                <Target className="w-5 h-5" />
+                <div className="text-left">
+                  <div className="font-medium">Setează ca Domino Door</div>
+                  <div className="text-xs opacity-80">+ Definește 4 Chei Măsurabile</div>
+                </div>
+                <ArrowRight className="w-4 h-4 ml-auto" />
+              </Button>
+            </div>
+
+            {/* Skip button */}
+            <Button 
+              variant="ghost" 
+              onClick={handleContinueWithoutAdding}
+              className="text-muted-foreground w-full"
+            >
+              Continuă fără să adaugi
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Key Points Definition Flow
+  if (flowState === 'key-points') {
+    return (
+      <KeyPointsDefinitionFlow
+        dominoTitle={extractedAction || `Obiectiv din ${emotion || 'stack'}`}
+        onComplete={handleKeyPointsComplete}
+        onBack={() => setFlowState('export-options')}
+      />
+    );
+  }
+
+  // Main Stack View
   return (
     <div className="space-y-4">
       {/* Header with back button */}
@@ -220,7 +409,10 @@ export const InlineStackWrapper: React.FC<InlineStackWrapperProps> = ({
           <AiGuidedStack
             stackType={actualStackType as any}
             questions={[]}
-            onAddToHitList={onAddToHitList}
+            onAddToHitList={(action) => {
+              handleActionExtracted(action);
+              onAddToHitList?.(action);
+            }}
             systemPromptOverride={systemPromptOverride}
             welcomeMessage={welcomeMessage}
             forceNewSession={true}
@@ -233,19 +425,9 @@ export const InlineStackWrapper: React.FC<InlineStackWrapperProps> = ({
         <Button
           onClick={handleStackComplete}
           className="gap-2"
-          disabled={isCompleted}
         >
-          {isCompleted ? (
-            <>
-              <Check className="w-4 h-4" />
-              Completat
-            </>
-          ) : (
-            <>
-              <Check className="w-4 h-4" />
-              Finalizează și Continuă
-            </>
-          )}
+          <Check className="w-4 h-4" />
+          Finalizează Stack
         </Button>
       </div>
     </div>
