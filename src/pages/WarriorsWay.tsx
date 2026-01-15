@@ -87,12 +87,12 @@ const COURSE_SECTIONS = [
     description: 'Procesul de reîncadrare a poveștilor și transformare prin oprire, supunere, luptă și lovitură',
     isFree: false,
     modules: [
-      { id: 'stack-16', title: 'Reîncadrarea Poveștilor', duration: '16 min', order: 23, videoUrl: '' },
-      { id: 'stack-17', title: 'Stop: Răgazul Războinicului', duration: '15 min', order: 24, videoUrl: '' },
-      { id: 'stack-18', title: 'Supunerea: Adevărul Războinicului', duration: '17 min', order: 25, videoUrl: '' },
-      { id: 'stack-19', title: 'Lupta: Bătălia pentru Claritate', duration: '18 min', order: 26, videoUrl: '' },
-      { id: 'stack-20', title: 'Lovitura: Apelul la Acțiune', duration: '16 min', order: 27, videoUrl: '' },
-      { id: 'stack-21', title: 'Rezumatul Stack-ului', duration: '14 min', order: 28, videoUrl: '' },
+      { id: 'stack-16', title: 'Reîncadrarea Poveștilor', duration: '16 min', order: 23, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=s69B0sdFecgBrRrOpxkpkgafSNSXAyhSm5pd1JNIflYDyBWCR&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'stack-17', title: 'Stop: Răgazul Războinicului', duration: '15 min', order: 24, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=0cJHRYbZaVDK0FEV2AQg06t_ZBxVd1T66xpNMuhJaOaKA2EdS&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'stack-18', title: 'Supunerea: Adevărul Războinicului', duration: '17 min', order: 25, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=ywIbngow3hjMj4XgCQtgTRaMV9ZF1TDnmdzSTllXNavnjIU3e&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'stack-19', title: 'Lupta: Bătălia pentru Claritate', duration: '18 min', order: 26, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=XNfUR0zLR4Pa2QBvB48X7d_uiBIAEjnAWw1Cia4EJEMSQullv&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'stack-20', title: 'Lovitura: Apelul la Acțiune', duration: '16 min', order: 27, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=R1wzKMLEZH6md3Flg0YgdgNQNXEuD2TK0U4_NTOYNnIcz2FMc&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'stack-21', title: 'Rezumatul Stack-ului', duration: '14 min', order: 28, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=0uPaj7G6BdaeGQjUOVhXjs9d1krWHzQamwo1EtdQQa_H37jIf&videoRatio=1.777778&type=v&skinColor=%232758EB' },
     ]
   },
   {
