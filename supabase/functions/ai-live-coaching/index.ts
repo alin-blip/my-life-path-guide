@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,9 +14,31 @@ serve(async (req) => {
   }
 
   try {
+    // Authentication check
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
     if (!lovableApiKey) {
       throw new Error('LOVABLE_API_KEY is not configured');
@@ -72,12 +95,9 @@ serve(async (req) => {
     let knowledgeContext = '';
     if (knowledgeBaseFiles && knowledgeBaseFiles.length > 0 && supabaseUrl && supabaseAnonKey) {
       try {
-        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.3');
-        const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
         for (const filePath of knowledgeBaseFiles) {
           try {
-            const { data, error } = await supabase.storage
+            const { data, error } = await supabaseClient.storage
               .from('knowledge-base')
               .download(filePath);
 
