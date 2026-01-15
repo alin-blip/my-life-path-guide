@@ -17,6 +17,7 @@ import { VoiceInputButton } from './VoiceInputButton';
 
 interface AiLiveCoachingProps {
   onAddToHitList?: (action: string) => void;
+  stackType?: string;
 }
 
 interface Message {
@@ -25,7 +26,7 @@ interface Message {
   timestamp: Date;
 }
 
-export const EnhancedAiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList }) => {
+export const EnhancedAiLiveCoaching: React.FC<AiLiveCoachingProps> = ({ onAddToHitList, stackType }) => {
   const { toast } = useToast();
   const [sessionId] = useState(() => uuidv4());
   const [mode, setMode] = useState<'chat' | 'complete'>('chat');

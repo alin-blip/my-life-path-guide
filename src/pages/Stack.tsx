@@ -108,6 +108,9 @@ const CoachingPage = () => {
         case 'introspection':
           setActiveStack('introspection');
           break;
+        case 'adaptive-transform':
+          setActiveStack('adaptive-transform');
+          break;
 
         // Backwards-compatible URLs
         case 'napoleon-hill':
@@ -362,6 +365,8 @@ const renderActiveStack = () => {
         return <DivineGratitudeStack {...stackProps} />;
       case "introspection":
         return <IntrospectionStack {...stackProps} />;
+      case "adaptive-transform":
+        return <AiLiveCoaching {...stackProps} stackType="adaptive-transform" />;
       case "napoleon-hill":
         return <MasterPlanStack {...stackProps} />;
       case "napoleon-hill-quick":
