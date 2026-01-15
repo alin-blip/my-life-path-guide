@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronLeft, ChevronRight, Crown, Dumbbell, Brain, Heart, Briefcase, Plus, Edit2, Star, Sparkles, ChevronDown, Target, Flag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Crown, Dumbbell, Brain, Heart, Briefcase, Plus, Edit2, Star, Sparkles, ChevronDown, Target, Flag, Sword, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { GoalWizardModal } from '@/components/goal-wizard/GoalWizardModal';
 import { GoalCategory } from '@/types/goalWizard';
 import { useChildMissions } from '@/hooks/useHierarchyData';
+import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 
 interface AnnualVision {
   id: string;
@@ -143,6 +145,12 @@ const ChildMonthlySection: React.FC<{
 };
 
 export const AnnualVisionTab: React.FC = () => {
+  const location = useLocation();
+  const incomingState = location.state as { 
+    fromWarriorPower?: boolean; 
+    scores?: WarriorPowerScores;
+  } | null;
+  
   const { language } = useLanguage();
   const { toast } = useToast();
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -151,6 +159,7 @@ export const AnnualVisionTab: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVision, setEditingVision] = useState<AnnualVision | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showWelcome, setShowWelcome] = useState(!!incomingState?.fromWarriorPower);
   
   const [formData, setFormData] = useState({
     bigGoal: '',
@@ -162,6 +171,19 @@ export const AnnualVisionTab: React.FC = () => {
   // Goal Wizard state
   const [wizardOpen, setWizardOpen] = useState(false);
   const [wizardCategory, setWizardCategory] = useState<GoalCategory>('body');
+  
+  // Check for checkout success
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('checkout') === 'success') {
+      toast({
+        title: language === 'en' ? 'Payment successful!' : 'Plată reușită!',
+        description: language === 'en' 
+          ? 'Welcome to Pro! Now create your annual goals.' 
+          : 'Bun venit în Pro! Acum creează-ți obiectivele anuale.',
+      });
+    }
+  }, [location.search]);
 
   const fetchVisions = async () => {
     try {
@@ -327,6 +349,47 @@ export const AnnualVisionTab: React.FC = () => {
 
   return (
     <div className="p-6">
+      {/* Welcome from Warrior Power */}
+      {showWelcome && (
+        <Card className="mb-6 bg-gradient-to-r from-primary/10 via-background to-accent/10 border-primary/30">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-xl bg-primary/20">
+                <Sword className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-bold text-lg text-foreground">
+                    {language === 'en' 
+                      ? 'Excellent! Now define your annual goals' 
+                      : 'Excelent! Acum definește obiectivele tale anuale'}
+                  </h3>
+                  {incomingState?.scores && (
+                    <Badge variant="secondary" className="gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Warrior Power Complet
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'en'
+                    ? 'Based on your Warrior Power assessment, create one "impossible" goal for each life dimension. These will be your north star for the year.'
+                    : 'Bazat pe evaluarea ta Warrior Power, creează câte un obiectiv "imposibil" pentru fiecare dimensiune a vieții. Acestea vor fi steaua ta călăuzitoare pentru tot anul.'}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowWelcome(false)}
+                className="text-muted-foreground"
+              >
+                ✕
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       {/* Year Navigation */}
       <div className="flex items-center justify-between mb-8">
         <div>

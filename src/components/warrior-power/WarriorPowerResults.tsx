@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Target, ArrowRight, Sword, Shield, Flame, Crown, ChevronRight, Zap, Sparkles } from 'lucide-react';
+import { TrendingUp, Target, ArrowRight, Sword, Shield, Flame, Crown, ChevronRight, Zap } from 'lucide-react';
+import { WarriorPowerUpsell } from './WarriorPowerUpsell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
@@ -371,77 +372,19 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
         </Card>
       </motion.div>
 
-      {/* Vision Board CTA - Strategic Engagement */}
+      {/* Upsell Pro Plans */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="mb-8"
       >
-        <Card className="border-2 border-accent/50 bg-gradient-to-br from-accent/10 via-background to-primary/10 p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent/20 to-transparent rounded-full blur-2xl" />
-          
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-accent">
-              <Sparkles className="h-8 w-8 text-white" />
-            </div>
-            
-            <div className="flex-1">
-              <h3 className="text-xl font-bold mb-1">Pasul Următor: Vizualizează Viitorul</h3>
-              <p className="text-muted-foreground text-sm">
-                Acum că știi unde te afli în fiecare dimensiune, creează o imagine clară a destinației. 
-                Vision Board-ul tău 2026 va transforma aceste scoruri în obiective vizuale puternice.
-              </p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-              <Button 
-                onClick={() => navigate('/vision-board-2026', { state: { fromWarriorPower: true, scores } })}
-                className="gap-2 bg-gradient-to-r from-accent to-primary hover:opacity-90"
-              >
-                <Sparkles className="h-4 w-4" />
-                Creează Vision Board 2026
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* CTA */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="text-center"
-      >
-        <div className="relative overflow-hidden rounded-2xl border-2 border-primary/50 bg-gradient-to-br from-primary/20 via-background to-primary/10 p-8">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
-          
-          <Sword className="h-12 w-12 text-primary mx-auto mb-4" />
-          
-          <h3 className="text-2xl font-bold mb-3">
-            Sau Începe Direct Transformarea
-          </h3>
-          <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-            Acces complet la toate instrumentele de coaching și tracking pentru a deveni ACCELERAT în toate ariile.
-          </p>
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={() => navigate('/pricing')}
-            className="gap-2 text-lg px-8 py-6 font-bold border-primary/50 hover:bg-primary/10"
-          >
-            <Flame className="h-5 w-5" />
-            Începe Trial 3 Zile
-            <ArrowRight className="h-5 w-5" />
-          </Button>
-          
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
-        </div>
-
-        <p className="text-sm text-muted-foreground mt-4">
-          Rezultatele tale au fost salvate și trimise pe email.
-        </p>
+        <WarriorPowerUpsell 
+          scores={scores}
+          userName={userName}
+          onContinueFree={() => navigate('/door?tab=annual', { 
+            state: { fromWarriorPower: true, scores } 
+          })}
+        />
       </motion.div>
     </div>
   );

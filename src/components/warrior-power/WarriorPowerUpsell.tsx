@@ -1,0 +1,259 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Crown, Check, Zap, Brain, Target, ArrowRight, Sparkles, Calendar, Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
+
+interface WarriorPowerUpsellProps {
+  scores: WarriorPowerScores;
+  userName: string;
+  onContinueFree: () => void;
+}
+
+const UPSELL_PLANS = [
+  {
+    id: 'monthly',
+    name: 'Pro Lunar',
+    price: '97',
+    period: 'LEI / lună',
+    highlight: null,
+    benefits: [
+      'Toate modulele platformei',
+      'Coaching AI pentru obiective',
+      'Goal Wizard cu milestone-uri',
+      'Rutina Campionului zilnică',
+      'Tracking complet al progresului'
+    ],
+    featured: false
+  },
+  {
+    id: 'annual',
+    name: 'Pro Anual',
+    price: '997',
+    period: 'LEI / an',
+    highlight: '-15% Discount',
+    benefits: [
+      'Tot ce include planul lunar',
+      'Meditații AI personalizate',
+      'Acces la toate cursurile',
+      'Support prioritar',
+      'Acces la toate update-urile viitoare'
+    ],
+    featured: true
+  }
+];
+
+export function WarriorPowerUpsell({ scores, userName, onContinueFree }: WarriorPowerUpsellProps) {
+  const [isLoading, setIsLoading] = useState<string | null>(null);
+
+  // Calculate total score
+  const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+
+  // Find weakest dimension
+  const dimensionTotals = {
+    body: (scores.body_fitness || 0) + (scores.body_nutrition || 0),
+    being: (scores.being_connection || 0) + (scores.being_certainty || 0),
+    balance: (scores.balance_relationship || 0) + (scores.balance_family || 0),
+    business: (scores.business_mechanics || 0) + (scores.business_money || 0)
+  };
+
+  const weakestDimension = Object.entries(dimensionTotals)
+    .sort(([, a], [, b]) => a - b)[0][0];
+
+  const dimensionNames: Record<string, string> = {
+    body: 'Corp',
+    being: 'Ființă',
+    balance: 'Echilibru',
+    business: 'Business'
+  };
+
+  const handleCheckout = async (planId: string) => {
+    setIsLoading(planId);
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast.error('Trebuie să fii autentificat pentru a continua.');
+        setIsLoading(null);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { plan: planId }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Nu s-a putut crea sesiunea de plată');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error('A apărut o eroare. Încearcă din nou.');
+    } finally {
+      setIsLoading(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Personalized Message */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center"
+      >
+        <div className="inline-flex items-center gap-2 mb-3">
+          <Target className="h-5 w-5 text-primary" />
+          <span className="text-sm uppercase tracking-widest text-primary font-bold">
+            Pasul Următor
+          </span>
+        </div>
+        
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+          Acum că știi unde ești, hai să construim unde vei ajunge
+        </h2>
+        
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          Cu un scor de <strong className="text-foreground">{totalScore}/96</strong> și 
+          {' '}<strong className="text-foreground">{dimensionNames[weakestDimension]}</strong> ca zonă de focalizare principală, 
+          ai nevoie de un plan structurat pentru a deveni <strong className="text-primary">ACCELERAT</strong> în toate ariile.
+        </p>
+      </motion.div>
+
+      {/* Plans Grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto"
+      >
+        {UPSELL_PLANS.map((plan, idx) => (
+          <Card 
+            key={plan.id}
+            className={cn(
+              "relative overflow-hidden transition-all duration-300",
+              plan.featured 
+                ? "border-2 border-primary bg-gradient-to-br from-primary/10 via-background to-accent/10 shadow-lg shadow-primary/10" 
+                : "border-border hover:border-primary/50"
+            )}
+          >
+            {plan.featured && (
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+            )}
+            
+            {plan.highlight && (
+              <Badge 
+                className="absolute top-4 right-4 bg-gradient-to-r from-primary to-accent text-white border-0"
+              >
+                {plan.highlight}
+              </Badge>
+            )}
+
+            <CardContent className="p-6">
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  {plan.featured ? (
+                    <Crown className="h-6 w-6 text-primary" />
+                  ) : (
+                    <Calendar className="h-6 w-6 text-muted-foreground" />
+                  )}
+                  <h3 className="text-xl font-bold">{plan.name}</h3>
+                </div>
+                
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-black text-foreground">{plan.price}</span>
+                  <span className="text-muted-foreground">{plan.period}</span>
+                </div>
+              </div>
+
+              <ul className="space-y-3 mb-6">
+                {plan.benefits.map((benefit, bidx) => (
+                  <li key={bidx} className="flex items-start gap-2 text-sm">
+                    <Check className={cn(
+                      "h-4 w-4 mt-0.5 flex-shrink-0",
+                      plan.featured ? "text-primary" : "text-green-500"
+                    )} />
+                    <span className="text-muted-foreground">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Button
+                onClick={() => handleCheckout(plan.id)}
+                disabled={isLoading !== null}
+                className={cn(
+                  "w-full gap-2",
+                  plan.featured 
+                    ? "bg-gradient-to-r from-primary to-accent hover:opacity-90" 
+                    : "bg-muted hover:bg-muted/80 text-foreground"
+                )}
+              >
+                {isLoading === plan.id ? (
+                  <>
+                    <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    Se procesează...
+                  </>
+                ) : (
+                  <>
+                    {plan.featured && <Star className="h-4 w-4" />}
+                    Alege {plan.name}
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </motion.div>
+
+      {/* Divider with OR */}
+      <div className="flex items-center gap-4 max-w-3xl mx-auto">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-muted-foreground text-sm font-medium">sau</span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+
+      {/* Continue Free Option */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-center"
+      >
+        <Button
+          variant="ghost"
+          onClick={onContinueFree}
+          className="gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <Sparkles className="h-4 w-4" />
+          Continuă gratuit și creează obiective
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+        
+        <p className="text-xs text-muted-foreground mt-2">
+          Acces limitat la funcționalități. Poți face upgrade oricând.
+        </p>
+      </motion.div>
+
+      {/* Results Saved Notice */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="flex items-center justify-center gap-2 text-sm text-muted-foreground pt-4"
+      >
+        <Zap className="h-4 w-4 text-primary" />
+        <span>Rezultatele tale au fost salvate și trimise pe email</span>
+      </motion.div>
+    </div>
+  );
+}
