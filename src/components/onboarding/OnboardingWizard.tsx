@@ -109,13 +109,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
     },
     {
       id: 'routine',
-      title: { en: 'Champion Routine', ro: 'Rutina de Campion' },
+      title: { en: 'Warrior Routine', ro: 'Rutina Războinicului' },
       description: { 
-        en: 'Start your morning routine to set the tone for a productive day.',
-        ro: 'Începe rutina de dimineață pentru a seta tonul unei zile productive.'
+        en: 'Start your warrior routine to set the tone for a productive day.',
+        ro: 'Începe Rutina Războinicului pentru a seta tonul unei zile productive.'
       },
       icon: <Sunrise className="w-8 h-8" />,
-      route: '/dashboard',
+      route: '/daily-flow',
       checkComplete: () => foundationStatus.hasStartedRoutineToday
     },
     {
