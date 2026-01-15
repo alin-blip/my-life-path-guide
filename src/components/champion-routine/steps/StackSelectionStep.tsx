@@ -18,7 +18,8 @@ import {
   Lightbulb,
   Smile,
   PenTool,
-  List
+  List,
+  RefreshCw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,26 +27,6 @@ import { useTheme } from '@/context/ThemeContext';
 
 // Stack definitions with metadata
 const STACKS = {
-  'anger': {
-    id: 'anger',
-    name: 'Emotion Coach',
-    description: 'Procesează emoțiile dificile și transformă-le în energie pozitivă',
-    duration: '15-20 min',
-    icon: Flame,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-500/10',
-    borderColor: 'border-orange-500/30'
-  },
-  'ai-live': {
-    id: 'ai-live',
-    name: 'Life Coach',
-    description: 'Sesiuni interactive de coaching pentru orice provocare',
-    duration: '10-30 min',
-    icon: Zap,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
-    borderColor: 'border-blue-500/30'
-  },
   'divine-prayer': {
     id: 'divine-prayer',
     name: 'Mindset Coach',
@@ -65,6 +46,36 @@ const STACKS = {
     color: 'text-pink-500',
     bgColor: 'bg-pink-500/10',
     borderColor: 'border-pink-500/30'
+  },
+  'adaptive-transform': {
+    id: 'adaptive-transform',
+    name: 'Transformare Adaptivă',
+    description: 'Înțelege, procesează și extinde energia în corp, spirit, relații și business',
+    duration: '15-20 min',
+    icon: RefreshCw,
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+    borderColor: 'border-amber-500/30'
+  },
+  'anger': {
+    id: 'anger',
+    name: 'Emotion Coach',
+    description: 'Procesează emoțiile dificile și transformă-le în energie pozitivă',
+    duration: '15-20 min',
+    icon: Flame,
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/10',
+    borderColor: 'border-orange-500/30'
+  },
+  'ai-live': {
+    id: 'ai-live',
+    name: 'Life Coach',
+    description: 'Sesiuni interactive de coaching pentru orice provocare',
+    duration: '10-30 min',
+    icon: Zap,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/30'
   },
   'introspection': {
     id: 'introspection',
@@ -138,35 +149,11 @@ const STACKS = {
   }
 };
 
-// Emotion to recommended stacks mapping
-const EMOTION_STACK_RECOMMENDATIONS: Record<string, string[]> = {
-  // Negative emotions
-  'angry': ['anger', 'ai-live'],
-  'frustrated': ['anger', 'introspection'],
-  'sad': ['divine-prayer', 'divine-gratitude'],
-  'anxious': ['divine-prayer', 'introspection'],
-  'stressed': ['ai-live', 'introspection'],
-  'overwhelmed': ['divine-prayer', 'daily-master'],
-  'fearful': ['divine-prayer', 'ai-live'],
-  'disappointed': ['introspection', 'divine-gratitude'],
-  'lonely': ['divine-gratitude', 'gods-school'],
-  'guilty': ['introspection', 'divine'],
-  
-  // Positive emotions - focus on productivity
-  'happy': ['daily-master', 'hormozi-coaching'],
-  'excited': ['hormozi-coaching', 'napoleon-hill'],
-  'calm': ['gratitude', 'gods-school'],
-  'grateful': ['divine-gratitude', 'napoleon-hill'],
-  'confident': ['hormozi-coaching', 'daily-master'],
-  'inspired': ['napoleon-hill', 'hormozi-coaching'],
-  'peaceful': ['gods-school', 'gratitude'],
-  'energetic': ['daily-master', 'hormozi-coaching'],
-  'hopeful': ['napoleon-hill', 'divine-prayer'],
-  'loved': ['divine-gratitude', 'gratitude'],
-  
-  // Neutral/default
-  'neutral': ['daily-master', 'divine-prayer'],
-};
+// Positive emotions list
+const POSITIVE_EMOTIONS = [
+  'happy', 'excited', 'calm', 'grateful', 'peaceful', 
+  'loved', 'hopeful', 'inspired', 'confident', 'energetic'
+];
 
 interface StackSelectionStepProps {
   emotion: Emotion | null;
@@ -184,18 +171,22 @@ export const StackSelectionStep: React.FC<StackSelectionStepProps> = ({
   const { theme } = useTheme();
   const [showAllStacks, setShowAllStacks] = useState(false);
 
-  // Get recommended stacks based on emotion
-  const recommendedStackIds = useMemo(() => {
-    const emotionKey = emotion || 'neutral';
-    return EMOTION_STACK_RECOMMENDATIONS[emotionKey] || EMOTION_STACK_RECOMMENDATIONS['neutral'];
+  // Get recommended stacks - Prayer always first, then based on emotion
+  const recommendedStacks = useMemo(() => {
+    const isPositive = emotion && POSITIVE_EMOTIONS.includes(emotion);
+    
+    // Primary: Divine Prayer - ALWAYS
+    const primary = STACKS['divine-prayer'];
+    
+    // Secondary: based on emotion type
+    const secondary = isPositive 
+      ? STACKS['divine-gratitude']  // Positive emotions → Gratitude
+      : STACKS['adaptive-transform']; // Negative/neutral → Adaptive Transform
+    
+    return [primary, secondary];
   }, [emotion]);
 
-  const recommendedStacks = useMemo(() => {
-    return recommendedStackIds
-      .map(id => STACKS[id as keyof typeof STACKS])
-      .filter(Boolean);
-  }, [recommendedStackIds]);
-
+  const recommendedStackIds = recommendedStacks.map(s => s.id);
   const allStacks = Object.values(STACKS);
 
   const getEmotionEmoji = (emotion: Emotion | null): string => {
@@ -210,7 +201,15 @@ export const StackSelectionStep: React.FC<StackSelectionStepProps> = ({
     return emojiMap[emotion || 'neutral'] || '🧘';
   };
 
-  const renderStackCard = (stack: typeof STACKS[keyof typeof STACKS], isRecommended: boolean) => {
+  const getSecondaryDescription = () => {
+    const isPositive = emotion && POSITIVE_EMOTIONS.includes(emotion);
+    if (isPositive) {
+      return 'Amplifică starea pozitivă și extinde-o în toate ariile vieții tale';
+    }
+    return 'Procesează emoția și transformă-o în energie pentru corp, spirit, relații și business';
+  };
+
+  const renderStackCard = (stack: typeof STACKS[keyof typeof STACKS], isRecommended: boolean, isPrimary: boolean = false) => {
     const Icon = stack.icon;
     
     return (
@@ -226,7 +225,8 @@ export const StackSelectionStep: React.FC<StackSelectionStepProps> = ({
             "p-4 cursor-pointer transition-all duration-200 border-2",
             "hover:shadow-lg",
             stack.borderColor,
-            theme === 'dark' ? 'bg-black/30' : 'bg-white/80'
+            theme === 'dark' ? 'bg-black/30' : 'bg-white/80',
+            isPrimary && "ring-2 ring-primary/50"
           )}
           onClick={() => onSelectStack(stack.id)}
         >
@@ -239,14 +239,20 @@ export const StackSelectionStep: React.FC<StackSelectionStepProps> = ({
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <h3 className={cn(
                   "font-semibold",
                   theme === 'dark' ? 'text-white' : 'text-foreground'
                 )}>
                   {stack.name}
                 </h3>
-                {isRecommended && (
+                {isPrimary && (
+                  <Badge variant="default" className="text-xs bg-primary text-primary-foreground border-0">
+                    <Star className="w-3 h-3 mr-1" />
+                    Principal
+                  </Badge>
+                )}
+                {isRecommended && !isPrimary && (
                   <Badge variant="secondary" className="text-xs bg-primary/20 text-primary border-0">
                     <Star className="w-3 h-3 mr-1" />
                     Recomandat
@@ -258,7 +264,10 @@ export const StackSelectionStep: React.FC<StackSelectionStepProps> = ({
                 "text-sm mb-2 line-clamp-2",
                 theme === 'dark' ? 'text-white/60' : 'text-muted-foreground'
               )}>
-                {stack.description}
+                {stack.id === 'adaptive-transform' || (stack.id === 'divine-gratitude' && isRecommended)
+                  ? getSecondaryDescription()
+                  : stack.description
+                }
               </p>
               
               <div className="flex items-center justify-between">
@@ -342,7 +351,7 @@ export const StackSelectionStep: React.FC<StackSelectionStepProps> = ({
             </span>
           </div>
           
-          {recommendedStacks.map(stack => renderStackCard(stack, true))}
+          {recommendedStacks.map((stack, index) => renderStackCard(stack, true, index === 0))}
         </div>
 
         {/* Show all stacks toggle */}

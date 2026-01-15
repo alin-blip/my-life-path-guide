@@ -35,6 +35,7 @@ import { ApplyStep } from './steps/ApplyStep';
 import { EmotionalCheckStep } from './steps/EmotionalCheckStep';
 import { EmotionalTransformStep } from './steps/EmotionalTransformStep';
 import { StackSelectionStep } from './steps/StackSelectionStep';
+import { InlineStackWrapper } from './steps/InlineStackWrapper';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
@@ -602,14 +603,46 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
           />
         );
       case 'stackSelection':
+        // If stack is running inline, show the wrapper
+        if (showStackInline && selectedStack) {
+          return (
+            <InlineStackWrapper
+              stackType={selectedStack}
+              emotion={selectedEmotion}
+              intensity={emotionIntensity}
+              onComplete={() => {
+                updateLog('stack_selection_completed' as any, true);
+                setShowStackInline(false);
+                setSelectedStack(null);
+                // Skip emotional transform since stack handles it
+                const transformIndex = routineSteps.indexOf('emotionalTransform');
+                if (transformIndex !== -1) {
+                  setCurrentStepIndex(transformIndex + 1);
+                } else {
+                  goToNextStep();
+                }
+              }}
+              onBack={() => {
+                setShowStackInline(false);
+                setSelectedStack(null);
+              }}
+              onAddToHitList={(action) => {
+                // Could add to hot list here if needed
+                console.log('Add to hit list:', action);
+              }}
+            />
+          );
+        }
+        
+        // Otherwise show stack selection
         return (
           <StackSelectionStep
             emotion={selectedEmotion}
             intensity={emotionIntensity}
             onSelectStack={(stackId) => {
-              updateLog('stack_selection_completed' as any, true);
-              // Navigate to the Stack page with the selected stack
-              navigate(`/stack?type=${stackId}`);
+              setSelectedStack(stackId);
+              setShowStackInline(true);
+              // Don't navigate away - run inline!
             }}
             onSkip={() => {
               updateLog('stack_selection_completed' as any, true);
