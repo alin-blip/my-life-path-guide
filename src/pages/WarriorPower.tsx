@@ -41,6 +41,33 @@ export default function WarriorPower() {
         // Continue anyway - don't block the quiz
       }
 
+      // Check if user already exists
+      const { data: existingUser } = await supabase.auth.getUser();
+      
+      if (!existingUser?.user) {
+        // Create Free Plan account automatically
+        const tempPassword = crypto.randomUUID().slice(0, 16);
+        
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: data.email,
+          password: tempPassword,
+          options: {
+            data: {
+              name: data.name,
+              phone: data.phone,
+              plan: 'free'
+            }
+          }
+        });
+
+        if (authError) {
+          console.error('Error creating account:', authError);
+          // Continue anyway - user can still take the quiz
+        } else if (authData?.user) {
+          toast.success('Contul tău Free Plan a fost creat! Verifică emailul pentru detalii.');
+        }
+      }
+
       setLeadData(data);
       setStep('quiz');
     } catch (error) {
