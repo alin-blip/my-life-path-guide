@@ -151,6 +151,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       path: '/stack',
       subItems: [
         { title: language === 'ro' ? 'Stacks Zilnice' : 'Daily Stacks', icon: Sparkles, path: '/stack' },
+        { title: language === 'ro' ? 'Stack Dimineață' : 'Morning Stack', icon: Sparkles, path: '/stack?type=morning' },
+        { title: language === 'ro' ? 'Stack Seară' : 'Evening Stack', icon: Sparkles, path: '/stack?type=evening' },
+        { title: language === 'ro' ? 'Anger Stack' : 'Anger Stack', icon: Flame, path: '/stack?type=anger' },
         { title: language === 'ro' ? 'Meditație Empowerment' : 'Empowerment Meditation', icon: Headphones, path: '/empowerment-meditation' },
         { title: language === 'ro' ? 'Jurnal' : 'Journal', icon: Pencil, path: '/journal' },
         { title: language === 'ro' ? 'Emotional Tracker' : 'Emotional Tracker', icon: Heart, path: '/emotional-tracker' },
