@@ -60,17 +60,18 @@ export default function WarriorPower() {
         const { data: { user } } = await supabase.auth.getUser();
 
         // Save results to database
+        const scoresJson = JSON.parse(JSON.stringify(quizScores));
         const { error: resultError } = await supabase
           .from('warrior_power_results')
-          .insert([{
+          .insert({
             email: leadData.email,
             name: leadData.name,
             phone: leadData.phone,
             gender: leadData.gender,
-            scores: quizScores as unknown as Record<string, unknown>,
+            scores: scoresJson,
             total_score: Object.values(quizScores).reduce((a, b) => a + b, 0),
             user_id: user?.id || null
-          }]);
+          });
 
         if (resultError) {
           console.error('Error saving results:', resultError);
