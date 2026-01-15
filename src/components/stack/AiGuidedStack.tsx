@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward, Download, FileText, Star, StickyNote, Share2, Copy, Check } from 'lucide-react';
+import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward, Download, FileText, Star, StickyNote, Share2, Copy, Check, Target, ListTodo, ArrowRight } from 'lucide-react';
 import { TextToSpeechButton } from '@/components/ui/TextToSpeechButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -23,6 +23,9 @@ import { useStackSession } from '@/hooks/useStackSession';
 import { usePersistentSessionId } from '@/hooks/usePersistentSessionId';
 import { useConfettiCelebration } from '@/components/door/ConfettiCelebration';
 import { AlchemistTransformation } from '@/components/celebrations/AlchemistTransformation';
+import { KeyPointsDefinitionFlow } from '@/components/champion-routine/steps/KeyPointsDefinitionFlow';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
+import { getWeekKey } from '@/utils/weekUtils';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -62,7 +65,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   challengeDay,
   forceNewSession = false
 }) => {
-  const [mode, setMode] = useState<'setup' | 'chat' | 'complete'>('chat');
+  const [mode, setMode] = useState<'setup' | 'chat' | 'complete' | 'export-options' | 'key-points'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -70,6 +73,7 @@ export const AiGuidedStack: React.FC<AiGuidedStackProps> = ({
   const [finalAction, setFinalAction] = useState('');
   const [actionAddedToHitList, setActionAddedToHitList] = useState(false);
   const [showAddToTodoDialog, setShowAddToTodoDialog] = useState(false);
+  const [isAddingToHitList, setIsAddingToHitList] = useState(false);
   const { sessionId } = usePersistentSessionId(stackType);
   const [ttsEnabled, setTtsEnabled] = useState(voiceOnlyMode || audioMode);
   const [currentQuestionNumber, setCurrentQuestionNumber] = useState(0);
@@ -580,10 +584,10 @@ Răspunde în română cu un ton cald și profesionist.`;
       if (error) throw error;
 
       setFinalAction(data.message);
-      setMode('complete');
+      setMode('export-options'); // Show export options instead of going directly to complete
       
-      // Deschide dialogul pentru a întreba utilizatorul dacă vrea să adauge la idei
-      setShowAddToTodoDialog(true);
+      // Don't show the old dialog - we use the new export options flow
+      // setShowAddToTodoDialog(true);
 
       // Save session to Stack Library (Arsenal)
       try {
@@ -952,6 +956,139 @@ Răspunde în română cu un ton cald și profesionist.`;
     }
   };
 
+  // Handle adding to Hit List from export options
+  const handleAddToHitListFromExport = async () => {
+    if (!finalAction.trim()) {
+      toast({
+        title: "Nicio acțiune",
+        description: "Nu am găsit o acțiune de adăugat.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAddingToHitList(true);
+    try {
+      const weekKey = getWeekKey();
+      
+      await doorUserTasksService.addIdeaToWeek(weekKey, {
+        id: uuidv4(),
+        text: finalAction,
+        category: 'hit',
+        priority: 'urgent-important'
+      });
+
+      setActionAddedToHitList(true);
+      toast({
+        title: "✅ Acțiune adăugată",
+        description: "Acțiunea a fost salvată în Hit List!",
+      });
+      setMode('complete');
+    } catch (error: any) {
+      console.error('Error adding to Hit List:', error);
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut adăuga acțiunea",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingToHitList(false);
+    }
+  };
+
+  // Export Options Mode
+  if (mode === 'export-options') {
+    return (
+      <div className="w-full p-2 sm:p-4 flex flex-col h-full">
+        <AlchemistTransformation 
+          isVisible={showAlchemistOverlay} 
+          onClose={() => setShowAlchemistOverlay(false)} 
+          stackType={stackType}
+        />
+        
+        <Card className="flex-1 flex flex-col">
+          <CardHeader className="pb-2 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-green-500" />
+              </div>
+            </div>
+            <CardTitle className="text-lg sm:text-xl">
+              Stack Completat! 🎉
+            </CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Ce vrei să faci cu această energie?
+            </p>
+          </CardHeader>
+          
+          <CardContent className="flex-1">
+            {/* Extracted action display */}
+            {finalAction && (
+              <div className="p-4 rounded-lg border bg-primary/5 border-primary/20 mb-6">
+                <p className="text-xs text-muted-foreground mb-1">Acțiune identificată:</p>
+                <p className="font-medium text-sm sm:text-base">{finalAction}</p>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex flex-col gap-3">
+              <Button 
+                onClick={handleAddToHitListFromExport}
+                variant="outline"
+                className="gap-2 w-full justify-start py-6"
+                disabled={!finalAction || isAddingToHitList}
+              >
+                <ListTodo className="w-5 h-5" />
+                <div className="text-left flex-1">
+                  <div className="font-medium">Adaugă la Sarcini</div>
+                  <div className="text-xs text-muted-foreground">Salvează în Hit List pentru azi</div>
+                </div>
+              </Button>
+              
+              <Button 
+                onClick={() => setMode('key-points')}
+                className="gap-2 w-full justify-start py-6"
+              >
+                <Target className="w-5 h-5" />
+                <div className="text-left flex-1">
+                  <div className="font-medium">Setează ca Domino Door</div>
+                  <div className="text-xs opacity-80">+ Definește 4 Chei Măsurabile</div>
+                </div>
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardContent>
+
+          <CardFooter className="pt-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => setMode('complete')}
+              className="w-full text-muted-foreground"
+            >
+              Continuă fără să adaugi
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+
+  // Key Points Definition Mode
+  if (mode === 'key-points') {
+    return (
+      <div className="w-full p-2 sm:p-4 flex flex-col h-full">
+        <KeyPointsDefinitionFlow
+          dominoTitle={finalAction || 'Obiectiv din Stack'}
+          onComplete={() => {
+            setActionAddedToHitList(true);
+            setMode('complete');
+          }}
+          onBack={() => setMode('export-options')}
+        />
+      </div>
+    );
+  }
+
   if (mode === 'complete') {
     return (
       <div className="w-full p-1 sm:p-2 flex flex-col h-full">
@@ -972,7 +1109,7 @@ Răspunde în română cu un ton cald și profesionist.`;
               {actionAddedToHitList && (
                 <div className="flex items-center text-green-400 text-xs sm:text-sm mt-2">
                   <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                  Această acțiune a fost adăugată la lista ta fierbinte
+                  Această acțiune a fost adăugată la lista ta
                 </div>
               )}
             </div>
@@ -1027,12 +1164,12 @@ Răspunde în română cu un ton cald și profesionist.`;
             )}
             {!actionAddedToHitList && finalAction && (
               <Button 
-                onClick={addToHitList}
+                onClick={() => setMode('export-options')}
                 size="sm"
                 className="text-xs sm:text-sm"
               >
                 <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                Adaugă la Hit List
+                Adaugă la Sarcini / Domino
               </Button>
             )}
           </CardFooter>
