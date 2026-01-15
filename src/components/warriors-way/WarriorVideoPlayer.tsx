@@ -201,12 +201,27 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
                         <h4 className="font-semibold">Ce vei învăța:</h4>
                       </div>
                       <ul className="space-y-2 pl-7">
-                        {keyConcepts.map((concept: string, index: number) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                            <span className="text-sm text-muted-foreground">{concept}</span>
-                          </li>
-                        ))}
+                        {keyConcepts.map((concept: string | { title: string; description?: string }, index: number) => {
+                          // Handle both string format and object format {title, description}
+                          const conceptText = typeof concept === 'string' 
+                            ? concept 
+                            : concept.title || '';
+                          const conceptDescription = typeof concept === 'object' && concept.description 
+                            ? concept.description 
+                            : null;
+                          
+                          return (
+                            <li key={index} className="flex items-start gap-2">
+                              <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                              <div>
+                                <span className="text-sm text-foreground font-medium">{conceptText}</span>
+                                {conceptDescription && (
+                                  <p className="text-xs text-muted-foreground mt-0.5">{conceptDescription}</p>
+                                )}
+                              </div>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </CardContent>
                   </Card>
