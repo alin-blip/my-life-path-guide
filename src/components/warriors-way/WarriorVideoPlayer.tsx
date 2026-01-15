@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, CheckCircle2, ChevronLeft, ChevronRight, Play, Target, Lightbulb, ArrowUp, Zap, Plus, Loader2, MessageCircle, Check } from 'lucide-react';
 import { ModuleComments, ModuleCommentsRef } from './ModuleComments';
 import { useWarriorsLessonContent } from '@/hooks/useWarriorsLessonContent';
+import { useWarriorsActionCompletions } from '@/hooks/useWarriorsActionCompletions';
 import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -44,9 +45,9 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
   hasNext = false
 }) => {
   const { content, isLoading } = useWarriorsLessonContent(moduleId);
+  const { completedActions, markActionCompleted, isCompleted } = useWarriorsActionCompletions(moduleId);
   const { captureIdea } = useStackTodoIntegration();
   const commentsRef = useRef<ModuleCommentsRef>(null);
-  const [completedActions, setCompletedActions] = useState<Set<number>>(new Set());
   const hasVideo = !!videoUrl;
 
   const handleMarkComplete = () => {
@@ -72,19 +73,19 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
     });
   };
 
-  const handleActionClick = (action: ActionPromptObject, index: number) => {
-    // Mark as completed
-    setCompletedActions(prev => new Set(prev).add(index));
+  const handleActionClick = async (action: ActionPromptObject, index: number) => {
+    // Mark as completed in database
+    await markActionCompleted(index);
 
     if (action.type === 'reflection') {
-      // Pre-fill comment and scroll to comments section
+      // Append to comment and scroll to comments section
       if (commentsRef.current && action.prompt) {
-        commentsRef.current.prefillAndFocus(action.prompt);
+        commentsRef.current.appendAndFocus(action.prompt);
       } else if (commentsRef.current) {
         commentsRef.current.scrollIntoView();
       }
       toast.success('💭 Reflectează și împărtășește!', {
-        description: 'Scrie-ți gândurile mai jos'
+        description: 'Continuă să scrii mai jos'
       });
     } else {
       // Task type - add to todo/stack
@@ -224,7 +225,7 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
                       </p>
                       <div className="space-y-3">
                         {actionPrompts.map((action, index) => {
-                          const isCompleted = completedActions.has(index);
+                          const actionCompleted = isCompleted(index);
                           const isReflection = action.type === 'reflection';
                           
                           return (
@@ -232,40 +233,40 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
                               key={index} 
                               className={cn(
                                 "flex items-start gap-3 p-3 rounded-lg border transition-all",
-                                isCompleted 
+                                actionCompleted 
                                   ? "bg-green-500/10 border-green-500/30" 
                                   : "bg-background/50 border-amber-500/10"
                               )}
                             >
                               <span className={cn(
                                 "flex-shrink-0 w-6 h-6 rounded-full text-sm font-medium flex items-center justify-center transition-colors",
-                                isCompleted
+                                actionCompleted
                                   ? "bg-green-500 text-white"
                                   : "bg-amber-500/20 text-amber-500"
                               )}>
-                                {isCompleted ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                                {actionCompleted ? <Check className="h-3.5 w-3.5" /> : index + 1}
                               </span>
                               <span className={cn(
                                 "flex-1 text-sm",
-                                isCompleted ? "text-green-700 dark:text-green-300" : "text-muted-foreground"
+                                actionCompleted ? "text-green-700 dark:text-green-300" : "text-muted-foreground"
                               )}>
                                 {action.text}
                               </span>
                               <Button 
-                                variant={isCompleted ? "default" : "ghost"}
+                                variant={actionCompleted ? "default" : "ghost"}
                                 size="sm"
                                 className={cn(
                                   "shrink-0 transition-all",
-                                  isCompleted 
+                                  actionCompleted 
                                     ? "bg-green-500 hover:bg-green-600 text-white pointer-events-none"
                                     : isReflection
                                       ? "text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
                                       : "text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
                                 )}
                                 onClick={() => handleActionClick(action, index)}
-                                disabled={isCompleted}
+                                disabled={actionCompleted}
                               >
-                                {isCompleted ? (
+                                {actionCompleted ? (
                                   <>
                                     <Check className="h-4 w-4 mr-1" />
                                     Făcut

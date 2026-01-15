@@ -3100,6 +3100,33 @@ export type Database = {
         }
         Relationships: []
       }
+      warriors_action_completions: {
+        Row: {
+          action_index: number
+          completed_at: string
+          created_at: string
+          id: string
+          module_id: string
+          user_id: string
+        }
+        Insert: {
+          action_index: number
+          completed_at?: string
+          created_at?: string
+          id?: string
+          module_id: string
+          user_id: string
+        }
+        Update: {
+          action_index?: number
+          completed_at?: string
+          created_at?: string
+          id?: string
+          module_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       warriors_way_comments: {
         Row: {
           content: string
