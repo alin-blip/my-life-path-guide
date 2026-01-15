@@ -77,6 +77,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const LifeScore = lazy(() => import("./pages/LifeScore"));
 const WarriorsWay = lazy(() => import("./pages/WarriorsWay"));
+const WarriorPower = lazy(() => import("./pages/WarriorPower"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -334,6 +335,7 @@ const App = () => (
                         <WarriorsWay />
                       </ProtectedRoute>
                     } />
+                    <Route path="/warrior-power" element={<WarriorPower />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                       </Suspense>
