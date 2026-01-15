@@ -8,6 +8,7 @@ import { WarriorPowerLeadForm, type LeadFormData } from '@/components/warrior-po
 import { WarriorPowerQuiz } from '@/components/warrior-power/WarriorPowerQuiz';
 import { WarriorPowerResults } from '@/components/warrior-power/WarriorPowerResults';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
+import { saveRealityMapScores } from '@/services/realityMapService';
 
 type Step = 'landing' | 'lead-form' | 'quiz' | 'results';
 
@@ -102,6 +103,11 @@ export default function WarriorPower() {
 
         if (resultError) {
           console.error('Error saving results:', resultError);
+        }
+
+        // Sync scores to Reality Map (fact_maps) for logged in users
+        if (user) {
+          await saveRealityMapScores(quizScores);
         }
 
         // Send email with results
