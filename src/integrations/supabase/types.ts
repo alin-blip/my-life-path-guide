@@ -3127,32 +3127,78 @@ export type Database = {
         }
         Relationships: []
       }
+      warriors_comment_reactions: {
+        Row: {
+          comment_id: string
+          created_at: string | null
+          id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string | null
+          id?: string
+          reaction_type?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string | null
+          id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warriors_comment_reactions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "warriors_way_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       warriors_way_comments: {
         Row: {
           content: string
           created_at: string | null
           id: string
           module_id: string
+          parent_id: string | null
           updated_at: string | null
           user_id: string
+          video_url: string | null
         }
         Insert: {
           content: string
           created_at?: string | null
           id?: string
           module_id: string
+          parent_id?: string | null
           updated_at?: string | null
           user_id: string
+          video_url?: string | null
         }
         Update: {
           content?: string
           created_at?: string | null
           id?: string
           module_id?: string
+          parent_id?: string | null
           updated_at?: string | null
           user_id?: string
+          video_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "warriors_way_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "warriors_way_comments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       warriors_way_lesson_content: {
         Row: {

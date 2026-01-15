@@ -3,8 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { MessageCircle, Send, Trash2, Loader2, Sparkles } from 'lucide-react';
-import { useModuleComments } from '@/hooks/useModuleComments';
+import { MessageCircle, Send, Trash2, Loader2, Sparkles, Reply, Video } from 'lucide-react';
+import { useModuleComments, ModuleComment } from '@/hooks/useModuleComments';
+import { useCommentReactions, ReactionType } from '@/hooks/useCommentReactions';
+import { CommentReactions } from './CommentReactions';
+import { CommentReplyForm } from './CommentReplyForm';
 import { useAuth } from '@/context/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
@@ -22,16 +25,28 @@ export interface ModuleCommentsRef {
 export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>(
   ({ moduleId }, ref) => {
     const { user } = useAuth();
-    const { comments, isLoading, addComment, deleteComment, commentCount, canComment } = useModuleComments(moduleId);
+    const { 
+      comments, 
+      isLoading, 
+      addComment, 
+      deleteComment, 
+      commentCount, 
+      canComment,
+      getAllCommentIds 
+    } = useModuleComments(moduleId);
+    
+    const { getReactionCounts, toggleReaction } = useCommentReactions(getAllCommentIds());
+    
     const [newComment, setNewComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [replyingTo, setReplyingTo] = useState<string | null>(null);
+    const [isReplySubmitting, setIsReplySubmitting] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
 
     // Expose methods to parent
     useImperativeHandle(ref, () => ({
       appendAndFocus: (message: string) => {
-        // Append to existing text with newlines if there's already content
         setNewComment(prev => {
           if (prev.trim()) {
             return prev + '\n\n' + message;
@@ -39,11 +54,9 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
           return message;
         });
         
-        // Scroll and focus after state update
         setTimeout(() => {
           cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           textareaRef.current?.focus();
-          // Place cursor at end of text
           if (textareaRef.current) {
             const len = textareaRef.current.value.length;
             textareaRef.current.setSelectionRange(len, len);
@@ -71,6 +84,20 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
       setIsSubmitting(false);
     };
 
+    const handleReply = async (parentId: string, content: string) => {
+      setIsReplySubmitting(true);
+      const success = await addComment(content, parentId);
+      if (success) {
+        setReplyingTo(null);
+      }
+      setIsReplySubmitting(false);
+      return success;
+    };
+
+    const handleToggleReaction = (commentId: string, type: ReactionType) => {
+      toggleReaction(commentId, type);
+    };
+
     const getInitials = (userId: string, email?: string) => {
       if (email) {
         return email.substring(0, 2).toUpperCase();
@@ -89,6 +116,103 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
         return 'recent';
       }
     };
+
+    const renderComment = (comment: ModuleComment, isReply = false) => (
+      <div
+        key={comment.id}
+        className={cn(
+          "p-3 rounded-lg border transition-colors",
+          isReply && "ml-8 mt-2",
+          comment.user_id === user?.id
+            ? "bg-amber-500/10 border-amber-500/30"
+            : "bg-muted/30 border-transparent"
+        )}
+      >
+        <div className="flex items-start gap-3">
+          <Avatar className={cn("flex-shrink-0", isReply ? "h-6 w-6" : "h-8 w-8")}>
+            <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xs">
+              {getInitials(comment.user_id)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className={cn("font-medium", isReply ? "text-xs" : "text-sm")}>
+                  {getDisplayName(comment.user_id)}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {formatDate(comment.created_at)}
+                </span>
+              </div>
+              {comment.user_id === user?.id && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                  onClick={() => deleteComment(comment.id)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+            
+            {/* Video if present */}
+            {comment.video_url && (
+              <div className="mt-2 rounded-lg overflow-hidden">
+                <video 
+                  src={comment.video_url} 
+                  controls 
+                  className="max-w-full max-h-[300px] rounded-lg"
+                />
+              </div>
+            )}
+            
+            {/* Comment content */}
+            <p className={cn("mt-1 whitespace-pre-wrap break-words", isReply ? "text-xs" : "text-sm")}>
+              {comment.content}
+            </p>
+
+            {/* Reactions and Reply button */}
+            <div className="flex items-center gap-3 mt-2">
+              <CommentReactions
+                commentId={comment.id}
+                reactionCounts={getReactionCounts(comment.id)}
+                onToggleReaction={handleToggleReaction}
+                canReact={canComment}
+              />
+              
+              {!isReply && canComment && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-xs text-muted-foreground hover:text-amber-500"
+                  onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                >
+                  <Reply className="h-3 w-3 mr-1" />
+                  Răspunde
+                </Button>
+              )}
+            </div>
+
+            {/* Reply form */}
+            {replyingTo === comment.id && (
+              <CommentReplyForm
+                onSubmit={(content) => handleReply(comment.id, content)}
+                onCancel={() => setReplyingTo(null)}
+                isSubmitting={isReplySubmitting}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Render replies */}
+        {comment.replies && comment.replies.length > 0 && (
+          <div className="mt-2 space-y-2">
+            {comment.replies.map(reply => renderComment(reply, true))}
+          </div>
+        )}
+      </div>
+    );
 
     return (
       <Card ref={cardRef} className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent">
@@ -142,7 +266,7 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
           )}
 
           {/* Comments List */}
-          <div className="space-y-3 max-h-[300px] overflow-y-auto">
+          <div className="space-y-3 max-h-[400px] overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-amber-500" />
@@ -154,50 +278,7 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
                 <p className="text-sm">Împărtășește-ți revelațiile cu comunitatea.</p>
               </div>
             ) : (
-              comments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className={cn(
-                    "p-4 rounded-lg border transition-colors",
-                    comment.user_id === user?.id
-                      ? "bg-amber-500/10 border-amber-500/30"
-                      : "bg-muted/30 border-transparent"
-                  )}
-                >
-                  <div className="flex items-start gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xs">
-                        {getInitials(comment.user_id)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">
-                            {getDisplayName(comment.user_id)}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDate(comment.created_at)}
-                          </span>
-                        </div>
-                        {comment.user_id === user?.id && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                            onClick={() => deleteComment(comment.id)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        )}
-                      </div>
-                      <p className="text-sm mt-1 whitespace-pre-wrap break-words">
-                        {comment.content}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))
+              comments.map((comment) => renderComment(comment))
             )}
           </div>
         </CardContent>
