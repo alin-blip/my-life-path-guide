@@ -87,16 +87,6 @@ const STACKS = {
     bgColor: 'bg-amber-500/10',
     borderColor: 'border-amber-500/30'
   },
-  'daily-master': {
-    id: 'daily-master',
-    name: 'Daily Planner',
-    description: 'Planifică-ți ziua pentru productivitate maximă',
-    duration: '10-15 min',
-    icon: List,
-    color: 'text-emerald-500',
-    bgColor: 'bg-emerald-500/10',
-    borderColor: 'border-emerald-500/30'
-  },
   'hormozi-coaching': {
     id: 'hormozi-coaching',
     name: 'Business Coach',
@@ -127,26 +117,6 @@ const STACKS = {
     bgColor: 'bg-yellow-500/10',
     borderColor: 'border-yellow-500/30'
   },
-  'gods-school': {
-    id: 'gods-school',
-    name: "God's School",
-    description: 'Înțelepciune spirituală și ghidare divină',
-    duration: '15-20 min',
-    icon: Sparkles,
-    color: 'text-cyan-500',
-    bgColor: 'bg-cyan-500/10',
-    borderColor: 'border-cyan-500/30'
-  },
-  'divine': {
-    id: 'divine',
-    name: 'Divine Coaching',
-    description: 'Conversații ghidate pentru claritate spirituală',
-    duration: '15-20 min',
-    icon: PenTool,
-    color: 'text-violet-500',
-    bgColor: 'bg-violet-500/10',
-    borderColor: 'border-violet-500/30'
-  }
 };
 
 // Positive emotions list
