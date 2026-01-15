@@ -69,6 +69,19 @@ const COURSE_SECTIONS = [
     ]
   },
   {
+    id: 'warrior-game',
+    title: 'The Warrior Game',
+    description: 'Cadrul, libertatea, focusul lunar și săptămânal pentru jocul imposibil',
+    isFree: false,
+    modules: [
+      { id: 'game-11', title: 'Cadru pentru a Porni Jocul', duration: '16 min', order: 18, videoUrl: '' },
+      { id: 'game-12', title: 'Libertatea: Descoperirea Imposibilului', duration: '18 min', order: 19, videoUrl: '' },
+      { id: 'game-13', title: 'Concentrarea: Focusul Lunar', duration: '15 min', order: 20, videoUrl: '' },
+      { id: 'game-14', title: 'Focul: Focusul Săptămânal', duration: '14 min', order: 21, videoUrl: '' },
+      { id: 'game-15', title: 'Marea Tapiserie a Jocului', duration: '17 min', order: 22, videoUrl: '' },
+    ]
+  },
+  {
     id: 'formula',
     title: 'FORMULA WARRIOR - FACT Framework',
     description: 'Fapte, Sentimente, Focus, Fructe',
