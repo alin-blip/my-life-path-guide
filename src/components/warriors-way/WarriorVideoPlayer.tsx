@@ -6,8 +6,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, CheckCircle2, ChevronLeft, ChevronRight, Play, Target, Lightbulb, ArrowUp, Zap, Plus, Loader2 } from 'lucide-react';
 import { ModuleComments } from './ModuleComments';
 import { useWarriorsLessonContent } from '@/hooks/useWarriorsLessonContent';
+import { useStackTodoIntegration } from '@/hooks/useStackTodoIntegration';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 
 interface WarriorVideoPlayerProps {
   moduleId: string;
@@ -35,6 +35,7 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
   hasNext = false
 }) => {
   const { content, isLoading } = useWarriorsLessonContent(moduleId);
+  const { captureIdea } = useStackTodoIntegration();
   const hasVideo = !!videoUrl;
 
   const handleMarkComplete = () => {
@@ -43,10 +44,8 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
   };
 
   const handleAddToTasks = (task: string) => {
-    // TODO: Integrate with task system (Hit List)
-    toast.success('Sarcină adăugată în lista ta! 📝', {
-      description: task.substring(0, 50) + (task.length > 50 ? '...' : '')
-    });
+    // Salvează în Hit List pentru ziua curentă
+    captureIdea(task, 'hit', 'none');
   };
 
   // Parse key_concepts and action_prompts from JSONB
