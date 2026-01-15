@@ -53,6 +53,11 @@ const COURSE_SECTIONS = [
       { id: 'cod-3', title: 'Principiile Puterii', duration: '16 min', order: 10, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=IKAdFRdcxkNJ1nU_KlwzbC9zBGq6VkXGU0spVXvRaJ8_bC0y7&videoRatio=1.777778&type=v&skinColor=%232758EB' },
       { id: 'cod-4', title: 'Calea Producției', duration: '18 min', order: 11, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=X2GKGVhFhlDJ3dwf1eMxG9ZR4haC2D3AAw1rIF2Wrhw-xiJ1M&videoRatio=1.777778&type=v&skinColor=%232758EB' },
       { id: 'cod-5', title: 'Propulsia Puterii', duration: '15 min', order: 12, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=T8MRie5Ru2yX1gcRiwCM9OdXcyUcUVDrdDIEMR-3bPRzD0g-h&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'cod-6', title: 'Faptele Reale', duration: '14 min', order: 13, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=VZCXh0rFRs9T9wUkGmRwpzvwDRACckCh9fUCbgsVdANBVGxas&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'cod-7', title: 'Sentimente Autentice', duration: '16 min', order: 14, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=jUnp2xOnawLG0lkXjgs9UNrX0EFDHFzxb3gLQQUe_a-vE3VGW&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'cod-8', title: 'Claritatea Focusului și Relevanța', duration: '15 min', order: 15, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=NEofrzS22dHISQgd0w6eAzLUAInXsNIKnBNBjLFQ7MIPPTgqM&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'cod-9', title: 'Rezultatele: Fructele Muncii Tale', duration: '14 min', order: 16, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=rI8YCx83yszNiuMKh1JUhGaMX-PS4M9G5To1CEY8JNhzKiFwa&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'cod-10', title: 'Codul: Îmbrățișarea Adevărului', duration: '15 min', order: 17, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=gsJBvgZA1geEBwFLP2RVtDrlrABbdG4Hbsj2ODEhDaqaU0YwD&videoRatio=1.777778&type=v&skinColor=%232758EB' },
     ]
   },
   {
