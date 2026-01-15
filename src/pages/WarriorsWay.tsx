@@ -24,7 +24,8 @@ import { WarriorVideoPlayer } from '@/components/warriors-way/WarriorVideoPlayer
 import { PremiumGate } from '@/components/warriors-way/PremiumGate';
 import { useWarriorsCourse } from '@/hooks/useWarriorsCourse';
 import { WarriorAiMentor, WarriorAiMentorButton } from '@/components/warriors-way/WarriorAiMentor';
-import { WarriorTrainerSalesPage } from '@/components/warriors-way/WarriorTrainerSalesPage';
+import { WarriorTrainerPreview } from '@/components/warriors-way/WarriorTrainerPreview';
+import { WarriorTrainerSalesLetter } from '@/components/warriors-way/WarriorTrainerSalesLetter';
 import { supabase } from '@/integrations/supabase/client';
 
 interface CourseModule {
@@ -160,15 +161,11 @@ const COURSE_SECTIONS = [
   {
     id: 'trainer',
     title: 'Warrior Trainer',
-    description: 'Programul intensiv de transformare: Devino antrenorul propriei tale vieți și ajută-i pe alții să se trezească',
+    description: 'Devino antrenorul propriei tale vieți și transformă viețile altora - Investiție: 5.000 EUR',
     isFree: false,
     isUpgrade: true,
     modules: [
-      { id: 'trainer-intro', title: 'Bine ai venit la Warrior Trainer', duration: '25 min', order: 48, videoUrl: '' },
-      { id: 'trainer-1', title: 'De la Participant la Lider', duration: '30 min', order: 49, videoUrl: '' },
-      { id: 'trainer-2', title: 'Arta Coaching-ului Warrior', duration: '35 min', order: 50, videoUrl: '' },
-      { id: 'trainer-3', title: 'Construiește-ți Comunitatea', duration: '30 min', order: 51, videoUrl: '' },
-      { id: 'trainer-4', title: 'Certificare și Următorii Pași', duration: '25 min', order: 52, videoUrl: '' },
+      { id: 'trainer-intro', title: 'Descoperă Warrior Trainer', duration: '20 min', order: 48, videoUrl: '' },
     ]
   },
 ];
@@ -179,7 +176,8 @@ const WarriorsWay: React.FC = () => {
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [showAiMentor, setShowAiMentor] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [showTrainerSales, setShowTrainerSales] = useState(false);
+  const [showTrainerPreview, setShowTrainerPreview] = useState(false);
+  const [showTrainerSalesLetter, setShowTrainerSalesLetter] = useState(false);
   const { progress, isModuleCompleted, markModuleComplete, overallProgress } = useWarriorsCourse();
 
   // Check if user is admin
@@ -209,7 +207,7 @@ const WarriorsWay: React.FC = () => {
   const handleModuleClick = (moduleId: string, section: CourseSection) => {
     // Check if this is the Trainer upgrade section
     if (section.isUpgrade) {
-      setShowTrainerSales(true);
+      setShowTrainerPreview(true);
       return;
     }
 
@@ -235,23 +233,31 @@ const WarriorsWay: React.FC = () => {
     setSelectedModule(null);
   };
 
-  // Show Trainer Sales Page
-  if (showTrainerSales) {
+  // Show Trainer Sales Letter (full sales page)
+  if (showTrainerSalesLetter) {
     return (
       <Layout>
-        <div className="container mx-auto py-4">
-          <Button 
-            variant="ghost" 
-            onClick={() => setShowTrainerSales(false)}
-            className="mb-4"
-          >
-            ← Înapoi la curs
-          </Button>
-          <WarriorTrainerSalesPage onEnroll={() => {
+        <WarriorTrainerSalesLetter 
+          onBack={() => setShowTrainerSalesLetter(false)}
+          onEnroll={() => {
             // Handle enrollment logic here
-            setShowTrainerSales(false);
-          }} />
-        </div>
+          }} 
+        />
+      </Layout>
+    );
+  }
+
+  // Show Trainer Preview (video + comments + CTA button)
+  if (showTrainerPreview) {
+    return (
+      <Layout>
+        <WarriorTrainerPreview 
+          onBack={() => setShowTrainerPreview(false)}
+          onOpenSalesLetter={() => {
+            setShowTrainerPreview(false);
+            setShowTrainerSalesLetter(true);
+          }}
+        />
       </Layout>
     );
   }
