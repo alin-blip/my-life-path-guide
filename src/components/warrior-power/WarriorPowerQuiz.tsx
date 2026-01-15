@@ -177,13 +177,13 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.08 }}
-                  onClick={() => handleLevelSelect(level.name, config.range[1])} // Default to middle score
+                  onClick={() => handleLevelSelect(level.name, config.range[1])}
                   className={cn(
-                    "w-full text-left rounded-xl border-2 transition-all duration-300 overflow-hidden group",
-                    "hover:scale-[1.02] active:scale-[0.99]",
+                    "w-full text-left rounded-2xl border-2 transition-all duration-300 overflow-hidden group",
+                    "hover:scale-[1.01] active:scale-[0.99]",
                     isSelected 
-                      ? `${config.border} ${config.bg} ring-2 ring-offset-2 ring-offset-background shadow-lg ${config.glow}` 
-                      : "border-border/50 bg-card/30 hover:border-border hover:bg-card/50"
+                      ? `${config.border} ${config.bg} ring-2 ring-offset-2 ring-offset-background shadow-xl ${config.glow}` 
+                      : "border-border/40 bg-card/20 hover:border-border/60 hover:bg-card/40"
                   )}
                   style={isSelected ? { 
                     borderColor: config.text.replace('text-', '').includes('red') ? '#ef4444' :
@@ -191,57 +191,53 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                                  config.text.includes('blue') ? '#3b82f6' : '#22c55e'
                   } : {}}
                 >
-                  <div className="flex items-center p-4 gap-4">
-                    {/* Level Badge */}
-                    <div className={cn(
-                      "flex flex-col items-center justify-center w-16 h-16 rounded-lg font-black transition-all flex-shrink-0",
-                      isSelected 
-                        ? `bg-gradient-to-br ${config.gradient} text-white shadow-lg` 
-                        : "bg-muted/50 text-muted-foreground group-hover:bg-muted"
-                    )}>
-                      <span className="text-xs">[{level.range.join(',')}]</span>
-                      <span className="text-lg">{config.icon}</span>
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={cn(
-                          "font-bold uppercase tracking-wider transition-colors",
-                          isSelected ? config.text : "text-foreground group-hover:text-foreground"
-                        )}>
-                          {level.name}
-                        </span>
-                        {isSelected && (
-                          <motion.span
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs font-bold"
-                          >
-                            <Check className="h-3 w-3" />
-                            SELECTAT
-                          </motion.span>
-                        )}
+                  <div className="p-5">
+                    <div className="flex items-start gap-4">
+                      {/* Level Badge */}
+                      <div className={cn(
+                        "flex flex-col items-center justify-center w-14 h-14 rounded-xl font-black transition-all flex-shrink-0",
+                        isSelected 
+                          ? `bg-gradient-to-br ${config.gradient} text-white shadow-lg` 
+                          : "bg-muted/30 text-muted-foreground group-hover:bg-muted/50"
+                      )}>
+                        <span className="text-[10px] font-semibold opacity-80">[{level.range.join(',')}]</span>
+                        <span className="text-lg">{config.icon}</span>
                       </div>
-                      <h4 className={cn(
-                        "font-semibold text-sm mb-1 transition-colors",
-                        isSelected ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
-                      )}>
-                        {level.title}
-                      </h4>
-                      <p className={cn(
-                        "text-xs leading-relaxed line-clamp-2 transition-colors",
-                        isSelected ? "text-muted-foreground" : "text-muted-foreground/70"
-                      )}>
-                        {level.description}
-                      </p>
+                      
+                      {/* Content */}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className={cn(
+                            "font-bold text-base uppercase tracking-wide transition-colors",
+                            isSelected ? config.text : "text-foreground group-hover:text-foreground"
+                          )}>
+                            {level.name}
+                          </span>
+                          {isSelected && (
+                            <motion.span
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs font-bold"
+                            >
+                              <Check className="h-3 w-3" />
+                              SELECTAT
+                            </motion.span>
+                          )}
+                        </div>
+                        <h4 className={cn(
+                          "font-semibold text-sm mb-2 transition-colors",
+                          isSelected ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                        )}>
+                          {level.title}
+                        </h4>
+                        <p className={cn(
+                          "text-sm leading-relaxed transition-colors",
+                          isSelected ? "text-foreground/80" : "text-muted-foreground/80 group-hover:text-muted-foreground"
+                        )}>
+                          {level.description}
+                        </p>
+                      </div>
                     </div>
-
-                    {/* Arrow indicator */}
-                    <ChevronRight className={cn(
-                      "h-5 w-5 flex-shrink-0 transition-all",
-                      isSelected ? config.text : "text-muted-foreground/50 group-hover:text-muted-foreground"
-                    )} />
                   </div>
 
                   {/* Fine-tune score selector - shows when level is selected */}
@@ -256,13 +252,13 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className={cn(
-                          "px-4 pb-4 pt-2 border-t",
+                          "px-5 pb-5 pt-3 border-t",
                           config.border
                         )}>
-                          <p className="text-xs text-muted-foreground mb-2 text-center">
+                          <p className="text-sm text-muted-foreground mb-3 text-center font-medium">
                             Alege scorul exact:
                           </p>
-                          <div className="flex justify-center gap-2">
+                          <div className="flex justify-center gap-3">
                             {config.range.map(score => (
                               <button
                                 key={score}
@@ -271,11 +267,11 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                                   handleScoreRefine(score);
                                 }}
                                 className={cn(
-                                  "w-12 h-12 rounded-lg font-bold text-lg transition-all",
+                                  "w-14 h-14 rounded-xl font-bold text-lg transition-all",
                                   "hover:scale-110 active:scale-95",
                                   selectedScore === score
                                     ? `bg-gradient-to-br ${config.gradient} text-white shadow-lg ring-2 ring-white/30`
-                                    : `${config.bg} ${config.text} border ${config.border} hover:brightness-110`
+                                    : `${config.bg} ${config.text} border-2 ${config.border} hover:brightness-110`
                                 )}
                               >
                                 {score}
