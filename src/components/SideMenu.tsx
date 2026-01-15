@@ -128,62 +128,15 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // ════════════════ CORE 4 SEPARATOR ════════════════
-    // Visual separator handled in render
-
-    // 5. BODY (Corp)
+    // 5. STACKS (previously in Being)
     {
-      title: language === 'ro' ? '💪 Body (Corp)' : '💪 Body',
-      icon: Activity,
-      path: '/workout',
-      subItems: [
-        { title: language === 'ro' ? 'Antrenament' : 'Workout', icon: Dumbbell, path: '/workout' },
-        { title: language === 'ro' ? 'Nutriție' : 'Nutrition', icon: Apple, path: '/nutrition' },
-        { title: language === 'ro' ? 'Istoric Antrenamente' : 'Workout History', icon: History, path: '/workout-history' },
-        { title: language === 'ro' ? 'Performance Coach' : 'Performance Coach', icon: Bot, path: '/performance-coach' },
-      ]
-    },
-
-    // 6. BEING (Spiritualitate) - renamed from Mindset
-    {
-      title: language === 'ro' ? '🧘 Being (Spiritualitate)' : '🧘 Being (Spirituality)',
-      icon: Brain,
+      title: language === 'ro' ? '✨ Stacks' : '✨ Stacks',
+      icon: Sparkles,
       path: '/stack',
       subItems: [
-        { title: language === 'ro' ? 'Stacks Zilnice' : 'Daily Stacks', icon: Sparkles, path: '/stack' },
         { title: language === 'ro' ? 'Stack Dimineață' : 'Morning Stack', icon: Sparkles, path: '/stack?type=morning' },
         { title: language === 'ro' ? 'Stack Seară' : 'Evening Stack', icon: Sparkles, path: '/stack?type=evening' },
         { title: language === 'ro' ? 'Anger Stack' : 'Anger Stack', icon: Flame, path: '/stack?type=anger' },
-        { title: language === 'ro' ? 'Meditație Empowerment' : 'Empowerment Meditation', icon: Headphones, path: '/empowerment-meditation' },
-        { title: language === 'ro' ? 'Jurnal' : 'Journal', icon: Pencil, path: '/journal' },
-        { title: language === 'ro' ? 'Emotional Tracker' : 'Emotional Tracker', icon: Heart, path: '/emotional-tracker' },
-        { title: language === 'ro' ? 'Therapist Coach' : 'Therapist Coach', icon: Bot, path: '/therapist-coach' },
-      ]
-    },
-
-    // 7. BALANCE (Relații)
-    {
-      title: language === 'ro' ? '❤️ Balance (Relații)' : '❤️ Balance (Relationships)',
-      icon: Heart,
-      path: '/relationships',
-      subItems: [
-        { title: language === 'ro' ? 'Persoane Importante' : 'Important People', icon: Users, path: '/relationships' },
-        { title: language === 'ro' ? 'Relationship Coach' : 'Relationship Coach', icon: Bot, path: '/relationship-coach' },
-      ]
-    },
-
-    // 8. BUSINESS
-    {
-      title: language === 'ro' ? '💼 Business' : '💼 Business',
-      icon: Briefcase,
-      path: '/business',
-      subItems: [
-        { title: language === 'ro' ? 'Business Dashboard' : 'Business Dashboard', icon: Briefcase, path: '/business' },
-        { title: language === 'ro' ? 'Master Plan' : 'Master Plan', icon: Crown, path: '/master-plan' },
-        { title: language === 'ro' ? 'Analiza Hormozi' : 'Hormozi Analysis', icon: BarChart3, path: '/business/hormozi-analysis' },
-        { title: language === 'ro' ? 'Time Tracker' : 'Time Tracker', icon: Clock, path: '/time-tracker' },
-        { title: language === 'ro' ? 'Note' : 'Notes', icon: FileText, path: '/notes' },
-        { title: language === 'ro' ? 'Accountability Coach' : 'Accountability Coach', icon: Bot, path: '/accountability-coach' },
       ]
     },
 
@@ -225,8 +178,8 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     return currentPath === basePath || currentPath.startsWith(basePath + '/');
   };
 
-  // Index where Core 4 starts (Body section)
-  const core4StartIndex = 4;
+  // Index where Stacks section is
+  const stacksIndex = 4;
 
   const renderMenuItem = (item: MenuItem, index: number) => {
     if (item.hidden) return null;
@@ -337,47 +290,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       <div className="flex-1 overflow-y-auto py-4 px-3">
         <nav>
           <ul className="space-y-1">
-            {/* Render items before Core 4 */}
-            {menuItems.slice(0, core4StartIndex).filter(item => !item.hidden).map((item, index) => 
+            {/* Render all menu items */}
+            {menuItems.filter(item => !item.hidden).map((item, index) => 
               renderMenuItem(item, index)
-            )}
-
-            {/* Core 4 Separator */}
-            {!isCollapsed && (
-              <li className="py-3">
-                <div className="flex items-center gap-2 px-3">
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-                  <span className="text-xs font-semibold text-primary/70 tracking-wider">CORE 4</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-                </div>
-              </li>
-            )}
-            {isCollapsed && (
-              <li className="py-2">
-                <div className="h-px bg-primary/30 mx-2" />
-              </li>
-            )}
-
-            {/* Render Core 4 items (Body, Being, Balance, Business) */}
-            {menuItems.slice(core4StartIndex, core4StartIndex + 4).filter(item => !item.hidden).map((item, index) => 
-              renderMenuItem(item, index + core4StartIndex)
-            )}
-
-            {/* Separator after Core 4 */}
-            {!isCollapsed && (
-              <li className="py-2">
-                <div className="h-px bg-border/30 mx-3" />
-              </li>
-            )}
-            {isCollapsed && (
-              <li className="py-2">
-                <div className="h-px bg-border/30 mx-2" />
-              </li>
-            )}
-
-            {/* Render remaining items (Community, Admin) */}
-            {menuItems.slice(core4StartIndex + 4).filter(item => !item.hidden).map((item, index) => 
-              renderMenuItem(item, index + core4StartIndex + 4)
             )}
           </ul>
         </nav>
