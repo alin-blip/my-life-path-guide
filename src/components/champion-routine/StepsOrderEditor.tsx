@@ -3,7 +3,8 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { GripVertical, Sparkles, Droplets, Timer, Brain, Dumbbell, Utensils, FileText, ListTodo, Heart, Settings2, Wind, Sun, Eye, PenTool, Sunrise, ScrollText } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { GripVertical, Sparkles, Droplets, Timer, Brain, Dumbbell, Utensils, FileText, ListTodo, Heart, Settings2, Wind, Sun, Eye, PenTool, Sunrise, ScrollText, Lock } from 'lucide-react';
 import { 
   ExerciseStepConfigComponent, 
   MeditationStepConfigComponent, 
@@ -14,6 +15,8 @@ import {
   VisualizationStepConfigComponent,
   JournalingStepConfigComponent 
 } from './config';
+import { toast } from 'sonner';
+import { CORE4_STEPS } from './RoutineSetupWizard';
 
 interface StepsOrderEditorProps {
   activeSteps: string[];
@@ -22,24 +25,29 @@ interface StepsOrderEditorProps {
   onStepsOrderChange: (order: string[]) => void;
 }
 
+// Core 4 step IDs that cannot be disabled
+const CORE4_STEP_IDS = CORE4_STEPS as readonly string[];
+
 export const ALL_STEPS = [
-  { id: 'emotionalCheck', label: 'Check-in Emoțional', icon: Sunrise, category: 'emotional', hasConfig: false },
-  { id: 'emotionalTransform', label: 'Transformare Emoțională', icon: Sparkles, category: 'emotional', hasConfig: false },
-  { id: 'lightExposure', label: 'Lumină Naturală', icon: Sun, category: 'being', hasConfig: true },
-  { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being', hasConfig: false },
-  { id: 'breathing', label: 'Respirație', icon: Wind, category: 'being', hasConfig: true },
-  { id: 'meditation', label: 'Meditație', icon: Timer, category: 'being', hasConfig: true },
-  { id: 'gratitude', label: 'Recunoștință', icon: Heart, category: 'being', hasConfig: true },
-  { id: 'visualization', label: 'Vizualizare', icon: Eye, category: 'being', hasConfig: true },
-  { id: 'autosuggestion', label: 'Autosugestie', icon: Brain, category: 'being', hasConfig: false },
-  { id: 'visionDeclaration', label: 'Declarație Viziune', icon: ScrollText, category: 'being', hasConfig: false },
-  { id: 'journaling', label: 'Journaling', icon: PenTool, category: 'being', hasConfig: true },
-  { id: 'reading', label: 'Citit', icon: FileText, category: 'being', hasConfig: true },
-  { id: 'exercise', label: 'Exerciții', icon: Dumbbell, category: 'body', hasConfig: true },
-  { id: 'mealPlanning', label: 'Meal Planning', icon: Utensils, category: 'body', hasConfig: false },
-  { id: 'contentCreation', label: 'Content Creation', icon: FileText, category: 'business', hasConfig: false },
-  { id: 'dailyTasks', label: 'Daily Tasks', icon: ListTodo, category: 'business', hasConfig: false },
-  { id: 'relationships', label: 'Relații', icon: Heart, category: 'balance', hasConfig: false },
+  { id: 'emotionalCheck', label: 'Check-in Emoțional', icon: Sunrise, category: 'emotional', hasConfig: false, isCore4: false },
+  { id: 'emotionalTransform', label: 'Transformare Emoțională', icon: Sparkles, category: 'emotional', hasConfig: false, isCore4: false },
+  { id: 'lightExposure', label: 'Lumină Naturală', icon: Sun, category: 'being', hasConfig: true, isCore4: false },
+  { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being', hasConfig: false, isCore4: false },
+  { id: 'breathing', label: 'Respirație', icon: Wind, category: 'being', hasConfig: true, isCore4: false },
+  { id: 'meditation', label: 'Meditație', icon: Timer, category: 'being', hasConfig: true, isCore4: true },
+  { id: 'gratitude', label: 'Recunoștință', icon: Heart, category: 'being', hasConfig: true, isCore4: false },
+  { id: 'visualization', label: 'Vizualizare', icon: Eye, category: 'being', hasConfig: true, isCore4: false },
+  { id: 'autosuggestion', label: 'Autosugestie', icon: Brain, category: 'being', hasConfig: false, isCore4: false },
+  { id: 'visionDeclaration', label: 'Declarație Viziune', icon: ScrollText, category: 'being', hasConfig: false, isCore4: false },
+  { id: 'journaling', label: 'Journaling', icon: PenTool, category: 'being', hasConfig: true, isCore4: true },
+  { id: 'reading', label: 'Citit', icon: FileText, category: 'being', hasConfig: true, isCore4: false },
+  { id: 'exercise', label: 'Exerciții', icon: Dumbbell, category: 'body', hasConfig: true, isCore4: true },
+  { id: 'mealPlanning', label: 'Meal Planning', icon: Utensils, category: 'body', hasConfig: false, isCore4: true },
+  { id: 'learn', label: 'Învață', icon: FileText, category: 'business', hasConfig: false, isCore4: true },
+  { id: 'apply', label: 'Aplică/Predă', icon: FileText, category: 'business', hasConfig: false, isCore4: true },
+  { id: 'contentCreation', label: 'Content Creation', icon: FileText, category: 'business', hasConfig: false, isCore4: false },
+  { id: 'dailyTasks', label: 'Daily Tasks', icon: ListTodo, category: 'business', hasConfig: false, isCore4: false },
+  { id: 'relationships', label: 'Relații', icon: Heart, category: 'balance', hasConfig: false, isCore4: true },
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -78,6 +86,12 @@ export function StepsOrderEditor({
   };
 
   const toggleStep = (stepId: string) => {
+    // Prevent disabling Core 4 steps
+    if (CORE4_STEP_IDS.includes(stepId)) {
+      toast.error('Core 4 nu poate fi dezactivat - este obligatoriu');
+      return;
+    }
+    
     const newActiveSteps = activeSteps.includes(stepId)
       ? activeSteps.filter(id => id !== stepId)
       : [...activeSteps, stepId];
@@ -102,6 +116,14 @@ export function StepsOrderEditor({
         </p>
       </div>
 
+      {/* Core 4 Notice */}
+      <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10 border border-primary/30">
+        <Lock className="h-4 w-4 text-primary" />
+        <p className="text-sm text-primary">
+          Core 4 (7 pași) sunt obligatorii și nu pot fi dezactivați
+        </p>
+      </div>
+
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="steps">
           {(provided) => (
@@ -115,7 +137,8 @@ export function StepsOrderEditor({
                 if (!step) return null;
 
                 const Icon = step.icon;
-                const isActive = activeSteps.includes(stepId);
+                const isActive = activeSteps.includes(stepId) || CORE4_STEP_IDS.includes(stepId);
+                const isCore4 = CORE4_STEP_IDS.includes(stepId);
 
                 return (
                   <Draggable key={stepId} draggableId={stepId} index={index}>
@@ -128,6 +151,7 @@ export function StepsOrderEditor({
                           ${CATEGORY_COLORS[step.category]}
                           ${snapshot.isDragging ? 'shadow-lg ring-2 ring-primary' : ''}
                           ${!isActive ? 'opacity-50' : ''}
+                          ${isCore4 ? 'bg-primary/5' : ''}
                         `}
                       >
                         <div
@@ -140,6 +164,12 @@ export function StepsOrderEditor({
                         <div className="flex items-center gap-3 flex-1">
                           <Icon className="h-5 w-5" />
                           <span className="font-medium">{step.label}</span>
+                          {isCore4 && (
+                            <Badge variant="secondary" className="bg-primary/20 text-primary text-xs gap-1">
+                              <Lock className="h-3 w-3" />
+                              Core 4
+                            </Badge>
+                          )}
                         </div>
 
                         {step.hasConfig && isActive && (
@@ -155,10 +185,14 @@ export function StepsOrderEditor({
                           </Button>
                         )}
 
-                        <Switch
-                          checked={isActive}
-                          onCheckedChange={() => toggleStep(stepId)}
-                        />
+                        {isCore4 ? (
+                          <Lock className="h-4 w-4 text-primary/60" />
+                        ) : (
+                          <Switch
+                            checked={isActive}
+                            onCheckedChange={() => toggleStep(stepId)}
+                          />
+                        )}
                       </Card>
                     )}
                   </Draggable>
@@ -171,7 +205,7 @@ export function StepsOrderEditor({
       </DragDropContext>
 
       <p className="text-xs text-muted-foreground text-center pt-2">
-        Dezactivează pașii pe care nu vrei să îi incluzi în rutina zilnică. 
+        Core 4 sunt obligatorii. Celelalte pot fi dezactivate. 
         <br />
         Apasă <Settings2 className="h-3 w-3 inline mx-1" /> pentru a configura pașii.
       </p>

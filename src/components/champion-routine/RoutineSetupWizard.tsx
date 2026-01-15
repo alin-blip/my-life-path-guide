@@ -3,9 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
-  Clock, 
-  Zap, 
-  Trophy, 
   Dumbbell, 
   Sparkles, 
   Heart, 
@@ -13,7 +10,17 @@ import {
   ChevronRight,
   ChevronLeft,
   Check,
-  Rocket
+  Rocket,
+  Lock,
+  Droplets,
+  Wind,
+  Sun,
+  Eye,
+  PenTool,
+  FileText,
+  Utensils,
+  Brain,
+  BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChampionRoutine } from '@/hooks/useChampionRoutine';
@@ -24,146 +31,110 @@ interface RoutineSetupWizardProps {
   onSkip?: () => void;
 }
 
-interface TimeOption {
-  id: string;
-  label: string;
-  description: string;
-  icon: React.ReactNode;
-  steps: string[];
-}
+// Core 4 - OBLIGATORII (nu pot fi eliminate) - 2 per categorie, aliniați cu Warrior Core 4
+export const CORE4_STEPS = [
+  'exercise',      // Body: Fitness (30 min exercițiu)
+  'mealPlanning',  // Body: Fuel (alimentație)
+  'meditation',    // Being: Meditation (autosugestie & credință)
+  'journaling',    // Being: Jurnal (programare subconștient)
+  'relationships', // Balance: Person 1 + Person 2 (Legea Servirii)
+  'learn',         // Business: Discover (cunoștințe specializate)
+  'apply',         // Business: Declare (planificare organizată)
+] as const;
 
-interface PriorityOption {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  color: string;
-}
-
-const TIME_OPTIONS: TimeOption[] = [
+// Core 4 grouped by category for display
+const CORE4_CATEGORIES = [
   {
-    id: 'rapid',
-    label: '5 minute',
-    description: 'Esențialul pentru o zi bună',
-    icon: <Zap className="h-8 w-8" />,
-    steps: ['hydration', 'gratitude', 'breathing']
+    id: 'body',
+    label: 'BODY',
+    icon: Dumbbell,
+    color: 'from-red-500/20 to-orange-500/20 border-red-500/50',
+    iconColor: 'text-red-400',
+    tasks: [
+      { id: 'exercise', label: 'Fitness', description: '30 min exercițiu' },
+      { id: 'mealPlanning', label: 'Fuel', description: 'Alimentație sănătoasă' }
+    ]
   },
   {
-    id: 'balanced',
-    label: '15 minute',
-    description: 'Echilibru între corp și minte',
-    icon: <Clock className="h-8 w-8" />,
-    steps: ['hydration', 'breathing', 'meditation', 'gratitude', 'visualization', 'exercise', 'reading']
+    id: 'being',
+    label: 'BEING',
+    icon: Sparkles,
+    color: 'from-purple-500/20 to-indigo-500/20 border-purple-500/50',
+    iconColor: 'text-purple-400',
+    tasks: [
+      { id: 'meditation', label: 'Meditation', description: 'Autosugestie & Credință' },
+      { id: 'journaling', label: 'Jurnal', description: 'Programare subconștient' }
+    ]
   },
   {
-    id: 'champion',
-    label: '30+ minute',
-    description: 'Rutina completă de campion',
-    icon: <Trophy className="h-8 w-8" />,
-    steps: [
-      'emotionalCheck', 'emotionalTransform', 'lightExposure', 'hydration', 'breathing',
-      'meditation', 'gratitude', 'visualization', 'autosuggestion', 'visionDeclaration',
-      'journaling', 'reading', 'exercise', 'mealPlanning', 'learn', 'apply',
-      'contentCreation', 'relationships'
+    id: 'balance',
+    label: 'BALANCE',
+    icon: Heart,
+    color: 'from-pink-500/20 to-rose-500/20 border-pink-500/50',
+    iconColor: 'text-pink-400',
+    tasks: [
+      { id: 'relationships', label: 'Servire #1', description: 'Persoană importantă' },
+      { id: 'relationships_2', label: 'Servire #2', description: 'A doua persoană' }
+    ]
+  },
+  {
+    id: 'business',
+    label: 'BUSINESS',
+    icon: Briefcase,
+    color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/50',
+    iconColor: 'text-blue-400',
+    tasks: [
+      { id: 'learn', label: 'Discover', description: 'Învață 30 min' },
+      { id: 'apply', label: 'Declare', description: 'Planificare organizată' }
     ]
   }
 ];
 
-const PRIORITY_OPTIONS: PriorityOption[] = [
-  {
-    id: 'being',
-    label: 'Mindset',
-    icon: <Sparkles className="h-6 w-6" />,
-    color: 'from-purple-500/20 to-indigo-500/20 border-purple-500/50 text-purple-400'
-  },
-  {
-    id: 'body',
-    label: 'Corp',
-    icon: <Dumbbell className="h-6 w-6" />,
-    color: 'from-red-500/20 to-orange-500/20 border-red-500/50 text-red-400'
-  },
-  {
-    id: 'business',
-    label: 'Business',
-    icon: <Briefcase className="h-6 w-6" />,
-    color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/50 text-blue-400'
-  },
-  {
-    id: 'balance',
-    label: 'Relații',
-    icon: <Heart className="h-6 w-6" />,
-    color: 'from-pink-500/20 to-rose-500/20 border-pink-500/50 text-pink-400'
-  }
-];
-
-const HABIT_OPTIONS = [
-  { id: 'habit_body', label: 'Corp', icon: <Dumbbell className="h-5 w-5" />, color: 'text-red-400' },
-  { id: 'habit_being', label: 'Spirit', icon: <Sparkles className="h-5 w-5" />, color: 'text-purple-400' },
-  { id: 'habit_balance', label: 'Relații', icon: <Heart className="h-5 w-5" />, color: 'text-pink-400' },
-  { id: 'habit_business', label: 'Business', icon: <Briefcase className="h-5 w-5" />, color: 'text-blue-400' }
+// Extra Steps - OPȚIONALE (utilizatorul poate adăuga)
+const EXTRA_STEPS = [
+  { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being' },
+  { id: 'breathing', label: 'Respirație', icon: Wind, category: 'being' },
+  { id: 'gratitude', label: 'Recunoștință', icon: Heart, category: 'being' },
+  { id: 'visualization', label: 'Vizualizare', icon: Eye, category: 'being' },
+  { id: 'autosuggestion', label: 'Autosugestie', icon: Brain, category: 'being' },
+  { id: 'visionDeclaration', label: 'Declarație Viziune', icon: PenTool, category: 'being' },
+  { id: 'reading', label: 'Citit 10 pagini', icon: BookOpen, category: 'being' },
+  { id: 'lightExposure', label: 'Lumină Naturală', icon: Sun, category: 'being' },
+  { id: 'contentCreation', label: 'Content Creation', icon: FileText, category: 'business' },
 ];
 
 export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardProps) {
   const { saveSettings } = useChampionRoutine();
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [selectedPriorities, setSelectedPriorities] = useState<string[]>([]);
-  const [selectedHabits, setSelectedHabits] = useState<string[]>([]);
+  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const togglePriority = (id: string) => {
-    setSelectedPriorities(prev => 
+  const toggleExtra = (id: string) => {
+    setSelectedExtras(prev => 
       prev.includes(id) 
-        ? prev.filter(p => p !== id)
+        ? prev.filter(e => e !== id)
         : [...prev, id]
     );
-  };
-
-  const toggleHabit = (id: string) => {
-    setSelectedHabits(prev => 
-      prev.includes(id) 
-        ? prev.filter(h => h !== id)
-        : [...prev, id]
-    );
-  };
-
-  const canProceed = () => {
-    if (currentStep === 0) return selectedTime !== null;
-    if (currentStep === 1) return selectedPriorities.length > 0;
-    return true;
   };
 
   const handleComplete = async () => {
     setIsSubmitting(true);
     
     try {
-      // Get the base steps from time selection
-      const timeOption = TIME_OPTIONS.find(t => t.id === selectedTime);
-      let activeSteps = timeOption?.steps || [];
-      
-      // Add priority-specific steps if not already included
-      selectedPriorities.forEach(priority => {
-        if (priority === 'being' && !activeSteps.includes('meditation')) {
-          activeSteps = [...activeSteps, 'meditation', 'visualization', 'journaling'];
-        }
-        if (priority === 'body' && !activeSteps.includes('exercise')) {
-          activeSteps = [...activeSteps, 'exercise', 'mealPlanning'];
-        }
-        if (priority === 'business' && !activeSteps.includes('contentCreation')) {
-          activeSteps = [...activeSteps, 'learn', 'apply', 'contentCreation'];
-        }
-        if (priority === 'balance' && !activeSteps.includes('relationships')) {
-          activeSteps = [...activeSteps, 'relationships'];
-        }
-      });
-
-      // Remove duplicates
-      activeSteps = [...new Set(activeSteps)];
+      // Core 4 este ÎNTOTDEAUNA inclus
+      const activeSteps = [
+        'emotionalCheck',      // Întotdeauna primul
+        'stackSelection',      // Stack selection
+        'emotionalTransform',  // Transform dacă e nevoie
+        ...CORE4_STEPS,
+        ...selectedExtras,
+        'completion'
+      ];
 
       const { error } = await saveSettings({
         is_configured: true,
         active_steps: activeSteps,
         routine_steps_order: activeSteps,
-        habit_steps: selectedHabits,
         include_daily_tasks: true
       });
 
@@ -172,7 +143,7 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
         return;
       }
 
-      toast.success('Rutina ta a fost configurată! 🎉');
+      toast.success('Rutina Core 4 configurată! 🎉');
       onComplete();
     } catch (err) {
       toast.error('Eroare la configurare');
@@ -182,137 +153,117 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
   };
 
   const steps = [
-    // Step 1: Time
+    // Step 1: Core 4 (Informativ, Locked)
     <motion.div
-      key="time"
+      key="core4"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       className="space-y-6"
     >
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-white">Cât timp ai dimineața?</h2>
-        <p className="text-white/60">Selectează timpul disponibil pentru rutina ta</p>
-      </div>
-
-      <div className="grid gap-4">
-        {TIME_OPTIONS.map((option) => (
-          <Card
-            key={option.id}
-            onClick={() => setSelectedTime(option.id)}
-            className={cn(
-              "p-5 cursor-pointer transition-all duration-300 border-2",
-              "bg-white/5 hover:bg-white/10 backdrop-blur-sm",
-              selectedTime === option.id
-                ? "border-primary ring-2 ring-primary/20"
-                : "border-white/10 hover:border-white/20"
-            )}
-          >
-            <div className="flex items-center gap-4">
-              <div className={cn(
-                "p-3 rounded-xl",
-                selectedTime === option.id
-                  ? "bg-primary/20 text-primary"
-                  : "bg-white/10 text-white/60"
-              )}>
-                {option.icon}
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-white text-lg">{option.label}</h3>
-                <p className="text-white/60 text-sm">{option.description}</p>
-              </div>
-              {selectedTime === option.id && (
-                <Check className="h-6 w-6 text-primary" />
-              )}
-            </div>
-          </Card>
-        ))}
-      </div>
-    </motion.div>,
-
-    // Step 2: Priorities
-    <motion.div
-      key="priorities"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      className="space-y-6"
-    >
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-white">Ce e prioritar pentru tine?</h2>
-        <p className="text-white/60">Selectează una sau mai multe arii (poți schimba oricând)</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        {PRIORITY_OPTIONS.map((option) => (
-          <Card
-            key={option.id}
-            onClick={() => togglePriority(option.id)}
-            className={cn(
-              "p-5 cursor-pointer transition-all duration-300 border-2",
-              "bg-gradient-to-br backdrop-blur-sm",
-              option.color,
-              selectedPriorities.includes(option.id)
-                ? "ring-2 ring-white/30 scale-[1.02]"
-                : "opacity-70 hover:opacity-100"
-            )}
-          >
-            <div className="flex flex-col items-center gap-3 text-center">
-              <div className={cn(
-                "p-3 rounded-xl bg-white/10",
-                selectedPriorities.includes(option.id) && "bg-white/20"
-              )}>
-                {option.icon}
-              </div>
-              <span className="font-semibold text-white">{option.label}</span>
-              {selectedPriorities.includes(option.id) && (
-                <Check className="h-5 w-5 text-white absolute top-2 right-2" />
-              )}
-            </div>
-          </Card>
-        ))}
-      </div>
-    </motion.div>,
-
-    // Step 3: Habits
-    <motion.div
-      key="habits"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      className="space-y-6"
-    >
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-white">Vrei să urmărești habits?</h2>
-        <p className="text-white/60">Adaugă tracking pentru habits-urile tale zilnice (opțional)</p>
+        <div className="flex items-center justify-center gap-2">
+          <Lock className="h-5 w-5 text-primary" />
+          <h2 className="text-2xl font-bold text-white">CORE 4 - Fundația Ta</h2>
+        </div>
+        <p className="text-white/60">
+          Acestea sunt cele 8 activități obligatorii - fundația rutinei Warrior
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        {HABIT_OPTIONS.map((option) => (
-          <Card
-            key={option.id}
-            onClick={() => toggleHabit(option.id)}
-            className={cn(
-              "p-4 cursor-pointer transition-all duration-300 border",
-              "bg-white/5 hover:bg-white/10 backdrop-blur-sm",
-              selectedHabits.includes(option.id)
-                ? "border-white/40 bg-white/10"
-                : "border-white/10"
-            )}
-          >
-            <div className="flex items-center gap-3">
-              <div className={option.color}>{option.icon}</div>
-              <span className="text-white font-medium">{option.label}</span>
-              {selectedHabits.includes(option.id) && (
-                <Check className="h-4 w-4 text-primary ml-auto" />
+        {CORE4_CATEGORIES.map((category) => {
+          const Icon = category.icon;
+          return (
+            <Card
+              key={category.id}
+              className={cn(
+                "p-4 border-2 bg-gradient-to-br backdrop-blur-sm",
+                category.color
               )}
-            </div>
-          </Card>
-        ))}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Icon className={cn("h-5 w-5", category.iconColor)} />
+                <span className="font-bold text-white text-sm">{category.label}</span>
+                <Lock className="h-3 w-3 text-white/40 ml-auto" />
+              </div>
+              <div className="space-y-2">
+                {category.tasks.map((task) => (
+                  <div key={task.id} className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-white text-sm font-medium">{task.label}</p>
+                      <p className="text-white/50 text-xs">{task.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 text-center">
+        <p className="text-primary text-sm">
+          ✨ Core 4 = 8 activități zilnice pentru Body, Being, Balance & Business
+        </p>
+      </div>
+    </motion.div>,
+
+    // Step 2: Extra Activities (Opțional)
+    <motion.div
+      key="extras"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="space-y-6"
+    >
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold text-white">✨ Extras - Îmbunătățește Rutina</h2>
+        <p className="text-white/60">
+          Selectează activități adiționale (opțional)
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {EXTRA_STEPS.map((extra) => {
+          const Icon = extra.icon;
+          const isSelected = selectedExtras.includes(extra.id);
+          
+          return (
+            <Card
+              key={extra.id}
+              onClick={() => toggleExtra(extra.id)}
+              className={cn(
+                "p-3 cursor-pointer transition-all duration-300 border",
+                "bg-white/5 hover:bg-white/10 backdrop-blur-sm",
+                isSelected
+                  ? "border-primary/50 bg-primary/10"
+                  : "border-white/10"
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <Icon className={cn(
+                  "h-4 w-4",
+                  isSelected ? "text-primary" : "text-white/60"
+                )} />
+                <span className={cn(
+                  "text-sm font-medium",
+                  isSelected ? "text-white" : "text-white/70"
+                )}>
+                  {extra.label}
+                </span>
+                {isSelected && (
+                  <Check className="h-4 w-4 text-primary ml-auto" />
+                )}
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
       <p className="text-center text-white/40 text-sm">
-        Poți sări acest pas și configura mai târziu
+        Poți sări acest pas - Core 4 e deja configurat
       </p>
     </motion.div>
   ];
@@ -322,7 +273,7 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
       <Card className="w-full max-w-lg bg-white/5 backdrop-blur-xl border-white/10 p-6 space-y-6">
         {/* Progress dots */}
         <div className="flex justify-center gap-2">
-          {[0, 1, 2].map((step) => (
+          {[0, 1].map((step) => (
             <div
               key={step}
               className={cn(
@@ -363,10 +314,9 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
             </Button>
           )}
 
-          {currentStep < 2 ? (
+          {currentStep < 1 ? (
             <Button
               onClick={() => setCurrentStep(currentStep + 1)}
-              disabled={!canProceed()}
               className="bg-primary hover:bg-primary/90"
             >
               Continuă

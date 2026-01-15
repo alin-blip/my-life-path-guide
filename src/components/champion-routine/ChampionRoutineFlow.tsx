@@ -85,6 +85,18 @@ export type RoutineStepId =
   | 'todaysTasks'
   | 'completion';
 
+// Core 4 - OBLIGATORII (nu pot fi eliminate) - aliniate cu Warrior Core 4
+// 2 taskuri per categorie: Body, Being, Balance, Business
+export const CORE4_REQUIRED_STEPS: RoutineStepId[] = [
+  'exercise',      // Body: Fitness (30 min exercițiu)
+  'mealPlanning',  // Body: Fuel (alimentație)
+  'meditation',    // Being: Meditation (autosugestie & credință)
+  'journaling',    // Being: Jurnal (programare subconștient)
+  'relationships', // Balance: Person 1 + Person 2 (Legea Servirii)
+  'learn',         // Business: Discover (cunoștințe specializate)
+  'apply',         // Business: Declare (planificare organizată)
+];
+
 // Default order for Execution Room (all available steps)
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'emotionalCheck',       // 0. Check-in Emoțional - PRIMUL
@@ -93,19 +105,19 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'lightExposure',        // 1. Being - Lumină naturală dimineața
   'hydration',          // 2. Being - Hidratare
   'breathing',          // 3. Being - Box Breathing
-  'meditation',         // 4. Being - Meditație (min 10 min)
+  'meditation',         // 4. Being - Meditație (min 10 min) - CORE 4
   'gratitude',          // 5. Being - Recunoștință
   'visualization',      // 6. Being - Vizualizare
   'autosuggestion',     // 7. Being - Autosugestie
   'visionDeclaration',  // 8. Being - Citire Declarație Viziune (Napoleon Hill)
-  'journaling',         // 9. Being - Journaling
+  'journaling',         // 9. Being - Journaling - CORE 4
   'reading',            // 10. Being - Citit 10 pagini
-  'exercise',           // 11. Body - Exerciții cu timer
-  'mealPlanning',       // 12. Body - Meal Planning
-  'learn',              // 13. Business - Învață ceva nou
-  'apply',              // 14. Business - Aplică/Predă
+  'exercise',           // 11. Body - Exerciții cu timer - CORE 4
+  'mealPlanning',       // 12. Body - Meal Planning - CORE 4
+  'learn',              // 13. Business - Învață ceva nou - CORE 4
+  'apply',              // 14. Business - Aplică/Predă - CORE 4
   'contentCreation',    // 15. Business - Content + AI Script + Pomodoro
-  'relationships',      // 16. Balance - Relații
+  'relationships',      // 16. Balance - Relații - CORE 4
   'completion',         // 17. Finalizare
 ];
 
@@ -253,6 +265,16 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     const habitSteps = (settings?.habit_steps as string[]) || [];
     const includeDailyTasks = settings?.include_daily_tasks !== false;
 
+    // ENFORCE CORE 4 - Always include required steps
+    CORE4_REQUIRED_STEPS.forEach(stepId => {
+      if (!activeSteps.includes(stepId)) {
+        activeSteps = [...activeSteps, stepId];
+      }
+      if (!stepsOrder.includes(stepId)) {
+        stepsOrder = [...stepsOrder, stepId];
+      }
+    });
+
     // Auto-include new steps for existing users
     const requiredNewSteps = ['emotionalCheck', 'stackSelection', 'emotionalTransform', 'visionDeclaration'];
     requiredNewSteps.forEach(stepId => {
@@ -336,9 +358,13 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         DEFAULT_ROUTINE_STEPS.includes(id as RoutineStepId)
       ) as RoutineStepId[];
 
-      // Filter out inactive steps
+      // Filter out inactive steps BUT keep Core 4 always
       if (activeSteps.length > 0) {
-        steps = steps.filter(id => activeSteps.includes(id) || id === 'completion');
+        steps = steps.filter(id => 
+          activeSteps.includes(id) || 
+          id === 'completion' ||
+          CORE4_REQUIRED_STEPS.includes(id) // Always keep Core 4
+        );
       }
     }
 
