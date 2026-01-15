@@ -3,15 +3,16 @@ import { Helmet } from 'react-helmet-async';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { VisionBoardQuiz } from '@/components/vision-board/VisionBoardQuiz';
 import { VisionBoardGenerator } from '@/components/vision-board/VisionBoardGenerator';
 import { VisionBoardPreview } from '@/components/vision-board/VisionBoardPreview';
 import { EmailCollection } from '@/components/vision-board/EmailCollection';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight, Target } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 
 type Category = 'body' | 'being' | 'balance' | 'business';
 type Step = 'intro' | 'quiz' | 'email' | 'generating' | 'preview';
@@ -26,10 +27,21 @@ interface GeneratedImages {
 // Get current year for period
 const getCurrentPeriod = () => new Date().getFullYear().toString();
 
+// Incoming state type
+interface IncomingState {
+  fromWarriorPower?: boolean;
+  fromRealityMap?: boolean;
+  scores?: WarriorPowerScores;
+}
+
 const VisionBoard2026 = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  
+  // Check if user came from Warrior Power or Reality Map
+  const incomingState = location.state as IncomingState | null;
   
   const [step, setStep] = useState<Step>('intro');
   const [answers, setAnswers] = useState<Record<Category, string>>({} as Record<Category, string>);
@@ -189,11 +201,42 @@ const VisionBoard2026 = () => {
                 {language === 'en' ? 'Vision Board 2026' : 'Vision Board 2026'}
               </h1>
               
-              <p className="text-lg text-muted-foreground max-w-lg mx-auto">
-                {language === 'en'
-                  ? 'Create a powerful visual representation of your goals across Body, Being, Balance & Business using AI.'
-                  : 'Creează o reprezentare vizuală puternică a obiectivelor tale în Corp, Suflet, Echilibru & Business folosind AI.'}
-              </p>
+              {/* Personalized message based on origin */}
+              {incomingState?.fromWarriorPower && (
+                <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 max-w-lg mx-auto">
+                  <div className="flex items-center justify-center gap-2 text-primary font-semibold mb-2">
+                    <Target className="h-5 w-5" />
+                    Bazat pe Evaluarea Ta Warrior Power
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {language === 'en' 
+                      ? 'Your scores reveal where to focus. Now create a powerful vision for transformation.'
+                      : 'Scorurile tale arată unde să te concentrezi. Acum creează o viziune puternică pentru transformare.'}
+                  </p>
+                </div>
+              )}
+              
+              {incomingState?.fromRealityMap && (
+                <div className="bg-accent/10 border border-accent/30 rounded-xl p-4 max-w-lg mx-auto">
+                  <div className="flex items-center justify-center gap-2 text-accent font-semibold mb-2">
+                    <Target className="h-5 w-5" />
+                    Ai Harta — Acum Creează Destinația
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {language === 'en' 
+                      ? 'You know where you are. Now visualize where you want to be by the end of 2026.'
+                      : 'Știi unde te afli. Acum vizualizează unde vrei să ajungi până la finalul lui 2026.'}
+                  </p>
+                </div>
+              )}
+              
+              {!incomingState?.fromWarriorPower && !incomingState?.fromRealityMap && (
+                <p className="text-lg text-muted-foreground max-w-lg mx-auto">
+                  {language === 'en'
+                    ? 'Create a powerful visual representation of your goals across Body, Being, Balance & Business using AI.'
+                    : 'Creează o reprezentare vizuală puternică a obiectivelor tale în Corp, Suflet, Echilibru & Business folosind AI.'}
+                </p>
+              )}
               
               <Button
                 size="lg"
