@@ -35,6 +35,7 @@ interface RoutineBreakdownProps {
 
 const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string }>> = {
   emotionalCheck: Heart,
+  stackSelection: Sparkles,
   emotionalTransform: Sparkles,
   lightExposure: Sun,
   hydration: Droplets,
@@ -63,6 +64,7 @@ const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
   emotionalCheck: 'Check-in Emoțional',
+  stackSelection: 'Alege Stack-ul',
   emotionalTransform: 'Transformare Emoțională',
   gratitude: 'Recunoștință',
   hydration: 'Hidratare',
@@ -91,6 +93,7 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
   emotionalCheck: 'emotional',
+  stackSelection: 'emotional',
   emotionalTransform: 'emotional',
   gratitude: 'being',
   hydration: 'being',

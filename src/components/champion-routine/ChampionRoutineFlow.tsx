@@ -34,6 +34,7 @@ import { VisionDeclarationStep } from './steps/VisionDeclarationStep';
 import { ApplyStep } from './steps/ApplyStep';
 import { EmotionalCheckStep } from './steps/EmotionalCheckStep';
 import { EmotionalTransformStep } from './steps/EmotionalTransformStep';
+import { StackSelectionStep } from './steps/StackSelectionStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
@@ -57,6 +58,7 @@ interface ChampionRoutineFlowProps {
 
 export type RoutineStepId = 
   | 'emotionalCheck'
+  | 'stackSelection'
   | 'emotionalTransform'
   | 'gratitude' 
   | 'hydration' 
@@ -85,6 +87,7 @@ export type RoutineStepId =
 // Default order for Execution Room (all available steps)
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'emotionalCheck',       // 0. Check-in Emoțional - PRIMUL
+  'stackSelection',       // 0.25. Selectare Stack bazat pe emoție
   'emotionalTransform',   // 0.5. Transformare Emoțională (dacă e necesar)
   'lightExposure',        // 1. Being - Lumină naturală dimineața
   'hydration',          // 2. Being - Hidratare
@@ -107,6 +110,7 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
   emotionalCheck: 'Check-in Emoțional',
+  stackSelection: 'Alege Stack-ul',
   emotionalTransform: 'Transformare Emoțională',
   gratitude: 'Recunoștință',
   hydration: 'Hidratare',
@@ -135,6 +139,7 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
   emotionalCheck: 'emotional',
+  stackSelection: 'emotional',
   emotionalTransform: 'emotional',
   gratitude: 'being',
   hydration: 'being',
@@ -179,6 +184,8 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
   switch (stepId) {
     case 'emotionalCheck':
       return !!(log as any).morning_emotion;
+    case 'stackSelection':
+      return (log as any).stack_selection_completed === true;
     case 'emotionalTransform':
       return (log as any).emotional_transform_completed === true;
     case 'gratitude':
@@ -366,6 +373,10 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     (todayLog as any)?.morning_emotion_intensity || 5
   );
   const [needsEmotionalTransform, setNeedsEmotionalTransform] = useState(false);
+  
+  // Stack selection state
+  const [selectedStack, setSelectedStack] = useState<string | null>(null);
+  const [showStackInline, setShowStackInline] = useState(false);
   
   // Track skipped steps in localStorage
   const today = new Date().toISOString().split('T')[0];
@@ -555,18 +566,38 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
               updateLog('morning_emotion_intensity' as any, intensity);
             }}
             onNext={() => {
-              setNeedsEmotionalTransform(false);
-              // Skip emotionalTransform and go to next step after it
-              const transformIndex = routineSteps.indexOf('emotionalTransform');
-              if (transformIndex !== -1 && transformIndex === currentStepIndex + 1) {
-                setCurrentStepIndex(transformIndex + 1);
-              } else {
-                goToNextStep();
-              }
+              // Go to stack selection step
+              goToNextStep();
             }}
             onStartTransform={() => {
               setNeedsEmotionalTransform(true);
               goToNextStep();
+            }}
+          />
+        );
+      case 'stackSelection':
+        return (
+          <StackSelectionStep
+            emotion={selectedEmotion}
+            intensity={emotionIntensity}
+            onSelectStack={(stackId) => {
+              updateLog('stack_selection_completed' as any, true);
+              // Navigate to the Stack page with the selected stack
+              navigate(`/stack?type=${stackId}`);
+            }}
+            onSkip={() => {
+              updateLog('stack_selection_completed' as any, true);
+              // Skip to the step after emotionalTransform if transform not needed
+              if (!needsEmotionalTransform) {
+                const transformIndex = routineSteps.indexOf('emotionalTransform');
+                if (transformIndex !== -1) {
+                  setCurrentStepIndex(transformIndex + 1);
+                } else {
+                  goToNextStep();
+                }
+              } else {
+                goToNextStep();
+              }
             }}
           />
         );
