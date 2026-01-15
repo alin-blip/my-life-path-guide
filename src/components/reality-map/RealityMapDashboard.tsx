@@ -385,20 +385,20 @@ const VisionBoardCTA: React.FC<{ scores: WarriorPowerScores }> = ({ scores }) =>
           </div>
           
           <div className="flex-1 text-center md:text-left">
-            <h3 className="text-xl font-bold mb-2">Transformă Scorurile în Viziune</h3>
+            <h3 className="text-xl font-bold mb-2">Definește Obiectivele Tale Anuale</h3>
             <p className="text-muted-foreground">
-              Ai harta realității tale. Acum creează imaginea destinației 
-              cu Vision Board 2026 — obiective vizuale pentru fiecare dimensiune.
+              Ai harta realității tale. Acum creează obiectivele imposibile pentru 2026 
+              — ținte ambițioase pentru fiecare dimensiune a vieții tale.
             </p>
           </div>
           
           <div className="flex flex-col gap-2">
             <Button 
-              onClick={() => navigate('/vision-board-2026', { state: { fromRealityMap: true, scores } })}
+              onClick={() => navigate('/door?tab=annual')}
               className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
             >
               <Sparkles className="w-4 h-4" />
-              Creează Vision Board
+              Creează Obiective Anuale
               <ArrowRight className="w-4 h-4" />
             </Button>
             <Button 
