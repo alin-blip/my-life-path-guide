@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,7 +15,7 @@ interface ModuleCommentsProps {
 }
 
 export interface ModuleCommentsRef {
-  prefillAndFocus: (message: string) => void;
+  appendAndFocus: (message: string) => void;
   scrollIntoView: () => void;
 }
 
@@ -25,15 +25,20 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
     const { comments, isLoading, addComment, deleteComment, commentCount, canComment } = useModuleComments(moduleId);
     const [newComment, setNewComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [prefillMessage, setPrefillMessage] = useState<string | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
 
     // Expose methods to parent
     useImperativeHandle(ref, () => ({
-      prefillAndFocus: (message: string) => {
-        setPrefillMessage(message);
-        setNewComment(message);
+      appendAndFocus: (message: string) => {
+        // Append to existing text with newlines if there's already content
+        setNewComment(prev => {
+          if (prev.trim()) {
+            return prev + '\n\n' + message;
+          }
+          return message;
+        });
+        
         // Scroll and focus after state update
         setTimeout(() => {
           cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -51,12 +56,7 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
     }));
 
     const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const value = e.target.value;
-      setNewComment(value);
-      // Clear prefill when user starts typing something different
-      if (prefillMessage && value !== prefillMessage) {
-        setPrefillMessage(null);
-      }
+      setNewComment(e.target.value);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -67,7 +67,6 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
       const success = await addComment(newComment);
       if (success) {
         setNewComment('');
-        setPrefillMessage(null);
       }
       setIsSubmitting(false);
     };
@@ -110,12 +109,9 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
                   value={newComment}
                   onChange={handleCommentChange}
                   placeholder="Împărtășește-ți revelația sau experiența cu ceilalți Războinici..."
-                  className={cn(
-                    "min-h-[100px] resize-none bg-background/50 border-amber-500/20 focus:border-amber-500/50",
-                    prefillMessage && "text-foreground"
-                  )}
+                  className="min-h-[120px] resize-none bg-background/50 border-amber-500/20 focus:border-amber-500/50"
                 />
-                {prefillMessage && newComment === prefillMessage && (
+                {newComment.trim() && (
                   <div className="absolute bottom-2 right-2 text-xs text-amber-500/70 flex items-center gap-1">
                     <Sparkles className="h-3 w-3" />
                     Continuă să scrii...
