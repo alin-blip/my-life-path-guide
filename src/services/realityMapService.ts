@@ -26,7 +26,23 @@ export const getRealityMapScores = async (): Promise<WarriorPowerScores | null> 
       return factMapData.items as unknown as WarriorPowerScores;
     }
 
-    // Fallback: Check if there are warrior power scores from email_leads
+    // Fallback: Check warrior_power_results table
+    const { data: warriorResults } = await supabase
+      .from('warrior_power_results')
+      .select('scores')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (warriorResults?.scores) {
+      // Sync to fact_maps for future use
+      const scores = warriorResults.scores as unknown as WarriorPowerScores;
+      await saveRealityMapScores(scores);
+      return scores;
+    }
+
+    // Last fallback: Check email_leads
     const { data: leadData, error: leadError } = await supabase
       .from('email_leads')
       .select('metadata')
