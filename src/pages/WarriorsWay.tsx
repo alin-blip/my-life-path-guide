@@ -109,6 +109,21 @@ const COURSE_SECTIONS = [
       { id: 'core4-27', title: 'Joacă Jocul Zilnic Core 4', duration: '14 min', order: 34, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=HcmF3t3PGo7dtl5NhzAEsdczCExc2zHlzIW2FTAZEYKrKUQ8b&videoRatio=1.777778&type=v&skinColor=%232758EB' },
     ]
   },
+  {
+    id: 'door',
+    title: 'The Warriors Door',
+    description: 'Ușa producției zilnice: Potențial, Plan, Producție și Profit - sistemul pentru focalizare și rezultate',
+    isFree: false,
+    modules: [
+      { id: 'door-28', title: 'Ușa: Perspectivă și Producție', duration: '18 min', order: 35, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=CLbfjprXBp0bR1PMgQRnsdTTHF5jgjLm1t4aFM0-AKkZ12Aka&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'door-29', title: 'Ușa Posibilităților și Lista Prioritară', duration: '15 min', order: 36, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=ziJUc8NbD8zZ3Um6mRcM9MjHQAjFCsEIkj6BAFpYGpSGMnRwf&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'door-30', title: 'Ușa Războiului și Cadranele Deciziei', duration: '17 min', order: 37, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=37IdKHZqcWN5Q5jdah7oZVtIfNAmM2kG1mgcxTYaIW6_O3DMS&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'door-31', title: 'Ușa și Stack-ul de Război', duration: '16 min', order: 38, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=Q56FSAdVH6fKwlXOxi4DpsQFhV0OKBinn8nRaLihEGLOdwoYW&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'door-32', title: 'Loviturile și Scorul Blackjack', duration: '18 min', order: 39, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=E07YL9TPhSYBwS0GSkWcqhzAKlDMwgyPsF81XX8LIqUuAkLEE&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'door-33', title: 'Jocul Final al Profitului', duration: '15 min', order: 40, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=xwaB1YXWy0OXBQoWgQVr7MFDR1XdEjm_O0zTuANtZ3x9vXNqi&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+      { id: 'door-34', title: 'Ușa: Rezumat Cuprinzător', duration: '14 min', order: 41, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=kwYMDsu6jIyyIyEsa3R_0IfPEW1ScCsET9cdfnpJ0RiOPSpob&videoRatio=1.777778&type=v&skinColor=%232758EB' },
+    ]
+  },
 ];
 
 const WarriorsWay: React.FC = () => {
