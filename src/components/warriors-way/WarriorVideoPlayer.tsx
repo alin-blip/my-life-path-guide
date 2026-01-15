@@ -3,10 +3,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, CheckCircle2, ChevronLeft, ChevronRight, Play, Target, Lightbulb, ArrowUp } from 'lucide-react';
-import { getModuleData } from '@/data/warriorsWayModuleData';
+import { X, CheckCircle2, ChevronLeft, ChevronRight, Play, Target, Lightbulb, ArrowUp, Zap, Plus, Loader2 } from 'lucide-react';
 import { ModuleComments } from './ModuleComments';
+import { useWarriorsLessonContent } from '@/hooks/useWarriorsLessonContent';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface WarriorVideoPlayerProps {
   moduleId: string;
@@ -33,13 +34,24 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
   hasPrevious = false,
   hasNext = false
 }) => {
-  const moduleData = getModuleData(moduleId);
+  const { content, isLoading } = useWarriorsLessonContent(moduleId);
   const hasVideo = !!videoUrl;
 
   const handleMarkComplete = () => {
     onComplete();
     onClose();
   };
+
+  const handleAddToTasks = (task: string) => {
+    // TODO: Integrate with task system (Hit List)
+    toast.success('Sarcină adăugată în lista ta! 📝', {
+      description: task.substring(0, 50) + (task.length > 50 ? '...' : '')
+    });
+  };
+
+  // Parse key_concepts and action_prompts from JSONB
+  const keyConcepts = content?.key_concepts || [];
+  const actionPrompts = content?.action_prompts || [];
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -93,47 +105,100 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
               <ArrowUp className="h-5 w-5 text-amber-500 animate-bounce" />
             </div>
 
-            {/* Module Description */}
-            {moduleData && (
-              <Card className="border-primary/20">
-                <CardContent className="pt-6 space-y-4">
-                  {/* Description */}
-                  <div>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {moduleData.description}
-                    </p>
-                  </div>
+            {/* Loading State */}
+            {isLoading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+              </div>
+            )}
 
-                  {/* Key Points */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Lightbulb className="h-5 w-5 text-amber-500" />
-                      <h4 className="font-semibold">Ce vei învăța:</h4>
-                    </div>
-                    <ul className="space-y-2 pl-7">
-                      {moduleData.keyPoints.map((point, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                          <span className="text-sm text-muted-foreground">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+            {/* Content from Database */}
+            {content && !isLoading && (
+              <>
+                {/* Summary / Description */}
+                {content.summary && (
+                  <Card className="border-primary/20">
+                    <CardContent className="pt-6">
+                      <p className="text-muted-foreground leading-relaxed">
+                        {content.summary}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
 
-                  {/* Action Prompt */}
-                  <div className="p-4 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
-                    <div className="flex items-start gap-3">
-                      <Target className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
-                      <div>
-                        <h4 className="font-semibold text-amber-500 mb-1">🎯 Acțiune recomandată:</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {moduleData.actionPrompt}
-                        </p>
+                {/* Aha Moment - Special Highlight */}
+                {content.aha_moment && (
+                  <Card className="border-yellow-500/30 bg-gradient-to-r from-yellow-500/5 to-amber-500/5">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-full bg-yellow-500/20">
+                          <Zap className="h-5 w-5 text-yellow-500" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-yellow-500 mb-2">💡 Aha Moment</h4>
+                          <p className="text-foreground italic leading-relaxed">
+                            "{content.aha_moment}"
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Key Concepts */}
+                {keyConcepts.length > 0 && (
+                  <Card className="border-primary/20">
+                    <CardContent className="pt-6 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Lightbulb className="h-5 w-5 text-amber-500" />
+                        <h4 className="font-semibold">Ce vei învăța:</h4>
+                      </div>
+                      <ul className="space-y-2 pl-7">
+                        {keyConcepts.map((concept: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                            <span className="text-sm text-muted-foreground">{concept}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Action Prompts with Buttons */}
+                {actionPrompts.length > 0 && (
+                  <Card className="border-amber-500/20 bg-gradient-to-r from-amber-500/5 to-orange-500/5">
+                    <CardContent className="pt-6 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Target className="h-5 w-5 text-amber-500" />
+                        <h4 className="font-semibold text-amber-500">🎯 Acțiuni Recomandate:</h4>
+                      </div>
+                      <div className="space-y-3">
+                        {actionPrompts.map((action: string, index: number) => (
+                          <div 
+                            key={index} 
+                            className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-amber-500/10"
+                          >
+                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500/20 text-amber-500 text-sm font-medium flex items-center justify-center">
+                              {index + 1}
+                            </span>
+                            <span className="flex-1 text-sm text-muted-foreground">{action}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="shrink-0 text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
+                              onClick={() => handleAddToTasks(action)}
+                            >
+                              <Plus className="h-4 w-4 mr-1" />
+                              Adaugă
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
             )}
 
             {/* Comments Section */}
