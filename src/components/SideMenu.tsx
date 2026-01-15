@@ -34,7 +34,9 @@ import {
   BarChart3,
   History,
   GraduationCap,
-  Swords
+  Swords,
+  Gamepad2,
+  Map
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -102,17 +104,23 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       badge: completedDays > 0 ? `${completedDays}/7` : undefined
     },
 
-    // 3. VIZIUNE & OBIECTIVE - The Door
+    // 3. THE DOOR - Simple link without sub-items
+    { 
+      title: '🎯 The Door', 
+      icon: Target, 
+      path: '/door'
+    },
+
+    // 4. GAME - VISION
     {
-      title: language === 'ro' ? '🎯 The Door / Viziune' : '🎯 The Door / Vision',
-      icon: Target,
-      path: '/door',
+      title: '🎮 Game - Vision',
+      icon: Gamepad2,
+      path: '/game-vision',
       subItems: [
-        { title: language === 'ro' ? 'Command Center' : 'Command Center', icon: Target, path: '/door' },
-        { title: language === 'ro' ? 'Obiective Anuale' : 'Annual Goals', icon: Sparkles, path: '/door?tab=annual' },
+        { title: language === 'ro' ? 'Harta Realității' : 'Reality Map', icon: Map, path: '/fact-maps?category=foundation' },
+        { title: 'Annual Goals - Impossible Game', icon: Sparkles, path: '/door?tab=annual' },
         { title: language === 'ro' ? 'Planuri 90 Zile' : '90-Day Plans', icon: Calendar, path: '/door?tab=quarterly' },
         { title: language === 'ro' ? 'Obiective Lunare' : 'Monthly Goals', icon: Flag, path: '/door?tab=monthly' },
-        { title: language === 'ro' ? 'Obiective Săptămânale' : 'Weekly Goals', icon: Flag, path: '/door?tab=weekly' },
       ]
     },
 
