@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useProgress } from '@/context/ProgressContext';
 import { useDoor } from '@/context/DoorContext';
 import { supabase } from '@/integrations/supabase/client';
-
+import { getWeekKey } from '@/utils/weekUtils';
 interface BigOne {
   text: string | null;
   completed: boolean;
@@ -106,21 +106,72 @@ export const useDailyScore = () => {
           setRoutineCompleted(routineComplete);
         }
 
-        // Fetch Big One for today
-        const { data: bigOneData } = await supabase
-          .from('user_tasks')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('is_key_point', true)
-          .eq('day', today)
-          .maybeSingle();
-
-        if (bigOneData) {
+        // Fetch Big One for today - Priority order:
+        // 1. champion_routine_logs.big_one_today (explicit set today)
+        // 2. weekly_planning.domino_title (Domino Door for this week)
+        // 3. weekly_planning.key_points (first incomplete key point)
+        // 4. user_tasks with is_key_point=true
+        
+        let bigOneFound = false;
+        
+        // 1. Check champion_routine_logs for today's explicit Big One
+        if (routineData?.big_one_today) {
           setBigOne({
-            text: bigOneData.title,
-            completed: bigOneData.completed || false,
-            id: bigOneData.id
+            text: routineData.big_one_today,
+            completed: false,
+            id: undefined
           });
+          bigOneFound = true;
+        }
+        
+        if (!bigOneFound) {
+          // 2 & 3. Check weekly_planning for Domino Door or Key Points
+          const weekKey = getWeekKey();
+          const { data: weeklyPlan } = await supabase
+            .from('weekly_planning')
+            .select('domino_title, key_points')
+            .eq('user_id', userId)
+            .eq('week_key', weekKey)
+            .maybeSingle();
+          
+          if (weeklyPlan?.domino_title) {
+            setBigOne({
+              text: weeklyPlan.domino_title,
+              completed: false,
+              id: undefined
+            });
+            bigOneFound = true;
+          } else if (weeklyPlan?.key_points && Array.isArray(weeklyPlan.key_points)) {
+            const keyPoints = weeklyPlan.key_points as { title: string; completed?: boolean }[];
+            const firstIncomplete = keyPoints.find(kp => !kp.completed);
+            if (firstIncomplete?.title) {
+              setBigOne({
+                text: firstIncomplete.title,
+                completed: false,
+                id: undefined
+              });
+              bigOneFound = true;
+            }
+          }
+        }
+        
+        if (!bigOneFound) {
+          // 4. Fallback to user_tasks with is_key_point=true
+          const { data: bigOneData } = await supabase
+            .from('user_tasks')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('is_key_point', true)
+            .eq('day', today)
+            .maybeSingle();
+
+          if (bigOneData) {
+            setBigOne({
+              text: bigOneData.title,
+              completed: bigOneData.completed || false,
+              id: bigOneData.id
+            });
+          }
         }
 
         // Fetch reading progress for today
