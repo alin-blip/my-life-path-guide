@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { generatePlatformSystemPrompt } from '@/data/platformKnowledge';
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -166,7 +167,9 @@ export const AssistantVoiceMode: React.FC<AssistantVoiceModeProps> = ({
                     : 'bg-muted'
                 )}
               >
-                <p className="whitespace-pre-wrap">{message.content}</p>
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                </div>
               </div>
               
               {message.role === 'user' && (

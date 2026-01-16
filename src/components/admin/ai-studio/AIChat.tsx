@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Bot, User, Loader2, Copy, Check } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -146,7 +147,9 @@ export const AIChat: React.FC = () => {
                         : 'bg-muted'
                     }`}
                   >
-                    <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                    <div className="prose prose-sm max-w-none dark:prose-invert text-sm">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
                     {message.role === 'assistant' && message.content && (
                       <Button
                         variant="ghost"

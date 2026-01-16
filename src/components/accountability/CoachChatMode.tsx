@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Loader2, User, Trophy } from 'lucide-react';
 import { CoachMessage } from '@/hooks/useAccountabilityCoach';
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
 
 interface CoachChatModeProps {
   messages: CoachMessage[];
@@ -94,7 +95,9 @@ export const CoachChatMode: React.FC<CoachChatModeProps> = ({
                     : 'bg-muted'
                 )}
               >
-                <p className="whitespace-pre-wrap">{message.content}</p>
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                </div>
               </div>
               
               {message.role === 'user' && (

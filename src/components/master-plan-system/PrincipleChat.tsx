@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { NapoleonHillProject } from '@/services/napoleonHillProjectService';
 import { Send, Loader2, Lightbulb, FileText } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
@@ -440,7 +441,9 @@ Răspunde în format JSON strict:
                     ? 'bg-primary text-primary-foreground' 
                     : 'bg-secondary text-secondary-foreground'
                 }`}>
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  </div>
                   {message.role === 'assistant' && (
                     <div className="mt-2 flex justify-end">
                       <TextToSpeechButton 

@@ -10,6 +10,7 @@ import { StackProgressIndicator } from "./StackProgressIndicator";
 import { supabase } from "@/integrations/supabase/client";
 import { saveToStackLibrary } from "@/utils/stackProgress";
 import { Send, PlusCircle, Lightbulb, MessageCircle, AlertTriangle } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
 import { v4 as uuidv4 } from 'uuid';
 import { SuggestionPickerModal } from './SuggestionPickerModal';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
@@ -340,7 +341,9 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
             </h1>
             
             <div className="p-3 bg-background/50 rounded border-l-4 border-green-500 mb-4">
-              <p className="text-sm sm:text-base text-foreground">{finalAction}</p>
+              <div className="prose prose-sm max-w-none dark:prose-invert text-sm sm:text-base">
+                <ReactMarkdown>{finalAction}</ReactMarkdown>
+              </div>
             </div>
           </div>
 
@@ -394,7 +397,9 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
                       ? 'bg-primary text-primary-foreground' 
                       : 'bg-secondary text-secondary-foreground'
                   }`}>
-                    <p>{message.content}</p>
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     {message.timestamp.toLocaleTimeString()}

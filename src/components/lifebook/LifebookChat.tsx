@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Send, Mic, MicOff, Lightbulb, Check } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { 
   LifebookSubcategory, 
   LifebookSection, 
@@ -343,7 +344,9 @@ const LifebookChat: React.FC = () => {
                   : 'bg-card'
               }`}>
                 <CardContent className="p-4">
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  </div>
                   {message.role === 'assistant' && (
                     <div className="mt-2 flex justify-end">
                       <TextToSpeechButton 
