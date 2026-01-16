@@ -106,10 +106,8 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
   }
 ];
 
-export const DEFAULT_WIDGETS = [
-  { id: 'streak', enabled: true, order: 1, size: 'small' as const },
-  { id: 'tasks', enabled: true, order: 2, size: 'medium' as const }
-];
+// Default to empty widgets for new users - they'll configure via the widget settings
+export const DEFAULT_WIDGETS: { id: string; enabled: boolean; order: number; size: 'small' | 'medium' | 'large' }[] = [];
 
 export const getWidgetDefinition = (id: string): WidgetDefinition | undefined => {
   return AVAILABLE_WIDGETS.find(w => w.id === id);
