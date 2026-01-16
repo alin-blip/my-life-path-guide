@@ -57,6 +57,7 @@ import { ChampionRoutineWidget } from '@/components/dashboard/widgets/ChampionRo
 import { VisionDeclarationWidget } from '@/components/dashboard/widgets/VisionDeclarationWidget';
 
 import { EmpowermentMeditationCard } from '@/components/dashboard/EmpowermentMeditationCard';
+import { AcceleratorBanner } from '@/components/dashboard/AcceleratorBanner';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -752,6 +753,8 @@ export const Dashboard: React.FC = () => {
         <VisionDeclarationWidget />
       </div>
       
+      {/* Accelerator Upsell Banner */}
+      <AcceleratorBanner />
       
       {/* Empowerment Meditation Card */}
       <div className="mb-6">
