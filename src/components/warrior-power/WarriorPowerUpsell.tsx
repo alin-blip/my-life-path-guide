@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Crown, Check, Zap, Brain, Target, ArrowRight, Sparkles, Star } from 'lucide-react';
+import { Crown, Check, Zap, Brain, Target, ArrowRight, Sparkles, Star, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 
 interface WarriorPowerUpsellProps {
@@ -70,6 +71,24 @@ const UPSELL_PLANS = [
 
 export function WarriorPowerUpsell({ scores, userName, onContinueFree }: WarriorPowerUpsellProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [hasSession, setHasSession] = useState<boolean | null>(null);
+  const navigate = useNavigate();
+
+  // Check session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setHasSession(!!session);
+    };
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setHasSession(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Calculate total score
   const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
@@ -96,12 +115,18 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
     setIsLoading(planId);
 
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        toast.error('Trebuie să fii autentificat pentru a continua.');
+        // Redirect to auth with return URL
+        toast.info('Te rugăm să te autentifici pentru a continua cu achiziția.');
+        navigate('/auth', { 
+          state: { 
+            returnUrl: '/warrior-power',
+            plan: planId,
+            scores: scores 
+          } 
+        });
         return;
       }
 

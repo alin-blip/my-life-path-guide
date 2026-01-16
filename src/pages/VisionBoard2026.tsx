@@ -60,9 +60,40 @@ const VisionBoard2026 = () => {
     setStep('generating');
   };
 
-  const handleImagesGenerated = (generatedImages: GeneratedImages) => {
+  const handleImagesGenerated = async (generatedImages: GeneratedImages) => {
     setImages(generatedImages);
     setStep('preview');
+    
+    // Send email with results
+    try {
+      const { data, error } = await supabase.functions.invoke('send-vision-results', {
+        body: {
+          email: email,
+          name: name,
+          visions: answers,
+          images: generatedImages,
+        },
+      });
+
+      if (error || (data as any)?.error) {
+        const msg = error?.message ?? (data as any)?.error ?? 'Nu am putut trimite emailul.';
+        console.error('Error sending vision email:', msg, { error, data });
+        toast({
+          variant: 'destructive',
+          title: 'Email',
+          description: `${msg} Verifică Spam sau încearcă din nou.`
+        });
+      } else {
+        toast({
+          title: language === 'en' ? 'Email Sent!' : 'Email Trimis!',
+          description: language === 'en' 
+            ? 'Your Vision Board has been sent to your email (check Spam too).' 
+            : 'Vision Board-ul tău a fost trimis pe email (verifică și Spam).'
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending vision email:', emailError);
+    }
   };
 
   const handleDownload = async () => {
