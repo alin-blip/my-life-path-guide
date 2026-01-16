@@ -712,7 +712,65 @@ const translations: Translations = {
     
     // VoiceLanguageToggle
     "voiceRecognitionLanguage": "Voice recognition language",
-    "clickToChange": "Click to change"
+    "clickToChange": "Click to change",
+    
+    // Index.tsx Meta tags
+    "indexMetaTitle": "WarriorOS — Success Without Sacrifice: AI-Powered Life System for Warriors",
+    "indexMetaDescription": "WarriorOS is the AI-powered Warrior Operating System that helps entrepreneurs grow their business WITHOUT losing their health, relationships, or peace of mind. Transform all 4 life areas simultaneously.",
+    
+    // HeroSection.tsx
+    "heroSuccess": "Success",
+    "heroWithout": "Without",
+    "heroSacrifice": "Sacrifice",
+    "heroSubtitle": "The complete AI system for entrepreneurs who want it ALL: healthy body, strong relationships, inner peace AND profitable business.",
+    "heroFeature1": "4 AI Coaches (Body, Mindset, Relationships, Business)",
+    "heroFeature2": "Warrior Routine - 30 min/day that changes everything",
+    "heroFeature3": "The Door - Intelligent weekly planning system",
+    "heroLogin": "Login",
+    "heroStartFreeTrial": "Start Free Trial",
+    "heroStart3DayTrial": "Start 3-Day Free Trial",
+    "heroSeeHowItWorks": "See How It Works",
+    "hero4LifeAreas": "4 Life Areas Integrated",
+    "hero90DayGuarantee": "90-Day Guarantee",
+    "heroCancelAnytime": "Cancel Anytime",
+    "heroVideoCaption": "Watch: How WarriorOS transforms entrepreneurs in 90 days",
+    "heroUsedBy": "Used by entrepreneurs in E-commerce, SaaS, Consulting, Real Estate",
+    
+    // ChampionRoutine STEP_LABELS
+    "stepEmotionalCheck": "Emotional Check-in",
+    "stepStackSelection": "Choose Stack",
+    "stepEmotionalTransform": "Emotional Transform",
+    "stepGratitude": "Gratitude",
+    "stepHydration": "Hydration",
+    "stepMeditation": "Meditation",
+    "stepAutosuggestion": "Autosuggestion",
+    "stepVisionDeclaration": "Vision Declaration",
+    "stepExercise": "Exercise",
+    "stepMealPlanning": "Meal Planning",
+    "stepContentCreation": "Content Creation",
+    "stepDailyTasks": "Daily Tasks",
+    "stepRelationships": "Relationships",
+    "stepBreathing": "Breathing",
+    "stepVisualization": "Visualization",
+    "stepReading": "Reading",
+    "stepJournaling": "Journaling",
+    "stepLightExposure": "Natural Light",
+    "stepLearn": "Learn",
+    "stepApply": "Apply/Teach",
+    "stepHabitBody": "Habits: Body",
+    "stepHabitBeing": "Habits: Being",
+    "stepHabitBalance": "Habits: Balance",
+    "stepHabitBusiness": "Habits: Business",
+    "stepTodaysTasks": "Today's Tasks",
+    "stepCompletion": "Completion",
+    
+    // Footer links
+    "footerPricing": "Pricing",
+    "footerTerms": "Terms of Service",
+    "footerPrivacy": "Privacy Policy",
+    "footerSupport": "Support",
+    "footerLogin": "Login",
+    "footerAllRightsReserved": "All rights reserved."
   },
   ro: {
     // Brand
@@ -1296,6 +1354,64 @@ const translations: Translations = {
     // VoiceLanguageToggle
     "voiceRecognitionLanguage": "Limbă recunoaștere vocală",
     "clickToChange": "Click pentru a schimba",
+    
+    // Index.tsx Meta tags
+    "indexMetaTitle": "WarriorOS — Succes Fără Sacrificiu: Sistem de Viață cu AI pentru Războinici",
+    "indexMetaDescription": "WarriorOS este sistemul de operare Războinic alimentat de AI care ajută antreprenorii să-și crească afacerea FĂRĂ să-și piardă sănătatea, relațiile sau pacea sufletească. Transformă toate cele 4 arii ale vieții simultan.",
+    
+    // HeroSection.tsx
+    "heroSuccess": "Succes",
+    "heroWithout": "Fără",
+    "heroSacrifice": "Sacrificiu",
+    "heroSubtitle": "Sistemul AI complet pentru antreprenori care vor TOT: corp sănătos, relații puternice, claritate interioară ȘI business profitabil.",
+    "heroFeature1": "4 Coachi AI (Corp, Mindset, Relații, Business)",
+    "heroFeature2": "Rutina Războinicului - 30 min/zi care schimbă totul",
+    "heroFeature3": "The Door - Sistem de planificare săptămânală inteligent",
+    "heroLogin": "Autentificare",
+    "heroStartFreeTrial": "Încearcă Gratuit",
+    "heroStart3DayTrial": "Încearcă 3 Zile Gratuit",
+    "heroSeeHowItWorks": "Vezi Cum Funcționează",
+    "hero4LifeAreas": "4 Arii de Viață Integrate",
+    "hero90DayGuarantee": "Garanție 90 Zile",
+    "heroCancelAnytime": "Anulezi Oricând",
+    "heroVideoCaption": "Vezi: Cum WarriorOS transformă antreprenorii în 90 de zile",
+    "heroUsedBy": "Folosit de antreprenori din E-commerce, SaaS, Consulting, Imobiliare",
+    
+    // ChampionRoutine STEP_LABELS
+    "stepEmotionalCheck": "Check-in Emoțional",
+    "stepStackSelection": "Alege Stack-ul",
+    "stepEmotionalTransform": "Transformare Emoțională",
+    "stepGratitude": "Recunoștință",
+    "stepHydration": "Hidratare",
+    "stepMeditation": "Meditație",
+    "stepAutosuggestion": "Autosugestie",
+    "stepVisionDeclaration": "Declarație Viziune",
+    "stepExercise": "Exerciții",
+    "stepMealPlanning": "Planificare Mese",
+    "stepContentCreation": "Creație Conținut",
+    "stepDailyTasks": "Taskuri Zilnice",
+    "stepRelationships": "Relații",
+    "stepBreathing": "Respirație",
+    "stepVisualization": "Vizualizare",
+    "stepReading": "Citit",
+    "stepJournaling": "Jurnalizare",
+    "stepLightExposure": "Lumină Naturală",
+    "stepLearn": "Învață",
+    "stepApply": "Aplică/Predă",
+    "stepHabitBody": "Obiceiuri: Corp",
+    "stepHabitBeing": "Obiceiuri: Spirit",
+    "stepHabitBalance": "Obiceiuri: Relații",
+    "stepHabitBusiness": "Obiceiuri: Business",
+    "stepTodaysTasks": "Sarcinile de Azi",
+    "stepCompletion": "Finalizare",
+    
+    // Footer links
+    "footerPricing": "Prețuri",
+    "footerTerms": "Termeni și Condiții",
+    "footerPrivacy": "Politica de Confidențialitate",
+    "footerSupport": "Suport",
+    "footerLogin": "Autentificare",
+    "footerAllRightsReserved": "Toate drepturile rezervate.",
     
     // Landing Page Hero - LifeOS Rebrand
     "landingHeroTitle": "<span>Succes Fără Sacrificiu.</span>",
