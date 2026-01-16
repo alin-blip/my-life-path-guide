@@ -35,6 +35,15 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
       ...prev,
       [currentQuestion.id]: points,
     }));
+    
+    // Auto-advance after short delay for visual feedback
+    setTimeout(() => {
+      if (currentQuestionIndex === quizQuestions.length - 1) {
+        setStep('email');
+      } else {
+        setCurrentQuestionIndex(prev => prev + 1);
+      }
+    }, 300);
   };
 
   const handleNext = () => {
@@ -203,27 +212,19 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
           />
         </div>
 
-        <div className="flex justify-between gap-4 mt-8 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={currentQuestionIndex === 0}
-            className="flex-1 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {language === 'en' ? 'Back' : 'Înapoi'}
-          </Button>
-          <Button
-            onClick={handleNext}
-            disabled={!hasAnswer}
-            className="flex-1 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white font-semibold disabled:opacity-30 border-0"
-          >
-            {isLastQuestion 
-              ? (language === 'en' ? 'See Results' : 'Vezi Rezultatele')
-              : (language === 'en' ? 'Next' : 'Următoarea')}
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
+        {currentQuestionIndex > 0 && (
+          <div className="flex justify-center mt-6 animate-fade-in">
+            <Button
+              variant="ghost"
+              onClick={handleBack}
+              className="text-white/60 hover:text-white hover:bg-white/10"
+              size="sm"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {language === 'en' ? 'Back' : 'Înapoi'}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -211,7 +211,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
             className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white font-bold shadow-lg shadow-orange-500/30 border-0"
           >
             <Rocket className="w-4 h-4 mr-2" />
-            {language === 'en' ? 'Implement Now - 7 Days Free' : 'Implementează Acum - 7 Zile Gratuit'}
+            {language === 'en' ? 'Implement Now - 3 Days Free' : 'Implementează Acum - 3 Zile Gratuit'}
           </Button>
         </div>
         <p className="text-white/50 text-xs mt-4">
