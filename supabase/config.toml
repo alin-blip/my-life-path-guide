@@ -1,5 +1,8 @@
 project_id = "exsbnfmaadjyfblperas"
 
+[functions.admin-impersonate]
+verify_jwt = false
+
 [functions.admin-ai-assistant]
 verify_jwt = false
 
