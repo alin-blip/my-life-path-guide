@@ -46,7 +46,7 @@ export function RoutineTimeline({
       case 'completed': return 'bg-green-500 border-green-400';
       case 'current': return 'bg-primary border-primary animate-pulse';
       case 'skipped': return 'bg-red-500/60 border-red-400';
-      case 'locked': return 'bg-white/20 border-white/30';
+      case 'locked': return 'bg-muted border-muted-foreground/30';
     }
   };
 
@@ -55,7 +55,7 @@ export function RoutineTimeline({
     const status = getStepStatus(stepId, index);
     if (status === 'completed') return 'bg-green-500';
     if (status === 'skipped') return 'bg-red-500/60';
-    return 'bg-white/20';
+    return 'bg-muted-foreground/30';
   };
 
   return (

@@ -41,6 +41,10 @@ export function LearnStep({ completed, notes, onComplete, onNotesChange, onNext 
 
   const handleNotesChange = (value: string) => {
     setLocalNotes(value);
+    // Save notes immediately so they persist when user returns
+    if (value.trim()) {
+      onNotesChange(value);
+    }
   };
 
   return (

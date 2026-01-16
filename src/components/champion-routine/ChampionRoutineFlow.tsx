@@ -206,7 +206,7 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
     case 'hydration':
       return log.water_drunk === true;
     case 'meditation':
-      return (log.meditation_duration_seconds || 0) >= 600; // 10 minutes
+      return (log.meditation_duration_seconds || 0) >= 300; // 5 minutes
     case 'autosuggestion':
       return log.autosuggestion_completed === true;
     case 'visionDeclaration':

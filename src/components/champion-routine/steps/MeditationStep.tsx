@@ -253,7 +253,7 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
           </div>
           <h1 className="text-3xl font-bold">Meditație</h1>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Minimum 10 minute de prezență și liniște.
+            Minimum 5 minute de prezență și liniște.
           </p>
         </div>
 
@@ -316,14 +316,14 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
                   <p className="text-5xl font-mono font-bold text-foreground">
                     {formatTime(isRunning ? seconds : totalTime)}
                   </p>
-                  {isRunning && (
-                    <p className="text-xs text-purple-400 mt-1">
-                      {remainingForMinimum > 0 
-                        ? `${formatTime(remainingForMinimum)} pentru 10 min`
-                        : '✓ 10 min atinse!'
-                      }
-                    </p>
-                  )}
+                    {isRunning && (
+                      <p className="text-xs text-purple-400 mt-1">
+                        {remainingForMinimum > 0 
+                          ? `${formatTime(remainingForMinimum)} pentru 5 min`
+                          : '✓ 5 min atinse!'
+                        }
+                      </p>
+                    )}
                   {!isRunning && savedDuration > 0 && (
                     <p className="text-xs text-purple-400 mt-1">
                       Total: {formatTime(savedDuration)}
@@ -355,18 +355,18 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
               </div>
             )}
 
-            {/* Minimum requirement notice */}
-            {!hasMinimumTime && !isRunning && (
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 mb-4">
-                <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                <div className="text-xs">
-                  <p className="font-medium text-amber-500 mb-1">Minim 10 minute recomandat</p>
-                  <p className="text-muted-foreground">
-                    Pentru a beneficia de efectele meditației, practică cel puțin 10 minute.
-                  </p>
+              {/* Minimum requirement notice */}
+              {!hasMinimumTime && !isRunning && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 mb-4">
+                  <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-xs">
+                    <p className="font-medium text-amber-500 mb-1">Minim 5 minute recomandat</p>
+                    <p className="text-muted-foreground">
+                      Pentru a beneficia de efectele meditației, practică cel puțin 5 minute.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Action buttons */}
             <div className="flex flex-col gap-3">
