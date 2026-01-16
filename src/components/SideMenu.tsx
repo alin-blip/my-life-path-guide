@@ -118,9 +118,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       path: '/game-vision',
       subItems: [
         { title: language === 'ro' ? 'Harta Realității' : 'Reality Map', icon: Map, path: '/fact-maps?category=foundation' },
-        { title: 'Annual Goals - Impossible Game', icon: Sparkles, path: '/door?tab=annual' },
-        { title: language === 'ro' ? 'Planuri 90 Zile' : '90-Day Plans', icon: Calendar, path: '/door?tab=quarterly' },
-        { title: language === 'ro' ? 'Obiective Lunare' : 'Monthly Goals', icon: Flag, path: '/door?tab=monthly' },
+        { title: 'Annual Goals - Impossible Game', icon: Sparkles, path: '/game-objectives?tab=annual' },
+        { title: language === 'ro' ? 'Planuri 90 Zile' : '90-Day Plans', icon: Calendar, path: '/game-objectives?tab=quarterly' },
+        { title: language === 'ro' ? 'Obiective Lunare' : 'Monthly Goals', icon: Flag, path: '/game-objectives?tab=monthly' },
       ]
     },
 
