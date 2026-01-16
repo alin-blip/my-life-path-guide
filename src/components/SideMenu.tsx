@@ -165,7 +165,20 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       badge: 'NEW'
     },
 
-    // 10. COMUNITATE
+    // 10. BROTHERHOOD
+    {
+      title: '⚔️ Brotherhood',
+      icon: Users,
+      path: '/brotherhood',
+      subItems: [
+        { title: 'Feed', icon: Flame, path: '/brotherhood?tab=feed' },
+        { title: 'Chat', icon: Heart, path: '/brotherhood?tab=chat' },
+        { title: 'Tribes', icon: Users, path: '/brotherhood?tab=tribes' },
+        { title: language === 'ro' ? 'Membri' : 'Members', icon: Users, path: '/brotherhood?tab=members' },
+      ]
+    },
+
+    // 11. COMUNITATE
     {
       title: language === 'ro' ? '🏅 Comunitate' : '🏅 Community',
       icon: Trophy,

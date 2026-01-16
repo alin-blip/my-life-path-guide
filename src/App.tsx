@@ -82,6 +82,7 @@ const WarriorLaunchAccelerator = lazy(() => import("./pages/WarriorLaunchAcceler
 const WarriorAcceleratorThankYou = lazy(() => import("./pages/WarriorAcceleratorThankYou"));
 const WarriorPower = lazy(() => import("./pages/WarriorPower"));
 const GameObjectives = lazy(() => import("./pages/GameObjectives"));
+const Brotherhood = lazy(() => import("./pages/Brotherhood"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -354,6 +355,11 @@ const App = () => (
                     <Route path="/game-objectives" element={
                       <ProtectedRoute>
                         <GameObjectives />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/brotherhood" element={
+                      <ProtectedRoute>
+                        <Brotherhood />
                       </ProtectedRoute>
                     } />
                         <Route path="*" element={<NotFound />} />
