@@ -55,21 +55,44 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             exact unde te afli în cele 4 dimensiuni esențiale ale vieții tale.
           </motion.p>
 
-          {/* Video Placeholder */}
+          {/* Video Section */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="relative max-w-2xl mx-auto mb-12 rounded-2xl overflow-hidden shadow-2xl"
+            className="relative max-w-2xl mx-auto mb-8 rounded-2xl overflow-hidden shadow-2xl"
           >
-            <div className="aspect-video bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-primary/30 transition-colors">
-                  <Play className="h-8 w-8 text-primary ml-1" />
-                </div>
-                <p className="text-muted-foreground">Video de Prezentare</p>
-              </div>
+            <div className="aspect-video">
+              <iframe 
+                src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=6oVu6kyCAORKTCFUVjMMDEd_RjF4161EfwoaJHt4La8Oi1FAQ&videoRatio=1.777778&type=v&skinColor=%232758EB" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen 
+                width="100%" 
+                height="100%"
+                className="rounded-2xl"
+              />
             </div>
+          </motion.div>
+
+          {/* CTA Button after video */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <Button
+              size="lg"
+              onClick={onStart}
+              className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-xl px-10 py-7 shadow-lg hover:shadow-xl transition-all"
+            >
+              Începe Evaluarea Gratuită
+              <ArrowRight className="h-6 w-6" />
+            </Button>
+            <p className="text-sm text-muted-foreground mt-4">
+              ⏱️ Durează doar 5 minute • 100% Gratuit
+            </p>
           </motion.div>
         </div>
       </section>
