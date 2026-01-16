@@ -87,8 +87,16 @@ const WarriorLaunchAccelerator = () => {
       }
 
       if (response.data?.url) {
-        window.location.href = response.data.url;
+        console.log('Stripe checkout URL:', response.data.url);
+        // Use window.open as fallback for iframe environments
+        const stripeUrl = response.data.url;
+        try {
+          window.location.href = stripeUrl;
+        } catch (e) {
+          window.open(stripeUrl, '_blank');
+        }
       } else {
+        console.error('No URL in response:', response.data);
         throw new Error('Nu s-a putut crea sesiunea de checkout');
       }
     } catch (error) {
