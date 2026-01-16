@@ -7,3 +7,4 @@ export { LightExposureStepConfigComponent } from './LightExposureStepConfig';
 export { GratitudeStepConfigComponent } from './GratitudeStepConfig';
 export { VisualizationStepConfigComponent } from './VisualizationStepConfig';
 export { JournalingStepConfigComponent } from './JournalingStepConfig';
+export { LearnStepConfigComponent } from './LearnStepConfig';

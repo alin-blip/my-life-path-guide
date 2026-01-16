@@ -13,7 +13,8 @@ import {
   LightExposureStepConfigComponent,
   GratitudeStepConfigComponent,
   VisualizationStepConfigComponent,
-  JournalingStepConfigComponent 
+  JournalingStepConfigComponent,
+  LearnStepConfigComponent
 } from './config';
 import { toast } from 'sonner';
 import { CORE4_STEPS } from './RoutineSetupWizard';
@@ -43,7 +44,7 @@ export const ALL_STEPS = [
   { id: 'reading', label: 'Citit', icon: FileText, category: 'being', hasConfig: true, isCore4: false },
   { id: 'exercise', label: 'Exerciții', icon: Dumbbell, category: 'body', hasConfig: true, isCore4: true },
   { id: 'mealPlanning', label: 'Meal Planning', icon: Utensils, category: 'body', hasConfig: false, isCore4: true },
-  { id: 'learn', label: 'Învață', icon: FileText, category: 'business', hasConfig: false, isCore4: true },
+  { id: 'learn', label: 'Învață', icon: FileText, category: 'business', hasConfig: true, isCore4: true },
   { id: 'apply', label: 'Aplică/Predă', icon: FileText, category: 'business', hasConfig: false, isCore4: true },
   { id: 'contentCreation', label: 'Content Creation', icon: FileText, category: 'business', hasConfig: false, isCore4: false },
   { id: 'dailyTasks', label: 'Daily Tasks', icon: ListTodo, category: 'business', hasConfig: false, isCore4: false },
@@ -241,6 +242,10 @@ export function StepsOrderEditor({
       />
       <JournalingStepConfigComponent 
         open={configDialogOpen === 'journaling'} 
+        onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
+      />
+      <LearnStepConfigComponent 
+        open={configDialogOpen === 'learn'} 
         onOpenChange={(open) => !open && setConfigDialogOpen(null)} 
       />
     </div>
