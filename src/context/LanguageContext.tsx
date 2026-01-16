@@ -1526,7 +1526,7 @@ export const LanguageProvider: React.FC<{
   }, [userId]);
 
   const t = useCallback((key: string): string => {
-    return translations[language][key] || translations['en'][key] || key;
+    return translations[language][key] || translations['ro'][key] || key;
   }, [language]);
 
   return (
