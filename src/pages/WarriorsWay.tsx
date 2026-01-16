@@ -440,7 +440,7 @@ const WarriorsWay: React.FC = () => {
               moduleOrder={currentModule?.order}
               videoUrl={(currentModule as any)?.videoUrl}
               onClose={handleCloseVideo}
-              onComplete={() => markModuleComplete(selectedModule)}
+              onComplete={async () => { await markModuleComplete(selectedModule); }}
               hasPrevious={!!previousModule}
               hasNext={!!nextModule && canGoNext}
               onPrevious={() => previousModule && setSelectedModule(previousModule.id)}
