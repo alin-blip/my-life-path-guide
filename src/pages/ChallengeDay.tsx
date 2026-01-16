@@ -92,14 +92,14 @@ const challengeContent: ChallengeDayContent[] = [
     ],
     exercisesEn: [
       { id: "ex1", title: "Explore Dashboard", description: "Visit the main dashboard and familiarize yourself with the layout", link: "/dashboard", linkLabel: "Open Dashboard" },
-      { id: "ex2", title: "Life Design Blueprint", description: "Open the Life Vision section and see the 12 categories", area: "being", link: "/lifebook", linkLabel: "Open Life Design" },
+      { id: "ex2", title: "Annual Objectives", description: "Open the Annual Objectives section and set your goals for Body, Being, Balance & Business", area: "being", link: "/door?tab=annual", linkLabel: "Open Annual Goals" },
       { id: "ex3", title: "Fitness Hub Preview", description: "Check out the workout and nutrition tracking features", area: "body", link: "/fitness", linkLabel: "Open Fitness Hub" },
       { id: "ex4", title: "Champion Routine", description: "Preview the morning routine configuration", area: "being", link: "/champion-routine", linkLabel: "Open Champion Routine" },
       { id: "ex5", title: "Stack Explorer", description: "Browse the AI-powered coaching stacks", area: "business", link: "/stack", linkLabel: "Open Stacks" }
     ],
     exercisesRo: [
       { id: "ex1", title: "Explorează Dashboard", description: "Vizitează dashboard-ul principal și familiarizează-te cu layout-ul", link: "/dashboard", linkLabel: "Deschide Dashboard" },
-      { id: "ex2", title: "Life Design Blueprint", description: "Deschide secțiunea Viziune de Viață și vezi cele 12 categorii", area: "being", link: "/lifebook", linkLabel: "Deschide Life Design" },
+      { id: "ex2", title: "Obiective Anuale", description: "Deschide secțiunea Obiective Anuale și setează obiectivele pentru Corp, Spirit, Relații & Business", area: "being", link: "/door?tab=annual", linkLabel: "Deschide Obiective Anuale" },
       { id: "ex3", title: "Fitness Hub Preview", description: "Verifică funcționalitățile de tracking pentru workout și nutriție", area: "body", link: "/fitness", linkLabel: "Deschide Fitness Hub" },
       { id: "ex4", title: "Champion Routine", description: "Previzualizează configurarea rutinei matinale", area: "being", link: "/champion-routine", linkLabel: "Deschide Champion Routine" },
       { id: "ex5", title: "Stack Explorer", description: "Răsfoiește stack-urile de coaching cu AI", area: "business", link: "/stack", linkLabel: "Deschide Stack-uri" }
@@ -116,7 +116,7 @@ const challengeContent: ChallengeDayContent[] = [
     videoPlaceholder: "🎬 Video: Setting Your Body & Being Goals for 2026 (Coming Soon)",
     icon: Target,
     color: "from-green-500 to-purple-500",
-    actionPath: "/lifebook",
+    actionPath: "/door?tab=annual",
     focusAreas: ['body', 'being'],
     stepsEn: [
       "Watch the video about Body & Being goal setting",
@@ -135,16 +135,16 @@ const challengeContent: ChallengeDayContent[] = [
       "Creează obiective specifice și măsurabile pentru fiecare arie"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Body Vision", description: "Complete the Health & Fitness category in Life Design Blueprint", area: "body", link: "/lifebook", linkLabel: "Open Life Design" },
+      { id: "ex1", title: "Body Annual Goal", description: "Set your annual Health & Fitness objectives in the Command Center", area: "body", link: "/door?tab=annual", linkLabel: "Set Body Goals" },
       { id: "ex2", title: "Annual Body Goal", description: "Set 1 major body/fitness goal for 2026 (e.g., lose 10kg, run marathon)", area: "body" },
-      { id: "ex3", title: "Being Vision", description: "Complete the Spirituality & Purpose category", area: "being", link: "/lifebook", linkLabel: "Open Life Design" },
+      { id: "ex3", title: "Being Annual Goal", description: "Set your annual Spirituality & Purpose objectives", area: "being", link: "/door?tab=annual", linkLabel: "Set Being Goals" },
       { id: "ex4", title: "Annual Being Goal", description: "Set 1 major spiritual/purpose goal for 2026 (e.g., daily meditation, find purpose)", area: "being" },
       { id: "ex5", title: "Vision 2026 Entry", description: "Add your Body & Being goals to Vision 2026", area: "being", link: "/vision-2026/dashboard", linkLabel: "Open Vision 2026" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Viziune Corp", description: "Completează categoria Sănătate & Fitness în Life Design Blueprint", area: "body", link: "/lifebook", linkLabel: "Deschide Life Design" },
+      { id: "ex1", title: "Obiectiv Anual Corp", description: "Setează obiectivele anuale de Sănătate & Fitness în Centrul de Comandă", area: "body", link: "/door?tab=annual", linkLabel: "Setează Obiective Corp" },
       { id: "ex2", title: "Obiectiv Anual Corp", description: "Setează 1 obiectiv major de corp/fitness pentru 2026 (ex: slăbește 10kg, aleargă maraton)", area: "body" },
-      { id: "ex3", title: "Viziune Spirit", description: "Completează categoria Spiritualitate & Scop", area: "being", link: "/lifebook", linkLabel: "Deschide Life Design" },
+      { id: "ex3", title: "Obiectiv Anual Spirit", description: "Setează obiectivele anuale de Spiritualitate & Scop", area: "being", link: "/door?tab=annual", linkLabel: "Setează Obiective Spirit" },
       { id: "ex4", title: "Obiectiv Anual Spirit", description: "Setează 1 obiectiv major spiritual pentru 2026 (ex: meditație zilnică, găsește scopul)", area: "being" },
       { id: "ex5", title: "Intrare Vision 2026", description: "Adaugă obiectivele Corp & Spirit în Vision 2026", area: "being", link: "/vision-2026/dashboard", linkLabel: "Deschide Vision 2026" }
     ]
@@ -160,7 +160,7 @@ const challengeContent: ChallengeDayContent[] = [
     videoPlaceholder: "🎬 Video: Setting Your Balance & Business Goals for 2026 (Coming Soon)",
     icon: Target,
     color: "from-pink-500 to-blue-500",
-    actionPath: "/lifebook",
+    actionPath: "/door?tab=annual",
     focusAreas: ['balance', 'business'],
     stepsEn: [
       "Watch the video about Balance & Business goal setting",
@@ -179,16 +179,16 @@ const challengeContent: ChallengeDayContent[] = [
       "Revizuiește toți 4 pilonii pentru completitudine"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Balance Vision", description: "Complete the Love & Relationships category in Life Design Blueprint", area: "balance", link: "/lifebook", linkLabel: "Open Life Design" },
+      { id: "ex1", title: "Balance Annual Goal", description: "Set your annual Relationships & Love objectives in the Command Center", area: "balance", link: "/door?tab=annual", linkLabel: "Set Balance Goals" },
       { id: "ex2", title: "Annual Relationship Goal", description: "Set 1 major relationship goal for 2026 (e.g., improve marriage, connect with family)", area: "balance" },
-      { id: "ex3", title: "Business Vision", description: "Complete the Career & Business category", area: "business", link: "/lifebook", linkLabel: "Open Life Design" },
+      { id: "ex3", title: "Business Annual Goal", description: "Set your annual Career & Business objectives", area: "business", link: "/door?tab=annual", linkLabel: "Set Business Goals" },
       { id: "ex4", title: "Annual Business Goal", description: "Set 1 major business/career goal for 2026 (e.g., earn X, promotion, start business)", area: "business" },
       { id: "ex5", title: "Complete Vision 2026", description: "Add Balance & Business goals to complete your 2026 vision", area: "business", link: "/vision-2026/dashboard", linkLabel: "Open Vision 2026" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Viziune Relații", description: "Completează categoria Dragoste & Relații în Life Design Blueprint", area: "balance", link: "/lifebook", linkLabel: "Deschide Life Design" },
+      { id: "ex1", title: "Obiectiv Anual Relații", description: "Setează obiectivele anuale de Relații & Dragoste în Centrul de Comandă", area: "balance", link: "/door?tab=annual", linkLabel: "Setează Obiective Relații" },
       { id: "ex2", title: "Obiectiv Anual Relații", description: "Setează 1 obiectiv major de relații pentru 2026 (ex: îmbunătățește căsnicia, conectează-te cu familia)", area: "balance" },
-      { id: "ex3", title: "Viziune Business", description: "Completează categoria Carieră & Business", area: "business", link: "/lifebook", linkLabel: "Deschide Life Design" },
+      { id: "ex3", title: "Obiectiv Anual Business", description: "Setează obiectivele anuale de Carieră & Business", area: "business", link: "/door?tab=annual", linkLabel: "Setează Obiective Business" },
       { id: "ex4", title: "Obiectiv Anual Business", description: "Setează 1 obiectiv major de business pentru 2026 (ex: câștigă X, promovare, începe afacere)", area: "business" },
       { id: "ex5", title: "Completează Vision 2026", description: "Adaugă obiectivele Relații & Business pentru a completa viziunea 2026", area: "business", link: "/vision-2026/dashboard", linkLabel: "Deschide Vision 2026" }
     ]

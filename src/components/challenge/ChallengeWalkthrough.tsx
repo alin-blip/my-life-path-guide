@@ -65,12 +65,12 @@ const walkthroughSteps: WalkthroughStep[] = [
     color: 'from-amber-500 to-orange-500'
   },
   {
-    icon: BookOpen,
-    titleEn: 'Lifebook',
-    titleRo: 'Cartea Vieții',
-    descriptionEn: 'Your complete life design blueprint. Document your vision, strategy, and purpose across all 12 life categories through guided conversations.',
-    descriptionRo: 'Planul tău complet de design al vieții. Documentează-ți viziunea, strategia și scopul în toate cele 12 categorii ale vieții prin conversații ghidate.',
-    path: '/lifebook',
+    icon: Target,
+    titleEn: 'Annual Objectives',
+    titleRo: 'Obiective Anuale',
+    descriptionEn: 'Set your annual goals for Body, Being, Balance & Business. Track your progress across all 4 pillars in the Command Center.',
+    descriptionRo: 'Setează obiectivele anuale pentru Corp, Spirit, Relații & Business. Urmărește progresul în toți cei 4 piloni în Centrul de Comandă.',
+    path: '/door?tab=annual',
     color: 'from-indigo-500 to-purple-500'
   },
   {
