@@ -17,6 +17,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
+import { trackPurchase } from '@/lib/facebook-pixel';
 
 const WarriorAcceleratorThankYou = () => {
   const [searchParams] = useSearchParams();
@@ -63,6 +64,8 @@ const WarriorAcceleratorThankYou = () => {
 
         if (!error) {
           setPurchaseRecorded(true);
+          // Track Facebook Pixel Purchase event - €970 for Warrior Accelerator
+          trackPurchase(970, 'EUR');
         }
       } catch (err) {
         console.error('Error recording purchase:', err);
