@@ -18,7 +18,8 @@ import { getWeek } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
 import { weeklyPlanningService, WeeklyPlanningData } from '@/services/weeklyPlanningService';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
-import { ListTodo, Target, CheckSquare, MoreHorizontal, Undo2, Redo2, History, Trash2 } from 'lucide-react';
+import { ListTodo, Target, CheckSquare, MoreHorizontal, Undo2, Redo2, History, Trash2, Brain, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -40,6 +41,7 @@ export const WeeklySection: React.FC = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { language } = useLanguage();
+  const navigate = useNavigate();
 
   // Check if user is new
   useEffect(() => {
@@ -355,8 +357,20 @@ export const WeeklySection: React.FC = () => {
               onSelectDate={navigateToDate}
             />
             
-            {/* Right: Actions dropdown */}
+            {/* Right: Actions */}
             <div className="flex items-center gap-2">
+              {/* Start Deep Work Button */}
+              <Button 
+                onClick={() => navigate('/focus')}
+                variant="default"
+                size="sm"
+                className="gap-2"
+              >
+                <Brain className="h-4 w-4" />
+                Start Deep Work
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              
               {/* Progress indicator - minimal */}
               {totalTasks > 0 && (
                 <span className="text-sm text-muted-foreground bg-muted px-3 py-1.5 rounded-lg">

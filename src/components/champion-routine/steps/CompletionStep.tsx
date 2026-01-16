@@ -268,7 +268,11 @@ export function CompletionStep({
           {/* Actions */}
           <div className="flex flex-col gap-3">
             <Button 
-              onClick={() => navigate('/dashboard')} 
+              onClick={() => {
+                // Dispatch event to refresh dashboard data
+                window.dispatchEvent(new CustomEvent('progressUpdated'));
+                navigate('/dashboard');
+              }} 
               size="lg" 
               className="w-full gap-2"
             >
