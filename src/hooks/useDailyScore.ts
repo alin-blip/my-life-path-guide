@@ -54,165 +54,173 @@ export const useDailyScore = () => {
   const [loading, setLoading] = useState(true);
 
   // Fetch additional data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) {
-          setLoading(false);
-          return;
-        }
+  const fetchData = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        setLoading(false);
+        return;
+      }
 
-        const today = new Date().toISOString().split('T')[0];
-        const userId = session.user.id;
+      const today = new Date().toISOString().split('T')[0];
+      const userId = session.user.id;
 
-        // Fetch Champion Routine status
-        const { data: routineData } = await supabase
-          .from('champion_routine_logs')
-          .select('*')
+      // Fetch Champion Routine status
+      const { data: routineData } = await supabase
+        .from('champion_routine_logs')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('date', today)
+        .maybeSingle();
+
+      if (routineData) {
+        // Count completed routine steps
+        let completedSteps = 0;
+        const totalSteps = 10;
+        
+        if (routineData.water_drunk) completedSteps++;
+        if (routineData.breathing_completed) completedSteps++;
+        if ((routineData.meditation_duration_seconds || 0) >= 600) completedSteps++;
+        
+        // Handle gratitude_items as Json type
+        const gratitudeItems = routineData.gratitude_items as string[] | null;
+        if (Array.isArray(gratitudeItems) && gratitudeItems.some((i: string) => i?.trim())) completedSteps++;
+        
+        if (routineData.autosuggestion_completed) completedSteps++;
+        if (routineData.visualization_completed) completedSteps++;
+        if (routineData.exercise_completed) completedSteps++;
+        
+        // Handle meals_logged as Json type
+        const mealsLogged = routineData.meals_logged as any[] | null;
+        if (Array.isArray(mealsLogged) && mealsLogged.length > 0) completedSteps++;
+        
+        if (routineData.content_script || (routineData.pomodoro_sessions || 0) > 0) completedSteps++;
+        
+        // Handle relationship_actions as Json type
+        const relationshipActions = routineData.relationship_actions as any[] | null;
+        if (Array.isArray(relationshipActions) && relationshipActions.some((a: any) => a?.completed)) completedSteps++;
+        
+        // Consider routine complete if at least 70% of steps are done
+        const routineComplete = completedSteps >= Math.floor(totalSteps * 0.7);
+        setRoutineCompleted(routineComplete);
+      }
+
+      // Fetch Big One for today - Priority order:
+      // 1. champion_routine_logs.big_one_today (explicit set today)
+      // 2. weekly_planning.domino_title (Domino Door for this week)
+      // 3. weekly_planning.key_points (first incomplete key point)
+      // 4. user_tasks with is_key_point=true
+      
+      let bigOneFound = false;
+      
+      // 1. Check champion_routine_logs for today's explicit Big One
+      if (routineData?.big_one_today) {
+        setBigOne({
+          text: routineData.big_one_today,
+          completed: false,
+          id: undefined
+        });
+        bigOneFound = true;
+      }
+      
+      if (!bigOneFound) {
+        // 2 & 3. Check weekly_planning for Domino Door or Key Points
+        const weekKey = getWeekKey();
+        const { data: weeklyPlan } = await supabase
+          .from('weekly_planning')
+          .select('domino_title, key_points')
           .eq('user_id', userId)
-          .eq('date', today)
+          .eq('week_key', weekKey)
           .maybeSingle();
-
-        if (routineData) {
-          // Count completed routine steps
-          let completedSteps = 0;
-          const totalSteps = 10;
-          
-          if (routineData.water_drunk) completedSteps++;
-          if (routineData.breathing_completed) completedSteps++;
-          if ((routineData.meditation_duration_seconds || 0) >= 600) completedSteps++;
-          
-          // Handle gratitude_items as Json type
-          const gratitudeItems = routineData.gratitude_items as string[] | null;
-          if (Array.isArray(gratitudeItems) && gratitudeItems.some((i: string) => i?.trim())) completedSteps++;
-          
-          if (routineData.autosuggestion_completed) completedSteps++;
-          if (routineData.visualization_completed) completedSteps++;
-          if (routineData.exercise_completed) completedSteps++;
-          
-          // Handle meals_logged as Json type
-          const mealsLogged = routineData.meals_logged as any[] | null;
-          if (Array.isArray(mealsLogged) && mealsLogged.length > 0) completedSteps++;
-          
-          if (routineData.content_script || (routineData.pomodoro_sessions || 0) > 0) completedSteps++;
-          
-          // Handle relationship_actions as Json type
-          const relationshipActions = routineData.relationship_actions as any[] | null;
-          if (Array.isArray(relationshipActions) && relationshipActions.some((a: any) => a?.completed)) completedSteps++;
-          
-          // Consider routine complete if at least 70% of steps are done
-          const routineComplete = completedSteps >= Math.floor(totalSteps * 0.7);
-          setRoutineCompleted(routineComplete);
-        }
-
-        // Fetch Big One for today - Priority order:
-        // 1. champion_routine_logs.big_one_today (explicit set today)
-        // 2. weekly_planning.domino_title (Domino Door for this week)
-        // 3. weekly_planning.key_points (first incomplete key point)
-        // 4. user_tasks with is_key_point=true
         
-        let bigOneFound = false;
-        
-        // 1. Check champion_routine_logs for today's explicit Big One
-        if (routineData?.big_one_today) {
+        if (weeklyPlan?.domino_title) {
           setBigOne({
-            text: routineData.big_one_today,
+            text: weeklyPlan.domino_title,
             completed: false,
             id: undefined
           });
           bigOneFound = true;
-        }
-        
-        if (!bigOneFound) {
-          // 2 & 3. Check weekly_planning for Domino Door or Key Points
-          const weekKey = getWeekKey();
-          const { data: weeklyPlan } = await supabase
-            .from('weekly_planning')
-            .select('domino_title, key_points')
-            .eq('user_id', userId)
-            .eq('week_key', weekKey)
-            .maybeSingle();
-          
-          if (weeklyPlan?.domino_title) {
+        } else if (weeklyPlan?.key_points && Array.isArray(weeklyPlan.key_points)) {
+          const keyPoints = weeklyPlan.key_points as { title: string; completed?: boolean }[];
+          const firstIncomplete = keyPoints.find(kp => !kp.completed);
+          if (firstIncomplete?.title) {
             setBigOne({
-              text: weeklyPlan.domino_title,
+              text: firstIncomplete.title,
               completed: false,
               id: undefined
             });
             bigOneFound = true;
-          } else if (weeklyPlan?.key_points && Array.isArray(weeklyPlan.key_points)) {
-            const keyPoints = weeklyPlan.key_points as { title: string; completed?: boolean }[];
-            const firstIncomplete = keyPoints.find(kp => !kp.completed);
-            if (firstIncomplete?.title) {
-              setBigOne({
-                text: firstIncomplete.title,
-                completed: false,
-                id: undefined
-              });
-              bigOneFound = true;
-            }
           }
         }
-        
-        if (!bigOneFound) {
-          // 4. Fallback to user_tasks with is_key_point=true
-          const { data: bigOneData } = await supabase
-            .from('user_tasks')
-            .select('*')
-            .eq('user_id', userId)
-            .eq('is_key_point', true)
-            .eq('day', today)
-            .maybeSingle();
-
-          if (bigOneData) {
-            setBigOne({
-              text: bigOneData.title,
-              completed: bigOneData.completed || false,
-              id: bigOneData.id
-            });
-          }
-        }
-
-        // Fetch reading progress for today
-        const { data: readingData } = await supabase
-          .from('book_reading_progress')
+      }
+      
+      if (!bigOneFound) {
+        // 4. Fallback to user_tasks with is_key_point=true
+        const { data: bigOneData } = await supabase
+          .from('user_tasks')
           .select('*')
           .eq('user_id', userId)
-          .eq('read_at', today)
+          .eq('is_key_point', true)
+          .eq('day', today)
           .maybeSingle();
 
-        setReadingCompleted(!!readingData);
-
-        // Fetch streak and XP
-        const { data: xpData } = await supabase
-          .from('user_xp')
-          .select('current_level, total_xp')
-          .eq('user_id', userId)
-          .maybeSingle();
-
-        if (xpData) {
-          setXpLevel(xpData.current_level);
+        if (bigOneData) {
+          setBigOne({
+            text: bigOneData.title,
+            completed: bigOneData.completed || false,
+            id: bigOneData.id
+          });
         }
-
-        const { data: statsData } = await supabase
-          .from('user_statistics')
-          .select('current_streak')
-          .eq('user_id', userId)
-          .maybeSingle();
-
-        if (statsData) {
-          setStreak(statsData.current_streak || 0);
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching daily score data:', error);
-        setLoading(false);
       }
-    };
 
+      // Fetch reading progress for today
+      const { data: readingData } = await supabase
+        .from('book_reading_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('read_at', today)
+        .maybeSingle();
+
+      setReadingCompleted(!!readingData);
+
+      // Fetch streak and XP
+      const { data: xpData } = await supabase
+        .from('user_xp')
+        .select('current_level, total_xp')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (xpData) {
+        setXpLevel(xpData.current_level);
+      }
+
+      const { data: statsData } = await supabase
+        .from('user_statistics')
+        .select('current_streak')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (statsData) {
+        setStreak(statsData.current_streak || 0);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching daily score data:', error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
+    
+    // Listen for progress updates from other components
+    const handleProgressUpdate = () => {
+      fetchData();
+    };
+    
+    window.addEventListener('progressUpdated', handleProgressUpdate);
+    return () => window.removeEventListener('progressUpdated', handleProgressUpdate);
   }, []);
 
   // Calculate Core 4 progress for today
@@ -382,9 +390,7 @@ export const useDailyScore = () => {
 
   const refetch = useCallback(async () => {
     setLoading(true);
-    // Re-trigger the useEffect
-    const event = new CustomEvent('progressUpdated');
-    window.dispatchEvent(event);
+    await fetchData();
   }, []);
 
   return {

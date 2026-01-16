@@ -270,9 +270,12 @@ export const DailyCommandCenterWidget: React.FC = () => {
             <Progress value={totalScore} className="h-2" />
           </div>
 
-          {/* Big One Section */}
+          {/* Big One Section - Clickable to Focus Room */}
           {bigOne.text && (
-            <div className="mb-4 p-3 rounded-lg bg-background/50 border border-border/50">
+            <div 
+              className="mb-4 p-3 rounded-lg bg-background/50 border border-border/50 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all group"
+              onClick={() => navigate('/focus')}
+            >
               <div className="flex items-start gap-2">
                 <Star className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
@@ -289,7 +292,7 @@ export const DailyCommandCenterWidget: React.FC = () => {
                 {bigOne.completed ? (
                   <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
                 ) : (
-                  <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
                 )}
               </div>
             </div>
