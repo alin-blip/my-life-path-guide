@@ -423,7 +423,7 @@ export const QuarterlyGoalsTab: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
+      <div className="p-2 sm:p-6 space-y-3 sm:space-y-4">
         {[1, 2, 3, 4].map(i => (
           <div key={i} className="h-48 bg-muted animate-pulse rounded-xl" />
         ))}
@@ -432,54 +432,54 @@ export const QuarterlyGoalsTab: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
-      {/* Quarter Navigation */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-2 sm:p-6">
+      {/* Quarter Navigation - Mobile optimized */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-lg sm:text-2xl font-bold text-foreground">
             {language === 'en' ? '90-Day Goals' : 'Obiective 90 Zile'}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-xs sm:text-base text-muted-foreground hidden sm:block">
             {language === 'en' ? 'Focus on what matters most this quarter' : 'Concentrează-te pe ce contează cel mai mult în acest trimestru'}
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={handlePreviousQuarter}>
-            <ChevronLeft className="w-5 h-5" />
+        <div className="flex items-center justify-center gap-2 sm:gap-4">
+          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={handlePreviousQuarter}>
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
           
-          <div className="text-center min-w-[120px]">
-            <div className="text-lg font-bold text-foreground">Q{currentQuarter} {currentYear}</div>
-            <div className="text-sm text-muted-foreground">{getQuarterMonths()}</div>
+          <div className="text-center min-w-[90px] sm:min-w-[120px]">
+            <div className="text-base sm:text-lg font-bold text-foreground">Q{currentQuarter} {currentYear}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">{getQuarterMonths()}</div>
           </div>
           
-          <Button variant="ghost" size="icon" onClick={handleNextQuarter}>
-            <ChevronRight className="w-5 h-5" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={handleNextQuarter}>
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
         </div>
       </div>
 
       {/* View Mode Toggle */}
-      <div className="flex items-center justify-end mb-4">
-        <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+      <div className="flex items-center justify-end mb-3 sm:mb-4">
+        <div className="flex items-center gap-0.5 sm:gap-1 p-0.5 sm:p-1 bg-muted rounded-lg">
           <Button
             variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
             size="sm"
-            className="gap-2"
+            className="gap-1 sm:gap-2 h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
             onClick={() => setViewMode('grid')}
           >
-            <LayoutGrid className="w-4 h-4" />
-            {language === 'en' ? 'Grid' : 'Grilă'}
+            <LayoutGrid className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">{language === 'en' ? 'Grid' : 'Grilă'}</span>
           </Button>
           <Button
             variant={viewMode === 'hierarchy' ? 'secondary' : 'ghost'}
             size="sm"
-            className="gap-2"
+            className="gap-1 sm:gap-2 h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
             onClick={() => setViewMode('hierarchy')}
           >
-            <GitBranch className="w-4 h-4" />
-            {language === 'en' ? 'Hierarchy' : 'Ierarhie'}
+            <GitBranch className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">{language === 'en' ? 'Hierarchy' : 'Ierarhie'}</span>
           </Button>
         </div>
       </div>
@@ -493,7 +493,7 @@ export const QuarterlyGoalsTab: React.FC = () => {
       ) : (
         <>
           {/* Category Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
         {Object.entries(CATEGORY_CONFIG).map(([key, config]) => {
           const categoryGoals = getCategoryGoals(key);
           const Icon = config.icon;
@@ -509,31 +509,31 @@ export const QuarterlyGoalsTab: React.FC = () => {
                 config.borderColor
               )}
             >
-              <CardHeader className={cn("bg-gradient-to-r", config.gradient)}>
+              <CardHeader className={cn("bg-gradient-to-r p-3 sm:p-6", config.gradient)}>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={cn("p-2.5 rounded-xl", config.bgColor)}>
-                      <Icon className={cn("w-6 h-6", config.color)} />
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className={cn("p-2 sm:p-2.5 rounded-lg sm:rounded-xl", config.bgColor)}>
+                      <Icon className={cn("w-5 h-5 sm:w-6 sm:h-6", config.color)} />
                     </div>
                     <div>
-                      <CardTitle className="text-xl">
+                      <CardTitle className="text-base sm:text-xl">
                         {config.label[language === 'en' ? 'en' : 'ro']}
                       </CardTitle>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                         {config.description[language === 'en' ? 'en' : 'ro']}
                       </p>
                     </div>
                   </div>
                   
-                  <Badge variant="secondary" className={cn("text-lg px-3 py-1", config.bgColor, config.color)}>
+                  <Badge variant="secondary" className={cn("text-sm sm:text-lg px-2 sm:px-3 py-0.5 sm:py-1", config.bgColor, config.color)}>
                     {avgProgress}%
                   </Badge>
                 </div>
                 
-                <Progress value={avgProgress} className="h-2 mt-3" />
+                <Progress value={avgProgress} className="h-1.5 sm:h-2 mt-2 sm:mt-3" />
               </CardHeader>
 
-              <CardContent className="p-4 space-y-3">
+              <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
                 {categoryGoals.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Target className="w-10 h-10 mx-auto mb-2 opacity-30" />

@@ -339,7 +339,7 @@ export const AnnualVisionTab: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="p-2 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
         {[1, 2, 3, 4].map(i => (
           <div key={i} className="h-72 bg-muted animate-pulse rounded-xl" />
         ))}
@@ -348,7 +348,7 @@ export const AnnualVisionTab: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-2 sm:p-6">
       {/* Welcome from Warrior Power */}
       {showWelcome && (
         <Card className="mb-6 bg-gradient-to-r from-primary/10 via-background to-accent/10 border-primary/30">
