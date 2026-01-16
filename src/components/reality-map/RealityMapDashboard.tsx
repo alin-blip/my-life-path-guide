@@ -147,26 +147,26 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-8">
-      <div className="container max-w-6xl mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-6 sm:py-8 overflow-x-hidden">
+      <div className="w-full max-w-6xl mx-auto px-3 sm:px-4 overflow-x-hidden">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-            <Trophy className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+            <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
             Harta Ta Completă
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
             <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
               Harta Realității
             </span>
           </h1>
           
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
             Vizualizează scorurile tale în cele 4 dimensiuni ale vieții și identifică zonele de îmbunătățire.
           </p>
         </motion.div>
@@ -179,52 +179,52 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
           className="mb-8"
         >
           <Card className={cn(
-            "p-6 border-2 bg-gradient-to-br",
+            "p-4 sm:p-6 border-2 bg-gradient-to-br overflow-hidden",
             overallConfig?.bg,
             overallConfig?.border
           )}>
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col items-center gap-4 sm:gap-6">
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full">
                 <div className={cn(
-                  "w-20 h-20 rounded-2xl flex items-center justify-center text-4xl",
+                  "w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0",
                   `bg-gradient-to-br ${overallConfig?.gradient}`,
                   "shadow-lg"
                 )}>
                   {overallConfig?.icon}
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Nivel General</p>
-                  <h2 className={cn("text-3xl font-bold", overallConfig?.text)}>
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Nivel General</p>
+                  <h2 className={cn("text-2xl sm:text-3xl font-bold", overallConfig?.text)}>
                     {overallLevel.toUpperCase()}
                   </h2>
                 </div>
               </div>
               
-              <div className="flex-1 max-w-md">
-                <div className="flex justify-between text-sm mb-2">
+              <div className="w-full max-w-md">
+                <div className="flex justify-between text-xs sm:text-sm mb-2">
                   <span className="text-muted-foreground">Scor Total</span>
                   <span className="font-bold text-foreground">{totalScore}/96</span>
                 </div>
-                <Progress value={totalPercentage} className="h-3 bg-muted" />
-                <p className="text-center text-lg font-bold mt-2 text-foreground">
+                <Progress value={totalPercentage} className="h-2.5 sm:h-3 bg-muted" />
+                <p className="text-center text-base sm:text-lg font-bold mt-2 text-foreground">
                   {Math.round(totalPercentage)}%
                 </p>
               </div>
               
               <Button 
                 onClick={() => onReevaluate()}
-                className="gap-2"
-                size="lg"
+                className="gap-2 w-full sm:w-auto"
+                size="default"
               >
                 <RefreshCw className="w-4 h-4" />
-                Reevaluează Tot
+                <span className="text-sm sm:text-base">Reevaluează Tot</span>
               </Button>
             </div>
           </Card>
         </motion.div>
 
         {/* Dimension Cards Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           {(Object.keys(DIMENSION_CONFIG) as (keyof typeof DIMENSION_CONFIG)[]).map((dimension, idx) => {
             const data = getDimensionData(dimension);
             const Icon = data.config.icon;
@@ -237,46 +237,46 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
                 transition={{ delay: 0.2 + idx * 0.1 }}
               >
                 <Card className={cn(
-                  "p-6 border-2 bg-gradient-to-br hover:shadow-lg transition-all duration-300",
+                  "p-4 sm:p-6 border-2 bg-gradient-to-br hover:shadow-lg transition-all duration-300 overflow-hidden",
                   data.config.gradient,
                   data.config.borderColor
                 )}>
                   {/* Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={cn("p-3 rounded-xl", data.config.bg)}>
-                        <Icon className={cn("w-6 h-6", data.config.color)} />
+                  <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <div className={cn("p-2 sm:p-3 rounded-lg sm:rounded-xl flex-shrink-0", data.config.bg)}>
+                        <Icon className={cn("w-5 h-5 sm:w-6 sm:h-6", data.config.color)} />
                       </div>
-                      <div>
-                        <h3 className={cn("text-xl font-bold", data.config.color)}>
+                      <div className="min-w-0">
+                        <h3 className={cn("text-base sm:text-xl font-bold truncate", data.config.color)}>
                           {data.config.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground">{data.config.subtitle}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">{data.config.subtitle}</p>
                       </div>
                     </div>
                     <div className={cn(
-                      "px-3 py-1.5 rounded-full text-sm font-bold",
+                      "px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold flex-shrink-0 whitespace-nowrap",
                       data.levelConfig?.bg,
                       data.levelConfig?.text
                     )}>
-                      {data.levelConfig?.icon} {data.level.name}
+                      {data.levelConfig?.icon} <span className="hidden xs:inline">{data.level.name}</span>
                     </div>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm mb-1">
+                  <div className="mb-3 sm:mb-4">
+                    <div className="flex justify-between text-xs sm:text-sm mb-1">
                       <span className="text-muted-foreground">Scor Dimensiune</span>
                       <span className="font-bold">{data.totalDimScore}/24</span>
                     </div>
                     <Progress 
                       value={data.percentage} 
-                      className="h-2.5 bg-muted"
+                      className="h-2 sm:h-2.5 bg-muted"
                     />
                   </div>
 
                   {/* Section Scores */}
-                  <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
                     {data.config.sections.map((section, sIdx) => {
                       const sectionScore = sIdx === 0 ? data.score1 : data.score2;
                       const sectionLevel = getLevelForScore(sectionScore);
@@ -286,17 +286,17 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
                         <div 
                           key={section}
                           className={cn(
-                            "p-3 rounded-lg border",
+                            "p-2 sm:p-3 rounded-lg border overflow-hidden",
                             sectionConfig?.bg,
                             sectionConfig?.border
                           )}
                         >
-                          <p className="text-xs text-muted-foreground mb-1">{section}</p>
-                          <div className="flex items-center justify-between">
-                            <span className={cn("font-bold", sectionConfig?.text)}>
+                          <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">{section}</p>
+                          <div className="flex items-center justify-between gap-1">
+                            <span className={cn("font-bold text-xs sm:text-sm truncate", sectionConfig?.text)}>
                               {sectionLevel.name}
                             </span>
-                            <span className="text-lg font-bold">{sectionScore}/12</span>
+                            <span className="text-sm sm:text-lg font-bold flex-shrink-0">{sectionScore}/12</span>
                           </div>
                         </div>
                       );
@@ -308,14 +308,15 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
                     variant="outline"
                     onClick={() => onReevaluate(dimension)}
                     className={cn(
-                      "w-full gap-2 group",
+                      "w-full gap-1 sm:gap-2 group text-xs sm:text-sm",
                       data.config.borderColor,
                       "hover:bg-primary/10"
                     )}
+                    size="sm"
                   >
-                    <Eye className="w-4 h-4" />
-                    Reevaluează {data.config.title}
-                    <ChevronRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
+                    <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="truncate">Reevaluează {data.config.title}</span>
+                    <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-auto group-hover:translate-x-1 transition-transform flex-shrink-0" />
                   </Button>
                 </Card>
               </motion.div>
@@ -328,18 +329,18 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4"
+          className="mt-6 sm:mt-8 grid grid-cols-2 gap-2 sm:gap-4"
         >
           {[
-            { icon: Flame, label: 'Dimensiuni Accelerate', value: countLevelDimensions('Accelerat'), color: 'text-green-400' },
-            { icon: Zap, label: 'Dimensiuni Active', value: countLevelDimensions('Activ'), color: 'text-blue-400' },
-            { icon: Eye, label: 'Dimensiuni Treze', value: countLevelDimensions('Treaz'), color: 'text-yellow-400' },
+            { icon: Flame, label: 'Accelerate', value: countLevelDimensions('Accelerat'), color: 'text-green-400' },
+            { icon: Zap, label: 'Active', value: countLevelDimensions('Activ'), color: 'text-blue-400' },
+            { icon: Eye, label: 'Treze', value: countLevelDimensions('Treaz'), color: 'text-yellow-400' },
             { icon: Award, label: 'Scor Mediu', value: `${Math.round(totalScore / 8)}/12`, color: 'text-primary' }
           ].map((stat, idx) => (
-            <Card key={idx} className="p-4 text-center bg-card/50 border-border/30">
-              <stat.icon className={cn("w-5 h-5 mx-auto mb-2", stat.color)} />
-              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
+            <Card key={idx} className="p-3 sm:p-4 text-center bg-card/50 border-border/30 overflow-hidden">
+              <stat.icon className={cn("w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1.5 sm:mb-2", stat.color)} />
+              <p className="text-lg sm:text-2xl font-bold text-foreground">{stat.value}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{stat.label}</p>
             </Card>
           ))}
         </motion.div>
@@ -372,30 +373,29 @@ const VisionBoardCTA: React.FC<{ scores: WarriorPowerScores }> = ({ scores }) =>
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.7 }}
-      className="mt-8"
+      className="mt-6 sm:mt-8"
     >
-      <Card className="p-6 border-2 border-accent/30 bg-gradient-to-r from-accent/10 via-background to-primary/10 overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-primary/20 to-transparent rounded-full blur-3xl" />
+      <Card className="p-4 sm:p-6 border-2 border-accent/30 bg-gradient-to-r from-accent/10 via-background to-primary/10 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-32 sm:w-40 h-32 sm:h-40 bg-gradient-to-bl from-primary/20 to-transparent rounded-full blur-3xl" />
         
-        <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
+        <div className="flex flex-col items-center gap-4 sm:gap-6 relative z-10">
           <div className="flex-shrink-0">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-              <Sparkles className="w-8 h-8 text-white" />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </div>
           </div>
           
-          <div className="flex-1 text-center md:text-left">
-            <h3 className="text-xl font-bold mb-2">Definește Obiectivele Tale Anuale</h3>
-            <p className="text-muted-foreground">
-              Ai harta realității tale. Acum creează obiectivele imposibile pentru 2026 
-              — ținte ambițioase pentru fiecare dimensiune a vieții tale.
+          <div className="flex-1 text-center">
+            <h3 className="text-base sm:text-xl font-bold mb-1 sm:mb-2">Definește Obiectivele Tale Anuale</h3>
+            <p className="text-xs sm:text-base text-muted-foreground">
+              Ai harta realității tale. Acum creează obiectivele imposibile pentru 2026.
             </p>
           </div>
           
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 w-full sm:w-auto">
             <Button 
               onClick={() => navigate('/door?tab=annual')}
-              className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+              className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 w-full sm:w-auto text-sm sm:text-base"
             >
               <Sparkles className="w-4 h-4" />
               Creează Obiective Anuale
@@ -405,7 +405,7 @@ const VisionBoardCTA: React.FC<{ scores: WarriorPowerScores }> = ({ scores }) =>
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/pricing')}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground text-xs sm:text-sm"
             >
               Sau începe trial-ul
             </Button>
