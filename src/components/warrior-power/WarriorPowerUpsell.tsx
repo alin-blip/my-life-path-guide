@@ -17,21 +17,6 @@ interface WarriorPowerUpsellProps {
 
 const UPSELL_PLANS = [
   {
-    id: 'free',
-    name: 'Gratuit',
-    price: '0',
-    currency: '€',
-    period: '/ 3 zile',
-    highlight: 'Începe Aici',
-    benefits: [
-      'Habit Tracking pentru disciplină',
-      'Acces la Challenge-uri',
-      'Descoperă potențialul WarriorOS',
-      'Upgrade oricând'
-    ],
-    featured: false
-  },
-  {
     id: 'pro',
     name: 'Pro',
     price: '49',
@@ -47,6 +32,23 @@ const UPSELL_PLANS = [
       'Sprint 90 zile cu KPIs'
     ],
     featured: true
+  },
+  {
+    id: 'free',
+    name: 'Trial',
+    price: '0',
+    afterTrialPrice: '49',
+    currency: '€',
+    period: '/ 3 zile',
+    highlight: '3 Zile Gratuit',
+    benefits: [
+      '3 zile acces complet GRATUIT',
+      'Toate funcțiile Pro incluse',
+      'Anulează oricând în trial',
+      'Apoi doar €49/lună'
+    ],
+    featured: false,
+    isTrial: true
   },
   {
     id: 'elite',
@@ -156,7 +158,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
       >
         {UPSELL_PLANS.map((plan) => {
           const isElite = plan.id === 'elite';
-          const isFree = plan.id === 'free';
+          const isTrial = plan.id === 'free';
           const isPro = plan.id === 'pro';
           
           return (
@@ -166,8 +168,8 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                 "relative overflow-hidden transition-all duration-300",
                 isElite 
                   ? "border-2 border-amber-500 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/10 shadow-lg shadow-amber-500/10" 
-                  : isFree
-                    ? "border border-border bg-card/50"
+                  : isTrial
+                    ? "border border-primary/50 bg-gradient-to-br from-primary/5 via-background to-accent/5"
                     : "border-2 border-primary bg-gradient-to-br from-primary/10 via-background to-accent/10 shadow-lg shadow-primary/10"
               )}
             >
@@ -175,8 +177,8 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                 "absolute top-0 left-0 w-full h-1",
                 isElite 
                   ? "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500"
-                  : isFree
-                    ? "bg-gradient-to-r from-muted via-muted-foreground/30 to-muted"
+                  : isTrial
+                    ? "bg-gradient-to-r from-primary/50 via-accent/50 to-primary/50"
                     : "bg-gradient-to-r from-primary via-accent to-primary"
               )} />
               
@@ -186,8 +188,8 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     "absolute top-4 right-4 border-0",
                     isElite 
                       ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
-                      : isFree
-                        ? "bg-muted text-muted-foreground"
+                      : isTrial
+                        ? "bg-green-500 text-white"
                         : "bg-gradient-to-r from-primary to-accent text-white"
                   )}
                 >
@@ -200,8 +202,8 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   <div className="flex items-center gap-2 mb-2">
                     {isElite ? (
                       <Crown className="h-6 w-6 text-amber-500" />
-                    ) : isFree ? (
-                      <Sparkles className="h-6 w-6 text-muted-foreground" />
+                    ) : isTrial ? (
+                      <Sparkles className="h-6 w-6 text-green-500" />
                     ) : (
                       <Zap className="h-6 w-6 text-primary" />
                     )}
@@ -220,12 +222,18 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   <div className="flex items-baseline gap-1">
                     <span className={cn(
                       "text-4xl font-black",
-                      isElite ? "text-amber-500" : isFree ? "text-muted-foreground" : "text-foreground"
+                      isElite ? "text-amber-500" : isTrial ? "text-green-500" : "text-foreground"
                     )}>
                       {plan.currency}{plan.price}
                     </span>
                     <span className="text-muted-foreground">{plan.period}</span>
                   </div>
+                  
+                  {(plan as any).afterTrialPrice && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Apoi {plan.currency}{(plan as any).afterTrialPrice}/lună
+                    </p>
+                  )}
                 </div>
 
                 <ul className="space-y-3 mb-6">
@@ -233,7 +241,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     <li key={bidx} className="flex items-start gap-2 text-sm">
                       <Check className={cn(
                         "h-4 w-4 mt-0.5 flex-shrink-0",
-                        isElite ? "text-amber-500" : isFree ? "text-muted-foreground" : "text-green-500"
+                        isElite ? "text-amber-500" : isTrial ? "text-green-500" : "text-green-500"
                       )} />
                       <span className="text-muted-foreground">{benefit}</span>
                     </li>
@@ -241,15 +249,15 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                 </ul>
 
                 <Button
-                  onClick={() => isFree ? onContinueFree() : handleCheckout(plan.id)}
+                  onClick={() => handleCheckout(plan.id)}
                   disabled={isLoading !== null}
-                  variant={isFree ? "outline" : "default"}
+                  variant="default"
                   className={cn(
                     "w-full gap-2",
                     isElite 
                       ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
-                      : isFree
-                        ? "border-muted-foreground/30 hover:bg-muted"
+                      : isTrial
+                        ? "bg-green-500 hover:bg-green-600 text-white"
                         : "bg-gradient-to-r from-primary to-accent hover:opacity-90"
                   )}
                 >
@@ -262,8 +270,8 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     <>
                       {isElite && <Crown className="h-4 w-4" />}
                       {isPro && <Star className="h-4 w-4" />}
-                      {isFree && <Sparkles className="h-4 w-4" />}
-                      {isFree ? 'Începe Gratuit' : `Alege ${plan.name}`}
+                      {isTrial && <Sparkles className="h-4 w-4" />}
+                      {isTrial ? 'Începe Trial Gratuit' : `Alege ${plan.name}`}
                       <ArrowRight className="h-4 w-4" />
                     </>
                   )}
@@ -274,14 +282,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         })}
       </motion.div>
 
-      {/* Divider with OR */}
-      <div className="flex items-center gap-4 max-w-3xl mx-auto">
-        <div className="flex-1 h-px bg-border" />
-        <span className="text-muted-foreground text-sm font-medium">sau</span>
-        <div className="flex-1 h-px bg-border" />
-      </div>
-
-      {/* Continue Free Option */}
+      {/* Continue Without Subscription Option */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -291,16 +292,11 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         <Button
           variant="ghost"
           onClick={onContinueFree}
-          className="gap-2 text-muted-foreground hover:text-foreground"
+          className="gap-2 text-muted-foreground hover:text-foreground text-sm"
         >
-          <Sparkles className="h-4 w-4" />
-          Continuă gratuit cu Habit Tracking
+          Continuă fără abonament (funcții limitate)
           <ArrowRight className="h-4 w-4" />
         </Button>
-        
-        <p className="text-xs text-muted-foreground mt-2">
-          Acces la Habit Tracking și Challenges. Poți face upgrade oricând.
-        </p>
       </motion.div>
 
       {/* Results Saved Notice */}
