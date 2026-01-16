@@ -102,7 +102,7 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl w-full max-h-[85vh] p-0 overflow-hidden flex flex-col">
+      <DialogContent className="max-w-5xl w-full h-[90vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="p-4 border-b bg-gradient-to-r from-amber-500/10 to-orange-500/10 shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -121,7 +121,7 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0">
+        <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
             {/* Video Section */}
             <div className="aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center">
@@ -311,7 +311,7 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
             {/* Comments Section */}
             <ModuleComments ref={commentsRef} moduleId={moduleId} />
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Footer with navigation */}
         <div className="p-4 border-t bg-muted/30 flex items-center justify-between shrink-0">
