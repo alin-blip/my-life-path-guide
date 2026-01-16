@@ -47,6 +47,7 @@ export const useDailyScore = () => {
   const { hitList, activeDay } = useDoor();
   
   const [routineCompleted, setRoutineCompleted] = useState(false);
+  const [routineStepsCompleted, setRoutineStepsCompleted] = useState(0);
   const [readingCompleted, setReadingCompleted] = useState(false);
   const [bigOne, setBigOne] = useState<BigOne>({ text: null, completed: false });
   const [streak, setStreak] = useState(0);
@@ -103,6 +104,9 @@ export const useDailyScore = () => {
         // Consider routine complete if at least 70% of steps are done
         const routineComplete = completedSteps >= Math.floor(totalSteps * 0.7);
         setRoutineCompleted(routineComplete);
+        setRoutineStepsCompleted(completedSteps);
+      } else {
+        setRoutineStepsCompleted(0);
       }
 
       // Fetch Big One for today - Priority order:
@@ -282,11 +286,11 @@ export const useDailyScore = () => {
   const getNextAction = useCallback((progress: ProgressSection): NextAction => {
     const actions: NextAction[] = [];
 
-    // Priority 1: Warrior Routine not started
+    // Priority 1: Warrior Routine not completed
     if (!progress.routine.done) {
       actions.push({
         type: 'routine',
-        title: 'Începe Rutina Războinicului',
+        title: routineStepsCompleted > 0 ? 'Continuă Rutina Campionului' : 'Începe Rutina Războinicului',
         route: '/daily-flow',
         priority: 1
       });
@@ -363,7 +367,7 @@ export const useDailyScore = () => {
 
     // Return highest priority action
     return actions.sort((a, b) => a.priority - b.priority)[0];
-  }, [bigOne.text]);
+  }, [bigOne.text, routineStepsCompleted]);
 
   // Build final data
   const data = useMemo((): DailyScoreData => {
