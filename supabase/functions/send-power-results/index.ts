@@ -121,9 +121,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    if (!RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY lipsește din configurația backend.');
+    }
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error('Config backend incompletă (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY).');
+    }
+
     const { email, name, scores }: PowerResultsRequest = await req.json();
 
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // Calculate scores
     const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
@@ -134,7 +141,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: scores.body_fitness + scores.body_nutrition,
       being: scores.being_connection + scores.being_certainty,
       balance: scores.balance_relationship + scores.balance_family,
-      business: scores.business_mechanics + scores.business_money
+      business: scores.business_mechanics + scores.business_money,
     };
 
     // Find weakest dimension
@@ -146,11 +153,11 @@ const handler = async (req: Request): Promise<Response> => {
         maxScore: 24,
         subScores: [
           { name: 'Fitness', score: scores.body_fitness },
-          { name: 'Alimentație', score: scores.body_nutrition }
+          { name: 'Alimentație', score: scores.body_nutrition },
         ],
         ...getDimensionLevel(dimensionScores.body),
         interpretation: getInterpretation('body', getDimensionLevel(dimensionScores.body).level),
-        tips: getTipsForDimension('body')
+        tips: getTipsForDimension('body'),
       },
       {
         name: 'FIINȚA',
@@ -159,11 +166,11 @@ const handler = async (req: Request): Promise<Response> => {
         maxScore: 24,
         subScores: [
           { name: 'Conexiune', score: scores.being_connection },
-          { name: 'Certitudine', score: scores.being_certainty }
+          { name: 'Certitudine', score: scores.being_certainty },
         ],
         ...getDimensionLevel(dimensionScores.being),
         interpretation: getInterpretation('being', getDimensionLevel(dimensionScores.being).level),
-        tips: getTipsForDimension('being')
+        tips: getTipsForDimension('being'),
       },
       {
         name: 'ECHILIBRU',
@@ -172,11 +179,11 @@ const handler = async (req: Request): Promise<Response> => {
         maxScore: 24,
         subScores: [
           { name: 'Relații', score: scores.balance_relationship },
-          { name: 'Familie', score: scores.balance_family }
+          { name: 'Familie', score: scores.balance_family },
         ],
         ...getDimensionLevel(dimensionScores.balance),
         interpretation: getInterpretation('balance', getDimensionLevel(dimensionScores.balance).level),
-        tips: getTipsForDimension('balance')
+        tips: getTipsForDimension('balance'),
       },
       {
         name: 'BUSINESS',
@@ -185,12 +192,12 @@ const handler = async (req: Request): Promise<Response> => {
         maxScore: 24,
         subScores: [
           { name: 'Mecanică', score: scores.business_mechanics },
-          { name: 'Bani', score: scores.business_money }
+          { name: 'Bani', score: scores.business_money },
         ],
         ...getDimensionLevel(dimensionScores.business),
         interpretation: getInterpretation('business', getDimensionLevel(dimensionScores.business).level),
-        tips: getTipsForDimension('business')
-      }
+        tips: getTipsForDimension('business'),
+      },
     ];
 
     // Sort to find weakest dimension
@@ -207,17 +214,20 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Create tracking ID
     const trackingId = crypto.randomUUID();
-    
+
     // Log this as day 1 email
     if (lead) {
-      await supabase.from('email_sequence_log').upsert({
-        lead_id: lead.id,
-        email: email,
-        sequence_type: 'warrior_power',
-        day_number: 1,
-        tracking_id: trackingId,
-        sent_at: new Date().toISOString()
-      }, { onConflict: 'lead_id,sequence_type,day_number' });
+      await supabase.from('email_sequence_log').upsert(
+        {
+          lead_id: lead.id,
+          email: email,
+          sequence_type: 'warrior_power',
+          day_number: 1,
+          tracking_id: trackingId,
+          sent_at: new Date().toISOString(),
+        },
+        { onConflict: 'lead_id,sequence_type,day_number' }
+      );
     }
 
     const trackingPixel = `https://exsbnfmaadjyfblperas.supabase.co/functions/v1/track-email-open?t=${trackingId}`;
@@ -365,27 +375,34 @@ const handler = async (req: Request): Promise<Response> => {
 </body>
 </html>`;
 
-    const emailResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Warrior Power <alin@eduforyou.co.uk>",
+        from: 'Warrior Power <alin@eduforyou.co.uk>',
         to: [email],
         subject: `${name}, Rezultatele Tale Warrior Power - Scor: ${totalScore}/96 (${percentage}%)`,
         html: emailHtml,
       }),
     });
 
-    const emailData = await emailResponse.json();
+    const emailData = await emailResponse.json().catch(() => ({}));
 
-    console.log("Email sent successfully:", emailData);
+    if (!emailResponse.ok) {
+      console.error('Resend error response:', { status: emailResponse.status, emailData });
+      throw new Error(
+        (emailData as any)?.message ?? (emailData as any)?.error ?? `Eroare la trimiterea emailului (status ${emailResponse.status}).`
+      );
+    }
 
-    return new Response(JSON.stringify({ success: true, emailId: emailData.id }), {
+    console.log('Email sent successfully:', emailData);
+
+    return new Response(JSON.stringify({ success: true, emailId: (emailData as any).id }), {
       status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
     });
   } catch (error: any) {
     console.error("Error in send-power-results function:", error);
