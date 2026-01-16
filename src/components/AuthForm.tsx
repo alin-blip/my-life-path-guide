@@ -329,8 +329,8 @@ export const AuthForm: React.FC = () => {
     <div className="w-full max-w-md mx-auto">
       <div className="mb-8 text-center">
         <div className="inline-flex items-center justify-center mb-4">
-          <div className="bg-feminine-primary rounded-md p-2">
-            <span className="font-display font-bold text-white text-xl">🦅</span>
+          <div className="bg-gradient-to-r from-primary to-accent rounded-xl p-3 shadow-lg">
+            <span className="font-display font-bold text-white text-2xl">🦅</span>
           </div>
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">
@@ -480,7 +480,7 @@ export const AuthForm: React.FC = () => {
 
         <Button
           type="submit"
-          className="w-full bg-feminine-primary hover:bg-feminine-primary/90"
+          className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold py-3 text-base shadow-lg transition-all duration-200"
           disabled={isLoading || rateLimitCount >= MAX_RATE_LIMIT}
         >
           {isLoading ? (
@@ -500,11 +500,11 @@ export const AuthForm: React.FC = () => {
         {mode === AuthMode.REGISTER && (
           <p className="text-xs text-muted-foreground text-center">
             {language === 'en' ? 'By signing up, you agree to our ' : 'Prin înregistrare, ești de acord cu '}
-            <Link to="/terms" className="text-feminine-primary hover:underline">
+            <Link to="/terms" className="text-primary hover:underline">
               {language === 'en' ? 'Terms of Service' : 'Termenii și Condițiile'}
             </Link>
             {language === 'en' ? ' and ' : ' și '}
-            <Link to="/privacy" className="text-feminine-primary hover:underline">
+            <Link to="/privacy" className="text-primary hover:underline">
               {language === 'en' ? 'Privacy Policy' : 'Politica de Confidențialitate'}
             </Link>
           </p>
@@ -518,7 +518,7 @@ export const AuthForm: React.FC = () => {
               className="text-sm text-muted-foreground hover:text-white"
             >
               {language === 'en' ? "Don't have an account? " : "Nu ai cont? "}
-              <span className="text-feminine-primary">
+              <span className="text-primary font-medium">
                 {language === 'en' ? "Create one" : "Creează unul"}
               </span>
             </button>
@@ -529,7 +529,7 @@ export const AuthForm: React.FC = () => {
               className="text-sm text-muted-foreground hover:text-white"
             >
               {language === 'en' ? "Already have an account? " : "Ai deja cont? "}
-              <span className="text-feminine-primary">
+              <span className="text-primary font-medium">
                 {language === 'en' ? "Sign in" : "Autentifică-te"}
               </span>
             </button>
