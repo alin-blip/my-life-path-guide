@@ -381,7 +381,7 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
         <WarriorPowerUpsell 
           scores={scores}
           userName={userName}
-          onContinueFree={() => navigate('/door?tab=annual', { 
+          onContinueFree={() => navigate('/game-objectives?tab=annual', { 
             state: { fromWarriorPower: true, scores } 
           })}
         />

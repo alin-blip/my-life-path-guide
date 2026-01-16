@@ -21,12 +21,19 @@ import {
   Sparkles,
   ArrowRight,
   Star,
-  Lock
+  Lock,
+  Loader2
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const WarriorLaunchAccelerator = () => {
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const modules = [
     { name: 'Călătoria unui Războinic', lessons: 7, description: 'Introducere în Calea Războinicului' },
@@ -57,9 +64,39 @@ const WarriorLaunchAccelerator = () => {
     { icon: Briefcase, name: 'AFACERE', color: 'text-amber-500', description: 'Business, carieră, finanțe' },
   ];
 
-  const handleBuyNow = () => {
-    // For now, redirect to contact or Stripe checkout
-    window.open('mailto:contact@warrioros.com?subject=Warrior Launch Accelerator - Comandă', '_blank');
+  const handleBuyNow = async () => {
+    if (!user) {
+      toast.info('Trebuie să fii autentificat pentru a cumpăra');
+      navigate('/auth', { state: { returnTo: '/warrior-launch-accelerator' } });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      const response = await supabase.functions.invoke('create-checkout', {
+        body: { plan: 'warrior-accelerator' },
+        headers: {
+          Authorization: `Bearer ${sessionData.session?.access_token}`
+        }
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      } else {
+        throw new Error('Nu s-a putut crea sesiunea de checkout');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error('Eroare la procesarea plății. Încearcă din nou.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -132,9 +169,14 @@ const WarriorLaunchAccelerator = () => {
             <Button 
               size="lg" 
               onClick={handleBuyNow}
+              disabled={isLoading}
               className="text-xl px-12 py-8 bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg"
             >
-              <Rocket className="w-6 h-6 mr-3" />
+              {isLoading ? (
+                <Loader2 className="w-6 h-6 mr-3 animate-spin" />
+              ) : (
+                <Rocket className="w-6 h-6 mr-3" />
+              )}
               Obține Acces Acum - 970 EUR
             </Button>
             <p className="text-sm text-muted-foreground mt-4">
@@ -313,8 +355,13 @@ const WarriorLaunchAccelerator = () => {
                   size="lg" 
                   className="w-full text-lg py-6 bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90"
                   onClick={handleBuyNow}
+                  disabled={isLoading}
                 >
-                  <Rocket className="w-5 h-5 mr-2" />
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  ) : (
+                    <Rocket className="w-5 h-5 mr-2" />
+                  )}
                   Obține Acces Acum
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
@@ -342,8 +389,13 @@ const WarriorLaunchAccelerator = () => {
             size="lg" 
             className="text-xl px-12 py-8 bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90 shadow-lg"
             onClick={handleBuyNow}
+            disabled={isLoading}
           >
-            <Rocket className="w-6 h-6 mr-3" />
+            {isLoading ? (
+              <Loader2 className="w-6 h-6 mr-3 animate-spin" />
+            ) : (
+              <Rocket className="w-6 h-6 mr-3" />
+            )}
             Începe Transformarea - 970 EUR
           </Button>
         </div>
