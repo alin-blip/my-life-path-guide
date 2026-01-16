@@ -14,9 +14,10 @@ import { RevenueDashboard } from './admin/RevenueDashboard';
 import { AdminAIStudio } from './admin/AdminAIStudio';
 import { MarketingHub } from './admin/marketing/MarketingHub';
 import { WarriorsWayManager } from './admin/WarriorsWayManager';
+import { EmailAnalytics } from './admin/EmailAnalytics';
 import { 
   Shield, Users, BookOpen, Wrench, Settings, LayoutDashboard, 
-  Trophy, Upload, DollarSign, Lock, Bot, Megaphone, GraduationCap
+  Trophy, Upload, DollarSign, Lock, Bot, Megaphone, GraduationCap, Mail
 } from 'lucide-react';
 
 export const SecureAdminPanel: React.FC = () => {
@@ -126,6 +127,10 @@ export const SecureAdminPanel: React.FC = () => {
             <Wrench className="h-4 w-4" />
             Tools
           </TabsTrigger>
+          <TabsTrigger value="email-analytics" className="flex items-center gap-1">
+            <Mail className="h-4 w-4" />
+            📧 Emails
+          </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-1">
             <Settings className="h-4 w-4" />
             Settings
@@ -218,6 +223,10 @@ export const SecureAdminPanel: React.FC = () => {
         
         <TabsContent value="tools" className="pt-4">
           <ToolsManager />
+        </TabsContent>
+        
+        <TabsContent value="email-analytics" className="pt-4">
+          <EmailAnalytics />
         </TabsContent>
         
         <TabsContent value="settings" className="pt-4">

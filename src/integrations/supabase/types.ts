@@ -1416,6 +1416,53 @@ export type Database = {
         }
         Relationships: []
       }
+      email_sequence_log: {
+        Row: {
+          clicked_at: string | null
+          day_number: number
+          email: string
+          id: string
+          lead_id: string | null
+          opened_at: string | null
+          sent_at: string | null
+          sequence_type: string
+          tracking_id: string | null
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          clicked_at?: string | null
+          day_number: number
+          email: string
+          id?: string
+          lead_id?: string | null
+          opened_at?: string | null
+          sent_at?: string | null
+          sequence_type: string
+          tracking_id?: string | null
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          clicked_at?: string | null
+          day_number?: number
+          email?: string
+          id?: string
+          lead_id?: string | null
+          opened_at?: string | null
+          sent_at?: string | null
+          sequence_type?: string
+          tracking_id?: string | null
+          unsubscribed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sequence_log_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "email_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       emotional_checkins: {
         Row: {
           context: string | null
