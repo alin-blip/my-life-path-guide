@@ -438,6 +438,11 @@ const WarriorsWay: React.FC = () => {
                                     GRATUIT
                                   </Badge>
                                 )}
+                                {isLocked && section.id === 'intro' && moduleIndex > 0 && (
+                                  <Badge variant="secondary" className="ml-2 bg-amber-500/20 text-amber-500 text-[10px]">
+                                    PREMIUM
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                             <ChevronRight className={cn(
