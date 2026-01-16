@@ -4350,6 +4350,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_tribe_member: {
+        Args: { _tribe_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_tribe_owner: {
+        Args: { _tribe_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
