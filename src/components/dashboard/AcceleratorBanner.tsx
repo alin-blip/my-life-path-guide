@@ -65,11 +65,6 @@ export const AcceleratorBanner: React.FC = () => {
               <h3 className="text-white font-bold text-lg">
                 Start Warrior Launch Accelerator
               </h3>
-              <p className="text-slate-400 text-sm">
-                {language === 'ro'
-                  ? '47+ lecții pentru a-ți lansa și scala business-ul - 970 EUR'
-                  : '47+ lessons to launch and scale your business - €970'}
-              </p>
             </div>
           </div>
           
