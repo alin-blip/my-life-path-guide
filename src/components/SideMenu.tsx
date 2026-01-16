@@ -157,11 +157,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 9. WARRIOR LAUNCH ACCELERATOR - Sales Page
+    // 9. WARRIOR LAUNCH ACCELERATOR - Course Section
     {
       title: "🚀 Warrior Launch Accelerator",
       icon: GraduationCap,
-      path: '/warrior-launch-accelerator',
+      path: '/warriors-way',
       badge: 'NEW'
     },
 
