@@ -45,41 +45,57 @@ serve(async (req) => {
     }
 
     // Map plan -> pricing
-    let unitAmount = 0; // in bani (RON)
+    let unitAmount = 0;
     let trialDays: number | undefined;
     let interval: "month" | "year" = "month";
-    let productName = "Operator Pro";
-
-    // Determine if this is a one-time payment or subscription
+    let productName = "WarriorOS Pro";
     let paymentMode: "subscription" | "payment" = "subscription";
-    let currency = "ron";
+    let currency = "eur";
 
     switch (plan) {
-      case "basic":
-        unitAmount = 9700; // 97 LEI
-        productName = "Operator Basic";
+      // NEW 3-TIER STRUCTURE
+      case "free":
+        // Free trial - Pro with 3-day trial
+        unitAmount = 4900; // €49 after trial
+        productName = "WarriorOS Pro (Free Trial)";
+        trialDays = 3;
         break;
       case "pro":
-        unitAmount = 19700; // 197 LEI
-        productName = "Operator Pro";
+        unitAmount = 4900; // €49 Early Bird (value €98)
+        productName = "WarriorOS Pro - Early Bird";
+        break;
+      case "elite":
+        unitAmount = 49700; // €497
+        productName = "WarriorOS Elite";
+        break;
+      
+      // LEGACY PLANS (for existing subscribers)
+      case "basic":
+        unitAmount = 9700; // 97 LEI
+        currency = "ron";
+        productName = "Operator Basic (Legacy)";
         break;
       case "trial":
-        unitAmount = 19700; // Pro with trial
-        productName = "Operator Pro (Trial)";
+        unitAmount = 19700;
+        currency = "ron";
+        productName = "Operator Pro Trial (Legacy)";
         trialDays = 3;
         break;
       case "monthly":
         unitAmount = 9700; // 97 LEI
-        productName = "Jump to Freedom - Lunar";
+        currency = "ron";
+        productName = "Jump to Freedom - Lunar (Legacy)";
         break;
       case "annual":
         unitAmount = 99700; // 997 LEI
+        currency = "ron";
         interval = "year";
-        productName = "Jump to Freedom - Anual";
+        productName = "Jump to Freedom - Anual (Legacy)";
         break;
       case "premium-coach":
         unitAmount = 19700; // 197 LEI
-        productName = "Jump to Freedom - Premium + Coaching";
+        currency = "ron";
+        productName = "Jump to Freedom - Premium + Coaching (Legacy)";
         break;
       case "warrior-accelerator":
         unitAmount = 97000; // 970 EUR în cenți
@@ -92,13 +108,19 @@ serve(async (req) => {
     }
 
     // Determine success and cancel URLs based on plan
-    const successUrl = plan === "warrior-accelerator" 
-      ? `${req.headers.get("origin")}/warrior-accelerator-thank-you?checkout=success&session_id={CHECKOUT_SESSION_ID}`
-      : `${req.headers.get("origin")}/door?tab=annual&checkout=success`;
-    
-    const cancelUrl = plan === "warrior-accelerator"
-      ? `${req.headers.get("origin")}/warrior-launch-accelerator?canceled=true`
-      : `${req.headers.get("origin")}/pricing?canceled=true`;
+    let successUrl: string;
+    let cancelUrl: string;
+
+    if (plan === "warrior-accelerator") {
+      successUrl = `${req.headers.get("origin")}/warrior-accelerator-thank-you?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      cancelUrl = `${req.headers.get("origin")}/warrior-launch-accelerator?canceled=true`;
+    } else if (plan === "elite") {
+      successUrl = `${req.headers.get("origin")}/dashboard?checkout=success&plan=elite`;
+      cancelUrl = `${req.headers.get("origin")}/pricing?canceled=true`;
+    } else {
+      successUrl = `${req.headers.get("origin")}/dashboard?checkout=success`;
+      cancelUrl = `${req.headers.get("origin")}/pricing?canceled=true`;
+    }
 
     // Build line items based on payment mode
     const lineItems = paymentMode === "payment" 
@@ -128,7 +150,8 @@ serve(async (req) => {
       metadata: {
         plan_id: plan,
         user_id: user.id,
-        coaching_included: plan === "premium-coach" ? "true" : "false"
+        tier: plan === "elite" ? "elite" : plan === "pro" || plan === "free" ? "pro" : "basic",
+        coaching_included: plan === "elite" ? "true" : "false"
       },
       success_url: successUrl,
       cancel_url: cancelUrl,

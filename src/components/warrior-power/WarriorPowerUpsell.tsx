@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Crown, Check, Zap, Brain, Target, ArrowRight, Sparkles, Calendar, Star } from 'lucide-react';
+import { Crown, Check, Zap, Brain, Target, ArrowRight, Sparkles, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,32 +17,35 @@ interface WarriorPowerUpsellProps {
 
 const UPSELL_PLANS = [
   {
-    id: 'monthly',
-    name: 'Pro Lunar',
-    price: '97',
-    period: 'LEI / lună',
-    highlight: null,
+    id: 'pro',
+    name: 'Pro',
+    price: '49',
+    originalPrice: '98',
+    currency: '€',
+    period: '/ lună',
+    highlight: 'Early Bird',
     benefits: [
-      'Toate modulele platformei',
-      'Coaching AI pentru obiective',
-      'Goal Wizard cu milestone-uri',
-      'Rutina Campionului zilnică',
-      'Tracking complet al progresului'
+      'AI Coaching tip Hormozi pentru ofertă și preț',
+      'Champion Routine completă',
+      'Door - planificare săptămânală',
+      'Stacks pentru reset rapid',
+      'Sprint 90 zile cu KPIs'
     ],
-    featured: false
+    featured: true
   },
   {
-    id: 'annual',
-    name: 'Pro Anual',
-    price: '997',
-    period: 'LEI / an',
-    highlight: '-15% Discount',
+    id: 'elite',
+    name: 'Elite',
+    price: '497',
+    currency: '€',
+    period: '/ lună',
+    highlight: 'Complet',
     benefits: [
-      'Tot ce include planul lunar',
-      'Meditații AI personalizate',
-      'Acces la toate cursurile',
-      'Support prioritar',
-      'Acces la toate update-urile viitoare'
+      'Tot din Pro +',
+      'Warrior Launch Accelerator (€970)',
+      'Coaching LIVE cu Alin Radu',
+      'Comunitate VIP Elite',
+      'Support VIP dedicat'
     ],
     featured: true
   }
@@ -136,83 +139,110 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         transition={{ delay: 0.1 }}
         className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto"
       >
-        {UPSELL_PLANS.map((plan, idx) => (
-          <Card 
-            key={plan.id}
-            className={cn(
-              "relative overflow-hidden transition-all duration-300",
-              plan.featured 
-                ? "border-2 border-primary bg-gradient-to-br from-primary/10 via-background to-accent/10 shadow-lg shadow-primary/10" 
-                : "border-border hover:border-primary/50"
-            )}
-          >
-            {plan.featured && (
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary" />
-            )}
-            
-            {plan.highlight && (
-              <Badge 
-                className="absolute top-4 right-4 bg-gradient-to-r from-primary to-accent text-white border-0"
-              >
-                {plan.highlight}
-              </Badge>
-            )}
-
-            <CardContent className="p-6">
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  {plan.featured ? (
-                    <Crown className="h-6 w-6 text-primary" />
-                  ) : (
-                    <Calendar className="h-6 w-6 text-muted-foreground" />
+        {UPSELL_PLANS.map((plan) => {
+          const isElite = plan.id === 'elite';
+          
+          return (
+            <Card 
+              key={plan.id}
+              className={cn(
+                "relative overflow-hidden transition-all duration-300",
+                isElite 
+                  ? "border-2 border-amber-500 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/10 shadow-lg shadow-amber-500/10" 
+                  : "border-2 border-primary bg-gradient-to-br from-primary/10 via-background to-accent/10 shadow-lg shadow-primary/10"
+              )}
+            >
+              <div className={cn(
+                "absolute top-0 left-0 w-full h-1",
+                isElite 
+                  ? "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500"
+                  : "bg-gradient-to-r from-primary via-accent to-primary"
+              )} />
+              
+              {plan.highlight && (
+                <Badge 
+                  className={cn(
+                    "absolute top-4 right-4 border-0",
+                    isElite 
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
+                      : "bg-gradient-to-r from-primary to-accent text-white"
                   )}
-                  <h3 className="text-xl font-bold">{plan.name}</h3>
-                </div>
-                
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-black text-foreground">{plan.price}</span>
-                  <span className="text-muted-foreground">{plan.period}</span>
-                </div>
-              </div>
+                >
+                  {plan.highlight}
+                </Badge>
+              )}
 
-              <ul className="space-y-3 mb-6">
-                {plan.benefits.map((benefit, bidx) => (
-                  <li key={bidx} className="flex items-start gap-2 text-sm">
-                    <Check className={cn(
-                      "h-4 w-4 mt-0.5 flex-shrink-0",
-                      plan.featured ? "text-primary" : "text-green-500"
-                    )} />
-                    <span className="text-muted-foreground">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
+              <CardContent className="p-6">
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    {isElite ? (
+                      <Crown className="h-6 w-6 text-amber-500" />
+                    ) : (
+                      <Zap className="h-6 w-6 text-primary" />
+                    )}
+                    <h3 className="text-xl font-bold">{plan.name}</h3>
+                  </div>
+                  
+                  {plan.originalPrice && (
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-muted-foreground line-through">
+                        {plan.currency}{plan.originalPrice}
+                      </span>
+                      <Badge variant="secondary" className="text-xs">Valoare</Badge>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-baseline gap-1">
+                    <span className={cn(
+                      "text-4xl font-black",
+                      isElite ? "text-amber-500" : "text-foreground"
+                    )}>
+                      {plan.currency}{plan.price}
+                    </span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                  </div>
+                </div>
 
-              <Button
-                onClick={() => handleCheckout(plan.id)}
-                disabled={isLoading !== null}
-                className={cn(
-                  "w-full gap-2",
-                  plan.featured 
-                    ? "bg-gradient-to-r from-primary to-accent hover:opacity-90" 
-                    : "bg-muted hover:bg-muted/80 text-foreground"
-                )}
-              >
-                {isLoading === plan.id ? (
-                  <>
-                    <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    Se procesează...
-                  </>
-                ) : (
-                  <>
-                    {plan.featured && <Star className="h-4 w-4" />}
-                    Alege {plan.name}
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+                <ul className="space-y-3 mb-6">
+                  {plan.benefits.map((benefit, bidx) => (
+                    <li key={bidx} className="flex items-start gap-2 text-sm">
+                      <Check className={cn(
+                        "h-4 w-4 mt-0.5 flex-shrink-0",
+                        isElite ? "text-amber-500" : "text-green-500"
+                      )} />
+                      <span className="text-muted-foreground">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Button
+                  onClick={() => handleCheckout(plan.id)}
+                  disabled={isLoading !== null}
+                  className={cn(
+                    "w-full gap-2",
+                    isElite 
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
+                      : "bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                  )}
+                >
+                  {isLoading === plan.id ? (
+                    <>
+                      <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      Se procesează...
+                    </>
+                  ) : (
+                    <>
+                      {isElite && <Crown className="h-4 w-4" />}
+                      {!isElite && <Star className="h-4 w-4" />}
+                      Alege {plan.name}
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
       </motion.div>
 
       {/* Divider with OR */}
@@ -235,12 +265,12 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
           className="gap-2 text-muted-foreground hover:text-foreground"
         >
           <Sparkles className="h-4 w-4" />
-          Continuă gratuit și creează obiective
+          Continuă gratuit cu Habit Tracking
           <ArrowRight className="h-4 w-4" />
         </Button>
         
         <p className="text-xs text-muted-foreground mt-2">
-          Acces limitat la funcționalități. Poți face upgrade oricând.
+          Acces la Habit Tracking și Challenges. Poți face upgrade oricând.
         </p>
       </motion.div>
 

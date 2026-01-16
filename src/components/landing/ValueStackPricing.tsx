@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, TrendingUp, Shield } from "lucide-react";
+import { CheckCircle2, TrendingUp, Shield, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useLanguage } from "@/context/LanguageContext";
@@ -18,10 +18,12 @@ export const ValueStackPricing = () => {
     subtitle: language === 'en'
       ? "It's not just about money. You're losing health, relationships, clarity, and prosperity. The real cost? Impossible to calculate."
       : "Nu e doar despre bani. Pierzi sănătate, relații, claritate spirituală și prosperitate. Costul real? Imposibil de calculat.",
-    mostPopular: language === 'en' ? "Most Popular" : "Cel mai popular",
+    earlyBird: "Early Bird",
     planName: "WarriorOS Pro",
-    price: language === 'en' ? "€39" : "197 LEI",
+    price: "€49",
+    originalPrice: "€98",
     perMonth: language === 'en' ? "/ month" : "/ lună",
+    valueLabel: language === 'en' ? "Value" : "Valoare",
     transformationTitle: language === 'en' 
       ? "Transformation in All 4 Life Areas" 
       : "Transformare în Toate Cele 4 Arii",
@@ -30,7 +32,7 @@ export const ValueStackPricing = () => {
     relationshipsConnection: language === 'en' ? "❤️ Balance: Connection + Peace" : "❤️ Relații: Conexiune + Pace",
     businessProfit: language === 'en' ? "💼 Business: +15-30% profit" : "💼 Business: +15-30% profit",
     priceless: language === 'en' ? "Priceless" : "Nepretuit",
-    businessValue: language === 'en' ? "€5k-€30k/quarter" : "€25k-€150k/trimestru",
+    businessValue: language === 'en' ? "€5k-€30k/quarter" : "€5k-€30k/trimestru",
     investmentLabel: language === 'en' ? "WarriorOS Pro Investment" : "Investiție WarriorOS Pro",
     businessPayoff: language === 'en' 
       ? "Business results alone pay for themselves in the first week"
@@ -60,11 +62,11 @@ export const ValueStackPricing = () => {
       ? "If after 90 days you haven't seen at least 10% measurable improvement in profit or productivity, we'll refund everything + €100 for your time. Zero risk."
       : "Dacă după 90 de zile nu ai văzut cel puțin 10% îmbunătățire măsurabilă în profit sau productivitate, îți returnăm toți banii + €100 pentru timpul tău pierdut. Zero risc.",
     ctaButton: language === 'en' 
-      ? "Start 3-Day Free Trial (Card Required)" 
-      : "Începe Trial de 3 Zile (Card Necesar)",
+      ? "Start Free Trial (3 Days)" 
+      : "Începe Trial Gratuit (3 Zile)",
     seeAllPlans: language === 'en' 
-      ? "See all plans and full comparison" 
-      : "Vezi toate planurile și comparația completă"
+      ? "See all plans: Free, Pro & Elite" 
+      : "Vezi toate planurile: Gratuit, Pro & Elite"
   };
 
   return (
@@ -86,44 +88,50 @@ export const ValueStackPricing = () => {
 
       {/* Value Stack for Pro */}
       <div className="max-w-2xl mx-auto mb-12">
-        <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-primary shadow-xl">
+        <Card className="bg-gradient-to-br from-primary/10 via-background to-accent/10 border-2 border-primary shadow-xl shadow-primary/10">
           <CardHeader className="text-center">
-            <Badge className="mx-auto mb-2 bg-green-500 text-white font-bold">{texts.mostPopular}</Badge>
+            <Badge className="mx-auto mb-2 bg-gradient-to-r from-primary to-accent text-white font-bold border-0">
+              {texts.earlyBird}
+            </Badge>
             <CardTitle className="text-4xl font-bold text-foreground">{texts.planName}</CardTitle>
-            <div className="flex items-baseline justify-center gap-2 mt-4">
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl text-muted-foreground line-through">{texts.originalPrice}</span>
+                <Badge variant="secondary">{texts.valueLabel}</Badge>
+              </div>
               <span className="text-5xl font-bold text-foreground">{texts.price}</span>
               <span className="text-muted-foreground">{texts.perMonth}</span>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-6 mb-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp className="w-6 h-6 text-green-600" />
-                <h3 className="text-xl font-bold text-green-800">{texts.transformationTitle}</h3>
+                <h3 className="text-xl font-bold text-green-800 dark:text-green-300">{texts.transformationTitle}</h3>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-green-700">{texts.bodyEnergy}</span>
-                  <span className="text-green-600 font-bold">{texts.priceless}</span>
+                  <span className="text-green-700 dark:text-green-400">{texts.bodyEnergy}</span>
+                  <span className="text-green-600 dark:text-green-300 font-bold">{texts.priceless}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-green-700">{texts.spiritClarity}</span>
-                  <span className="text-green-600 font-bold">{texts.priceless}</span>
+                  <span className="text-green-700 dark:text-green-400">{texts.spiritClarity}</span>
+                  <span className="text-green-600 dark:text-green-300 font-bold">{texts.priceless}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-green-700">{texts.relationshipsConnection}</span>
-                  <span className="text-green-600 font-bold">{texts.priceless}</span>
+                  <span className="text-green-700 dark:text-green-400">{texts.relationshipsConnection}</span>
+                  <span className="text-green-600 dark:text-green-300 font-bold">{texts.priceless}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-green-700">{texts.businessProfit}</span>
-                  <span className="text-green-600 font-bold">{texts.businessValue}</span>
+                  <span className="text-green-700 dark:text-green-400">{texts.businessProfit}</span>
+                  <span className="text-green-600 dark:text-green-300 font-bold">{texts.businessValue}</span>
                 </div>
-                <div className="border-t-2 border-green-300 pt-3 mt-3">
+                <div className="border-t-2 border-green-300 dark:border-green-700 pt-3 mt-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-green-800 font-bold text-lg">{texts.investmentLabel}</span>
-                    <span className="text-green-800 font-bold text-lg">{texts.price}{texts.perMonth}</span>
+                    <span className="text-green-800 dark:text-green-200 font-bold text-lg">{texts.investmentLabel}</span>
+                    <span className="text-green-800 dark:text-green-200 font-bold text-lg">{texts.price}{texts.perMonth}</span>
                   </div>
-                  <p className="text-green-600 text-sm mt-2 text-right font-semibold">
+                  <p className="text-green-600 dark:text-green-400 text-sm mt-2 text-right font-semibold">
                     {texts.businessPayoff}
                   </p>
                 </div>
@@ -139,7 +147,7 @@ export const ValueStackPricing = () => {
               ))}
             </div>
 
-            <div className="bg-blue-50 rounded-lg p-4 mb-6 border-2 border-blue-200">
+            <div className="bg-primary/10 rounded-lg p-4 mb-6 border-2 border-primary/30">
               <div className="flex items-start gap-3">
                 <Shield className="h-6 w-6 text-primary shrink-0 mt-1" />
                 <div>
@@ -156,9 +164,10 @@ export const ValueStackPricing = () => {
           </CardContent>
           <CardFooter>
             <Button 
-              className="w-full bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white text-lg py-6 font-bold"
+              className="w-full bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white text-lg py-6 font-bold gap-2"
               onClick={() => navigate('/pricing')}
             >
+              <Zap className="h-5 w-5" />
               {texts.ctaButton}
             </Button>
           </CardFooter>
