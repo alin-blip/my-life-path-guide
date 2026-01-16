@@ -50,8 +50,8 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
   const commentsRef = useRef<ModuleCommentsRef>(null);
   const hasVideo = !!videoUrl;
 
-  const handleMarkComplete = () => {
-    onComplete();
+  const handleMarkComplete = async () => {
+    await onComplete();
     onClose();
   };
 
@@ -102,8 +102,8 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl w-full max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="p-4 border-b bg-gradient-to-r from-amber-500/10 to-orange-500/10">
+      <DialogContent className="max-w-5xl w-full max-h-[85vh] p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="p-4 border-b bg-gradient-to-r from-amber-500/10 to-orange-500/10 shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {moduleOrder && (
@@ -121,7 +121,7 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[calc(90vh-140px)]">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="p-6 space-y-6">
             {/* Video Section */}
             <div className="aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center">
@@ -314,7 +314,7 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
         </ScrollArea>
 
         {/* Footer with navigation */}
-        <div className="p-4 border-t bg-muted/30 flex items-center justify-between">
+        <div className="p-4 border-t bg-muted/30 flex items-center justify-between shrink-0">
           <div className="flex gap-2">
             <Button 
               variant="outline" 
