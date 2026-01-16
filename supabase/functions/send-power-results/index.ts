@@ -372,7 +372,7 @@ const handler = async (req: Request): Promise<Response> => {
         "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Warrior Power <onboarding@resend.dev>",
+        from: "Warrior Power <alin@eduforyou.co.uk>",
         to: [email],
         subject: `${name}, Rezultatele Tale Warrior Power - Scor: ${totalScore}/96 (${percentage}%)`,
         html: emailHtml,
