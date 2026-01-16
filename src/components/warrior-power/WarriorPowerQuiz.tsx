@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Flame, Sword } from 'lucide-react';
+import { ChevronLeft, Flame, Sword, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
@@ -14,30 +14,52 @@ interface WarriorPowerQuizProps {
   onComplete: (scores: WarriorPowerScores) => void;
 }
 
-// Score level configurations
-const SCORE_LEVELS = [
-  { range: [1, 2, 3], label: 'ADORMIT', icon: '💤', color: 'from-red-600 to-red-800', bg: 'bg-red-500', text: 'text-red-400' },
-  { range: [4, 5, 6], label: 'TREAZ', icon: '👁️', color: 'from-yellow-500 to-orange-600', bg: 'bg-yellow-500', text: 'text-yellow-400' },
-  { range: [7, 8, 9], label: 'ACTIV', icon: '⚡', color: 'from-blue-500 to-cyan-600', bg: 'bg-blue-500', text: 'text-blue-400' },
-  { range: [10, 11, 12], label: 'ACCELERAT', icon: '🔥', color: 'from-green-500 to-emerald-600', bg: 'bg-green-500', text: 'text-green-400' },
-];
-
-const getScoreConfig = (score: number) => {
-  if (score <= 3) return SCORE_LEVELS[0];
-  if (score <= 6) return SCORE_LEVELS[1];
-  if (score <= 9) return SCORE_LEVELS[2];
-  return SCORE_LEVELS[3];
+// Level configurations
+const LEVEL_CONFIG = {
+  ADORMIT: {
+    icon: '💤',
+    gradient: 'from-red-600 to-red-800',
+    bg: 'bg-red-950/60',
+    border: 'border-red-500/50',
+    text: 'text-red-400',
+    range: [1, 2, 3]
+  },
+  TREAZ: {
+    icon: '👁️',
+    gradient: 'from-yellow-500 to-orange-600',
+    bg: 'bg-yellow-950/60',
+    border: 'border-yellow-500/50',
+    text: 'text-yellow-400',
+    range: [4, 5, 6]
+  },
+  ACTIV: {
+    icon: '⚡',
+    gradient: 'from-blue-500 to-cyan-600',
+    bg: 'bg-blue-950/60',
+    border: 'border-blue-500/50',
+    text: 'text-blue-400',
+    range: [7, 8, 9]
+  },
+  ACCELERAT: {
+    icon: '🔥',
+    gradient: 'from-green-500 to-emerald-600',
+    bg: 'bg-green-950/60',
+    border: 'border-green-500/50',
+    text: 'text-green-400',
+    range: [10, 11, 12]
+  }
 };
 
 export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scores, setScores] = useState<Partial<WarriorPowerScores>>({});
+  const [expandedLevel, setExpandedLevel] = useState<string | null>(null);
 
   const currentQuestion = WARRIOR_POWER_QUESTIONS[currentIndex];
   const progress = ((currentIndex + 1) / WARRIOR_POWER_QUESTIONS.length) * 100;
   const dimensionInfo = DIMENSION_INFO[currentQuestion.dimension];
 
-  // Auto-advance when score is selected
+  // Select score and auto-advance
   const handleScoreSelect = (score: number) => {
     const newScores = {
       ...scores,
@@ -45,194 +67,219 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
     };
     setScores(newScores);
 
-    // Small delay for visual feedback before advancing
+    // Visual feedback then advance
     setTimeout(() => {
       if (currentIndex < WARRIOR_POWER_QUESTIONS.length - 1) {
         setCurrentIndex(prev => prev + 1);
+        setExpandedLevel(null);
       } else {
         onComplete(newScores as WarriorPowerScores);
       }
-    }, 200);
+    }, 300);
   };
 
   const handleBack = () => {
     if (currentIndex > 0) {
       setCurrentIndex(prev => prev - 1);
+      setExpandedLevel(null);
     }
   };
 
-  const currentScore = scores[currentQuestion.id as keyof WarriorPowerScores];
+  const handleLevelClick = (levelName: string) => {
+    setExpandedLevel(expandedLevel === levelName ? null : levelName);
+  };
 
   return (
-    <div className="w-full min-h-screen bg-black text-white flex flex-col">
-      {/* Fixed Header with Progress */}
-      <div className="sticky top-0 z-10 bg-black/95 backdrop-blur-sm border-b border-white/10 px-4 py-4">
-        <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Sword className="h-4 w-4 text-primary" />
-              <span className="text-sm text-white/70">
-                {currentIndex + 1} / {WARRIOR_POWER_QUESTIONS.length}
-              </span>
-            </div>
-            <span className="text-sm font-medium" style={{ color: dimensionInfo.color }}>
-              {dimensionInfo.icon} {currentQuestion.dimensionName}
+    <div className="w-full min-h-screen bg-black text-white px-4 py-6">
+      {/* Progress Header */}
+      <div className="max-w-2xl mx-auto mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Sword className="h-4 w-4 text-primary" />
+            <span className="text-sm text-white/70">
+              Întrebarea {currentIndex + 1} din {WARRIOR_POWER_QUESTIONS.length}
             </span>
           </div>
-          <Progress value={progress} className="h-2" />
+          <span className="text-sm font-medium" style={{ color: dimensionInfo.color }}>
+            {dimensionInfo.icon} {currentQuestion.dimensionName}
+          </span>
         </div>
+        <Progress value={progress} className="h-2" />
       </div>
 
-      {/* Main Content - Centered */}
-      <div className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-lg">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-gradient-to-b from-slate-900/80 to-slate-950/90 rounded-3xl border border-white/10 p-6 md:p-8 shadow-2xl"
-            >
-              {/* Question Header */}
-              <div className="text-center mb-6">
-                <div 
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
-                  style={{ backgroundColor: `${dimensionInfo.color}20` }}
-                >
-                  <span className="text-2xl">{dimensionInfo.icon}</span>
-                  <span className="font-semibold text-sm uppercase tracking-wider" style={{ color: dimensionInfo.color }}>
-                    {currentQuestion.dimensionName}
-                  </span>
-                </div>
-                <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
-                  {currentQuestion.section}
-                </h2>
-                <p className="text-sm text-white/60">
-                  {currentQuestion.sectionDescription}
-                </p>
+      <div className="max-w-2xl mx-auto">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Question Header */}
+            <div className="text-center mb-6">
+              <div 
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-3"
+                style={{ backgroundColor: `${dimensionInfo.color}20` }}
+              >
+                <span className="text-xl">{dimensionInfo.icon}</span>
+                <span className="font-semibold text-sm uppercase tracking-wider" style={{ color: dimensionInfo.color }}>
+                  {currentQuestion.dimensionName}
+                </span>
               </div>
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
+                {currentQuestion.section}
+              </h2>
+              <p className="text-sm text-white/60">
+                {currentQuestion.sectionDescription}
+              </p>
+            </div>
 
-              {/* Score Selection Grid */}
-              <div className="mb-6">
-                <p className="text-center text-white/70 text-sm mb-4">
-                  Alege nivelul tău actual (1-12):
-                </p>
+            {/* Level Cards with Descriptions */}
+            <div className="space-y-3 mb-6">
+              {currentQuestion.levels.map((level, idx) => {
+                const levelKey = level.name.toUpperCase() as keyof typeof LEVEL_CONFIG;
+                const config = LEVEL_CONFIG[levelKey];
+                if (!config) return null;
                 
-                {/* Score Grid - 4x3 */}
-                <div className="grid grid-cols-4 gap-2 mb-4">
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map(score => {
-                    const config = getScoreConfig(score);
-                    const isSelected = currentScore === score;
-                    
-                    return (
-                      <motion.button
-                        key={score}
-                        whileHover={{ scale: 1.08 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleScoreSelect(score)}
-                        className={cn(
-                          "aspect-square rounded-xl font-bold text-lg transition-all duration-200 relative overflow-hidden",
-                          isSelected
-                            ? `bg-gradient-to-br ${config.color} text-white shadow-lg ring-2 ring-white/50`
-                            : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10 hover:border-white/30"
-                        )}
-                      >
-                        {score}
-                        {isSelected && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center"
-                          >
-                            <span className="text-[10px]">✓</span>
-                          </motion.div>
-                        )}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-
-                {/* Level Legend */}
-                <div className="grid grid-cols-4 gap-2 text-center">
-                  {SCORE_LEVELS.map((level, idx) => (
-                    <div key={idx} className="text-xs">
-                      <span className="block text-lg mb-1">{level.icon}</span>
-                      <span className={cn("font-semibold", level.text)}>{level.label}</span>
-                      <span className="block text-white/40 text-[10px]">{level.range.join('-')}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Current Level Info - Shows when selected */}
-              {currentQuestion.levels && currentScore && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 p-4 rounded-xl bg-white/5 border border-white/10"
-                >
-                  {currentQuestion.levels.map((level, idx) => {
-                    const levelScore = level.range[1]; // middle of range
-                    const isActive = level.range.includes(currentScore);
-                    if (!isActive) return null;
-                    
-                    const config = getScoreConfig(currentScore);
-                    return (
-                      <div key={idx} className="text-center">
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <span className="text-2xl">{config.icon}</span>
-                          <span className={cn("font-bold uppercase", config.text)}>{level.name}</span>
-                        </div>
-                        <p className="text-white/70 text-sm">{level.description}</p>
+                const isExpanded = expandedLevel === level.name;
+                const currentScore = scores[currentQuestion.id as keyof WarriorPowerScores];
+                const hasScoreInThisLevel = currentScore && config.range.includes(currentScore);
+                
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.08 }}
+                    className={cn(
+                      "rounded-2xl border-2 transition-all duration-300 overflow-hidden",
+                      isExpanded || hasScoreInThisLevel
+                        ? `${config.border} ${config.bg} shadow-xl` 
+                        : "border-white/20 bg-white/5 hover:border-white/40"
+                    )}
+                  >
+                    {/* Level Header - Clickable */}
+                    <button
+                      onClick={() => handleLevelClick(level.name)}
+                      className="w-full text-left p-4 flex items-start gap-4"
+                    >
+                      {/* Icon Badge */}
+                      <div className={cn(
+                        "flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-xl",
+                        isExpanded || hasScoreInThisLevel
+                          ? `bg-gradient-to-br ${config.gradient}` 
+                          : "bg-white/10"
+                      )}>
+                        {config.icon}
                       </div>
-                    );
-                  })}
-                </motion.div>
-              )}
+                      
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={cn(
+                            "font-bold text-sm uppercase tracking-wide",
+                            isExpanded || hasScoreInThisLevel ? config.text : "text-white/80"
+                          )}>
+                            {level.name}
+                          </span>
+                          <span className="text-xs text-white/40">
+                            [{level.range.join('-')}]
+                          </span>
+                          {hasScoreInThisLevel && (
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                              <Check className="h-3 w-3" />
+                              {currentScore}
+                            </span>
+                          )}
+                        </div>
+                        <p className={cn(
+                          "text-sm leading-relaxed",
+                          isExpanded || hasScoreInThisLevel ? "text-white/80" : "text-white/50"
+                        )}>
+                          {level.description}
+                        </p>
+                      </div>
+                    </button>
 
-              {/* Back Button */}
-              {currentIndex > 0 && (
-                <div className="flex justify-center">
-                  <Button
-                    variant="ghost"
-                    onClick={handleBack}
-                    className="gap-2 text-white/60 hover:text-white"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                    Întrebarea anterioară
-                  </Button>
-                </div>
-              )}
+                    {/* Score Selector - Shows when expanded */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className={cn("px-4 pb-4 pt-2 border-t", config.border)}>
+                            <p className="text-sm text-white/60 mb-3 text-center">
+                              Alege scorul exact:
+                            </p>
+                            <div className="flex justify-center gap-3">
+                              {config.range.map(score => (
+                                <motion.button
+                                  key={score}
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  onClick={() => handleScoreSelect(score)}
+                                  className={cn(
+                                    "w-16 h-16 rounded-xl font-bold text-xl transition-all",
+                                    currentScore === score
+                                      ? `bg-gradient-to-br ${config.gradient} text-white shadow-lg ring-2 ring-white/30`
+                                      : `${config.bg} ${config.text} border-2 ${config.border} hover:brightness-125`
+                                  )}
+                                >
+                                  {score}
+                                </motion.button>
+                              ))}
+                            </div>
+                            <p className="text-xs text-white/40 text-center mt-3">
+                              💡 Click pe număr pentru a continua automat
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
+            </div>
 
-              {/* Last Question - Show Complete Button */}
-              {currentIndex === WARRIOR_POWER_QUESTIONS.length - 1 && currentScore && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="mt-4 flex justify-center"
+            {/* Back Button */}
+            {currentIndex > 0 && (
+              <div className="flex justify-center pt-4 border-t border-white/10">
+                <Button
+                  variant="ghost"
+                  onClick={handleBack}
+                  className="gap-2 text-white/60 hover:text-white"
                 >
-                  <Button
-                    onClick={() => onComplete(scores as WarriorPowerScores)}
-                    size="lg"
-                    className="gap-2 bg-gradient-to-r from-primary to-primary/80 font-bold px-8"
-                  >
-                    <Flame className="h-4 w-4" />
-                    Vezi Rezultatele
-                  </Button>
-                </motion.div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
+                  <ChevronLeft className="h-4 w-4" />
+                  Întrebarea anterioară
+                </Button>
+              </div>
+            )}
 
-      {/* Tip Footer */}
-      <div className="text-center px-4 pb-6">
-        <p className="text-white/40 text-xs">
-          💡 Alege un număr și mergi automat la următoarea întrebare
-        </p>
+            {/* Last question with score - show complete button */}
+            {currentIndex === WARRIOR_POWER_QUESTIONS.length - 1 && 
+             scores[currentQuestion.id as keyof WarriorPowerScores] && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex justify-center mt-6"
+              >
+                <Button
+                  onClick={() => onComplete(scores as WarriorPowerScores)}
+                  size="lg"
+                  className="gap-2 bg-gradient-to-r from-primary to-primary/80 font-bold px-8"
+                >
+                  <Flame className="h-4 w-4" />
+                  Vezi Rezultatele
+                </Button>
+              </motion.div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
