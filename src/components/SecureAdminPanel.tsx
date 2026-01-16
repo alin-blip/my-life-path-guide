@@ -15,9 +15,10 @@ import { AdminAIStudio } from './admin/AdminAIStudio';
 import { MarketingHub } from './admin/marketing/MarketingHub';
 import { WarriorsWayManager } from './admin/WarriorsWayManager';
 import { EmailAnalytics } from './admin/EmailAnalytics';
+import { CRMDashboard } from './admin/crm/CRMDashboard';
 import { 
   Shield, Users, BookOpen, Wrench, Settings, LayoutDashboard, 
-  Trophy, Upload, DollarSign, Lock, Bot, Megaphone, GraduationCap, Mail
+  Trophy, Upload, DollarSign, Lock, Bot, Megaphone, GraduationCap, Mail, Target
 } from 'lucide-react';
 
 export const SecureAdminPanel: React.FC = () => {
@@ -91,6 +92,10 @@ export const SecureAdminPanel: React.FC = () => {
             <Bot className="h-4 w-4" />
             🤖 AI Studio
           </TabsTrigger>
+          <TabsTrigger value="crm" className="flex items-center gap-1">
+            <Target className="h-4 w-4" />
+            🎯 CRM
+          </TabsTrigger>
           <TabsTrigger value="marketing" className="flex items-center gap-1">
             <Megaphone className="h-4 w-4" />
             📢 Marketing
@@ -139,6 +144,10 @@ export const SecureAdminPanel: React.FC = () => {
         
         <TabsContent value="ai-studio" className="pt-4">
           <AdminAIStudio />
+        </TabsContent>
+        
+        <TabsContent value="crm" className="pt-4">
+          <CRMDashboard />
         </TabsContent>
         
         <TabsContent value="marketing" className="pt-4">
