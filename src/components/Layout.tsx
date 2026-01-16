@@ -41,20 +41,28 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  // Format date to match the image (March 29th 2025)
-  const formatDate = () => {
+  // Format date - short numeric for mobile, full for desktop
+  const formatDate = (short = false) => {
     const date = new Date();
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
+    const shortYear = year.toString().slice(-2);
+
+    if (short) {
+      return `${day}/${month}/${shortYear}`;
+    }
+
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const dayNum = date.getDate();
+    const monthName = months[date.getMonth()];
 
     // Add ordinal suffix
     let suffix = 'th';
-    if (day === 1 || day === 21 || day === 31) suffix = 'st';
-    if (day === 2 || day === 22) suffix = 'nd';
-    if (day === 3 || day === 23) suffix = 'rd';
-    return `${month} ${day}${suffix} ${year}`;
+    if (dayNum === 1 || dayNum === 21 || dayNum === 31) suffix = 'st';
+    if (dayNum === 2 || dayNum === 22) suffix = 'nd';
+    if (dayNum === 3 || dayNum === 23) suffix = 'rd';
+    return `${monthName} ${dayNum}${suffix} ${year}`;
   };
 
   const handleSignOut = async () => {
@@ -134,8 +142,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Mobile Header - Simplified */}
           {isMobile && (
             <div className="flex justify-between items-center mb-4">
-              <div className="glass-card px-3 py-1.5 rounded-lg">
-                <span className="text-xs font-medium text-muted-foreground">{formatDate()}</span>
+              <div className="glass-card px-2 py-1 rounded-lg">
+                <span className="text-xs font-medium text-muted-foreground">{formatDate(true)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Button 
