@@ -94,30 +94,47 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
 
   const handleCheckout = async (planId: string) => {
     setIsLoading(planId);
-    
+
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session) {
         toast.error('Trebuie să fii autentificat pentru a continua.');
-        setIsLoading(null);
         return;
       }
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planId }
+        body: { plan: planId },
       });
 
-      if (error) throw error;
-
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('Nu s-a putut crea sesiunea de plată');
+      if (error) {
+        let message = error.message;
+        const anyErr = error as any;
+        if (anyErr?.context) {
+          try {
+            const body = await anyErr.context.json();
+            message = body?.error ?? message;
+          } catch {
+            // ignore
+          }
+        } else if ((data as any)?.error) {
+          message = (data as any).error;
+        }
+        throw new Error(message);
       }
+
+      if ((data as any)?.url) {
+        window.location.href = (data as any).url;
+        return;
+      }
+
+      throw new Error((data as any)?.error ?? 'Nu s-a putut crea sesiunea de plată');
     } catch (error) {
-      console.error('Checkout error:', error);
-      toast.error('A apărut o eroare. Încearcă din nou.');
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Checkout error:', { planId, message, error });
+      toast.error(message || 'A apărut o eroare. Încearcă din nou.');
     } finally {
       setIsLoading(null);
     }

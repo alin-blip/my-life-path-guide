@@ -107,19 +107,36 @@ serve(async (req) => {
         throw new Error("Plan invalid");
     }
 
-    // Determine success and cancel URLs based on plan
+    // Determine success and cancel URLs based on the real site origin
+    // (Origin can be missing in some environments / proxies)
+    const originHeader = req.headers.get("origin");
+    const forwardedProto = req.headers.get("x-forwarded-proto") ?? undefined;
+    const forwardedHost = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? undefined;
+
+    const derivedOrigin =
+      forwardedProto && forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
+
+    const origin = originHeader ?? derivedOrigin ?? "https://my-life-path-guide.lovable.app";
+
+    console.log("create-checkout origin:", {
+      originHeader,
+      derivedOrigin,
+      origin,
+      plan,
+    });
+
     let successUrl: string;
     let cancelUrl: string;
 
     if (plan === "warrior-accelerator") {
-      successUrl = `${req.headers.get("origin")}/warrior-accelerator-thank-you?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
-      cancelUrl = `${req.headers.get("origin")}/warrior-launch-accelerator?canceled=true`;
+      successUrl = `${origin}/warrior-accelerator-thank-you?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      cancelUrl = `${origin}/warrior-launch-accelerator?canceled=true`;
     } else if (plan === "elite") {
-      successUrl = `${req.headers.get("origin")}/dashboard?checkout=success&plan=elite`;
-      cancelUrl = `${req.headers.get("origin")}/pricing?canceled=true`;
+      successUrl = `${origin}/dashboard?checkout=success&plan=elite`;
+      cancelUrl = `${origin}/pricing?canceled=true`;
     } else {
-      successUrl = `${req.headers.get("origin")}/dashboard?checkout=success`;
-      cancelUrl = `${req.headers.get("origin")}/pricing?canceled=true`;
+      successUrl = `${origin}/dashboard?checkout=success`;
+      cancelUrl = `${origin}/pricing?canceled=true`;
     }
 
     // Build line items based on payment mode
@@ -171,6 +188,7 @@ serve(async (req) => {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    console.error("create-checkout error:", { message, error });
     return new Response(JSON.stringify({ error: message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
