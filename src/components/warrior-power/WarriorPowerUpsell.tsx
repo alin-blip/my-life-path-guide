@@ -17,6 +17,21 @@ interface WarriorPowerUpsellProps {
 
 const UPSELL_PLANS = [
   {
+    id: 'free',
+    name: 'Gratuit',
+    price: '0',
+    currency: '€',
+    period: '/ 3 zile',
+    highlight: 'Începe Aici',
+    benefits: [
+      'Habit Tracking pentru disciplină',
+      'Acces la Challenge-uri',
+      'Descoperă potențialul WarriorOS',
+      'Upgrade oricând'
+    ],
+    featured: false
+  },
+  {
     id: 'pro',
     name: 'Pro',
     price: '49',
@@ -137,10 +152,12 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto"
+        className="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto"
       >
         {UPSELL_PLANS.map((plan) => {
           const isElite = plan.id === 'elite';
+          const isFree = plan.id === 'free';
+          const isPro = plan.id === 'pro';
           
           return (
             <Card 
@@ -149,14 +166,18 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                 "relative overflow-hidden transition-all duration-300",
                 isElite 
                   ? "border-2 border-amber-500 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/10 shadow-lg shadow-amber-500/10" 
-                  : "border-2 border-primary bg-gradient-to-br from-primary/10 via-background to-accent/10 shadow-lg shadow-primary/10"
+                  : isFree
+                    ? "border border-border bg-card/50"
+                    : "border-2 border-primary bg-gradient-to-br from-primary/10 via-background to-accent/10 shadow-lg shadow-primary/10"
               )}
             >
               <div className={cn(
                 "absolute top-0 left-0 w-full h-1",
                 isElite 
                   ? "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500"
-                  : "bg-gradient-to-r from-primary via-accent to-primary"
+                  : isFree
+                    ? "bg-gradient-to-r from-muted via-muted-foreground/30 to-muted"
+                    : "bg-gradient-to-r from-primary via-accent to-primary"
               )} />
               
               {plan.highlight && (
@@ -165,7 +186,9 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     "absolute top-4 right-4 border-0",
                     isElite 
                       ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
-                      : "bg-gradient-to-r from-primary to-accent text-white"
+                      : isFree
+                        ? "bg-muted text-muted-foreground"
+                        : "bg-gradient-to-r from-primary to-accent text-white"
                   )}
                 >
                   {plan.highlight}
@@ -177,6 +200,8 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   <div className="flex items-center gap-2 mb-2">
                     {isElite ? (
                       <Crown className="h-6 w-6 text-amber-500" />
+                    ) : isFree ? (
+                      <Sparkles className="h-6 w-6 text-muted-foreground" />
                     ) : (
                       <Zap className="h-6 w-6 text-primary" />
                     )}
@@ -195,7 +220,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   <div className="flex items-baseline gap-1">
                     <span className={cn(
                       "text-4xl font-black",
-                      isElite ? "text-amber-500" : "text-foreground"
+                      isElite ? "text-amber-500" : isFree ? "text-muted-foreground" : "text-foreground"
                     )}>
                       {plan.currency}{plan.price}
                     </span>
@@ -208,7 +233,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     <li key={bidx} className="flex items-start gap-2 text-sm">
                       <Check className={cn(
                         "h-4 w-4 mt-0.5 flex-shrink-0",
-                        isElite ? "text-amber-500" : "text-green-500"
+                        isElite ? "text-amber-500" : isFree ? "text-muted-foreground" : "text-green-500"
                       )} />
                       <span className="text-muted-foreground">{benefit}</span>
                     </li>
@@ -216,13 +241,16 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                 </ul>
 
                 <Button
-                  onClick={() => handleCheckout(plan.id)}
+                  onClick={() => isFree ? onContinueFree() : handleCheckout(plan.id)}
                   disabled={isLoading !== null}
+                  variant={isFree ? "outline" : "default"}
                   className={cn(
                     "w-full gap-2",
                     isElite 
                       ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
-                      : "bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                      : isFree
+                        ? "border-muted-foreground/30 hover:bg-muted"
+                        : "bg-gradient-to-r from-primary to-accent hover:opacity-90"
                   )}
                 >
                   {isLoading === plan.id ? (
@@ -233,8 +261,9 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   ) : (
                     <>
                       {isElite && <Crown className="h-4 w-4" />}
-                      {!isElite && <Star className="h-4 w-4" />}
-                      Alege {plan.name}
+                      {isPro && <Star className="h-4 w-4" />}
+                      {isFree && <Sparkles className="h-4 w-4" />}
+                      {isFree ? 'Începe Gratuit' : `Alege ${plan.name}`}
                       <ArrowRight className="h-4 w-4" />
                     </>
                   )}
