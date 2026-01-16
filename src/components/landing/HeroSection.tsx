@@ -7,12 +7,12 @@ import { useLanguage } from "@/context/LanguageContext";
 export const HeroSection = () => {
   const navigate = useNavigate();
   const [videoPlaying, setVideoPlaying] = useState(false);
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   const keyFeatures = [
-    { icon: Brain, text: language === 'en' ? '4 AI Coaches (Body, Mindset, Relationships, Business)' : '4 Coachi AI (Corp, Mindset, Relații, Business)' },
-    { icon: Sparkles, text: language === 'en' ? 'Warrior Routine - 30 min/day that changes everything' : 'Rutina Războinicului - 30 min/zi care schimbă totul' },
-    { icon: Target, text: language === 'en' ? 'The Door - Intelligent weekly planning system' : 'The Door - Sistem de planificare săptămânală inteligent' },
+    { icon: Brain, textKey: 'heroFeature1' },
+    { icon: Sparkles, textKey: 'heroFeature2' },
+    { icon: Target, textKey: 'heroFeature3' },
   ];
 
   return (
@@ -34,14 +34,14 @@ export const HeroSection = () => {
           />
           <div className="flex items-center gap-3">
             <Button asChild variant="ghost" size="sm" className="hidden sm:flex">
-              <Link to="/auth">{language === 'en' ? 'Login' : 'Autentificare'}</Link>
+              <Link to="/auth">{t('heroLogin')}</Link>
             </Button>
             <Button 
               size="sm" 
               onClick={() => navigate('/auth')}
               className="bg-primary hover:bg-primary/90"
             >
-              {language === 'en' ? 'Start Free Trial' : 'Încearcă Gratuit'}
+              {t('heroStartFreeTrial')}
             </Button>
           </div>
         </nav>
@@ -49,15 +49,12 @@ export const HeroSection = () => {
         {/* Main Hero Content */}
         <div className="text-center mb-8 md:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 md:mb-6 leading-tight animate-fade-in">
-            <span className="text-primary">{language === 'en' ? 'Success' : 'Succes'}</span> {language === 'en' ? 'Without' : 'Fără'}{' '}
-            <span className="text-primary">{language === 'en' ? 'Sacrifice' : 'Sacrificiu'}</span>
+            <span className="text-primary">{t('heroSuccess')}</span> {t('heroWithout')}{' '}
+            <span className="text-primary">{t('heroSacrifice')}</span>
           </h1>
           
           <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            {language === 'en' 
-              ? 'The complete AI system for entrepreneurs who want it ALL: healthy body, strong relationships, inner peace AND profitable business.'
-              : 'Sistemul AI complet pentru antreprenori care vor TOT: corp sănătos, relații puternice, claritate interioară ȘI business profitabil.'
-            }
+            {t('heroSubtitle')}
           </p>
 
           {/* Key Features Pills */}
@@ -70,7 +67,7 @@ export const HeroSection = () => {
                   className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-full text-sm font-medium text-foreground shadow-sm"
                 >
                   <Icon className="h-4 w-4 text-primary" />
-                  <span>{feature.text}</span>
+                  <span>{t(feature.textKey)}</span>
                 </div>
               );
             })}
@@ -83,7 +80,7 @@ export const HeroSection = () => {
               onClick={() => navigate('/auth')}
               className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground px-8 py-6 text-lg font-bold shadow-xl hover:shadow-2xl transition-all ring-4 ring-primary/20"
             >
-              🚀 {language === 'en' ? 'Start 3-Day Free Trial' : 'Încearcă 3 Zile Gratuit'}
+              🚀 {t('heroStart3DayTrial')}
             </Button>
             <Button 
               size="lg" 
@@ -91,7 +88,7 @@ export const HeroSection = () => {
               onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
               className="px-8 py-6 text-lg font-medium border-2"
             >
-              {language === 'en' ? 'See How It Works' : 'Vezi Cum Funcționează'}
+              {t('heroSeeHowItWorks')}
             </Button>
           </div>
 
@@ -99,15 +96,15 @@ export const HeroSection = () => {
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-muted-foreground animate-fade-in text-sm" style={{ animationDelay: '0.4s' }}>
             <div className="flex items-center gap-2">
               <Check className="h-5 w-5 text-primary" />
-              <span>{language === 'en' ? '4 Life Areas Integrated' : '4 Arii de Viață Integrate'}</span>
+              <span>{t('hero4LifeAreas')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="h-5 w-5 text-primary" />
-              <span>{language === 'en' ? '90-Day Guarantee' : 'Garanție 90 Zile'}</span>
+              <span>{t('hero90DayGuarantee')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="h-5 w-5 text-primary" />
-              <span>{language === 'en' ? 'Cancel Anytime' : 'Anulezi Oricând'}</span>
+              <span>{t('heroCancelAnytime')}</span>
             </div>
           </div>
         </div>
@@ -145,14 +142,14 @@ export const HeroSection = () => {
             </div>
           </div>
           <p className="text-sm text-muted-foreground mt-4 text-center">
-            {language === 'en' ? '🎬 Watch: How WarriorOS transforms entrepreneurs in 90 days' : '🎬 Vezi: Cum WarriorOS transformă antreprenorii în 90 de zile'}
+            🎬 {t('heroVideoCaption')}
           </p>
         </div>
 
         {/* Micro Social Proof */}
         <div className="flex items-center justify-center gap-2 mt-8 text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: '0.6s' }}>
           <Users className="h-4 w-4" />
-          <span>{language === 'en' ? 'Used by entrepreneurs in E-commerce, SaaS, Consulting, Real Estate' : 'Folosit de antreprenori din E-commerce, SaaS, Consulting, Imobiliare'}</span>
+          <span>{t('heroUsedBy')}</span>
         </div>
       </div>
     </section>

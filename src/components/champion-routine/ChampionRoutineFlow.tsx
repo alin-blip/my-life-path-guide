@@ -9,6 +9,7 @@ import { debounce, cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { HabitCategory } from '@/hooks/useDailyHabits';
 import { Emotion } from '@/components/emotional/EmotionPicker';
 
@@ -121,33 +122,34 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'completion',         // 17. Finalizare
 ];
 
-const STEP_LABELS: Record<RoutineStepId, string> = {
-  emotionalCheck: 'Check-in Emoțional',
-  stackSelection: 'Alege Stack-ul',
-  emotionalTransform: 'Transformare Emoțională',
-  gratitude: 'Recunoștință',
-  hydration: 'Hidratare',
-  meditation: 'Meditație',
-  autosuggestion: 'Autosugestie',
-  visionDeclaration: 'Declarație Viziune',
-  exercise: 'Exerciții',
-  mealPlanning: 'Meal Planning',
-  contentCreation: 'Content Creation',
-  dailyTasks: 'Daily Tasks',
-  relationships: 'Relații',
-  breathing: 'Respirație',
-  visualization: 'Vizualizare',
-  reading: 'Citit',
-  journaling: 'Journaling',
-  lightExposure: 'Lumină Naturală',
-  learn: 'Învață',
-  apply: 'Aplică/Predă',
-  habit_body: 'Habits: Corp',
-  habit_being: 'Habits: Spirit',
-  habit_balance: 'Habits: Relații',
-  habit_business: 'Habits: Business',
-  todaysTasks: 'Sarcinile de Azi',
-  completion: 'Finalizare',
+// Translation keys for step labels - now using useLanguage t() function
+const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
+  emotionalCheck: 'stepEmotionalCheck',
+  stackSelection: 'stepStackSelection',
+  emotionalTransform: 'stepEmotionalTransform',
+  gratitude: 'stepGratitude',
+  hydration: 'stepHydration',
+  meditation: 'stepMeditation',
+  autosuggestion: 'stepAutosuggestion',
+  visionDeclaration: 'stepVisionDeclaration',
+  exercise: 'stepExercise',
+  mealPlanning: 'stepMealPlanning',
+  contentCreation: 'stepContentCreation',
+  dailyTasks: 'stepDailyTasks',
+  relationships: 'stepRelationships',
+  breathing: 'stepBreathing',
+  visualization: 'stepVisualization',
+  reading: 'stepReading',
+  journaling: 'stepJournaling',
+  lightExposure: 'stepLightExposure',
+  learn: 'stepLearn',
+  apply: 'stepApply',
+  habit_body: 'stepHabitBody',
+  habit_being: 'stepHabitBeing',
+  habit_balance: 'stepHabitBalance',
+  habit_business: 'stepHabitBusiness',
+  todaysTasks: 'stepTodaysTasks',
+  completion: 'stepCompletion',
 };
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
@@ -245,6 +247,7 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
 export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutineFlowProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const {
     people,
     settings,
@@ -257,6 +260,15 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     updateAutosuggestion,
     saveSettings,
   } = useChampionRoutine();
+
+  // Generate translated step labels
+  const STEP_LABELS = useMemo(() => {
+    const labels: Record<RoutineStepId, string> = {} as Record<RoutineStepId, string>;
+    (Object.keys(STEP_LABEL_KEYS) as RoutineStepId[]).forEach(key => {
+      labels[key] = t(STEP_LABEL_KEYS[key]);
+    });
+    return labels;
+  }, [t]);
 
   // Get active and ordered steps based on settings
   const routineSteps = useMemo((): RoutineStepId[] => {

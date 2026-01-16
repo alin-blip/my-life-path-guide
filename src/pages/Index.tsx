@@ -13,7 +13,7 @@ import { FinalCTA } from "@/components/landing/FinalCTA";
 import { useLanguage } from "@/context/LanguageContext";
 
 const Index = () => {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
 
   // Force light theme on index page
   useEffect(() => {
@@ -34,8 +34,8 @@ const Index = () => {
   return (
     <div className="light min-h-screen bg-background">
       <Helmet>
-        <title>WarriorOS — Success Without Sacrifice: AI-Powered Life System for Warriors</title>
-        <meta name="description" content="WarriorOS is the AI-powered Warrior Operating System that helps entrepreneurs grow their business WITHOUT losing their health, relationships, or peace of mind. Transform all 4 life areas simultaneously." />
+        <title>{t('indexMetaTitle')}</title>
+        <meta name="description" content={t('indexMetaDescription')} />
         <link rel="canonical" href={`${window.location.origin}/`} />
       </Helmet>
 
@@ -75,27 +75,27 @@ const Index = () => {
         <footer className="py-8 mt-8 border-t border-border">
           <div className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
             <Link to="/pricing" className="hover:text-primary transition-colors">
-              {language === 'en' ? 'Pricing' : 'Prețuri'}
+              {t('footerPricing')}
             </Link>
             <span className="text-border">|</span>
             <Link to="/terms" className="hover:text-primary transition-colors">
-              {language === 'en' ? 'Terms of Service' : 'Termeni și Condiții'}
+              {t('footerTerms')}
             </Link>
             <span className="text-border">|</span>
             <Link to="/privacy" className="hover:text-primary transition-colors">
-              {language === 'en' ? 'Privacy Policy' : 'Politica de Confidențialitate'}
+              {t('footerPrivacy')}
             </Link>
             <span className="text-border">|</span>
             <Link to="/support" className="hover:text-primary transition-colors">
-              {language === 'en' ? 'Support' : 'Suport'}
+              {t('footerSupport')}
             </Link>
             <span className="text-border">|</span>
             <Link to="/auth" className="hover:text-primary transition-colors">
-              {language === 'en' ? 'Login' : 'Autentificare'}
+              {t('footerLogin')}
             </Link>
           </div>
           <p className="text-center text-xs text-muted-foreground mt-4">
-            © {new Date().getFullYear()} WarriorOS. {language === 'en' ? 'All rights reserved.' : 'Toate drepturile rezervate.'}
+            © {new Date().getFullYear()} WarriorOS. {t('footerAllRightsReserved')}
           </p>
         </footer>
       </div>
