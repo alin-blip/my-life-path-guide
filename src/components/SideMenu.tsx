@@ -87,7 +87,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   const menuItems: MenuItem[] = [
     // 1. DASHBOARD
     { 
-      title: language === 'ro' ? '🏠 Dashboard' : '🏠 Dashboard', 
+      title: 'Dashboard', 
       icon: Home, 
       path: '/dashboard',
       subItems: [
@@ -98,7 +98,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
     // 2. CHALLENGE 7 ZILE
     { 
-      title: language === 'ro' ? '🚀 Challenge 7 Zile' : '🚀 7-Day Challenge', 
+      title: language === 'ro' ? 'Challenge 7 Zile' : '7-Day Challenge', 
       icon: Flame, 
       path: '/challenge',
       badge: completedDays > 0 ? `${completedDays}/7` : undefined
@@ -106,14 +106,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
     // 3. THE DOOR - Simple link without sub-items
     { 
-      title: '🎯 The Door', 
+      title: 'The Door', 
       icon: Target, 
       path: '/door'
     },
 
     // 4. GAME - VISION
     {
-      title: '🎮 Game - Vision',
+      title: 'Game - Vision',
       icon: Gamepad2,
       path: '/game-vision',
       subItems: [
@@ -126,7 +126,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
     // 4. RUTINA RĂZBOINICULUI (Warrior Routine)
     {
-      title: language === 'ro' ? '⚔️ Rutina Războinicului' : '⚔️ Warrior Routine',
+      title: language === 'ro' ? 'Rutina Războinicului' : 'Warrior Routine',
       icon: Swords,
       path: '/daily-flow',
       subItems: [
@@ -138,7 +138,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
     // 5. STACKS (previously in Being)
     {
-      title: language === 'ro' ? '✨ Stacks' : '✨ Stacks',
+      title: 'Stacks',
       icon: Sparkles,
       path: '/stack',
       subItems: [
@@ -159,7 +159,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
     // 9. WARRIOR LAUNCH ACCELERATOR - Course Section
     {
-      title: "🚀 Warrior Launch Accelerator",
+      title: "Warrior Launch Accelerator",
       icon: GraduationCap,
       path: '/warriors-way',
       badge: 'NEW'
@@ -167,7 +167,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
     // 10. BROTHERHOOD
     {
-      title: '⚔️ Brotherhood',
+      title: 'Brotherhood',
       icon: Users,
       path: '/brotherhood',
       subItems: [
@@ -180,7 +180,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
     // 11. COMUNITATE
     {
-      title: language === 'ro' ? '🏅 Comunitate' : '🏅 Community',
+      title: language === 'ro' ? 'Comunitate' : 'Community',
       icon: Trophy,
       path: '/leaderboard',
       subItems: [
@@ -191,7 +191,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
 
     // 11. TOOLS (Advanced Features)
     {
-      title: language === 'ro' ? '🛠️ Tools' : '🛠️ Tools',
+      title: 'Tools',
       icon: Settings,
       path: '/tools',
       subItems: [
