@@ -6,15 +6,15 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Check, Crown, Users, Zap, Star } from 'lucide-react';
+import { Check, Crown, Users, Zap, Gift } from 'lucide-react';
 
 interface PricingPlan {
-  id: 'monthly' | 'annual' | 'premium-coach';
+  id: 'free' | 'pro' | 'elite';
   nameEn: string;
   nameRo: string;
   price: string;
-  priceValue: number;
-  period: string;
+  originalPrice?: string;
+  currency: string;
   periodEn: string;
   periodRo: string;
   highlightEn?: string;
@@ -28,90 +28,86 @@ interface PricingPlan {
 
 const pricingPlans: PricingPlan[] = [
   {
-    id: 'monthly',
-    nameEn: 'Monthly',
-    nameRo: 'Lunar',
-    price: '97',
-    priceValue: 9700,
-    period: 'LEI',
-    periodEn: '/ month',
-    periodRo: '/ lună',
+    id: 'free',
+    nameEn: 'Free',
+    nameRo: 'Gratuit',
+    price: '0',
+    currency: '€',
+    periodEn: '3 days',
+    periodRo: '3 zile',
+    highlightEn: 'Start Here',
+    highlightRo: 'Începe Aici',
     benefitsEn: [
-      'All platform modules',
-      'AI Coaching for goals',
-      'Goal Wizard with milestones',
-      'Champion Routine',
-      'Weekly planning in Door'
+      'Habit Tracking for daily discipline',
+      'Access to transformation Challenges',
+      'Discover WarriorOS potential',
+      'Upgrade option anytime'
     ],
     benefitsRo: [
-      'Toate modulele platformei',
-      'Coaching AI pentru obiective',
-      'Goal Wizard cu milestone-uri',
-      'Rutina Campionului',
-      'Planificare săptămânală în Door'
+      'Habit Tracking pentru disciplină zilnică',
+      'Acces la Challenge-uri de transformare',
+      'Descoperă potențialul WarriorOS',
+      'Opțiune de upgrade oricând'
     ],
-    icon: Zap,
+    icon: Gift,
     color: 'from-blue-500 to-cyan-500'
   },
   {
-    id: 'annual',
-    nameEn: 'Annual',
-    nameRo: 'Anual',
-    price: '997',
-    priceValue: 99700,
-    period: 'LEI',
-    periodEn: '/ year',
-    periodRo: '/ an',
-    highlightEn: '-15% Discount',
-    highlightRo: '-15% Discount',
-    benefitsEn: [
-      'Everything in Monthly plan',
-      'Unlimited AI personalized meditations',
-      'Export & backup your data',
-      'Priority support',
-      'Access to all future updates'
-    ],
-    benefitsRo: [
-      'Tot ce include planul lunar',
-      'Meditații AI personalizate nelimitate',
-      'Export și backup date',
-      'Support prioritar',
-      'Acces la toate update-urile viitoare'
-    ],
-    featured: true,
-    icon: Star,
-    color: 'from-amber-500 to-orange-500'
-  },
-  {
-    id: 'premium-coach',
-    nameEn: 'Premium + Coaching',
-    nameRo: 'Premium + Coaching',
-    price: '197',
-    priceValue: 19700,
-    period: 'LEI',
+    id: 'pro',
+    nameEn: 'Pro',
+    nameRo: 'Pro',
+    price: '49',
+    originalPrice: '98',
+    currency: '€',
     periodEn: '/ month',
     periodRo: '/ lună',
-    highlightEn: 'With Alin Radu',
-    highlightRo: 'Cu Alin Radu',
+    highlightEn: 'Early Bird',
+    highlightRo: 'Early Bird',
     benefitsEn: [
-      'Everything in Annual plan',
-      'Weekly LIVE group coaching with Alin Radu',
-      'Exclusive Q&A sessions',
-      'VIP community with premium members',
-      'Exclusive coaching resources',
-      'Priority access to new features'
+      'Everything in Free plan',
+      'Hormozi-style AI Coaching',
+      'Complete Champion Routine',
+      'Door weekly planning',
+      '90-day Sprint with KPIs'
     ],
     benefitsRo: [
-      'Tot ce include planul anual',
-      'Coaching de grup săptămânal LIVE cu Alin Radu',
-      'Sesiuni Q&A exclusive',
-      'Comunitate VIP cu membri premium',
-      'Resurse exclusive de coaching',
-      'Acces prioritar la funcționalități noi'
+      'Tot ce include planul Gratuit',
+      'AI Coaching tip Hormozi',
+      'Champion Routine completă',
+      'Planificare săptămânală Door',
+      'Sprint 90 zile cu KPIs'
+    ],
+    featured: true,
+    icon: Zap,
+    color: 'from-primary to-accent'
+  },
+  {
+    id: 'elite',
+    nameEn: 'Elite',
+    nameRo: 'Elite',
+    price: '497',
+    currency: '€',
+    periodEn: '/ month',
+    periodRo: '/ lună',
+    highlightEn: 'Complete Warrior',
+    highlightRo: 'Războinic Complet',
+    benefitsEn: [
+      'Everything in Pro plan',
+      'Warrior Accelerator (€970 value)',
+      'Weekly LIVE coaching with Alin Radu',
+      'VIP Elite community',
+      'Priority VIP support'
+    ],
+    benefitsRo: [
+      'Tot ce include planul Pro',
+      'Warrior Accelerator (valoare €970)',
+      'Coaching LIVE săptămânal cu Alin Radu',
+      'Comunitate VIP Elite',
+      'Support VIP prioritar'
     ],
     featured: true,
     icon: Crown,
-    color: 'from-purple-500 to-pink-500'
+    color: 'from-amber-500 to-orange-500'
   }
 ];
 
@@ -147,7 +143,7 @@ export const ChallengePremiumOffer = () => {
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-amber-500/5 border-primary/20">
+    <Card className="p-6 bg-gradient-to-br from-primary/5 via-background to-amber-500/5 border-primary/20">
       {/* Header */}
       <div className="text-center mb-8">
         <Badge className="mb-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
@@ -155,13 +151,13 @@ export const ChallengePremiumOffer = () => {
         </Badge>
         <h2 className="text-2xl font-bold text-foreground mb-2">
           {language === 'en' 
-            ? 'Continue Your Journey with Premium' 
-            : 'Continuă Călătoria cu Premium'}
+            ? 'Continue Your Warrior Journey' 
+            : 'Continuă Călătoria de Războinic'}
         </h2>
         <p className="text-muted-foreground max-w-lg mx-auto">
           {language === 'en' 
-            ? 'You\'ve built the foundation. Now unlock the full power of the platform to achieve your Viziunea 2026.' 
-            : 'Ai construit fundația. Acum deblochează puterea completă a platformei pentru a-ți realiza Viziunea 2026.'}
+            ? 'You\'ve built the foundation. Now choose your path to transformation.' 
+            : 'Ai construit fundația. Acum alege drumul tău către transformare.'}
         </p>
       </div>
 
@@ -169,22 +165,29 @@ export const ChallengePremiumOffer = () => {
       <div className="grid md:grid-cols-3 gap-4">
         {pricingPlans.map((plan) => {
           const Icon = plan.icon;
+          const isElite = plan.id === 'elite';
+          const isPro = plan.id === 'pro';
+          
           return (
             <div 
               key={plan.id}
               className={`relative rounded-xl p-5 border transition-all ${
-                plan.featured 
-                  ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 shadow-lg shadow-primary/10' 
-                  : 'bg-card border-border hover:border-primary/30'
+                isElite 
+                  ? 'bg-gradient-to-br from-amber-500/10 to-orange-500/5 border-amber-500/30 shadow-lg shadow-amber-500/10' 
+                  : isPro
+                    ? 'bg-gradient-to-br from-primary/10 to-accent/5 border-primary/30 shadow-lg shadow-primary/10'
+                    : 'bg-card border-border hover:border-primary/30'
               }`}
             >
               {/* Featured Badge */}
               {plan.highlightEn && (
                 <Badge 
                   className={`absolute -top-2.5 left-1/2 -translate-x-1/2 ${
-                    plan.id === 'premium-coach' 
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500' 
-                      : 'bg-gradient-to-r from-amber-500 to-orange-500'
+                    isElite 
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-500' 
+                      : isPro
+                        ? 'bg-gradient-to-r from-primary to-accent'
+                        : 'bg-muted text-foreground'
                   } text-white border-0`}
                 >
                   {language === 'en' ? plan.highlightEn : plan.highlightRo}
@@ -203,9 +206,20 @@ export const ChallengePremiumOffer = () => {
 
               {/* Price */}
               <div className="text-center mb-4">
+                {plan.originalPrice && (
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <span className="text-muted-foreground line-through">
+                      {plan.currency}{plan.originalPrice}
+                    </span>
+                    <Badge variant="secondary" className="text-xs">
+                      {language === 'en' ? 'Value' : 'Valoare'}
+                    </Badge>
+                  </div>
+                )}
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-3xl font-bold text-foreground">{plan.price}</span>
-                  <span className="text-sm text-muted-foreground">{plan.period}</span>
+                  <span className={`text-3xl font-bold ${isElite ? 'text-amber-500' : 'text-foreground'}`}>
+                    {plan.currency}{plan.price}
+                  </span>
                 </div>
                 <span className="text-xs text-muted-foreground">
                   {language === 'en' ? plan.periodEn : plan.periodRo}
@@ -216,7 +230,9 @@ export const ChallengePremiumOffer = () => {
               <ul className="space-y-2 mb-6">
                 {(language === 'en' ? plan.benefitsEn : plan.benefitsRo).map((benefit, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm">
-                    <Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check className={`h-4 w-4 flex-shrink-0 mt-0.5 ${
+                      isElite ? 'text-amber-500' : 'text-green-500'
+                    }`} />
                     <span className="text-muted-foreground">{benefit}</span>
                   </li>
                 ))}
@@ -224,8 +240,14 @@ export const ChallengePremiumOffer = () => {
 
               {/* CTA Button */}
               <Button 
-                className={`w-full ${plan.featured ? `bg-gradient-to-r ${plan.color} hover:opacity-90` : ''}`}
-                variant={plan.featured ? 'default' : 'outline'}
+                className={`w-full ${
+                  isElite 
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
+                    : isPro
+                      ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90'
+                      : ''
+                }`}
+                variant={plan.id === 'free' ? 'outline' : 'default'}
                 onClick={() => handleUpgrade(plan.id)}
                 disabled={loading === plan.id}
               >
@@ -241,19 +263,19 @@ export const ChallengePremiumOffer = () => {
       </div>
 
       {/* Coaching Highlight */}
-      <div className="mt-8 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+      <div className="mt-8 p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
             <Users className="h-8 w-8 text-white" />
           </div>
           <div>
             <h4 className="font-bold text-foreground mb-1">
-              🎯 {language === 'en' ? 'Weekly Group Coaching with Alin Radu' : 'Coaching de Grup Săptămânal cu Alin Radu'}
+              🎯 {language === 'en' ? 'Weekly LIVE Coaching with Alin Radu (Elite Only)' : 'Coaching LIVE Săptămânal cu Alin Radu (doar Elite)'}
             </h4>
             <p className="text-sm text-muted-foreground">
               {language === 'en' 
-                ? 'Join live sessions every week. Get personalized guidance, ask questions, and connect with other high performers on the same journey.' 
-                : 'Participă la sesiuni live în fiecare săptămână. Primește ghidare personalizată, pune întrebări și conectează-te cu alți performeri de top pe aceeași călătorie.'}
+                ? 'Join live sessions every week. Get personalized guidance and connect with other Elite warriors.' 
+                : 'Participă la sesiuni live în fiecare săptămână. Primește ghidare personalizată și conectează-te cu alți războinici Elite.'}
             </p>
           </div>
         </div>
@@ -267,8 +289,8 @@ export const ChallengePremiumOffer = () => {
           onClick={() => navigate('/dashboard')}
         >
           {language === 'en' 
-            ? 'Continue with limited features →' 
-            : 'Continuă cu funcționalități limitate →'}
+            ? 'Continue with Habit Tracking only →' 
+            : 'Continuă doar cu Habit Tracking →'}
         </Button>
       </div>
     </Card>

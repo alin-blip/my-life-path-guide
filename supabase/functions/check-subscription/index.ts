@@ -92,15 +92,34 @@ serve(async (req) => {
 
     if (isSubscribed) {
       const sub = activeOrTrial!;
+      const price = sub.items.data[0].price;
+      const productName = (price.product as any)?.name || price.nickname || "";
+      const amount = price.unit_amount || 0;
+      
       if (sub.status === "trialing") {
         endIso = sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null;
-        tier = "Trial";
+        // During trial, determine tier from product name
+        if (productName.toLowerCase().includes("elite")) {
+          tier = "Elite";
+        } else {
+          tier = "Pro"; // Free trial leads to Pro
+        }
       } else {
         endIso = new Date(sub.current_period_end * 1000).toISOString();
-        const price = sub.items.data[0].price;
-        const amount = price.unit_amount || 0; // in smallest currency unit
-        // Tier mapping for RON values
-        if (amount <= 9700) tier = "Basic"; else tier = "Pro";
+        
+        // NEW TIER MAPPING for 3-tier structure
+        if (productName.toLowerCase().includes("elite")) {
+          tier = "Elite";
+        } else if (productName.toLowerCase().includes("pro") || amount >= 4900) {
+          tier = "Pro";
+        } else if (productName.toLowerCase().includes("free")) {
+          tier = "Free";
+        } else {
+          // Legacy mapping for RON plans
+          if (amount <= 9700) tier = "Basic";
+          else if (amount <= 19700) tier = "Pro";
+          else tier = "Pro";
+        }
       }
     }
 
@@ -116,16 +135,16 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({
       subscribed: isSubscribed,
-      subscription_tier: tier,
+      tier,
       subscription_end: endIso,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    log("ERROR", { message });
-    return new Response(JSON.stringify({ error: message }), {
+    const msg = error instanceof Error ? error.message : String(error);
+    log("Error", { message: msg });
+    return new Response(JSON.stringify({ error: msg }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

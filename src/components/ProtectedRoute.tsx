@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -13,8 +12,24 @@ interface ProtectedRouteProps {
 
 const LOADING_TIMEOUT_MS = 10000; // 10 seconds
 
+// Routes available for FREE tier (habit tracking + challenges)
+const FREE_TIER_ROUTES = [
+  '/dashboard',
+  '/habits',
+  '/challenge',
+  '/challenge-7-zile',
+  '/settings',
+  '/profile',
+];
+
+// Routes that require PRO tier (everything except Warrior Accelerator)
+const PRO_BLOCKED_ROUTES = [
+  '/warriors-way',
+  '/warrior-launch-accelerator',
+];
+
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading, subscribed, subscriptionLoading } = useAuth();
+  const { user, loading, subscribed, subscriptionLoading, subscriptionTier } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -48,6 +63,46 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   const handleGoToAuth = () => {
     navigate('/auth');
+  };
+
+  // Determine user tier
+  const getUserTier = (): 'free' | 'pro' | 'elite' | null => {
+    if (!subscriptionTier) return null;
+    const t = subscriptionTier.toLowerCase();
+    if (t.includes('elite')) return 'elite';
+    if (t.includes('pro')) return 'pro';
+    if (t.includes('basic')) return 'pro'; // Legacy basic = pro access
+    if (t.includes('trial')) return 'free';
+    if (t.includes('free')) return 'free';
+    return 'pro'; // Default to pro for any subscription
+  };
+
+  const userTier = getUserTier();
+
+  // Check if current route is allowed for user's tier
+  const isRouteAllowed = (): boolean => {
+    if (isAdmin) return true;
+    
+    const path = location.pathname;
+    
+    // Elite has access to everything
+    if (userTier === 'elite') return true;
+    
+    // Pro has access to everything except Warrior Accelerator (they need to buy separately or upgrade to Elite)
+    if (userTier === 'pro') {
+      // Warriors Way is included in Elite or as separate purchase
+      if (PRO_BLOCKED_ROUTES.some(route => path.startsWith(route))) {
+        return false;
+      }
+      return true;
+    }
+    
+    // Free tier - only habit tracking and challenges
+    if (userTier === 'free' || !subscribed) {
+      return FREE_TIER_ROUTES.some(route => path.startsWith(route));
+    }
+    
+    return true;
   };
 
   if (isLoading) {
@@ -88,8 +143,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  if (!subscribed && !isAdmin) {
-    return <Navigate to="/pricing" state={{ from: location, reason: 'membership_required' }} replace />;
+  // Check tier-based access
+  if (!isRouteAllowed()) {
+    // Free users trying to access Pro features
+    if (userTier === 'free' || !subscribed) {
+      return <Navigate to="/pricing" state={{ from: location, reason: 'membership_required' }} replace />;
+    }
+    
+    // Pro users trying to access Elite features (Warrior Accelerator)
+    if (userTier === 'pro' && PRO_BLOCKED_ROUTES.some(route => location.pathname.startsWith(route))) {
+      return <Navigate to="/warrior-launch-accelerator" state={{ from: location, reason: 'elite_required' }} replace />;
+    }
   }
 
   return <>{children}</>;
