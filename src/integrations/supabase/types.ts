@@ -1030,6 +1030,211 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_activity_timeline: {
+        Row: {
+          activity_data: Json | null
+          activity_title: string | null
+          activity_type: string
+          contact_id: string | null
+          created_at: string | null
+          device_type: string | null
+          id: string
+          ip_address: string | null
+          page_path: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_title?: string | null
+          activity_type: string
+          contact_id?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          page_path?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_title?: string | null
+          activity_type?: string
+          contact_id?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          page_path?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_activity_timeline_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contact_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_admin_sessions: {
+        Row: {
+          actions_taken: Json | null
+          admin_email: string | null
+          admin_id: string
+          ended_at: string | null
+          id: string
+          notes: string | null
+          session_type: string
+          started_at: string | null
+          target_contact_id: string | null
+          target_email: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          actions_taken?: Json | null
+          admin_email?: string | null
+          admin_id: string
+          ended_at?: string | null
+          id?: string
+          notes?: string | null
+          session_type: string
+          started_at?: string | null
+          target_contact_id?: string | null
+          target_email?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          actions_taken?: Json | null
+          admin_email?: string | null
+          admin_id?: string
+          ended_at?: string | null
+          id?: string
+          notes?: string | null
+          session_type?: string
+          started_at?: string | null
+          target_contact_id?: string | null
+          target_email?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_admin_sessions_target_contact_id_fkey"
+            columns: ["target_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contact_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_contact_profiles: {
+        Row: {
+          account_created_at: string | null
+          admin_notes: string | null
+          avatar_emoji: string | null
+          created_at: string | null
+          current_streak: number | null
+          door_completion_rate: number | null
+          email: string
+          email_clicks: number | null
+          email_opens: number | null
+          engagement_score: number | null
+          first_purchase_at: string | null
+          first_seen_at: string | null
+          funnel_stage: string | null
+          gender: string | null
+          id: string
+          last_activity_at: string | null
+          lead_captured_at: string | null
+          lead_score: number | null
+          lead_source: string | null
+          lifetime_value: number | null
+          name: string | null
+          phone: string | null
+          tags: string[] | null
+          total_door_tasks: number | null
+          total_page_views: number | null
+          total_purchases: number | null
+          total_sessions: number | null
+          total_stack_sessions: number | null
+          updated_at: string | null
+          user_id: string | null
+          warrior_power_data: Json | null
+          warrior_power_score: number | null
+        }
+        Insert: {
+          account_created_at?: string | null
+          admin_notes?: string | null
+          avatar_emoji?: string | null
+          created_at?: string | null
+          current_streak?: number | null
+          door_completion_rate?: number | null
+          email: string
+          email_clicks?: number | null
+          email_opens?: number | null
+          engagement_score?: number | null
+          first_purchase_at?: string | null
+          first_seen_at?: string | null
+          funnel_stage?: string | null
+          gender?: string | null
+          id?: string
+          last_activity_at?: string | null
+          lead_captured_at?: string | null
+          lead_score?: number | null
+          lead_source?: string | null
+          lifetime_value?: number | null
+          name?: string | null
+          phone?: string | null
+          tags?: string[] | null
+          total_door_tasks?: number | null
+          total_page_views?: number | null
+          total_purchases?: number | null
+          total_sessions?: number | null
+          total_stack_sessions?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          warrior_power_data?: Json | null
+          warrior_power_score?: number | null
+        }
+        Update: {
+          account_created_at?: string | null
+          admin_notes?: string | null
+          avatar_emoji?: string | null
+          created_at?: string | null
+          current_streak?: number | null
+          door_completion_rate?: number | null
+          email?: string
+          email_clicks?: number | null
+          email_opens?: number | null
+          engagement_score?: number | null
+          first_purchase_at?: string | null
+          first_seen_at?: string | null
+          funnel_stage?: string | null
+          gender?: string | null
+          id?: string
+          last_activity_at?: string | null
+          lead_captured_at?: string | null
+          lead_score?: number | null
+          lead_source?: string | null
+          lifetime_value?: number | null
+          name?: string | null
+          phone?: string | null
+          tags?: string[] | null
+          total_door_tasks?: number | null
+          total_page_views?: number | null
+          total_purchases?: number | null
+          total_sessions?: number | null
+          total_stack_sessions?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          warrior_power_data?: Json | null
+          warrior_power_score?: number | null
+        }
+        Relationships: []
+      }
       custom_widgets: {
         Row: {
           config: Json
