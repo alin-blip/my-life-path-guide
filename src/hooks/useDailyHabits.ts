@@ -160,7 +160,7 @@ export const useDailyHabits = (date: Date = new Date()) => {
 
     for (const [logField, habitNames] of Object.entries(routineToHabitMap)) {
       const fieldValue = logField === 'meditation_completed' 
-        ? (routineLog.meditation_duration_seconds || 0) >= 600
+        ? (routineLog.meditation_duration_seconds || 0) >= 300
         : routineLog[logField as keyof typeof routineLog];
       
       if (fieldValue) {

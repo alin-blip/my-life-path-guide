@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDailyHabits, HabitCategory } from '@/hooks/useDailyHabits';
 import { useChampionRoutine } from '@/hooks/useChampionRoutine';
-import { Check, ArrowRight, Dumbbell, Heart, Users, Briefcase } from 'lucide-react';
+import { Check, ArrowRight, Dumbbell, Heart, Users, Briefcase, Lock } from 'lucide-react';
 
 interface HabitCheckStepProps {
   category: HabitCategory;
@@ -21,6 +21,58 @@ const CATEGORY_CONFIG: Record<HabitCategory, { title: string; icon: React.Elemen
 export const HabitCheckStep: React.FC<HabitCheckStepProps> = ({ category, onNext }) => {
   const { habits, toggleHabit, isHabitCompleted, isLoading } = useDailyHabits();
   const { settings, todayLog, people } = useChampionRoutine();
+  
+  // Core 4 completed items to show as read-only checkmarks
+  const core4CompletedItems = useMemo(() => {
+    const items: { name: string; completed: boolean }[] = [];
+    
+    if (category === 'being') {
+      // Meditation - check if completed in routine (5+ minutes)
+      const meditationDone = (todayLog?.meditation_duration_seconds || 0) >= 300;
+      if (meditationDone) {
+        items.push({ name: 'Meditație (din rutină)', completed: true });
+      }
+      
+      // Journaling - check if completed in routine  
+      if (todayLog?.journaling_completed) {
+        items.push({ name: 'Jurnal / Memoirs (din rutină)', completed: true });
+      }
+      
+      // Breathing
+      if (todayLog?.breathing_completed) {
+        items.push({ name: 'Respirație (din rutină)', completed: true });
+      }
+      
+      // Visualization
+      if (todayLog?.visualization_completed) {
+        items.push({ name: 'Vizualizare (din rutină)', completed: true });
+      }
+    }
+    
+    if (category === 'body') {
+      // Exercise
+      if (todayLog?.exercise_completed) {
+        items.push({ name: 'Exerciții (din rutină)', completed: true });
+      }
+      
+      // Hydration
+      if (todayLog?.water_drunk) {
+        items.push({ name: 'Hidratare (din rutină)', completed: true });
+      }
+    }
+    
+    if (category === 'balance') {
+      // Relationship actions - show people who have completed actions
+      const relationshipActions = todayLog?.relationship_actions || [];
+      relationshipActions.forEach((action: any) => {
+        if (action.completed && action.personName) {
+          items.push({ name: `${action.personName} (din rutină)`, completed: true });
+        }
+      });
+    }
+    
+    return items;
+  }, [category, todayLog]);
   
   // Core habit names that are always excluded (handled by routine steps)
   const CORE_HABIT_NAMES = [
@@ -121,6 +173,30 @@ export const HabitCheckStep: React.FC<HabitCheckStepProps> = ({ category, onNext
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Core 4 items completed in routine - show as read-only */}
+        {core4CompletedItems.length > 0 && (
+          <div className="space-y-2 pb-3 border-b border-border">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+              Completate în rutină
+            </p>
+            {core4CompletedItems.map((item, idx) => (
+              <div
+                key={`core4-${idx}`}
+                className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20"
+              >
+                <div className="w-5 h-5 rounded border-2 border-green-500 bg-green-500 flex items-center justify-center">
+                  <Check className="h-3 w-3 text-white" />
+                </div>
+                <span className="flex-1 text-muted-foreground text-sm">
+                  {item.name}
+                </span>
+                <Lock className="h-4 w-4 text-muted-foreground/50" />
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {/* Regular habits for this category */}
         {categoryHabits.map(habit => {
           const completed = isHabitCompleted(habit.id);
           return (

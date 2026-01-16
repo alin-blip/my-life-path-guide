@@ -478,6 +478,7 @@ export type Database = {
           priorities: Json | null
           reading_completed: boolean | null
           relationship_actions: Json | null
+          stack_selection_completed: boolean | null
           total_calories: number | null
           total_protein: number | null
           transformed_energy: string | null
@@ -519,6 +520,7 @@ export type Database = {
           priorities?: Json | null
           reading_completed?: boolean | null
           relationship_actions?: Json | null
+          stack_selection_completed?: boolean | null
           total_calories?: number | null
           total_protein?: number | null
           transformed_energy?: string | null
@@ -560,6 +562,7 @@ export type Database = {
           priorities?: Json | null
           reading_completed?: boolean | null
           relationship_actions?: Json | null
+          stack_selection_completed?: boolean | null
           total_calories?: number | null
           total_protein?: number | null
           transformed_energy?: string | null
