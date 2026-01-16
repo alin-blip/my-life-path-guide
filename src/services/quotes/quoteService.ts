@@ -97,7 +97,7 @@ export const getQuotePreferences = (): QuotePreferences => {
     return preferences ? JSON.parse(preferences) : {
       preferredCategories: [],
       preferredDifficulty: null,
-      preferredLanguage: 'en',
+      preferredLanguage: 'ro',
       excludedAuthors: []
     };
   } catch (error) {
@@ -105,7 +105,7 @@ export const getQuotePreferences = (): QuotePreferences => {
     return {
       preferredCategories: [],
       preferredDifficulty: null,
-      preferredLanguage: 'en',
+      preferredLanguage: 'ro',
       excludedAuthors: []
     };
   }
