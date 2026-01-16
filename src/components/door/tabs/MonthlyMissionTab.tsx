@@ -360,7 +360,7 @@ export const MonthlyMissionTab: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="p-2 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
         {[1, 2, 3, 4].map(i => (
           <div key={i} className="h-64 bg-muted animate-pulse rounded-xl" />
         ))}
@@ -369,36 +369,39 @@ export const MonthlyMissionTab: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
-      {/* Month Navigation */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Flag className="w-6 h-6 text-primary" />
-            {language === 'en' ? 'Monthly Mission' : 'Misiune Lunară'}
-          </h1>
-          <p className="text-muted-foreground">
-            {language === 'en' ? 'One focused mission per category' : 'O misiune focusată per categorie'}
-          </p>
+    <div className="p-2 sm:p-6">
+      {/* Month Navigation - Mobile optimized */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-8">
+        <div className="flex items-center gap-2 sm:gap-0 sm:block">
+          <Flag className="w-5 h-5 sm:hidden text-primary" />
+          <div>
+            <h1 className="text-lg sm:text-2xl font-bold text-foreground flex items-center gap-2">
+              <Flag className="hidden sm:block w-6 h-6 text-primary" />
+              {language === 'en' ? 'Monthly Mission' : 'Misiune Lunară'}
+            </h1>
+            <p className="text-xs sm:text-base text-muted-foreground hidden sm:block">
+              {language === 'en' ? 'One focused mission per category' : 'O misiune focusată per categorie'}
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={handlePrevMonth}>
-            <ChevronLeft className="w-5 h-5" />
+        <div className="flex items-center justify-center gap-2 sm:gap-4">
+          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={handlePrevMonth}>
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
           
-          <div className="text-center min-w-[140px]">
-            <div className="text-lg font-bold text-foreground capitalize">{monthName}</div>
+          <div className="text-center min-w-[100px] sm:min-w-[140px]">
+            <div className="text-base sm:text-lg font-bold text-foreground capitalize">{monthName}</div>
           </div>
           
-          <Button variant="ghost" size="icon" onClick={handleNextMonth}>
-            <ChevronRight className="w-5 h-5" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={handleNextMonth}>
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
         </div>
       </div>
 
       {/* Category Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
         {Object.entries(CATEGORY_CONFIG).map(([key, config]) => {
           const categoryMissions = getCategoryMissions(key);
           const Icon = config.icon;
@@ -416,18 +419,18 @@ export const MonthlyMissionTab: React.FC = () => {
                 hasMissions ? 'hover:shadow-lg' : 'border-dashed'
               )}
             >
-              <CardHeader className={cn(config.bgColor, "pb-4")}>
+              <CardHeader className={cn(config.bgColor, "p-3 sm:pb-4 sm:p-6")}>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={cn("p-2.5 rounded-xl bg-background/50")}>
-                      <Icon className={cn("w-6 h-6", config.color)} />
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className={cn("p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-background/50")}>
+                      <Icon className={cn("w-5 h-5 sm:w-6 sm:h-6", config.color)} />
                     </div>
                     <div>
-                      <CardTitle className="text-xl">
+                      <CardTitle className="text-base sm:text-xl">
                         {config.label[language === 'en' ? 'en' : 'ro']}
                       </CardTitle>
                       {hasMissions && categoryMissions.length > 1 && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           {categoryMissions.length} {language === 'en' ? 'missions' : 'misiuni'}
                         </p>
                       )}
@@ -435,14 +438,14 @@ export const MonthlyMissionTab: React.FC = () => {
                   </div>
                   
                   {hasMissions && (
-                    <Badge variant="secondary" className={cn("text-lg px-3 py-1", config.color)}>
+                    <Badge variant="secondary" className={cn("text-sm sm:text-lg px-2 sm:px-3 py-0.5 sm:py-1", config.color)}>
                       {avgProgress}%
                     </Badge>
                   )}
                 </div>
               </CardHeader>
 
-              <CardContent className="p-5">
+              <CardContent className="p-3 sm:p-5">
                 {hasMissions ? (
                   <div className="space-y-6">
                     {categoryMissions.map((mission, missionIndex) => (
