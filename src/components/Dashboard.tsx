@@ -740,6 +740,9 @@ export const Dashboard: React.FC = () => {
             </div>)}
         </div>}
       
+      {/* Accelerator Upsell Banner - FIRST */}
+      <AcceleratorBanner />
+      
       {/* Objectives Card - Lunar, 90 Zile, Anual */}
       <ObjectivesCard />
       
@@ -752,9 +755,6 @@ export const Dashboard: React.FC = () => {
       <div className="mb-6">
         <VisionDeclarationWidget />
       </div>
-      
-      {/* Accelerator Upsell Banner */}
-      <AcceleratorBanner />
       
       {/* Empowerment Meditation Card */}
       <div className="mb-6">

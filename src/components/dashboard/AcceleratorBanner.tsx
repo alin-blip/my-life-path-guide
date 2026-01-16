@@ -63,14 +63,12 @@ export const AcceleratorBanner: React.FC = () => {
             </div>
             <div className="text-center md:text-left">
               <h3 className="text-white font-bold text-lg">
-                {language === 'ro' 
-                  ? 'Deblochează Toate Cele 47+ Lecții' 
-                  : 'Unlock All 47+ Lessons'}
+                Start Warrior Launch Accelerator
               </h3>
               <p className="text-slate-400 text-sm">
                 {language === 'ro'
-                  ? 'Acces complet la curs + platforma WarriorOS - 970 EUR'
-                  : 'Full access to course + WarriorOS platform - €970'}
+                  ? '47+ lecții pentru a-ți lansa și scala business-ul - 970 EUR'
+                  : '47+ lessons to launch and scale your business - €970'}
               </p>
             </div>
           </div>
@@ -81,7 +79,7 @@ export const AcceleratorBanner: React.FC = () => {
             className="w-full md:w-auto bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-slate-900 font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-amber-500/25"
           >
             <Rocket className="h-4 w-4 mr-2" />
-            {language === 'ro' ? 'Obține Acces Complet' : 'Get Full Access'}
+            {language === 'ro' ? 'Începe Acum' : 'Start Now'}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
