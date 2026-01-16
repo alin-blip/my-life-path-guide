@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { BookOpen, Headphones, Video, Sparkles, ArrowRight, Check, Settings } from 'lucide-react';
 import { useChampionRoutine } from '@/hooks/useChampionRoutine';
-import { Link } from 'react-router-dom';
+import { LearnStepConfigComponent } from '../config/LearnStepConfig';
 
 interface LearnStepProps {
   completed: boolean;
@@ -24,6 +24,7 @@ const LEARN_TYPE_CONFIG = {
 export function LearnStep({ completed, notes, onComplete, onNotesChange, onNext }: LearnStepProps) {
   const { settings } = useChampionRoutine();
   const [localNotes, setLocalNotes] = useState(notes || '');
+  const [configOpen, setConfigOpen] = useState(false);
   
   const learnType = (settings as any)?.learn_task_type || 'book';
   const learnDescription = (settings as any)?.learn_task_description || '';
@@ -75,10 +76,13 @@ export function LearnStep({ completed, notes, onComplete, onNotesChange, onNext 
             <p className="text-sm text-muted-foreground mb-2">
               Nu ai setat un task de învățare
             </p>
-            <Link to="/daily-flow" className="text-xs text-primary hover:underline flex items-center justify-center gap-1">
+            <button 
+              onClick={() => setConfigOpen(true)} 
+              className="text-xs text-primary hover:underline flex items-center justify-center gap-1 mx-auto"
+            >
               <Settings className="h-3 w-3" />
               Configurează în setări
-            </Link>
+            </button>
           </div>
         )}
 
@@ -114,6 +118,11 @@ export function LearnStep({ completed, notes, onComplete, onNotesChange, onNext 
           </Button>
         )}
       </Card>
+
+      <LearnStepConfigComponent 
+        open={configOpen} 
+        onOpenChange={setConfigOpen} 
+      />
     </div>
   );
 }
