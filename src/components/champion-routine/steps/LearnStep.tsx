@@ -93,7 +93,6 @@ export function LearnStep({ completed, notes, onComplete, onNotesChange, onNext 
             onChange={(e) => handleNotesChange(e.target.value)}
             placeholder="Ce ai învățat? Notează ideile principale... (opțional)"
             className="min-h-[100px] resize-none bg-background/50 border-blue-500/30 focus:border-blue-500"
-            disabled={completed}
           />
         </div>
 
