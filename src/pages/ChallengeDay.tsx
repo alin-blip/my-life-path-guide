@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Flame, Heart, Target, Zap, BookOpen, Crown,
-  Play, CheckCircle2, ArrowLeft, ArrowRight, Video, ListChecks, BookMarked,
+  CheckCircle2, ArrowLeft, ArrowRight, ListChecks, BookMarked,
   Dumbbell, Brain, Users, Sparkles, ExternalLink, Map, Bell, Trophy
 } from 'lucide-react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
@@ -75,7 +75,6 @@ const challengeContent: ChallengeDayContent[] = [
     actionPath: "/dashboard",
     focusAreas: ['body', 'being', 'balance', 'business'],
     stepsEn: [
-      "Watch the platform tour video",
       "Explore the Dashboard and understand your progress metrics",
       "Visit the Life Design Blueprint section",
       "Check out the Fitness Hub features",
@@ -83,7 +82,6 @@ const challengeContent: ChallengeDayContent[] = [
       "Browse the Stack collection"
     ],
     stepsRo: [
-      "Privește videoclipul de prezentare a platformei",
       "Explorează Dashboard-ul și înțelege metricile de progres",
       "Vizitează secțiunea Life Design Blueprint",
       "Verifică funcționalitățile Fitness Hub",
@@ -119,7 +117,6 @@ const challengeContent: ChallengeDayContent[] = [
     actionPath: "/door?tab=annual",
     focusAreas: ['body', 'being'],
     stepsEn: [
-      "Watch the video about Body & Being goal setting",
       "Complete the Body section in Life Design Blueprint",
       "Set your annual fitness and health goals",
       "Complete the Being/Spirituality section",
@@ -127,7 +124,6 @@ const challengeContent: ChallengeDayContent[] = [
       "Create specific, measurable goals for each area"
     ],
     stepsRo: [
-      "Privește videoclipul despre setarea obiectivelor Corp & Spirit",
       "Completează secțiunea Corp în Life Design Blueprint",
       "Setează obiectivele anuale de fitness și sănătate",
       "Completează secțiunea Spirit/Spiritualitate",
@@ -163,7 +159,6 @@ const challengeContent: ChallengeDayContent[] = [
     actionPath: "/door?tab=annual",
     focusAreas: ['balance', 'business'],
     stepsEn: [
-      "Watch the video about Balance & Business goal setting",
       "Complete the Love & Relationships section in Life Design Blueprint",
       "Set your annual relationship goals",
       "Complete the Career & Business section",
@@ -171,7 +166,6 @@ const challengeContent: ChallengeDayContent[] = [
       "Review all 4 pillars for completeness"
     ],
     stepsRo: [
-      "Privește videoclipul despre setarea obiectivelor Relații & Business",
       "Completează secțiunea Dragoste & Relații în Life Design Blueprint",
       "Setează obiectivele anuale de relații",
       "Completează secțiunea Carieră & Business",
@@ -207,7 +201,6 @@ const challengeContent: ChallengeDayContent[] = [
     actionPath: "/champion-routine",
     focusAreas: ['body', 'being', 'balance', 'business'],
     stepsEn: [
-      "Watch the video about the Champion Routine",
       "Open Champion Routine configuration",
       "Select your morning practice activities",
       "Set durations for each activity",
@@ -216,7 +209,6 @@ const challengeContent: ChallengeDayContent[] = [
       "Select your goal categories"
     ],
     stepsRo: [
-      "Privește videoclipul despre Rutina Campionului",
       "Deschide configurarea Champion Routine",
       "Selectează activitățile de practică matinală",
       "Setează duratele pentru fiecare activitate",
@@ -257,7 +249,6 @@ const challengeContent: ChallengeDayContent[] = [
     actionPath: "/vision-2026/ai-vision-board",
     focusAreas: ['being'],
     stepsEn: [
-      "Watch the video about AI visualization",
       "Navigate to AI Vision Board generator",
       "Generate images for your goals",
       "Create a personalized AI meditation",
@@ -265,7 +256,6 @@ const challengeContent: ChallengeDayContent[] = [
       "Listen to your custom meditation"
     ],
     stepsRo: [
-      "Privește videoclipul despre vizualizarea AI",
       "Navighează la generatorul AI Vision Board",
       "Generează imagini pentru obiectivele tale",
       "Creează o meditație personalizată cu AI",
@@ -301,7 +291,6 @@ const challengeContent: ChallengeDayContent[] = [
     actionPath: "/settings",
     focusAreas: ['body', 'being', 'balance', 'business'],
     stepsEn: [
-      "Watch the video about accountability",
       "Configure daily reminder notifications",
       "Set your morning routine reminder time",
       "Enable progress tracking notifications",
@@ -309,7 +298,6 @@ const challengeContent: ChallengeDayContent[] = [
       "Share your commitment with them"
     ],
     stepsRo: [
-      "Privește videoclipul despre accountability",
       "Configurează notificările reminder zilnice",
       "Setează ora reminder-ului pentru rutina matinală",
       "Activează notificările de tracking al progresului",
@@ -472,8 +460,8 @@ const ChallengeDayPage = () => {
   };
 
   const allExercisesCompleted = exercises.every(ex => completedExercises.includes(ex.id));
-  const canCompleteDay = videoWatched && allExercisesCompleted;
-  const progressValue = ((videoWatched ? 1 : 0) + completedExercises.length) / (1 + exercises.length) * 100;
+  const canCompleteDay = allExercisesCompleted;
+  const progressValue = (completedExercises.length / exercises.length) * 100;
 
   // Group exercises by area
   const exercisesByArea = exercises.reduce((acc, ex) => {
@@ -736,33 +724,6 @@ const ChallengeDayPage = () => {
           </p>
         </div>
 
-        {/* Video Section */}
-        <Card className="p-6 mb-6 bg-card border-primary/20">
-          <div className="flex items-center gap-2 mb-4">
-            <Video className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-bold text-foreground">
-              {language === 'en' ? 'Video Lesson' : 'Lecție Video'}
-            </h2>
-            {videoWatched && <CheckCircle2 className="h-5 w-5 text-green-500" />}
-          </div>
-          
-          <div className="aspect-video bg-muted rounded-lg flex items-center justify-center mb-4">
-            <div className="text-center">
-              <Play className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-              <p className="text-muted-foreground">{content.videoPlaceholder}</p>
-            </div>
-          </div>
-          
-          {!videoWatched && (
-            <Button 
-              onClick={handleWatchVideo}
-              className={`w-full bg-gradient-to-r ${content.color}`}
-            >
-              <Play className="h-4 w-4 mr-2" />
-              {language === 'en' ? 'Mark as Watched' : 'Marchează ca Vizionat'}
-            </Button>
-          )}
-        </Card>
 
         {/* Steps Section */}
         <Card className="p-6 mb-6 bg-card border-primary/20">
@@ -883,7 +844,7 @@ const ChallengeDayPage = () => {
               <p className="text-muted-foreground mb-4">
                 {canCompleteDay 
                   ? (language === 'en' ? 'You\'re ready to complete this day!' : 'Ești gata să completezi această zi!')
-                  : (language === 'en' ? 'Watch the video and complete all exercises' : 'Vizionează videoclipul și completează toate exercițiile')}
+                  : (language === 'en' ? 'Complete all exercises to finish this day' : 'Completează toate exercițiile pentru a finaliza această zi')}
               </p>
               <Button 
                 size="lg"
