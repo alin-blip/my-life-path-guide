@@ -176,14 +176,14 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                       
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-2">
                           <span className={cn(
-                            "font-bold text-sm uppercase tracking-wide",
-                            isExpanded || hasScoreInThisLevel ? config.text : "text-white/80"
+                            "font-bold text-base uppercase tracking-wide",
+                            isExpanded || hasScoreInThisLevel ? config.text : "text-white/90"
                           )}>
                             {level.name}
                           </span>
-                          <span className="text-xs text-white/40">
+                          <span className="text-xs text-white/50">
                             [{level.range.join('-')}]
                           </span>
                           {hasScoreInThisLevel && (
@@ -193,9 +193,17 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                             </span>
                           )}
                         </div>
+                        {/* Titlu nivel */}
                         <p className={cn(
-                          "text-sm leading-relaxed",
-                          isExpanded || hasScoreInThisLevel ? "text-white/80" : "text-white/50"
+                          "text-sm font-semibold mb-1",
+                          isExpanded || hasScoreInThisLevel ? "text-white" : "text-white/80"
+                        )}>
+                          {level.title}
+                        </p>
+                        {/* Descriere completă */}
+                        <p className={cn(
+                          "text-base leading-relaxed",
+                          isExpanded || hasScoreInThisLevel ? "text-white/90" : "text-white/70"
                         )}>
                           {level.description}
                         </p>
