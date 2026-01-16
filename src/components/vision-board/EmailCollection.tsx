@@ -7,6 +7,7 @@ import { Mail, User, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { trackLead } from '@/lib/facebook-pixel';
+import { toast as sonnerToast } from 'sonner';
 
 interface EmailCollectionProps {
   language: 'en' | 'ro';
@@ -62,6 +63,44 @@ export const EmailCollection: React.FC<EmailCollectionProps> = ({
 
       // Track Facebook Pixel Lead event
       trackLead();
+
+      // Create FREE account automatically
+      const { data: existingSession } = await supabase.auth.getSession();
+      
+      if (!existingSession?.session) {
+        const tempPassword = `Vision${crypto.randomUUID().slice(0, 8)}!`;
+        
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: email.trim().toLowerCase(),
+          password: tempPassword,
+          options: {
+            data: {
+              name: name.trim() || null,
+              plan: 'free'
+            },
+            emailRedirectTo: `${window.location.origin}/vision-2026`
+          }
+        });
+
+        if (signUpError) {
+          if (signUpError.message?.includes('already registered') || signUpError.message?.includes('already been registered')) {
+            console.log('User already exists, continuing as guest...');
+            sonnerToast.info(language === 'en' 
+              ? 'Account already exists. Continue to see your Vision Board.' 
+              : 'Contul există deja. Continuă pentru a vedea Vision Board-ul.');
+          } else {
+            console.error('Error creating account:', signUpError);
+          }
+        } else if (signUpData?.session) {
+          sonnerToast.success(language === 'en' 
+            ? 'Your Free Plan account has been created!' 
+            : 'Contul tău Free Plan a fost creat!');
+        } else if (signUpData?.user && !signUpData?.session) {
+          sonnerToast.success(language === 'en' 
+            ? 'Your account has been created!' 
+            : 'Contul tău a fost creat!');
+        }
+      }
 
       onComplete(email.trim().toLowerCase(), name.trim());
     } catch (error) {
