@@ -6,6 +6,7 @@ import { LifeScoreResult } from './LifeScoreResult';
 import { ArrowRight, ArrowLeft, Mail, Loader2, CheckCircle2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { trackLead } from '@/lib/facebook-pixel';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface LifeScoreQuizProps {
@@ -90,6 +91,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
       if (error) {
         if (error.code === '23505') {
           // Email already exists, just show results
+          trackLead();
           setStep('results');
           return;
         }
@@ -98,6 +100,9 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
         setStep('results');
         return;
       }
+
+      // Track Facebook Pixel Lead event
+      trackLead();
 
       setStep('results');
     } catch (error) {

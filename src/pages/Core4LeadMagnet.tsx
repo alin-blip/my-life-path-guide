@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Download, CheckCircle, Target, Zap, TrendingUp, Shield } from 'lucide-react';
+import { trackLead } from '@/lib/facebook-pixel';
 
 const Core4LeadMagnet = () => {
   const [email, setEmail] = useState('');
@@ -47,11 +48,15 @@ const Core4LeadMagnet = () => {
       if (error) {
         if (error.code === '23505') {
           // Duplicate email - still redirect to thank you
+          trackLead();
           navigate('/core4-thank-you');
           return;
         }
         throw error;
       }
+
+      // Track Facebook Pixel Lead event
+      trackLead();
 
       navigate('/core4-thank-you');
     } catch (error: any) {

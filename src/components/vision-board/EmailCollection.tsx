@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Mail, User, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { trackLead } from '@/lib/facebook-pixel';
 
 interface EmailCollectionProps {
   language: 'en' | 'ro';
@@ -58,6 +59,9 @@ export const EmailCollection: React.FC<EmailCollectionProps> = ({
           metadata: { language }
         });
       }
+
+      // Track Facebook Pixel Lead event
+      trackLead();
 
       onComplete(email.trim().toLowerCase(), name.trim());
     } catch (error) {

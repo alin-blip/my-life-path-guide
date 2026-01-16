@@ -11,6 +11,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { plans, getLocalizedPlan } from "@/data/pricing";
 import { Helmet } from "react-helmet-async";
 import { Crown, Zap, Gift, Check, Rocket, Users } from "lucide-react";
+import { trackPurchase } from "@/lib/facebook-pixel";
 
 const Pricing: React.FC = () => {
   const { toast } = useToast();
@@ -85,6 +86,15 @@ const Pricing: React.FC = () => {
 
     if (success) {
       toast({ title: texts.paymentSuccess, description: texts.updatingSubscription });
+      
+      // Track Facebook Pixel Purchase event based on plan
+      const plan = searchParams.get('plan');
+      if (plan === 'elite') {
+        trackPurchase(497, 'EUR');
+      } else if (plan === 'pro') {
+        trackPurchase(49, 'EUR');
+      }
+      
       refreshSubscription().then(() => navigate('/dashboard'));
     }
     if (canceled) {

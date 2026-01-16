@@ -9,6 +9,7 @@ import { WarriorPowerQuiz } from '@/components/warrior-power/WarriorPowerQuiz';
 import { WarriorPowerResults } from '@/components/warrior-power/WarriorPowerResults';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 import { saveRealityMapScores } from '@/services/realityMapService';
+import { trackLead } from '@/lib/facebook-pixel';
 
 type Step = 'landing' | 'lead-form' | 'quiz' | 'results';
 
@@ -68,6 +69,9 @@ export default function WarriorPower() {
           toast.success('Contul tău Free Plan a fost creat! Verifică emailul pentru detalii.');
         }
       }
+
+      // Track Facebook Pixel Lead event
+      trackLead();
 
       setLeadData(data);
       setStep('quiz');
