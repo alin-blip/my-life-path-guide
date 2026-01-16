@@ -16,7 +16,9 @@ import {
   ChevronRight,
   Star,
   MessageSquare,
-  Crown
+  Crown,
+  Rocket,
+  ArrowRight
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -27,6 +29,7 @@ import { WarriorAiMentor, WarriorAiMentorButton } from '@/components/warriors-wa
 import { WarriorTrainerPreview } from '@/components/warriors-way/WarriorTrainerPreview';
 import { WarriorTrainerSalesLetter } from '@/components/warriors-way/WarriorTrainerSalesLetter';
 import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
 
 interface CourseModule {
   id: string;
@@ -204,6 +207,12 @@ const WarriorsWay: React.FC = () => {
   const totalModules = (COURSE_SECTIONS as CourseSection[]).reduce((acc, section) => acc + section.modules.length, 0);
   const completedModules = progress.filter(p => p.completed).length;
 
+  // Only first video (intro-1) is free, rest are locked
+  const isModuleUnlocked = (moduleId: string): boolean => {
+    if (isAdmin) return true;
+    return moduleId === 'intro-1';
+  };
+
   const handleModuleClick = (moduleId: string, section: CourseSection) => {
     // Check if this is the Trainer upgrade section
     if (section.isUpgrade) {
@@ -217,15 +226,12 @@ const WarriorsWay: React.FC = () => {
       return;
     }
     
-    if (!section.isFree && !user) {
+    // Only first module is free
+    if (!isModuleUnlocked(moduleId)) {
       setShowPremiumGate(true);
       return;
     }
-    // For now, allow access to free content, show gate for premium
-    if (!section.isFree) {
-      setShowPremiumGate(true);
-      return;
-    }
+    
     setSelectedModule(moduleId);
   };
 
@@ -272,10 +278,34 @@ const WarriorsWay: React.FC = () => {
               <GraduationCap className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">Learn the Warrior's Way</h1>
+              <h1 className="text-3xl font-bold">Warrior Launch Accelerator</h1>
               <p className="text-muted-foreground">Transformă-ți viața prin Calea Războinicului</p>
             </div>
           </div>
+
+          {/* CTA Banner to Sales Page */}
+          <Card className="mb-6 bg-gradient-to-r from-primary/10 via-amber-500/10 to-orange-500/10 border-primary/20">
+            <CardContent className="py-6">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Rocket className="h-8 w-8 text-primary" />
+                  <div>
+                    <h3 className="font-bold text-lg">Deblochează Toate Cele 47+ Lecții</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Acces complet la curs + platforma WarriorOS - 970 EUR
+                    </p>
+                  </div>
+                </div>
+                <Link to="/warrior-launch-accelerator">
+                  <Button className="bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90">
+                    <Rocket className="h-4 w-4 mr-2" />
+                    Obține Acces Complet
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Progress Overview */}
           <Card className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border-amber-500/20">
@@ -361,7 +391,7 @@ const WarriorsWay: React.FC = () => {
                     <div className="space-y-2 mt-2">
                       {section.modules.map((module, moduleIndex) => {
                         const isCompleted = isModuleCompleted(module.id);
-                        const isLocked = !section.isFree;
+                        const isLocked = !isModuleUnlocked(module.id);
 
                         return (
                           <button
@@ -403,6 +433,11 @@ const WarriorsWay: React.FC = () => {
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <Clock className="h-3 w-3" />
                                 {module.duration}
+                                {!isLocked && moduleIndex === 0 && section.id === 'intro' && (
+                                  <Badge variant="secondary" className="ml-2 bg-green-500/20 text-green-500 text-[10px]">
+                                    GRATUIT
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                             <ChevronRight className={cn(
