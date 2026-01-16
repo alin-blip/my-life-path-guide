@@ -50,6 +50,10 @@ serve(async (req) => {
     let interval: "month" | "year" = "month";
     let productName = "Operator Pro";
 
+    // Determine if this is a one-time payment or subscription
+    let paymentMode: "subscription" | "payment" = "subscription";
+    let currency = "ron";
+
     switch (plan) {
       case "basic":
         unitAmount = 9700; // 97 LEI
@@ -77,34 +81,66 @@ serve(async (req) => {
         unitAmount = 19700; // 197 LEI
         productName = "Jump to Freedom - Premium + Coaching";
         break;
+      case "warrior-accelerator":
+        unitAmount = 97000; // 970 EUR în cenți
+        currency = "eur";
+        paymentMode = "payment";
+        productName = "Warrior Launch Accelerator";
+        break;
       default:
         throw new Error("Plan invalid");
     }
 
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      customer_email: customerId ? undefined : user.email,
-      mode: "subscription",
-      line_items: [
-        {
+    // Determine success and cancel URLs based on plan
+    const successUrl = plan === "warrior-accelerator" 
+      ? `${req.headers.get("origin")}/warrior-accelerator-thank-you?checkout=success&session_id={CHECKOUT_SESSION_ID}`
+      : `${req.headers.get("origin")}/door?tab=annual&checkout=success`;
+    
+    const cancelUrl = plan === "warrior-accelerator"
+      ? `${req.headers.get("origin")}/warrior-launch-accelerator?canceled=true`
+      : `${req.headers.get("origin")}/pricing?canceled=true`;
+
+    // Build line items based on payment mode
+    const lineItems = paymentMode === "payment" 
+      ? [{
           price_data: {
-            currency: "ron",
+            currency,
+            product_data: { name: productName },
+            unit_amount: unitAmount,
+          },
+          quantity: 1,
+        }]
+      : [{
+          price_data: {
+            currency,
             product_data: { name: productName },
             unit_amount: unitAmount,
             recurring: { interval },
           },
           quantity: 1,
-        },
-      ],
-      subscription_data: trialDays ? { trial_period_days: trialDays } : undefined,
+        }];
+
+    const sessionConfig: any = {
+      customer: customerId,
+      customer_email: customerId ? undefined : user.email,
+      mode: paymentMode,
+      line_items: lineItems,
       metadata: {
         plan_id: plan,
+        user_id: user.id,
         coaching_included: plan === "premium-coach" ? "true" : "false"
       },
-      success_url: `${req.headers.get("origin")}/door?tab=annual&checkout=success`,
-      cancel_url: `${req.headers.get("origin")}/pricing?canceled=true`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       allow_promotion_codes: true,
-    });
+    };
+
+    // Add subscription data only for subscriptions
+    if (paymentMode === "subscription" && trialDays) {
+      sessionConfig.subscription_data = { trial_period_days: trialDays };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

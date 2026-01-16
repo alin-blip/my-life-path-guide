@@ -179,6 +179,7 @@ const WarriorsWay: React.FC = () => {
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [showAiMentor, setShowAiMentor] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false);
   const [showTrainerPreview, setShowTrainerPreview] = useState(false);
   const [showTrainerSalesLetter, setShowTrainerSalesLetter] = useState(false);
   const { progress, isModuleCompleted, markModuleComplete, overallProgress } = useWarriorsCourse();
@@ -204,12 +205,34 @@ const WarriorsWay: React.FC = () => {
     checkAdminRole();
   }, [user]);
 
+  // Check if user has purchased the course
+  useEffect(() => {
+    const checkPurchase = async () => {
+      if (!user) {
+        setHasPurchased(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('course_purchases')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('product_id', 'warrior-accelerator')
+        .maybeSingle();
+
+      setHasPurchased(!!data);
+    };
+
+    checkPurchase();
+  }, [user]);
+
   const totalModules = (COURSE_SECTIONS as CourseSection[]).reduce((acc, section) => acc + section.modules.length, 0);
   const completedModules = progress.filter(p => p.completed).length;
 
-  // Only first video (intro-1) is free, rest are locked
+  // Unlock all modules if admin or purchased
   const isModuleUnlocked = (moduleId: string): boolean => {
     if (isAdmin) return true;
+    if (hasPurchased) return true;
     return moduleId === 'intro-1';
   };
 
