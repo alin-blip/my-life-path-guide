@@ -132,17 +132,13 @@ const challengeContent: ChallengeDayContent[] = [
     ],
     exercisesEn: [
       { id: "ex1", title: "Body Annual Goal", description: "Set your annual Health & Fitness objectives in the Command Center", area: "body", link: "/door?tab=annual", linkLabel: "Set Body Goals" },
-      { id: "ex2", title: "Annual Body Goal", description: "Set 1 major body/fitness goal for 2026 (e.g., lose 10kg, run marathon)", area: "body" },
-      { id: "ex3", title: "Being Annual Goal", description: "Set your annual Spirituality & Purpose objectives", area: "being", link: "/door?tab=annual", linkLabel: "Set Being Goals" },
-      { id: "ex4", title: "Annual Being Goal", description: "Set 1 major spiritual/purpose goal for 2026 (e.g., daily meditation, find purpose)", area: "being" },
-      { id: "ex5", title: "Vision 2026 Entry", description: "Add your Body & Being goals to Vision 2026", area: "being", link: "/vision-2026/dashboard", linkLabel: "Open Vision 2026" }
+      { id: "ex2", title: "Being Annual Goal", description: "Set your annual Spirituality & Purpose objectives in the Command Center", area: "being", link: "/door?tab=annual", linkLabel: "Set Being Goals" },
+      { id: "ex3", title: "Review Progress", description: "Confirm you have set clear and measurable goals for Body and Being", area: "being" }
     ],
     exercisesRo: [
       { id: "ex1", title: "Obiectiv Anual Corp", description: "Setează obiectivele anuale de Sănătate & Fitness în Centrul de Comandă", area: "body", link: "/door?tab=annual", linkLabel: "Setează Obiective Corp" },
-      { id: "ex2", title: "Obiectiv Anual Corp", description: "Setează 1 obiectiv major de corp/fitness pentru 2026 (ex: slăbește 10kg, aleargă maraton)", area: "body" },
-      { id: "ex3", title: "Obiectiv Anual Spirit", description: "Setează obiectivele anuale de Spiritualitate & Scop", area: "being", link: "/door?tab=annual", linkLabel: "Setează Obiective Spirit" },
-      { id: "ex4", title: "Obiectiv Anual Spirit", description: "Setează 1 obiectiv major spiritual pentru 2026 (ex: meditație zilnică, găsește scopul)", area: "being" },
-      { id: "ex5", title: "Intrare Vision 2026", description: "Adaugă obiectivele Corp & Spirit în Vision 2026", area: "being", link: "/vision-2026/dashboard", linkLabel: "Deschide Vision 2026" }
+      { id: "ex2", title: "Obiectiv Anual Spirit", description: "Setează obiectivele anuale de Spiritualitate & Scop în Centrul de Comandă", area: "being", link: "/door?tab=annual", linkLabel: "Setează Obiective Spirit" },
+      { id: "ex3", title: "Verifică Progresul", description: "Confirmă că ai setat obiective clare și măsurabile pentru Corp și Spirit", area: "being" }
     ]
   },
   {
@@ -174,17 +170,13 @@ const challengeContent: ChallengeDayContent[] = [
     ],
     exercisesEn: [
       { id: "ex1", title: "Balance Annual Goal", description: "Set your annual Relationships & Love objectives in the Command Center", area: "balance", link: "/door?tab=annual", linkLabel: "Set Balance Goals" },
-      { id: "ex2", title: "Annual Relationship Goal", description: "Set 1 major relationship goal for 2026 (e.g., improve marriage, connect with family)", area: "balance" },
-      { id: "ex3", title: "Business Annual Goal", description: "Set your annual Career & Business objectives", area: "business", link: "/door?tab=annual", linkLabel: "Set Business Goals" },
-      { id: "ex4", title: "Annual Business Goal", description: "Set 1 major business/career goal for 2026 (e.g., earn X, promotion, start business)", area: "business" },
-      { id: "ex5", title: "Complete Vision 2026", description: "Add Balance & Business goals to complete your 2026 vision", area: "business", link: "/vision-2026/dashboard", linkLabel: "Open Vision 2026" }
+      { id: "ex2", title: "Business Annual Goal", description: "Set your annual Career & Business objectives in the Command Center", area: "business", link: "/door?tab=annual", linkLabel: "Set Business Goals" },
+      { id: "ex3", title: "Complete Vision Review", description: "Confirm you have set goals for all 4 pillars: Body, Being, Balance, Business", area: "business", link: "/door?tab=annual", linkLabel: "View All Goals" }
     ],
     exercisesRo: [
       { id: "ex1", title: "Obiectiv Anual Relații", description: "Setează obiectivele anuale de Relații & Dragoste în Centrul de Comandă", area: "balance", link: "/door?tab=annual", linkLabel: "Setează Obiective Relații" },
-      { id: "ex2", title: "Obiectiv Anual Relații", description: "Setează 1 obiectiv major de relații pentru 2026 (ex: îmbunătățește căsnicia, conectează-te cu familia)", area: "balance" },
-      { id: "ex3", title: "Obiectiv Anual Business", description: "Setează obiectivele anuale de Carieră & Business", area: "business", link: "/door?tab=annual", linkLabel: "Setează Obiective Business" },
-      { id: "ex4", title: "Obiectiv Anual Business", description: "Setează 1 obiectiv major de business pentru 2026 (ex: câștigă X, promovare, începe afacere)", area: "business" },
-      { id: "ex5", title: "Completează Vision 2026", description: "Adaugă obiectivele Relații & Business pentru a completa viziunea 2026", area: "business", link: "/vision-2026/dashboard", linkLabel: "Deschide Vision 2026" }
+      { id: "ex2", title: "Obiectiv Anual Business", description: "Setează obiectivele anuale de Carieră & Business în Centrul de Comandă", area: "business", link: "/door?tab=annual", linkLabel: "Setează Obiective Business" },
+      { id: "ex3", title: "Verifică Viziunea Completă", description: "Confirmă că ai setat obiective pentru toți 4 pilonii: Corp, Spirit, Relații, Business", area: "business", link: "/door?tab=annual", linkLabel: "Vezi Toate Obiectivele" }
     ]
   },
   {
