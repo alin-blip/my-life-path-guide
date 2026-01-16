@@ -2243,6 +2243,33 @@ export type Database = {
         }
         Relationships: []
       }
+      public_rate_limits: {
+        Row: {
+          created_at: string | null
+          endpoint: string
+          id: string
+          ip_address: string
+          request_count: number | null
+          window_start: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          ip_address: string
+          request_count?: number | null
+          window_start?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          request_count?: number | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       quests: {
         Row: {
           action_type: string
@@ -3971,6 +3998,7 @@ export type Database = {
         Args: { target_task_types?: string[]; target_week_key: string }
         Returns: undefined
       }
+      cleanup_old_rate_limits: { Args: never; Returns: undefined }
       clear_user_task_history: {
         Args: { target_user_id: string }
         Returns: undefined

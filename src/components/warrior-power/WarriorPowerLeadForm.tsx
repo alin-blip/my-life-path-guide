@@ -9,9 +9,18 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 
 const leadFormSchema = z.object({
-  name: z.string().min(2, 'Numele trebuie să aibă cel puțin 2 caractere').max(100),
-  email: z.string().email('Email invalid').max(254),
-  phone: z.string().min(10, 'Număr de telefon invalid').max(20),
+  name: z.string()
+    .min(2, 'Numele trebuie să aibă cel puțin 2 caractere')
+    .max(100, 'Numele nu poate depăși 100 caractere')
+    .regex(/^[a-zA-ZăâîșțĂÂÎȘȚ\s\-']+$/, 'Numele conține caractere invalide'),
+  email: z.string()
+    .email('Email invalid')
+    .max(254, 'Email-ul nu poate depăși 254 caractere')
+    .regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, 'Format email invalid'),
+  phone: z.string()
+    .min(10, 'Număr de telefon invalid')
+    .max(20, 'Numărul de telefon nu poate depăși 20 caractere')
+    .regex(/^[+]?[0-9\s\-()]+$/, 'Număr de telefon invalid'),
   gender: z.enum(['male', 'female'], { required_error: 'Selectează genul' })
 });
 
@@ -78,8 +87,9 @@ export function WarriorPowerLeadForm({ onSubmit, isLoading }: WarriorPowerLeadFo
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value.slice(0, 100) }))}
               placeholder="Numele tău complet"
+              maxLength={100}
               className={errors.name ? 'border-destructive' : ''}
             />
             {errors.name && (
@@ -97,8 +107,9 @@ export function WarriorPowerLeadForm({ onSubmit, isLoading }: WarriorPowerLeadFo
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value.slice(0, 254) }))}
               placeholder="email@exemplu.com"
+              maxLength={254}
               className={errors.email ? 'border-destructive' : ''}
             />
             {errors.email && (
@@ -116,8 +127,9 @@ export function WarriorPowerLeadForm({ onSubmit, isLoading }: WarriorPowerLeadFo
               id="phone"
               type="tel"
               value={formData.phone}
-              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value.replace(/[^0-9+\-\s()]/g, '').slice(0, 20) }))}
               placeholder="+40 7XX XXX XXX"
+              maxLength={20}
               className={errors.phone ? 'border-destructive' : ''}
             />
             {errors.phone && (
