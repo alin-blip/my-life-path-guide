@@ -3302,6 +3302,39 @@ export type Database = {
         }
         Relationships: []
       }
+      warriors_way_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          module_id: string
+          updated_at: string | null
+          user_id: string
+          watched_seconds: number | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          module_id: string
+          updated_at?: string | null
+          user_id: string
+          watched_seconds?: number | null
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          module_id?: string
+          updated_at?: string | null
+          user_id?: string
+          watched_seconds?: number | null
+        }
+        Relationships: []
+      }
       weekly_planning: {
         Row: {
           created_at: string | null

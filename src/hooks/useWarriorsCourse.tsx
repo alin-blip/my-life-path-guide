@@ -15,7 +15,7 @@ export const useWarriorsCourse = () => {
   const [progress, setProgress] = useState<ModuleProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch user's course progress
+  // Fetch user's course progress from warriors_way_progress table
   const fetchProgress = useCallback(async () => {
     if (!user) {
       setProgress([]);
@@ -25,7 +25,7 @@ export const useWarriorsCourse = () => {
 
     try {
       const { data, error } = await supabase
-        .from('user_course_progress')
+        .from('warriors_way_progress')
         .select('module_id, completed, watched_seconds, completed_at')
         .eq('user_id', user.id);
 
@@ -62,7 +62,7 @@ export const useWarriorsCourse = () => {
 
     try {
       const { error } = await supabase
-        .from('user_course_progress')
+        .from('warriors_way_progress')
         .upsert({
           user_id: user.id,
           module_id: moduleId,
@@ -105,7 +105,7 @@ export const useWarriorsCourse = () => {
 
     try {
       await supabase
-        .from('user_course_progress')
+        .from('warriors_way_progress')
         .upsert({
           user_id: user.id,
           module_id: moduleId,
