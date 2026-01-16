@@ -78,6 +78,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const LifeScore = lazy(() => import("./pages/LifeScore"));
 const WarriorsWay = lazy(() => import("./pages/WarriorsWay"));
+const WarriorLaunchAccelerator = lazy(() => import("./pages/WarriorLaunchAccelerator"));
 const WarriorPower = lazy(() => import("./pages/WarriorPower"));
 const GameObjectives = lazy(() => import("./pages/GameObjectives"));
 
@@ -342,6 +343,7 @@ const App = () => (
                         <WarriorsWay />
                       </ProtectedRoute>
                     } />
+                    <Route path="/warrior-launch-accelerator" element={<WarriorLaunchAccelerator />} />
                     <Route path="/warrior-power" element={<WarriorPower />} />
                     <Route path="/game-objectives" element={
                       <ProtectedRoute>
