@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { PenTool, ArrowRight, Check, Lightbulb } from 'lucide-react';
-import { useChampionRoutine } from '@/hooks/useChampionRoutine';
+import { PenTool, ArrowRight, Check, BookOpen, Sparkles } from 'lucide-react';
+import { IntrospectionStack } from '@/components/stack/introspection-stack/IntrospectionStack';
 
 interface JournalingStepProps {
   completed: boolean;
@@ -11,121 +10,103 @@ interface JournalingStepProps {
   onNext: () => void;
 }
 
-const JOURNAL_PROMPTS = [
-  'Ce am învățat ieri și cum pot aplica azi?',
-  'Ce obstacole anticipez și cum le voi depăși?',
-  'Ce îmi doresc cel mai mult să realizez astăzi?',
-  'Cum pot fi o versiune mai bună a mea azi?',
-];
-
 export function JournalingStep({ completed, onComplete, onNext }: JournalingStepProps) {
-  const { settings } = useChampionRoutine();
-  const [journalText, setJournalText] = useState('');
-  const [showPrompts, setShowPrompts] = useState(false);
+  const [showStack, setShowStack] = useState(false);
 
-  // Get settings for journaling
-  const minWords = (settings as any)?.journaling_min_words || 0;
-  const showPromptsEnabled = (settings as any)?.journaling_show_prompts !== false;
-
-  const handleConfirm = () => {
+  const handleStackComplete = () => {
     onComplete(true);
     setTimeout(() => onNext(), 500);
   };
 
-  const wordCount = journalText.trim().split(/\s+/).filter(w => w.length > 0).length;
-  const canConfirm = minWords === 0 || wordCount >= minWords;
+  // Completed state
+  if (completed) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+        <Card className="w-full max-w-2xl p-8 space-y-6 bg-gradient-to-br from-green-500/10 via-emerald-500/5 to-transparent border-green-500/20">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/20">
+              <Check className="h-10 w-10 text-green-500" />
+            </div>
+            <h1 className="text-2xl font-bold">Jurnaling Completat!</h1>
+            <p className="text-muted-foreground">Ai finalizat sesiunea de introspecție profundă.</p>
+          </div>
+          <Button onClick={onNext} size="lg" className="w-full gap-2">
+            Continuă <ArrowRight className="h-5 w-5" />
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
+  // Show IntrospectionStack
+  if (showStack) {
+    return (
+      <div className="min-h-[70vh] px-4 pb-20">
+        <div className="mb-4">
+          <IntrospectionStack
+            onAddToHitList={(action) => console.log('Add to HitList:', action)}
+            mode="text"
+          />
+        </div>
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm border-t">
+          <div className="max-w-2xl mx-auto">
+            <Button 
+              onClick={handleStackComplete}
+              size="lg"
+              className="w-full gap-2 bg-green-500 hover:bg-green-600"
+            >
+              <Check className="h-5 w-5" />
+              Finalizează Jurnaling
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Start screen
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
       <Card className="w-full max-w-2xl p-8 space-y-6 bg-gradient-to-br from-orange-500/10 via-amber-500/5 to-transparent border-orange-500/20">
-        {/* Icon and Title */}
         <div className="text-center space-y-3">
-          <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full transition-all duration-500 ${
-            completed ? 'bg-green-500/20 scale-110' : 'bg-orange-500/20'
-          }`}>
-            {completed ? (
-              <Check className="h-10 w-10 text-green-500" />
-            ) : (
-              <PenTool className="h-10 w-10 text-orange-500" />
-            )}
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-orange-500/20">
+            <PenTool className="h-10 w-10 text-orange-500" />
           </div>
-          <h1 className="text-2xl font-bold">Journaling</h1>
+          <h1 className="text-2xl font-bold">Jurnaling - Introspecție Profundă</h1>
           <p className="text-muted-foreground text-sm max-w-md mx-auto">
-            Scrie-ți gândurile și reflecțiile. Clarifică-ți mintea prin scris.
+            O sesiune ghidată de auto-reflecție cu întrebări puternice care te ajută să te cunoști mai bine.
+          </p>
+        </div>
+        
+        <div className="bg-muted/30 rounded-lg p-4 space-y-3">
+          <h3 className="font-medium flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-orange-500" />
+            Ce vei explora:
+          </h3>
+          <ul className="text-sm text-muted-foreground space-y-2 ml-6 list-disc">
+            <li>Conștientizare de sine - emoții și valori</li>
+            <li>Creștere personală - frici și blocaje</li>
+            <li>Relații - atenție și conexiuni</li>
+            <li>Scop și sens în viață</li>
+            <li>Acțiuni concrete pentru schimbare</li>
+          </ul>
+        </div>
+
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+          <Sparkles className="h-5 w-5 text-orange-500 flex-shrink-0" />
+          <p className="text-sm text-muted-foreground">
+            Coach AI te va ghida prin întrebări de reflecție și îți va oferi perspective valoroase.
           </p>
         </div>
 
-        {/* Journal textarea */}
-        <div className="space-y-3">
-          <Textarea
-            value={journalText}
-            onChange={(e) => setJournalText(e.target.value)}
-            placeholder="Scrie aici gândurile tale..."
-            className="min-h-[200px] resize-none bg-background/50 border-orange-500/30 focus:border-orange-500"
-            disabled={completed}
-          />
-          <div className="flex justify-between items-center text-xs text-muted-foreground">
-            <span className={!canConfirm ? 'text-orange-500 font-medium' : ''}>
-              {wordCount} {minWords > 0 ? `/ ${minWords}` : ''} cuvinte
-            </span>
-            {showPromptsEnabled && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowPrompts(!showPrompts)}
-                className="gap-1 text-xs h-7"
-              >
-                <Lightbulb className="h-3 w-3" />
-                {showPrompts ? 'Ascunde' : 'Inspirație'}
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Journal prompts - collapsible */}
-        {showPromptsEnabled && showPrompts && (
-          <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
-            <p className="text-xs font-medium text-muted-foreground">
-              Întrebări pentru reflecție:
-            </p>
-            <div className="grid grid-cols-1 gap-2">
-              {JOURNAL_PROMPTS.map((prompt, index) => (
-                <button
-                  key={index}
-                  onClick={() => setJournalText(prev => prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`)}
-                  className="p-3 rounded-lg bg-muted/30 border-l-4 border-orange-500/50 text-left text-sm hover:bg-muted/50 transition-colors"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Action button */}
-        {!completed ? (
-          <Button 
-            onClick={handleConfirm} 
-            size="lg" 
-            className="w-full gap-2 bg-orange-500 hover:bg-orange-600"
-            disabled={!canConfirm}
-          >
-            <PenTool className="h-5 w-5" />
-            {minWords > 0 && !canConfirm 
-              ? `Încă ${minWords - wordCount} cuvinte...` 
-              : `Am terminat (${wordCount} cuvinte)`
-            }
-          </Button>
-        ) : (
-          <Button 
-            onClick={onNext} 
-            size="lg" 
-            className="w-full gap-2"
-          >
-            Continuă
-            <ArrowRight className="h-5 w-5" />
-          </Button>
-        )}
+        <Button 
+          onClick={() => setShowStack(true)} 
+          size="lg" 
+          className="w-full gap-2 bg-orange-500 hover:bg-orange-600"
+        >
+          <PenTool className="h-5 w-5" />
+          Începe Sesiunea de Jurnaling
+        </Button>
       </Card>
     </div>
   );
