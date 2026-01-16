@@ -234,35 +234,35 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-8">
-      <div className="container max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-6 sm:py-8 overflow-x-hidden">
+      <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 overflow-x-hidden">
         {/* Header with Progress */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className={cn("p-3 rounded-xl", dimensionConfig.bg)}>
-                <DimensionIcon className={cn("w-6 h-6", dimensionConfig.color)} />
+          <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className={cn("p-2 sm:p-3 rounded-lg sm:rounded-xl flex-shrink-0", dimensionConfig.bg)}>
+                <DimensionIcon className={cn("w-5 h-5 sm:w-6 sm:h-6", dimensionConfig.color)} />
               </div>
-              <div>
-                <h2 className={cn("text-xl font-bold", dimensionConfig.color)}>
+              <div className="min-w-0">
+                <h2 className={cn("text-lg sm:text-xl font-bold truncate", dimensionConfig.color)}>
                   {dimensionConfig.title}
                 </h2>
-                <p className="text-sm text-muted-foreground">{dimensionConfig.subtitle}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">{dimensionConfig.subtitle}</p>
               </div>
             </div>
-            <div className="text-right">
-              <span className="text-2xl font-bold text-foreground">{currentQuestionIndex + 1}</span>
-              <span className="text-muted-foreground">/{totalQuestions}</span>
+            <div className="text-right flex-shrink-0">
+              <span className="text-xl sm:text-2xl font-bold text-foreground">{currentQuestionIndex + 1}</span>
+              <span className="text-muted-foreground text-sm sm:text-base">/{totalQuestions}</span>
             </div>
           </div>
           
-          <Progress value={progress} className="h-2 bg-muted" />
+          <Progress value={progress} className="h-1.5 sm:h-2 bg-muted" />
           
-          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+          <div className="flex justify-between mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-muted-foreground">
             <span>Progres Evaluare</span>
             <span>{Math.round(progress)}% Complet</span>
           </div>
@@ -278,21 +278,21 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
             transition={{ duration: 0.3 }}
           >
             <Card className={cn(
-              "p-6 mb-6 border-2 bg-gradient-to-br",
+              "p-4 sm:p-6 mb-4 sm:mb-6 border-2 bg-gradient-to-br overflow-hidden",
               dimensionConfig.gradient,
               "border-border/50"
             )}>
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-primary mb-1">
+              <div className="mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-primary mb-1">
                   {currentQuestion.section}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {currentQuestion.sectionDescription}
                 </p>
               </div>
 
               {/* Level Cards */}
-              <div className="space-y-3 mb-6">
+              <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                 {currentQuestion.levels.map((level, idx) => {
                   const levelKey = level.name.toUpperCase() as keyof typeof LEVEL_CONFIG;
                   const config = LEVEL_CONFIG[levelKey];
@@ -309,8 +309,8 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                       <button
                         onClick={() => handleLevelSelect(level.name)}
                         className={cn(
-                          "w-full text-left p-4 rounded-xl border-2 transition-all duration-300",
-                          "hover:scale-[1.02] cursor-pointer",
+                          "w-full text-left p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-300",
+                          "hover:scale-[1.01] sm:hover:scale-[1.02] cursor-pointer",
                           isSelected ? [
                             config.bg,
                             config.border,
@@ -323,27 +323,27 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                           ]
                         )}
                       >
-                        <div className="flex items-start gap-3">
-                          <span className="text-2xl">{config.icon}</span>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-start gap-2 sm:gap-3">
+                          <span className="text-xl sm:text-2xl flex-shrink-0">{config.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
                               <span className={cn(
-                                "font-bold text-lg",
+                                "font-bold text-base sm:text-lg",
                                 isSelected ? config.text : "text-foreground"
                               )}>
                                 {level.name}
                               </span>
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                              <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                                 {config.range[0]}-{config.range[2]} pts
                               </span>
                             </div>
                             <p className={cn(
-                              "text-sm font-medium mb-2",
+                              "text-xs sm:text-sm font-medium mb-1 sm:mb-2",
                               isSelected ? config.text : "text-foreground/80"
                             )}>
                               {level.title}
                             </p>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
+                            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                               {level.description}
                             </p>
                           </div>
@@ -375,11 +375,11 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                     exit={{ opacity: 0, height: 0 }}
                     className="mb-6"
                   >
-                    <div className="p-4 rounded-xl bg-card/80 border border-border">
-                      <p className="text-sm text-muted-foreground mb-3 text-center">
+                    <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-card/80 border border-border">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3 text-center">
                         Alege scorul exact pentru nivelul <span className="font-bold text-primary">{selectedLevel}</span>:
                       </p>
-                      <div className="flex justify-center gap-2">
+                      <div className="flex justify-center gap-1.5 sm:gap-2">
                         {(() => {
                           const levelKey = selectedLevel.toUpperCase() as keyof typeof LEVEL_CONFIG;
                           const config = LEVEL_CONFIG[levelKey];
@@ -390,7 +390,7 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                               key={score}
                               onClick={() => handleScoreSelect(score)}
                               className={cn(
-                                "w-14 h-14 rounded-xl border-2 font-bold text-lg transition-all duration-200",
+                                "w-11 h-11 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl border-2 font-bold text-base sm:text-lg transition-all duration-200",
                                 selectedScore === score ? [
                                   `bg-gradient-to-r ${config.gradient}`,
                                   "border-transparent",
@@ -401,7 +401,7 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                                   config.bg,
                                   config.border,
                                   config.text,
-                                  "hover:scale-110"
+                                  "hover:scale-105 sm:hover:scale-110"
                                 ]
                               )}
                             >
@@ -419,21 +419,23 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
         </AnimatePresence>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <Button
             variant="outline"
             onClick={handlePrev}
             disabled={currentQuestionIndex === 0}
-            className="gap-2"
+            className="gap-1 sm:gap-2 px-3 sm:px-4"
+            size="sm"
           >
             <ChevronLeft className="w-4 h-4" />
-            Înapoi
+            <span className="hidden sm:inline">Înapoi</span>
           </Button>
 
           {selectedScore !== null && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
+              className="hidden sm:block"
             >
               {(() => {
                 const levelKey = selectedLevel?.toUpperCase() as keyof typeof LEVEL_CONFIG;
@@ -441,16 +443,16 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                 
                 return config ? (
                   <div className={cn(
-                    "inline-flex items-center gap-3 px-6 py-3 rounded-full border-2",
+                    "inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2 sm:py-3 rounded-full border-2",
                     config.bg,
                     config.border
                   )}>
-                    <span className="text-2xl">{config.icon}</span>
-                    <div>
+                    <span className="text-xl sm:text-2xl">{config.icon}</span>
+                    <div className="text-sm sm:text-base">
                       <span className={cn("font-bold", config.text)}>
                         {selectedLevel}
                       </span>
-                      <span className="text-muted-foreground mx-2">•</span>
+                      <span className="text-muted-foreground mx-1.5 sm:mx-2">•</span>
                       <span className="font-bold text-foreground">Scor: {selectedScore}</span>
                     </div>
                   </div>
@@ -463,15 +465,18 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
             onClick={handleNext}
             disabled={selectedScore === null || isSubmitting}
             className={cn(
-              "gap-2 bg-gradient-to-r from-primary to-primary/80",
+              "gap-1 sm:gap-2 bg-gradient-to-r from-primary to-primary/80 px-3 sm:px-4",
               "hover:from-primary/90 hover:to-primary/70"
             )}
+            size="sm"
           >
-            {currentQuestionIndex === totalQuestions - 1 ? (
-              isSubmitting ? 'Se salvează...' : 'Finalizează'
-            ) : (
-              'Continuă'
-            )}
+            <span className="text-sm">
+              {currentQuestionIndex === totalQuestions - 1 ? (
+                isSubmitting ? 'Salvare...' : 'Finalizează'
+              ) : (
+                'Continuă'
+              )}
+            </span>
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
