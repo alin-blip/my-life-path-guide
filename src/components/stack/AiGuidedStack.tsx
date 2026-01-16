@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, ArrowLeft, CheckCircle, PlusCircle, RotateCcw, Volume2, VolumeX, Mic, MicOff, Pause, Play, SkipForward, Download, FileText, Star, StickyNote, Share2, Copy, Check, Target, ListTodo, ArrowRight } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { TextToSpeechButton } from '@/components/ui/TextToSpeechButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -1401,7 +1402,9 @@ Răspunde în română cu un ton cald și profesionist.`;
                 } ${message.isHighlighted ? 'ring-2 ring-yellow-500' : ''}`}
               >
                 <div className="flex items-start gap-2">
-                  <p className="flex-1 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  <div className="flex-1 prose prose-sm max-w-none dark:prose-invert text-xs sm:text-sm leading-relaxed">
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  </div>
                   {message.role === 'assistant' && !voiceOnlyMode && (
                     <TextToSpeechButton 
                       text={message.content}

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useWarriorAiCoach } from '@/hooks/useWarriorAiCoach';
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
 
 interface WarriorAiMentorProps {
   onNavigateToModule?: (moduleId: string) => void;
@@ -178,7 +179,9 @@ export const WarriorAiMentor: React.FC<WarriorAiMentorProps> = ({
                       ? "bg-primary text-primary-foreground rounded-tr-none" 
                       : "bg-muted rounded-tl-none"
                   )}>
-                    <div className="whitespace-pre-wrap">{message.content}</div>
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               ))}

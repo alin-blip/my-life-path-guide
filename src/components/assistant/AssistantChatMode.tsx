@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Loader2, User, Bot } from 'lucide-react';
 import { AssistantMessage } from '@/hooks/usePlatformAssistant';
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
 
 interface AssistantChatModeProps {
   messages: AssistantMessage[];
@@ -95,7 +96,9 @@ export const AssistantChatMode: React.FC<AssistantChatModeProps> = ({
                     : 'bg-muted'
                 )}
               >
-                <p className="whitespace-pre-wrap">{message.content}</p>
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                </div>
               </div>
               
               {message.role === 'user' && (
