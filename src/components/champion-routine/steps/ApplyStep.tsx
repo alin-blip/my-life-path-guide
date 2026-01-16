@@ -76,8 +76,7 @@ export function ApplyStep({ completed, notes, onComplete, onNotesChange, onNext 
               <button
                 key={index}
                 onClick={() => handleSuggestionClick(text)}
-                disabled={completed}
-                className="p-3 rounded-lg bg-muted/30 border border-muted-foreground/20 text-left text-sm hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="p-3 rounded-lg bg-muted/30 border border-muted-foreground/20 text-left text-sm hover:bg-muted/50 transition-colors flex items-center gap-2"
               >
                 <Icon className="h-4 w-4 text-yellow-500 shrink-0" />
                 <span className="text-xs">{text}</span>
@@ -93,7 +92,6 @@ export function ApplyStep({ completed, notes, onComplete, onNotesChange, onNext 
             onChange={(e) => setLocalNotes(e.target.value)}
             placeholder="Descrie cum ai aplicat sau predat... (opțional)"
             className="min-h-[100px] resize-none bg-background/50 border-yellow-500/30 focus:border-yellow-500"
-            disabled={completed}
           />
         </div>
 
