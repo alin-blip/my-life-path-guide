@@ -129,34 +129,34 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-8">
+    <div className="w-full max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 safe-area-bottom">
       {/* Hero Result - Warrior Style */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-10"
+        className="text-center mb-6 sm:mb-8 md:mb-10"
       >
-        <div className="inline-flex items-center gap-2 mb-4">
-          <Sword className="h-6 w-6 text-primary" />
-          <span className="text-sm uppercase tracking-widest text-primary font-bold">Warrior Power Assessment</span>
-          <Sword className="h-6 w-6 text-primary transform scale-x-[-1]" />
+        <div className="inline-flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+          <Sword className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary" />
+          <span className="text-[10px] sm:text-xs md:text-sm uppercase tracking-widest text-primary font-bold">Warrior Power Assessment</span>
+          <Sword className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary transform scale-x-[-1]" />
         </div>
         
-        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2 px-2">
           {userName}, Iată Nivelul Tău de Warrior
         </h1>
         
-        <div className="flex items-center justify-center gap-4 mt-6">
+        <div className="flex items-center justify-center gap-4 mt-4 sm:mt-6">
           <div className={cn(
-            "relative px-8 py-4 rounded-lg border-2 backdrop-blur-sm",
+            "relative px-5 py-3 sm:px-6 sm:py-3.5 md:px-8 md:py-4 rounded-lg border-2 backdrop-blur-sm",
             percentage <= 25 ? "border-red-500 bg-red-500/10" :
             percentage <= 50 ? "border-yellow-500 bg-yellow-500/10" :
             percentage <= 75 ? "border-blue-500 bg-blue-500/10" :
             "border-green-500 bg-green-500/10"
           )}>
-            <div className="text-5xl font-black">{totalScore}<span className="text-2xl text-muted-foreground">/96</span></div>
+            <div className="text-3xl sm:text-4xl md:text-5xl font-black">{totalScore}<span className="text-lg sm:text-xl md:text-2xl text-muted-foreground">/96</span></div>
             <div className={cn(
-              "text-lg font-bold uppercase tracking-wider mt-1",
+              "text-sm sm:text-base md:text-lg font-bold uppercase tracking-wider mt-0.5 sm:mt-1",
               percentage <= 25 ? "text-red-400" :
               percentage <= 50 ? "text-yellow-400" :
               percentage <= 75 ? "text-blue-400" :
@@ -165,7 +165,7 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
               {overallLevel.name}
             </div>
             <Flame className={cn(
-              "absolute -top-3 -right-3 h-8 w-8",
+              "absolute -top-2 -right-2 sm:-top-3 sm:-right-3 h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8",
               percentage <= 25 ? "text-red-500" :
               percentage <= 50 ? "text-yellow-500" :
               percentage <= 75 ? "text-blue-500" :
@@ -180,7 +180,7 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="flex flex-wrap justify-center gap-2 mb-8"
+        className="flex overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap justify-start sm:justify-center gap-2 mb-6 sm:mb-8 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide"
       >
         {(Object.entries(DIMENSION_INFO) as [string, { name: string; icon: string }][]).map(([key, info]) => {
           const isActive = selectedDimension === key;
@@ -192,7 +192,7 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
               key={key}
               onClick={() => setSelectedDimension(key)}
               className={cn(
-                "flex items-center gap-2 px-4 py-3 rounded-lg border-2 transition-all duration-300",
+                "flex-shrink-0 flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-3 rounded-lg border-2 transition-all duration-300 min-h-[48px]",
                 isActive 
                   ? "border-primary bg-primary/20 scale-105" 
                   : "border-border bg-card/50 hover:border-primary/50 hover:bg-card",
@@ -202,10 +202,10 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
                 "text-green-400"
               )}
             >
-              <span className="text-2xl">{info.icon}</span>
+              <span className="text-xl sm:text-2xl">{info.icon}</span>
               <div className="text-left">
-                <div className="font-bold text-foreground">{info.name}</div>
-                <div className="text-sm font-semibold">{dimScore}/24</div>
+                <div className="font-bold text-xs sm:text-sm md:text-base text-foreground">{info.name}</div>
+                <div className="text-[10px] sm:text-xs md:text-sm font-semibold">{dimScore}/24</div>
               </div>
             </button>
           );
@@ -217,7 +217,7 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="space-y-3 mb-10"
+        className="space-y-2 sm:space-y-3 mb-6 sm:mb-8 md:mb-10"
       >
         {WARRIOR_LEVELS.map((level, idx) => {
           const isCurrentLevel = currentDimensionLevel.name === level.name;
@@ -237,7 +237,7 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
               <button
                 onClick={() => handleLevelClick(idx)}
                 className={cn(
-                  "w-full text-left rounded-xl border-2 transition-all duration-300 overflow-hidden",
+                  "w-full text-left rounded-lg sm:rounded-xl border-2 transition-all duration-300 overflow-hidden min-h-[60px]",
                   isCurrentLevel 
                     ? `${level.borderColor} ${level.bgColor} ring-2 ring-offset-2 ring-offset-background ring-${level.textColor.replace('text-', '')}` 
                     : "border-border/50 bg-card/30 hover:border-border hover:bg-card/50",
@@ -245,36 +245,36 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
                 )}
               >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between p-3 sm:p-4">
+                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
                     {/* Level Range Badge */}
                     <div className={cn(
-                      "flex items-center justify-center w-20 h-14 rounded-lg font-black text-lg",
+                      "flex items-center justify-center w-14 h-10 sm:w-16 sm:h-12 md:w-20 md:h-14 rounded-md sm:rounded-lg font-black text-xs sm:text-sm md:text-lg",
                       isCurrentLevel 
                         ? `bg-gradient-to-br ${level.color} text-white` 
                         : "bg-muted/50 text-muted-foreground"
                     )}>
-                      [{level.range[0]}, {level.range[1]}]
+                      [{level.range[0]}–{level.range[1]}]
                     </div>
                     
                     {/* Level Info */}
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">{level.icon}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                        <span className="text-lg sm:text-xl md:text-2xl">{level.icon}</span>
                         <span className={cn(
-                          "font-bold text-lg uppercase tracking-wider",
+                          "font-bold text-xs sm:text-sm md:text-lg uppercase tracking-wider",
                           isCurrentLevel ? level.textColor : "text-muted-foreground"
                         )}>
                           {level.name}
                         </span>
                         {isCurrentLevel && (
-                          <span className="ml-2 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                          <span className="ml-1 sm:ml-2 px-1.5 sm:px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] sm:text-xs font-bold whitespace-nowrap">
                             TU EȘTI AICI
                           </span>
                         )}
                       </div>
                       <p className={cn(
-                        "text-sm mt-1",
+                        "text-[10px] sm:text-xs md:text-sm mt-0.5 sm:mt-1 line-clamp-2",
                         isCurrentLevel ? "text-foreground" : "text-muted-foreground"
                       )}>
                         {level.description}
@@ -283,7 +283,7 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
                   </div>
                   
                   <ChevronRight className={cn(
-                    "h-6 w-6 transition-transform",
+                    "h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 transition-transform flex-shrink-0 ml-2",
                     isSelected && "rotate-90",
                     isCurrentLevel ? level.textColor : "text-muted-foreground"
                   )} />
@@ -300,21 +300,21 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
                       className="overflow-hidden"
                     >
                       <div className={cn(
-                        "p-4 pt-0 border-t",
+                        "p-3 sm:p-4 pt-0 border-t",
                         isCurrentLevel ? `border-${level.borderColor.replace('border-', '')}` : "border-border/30"
                       )}>
-                        <p className="text-sm text-muted-foreground leading-relaxed mt-4">
+                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-3 sm:mt-4">
                           {LEVEL_DESCRIPTIONS[selectedDimension]?.[level.name] || level.description}
                         </p>
                         
                         {isCurrentLevel && (
-                          <div className="mt-4 p-3 rounded-lg bg-primary/10 border border-primary/30">
-                            <div className="flex items-center gap-2 text-primary font-semibold">
-                              <Zap className="h-4 w-4" />
+                          <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 rounded-lg bg-primary/10 border border-primary/30">
+                            <div className="flex items-center gap-1.5 sm:gap-2 text-primary font-semibold text-xs sm:text-sm">
+                              <Zap className="h-3 w-3 sm:h-4 sm:w-4" />
                               Aceasta este poziția ta actuală
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Scorul tău în {DIMENSION_INFO[selectedDimension as keyof typeof DIMENSION_INFO]?.name}: {dimScore}/24 puncte
+                            <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-1">
+                              Scorul tău în {DIMENSION_INFO[selectedDimension as keyof typeof DIMENSION_INFO]?.name}: {dimensionScores[selectedDimension as keyof typeof dimensionScores]}/24 puncte
                             </p>
                           </div>
                         )}
@@ -333,18 +333,18 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="grid md:grid-cols-2 gap-4 mb-8"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8"
       >
         <Card className="border-red-500/30 bg-gradient-to-br from-red-950/50 to-transparent">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 rounded-lg bg-red-500/20">
-                <Shield className="h-5 w-5 text-red-400" />
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-red-500/20">
+                <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-red-400" />
               </div>
-              <h4 className="font-bold text-red-400">Punctul Tău Slab</h4>
+              <h4 className="font-bold text-sm sm:text-base text-red-400">Punctul Tău Slab</h4>
             </div>
-            <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground text-lg">
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              <strong className="text-foreground text-base sm:text-lg">
                 {DIMENSION_INFO[weakestDimension[0] as keyof typeof DIMENSION_INFO].icon} {DIMENSION_INFO[weakestDimension[0] as keyof typeof DIMENSION_INFO].name}
               </strong>
               <br />
@@ -354,15 +354,15 @@ export function WarriorPowerResults({ scores, userName }: WarriorPowerResultsPro
         </Card>
 
         <Card className="border-green-500/30 bg-gradient-to-br from-green-950/50 to-transparent">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 rounded-lg bg-green-500/20">
-                <Crown className="h-5 w-5 text-green-400" />
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-green-500/20">
+                <Crown className="h-4 w-4 sm:h-5 sm:w-5 text-green-400" />
               </div>
-              <h4 className="font-bold text-green-400">Punctul Tău Forte</h4>
+              <h4 className="font-bold text-sm sm:text-base text-green-400">Punctul Tău Forte</h4>
             </div>
-            <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground text-lg">
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              <strong className="text-foreground text-base sm:text-lg">
                 {DIMENSION_INFO[strongestDimension[0] as keyof typeof DIMENSION_INFO].icon} {DIMENSION_INFO[strongestDimension[0] as keyof typeof DIMENSION_INFO].name}
               </strong>
               <br />

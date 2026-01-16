@@ -16,17 +16,17 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-16 px-4 overflow-hidden">
+      <section className="relative py-8 sm:py-12 md:py-16 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-background" />
         
         <div className="relative max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
+            className="mb-4 sm:mb-6"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/20 text-destructive text-sm font-medium">
-              <Zap className="h-4 w-4" />
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-destructive/20 text-destructive text-xs sm:text-sm font-medium">
+              <Zap className="h-3 w-3 sm:h-4 sm:w-4" />
               EVALUARE GRATUITĂ
             </span>
           </motion.div>
@@ -35,7 +35,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-bold mb-6 leading-tight"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight px-2"
           >
             ADEVĂRUL PE CARE{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-destructive to-primary">
@@ -49,7 +49,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
+            className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-2"
           >
             Descoperă-ți Puterea Reală în 5 minute. Acest assessment îți va arăta 
             exact unde te afli în cele 4 dimensiuni esențiale ale vieții tale.
@@ -60,7 +60,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="relative max-w-2xl mx-auto mb-8 rounded-2xl overflow-hidden shadow-2xl"
+            className="relative max-w-2xl mx-auto mb-6 sm:mb-8 rounded-xl sm:rounded-2xl overflow-hidden shadow-xl sm:shadow-2xl"
           >
             <div className="aspect-video">
               <iframe
@@ -70,7 +70,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
                 allowFullScreen 
                 width="100%" 
                 height="100%"
-                className="rounded-2xl"
+                className="rounded-xl sm:rounded-2xl"
               />
             </div>
           </motion.div>
@@ -80,17 +80,17 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8 px-2"
           >
             <Button
               size="lg"
               onClick={onStart}
-              className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-xl px-10 py-7 shadow-lg hover:shadow-xl transition-all"
+              className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-base sm:text-lg md:text-xl px-6 py-5 sm:px-8 sm:py-6 md:px-10 md:py-7 shadow-lg hover:shadow-xl transition-all w-full sm:w-auto min-h-[52px]"
             >
               Începe Evaluarea Gratuită
-              <ArrowRight className="h-6 w-6" />
+              <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
-            <p className="text-sm text-muted-foreground mt-4">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
               ⏱️ Durează doar 5 minute • 100% Gratuit
             </p>
           </motion.div>
@@ -98,21 +98,21 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 px-4 bg-card/50">
+      <section className="py-10 sm:py-12 md:py-16 px-4 bg-card/50">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-3xl font-bold mb-4">Cum Funcționează</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Cum Funcționează</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Un proces simplu în 3 pași pentru a-ți descoperi realitatea
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
             {[
               { step: 1, title: 'Evaluează-te Sincer', desc: 'Răspunde la 8 întrebări despre cele 4 dimensiuni ale vieții tale' },
               { step: 2, title: 'Primești Scorul', desc: 'Vezi imediat unde te afli: Adormit, Treaz, Activ sau Accelerat' },
@@ -126,11 +126,11 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
                 transition={{ delay: idx * 0.1 }}
                 className="text-center"
               >
-                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-primary">{item.step}</span>
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <span className="text-xl sm:text-2xl font-bold text-primary">{item.step}</span>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+                <h3 className="text-base sm:text-lg font-semibold mb-1.5 sm:mb-2">{item.title}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -138,21 +138,21 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
       </section>
 
       {/* 4 Dimensions */}
-      <section className="py-16 px-4">
+      <section className="py-10 sm:py-12 md:py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-3xl font-bold mb-4">Cele 4 Dimensiuni</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Cele 4 Dimensiuni</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Fiecare dimensiune are un impact profund asupra vieții tale
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {[
               { icon: '💪', name: 'CORPUL', desc: 'Fitness și Alimentație - Fundamentul energiei tale fizice', color: 'from-red-500/20 to-red-500/5' },
               { icon: '🧘', name: 'FIINȚA', desc: 'Conexiune Spirituală și Certitudine - Puterea ta interioară', color: 'from-purple-500/20 to-purple-500/5' },
@@ -165,13 +165,13 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className={`p-6 rounded-2xl bg-gradient-to-br ${dim.color} border border-border/50`}
+                className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br ${dim.color} border border-border/50`}
               >
-                <div className="flex items-start gap-4">
-                  <span className="text-4xl">{dim.icon}</span>
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <span className="text-3xl sm:text-4xl">{dim.icon}</span>
                   <div>
-                    <h3 className="font-bold text-lg mb-1">{dim.name}</h3>
-                    <p className="text-sm text-muted-foreground">{dim.desc}</p>
+                    <h3 className="font-bold text-base sm:text-lg mb-1">{dim.name}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{dim.desc}</p>
                   </div>
                 </div>
               </motion.div>
@@ -181,16 +181,16 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
       </section>
 
       {/* Benefits & CTA */}
-      <section className="py-16 px-4 bg-gradient-to-b from-background to-primary/5">
+      <section className="py-10 sm:py-12 md:py-16 px-4 bg-gradient-to-b from-background to-primary/5">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <h2 className="text-3xl font-bold mb-6">Ce Vei Primi</h2>
-            <div className="space-y-4">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Ce Vei Primi</h2>
+            <div className="space-y-3 sm:space-y-4">
               {benefits.map((benefit, idx) => (
                 <motion.div
                   key={idx}
@@ -198,10 +198,10 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
-                  className="flex items-center gap-3 justify-center"
+                  className="flex items-start sm:items-center gap-2 sm:gap-3 justify-start sm:justify-center text-left sm:text-center px-2"
                 >
-                  <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
-                  <span>{benefit.text}</span>
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0 mt-0.5 sm:mt-0" />
+                  <span className="text-sm sm:text-base">{benefit.text}</span>
                 </motion.div>
               ))}
             </div>
@@ -212,16 +212,17 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
+            className="px-2"
           >
             <Button
               size="lg"
               onClick={onStart}
-              className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-xl px-10 py-7 shadow-lg hover:shadow-xl transition-all"
+              className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-base sm:text-lg md:text-xl px-6 py-5 sm:px-8 sm:py-6 md:px-10 md:py-7 shadow-lg hover:shadow-xl transition-all w-full sm:w-auto min-h-[52px]"
             >
               Începe Evaluarea Gratuită
-              <ArrowRight className="h-6 w-6" />
+              <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
-            <p className="text-sm text-muted-foreground mt-4">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
               ⏱️ Durează doar 5 minute • 100% Gratuit
             </p>
           </motion.div>
