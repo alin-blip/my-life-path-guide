@@ -63,8 +63,8 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             className="relative max-w-2xl mx-auto mb-8 rounded-2xl overflow-hidden shadow-2xl"
           >
             <div className="aspect-video">
-              <iframe 
-                src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=6oVu6kyCAORKTCFUVjMMDEd_RjF4161EfwoaJHt4La8Oi1FAQ&videoRatio=1.777778&type=v&skinColor=%232758EB" 
+              <iframe
+                src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=V1yuGZIFwCmEzEQEyResQM-axg8QlAqtG0HmWD3iDmbLWn0JJ&videoRatio=1.777778&type=v&skinColor=%232758EB" 
                 frameBorder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowFullScreen 

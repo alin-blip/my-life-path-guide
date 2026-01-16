@@ -119,13 +119,13 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4">
+    <div className="w-full min-h-screen bg-black text-white px-4 py-8">
       {/* Progress Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Sword className="h-4 w-4 text-primary" />
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-white/70">
               Întrebarea {currentIndex + 1} din {WARRIOR_POWER_QUESTIONS.length}
             </span>
           </div>
@@ -155,10 +155,10 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                 {currentQuestion.dimensionName}
               </span>
             </div>
-            <h2 className="text-lg md:text-xl font-bold text-foreground mb-1">
+            <h2 className="text-lg md:text-xl font-bold text-white mb-1">
               {currentQuestion.section}
             </h2>
-            <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-sm text-white/70 max-w-2xl mx-auto">
               {currentQuestion.sectionDescription}
             </p>
           </div>
@@ -182,8 +182,8 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                     "w-full text-left rounded-2xl border-2 transition-all duration-300 overflow-hidden group",
                     "hover:scale-[1.01] active:scale-[0.99]",
                     isSelected 
-                      ? `${config.border} ${config.bg} ring-2 ring-offset-2 ring-offset-background shadow-xl ${config.glow}` 
-                      : "border-border/40 bg-card/20 hover:border-border/60 hover:bg-card/40"
+                      ? `${config.border} ${config.bg} ring-2 ring-offset-2 ring-offset-black shadow-xl ${config.glow}` 
+                      : "border-white/40 bg-white/5 hover:border-white/60 hover:bg-white/10"
                   )}
                   style={isSelected ? { 
                     borderColor: config.text.replace('text-', '').includes('red') ? '#ef4444' :
@@ -198,7 +198,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         "flex flex-col items-center justify-center w-14 h-14 rounded-xl font-black transition-all flex-shrink-0",
                         isSelected 
                           ? `bg-gradient-to-br ${config.gradient} text-white shadow-lg` 
-                          : "bg-muted/30 text-muted-foreground group-hover:bg-muted/50"
+                          : "bg-white/10 text-white/60 group-hover:bg-white/20"
                       )}>
                         <span className="text-[10px] font-semibold opacity-80">[{level.range.join(',')}]</span>
                         <span className="text-lg">{config.icon}</span>
@@ -209,7 +209,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         <div className="flex items-center gap-2 mb-1.5">
                           <span className={cn(
                             "font-bold text-base uppercase tracking-wide transition-colors",
-                            isSelected ? config.text : "text-foreground group-hover:text-foreground"
+                            isSelected ? config.text : "text-white group-hover:text-white"
                           )}>
                             {level.name}
                           </span>
@@ -226,13 +226,13 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         </div>
                         <h4 className={cn(
                           "font-semibold text-sm mb-2 transition-colors",
-                          isSelected ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                          isSelected ? "text-white" : "text-white/70 group-hover:text-white"
                         )}>
                           {level.title}
                         </h4>
                         <p className={cn(
                           "text-sm leading-relaxed transition-colors",
-                          isSelected ? "text-foreground/80" : "text-muted-foreground/80 group-hover:text-muted-foreground"
+                          isSelected ? "text-white/80" : "text-white/60 group-hover:text-white/70"
                         )}>
                           {level.description}
                         </p>
@@ -255,7 +255,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                           "px-5 pb-5 pt-3 border-t",
                           config.border
                         )}>
-                          <p className="text-sm text-muted-foreground mb-3 text-center font-medium">
+                          <p className="text-sm text-white/70 mb-3 text-center font-medium">
                             Alege scorul exact:
                           </p>
                           <div className="flex justify-center gap-3">
@@ -304,15 +304,15 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                   <span className={cn("font-bold", selectedLevel && LEVEL_CONFIG[selectedLevel.toUpperCase() as keyof typeof LEVEL_CONFIG]?.text)}>
                     {selectedLevel}
                   </span>
-                  <span className="text-muted-foreground mx-2">•</span>
-                  <span className="font-bold text-foreground">Scor: {selectedScore}</span>
+                  <span className="text-white/50 mx-2">•</span>
+                  <span className="font-bold text-white">Scor: {selectedScore}</span>
                 </div>
               </div>
             </motion.div>
           )}
 
           {/* Navigation */}
-          <div className="flex items-center justify-between pt-4 border-t border-border/50">
+          <div className="flex items-center justify-between pt-4 border-t border-white/20">
             <Button
               variant="outline"
               onClick={handleBack}
