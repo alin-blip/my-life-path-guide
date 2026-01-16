@@ -29,28 +29,29 @@ export default function WarriorPower() {
       // Save lead to database
       const { error: leadError } = await supabase
         .from('email_leads')
-        .insert({
+        .upsert({
           email: data.email,
           name: data.name,
           phone: data.phone,
           lead_magnet: 'warrior_power',
           metadata: { gender: data.gender },
           source: 'warrior_power_quiz'
-        });
+        }, { onConflict: 'email,lead_magnet' });
 
       if (leadError) {
         console.error('Error saving lead:', leadError);
         // Continue anyway - don't block the quiz
       }
 
-      // Check if user already exists
-      const { data: existingUser } = await supabase.auth.getUser();
+      // Check if user already exists by trying to sign in first
+      const { data: existingSession } = await supabase.auth.getSession();
       
-      if (!existingUser?.user) {
-        // Create Free Plan account automatically
-        const tempPassword = crypto.randomUUID().slice(0, 16);
+      if (!existingSession?.session) {
+        // No active session - try to create account or sign in
+        const tempPassword = `Warrior${crypto.randomUUID().slice(0, 8)}!`;
         
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        // First try to sign up
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: data.email,
           password: tempPassword,
           options: {
@@ -58,15 +59,26 @@ export default function WarriorPower() {
               name: data.name,
               phone: data.phone,
               plan: 'free'
-            }
+            },
+            emailRedirectTo: `${window.location.origin}/warrior-power`
           }
         });
 
-        if (authError) {
-          console.error('Error creating account:', authError);
-          // Continue anyway - user can still take the quiz
-        } else if (authData?.user) {
+        if (signUpError) {
+          // If user already exists, that's okay - they can still take the quiz
+          if (signUpError.message?.includes('already registered') || signUpError.message?.includes('already been registered')) {
+            console.log('User already exists, continuing as guest...');
+            toast.info('Contul există deja. Poți continua quiz-ul și te poți loga ulterior pentru a accesa rezultatele.');
+          } else {
+            console.error('Error creating account:', signUpError);
+          }
+        } else if (signUpData?.session) {
+          // User was created AND auto-confirmed (session exists)
           toast.success('Contul tău Free Plan a fost creat! Verifică emailul pentru detalii.');
+        } else if (signUpData?.user && !signUpData?.session) {
+          // User created but needs email confirmation (shouldn't happen with auto-confirm)
+          console.log('User created, awaiting confirmation');
+          toast.success('Contul tău a fost creat!');
         }
       }
 
