@@ -9,6 +9,8 @@ import { ArrowRight, ArrowLeft, Mail, Loader2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { toast as sonnerToast } from 'sonner';
+import { trackLead } from '@/lib/facebook-pixel';
 
 interface VisionQuizProps {
   language: 'en' | 'ro';
@@ -86,6 +88,7 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
     try {
       const scores = calculateScores();
       
+      // Save lead to database
       const { error } = await supabase
         .from('email_leads')
         .insert({
@@ -100,13 +103,65 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
           },
         });
 
-      if (error) {
-        if (error.code === '23505') {
-          // Email already exists, just show results
-          setStep('results');
-          return;
+      if (error && error.code !== '23505') {
+        console.error('Error saving lead:', error);
+      }
+
+      // Track Facebook Pixel Lead event
+      trackLead();
+
+      // Create FREE account automatically
+      const { data: existingSession } = await supabase.auth.getSession();
+      
+      if (!existingSession?.session) {
+        const tempPassword = `Vision${crypto.randomUUID().slice(0, 8)}!`;
+        
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: email.trim().toLowerCase(),
+          password: tempPassword,
+          options: {
+            data: {
+              name: name.trim() || null,
+              plan: 'free'
+            },
+            emailRedirectTo: `${window.location.origin}/vision-2026`
+          }
+        });
+
+        if (signUpError) {
+          if (signUpError.message?.includes('already registered') || signUpError.message?.includes('already been registered')) {
+            console.log('User already exists, continuing...');
+            sonnerToast.info(language === 'en' 
+              ? 'Account already exists. Continue to see your results.' 
+              : 'Contul există deja. Continuă pentru a vedea rezultatele.');
+          } else {
+            console.error('Error creating account:', signUpError);
+          }
+        } else if (signUpData?.session) {
+          sonnerToast.success(language === 'en' 
+            ? 'Your Free Plan account has been created!' 
+            : 'Contul tău Free Plan a fost creat!');
+        } else if (signUpData?.user && !signUpData?.session) {
+          sonnerToast.success(language === 'en' 
+            ? 'Your account has been created!' 
+            : 'Contul tău a fost creat!');
         }
-        throw error;
+      }
+
+      // Send email with quiz results
+      try {
+        await supabase.functions.invoke('send-vision-results', {
+          body: {
+            email: email.trim().toLowerCase(),
+            name: name.trim() || 'there',
+            language,
+            images: {},
+            answers: scores,
+            source: 'quiz'
+          }
+        });
+      } catch (emailError) {
+        console.error('Error sending quiz results email:', emailError);
       }
 
       setStep('results');
