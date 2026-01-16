@@ -116,16 +116,24 @@ export default function WarriorPower() {
 
         // Send email with results
         try {
-          await supabase.functions.invoke('send-power-results', {
+          const { data, error } = await supabase.functions.invoke('send-power-results', {
             body: {
               email: leadData.email,
               name: leadData.name,
-              scores: quizScores
-            }
+              scores: quizScores,
+            },
           });
+
+          if (error || (data as any)?.error) {
+            const msg = error?.message ?? (data as any)?.error ?? 'Nu am putut trimite emailul cu rezultatele.';
+            console.error('Error sending email:', msg, { error, data });
+            toast.error(`${msg} Verifică Spam sau încearcă din nou.`);
+          } else {
+            toast.success('Ți-am trimis pe email rezultatele (verifică și Spam).');
+          }
         } catch (emailError) {
           console.error('Error sending email:', emailError);
-          // Don't show error to user - results are still saved
+          toast.error('Nu am putut trimite emailul cu rezultatele. Verifică Spam sau încearcă din nou.');
         }
       } catch (error) {
         console.error('Error saving results:', error);

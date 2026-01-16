@@ -42,6 +42,9 @@ verify_jwt = false
 [functions.send-warrior-power-sequence]
 verify_jwt = false
 
+[functions.send-power-results]
+verify_jwt = false
+
 [functions.unsubscribe-email]
 verify_jwt = false
 
