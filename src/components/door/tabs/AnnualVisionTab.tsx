@@ -390,35 +390,38 @@ export const AnnualVisionTab: React.FC = () => {
         </Card>
       )}
       
-      {/* Year Navigation */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Crown className="w-6 h-6 text-goddess-gold" />
-            {language === 'en' ? 'Annual Vision' : 'Viziune Anuală'}
-          </h1>
-          <p className="text-muted-foreground">
-            {language === 'en' ? 'Your big picture goals for the year' : 'Obiectivele tale mari pentru an'}
-          </p>
+      {/* Year Navigation - Mobile optimized */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-6 sm:mb-8">
+        <div className="flex items-center gap-2 sm:gap-0 sm:block">
+          <Crown className="w-5 h-5 sm:hidden text-goddess-gold" />
+          <div>
+            <h1 className="text-lg sm:text-2xl font-bold text-foreground flex items-center gap-2">
+              <Crown className="hidden sm:block w-6 h-6 text-goddess-gold" />
+              {language === 'en' ? 'Annual Vision' : 'Viziune Anuală'}
+            </h1>
+            <p className="text-xs sm:text-base text-muted-foreground hidden sm:block">
+              {language === 'en' ? 'Your big picture goals for the year' : 'Obiectivele tale mari pentru an'}
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => setCurrentYear(y => y - 1)}>
-            <ChevronLeft className="w-5 h-5" />
+        <div className="flex items-center justify-center gap-2 sm:gap-4">
+          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => setCurrentYear(y => y - 1)}>
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
           
-          <div className="text-center min-w-[80px]">
-            <div className="text-2xl font-bold text-foreground">{currentYear}</div>
+          <div className="text-center min-w-[60px] sm:min-w-[80px]">
+            <div className="text-xl sm:text-2xl font-bold text-foreground">{currentYear}</div>
           </div>
           
-          <Button variant="ghost" size="icon" onClick={() => setCurrentYear(y => y + 1)}>
-            <ChevronRight className="w-5 h-5" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => setCurrentYear(y => y + 1)}>
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
         </div>
       </div>
 
       {/* Vision Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {Object.entries(CATEGORY_CONFIG).map(([key, config]) => {
           const categoryVisions = getCategoryVisions(key);
           const Icon = config.icon;
@@ -433,19 +436,19 @@ export const AnnualVisionTab: React.FC = () => {
               )}
             >
               {/* Gradient Header */}
-              <div className={cn("h-2 bg-gradient-to-r", config.gradient)} />
+              <div className={cn("h-1.5 sm:h-2 bg-gradient-to-r", config.gradient)} />
               
-              <CardHeader className={cn(config.bgColor, "pb-4")}>
+              <CardHeader className={cn(config.bgColor, "p-3 sm:pb-4 sm:p-6")}>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-xl bg-background/50">
-                      <Icon className={cn("w-7 h-7", config.color)} />
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-background/50">
+                      <Icon className={cn("w-5 h-5 sm:w-7 sm:h-7", config.color)} />
                     </div>
                     <div>
-                      <CardTitle className="text-xl">
+                      <CardTitle className="text-base sm:text-xl">
                         {config.label[language === 'en' ? 'en' : 'ro']}
                       </CardTitle>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                         {config.question[language === 'en' ? 'en' : 'ro']}
                       </p>
                     </div>
@@ -459,7 +462,7 @@ export const AnnualVisionTab: React.FC = () => {
                         setWizardCategory(key as GoalCategory);
                         setWizardOpen(true);
                       }}
-                      className="gap-1"
+                      className="gap-1 h-8 w-8 sm:h-9 sm:w-auto p-0 sm:px-3"
                     >
                       <Plus className="w-4 h-4" />
                     </Button>
