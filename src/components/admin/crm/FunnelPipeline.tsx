@@ -1,0 +1,315 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
+import { 
+  Users, UserCheck, Crown, Search, RefreshCw, 
+  Mail, Eye, ArrowRight, TrendingUp, Clock,
+  Zap, Target, Flame
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { ContactCard } from './ContactCard';
+
+interface CRMContact {
+  id: string;
+  email: string;
+  name: string | null;
+  user_id: string | null;
+  funnel_stage: string;
+  lead_source: string | null;
+  lead_score: number;
+  engagement_score: number;
+  first_seen_at: string;
+  last_activity_at: string | null;
+  warrior_power_score: number | null;
+  current_streak: number;
+  door_completion_rate: number;
+  lifetime_value: number;
+  total_purchases: number;
+  tags: string[] | null;
+}
+
+interface FunnelPipelineProps {
+  onSelectContact: (contactId: string) => void;
+}
+
+export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact }) => {
+  const { toast } = useToast();
+  const [contacts, setContacts] = useState<CRMContact[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    loadContacts();
+  }, []);
+
+  const loadContacts = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('crm_contact_profiles')
+        .select('*')
+        .order('lead_score', { ascending: false });
+
+      if (error) throw error;
+      setContacts(data || []);
+    } catch (error) {
+      console.error('Error loading contacts:', error);
+      toast({
+        title: 'Eroare',
+        description: 'Nu am putut încărca contactele',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const syncContacts = async () => {
+    try {
+      setSyncing(true);
+      const { error } = await supabase.functions.invoke('sync-crm-contacts');
+      
+      if (error) throw error;
+      
+      toast({
+        title: 'Sincronizare completă',
+        description: 'Contactele au fost actualizate din toate sursele'
+      });
+      
+      await loadContacts();
+    } catch (error) {
+      console.error('Sync error:', error);
+      toast({
+        title: 'Eroare la sincronizare',
+        description: 'Încearcă din nou mai târziu',
+        variant: 'destructive'
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const filteredContacts = contacts.filter(c => 
+    c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const leads = filteredContacts.filter(c => c.funnel_stage === 'lead');
+  const engaged = filteredContacts.filter(c => c.funnel_stage === 'engaged');
+  const customers = filteredContacts.filter(c => c.funnel_stage === 'customer');
+
+  const getConversionRate = (from: number, to: number) => {
+    if (from === 0) return 0;
+    return ((to / from) * 100).toFixed(1);
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map(i => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-32" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[1, 2, 3].map(j => (
+                    <Skeleton key={j} className="h-20 w-full" />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Stats Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Contacte</p>
+                <p className="text-2xl font-bold">{contacts.length}</p>
+              </div>
+              <Users className="h-8 w-8 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Lead → Engaged</p>
+                <p className="text-2xl font-bold">{getConversionRate(leads.length + engaged.length + customers.length, engaged.length + customers.length)}%</p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Engaged → Customer</p>
+                <p className="text-2xl font-bold">{getConversionRate(engaged.length + customers.length, customers.length)}%</p>
+              </div>
+              <Crown className="h-8 w-8 text-yellow-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">LTV Total</p>
+                <p className="text-2xl font-bold">{contacts.reduce((sum, c) => sum + c.lifetime_value, 0)} RON</p>
+              </div>
+              <Zap className="h-8 w-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Search and Actions */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Caută după email sau nume..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Button 
+          variant="outline" 
+          onClick={syncContacts}
+          disabled={syncing}
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+          {syncing ? 'Sincronizare...' : 'Sync Contacte'}
+        </Button>
+      </div>
+
+      {/* Kanban Pipeline */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Leads Column */}
+        <Card className="border-t-4 border-t-blue-500">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Mail className="h-5 w-5 text-blue-500" />
+                Leads
+              </CardTitle>
+              <Badge variant="secondary">{leads.length}</Badge>
+            </div>
+            <CardDescription>
+              Au completat un quiz sau formular
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[500px] pr-4">
+              <div className="space-y-3">
+                {leads.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    Niciun lead găsit
+                  </p>
+                ) : (
+                  leads.map(contact => (
+                    <ContactCard 
+                      key={contact.id} 
+                      contact={contact} 
+                      onClick={() => onSelectContact(contact.id)}
+                    />
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        {/* Engaged Column */}
+        <Card className="border-t-4 border-t-green-500">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <UserCheck className="h-5 w-5 text-green-500" />
+                Engaged
+              </CardTitle>
+              <Badge variant="secondary">{engaged.length}</Badge>
+            </div>
+            <CardDescription>
+              Cont activ, folosesc platforma
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[500px] pr-4">
+              <div className="space-y-3">
+                {engaged.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    Niciun utilizator engaged
+                  </p>
+                ) : (
+                  engaged.map(contact => (
+                    <ContactCard 
+                      key={contact.id} 
+                      contact={contact} 
+                      onClick={() => onSelectContact(contact.id)}
+                    />
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        {/* Customers Column */}
+        <Card className="border-t-4 border-t-yellow-500">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Crown className="h-5 w-5 text-yellow-500" />
+                Customers
+              </CardTitle>
+              <Badge variant="secondary">{customers.length}</Badge>
+            </div>
+            <CardDescription>
+              Au făcut cel puțin o achiziție
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[500px] pr-4">
+              <div className="space-y-3">
+                {customers.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    Niciun customer încă
+                  </p>
+                ) : (
+                  customers.map(contact => (
+                    <ContactCard 
+                      key={contact.id} 
+                      contact={contact} 
+                      onClick={() => onSelectContact(contact.id)}
+                    />
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
