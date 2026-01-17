@@ -90,51 +90,35 @@ const handler = async (req: Request): Promise<Response> => {
       const language = (participant.metadata as any)?.language || 'ro';
       const isEnglish = language === 'en';
 
-      const emailHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="margin: 0; padding: 0; background-color: #0f0f0f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-            <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; border: 1px solid #333;">
-              
-              <div style="text-align: center; margin-bottom: 30px;">
-                <h1 style="color: #f59e0b; font-size: 28px; margin: 0;">
-                  🔥 ${isEnglish ? `Day ${currentDay.day}` : `Ziua ${currentDay.day}`}
-                </h1>
-                <h2 style="color: #fff; font-size: 24px; margin: 10px 0;">
-                  ${isEnglish ? currentDay.titleEn : currentDay.titleRo}
-                </h2>
-              </div>
-              
-              <p style="color: #9ca3af; font-size: 16px; line-height: 1.6; text-align: center; margin-bottom: 30px;">
-                ${participant.name ? `${isEnglish ? 'Hey' : 'Salut'} ${participant.name}! ` : ''}
-                ${isEnglish ? currentDay.descEn : currentDay.descRo}
-              </p>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${baseUrl}/challenge/${currentDay.day}" 
-                   style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #000; padding: 16px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 18px;">
-                  ${isEnglish ? 'Start Day' : 'Începe Ziua'} ${currentDay.day} →
-                </a>
-              </div>
-              
-              <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; text-align: center;">
-                <p style="color: #6b7280; font-size: 14px; margin: 0;">
-                  ${isEnglish 
-                    ? 'You received this email because you joined the 7-Day Challenge.' 
-                    : 'Ai primit acest email pentru că te-ai înscris la Challenge-ul de 7 Zile.'}
-                </p>
-              </div>
-              
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
+      const emailHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #ffffff; color: #1a1a1a; margin: 0; padding: 20px; line-height: 1.6;">
+  <div style="max-width: 600px; margin: 0 auto;">
+    
+    <p>${participant.name ? `${isEnglish ? 'Hey' : 'Salut'} ${participant.name},` : `${isEnglish ? 'Hey' : 'Salut'},`}</p>
+    
+    <p><strong>${isEnglish ? `Day ${currentDay.day}` : `Ziua ${currentDay.day}`}: ${isEnglish ? currentDay.titleEn : currentDay.titleRo}</strong></p>
+    
+    <p>${isEnglish ? currentDay.descEn : currentDay.descRo}</p>
+    
+    <p><a href="${baseUrl}/challenge/${currentDay.day}" style="color: #0066cc;">${isEnglish ? 'Start Day' : 'Începe Ziua'} ${currentDay.day} →</a></p>
+    
+    <p>${isEnglish ? 'Good luck!' : 'Mult succes!'}<br>
+    Echipa Warrior SOS</p>
+    
+    <p style="color: #666666; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eeeeee;">
+      ${isEnglish 
+        ? 'You received this email because you joined the 7-Day Challenge.' 
+        : 'Ai primit acest email pentru că te-ai înscris la Challenge-ul de 7 Zile.'}
+    </p>
+    
+  </div>
+</body>
+</html>`;
 
       try {
         const subject = isEnglish 
