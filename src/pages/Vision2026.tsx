@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
 import { VisionQuiz } from '@/components/vision-quiz/VisionQuiz';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { useLeadMagnetTracker } from '@/hooks/useLeadMagnetTracker';
 import { 
   Sparkles, 
   Target, 
@@ -27,6 +28,13 @@ import {
 const Vision2026 = () => {
   const { language } = useLanguage();
   const [showQuiz, setShowQuiz] = useState(false);
+  const tracker = useLeadMagnetTracker('vision_2026');
+  
+  const handleStartQuiz = () => {
+    tracker.trackCTAClick('start_assessment');
+    tracker.trackQuizStart();
+    setShowQuiz(true);
+  };
 
   const problems = [
     {
@@ -195,7 +203,7 @@ const Vision2026 = () => {
 
             <Button 
               size="lg" 
-              onClick={() => setShowQuiz(true)}
+              onClick={handleStartQuiz}
               className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white px-10 py-7 text-lg font-bold shadow-2xl shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:scale-105 animate-fade-in border-0"
               style={{ animationDelay: '0.3s' }}
             >
@@ -286,7 +294,7 @@ const Vision2026 = () => {
               <div className="mt-8 pt-8 border-t border-white/10 text-center">
                 <Button 
                   size="lg" 
-                  onClick={() => setShowQuiz(true)}
+                  onClick={handleStartQuiz}
                   className="bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 text-white px-8 py-6 font-bold shadow-lg shadow-green-500/30 transition-all hover:scale-105 border-0"
                 >
                   {language === 'en' ? 'Start With the Free Assessment' : 'Începe cu Evaluarea Gratuită'}
@@ -336,7 +344,7 @@ const Vision2026 = () => {
           <div className="text-center">
             <Button 
               size="lg" 
-              onClick={() => setShowQuiz(true)}
+              onClick={handleStartQuiz}
               className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white px-10 py-7 text-lg font-bold shadow-2xl shadow-orange-500/30 transition-all hover:scale-105 border-0"
             >
               {language === 'en' ? 'Take the Free Assessment' : 'Completează Evaluarea Gratuită'}
@@ -394,7 +402,7 @@ const Vision2026 = () => {
               </p>
               <Button 
                 size="lg"
-                onClick={() => setShowQuiz(true)}
+                onClick={handleStartQuiz}
                 className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white px-12 py-7 text-lg font-bold shadow-2xl shadow-orange-500/40 transition-all hover:scale-105 border-0"
               >
                 {language === 'en' ? 'Start My Free Assessment' : 'Începe Evaluarea Mea Gratuită'}
