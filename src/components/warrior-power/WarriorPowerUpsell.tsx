@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Crown, Check, Zap, Brain, Target, ArrowRight, Sparkles, Star, AlertCircle } from 'lucide-react';
+import { Crown, Check, Zap, Target, ArrowRight, Sparkles, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useCheckoutTracking } from '@/hooks/useCheckoutTracking';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 
 interface WarriorPowerUpsellProps {
@@ -73,6 +74,17 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [hasSession, setHasSession] = useState<boolean | null>(null);
   const navigate = useNavigate();
+  
+  // Checkout tracking
+  const {
+    trackUpsellView,
+    trackPlanClick,
+    trackCheckoutStart,
+    trackCheckoutRedirect,
+    trackCheckoutError,
+    trackAuthRedirect,
+    trackContinueFree,
+  } = useCheckoutTracking('warrior_power');
 
   // Check session on mount
   useEffect(() => {
@@ -89,6 +101,12 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Track upsell view on mount
+  useEffect(() => {
+    const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+    trackUpsellView({ total_score: totalScore, user_name: userName });
+  }, [scores, userName, trackUpsellView]);
 
   // Calculate total score
   const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
@@ -112,13 +130,18 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
   };
 
   const handleCheckout = async (planId: string) => {
+    // Track plan click
+    trackPlanClick(planId);
+    
     setIsLoading(planId);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        // Redirect to auth with return URL
+        // Track auth redirect
+        trackAuthRedirect(planId);
+        
         toast.info('Te rugăm să te autentifici pentru a continua cu achiziția.');
         navigate('/auth', { 
           state: { 
@@ -130,8 +153,11 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         return;
       }
 
+      // Track checkout start
+      trackCheckoutStart(planId);
+
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planId },
+        body: { plan: planId, source: 'warrior_power' },
       });
 
       if (error) {
@@ -151,6 +177,9 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
       }
 
       if ((data as any)?.url) {
+        // Track checkout redirect
+        trackCheckoutRedirect(planId, (data as any).url);
+        
         window.location.href = (data as any).url;
         return;
       }
@@ -158,11 +187,20 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
       throw new Error((data as any)?.error ?? 'Nu s-a putut crea sesiunea de plată');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      
+      // Track checkout error
+      trackCheckoutError(planId, message);
+      
       console.error('Checkout error:', { planId, message, error });
       toast.error(message || 'A apărut o eroare. Încearcă din nou.');
     } finally {
       setIsLoading(null);
     }
+  };
+
+  const handleContinueFree = () => {
+    trackContinueFree();
+    onContinueFree();
   };
 
   return (
@@ -333,7 +371,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
       >
         <Button
           variant="ghost"
-          onClick={onContinueFree}
+          onClick={handleContinueFree}
           className="gap-2 text-muted-foreground hover:text-foreground text-sm"
         >
           Continuă fără abonament (funcții limitate)
