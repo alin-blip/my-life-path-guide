@@ -6,13 +6,21 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { 
   Users, UserCheck, Crown, Search, RefreshCw, 
-  Mail, Eye, ArrowRight, TrendingUp, Clock,
-  Zap, Target, Flame
+  Mail, TrendingUp,
+  Zap, Filter
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ContactCard } from './ContactCard';
+import { LeadSourceStats } from './LeadSourceStats';
 
 interface CRMContact {
   id: string;
@@ -31,6 +39,8 @@ interface CRMContact {
   lifetime_value: number;
   total_purchases: number;
   tags: string[] | null;
+  subscription_tier: string | null;
+  subscription_status: string | null;
 }
 
 interface FunnelPipelineProps {
@@ -43,6 +53,8 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('all');
+  const [showStats, setShowStats] = useState(false);
 
   useEffect(() => {
     loadContacts();
@@ -73,13 +85,13 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
   const syncContacts = async () => {
     try {
       setSyncing(true);
-      const { error } = await supabase.functions.invoke('sync-crm-contacts');
+      const { data, error } = await supabase.functions.invoke('sync-crm-contacts');
       
       if (error) throw error;
       
       toast({
         title: 'Sincronizare completă',
-        description: 'Contactele au fost actualizate din toate sursele'
+        description: `${data?.synced || 0} noi, ${data?.updated || 0} actualizate, ${data?.subscribers || 0} subscriberi`
       });
       
       await loadContacts();
@@ -95,10 +107,21 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
     }
   };
 
-  const filteredContacts = contacts.filter(c => 
-    c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Get unique lead sources for filter dropdown
+  const uniqueSources = React.useMemo(() => {
+    const sources = new Set<string>();
+    contacts.forEach(c => {
+      if (c.lead_source) sources.add(c.lead_source);
+    });
+    return Array.from(sources).sort();
+  }, [contacts]);
+
+  const filteredContacts = contacts.filter(c => {
+    const matchesSearch = c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSource = sourceFilter === 'all' || c.lead_source === sourceFilter;
+    return matchesSearch && matchesSource;
+  });
 
   const leads = filteredContacts.filter(c => c.funnel_stage === 'lead');
   const engaged = filteredContacts.filter(c => c.funnel_stage === 'engaged');
@@ -182,6 +205,11 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
         </Card>
       </div>
 
+      {/* Lead Source Stats Toggle */}
+      {showStats && (
+        <LeadSourceStats contacts={contacts} />
+      )}
+
       {/* Search and Actions */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
@@ -193,6 +221,31 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
             className="pl-10"
           />
         </div>
+        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+          <SelectTrigger className="w-[200px]">
+            <Filter className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="Toate sursele" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toate sursele</SelectItem>
+            {uniqueSources.map(source => (
+              <SelectItem key={source} value={source}>
+                {source === 'vision_2026_quiz' ? 'Vision 2026 Quiz' :
+                 source === 'vision_board' ? 'Vision Board' :
+                 source === 'warrior_power' ? 'Warrior Power' :
+                 source === 'direct_signup' ? 'Direct Signup' :
+                 source === 'stripe_subscription' ? 'Stripe' :
+                 source}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button 
+          variant="outline" 
+          onClick={() => setShowStats(!showStats)}
+        >
+          {showStats ? 'Ascunde Stats' : 'Lead Stats'}
+        </Button>
         <Button 
           variant="outline" 
           onClick={syncContacts}
@@ -202,6 +255,23 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
           {syncing ? 'Sincronizare...' : 'Sync Contacte'}
         </Button>
       </div>
+
+      {/* Filter indicator */}
+      {sourceFilter !== 'all' && (
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">
+            Filtrare: {sourceFilter}
+          </Badge>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setSourceFilter('all')}
+            className="h-6 px-2"
+          >
+            Șterge filtru
+          </Button>
+        </div>
+      )}
 
       {/* Kanban Pipeline */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

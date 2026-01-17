@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Mail, Flame, Target, TrendingUp, Clock, 
+  Flame, Target, Clock, 
   Crown, Zap, User 
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -21,6 +21,8 @@ interface ContactCardProps {
     lifetime_value: number;
     last_activity_at: string | null;
     tags: string[] | null;
+    subscription_tier?: string | null;
+    subscription_status?: string | null;
   };
   onClick: () => void;
 }
@@ -37,13 +39,28 @@ export const ContactCard: React.FC<ContactCardProps> = ({ contact, onClick }) =>
     const sourceMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
       'warrior_power': { label: 'Warrior Power', variant: 'default' },
       'vision_2026': { label: 'Vision 2026', variant: 'secondary' },
+      'vision_2026_quiz': { label: 'Vision 2026 Quiz', variant: 'secondary' },
+      'vision_board': { label: 'Vision Board', variant: 'secondary' },
       'life_score': { label: 'Life Score', variant: 'outline' },
-      'challenge': { label: 'Challenge', variant: 'default' }
+      'challenge': { label: 'Challenge', variant: 'default' },
+      'direct_signup': { label: 'Direct Signup', variant: 'outline' },
+      'stripe_subscription': { label: 'Stripe', variant: 'default' }
     };
     return sourceMap[source] || { label: source, variant: 'outline' as const };
   };
 
+  const getSubscriptionBadge = (tier: string | null) => {
+    if (!tier) return null;
+    const tierStyles: Record<string, string> = {
+      'Elite': 'bg-purple-500 hover:bg-purple-600 text-white',
+      'Pro': 'bg-blue-500 hover:bg-blue-600 text-white',
+      'Basic': 'bg-gray-500 hover:bg-gray-600 text-white'
+    };
+    return tierStyles[tier] || 'bg-gray-500 text-white';
+  };
+
   const sourceBadge = getSourceBadge(contact.lead_source);
+  const subscriptionStyle = getSubscriptionBadge(contact.subscription_tier || null);
 
   return (
     <Card 
@@ -59,9 +76,16 @@ export const ContactCard: React.FC<ContactCardProps> = ({ contact, onClick }) =>
                 <User className="h-4 w-4 text-primary" />
               </div>
               <div className="min-w-0">
-                <p className="font-medium truncate">
-                  {contact.name || contact.email.split('@')[0]}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="font-medium truncate">
+                    {contact.name || contact.email.split('@')[0]}
+                  </p>
+                  {contact.subscription_tier && (
+                    <Badge className={`text-xs ${subscriptionStyle}`}>
+                      {contact.subscription_tier}
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground truncate">
                   {contact.email}
                 </p>
@@ -102,7 +126,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({ contact, onClick }) =>
 
           {/* Footer */}
           <div className="flex items-center justify-between">
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
               {sourceBadge && (
                 <Badge variant={sourceBadge.variant} className="text-xs">
                   {sourceBadge.label}

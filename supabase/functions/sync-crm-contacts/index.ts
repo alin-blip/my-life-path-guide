@@ -110,7 +110,29 @@ serve(async (req) => {
       }
     });
 
-    // 8. Get daily tracking for streak/engagement
+    // 8. Get Stripe subscribers for customer identification
+    const { data: subscribers, error: subscribersError } = await supabase
+      .from("subscribers")
+      .select("email, subscribed, subscription_tier, created_at, subscription_end");
+
+    if (subscribersError) {
+      console.error("Error fetching subscribers:", subscribersError);
+    }
+
+    const subscriberMap = new Map(
+      subscribers?.filter(s => s.subscribed).map(s => [
+        s.email.toLowerCase(), 
+        { 
+          tier: s.subscription_tier, 
+          since: s.created_at,
+          tierValue: s.subscription_tier === 'Elite' ? 1990 : (s.subscription_tier === 'Pro' ? 990 : 0)
+        }
+      ]) || []
+    );
+
+    console.log(`Found ${subscriberMap.size} active subscribers`);
+
+    // 9. Get daily tracking for streak/engagement
     const { data: dailyTracking } = await supabase
       .from("daily_tracking")
       .select("user_id, date, door_tasks_completed")
@@ -159,14 +181,21 @@ serve(async (req) => {
     let syncedCount = 0;
     let updatedCount = 0;
 
-    // 9. Process each email lead
+    // 10. Process each email lead
     for (const lead of emailLeads || []) {
       const emailLower = lead.email.toLowerCase();
       const userId = userEmailMap.get(emailLower);
+      const subscription = subscriberMap.get(emailLower);
       
       // Calculate lead score
       let leadScore = 10; // Base score for being a lead
       let funnelStage = 'lead';
+      
+      // Check if subscriber (Stripe payment)
+      if (subscription) {
+        leadScore += 100;
+        funnelStage = 'customer';
+      }
       
       if (userId) {
         const warrior = warriorPowerMap.get(userId);
@@ -182,8 +211,8 @@ serve(async (req) => {
         if (streakData && streakData.streak >= 7) leadScore += 25;
         if (purchaseData) leadScore += 100;
         
-        // Determine funnel stage
-        if (purchaseData) {
+        // Determine funnel stage (subscription takes priority)
+        if (subscription || purchaseData) {
           funnelStage = 'customer';
         } else if (challengeDays > 0 || stackCount > 0 || (streakData && streakData.streak > 0)) {
           funnelStage = 'engaged';
@@ -191,6 +220,11 @@ serve(async (req) => {
         
         // Cap at 100
         leadScore = Math.min(leadScore, 100);
+        
+        // Calculate total lifetime value (subscription + purchases)
+        const subscriptionValue = subscription?.tierValue || 0;
+        const purchaseValue = purchaseData?.total || 0;
+        const totalLifetimeValue = subscriptionValue + purchaseValue;
         
         const contactData = {
           email: lead.email,
@@ -203,13 +237,15 @@ serve(async (req) => {
           lead_score: leadScore,
           lead_captured_at: lead.created_at,
           account_created_at: userId ? new Date().toISOString() : null,
-          first_purchase_at: purchaseData?.first || null,
-          lifetime_value: purchaseData?.total || 0,
-          total_purchases: purchaseData?.count || 0,
+          first_purchase_at: purchaseData?.first || (subscription ? subscription.since : null),
+          lifetime_value: totalLifetimeValue,
+          total_purchases: (purchaseData?.count || 0) + (subscription ? 1 : 0),
           total_stack_sessions: stackCount,
           warrior_power_score: warrior?.total_score || null,
           current_streak: streakData?.streak || 0,
           door_completion_rate: streakData?.doorRate || 0,
+          subscription_tier: subscription?.tier || null,
+          subscription_status: subscription ? 'active' : null,
           updated_at: new Date().toISOString()
         };
         
@@ -238,20 +274,36 @@ serve(async (req) => {
           }
         }
       } else {
-        // Lead without account
+        // Lead without account - check if they have a subscription
         const contactData = {
           email: lead.email,
           name: lead.name,
           phone: lead.phone,
           gender: lead.gender,
-          funnel_stage: 'lead',
+          funnel_stage: subscription ? 'customer' : 'lead',
           lead_source: lead.lead_magnet || lead.source,
-          lead_score: 10,
+          lead_score: subscription ? 100 : 10,
           lead_captured_at: lead.created_at,
+          lifetime_value: subscription?.tierValue || 0,
+          total_purchases: subscription ? 1 : 0,
+          subscription_tier: subscription?.tier || null,
+          subscription_status: subscription ? 'active' : null,
           updated_at: new Date().toISOString()
         };
         
-        if (!existingEmails.has(emailLower)) {
+        if (existingEmails.has(emailLower)) {
+          // Update existing contact
+          const { error: updateError } = await supabase
+            .from("crm_contact_profiles")
+            .update(contactData)
+            .eq("email", lead.email);
+          
+          if (updateError) {
+            console.error(`Error updating lead ${lead.email}:`, updateError);
+          } else {
+            updatedCount++;
+          }
+        } else {
           const { error: insertError } = await supabase
             .from("crm_contact_profiles")
             .insert(contactData);
@@ -265,18 +317,18 @@ serve(async (req) => {
       }
     }
 
-    // 10. Also sync users who might not be in email_leads
+    // 11. Also sync users who might not be in email_leads
     for (const user of authUsers?.users || []) {
       if (!user.email) continue;
       
       const emailLower = user.email.toLowerCase();
-      if (existingEmails.has(emailLower)) continue;
       
       // Check if this email was already processed from leads
       const alreadyProcessed = emailLeads?.some(l => l.email.toLowerCase() === emailLower);
       if (alreadyProcessed) continue;
       
       const userId = user.id;
+      const subscription = subscriberMap.get(emailLower);
       const warrior = warriorPowerMap.get(userId);
       const challengeDays = challengeMap.get(userId) || 0;
       const stackCount = stackSessionsMap.get(userId) || 0;
@@ -285,6 +337,12 @@ serve(async (req) => {
       
       let leadScore = 25; // Has account
       let funnelStage = 'engaged';
+      
+      // Check if subscriber
+      if (subscription) {
+        leadScore += 100;
+        funnelStage = 'customer';
+      }
       
       if (warrior) leadScore += 20;
       leadScore += challengeDays * 10;
@@ -297,6 +355,11 @@ serve(async (req) => {
       
       leadScore = Math.min(leadScore, 100);
       
+      // Calculate total lifetime value
+      const subscriptionValue = subscription?.tierValue || 0;
+      const purchaseValue = purchaseData?.total || 0;
+      const totalLifetimeValue = subscriptionValue + purchaseValue;
+      
       const contactData = {
         email: user.email,
         user_id: userId,
@@ -304,13 +367,62 @@ serve(async (req) => {
         lead_source: 'direct_signup',
         lead_score: leadScore,
         account_created_at: user.created_at,
-        first_purchase_at: purchaseData?.first || null,
-        lifetime_value: purchaseData?.total || 0,
-        total_purchases: purchaseData?.count || 0,
+        first_purchase_at: purchaseData?.first || (subscription ? subscription.since : null),
+        lifetime_value: totalLifetimeValue,
+        total_purchases: (purchaseData?.count || 0) + (subscription ? 1 : 0),
         total_stack_sessions: stackCount,
         warrior_power_score: warrior?.total_score || null,
         current_streak: streakData?.streak || 0,
         door_completion_rate: streakData?.doorRate || 0,
+        subscription_tier: subscription?.tier || null,
+        subscription_status: subscription ? 'active' : null,
+        updated_at: new Date().toISOString()
+      };
+      
+      if (existingEmails.has(emailLower)) {
+        // Update existing contact
+        const { error: updateError } = await supabase
+          .from("crm_contact_profiles")
+          .update(contactData)
+          .eq("email", user.email);
+        
+        if (updateError) {
+          console.error(`Error updating user ${user.email}:`, updateError);
+        } else {
+          updatedCount++;
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from("crm_contact_profiles")
+          .insert(contactData);
+        
+        if (insertError) {
+          console.error(`Error inserting user ${user.email}:`, insertError);
+        } else {
+          syncedCount++;
+        }
+      }
+    }
+
+    // 12. Sync any subscribers not yet in CRM (edge case)
+    for (const [email, subscription] of subscriberMap) {
+      if (existingEmails.has(email)) continue;
+      
+      // Check if already processed
+      const alreadyProcessed = emailLeads?.some(l => l.email.toLowerCase() === email) ||
+        authUsers?.users?.some(u => u.email?.toLowerCase() === email);
+      if (alreadyProcessed) continue;
+      
+      const contactData = {
+        email: email,
+        funnel_stage: 'customer',
+        lead_source: 'stripe_subscription',
+        lead_score: 100,
+        lifetime_value: subscription.tierValue,
+        total_purchases: 1,
+        first_purchase_at: subscription.since,
+        subscription_tier: subscription.tier,
+        subscription_status: 'active',
         updated_at: new Date().toISOString()
       };
       
@@ -319,7 +431,7 @@ serve(async (req) => {
         .insert(contactData);
       
       if (insertError) {
-        console.error(`Error inserting user ${user.email}:`, insertError);
+        console.error(`Error inserting subscriber ${email}:`, insertError);
       } else {
         syncedCount++;
       }
@@ -332,7 +444,8 @@ serve(async (req) => {
         success: true, 
         synced: syncedCount, 
         updated: updatedCount,
-        total: (emailLeads?.length || 0) + (authUsers?.users?.length || 0)
+        total: (emailLeads?.length || 0) + (authUsers?.users?.length || 0),
+        subscribers: subscriberMap.size
       }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
