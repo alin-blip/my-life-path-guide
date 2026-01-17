@@ -154,7 +154,7 @@ const Vision2026 = () => {
                 <Clock className="w-4 h-4" />
                 <span>{language === 'en' ? '3 minutes' : '3 minute'}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="gap-2 flex items-center justify-start text-justify px-[12px]">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>{language === 'en' ? '16 questions' : '16 întrebări'}</span>
               </div>
