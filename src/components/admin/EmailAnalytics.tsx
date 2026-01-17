@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Mail, Eye, MousePointer, UserX, TrendingUp, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface EmailStats {
   total_sent: number;
@@ -24,23 +25,36 @@ interface DayStats {
   click_rate: number;
 }
 
+const SEQUENCE_TYPES = [
+  { value: 'all', label: 'Toate Secvențele' },
+  { value: 'warrior_power', label: 'Warrior Power' },
+  { value: 'vision_board', label: 'Vision Board' },
+  { value: 'vision_2026_quiz', label: 'Vision 2026 Quiz' },
+];
+
 export const EmailAnalytics: React.FC = () => {
   const [stats, setStats] = useState<EmailStats | null>(null);
   const [dayStats, setDayStats] = useState<DayStats[]>([]);
   const [recentEmails, setRecentEmails] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sequenceType, setSequenceType] = useState<string>('all');
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [sequenceType]);
 
   const fetchStats = async () => {
     try {
-      // Fetch overall stats
-      const { data: logs, error } = await supabase
-        .from('email_sequence_log')
-        .select('*')
-        .eq('sequence_type', 'warrior_power');
+      setLoading(true);
+      
+      // Build query based on sequence type
+      let query = supabase.from('email_sequence_log').select('*');
+      
+      if (sequenceType !== 'all') {
+        query = query.eq('sequence_type', sequenceType);
+      }
+
+      const { data: logs, error } = await query;
 
       if (error) throw error;
 
@@ -82,12 +96,17 @@ export const EmailAnalytics: React.FC = () => {
       setDayStats(Object.values(dayStatsMap));
 
       // Fetch recent emails
-      const { data: recent } = await supabase
+      let recentQuery = supabase
         .from('email_sequence_log')
         .select('*')
-        .eq('sequence_type', 'warrior_power')
         .order('sent_at', { ascending: false })
         .limit(10);
+      
+      if (sequenceType !== 'all') {
+        recentQuery = recentQuery.eq('sequence_type', sequenceType);
+      }
+
+      const { data: recent } = await recentQuery;
 
       setRecentEmails(recent || []);
     } catch (error) {
@@ -117,14 +136,28 @@ export const EmailAnalytics: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">📧 Email Analytics - Warrior Power</h2>
-        <button 
-          onClick={fetchStats}
-          className="text-sm text-primary hover:underline"
-        >
-          Refresh
-        </button>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <h2 className="text-2xl font-bold">📧 Email Analytics</h2>
+        <div className="flex items-center gap-3">
+          <Select value={sequenceType} onValueChange={setSequenceType}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Selectează secvența" />
+            </SelectTrigger>
+            <SelectContent>
+              {SEQUENCE_TYPES.map(type => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <button 
+            onClick={fetchStats}
+            className="text-sm text-primary hover:underline"
+          >
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Overview Stats */}

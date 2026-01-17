@@ -16,7 +16,10 @@ const TRACKING_PIXEL = new Uint8Array([
 const handler = async (req: Request): Promise<Response> => {
   try {
     const url = new URL(req.url);
-    const trackingId = url.searchParams.get('id');
+    // Accept both 't' (from send-power-results/send-vision-results) and 'id' parameters
+    const trackingId = url.searchParams.get('t') || url.searchParams.get('id');
+    
+    console.log(`Tracking pixel request: trackingId=${trackingId}, params=${url.searchParams.toString()}`);
 
     if (trackingId && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
       const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
