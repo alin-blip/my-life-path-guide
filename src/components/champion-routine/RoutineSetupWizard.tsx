@@ -171,29 +171,29 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {CORE4_CATEGORIES.map((category) => {
           const Icon = category.icon;
           return (
             <Card
               key={category.id}
               className={cn(
-                "p-4 border-2 bg-gradient-to-br backdrop-blur-sm",
+                "p-3 sm:p-4 border-2 bg-gradient-to-br backdrop-blur-sm",
                 category.color
               )}
             >
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-2 sm:mb-3">
                 <Icon className={cn("h-5 w-5", category.iconColor)} />
                 <span className="font-bold text-white text-sm">{category.label}</span>
                 <Lock className="h-3 w-3 text-white/40 ml-auto" />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 {category.tasks.map((task) => (
                   <div key={task.id} className="flex items-start gap-2">
                     <Check className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />
                     <div>
                       <p className="text-white text-sm font-medium">{task.label}</p>
-                      <p className="text-white/50 text-xs">{task.description}</p>
+                      <p className="text-white/50 text-xs hidden sm:block">{task.description}</p>
                     </div>
                   </div>
                 ))}
@@ -225,7 +225,7 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {EXTRA_STEPS.map((extra) => {
           const Icon = extra.icon;
           const isSelected = selectedExtras.includes(extra.id);
@@ -235,7 +235,7 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
               key={extra.id}
               onClick={() => toggleExtra(extra.id)}
               className={cn(
-                "p-3 cursor-pointer transition-all duration-300 border",
+                "p-2.5 sm:p-3 cursor-pointer transition-all duration-300 border",
                 "bg-white/5 hover:bg-white/10 backdrop-blur-sm",
                 isSelected
                   ? "border-primary/50 bg-primary/10"
@@ -244,17 +244,17 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
             >
               <div className="flex items-center gap-2">
                 <Icon className={cn(
-                  "h-4 w-4",
+                  "h-4 w-4 flex-shrink-0",
                   isSelected ? "text-primary" : "text-white/60"
                 )} />
                 <span className={cn(
-                  "text-sm font-medium",
+                  "text-xs sm:text-sm font-medium truncate",
                   isSelected ? "text-white" : "text-white/70"
                 )}>
                   {extra.label}
                 </span>
                 {isSelected && (
-                  <Check className="h-4 w-4 text-primary ml-auto" />
+                  <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary ml-auto flex-shrink-0" />
                 )}
               </div>
             </Card>

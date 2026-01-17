@@ -58,6 +58,7 @@ import { VisionDeclarationWidget } from '@/components/dashboard/widgets/VisionDe
 
 import { EmpowermentMeditationCard } from '@/components/dashboard/EmpowermentMeditationCard';
 import { AcceleratorBanner } from '@/components/dashboard/AcceleratorBanner';
+import { PWAInstallBanner } from '@/components/dashboard/PWAInstallBanner';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -739,6 +740,9 @@ export const Dashboard: React.FC = () => {
         }}></div>
             </div>)}
         </div>}
+      
+      {/* PWA Install Banner - Mobile only */}
+      <PWAInstallBanner />
       
       {/* Accelerator Upsell Banner - FIRST */}
       <AcceleratorBanner />
