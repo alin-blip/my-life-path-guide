@@ -1154,6 +1154,8 @@ export type Database = {
           lifetime_value: number | null
           name: string | null
           phone: string | null
+          subscription_status: string | null
+          subscription_tier: string | null
           tags: string[] | null
           total_door_tasks: number | null
           total_page_views: number | null
@@ -1188,6 +1190,8 @@ export type Database = {
           lifetime_value?: number | null
           name?: string | null
           phone?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
           tags?: string[] | null
           total_door_tasks?: number | null
           total_page_views?: number | null
@@ -1222,6 +1226,8 @@ export type Database = {
           lifetime_value?: number | null
           name?: string | null
           phone?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
           tags?: string[] | null
           total_door_tasks?: number | null
           total_page_views?: number | null
