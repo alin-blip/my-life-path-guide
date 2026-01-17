@@ -275,10 +275,10 @@ const VisionBoard2026 = () => {
               <Button
                 size="lg"
                 onClick={() => setStep('quiz')}
-                className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg px-8 py-6"
+                className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 w-full sm:w-auto max-w-xs mx-auto"
               >
                 {language === 'en' ? 'Discover Your Starting Point' : 'Află Unde Ești Acum'}
-                <ArrowRight className="h-5 w-5" />
+                <ArrowRight className="h-5 w-5 flex-shrink-0" />
               </Button>
             </div>
           )}
