@@ -15,7 +15,7 @@ import {
 import { 
   Users, UserCheck, Crown, Search, RefreshCw, 
   Mail, TrendingUp,
-  Zap, Filter
+  Zap, Filter, Clock
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -124,8 +124,9 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
   });
 
   const leads = filteredContacts.filter(c => c.funnel_stage === 'lead');
-  const engaged = filteredContacts.filter(c => c.funnel_stage === 'engaged');
-  const customers = filteredContacts.filter(c => c.funnel_stage === 'customer');
+  const trials = filteredContacts.filter(c => c.subscription_status === 'trialing' || c.funnel_stage === 'trial');
+  const engaged = filteredContacts.filter(c => c.funnel_stage === 'engaged' && c.subscription_status !== 'trialing');
+  const customers = filteredContacts.filter(c => c.funnel_stage === 'customer' && c.subscription_status !== 'trialing');
 
   const getConversionRate = (from: number, to: number) => {
     if (from === 0) return 0;
@@ -273,8 +274,8 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
         </div>
       )}
 
-      {/* Kanban Pipeline */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Kanban Pipeline - 4 columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Leads Column */}
         <Card className="border-t-4 border-t-blue-500">
           <CardHeader className="pb-3">
@@ -298,6 +299,41 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
                   </p>
                 ) : (
                   leads.map(contact => (
+                    <ContactCard 
+                      key={contact.id} 
+                      contact={contact} 
+                      onClick={() => onSelectContact(contact.id)}
+                    />
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        {/* Trial Column */}
+        <Card className="border-t-4 border-t-orange-500">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Clock className="h-5 w-5 text-orange-500" />
+                În Trial
+              </CardTitle>
+              <Badge variant="secondary">{trials.length}</Badge>
+            </div>
+            <CardDescription>
+              3 zile gratuite, card salvat
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[500px] pr-4">
+              <div className="space-y-3">
+                {trials.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    Nimeni în trial
+                  </p>
+                ) : (
+                  trials.map(contact => (
                     <ContactCard 
                       key={contact.id} 
                       contact={contact} 

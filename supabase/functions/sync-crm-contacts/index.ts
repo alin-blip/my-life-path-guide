@@ -113,7 +113,7 @@ serve(async (req) => {
     // 8. Get Stripe subscribers for customer identification
     const { data: subscribers, error: subscribersError } = await supabase
       .from("subscribers")
-      .select("email, subscribed, subscription_tier, created_at, subscription_end");
+      .select("email, subscribed, subscription_tier, subscription_status, created_at, subscription_end");
 
     if (subscribersError) {
       console.error("Error fetching subscribers:", subscribersError);
@@ -123,8 +123,10 @@ serve(async (req) => {
       subscribers?.filter(s => s.subscribed).map(s => [
         s.email.toLowerCase(), 
         { 
-          tier: s.subscription_tier, 
+          tier: s.subscription_tier,
+          status: s.subscription_status, // "trialing" or "active"
           since: s.created_at,
+          subscriptionEnd: s.subscription_end,
           tierValue: s.subscription_tier === 'Elite' ? 1990 : (s.subscription_tier === 'Pro' ? 990 : 0)
         }
       ]) || []
@@ -245,7 +247,7 @@ serve(async (req) => {
           current_streak: streakData?.streak || 0,
           door_completion_rate: streakData?.doorRate || 0,
           subscription_tier: subscription?.tier || null,
-          subscription_status: subscription ? 'active' : null,
+          subscription_status: subscription?.status || null,
           updated_at: new Date().toISOString()
         };
         
@@ -287,7 +289,7 @@ serve(async (req) => {
           lifetime_value: subscription?.tierValue || 0,
           total_purchases: subscription ? 1 : 0,
           subscription_tier: subscription?.tier || null,
-          subscription_status: subscription ? 'active' : null,
+          subscription_status: subscription?.status || null,
           updated_at: new Date().toISOString()
         };
         
@@ -375,7 +377,7 @@ serve(async (req) => {
         current_streak: streakData?.streak || 0,
         door_completion_rate: streakData?.doorRate || 0,
         subscription_tier: subscription?.tier || null,
-        subscription_status: subscription ? 'active' : null,
+        subscription_status: subscription?.status || null,
         updated_at: new Date().toISOString()
       };
       
@@ -415,14 +417,14 @@ serve(async (req) => {
       
       const contactData = {
         email: email,
-        funnel_stage: 'customer',
+        funnel_stage: subscription.status === 'trialing' ? 'trial' : 'customer',
         lead_source: 'stripe_subscription',
-        lead_score: 100,
-        lifetime_value: subscription.tierValue,
-        total_purchases: 1,
+        lead_score: subscription.status === 'trialing' ? 75 : 100,
+        lifetime_value: subscription.status === 'trialing' ? 0 : subscription.tierValue,
+        total_purchases: subscription.status === 'trialing' ? 0 : 1,
         first_purchase_at: subscription.since,
         subscription_tier: subscription.tier,
-        subscription_status: 'active',
+        subscription_status: subscription.status,
         updated_at: new Date().toISOString()
       };
       
