@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useCheckoutTracking } from '@/hooks/useCheckoutTracking';
 
 interface VisionBoardUpsellProps {
   language: 'en' | 'ro';
@@ -72,6 +73,17 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
   const [hasSession, setHasSession] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
+  // Checkout tracking
+  const {
+    trackUpsellView,
+    trackPlanClick,
+    trackCheckoutStart,
+    trackCheckoutRedirect,
+    trackCheckoutError,
+    trackAuthRedirect,
+    trackContinueFree,
+  } = useCheckoutTracking('vision_2026');
+
   // Check session on mount
   useEffect(() => {
     const checkSession = async () => {
@@ -88,14 +100,24 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
     return () => subscription.unsubscribe();
   }, []);
 
+  // Track upsell view on mount
+  useEffect(() => {
+    trackUpsellView({ language });
+  }, [language, trackUpsellView]);
+
   const handleCheckout = async (planId: string) => {
+    // Track plan click
+    trackPlanClick(planId);
+    
     setIsLoading(planId);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        // Redirect to auth with return URL
+        // Track auth redirect
+        trackAuthRedirect(planId);
+        
         toast.info(language === 'en' 
           ? 'Please sign in to continue with the purchase.' 
           : 'Te rugăm să te autentifici pentru a continua cu achiziția.');
@@ -107,6 +129,9 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
         });
         return;
       }
+
+      // Track checkout start
+      trackCheckoutStart(planId);
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { plan: planId, source: 'vision-2026' },
@@ -129,6 +154,9 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
       }
 
       if ((data as any)?.url) {
+        // Track checkout redirect
+        trackCheckoutRedirect(planId, (data as any).url);
+        
         window.location.href = (data as any).url;
         return;
       }
@@ -136,11 +164,20 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
       throw new Error((data as any)?.error ?? 'Nu s-a putut crea sesiunea de plată');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      
+      // Track checkout error
+      trackCheckoutError(planId, message);
+      
       console.error('Checkout error:', { planId, message, error });
       toast.error(message || 'A apărut o eroare. Încearcă din nou.');
     } finally {
       setIsLoading(null);
     }
+  };
+
+  const handleContinueFree = () => {
+    trackContinueFree();
+    onContinueFree();
   };
 
   return (
@@ -315,7 +352,7 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
       >
         <Button
           variant="ghost"
-          onClick={onContinueFree}
+          onClick={handleContinueFree}
           className="gap-2 text-muted-foreground hover:text-foreground text-sm"
         >
           {language === 'en' 
