@@ -241,12 +241,18 @@ export const Dashboard: React.FC = () => {
     
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const shownToday = localStorage.getItem('onboarding-wizard-shown-today');
+    const wasCompleted = localStorage.getItem('onboarding-wizard-completed');
+    const wasSkipped = localStorage.getItem('onboarding-wizard-skipped');
     
-    if (shownToday !== today && !foundationStatus.isFoundationComplete) {
+    // Don't show if already completed or skipped permanently
+    if (wasCompleted || wasSkipped) return;
+    
+    // Show immediately for new users if foundation not complete
+    if (!foundationStatus.isFoundationComplete) {
       const timer = setTimeout(() => {
         setShowOnboardingWizard(true);
         localStorage.setItem('onboarding-wizard-shown-today', today);
-      }, 1500);
+      }, 500); // Faster for new users
       return () => clearTimeout(timer);
     }
   }, [foundationStatus.isLoading, foundationStatus.isFoundationComplete]);
