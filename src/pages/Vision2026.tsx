@@ -253,10 +253,10 @@ const Vision2026 = () => {
               </div>)}
           </div>
 
-          <div className="text-center">
-            <Button size="lg" onClick={handleStartQuiz} className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white px-10 py-7 text-lg font-bold shadow-2xl shadow-orange-500/30 transition-all hover:scale-105 border-0">
+          <div className="flex justify-center px-4">
+            <Button size="lg" onClick={handleStartQuiz} className="w-full sm:w-auto max-w-sm bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white px-6 sm:px-10 py-6 sm:py-7 text-base sm:text-lg font-bold shadow-2xl shadow-orange-500/30 transition-all hover:scale-105 border-0">
               {language === 'en' ? 'Take the Free Assessment' : 'Completează Evaluarea Gratuită'}
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <ArrowRight className="w-5 h-5 ml-2 flex-shrink-0" />
             </Button>
           </div>
         </div>
