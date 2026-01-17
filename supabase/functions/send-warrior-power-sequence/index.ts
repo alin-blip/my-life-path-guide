@@ -424,7 +424,7 @@ const handler = async (req: Request): Promise<Response> => {
           "Authorization": `Bearer ${RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: "Warrior Power <onboarding@resend.dev>",
+          from: "Warrior Power <noreply@warriorsos.com>",
           to: [lead.email],
           subject: template.subject,
           html: template.html,
