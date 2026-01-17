@@ -426,7 +426,7 @@ export const WeeklySection: React.FC = () => {
             <SwipeableSection
               onSwipeLeft={handleSwipeLeft}
               onSwipeRight={handleSwipeRight}
-              className="min-h-[60vh] w-full max-w-full overflow-hidden"
+              className="min-h-[60vh] w-full max-w-full"
             >
               {mobileSection === 'todo' && (
                 <div className="animate-fade-in">

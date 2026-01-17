@@ -110,7 +110,7 @@ export const TaskList: React.FC<TaskListProps> = ({
     <div 
       className={cn(
         "relative transition-all duration-200",
-        isMobile ? 'max-h-[70vh] overflow-y-auto overflow-x-hidden w-full max-w-full' : '',
+        isMobile ? 'max-h-[calc(100vh-220px)] overflow-y-auto overflow-x-hidden w-full max-w-full touch-pan-y' : '',
         isDragOver && "ring-2 ring-primary/30 ring-offset-2 ring-offset-background rounded-xl"
       )}
       onDragOver={handleDragOver}
@@ -173,7 +173,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       />
       
       {/* Task List */}
-      <div className={`space-y-1 ${isMobile ? 'max-h-[calc(70vh-120px)] overflow-y-auto' : ''}`}>
+      <div className={`space-y-1`}>
         {activeList === 'hit' ? (
           filteredHitList.length > 0 ? (
             filteredHitList.map(item => (
