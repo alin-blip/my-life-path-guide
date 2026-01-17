@@ -128,16 +128,16 @@ const Vision2026 = () => {
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight animate-fade-in" style={{
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight animate-fade-in" style={{
             animationDelay: '0.1s'
           }}>
-              {language === 'en' ? <>2026 Can Be Your Year of Transformation...<br /><span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Or Just Another Year That Passes</span></> : <>2026 Poate Fi Anul Tău de Transformare...<br /><span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Sau Doar Încă Un An Care Trece</span></>}
+              {language === 'en' ? <>2026: <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Transformation or Repetition?</span></> : <>2026: <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Transformare sau Repetiție?</span></>}
             </h1>
 
-            <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto animate-fade-in" style={{
+            <p className="text-base md:text-lg lg:text-xl text-white/70 mb-10 max-w-2xl mx-auto animate-fade-in" style={{
             animationDelay: '0.2s'
           }}>
-              {language === 'en' ? 'Most people set goals at the start of the year. 92% fail before March. The difference? A clear system.' : 'Majoritatea oamenilor își stabilesc obiective la început de an. 92% eșuează înainte de Martie. Diferența? Un sistem clar.'}
+              {language === 'en' ? 'Before you get where you want to go, you need to know where you\'re starting from. 92% fail because they skip this step.' : 'Înainte să ajungi unde vrei, trebuie să știi de unde pleci. 92% eșuează pentru că sar peste acest pas.'}
             </p>
 
             <Button size="lg" onClick={handleStartQuiz} className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white px-10 py-7 text-lg font-bold shadow-2xl shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:scale-105 animate-fade-in border-0" style={{
