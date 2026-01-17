@@ -84,6 +84,7 @@ const WarriorPower = lazy(() => import("./pages/WarriorPower"));
 const GameObjectives = lazy(() => import("./pages/GameObjectives"));
 const Brotherhood = lazy(() => import("./pages/Brotherhood"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const Install = lazy(() => import("./pages/Install"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -363,7 +364,9 @@ const App = () => (
                         <Brotherhood />
                       </ProtectedRoute>
                     } />
-                        <Route path="*" element={<NotFound />} />
+                    <Route path="/unsubscribe" element={<Unsubscribe />} />
+                    <Route path="/install" element={<Install />} />
+                    <Route path="*" element={<NotFound />} />
                       </Routes>
                       </Suspense>
                       </ProgressProvider>
