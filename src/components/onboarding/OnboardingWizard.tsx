@@ -60,7 +60,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
         ro: 'Definește obiectivele mari pentru toate cele 4 categorii: Corp, Spiritualitate, Relații și Business.'
       },
       icon: <Target className="w-8 h-8" />,
-      route: '/door?tab=annual',
+      route: '/door?tab=annual&startWizard=true',
       checkComplete: () => foundationStatus.hasAllAnnualCategories
     },
     {

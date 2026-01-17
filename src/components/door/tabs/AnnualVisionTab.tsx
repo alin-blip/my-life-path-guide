@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { GoalWizardModal } from '@/components/goal-wizard/GoalWizardModal';
+import { CategorySelectionDialog } from '@/components/goal-wizard/CategorySelectionDialog';
 import { GoalCategory } from '@/types/goalWizard';
 import { useChildMissions } from '@/hooks/useHierarchyData';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
@@ -171,6 +172,19 @@ export const AnnualVisionTab: React.FC = () => {
   // Goal Wizard state
   const [wizardOpen, setWizardOpen] = useState(false);
   const [wizardCategory, setWizardCategory] = useState<GoalCategory>('body');
+  const [showCategorySelection, setShowCategorySelection] = useState(false);
+  
+  // Check for startWizard parameter from onboarding
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('startWizard') === 'true') {
+      // Open category selection dialog
+      setShowCategorySelection(true);
+      // Clean the parameter from URL
+      const newUrl = `${window.location.pathname}?tab=annual`;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [location.search]);
   
   // Check for checkout success
   useEffect(() => {
@@ -649,6 +663,17 @@ export const AnnualVisionTab: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Category Selection Dialog for Onboarding */}
+      <CategorySelectionDialog
+        isOpen={showCategorySelection}
+        onClose={() => setShowCategorySelection(false)}
+        onSelectCategory={(category) => {
+          setShowCategorySelection(false);
+          setWizardCategory(category);
+          setWizardOpen(true);
+        }}
+      />
 
       {/* Goal Wizard Modal */}
       <GoalWizardModal
