@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ import {
 import { 
   Users, UserCheck, Crown, Search, RefreshCw, 
   Mail, TrendingUp,
-  Zap, Filter, Clock
+  Zap, Filter, Clock, ArrowUpDown, Calendar
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -47,6 +47,9 @@ interface FunnelPipelineProps {
   onSelectContact: (contactId: string) => void;
 }
 
+type SortOption = 'newest' | 'oldest' | 'score' | 'ltv' | 'activity';
+type StageFilter = 'all' | 'lead' | 'trial' | 'engaged' | 'customer';
+
 export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact }) => {
   const { toast } = useToast();
   const [contacts, setContacts] = useState<CRMContact[]>([]);
@@ -54,19 +57,17 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
   const [syncing, setSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [stageFilter, setStageFilter] = useState<StageFilter>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [showStats, setShowStats] = useState(false);
+  const [lastSync, setLastSync] = useState<Date | null>(null);
 
-  useEffect(() => {
-    loadContacts();
-  }, []);
-
-  const loadContacts = async () => {
+  const loadContacts = useCallback(async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const { data, error } = await supabase
         .from('crm_contact_profiles')
-        .select('*')
-        .order('lead_score', { ascending: false });
+        .select('*');
 
       if (error) throw error;
       setContacts(data || []);
@@ -80,7 +81,29 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  // Auto-sync on mount and every 5 minutes
+  useEffect(() => {
+    const autoSync = async () => {
+      try {
+        setSyncing(true);
+        const { data, error } = await supabase.functions.invoke('sync-crm-contacts');
+        if (!error) {
+          setLastSync(new Date());
+          await loadContacts(false);
+        }
+      } catch (e) {
+        console.error('Auto-sync error:', e);
+      } finally {
+        setSyncing(false);
+      }
+    };
+
+    autoSync();
+    const interval = setInterval(autoSync, 5 * 60 * 1000); // Every 5 minutes
+    return () => clearInterval(interval);
+  }, [loadContacts]);
 
   const syncContacts = async () => {
     try {
@@ -89,12 +112,13 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
       
       if (error) throw error;
       
+      setLastSync(new Date());
       toast({
         title: 'Sincronizare completă',
         description: `${data?.synced || 0} noi, ${data?.updated || 0} actualizate, ${data?.subscribers || 0} subscriberi`
       });
       
-      await loadContacts();
+      await loadContacts(false);
     } catch (error) {
       console.error('Sync error:', error);
       toast({
@@ -116,17 +140,54 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
     return Array.from(sources).sort();
   }, [contacts]);
 
-  const filteredContacts = contacts.filter(c => {
-    const matchesSearch = c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.name?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSource = sourceFilter === 'all' || c.lead_source === sourceFilter;
-    return matchesSearch && matchesSource;
-  });
+  // Sort function
+  const sortContacts = useCallback((contactList: CRMContact[]) => {
+    return [...contactList].sort((a, b) => {
+      switch (sortBy) {
+        case 'newest':
+          return new Date(b.first_seen_at).getTime() - new Date(a.first_seen_at).getTime();
+        case 'oldest':
+          return new Date(a.first_seen_at).getTime() - new Date(b.first_seen_at).getTime();
+        case 'score':
+          return b.lead_score - a.lead_score;
+        case 'ltv':
+          return b.lifetime_value - a.lifetime_value;
+        case 'activity':
+          const aActivity = a.last_activity_at ? new Date(a.last_activity_at).getTime() : 0;
+          const bActivity = b.last_activity_at ? new Date(b.last_activity_at).getTime() : 0;
+          return bActivity - aActivity;
+        default:
+          return 0;
+      }
+    });
+  }, [sortBy]);
 
-  const leads = filteredContacts.filter(c => c.funnel_stage === 'lead');
-  const trials = filteredContacts.filter(c => c.subscription_status === 'trialing' || c.funnel_stage === 'trial');
-  const engaged = filteredContacts.filter(c => c.funnel_stage === 'engaged' && c.subscription_status !== 'trialing');
-  const customers = filteredContacts.filter(c => c.funnel_stage === 'customer' && c.subscription_status !== 'trialing');
+  const filteredContacts = React.useMemo(() => {
+    let result = contacts.filter(c => {
+      const matchesSearch = c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.name?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSource = sourceFilter === 'all' || c.lead_source === sourceFilter;
+      
+      // Stage filter
+      let matchesStage = true;
+      if (stageFilter !== 'all') {
+        if (stageFilter === 'trial') {
+          matchesStage = c.subscription_status === 'trialing' || c.funnel_stage === 'trial';
+        } else {
+          matchesStage = c.funnel_stage === stageFilter;
+        }
+      }
+      
+      return matchesSearch && matchesSource && matchesStage;
+    });
+    
+    return sortContacts(result);
+  }, [contacts, searchQuery, sourceFilter, stageFilter, sortContacts]);
+
+  const leads = sortContacts(filteredContacts.filter(c => c.funnel_stage === 'lead'));
+  const trials = sortContacts(filteredContacts.filter(c => c.subscription_status === 'trialing' || c.funnel_stage === 'trial'));
+  const engaged = sortContacts(filteredContacts.filter(c => c.funnel_stage === 'engaged' && c.subscription_status !== 'trialing'));
+  const customers = sortContacts(filteredContacts.filter(c => c.funnel_stage === 'customer' && c.subscription_status !== 'trialing'));
 
   const getConversionRate = (from: number, to: number) => {
     if (from === 0) return 0;
@@ -212,67 +273,126 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
       )}
 
       {/* Search and Actions */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Caută după email sau nume..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select value={sourceFilter} onValueChange={setSourceFilter}>
-          <SelectTrigger className="w-[200px]">
-            <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Toate sursele" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Toate sursele</SelectItem>
-            {uniqueSources.map(source => (
-              <SelectItem key={source} value={source}>
-                {source === 'vision_2026_quiz' ? 'Vision 2026 Quiz' :
-                 source === 'vision_board' ? 'Vision Board' :
-                 source === 'warrior_power' ? 'Warrior Power' :
-                 source === 'direct_signup' ? 'Direct Signup' :
-                 source === 'stripe_subscription' ? 'Stripe' :
-                 source}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button 
-          variant="outline" 
-          onClick={() => setShowStats(!showStats)}
-        >
-          {showStats ? 'Ascunde Stats' : 'Lead Stats'}
-        </Button>
-        <Button 
-          variant="outline" 
-          onClick={syncContacts}
-          disabled={syncing}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
-          {syncing ? 'Sincronizare...' : 'Sync Contacte'}
-        </Button>
-      </div>
-
-      {/* Filter indicator */}
-      {sourceFilter !== 'all' && (
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">
-            Filtrare: {sourceFilter}
-          </Badge>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Caută după email sau nume..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
           <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => setSourceFilter('all')}
-            className="h-6 px-2"
+            variant="outline" 
+            onClick={() => setShowStats(!showStats)}
           >
-            Șterge filtru
+            {showStats ? 'Ascunde Stats' : 'Lead Stats'}
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={syncContacts}
+            disabled={syncing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? 'Sincronizare...' : 'Sync'}
           </Button>
         </div>
-      )}
+
+        {/* Filters Row */}
+        <div className="flex flex-wrap gap-3 items-center">
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+            <SelectTrigger className="w-[160px]">
+              <ArrowUpDown className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Sortare" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Cel mai nou</SelectItem>
+              <SelectItem value="oldest">Cel mai vechi</SelectItem>
+              <SelectItem value="score">Lead Score</SelectItem>
+              <SelectItem value="ltv">LTV (valoare)</SelectItem>
+              <SelectItem value="activity">Ultima activitate</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={sourceFilter} onValueChange={setSourceFilter}>
+            <SelectTrigger className="w-[180px]">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Sursă" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toate sursele</SelectItem>
+              {uniqueSources.map(source => (
+                <SelectItem key={source} value={source}>
+                  {source === 'vision_2026_quiz' ? 'Vision 2026 Quiz' :
+                   source === 'vision_board' ? 'Vision Board' :
+                   source === 'warrior_power' ? 'Warrior Power' :
+                   source === 'direct_signup' ? 'Direct Signup' :
+                   source === 'stripe_subscription' ? 'Stripe' :
+                   source}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={stageFilter} onValueChange={(v) => setStageFilter(v as StageFilter)}>
+            <SelectTrigger className="w-[160px]">
+              <Users className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Etapă" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toate etapele</SelectItem>
+              <SelectItem value="lead">Leads</SelectItem>
+              <SelectItem value="trial">În Trial</SelectItem>
+              <SelectItem value="engaged">Engaged</SelectItem>
+              <SelectItem value="customer">Customers</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {lastSync && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
+              <Calendar className="h-3 w-3" />
+              Sync: {lastSync.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          )}
+        </div>
+
+        {/* Active filters indicator */}
+        {(sourceFilter !== 'all' || stageFilter !== 'all' || sortBy !== 'newest') && (
+          <div className="flex flex-wrap items-center gap-2">
+            {sortBy !== 'newest' && (
+              <Badge variant="outline" className="text-xs">
+                Sortare: {sortBy === 'oldest' ? 'Cel mai vechi' : 
+                         sortBy === 'score' ? 'Lead Score' : 
+                         sortBy === 'ltv' ? 'LTV' : 'Ultima activitate'}
+              </Badge>
+            )}
+            {sourceFilter !== 'all' && (
+              <Badge variant="secondary" className="text-xs">
+                Sursă: {sourceFilter}
+              </Badge>
+            )}
+            {stageFilter !== 'all' && (
+              <Badge variant="secondary" className="text-xs">
+                Etapă: {stageFilter}
+              </Badge>
+            )}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => {
+                setSourceFilter('all');
+                setStageFilter('all');
+                setSortBy('newest');
+              }}
+              className="h-6 px-2 text-xs"
+            >
+              Resetează filtrele
+            </Button>
+          </div>
+        )}
+      </div>
 
       {/* Kanban Pipeline - 4 columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
