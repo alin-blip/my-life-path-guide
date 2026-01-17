@@ -1,25 +1,51 @@
-# Plan: Actualizare STRIPE_WEBHOOK_SECRET
+# Plan de Remediere Stripe Webhook
 
-## Obiectiv
-Actualizarea secretului `STRIPE_WEBHOOK_SECRET` cu noua valoare din Stripe Dashboard pentru verificarea corecta a webhook-urilor.
+## Problema Identificata
+Eroare critica in `stripe-webhook`: foloseste `constructEvent()` sincron in loc de `constructEventAsync()` care este necesar in Deno/Edge Functions.
 
-## Pasi de implementare
+## Eroare din Logs
+```
+SubtleCryptoProvider cannot be used in a synchronous context.
+Use `await constructEventAsync(...)` instead of `constructEvent(...)`
+```
 
-### Pas 1: Actualizare secret
-- Se va folosi tool-ul de actualizare secrete pentru a inlocui valoarea existenta a `STRIPE_WEBHOOK_SECRET`
-- Vei primi un formular unde sa introduci noua valoare
+## Pasi de Implementare
 
-### De unde obtii valoarea
+### Pas 1: Reparare stripe-webhook/index.ts
+Inlocuire:
+```typescript
+// GRESIT (sincron)
+const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
 
-1. Mergi la **Stripe Dashboard** -> **Developers** -> **Webhooks**
-2. Click pe endpoint-ul tau: `https://exsbnfmaadjyfblperas.supabase.co/functions/v1/stripe-webhook`
-3. In sectiunea **Signing secret**, click **Reveal** sau **Click to reveal**
-4. Copiaza valoarea care incepe cu `whsec_...`
+// CORECT (async)
+const event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
+```
 
-### Dupa actualizare
-- Edge function-ul `stripe-webhook` va folosi automat noua valoare
-- Nu sunt necesare modificari de cod
-- Webhook-urile vor fi verificate corect cu noua semnatura
+### Pas 2: Actualizare config.toml
+Adaugare toate functiile Stripe care lipsesc:
+```toml
+[functions.stripe-webhook]
+verify_jwt = false
 
-## Nota
-Build error-ul de `bun install timeout` este o problema temporara de infrastructura si nu afecteaza aceasta actualizare.
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.check-subscription]
+verify_jwt = false
+
+[functions.customer-portal]
+verify_jwt = false
+```
+
+### Pas 3: Imbunatatire error handling
+- Adaugare logging mai detaliat pentru debugging
+- Tratare corecta a erorilor de verificare semnatura
+
+## Rezultat Asteptat
+- Webhook-urile Stripe vor fi procesate corect
+- Subscriptiile se vor actualiza automat la evenimente (creare, update, anulare)
+- Nu mai depinde exclusiv de `check-subscription` pentru actualizari
+
+## Note
+- Plata recenta (sarah@eduforyou.co.uk) a functionat doar pentru ca `check-subscription` verifica direct cu Stripe API
+- Build error-ul "bun install timeout" este temporar si nu afecteaza implementarea
