@@ -300,9 +300,9 @@ const Vision2026 = () => {
               <p className="text-white/70 mb-8 max-w-xl mx-auto">
                 {language === 'en' ? 'Join thousands who took control of their life. The assessment is free and takes only 3 minutes.' : 'Alătură-te miilor care și-au luat viața în propriile mâini. Evaluarea este gratuită și durează doar 3 minute.'}
               </p>
-              <Button size="lg" onClick={handleStartQuiz} className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white py-7 text-lg font-bold shadow-orange-500/40 transition-all hover:scale-105 border-0 mx-0 my-0 px-px shadow-xl">
+              <Button size="lg" onClick={handleStartQuiz} className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white py-5 sm:py-7 text-sm sm:text-lg font-bold shadow-orange-500/40 transition-all hover:scale-105 border-0 mx-0 my-0 px-4 sm:px-6 shadow-xl">
                 {language === 'en' ? 'Start My Free Assessment' : 'Începe Evaluarea Mea Gratuită'}
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 flex-shrink-0" />
               </Button>
               <p className="text-white/50 text-sm mt-4">
                 {language === 'en' ? '✓ No credit card • ✓ 100% Free • ✓ Instant results' : '✓ Fără card de credit • ✓ 100% Gratuit • ✓ Rezultate instant'}
