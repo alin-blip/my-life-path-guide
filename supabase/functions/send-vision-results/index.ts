@@ -110,7 +110,7 @@ const handler = async (req: Request): Promise<Response> => {
     const dashboardUrl = `https://my-life-path-guide.lovable.app/door?tab=annual&utm_source=email&utm_medium=sequence&utm_campaign=vision_board&utm_content=day1`;
     const trialUrl = `https://my-life-path-guide.lovable.app/auth?redirect=/door&plan=trial&utm_source=email&utm_medium=sequence&utm_campaign=vision_board&utm_content=day1`;
 
-    // Build vision cards HTML
+    // Build vision cards HTML - simple text format
     const visionCardsHtml = Object.entries(visions)
       .filter(([_, vision]) => vision)
       .map(([category, vision]) => {
@@ -118,22 +118,21 @@ const handler = async (req: Request): Promise<Response> => {
         const imageUrl = images[category as keyof typeof images];
         
         return `
-        <div style="margin-bottom: 25px; padding: 25px; background: linear-gradient(135deg, ${info.color}11 0%, transparent 100%); border-radius: 16px; border: 1px solid ${info.color}33;">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
-            <span style="font-size: 28px;">${info.emoji}</span>
-            <h3 style="margin: 0; font-size: 20px; color: ${info.color}; font-weight: 700;">${info.name}</h3>
-          </div>
-          
-          ${imageUrl ? `
-          <div style="margin-bottom: 15px; border-radius: 12px; overflow: hidden;">
-            <img src="${imageUrl}" alt="Vision ${info.name}" style="width: 100%; height: auto; display: block; border-radius: 12px;" />
-          </div>
-          ` : ''}
-          
-          <p style="margin: 0; color: #ddd; font-size: 15px; line-height: 1.7; font-style: italic;">
-            "${vision}"
-          </p>
-        </div>
+        <tr>
+          <td style="padding: 20px 0; border-bottom: 1px solid #e5e5e5;">
+            <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #1a1a1a;">
+              ${info.emoji} ${info.name.toUpperCase()}
+            </p>
+            <p style="margin: 0; font-size: 15px; color: #333333; line-height: 1.6; font-style: italic;">
+              "${vision}"
+            </p>
+            ${imageUrl ? `
+            <p style="margin: 12px 0 0 0;">
+              <img src="${imageUrl}" alt="Vision ${info.name}" style="max-width: 100%; height: auto; border-radius: 8px;" />
+            </p>
+            ` : ''}
+          </td>
+        </tr>
         `;
       })
       .join('');
@@ -143,93 +142,151 @@ const handler = async (req: Request): Promise<Response> => {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vision Board-ul Tău 2026</title>
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>Vision Board 2026</title>
 </head>
-<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0a0f; color: #ffffff; margin: 0; padding: 0;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #ffffff; color: #1a1a1a; margin: 0; padding: 0; -webkit-text-size-adjust: 100%;">
 
 <!-- Tracking Pixel -->
 <img src="${trackingPixel}" width="1" height="1" style="display:none;" alt="" />
 
-<div style="max-width: 640px; margin: 0 auto; background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff;">
+  <tr>
+    <td style="padding: 20px;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto;">
+        
+        <!-- Header -->
+        <tr>
+          <td style="padding: 30px 0; text-align: center; border-bottom: 2px solid #1a1a1a;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #1a1a1a; letter-spacing: 1px;">VISION BOARD 2026</h1>
+          </td>
+        </tr>
+        
+        <!-- Greeting -->
+        <tr>
+          <td style="padding: 30px 0 20px 0;">
+            <p style="margin: 0; font-size: 16px; color: #1a1a1a; line-height: 1.6;">
+              Salut ${name},
+            </p>
+          </td>
+        </tr>
+        
+        <!-- Intro -->
+        <tr>
+          <td style="padding: 0 0 25px 0;">
+            <p style="margin: 0; font-size: 16px; color: #333333; line-height: 1.7;">
+              Felicitări! Ai finalizat Vision Board-ul tău pentru 2026. Mai jos găsești viziunile tale pentru cele 4 dimensiuni ale vieții.
+            </p>
+          </td>
+        </tr>
+        
+        <!-- Divider -->
+        <tr>
+          <td style="padding: 0 0 20px 0;">
+            <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 0;" />
+          </td>
+        </tr>
+        
+        <!-- Section Title -->
+        <tr>
+          <td style="padding: 0 0 15px 0;">
+            <p style="margin: 0; font-size: 18px; font-weight: 600; color: #1a1a1a;">
+              Viziunile Tale:
+            </p>
+          </td>
+        </tr>
+        
+        <!-- Vision Cards -->
+        ${visionCardsHtml}
+        
+        <!-- Divider -->
+        <tr>
+          <td style="padding: 25px 0 20px 0;">
+            <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 0;" />
+          </td>
+        </tr>
+        
+        <!-- Tips Section -->
+        <tr>
+          <td style="padding: 0 0 20px 0;">
+            <p style="margin: 0 0 15px 0; font-size: 18px; font-weight: 600; color: #1a1a1a;">
+              Cum să folosești Vision Board-ul:
+            </p>
+            <p style="margin: 0 0 10px 0; font-size: 15px; color: #333333; line-height: 1.6;">
+              <strong>1. Vizualizare Zilnică</strong> — Privește imaginile dimineața și seara pentru 2 minute.
+            </p>
+            <p style="margin: 0 0 10px 0; font-size: 15px; color: #333333; line-height: 1.6;">
+              <strong>2. Citește-ți Viziunile</strong> — Recitește-ți declarațiile cu voce tare.
+            </p>
+            <p style="margin: 0; font-size: 15px; color: #333333; line-height: 1.6;">
+              <strong>3. Acționează Zilnic</strong> — Fă cel puțin o acțiune mică în direcția fiecărei viziuni.
+            </p>
+          </td>
+        </tr>
+        
+        <!-- Divider -->
+        <tr>
+          <td style="padding: 5px 0 25px 0;">
+            <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 0;" />
+          </td>
+        </tr>
+        
+        <!-- CTA Section -->
+        <tr>
+          <td style="padding: 0 0 25px 0;">
+            <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333; line-height: 1.6;">
+              <strong>Pasul următor:</strong> Transformă viziunea în realitate cu un sistem complet de execuție.
+            </p>
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+              <tr>
+                <td style="background-color: #1a1a1a; border-radius: 6px;">
+                  <a href="${trialUrl}" style="display: inline-block; padding: 14px 28px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none;">
+                    Începe Trial 3 Zile GRATUIT →
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin: 15px 0 0 0; font-size: 14px; color: #666666;">
+              <a href="${dashboardUrl}" style="color: #0066cc; text-decoration: underline;">Sau accesează Dashboard-ul →</a>
+            </p>
+          </td>
+        </tr>
+        
+        <!-- Divider -->
+        <tr>
+          <td style="padding: 0 0 20px 0;">
+            <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 0;" />
+          </td>
+        </tr>
+        
+        <!-- Next Email Teaser -->
+        <tr>
+          <td style="padding: 0 0 25px 0;">
+            <p style="margin: 0; font-size: 14px; color: #666666; line-height: 1.6;">
+              📬 <strong>Mâine primești:</strong> Cum să-ți Menții Viziunea Vie - 5 Tehnici de Vizualizare
+            </p>
+          </td>
+        </tr>
+        
+        <!-- Footer -->
+        <tr>
+          <td style="padding: 20px 0; border-top: 1px solid #e5e5e5;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #1a1a1a;">
+              Mult succes!<br/>
+              Echipa Vision Board 2026
+            </p>
+            <p style="margin: 0; font-size: 12px; color: #999999;">
+              <a href="${unsubscribeUrl}" style="color: #999999; text-decoration: underline;">Dezabonare</a>
+            </p>
+          </td>
+        </tr>
+        
+      </table>
+    </td>
+  </tr>
+</table>
 
-<!-- Header -->
-<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); padding: 50px 30px; text-align: center;">
-  <div style="font-size: 48px; margin-bottom: 10px;">🎯</div>
-  <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 2px;">VISION BOARD 2026</h1>
-  <p style="margin: 15px 0 0 0; font-size: 18px; color: rgba(255,255,255,0.9);">Viziunile Tale pentru Anul Viitor, ${name}!</p>
-</div>
-
-<!-- Intro -->
-<div style="padding: 40px 30px; text-align: center;">
-  <p style="margin: 0; color: #aaa; font-size: 16px; line-height: 1.7;">
-    Felicitări! Ai făcut primul pas către transformare. Mai jos găsești viziunile tale pentru cele 4 dimensiuni ale vieții, împreună cu imaginile generate de AI care îți vor ghida anul 2026.
-  </p>
-</div>
-
-<!-- Vision Cards -->
-<div style="padding: 0 20px 30px 20px;">
-  <h2 style="text-align: center; font-size: 22px; color: #fff; margin-bottom: 25px;">✨ Viziunile Tale</h2>
-  ${visionCardsHtml}
-</div>
-
-<!-- Tips Section -->
-<div style="padding: 30px; background: rgba(102,126,234,0.1); border-top: 1px solid rgba(102,126,234,0.3);">
-  <h2 style="text-align: center; font-size: 20px; color: #fff; margin: 0 0 20px 0;">💡 Cum Să Folosești Vision Board-ul</h2>
-  
-  <div style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 3px solid #667eea;">
-    <p style="margin: 0; color: #ddd; font-size: 14px; line-height: 1.6;">
-      <strong style="color: #fff;">1. Vizualizare Zilnică</strong> — Privește imaginile dimineața și seara pentru 2 minute. Simte cum ar fi să trăiești deja acea realitate.
-    </p>
-  </div>
-  
-  <div style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 3px solid #764ba2;">
-    <p style="margin: 0; color: #ddd; font-size: 14px; line-height: 1.6;">
-      <strong style="color: #fff;">2. Citește-ți Viziunile</strong> — Recitește-ți declarațiile cu voce tare. Creierul tău le va integra mai profund.
-    </p>
-  </div>
-  
-  <div style="padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 3px solid #f093fb;">
-    <p style="margin: 0; color: #ddd; font-size: 14px; line-height: 1.6;">
-      <strong style="color: #fff;">3. Acționează Zilnic</strong> — Fă cel puțin o acțiune mică în direcția fiecărei viziuni. Progresul se construiește pas cu pas.
-    </p>
-  </div>
-</div>
-
-<!-- CTA Section -->
-<div style="padding: 50px 30px; text-align: center; background: linear-gradient(180deg, transparent 0%, rgba(102,126,234,0.15) 100%);">
-  <div style="font-size: 40px; margin-bottom: 15px;">🚀</div>
-  <h2 style="margin: 0 0 15px 0; font-size: 26px; color: #fff;">Transformă Viziunea în Realitate</h2>
-  <p style="margin: 0 0 30px 0; color: #aaa; font-size: 16px; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">
-    Vizualizarea e doar începutul. Pentru a transforma aceste viziuni în realitate, ai nevoie de un <strong style="color: #fff;">sistem complet de execuție</strong>.
-  </p>
-  
-  <a href="${trialUrl}" style="display: inline-block; padding: 18px 50px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(34,197,94,0.4); margin-bottom: 15px;">
-    Începe Trial 3 Zile GRATUIT →
-  </a>
-  
-  <p style="margin: 0; color: #666; font-size: 13px;">
-    <a href="${dashboardUrl}" style="color: #888; text-decoration: underline;">Sau accesează Dashboard-ul →</a>
-  </p>
-</div>
-
-<!-- Next Email Teaser -->
-<div style="padding: 25px 30px; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
-  <p style="margin: 0; color: #888; font-size: 14px;">
-    📬 <strong style="color: #aaa;">Mâine primești:</strong> Cum să-ți Menții Viziunea Vie - 5 Tehnici de Vizualizare
-  </p>
-</div>
-
-<!-- Footer -->
-<div style="padding: 30px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
-  <p style="margin: 0 0 15px 0; color: #666; font-size: 12px;">
-    © 2025 Vision Board 2026. Toate drepturile rezervate.
-  </p>
-  <p style="margin: 0; font-size: 11px;">
-    <a href="${unsubscribeUrl}" style="color: #555; text-decoration: none;">Dezabonare</a>
-  </p>
-</div>
-
-</div>
 </body>
 </html>`;
 
@@ -242,7 +299,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: 'Vision Board <noreply@warriorsos.com>',
         to: [email],
-        subject: `🎯 ${name}, Vision Board-ul Tău 2026 Este Gata!`,
+        subject: `${name}, Vision Board-ul Tău 2026 Este Gata`,
         html: emailHtml,
       }),
     });
