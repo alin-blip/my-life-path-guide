@@ -123,6 +123,9 @@ serve(async (req) => {
       }
     }
 
+    // Get subscription status (trialing or active)
+    const subscriptionStatus = activeOrTrial?.status || null;
+
     await supabaseService.from("subscribers").upsert({
       email: user.email,
       user_id: user.id,
@@ -130,6 +133,7 @@ serve(async (req) => {
       subscribed: isSubscribed,
       subscription_tier: tier,
       subscription_end: endIso,
+      subscription_status: subscriptionStatus,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'email' });
 

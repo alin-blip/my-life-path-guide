@@ -23,9 +23,19 @@ interface ContactCardProps {
     tags: string[] | null;
     subscription_tier?: string | null;
     subscription_status?: string | null;
+    subscription_end?: string | null;
   };
   onClick: () => void;
 }
+
+const getDaysRemaining = (endDate: string | null | undefined): number => {
+  if (!endDate) return 0;
+  const end = new Date(endDate);
+  const now = new Date();
+  const diffTime = end.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return Math.max(0, diffDays);
+};
 
 export const ContactCard: React.FC<ContactCardProps> = ({ contact, onClick }) => {
   const getScoreColor = (score: number) => {
@@ -76,11 +86,15 @@ export const ContactCard: React.FC<ContactCardProps> = ({ contact, onClick }) =>
                 <User className="h-4 w-4 text-primary" />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-medium truncate">
                     {contact.name || contact.email.split('@')[0]}
                   </p>
-                  {contact.subscription_tier && (
+                  {contact.subscription_status === 'trialing' ? (
+                    <Badge className="text-xs bg-orange-500 hover:bg-orange-600 text-white">
+                      🕐 Trial ({getDaysRemaining(contact.subscription_end)}d)
+                    </Badge>
+                  ) : contact.subscription_tier && (
                     <Badge className={`text-xs ${subscriptionStyle}`}>
                       {contact.subscription_tier}
                     </Badge>

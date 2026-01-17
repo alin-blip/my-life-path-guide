@@ -96,6 +96,13 @@ serve(async (req) => {
         const { data: userData } = await supabaseService.auth.admin.listUsers();
         const user = userData?.users?.find(u => u.email === customerEmail);
 
+        // Get subscription status if available
+        let subscriptionStatus = "active";
+        if (session.mode === "subscription" && session.subscription) {
+          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+          subscriptionStatus = subscription.status; // "trialing" or "active"
+        }
+
         // Upsert subscriber record
         const { error: upsertError } = await supabaseService
           .from("subscribers")
@@ -106,6 +113,7 @@ serve(async (req) => {
             subscribed: true,
             subscription_tier: subscriptionTier,
             subscription_end: subscriptionEnd?.toISOString() || null,
+            subscription_status: subscriptionStatus,
             updated_at: new Date().toISOString(),
           }, { onConflict: "email" });
 
@@ -157,6 +165,7 @@ serve(async (req) => {
             subscribed: isActive,
             subscription_tier: isActive ? subscriptionTier : null,
             subscription_end: subscriptionEnd.toISOString(),
+            subscription_status: subscription.status,
             updated_at: new Date().toISOString(),
           }, { onConflict: "email" });
 
@@ -185,6 +194,7 @@ serve(async (req) => {
           .update({
             subscribed: false,
             subscription_tier: null,
+            subscription_status: "canceled",
             updated_at: new Date().toISOString(),
           })
           .eq("email", customer.email);
