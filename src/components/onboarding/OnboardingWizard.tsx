@@ -175,10 +175,25 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl h-[600px] p-0 overflow-hidden">
-        <div className="flex h-full">
-          {/* Sidebar */}
-          <div className="w-64 bg-muted/50 border-r border-border p-6 flex flex-col">
+      <DialogContent className="max-w-4xl h-[85vh] sm:h-[600px] max-h-screen p-0 overflow-hidden">
+        <div className="flex flex-col sm:flex-row h-full">
+          {/* Mobile Progress Bar - visible only on mobile */}
+          <div className="sm:hidden p-4 border-b border-border bg-muted/30">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-5 h-5 text-primary" />
+              <span className="font-semibold text-sm">Accountability Coach</span>
+            </div>
+            <div className="flex items-center justify-between text-xs mb-2">
+              <span className="text-muted-foreground">
+                {language === 'en' ? `Step ${currentStep + 1} of ${steps.length}` : `Pas ${currentStep + 1} din ${steps.length}`}
+              </span>
+              <span className="font-medium">{progressPercentage}%</span>
+            </div>
+            <Progress value={progressPercentage} className="h-2" />
+          </div>
+
+          {/* Sidebar - hidden on mobile */}
+          <div className="hidden sm:flex w-64 bg-muted/50 border-r border-border p-6 flex-col">
             <div className="flex items-center gap-2 mb-8">
               <Sparkles className="w-6 h-6 text-primary" />
               <span className="font-semibold text-lg">
@@ -186,11 +201,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
               </span>
             </div>
             
-            <nav className="flex-1 space-y-1">
+            <nav className="flex-1 space-y-1 overflow-auto">
               {steps.map((step, index) => {
                 const isComplete = step.checkComplete();
                 const isCurrent = index === currentStep;
-                const isPast = index < currentStep;
                 
                 return (
                   <button
@@ -236,9 +250,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col overflow-hidden">
             {/* Close button */}
-            <div className="absolute top-4 right-4">
+            <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10">
               <Button
                 variant="ghost"
                 size="icon"
@@ -250,9 +264,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
             </div>
 
             {/* Step Content */}
-            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 text-center overflow-auto">
               <div className={cn(
-                "w-20 h-20 rounded-2xl flex items-center justify-center mb-6",
+                "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mb-4 sm:mb-6",
                 currentStep === 0 && "bg-gradient-to-br from-purple-500 to-blue-600 text-white",
                 currentStep === steps.length - 1 && "bg-gradient-to-br from-amber-500 to-orange-600 text-white",
                 currentStep > 0 && currentStep < steps.length - 1 && (
@@ -261,14 +275,16 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
                     : "bg-primary/10 text-primary"
                 )
               )}>
-                {currentStepData.icon}
+                {React.cloneElement(currentStepData.icon as React.ReactElement, {
+                  className: "w-6 h-6 sm:w-8 sm:h-8"
+                })}
               </div>
               
-              <h2 className="text-2xl font-bold mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
                 {currentStepData.title[language as 'en' | 'ro'] || currentStepData.title.en}
               </h2>
               
-              <p className="text-muted-foreground max-w-md mb-8">
+              <p className="text-sm sm:text-base text-muted-foreground max-w-md mb-6 sm:mb-8">
                 {currentStepData.description[language as 'en' | 'ro'] || currentStepData.description.en}
               </p>
 
@@ -301,13 +317,13 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
             </div>
 
             {/* Footer */}
-            <div className="border-t border-border p-4 flex items-center justify-between">
+            <div className="border-t border-border p-3 sm:p-4 flex items-center justify-between">
               <Button
                 variant="ghost"
                 onClick={handleSkip}
-                className="text-muted-foreground"
+                className="text-muted-foreground text-xs sm:text-sm px-2 sm:px-4"
               >
-                {language === 'en' ? 'Skip for now' : 'Sari pentru moment'}
+                {language === 'en' ? 'Skip' : 'Sari'}
               </Button>
 
               <div className="flex items-center gap-2">
@@ -315,17 +331,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
                   <Button
                     variant="outline"
                     onClick={handleBack}
+                    size="sm"
+                    className="px-2 sm:px-4"
                   >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    {language === 'en' ? 'Back' : 'Înapoi'}
+                    <ChevronLeft className="w-4 h-4 sm:mr-1" />
+                    <span className="hidden sm:inline">{language === 'en' ? 'Back' : 'Înapoi'}</span>
                   </Button>
                 )}
                 
-                <Button onClick={handleNext}>
-                  {currentStep === steps.length - 1 
-                    ? (language === 'en' ? 'Finish' : 'Finalizează')
-                    : (language === 'en' ? 'Continue' : 'Continuă')
-                  }
+                <Button onClick={handleNext} size="sm" className="px-3 sm:px-4">
+                  <span>
+                    {currentStep === steps.length - 1 
+                      ? (language === 'en' ? 'Finish' : 'Gata')
+                      : (language === 'en' ? 'Next' : 'Continuă')
+                    }
+                  </span>
                   {currentStep < steps.length - 1 && <ChevronRight className="w-4 h-4 ml-1" />}
                 </Button>
               </div>
