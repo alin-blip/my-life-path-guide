@@ -128,16 +128,21 @@ const Vision2026 = () => {
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight animate-fade-in" style={{
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6 leading-tight animate-fade-in" style={{
             animationDelay: '0.1s'
           }}>
-              {language === 'en' ? <>2026: <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Transformation or Repetition?</span></> : <>2026: <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Transformare sau Repetiție?</span></>}
+              {language === 'en' 
+                ? <>2026 can be your year of transformation... <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">or just another year that passes</span></> 
+                : <>2026 poate fi anul tău de transformare... <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">sau doar încă un an care trece</span></>
+              }
             </h1>
 
             <p className="text-base md:text-lg lg:text-xl text-white/70 mb-10 max-w-2xl mx-auto animate-fade-in" style={{
             animationDelay: '0.2s'
           }}>
-              {language === 'en' ? 'Before you get where you want to go, you need to know where you\'re starting from. 92% fail because they skip this step.' : 'Înainte să ajungi unde vrei, trebuie să știi de unde pleci. 92% eșuează pentru că sar peste acest pas.'}
+              {language === 'en' 
+                ? "Most people set goals at the beginning of the year. 92% fail before March. The difference? A clear system starting from today's reality." 
+                : 'Majoritatea oamenilor își stabilesc obiective la început de an. 92% eșuează înainte de martie. Diferența? Un sistem clar pornind de la realitatea de azi.'}
             </p>
 
             <Button size="lg" onClick={handleStartQuiz} className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white px-10 py-7 text-lg font-bold shadow-2xl shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:scale-105 animate-fade-in border-0" style={{
