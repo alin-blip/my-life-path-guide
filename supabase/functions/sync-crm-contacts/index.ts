@@ -191,13 +191,7 @@ serve(async (req) => {
       
       // Calculate lead score
       let leadScore = 10; // Base score for being a lead
-      let funnelStage = 'lead';
-      
-      // Check if subscriber (Stripe payment)
-      if (subscription) {
-        leadScore += 100;
-        funnelStage = 'customer';
-      }
+      let funnelStage = 'lead'; // Default to lead
       
       if (userId) {
         const warrior = warriorPowerMap.get(userId);
@@ -213,12 +207,23 @@ serve(async (req) => {
         if (streakData && streakData.streak >= 7) leadScore += 25;
         if (purchaseData) leadScore += 100;
         
-        // Determine funnel stage (subscription takes priority)
-        if (subscription || purchaseData) {
+        // Determine funnel stage - priority: customer > trial > engaged > lead
+        if (subscription) {
+          if (subscription.status === 'trialing') {
+            funnelStage = 'trial';
+            leadScore += 75;
+          } else {
+            funnelStage = 'customer';
+            leadScore += 100;
+          }
+        } else if (purchaseData) {
           funnelStage = 'customer';
+          leadScore += 100;
         } else if (challengeDays > 0 || stackCount > 0 || (streakData && streakData.streak > 0)) {
+          // ONLY if has REAL activity
           funnelStage = 'engaged';
         }
+        // Otherwise stays 'lead' - just account created, no activity
         
         // Cap at 100
         leadScore = Math.min(leadScore, 100);
@@ -338,22 +343,31 @@ serve(async (req) => {
       const streakData = streakMap.get(userId);
       
       let leadScore = 25; // Has account
-      let funnelStage = 'engaged';
+      let funnelStage = 'lead'; // Start with lead, not engaged!
       
-      // Check if subscriber
-      if (subscription) {
-        leadScore += 100;
-        funnelStage = 'customer';
-      }
-      
+      // Add activity points
       if (warrior) leadScore += 20;
       leadScore += challengeDays * 10;
       leadScore += stackCount * 5;
       if (streakData && streakData.streak >= 7) leadScore += 25;
-      if (purchaseData) {
-        leadScore += 100;
+      
+      // Determine funnel stage - priority: customer > trial > engaged > lead
+      if (subscription) {
+        if (subscription.status === 'trialing') {
+          funnelStage = 'trial';
+          leadScore += 75;
+        } else {
+          funnelStage = 'customer';
+          leadScore += 100;
+        }
+      } else if (purchaseData) {
         funnelStage = 'customer';
+        leadScore += 100;
+      } else if (challengeDays > 0 || stackCount > 0 || (streakData && streakData.streak > 0)) {
+        // ONLY if has REAL activity
+        funnelStage = 'engaged';
       }
+      // Otherwise stays 'lead' - just account created, no activity
       
       leadScore = Math.min(leadScore, 100);
       
