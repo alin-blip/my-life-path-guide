@@ -762,47 +762,7 @@ export const Dashboard: React.FC = () => {
       </div>
       <DailyCompactCard />
       
-      {/* ChampionRoutineWidget removed - integrated into DailyCommandCenterWidget */}
-      
-      {/* Custom Widgets Section */}
-      {getEnabledWidgets().filter(w => w.id !== 'champion-routine').length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">
-              {language === 'ro' ? 'Widget-urile Mele' : 'My Widgets'}
-            </h3>
-            <WidgetSelector widgets={widgets.filter(w => w.id !== 'champion-routine')} onToggle={toggleWidget} />
-          </div>
-          <WidgetGrid
-            widgets={widgets.filter(w => w.id !== 'champion-routine')}
-            customWidgets={getActiveCustomWidgets()}
-            onReorder={reorderWidgets}
-            onRemove={(id) => toggleWidget(id, false)}
-            onResize={resizeWidget}
-            onRemoveCustomWidget={(id) => toggleCustomWidgetOnDashboard(id, false)}
-            streakData={{
-              currentStreak: streakData?.currentStreak || 0,
-              longestStreak: streakData?.longestStreak || 0
-            }}
-          />
-        </div>
-      )}
-      
-      {/* Add Widgets Button when no widgets enabled */}
-      {getEnabledWidgets().filter(w => w.id !== 'champion-routine').length === 0 && (
-        <div className="mb-6">
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-8">
-              <p className="text-muted-foreground mb-4">
-                {language === 'ro' 
-                  ? 'Personalizează dashboard-ul cu widget-uri pentru tracking' 
-                  : 'Customize your dashboard with tracking widgets'}
-              </p>
-              <WidgetSelector widgets={widgets.filter(w => w.id !== 'champion-routine')} onToggle={toggleWidget} />
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      {/* Widgets section removed */}
       
       
       {/* Evening Routine Card */}
