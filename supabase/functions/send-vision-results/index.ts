@@ -48,9 +48,17 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Config backend incompletă (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY).');
     }
 
-    const { email, name, visions, images }: VisionResultsRequest = await req.json();
+    const body = await req.json();
+    const email = body?.email;
+    const name = body?.name || 'Warrior';
+    const visions = body?.visions || {};
+    const images = body?.images || {};
 
-    console.log('Sending vision results email to:', email);
+    console.log('Sending vision results email to:', email, 'with visions:', Object.keys(visions), 'images:', Object.keys(images));
+
+    if (!email) {
+      throw new Error('Email is required');
+    }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
