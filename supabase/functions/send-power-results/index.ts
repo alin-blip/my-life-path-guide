@@ -239,137 +239,46 @@ const handler = async (req: Request): Promise<Response> => {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rezultatele Tale Warrior Power</title>
 </head>
-<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0a0f; color: #ffffff; margin: 0; padding: 0;">
-
-<!-- Tracking Pixel -->
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #ffffff; color: #1a1a1a; margin: 0; padding: 20px; line-height: 1.6;">
 <img src="${trackingPixel}" width="1" height="1" style="display:none;" alt="" />
+<div style="max-width: 600px; margin: 0 auto;">
 
-<div style="max-width: 640px; margin: 0 auto; background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);">
+<p>Salut ${name},</p>
 
-<!-- Header -->
-<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); padding: 50px 30px; text-align: center;">
-  <div style="font-size: 48px; margin-bottom: 10px;">⚔️</div>
-  <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 2px;">WARRIOR POWER</h1>
-  <p style="margin: 15px 0 0 0; font-size: 18px; color: rgba(255,255,255,0.9);">Rezultatele Tale Complete, ${name}!</p>
-</div>
+<p>Iată rezultatele tale Warrior Power:</p>
 
-<!-- Main Score Section -->
-<div style="padding: 50px 30px; text-align: center; background: radial-gradient(circle at center, rgba(102,126,234,0.1) 0%, transparent 70%);">
-  <div style="display: inline-block; position: relative;">
-    <div style="width: 160px; height: 160px; border-radius: 50%; background: linear-gradient(135deg, ${getLevelColor(Math.round(totalScore / 8))}22, ${getLevelColor(Math.round(totalScore / 8))}11); border: 5px solid ${getLevelColor(Math.round(totalScore / 8))}; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-      <div style="text-align: center;">
-        <div style="font-size: 56px; font-weight: 800; color: ${getLevelColor(Math.round(totalScore / 8))}; line-height: 1;">${totalScore}</div>
-        <div style="font-size: 14px; color: #888; margin-top: 5px;">din 96</div>
-      </div>
-    </div>
-  </div>
-  
-  <div style="margin-top: 25px;">
-    <div style="display: inline-block; padding: 8px 24px; background: ${getLevelColor(Math.round(totalScore / 8))}22; border: 1px solid ${getLevelColor(Math.round(totalScore / 8))}44; border-radius: 30px;">
-      <span style="color: ${getLevelColor(Math.round(totalScore / 8))}; font-weight: 700; font-size: 18px;">${overallLevel.toUpperCase()}</span>
-    </div>
-  </div>
-  
-  <p style="margin: 20px 0 0 0; color: #888; font-size: 16px;">
-    Ai atins <strong style="color: #fff;">${percentage}%</strong> din potențialul tău total
-  </p>
-</div>
+<p><strong>Scor Total: ${totalScore}/96 (${percentage}%)</strong><br>
+Nivel: ${overallLevel}</p>
 
-<!-- Dimension Cards -->
-<div style="padding: 0 20px 30px 20px;">
-  <h2 style="text-align: center; font-size: 20px; color: #fff; margin-bottom: 25px;">📊 Analiza Detaliată pe Dimensiuni</h2>
-  
-  ${dimensions.map(dim => `
-  <div style="margin-bottom: 20px; padding: 25px; background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-      <div>
-        <span style="font-size: 24px; margin-right: 10px;">${dim.emoji}</span>
-        <span style="font-weight: 700; font-size: 18px; color: #fff;">${dim.name}</span>
-      </div>
-      <div style="text-align: right;">
-        <span style="font-size: 24px; font-weight: 800; color: ${dim.color};">${dim.score}</span>
-        <span style="color: #666; font-size: 14px;">/${dim.maxScore}</span>
-      </div>
-    </div>
-    
-    <!-- Progress Bar -->
-    <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 15px; overflow: hidden;">
-      <div style="height: 100%; width: ${Math.round((dim.score / dim.maxScore) * 100)}%; background: linear-gradient(90deg, ${dim.color}, ${dim.color}aa); border-radius: 4px;"></div>
-    </div>
-    
-    <!-- Sub-scores -->
-    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-      ${dim.subScores.map(sub => `
-      <div style="flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; text-align: center;">
-        <div style="font-size: 12px; color: #888; margin-bottom: 5px;">${sub.name}</div>
-        <div style="font-size: 18px; font-weight: 700; color: #fff;">${sub.score}<span style="color: #666; font-size: 12px;">/12</span></div>
-      </div>
-      `).join('')}
-    </div>
-    
-    <!-- Level Badge -->
-    <div style="margin-bottom: 12px;">
-      <span style="display: inline-block; padding: 4px 12px; background: ${dim.color}22; border: 1px solid ${dim.color}44; border-radius: 15px; color: ${dim.color}; font-size: 12px; font-weight: 600;">
-        Nivel: ${dim.level}
-      </span>
-    </div>
-    
-    <!-- Interpretation -->
-    <p style="margin: 0; color: #aaa; font-size: 14px; line-height: 1.6;">${dim.interpretation}</p>
-  </div>
-  `).join('')}
-</div>
+<p>---</p>
 
-<!-- Personalized Tips Section -->
-<div style="padding: 30px; background: linear-gradient(135deg, ${weakestDimension.color}11 0%, transparent 100%); border-top: 1px solid ${weakestDimension.color}33;">
-  <h2 style="text-align: center; font-size: 20px; color: #fff; margin: 0 0 10px 0;">🎯 3 Acțiuni Prioritare</h2>
-  <p style="text-align: center; color: #888; font-size: 14px; margin: 0 0 25px 0;">
-    Bazate pe dimensiunea ta cea mai slabă: <strong style="color: ${weakestDimension.color};">${weakestDimension.name}</strong>
-  </p>
-  
-  ${weakestDimension.tips.map((tip, index) => `
-  <div style="display: flex; gap: 15px; margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 3px solid ${weakestDimension.color};">
-    <div style="flex-shrink: 0; width: 28px; height: 28px; background: ${weakestDimension.color}22; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: ${weakestDimension.color}; font-weight: 700; font-size: 14px;">${index + 1}</div>
-    <p style="margin: 0; color: #ddd; font-size: 14px; line-height: 1.6;">${tip}</p>
-  </div>
-  `).join('')}
-</div>
+<p><strong>Scoruri pe Dimensiuni:</strong></p>
 
-<!-- CTA Section -->
-<div style="padding: 50px 30px; text-align: center; background: linear-gradient(180deg, transparent 0%, rgba(102,126,234,0.15) 100%);">
-  <div style="font-size: 40px; margin-bottom: 15px;">🎯</div>
-  <h2 style="margin: 0 0 15px 0; font-size: 26px; color: #fff;">Pasul Următor?</h2>
-  <p style="margin: 0 0 30px 0; color: #aaa; font-size: 16px; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">
-    Acum că știi exact unde te afli, e timpul să definești unde vrei să ajungi. Creează-ți <strong style="color: #fff;">Viziunea pentru 2026</strong> și transformă aceste scoruri.
-  </p>
-  
-  <a href="${visionUrl}" style="display: inline-block; padding: 18px 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(102,126,234,0.4);">
-    Setează-ți Viziunea 2026 →
-  </a>
-  
-  <p style="margin: 25px 0 0 0; color: #666; font-size: 13px;">
-    Durează doar 5 minute și îți va schimba perspectiva
-  </p>
-</div>
+${dimensions.map(dim => `<p><strong>${dim.emoji} ${dim.name}:</strong> ${dim.score}/${dim.maxScore} - ${dim.level}<br>
+${dim.subScores.map(sub => `• ${sub.name}: ${sub.score}/12`).join('<br>')}</p>`).join('')}
 
-<!-- Next Email Teaser -->
-<div style="padding: 25px 30px; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
-  <p style="margin: 0; color: #888; font-size: 14px;">
-    📬 <strong style="color: #aaa;">Mâine primești:</strong> Secretul Transformării în 7 Zile
-  </p>
-</div>
+<p>---</p>
 
-<!-- Footer -->
-<div style="padding: 30px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
-  <p style="margin: 0 0 15px 0; color: #666; font-size: 12px;">
-    © 2025 Warrior Power. Toate drepturile rezervate.
-  </p>
-  <p style="margin: 0; font-size: 11px;">
-    <a href="${unsubscribeUrl}" style="color: #555; text-decoration: none;">Dezabonare</a>
-  </p>
-</div>
+<p><strong>Dimensiunea care necesită atenție:</strong> ${weakestDimension.name}</p>
+
+<p><strong>3 Acțiuni Recomandate:</strong></p>
+<ol>
+${weakestDimension.tips.map(tip => `<li>${tip}</li>`).join('')}
+</ol>
+
+<p>---</p>
+
+<p><strong>Pasul următor:</strong><br>
+<a href="${visionUrl}" style="color: #0066cc;">Setează-ți Viziunea 2026 →</a></p>
+
+<p>Mult succes!<br>
+Echipa Warrior SOS</p>
+
+<p style="color: #666666; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eeeeee;">
+Mâine primești: Secretul Transformării în 7 Zile<br><br>
+<a href="${unsubscribeUrl}" style="color: #666666;">Dezabonare</a>
+</p>
 
 </div>
 </body>
