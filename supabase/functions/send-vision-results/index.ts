@@ -240,7 +240,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Vision Board <alin@eduforyou.co.uk>',
+        from: 'Vision Board <noreply@warriorsos.com>',
         to: [email],
         subject: `🎯 ${name}, Vision Board-ul Tău 2026 Este Gata!`,
         html: emailHtml,
