@@ -37,11 +37,20 @@ serve(async (req) => {
     const { plan } = await req.json();
     if (!plan) throw new Error("Missing plan in request body");
 
-    // Ensure Stripe customer exists
+    // Ensure Stripe customer exists and get their currency
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string | undefined;
+    let existingCurrency: string | undefined;
+    
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
+      
+      // Check if customer has existing subscriptions/invoices to detect currency
+      const subscriptions = await stripe.subscriptions.list({ customer: customerId, limit: 1 });
+      if (subscriptions.data.length > 0) {
+        existingCurrency = subscriptions.data[0].currency;
+        console.log(`Customer ${customerId} has existing currency: ${existingCurrency}`);
+      }
     }
 
     // Map plan -> pricing
@@ -50,28 +59,29 @@ serve(async (req) => {
     let interval: "month" | "year" = "month";
     let productName = "WarriorOS Pro";
     let paymentMode: "subscription" | "payment" = "subscription";
-    let currency = "eur";
+    let currency = existingCurrency || "eur"; // Use existing currency or default to EUR
 
     switch (plan) {
       // NEW 3-TIER STRUCTURE
       case "free":
         // Free trial - Pro with 3-day trial
-        unitAmount = 4900; // €49 after trial
+        // Adjust price based on currency
+        unitAmount = currency === "ron" ? 24500 : 4900; // 245 RON or €49 after trial
         productName = "WarriorOS Pro (Free Trial)";
         trialDays = 3;
         break;
       case "pro":
-        unitAmount = 4900; // €49 Early Bird (value €98)
+        unitAmount = currency === "ron" ? 24500 : 4900; // 245 RON or €49 Early Bird
         productName = "WarriorOS Pro - Early Bird";
         break;
       case "elite":
-        unitAmount = 49700; // €497
+        unitAmount = currency === "ron" ? 247000 : 49700; // 2470 RON or €497
         productName = "WarriorOS Elite";
         break;
       
       // LEGACY PLANS (for existing subscribers)
       case "basic":
-        unitAmount = 9700; // 97 LEI
+        unitAmount = 9700; // 97 RON
         currency = "ron";
         productName = "Operator Basic (Legacy)";
         break;
