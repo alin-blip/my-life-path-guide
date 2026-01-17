@@ -32,14 +32,15 @@ serve(async (req) => {
     // Get raw body for signature verification
     const body = await req.text();
     
-    // Verify the webhook signature
+    // Verify the webhook signature - MUST use async version in Deno/Edge Functions
     let event: Stripe.Event;
     try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
+      log("Signature verified successfully");
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      log("Signature verification failed", { error: errorMessage });
-      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+      log("Signature verification failed", { error: errorMessage, signaturePresent: !!signature });
+      return new Response(JSON.stringify({ error: "Invalid signature", details: errorMessage }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
