@@ -41,7 +41,7 @@ serve(async (req) => {
     if (customers.data.length === 0) throw new Error("No Stripe customer found");
 
     const customerId = customers.data[0].id;
-    const origin = req.headers.get("origin") || "https://my-life-path-guide.lovable.app";
+    const origin = req.headers.get("origin") || "https://warriorsos.com";
 
     const portal = await stripe.billingPortal.sessions.create({
       customer: customerId,

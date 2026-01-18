@@ -108,9 +108,9 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const trackingPixel = `https://exsbnfmaadjyfblperas.supabase.co/functions/v1/track-email-open?t=${trackingId}`;
-    const unsubscribeUrl = `https://my-life-path-guide.lovable.app/unsubscribe?email=${encodeURIComponent(email)}&sequence=vision_2026`;
-    const dashboardUrl = `https://my-life-path-guide.lovable.app/door?tab=annual&utm_source=email&utm_medium=sequence&utm_campaign=vision_2026_plan`;
-    const trialUrl = `https://my-life-path-guide.lovable.app/auth?redirect=/door&plan=trial&utm_source=email&utm_medium=sequence&utm_campaign=vision_2026_plan`;
+    const unsubscribeUrl = `https://warriorsos.com/unsubscribe?email=${encodeURIComponent(email)}&sequence=vision_2026`;
+    const dashboardUrl = `https://warriorsos.com/door?tab=annual&utm_source=email&utm_medium=sequence&utm_campaign=vision_2026_plan`;
+    const trialUrl = `https://warriorsos.com/auth?redirect=/door&plan=trial&utm_source=email&utm_medium=sequence&utm_campaign=vision_2026_plan`;
 
     // Sort categories by score (lowest first = priority)
     const sortedCategories = Object.entries(scores)

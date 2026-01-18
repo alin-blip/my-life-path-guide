@@ -231,8 +231,8 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const trackingPixel = `https://exsbnfmaadjyfblperas.supabase.co/functions/v1/track-email-open?t=${trackingId}`;
-    const unsubscribeUrl = `https://my-life-path-guide.lovable.app/unsubscribe?email=${encodeURIComponent(email)}&sequence=warrior_power`;
-    const visionUrl = `https://my-life-path-guide.lovable.app/vision-2026?utm_source=email&utm_medium=sequence&utm_campaign=warrior_power&utm_content=day1`;
+    const unsubscribeUrl = `https://warriorsos.com/unsubscribe?email=${encodeURIComponent(email)}&sequence=warrior_power`;
+    const visionUrl = `https://warriorsos.com/vision-2026?utm_source=email&utm_medium=sequence&utm_campaign=warrior_power&utm_content=day1`;
 
     const emailHtml = `<!DOCTYPE html>
 <html>

@@ -72,7 +72,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const results = [];
-    const baseUrl = Deno.env.get("SITE_URL") || "https://haveitall.lovable.app";
+    const baseUrl = Deno.env.get("SITE_URL") || "https://warriorsos.com";
 
     for (const participant of participants || []) {
       // Calculate which day they should be on based on signup date
