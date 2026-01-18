@@ -223,16 +223,13 @@ const VisionBoard2026 = () => {
       <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background py-8 px-4">
         <div className="max-w-2xl mx-auto">
           {step === 'intro' && (
-            <div className="text-center space-y-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-primary to-accent">
-                <Sparkles className="h-8 w-8 text-white" />
+            <div className="text-center space-y-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-primary to-accent">
+                <Sparkles className="h-10 w-10 text-white" />
               </div>
               
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
-                {language === 'en' 
-                  ? <>2026: <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Transformation or Repetition?</span></>
-                  : <>2026: <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Transformare sau Repetiție?</span></>
-                }
+              <h1 className="text-4xl font-bold text-foreground">
+                {language === 'en' ? 'Vision Board 2026' : 'Vision Board 2026'}
               </h1>
               
               {/* Personalized message based on origin */}
@@ -265,20 +262,20 @@ const VisionBoard2026 = () => {
               )}
               
               {!incomingState?.fromWarriorPower && !incomingState?.fromRealityMap && (
-                <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto">
+                <p className="text-lg text-muted-foreground max-w-lg mx-auto">
                   {language === 'en'
-                    ? 'Before you reach your destination, you need to know where you start. 92% fail because they skip this step.'
-                    : 'Înainte să ajungi unde vrei, trebuie să știi de unde pleci. 92% eșuează pentru că sar peste acest pas.'}
+                    ? 'Create a powerful visual representation of your goals across Body, Being, Balance & Business using AI.'
+                    : 'Creează o reprezentare vizuală puternică a obiectivelor tale în Corp, Suflet, Echilibru & Business folosind AI.'}
                 </p>
               )}
               
               <Button
                 size="lg"
                 onClick={() => setStep('quiz')}
-                className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 w-full sm:w-auto max-w-xs mx-auto"
+                className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
               >
-                {language === 'en' ? 'Discover Your Starting Point' : 'Află Unde Ești Acum'}
-                <ArrowRight className="h-5 w-5 flex-shrink-0" />
+                {language === 'en' ? 'Start Creating' : 'Începe Crearea'}
+                <ArrowRight className="h-5 w-5" />
               </Button>
             </div>
           )}

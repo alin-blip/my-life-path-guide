@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -10,7 +10,6 @@ import { WarriorPowerResults } from '@/components/warrior-power/WarriorPowerResu
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 import { saveRealityMapScores } from '@/services/realityMapService';
 import { trackLead } from '@/lib/facebook-pixel';
-import { useLeadMagnetTracker } from '@/hooks/useLeadMagnetTracker';
 
 type Step = 'landing' | 'lead-form' | 'quiz' | 'results';
 
@@ -19,11 +18,8 @@ export default function WarriorPower() {
   const [leadData, setLeadData] = useState<LeadFormData | null>(null);
   const [scores, setScores] = useState<WarriorPowerScores | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
-  const tracker = useLeadMagnetTracker('warrior_power');
 
   const handleStartQuiz = () => {
-    tracker.trackCTAClick('start_quiz_landing');
     setStep('lead-form');
   };
 
@@ -88,10 +84,6 @@ export default function WarriorPower() {
 
       // Track Facebook Pixel Lead event
       trackLead();
-      
-      // Track lead capture in our system
-      tracker.trackLeadCapture(data.email, data.name);
-      tracker.trackQuizStart();
 
       setLeadData(data);
       setStep('quiz');
@@ -160,18 +152,8 @@ export default function WarriorPower() {
       }
     }
 
-    // Track quiz completion
-    tracker.trackQuizComplete(quizScores as unknown as Record<string, number>);
-    
     setStep('results');
   };
-  
-  // Track results view when step changes to results
-  useEffect(() => {
-    if (step === 'results') {
-      tracker.trackResultsView();
-    }
-  }, [step, tracker]);
 
   return (
     <>

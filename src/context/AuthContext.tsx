@@ -45,18 +45,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(session?.user ?? null);
           setLoading(false);
           initialAuthComplete.current = true;
-          
-          // Mark as new user first session for onboarding flow
-          if (event === 'SIGNED_IN' && session?.user?.created_at) {
-            const createdAt = new Date(session.user.created_at);
-            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-            if (createdAt > fiveMinutesAgo) {
-              localStorage.setItem('new-user-first-session', Date.now().toString());
-              // Clear any stale onboarding flags for new users
-              localStorage.removeItem('onboarding-wizard-completed');
-              localStorage.removeItem('onboarding-wizard-skipped');
-            }
-          }
         }
 
         // Defer subscription check to avoid deadlocks

@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { useCheckoutTracking } from '@/hooks/useCheckoutTracking';
 
 interface VisionBoardUpsellProps {
   language: 'en' | 'ro';
@@ -17,31 +16,13 @@ interface VisionBoardUpsellProps {
 
 const UPSELL_PLANS = [
   {
-    id: 'free',
-    name: 'Trial GRATUIT',
-    price: '0',
-    afterTrialPrice: '49',
-    currency: '€',
-    period: '/ 3 zile',
-    highlight: '🎁 ÎNCEARCĂ GRATUIT',
-    benefits: [
-      '3 zile acces COMPLET gratuit',
-      'Toate funcțiile Pro incluse',
-      'Fără card de credit necesar',
-      'Anulează oricând, fără obligații',
-      'Apoi doar €49/lună dacă continui'
-    ],
-    featured: true,
-    isTrial: true
-  },
-  {
     id: 'pro',
     name: 'Pro',
     price: '49',
     originalPrice: '98',
     currency: '€',
     period: '/ lună',
-    highlight: 'Early Bird -50%',
+    highlight: 'Early Bird',
     benefits: [
       'AI Coaching tip Hormozi pentru ofertă și preț',
       'Champion Routine completă',
@@ -49,7 +30,24 @@ const UPSELL_PLANS = [
       'Stacks pentru reset rapid',
       'Sprint 90 zile cu KPIs'
     ],
-    featured: false
+    featured: true
+  },
+  {
+    id: 'free',
+    name: 'Trial',
+    price: '0',
+    afterTrialPrice: '49',
+    currency: '€',
+    period: '/ 3 zile',
+    highlight: '3 Zile Gratuit',
+    benefits: [
+      '3 zile acces complet GRATUIT',
+      'Toate funcțiile Pro incluse',
+      'Anulează oricând în trial',
+      'Apoi doar €49/lună'
+    ],
+    featured: false,
+    isTrial: true
   },
   {
     id: 'elite',
@@ -65,7 +63,7 @@ const UPSELL_PLANS = [
       'Comunitate VIP Elite',
       'Support VIP dedicat'
     ],
-    featured: false
+    featured: true
   }
 ];
 
@@ -73,17 +71,6 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [hasSession, setHasSession] = useState<boolean | null>(null);
   const navigate = useNavigate();
-
-  // Checkout tracking
-  const {
-    trackUpsellView,
-    trackPlanClick,
-    trackCheckoutStart,
-    trackCheckoutRedirect,
-    trackCheckoutError,
-    trackAuthRedirect,
-    trackContinueFree,
-  } = useCheckoutTracking('vision_2026');
 
   // Check session on mount
   useEffect(() => {
@@ -101,24 +88,14 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
     return () => subscription.unsubscribe();
   }, []);
 
-  // Track upsell view on mount
-  useEffect(() => {
-    trackUpsellView({ language });
-  }, [language, trackUpsellView]);
-
   const handleCheckout = async (planId: string) => {
-    // Track plan click
-    trackPlanClick(planId);
-    
     setIsLoading(planId);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        // Track auth redirect
-        trackAuthRedirect(planId);
-        
+        // Redirect to auth with return URL
         toast.info(language === 'en' 
           ? 'Please sign in to continue with the purchase.' 
           : 'Te rugăm să te autentifici pentru a continua cu achiziția.');
@@ -130,9 +107,6 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
         });
         return;
       }
-
-      // Track checkout start
-      trackCheckoutStart(planId);
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { plan: planId, source: 'vision-2026' },
@@ -155,9 +129,6 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
       }
 
       if ((data as any)?.url) {
-        // Track checkout redirect
-        trackCheckoutRedirect(planId, (data as any).url);
-        
         window.location.href = (data as any).url;
         return;
       }
@@ -165,20 +136,11 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
       throw new Error((data as any)?.error ?? 'Nu s-a putut crea sesiunea de plată');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      
-      // Track checkout error
-      trackCheckoutError(planId, message);
-      
       console.error('Checkout error:', { planId, message, error });
       toast.error(message || 'A apărut o eroare. Încearcă din nou.');
     } finally {
       setIsLoading(null);
     }
-  };
-
-  const handleContinueFree = () => {
-    trackContinueFree();
-    onContinueFree();
   };
 
   return (
@@ -312,13 +274,12 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
                   onClick={() => handleCheckout(plan.id)}
                   disabled={isLoading !== null}
                   variant="default"
-                  size="lg"
                   className={cn(
-                    "w-full gap-2 font-bold",
-                    isTrial 
-                      ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-lg py-6 shadow-lg shadow-green-500/30 animate-pulse"
-                      : isElite 
-                        ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
+                    "w-full gap-2",
+                    isElite 
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
+                      : isTrial
+                        ? "bg-green-500 hover:bg-green-600 text-white"
                         : "bg-gradient-to-r from-primary to-accent hover:opacity-90"
                   )}
                 >
@@ -331,9 +292,9 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
                     <>
                       {isElite && <Crown className="h-4 w-4" />}
                       {isPro && <Star className="h-4 w-4" />}
-                      {isTrial && <Sparkles className="h-5 w-5" />}
+                      {isTrial && <Sparkles className="h-4 w-4" />}
                       {isTrial 
-                        ? (language === 'en' ? '🚀 START FREE NOW' : '🚀 ÎNCEPE GRATUIT ACUM') 
+                        ? (language === 'en' ? 'Start Free Trial' : 'Începe Trial Gratuit') 
                         : (language === 'en' ? `Choose ${plan.name}` : `Alege ${plan.name}`)}
                       <ArrowRight className="h-4 w-4" />
                     </>
@@ -354,7 +315,7 @@ export function VisionBoardUpsell({ language, onContinueFree }: VisionBoardUpsel
       >
         <Button
           variant="ghost"
-          onClick={handleContinueFree}
+          onClick={onContinueFree}
           className="gap-2 text-muted-foreground hover:text-foreground text-sm"
         >
           {language === 'en' 

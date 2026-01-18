@@ -12,7 +12,6 @@ import { MarketingHub } from './admin/marketing/MarketingHub';
 import { WarriorsWayManager } from './admin/WarriorsWayManager';
 import { EmailAnalytics } from './admin/EmailAnalytics';
 import { CRMDashboard } from './admin/crm/CRMDashboard';
-import { CheckoutFunnelAnalytics } from './admin/CheckoutFunnelAnalytics';
 import { 
   Shield, BookOpen, Settings, LayoutDashboard, 
   Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy
@@ -230,17 +229,12 @@ export const SecureAdminPanel: React.FC = () => {
           <Tabs defaultValue="hub" className="w-full">
             <TabsList className="mb-4">
               <TabsTrigger value="hub">📢 Marketing Hub</TabsTrigger>
-              <TabsTrigger value="checkout">🛒 Checkout Funnel</TabsTrigger>
               <TabsTrigger value="emails">📧 Email Analytics</TabsTrigger>
               <TabsTrigger value="revenue">💰 Revenue</TabsTrigger>
             </TabsList>
             
             <TabsContent value="hub">
               <MarketingHub />
-            </TabsContent>
-            
-            <TabsContent value="checkout">
-              <CheckoutFunnelAnalytics />
             </TabsContent>
             
             <TabsContent value="emails">

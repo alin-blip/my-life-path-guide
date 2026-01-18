@@ -23,19 +23,6 @@ export const MigrationProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     const checkMigration = async () => {
       if (user) {
-        // Check if this is a new account (created within last 5 minutes)
-        const createdAt = new Date(user.created_at || Date.now());
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-        
-        if (createdAt > fiveMinutesAgo) {
-          // New account - skip migration completely
-          setMigrationNeeded(false);
-          setShowMigrationUI(false);
-          // Clear any stale localStorage for new users
-          await migrationService.clearLocalStorageAfterMigration();
-          return;
-        }
-
         const needed = await migrationService.checkMigrationNeeded(user.id);
         setMigrationNeeded(needed);
         setShowMigrationUI(needed);

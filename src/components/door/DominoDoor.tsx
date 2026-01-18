@@ -252,7 +252,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
         isDragOver 
           ? "border-primary ring-2 ring-primary/30 ring-offset-2 ring-offset-background" 
           : "border-border",
-        isMobile ? 'p-4 max-h-[calc(100vh-220px)] overflow-y-auto touch-pan-y' : 'h-full p-5'
+        isMobile ? 'p-4' : 'h-full p-5'
       )}
       onDragOver={(e) => {
         e.preventDefault();

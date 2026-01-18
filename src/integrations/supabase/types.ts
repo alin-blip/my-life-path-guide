@@ -810,42 +810,6 @@ export type Database = {
         }
         Relationships: []
       }
-      checkout_events: {
-        Row: {
-          created_at: string | null
-          error_message: string | null
-          event_type: string
-          id: string
-          metadata: Json | null
-          plan_id: string | null
-          session_id: string | null
-          source: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          error_message?: string | null
-          event_type: string
-          id?: string
-          metadata?: Json | null
-          plan_id?: string | null
-          session_id?: string | null
-          source?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          error_message?: string | null
-          event_type?: string
-          id?: string
-          metadata?: Json | null
-          plan_id?: string | null
-          session_id?: string | null
-          source?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       content_creation: {
         Row: {
           completed: boolean | null
@@ -1185,7 +1149,6 @@ export type Database = {
           id: string
           last_activity_at: string | null
           lead_captured_at: string | null
-          lead_magnet_clicks: number | null
           lead_score: number | null
           lead_source: string | null
           lifetime_value: number | null
@@ -1194,7 +1157,6 @@ export type Database = {
           subscription_status: string | null
           subscription_tier: string | null
           tags: string[] | null
-          time_on_quiz_seconds: number | null
           total_door_tasks: number | null
           total_page_views: number | null
           total_purchases: number | null
@@ -1202,12 +1164,8 @@ export type Database = {
           total_stack_sessions: number | null
           updated_at: string | null
           user_id: string | null
-          vision_2026_completed_at: string | null
-          vision_2026_score: number | null
-          warrior_power_completed_at: string | null
           warrior_power_data: Json | null
           warrior_power_score: number | null
-          warrior_power_started_at: string | null
         }
         Insert: {
           account_created_at?: string | null
@@ -1227,7 +1185,6 @@ export type Database = {
           id?: string
           last_activity_at?: string | null
           lead_captured_at?: string | null
-          lead_magnet_clicks?: number | null
           lead_score?: number | null
           lead_source?: string | null
           lifetime_value?: number | null
@@ -1236,7 +1193,6 @@ export type Database = {
           subscription_status?: string | null
           subscription_tier?: string | null
           tags?: string[] | null
-          time_on_quiz_seconds?: number | null
           total_door_tasks?: number | null
           total_page_views?: number | null
           total_purchases?: number | null
@@ -1244,12 +1200,8 @@ export type Database = {
           total_stack_sessions?: number | null
           updated_at?: string | null
           user_id?: string | null
-          vision_2026_completed_at?: string | null
-          vision_2026_score?: number | null
-          warrior_power_completed_at?: string | null
           warrior_power_data?: Json | null
           warrior_power_score?: number | null
-          warrior_power_started_at?: string | null
         }
         Update: {
           account_created_at?: string | null
@@ -1269,7 +1221,6 @@ export type Database = {
           id?: string
           last_activity_at?: string | null
           lead_captured_at?: string | null
-          lead_magnet_clicks?: number | null
           lead_score?: number | null
           lead_source?: string | null
           lifetime_value?: number | null
@@ -1278,7 +1229,6 @@ export type Database = {
           subscription_status?: string | null
           subscription_tier?: string | null
           tags?: string[] | null
-          time_on_quiz_seconds?: number | null
           total_door_tasks?: number | null
           total_page_views?: number | null
           total_purchases?: number | null
@@ -1286,12 +1236,8 @@ export type Database = {
           total_stack_sessions?: number | null
           updated_at?: string | null
           user_id?: string | null
-          vision_2026_completed_at?: string | null
-          vision_2026_score?: number | null
-          warrior_power_completed_at?: string | null
           warrior_power_data?: Json | null
           warrior_power_score?: number | null
-          warrior_power_started_at?: string | null
         }
         Relationships: []
       }
@@ -2156,45 +2102,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      lead_magnet_events: {
-        Row: {
-          created_at: string
-          device_type: string | null
-          email: string | null
-          event_data: Json | null
-          event_type: string
-          id: string
-          lead_magnet: string
-          page_path: string | null
-          referrer: string | null
-          session_id: string
-        }
-        Insert: {
-          created_at?: string
-          device_type?: string | null
-          email?: string | null
-          event_data?: Json | null
-          event_type: string
-          id?: string
-          lead_magnet: string
-          page_path?: string | null
-          referrer?: string | null
-          session_id: string
-        }
-        Update: {
-          created_at?: string
-          device_type?: string | null
-          email?: string | null
-          event_data?: Json | null
-          event_type?: string
-          id?: string
-          lead_magnet?: string
-          page_path?: string | null
-          referrer?: string | null
-          session_id?: string
-        }
-        Relationships: []
       }
       leaderboard_profiles: {
         Row: {

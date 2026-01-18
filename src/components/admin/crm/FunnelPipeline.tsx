@@ -21,7 +21,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ContactCard } from './ContactCard';
 import { LeadSourceStats } from './LeadSourceStats';
-import { LeadMagnetAnalytics } from './LeadMagnetAnalytics';
 
 interface CRMContact {
   id: string;
@@ -270,10 +269,7 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
 
       {/* Lead Source Stats Toggle */}
       {showStats && (
-        <>
-          <LeadSourceStats contacts={contacts} />
-          <LeadMagnetAnalytics />
-        </>
+        <LeadSourceStats contacts={contacts} />
       )}
 
       {/* Search and Actions */}

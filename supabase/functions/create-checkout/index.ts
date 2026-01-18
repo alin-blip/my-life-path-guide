@@ -126,7 +126,7 @@ serve(async (req) => {
     const derivedOrigin =
       forwardedProto && forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
 
-    const origin = originHeader ?? derivedOrigin ?? "https://warriorsos.com";
+    const origin = originHeader ?? derivedOrigin ?? "https://my-life-path-guide.lovable.app";
 
     console.log("create-checkout origin:", {
       originHeader,

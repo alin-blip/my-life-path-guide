@@ -84,18 +84,6 @@ class MigrationService {
   }
 
   async checkMigrationNeeded(userId: string): Promise<boolean> {
-    // Check if this is a new account (created within last 5 minutes)
-    const { data: userData } = await supabase.auth.getUser();
-    if (userData?.user?.created_at) {
-      const createdAt = new Date(userData.user.created_at);
-      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-      if (createdAt > fiveMinutesAgo) {
-        // New account - skip migration and clear any stale localStorage
-        await this.clearLocalStorageAfterMigration();
-        return false;
-      }
-    }
-
     const status = await this.getMigrationStatus(userId);
     
     // Check if any localStorage data exists that hasn't been migrated

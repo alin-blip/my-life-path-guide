@@ -1,9 +1,0 @@
-# Bun configuration to make installs deterministic and avoid CI timeouts
-# caused by native build scripts (e.g. node-gyp) for optional deps.
-
-[install]
-# Keep optional deps enabled (Rollup's platform binary is optional but required in CI)
-optional = true
-
-# Skip lifecycle scripts to avoid native compilation timeouts (e.g. 'canvas')
-scripts = false

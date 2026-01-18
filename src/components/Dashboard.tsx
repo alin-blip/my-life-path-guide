@@ -58,7 +58,6 @@ import { VisionDeclarationWidget } from '@/components/dashboard/widgets/VisionDe
 
 import { EmpowermentMeditationCard } from '@/components/dashboard/EmpowermentMeditationCard';
 import { AcceleratorBanner } from '@/components/dashboard/AcceleratorBanner';
-import { PWAInstallBanner } from '@/components/dashboard/PWAInstallBanner';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -241,18 +240,12 @@ export const Dashboard: React.FC = () => {
     
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const shownToday = localStorage.getItem('onboarding-wizard-shown-today');
-    const wasCompleted = localStorage.getItem('onboarding-wizard-completed');
-    const wasSkipped = localStorage.getItem('onboarding-wizard-skipped');
     
-    // Don't show if already completed or skipped permanently
-    if (wasCompleted || wasSkipped) return;
-    
-    // Show immediately for new users if foundation not complete
-    if (!foundationStatus.isFoundationComplete) {
+    if (shownToday !== today && !foundationStatus.isFoundationComplete) {
       const timer = setTimeout(() => {
         setShowOnboardingWizard(true);
         localStorage.setItem('onboarding-wizard-shown-today', today);
-      }, 500); // Faster for new users
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [foundationStatus.isLoading, foundationStatus.isFoundationComplete]);
@@ -747,9 +740,6 @@ export const Dashboard: React.FC = () => {
             </div>)}
         </div>}
       
-      {/* PWA Install Banner - Mobile only */}
-      <PWAInstallBanner />
-      
       {/* Accelerator Upsell Banner - FIRST */}
       <AcceleratorBanner />
       
@@ -772,7 +762,47 @@ export const Dashboard: React.FC = () => {
       </div>
       <DailyCompactCard />
       
-      {/* Widgets section removed */}
+      {/* ChampionRoutineWidget removed - integrated into DailyCommandCenterWidget */}
+      
+      {/* Custom Widgets Section */}
+      {getEnabledWidgets().filter(w => w.id !== 'champion-routine').length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">
+              {language === 'ro' ? 'Widget-urile Mele' : 'My Widgets'}
+            </h3>
+            <WidgetSelector widgets={widgets.filter(w => w.id !== 'champion-routine')} onToggle={toggleWidget} />
+          </div>
+          <WidgetGrid
+            widgets={widgets.filter(w => w.id !== 'champion-routine')}
+            customWidgets={getActiveCustomWidgets()}
+            onReorder={reorderWidgets}
+            onRemove={(id) => toggleWidget(id, false)}
+            onResize={resizeWidget}
+            onRemoveCustomWidget={(id) => toggleCustomWidgetOnDashboard(id, false)}
+            streakData={{
+              currentStreak: streakData?.currentStreak || 0,
+              longestStreak: streakData?.longestStreak || 0
+            }}
+          />
+        </div>
+      )}
+      
+      {/* Add Widgets Button when no widgets enabled */}
+      {getEnabledWidgets().filter(w => w.id !== 'champion-routine').length === 0 && (
+        <div className="mb-6">
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-8">
+              <p className="text-muted-foreground mb-4">
+                {language === 'ro' 
+                  ? 'Personalizează dashboard-ul cu widget-uri pentru tracking' 
+                  : 'Customize your dashboard with tracking widgets'}
+              </p>
+              <WidgetSelector widgets={widgets.filter(w => w.id !== 'champion-routine')} onToggle={toggleWidget} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
       
       
       {/* Evening Routine Card */}

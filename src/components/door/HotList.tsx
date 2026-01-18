@@ -76,7 +76,7 @@ export const HotList: React.FC<HotListProps> = ({
   };
 
   return (
-    <div className={isMobile ? 'max-h-[calc(100vh-220px)] overflow-y-auto overflow-x-hidden w-full max-w-full touch-pan-y' : ''}>
+    <div className={isMobile ? 'max-h-[70vh] overflow-y-auto overflow-x-hidden w-full max-w-full' : ''}>
       {/* Combined Add Input - Notion style */}
       <div className={`${isMobile ? 'mb-3' : 'mb-4'}`}>
         <div className="relative">
@@ -137,7 +137,7 @@ export const HotList: React.FC<HotListProps> = ({
       )}
       
       {/* Task List - Clean Notion style */}
-      <div className={`space-y-1 ${isMobile ? '' : ''}`}>
+      <div className={`space-y-1 ${isMobile ? 'max-h-[calc(70vh-120px)] overflow-y-auto' : ''}`}>
         {filteredHotList.length > 0 ? (
           filteredHotList.map(item => {
             const isEditing = editingItems[item.id];

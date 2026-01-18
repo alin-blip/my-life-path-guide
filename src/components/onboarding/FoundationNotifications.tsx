@@ -31,17 +31,8 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
     }
   };
 
-  // Check if user is in first session (first hour after signup)
-  const isFirstSession = () => {
-    const graceFlag = localStorage.getItem('new-user-first-session');
-    if (graceFlag) {
-      return Date.now() - parseInt(graceFlag) < 60 * 60 * 1000; // 1 hour grace period
-    }
-    return false;
-  };
-
-  // Don't show if loading, complete, dismissed, or new user in first session
-  if (isLoading || isFoundationComplete || isDismissed || isFirstSession()) {
+  // Don't show if loading, complete, or dismissed
+  if (isLoading || isFoundationComplete || isDismissed) {
     return null;
   }
 
