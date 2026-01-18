@@ -6,6 +6,8 @@ import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Rocket, Target, Zap, Heart, Briefcase, Brain, CheckCircle2, Calendar, Download } from 'lucide-react';
 import { QuizCategory, categoryLabels, getScoreLevel } from '@/components/vision-quiz/quizData';
 import { useLanguage } from '@/context/LanguageContext';
+import { GoalsWizard } from '@/components/vision-plan/GoalsWizard';
+import { PlanUpsell } from '@/components/vision-plan/PlanUpsell';
 
 interface ActionItem {
   title: string;
@@ -22,7 +24,9 @@ interface CategoryPlan {
   weeklyHabit: string;
 }
 
-const getCategoryPlans = (language: 'en' | 'ro'): Record<QuizCategory, CategoryPlan> => ({
+type PlanStep = 'goals' | 'plan' | 'upsell';
+
+const getCategoryPlans = (language: 'en' | 'ro', userGoals?: Record<QuizCategory, string>): Record<QuizCategory, CategoryPlan> => ({
   body: {
     icon: <Zap className="w-6 h-6" />,
     color: 'text-green-600',
@@ -38,7 +42,7 @@ const getCategoryPlans = (language: 'en' | 'ro'): Record<QuizCategory, CategoryP
       { title: 'Reset Nutrițional', description: 'Elimină alimentele procesate și concentrează-te pe alimente integrale timp de 30 de zile', timeframe: 'Luna 1' },
       { title: 'Audit Energie', description: 'Urmărește nivelurile de energie timp de 2 săptămâni pentru a găsi tipare', timeframe: 'Săpt. 1-2' },
     ],
-    monthlyGoal: language === 'en' ? 'Complete 20 workouts this month' : 'Completează 20 de antrenamente luna aceasta',
+    monthlyGoal: userGoals?.body || (language === 'en' ? 'Complete 20 workouts this month' : 'Completează 20 de antrenamente luna aceasta'),
     weeklyHabit: language === 'en' ? '7 hours sleep + daily movement' : '7 ore somn + mișcare zilnică',
   },
   being: {
@@ -56,7 +60,7 @@ const getCategoryPlans = (language: 'en' | 'ro'): Record<QuizCategory, CategoryP
       { title: 'Claritate Scop', description: 'Completează un exercițiu de mapare a viziunii pentru toate ariile vieții', timeframe: 'Săptămâna 1' },
       { title: 'Protocol Stres', description: 'Învață și practică respirația box pentru gestionarea stresului', timeframe: 'Săptămâna 2' },
     ],
-    monthlyGoal: language === 'en' ? 'Complete 30 days of morning meditation' : 'Completează 30 de zile de meditație matinală',
+    monthlyGoal: userGoals?.being || (language === 'en' ? 'Complete 30 days of morning meditation' : 'Completează 30 de zile de meditație matinală'),
     weeklyHabit: language === 'en' ? 'Daily journaling + evening reflection' : 'Jurnal zilnic + reflecție seara',
   },
   balance: {
@@ -74,7 +78,7 @@ const getCategoryPlans = (language: 'en' | 'ro'): Record<QuizCategory, CategoryP
       { title: 'Apeluri de Reconectare', description: 'Contactează 3 prieteni cu care ai pierdut legătura', timeframe: 'Luna 1' },
       { title: 'Protocol Seară Romantică', description: 'Planifică și execută seri romantice săptămânale', timeframe: 'Săptămânal' },
     ],
-    monthlyGoal: language === 'en' ? 'Have 4 meaningful deep conversations' : 'Ai 4 conversații profunde semnificative',
+    monthlyGoal: userGoals?.balance || (language === 'en' ? 'Have 4 meaningful deep conversations' : 'Ai 4 conversații profunde semnificative'),
     weeklyHabit: language === 'en' ? 'Weekly family time + monthly friend meetup' : 'Timp săptămânal cu familia + întâlnire lunară cu prietenii',
   },
   business: {
@@ -92,7 +96,7 @@ const getCategoryPlans = (language: 'en' | 'ro'): Record<QuizCategory, CategoryP
       { title: 'Sistem Productivitate', description: 'Implementează un sistem de time-blocking pentru muncă focusată', timeframe: 'Săptămâna 1' },
       { title: 'Obiective Trimestriale', description: 'Setează 3 obiective măsurabile pentru Q1 2026 cu KPI clari', timeframe: 'Săptămâna 1' },
     ],
-    monthlyGoal: language === 'en' ? 'Increase revenue by 10% or save 5 hours/week' : 'Crește veniturile cu 10% sau economisește 5 ore/săptămână',
+    monthlyGoal: userGoals?.business || (language === 'en' ? 'Increase revenue by 10% or save 5 hours/week' : 'Crește veniturile cu 10% sau economisește 5 ore/săptămână'),
     weeklyHabit: language === 'en' ? 'Sunday planning + daily top 3 priorities' : 'Planificare duminica + top 3 priorități zilnice',
   },
 });
@@ -102,6 +106,10 @@ const Vision2026Plan: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { language } = useLanguage();
   const [scores, setScores] = useState<Record<QuizCategory, number> | null>(null);
+  const [userGoals, setUserGoals] = useState<Record<QuizCategory, string> | null>(null);
+  const [step, setStep] = useState<PlanStep>('goals');
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const lang = (language === 'en' || language === 'ro' ? language : 'ro') as 'en' | 'ro';
 
   useEffect(() => {
@@ -116,17 +124,48 @@ const Vision2026Plan: React.FC = () => {
 
   useEffect(() => {
     const scoresParam = searchParams.get('scores');
+    const emailParam = searchParams.get('email');
+    const nameParam = searchParams.get('name');
+    
     if (scoresParam) {
       try {
         const parsed = JSON.parse(decodeURIComponent(scoresParam));
         setScores(parsed);
       } catch (e) {
         console.error('Failed to parse scores', e);
+        // Default scores if parsing fails
+        setScores({ body: 8, being: 8, balance: 8, business: 8 });
       }
+    } else {
+      // Default scores if none provided
+      setScores({ body: 8, being: 8, balance: 8, business: 8 });
+    }
+
+    if (emailParam) {
+      setEmail(decodeURIComponent(emailParam));
+    }
+    if (nameParam) {
+      setName(decodeURIComponent(nameParam));
     }
   }, [searchParams]);
 
-  const categoryPlans = getCategoryPlans(lang);
+  const handleGoalsComplete = (goals: Record<QuizCategory, string>) => {
+    setUserGoals(goals);
+    setStep('plan');
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleContinueToUpsell = () => {
+    setStep('upsell');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleContinueFree = () => {
+    navigate('/door?tab=annual&welcome=true');
+  };
+
+  const categoryPlans = getCategoryPlans(lang, userGoals || undefined);
   const categories: QuizCategory[] = ['body', 'being', 'balance', 'business'];
 
   const getPriorityCategories = () => {
@@ -136,6 +175,64 @@ const Vision2026Plan: React.FC = () => {
 
   const priorityCategories = getPriorityCategories();
 
+  // Show loading until scores are parsed
+  if (!scores) {
+    return (
+      <div className="light min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
+        <div className="animate-pulse text-slate-500">Loading...</div>
+      </div>
+    );
+  }
+
+  // Step 1: Goals Wizard
+  if (step === 'goals') {
+    return (
+      <div className="light min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <Helmet>
+          <title>{lang === 'en' ? 'Set Your 2026 Goals | LifeOS' : 'Setează Obiectivele 2026 | LifeOS'}</title>
+        </Helmet>
+
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+              {lang === 'en' ? 'Create Your 2026 Vision Plan' : 'Creează Planul Viziunii 2026'}
+            </h1>
+            <p className="text-slate-600">
+              {lang === 'en' 
+                ? 'Based on your quiz results, let\'s set specific goals for each life area.' 
+                : 'Pe baza rezultatelor quiz-ului, hai să setăm obiective specifice pentru fiecare arie a vieții.'}
+            </p>
+          </div>
+
+          <GoalsWizard
+            language={lang}
+            scores={scores}
+            email={email}
+            name={name}
+            onComplete={handleGoalsComplete}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Step 3: Upsell
+  if (step === 'upsell') {
+    return (
+      <div className="light min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <Helmet>
+          <title>{lang === 'en' ? 'Start Your Journey | LifeOS' : 'Începe Călătoria | LifeOS'}</title>
+        </Helmet>
+
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <PlanUpsell language={lang} onContinueFree={handleContinueFree} />
+        </div>
+      </div>
+    );
+  }
+
+  // Step 2: Show Plan
   return (
     <div className="light min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <Helmet>
@@ -146,7 +243,7 @@ const Vision2026Plan: React.FC = () => {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/vision-2026')}>
+          <Button variant="ghost" size="icon" onClick={() => setStep('goals')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
@@ -154,40 +251,35 @@ const Vision2026Plan: React.FC = () => {
               {lang === 'en' ? 'Your 2026 Action Plan' : 'Planul Tău de Acțiune 2026'}
             </h1>
             <p className="text-slate-600">
-              {lang === 'en' ? 'Personalized based on your assessment results' : 'Personalizat pe baza rezultatelor evaluării tale'}
+              {lang === 'en' ? 'Personalized based on your goals and assessment' : 'Personalizat pe baza obiectivelor și evaluării tale'}
             </p>
           </div>
         </div>
 
-        {/* Priority Message */}
-        {scores && (
-          <Card className="mb-8 p-6 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+        {/* User Goals Summary */}
+        {userGoals && (
+          <Card className="mb-8 p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
-                <Target className="w-6 h-6 text-amber-600" />
+              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                <Target className="w-6 h-6 text-green-600" />
               </div>
-              <div>
-                <h2 className="font-bold text-lg text-slate-900 mb-1">
-                  {lang === 'en' ? 'Your Priority Order for 2026' : 'Ordinea Ta de Priorități pentru 2026'}
+              <div className="flex-1">
+                <h2 className="font-bold text-lg text-slate-900 mb-3">
+                  {lang === 'en' ? 'Your 2026 Goals' : 'Obiectivele Tale pentru 2026'}
                 </h2>
-                <p className="text-slate-600 text-sm mb-3">
-                  {lang === 'en' 
-                    ? 'Based on your scores, focus on these areas in order for maximum impact:'
-                    : 'Pe baza scorurilor tale, concentrează-te pe aceste arii în ordine pentru impact maxim:'}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {priorityCategories.map((cat, index) => {
-                    const level = getScoreLevel(scores[cat]);
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {Object.entries(userGoals).filter(([_, goal]) => goal.trim()).map(([category, goal]) => {
+                    const catLabel = category as QuizCategory;
                     return (
-                      <span 
-                        key={cat}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium"
-                        style={{ backgroundColor: `${level.color}20`, color: level.color }}
-                      >
-                        <span className="font-bold">{index + 1}.</span>
-                        {lang === 'en' ? categoryLabels[cat].en : categoryLabels[cat].ro}
-                        <span className="opacity-70">({scores[cat]}/16)</span>
-                      </span>
+                      <div key={category} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-1" />
+                        <div>
+                          <p className="text-xs font-medium text-slate-500">
+                            {lang === 'en' ? categoryLabels[catLabel].en : categoryLabels[catLabel].ro}
+                          </p>
+                          <p className="text-sm text-slate-700">{goal}</p>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
@@ -196,12 +288,48 @@ const Vision2026Plan: React.FC = () => {
           </Card>
         )}
 
+        {/* Priority Message */}
+        <Card className="mb-8 p-6 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
+              <Target className="w-6 h-6 text-amber-600" />
+            </div>
+            <div>
+              <h2 className="font-bold text-lg text-slate-900 mb-1">
+                {lang === 'en' ? 'Your Priority Order for 2026' : 'Ordinea Ta de Priorități pentru 2026'}
+              </h2>
+              <p className="text-slate-600 text-sm mb-3">
+                {lang === 'en' 
+                  ? 'Based on your scores, focus on these areas in order for maximum impact:'
+                  : 'Pe baza scorurilor tale, concentrează-te pe aceste arii în ordine pentru impact maxim:'}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {priorityCategories.map((cat, index) => {
+                  const level = getScoreLevel(scores[cat]);
+                  return (
+                    <span 
+                      key={cat}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium"
+                      style={{ backgroundColor: `${level.color}20`, color: level.color }}
+                    >
+                      <span className="font-bold">{index + 1}.</span>
+                      {lang === 'en' ? categoryLabels[cat].en : categoryLabels[cat].ro}
+                      <span className="opacity-70">({scores[cat]}/16)</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </Card>
+
         {/* Category Plans */}
         <div className="space-y-6 mb-8">
           {priorityCategories.map((category, index) => {
             const plan = categoryPlans[category];
-            const score = scores?.[category];
-            const level = score ? getScoreLevel(score) : null;
+            const score = scores[category];
+            const level = getScoreLevel(score);
+            const userGoal = userGoals?.[category];
             
             return (
               <Card key={category} className="overflow-hidden">
@@ -215,23 +343,34 @@ const Vision2026Plan: React.FC = () => {
                         <h3 className="font-bold text-lg text-slate-900">
                           {index + 1}. {lang === 'en' ? categoryLabels[category].en : categoryLabels[category].ro}
                         </h3>
-                        {level && (
-                          <span className="text-sm" style={{ color: level.color }}>
-                            {lang === 'en' ? level.level : level.levelRo} ({score}/16)
-                          </span>
-                        )}
+                        <span className="text-sm" style={{ color: level.color }}>
+                          {lang === 'en' ? level.level : level.levelRo} ({score}/16)
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="p-4 space-y-4">
+                  {/* User's Annual Goal */}
+                  {userGoal && (
+                    <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                      <Target className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-sm text-slate-700">
+                          {lang === 'en' ? 'Your 2026 Goal' : 'Obiectivul Tău 2026'}
+                        </p>
+                        <p className="text-slate-800 text-sm font-medium">{userGoal}</p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Monthly Goal */}
                   <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
                     <Calendar className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium text-sm text-slate-700">
-                        {lang === 'en' ? 'Monthly Goal' : 'Obiectiv Lunar'}
+                        {lang === 'en' ? 'Monthly Focus' : 'Focus Lunar'}
                       </p>
                       <p className="text-slate-600 text-sm">{plan.monthlyGoal}</p>
                     </div>
@@ -286,34 +425,24 @@ const Vision2026Plan: React.FC = () => {
           </h3>
           <p className="text-white/80 text-sm mb-4 max-w-md mx-auto">
             {lang === 'en'
-              ? 'We\'ll create your first week of tasks automatically based on this plan. Start seeing results in 48 hours!'
-              : 'Vom crea automat task-urile primei săptămâni pe baza acestui plan. Vezi rezultate în 48 de ore!'}
+              ? 'Your goals are saved. Get daily action tasks delivered to your dashboard and track your progress.'
+              : 'Obiectivele sunt salvate. Primește task-uri zilnice în dashboard și urmărește-ți progresul.'}
           </p>
           <Button 
             size="lg"
             variant="secondary"
-            onClick={() => {
-              const scoresParam = searchParams.get('scores') || '';
-              navigate(`/auth?from=vision-plan&scores=${scoresParam}`);
-            }}
+            onClick={handleContinueToUpsell}
             className="w-full sm:w-auto animate-pulse hover:animate-none"
           >
             <Rocket className="w-4 h-4 mr-2" />
-            {lang === 'en' ? 'Implement in LifeOS - 7 Days Free' : 'Implementează în LifeOS - 7 Zile Gratuit'}
+            {lang === 'en' ? 'Continue - See Options' : 'Continuă - Vezi Opțiuni'}
           </Button>
           <p className="text-white/60 text-xs mt-3">
             {lang === 'en' 
-              ? '✓ Tasks created automatically • No credit card required' 
-              : '✓ Task-uri create automat • Fără card de credit'}
+              ? '✓ An email with your plan has been sent' 
+              : '✓ Un email cu planul tău a fost trimis'}
           </p>
         </Card>
-
-        {/* Back Link */}
-        <div className="text-center mt-8">
-          <Button variant="link" onClick={() => navigate('/vision-2026')} className="text-slate-600">
-            ← {lang === 'en' ? 'Back to Assessment' : 'Înapoi la Evaluare'}
-          </Button>
-        </div>
       </div>
     </div>
   );

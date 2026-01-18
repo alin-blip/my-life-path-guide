@@ -148,45 +148,19 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
         }
       }
 
-      // Send email with quiz results
-      try {
-        await supabase.functions.invoke('send-vision-results', {
-          body: {
-            email: email.trim().toLowerCase(),
-            name: name.trim() || 'there',
-            language,
-            images: {},
-            answers: scores,
-            source: 'quiz'
-          }
-        });
-      } catch (emailError) {
-        console.error('Error sending quiz results email:', emailError);
-      }
-
-      setStep('results');
+      // Redirect to plan page with scores - email will be sent after goals are set
+      const scoresEncoded = encodeURIComponent(JSON.stringify(scores));
+      navigate(`/vision-2026/plan?scores=${scoresEncoded}&email=${encodeURIComponent(email.trim().toLowerCase())}&name=${encodeURIComponent(name.trim() || 'there')}`);
     } catch (error) {
       console.error('Error saving lead:', error);
-      // Still show results even if save fails
-      setStep('results');
+      // Still redirect to plan even if save fails
+      const scores = calculateScores();
+      const scoresEncoded = encodeURIComponent(JSON.stringify(scores));
+      navigate(`/vision-2026/plan?scores=${scoresEncoded}&email=${encodeURIComponent(email.trim().toLowerCase())}&name=${encodeURIComponent(name.trim() || 'there')}`);
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  const handleStartTrial = () => {
-    navigate('/auth');
-  };
-
-  if (step === 'results') {
-    return (
-      <QuizResults 
-        scores={calculateScores()} 
-        language={language} 
-        onStartTrial={handleStartTrial}
-      />
-    );
-  }
 
   if (step === 'email') {
     return (
