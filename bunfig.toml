@@ -1,0 +1,6 @@
+# Bun configuration to make installs reliable in constrained build environments.
+# This avoids installing optional native dependencies (e.g. node-canvas) that can
+# dramatically slow down or hang installs.
+
+[install]
+optional = false
