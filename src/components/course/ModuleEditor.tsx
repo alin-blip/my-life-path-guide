@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CourseModule, CourseSubmodule } from '@/types/course';
 import { Plus, Trash2, GripVertical, Video, FileText, File } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface ModuleEditorProps {
   modules: CourseModule[];

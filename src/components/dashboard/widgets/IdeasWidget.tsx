@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { 
   Lightbulb, Plus, X, GripVertical, Zap, ArrowRight, 
   CheckSquare, Square, Filter, MoreHorizontal, Trash2
