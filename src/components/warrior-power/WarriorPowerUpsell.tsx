@@ -19,13 +19,31 @@ interface WarriorPowerUpsellProps {
 
 const UPSELL_PLANS = [
   {
+    id: 'free',
+    name: 'Trial GRATUIT',
+    price: '0',
+    afterTrialPrice: '49',
+    currency: '€',
+    period: '/ 3 zile',
+    highlight: '🎁 ÎNCEARCĂ GRATUIT',
+    benefits: [
+      '3 zile acces COMPLET gratuit',
+      'Toate funcțiile Pro incluse',
+      'Fără card de credit necesar',
+      'Anulează oricând, fără obligații',
+      'Apoi doar €49/lună dacă continui'
+    ],
+    featured: true,
+    isTrial: true
+  },
+  {
     id: 'pro',
     name: 'Pro',
     price: '49',
     originalPrice: '98',
     currency: '€',
     period: '/ lună',
-    highlight: 'Early Bird',
+    highlight: 'Early Bird -50%',
     benefits: [
       'AI Coaching tip Hormozi pentru ofertă și preț',
       'Champion Routine completă',
@@ -33,24 +51,7 @@ const UPSELL_PLANS = [
       'Stacks pentru reset rapid',
       'Sprint 90 zile cu KPIs'
     ],
-    featured: true
-  },
-  {
-    id: 'free',
-    name: 'Trial',
-    price: '0',
-    afterTrialPrice: '49',
-    currency: '€',
-    period: '/ 3 zile',
-    highlight: '3 Zile Gratuit',
-    benefits: [
-      '3 zile acces complet GRATUIT',
-      'Toate funcțiile Pro incluse',
-      'Anulează oricând în trial',
-      'Apoi doar €49/lună'
-    ],
-    featured: false,
-    isTrial: true
+    featured: false
   },
   {
     id: 'elite',
@@ -66,7 +67,7 @@ const UPSELL_PLANS = [
       'Comunitate VIP Elite',
       'Support VIP dedicat'
     ],
-    featured: true
+    featured: false
   }
 ];
 
@@ -332,12 +333,13 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   onClick={() => handleCheckout(plan.id)}
                   disabled={isLoading !== null}
                   variant="default"
+                  size="lg"
                   className={cn(
-                    "w-full gap-2",
-                    isElite 
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
-                      : isTrial
-                        ? "bg-green-500 hover:bg-green-600 text-white"
+                    "w-full gap-2 font-bold",
+                    isTrial 
+                      ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-lg py-6 shadow-lg shadow-green-500/30 animate-pulse"
+                      : isElite 
+                        ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
                         : "bg-gradient-to-r from-primary to-accent hover:opacity-90"
                   )}
                 >
@@ -350,8 +352,8 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     <>
                       {isElite && <Crown className="h-4 w-4" />}
                       {isPro && <Star className="h-4 w-4" />}
-                      {isTrial && <Sparkles className="h-4 w-4" />}
-                      {isTrial ? 'Începe Trial Gratuit' : `Alege ${plan.name}`}
+                      {isTrial && <Sparkles className="h-5 w-5" />}
+                      {isTrial ? '🚀 ÎNCEPE GRATUIT ACUM' : `Alege ${plan.name}`}
                       <ArrowRight className="h-4 w-4" />
                     </>
                   )}
