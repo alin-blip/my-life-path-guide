@@ -10,7 +10,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const BASE_URL = "https://my-life-path-guide.lovable.app";
+const BASE_URL = "https://warriorsos.com";
 
 interface EmailLead {
   id: string;
