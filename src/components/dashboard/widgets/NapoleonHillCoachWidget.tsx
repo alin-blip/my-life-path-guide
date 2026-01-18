@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { DraggableProvidedDragHandleProps } from 'react-beautiful-dnd';
+import { DraggableProvidedDragHandleProps } from '@hello-pangea/dnd';
 import { WidgetSize } from '@/types/dashboardWidget';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { NapoleonVoiceChat } from '@/components/napoleon/NapoleonVoiceChat';
