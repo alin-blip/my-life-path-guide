@@ -29,28 +29,31 @@ interface PricingPlan {
 const pricingPlans: PricingPlan[] = [
   {
     id: 'free',
-    nameEn: 'Free',
-    nameRo: 'Gratuit',
+    nameEn: 'FREE Trial',
+    nameRo: 'Trial GRATUIT',
     price: '0',
     currency: '€',
-    periodEn: '3 days',
-    periodRo: '3 zile',
-    highlightEn: 'Start Here',
-    highlightRo: 'Începe Aici',
+    periodEn: '3 days FREE',
+    periodRo: '3 zile GRATUIT',
+    highlightEn: '🎁 TRY FREE',
+    highlightRo: '🎁 ÎNCEARCĂ GRATUIT',
     benefitsEn: [
-      'Habit Tracking for daily discipline',
-      'Access to transformation Challenges',
-      'Discover WarriorOS potential',
-      'Upgrade option anytime'
+      '3 days FULL access FREE',
+      'All Pro features included',
+      'No credit card required',
+      'Cancel anytime, no obligations',
+      'Then only €49/month if you continue'
     ],
     benefitsRo: [
-      'Habit Tracking pentru disciplină zilnică',
-      'Acces la Challenge-uri de transformare',
-      'Descoperă potențialul WarriorOS',
-      'Opțiune de upgrade oricând'
+      '3 zile acces COMPLET gratuit',
+      'Toate funcțiile Pro incluse',
+      'Fără card de credit necesar',
+      'Anulează oricând, fără obligații',
+      'Apoi doar €49/lună dacă continui'
     ],
+    featured: true,
     icon: Gift,
-    color: 'from-blue-500 to-cyan-500'
+    color: 'from-green-500 to-emerald-500'
   },
   {
     id: 'pro',
@@ -61,23 +64,23 @@ const pricingPlans: PricingPlan[] = [
     currency: '€',
     periodEn: '/ month',
     periodRo: '/ lună',
-    highlightEn: 'Early Bird',
-    highlightRo: 'Early Bird',
+    highlightEn: 'Early Bird -50%',
+    highlightRo: 'Early Bird -50%',
     benefitsEn: [
-      'Everything in Free plan',
       'Hormozi-style AI Coaching',
       'Complete Champion Routine',
       'Door weekly planning',
+      'Stacks for rapid reset',
       '90-day Sprint with KPIs'
     ],
     benefitsRo: [
-      'Tot ce include planul Gratuit',
       'AI Coaching tip Hormozi',
       'Champion Routine completă',
       'Planificare săptămânală Door',
+      'Stacks pentru reset rapid',
       'Sprint 90 zile cu KPIs'
     ],
-    featured: true,
+    featured: false,
     icon: Zap,
     color: 'from-primary to-accent'
   },
@@ -105,7 +108,7 @@ const pricingPlans: PricingPlan[] = [
       'Comunitate VIP Elite',
       'Support VIP prioritar'
     ],
-    featured: true,
+    featured: false,
     icon: Crown,
     color: 'from-amber-500 to-orange-500'
   }
@@ -240,22 +243,25 @@ export const ChallengePremiumOffer = () => {
 
               {/* CTA Button */}
               <Button 
-                className={`w-full ${
-                  isElite 
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
-                    : isPro
-                      ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90'
-                      : ''
+                className={`w-full font-bold ${
+                  plan.id === 'free'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-lg py-6 shadow-lg shadow-green-500/30'
+                    : isElite 
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white'
+                      : isPro
+                        ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90'
+                        : ''
                 }`}
-                variant={plan.id === 'free' ? 'outline' : 'default'}
+                size={plan.id === 'free' ? 'lg' : 'default'}
+                variant="default"
                 onClick={() => handleUpgrade(plan.id)}
                 disabled={loading === plan.id}
               >
                 {loading === plan.id 
                   ? '...' 
-                  : language === 'en' 
-                    ? `Choose ${plan.nameEn}` 
-                    : `Alege ${plan.nameRo}`}
+                  : plan.id === 'free'
+                    ? (language === 'en' ? '🚀 START FREE NOW' : '🚀 ÎNCEPE GRATUIT ACUM')
+                    : (language === 'en' ? `Choose ${plan.nameEn}` : `Alege ${plan.nameRo}`)}
               </Button>
             </div>
           );

@@ -161,32 +161,43 @@ export const VisionBoardPreview: React.FC<VisionBoardPreviewProps> = ({
         ))}
       </div>
 
-      {/* Actions */}
-      <div className="flex flex-col sm:flex-row justify-center gap-4">
-        <Button
-          onClick={onDownload}
-          variant="outline"
-          className="gap-2"
-        >
-          <Download className="h-4 w-4" />
-          {language === 'en' ? 'Download' : 'Descarcă'}
-        </Button>
-        
-        <Button
-          onClick={onSave}
-          className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
-        >
-          <Save className="h-4 w-4" />
-          {language === 'en' ? 'Save to Dashboard' : 'Salvează în Dashboard'}
-        </Button>
-      </div>
-
-      {/* Upsell Section */}
-      <div className="mt-10">
+      {/* Upsell Section - FIRST before actions */}
+      <div className="mt-6 mb-8">
         <VisionBoardUpsell 
           language={language} 
-          onContinueFree={() => navigate('/door?tab=annual')} 
+          onContinueFree={() => {
+            onSave();
+            navigate('/door?tab=annual');
+          }} 
         />
+      </div>
+
+      {/* Actions - AFTER upsell */}
+      <div className="pt-6 border-t border-border">
+        <p className="text-center text-sm text-muted-foreground mb-4">
+          {language === 'en' 
+            ? 'Or save your Vision Board and continue later:' 
+            : 'Sau salvează Vision Board-ul și continuă mai târziu:'}
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <Button
+            onClick={onDownload}
+            variant="outline"
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            {language === 'en' ? 'Download' : 'Descarcă'}
+          </Button>
+          
+          <Button
+            onClick={onSave}
+            variant="outline"
+            className="gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {language === 'en' ? 'Save to Dashboard' : 'Salvează în Dashboard'}
+          </Button>
+        </div>
       </div>
     </div>
   );
