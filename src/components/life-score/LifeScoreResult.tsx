@@ -246,7 +246,15 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
         </p>
         <Button 
           size="lg"
-          onClick={() => navigate('/vision-2026')}
+          onClick={() => {
+            const scoresEncoded = encodeURIComponent(JSON.stringify({
+              body: categoryScores['body'] || 0,
+              being: categoryScores['being'] || 0,
+              balance: categoryScores['balance'] || 0,
+              business: categoryScores['business'] || 0,
+            }));
+            navigate(`/vision-2026/plan?scores=${scoresEncoded}&from=lifescore`);
+          }}
           className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg"
         >
           {language === 'en' ? 'Take Full Assessment' : 'Evaluare Completă'}
