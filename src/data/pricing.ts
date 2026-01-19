@@ -1,5 +1,5 @@
 export type Plan = {
-  id: "free" | "pro" | "elite";
+  id: "free" | "basic" | "pro";
   nameEn: string;
   nameRo: string;
   priceEn: string;
@@ -19,6 +19,8 @@ export type Plan = {
   ctaRo: string;
   featured?: boolean;
   coachingIncluded?: boolean;
+  valueEn?: string;
+  valueRo?: string;
 };
 
 export const plans: Plan[] = [
@@ -50,9 +52,9 @@ export const plans: Plan[] = [
     ctaRo: "Începe Gratuit",
   },
   {
-    id: "pro",
-    nameEn: "Pro",
-    nameRo: "Pro",
+    id: "basic",
+    nameEn: "Basic",
+    nameRo: "Basic",
     priceEn: "€49",
     priceRo: "249 LEI",
     priceValue: 4900,
@@ -62,63 +64,69 @@ export const plans: Plan[] = [
     periodRo: "/ lună",
     highlightEn: "Early Bird",
     highlightRo: "Early Bird",
-    resultEn: "Full platform access with AI Coaching, Champion Routine, and 90-day Sprint system.",
-    resultRo: "Acces complet la platformă cu AI Coaching, Champion Routine și sistem Sprint de 90 zile.",
+    valueEn: "€98 value",
+    valueRo: "Valoare €98",
+    resultEn: "Full platform access with AI Coaching, Champion Routine, and Door planning system.",
+    resultRo: "Acces complet la platformă cu AI Coaching, Champion Routine și sistem Door.",
     benefitsEn: [
       "Everything in Free plan",
-      "Hormozi-style AI Coaching for offers & pricing",
+      "AI Coaching for offers & pricing",
       "Complete Champion Routine",
       "Door weekly planning system",
       "Stacks (Anger, Clarity, Focus) for quick reset",
       "Progress journal and weekly reports",
-      "90-day Sprint with KPIs",
     ],
     benefitsRo: [
       "Tot ce include planul Gratuit",
-      "AI Coaching tip Hormozi pentru ofertă și preț",
+      "AI Coaching pentru ofertă și preț",
       "Champion Routine completă",
       "Sistem de planificare săptămânală Door",
       "Stacks (Furie, Claritate, Focus) pentru reset rapid",
       "Jurnal de progres și rapoarte săptămânale",
-      "Sprint de 90 de zile cu KPIs",
     ],
-    ctaEn: "Choose Pro",
-    ctaRo: "Alege Pro",
+    ctaEn: "Choose Basic",
+    ctaRo: "Alege Basic",
     featured: true,
   },
   {
-    id: "elite",
-    nameEn: "Elite",
-    nameRo: "Elite",
-    priceEn: "€497",
-    priceRo: "2497 LEI",
-    priceValue: 49700,
+    id: "pro",
+    nameEn: "Pro",
+    nameRo: "Pro",
+    priceEn: "€197",
+    priceRo: "990 LEI",
+    priceValue: 19700,
+    originalPriceEn: "€497",
+    originalPriceRo: "2497 LEI",
     periodEn: "/ month",
     periodRo: "/ lună",
     highlightEn: "Complete Warrior",
     highlightRo: "Războinic Complet",
-    resultEn: "Everything in Pro + Warrior Launch Accelerator + Live Group Coaching with Alin Radu.",
-    resultRo: "Tot din Pro + Warrior Launch Accelerator + Coaching de Grup LIVE cu Alin Radu.",
+    valueEn: "€497 value",
+    valueRo: "Valoare €497",
+    resultEn: "Everything in Basic + Warrior Launch Accelerator + Live Group Coaching with Alin Radu.",
+    resultRo: "Tot din Basic + Warrior Launch Accelerator + Coaching de Grup LIVE cu Alin Radu.",
     benefitsEn: [
-      "Everything in Pro plan",
+      "Everything in Basic plan",
       "Warrior Launch Accelerator included (€970 value)",
       "Weekly LIVE group coaching with Alin Radu",
-      "VIP community with Elite members",
+      "VIP community with Pro members",
       "Exclusive Q&A sessions",
+      "90-day Sprint with KPIs",
       "Priority access to new features",
       "VIP dedicated support",
     ],
     benefitsRo: [
-      "Tot ce include planul Pro",
+      "Tot ce include planul Basic",
       "Warrior Launch Accelerator inclus (valoare €970)",
       "Coaching de grup săptămânal LIVE cu Alin Radu",
-      "Comunitate VIP cu membri Elite",
+      "Comunitate VIP cu membri Pro",
       "Sesiuni Q&A exclusive",
+      "Sprint de 90 de zile cu KPIs",
       "Acces prioritar la funcționalități noi",
       "Support VIP dedicat",
     ],
-    ctaEn: "Choose Elite",
-    ctaRo: "Alege Elite",
+    ctaEn: "Choose Pro",
+    ctaRo: "Alege Pro",
     featured: true,
     coachingIncluded: true,
   },
@@ -138,4 +146,5 @@ export const getLocalizedPlan = (plan: Plan, language: 'en' | 'ro') => ({
   cta: language === 'en' ? plan.ctaEn : plan.ctaRo,
   featured: plan.featured,
   coachingIncluded: plan.coachingIncluded,
+  value: language === 'en' ? plan.valueEn : plan.valueRo,
 });
