@@ -194,35 +194,48 @@ const Pricing: React.FC = () => {
               const Icon = planIcons[plan.id] || Zap;
               const isPro = plan.id === 'pro';
               const isBasic = plan.id === 'basic';
+              const isFree = plan.id === 'free';
+              const trialDays = (plan as any).trialDays;
               
               return (
                 <Card 
                   key={plan.id} 
                   className={`relative overflow-hidden transition-all duration-300 ${
                     plan.featured 
-                      ? 'ring-2 ring-primary shadow-lg shadow-primary/20' 
+                      ? 'ring-2 ring-primary shadow-lg shadow-primary/20 scale-[1.02]' 
                       : 'hover:border-primary/50'
                   }`}
                 >
+                  {/* Trial Badge - Prominent */}
+                  {trialDays && (
+                    <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-10">
+                      <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg border-0 rounded-b-lg rounded-t-none">
+                        🎁 {trialDays} {language === 'en' ? 'Days FREE Trial' : 'Zile Trial GRATUIT'}
+                      </Badge>
+                    </div>
+                  )}
+                  
                   {/* Top gradient bar for featured */}
-                  {plan.featured && (
+                  {plan.featured && !trialDays && (
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary" />
                   )}
                   
-                  <CardHeader>
+                  <CardHeader className={trialDays ? 'pt-10' : ''}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`p-2 rounded-full ${
-                          isPro || isBasic
+                          isPro 
                             ? 'bg-gradient-to-br from-primary to-accent' 
-                            : 'bg-muted'
+                            : isBasic
+                              ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                              : 'bg-muted'
                         }`}>
                           <Icon className={`h-5 w-5 ${isPro || isBasic ? 'text-white' : 'text-foreground'}`} />
                         </div>
                         <CardTitle className="text-foreground">{plan.name}</CardTitle>
                       </div>
                       <div className="flex items-center gap-2">
-                        {plan.highlight && (
+                        {plan.highlight && !trialDays && (
                           <Badge 
                             className={`${
                               isPro || isBasic
@@ -254,6 +267,13 @@ const Pricing: React.FC = () => {
                         </span>
                         {plan.period && <span className="text-muted-foreground">{plan.period}</span>}
                       </div>
+                      {trialDays && (
+                        <p className="text-sm text-green-500 mt-1 font-medium">
+                          {language === 'en' 
+                            ? `Then ${plan.price}${plan.period} after trial` 
+                            : `Apoi ${plan.price}${plan.period} după trial`}
+                        </p>
+                      )}
                     </div>
                     
                     {/* Result description */}
@@ -278,11 +298,14 @@ const Pricing: React.FC = () => {
                   <CardFooter>
                     <Button 
                       className={`w-full gap-2 ${
-                        isPro || isBasic
-                          ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90' 
-                          : ''
+                        isPro
+                          ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg py-6' 
+                          : isBasic
+                            ? 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90'
+                            : ''
                       }`}
-                      variant={plan.id === 'free' ? 'outline' : 'default'}
+                      variant={isFree ? 'outline' : 'default'}
+                      size={isPro ? 'lg' : 'default'}
                       disabled={loadingPlan === plan.id || isActive} 
                       onClick={() => handleCheckout(plan.id)}
                     >
@@ -295,6 +318,7 @@ const Pricing: React.FC = () => {
                         texts.active
                       ) : (
                         <>
+                          {trialDays && <Gift className="h-4 w-4" />}
                           {plan.cta}
                         </>
                       )}

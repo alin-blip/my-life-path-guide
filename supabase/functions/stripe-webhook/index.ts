@@ -11,6 +11,34 @@ const log = (step: string, details?: any) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
 };
 
+// Helper function to determine tier from amount (in cents)
+// Updated Jan 2025: Basic €49, Pro €97, Accelerator €497
+const getTierFromAmount = (amount: number, currency: string): string => {
+  // Normalize to EUR cents for comparison
+  const normalizedAmount = currency.toLowerCase() === "ron" 
+    ? Math.round(amount / 5) // Approximate RON to EUR conversion
+    : amount;
+  
+  // Pro: €97 = 9700 cents (range 9000-10500 to account for variations)
+  if (normalizedAmount >= 9000 && normalizedAmount <= 10500) {
+    return "pro";
+  }
+  // Basic: €49 = 4900 cents (range 4500-5500)
+  if (normalizedAmount >= 4500 && normalizedAmount <= 5500) {
+    return "basic";
+  }
+  // Accelerator: €497 = 49700 cents (range 49000-50500)
+  if (normalizedAmount >= 49000 && normalizedAmount <= 50500) {
+    return "accelerator";
+  }
+  // Legacy Elite: €497+ as subscription (now deprecated)
+  if (normalizedAmount >= 49000) {
+    return "elite";
+  }
+  // Default to basic for unknown amounts
+  return "basic";
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -62,7 +90,8 @@ serve(async (req) => {
         log("Checkout completed", { 
           customer: session.customer, 
           email: session.customer_email,
-          mode: session.mode 
+          mode: session.mode,
+          metadata: session.metadata
         });
 
         const customerEmail = session.customer_email;
@@ -73,35 +102,62 @@ serve(async (req) => {
           break;
         }
 
-        // Determine subscription tier from metadata or session
-        let subscriptionTier = "pro";
+        // PRIORITY: Get tier from metadata (most reliable)
+        let subscriptionTier = session.metadata?.tier || "basic";
         let subscriptionEnd: Date | null = null;
+        let subscriptionStatus = "active";
         
         if (session.mode === "subscription" && session.subscription) {
           const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
           subscriptionEnd = new Date(subscription.current_period_end * 1000);
+          subscriptionStatus = subscription.status; // "trialing" or "active"
           
-          // Check if it's Elite based on amount
-          const amount = subscription.items.data[0]?.price?.unit_amount || 0;
-          if (amount >= 49000) {
-            subscriptionTier = "elite";
+          // Fallback: detect tier from amount if metadata not available
+          if (!session.metadata?.tier) {
+            const amount = subscription.items.data[0]?.price?.unit_amount || 0;
+            const currency = subscription.items.data[0]?.price?.currency || "eur";
+            subscriptionTier = getTierFromAmount(amount, currency);
           }
+          
+          log("Subscription details", {
+            status: subscriptionStatus,
+            tier: subscriptionTier,
+            trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null
+          });
         } else if (session.mode === "payment") {
           // One-time payment (Warrior Accelerator)
-          subscriptionTier = "warrior-accelerator";
+          subscriptionTier = session.metadata?.tier || "accelerator";
           subscriptionEnd = null; // Lifetime access
+          subscriptionStatus = "lifetime";
+          
+          // Also record as course purchase for the accelerator
+          if (subscriptionTier === "accelerator") {
+            const { data: userData } = await supabaseService.auth.admin.listUsers();
+            const user = userData?.users?.find(u => u.email === customerEmail);
+            
+            if (user) {
+              const { error: purchaseError } = await supabaseService
+                .from("course_purchases")
+                .insert({
+                  user_id: user.id,
+                  product_id: "warrior-accelerator",
+                  stripe_session_id: session.id,
+                  amount_paid: session.amount_total,
+                  currency: session.currency,
+                });
+              
+              if (purchaseError) {
+                log("Error recording accelerator purchase", { error: purchaseError.message });
+              } else {
+                log("Accelerator purchase recorded", { userId: user.id });
+              }
+            }
+          }
         }
 
         // Find user by email
         const { data: userData } = await supabaseService.auth.admin.listUsers();
         const user = userData?.users?.find(u => u.email === customerEmail);
-
-        // Get subscription status if available
-        let subscriptionStatus = "active";
-        if (session.mode === "subscription" && session.subscription) {
-          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-          subscriptionStatus = subscription.status; // "trialing" or "active"
-        }
 
         // Upsert subscriber record
         const { error: upsertError } = await supabaseService
@@ -120,7 +176,11 @@ serve(async (req) => {
         if (upsertError) {
           log("Error upserting subscriber", { error: upsertError.message });
         } else {
-          log("Subscriber upserted successfully", { email: customerEmail, tier: subscriptionTier });
+          log("Subscriber upserted successfully", { 
+            email: customerEmail, 
+            tier: subscriptionTier,
+            status: subscriptionStatus 
+          });
         }
         break;
       }
@@ -130,7 +190,8 @@ serve(async (req) => {
         const subscription = event.data.object as Stripe.Subscription;
         log("Subscription updated", { 
           status: subscription.status,
-          customer: subscription.customer 
+          customer: subscription.customer,
+          metadata: subscription.metadata
         });
 
         const customerId = subscription.customer as string;
@@ -145,11 +206,14 @@ serve(async (req) => {
         const isActive = ["active", "trialing"].includes(subscription.status);
         const subscriptionEnd = new Date(subscription.current_period_end * 1000);
         
-        // Determine tier based on amount
-        const amount = subscription.items.data[0]?.price?.unit_amount || 0;
-        let subscriptionTier = "pro";
-        if (amount >= 49000) {
-          subscriptionTier = "elite";
+        // PRIORITY: Get tier from metadata
+        let subscriptionTier = subscription.metadata?.tier;
+        
+        // Fallback: detect tier from amount
+        if (!subscriptionTier) {
+          const amount = subscription.items.data[0]?.price?.unit_amount || 0;
+          const currency = subscription.items.data[0]?.price?.currency || "eur";
+          subscriptionTier = getTierFromAmount(amount, currency);
         }
 
         // Find user
@@ -172,7 +236,12 @@ serve(async (req) => {
         if (upsertError) {
           log("Error upserting subscriber", { error: upsertError.message });
         } else {
-          log("Subscriber updated", { email: customerEmail, active: isActive, tier: subscriptionTier });
+          log("Subscriber updated", { 
+            email: customerEmail, 
+            active: isActive, 
+            tier: subscriptionTier,
+            status: subscription.status 
+          });
         }
         break;
       }
