@@ -8,7 +8,8 @@ export type XPReason =
   | 'page_read'
   | 'action_completed'
   | 'daily_streak'
-  | 'journal_entry';
+  | 'journal_entry'
+  | 'weekly_planning';
 
 export const XP_AMOUNTS: Record<XPReason, number> = {
   stack_completed: 50,
@@ -18,6 +19,7 @@ export const XP_AMOUNTS: Record<XPReason, number> = {
   action_completed: 10,
   daily_streak: 20,
   journal_entry: 30,
+  weekly_planning: 50,
 };
 
 export const XP_LABELS: Record<XPReason, string> = {
@@ -28,6 +30,7 @@ export const XP_LABELS: Record<XPReason, string> = {
   action_completed: 'Acțiune completată',
   daily_streak: 'Streak zilnic',
   journal_entry: 'Jurnal completat',
+  weekly_planning: 'Plan săptămânal completat',
 };
 
 export interface XPAwardEvent {

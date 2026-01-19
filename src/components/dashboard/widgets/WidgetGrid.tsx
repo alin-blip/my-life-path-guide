@@ -13,6 +13,7 @@ import { ChampionRoutineWidget } from './ChampionRoutineWidget';
 import { IdeasWidget } from './IdeasWidget';
 import { JournalWidget } from './JournalWidget';
 import { NapoleonHillCoachWidget } from './NapoleonHillCoachWidget';
+import { ChallengeProgressWidget } from './ChallengeProgressWidget';
 import { CustomWidgetRenderer } from './CustomWidgetRenderer';
 import type { CustomWidget, WidgetData } from '@/types/customWidget';
 import { supabase } from '@/integrations/supabase/client';
@@ -158,6 +159,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
         return <JournalWidget {...commonProps} />;
       case 'napoleon-coach':
         return <NapoleonHillCoachWidget {...commonProps} />;
+      case 'challenge-progress':
+        return <ChallengeProgressWidget />;
       default:
         return null;
     }

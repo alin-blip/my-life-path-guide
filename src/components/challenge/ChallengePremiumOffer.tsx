@@ -262,8 +262,34 @@ export const ChallengePremiumOffer = () => {
         })}
       </div>
 
+      {/* Warrior Launch Accelerator CTA */}
+      <div className="mt-8 p-6 rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/30 shadow-lg">
+        <div className="text-center mb-4">
+          <Badge className="mb-3 bg-gradient-to-r from-primary to-accent text-white border-0">
+            🚀 {language === 'en' ? 'Fast-Track Your Results' : 'Accelerează-ți Rezultatele'}
+          </Badge>
+          <h3 className="text-xl font-bold text-foreground mb-2">
+            {language === 'en' ? 'Warrior Launch Accelerator' : 'Warrior Launch Accelerator'}
+          </h3>
+          <p className="text-muted-foreground text-sm max-w-md mx-auto">
+            {language === 'en' 
+              ? '90-day intensive program with step-by-step guidance, weekly coaching, and proven frameworks to 10X your results.' 
+              : 'Program intensiv de 90 de zile cu ghidare pas cu pas, coaching săptămânal și framework-uri dovedite pentru a-ți multiplica rezultatele de 10X.'}
+          </p>
+        </div>
+        <div className="flex justify-center">
+          <Button 
+            size="lg"
+            className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white font-semibold"
+            onClick={() => navigate('/warrior-launch-accelerator')}
+          >
+            {language === 'en' ? 'Explore Accelerator →' : 'Explorează Acceleratorul →'}
+          </Button>
+        </div>
+      </div>
+
       {/* Coaching Highlight */}
-      <div className="mt-8 p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+      <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
             <Users className="h-8 w-8 text-white" />

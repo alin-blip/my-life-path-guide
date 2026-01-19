@@ -92,14 +92,14 @@ const challengeContent: ChallengeDayContent[] = [
       { id: "ex1", title: "Explore Dashboard", description: "Visit the main dashboard and familiarize yourself with the layout", link: "/dashboard", linkLabel: "Open Dashboard" },
       { id: "ex2", title: "Annual Objectives", description: "Open the Annual Objectives section and set your goals for Body, Being, Balance & Business", area: "being", link: "/door?tab=annual", linkLabel: "Open Annual Goals" },
       { id: "ex3", title: "Fitness Hub Preview", description: "Check out the workout and nutrition tracking features", area: "body", link: "/fitness", linkLabel: "Open Fitness Hub" },
-      { id: "ex4", title: "Champion Routine", description: "Preview the morning routine configuration", area: "being", link: "/champion-routine", linkLabel: "Open Champion Routine" },
+      { id: "ex4", title: "Champion Routine", description: "Preview the morning routine configuration", area: "being", link: "/daily-flow", linkLabel: "Open Champion Routine" },
       { id: "ex5", title: "Stack Explorer", description: "Browse the AI-powered coaching stacks", area: "business", link: "/stack", linkLabel: "Open Stacks" }
     ],
     exercisesRo: [
       { id: "ex1", title: "Explorează Dashboard", description: "Vizitează dashboard-ul principal și familiarizează-te cu layout-ul", link: "/dashboard", linkLabel: "Deschide Dashboard" },
       { id: "ex2", title: "Obiective Anuale", description: "Deschide secțiunea Obiective Anuale și setează obiectivele pentru Corp, Spirit, Relații & Business", area: "being", link: "/door?tab=annual", linkLabel: "Deschide Obiective Anuale" },
       { id: "ex3", title: "Fitness Hub Preview", description: "Verifică funcționalitățile de tracking pentru workout și nutriție", area: "body", link: "/fitness", linkLabel: "Deschide Fitness Hub" },
-      { id: "ex4", title: "Champion Routine", description: "Previzualizează configurarea rutinei matinale", area: "being", link: "/champion-routine", linkLabel: "Deschide Champion Routine" },
+      { id: "ex4", title: "Champion Routine", description: "Previzualizează configurarea rutinei matinale", area: "being", link: "/daily-flow", linkLabel: "Deschide Champion Routine" },
       { id: "ex5", title: "Stack Explorer", description: "Răsfoiește stack-urile de coaching cu AI", area: "business", link: "/stack", linkLabel: "Deschide Stack-uri" }
     ]
   },
@@ -190,7 +190,7 @@ const challengeContent: ChallengeDayContent[] = [
     videoPlaceholder: "🎬 Video: The Champion Morning Routine & Dashboard Setup (Coming Soon)",
     icon: Crown,
     color: "from-amber-500 to-orange-500",
-    actionPath: "/champion-routine",
+    actionPath: "/daily-flow",
     focusAreas: ['body', 'being', 'balance', 'business'],
     stepsEn: [
       "Open Champion Routine configuration",
@@ -209,20 +209,20 @@ const challengeContent: ChallengeDayContent[] = [
       "Selectează categoriile de obiective"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Open Champion Routine", description: "Navigate to the Champion Routine setup wizard", link: "/champion-routine", linkLabel: "Configure Routine" },
+      { id: "ex1", title: "Open Champion Routine", description: "Navigate to the Champion Routine setup wizard", link: "/daily-flow", linkLabel: "Configure Routine" },
       { id: "ex2", title: "Select Body Activities", description: "Choose morning exercise and movement practices", area: "body" },
       { id: "ex3", title: "Select Being Activities", description: "Choose meditation, journaling, and gratitude practices", area: "being" },
       { id: "ex4", title: "Set Durations", description: "Configure how long each activity should take", area: "being" },
-      { id: "ex5", title: "Complete Routine Setup", description: "Finalize and save your personalized morning routine", link: "/champion-routine", linkLabel: "Complete Setup" },
+      { id: "ex5", title: "Complete Routine Setup", description: "Finalize and save your personalized morning routine", link: "/daily-flow", linkLabel: "Complete Setup" },
       { id: "ex6", title: "Personalize Dashboard", description: "Choose which widgets to display on your dashboard", link: "/dashboard/settings", linkLabel: "Dashboard Settings" },
       { id: "ex7", title: "Select Goal Categories", description: "Choose between 4 or 12 categories for your objectives", link: "/dashboard/settings", linkLabel: "Category Settings" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Deschide Champion Routine", description: "Navighează la wizardul de configurare Champion Routine", link: "/champion-routine", linkLabel: "Configurează Rutina" },
+      { id: "ex1", title: "Deschide Champion Routine", description: "Navighează la wizardul de configurare Champion Routine", link: "/daily-flow", linkLabel: "Configurează Rutina" },
       { id: "ex2", title: "Selectează Activități Corp", description: "Alege exercițiile de dimineață și practicile de mișcare", area: "body" },
       { id: "ex3", title: "Selectează Activități Spirit", description: "Alege practicile de meditație, jurnalizare și gratitudine", area: "being" },
       { id: "ex4", title: "Setează Duratele", description: "Configurează cât ar trebui să dureze fiecare activitate", area: "being" },
-      { id: "ex5", title: "Completează Setup Rutină", description: "Finalizează și salvează rutina matinală personalizată", link: "/champion-routine", linkLabel: "Completează Setup" },
+      { id: "ex5", title: "Completează Setup Rutină", description: "Finalizează și salvează rutina matinală personalizată", link: "/daily-flow", linkLabel: "Completează Setup" },
       { id: "ex6", title: "Personalizează Dashboard", description: "Alege ce widget-uri să afișezi pe dashboard", link: "/dashboard/settings", linkLabel: "Setări Dashboard" },
       { id: "ex7", title: "Selectează Categorii Obiective", description: "Alege între 4 sau 12 categorii pentru obiectivele tale", link: "/dashboard/settings", linkLabel: "Setări Categorii" }
     ]
