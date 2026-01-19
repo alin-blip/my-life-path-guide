@@ -4203,6 +4203,45 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_planning_history: {
+        Row: {
+          created_at: string | null
+          domino_title: string | null
+          id: string
+          key_points: Json | null
+          review_data: Json | null
+          snapshot_reason: string | null
+          user_id: string
+          version_number: number
+          week_goal: string | null
+          week_key: string
+        }
+        Insert: {
+          created_at?: string | null
+          domino_title?: string | null
+          id?: string
+          key_points?: Json | null
+          review_data?: Json | null
+          snapshot_reason?: string | null
+          user_id: string
+          version_number?: number
+          week_goal?: string | null
+          week_key: string
+        }
+        Update: {
+          created_at?: string | null
+          domino_title?: string | null
+          id?: string
+          key_points?: Json | null
+          review_data?: Json | null
+          snapshot_reason?: string | null
+          user_id?: string
+          version_number?: number
+          week_goal?: string | null
+          week_key?: string
+        }
+        Relationships: []
+      }
       weekly_reviews: {
         Row: {
           balance_progress: number | null

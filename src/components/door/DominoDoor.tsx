@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { VoiceTextarea } from '@/components/ui/VoiceTextarea';
-import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, RefreshCw, Loader2, ArrowDown, X } from 'lucide-react';
+import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, RefreshCw, Loader2, ArrowDown, X, History } from 'lucide-react';
+import { DominoVersionHistory } from './DominoVersionHistory';
 import { HotListItem, DominoKeyPoint, PlanningResult } from '@/types/door';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -68,6 +69,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const { toast } = useToast();
   const [showAIPlanningModal, setShowAIPlanningModal] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [showAIKeyPointsPrompt, setShowAIKeyPointsPrompt] = useState(false);
   const [isProcessingDrop, setIsProcessingDrop] = useState(false);
@@ -335,6 +337,17 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
             />
             
             <div className="flex items-center gap-1">
+              {/* History Button */}
+              <Button
+                onClick={() => setShowVersionHistory(true)}
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground p-1.5"
+                title="Istoric versiuni"
+              >
+                <History className="w-4 h-4" />
+              </Button>
+              
               {/* AI Planning Button */}
               <Button
                 onClick={() => {
@@ -612,6 +625,21 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Version History Drawer */}
+      <DominoVersionHistory
+        isOpen={showVersionHistory}
+        onClose={() => setShowVersionHistory(false)}
+        weekKey={weekKey || ''}
+        currentDomino={selectedDomino}
+        currentKeyPoints={dominoKeyPoints}
+        onRestore={(domino, keyPoints) => {
+          if (setSelectedDomino && setDominoKeyPoints) {
+            setSelectedDomino(domino);
+            setDominoKeyPoints(keyPoints);
+          }
+        }}
+      />
     </div>
   );
 };
