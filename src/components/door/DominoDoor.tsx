@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { VoiceTextarea } from '@/components/ui/VoiceTextarea';
-import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, RefreshCw, Loader2, ArrowDown } from 'lucide-react';
+import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, RefreshCw, Loader2, ArrowDown, X } from 'lucide-react';
 import { HotListItem, DominoKeyPoint, PlanningResult } from '@/types/door';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useLanguage } from '@/context/LanguageContext';
 import { DoorPlanningModal } from './DoorPlanningModal';
 import { DoorExplanation } from './DoorExplanation';
@@ -63,7 +64,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   saveStatus = 'idle',
   lastSaveTime
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const [showAIPlanningModal, setShowAIPlanningModal] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -71,6 +72,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const [showAIKeyPointsPrompt, setShowAIKeyPointsPrompt] = useState(false);
   const [isProcessingDrop, setIsProcessingDrop] = useState(false);
   const [showDropSuccess, setShowDropSuccess] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Auto-restore AI Planning if there's an unfinished draft (prevents "reset" on tab switches)
   const planningWeekKey = React.useMemo(() => {
@@ -367,12 +369,12 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           )}
 
           {/* Selected Domino Goal */}
-          <div className={`${
+          <div className={`relative group ${
             isCompleted 
               ? 'bg-green-500/10 border-l-4 border-green-500' 
               : 'bg-primary/5 border-l-4 border-primary'
           } p-4 rounded-lg`}>
-            <p className="text-foreground font-medium">
+            <p className="text-foreground font-medium pr-8">
               {selectedDomino.text}
             </p>
             {isCompleted && (
@@ -380,6 +382,17 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                 <Check className="w-4 h-4" />
                 <span>{t('completed')}</span>
               </div>
+            )}
+            
+            {/* Delete button - only show if setSelectedDomino is available */}
+            {setSelectedDomino && !isCompleted && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
+                title={language === 'en' ? 'Remove weekly focus' : 'Șterge focusul săptămânal'}
+              >
+                <X className="w-4 h-4" />
+              </button>
             )}
           </div>
 
@@ -535,6 +548,50 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
           <DoorExplanation />
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {language === 'en' ? 'Remove weekly focus?' : 'Ștergi focusul săptămânal?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'en' 
+                ? 'Are you sure? You will lose the weekly focus and the 4 key points set for this week.'
+                : 'Ești sigur? Vei pierde focusul săptămânal și cele 4 chei setate pentru această săptămână.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {language === 'en' ? 'Cancel' : 'Anulează'}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (setSelectedDomino && setDominoKeyPoints) {
+                  setSelectedDomino(null);
+                  setDominoKeyPoints([
+                    { id: '1', text: '', completed: false },
+                    { id: '2', text: '', completed: false },
+                    { id: '3', text: '', completed: false },
+                    { id: '4', text: '', completed: false },
+                  ]);
+                  toast({
+                    title: language === 'en' ? 'Focus removed' : 'Focus șters',
+                    description: language === 'en' 
+                      ? 'Weekly focus has been cleared' 
+                      : 'Focusul săptămânal a fost șters',
+                  });
+                }
+                setShowDeleteConfirm(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {language === 'en' ? 'Yes, remove' : 'Da, șterge'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

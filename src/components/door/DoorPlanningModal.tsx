@@ -295,11 +295,13 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     }
   }, [isOpen]);
 
-  const startConversation = async () => {
+  const startConversation = async (forceSkip: boolean = false) => {
     setIsLoading(true);
     
     try {
-      const mode = previousWeekData && !isSkippingReview ? 'review' : 'new';
+      // Use forceSkip parameter OR state - forceSkip takes precedence for immediate calls after setState
+      const shouldSkip = forceSkip || isSkippingReview;
+      const mode = previousWeekData && !shouldSkip ? 'review' : 'new';
       
       // Pornește conversația cu un mesaj inițial de la user
       const initialMessage: Message = { 
@@ -331,7 +333,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     // Clear both localStorage and database
     localStorage.removeItem(draftKey);
     weeklyPlanningDraftService.deleteDraft(currentWeekKey);
-    startConversation();
+    // Pass true to force skip mode immediately (don't wait for state update)
+    startConversation(true);
   };
 
   const handleClearDraft = async () => {
