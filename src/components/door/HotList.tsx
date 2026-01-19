@@ -14,7 +14,7 @@ interface HotListProps {
   updateHotListItemText: (id: string, text: string) => void;
   updateHotListItemPriority: (id: string, priority: TaskPriority) => void;
   addNewTarget: () => void;
-  addNewTargetWithText?: (text: string) => void;
+  addNewTargetWithText?: (text: string) => Promise<void> | void;
   deleteHotListItem: (id: string) => void;
   handleDragStartToDomino: (e: React.DragEvent, item: HotListItem) => void;
   handleDragStart: (e: React.DragEvent, item: HotListItem) => void;
@@ -46,18 +46,26 @@ export const HotList: React.FC<HotListProps> = ({
   const [newItemText, setNewItemText] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
 
-  const handleAddItem = () => {
-    if (newItemText.trim()) {
+  const handleAddItem = async () => {
+    if (newItemText.trim() && !isAdding) {
       if (addNewTargetWithText) {
-        addNewTargetWithText(newItemText.trim());
+        setIsAdding(true);
+        try {
+          await addNewTargetWithText(newItemText.trim());
+          setNewItemText('');
+          setTimeout(() => inputRef.current?.focus(), 0);
+        } finally {
+          setIsAdding(false);
+        }
       } else {
         addNewTarget();
+        setNewItemText('');
+        setTimeout(() => inputRef.current?.focus(), 0);
       }
-      setNewItemText('');
-      setTimeout(() => inputRef.current?.focus(), 0);
     }
   };
 
@@ -85,16 +93,17 @@ export const HotList: React.FC<HotListProps> = ({
             ref={inputRef}
             value={newItemText}
             onChange={(e) => setNewItemText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter' && !isAdding) {
                 e.preventDefault();
-                handleAddItem();
+                await handleAddItem();
               }
             }}
-            placeholder={t('addItem') + '...'}
+            placeholder={isAdding ? "Se salvează..." : (t('addItem') + '...')}
+            disabled={isAdding}
             className={`bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary transition-all ${
               isMobile ? 'pl-8 text-sm h-9' : 'pl-10 h-10'
-            }`}
+            } ${isAdding ? 'opacity-50' : ''}`}
           />
         </div>
       </div>

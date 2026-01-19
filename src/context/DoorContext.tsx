@@ -42,6 +42,7 @@ interface DoorContextValue {
   handleNextWeek: () => void;
   toggleHotListItemSelection: (id: string) => void;
   addNewTarget: () => void;
+  addNewTargetWithText: (text: string) => Promise<void>;
   deleteHotListItem: (id: string) => void;
   updateHotListItemText: (id: string, text: string) => void;
   updateHotListItemPriority: (id: string, priority: TaskPriority) => void;
@@ -101,6 +102,7 @@ export function DoorProvider({ children }: DoorProviderProps) {
     setActiveList,
     editingNewItem,
     addNewTarget,
+    addNewTargetWithText,
     toggleHotListItemSelection,
     updateHotListItemText,
     updateHotListItemPriority,
@@ -232,6 +234,7 @@ export function DoorProvider({ children }: DoorProviderProps) {
     handleNextWeek,
     toggleHotListItemSelection,
     addNewTarget,
+    addNewTargetWithText,
     deleteHotListItem,
     updateHotListItemText,
     updateHotListItemPriority,
