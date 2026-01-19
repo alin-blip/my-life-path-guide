@@ -1,23 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { CheckCircle2, Circle, Clock, Loader2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { v4 as uuidv4 } from 'uuid';
-import { getWeekKey, getTodayAbbrev } from '@/utils/weekUtils';
+import { useTodaysTasks } from '@/hooks/useTodaysTasks';
 
 interface TodaysTasksProps {
   activeTaskId: string | null;
   onSelectTask: (taskId: string) => void;
-}
-
-interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-  day_of_week: string | null;
 }
 
 export const TodaysTasks: React.FC<TodaysTasksProps> = ({
@@ -25,134 +16,20 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
   onSelectTask,
 }) => {
   const { language } = useLanguage();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { tasks, isLoading, toggleTask, addTask } = useTodaysTasks();
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-
-  useEffect(() => {
-    const fetchTodaysTasks = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          setLoading(false);
-          return;
-        }
-
-        const weekKey = getWeekKey();
-        const todayAbbrev = getTodayAbbrev();
-
-        // Fetch Hit List and Do List tasks for today (synced with /door)
-        const { data, error } = await supabase
-          .from('user_tasks')
-          .select('id, title, completed, day_of_week, task_type')
-          .eq('user_id', user.id)
-          .eq('week_key', weekKey)
-          .in('task_type', ['hit', 'do'])
-          .order('position', { ascending: true });
-
-        if (error) throw error;
-
-        // Filter for today's tasks (matching day_of_week or no day assigned)
-        const todaysTasks = (data || []).filter(task => {
-          if (!task.day_of_week) return true; // No day = show all
-          const normalizedDay = task.day_of_week.toLowerCase();
-          const todayLower = todayAbbrev.toLowerCase();
-          return normalizedDay === todayLower || 
-                 normalizedDay === todayAbbrev;
-        });
-
-        setTasks(todaysTasks);
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTodaysTasks();
-
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel('focus-tasks')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_tasks',
-        },
-        () => {
-          fetchTodaysTasks();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const toggleTaskCompletion = async (taskId: string, currentCompleted: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('user_tasks')
-        .update({ completed: !currentCompleted })
-        .eq('id', taskId);
-
-      if (error) throw error;
-
-      setTasks(prev => 
-        prev.map(t => t.id === taskId ? { ...t, completed: !currentCompleted } : t)
-      );
-    } catch (error) {
-      console.error('Error updating task:', error);
-    }
-  };
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
     
     setIsAdding(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const weekKey = getWeekKey();
-      const todayAbbrev = getTodayAbbrev();
-      const newTask = {
-        id: uuidv4(),
-        user_id: user.id,
-        title: newTaskTitle.trim(),
-        task_type: 'hit',
-        list_type: 'hit',
-        week_key: weekKey,
-        day_of_week: todayAbbrev,
-        completed: false,
-        position: tasks.length,
-      };
-
-      const { error } = await supabase
-        .from('user_tasks')
-        .insert(newTask);
-
-      if (error) throw error;
-
-      setTasks(prev => [...prev, { 
-        id: newTask.id, 
-        title: newTask.title, 
-        completed: false, 
-        day_of_week: todayAbbrev 
-      }]);
-      setNewTaskTitle('');
-    } catch (error) {
-      console.error('Error adding task:', error);
-    } finally {
-      setIsAdding(false);
-    }
+    await addTask(newTaskTitle);
+    setNewTaskTitle('');
+    setIsAdding(false);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="bg-card border border-border rounded-xl p-6 flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -185,7 +62,7 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
             )}
           >
             <button
-              onClick={() => toggleTaskCompletion(task.id, task.completed)}
+              onClick={() => toggleTask(task.id)}
               className="flex-shrink-0"
             >
               {task.completed ? (
