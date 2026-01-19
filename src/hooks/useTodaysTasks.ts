@@ -30,13 +30,13 @@ export const useTodaysTasks = () => {
         return;
       }
 
-      // Fetch today's tasks from Door system (hit list)
+      // Fetch today's tasks from Door system (both hit and do lists)
       const { data: tasksData, error: tasksError } = await supabase
         .from('user_tasks')
         .select('*')
         .eq('user_id', user.id)
         .eq('week_key', weekKey)
-        .eq('task_type', 'hit')
+        .in('task_type', ['hit', 'do'])
         .order('position', { ascending: true });
 
       if (tasksError) throw tasksError;
