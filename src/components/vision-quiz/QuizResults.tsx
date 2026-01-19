@@ -2,13 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { categoryLabels, categoryDescriptions, getScoreLevel, getResultsMessage, QuizCategory } from './quizData';
-import { Rocket, Target, Sparkles, TrendingUp, Crown, Zap, Check, Star, ArrowRight } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { Target, Sparkles, ArrowRight } from 'lucide-react';
+import { VisionPlanningWizard } from './planning/VisionPlanningWizard';
 
 interface QuizResultsProps {
   scores: Record<QuizCategory, number>;
