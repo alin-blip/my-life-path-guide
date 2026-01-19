@@ -85,15 +85,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   };
 
   const menuItems: MenuItem[] = [
-    // 1. DASHBOARD
+    // 1. DASHBOARD - Direct link without submenu
     { 
       title: 'Dashboard', 
       icon: Home, 
-      path: '/dashboard',
-      subItems: [
-        { title: language === 'ro' ? 'Overview' : 'Overview', icon: LayoutGrid, path: '/dashboard' },
-        { title: language === 'ro' ? 'Setări Dashboard' : 'Dashboard Settings', icon: Settings, path: '/dashboard/settings' },
-      ]
+      path: '/dashboard'
     },
 
     // 2. CHALLENGE 7 ZILE
