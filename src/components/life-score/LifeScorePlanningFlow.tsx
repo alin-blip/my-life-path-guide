@@ -1,28 +1,31 @@
 import React, { useState, useCallback } from 'react';
 import { GoalCategory } from '@/types/goalWizard';
-import { GoalWizardModal } from '@/components/goal-wizard/GoalWizardModal';
 import { CategoryMultiSelector } from './CategoryMultiSelector';
-import { ContinuePlanningDialog } from './ContinuePlanningDialog';
-import { MultiCategoryPlanSummary } from './MultiCategoryPlanSummary';
+import { LifeVisionPlanningModal, VisionPlanData } from './LifeVisionPlanningModal';
+import { PlanCreatedSummary } from './PlanCreatedSummary';
 import { MembershipOfferStack } from '@/components/vision-quiz/planning/MembershipOfferStack';
 import { QuizCategory } from '@/components/vision-quiz/quizData';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { getWeekKeyForPlanning } from '@/utils/weekUtils';
+import { weeklyPlanningService } from '@/services/weeklyPlanningService';
+import { v4 as uuidv4 } from 'uuid';
 
-type FlowStep = 'category-select' | 'planning' | 'continue-dialog' | 'summary' | 'offer';
-
-interface PlanData {
-  category: GoalCategory;
-  annual?: string;
-  quarterly?: string;
-  monthly?: string;
-  weekly?: string;
-}
+type FlowStep = 'category-select' | 'planning' | 'plan-created' | 'offer';
 
 interface LifeScorePlanningFlowProps {
   categoryScores: Record<string, number>;
   weakestCategory: string;
   language: 'en' | 'ro';
 }
+
+const CATEGORY_LABELS: Record<GoalCategory, { en: string; ro: string }> = {
+  business: { en: 'Business', ro: 'Business' },
+  body: { en: 'Body & Health', ro: 'Corp & Sănătate' },
+  being: { en: 'Spirit & Mindset', ro: 'Spirit & Mindset' },
+  balance: { en: 'Relationships', ro: 'Relații' },
+};
 
 // Map life score categories to quiz categories for MembershipOfferStack
 const mapToQuizScores = (categoryScores: Record<string, number>): Record<QuizCategory, number> => {
@@ -40,62 +43,157 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
   language,
 }) => {
   const [step, setStep] = useState<FlowStep>('category-select');
-  const [selectedCategories, setSelectedCategories] = useState<GoalCategory[]>([]);
-  const [completedCategories, setCompletedCategories] = useState<GoalCategory[]>([]);
-  const [currentCategory, setCurrentCategory] = useState<GoalCategory | null>(null);
-  const [plans, setPlans] = useState<PlanData[]>([]);
-  const [showWizard, setShowWizard] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<GoalCategory | null>(null);
+  const [createdPlan, setCreatedPlan] = useState<VisionPlanData | null>(null);
+  const [showPlanningModal, setShowPlanningModal] = useState(false);
+  const { toast } = useToast();
 
   const handleStartPlanning = useCallback((categories: GoalCategory[]) => {
-    setSelectedCategories(categories);
-    setCurrentCategory(categories[0]);
-    setShowWizard(true);
+    // Use first selected category (single selection for free tier)
+    const category = categories[0];
+    setSelectedCategory(category);
+    setShowPlanningModal(true);
     setStep('planning');
   }, []);
 
-  const handleWizardComplete = useCallback(() => {
-    if (!currentCategory) return;
+  const handlePlanComplete = useCallback(async (planData: VisionPlanData) => {
+    console.log('📝 Plan complete:', planData);
+    setCreatedPlan(planData);
+    setShowPlanningModal(false);
+    
+    // Save to database
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: language === 'ro' ? 'Eroare' : 'Error',
+          description: language === 'ro' ? 'Trebuie să fii autentificat' : 'You must be logged in',
+          variant: 'destructive',
+        });
+        return;
+      }
 
-    setCompletedCategories(prev => [...prev, currentCategory]);
-    
-    setPlans(prev => [...prev, {
-      category: currentCategory,
-      annual: `${currentCategory} annual goal`,
-      quarterly: `${currentCategory} 90-day milestone`,
-      monthly: `${currentCategory} monthly focus`,
-      weekly: `${currentCategory} week 1 action`,
-    }]);
+      // Save annual mission
+      const { error: annualError } = await supabase
+        .from('missions')
+        .upsert({
+          user_id: user.id,
+          category: planData.category,
+          mission_type: 'annual',
+          title: planData.annualVision,
+          period: String(new Date().getFullYear()),
+          is_completed: false,
+        }, {
+          onConflict: 'user_id,category,mission_type,period'
+        });
 
-    setShowWizard(false);
-    
-    const remaining = selectedCategories.filter(
-      cat => !completedCategories.includes(cat) && cat !== currentCategory
-    );
-    
-    if (remaining.length > 0) {
-      setStep('continue-dialog');
-    } else {
-      setStep('summary');
+      if (annualError) {
+        console.error('Error saving annual mission:', annualError);
+      }
+
+      // Save quarterly mission
+      const quarter = Math.ceil((new Date().getMonth() + 1) / 3);
+      const { error: quarterlyError } = await supabase
+        .from('missions')
+        .upsert({
+          user_id: user.id,
+          category: planData.category,
+          mission_type: 'quarterly',
+          title: planData.quarterlyMilestone,
+          period: `${new Date().getFullYear()}-Q${quarter}`,
+          is_completed: false,
+        }, {
+          onConflict: 'user_id,category,mission_type,period'
+        });
+
+      if (quarterlyError) {
+        console.error('Error saving quarterly mission:', quarterlyError);
+      }
+
+      // Save monthly mission
+      const { error: monthlyError } = await supabase
+        .from('missions')
+        .upsert({
+          user_id: user.id,
+          category: planData.category,
+          mission_type: 'monthly',
+          title: planData.monthlyFocus,
+          period: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
+          is_completed: false,
+        }, {
+          onConflict: 'user_id,category,mission_type,period'
+        });
+
+      if (monthlyError) {
+        console.error('Error saving monthly mission:', monthlyError);
+      }
+
+      // Save weekly planning with keys
+      const weekKey = getWeekKeyForPlanning();
+      await weeklyPlanningService.savePlan({
+        weekKey,
+        dominoTitle: planData.annualVision,
+        weekGoal: planData.monthlyFocus,
+        keyPoints: planData.weeklyKeys.map(key => ({
+          id: key.id,
+          title: key.title,
+          objective: key.objective,
+          why: '',
+          positiveImpact: '',
+          negativeImpact: '',
+          steps: key.steps,
+          responsible: '',
+          deadline: key.deadline || '',
+        })),
+        category: planData.category,
+      });
+
+      // Add tasks to user_tasks
+      for (const key of planData.weeklyKeys) {
+        for (const step of key.steps || []) {
+          try {
+            await supabase.from('user_tasks').insert({
+              user_id: user.id,
+              week_key: weekKey,
+              title: `[${planData.categoryLabel}] ${step.text}`,
+              task_type: 'door',
+              day_of_week: step.day,
+              list_type: step.listType,
+              completed: false,
+              category: planData.category,
+            });
+          } catch (taskError) {
+            console.error('Error adding task:', taskError);
+          }
+        }
+      }
+
+      toast({
+        title: language === 'ro' ? '✅ Plan salvat!' : '✅ Plan saved!',
+        description: language === 'ro' 
+          ? `Strategia ta pentru ${planData.categoryLabel} a fost salvată.`
+          : `Your ${planData.categoryLabel} strategy has been saved.`,
+      });
+
+    } catch (error) {
+      console.error('Error saving plan:', error);
+      toast({
+        title: language === 'ro' ? 'Eroare' : 'Error',
+        description: language === 'ro' ? 'Nu s-a putut salva planul' : 'Could not save plan',
+        variant: 'destructive',
+      });
     }
-  }, [currentCategory, selectedCategories, completedCategories]);
 
-  const handleContinueWithCategory = useCallback((category: GoalCategory) => {
-    setCurrentCategory(category);
-    setShowWizard(true);
-    setStep('planning');
-  }, []);
+    setStep('plan-created');
+  }, [language, toast]);
 
-  const handleViewPlanAndOffer = useCallback(() => {
-    setStep('summary');
-  }, []);
-
-  const handleChooseMembership = useCallback(() => {
+  const handleContinueToOffer = useCallback(() => {
     setStep('offer');
   }, []);
 
-  const allRemainingCategories: GoalCategory[] = (['business', 'body', 'being', 'balance'] as GoalCategory[]).filter(
-    cat => !completedCategories.includes(cat)
-  );
+  const getCategoryLabel = (category: GoalCategory) => {
+    return CATEGORY_LABELS[category]?.[language] || category;
+  };
 
   return (
     <div className="max-w-lg mx-auto">
@@ -116,33 +214,16 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           </motion.div>
         )}
 
-        {step === 'continue-dialog' && (
+        {step === 'plan-created' && createdPlan && (
           <motion.div
-            key="continue-dialog"
+            key="plan-created"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <ContinuePlanningDialog
-              completedCategories={completedCategories}
-              remainingCategories={allRemainingCategories}
-              onContinueWithCategory={handleContinueWithCategory}
-              onViewPlanAndOffer={handleViewPlanAndOffer}
-              language={language}
-            />
-          </motion.div>
-        )}
-
-        {step === 'summary' && (
-          <motion.div
-            key="summary"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-          >
-            <MultiCategoryPlanSummary
-              plans={plans}
-              onChooseMembership={handleChooseMembership}
+            <PlanCreatedSummary
+              planData={createdPlan}
+              onContinue={handleContinueToOffer}
               language={language}
             />
           </motion.div>
@@ -168,23 +249,19 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
         )}
       </AnimatePresence>
 
-      {currentCategory && (
-        <GoalWizardModal
-          isOpen={showWizard}
+      {selectedCategory && (
+        <LifeVisionPlanningModal
+          isOpen={showPlanningModal}
           onClose={() => {
-            setShowWizard(false);
-            if (!completedCategories.includes(currentCategory)) {
-              if (completedCategories.length > 0) {
-                setStep('continue-dialog');
-              } else {
-                setStep('category-select');
-              }
+            setShowPlanningModal(false);
+            if (!createdPlan) {
+              setStep('category-select');
             }
           }}
-          category={currentCategory}
-          missionType="annual"
-          period={String(new Date().getFullYear())}
-          onComplete={handleWizardComplete}
+          category={selectedCategory}
+          categoryLabel={getCategoryLabel(selectedCategory)}
+          onPlanComplete={handlePlanComplete}
+          language={language}
         />
       )}
     </div>
