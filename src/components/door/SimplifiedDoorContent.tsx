@@ -460,6 +460,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                     handleDropOnKeyPoint={handleDropOnKeyPoint}
                     setSelectedDomino={setSelectedDomino}
                     setDominoKeyPoints={setDominoKeyPoints}
+                    weekKey={currentWeekKey}
                   />
                 </div>
               )}
@@ -558,6 +559,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                 handleDropOnKeyPoint={handleDropOnKeyPoint}
                 setSelectedDomino={setSelectedDomino}
                 setDominoKeyPoints={setDominoKeyPoints}
+                weekKey={currentWeekKey}
               />
             </div>
 
