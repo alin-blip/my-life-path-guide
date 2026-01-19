@@ -567,8 +567,9 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
               {language === 'en' ? 'Cancel' : 'Anulează'}
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                if (setSelectedDomino && setDominoKeyPoints) {
+              onClick={async () => {
+                if (setSelectedDomino && setDominoKeyPoints && weekKey) {
+                  // Reset local state
                   setSelectedDomino(null);
                   setDominoKeyPoints([
                     { id: '1', text: '', completed: false },
@@ -576,6 +577,25 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                     { id: '3', text: '', completed: false },
                     { id: '4', text: '', completed: false },
                   ]);
+                  
+                  // Save empty state to database
+                  try {
+                    await weeklyPlanningService.savePlan({
+                      weekKey: weekKey,
+                      dominoTitle: '',
+                      weekGoal: '',
+                      keyPoints: [
+                        { id: 1, title: '', objective: '', why: '', positiveImpact: '', negativeImpact: '', steps: [], responsible: 'Eu', deadline: '' },
+                        { id: 2, title: '', objective: '', why: '', positiveImpact: '', negativeImpact: '', steps: [], responsible: 'Eu', deadline: '' },
+                        { id: 3, title: '', objective: '', why: '', positiveImpact: '', negativeImpact: '', steps: [], responsible: 'Eu', deadline: '' },
+                        { id: 4, title: '', objective: '', why: '', positiveImpact: '', negativeImpact: '', steps: [], responsible: 'Eu', deadline: '' },
+                      ],
+                    });
+                    console.log('✅ Weekly focus cleared from database');
+                  } catch (error) {
+                    console.error('❌ Failed to clear weekly focus from database:', error);
+                  }
+                  
                   toast({
                     title: language === 'en' ? 'Focus removed' : 'Focus șters',
                     description: language === 'en' 
