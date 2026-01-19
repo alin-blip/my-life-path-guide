@@ -149,6 +149,7 @@ export const SimplifiedDoorContent: React.FC = () => {
   const {
     currentDate,
     currentDateRange,
+    currentWeekKey,
     filteredHotList,
     hitList,
     doList,
