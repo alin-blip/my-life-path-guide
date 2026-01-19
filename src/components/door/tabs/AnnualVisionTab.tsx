@@ -149,7 +149,9 @@ export const AnnualVisionTab: React.FC = () => {
   const location = useLocation();
   const incomingState = location.state as { 
     fromWarriorPower?: boolean; 
-    scores?: WarriorPowerScores;
+    fromVisionQuiz?: boolean;
+    scores?: WarriorPowerScores | Record<string, number>;
+    suggestedCategory?: string;
   } | null;
   
   const { language } = useLanguage();
@@ -160,7 +162,7 @@ export const AnnualVisionTab: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVision, setEditingVision] = useState<AnnualVision | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [showWelcome, setShowWelcome] = useState(!!incomingState?.fromWarriorPower);
+  const [showWelcome, setShowWelcome] = useState(!!incomingState?.fromWarriorPower || !!incomingState?.fromVisionQuiz);
   
   const [formData, setFormData] = useState({
     bigGoal: '',
@@ -174,17 +176,21 @@ export const AnnualVisionTab: React.FC = () => {
   const [wizardCategory, setWizardCategory] = useState<GoalCategory>('body');
   const [showCategorySelection, setShowCategorySelection] = useState(false);
   
-  // Check for startWizard parameter from onboarding
+  // Check for startWizard parameter from onboarding or Vision Quiz
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('startWizard') === 'true') {
+      // If coming from Vision Quiz, pre-select the suggested category (lowest score)
+      if (incomingState?.fromVisionQuiz && incomingState.suggestedCategory) {
+        setWizardCategory(incomingState.suggestedCategory as GoalCategory);
+      }
       // Open category selection dialog
       setShowCategorySelection(true);
       // Clean the parameter from URL
       const newUrl = `${window.location.pathname}?tab=annual`;
       window.history.replaceState({}, '', newUrl);
     }
-  }, [location.search]);
+  }, [location.search, incomingState]);
   
   // Check for checkout success
   useEffect(() => {
@@ -363,32 +369,54 @@ export const AnnualVisionTab: React.FC = () => {
 
   return (
     <div className="p-2 sm:p-6">
-      {/* Welcome from Warrior Power */}
+      {/* Welcome from Warrior Power or Vision Quiz */}
       {showWelcome && (
-        <Card className="mb-6 bg-gradient-to-r from-primary/10 via-background to-accent/10 border-primary/30">
+        <Card className={cn(
+          "mb-6 border",
+          incomingState?.fromVisionQuiz 
+            ? "bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-rose-500/10 border-amber-500/30"
+            : "bg-gradient-to-r from-primary/10 via-background to-accent/10 border-primary/30"
+        )}>
           <CardContent className="p-4">
             <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-primary/20">
-                <Sword className="h-6 w-6 text-primary" />
+              <div className={cn(
+                "p-3 rounded-xl",
+                incomingState?.fromVisionQuiz ? "bg-amber-500/20" : "bg-primary/20"
+              )}>
+                {incomingState?.fromVisionQuiz ? (
+                  <Sparkles className="h-6 w-6 text-amber-500" />
+                ) : (
+                  <Sword className="h-6 w-6 text-primary" />
+                )}
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-bold text-lg text-foreground">
-                    {language === 'en' 
-                      ? 'Excellent! Now define your annual goals' 
-                      : 'Excelent! Acum definește obiectivele tale anuale'}
+                    {incomingState?.fromVisionQuiz
+                      ? (language === 'en' 
+                          ? 'Great! Now set your 2025 goals' 
+                          : 'Excelent! Acum setează obiectivele pentru 2025')
+                      : (language === 'en' 
+                          ? 'Excellent! Now define your annual goals' 
+                          : 'Excelent! Acum definește obiectivele tale anuale')
+                    }
                   </h3>
                   {incomingState?.scores && (
                     <Badge variant="secondary" className="gap-1">
                       <CheckCircle2 className="w-3 h-3" />
-                      Warrior Power Complet
+                      {incomingState?.fromVisionQuiz ? 'Vision 2026 Complet' : 'Warrior Power Complet'}
                     </Badge>
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {language === 'en'
-                    ? 'Based on your Warrior Power assessment, create one "impossible" goal for each life dimension. These will be your north star for the year.'
-                    : 'Bazat pe evaluarea ta Warrior Power, creează câte un obiectiv "imposibil" pentru fiecare dimensiune a vieții. Acestea vor fi steaua ta călăuzitoare pentru tot anul.'}
+                  {incomingState?.fromVisionQuiz
+                    ? (language === 'en' 
+                        ? 'Based on your quiz results, start with your weakest area for maximum impact. The AI Goal Wizard will help you create powerful objectives.'
+                        : 'Pe baza rezultatelor quiz-ului, începe cu zona ta cea mai slabă pentru impact maxim. Wizard-ul AI te va ajuta să creezi obiective puternice.')
+                    : (language === 'en'
+                        ? 'Based on your Warrior Power assessment, create one "impossible" goal for each life dimension. These will be your north star for the year.'
+                        : 'Bazat pe evaluarea ta Warrior Power, creează câte un obiectiv "imposibil" pentru fiecare dimensiune a vieții. Acestea vor fi steaua ta călăuzitoare pentru tot anul.')
+                  }
                 </p>
               </div>
               <Button

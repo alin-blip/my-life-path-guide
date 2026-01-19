@@ -446,7 +446,16 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
         <div className="text-center">
           <Button
             variant="ghost"
-            onClick={() => navigate('/door?tab=annual')}
+            onClick={() => {
+              // Navigate with state to start Goal Wizard with lowest category pre-selected
+              navigate('/door?tab=annual&startWizard=true', { 
+                state: { 
+                  fromVisionQuiz: true, 
+                  scores,
+                  suggestedCategory: lowestCategory
+                } 
+              });
+            }}
             className="gap-2 text-white/50 hover:text-white hover:bg-white/10 text-sm"
           >
             {language === 'en' 
