@@ -24,11 +24,11 @@ const Pricing: React.FC = () => {
 
   const texts = {
     pageTitle: language === 'en' 
-      ? "WarriorOS Memberships — Free, Pro & Elite" 
-      : "Membership WarriorOS — Gratuit, Pro & Elite",
+      ? "WarriorOS Memberships — Free, Basic & Pro" 
+      : "Membership WarriorOS — Gratuit, Basic & Pro",
     metaDescription: language === 'en'
-      ? "WarriorOS memberships: Free 3-day trial, Pro (€49 Early Bird) with full platform, Elite (€497) with Warrior Accelerator & Live Coaching."
-      : "Membership WarriorOS: Trial gratuit 3 zile, Pro (€49 Early Bird) cu platformă completă, Elite (€497) cu Warrior Accelerator & Coaching LIVE.",
+      ? "WarriorOS memberships: Free 3-day trial, Basic (€49) with full platform, Pro (€97) with 7-day trial & Live Coaching."
+      : "Membership WarriorOS: Trial gratuit 3 zile, Basic (€49) cu platformă completă, Pro (€97) cu trial 7 zile & Coaching LIVE.",
     heroTitle: language === 'en'
       ? "Choose Your Warrior Path"
       : "Alege Drumul Tău de Războinic",
@@ -70,7 +70,8 @@ const Pricing: React.FC = () => {
 
   const planIcons: Record<string, React.ElementType> = {
     free: Gift,
-    pro: Zap,
+    basic: Zap,
+    pro: Crown,
   };
 
   useEffect(() => {
@@ -88,9 +89,9 @@ const Pricing: React.FC = () => {
       
       // Track Facebook Pixel Purchase event based on plan
       const plan = searchParams.get('plan');
-      if (plan === 'elite') {
-        trackPurchase(497, 'EUR');
-      } else if (plan === 'pro') {
+      if (plan === 'pro') {
+        trackPurchase(97, 'EUR');
+      } else if (plan === 'basic') {
         trackPurchase(49, 'EUR');
       }
       
@@ -146,8 +147,8 @@ const Pricing: React.FC = () => {
   const mapTierToPlanId = (tier?: string | null) => {
     if (!tier) return null;
     const t = tier.toLowerCase();
-    if (t.includes('elite')) return 'elite';
     if (t.includes('pro')) return 'pro';
+    if (t.includes('basic')) return 'basic';
     if (t.includes('free') || t.includes('trial')) return 'free';
     return null;
   };

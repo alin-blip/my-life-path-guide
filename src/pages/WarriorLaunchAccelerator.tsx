@@ -111,7 +111,7 @@ const WarriorLaunchAccelerator = () => {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>Warrior Launch Accelerator - Sistemul Complet de Transformare în 90 de Zile</title>
-        <meta name="description" content="Warrior Launch Accelerator: 47+ lecții video premium + platforma completă WarriorOS. Transformă-ți viața în Corp, Ființă, Echilibru și Afacere. Preț: 970 EUR." />
+        <meta name="description" content="Warrior Launch Accelerator: 47+ lecții video premium + platforma completă WarriorOS. Transformă-ți viața în Corp, Ființă, Echilibru și Afacere. Preț: 497 EUR." />
       </Helmet>
 
       {/* Hero Section */}
@@ -185,7 +185,7 @@ const WarriorLaunchAccelerator = () => {
               ) : (
                 <Rocket className="w-6 h-6 mr-3" />
               )}
-              Obține Acces Acum - 970 EUR
+              Obține Acces Acum - 497 EUR
             </Button>
             <p className="text-sm text-muted-foreground mt-4">
               <Shield className="w-4 h-4 inline mr-1" />
@@ -351,7 +351,7 @@ const WarriorLaunchAccelerator = () => {
               
               <CardContent className="p-8 text-center">
                 <div className="mb-6">
-                  <span className="text-5xl font-bold">970</span>
+                  <span className="text-5xl font-bold">497</span>
                   <span className="text-2xl text-muted-foreground ml-2">EUR</span>
                 </div>
                 
@@ -404,7 +404,7 @@ const WarriorLaunchAccelerator = () => {
             ) : (
               <Rocket className="w-6 h-6 mr-3" />
             )}
-            Începe Transformarea - 970 EUR
+            Începe Transformarea - 497 EUR
           </Button>
         </div>
       </section>

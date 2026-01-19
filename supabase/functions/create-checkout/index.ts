@@ -60,65 +60,77 @@ serve(async (req) => {
     let productName = "WarriorOS Pro";
     let paymentMode: "subscription" | "payment" = "subscription";
     let currency = existingCurrency || "eur"; // Use existing currency or default to EUR
+    let tier = "basic";
 
     switch (plan) {
-      // NEW 3-TIER STRUCTURE
+      // NEW 3-TIER STRUCTURE (Updated Jan 2025)
       case "free":
-        // Free trial - Pro with 3-day trial
-        // Adjust price based on currency
-        unitAmount = currency === "ron" ? 24500 : 4900; // 245 RON or €49 after trial
-        productName = "WarriorOS Pro (Free Trial)";
+        // Free trial - Basic with 3-day trial
+        unitAmount = currency === "ron" ? 24900 : 4900; // 249 RON or €49 after trial
+        productName = "WarriorOS Basic (Free Trial)";
         trialDays = 3;
+        tier = "basic";
+        break;
+      case "basic":
+        // Basic plan - €49/month
+        unitAmount = currency === "ron" ? 24900 : 4900; // 249 RON or €49
+        productName = "WarriorOS Basic";
+        tier = "basic";
         break;
       case "pro":
-        unitAmount = currency === "ron" ? 24500 : 4900; // 245 RON or €49 Early Bird
-        productName = "WarriorOS Pro - Early Bird";
-        break;
-      case "elite":
-        unitAmount = currency === "ron" ? 247000 : 49700; // 2470 RON or €497
-        productName = "WarriorOS Elite";
+        // Pro plan - €97/month with 7-day trial
+        unitAmount = currency === "ron" ? 49000 : 9700; // 490 RON or €97
+        productName = "WarriorOS Pro";
+        trialDays = 7; // 7-day free trial
+        tier = "pro";
         break;
       
-      // LEGACY PLANS (for existing subscribers)
-      case "basic":
-        unitAmount = 9700; // 97 RON
-        currency = "ron";
-        productName = "Operator Basic (Legacy)";
+      // WARRIOR ACCELERATOR - One-time €497 (reduced from €970)
+      case "warrior-accelerator":
+        unitAmount = 49700; // 497 EUR în cenți
+        currency = "eur";
+        paymentMode = "payment";
+        productName = "Warrior Launch Accelerator";
+        tier = "accelerator";
+        break;
+      
+      // LEGACY PLANS (for existing subscribers - kept for backwards compatibility)
+      case "elite":
+        unitAmount = currency === "ron" ? 247000 : 49700; // 2470 RON or €497
+        productName = "WarriorOS Elite (Legacy)";
+        tier = "elite";
         break;
       case "trial":
         unitAmount = 19700;
         currency = "ron";
         productName = "Operator Pro Trial (Legacy)";
         trialDays = 3;
+        tier = "pro";
         break;
       case "monthly":
         unitAmount = 9700; // 97 LEI
         currency = "ron";
         productName = "Jump to Freedom - Lunar (Legacy)";
+        tier = "basic";
         break;
       case "annual":
         unitAmount = 99700; // 997 LEI
         currency = "ron";
         interval = "year";
         productName = "Jump to Freedom - Anual (Legacy)";
+        tier = "basic";
         break;
       case "premium-coach":
         unitAmount = 19700; // 197 LEI
         currency = "ron";
         productName = "Jump to Freedom - Premium + Coaching (Legacy)";
-        break;
-      case "warrior-accelerator":
-        unitAmount = 97000; // 970 EUR în cenți
-        currency = "eur";
-        paymentMode = "payment";
-        productName = "Warrior Launch Accelerator";
+        tier = "pro";
         break;
       default:
         throw new Error("Plan invalid");
     }
 
     // Determine success and cancel URLs based on the real site origin
-    // (Origin can be missing in some environments / proxies)
     const originHeader = req.headers.get("origin");
     const forwardedProto = req.headers.get("x-forwarded-proto") ?? undefined;
     const forwardedHost = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? undefined;
@@ -133,6 +145,9 @@ serve(async (req) => {
       derivedOrigin,
       origin,
       plan,
+      unitAmount,
+      currency,
+      trialDays,
     });
 
     let successUrl: string;
@@ -141,11 +156,8 @@ serve(async (req) => {
     if (plan === "warrior-accelerator") {
       successUrl = `${origin}/warrior-accelerator-thank-you?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
       cancelUrl = `${origin}/warrior-launch-accelerator?canceled=true`;
-    } else if (plan === "elite") {
-      successUrl = `${origin}/dashboard?checkout=success&plan=elite`;
-      cancelUrl = `${origin}/pricing?canceled=true`;
     } else {
-      successUrl = `${origin}/dashboard?checkout=success`;
+      successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/pricing?canceled=true`;
     }
 
@@ -177,8 +189,9 @@ serve(async (req) => {
       metadata: {
         plan_id: plan,
         user_id: user.id,
-        tier: plan === "elite" ? "elite" : plan === "pro" || plan === "free" ? "pro" : "basic",
-        coaching_included: plan === "elite" ? "true" : "false"
+        tier: tier,
+        coaching_included: tier === "pro" || tier === "elite" ? "true" : "false",
+        has_trial: trialDays ? "true" : "false",
       },
       success_url: successUrl,
       cancel_url: cancelUrl,
