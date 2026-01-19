@@ -20,6 +20,7 @@ import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
 import { ReviewProgressStats } from './ReviewProgressStats';
 import { DomainSelector, DomainCategory, DOMAINS } from './DomainSelector';
 import { ContinuePlanningDialog } from './ContinuePlanningDialog';
+import { awardXP } from '@/services/xpService';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -443,6 +444,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
   const handlePlanningComplete = (planningData: PlanningResult) => {
     if (!selectedDomain) return;
+    
+    // Award XP for completing weekly planning
+    awardXP('weekly_planning');
     
     // Add domain to completed list
     setCompletedDomains(prev => [...prev, selectedDomain]);

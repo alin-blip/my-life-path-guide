@@ -103,6 +103,17 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     icon: 'Heart',
     defaultSize: 'medium',
     category: 'mindset'
+  },
+  {
+    id: 'challenge-progress',
+    name: { en: 'Challenge Progress', ro: 'Progres Challenge' },
+    description: { 
+      en: 'Track your 7-day challenge progress and continue where you left off', 
+      ro: 'Urmărește progresul challengeului de 7 zile și continuă de unde ai rămas' 
+    },
+    icon: 'Trophy',
+    defaultSize: 'medium',
+    category: 'tracking'
   }
 ];
 
