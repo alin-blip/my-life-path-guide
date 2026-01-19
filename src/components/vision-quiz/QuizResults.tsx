@@ -2,14 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { categoryLabels, categoryDescriptions, getScoreLevel, getResultsMessage, QuizCategory } from './quizData';
-import { Target, Sparkles, ArrowRight, Crown, Zap, Check, Star } from 'lucide-react';
+import { categoryLabels, getScoreLevel, getResultsMessage, QuizCategory } from './quizData';
+import { Target, Sparkles, ArrowRight, Rocket, Map } from 'lucide-react';
 import { VisionPlanningWizard } from './planning/VisionPlanningWizard';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 
 interface QuizResultsProps {
   scores: Record<QuizCategory, number>;
@@ -17,64 +12,13 @@ interface QuizResultsProps {
   onStartTrial: () => void;
 }
 
-const UPSELL_PLANS = [
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: '49',
-    originalPrice: '98',
-    currency: '€',
-    period: '/ lună',
-    highlight: 'Early Bird',
-    benefits: [
-      'AI Coaching personalizat',
-      'Champion Routine completă',
-      'Door - planificare săptămânală',
-      'Stacks pentru reset rapid'
-    ],
-    featured: true
-  },
-  {
-    id: 'free',
-    name: 'Trial',
-    price: '0',
-    afterTrialPrice: '49',
-    currency: '€',
-    period: '/ 3 zile',
-    highlight: '3 Zile Gratuit',
-    benefits: [
-      '3 zile acces complet GRATUIT',
-      'Toate funcțiile Pro incluse',
-      'Anulează oricând în trial',
-      'Apoi doar €49/lună'
-    ],
-    featured: false,
-    isTrial: true
-  },
-  {
-    id: 'elite',
-    name: 'Elite',
-    price: '497',
-    currency: '€',
-    period: '/ lună',
-    highlight: 'Complet',
-    benefits: [
-      'Tot din Pro +',
-      'Warrior Launch Accelerator',
-      'Coaching LIVE',
-      'Comunitate VIP Elite'
-    ],
-    featured: true
-  }
-];
-
 export const QuizResults: React.FC<QuizResultsProps> = ({
   scores,
   language,
   onStartTrial,
 }) => {
   const [displayScore, setDisplayScore] = useState(0);
-  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [showPlanningWizard, setShowPlanningWizard] = useState(false);
   const navigate = useNavigate();
   
   const chartData = Object.entries(scores).map(([category, score]) => ({
@@ -122,60 +66,19 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
     business: 'from-blue-500 to-cyan-400',
   };
 
-  const handleCheckout = async (planId: string) => {
-    setIsLoading(planId);
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        toast.info(language === 'en' 
-          ? 'Please sign in to continue with the purchase.' 
-          : 'Te rugăm să te autentifici pentru a continua cu achiziția.');
-        const scoresParam = encodeURIComponent(JSON.stringify(scores));
-        navigate('/auth', { 
-          state: { 
-            returnUrl: `/vision-2026?scores=${scoresParam}`,
-            plan: planId
-          } 
-        });
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planId, source: 'vision-quiz' },
-      });
-
-      if (error) {
-        let message = error.message;
-        const anyErr = error as any;
-        if (anyErr?.context) {
-          try {
-            const body = await anyErr.context.json();
-            message = body?.error ?? message;
-          } catch {
-            // ignore
-          }
-        } else if ((data as any)?.error) {
-          message = (data as any).error;
-        }
-        throw new Error(message);
-      }
-
-      if ((data as any)?.url) {
-        window.location.href = (data as any).url;
-        return;
-      }
-
-      throw new Error((data as any)?.error ?? 'Nu s-a putut crea sesiunea de plată');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error('Checkout error:', { planId, message, error });
-      toast.error(message || 'A apărut o eroare. Încearcă din nou.');
-    } finally {
-      setIsLoading(null);
-    }
-  };
+  // If planning wizard is active, show it instead of results
+  if (showPlanningWizard) {
+    return (
+      <VisionPlanningWizard
+        scores={scores}
+        lowestCategory={lowestCategory}
+        language={language}
+        onComplete={() => {
+          navigate('/dashboard');
+        }}
+      />
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
@@ -292,181 +195,59 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
         </div>
       </div>
 
-      {/* Upsell Section */}
+      {/* CTA to Start Planning Wizard */}
       <div className="space-y-4 pt-4">
         <div className="text-center">
           <div className="inline-flex items-center gap-2 mb-3">
-            <Target className="h-5 w-5 text-amber-400" />
+            <Rocket className="h-5 w-5 text-amber-400" />
             <span className="text-sm uppercase tracking-widest text-amber-400 font-bold">
               {language === 'en' ? 'Next Step' : 'Pasul Următor'}
             </span>
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">
             {language === 'en' 
-              ? 'Transform Your Score into Action' 
-              : 'Transformă Scorul în Acțiune'}
+              ? 'Create Your 2026 Roadmap' 
+              : 'Creează-ți Harta pentru 2026'}
           </h2>
-          <p className="text-white/60 max-w-xl mx-auto text-sm">
+          <p className="text-white/60 max-w-xl mx-auto text-sm mb-6">
             {language === 'en'
-              ? 'With a score of ' + totalScore + '/64, you have room to grow. Get the tools to accelerate your transformation.'
-              : 'Cu un scor de ' + totalScore + '/64, ai spațiu de creștere. Primește uneltele pentru a-ți accelera transformarea.'}
+              ? `With a score of ${totalScore}/64, you have room to grow. Let's create a strategic plan focusing on your ${categoryLabels[lowestCategory].en} area.`
+              : `Cu un scor de ${totalScore}/64, ai spațiu de creștere. Hai să creăm un plan strategic focusat pe zona ${categoryLabels[lowestCategory].ro}.`}
           </p>
         </div>
 
-        {/* Plans Grid */}
-        <div className="grid md:grid-cols-3 gap-4">
-          {UPSELL_PLANS.map((plan) => {
-            const isElite = plan.id === 'elite';
-            const isTrial = plan.id === 'free';
-            const isPro = plan.id === 'pro';
-            
-            return (
-              <Card 
-                key={plan.id}
-                className={cn(
-                  "relative overflow-hidden transition-all duration-300 bg-white/5 backdrop-blur-sm",
-                  isElite 
-                    ? "border-2 border-amber-500/50" 
-                    : isTrial
-                      ? "border border-green-500/50"
-                      : "border-2 border-purple-500/50"
-                )}
-              >
-                <div className={cn(
-                  "absolute top-0 left-0 w-full h-1",
-                  isElite 
-                    ? "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500"
-                    : isTrial
-                      ? "bg-gradient-to-r from-green-500/50 via-emerald-500/50 to-green-500/50"
-                      : "bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"
-                )} />
-                
-                {plan.highlight && (
-                  <Badge 
-                    className={cn(
-                      "absolute top-4 right-4 border-0 text-xs",
-                      isElite 
-                        ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
-                        : isTrial
-                          ? "bg-green-500 text-white"
-                          : "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                    )}
-                  >
-                    {plan.highlight}
-                  </Badge>
-                )}
-
-                <CardContent className="p-5">
-                  <div className="mb-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      {isElite ? (
-                        <Crown className="h-5 w-5 text-amber-500" />
-                      ) : isTrial ? (
-                        <Sparkles className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <Zap className="h-5 w-5 text-purple-400" />
-                      )}
-                      <h3 className="text-lg font-bold text-white">{plan.name}</h3>
-                    </div>
-                    
-                    {plan.originalPrice && (
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-white/40 line-through text-sm">
-                          {plan.currency}{plan.originalPrice}
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div className="flex items-baseline gap-1">
-                      <span className={cn(
-                        "text-3xl font-black",
-                        isElite ? "text-amber-500" : isTrial ? "text-green-500" : "text-white"
-                      )}>
-                        {plan.currency}{plan.price}
-                      </span>
-                      <span className="text-white/50 text-sm">{plan.period}</span>
-                    </div>
-                    
-                    {(plan as any).afterTrialPrice && (
-                      <p className="text-xs text-white/50 mt-1">
-                        {language === 'en' ? 'Then' : 'Apoi'} {plan.currency}{(plan as any).afterTrialPrice}/{language === 'en' ? 'month' : 'lună'}
-                      </p>
-                    )}
-                  </div>
-
-                  <ul className="space-y-2 mb-4">
-                    {plan.benefits.map((benefit, bidx) => (
-                      <li key={bidx} className="flex items-start gap-2 text-xs">
-                        <Check className={cn(
-                          "h-3 w-3 mt-0.5 flex-shrink-0",
-                          isElite ? "text-amber-500" : isTrial ? "text-green-500" : "text-green-400"
-                        )} />
-                        <span className="text-white/70">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button
-                    onClick={() => handleCheckout(plan.id)}
-                    disabled={isLoading !== null}
-                    variant="default"
-                    size="sm"
-                    className={cn(
-                      "w-full gap-2",
-                      isElite 
-                        ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
-                        : isTrial
-                          ? "bg-green-500 hover:bg-green-600 text-white"
-                          : "bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white"
-                    )}
-                  >
-                    {isLoading === plan.id ? (
-                      <>
-                        <div className="h-3 w-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        {language === 'en' ? 'Processing...' : 'Se procesează...'}
-                      </>
-                    ) : (
-                      <>
-                        {isElite && <Crown className="h-3 w-3" />}
-                        {isPro && <Star className="h-3 w-3" />}
-                        {isTrial && <Sparkles className="h-3 w-3" />}
-                        {isTrial 
-                          ? (language === 'en' ? 'Start Free Trial' : 'Începe Trial Gratuit') 
-                          : (language === 'en' ? `Choose ${plan.name}` : `Alege ${plan.name}`)}
-                        <ArrowRight className="h-3 w-3" />
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Continue Free Option */}
-        <div className="text-center">
+        {/* Main CTA Button */}
+        <div className="flex flex-col items-center gap-4">
           <Button
-            variant="ghost"
-            onClick={() => {
-              // Navigate with state to start Goal Wizard with lowest category pre-selected
-              navigate('/door?tab=annual&startWizard=true', { 
-                state: { 
-                  fromVisionQuiz: true, 
-                  scores,
-                  suggestedCategory: lowestCategory
-                } 
-              });
-            }}
-            className="gap-2 text-white/50 hover:text-white hover:bg-white/10 text-sm"
+            onClick={() => setShowPlanningWizard(true)}
+            size="lg"
+            className="gap-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-6 px-8 text-lg rounded-2xl shadow-lg shadow-orange-500/30"
           >
+            <Map className="h-5 w-5" />
             {language === 'en' 
-              ? 'Continue without subscription (limited features)' 
-              : 'Continuă fără abonament (funcții limitate)'}
-            <ArrowRight className="h-4 w-4" />
+              ? 'Create My 2026 Roadmap' 
+              : 'Creează Roadmap-ul Meu pentru 2026'}
+            <ArrowRight className="h-5 w-5" />
           </Button>
+
+          {/* What you'll get */}
+          <div className="flex flex-wrap justify-center gap-4 text-white/50 text-xs">
+            <span className="flex items-center gap-1">
+              <Target className="w-3 h-3" />
+              {language === 'en' ? 'Annual Vision' : 'Viziune Anuală'}
+            </span>
+            <span className="flex items-center gap-1">
+              <Rocket className="w-3 h-3" />
+              {language === 'en' ? '90-Day Sprint' : 'Sprint 90 Zile'}
+            </span>
+            <span className="flex items-center gap-1">
+              <Map className="w-3 h-3" />
+              {language === 'en' ? '30-Day Mission' : 'Misiune 30 Zile'}
+            </span>
+          </div>
         </div>
 
-        <p className="text-white/40 text-xs text-center">
+        <p className="text-white/40 text-xs text-center pt-4">
           {language === 'en' 
             ? '✓ Your results have been saved and sent to your email' 
             : '✓ Rezultatele tale au fost salvate și trimise pe email'}
