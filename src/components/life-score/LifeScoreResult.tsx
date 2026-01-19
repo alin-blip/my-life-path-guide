@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { categoryLabels, getLifeScoreLevel, LifeScoreCategory } from '@/data/lifeScoreQuestions';
 import { ArrowRight, Target, Sparkles, Share2, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { LifeScorePlanningFlow } from './LifeScorePlanningFlow';
 
 interface LifeScoreResultProps {
   totalScore: number;
@@ -17,6 +18,8 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
   language,
 }) => {
   const navigate = useNavigate();
+  const [showPlanningFlow, setShowPlanningFlow] = useState(false);
+  
   const maxScore = 20;
   const percentage = Math.round((totalScore / maxScore) * 100);
   const scoreLevel = getLifeScoreLevel(totalScore, maxScore);
@@ -44,6 +47,17 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
     const url = window.location.origin + '/life-score';
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
   };
+
+  // Show planning flow if user clicked CTA
+  if (showPlanningFlow) {
+    return (
+      <LifeScorePlanningFlow
+        categoryScores={categoryScores}
+        weakestCategory={weakestCategory}
+        language={language}
+      />
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
@@ -236,25 +250,25 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
         </div>
         <h3 className="text-2xl font-bold text-white mb-2">
           {language === 'en' 
-            ? 'Want the Full Picture?' 
-            : 'Vrei Imaginea Completă?'}
+            ? 'Create Your 2026 Vision' 
+            : 'Creează Viziunea Ta pentru 2026'}
         </h3>
         <p className="text-white/60 text-sm mb-6">
           {language === 'en'
-            ? 'Get detailed insights and a personalized action plan with our 16-question assessment.'
-            : 'Primește insight-uri detaliate și un plan de acțiune personalizat cu evaluarea de 16 întrebări.'}
+            ? 'Set your annual, 90-day, monthly & weekly goals with AI-powered guidance.'
+            : 'Setează obiectivele anuale, 90 zile, lunare și săptămânale cu ghidare AI.'}
         </p>
         <Button 
           size="lg"
-          onClick={() => navigate('/vision-2026')}
+          onClick={() => setShowPlanningFlow(true)}
           className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg"
         >
-          {language === 'en' ? 'Take Full Assessment' : 'Evaluare Completă'}
+          {language === 'en' ? 'Start Planning My Goals' : 'Începe Planificarea Obiectivelor'}
           <ArrowRight className="w-5 h-5 ml-2" />
         </Button>
         <p className="text-white/40 text-xs mt-4 flex items-center justify-center gap-2">
           <Zap className="w-3 h-3" />
-          {language === 'en' ? '3 min • 16 questions • Free' : '3 min • 16 întrebări • Gratuit'}
+          {language === 'en' ? '5 min • AI-guided • Strategic Roadmap' : '5 min • Ghidare AI • Hartă Strategică'}
         </p>
       </motion.div>
     </div>
