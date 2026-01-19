@@ -33,16 +33,13 @@ import { LightExposureStep } from './steps/LightExposureStep';
 import { LearnStep } from './steps/LearnStep';
 import { VisionDeclarationStep } from './steps/VisionDeclarationStep';
 import { ApplyStep } from './steps/ApplyStep';
-import { EmotionalCheckStep } from './steps/EmotionalCheckStep';
-import { EmotionalTransformStep } from './steps/EmotionalTransformStep';
-import { StackSelectionStep } from './steps/StackSelectionStep';
-import { InlineStackWrapper } from './steps/InlineStackWrapper';
+import { EmotionalCheckUnifiedStep } from './steps/EmotionalCheckUnifiedStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
 
 // New UX components
-import { RoutineTimeline } from './RoutineTimeline';
+import { EnhancedProgressBar } from './EnhancedProgressBar';
 import { LiveXPDisplay } from './LiveXPDisplay';
 import { SkipConfirmDialog } from './SkipConfirmDialog';
 import { StepCompletionAnimation } from './StepCompletionAnimation';
@@ -59,9 +56,7 @@ interface ChampionRoutineFlowProps {
 }
 
 export type RoutineStepId = 
-  | 'emotionalCheck'
-  | 'stackSelection'
-  | 'emotionalTransform'
+  | 'emotionalCheck'  // Unified: includes stack selection + transform
   | 'gratitude' 
   | 'hydration' 
   | 'meditation' 
@@ -100,9 +95,7 @@ export const CORE4_REQUIRED_STEPS: RoutineStepId[] = [
 
 // Default order for Execution Room (all available steps)
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
-  'emotionalCheck',       // 0. Check-in Emoțional - PRIMUL
-  'stackSelection',       // 0.25. Selectare Stack bazat pe emoție
-  'emotionalTransform',   // 0.5. Transformare Emoțională (dacă e necesar)
+  'emotionalCheck',       // 0. Check-in Emoțional UNIFICAT (include stack + transform)
   'lightExposure',        // 1. Being - Lumină naturală dimineața
   'hydration',          // 2. Being - Hidratare
   'breathing',          // 3. Being - Box Breathing
@@ -125,8 +118,6 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
 // Translation keys for step labels - now using useLanguage t() function
 const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
   emotionalCheck: 'stepEmotionalCheck',
-  stackSelection: 'stepStackSelection',
-  emotionalTransform: 'stepEmotionalTransform',
   gratitude: 'stepGratitude',
   hydration: 'stepHydration',
   meditation: 'stepMeditation',
@@ -154,8 +145,6 @@ const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
   emotionalCheck: 'emotional',
-  stackSelection: 'emotional',
-  emotionalTransform: 'emotional',
   gratitude: 'being',
   hydration: 'being',
   meditation: 'being',
@@ -198,11 +187,7 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
   
   switch (stepId) {
     case 'emotionalCheck':
-      return !!(log as any).morning_emotion;
-    case 'stackSelection':
-      return (log as any).stack_selection_completed === true;
-    case 'emotionalTransform':
-      return (log as any).emotional_transform_completed === true;
+      return !!(log as any).morning_emotion && ((log as any).stack_selection_completed === true || (log as any).emotional_transform_completed === true || !!(log as any).morning_emotion);
     case 'gratitude':
       return (log.gratitude_items || []).some(i => i?.trim());
     case 'hydration':
@@ -619,7 +604,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     switch (currentStepId) {
       case 'emotionalCheck':
         return (
-          <EmotionalCheckStep
+          <EmotionalCheckUnifiedStep
             emotion={selectedEmotion}
             intensity={emotionIntensity}
             onEmotionChange={(emotion) => {
@@ -630,92 +615,16 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
               setEmotionIntensity(intensity);
               updateLog('morning_emotion_intensity' as any, intensity);
             }}
-            onNext={() => {
-              // Go to stack selection step
-              goToNextStep();
-            }}
-            onStartTransform={() => {
-              setNeedsEmotionalTransform(true);
-              goToNextStep();
-            }}
-          />
-        );
-      case 'stackSelection':
-        // If stack is running inline, show the wrapper
-        if (showStackInline && selectedStack) {
-          return (
-            <InlineStackWrapper
-              stackType={selectedStack}
-              emotion={selectedEmotion}
-              intensity={emotionIntensity}
-              onComplete={() => {
+            onComplete={(data) => {
+              updateLog('morning_emotion' as any, data.emotion);
+              updateLog('morning_emotion_intensity' as any, data.intensity);
+              if (data.stackCompleted) {
                 updateLog('stack_selection_completed' as any, true);
-                setShowStackInline(false);
-                setSelectedStack(null);
-                // Skip emotional transform since stack handles it
-                const transformIndex = routineSteps.indexOf('emotionalTransform');
-                if (transformIndex !== -1) {
-                  setCurrentStepIndex(transformIndex + 1);
-                } else {
-                  goToNextStep();
-                }
-              }}
-              onBack={() => {
-                setShowStackInline(false);
-                setSelectedStack(null);
-              }}
-              onAddToHitList={(action) => {
-                // Could add to hot list here if needed
-                console.log('Add to hit list:', action);
-              }}
-            />
-          );
-        }
-        
-        // Otherwise show stack selection
-        return (
-          <StackSelectionStep
-            emotion={selectedEmotion}
-            intensity={emotionIntensity}
-            onSelectStack={(stackId) => {
-              setSelectedStack(stackId);
-              setShowStackInline(true);
-              // Don't navigate away - run inline!
-            }}
-            onSkip={() => {
-              updateLog('stack_selection_completed' as any, true);
-              // Skip to the step after emotionalTransform if transform not needed
-              if (!needsEmotionalTransform) {
-                const transformIndex = routineSteps.indexOf('emotionalTransform');
-                if (transformIndex !== -1) {
-                  setCurrentStepIndex(transformIndex + 1);
-                } else {
-                  goToNextStep();
-                }
-              } else {
-                goToNextStep();
+                updateLog('emotional_transform_completed' as any, true);
               }
-            }}
-          />
-        );
-      case 'emotionalTransform':
-        if (!needsEmotionalTransform && !selectedEmotion) {
-          // Skip if no emotional transform needed
-          goToNextStep();
-          return null;
-        }
-        return (
-          <EmotionalTransformStep
-            emotion={selectedEmotion || 'neutral'}
-            intensity={emotionIntensity}
-            onComplete={(transformedEnergy) => {
-              updateLog('emotional_transform_completed' as any, true);
-              updateLog('transformed_energy' as any, transformedEnergy);
               goToNextStep();
             }}
-            onSkip={() => {
-              goToNextStep();
-            }}
+            onSkip={() => goToNextStep()}
           />
         );
       case 'gratitude':
@@ -966,13 +875,12 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             </div>
             
             {/* Interactive Timeline */}
-            <RoutineTimeline
+            <EnhancedProgressBar
               steps={routineSteps}
               currentStepIndex={currentStepIndex}
               todayLog={todayLog}
               skippedSteps={getSkippedSteps()}
               stepLabels={STEP_LABELS}
-              categoryColors={CATEGORY_COLORS}
               stepCategories={STEP_CATEGORIES}
               isStepCompleted={isStepCompleted}
               onStepClick={(index) => {
