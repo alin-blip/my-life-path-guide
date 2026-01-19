@@ -7,7 +7,7 @@
  * - Week 1 is the week containing January 4th
  */
 
-import { getWeek, getYear, startOfWeek } from 'date-fns';
+import { getWeek, getYear, startOfWeek, addWeeks } from 'date-fns';
 
 /**
  * Get the current week key in door format: "door-week-YYYY-WW"
@@ -47,4 +47,27 @@ export function parseWeekKey(weekKey: string): { year: number; week: number } | 
     year: parseInt(match[1], 10),
     week: parseInt(match[2], 10),
   };
+}
+
+/**
+ * Get week key for planning purposes.
+ * Monday-Saturday: saves to current week
+ * Sunday: saves to next week (for advance planning)
+ */
+export function getWeekKeyForPlanning(date: Date = new Date()): string {
+  const dayOfWeek = date.getDay();
+  const isSunday = dayOfWeek === 0;
+  
+  let targetWeek;
+  if (isSunday) {
+    // Sunday → next week
+    targetWeek = addWeeks(startOfWeek(date, { weekStartsOn: 1 }), 1);
+  } else {
+    // Monday-Saturday → current week
+    targetWeek = startOfWeek(date, { weekStartsOn: 1 });
+  }
+  
+  const weekNum = getWeek(targetWeek, { weekStartsOn: 1, firstWeekContainsDate: 4 });
+  const year = getYear(targetWeek);
+  return `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
 }

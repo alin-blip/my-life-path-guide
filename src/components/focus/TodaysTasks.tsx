@@ -42,13 +42,13 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
         const weekKey = getWeekKey();
         const todayAbbrev = getTodayAbbrev();
 
-        // Fetch Hit List tasks for today (these are the daily tasks)
+        // Fetch Hit List and Do List tasks for today (synced with /door)
         const { data, error } = await supabase
           .from('user_tasks')
-          .select('id, title, completed, day_of_week')
+          .select('id, title, completed, day_of_week, task_type')
           .eq('user_id', user.id)
           .eq('week_key', weekKey)
-          .eq('task_type', 'hit')
+          .in('task_type', ['hit', 'do'])
           .order('position', { ascending: true });
 
         if (error) throw error;

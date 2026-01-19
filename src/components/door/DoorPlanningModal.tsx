@@ -12,7 +12,8 @@ import { weeklyPlanningService } from '@/services/weeklyPlanningService';
 import { weeklyPlanningDraftService } from '@/services/weeklyPlanningDraftService';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { v4 as uuidv4 } from 'uuid';
-import { getISOWeek, getYear, addWeeks, startOfWeek } from 'date-fns';
+import { getISOWeek, getYear } from 'date-fns';
+import { getWeekKeyForPlanning } from '@/utils/weekUtils';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
 import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
@@ -43,12 +44,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   previousWeekData: externalPreviousData,
   onPlanningComplete,
 }) => {
-  const today = new Date();
-  // Calculate next week's key for planning (Sunday planning is for next week)
-  const nextWeek = addWeeks(startOfWeek(today, { weekStartsOn: 1 }), 1);
-  const weekNum = getISOWeek(nextWeek);
-  const year = getYear(nextWeek);
-  const currentWeekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
+  // Use centralized week key logic: Mon-Sat = current week, Sunday = next week
+  const currentWeekKey = getWeekKeyForPlanning();
   const draftKey = `doorPlanningDraft_${currentWeekKey}`;
   
   // Load draft from database first, fallback to localStorage
