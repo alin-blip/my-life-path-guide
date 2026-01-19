@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { categoryLabels, categoryDescriptions, getScoreLevel, getResultsMessage, QuizCategory } from './quizData';
-import { Target, Sparkles, ArrowRight } from 'lucide-react';
+import { Target, Sparkles, ArrowRight, Crown, Zap, Check, Star } from 'lucide-react';
 import { VisionPlanningWizard } from './planning/VisionPlanningWizard';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface QuizResultsProps {
   scores: Record<QuizCategory, number>;

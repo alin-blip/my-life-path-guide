@@ -68,10 +68,9 @@ const Pricing: React.FC = () => {
     valueLabel: language === 'en' ? "Value" : "Valoare",
   };
 
-  const planIcons = {
+  const planIcons: Record<string, React.ElementType> = {
     free: Gift,
     pro: Zap,
-    elite: Crown,
   };
 
   useEffect(() => {
@@ -191,9 +190,9 @@ const Pricing: React.FC = () => {
           <div className="grid md:grid-cols-3 gap-6">
             {localizedPlans.map((plan) => {
               const isActive = activePlanId === plan.id;
-              const Icon = planIcons[plan.id as keyof typeof planIcons];
-              const isElite = plan.id === 'elite';
+              const Icon = planIcons[plan.id] || Zap;
               const isPro = plan.id === 'pro';
+              const isBasic = plan.id === 'basic';
               
               return (
                 <Card 
@@ -202,28 +201,22 @@ const Pricing: React.FC = () => {
                     plan.featured 
                       ? 'ring-2 ring-primary shadow-lg shadow-primary/20' 
                       : 'hover:border-primary/50'
-                  } ${isElite ? 'bg-gradient-to-br from-amber-500/10 via-background to-orange-500/5' : ''}`}
+                  }`}
                 >
                   {/* Top gradient bar for featured */}
                   {plan.featured && (
-                    <div className={`absolute top-0 left-0 w-full h-1 ${
-                      isElite 
-                        ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500' 
-                        : 'bg-gradient-to-r from-primary via-accent to-primary'
-                    }`} />
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary" />
                   )}
                   
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`p-2 rounded-full ${
-                          isElite 
-                            ? 'bg-gradient-to-br from-amber-500 to-orange-500' 
-                            : isPro 
-                              ? 'bg-gradient-to-br from-primary to-accent' 
-                              : 'bg-muted'
+                          isPro || isBasic
+                            ? 'bg-gradient-to-br from-primary to-accent' 
+                            : 'bg-muted'
                         }`}>
-                          <Icon className={`h-5 w-5 ${isElite || isPro ? 'text-white' : 'text-foreground'}`} />
+                          <Icon className={`h-5 w-5 ${isPro || isBasic ? 'text-white' : 'text-foreground'}`} />
                         </div>
                         <CardTitle className="text-foreground">{plan.name}</CardTitle>
                       </div>
@@ -231,11 +224,9 @@ const Pricing: React.FC = () => {
                         {plan.highlight && (
                           <Badge 
                             className={`${
-                              isElite 
-                                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0' 
-                                : isPro 
-                                  ? 'bg-gradient-to-r from-primary to-accent text-white border-0' 
-                                  : ''
+                              isPro || isBasic
+                                ? 'bg-gradient-to-r from-primary to-accent text-white border-0' 
+                                : ''
                             }`}
                             variant={!plan.featured ? "secondary" : "default"}
                           >
@@ -257,7 +248,7 @@ const Pricing: React.FC = () => {
                         </div>
                       )}
                       <div className="flex items-baseline gap-1">
-                        <span className={`text-4xl font-bold ${isElite ? 'text-amber-500' : 'text-foreground'}`}>
+                        <span className="text-4xl font-bold text-foreground">
                           {plan.price}
                         </span>
                         {plan.period && <span className="text-muted-foreground">{plan.period}</span>}
@@ -276,33 +267,19 @@ const Pricing: React.FC = () => {
                     <ul className="space-y-2">
                       {plan.benefits.map((b) => (
                         <li key={b} className="text-sm text-muted-foreground flex items-start gap-2">
-                          <Check className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
-                            isElite ? 'text-amber-500' : 'text-green-500'
-                          }`} />
+                          <Check className="h-4 w-4 mt-0.5 flex-shrink-0 text-green-500" />
                           <span>{b}</span>
                         </li>
                       ))}
                     </ul>
-                    
-                    {/* Elite extras */}
-                    {isElite && (
-                      <div className="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                        <div className="flex items-center gap-2 text-amber-500 font-medium text-sm">
-                          <Users className="h-4 w-4" />
-                          <span>Coaching LIVE cu Alin Radu</span>
-                        </div>
-                      </div>
-                    )}
                   </CardContent>
                   
                   <CardFooter>
                     <Button 
                       className={`w-full gap-2 ${
-                        isElite 
-                          ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white' 
-                          : isPro 
-                            ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90' 
-                            : ''
+                        isPro || isBasic
+                          ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90' 
+                          : ''
                       }`}
                       variant={plan.id === 'free' ? 'outline' : 'default'}
                       disabled={loadingPlan === plan.id || isActive} 
@@ -317,7 +294,6 @@ const Pricing: React.FC = () => {
                         texts.active
                       ) : (
                         <>
-                          {isElite && <Rocket className="h-4 w-4" />}
                           {plan.cta}
                         </>
                       )}
