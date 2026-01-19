@@ -102,6 +102,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshSubscription = async (opts?: { silent?: boolean }) => {
     const silent = Boolean(opts?.silent);
 
+    // Don't attempt subscription check if there's no session
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData?.session) {
+      setSubscribed(false);
+      setSubscriptionTier(null);
+      setSubscriptionEnd(null);
+      if (!silent) setSubscriptionLoading(false);
+      return;
+    }
+
     try {
       if (!silent) setSubscriptionLoading(true);
 
