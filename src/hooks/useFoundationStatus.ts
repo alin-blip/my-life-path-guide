@@ -158,9 +158,18 @@ export const useFoundationStatus = (): FoundationStatus => {
       // Process today tasks - check user_tasks OR domino_title in weekly_planning
       const hasUserTasks = (todayTasksResult.data?.length || 0) > 0;
       const weeklyPlanData = weeklyPlanningResult.data?.[0];
+      
+      // Domino Door is complete only if:
+      // 1. Has domino_title set AND
+      // 2. Has at least one key_point with a non-empty title
       const hasDominoTitle = weeklyPlanData?.domino_title && 
         weeklyPlanData.domino_title.trim().length > 0;
-      setHasTodayTasks(hasUserTasks || hasDominoTitle || false);
+      const hasValidKeyPoints = weeklyPlanData?.key_points && 
+        Array.isArray(weeklyPlanData.key_points) && 
+        (weeklyPlanData.key_points as any[]).some(kp => kp?.title && kp.title.trim().length > 0);
+      
+      // Domino Door is complete if has user tasks OR (has domino title AND valid key points)
+      setHasTodayTasks(hasUserTasks || (hasDominoTitle && hasValidKeyPoints) || false);
 
       // Process weekly planning (has key_points with content)
       const hasKeyPoints = weeklyPlanData?.key_points && 
