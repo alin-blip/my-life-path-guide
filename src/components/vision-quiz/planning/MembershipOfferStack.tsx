@@ -4,7 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Check, Star, Crown, Zap, ArrowRight, Target, Rocket, 
-  Calendar, Map, Users, Video, Brain, Trophy, Sparkles 
+  Calendar, Map, Users, Video, Brain, Trophy, Sparkles,
+  Gift
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,24 +45,26 @@ const OFFER_PLANS = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '197',
-    originalPrice: '497',
+    price: '97',
+    originalPrice: '197',
     currency: '€',
     period: '/ lună',
     periodEn: '/ month',
-    highlight: 'Best Value',
-    valueLabel: '60% OFF',
+    highlight: '7 Zile Trial Gratuit',
+    highlightEn: '7-Day Free Trial',
+    valueLabel: '51% OFF',
     icon: Crown,
     gradient: 'from-amber-500 to-orange-500',
     borderColor: 'border-amber-500/50',
     featured: true,
+    hasTrial: true,
     features: [
       { icon: Check, labelEn: 'Everything in Basic +', labelRo: 'Tot din Basic +', isHeader: true },
-      { icon: Rocket, labelEn: 'Warrior Launch Accelerator (€970 value)', labelRo: 'Warrior Launch Accelerator (valoare €970)' },
       { icon: Video, labelEn: 'Weekly LIVE Group Coaching', labelRo: 'Coaching de Grup LIVE Săptămânal' },
       { icon: Users, labelEn: 'VIP Pro Community', labelRo: 'Comunitate VIP Pro' },
       { icon: Target, labelEn: '90-Day Sprint with KPIs', labelRo: 'Sprint 90 Zile cu KPIs' },
       { icon: Star, labelEn: 'Exclusive Q&A Sessions', labelRo: 'Sesiuni Q&A Exclusive' },
+      { icon: Rocket, labelEn: 'Priority Support', labelRo: 'Support Prioritar' },
     ],
   },
 ];
@@ -191,12 +194,20 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
             
             {/* Badges */}
             <div className="absolute top-4 right-4 flex flex-col gap-1">
-              <Badge className={cn(
-                "border-0 text-xs bg-gradient-to-r text-white",
-                plan.gradient
-              )}>
-                {plan.highlight}
-              </Badge>
+              {plan.hasTrial && (
+                <Badge className="border-0 text-xs bg-gradient-to-r from-green-500 to-emerald-500 text-white">
+                  <Gift className="w-3 h-3 mr-1" />
+                  {language === 'en' ? plan.highlightEn : plan.highlight}
+                </Badge>
+              )}
+              {!plan.hasTrial && (
+                <Badge className={cn(
+                  "border-0 text-xs bg-gradient-to-r text-white",
+                  plan.gradient
+                )}>
+                  {plan.highlight}
+                </Badge>
+              )}
               <Badge variant="outline" className="border-green-500/50 text-green-400 text-xs">
                 {plan.valueLabel}
               </Badge>
@@ -230,6 +241,14 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
                     {language === 'en' ? plan.periodEn : plan.period}
                   </span>
                 </div>
+                
+                {plan.hasTrial && (
+                  <p className="text-green-400 text-xs mt-1">
+                    {language === 'en' 
+                      ? '✓ Try free for 7 days, cancel anytime' 
+                      : '✓ Încearcă gratuit 7 zile, anulează oricând'}
+                  </p>
+                )}
               </div>
 
               {/* Features list */}
@@ -272,7 +291,10 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
                 ) : (
                   <>
                     {plan.featured ? <Crown className="h-4 w-4" /> : <Star className="h-4 w-4" />}
-                    {language === 'en' ? `Choose ${plan.name}` : `Alege ${plan.name}`}
+                    {plan.hasTrial 
+                      ? (language === 'en' ? 'Start 7-Day Trial' : 'Începe Trial 7 Zile')
+                      : (language === 'en' ? `Choose ${plan.name}` : `Alege ${plan.name}`)
+                    }
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}

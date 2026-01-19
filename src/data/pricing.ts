@@ -21,6 +21,7 @@ export type Plan = {
   coachingIncluded?: boolean;
   valueEn?: string;
   valueRo?: string;
+  trialDays?: number;
 };
 
 export const plans: Plan[] = [
@@ -86,28 +87,27 @@ export const plans: Plan[] = [
     ],
     ctaEn: "Choose Basic",
     ctaRo: "Alege Basic",
-    featured: true,
   },
   {
     id: "pro",
     nameEn: "Pro",
     nameRo: "Pro",
-    priceEn: "€197",
-    priceRo: "990 LEI",
-    priceValue: 19700,
-    originalPriceEn: "€497",
-    originalPriceRo: "2497 LEI",
+    priceEn: "€97",
+    priceRo: "490 LEI",
+    priceValue: 9700,
+    originalPriceEn: "€197",
+    originalPriceRo: "990 LEI",
     periodEn: "/ month",
     periodRo: "/ lună",
-    highlightEn: "Complete Warrior",
-    highlightRo: "Războinic Complet",
-    valueEn: "€497 value",
-    valueRo: "Valoare €497",
-    resultEn: "Everything in Basic + Warrior Launch Accelerator + Live Group Coaching with Alin Radu.",
-    resultRo: "Tot din Basic + Warrior Launch Accelerator + Coaching de Grup LIVE cu Alin Radu.",
+    highlightEn: "7-Day Free Trial",
+    highlightRo: "7 Zile Trial Gratuit",
+    valueEn: "€197 value",
+    valueRo: "Valoare €197",
+    trialDays: 7,
+    resultEn: "Everything in Basic + Weekly LIVE Group Coaching with Alin Radu + VIP Pro Community.",
+    resultRo: "Tot din Basic + Coaching de Grup LIVE Săptămânal cu Alin Radu + Comunitate VIP Pro.",
     benefitsEn: [
       "Everything in Basic plan",
-      "Warrior Launch Accelerator included (€970 value)",
       "Weekly LIVE group coaching with Alin Radu",
       "VIP community with Pro members",
       "Exclusive Q&A sessions",
@@ -117,7 +117,6 @@ export const plans: Plan[] = [
     ],
     benefitsRo: [
       "Tot ce include planul Basic",
-      "Warrior Launch Accelerator inclus (valoare €970)",
       "Coaching de grup săptămânal LIVE cu Alin Radu",
       "Comunitate VIP cu membri Pro",
       "Sesiuni Q&A exclusive",
@@ -125,12 +124,41 @@ export const plans: Plan[] = [
       "Acces prioritar la funcționalități noi",
       "Support VIP dedicat",
     ],
-    ctaEn: "Choose Pro",
-    ctaRo: "Alege Pro",
+    ctaEn: "Start 7-Day Trial",
+    ctaRo: "Începe Trial 7 Zile",
     featured: true,
     coachingIncluded: true,
   },
 ];
+
+// Warrior Accelerator - standalone upsell product
+export const warriorAccelerator = {
+  id: "warrior-accelerator",
+  nameEn: "Warrior Launch Accelerator",
+  nameRo: "Warrior Launch Accelerator",
+  priceEn: "€497",
+  priceRo: "2490 LEI",
+  priceValue: 49700,
+  originalPriceEn: "€970",
+  originalPriceRo: "4850 LEI",
+  isOneTime: true,
+  descriptionEn: "47+ premium video lessons + complete 90-day transformation framework",
+  descriptionRo: "47+ lecții video premium + framework complet de transformare în 90 de zile",
+  benefitsEn: [
+    "47+ premium video lessons",
+    "8 complete learning modules",
+    "90-day implementation framework",
+    "Lifetime access to all updates",
+    "90-day satisfaction guarantee",
+  ],
+  benefitsRo: [
+    "47+ lecții video premium",
+    "8 module complete de învățare",
+    "Framework de implementare pe 90 de zile",
+    "Acces pe viață la toate update-urile",
+    "Garanție 90 de zile satisfacție",
+  ],
+};
 
 // Helper function to get localized plan data
 export const getLocalizedPlan = (plan: Plan, language: 'en' | 'ro') => ({
@@ -147,4 +175,5 @@ export const getLocalizedPlan = (plan: Plan, language: 'en' | 'ro') => ({
   featured: plan.featured,
   coachingIncluded: plan.coachingIncluded,
   value: language === 'en' ? plan.valueEn : plan.valueRo,
+  trialDays: plan.trialDays,
 });
