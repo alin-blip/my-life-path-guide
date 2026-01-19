@@ -97,9 +97,28 @@ export const KeyPointMetadataPopover: React.FC<KeyPointMetadataPopoverProps> = (
               <span>Pași</span>
             </div>
             <ul className="text-sm pl-6 space-y-1 list-disc">
-              {keyPoint.metadata.steps.map((step, idx) => (
-                <li key={idx}>{step}</li>
-              ))}
+              {keyPoint.metadata.steps.map((step, idx) => {
+                // Handle both string format and object format {text, day, listType}
+                if (typeof step === 'string') {
+                  return <li key={idx}>{step}</li>;
+                }
+                const stepObj = step as { text: string; day?: string; listType?: string };
+                return (
+                  <li key={idx} className="flex items-center gap-2">
+                    <span>{stepObj.text}</span>
+                    {stepObj.day && (
+                      <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                        {stepObj.day === 'M' ? 'Luni' : 
+                         stepObj.day === 'T' ? 'Marți' : 
+                         stepObj.day === 'W' ? 'Miercuri' : 
+                         stepObj.day === 'Th' ? 'Joi' : 
+                         stepObj.day === 'F' ? 'Vineri' : stepObj.day}
+                        {stepObj.listType && ` • ${stepObj.listType === 'hit' ? 'HIT' : 'DO'}`}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}

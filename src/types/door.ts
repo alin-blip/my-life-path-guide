@@ -32,6 +32,9 @@ export type DoListItem = {
   priority?: TaskPriority;
 };
 
+// Step can be either a simple string or a structured object with day/listType
+export type StepItem = string | { text: string; day: string; listType: string };
+
 export type DominoKeyPoint = {
   id: string;
   text: string;
@@ -42,7 +45,7 @@ export type DominoKeyPoint = {
     why?: string;
     positiveImpact?: string;
     negativeImpact?: string;
-    steps?: string[];
+    steps?: StepItem[];
     responsible?: string;
     deadline?: string;
   };
@@ -71,7 +74,7 @@ export interface PlanningResult {
     why: string;
     positiveImpact: string;
     negativeImpact: string;
-    steps: string[];
+    steps: StepItem[];
     responsible: string;
     deadline: string;
     isContinued?: boolean; // Marker for keys continued from previous week
