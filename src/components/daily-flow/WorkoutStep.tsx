@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Dumbbell, Play, Square, Plus, Trash2, Check, 
-  Utensils, History, CheckCircle2, Copy, Save, RotateCcw
+  Utensils, History, CheckCircle2, Copy, Save, RotateCcw,
+  ChevronDown, ChevronUp, CheckCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkoutHistory } from './WorkoutHistory';
@@ -83,6 +84,7 @@ interface Exercise {
   name: string;
   plannedSets: number;
   sets: SetLog[];
+  isFinished?: boolean;
 }
 
 interface WorkoutStepProps {
@@ -363,6 +365,18 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
 
   const removeExercise = (id: string) => {
     setExercises(exercises.filter(ex => ex.id !== id));
+  };
+
+  const finishExercise = (id: string) => {
+    setExercises(exercises.map(ex => 
+      ex.id === id ? { ...ex, isFinished: !ex.isFinished } : ex
+    ));
+  };
+
+  const toggleExerciseExpand = (id: string) => {
+    setExercises(exercises.map(ex => 
+      ex.id === id ? { ...ex, isFinished: !ex.isFinished } : ex
+    ));
   };
 
   const copyFromLastSession = async (exerciseId: string, exerciseName: string) => {
@@ -648,107 +662,164 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
               </div>
             </div>
 
-            {exercises.map((exercise) => (
-              <div key={exercise.id} className="p-4 rounded-lg border bg-card space-y-4">
-                {/* Header exercițiu */}
-                <div className="flex items-center gap-2">
-                  <Input
-                    placeholder="Nume exercițiu"
-                    value={exercise.name}
-                    onChange={(e) => updateExerciseName(exercise.id, e.target.value)}
-                    className="flex-1 font-medium"
-                  />
-                  <div className="flex items-center gap-1">
-                    <Label className="text-xs text-muted-foreground whitespace-nowrap">Seturi:</Label>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={10}
-                      value={exercise.plannedSets}
-                      onChange={(e) => updatePlannedSets(exercise.id, parseInt(e.target.value) || 1)}
-                      className="w-16"
-                    />
+            {exercises.map((exercise) => {
+              const completedSets = getCompletedSetsCount(exercise);
+              const allSetsCompleted = completedSets === exercise.plannedSets;
+              
+              return (
+                <div 
+                  key={exercise.id} 
+                  className={`rounded-lg border bg-card overflow-hidden transition-all ${
+                    exercise.isFinished 
+                      ? 'border-green-500/50 bg-green-500/5' 
+                      : ''
+                  }`}
+                >
+                  {/* Header exercițiu - always visible */}
+                  <div 
+                    className={`p-4 flex items-center gap-2 ${
+                      exercise.isFinished ? 'cursor-pointer hover:bg-muted/30' : ''
+                    }`}
+                    onClick={exercise.isFinished ? () => finishExercise(exercise.id) : undefined}
+                  >
+                    {/* Finished indicator */}
+                    {exercise.isFinished && (
+                      <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                        <Check className="h-4 w-4 text-white" />
+                      </div>
+                    )}
+                    
+                    {!exercise.isFinished ? (
+                      <>
+                        <Input
+                          placeholder="Nume exercițiu"
+                          value={exercise.name}
+                          onChange={(e) => updateExerciseName(exercise.id, e.target.value)}
+                          className="flex-1 font-medium"
+                        />
+                        <div className="flex items-center gap-1">
+                          <Label className="text-xs text-muted-foreground whitespace-nowrap">Seturi:</Label>
+                          <Input
+                            type="number"
+                            min={1}
+                            max={10}
+                            value={exercise.plannedSets}
+                            onChange={(e) => updatePlannedSets(exercise.id, parseInt(e.target.value) || 1)}
+                            className="w-16"
+                          />
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => copyFromLastSession(exercise.id, exercise.name)}
+                          title="Copiază de la ultima sesiune"
+                        >
+                          <Copy className="h-4 w-4 text-primary" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => saveExercise(exercise.id)}
+                          title="Salvează progresul"
+                          className="text-green-500 hover:text-green-600 hover:bg-green-500/10"
+                        >
+                          <Save className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => removeExercise(exercise.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex-1">
+                          <p className="font-medium">{exercise.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {completedSets}/{exercise.plannedSets} seturi completate
+                          </p>
+                        </div>
+                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                      </>
+                    )}
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => copyFromLastSession(exercise.id, exercise.name)}
-                    title="Copiază de la ultima sesiune"
-                  >
-                    <Copy className="h-4 w-4 text-primary" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => saveExercise(exercise.id)}
-                    title="Salvează progresul"
-                    className="text-green-500 hover:text-green-600 hover:bg-green-500/10"
-                  >
-                    <Save className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => removeExercise(exercise.id)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
 
-                {/* Progres */}
-                <div className="text-sm text-muted-foreground">
-                  Completate: {getCompletedSetsCount(exercise)}/{exercise.plannedSets} seturi
-                </div>
+                  {/* Content - hidden when finished */}
+                  {!exercise.isFinished && (
+                    <div className="px-4 pb-4 space-y-4">
+                      {/* Progres */}
+                      <div className="text-sm text-muted-foreground">
+                        Completate: {completedSets}/{exercise.plannedSets} seturi
+                      </div>
 
-                {/* Sets individuali */}
-                <div className="space-y-2">
-                  {exercise.sets.map((set, idx) => (
-                    <div 
-                      key={idx} 
-                      className={`flex items-center gap-2 p-2 rounded-md transition-colors ${
-                        set.completed ? 'bg-green-500/10 border border-green-500/30' : 'bg-muted/30'
-                      }`}
-                    >
-                      <Button
-                        variant={set.completed ? "default" : "outline"}
-                        size="sm"
-                        className={`h-8 w-8 p-0 ${set.completed ? 'bg-green-500 hover:bg-green-600' : ''}`}
-                        onClick={() => toggleSetCompleted(exercise.id, idx)}
+                      {/* Sets individuali */}
+                      <div className="space-y-2">
+                        {exercise.sets.map((set, idx) => (
+                          <div 
+                            key={idx} 
+                            className={`flex items-center gap-2 p-2 rounded-md transition-colors ${
+                              set.completed ? 'bg-green-500/10 border border-green-500/30' : 'bg-muted/30'
+                            }`}
+                          >
+                            <Button
+                              variant={set.completed ? "default" : "outline"}
+                              size="sm"
+                              className={`h-8 w-8 p-0 ${set.completed ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                              onClick={() => toggleSetCompleted(exercise.id, idx)}
+                            >
+                              {set.completed ? (
+                                <CheckCircle2 className="h-4 w-4" />
+                              ) : (
+                                <span className="text-xs font-bold">{set.setNumber}</span>
+                              )}
+                            </Button>
+                            
+                            <div className="flex items-center gap-1 flex-1">
+                              <Input
+                                type="number"
+                                placeholder="Reps"
+                                value={set.reps || ''}
+                                onChange={(e) => updateSet(exercise.id, idx, 'reps', parseInt(e.target.value) || 0)}
+                                className="w-20 h-8 text-center"
+                              />
+                              <span className="text-muted-foreground text-sm">reps</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-1 flex-1">
+                              <Input
+                                type="number"
+                                placeholder="Kg"
+                                step="0.5"
+                                value={set.weight || ''}
+                                onChange={(e) => updateSet(exercise.id, idx, 'weight', parseFloat(e.target.value) || 0)}
+                                className="w-20 h-8 text-center"
+                              />
+                              <span className="text-muted-foreground text-sm">kg</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Finish Exercise Button */}
+                      <Button 
+                        variant="outline"
+                        className={`w-full gap-2 ${
+                          allSetsCompleted 
+                            ? 'border-green-500 text-green-500 hover:bg-green-500/10' 
+                            : ''
+                        }`}
+                        onClick={() => finishExercise(exercise.id)}
                       >
-                        {set.completed ? (
-                          <CheckCircle2 className="h-4 w-4" />
-                        ) : (
-                          <span className="text-xs font-bold">{set.setNumber}</span>
-                        )}
+                        <CheckCheck className="h-4 w-4" />
+                        Finish Exercițiu
                       </Button>
-                      
-                      <div className="flex items-center gap-1 flex-1">
-                        <Input
-                          type="number"
-                          placeholder="Reps"
-                          value={set.reps || ''}
-                          onChange={(e) => updateSet(exercise.id, idx, 'reps', parseInt(e.target.value) || 0)}
-                          className="w-20 h-8 text-center"
-                        />
-                        <span className="text-muted-foreground text-sm">reps</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-1 flex-1">
-                        <Input
-                          type="number"
-                          placeholder="Kg"
-                          step="0.5"
-                          value={set.weight || ''}
-                          onChange={(e) => updateSet(exercise.id, idx, 'weight', parseFloat(e.target.value) || 0)}
-                          className="w-20 h-8 text-center"
-                        />
-                        <span className="text-muted-foreground text-sm">kg</span>
-                      </div>
                     </div>
-                  ))}
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
