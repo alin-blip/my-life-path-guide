@@ -3556,6 +3556,7 @@ export type Database = {
           created_at: string | null
           day: string | null
           day_of_week: string | null
+          domain_category: string | null
           id: string
           is_key_point: boolean | null
           list_type: string
@@ -3576,6 +3577,7 @@ export type Database = {
           created_at?: string | null
           day?: string | null
           day_of_week?: string | null
+          domain_category?: string | null
           id?: string
           is_key_point?: boolean | null
           list_type: string
@@ -3596,6 +3598,7 @@ export type Database = {
           created_at?: string | null
           day?: string | null
           day_of_week?: string | null
+          domain_category?: string | null
           id?: string
           is_key_point?: boolean | null
           list_type?: string
@@ -4130,6 +4133,7 @@ export type Database = {
       }
       weekly_planning: {
         Row: {
+          category: string | null
           created_at: string | null
           domino_title: string | null
           id: string
@@ -4142,6 +4146,7 @@ export type Database = {
           week_key: string
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           domino_title?: string | null
           id?: string
@@ -4154,6 +4159,7 @@ export type Database = {
           week_key: string
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           domino_title?: string | null
           id?: string
@@ -4169,6 +4175,7 @@ export type Database = {
       }
       weekly_planning_drafts: {
         Row: {
+          category: string | null
           created_at: string
           id: string
           is_skipping_review: boolean
@@ -4180,6 +4187,7 @@ export type Database = {
           week_key: string
         }
         Insert: {
+          category?: string | null
           created_at?: string
           id?: string
           is_skipping_review?: boolean
@@ -4191,6 +4199,7 @@ export type Database = {
           week_key: string
         }
         Update: {
+          category?: string | null
           created_at?: string
           id?: string
           is_skipping_review?: boolean

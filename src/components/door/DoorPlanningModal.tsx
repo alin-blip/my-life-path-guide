@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic, CheckCircle, Cloud, CloudOff } from 'lucide-react';
+import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic, CheckCircle, Cloud, CloudOff, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlanningResult, PreviousWeekData, DayOfWeek } from '@/types/door';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
@@ -18,6 +18,8 @@ import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
 import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
 import { ReviewProgressStats } from './ReviewProgressStats';
+import { DomainSelector, DomainCategory, DOMAINS } from './DomainSelector';
+import { ContinuePlanningDialog } from './ContinuePlanningDialog';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -38,6 +40,8 @@ interface DoorPlanningModalProps {
   selectedObjectives?: SelectedObjective[];
 }
 
+type PlanningStep = 'domain-select' | 'planning' | 'continue-prompt';
+
 export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   isOpen,
   onClose,
@@ -46,16 +50,23 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 }) => {
   // Use centralized week key logic: Mon-Sat = current week, Sunday = next week
   const currentWeekKey = getWeekKeyForPlanning();
-  const draftKey = `doorPlanningDraft_${currentWeekKey}`;
+  
+  // Planning step state
+  const [planningStep, setPlanningStep] = useState<PlanningStep>('domain-select');
+  const [selectedDomain, setSelectedDomain] = useState<DomainCategory | null>(null);
+  const [completedDomains, setCompletedDomains] = useState<DomainCategory[]>([]);
+  
+  const draftKey = `doorPlanningDraft_${currentWeekKey}_${selectedDomain || 'business'}`;
   
   // Load draft from database first, fallback to localStorage
   const loadDraft = async () => {
+    if (!selectedDomain) return null;
+    
     try {
       // Try database first
-      const dbDraft = await weeklyPlanningDraftService.loadDraft(currentWeekKey);
+      const dbDraft = await weeklyPlanningDraftService.loadDraft(currentWeekKey, selectedDomain);
       if (dbDraft) {
-        console.log('📦 Loaded draft from database');
-        // Set cloud save timestamp immediately from loaded draft
+        console.log('📦 Loaded draft from database for', selectedDomain);
         if (dbDraft.lastSavedAt) {
           setLastCloudSave(new Date(dbDraft.lastSavedAt));
         }
@@ -78,8 +89,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
             messages: draft.messages,
             questionsAnswered: draft.questionsAnswered || 0,
             isSkippingReview: draft.isSkippingReview || false,
-          });
-          localStorage.removeItem(draftKey); // Clear old localStorage
+          }, selectedDomain);
+          localStorage.removeItem(draftKey);
         }
         
         return {
@@ -103,7 +114,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const [isSkippingReview, setIsSkippingReview] = useState(false);
   const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const [previousWeekData, setPreviousWeekData] = useState<PreviousWeekData | undefined>(externalPreviousData);
-  const [isLoadingPreviousData, setIsLoadingPreviousData] = useState(true);
+  const [isLoadingPreviousData, setIsLoadingPreviousData] = useState(false);
   
   // Review statistics tracking
   const [reviewStats, setReviewStats] = useState({
@@ -143,7 +154,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   } = useVoiceInput({
     onTranscript: async (transcript) => {
       const trimmed = transcript.trim();
-      if (!trimmed) return;
+      if (!trimmed || !selectedDomain) return;
 
       const userMessage: Message = { role: 'user', content: trimmed };
       const nextMessages = [...messagesRef.current, userMessage];
@@ -155,7 +166,6 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       setIsLoading(true);
       setQuestionsAnswered(prev => prev + 1);
 
-      // Save draft (cloud) - best effort
       const updatedQuestionsAnswered = questionsAnswered + 1;
       try {
         setIsSaving(true);
@@ -163,9 +173,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           messages: cappedMessages,
           questionsAnswered: updatedQuestionsAnswered,
           isSkippingReview,
-        });
+        }, selectedDomain);
         setLastCloudSave(new Date());
-        console.log('☁️ Voice message saved to cloud immediately');
       } catch (e) {
         console.error('Error saving voice draft:', e);
       } finally {
@@ -191,7 +200,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
         setIsLoading(false);
       }
     },
-    enabled: inputMode === 'voice'
+    enabled: inputMode === 'voice' && planningStep === 'planning'
   });
 
   // Save input mode preference
@@ -202,9 +211,31 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const totalQuestions = previousWeekData ? 22 : 18;
   const progress = (questionsAnswered / totalQuestions) * 100;
 
-  // Load draft on mount
+  // Load completed domains on open
   useEffect(() => {
-    if (isOpen && !draftLoaded) {
+    if (isOpen) {
+      weeklyPlanningService.getCompletedDomainsForWeek(currentWeekKey).then(domains => {
+        setCompletedDomains(domains);
+      });
+    }
+  }, [isOpen, currentWeekKey]);
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setPlanningStep('domain-select');
+      setSelectedDomain(null);
+      setMessages([]);
+      setQuestionsAnswered(0);
+      setDraftLoaded(false);
+      setInputMode('text');
+      setLastCloudSave(null);
+    }
+  }, [isOpen]);
+
+  // Load draft when domain is selected
+  useEffect(() => {
+    if (selectedDomain && planningStep === 'planning' && !draftLoaded) {
       loadDraft().then(draft => {
         if (draft) {
           setMessages(draft.messages);
@@ -214,30 +245,32 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
         setDraftLoaded(true);
       });
     }
-  }, [isOpen]);
+  }, [selectedDomain, planningStep]);
 
+  // Load previous week data when domain is selected
   useEffect(() => {
-    if (isOpen) {
+    if (selectedDomain && planningStep === 'planning') {
       loadPreviousWeekData();
     }
-  }, [isOpen]);
+  }, [selectedDomain, planningStep]);
 
+  // Start conversation when ready
   useEffect(() => {
-    // Only start new conversation if no draft exists
-    if (isOpen && !isLoadingPreviousData && draftLoaded && messages.length === 0) {
+    if (planningStep === 'planning' && !isLoadingPreviousData && draftLoaded && messages.length === 0) {
       startConversation();
     }
-  }, [isOpen, isLoadingPreviousData, draftLoaded]);
+  }, [planningStep, isLoadingPreviousData, draftLoaded]);
 
   const loadPreviousWeekData = async () => {
+    if (!selectedDomain) return;
+    
     setIsLoadingPreviousData(true);
     
     try {
       const today = new Date();
-      const currentWeekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
+      const currentWeekKeyISO = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
       
-      // Load previous week's plan from database
-      const previousPlan = await weeklyPlanningService.getPreviousWeekPlan(currentWeekKey);
+      const previousPlan = await weeklyPlanningService.getPreviousWeekPlan(currentWeekKeyISO, selectedDomain);
       
       if (previousPlan) {
         setPreviousWeekData({
@@ -252,10 +285,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
             deadline: kp.deadline,
           })),
         });
-        
-        console.log('✅ Loaded previous week data:', previousPlan);
+        console.log('✅ Loaded previous week data for', selectedDomain);
       } else {
-        console.log('ℹ️ No previous week data found');
+        setPreviousWeekData(undefined);
       }
     } catch (error) {
       console.error('Error loading previous week data:', error);
@@ -266,7 +298,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
   // Auto-save to localStorage immediately for fast backup
   useEffect(() => {
-    if (messages.length > 0) {
+    if (messages.length > 0 && selectedDomain) {
       try {
         localStorage.setItem(draftKey, JSON.stringify({
           messages,
@@ -278,32 +310,41 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
         console.error('Error saving to localStorage:', e);
       }
     }
-  }, [messages, questionsAnswered, isSkippingReview, draftKey]);
+  }, [messages, questionsAnswered, isSkippingReview, draftKey, selectedDomain]);
 
-  // Auto-scroll to bottom when messages change or loading state changes
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setInputMode('text');
-      setDraftLoaded(false);
-    }
-  }, [isOpen]);
+  const handleDomainSelect = (domain: DomainCategory) => {
+    setSelectedDomain(domain);
+    setPlanningStep('planning');
+  };
+
+  const handleBackToDomainSelect = () => {
+    setPlanningStep('domain-select');
+    setSelectedDomain(null);
+    setMessages([]);
+    setQuestionsAnswered(0);
+    setDraftLoaded(false);
+  };
 
   const startConversation = async (forceSkip: boolean = false) => {
+    if (!selectedDomain) return;
+    
     setIsLoading(true);
     
     try {
-      // Use forceSkip parameter OR state - forceSkip takes precedence for immediate calls after setState
       const shouldSkip = forceSkip || isSkippingReview;
       const mode = previousWeekData && !shouldSkip ? 'review' : 'new';
       
-      // Pornește conversația cu un mesaj inițial de la user
+      const domainConfig = DOMAINS.find(d => d.id === selectedDomain);
+      const domainName = domainConfig?.labelRo || selectedDomain;
+      
       const initialMessage: Message = { 
         role: 'user', 
-        content: 'Salut! Să începem planificarea săptămânii.' 
+        content: `Salut! Să începem planificarea săptămânii pentru domeniul ${domainName}.` 
       };
       
       await streamChat({
@@ -324,20 +365,21 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   };
 
   const handleSkipReview = () => {
+    if (!selectedDomain) return;
+    
     setIsSkippingReview(true);
     setMessages([]);
     setQuestionsAnswered(0);
-    // Clear both localStorage and database
     localStorage.removeItem(draftKey);
-    weeklyPlanningDraftService.deleteDraft(currentWeekKey);
-    // Pass true to force skip mode immediately (don't wait for state update)
+    weeklyPlanningDraftService.deleteDraft(currentWeekKey, selectedDomain);
     startConversation(true);
   };
 
   const handleClearDraft = async () => {
-    // Clear from both localStorage and database
+    if (!selectedDomain) return;
+    
     localStorage.removeItem(draftKey);
-    await weeklyPlanningDraftService.deleteDraft(currentWeekKey);
+    await weeklyPlanningDraftService.deleteDraft(currentWeekKey, selectedDomain);
     
     setMessages([]);
     setQuestionsAnswered(0);
@@ -346,13 +388,13 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     
     toast({
       title: 'Draft șters',
-      description: 'Conversația salvată a fost ștearsă din localStorage și din cloud.',
+      description: 'Conversația salvată a fost ștearsă.',
     });
-    onClose();
+    handleBackToDomainSelect();
   };
 
   const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !selectedDomain) return;
 
     const userMessage: Message = { role: 'user', content: input.trim() };
     const nextMessages = [...messagesRef.current, userMessage];
@@ -365,16 +407,14 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     setIsLoading(true);
     setQuestionsAnswered(updatedQuestionsAnswered);
 
-    // Save draft (cloud) - best effort
     try {
       setIsSaving(true);
       await weeklyPlanningDraftService.saveDraft(currentWeekKey, {
         messages: cappedMessages,
         questionsAnswered: updatedQuestionsAnswered,
         isSkippingReview,
-      });
+      }, selectedDomain);
       setLastCloudSave(new Date());
-      console.log('☁️ Text message saved to cloud immediately');
     } catch (e) {
       console.error('Error saving text draft:', e);
     } finally {
@@ -401,11 +441,52 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     }
   };
 
+  const handlePlanningComplete = (planningData: PlanningResult) => {
+    if (!selectedDomain) return;
+    
+    // Add domain to completed list
+    setCompletedDomains(prev => [...prev, selectedDomain]);
+    
+    // Check if there are remaining domains
+    const allDomains: DomainCategory[] = ['business', 'body', 'being', 'balance'];
+    const remaining = allDomains.filter(d => !completedDomains.includes(d) && d !== selectedDomain);
+    
+    if (remaining.length > 0) {
+      // Show continue dialog
+      setPlanningStep('continue-prompt');
+    } else {
+      // All domains done
+      onPlanningComplete(planningData);
+      onClose();
+    }
+  };
+
+  const handleContinueWithDomain = (domain: DomainCategory) => {
+    // Reset for new domain
+    setMessages([]);
+    setQuestionsAnswered(0);
+    setDraftLoaded(false);
+    setIsSkippingReview(false);
+    setLastCloudSave(null);
+    setPreviousWeekData(undefined);
+    
+    // Start new domain
+    setSelectedDomain(domain);
+    setPlanningStep('planning');
+  };
+
+  const handleFinishPlanning = () => {
+    onPlanningComplete();
+    onClose();
+  };
+
   const streamChat = async ({ mode, previousWeekData, messages: chatMessages }: {
     mode: 'review' | 'new';
     previousWeekData?: PreviousWeekData;
     messages: Message[];
   }) => {
+    if (!selectedDomain) return;
+    
     const safeMessages = Array.isArray(chatMessages)
       ? chatMessages.slice(-MAX_MESSAGES_TO_SEND)
       : [];
@@ -418,16 +499,22 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       throw new Error('Not authenticated');
     }
 
+    const domainConfig = DOMAINS.find(d => d.id === selectedDomain);
+
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/door-ai-planning`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // required for function gateway
         'apikey': `${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        // user auth for RLS + auth context inside the function
         'Authorization': `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ mode, previousWeekData, messages: safeMessages }),
+      body: JSON.stringify({ 
+        mode, 
+        previousWeekData, 
+        messages: safeMessages,
+        category: selectedDomain,
+        categoryLabel: domainConfig?.labelRo || selectedDomain,
+      }),
     });
 
     if (!response.ok) {
@@ -471,22 +558,22 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                 
                 console.log('📝 Planning data received from AI:', planningData);
                 
-                // Save to database
+                // Save to database with category
                 const saveSuccess = await weeklyPlanningService.savePlan({
                   weekKey: currentWeekKey,
                   dominoTitle: planningData.dominoTitle,
                   weekGoal: planningData.weekGoal,
                   keyPoints: planningData.keyPoints,
+                  category: selectedDomain,
                 });
                 
                 if (saveSuccess) {
                   console.log('✅ Planning saved successfully to database');
                   
-                  // Add steps to daily tasks (HIT/DO lists)
+                  // Add steps to daily tasks with domain category
                   let stepsAdded = 0;
                   for (const keyPoint of planningData.keyPoints || []) {
                     for (const step of keyPoint.steps || []) {
-                      // Handle both old format (string) and new format (object with day/listType)
                       const stepText = typeof step === 'string' ? step : step.text;
                       const stepDay = typeof step === 'object' ? step.day : null;
                       const stepListType = typeof step === 'object' ? step.listType : 'do';
@@ -495,13 +582,12 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                         try {
                           await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
                             id: uuidv4(),
-                            text: `[${keyPoint.title}] ${stepText}`,
+                            text: `[${domainConfig?.labelRo || selectedDomain}] ${stepText}`,
                             category: stepListType as 'hit' | 'do',
                             priority: 'important',
                             day: stepDay as DayOfWeek
                           });
                           stepsAdded++;
-                          console.log(`✅ Step added to ${stepListType} list for ${stepDay}: ${stepText}`);
                         } catch (stepError) {
                           console.error('Error adding step to tasks:', stepError);
                         }
@@ -511,49 +597,34 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                   
                   console.log(`📋 Total ${stepsAdded} steps added to daily tasks`);
                   
-                  // Clear draft from both localStorage and database
+                  // Clear draft
                   localStorage.removeItem(draftKey);
-                  await weeklyPlanningDraftService.deleteDraft(currentWeekKey);
+                  await weeklyPlanningDraftService.deleteDraft(currentWeekKey, selectedDomain);
                   
                   toast({
                     title: 'Plan salvat cu succes!',
                     description: stepsAdded > 0 
-                      ? `Planul și ${stepsAdded} pași au fost adăugați în sarcinile zilnice.`
-                      : 'Planul săptămânii a fost salvat în baza de date.',
+                      ? `Planul ${domainConfig?.labelRo} și ${stepsAdded} pași au fost adăugați.`
+                      : `Planul ${domainConfig?.labelRo} a fost salvat.`,
                   });
                   
-                  onPlanningComplete(planningData);
-                  
-                  // Small delay before closing to ensure user sees success message
-                  setTimeout(() => {
-                    onClose();
-                  }, 500);
+                  // Trigger continue flow
+                  handlePlanningComplete(planningData);
                 } else {
                   console.error('❌ Failed to save planning to database');
-                  // Don't block the conversation - allow retry
                   toast({
                     title: 'Eroare la salvare',
-                    description: 'Planul nu a putut fi salvat în cloud. Încearcă din nou sau salvează manual.',
+                    description: 'Planul nu a putut fi salvat. Încearcă din nou.',
                     variant: 'destructive',
                   });
-                  
-                  // Store in localStorage as backup so user doesn't lose work
-                  try {
-                    localStorage.setItem(`planning_backup_${currentWeekKey}`, JSON.stringify(planningData));
-                    console.log('📦 Planning data backed up to localStorage');
-                  } catch (backupError) {
-                    console.error('Error backing up:', backupError);
-                  }
                 }
-                // Don't return here - let the conversation continue
               } catch (e) {
                 console.error('❌ Error parsing or saving planning data:', e);
                 toast({
                   title: 'Eroare la procesare',
-                  description: 'A apărut o eroare. Datele rămân în draft. Poți încerca din nou.',
+                  description: 'A apărut o eroare. Datele rămân în draft.',
                   variant: 'destructive',
                 });
-                // Don't return - conversation can continue
               }
             }
           }
@@ -597,198 +668,235 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     setInputMode(prev => prev === 'text' ? 'voice' : 'text');
   };
 
+  const selectedDomainConfig = selectedDomain ? DOMAINS.find(d => d.id === selectedDomain) : null;
+  const remainingDomains = (['business', 'body', 'being', 'balance'] as DomainCategory[])
+    .filter(d => !completedDomains.includes(d) && d !== selectedDomain);
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="flex items-center justify-between text-xl">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-purple-500" />
-              AI Weekly Planning Assistant
-              {previousWeekData && !isSkippingReview && (
-                <span className="text-sm font-normal text-muted-foreground ml-2">
-                  (cu review săptămână precedentă)
-                </span>
-              )}
-            </div>
-            {messages.length > 0 && (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  {isSaving ? (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                      <span>Salvare cloud...</span>
-                    </div>
-                  ) : lastCloudSave ? (
-                    <div className="flex items-center gap-1 text-xs text-green-500">
-                      <Cloud className="w-3 h-3" />
-                      <span>Cloud: {lastCloudSave.toLocaleTimeString()}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <CloudOff className="w-3 h-3" />
-                      <span>Local only</span>
-                    </div>
-                  )}
-                  <span className="text-xs text-green-500 flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" />
-                    Auto-save
-                  </span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleClearDraft}
-                  className="text-xs text-muted-foreground hover:text-destructive"
-                >
-                  Șterge draft
-                </Button>
-              </div>
-            )}
-          </DialogTitle>
-        </DialogHeader>
-
-        {isLoadingPreviousData ? (
-          <div className="flex-1 flex items-center justify-center py-12">
-            <div className="text-center space-y-3">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto text-purple-500" />
-              <p className="text-sm text-muted-foreground">Încărcare date săptămâna precedentă...</p>
-            </div>
-          </div>
-        ) : (
-          <>
-            <ScrollArea className="flex-1 px-6 py-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
-            {/* Review Statistics - show after review phase */}
-            {previousWeekData && !isSkippingReview && reviewStats.reviewComplete && (
-              <ReviewProgressStats
-                totalKeys={reviewStats.totalKeys}
-                completedKeys={reviewStats.completedKeys}
-                continuedKeys={reviewStats.continuedKeys}
-                failedKeys={reviewStats.failedKeys}
-              />
-            )}
-            
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                    msg.role === 'user'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-muted text-foreground'
-                  }`}
-                >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-muted rounded-lg px-4 py-2 flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm text-muted-foreground">AI gândește...</span>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-            </div>
-          </ScrollArea>
-
-          <div className="px-6 pb-6 border-t pt-4 space-y-3">
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Progres: {questionsAnswered}/{totalQuestions} întrebări</span>
-                <span>{Math.round(progress)}%</span>
-              </div>
-              <Progress value={progress} className="h-2" />
-            </div>
-
-            {previousWeekData && !isSkippingReview && questionsAnswered === 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSkipReview}
-                className="w-full"
-              >
-                <SkipForward className="w-4 h-4 mr-2" />
-                Sari peste review, planifică direct săptămâna nouă
-              </Button>
-            )}
-
-            <div className="flex gap-2">
-              {inputMode === 'text' ? (
-                <>
-                  <Textarea
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Scrie răspunsul tău... (Enter = trimite, Shift+Enter = rând nou)"
-                    className="resize-none flex-1"
-                    rows={2}
-                    disabled={isLoading}
-                  />
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      onClick={handleSendMessage}
-                      disabled={isLoading || !input.trim()}
-                      size="icon"
-                    >
-                      <Send className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      onClick={toggleInputMode}
-                      variant="outline"
-                      size="icon"
-                      title="Activează voice"
-                      disabled={isLoading}
-                    >
-                      <Mic className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <div className="flex-1 flex flex-col gap-3">
-                  <div className="flex items-center justify-center gap-3">
-                    <VoiceLanguageToggle
-                      currentLanguage={voiceLanguage}
-                      onLanguageChange={changeVoiceLanguage}
-                      disabled={isMicOn || isLoading}
-                    />
-                    <VoiceInputButton 
-                      isMicOn={isMicOn}
-                      isConnected={isConnected}
-                      isAISpeaking={false}
-                      isUserSpeaking={isUserSpeaking}
-                      audioLevel={0}
-                      onToggle={toggleMic}
-                      variant="compact"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <p className="text-center text-sm text-muted-foreground">
-                    {isMicOn 
-                      ? 'Vorbește acum - microfonul este activ' 
-                      : 'Click pe microfon pentru a începe'}
-                  </p>
+    <>
+      <Dialog open={isOpen && planningStep !== 'continue-prompt'} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b">
+            <DialogTitle className="flex items-center justify-between text-xl">
+              <div className="flex items-center gap-2">
+                {planningStep === 'planning' && (
                   <Button
-                    onClick={toggleInputMode}
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleBackToDomainSelect}
+                    className="mr-1"
                   >
-                    <Keyboard className="w-4 h-4 mr-2" />
-                    Înapoi la text
+                    <ArrowLeft className="w-4 h-4" />
+                  </Button>
+                )}
+                <Sparkles className="w-5 h-5 text-purple-500" />
+                {planningStep === 'domain-select' ? (
+                  'Domino Door Planning'
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <span className={selectedDomainConfig?.color}>
+                      {selectedDomainConfig?.labelRo}
+                    </span>
+                    {previousWeekData && !isSkippingReview && (
+                      <span className="text-sm font-normal text-muted-foreground">
+                        (cu review)
+                      </span>
+                    )}
+                  </span>
+                )}
+              </div>
+              {planningStep === 'planning' && messages.length > 0 && (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    {isSaving ? (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span>Salvare...</span>
+                      </div>
+                    ) : lastCloudSave ? (
+                      <div className="flex items-center gap-1 text-xs text-green-500">
+                        <Cloud className="w-3 h-3" />
+                        <span>{lastCloudSave.toLocaleTimeString()}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <CloudOff className="w-3 h-3" />
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearDraft}
+                    className="text-xs text-muted-foreground hover:text-destructive"
+                  >
+                    Șterge draft
                   </Button>
                 </div>
               )}
+            </DialogTitle>
+          </DialogHeader>
+
+          {planningStep === 'domain-select' ? (
+            <div className="p-6">
+              <DomainSelector
+                selectedDomain={selectedDomain}
+                onSelectDomain={handleDomainSelect}
+                completedDomains={completedDomains}
+              />
             </div>
-          </div>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+          ) : isLoadingPreviousData ? (
+            <div className="flex-1 flex items-center justify-center py-12">
+              <div className="text-center space-y-3">
+                <Loader2 className="w-8 h-8 animate-spin mx-auto text-purple-500" />
+                <p className="text-sm text-muted-foreground">Încărcare date...</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <ScrollArea className="flex-1 px-6 py-4" ref={scrollAreaRef}>
+                <div className="space-y-4">
+                  {previousWeekData && !isSkippingReview && reviewStats.reviewComplete && (
+                    <ReviewProgressStats
+                      totalKeys={reviewStats.totalKeys}
+                      completedKeys={reviewStats.completedKeys}
+                      continuedKeys={reviewStats.continuedKeys}
+                      failedKeys={reviewStats.failedKeys}
+                    />
+                  )}
+                  
+                  {messages.map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                          msg.role === 'user'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-muted text-foreground'
+                        }`}
+                      >
+                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-muted rounded-lg px-4 py-2 flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm text-muted-foreground">AI gândește...</span>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+
+              <div className="px-6 pb-6 border-t pt-4 space-y-3">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Progres: {questionsAnswered}/{totalQuestions} întrebări</span>
+                    <span>{Math.round(progress)}%</span>
+                  </div>
+                  <Progress value={progress} className="h-2" />
+                </div>
+
+                {previousWeekData && !isSkippingReview && questionsAnswered === 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSkipReview}
+                    className="w-full"
+                  >
+                    <SkipForward className="w-4 h-4 mr-2" />
+                    Sari peste review
+                  </Button>
+                )}
+
+                <div className="flex gap-2">
+                  {inputMode === 'text' ? (
+                    <>
+                      <Textarea
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Scrie răspunsul tău..."
+                        className="resize-none flex-1"
+                        rows={2}
+                        disabled={isLoading}
+                      />
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          onClick={handleSendMessage}
+                          disabled={isLoading || !input.trim()}
+                          size="icon"
+                        >
+                          <Send className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          onClick={toggleInputMode}
+                          variant="outline"
+                          size="icon"
+                          title="Activează voice"
+                          disabled={isLoading}
+                        >
+                          <Mic className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex flex-col gap-3">
+                      <div className="flex items-center justify-center gap-3">
+                        <VoiceLanguageToggle
+                          currentLanguage={voiceLanguage}
+                          onLanguageChange={changeVoiceLanguage}
+                          disabled={isMicOn || isLoading}
+                        />
+                        <VoiceInputButton 
+                          isMicOn={isMicOn}
+                          isConnected={isConnected}
+                          isAISpeaking={false}
+                          isUserSpeaking={isUserSpeaking}
+                          audioLevel={0}
+                          onToggle={toggleMic}
+                          variant="compact"
+                          disabled={isLoading}
+                        />
+                      </div>
+                      <p className="text-center text-sm text-muted-foreground">
+                        {isMicOn 
+                          ? 'Vorbește acum' 
+                          : 'Click pe microfon'}
+                      </p>
+                      <Button
+                        onClick={toggleInputMode}
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                      >
+                        <Keyboard className="w-4 h-4 mr-2" />
+                        Text
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {selectedDomain && (
+        <ContinuePlanningDialog
+          isOpen={planningStep === 'continue-prompt'}
+          onClose={() => setPlanningStep('planning')}
+          completedDomain={selectedDomain}
+          remainingDomains={remainingDomains}
+          onContinue={handleContinueWithDomain}
+          onFinish={handleFinishPlanning}
+        />
+      )}
+    </>
   );
 };
