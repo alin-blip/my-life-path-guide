@@ -1,15 +1,18 @@
 import { supabase } from '@/integrations/supabase/client';
+import { DomainCategory } from '@/components/door/DomainSelector';
 
 interface DraftData {
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;
   questionsAnswered: number;
   isSkippingReview: boolean;
+  category?: DomainCategory;
 }
 
 interface DraftRecord {
   id: string;
   user_id: string;
   week_key: string;
+  category: string;
   messages: any;
   questions_answered: number;
   is_skipping_review: boolean;
@@ -31,7 +34,7 @@ export const weeklyPlanningDraftService = {
   /**
    * Save or update a draft in the database
    */
-  async saveDraft(weekKey: string, draftData: DraftData): Promise<boolean> {
+  async saveDraft(weekKey: string, draftData: DraftData, category: DomainCategory = 'business'): Promise<boolean> {
     try {
       const userId = await getUserId();
       if (!userId) {
@@ -44,12 +47,13 @@ export const weeklyPlanningDraftService = {
         .upsert({
           user_id: userId,
           week_key: weekKey,
+          category,
           messages: draftData.messages,
           questions_answered: draftData.questionsAnswered,
           is_skipping_review: draftData.isSkippingReview,
           last_saved_at: new Date().toISOString(),
         }, {
-          onConflict: 'user_id,week_key'
+          onConflict: 'user_id,week_key,category'
         });
 
       if (error) {
@@ -57,7 +61,7 @@ export const weeklyPlanningDraftService = {
         return false;
       }
 
-      console.log('✅ Draft saved to database:', { weekKey, messagesCount: draftData.messages.length });
+      console.log('✅ Draft saved to database:', { weekKey, category, messagesCount: draftData.messages.length });
       return true;
     } catch (error) {
       console.error('❌ Unexpected error saving draft:', error);
@@ -66,9 +70,9 @@ export const weeklyPlanningDraftService = {
   },
 
   /**
-   * Load the latest draft for a specific week
+   * Load the latest draft for a specific week and category
    */
-  async loadDraft(weekKey: string): Promise<DraftDataWithTimestamp | null> {
+  async loadDraft(weekKey: string, category: DomainCategory = 'business'): Promise<DraftDataWithTimestamp | null> {
     try {
       const userId = await getUserId();
       if (!userId) {
@@ -81,12 +85,13 @@ export const weeklyPlanningDraftService = {
         .select('*')
         .eq('user_id', userId)
         .eq('week_key', weekKey)
+        .eq('category', category)
         .single();
 
       if (error) {
         if (error.code === 'PGRST116') {
           // No draft found - this is normal
-          console.log('ℹ️ No draft found for week:', weekKey);
+          console.log('ℹ️ No draft found for week:', weekKey, 'category:', category);
           return null;
         }
         console.error('❌ Error loading draft from database:', error);
@@ -97,6 +102,7 @@ export const weeklyPlanningDraftService = {
       
       console.log('✅ Draft loaded from database:', { 
         weekKey, 
+        category,
         messagesCount: record.messages?.length || 0,
         lastSaved: record.last_saved_at 
       });
@@ -105,6 +111,7 @@ export const weeklyPlanningDraftService = {
         messages: record.messages || [],
         questionsAnswered: record.questions_answered || 0,
         isSkippingReview: record.is_skipping_review || false,
+        category: record.category as DomainCategory,
         lastSavedAt: record.last_saved_at,
       };
     } catch (error) {
@@ -116,7 +123,7 @@ export const weeklyPlanningDraftService = {
   /**
    * Delete a draft from the database
    */
-  async deleteDraft(weekKey: string): Promise<boolean> {
+  async deleteDraft(weekKey: string, category: DomainCategory = 'business'): Promise<boolean> {
     try {
       const userId = await getUserId();
       if (!userId) {
@@ -128,14 +135,15 @@ export const weeklyPlanningDraftService = {
         .from('weekly_planning_drafts')
         .delete()
         .eq('user_id', userId)
-        .eq('week_key', weekKey);
+        .eq('week_key', weekKey)
+        .eq('category', category);
 
       if (error) {
         console.error('❌ Error deleting draft from database:', error);
         return false;
       }
 
-      console.log('✅ Draft deleted from database:', weekKey);
+      console.log('✅ Draft deleted from database:', weekKey, category);
       return true;
     } catch (error) {
       console.error('❌ Unexpected error deleting draft:', error);
