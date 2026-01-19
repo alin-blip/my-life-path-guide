@@ -99,6 +99,38 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     }, 100);
   };
 
+  // Add a new idea with text directly (for input field submission)
+  const addNewTargetWithText = async (text: string) => {
+    if (!text.trim()) return;
+    
+    const newItem: HotListItem = {
+      id: Date.now().toString(),
+      text: text.trim(),
+      selected: false,
+      priority: 'none'
+    };
+    
+    const updatedHotList = [...hotList, newItem];
+    setHotList(updatedHotList);
+    
+    // Save immediately to database
+    try {
+      await doorUserTasksService.saveGlobalHotList(updatedHotList);
+      onDataChange?.();
+      toast({
+        title: "✅ Idee adăugată",
+        description: `"${text.trim()}" a fost salvată în Idei`,
+      });
+    } catch (error) {
+      console.error('Error saving new idea:', error);
+      toast({
+        title: '⚠️ Eroare salvare',
+        description: 'Nu s-a putut salva ideea',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const toggleHotListItemSelection = (id: string) => {
     setHotList(hotList.map(item => 
       item.id === id ? { ...item, selected: !item.selected } : item
@@ -329,6 +361,7 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     setActiveList,
     editingNewItem,
     addNewTarget,
+    addNewTargetWithText,
     toggleHotListItemSelection,
     updateHotListItemText,
     updateHotListItemPriority,

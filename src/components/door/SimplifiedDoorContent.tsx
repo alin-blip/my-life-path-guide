@@ -172,6 +172,7 @@ export const SimplifiedDoorContent: React.FC = () => {
     handleNextWeek,
     toggleHotListItemSelection,
     addNewTarget,
+    addNewTargetWithText,
     deleteHotListItem,
     updateHotListItemText,
     updateHotListItemPriority,
@@ -433,6 +434,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                     updateHotListItemText={updateHotListItemText}
                     updateHotListItemPriority={updateHotListItemPriority}
                     addNewTarget={addNewTarget}
+                    addNewTargetWithText={addNewTargetWithText}
                     deleteHotListItem={deleteHotListItem}
                     handleDragStartToDomino={handleDragStartToDomino}
                     handleDragStart={handleDragStart}
@@ -533,6 +535,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                 updateHotListItemText={updateHotListItemText}
                 updateHotListItemPriority={updateHotListItemPriority}
                 addNewTarget={addNewTarget}
+                addNewTargetWithText={addNewTargetWithText}
                 deleteHotListItem={deleteHotListItem}
                 handleDragStartToDomino={handleDragStartToDomino}
                 handleDragStart={handleDragStart}
