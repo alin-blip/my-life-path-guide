@@ -12,8 +12,6 @@ import { DoorProvider } from "@/context/DoorContext";
 import { SecurityProvider } from "@/components/SecurityProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { MigrationProvider } from "@/context/MigrationContext";
-import { DataMigrationModal } from "@/components/DataMigrationModal";
 import { ThemeProvider } from "@/context/ThemeContext";
 
 // Eager load critical pages
@@ -102,13 +100,11 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <AuthProvider>
-                <MigrationProvider>
+            <AuthProvider>
                   <LanguageProvider>
                     <SecurityProvider>
                       <DoorProvider>
                         <ProgressProvider>
-                        <DataMigrationModal />
                         <Suspense fallback={<LoadingFallback />}>
                         <Routes>
                     <Route path="/" element={<Index />} />
@@ -370,7 +366,6 @@ const App = () => (
                       </DoorProvider>
                     </SecurityProvider>
                   </LanguageProvider>
-              </MigrationProvider>
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>

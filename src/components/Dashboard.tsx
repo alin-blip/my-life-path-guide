@@ -53,6 +53,7 @@ import { FoundationNotifications } from '@/components/onboarding/FoundationNotif
 import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNotification';
 import { useFoundationStatus } from '@/hooks/useFoundationStatus';
 import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { WidgetGrid, WidgetSelector, DailyCommandCenterWidget } from '@/components/dashboard/widgets';
 import { ChampionRoutineWidget } from '@/components/dashboard/widgets/ChampionRoutineWidget';
 import { VisionDeclarationWidget } from '@/components/dashboard/widgets/VisionDeclarationWidget';
@@ -157,9 +158,10 @@ export const Dashboard: React.FC = () => {
   // Sunday Planning Modal
   const [showSundayPlanning, setShowSundayPlanning] = useState(false);
 
-  // Onboarding Wizard
+  // Onboarding Wizard (disabled on mobile - Accountability Coach is available at bottom)
   const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
   const foundationStatus = useFoundationStatus();
+  const isMobile = useIsMobile();
 
   // Dashboard Widgets
   const { 
@@ -262,9 +264,9 @@ export const Dashboard: React.FC = () => {
     }
   }, [searchParams, setSearchParams, toast, language]);
 
-  // Daily popup - shows once per day if there are pending items
+  // Daily popup - shows once per day if there are pending items (disabled on mobile)
   useEffect(() => {
-    if (foundationStatus.isLoading) return;
+    if (foundationStatus.isLoading || isMobile) return;
     
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const shownToday = localStorage.getItem('onboarding-wizard-shown-today');
@@ -276,7 +278,7 @@ export const Dashboard: React.FC = () => {
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [foundationStatus.isLoading, foundationStatus.isFoundationComplete]);
+  }, [foundationStatus.isLoading, foundationStatus.isFoundationComplete, isMobile]);
 
   // Listen for progress updates and XP events
   useEffect(() => {
