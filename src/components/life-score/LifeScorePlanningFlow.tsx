@@ -195,11 +195,41 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
         }
       }
 
+      // Send follow-up email with the plan
+      try {
+        const response = await supabase.functions.invoke('send-life-score-plan', {
+          body: {
+            email: user.email,
+            name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Warrior',
+            planData: {
+              category: planData.category,
+              categoryLabel: planData.categoryLabel,
+              annualVision: planData.annualVision,
+              quarterlyMilestone: planData.quarterlyMilestone,
+              monthlyFocus: planData.monthlyFocus,
+              weeklyKeys: planData.weeklyKeys.map(key => ({
+                title: key.title,
+                steps: key.steps?.map(s => ({ text: s.text, day: s.day })),
+              })),
+            },
+            language,
+          },
+        });
+        
+        if (response.error) {
+          console.error('Error sending plan email:', response.error);
+        } else {
+          console.log('Plan email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Error invoking send-life-score-plan:', emailError);
+      }
+
       toast({
         title: language === 'ro' ? '✅ Plan salvat!' : '✅ Plan saved!',
         description: language === 'ro' 
-          ? `Strategia ta pentru ${planData.categoryLabel} a fost salvată.`
-          : `Your ${planData.categoryLabel} strategy has been saved.`,
+          ? `Strategia ta pentru ${planData.categoryLabel} a fost salvată și trimisă pe email.`
+          : `Your ${planData.categoryLabel} strategy has been saved and sent via email.`,
       });
 
     } catch (error) {

@@ -61,17 +61,17 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
   }
 
   return (
-    <div className="max-w-lg mx-auto space-y-4">
-      {/* Main Score Card - More Compact */}
+    <div className="max-w-lg mx-auto space-y-3 sm:space-y-4 px-2 sm:px-0">
+      {/* Main Score Card - Mobile Optimized */}
       <motion.div 
-        className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 text-center shadow-2xl"
+        className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-center shadow-2xl"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: 'spring', duration: 0.8 }}
       >
-        {/* Score Circle - Smaller */}
-        <div className="relative w-36 h-36 mx-auto mb-4">
-          <svg className="w-full h-full transform -rotate-90">
+        {/* Score Circle - Responsive */}
+        <div className="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-3 sm:mb-4">
+          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 144 144">
             <circle
               cx="72"
               cy="72"
@@ -104,58 +104,58 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
           
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <motion.span 
-              className="text-4xl font-black bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent"
+              className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1 }}
             >
               {percentage}%
             </motion.span>
-            <span className="text-white/50 text-xs font-medium">
+            <span className="text-white/50 text-[10px] sm:text-xs font-medium">
               {language === 'en' ? 'Life Score' : 'Scorul Vieții'}
             </span>
           </div>
         </div>
 
-        {/* Level Badge - Inline */}
+        {/* Level Badge - Compact on Mobile */}
         <motion.div
           className="flex items-center justify-center gap-2"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2 }}
         >
-          <span className="text-3xl">{scoreLevel.emoji}</span>
+          <span className="text-2xl sm:text-3xl">{scoreLevel.emoji}</span>
           <div className="text-left">
-            <h2 className="text-lg font-bold text-white">
+            <h2 className="text-base sm:text-lg font-bold text-white">
               {language === 'en' ? scoreLevel.level : scoreLevel.levelRo}
             </h2>
-            <p className="text-white/60 text-xs">
+            <p className="text-white/60 text-[10px] sm:text-xs line-clamp-2">
               {language === 'en' ? scoreLevel.description : scoreLevel.descriptionRo}
             </p>
           </div>
         </motion.div>
       </motion.div>
 
-      {/* CTA Section - Moved Up */}
+      {/* CTA Section - Compact on Mobile */}
       <motion.div 
-        className="bg-gradient-to-br from-violet-500/30 to-purple-600/30 backdrop-blur-xl border border-violet-400/30 rounded-2xl p-4 text-center"
+        className="bg-gradient-to-br from-violet-500/30 to-purple-600/30 backdrop-blur-xl border border-violet-400/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.3 }}
       >
-        <h3 className="text-lg font-bold text-white mb-1">
+        <h3 className="text-base sm:text-lg font-bold text-white mb-1">
           {language === 'en' 
             ? 'Create Your 2026 Vision' 
             : 'Creează Viziunea Ta pentru 2026'}
         </h3>
-        <p className="text-white/60 text-xs mb-3">
+        <p className="text-white/60 text-[10px] sm:text-xs mb-2 sm:mb-3">
           {language === 'en'
             ? 'Set your annual, 90-day, monthly & weekly goals with AI-powered guidance.'
             : 'Setează obiectivele anuale, 90 zile, lunare și săptămânale cu ghidare AI.'}
         </p>
         
-        {/* Vision Board Preview Image */}
-        <div className="rounded-xl overflow-hidden border border-white/10 mb-3">
+        {/* Vision Board Preview - Hidden on very small screens */}
+        <div className="hidden sm:block rounded-xl overflow-hidden border border-white/10 mb-3">
           <img 
             src={visionBoardPreview} 
             alt="Vision Board Preview" 
@@ -164,18 +164,18 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
         </div>
         
         <Button 
-          size="lg"
+          size="default"
           onClick={() => setShowPlanningFlow(true)}
-          className="w-full bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-600 hover:via-green-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30"
+          className="w-full bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-600 hover:via-green-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 text-sm sm:text-base py-3 sm:py-4"
         >
           {language === 'en' ? 'Start Planning My Goals' : 'Începe Planificarea Obiectivelor'}
-          <ArrowRight className="w-5 h-5 ml-2" />
+          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
         </Button>
       </motion.div>
 
-      {/* Category Breakdown - Compact */}
+      {/* Category Breakdown - 2x2 Grid, Compact */}
       <motion.div 
-        className="grid grid-cols-2 gap-2"
+        className="grid grid-cols-2 gap-1.5 sm:gap-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.5 }}
@@ -188,25 +188,25 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
             return (
               <div 
                 key={category}
-                className={`bg-white/10 backdrop-blur-sm rounded-xl p-3 border transition-all ${
+                className={`bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 border transition-all ${
                   isWeakest 
                     ? 'border-amber-400/50 bg-amber-400/10' 
                     : 'border-white/10'
                 }`}
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-lg">{info.emoji}</span>
-                  <span className="font-medium text-white text-xs">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                  <span className="text-base sm:text-lg">{info.emoji}</span>
+                  <span className="font-medium text-white text-[10px] sm:text-xs truncate">
                     {language === 'en' ? info.en : info.ro}
                   </span>
                   {isWeakest && (
-                    <span className="text-[8px] bg-amber-400/20 text-amber-400 px-1.5 py-0.5 rounded-full ml-auto font-bold">
+                    <span className="text-[6px] sm:text-[8px] bg-amber-400/20 text-amber-400 px-1 sm:px-1.5 py-0.5 rounded-full ml-auto font-bold shrink-0">
                       FOCUS
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="flex-1 h-1.5 sm:h-2 bg-white/10 rounded-full overflow-hidden">
                     <motion.div 
                       className="h-full rounded-full"
                       style={{ 
@@ -217,7 +217,7 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
                       transition={{ delay: 1.7, duration: 0.5 }}
                     />
                   </div>
-                  <span className="text-xs font-bold text-white">
+                  <span className="text-[10px] sm:text-xs font-bold text-white">
                     {score}/4
                   </span>
                 </div>
@@ -228,22 +228,22 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
 
       {/* Weakest Area Insight - Compact */}
       <motion.div 
-        className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-400/30 rounded-xl p-3"
+        className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-400/30 rounded-lg sm:rounded-xl p-2.5 sm:p-3"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.8 }}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 shadow-lg">
-            <Target className="w-5 h-5 text-white" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 shadow-lg">
+            <Target className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
-          <div>
-            <h3 className="font-bold text-white text-sm">
+          <div className="min-w-0">
+            <h3 className="font-bold text-white text-xs sm:text-sm truncate">
               {language === 'en' 
                 ? `Focus on ${weakestCategoryInfo.en}`
                 : `Focus pe ${weakestCategoryInfo.ro}`}
             </h3>
-            <p className="text-white/60 text-xs">
+            <p className="text-white/60 text-[10px] sm:text-xs">
               {language === 'en'
                 ? 'This area needs the most attention right now.'
                 : 'Această arie are nevoie de cea mai mare atenție.'}
