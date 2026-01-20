@@ -153,9 +153,17 @@ serve(async (req) => {
     let successUrl: string;
     let cancelUrl: string;
 
+    // Parse request body for additional data
+    const requestBody = await req.clone().json().catch(() => ({}));
+    const source = requestBody.source || '';
+
     if (plan === "warrior-accelerator") {
       successUrl = `${origin}/warrior-accelerator-thank-you?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
       cancelUrl = `${origin}/warrior-launch-accelerator?canceled=true`;
+    } else if (source === 'warrior-power') {
+      // From Warrior Power flow -> redirect to Reality Map (fact-maps)
+      successUrl = `${origin}/fact-maps?checkout=success&plan=${plan}&source=warrior-power`;
+      cancelUrl = `${origin}/warrior-power?canceled=true`;
     } else {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/pricing?canceled=true`;

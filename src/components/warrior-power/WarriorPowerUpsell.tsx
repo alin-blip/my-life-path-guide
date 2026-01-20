@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Crown, Check, Zap, Brain, Target, ArrowRight, Sparkles, Star, AlertCircle } from 'lucide-react';
+import { Check, Zap, Target, ArrowRight, Sparkles, Star, Crown, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
+import { saveRealityMapScores } from '@/services/realityMapService';
 
 interface WarriorPowerUpsellProps {
   scores: WarriorPowerScores;
@@ -16,56 +17,44 @@ interface WarriorPowerUpsellProps {
   onContinueFree: () => void;
 }
 
+// Simplified 2-tier structure for Warrior Power flow
 const UPSELL_PLANS = [
   {
-    id: 'pro',
-    name: 'Pro',
-    price: '49',
-    originalPrice: '98',
-    currency: '€',
-    period: '/ lună',
-    highlight: 'Early Bird',
-    benefits: [
-      'AI Coaching tip Hormozi pentru ofertă și preț',
-      'Champion Routine completă',
-      'Door - planificare săptămânală',
-      'Stacks pentru reset rapid',
-      'Sprint 90 zile cu KPIs'
-    ],
-    featured: true
-  },
-  {
-    id: 'free',
-    name: 'Trial',
+    id: 'free', // 3-day trial, then €49/month (Basic)
+    name: 'Start Gratuit',
     price: '0',
     afterTrialPrice: '49',
     currency: '€',
-    period: '/ 3 zile',
-    highlight: '3 Zile Gratuit',
+    period: '3 zile gratuit',
+    highlight: '🎁 3 Zile Trial',
     benefits: [
       '3 zile acces complet GRATUIT',
-      'Toate funcțiile Pro incluse',
-      'Anulează oricând în trial',
-      'Apoi doar €49/lună'
+      'Harta Realității interactivă',
+      'Champion Routine completă',
+      'Door - planificare săptămânală',
+      'Apoi doar €49/lună Early Bird'
     ],
-    featured: false,
+    featured: true,
     isTrial: true
   },
   {
-    id: 'elite',
-    name: 'Elite',
-    price: '497',
+    id: 'pro', // 7-day trial, then €97/month (Pro)
+    name: 'Pro',
+    price: '0',
+    afterTrialPrice: '97',
     currency: '€',
-    period: '/ lună',
-    highlight: 'Complet',
+    period: '7 zile trial',
+    highlight: '7 Zile Trial + Coaching',
     benefits: [
-      'Tot din Pro +',
-      'Warrior Launch Accelerator (€970)',
-      'Coaching LIVE cu Alin Radu',
-      'Comunitate VIP Elite',
+      'Tot din Basic +',
+      '7 zile trial gratuit',
+      'Coaching de grup LIVE săptămânal',
+      'Comunitate VIP Pro',
+      'Sprint 90 zile cu KPIs',
       'Support VIP dedicat'
     ],
-    featured: true
+    featured: false,
+    isTrial: true
   }
 ];
 
@@ -82,7 +71,6 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
     };
     checkSession();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setHasSession(!!session);
     });
@@ -118,8 +106,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
-        // Redirect to auth with return URL
-        toast.info('Te rugăm să te autentifici pentru a continua cu achiziția.');
+        toast.info('Te rugăm să te autentifici pentru a continua.');
         navigate('/auth', { 
           state: { 
             returnUrl: '/warrior-power',
@@ -130,8 +117,14 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         return;
       }
 
+      // Save scores to fact_maps before checkout
+      await saveRealityMapScores(scores);
+
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planId },
+        body: { 
+          plan: planId,
+          source: 'warrior-power'
+        },
       });
 
       if (error) {
@@ -191,16 +184,15 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         </p>
       </motion.div>
 
-      {/* Plans Grid */}
+      {/* Plans Grid - 2 columns */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto"
+        className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto"
       >
         {UPSELL_PLANS.map((plan) => {
-          const isElite = plan.id === 'elite';
-          const isTrial = plan.id === 'free';
+          const isFree = plan.id === 'free';
           const isPro = plan.id === 'pro';
           
           return (
@@ -208,31 +200,25 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
               key={plan.id}
               className={cn(
                 "relative overflow-hidden transition-all duration-300",
-                isElite 
-                  ? "border-2 border-amber-500 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/10 shadow-lg shadow-amber-500/10" 
-                  : isTrial
-                    ? "border border-primary/50 bg-gradient-to-br from-primary/5 via-background to-accent/5"
-                    : "border-2 border-primary bg-gradient-to-br from-primary/10 via-background to-accent/10 shadow-lg shadow-primary/10"
+                isFree 
+                  ? "border-2 border-green-500 bg-gradient-to-br from-green-500/10 via-background to-emerald-500/10 shadow-lg shadow-green-500/10" 
+                  : "border-2 border-amber-500 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/10 shadow-lg shadow-amber-500/10"
               )}
             >
               <div className={cn(
                 "absolute top-0 left-0 w-full h-1",
-                isElite 
-                  ? "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500"
-                  : isTrial
-                    ? "bg-gradient-to-r from-primary/50 via-accent/50 to-primary/50"
-                    : "bg-gradient-to-r from-primary via-accent to-primary"
+                isFree 
+                  ? "bg-gradient-to-r from-green-500 via-emerald-500 to-green-500"
+                  : "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500"
               )} />
               
               {plan.highlight && (
                 <Badge 
                   className={cn(
                     "absolute top-4 right-4 border-0",
-                    isElite 
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
-                      : isTrial
-                        ? "bg-green-500 text-white"
-                        : "bg-gradient-to-r from-primary to-accent text-white"
+                    isFree 
+                      ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                      : "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
                   )}
                 >
                   {plan.highlight}
@@ -242,40 +228,27 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
               <CardContent className="p-6">
                 <div className="mb-4">
                   <div className="flex items-center gap-2 mb-2">
-                    {isElite ? (
-                      <Crown className="h-6 w-6 text-amber-500" />
-                    ) : isTrial ? (
-                      <Sparkles className="h-6 w-6 text-green-500" />
+                    {isFree ? (
+                      <Gift className="h-6 w-6 text-green-500" />
                     ) : (
-                      <Zap className="h-6 w-6 text-primary" />
+                      <Crown className="h-6 w-6 text-amber-500" />
                     )}
                     <h3 className="text-xl font-bold">{plan.name}</h3>
                   </div>
                   
-                  {plan.originalPrice && (
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-muted-foreground line-through">
-                        {plan.currency}{plan.originalPrice}
-                      </span>
-                      <Badge variant="secondary" className="text-xs">Valoare</Badge>
-                    </div>
-                  )}
-                  
                   <div className="flex items-baseline gap-1">
                     <span className={cn(
                       "text-4xl font-black",
-                      isElite ? "text-amber-500" : isTrial ? "text-green-500" : "text-foreground"
+                      isFree ? "text-green-500" : "text-amber-500"
                     )}>
                       {plan.currency}{plan.price}
                     </span>
-                    <span className="text-muted-foreground">{plan.period}</span>
+                    <span className="text-muted-foreground">/ {plan.period}</span>
                   </div>
                   
-                  {(plan as any).afterTrialPrice && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Apoi {plan.currency}{(plan as any).afterTrialPrice}/lună
-                    </p>
-                  )}
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Apoi {plan.currency}{plan.afterTrialPrice}/lună
+                  </p>
                 </div>
 
                 <ul className="space-y-3 mb-6">
@@ -283,7 +256,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     <li key={bidx} className="flex items-start gap-2 text-sm">
                       <Check className={cn(
                         "h-4 w-4 mt-0.5 flex-shrink-0",
-                        isElite ? "text-amber-500" : isTrial ? "text-green-500" : "text-green-500"
+                        isFree ? "text-green-500" : "text-amber-500"
                       )} />
                       <span className="text-muted-foreground">{benefit}</span>
                     </li>
@@ -296,11 +269,9 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   variant="default"
                   className={cn(
                     "w-full gap-2",
-                    isElite 
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
-                      : isTrial
-                        ? "bg-green-500 hover:bg-green-600 text-white"
-                        : "bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                    isFree 
+                      ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white" 
+                      : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
                   )}
                 >
                   {isLoading === plan.id ? (
@@ -310,10 +281,8 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     </>
                   ) : (
                     <>
-                      {isElite && <Crown className="h-4 w-4" />}
-                      {isPro && <Star className="h-4 w-4" />}
-                      {isTrial && <Sparkles className="h-4 w-4" />}
-                      {isTrial ? 'Începe Trial Gratuit' : `Alege ${plan.name}`}
+                      {isFree ? <Sparkles className="h-4 w-4" /> : <Star className="h-4 w-4" />}
+                      {isFree ? 'Începe 3 Zile Gratuit' : 'Începe 7 Zile Pro Trial'}
                       <ArrowRight className="h-4 w-4" />
                     </>
                   )}
