@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { categoryLabels, getLifeScoreLevel, LifeScoreCategory } from '@/data/lifeScoreQuestions';
-import { ArrowRight, Target, Sparkles, Share2, Zap } from 'lucide-react';
+import { ArrowRight, Target, Sparkles, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { LifeScorePlanningFlow } from './LifeScorePlanningFlow';
-import platformPreviewPlanning from '@/assets/platform-preview-planning.png';
-import platformPreviewVision from '@/assets/platform-preview-vision.png';
+import visionBoardPreview from '@/assets/vision-board-preview.png';
 
 interface LifeScoreResultProps {
   totalScore: number;
@@ -213,67 +212,12 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
         </div>
       </motion.div>
 
-      {/* Share Buttons */}
-      <motion.div 
-        className="flex gap-3 justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
-      >
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleShareWhatsApp}
-          className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
-        >
-          <Share2 className="w-4 h-4 mr-2" />
-          WhatsApp
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleShareTwitter}
-          className="bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
-        >
-          <Share2 className="w-4 h-4 mr-2" />
-          Twitter
-        </Button>
-      </motion.div>
-
-      {/* Platform Preview Images */}
-      <motion.div
-        className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2.1 }}
-      >
-        <p className="text-center text-white/50 text-xs mb-3 font-medium">
-          {language === 'en' ? 'What you get inside the platform:' : 'Ce vei primi în platformă:'}
-        </p>
-        <div className="flex gap-2">
-          <div className="flex-1 rounded-xl overflow-hidden border border-white/10">
-            <img 
-              src={platformPreviewVision} 
-              alt="Vision Board Preview" 
-              className="w-full h-auto object-cover"
-            />
-          </div>
-          <div className="flex-1 rounded-xl overflow-hidden border border-white/10">
-            <img 
-              src={platformPreviewPlanning} 
-              alt="Weekly Planning Preview" 
-              className="w-full h-auto object-cover"
-            />
-          </div>
-        </div>
-      </motion.div>
-
       {/* CTA Section */}
       <motion.div 
-        className="bg-gradient-to-br from-violet-500/30 to-purple-600/30 backdrop-blur-xl border border-violet-400/30 rounded-3xl p-8 text-center"
+        className="bg-gradient-to-br from-violet-500/30 to-purple-600/30 backdrop-blur-xl border border-violet-400/30 rounded-3xl p-6 text-center"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2.2 }}
+        transition={{ delay: 2 }}
       >
         <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-lg">
           <Sparkles className="w-8 h-8 text-white" />
@@ -283,11 +227,21 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
             ? 'Create Your 2026 Vision' 
             : 'Creează Viziunea Ta pentru 2026'}
         </h3>
-        <p className="text-white/60 text-sm mb-6">
+        <p className="text-white/60 text-sm mb-4">
           {language === 'en'
             ? 'Set your annual, 90-day, monthly & weekly goals with AI-powered guidance.'
             : 'Setează obiectivele anuale, 90 zile, lunare și săptămânale cu ghidare AI.'}
         </p>
+        
+        {/* Vision Board Preview Image */}
+        <div className="rounded-xl overflow-hidden border border-white/10 mb-4">
+          <img 
+            src={visionBoardPreview} 
+            alt="Vision Board Preview" 
+            className="w-full h-auto object-cover"
+          />
+        </div>
+        
         <Button 
           size="lg"
           onClick={() => setShowPlanningFlow(true)}
