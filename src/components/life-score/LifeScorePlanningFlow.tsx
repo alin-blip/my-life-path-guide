@@ -82,7 +82,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           mission_type: 'annual',
           title: planData.annualVision,
           period: String(new Date().getFullYear()),
-          is_completed: false,
+          completed: false,
         }, {
           onConflict: 'user_id,category,mission_type,period'
         });
@@ -101,7 +101,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           mission_type: 'quarterly',
           title: planData.quarterlyMilestone,
           period: `${new Date().getFullYear()}-Q${quarter}`,
-          is_completed: false,
+          completed: false,
         }, {
           onConflict: 'user_id,category,mission_type,period'
         });
@@ -119,7 +119,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           mission_type: 'monthly',
           title: planData.monthlyFocus,
           period: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
-          is_completed: false,
+          completed: false,
         }, {
           onConflict: 'user_id,category,mission_type,period'
         });
