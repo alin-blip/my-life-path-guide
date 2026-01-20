@@ -154,8 +154,8 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
             : 'Setează obiectivele anuale, 90 zile, lunare și săptămânale cu ghidare AI.'}
         </p>
         
-        {/* Vision Board Preview - Hidden on very small screens */}
-        <div className="hidden sm:block rounded-xl overflow-hidden border border-white/10 mb-3">
+        {/* Vision Board Preview - Visible on all screens */}
+        <div className="rounded-lg sm:rounded-xl overflow-hidden border border-white/10 mb-2 sm:mb-3">
           <img 
             src={visionBoardPreview} 
             alt="Vision Board Preview" 
