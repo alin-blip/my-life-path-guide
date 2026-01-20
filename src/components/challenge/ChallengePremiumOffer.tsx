@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Check, Crown, Users, Zap, Gift } from 'lucide-react';
+import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 
 interface PricingPlan {
   id: 'free' | 'pro' | 'elite';
@@ -117,10 +118,14 @@ export const ChallengePremiumOffer = () => {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleUpgrade = async (planId: string) => {
+    // Pre-open window before async operations
+    const preOpened = preOpenWindow();
+    
     setLoading(planId);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        if (preOpened) preOpened.close();
         toast.error(language === 'en' ? 'Please sign in first' : 'Te rugăm să te autentifici');
         navigate('/auth');
         return;
@@ -130,9 +135,14 @@ export const ChallengePremiumOffer = () => {
         body: { plan: planId }
       });
 
-      if (error) throw error;
+      if (error) {
+        if (preOpened) preOpened.close();
+        throw error;
+      }
       if (data?.url) {
-        window.location.href = data.url;
+        redirectExternal(data.url, preOpened);
+      } else {
+        if (preOpened) preOpened.close();
       }
     } catch (error) {
       console.error('Checkout error:', error);

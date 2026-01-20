@@ -21,6 +21,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 
 interface AcceleratorUpsellModalProps {
   isOpen: boolean;
@@ -43,7 +44,11 @@ export const AcceleratorUpsellModal: React.FC<AcceleratorUpsellModalProps> = ({
   };
 
   const handleBuyNow = async () => {
+    // Pre-open window before async operations
+    const preOpened = preOpenWindow();
+    
     if (!user) {
+      if (preOpened) preOpened.close();
       toast.info('Trebuie să fii autentificat');
       return;
     }
@@ -60,12 +65,14 @@ export const AcceleratorUpsellModal: React.FC<AcceleratorUpsellModalProps> = ({
       });
 
       if (response.error) {
+        if (preOpened) preOpened.close();
         throw new Error(response.error.message);
       }
 
       if (response.data?.url) {
-        window.location.href = response.data.url;
+        redirectExternal(response.data.url, preOpened);
       } else {
+        if (preOpened) preOpened.close();
         throw new Error('Nu s-a putut crea sesiunea de checkout');
       }
     } catch (error) {

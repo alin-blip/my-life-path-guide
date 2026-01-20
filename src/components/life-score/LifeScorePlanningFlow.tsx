@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { GoalCategory } from '@/types/goalWizard';
 import { CategoryMultiSelector } from './CategoryMultiSelector';
 import { LifeVisionPlanningModal, VisionPlanData } from './LifeVisionPlanningModal';
@@ -11,8 +11,11 @@ import { useToast } from '@/hooks/use-toast';
 import { getWeekKeyForPlanning } from '@/utils/weekUtils';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
 import { v4 as uuidv4 } from 'uuid';
+import { useNavigate } from 'react-router-dom';
 
 type FlowStep = 'category-select' | 'planning' | 'plan-created' | 'offer';
+
+const LIFE_SCORE_PENDING_KEY = 'life_score_pending_planning';
 
 interface LifeScorePlanningFlowProps {
   categoryScores: Record<string, number>;
@@ -47,14 +50,67 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
   const [createdPlan, setCreatedPlan] = useState<VisionPlanData | null>(null);
   const [showPlanningModal, setShowPlanningModal] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleStartPlanning = useCallback((categories: GoalCategory[]) => {
+  // Check for pending planning after auth redirect
+  useEffect(() => {
+    const checkPendingPlanning = async () => {
+      const pending = localStorage.getItem(LIFE_SCORE_PENDING_KEY);
+      if (pending) {
+        try {
+          const { category } = JSON.parse(pending);
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user && category) {
+            // User is now authenticated, resume planning
+            localStorage.removeItem(LIFE_SCORE_PENDING_KEY);
+            setSelectedCategory(category as GoalCategory);
+            setShowPlanningModal(true);
+            setStep('planning');
+          }
+        } catch (e) {
+          console.error('Error restoring pending planning:', e);
+          localStorage.removeItem(LIFE_SCORE_PENDING_KEY);
+        }
+      }
+    };
+    checkPendingPlanning();
+  }, []);
+
+  const handleStartPlanning = useCallback(async (categories: GoalCategory[]) => {
     // Use first selected category (single selection for free tier)
     const category = categories[0];
+    
+    // Check if user is authenticated before opening AI planning modal
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      // Save pending state and redirect to auth
+      localStorage.setItem(LIFE_SCORE_PENDING_KEY, JSON.stringify({ 
+        category,
+        categoryScores,
+        weakestCategory 
+      }));
+      
+      toast({
+        title: language === 'ro' ? 'Autentificare necesară' : 'Authentication required',
+        description: language === 'ro' 
+          ? 'Te rugăm să te autentifici pentru a începe planificarea AI' 
+          : 'Please sign in to start AI planning',
+      });
+      
+      navigate('/auth', { 
+        state: { 
+          returnUrl: '/life-score',
+          reason: 'planning'
+        } 
+      });
+      return;
+    }
+    
     setSelectedCategory(category);
     setShowPlanningModal(true);
     setStep('planning');
-  }, []);
+  }, [categoryScores, weakestCategory, language, toast, navigate]);
 
   const handlePlanComplete = useCallback(async (planData: VisionPlanData) => {
     console.log('📝 Plan complete:', planData);
