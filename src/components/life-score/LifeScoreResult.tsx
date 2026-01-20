@@ -5,6 +5,8 @@ import { ArrowRight, Target, Sparkles, Share2, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { LifeScorePlanningFlow } from './LifeScorePlanningFlow';
+import platformPreviewPlanning from '@/assets/platform-preview-planning.png';
+import platformPreviewVision from '@/assets/platform-preview-vision.png';
 
 interface LifeScoreResultProps {
   totalScore: number;
@@ -236,6 +238,34 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
           <Share2 className="w-4 h-4 mr-2" />
           Twitter
         </Button>
+      </motion.div>
+
+      {/* Platform Preview Images */}
+      <motion.div
+        className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 2.1 }}
+      >
+        <p className="text-center text-white/50 text-xs mb-3 font-medium">
+          {language === 'en' ? 'What you get inside the platform:' : 'Ce vei primi în platformă:'}
+        </p>
+        <div className="flex gap-2">
+          <div className="flex-1 rounded-xl overflow-hidden border border-white/10">
+            <img 
+              src={platformPreviewVision} 
+              alt="Vision Board Preview" 
+              className="w-full h-auto object-cover"
+            />
+          </div>
+          <div className="flex-1 rounded-xl overflow-hidden border border-white/10">
+            <img 
+              src={platformPreviewPlanning} 
+              alt="Weekly Planning Preview" 
+              className="w-full h-auto object-cover"
+            />
+          </div>
+        </div>
       </motion.div>
 
       {/* CTA Section */}
