@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { QuizCategory } from '../quizData';
 import { PlanningAnswers } from './VisionPlanningWizard';
+import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 
 interface MembershipOfferStackProps {
   language: 'en' | 'ro';
@@ -78,12 +79,18 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
   const navigate = useNavigate();
 
   const handleCheckout = async (planId: string) => {
+    // Pre-open window before async operations (avoids popup blocker in iframe)
+    const preOpened = preOpenWindow();
+    
     setIsLoading(planId);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
+        // Close pre-opened window if exists
+        if (preOpened) preOpened.close();
+        
         toast.info(language === 'en' 
           ? 'Please sign in to continue.' 
           : 'Te rugăm să te autentifici pentru a continua.');
@@ -101,14 +108,16 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
       });
 
       if (error) {
+        if (preOpened) preOpened.close();
         throw new Error(error.message);
       }
 
       if ((data as any)?.url) {
-        window.location.href = (data as any).url;
+        redirectExternal((data as any).url, preOpened);
         return;
       }
 
+      if (preOpened) preOpened.close();
       throw new Error('Nu s-a putut crea sesiunea de plată');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

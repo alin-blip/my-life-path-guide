@@ -68,3 +68,9 @@ verify_jwt = false
 
 [functions.customer-portal]
 verify_jwt = false
+
+[functions.life-vision-ai]
+verify_jwt = false
+
+[functions.door-ai-planning]
+verify_jwt = false

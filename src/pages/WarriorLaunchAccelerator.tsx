@@ -28,6 +28,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 
 const WarriorLaunchAccelerator = () => {
   const [videoPlaying, setVideoPlaying] = useState(false);
@@ -65,7 +66,11 @@ const WarriorLaunchAccelerator = () => {
   ];
 
   const handleBuyNow = async () => {
+    // Pre-open window before async operations
+    const preOpened = preOpenWindow();
+    
     if (!user) {
+      if (preOpened) preOpened.close();
       toast.info('Trebuie să fii autentificat pentru a cumpăra');
       navigate('/auth', { state: { returnTo: '/warrior-launch-accelerator' } });
       return;
@@ -83,19 +88,15 @@ const WarriorLaunchAccelerator = () => {
       });
 
       if (response.error) {
+        if (preOpened) preOpened.close();
         throw new Error(response.error.message);
       }
 
       if (response.data?.url) {
         console.log('Stripe checkout URL:', response.data.url);
-        // Use window.open as fallback for iframe environments
-        const stripeUrl = response.data.url;
-        try {
-          window.location.href = stripeUrl;
-        } catch (e) {
-          window.open(stripeUrl, '_blank');
-        }
+        redirectExternal(response.data.url, preOpened);
       } else {
+        if (preOpened) preOpened.close();
         console.error('No URL in response:', response.data);
         throw new Error('Nu s-a putut crea sesiunea de checkout');
       }

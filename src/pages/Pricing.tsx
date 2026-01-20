@@ -12,6 +12,7 @@ import { plans, getLocalizedPlan } from "@/data/pricing";
 import { Helmet } from "react-helmet-async";
 import { Crown, Zap, Gift, Check, Rocket, Users } from "lucide-react";
 import { trackPurchase } from "@/lib/facebook-pixel";
+import { preOpenWindow, redirectExternal } from "@/lib/externalRedirect";
 
 const Pricing: React.FC = () => {
   const { toast } = useToast();
@@ -107,8 +108,12 @@ const Pricing: React.FC = () => {
   }, [searchParams, location.state, toast, refreshSubscription, navigate, language]);
 
   const handleCheckout = async (planId: string) => {
+    // Pre-open window before async operations
+    const preOpened = preOpenWindow();
+    
     try {
       if (!user) {
+        if (preOpened) preOpened.close();
         navigate('/auth', { state: { from: '/pricing' } });
         return;
       }
@@ -116,10 +121,14 @@ const Pricing: React.FC = () => {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { plan: planId },
       });
-      if (error) throw error;
+      if (error) {
+        if (preOpened) preOpened.close();
+        throw error;
+      }
       if (data?.url) {
-        window.open(data.url, "_blank");
+        redirectExternal(data.url, preOpened);
       } else {
+        if (preOpened) preOpened.close();
         throw new Error("Checkout function not configured yet");
       }
     } catch (err: any) {
@@ -133,11 +142,19 @@ const Pricing: React.FC = () => {
   };
 
   const handleManageSubscription = async () => {
+    // Pre-open window before async operations
+    const preOpened = preOpenWindow();
+    
     try {
       const { data, error } = await supabase.functions.invoke('customer-portal');
-      if (error) throw error;
+      if (error) {
+        if (preOpened) preOpened.close();
+        throw error;
+      }
       if (data?.url) {
-        window.open(data.url, '_blank');
+        redirectExternal(data.url, preOpened);
+      } else {
+        if (preOpened) preOpened.close();
       }
     } catch (err) {
       toast({ title: texts.error, description: texts.portalUnavailable });
