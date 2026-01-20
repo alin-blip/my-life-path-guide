@@ -6,7 +6,8 @@ import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Hea
 import { useLanguage } from '@/context/LanguageContext';
 import { useDoor } from '@/context/DoorContext';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { trackPurchase } from '@/lib/facebook-pixel';
 import { LearnDashboard } from './LearnDashboard';
 import { WeeklyProgress } from './WeeklyProgress';
 import { MonthlyObjectives } from './MonthlyObjectives';
@@ -68,6 +69,7 @@ export const Dashboard: React.FC = () => {
   const [activeLearnCategory, setActiveLearnCategory] = useState<string | null>(null);
   const [activeLearnSubcategory, setActiveLearnSubcategory] = useState<string>("courses");
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     toast
   } = useToast();
@@ -233,6 +235,32 @@ export const Dashboard: React.FC = () => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Track Facebook Pixel Purchase event on checkout success
+  useEffect(() => {
+    const checkoutSuccess = searchParams.get('checkout');
+    const plan = searchParams.get('plan');
+    
+    if (checkoutSuccess === 'success' && plan) {
+      // Track purchase based on plan
+      if (plan === 'pro') {
+        trackPurchase(97, 'EUR');
+      } else if (plan === 'basic') {
+        trackPurchase(49, 'EUR');
+      }
+      
+      // Show success toast
+      toast({
+        title: language === 'ro' ? 'Plată reușită!' : 'Payment successful!',
+        description: language === 'ro' ? 'Bine ai venit în comunitate!' : 'Welcome to the community!',
+      });
+      
+      // Clean up URL parameters to prevent double tracking
+      searchParams.delete('checkout');
+      searchParams.delete('plan');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams, toast, language]);
 
   // Daily popup - shows once per day if there are pending items
   useEffect(() => {
