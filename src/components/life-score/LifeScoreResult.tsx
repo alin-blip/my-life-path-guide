@@ -166,7 +166,7 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
         <Button 
           size="lg"
           onClick={() => setShowPlanningFlow(true)}
-          className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg"
+          className="w-full bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-600 hover:via-green-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30"
         >
           {language === 'en' ? 'Start Planning My Goals' : 'Începe Planificarea Obiectivelor'}
           <ArrowRight className="w-5 h-5 ml-2" />
