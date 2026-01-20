@@ -662,7 +662,10 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    // Detect mobile - on mobile, Enter creates new line, only Send button submits
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
       e.preventDefault();
       handleSendMessage();
     }

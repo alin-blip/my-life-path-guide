@@ -12,7 +12,10 @@ export interface TextareaProps
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, onEnterSubmit, ...props }, ref) => {
     const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey && onEnterSubmit) {
+      // Detect mobile device - on mobile, Enter creates new line instead of submitting
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      if (e.key === 'Enter' && !e.shiftKey && onEnterSubmit && !isMobile) {
         e.preventDefault();
         onEnterSubmit();
       }

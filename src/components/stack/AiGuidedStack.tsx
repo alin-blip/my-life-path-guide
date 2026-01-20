@@ -1527,7 +1527,8 @@ Răspunde în română cu un ton cald și profesionist.`;
                   value={currentMessage}
                   onChange={(e) => setCurrentMessage(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
                       e.preventDefault();
                       sendMessage();
                     }
