@@ -106,6 +106,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           title: planData.annualVision,
           period: String(new Date().getFullYear()),
           completed: false,
+          goal_data: { vision: planData.annualVision, source: 'life-score' },
         }, {
           onConflict: 'user_id,category,mission_type,period'
         });
@@ -125,6 +126,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           title: planData.quarterlyMilestone,
           period: `${new Date().getFullYear()}-Q${quarter}`,
           completed: false,
+          goal_data: { milestone: planData.quarterlyMilestone, source: 'life-score' },
         }, {
           onConflict: 'user_id,category,mission_type,period'
         });
@@ -143,6 +145,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           title: planData.monthlyFocus,
           period: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
           completed: false,
+          goal_data: { focus: planData.monthlyFocus, source: 'life-score' },
         }, {
           onConflict: 'user_id,category,mission_type,period'
         });
@@ -171,7 +174,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
         category: planData.category,
       });
 
-      // Add tasks to user_tasks
+      // Add tasks to user_tasks with domain_category for proper filtering
       for (const key of planData.weeklyKeys) {
         for (const step of key.steps || []) {
           try {
@@ -184,6 +187,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
               list_type: step.listType,
               completed: false,
               category: planData.category,
+              domain_category: planData.category, // Critical for filtering in Door
             });
           } catch (taskError) {
             console.error('Error adding task:', taskError);
