@@ -19,16 +19,24 @@ interface UseAccountabilityCoachOptions {
 const generateCoachSystemPrompt = (
   language: 'en' | 'ro',
   currentPage?: string,
-  contextSummary?: string
+  contextSummary?: string,
+  hasRealityMap?: boolean
 ): string => {
   const isRomanian = language === 'ro';
+  
+  // If user hasn't completed Reality Map, coach should guide them to it first
+  const realityMapInstruction = !hasRealityMap 
+    ? (isRomanian 
+        ? `\n\nIMPORTANT: Utilizatorul NU a completat încă Harta Realității (Reality Map). Aceasta este PRIORITATEA #1. Întreabă-l dacă vrea să completeze acum evaluarea celor 4 dimensiuni: Body, Being, Balance, Business. Ghidează-l spre /fact-maps sau /warrior-power pentru a începe.\n`
+        : `\n\nIMPORTANT: The user has NOT completed the Reality Map yet. This is PRIORITY #1. Ask if they want to complete the evaluation of the 4 dimensions now: Body, Being, Balance, Business. Guide them to /fact-maps or /warrior-power to start.\n`)
+    : '';
   
   const basePrompt = isRomanian ? `
 Tu ești Accountability Coach-ul personal al utilizatorului în platforma LifeOS.
 
 CONTEXTUL UTILIZATORULUI:
 ${contextSummary || 'Nu am încă informații despre utilizator.'}
-
+${realityMapInstruction}
 PAGINA CURENTĂ: ${currentPage || 'Dashboard'}
 
 ROLUL TĂU:
@@ -55,7 +63,7 @@ You are the user's personal Accountability Coach in the LifeOS platform.
 
 USER CONTEXT:
 ${contextSummary || 'I don\'t have information about the user yet.'}
-
+${realityMapInstruction}
 CURRENT PAGE: ${currentPage || 'Dashboard'}
 
 YOUR ROLE:
@@ -82,8 +90,14 @@ RULES:
   return basePrompt;
 };
 
+interface UseAccountabilityCoachOptions {
+  currentPage?: string;
+  onAIResponse?: (response: string) => void;
+  hasRealityMap?: boolean;
+}
+
 export const useAccountabilityCoach = (options: UseAccountabilityCoachOptions = {}) => {
-  const { currentPage, onAIResponse } = options;
+  const { currentPage, onAIResponse, hasRealityMap = true } = options;
   const { language } = useLanguage();
   const { toast } = useToast();
   const { contextSummary } = useAccountabilityContext();
@@ -118,7 +132,8 @@ export const useAccountabilityCoach = (options: UseAccountabilityCoachOptions = 
       const systemPrompt = generateCoachSystemPrompt(
         language as 'en' | 'ro',
         currentPage,
-        contextSummary
+        contextSummary,
+        hasRealityMap
       );
       
       const allMessages = [...messages, userMessage].map(m => ({
@@ -169,7 +184,7 @@ export const useAccountabilityCoach = (options: UseAccountabilityCoachOptions = 
       setIsLoading(false);
       abortControllerRef.current = null;
     }
-  }, [messages, language, currentPage, contextSummary, onAIResponse, toast]);
+  }, [messages, language, currentPage, contextSummary, hasRealityMap, onAIResponse, toast]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);

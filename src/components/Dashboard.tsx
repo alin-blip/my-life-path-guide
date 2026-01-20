@@ -60,6 +60,7 @@ import { VisionDeclarationWidget } from '@/components/dashboard/widgets/VisionDe
 
 import { EmpowermentMeditationCard } from '@/components/dashboard/EmpowermentMeditationCard';
 import { AcceleratorBanner } from '@/components/dashboard/AcceleratorBanner';
+import { EarlyBirdBanner } from '@/components/dashboard/EarlyBirdBanner';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -770,7 +771,10 @@ export const Dashboard: React.FC = () => {
             </div>)}
         </div>}
       
-      {/* Accelerator Upsell Banner - FIRST */}
+      {/* Early Bird Banner for non-subscribers - FIRST */}
+      <EarlyBirdBanner />
+      
+      {/* Accelerator Upsell Banner */}
       <AcceleratorBanner />
       
       {/* Objectives Card - Lunar, 90 Zile, Anual */}
