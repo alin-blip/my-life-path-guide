@@ -239,7 +239,10 @@ export const LifeVisionPlanningModal: React.FC<LifeVisionPlanningModalProps> = (
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    // Detect mobile - on mobile, Enter creates new line, only Send button submits
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
       e.preventDefault();
       handleSendMessage();
     }

@@ -281,7 +281,8 @@ export const Chat = () => {
               placeholder="Type a message..."
               className="flex-1"
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                if (e.key === 'Enter' && !isMobile) {
                   handleSendMessage();
                 }
               }}
