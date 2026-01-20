@@ -134,7 +134,7 @@ export const LifeVisionPlanningModal: React.FC<LifeVisionPlanningModalProps> = (
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\\n');
+        const lines = buffer.split('\n');
         buffer = lines.pop() || '';
 
         for (let line of lines) {
@@ -157,7 +157,7 @@ export const LifeVisionPlanningModal: React.FC<LifeVisionPlanningModalProps> = (
               }
               
               // Check if this is the final chunk with complete arguments
-              if (toolCall?.function?.name === 'save_vision_plan' || toolCallArguments.includes('\\\"weeklyKeys\\\"')) {
+              if (toolCall?.function?.name === 'save_vision_plan' || toolCallArguments.includes('"weeklyKeys"')) {
                 try {
                   // Try to parse when we have enough data
                   if (toolCallArguments.endsWith('}')) {
