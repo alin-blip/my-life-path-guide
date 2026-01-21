@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
 
 const LOADING_TIMEOUT_MS = 10000; // 10 seconds
 
-// Routes available for FREE tier (habit tracking + challenges only)
+// Routes available for FREE tier (habit tracking + challenges + Reality Map for lead magnet)
 const FREE_TIER_ROUTES = [
   '/dashboard',
   '/habits',
@@ -20,6 +20,7 @@ const FREE_TIER_ROUTES = [
   '/challenge-7-zile',
   '/settings',
   '/profile',
+  '/fact-maps', // Reality Map - accessible for lead magnet users
 ];
 
 // Routes available for BASIC tier (full platform without LIVE coaching)
