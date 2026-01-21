@@ -48,7 +48,6 @@ export default function WarriorPower() {
       
       if (!existingSession?.session) {
         // No active session - create account with user's password
-        // Sign up with user's chosen password
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: data.email,
           password: data.password,
@@ -63,15 +62,36 @@ export default function WarriorPower() {
         });
 
         if (signUpError) {
-          // If user already exists, try to sign them in
+          // If user already exists, try to sign them in with the provided password
           if (signUpError.message?.includes('already registered') || signUpError.message?.includes('already been registered')) {
-            console.log('User already exists, continuing as guest...');
-            toast.info('Contul există deja. Poți continua quiz-ul și te poți loga ulterior pentru a accesa rezultatele.');
+            console.log('User already exists, attempting sign in...');
+            
+            // Try to sign in with the password they provided
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email: data.email,
+              password: data.password
+            });
+
+            if (signInError) {
+              // Wrong password - continue as guest with warning
+              console.log('Sign in failed, continuing as guest:', signInError.message);
+              toast.warning('Contul există cu altă parolă. Poți continua quiz-ul și te poți loga ulterior.');
+            } else if (signInData?.session) {
+              // Successfully signed in!
+              console.log('User signed in successfully');
+              toast.success('Te-am conectat la contul tău existent!');
+              
+              // Wait for auth state to propagate
+              await new Promise(resolve => setTimeout(resolve, 300));
+            }
           } else {
             console.error('Error creating account:', signUpError);
+            toast.error('Eroare la crearea contului. Încearcă din nou.');
           }
         } else if (signUpData?.session) {
           // User was created AND auto-confirmed (session exists)
+          console.log('New user created with session');
+          
           // Set early_bird_expires_at to 3 days from now
           const earlyBirdExpiry = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
           await supabase.from('subscribers').upsert({
@@ -83,12 +103,19 @@ export default function WarriorPower() {
             updated_at: new Date().toISOString()
           }, { onConflict: 'email' });
           
-          toast.success('Contul tău Free Plan a fost creat! Verifică emailul pentru detalii.');
+          toast.success('Contul tău Free Plan a fost creat!');
+          
+          // Wait for auth state to propagate to AuthContext
+          await new Promise(resolve => setTimeout(resolve, 300));
         } else if (signUpData?.user && !signUpData?.session) {
           // User created but needs email confirmation (shouldn't happen with auto-confirm)
           console.log('User created, awaiting confirmation');
           toast.success('Contul tău a fost creat!');
         }
+      } else {
+        // User already has an active session
+        console.log('User already authenticated');
+        toast.info('Ești deja autentificat!');
       }
 
       // Track Facebook Pixel Lead event
