@@ -13,7 +13,9 @@ const INLINE_PLANS = [
     id: 'basic',
     name: 'Basic',
     price: '€49',
+    originalPrice: '€97',
     trial: '3 zile trial',
+    highlight: 'Early Bird',
     icon: Zap,
     color: 'text-blue-400',
     bg: 'bg-blue-500/10',
@@ -23,22 +25,29 @@ const INLINE_PLANS = [
     id: 'pro',
     name: 'Pro',
     price: '€97',
+    originalPrice: '€197',
     trial: '7 zile trial',
+    highlight: 'Early Bird',
     icon: Crown,
     color: 'text-purple-400',
     bg: 'bg-purple-500/10',
     border: 'border-purple-500/30',
-    featured: true
+    featured: true,
+    badge: 'Popular'
   },
   {
     id: 'elite',
     name: 'Elite',
     price: '€297',
+    originalPrice: '€500',
     trial: '7 zile trial',
+    highlight: 'Early Bird',
     icon: Rocket,
     color: 'text-amber-400',
     bg: 'bg-amber-500/10',
-    border: 'border-amber-500/30'
+    border: 'border-amber-500/30',
+    eliteBadge: true,
+    badge: 'Doar Elitele'
   }
 ];
 
@@ -114,13 +123,19 @@ export function InlineMembershipBanner() {
                   className={`relative p-4 rounded-xl border-2 transition-all hover:scale-[1.02] cursor-pointer ${
                     plan.featured 
                       ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10' 
-                      : `${plan.border} ${plan.bg}`
+                      : plan.eliteBadge
+                        ? 'border-amber-500/50 bg-gradient-to-br from-amber-500/10 to-orange-500/5 shadow-lg shadow-amber-500/10'
+                        : `${plan.border} ${plan.bg}`
                   }`}
                   onClick={() => handleSelectPlan(plan.id)}
                 >
-                  {plan.featured && (
-                    <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px]">
-                      Popular
+                  {plan.badge && (
+                    <Badge className={`absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] ${
+                      plan.eliteBadge 
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0' 
+                        : 'bg-primary text-primary-foreground'
+                    }`}>
+                      {plan.badge}
                     </Badge>
                   )}
                   
@@ -129,18 +144,31 @@ export function InlineMembershipBanner() {
                       <Icon className={`w-5 h-5 ${plan.color}`} />
                     </div>
                     <div>
-                      <h4 className="font-bold">{plan.name}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold">{plan.name}</h4>
+                        {plan.highlight && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 font-medium">
+                            {plan.highlight}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-muted-foreground">{plan.trial}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold">{plan.price}<span className="text-sm text-muted-foreground">/lună</span></span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xl font-bold">{plan.price}</span>
+                      {plan.originalPrice && (
+                        <span className="text-sm text-muted-foreground line-through">{plan.originalPrice}</span>
+                      )}
+                      <span className="text-sm text-muted-foreground">/lună</span>
+                    </div>
                     <Button
                       size="sm"
-                      variant={plan.featured ? 'default' : 'outline'}
+                      variant={plan.featured || plan.eliteBadge ? 'default' : 'outline'}
                       disabled={loadingPlan !== null}
-                      className="gap-1"
+                      className={`gap-1 ${plan.eliteBadge ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 border-0' : ''}`}
                     >
                       {loadingPlan === plan.id ? '...' : 'Start'}
                       <ArrowRight className="w-3 h-3" />
