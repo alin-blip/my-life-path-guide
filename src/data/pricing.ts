@@ -27,15 +27,14 @@ export type Plan = {
 export const plans: Plan[] = [
   {
     id: "free",
-    nameEn: "Free Trial",
-    nameRo: "Trial Gratuit",
+    nameEn: "Free Access",
+    nameRo: "Acces Gratuit",
     priceEn: "€0",
     priceRo: "0 LEI",
     periodEn: "3 days",
     periodRo: "3 zile",
     highlightEn: "Start Your Journey",
     highlightRo: "Începe Călătoria",
-    trialDays: 3,
     resultEn: "Test the WarriorOS system: build habits and complete your first challenge.",
     resultRo: "Testează sistemul WarriorOS: construiește obiceiuri și completează primul challenge.",
     benefitsEn: [
@@ -68,7 +67,6 @@ export const plans: Plan[] = [
     highlightRo: "Early Bird",
     valueEn: "€97 value",
     valueRo: "Valoare €97",
-    trialDays: 3,
     resultEn: "Full platform access with AI Coaching, Champion Routine, and Door planning system.",
     resultRo: "Acces complet la platformă cu AI Coaching, Champion Routine și sistem Door.",
     benefitsEn: [
@@ -101,11 +99,10 @@ export const plans: Plan[] = [
     originalPriceRo: "990 LEI",
     periodEn: "/ month",
     periodRo: "/ lună",
-    highlightEn: "7-Day Free Trial",
-    highlightRo: "7 Zile Trial Gratuit",
+    highlightEn: "Most Popular",
+    highlightRo: "Cel Mai Popular",
     valueEn: "€197 value",
     valueRo: "Valoare €197",
-    trialDays: 7,
     resultEn: "Everything in Basic + Weekly LIVE Group Coaching with Alin Radu + VIP Pro Community.",
     resultRo: "Tot din Basic + Coaching de Grup LIVE Săptămânal cu Alin Radu + Comunitate VIP Pro.",
     benefitsEn: [
@@ -126,8 +123,8 @@ export const plans: Plan[] = [
       "Acces prioritar la funcționalități noi",
       "Support VIP dedicat",
     ],
-    ctaEn: "Start 7-Day Trial",
-    ctaRo: "Începe Trial 7 Zile",
+    ctaEn: "Choose Pro",
+    ctaRo: "Alege Pro",
     featured: true,
     coachingIncluded: true,
   },
@@ -146,7 +143,6 @@ export const plans: Plan[] = [
     highlightRo: "Tot Inclus",
     valueEn: "€500 value",
     valueRo: "Valoare €500",
-    trialDays: 7,
     resultEn: "The complete Warrior transformation. Pro + Warrior Launch Accelerator included + Monthly 1-on-1 Coaching.",
     resultRo: "Transformarea completă Warrior. Pro + Warrior Launch Accelerator inclus + Coaching 1-on-1 lunar.",
     benefitsEn: [

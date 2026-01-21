@@ -25,7 +25,6 @@ const getPlans = (isEarlyBird: boolean) => [
     price: isEarlyBird ? PLAN_PRICES.basic.earlyBird : PLAN_PRICES.basic.normal,
     originalPrice: isEarlyBird ? PLAN_PRICES.basic.normal : null,
     period: '/lună',
-    trial: '3 zile trial',
     icon: Zap,
     gradient: 'from-blue-500 to-cyan-500',
     benefits: [
@@ -41,7 +40,6 @@ const getPlans = (isEarlyBird: boolean) => [
     price: isEarlyBird ? PLAN_PRICES.pro.earlyBird : PLAN_PRICES.pro.normal,
     originalPrice: isEarlyBird ? PLAN_PRICES.pro.normal : null,
     period: '/lună',
-    trial: '7 zile trial',
     icon: Crown,
     gradient: 'from-purple-500 to-pink-500',
     featured: true,
@@ -59,7 +57,6 @@ const getPlans = (isEarlyBird: boolean) => [
     price: isEarlyBird ? PLAN_PRICES.elite.earlyBird : PLAN_PRICES.elite.normal,
     originalPrice: isEarlyBird ? PLAN_PRICES.elite.normal : null,
     period: '/lună',
-    trial: '7 zile trial',
     icon: Rocket,
     gradient: 'from-amber-500 to-orange-500',
     badge: 'Doar Elitele',
@@ -232,16 +229,13 @@ export function DelayedMembershipModal({ delayMs = 30000, onClose }: DelayedMemb
                           <span className="text-sm text-muted-foreground">{plan.period}</span>
                         </div>
                         
-                        <div className="flex items-center gap-2 mb-4">
-                          <Badge variant="outline" className="text-xs">
-                            {plan.trial}
-                          </Badge>
-                          {isEarlyBirdActive && (
+                        {isEarlyBirdActive && (
+                          <div className="flex items-center gap-2 mb-4">
                             <Badge className="text-xs bg-green-500/20 text-green-400 border-green-500/30" variant="outline">
                               Early Bird
                             </Badge>
-                          )}
-                        </div>
+                          </div>
+                        )}
 
                         <ul className="space-y-2 mb-6 flex-1">
                           {plan.benefits.map((benefit, bIdx) => (
@@ -264,7 +258,7 @@ export function DelayedMembershipModal({ delayMs = 30000, onClose }: DelayedMemb
                           }`}
                           variant={plan.featured || plan.isElite ? 'default' : 'outline'}
                         >
-                          {loadingPlan === plan.id ? 'Se încarcă...' : 'Începe Trial'}
+                          {loadingPlan === plan.id ? 'Se încarcă...' : 'Alege Planul'}
                         </Button>
                       </Card>
                     </motion.div>

@@ -23,7 +23,6 @@ const getPlans = (isEarlyBird: boolean) => [
     name: 'Basic',
     price: isEarlyBird ? PLAN_PRICES.basic.earlyBird : PLAN_PRICES.basic.normal,
     originalPrice: isEarlyBird ? PLAN_PRICES.basic.normal : null,
-    trial: '3 zile trial',
     highlight: isEarlyBird ? 'Early Bird' : null,
     icon: Zap,
     color: 'text-blue-400',
@@ -35,8 +34,7 @@ const getPlans = (isEarlyBird: boolean) => [
     name: 'Pro',
     price: isEarlyBird ? PLAN_PRICES.pro.earlyBird : PLAN_PRICES.pro.normal,
     originalPrice: isEarlyBird ? PLAN_PRICES.pro.normal : null,
-    trial: '7 zile trial',
-    highlight: isEarlyBird ? 'Early Bird' : null,
+    highlight: isEarlyBird ? 'Early Bird' : 'Cel Mai Popular',
     icon: Crown,
     color: 'text-purple-400',
     bg: 'bg-purple-500/10',
@@ -49,8 +47,7 @@ const getPlans = (isEarlyBird: boolean) => [
     name: 'Elite',
     price: isEarlyBird ? PLAN_PRICES.elite.earlyBird : PLAN_PRICES.elite.normal,
     originalPrice: isEarlyBird ? PLAN_PRICES.elite.normal : null,
-    trial: '7 zile trial',
-    highlight: isEarlyBird ? 'Early Bird' : null,
+    highlight: isEarlyBird ? 'Early Bird' : 'Tot Inclus',
     icon: Rocket,
     color: 'text-amber-400',
     bg: 'bg-amber-500/10',
@@ -130,7 +127,7 @@ export function InlineMembershipBanner() {
             <p className="text-sm text-muted-foreground">
               {isEarlyBirdActive 
                 ? 'Blochează prețul special înainte să expire!' 
-                : 'Începe cu un trial gratuit și accesează toate funcțiile premium'
+                : 'Accesează toate funcțiile premium acum'
               }
             </p>
           </div>
@@ -174,7 +171,6 @@ export function InlineMembershipBanner() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground">{plan.trial}</p>
                     </div>
                   </div>
                   
