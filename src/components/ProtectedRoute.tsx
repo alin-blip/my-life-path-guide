@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
 
 const LOADING_TIMEOUT_MS = 10000; // 10 seconds
 
-// Routes available for FREE tier (habit tracking + challenges)
+// Routes available for FREE tier (habit tracking + challenges only)
 const FREE_TIER_ROUTES = [
   '/dashboard',
   '/habits',
@@ -22,8 +22,42 @@ const FREE_TIER_ROUTES = [
   '/profile',
 ];
 
-// Routes that require PRO tier (everything except Warrior Accelerator)
-const PRO_BLOCKED_ROUTES = [
+// Routes available for BASIC tier (full platform without LIVE coaching)
+const BASIC_ROUTES = [
+  ...FREE_TIER_ROUTES,
+  '/door',
+  '/champion-routine',
+  '/stacks',
+  '/fact-maps',
+  '/journal',
+  '/insights',
+  '/focus',
+  '/clarity',
+  '/anger',
+  '/daily-flow',
+  '/nutrition',
+  '/activity',
+  '/workouts',
+  '/meditation',
+  '/breathing',
+  '/visualization',
+  '/autosuggestion',
+  '/gratitude',
+  '/learn',
+  '/apply',
+  '/reading',
+  '/evening',
+  '/ai-coaching',
+];
+
+// Routes blocked for BASIC (require PRO or higher)
+const PRO_REQUIRED_ROUTES = [
+  '/brotherhood', // VIP Community
+  '/live-coaching', // LIVE coaching sessions
+];
+
+// Routes that require ELITE tier
+const ELITE_ONLY_ROUTES = [
   '/warriors-way',
   '/warrior-launch-accelerator',
 ];
@@ -65,22 +99,35 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     navigate('/auth');
   };
 
-  // Determine user tier
-  const getUserTier = (): 'free' | 'pro' | 'elite' | null => {
+  // Determine user tier from subscriptionTier string
+  const getUserTier = (): 'free' | 'basic' | 'pro' | 'elite' | null => {
     if (!subscriptionTier) return null;
     const t = subscriptionTier.toLowerCase();
+    
+    // Elite tier - has access to everything including Warrior Accelerator
     if (t.includes('elite')) return 'elite';
+    
+    // Pro tier - has access to LIVE coaching and VIP community
     if (t.includes('pro')) return 'pro';
-    if (t.includes('basic')) return 'pro'; // Legacy basic = pro access
-    if (t.includes('trial')) return 'free';
+    
+    // Basic tier - full platform without LIVE coaching
+    if (t.includes('basic')) return 'basic';
+    
+    // Trial users get basic access
+    if (t.includes('trial')) return 'basic';
+    
+    // Free tier - only habits and challenges
     if (t.includes('free')) return 'free';
-    return 'pro'; // Default to pro for any subscription
+    
+    // Default to basic for any active subscription
+    return 'basic';
   };
 
   const userTier = getUserTier();
 
   // Check if current route is allowed for user's tier
   const isRouteAllowed = (): boolean => {
+    // Admins have access to everything
     if (isAdmin) return true;
     
     const path = location.pathname;
@@ -88,16 +135,29 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     // Elite has access to everything
     if (userTier === 'elite') return true;
     
-    // Pro has access to everything except Warrior Accelerator (they need to buy separately or upgrade to Elite)
+    // Pro has access to everything except Elite-only routes
     if (userTier === 'pro') {
-      // Warriors Way is included in Elite or as separate purchase
-      if (PRO_BLOCKED_ROUTES.some(route => path.startsWith(route))) {
+      if (ELITE_ONLY_ROUTES.some(route => path.startsWith(route))) {
         return false;
       }
       return true;
     }
     
-    // Free tier - only habit tracking and challenges
+    // Basic tier - full platform except Pro and Elite features
+    if (userTier === 'basic') {
+      // Block Pro-required routes
+      if (PRO_REQUIRED_ROUTES.some(route => path.startsWith(route))) {
+        return false;
+      }
+      // Block Elite-only routes
+      if (ELITE_ONLY_ROUTES.some(route => path.startsWith(route))) {
+        return false;
+      }
+      // Allow all basic routes
+      return BASIC_ROUTES.some(route => path.startsWith(route));
+    }
+    
+    // Free tier - only habits and challenges
     if (userTier === 'free' || !subscribed) {
       return FREE_TIER_ROUTES.some(route => path.startsWith(route));
     }
@@ -145,14 +205,21 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Check tier-based access
   if (!isRouteAllowed()) {
-    // Free users trying to access Pro features
+    const path = location.pathname;
+    
+    // Free users trying to access any paid features
     if (userTier === 'free' || !subscribed) {
       return <Navigate to="/pricing" state={{ from: location, reason: 'membership_required' }} replace />;
     }
     
-    // Pro users trying to access Elite features (Warrior Accelerator)
-    if (userTier === 'pro' && PRO_BLOCKED_ROUTES.some(route => location.pathname.startsWith(route))) {
-      return <Navigate to="/warrior-launch-accelerator" state={{ from: location, reason: 'elite_required' }} replace />;
+    // Basic users trying to access Pro features (LIVE coaching, VIP community)
+    if (userTier === 'basic' && PRO_REQUIRED_ROUTES.some(route => path.startsWith(route))) {
+      return <Navigate to="/pricing" state={{ from: location, reason: 'pro_required' }} replace />;
+    }
+    
+    // Basic/Pro users trying to access Elite features (Warrior Accelerator)
+    if ((userTier === 'basic' || userTier === 'pro') && ELITE_ONLY_ROUTES.some(route => path.startsWith(route))) {
+      return <Navigate to="/pricing" state={{ from: location, reason: 'elite_required' }} replace />;
     }
   }
 

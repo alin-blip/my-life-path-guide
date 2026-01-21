@@ -17,25 +17,30 @@ interface WarriorPowerUpsellProps {
   onContinueFree: () => void;
 }
 
-// Simplified 2-tier structure for Warrior Power flow
+// HORMOZI 3-TIER STRUCTURE for Warrior Power flow
 const UPSELL_PLANS = [
   {
-    id: 'free', // 3-day trial, then €49/month (Basic)
-    name: 'Start Gratuit',
+    id: 'basic', // 3-day trial, then €49/month (Basic)
+    name: 'Basic',
     price: '0',
     afterTrialPrice: '49',
     currency: '€',
     period: '3 zile gratuit',
     highlight: '🎁 3 Zile Trial',
+    tier: 'basic',
     benefits: [
       '3 zile acces complet GRATUIT',
       'Harta Realității interactivă',
       'Champion Routine completă',
       'Door - planificare săptămânală',
+      'AI Coaching pentru business',
       'Apoi doar €49/lună Early Bird'
     ],
     featured: true,
-    isTrial: true
+    gradient: 'from-green-500 to-emerald-500',
+    bgGradient: 'from-green-500/10 via-background to-emerald-500/10',
+    borderColor: 'border-green-500',
+    icon: Gift,
   },
   {
     id: 'pro', // 7-day trial, then €97/month (Pro)
@@ -44,9 +49,10 @@ const UPSELL_PLANS = [
     afterTrialPrice: '97',
     currency: '€',
     period: '7 zile trial',
-    highlight: '7 Zile Trial + Coaching',
+    highlight: '7 Zile Trial + Coaching LIVE',
+    tier: 'pro',
     benefits: [
-      'Tot din Basic +',
+      '✓ Tot din Basic +',
       '7 zile trial gratuit',
       'Coaching de grup LIVE săptămânal',
       'Comunitate VIP Pro',
@@ -54,7 +60,33 @@ const UPSELL_PLANS = [
       'Support VIP dedicat'
     ],
     featured: false,
-    isTrial: true
+    gradient: 'from-amber-500 to-orange-500',
+    bgGradient: 'from-amber-500/10 via-background to-orange-500/10',
+    borderColor: 'border-amber-500',
+    icon: Star,
+  },
+  {
+    id: 'elite', // 7-day trial, then €297/month (Elite)
+    name: 'Elite',
+    price: '0',
+    afterTrialPrice: '297',
+    currency: '€',
+    period: '7 zile trial',
+    highlight: '🔥 Tot Inclus',
+    tier: 'elite',
+    benefits: [
+      '✓ Tot din Pro +',
+      '7 zile trial gratuit',
+      'Warrior Launch Accelerator (€497)',
+      '47+ lecții video premium',
+      'Coaching 1-on-1 lunar (30 min)',
+      'Acces prioritar la toate cursurile'
+    ],
+    featured: false,
+    gradient: 'from-purple-500 to-violet-500',
+    bgGradient: 'from-purple-500/10 via-background to-violet-500/10',
+    borderColor: 'border-purple-500',
+    icon: Crown,
   }
 ];
 
@@ -174,7 +206,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         </div>
         
         <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-          Acum că știi unde ești, hai să construim unde vei ajunge
+          Alege planul tău de transformare
         </h2>
         
         <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -184,79 +216,77 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         </p>
       </motion.div>
 
-      {/* Plans Grid - 2 columns */}
+      {/* Plans Grid - 3 columns */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto"
+        className="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto"
       >
         {UPSELL_PLANS.map((plan) => {
-          const isFree = plan.id === 'free';
-          const isPro = plan.id === 'pro';
+          const IconComponent = plan.icon;
           
           return (
             <Card 
               key={plan.id}
               className={cn(
                 "relative overflow-hidden transition-all duration-300",
-                isFree 
-                  ? "border-2 border-green-500 bg-gradient-to-br from-green-500/10 via-background to-emerald-500/10 shadow-lg shadow-green-500/10" 
-                  : "border-2 border-amber-500 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/10 shadow-lg shadow-amber-500/10"
+                `border-2 ${plan.borderColor} bg-gradient-to-br ${plan.bgGradient} shadow-lg`,
+                plan.featured && "ring-2 ring-green-500/50"
               )}
             >
               <div className={cn(
                 "absolute top-0 left-0 w-full h-1",
-                isFree 
-                  ? "bg-gradient-to-r from-green-500 via-emerald-500 to-green-500"
-                  : "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500"
+                `bg-gradient-to-r ${plan.gradient}`
               )} />
               
               {plan.highlight && (
                 <Badge 
                   className={cn(
-                    "absolute top-4 right-4 border-0",
-                    isFree 
-                      ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
-                      : "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
+                    "absolute top-4 right-4 border-0 text-white text-xs",
+                    `bg-gradient-to-r ${plan.gradient}`
                   )}
                 >
                   {plan.highlight}
                 </Badge>
               )}
 
-              <CardContent className="p-6">
+              <CardContent className="p-5">
                 <div className="mb-4">
                   <div className="flex items-center gap-2 mb-2">
-                    {isFree ? (
-                      <Gift className="h-6 w-6 text-green-500" />
-                    ) : (
-                      <Crown className="h-6 w-6 text-amber-500" />
-                    )}
-                    <h3 className="text-xl font-bold">{plan.name}</h3>
+                    <IconComponent className={cn("h-5 w-5", 
+                      plan.id === 'basic' && "text-green-500",
+                      plan.id === 'pro' && "text-amber-500",
+                      plan.id === 'elite' && "text-purple-500"
+                    )} />
+                    <h3 className="text-lg font-bold">{plan.name}</h3>
                   </div>
                   
                   <div className="flex items-baseline gap-1">
                     <span className={cn(
-                      "text-4xl font-black",
-                      isFree ? "text-green-500" : "text-amber-500"
+                      "text-3xl font-black",
+                      plan.id === 'basic' && "text-green-500",
+                      plan.id === 'pro' && "text-amber-500",
+                      plan.id === 'elite' && "text-purple-500"
                     )}>
                       {plan.currency}{plan.price}
                     </span>
-                    <span className="text-muted-foreground">/ {plan.period}</span>
+                    <span className="text-muted-foreground text-sm">/ {plan.period}</span>
                   </div>
                   
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Apoi {plan.currency}{plan.afterTrialPrice}/lună
                   </p>
                 </div>
 
-                <ul className="space-y-3 mb-6">
+                <ul className="space-y-2 mb-5">
                   {plan.benefits.map((benefit, bidx) => (
-                    <li key={bidx} className="flex items-start gap-2 text-sm">
+                    <li key={bidx} className="flex items-start gap-2 text-xs">
                       <Check className={cn(
-                        "h-4 w-4 mt-0.5 flex-shrink-0",
-                        isFree ? "text-green-500" : "text-amber-500"
+                        "h-3.5 w-3.5 mt-0.5 flex-shrink-0",
+                        plan.id === 'basic' && "text-green-500",
+                        plan.id === 'pro' && "text-amber-500",
+                        plan.id === 'elite' && "text-purple-500"
                       )} />
                       <span className="text-muted-foreground">{benefit}</span>
                     </li>
@@ -267,23 +297,22 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   onClick={() => handleCheckout(plan.id)}
                   disabled={isLoading !== null}
                   variant="default"
+                  size="sm"
                   className={cn(
-                    "w-full gap-2",
-                    isFree 
-                      ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white" 
-                      : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                    "w-full gap-2 text-white",
+                    `bg-gradient-to-r ${plan.gradient} hover:opacity-90`
                   )}
                 >
                   {isLoading === plan.id ? (
                     <>
-                      <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      <div className="h-3 w-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
                       Se procesează...
                     </>
                   ) : (
                     <>
-                      {isFree ? <Sparkles className="h-4 w-4" /> : <Star className="h-4 w-4" />}
-                      {isFree ? 'Începe 3 Zile Gratuit' : 'Începe 7 Zile Pro Trial'}
-                      <ArrowRight className="h-4 w-4" />
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Începe {plan.period}
+                      <ArrowRight className="h-3.5 w-3.5" />
                     </>
                   )}
                 </Button>

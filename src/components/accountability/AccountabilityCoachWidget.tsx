@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAccountabilityCoach } from '@/hooks/useAccountabilityCoach';
 import { useFoundationStatus } from '@/hooks/useFoundationStatus';
+import { useRealityMapStatus } from '@/hooks/useRealityMapStatus';
 import { CoachChatMode } from './CoachChatMode';
 import { CoachVoiceMode } from './CoachVoiceMode';
 import { CoachReminders } from './CoachReminders';
@@ -32,6 +33,7 @@ export const AccountabilityCoachWidget: React.FC = () => {
   const location = useLocation();
   const { language } = useLanguage();
   const { pendingItems } = useFoundationStatus();
+  const { hasRealityMap, isLoading: realityMapLoading } = useRealityMapStatus();
   
   const {
     messages,
@@ -40,6 +42,7 @@ export const AccountabilityCoachWidget: React.FC = () => {
     clearMessages,
   } = useAccountabilityCoach({
     currentPage: location.pathname,
+    hasRealityMap,
   });
 
   const quickActions = getQuickActionsForCoach(language as 'en' | 'ro');

@@ -34,7 +34,7 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
     // Get requested plan
-    const { plan } = await req.json();
+    const { plan, source } = await req.json();
     if (!plan) throw new Error("Missing plan in request body");
 
     // Ensure Stripe customer exists and get their currency
@@ -54,6 +54,10 @@ serve(async (req) => {
     }
 
     // Map plan -> pricing
+    // HORMOZI 3-TIER STRUCTURE (Updated Jan 2025):
+    // - Basic: €49/mo Early Bird (normally €97) - 3-day trial
+    // - Pro: €97/mo Early Bird (normally €197) - 7-day trial + LIVE coaching
+    // - Elite: €297/mo Early Bird (normally €500) - 7-day trial + All Pro + Accelerator + 1-on-1
     let unitAmount = 0;
     let trialDays: number | undefined;
     let interval: "month" | "year" = "month";
@@ -63,30 +67,43 @@ serve(async (req) => {
     let tier = "basic";
 
     switch (plan) {
-      // NEW 3-TIER STRUCTURE (Updated Jan 2025)
+      // === NEW 3-TIER HORMOZI STRUCTURE ===
       case "free":
-        // Free trial - Basic with 3-day trial
+        // Free trial - Basic with 3-day trial, then €49/mo
         unitAmount = currency === "ron" ? 24900 : 4900; // 249 RON or €49 after trial
-        productName = "WarriorOS Basic (Free Trial)";
+        productName = "WarriorOS Basic (3-Day Trial)";
         trialDays = 3;
         tier = "basic";
         break;
+        
       case "basic":
-        // Basic plan - €49/month
+        // Basic plan - €49/month Early Bird (normally €97)
         unitAmount = currency === "ron" ? 24900 : 4900; // 249 RON or €49
         productName = "WarriorOS Basic";
+        trialDays = 3; // 3-day trial
         tier = "basic";
         break;
+        
       case "pro":
-        // Pro plan - €97/month with 7-day trial
+        // Pro plan - €97/month Early Bird (normally €197) with 7-day trial
         unitAmount = currency === "ron" ? 49000 : 9700; // 490 RON or €97
         productName = "WarriorOS Pro";
         trialDays = 7; // 7-day free trial
         tier = "pro";
         break;
+        
+      case "elite":
+        // Elite plan - €297/month Early Bird (normally €500) with 7-day trial
+        // Includes: Pro + Warrior Accelerator + Monthly 1-on-1 coaching
+        unitAmount = currency === "ron" ? 149000 : 29700; // 1490 RON or €297
+        productName = "WarriorOS Elite (All-Inclusive)";
+        trialDays = 7; // 7-day free trial
+        tier = "elite";
+        break;
       
-      // WARRIOR ACCELERATOR - One-time €497 (reduced from €970)
+      // === ONE-TIME PURCHASES ===
       case "warrior-accelerator":
+        // Standalone purchase: €497 one-time (reduced from €970)
         unitAmount = 49700; // 497 EUR în cenți
         currency = "eur";
         paymentMode = "payment";
@@ -94,12 +111,7 @@ serve(async (req) => {
         tier = "accelerator";
         break;
       
-      // LEGACY PLANS (for existing subscribers - kept for backwards compatibility)
-      case "elite":
-        unitAmount = currency === "ron" ? 247000 : 49700; // 2470 RON or €497
-        productName = "WarriorOS Elite (Legacy)";
-        tier = "elite";
-        break;
+      // === LEGACY PLANS (for existing subscribers - backwards compatibility) ===
       case "trial":
         unitAmount = 19700;
         currency = "ron";
@@ -148,14 +160,12 @@ serve(async (req) => {
       unitAmount,
       currency,
       trialDays,
+      tier,
+      source,
     });
 
     let successUrl: string;
     let cancelUrl: string;
-
-    // Parse request body for additional data
-    const requestBody = await req.clone().json().catch(() => ({}));
-    const source = requestBody.source || '';
 
     if (plan === "warrior-accelerator") {
       successUrl = `${origin}/warrior-accelerator-thank-you?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
@@ -200,6 +210,7 @@ serve(async (req) => {
         tier: tier,
         coaching_included: tier === "pro" || tier === "elite" ? "true" : "false",
         has_trial: trialDays ? "true" : "false",
+        source: source || "direct",
       },
       success_url: successUrl,
       cancel_url: cancelUrl,

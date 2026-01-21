@@ -12,14 +12,22 @@ const log = (step: string, details?: any) => {
 };
 
 // Helper function to determine tier from amount (in cents)
-// Updated Jan 2025: Basic €49, Pro €97, Accelerator €497
+// HORMOZI 3-TIER STRUCTURE (Updated Jan 2025):
+// - Basic: €49 = 4900 cents
+// - Pro: €97 = 9700 cents
+// - Elite: €297 = 29700 cents
+// - Accelerator: €497 = 49700 cents (one-time)
 const getTierFromAmount = (amount: number, currency: string): string => {
   // Normalize to EUR cents for comparison
   const normalizedAmount = currency.toLowerCase() === "ron" 
     ? Math.round(amount / 5) // Approximate RON to EUR conversion
     : amount;
   
-  // Pro: €97 = 9700 cents (range 9000-10500 to account for variations)
+  // Elite: €297 = 29700 cents (range 29000-30500)
+  if (normalizedAmount >= 29000 && normalizedAmount <= 30500) {
+    return "elite";
+  }
+  // Pro: €97 = 9700 cents (range 9000-10500)
   if (normalizedAmount >= 9000 && normalizedAmount <= 10500) {
     return "pro";
   }
@@ -30,10 +38,6 @@ const getTierFromAmount = (amount: number, currency: string): string => {
   // Accelerator: €497 = 49700 cents (range 49000-50500)
   if (normalizedAmount >= 49000 && normalizedAmount <= 50500) {
     return "accelerator";
-  }
-  // Legacy Elite: €497+ as subscription (now deprecated)
-  if (normalizedAmount >= 49000) {
-    return "elite";
   }
   // Default to basic for unknown amounts
   return "basic";
