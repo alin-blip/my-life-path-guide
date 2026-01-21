@@ -27,12 +27,12 @@ export type Plan = {
 export const plans: Plan[] = [
   {
     id: "free",
-    nameEn: "Free Access",
-    nameRo: "Acces Gratuit",
-    priceEn: "€0",
-    priceRo: "0 LEI",
-    periodEn: "3 days",
-    periodRo: "3 zile",
+    nameEn: "Limited Access",
+    nameRo: "Acces Limitat",
+    priceEn: "Free",
+    priceRo: "Gratuit",
+    periodEn: "3 days trial",
+    periodRo: "3 zile trial",
     highlightEn: "Start Your Journey",
     highlightRo: "Începe Călătoria",
     resultEn: "Test the WarriorOS system: build habits and complete your first challenge.",

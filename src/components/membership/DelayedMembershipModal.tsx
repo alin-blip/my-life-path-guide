@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { X, Crown, Zap, Rocket, Check, Sparkles } from 'lucide-react';
+import { Crown, Zap, Rocket, Check, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
@@ -142,14 +142,6 @@ export function DelayedMembershipModal({ delayMs = 30000, onClose }: DelayedMemb
         <Dialog open={isOpen} onOpenChange={handleClose}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 gap-0 border-primary/20">
             <div className="relative bg-gradient-to-br from-background via-background to-primary/5 p-6 sm:p-8">
-              {/* Close button */}
-              <button
-                onClick={handleClose}
-                className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted transition-colors z-10"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
               {/* Early Bird Countdown - Prominent at top */}
               {earlyBirdExpiresAt && (
                 <div className="mb-6">
