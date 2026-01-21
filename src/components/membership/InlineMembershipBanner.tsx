@@ -7,15 +7,24 @@ import { Badge } from '@/components/ui/badge';
 import { Crown, Zap, Rocket, Check, ArrowRight, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
+import { EarlyBirdCountdown } from './EarlyBirdCountdown';
 
-const INLINE_PLANS = [
+// Prices: Early Bird vs Normal
+const PLAN_PRICES = {
+  basic: { earlyBird: '€49', normal: '€97' },
+  pro: { earlyBird: '€97', normal: '€197' },
+  elite: { earlyBird: '€297', normal: '€500' }
+};
+
+const getPlans = (isEarlyBird: boolean) => [
   {
     id: 'basic',
     name: 'Basic',
-    price: '€49',
-    originalPrice: '€97',
+    price: isEarlyBird ? PLAN_PRICES.basic.earlyBird : PLAN_PRICES.basic.normal,
+    originalPrice: isEarlyBird ? PLAN_PRICES.basic.normal : null,
     trial: '3 zile trial',
-    highlight: 'Early Bird',
+    highlight: isEarlyBird ? 'Early Bird' : null,
     icon: Zap,
     color: 'text-blue-400',
     bg: 'bg-blue-500/10',
@@ -24,10 +33,10 @@ const INLINE_PLANS = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '€97',
-    originalPrice: '€197',
+    price: isEarlyBird ? PLAN_PRICES.pro.earlyBird : PLAN_PRICES.pro.normal,
+    originalPrice: isEarlyBird ? PLAN_PRICES.pro.normal : null,
     trial: '7 zile trial',
-    highlight: 'Early Bird',
+    highlight: isEarlyBird ? 'Early Bird' : null,
     icon: Crown,
     color: 'text-purple-400',
     bg: 'bg-purple-500/10',
@@ -38,10 +47,10 @@ const INLINE_PLANS = [
   {
     id: 'elite',
     name: 'Elite',
-    price: '€297',
-    originalPrice: '€500',
+    price: isEarlyBird ? PLAN_PRICES.elite.earlyBird : PLAN_PRICES.elite.normal,
+    originalPrice: isEarlyBird ? PLAN_PRICES.elite.normal : null,
     trial: '7 zile trial',
-    highlight: 'Early Bird',
+    highlight: isEarlyBird ? 'Early Bird' : null,
     icon: Rocket,
     color: 'text-amber-400',
     bg: 'bg-amber-500/10',
@@ -54,6 +63,9 @@ const INLINE_PLANS = [
 export function InlineMembershipBanner() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { earlyBirdExpiresAt, isEarlyBirdActive } = useAuth();
+
+  const plans = getPlans(isEarlyBirdActive);
 
   const handleSelectPlan = async (planId: string) => {
     setLoadingPlan(planId);
@@ -99,23 +111,33 @@ export function InlineMembershipBanner() {
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-accent/10 to-transparent rounded-full blur-3xl" />
         
         <div className="relative z-10">
+          {/* Early Bird Countdown */}
+          {earlyBirdExpiresAt && (
+            <div className="mb-4">
+              <EarlyBirdCountdown expiresAt={earlyBirdExpiresAt} />
+            </div>
+          )}
+
           {/* Header */}
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-3">
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-              Deblochează Funcții Premium
+              {isEarlyBirdActive ? 'Prețuri Early Bird Active' : 'Deblochează Funcții Premium'}
             </div>
             <h3 className="text-lg sm:text-xl font-bold mb-2">
               Alege Planul Tău de Transformare
             </h3>
             <p className="text-sm text-muted-foreground">
-              Începe cu un trial gratuit și accesează toate funcțiile premium
+              {isEarlyBirdActive 
+                ? 'Blochează prețul special înainte să expire!' 
+                : 'Începe cu un trial gratuit și accesează toate funcțiile premium'
+              }
             </p>
           </div>
 
           {/* Plans Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            {INLINE_PLANS.map((plan) => {
+            {plans.map((plan) => {
               const Icon = plan.icon;
               return (
                 <div

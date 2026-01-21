@@ -11,6 +11,8 @@ interface AuthContextType {
   subscribed: boolean;
   subscriptionTier: string | null;
   subscriptionEnd: string | null;
+  earlyBirdExpiresAt: string | null;
+  isEarlyBirdActive: boolean;
   refreshSubscription: (opts?: { silent?: boolean }) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -25,6 +27,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [subscribed, setSubscribed] = useState(false);
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
+  const [earlyBirdExpiresAt, setEarlyBirdExpiresAt] = useState<string | null>(null);
+  
+  // Compute isEarlyBirdActive
+  const isEarlyBirdActive = earlyBirdExpiresAt 
+    ? new Date(earlyBirdExpiresAt).getTime() > Date.now() 
+    : false;
   
   // Track if initial auth is complete to avoid re-triggering loading state
   const initialAuthComplete = useRef(false);
@@ -56,6 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setSubscribed(false);
             setSubscriptionTier(null);
             setSubscriptionEnd(null);
+            setEarlyBirdExpiresAt(null);
             setSubscriptionLoading(false);
           }
         }, 0);
@@ -108,6 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
+      setEarlyBirdExpiresAt(null);
       if (!silent) setSubscriptionLoading(false);
       return;
     }
@@ -139,6 +149,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSubscribed(false);
         setSubscriptionTier(null);
         setSubscriptionEnd(null);
+        setEarlyBirdExpiresAt(null);
         return;
       }
 
@@ -146,11 +157,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSubscribed(subscribed);
       setSubscriptionTier(((data as any)?.subscription_tier ?? null));
       setSubscriptionEnd(((data as any)?.subscription_end ?? null));
+      setEarlyBirdExpiresAt(((data as any)?.early_bird_expires_at ?? null));
     } catch (e) {
       console.error('Error checking subscription', e);
       setSubscribed(false);
       setSubscriptionTier(null);
       setSubscriptionEnd(null);
+      setEarlyBirdExpiresAt(null);
     } finally {
       if (!silent) setSubscriptionLoading(false);
     }
@@ -168,6 +181,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     subscribed,
     subscriptionTier,
     subscriptionEnd,
+    earlyBirdExpiresAt,
+    isEarlyBirdActive,
     refreshSubscription,
     signOut
   };
