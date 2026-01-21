@@ -1,17 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Rocket, ArrowRight } from 'lucide-react';
+import { Rocket, ArrowRight, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 
+const DISMISS_KEY = 'acceleratorBannerDismissedAt';
+const DISMISS_DURATION_MS = 12 * 60 * 60 * 1000; // 12 hours
+
 export const AcceleratorBanner: React.FC = () => {
   const navigate = useNavigate();
-  const { user, subscriptionTier } = useAuth();
+  const { user, subscribed, subscriptionTier } = useAuth();
   const { language } = useLanguage();
   const [hasPurchased, setHasPurchased] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDismissed, setIsDismissed] = useState(false);
+
+  // Check localStorage dismissal on mount
+  useEffect(() => {
+    const dismissedAt = localStorage.getItem(DISMISS_KEY);
+    if (dismissedAt) {
+      const elapsed = Date.now() - parseInt(dismissedAt, 10);
+      if (elapsed < DISMISS_DURATION_MS) {
+        setIsDismissed(true);
+      } else {
+        // Clear expired dismissal
+        localStorage.removeItem(DISMISS_KEY);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -35,8 +53,16 @@ export const AcceleratorBanner: React.FC = () => {
     checkAccess();
   }, [user]);
 
-  // Don't show if loading
-  if (isLoading) return null;
+  const handleDismiss = () => {
+    localStorage.setItem(DISMISS_KEY, Date.now().toString());
+    setIsDismissed(true);
+  };
+
+  // Don't show if loading or dismissed
+  if (isLoading || isDismissed) return null;
+
+  // Only show to paying members (subscribed = true)
+  if (!subscribed) return null;
 
   // Don't show if user has Elite subscription or has purchased Accelerator
   const tier = subscriptionTier?.toLowerCase() || '';
@@ -54,6 +80,15 @@ export const AcceleratorBanner: React.FC = () => {
         {/* Background glow effect */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-600/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        
+        {/* Close button */}
+        <button
+          onClick={handleDismiss}
+          className="absolute top-3 right-3 p-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors z-10"
+          aria-label="Închide"
+        >
+          <X className="w-4 h-4 text-white/60" />
+        </button>
         
         <div className="relative flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Left side: Icon + Text */}
