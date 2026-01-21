@@ -38,23 +38,29 @@ export function EarlyBirdCountdown({
   compact = false,
   showExpiredMessage = true 
 }: EarlyBirdCountdownProps) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => 
+    expiresAt ? calculateTimeLeft(expiresAt) : { days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 }
+  );
 
   useEffect(() => {
-    if (!expiresAt) return;
+    if (!expiresAt) {
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
+      return;
+    }
 
-    // Calculate immediately
+    // Calculate immediately on mount/change
     setTimeLeft(calculateTimeLeft(expiresAt));
 
-    // Update every second
+    // Update every second for live countdown
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft(expiresAt));
+      const newTimeLeft = calculateTimeLeft(expiresAt);
+      setTimeLeft(newTimeLeft);
     }, 1000);
 
     return () => clearInterval(timer);
   }, [expiresAt]);
 
-  if (!expiresAt || !timeLeft) {
+  if (!expiresAt) {
     return null;
   }
 
