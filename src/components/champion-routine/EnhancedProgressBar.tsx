@@ -104,7 +104,7 @@ export function EnhancedProgressBar({
             const groupHasSkipped = group.steps.some(s => skippedSteps.includes(s.id));
 
             return (
-              <React.Fragment key={group.category + groupIndex}>
+              <div key={group.category + groupIndex} className="contents">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <motion.div
@@ -190,7 +190,7 @@ export function EnhancedProgressBar({
                     groupCompleted ? "bg-green-500/50" : "bg-muted-foreground/20"
                   )} />
                 )}
-              </React.Fragment>
+              </div>
             );
           })}
         </div>
