@@ -77,27 +77,24 @@ serve(async (req) => {
         break;
         
       case "basic":
-        // Basic plan - €49/month Early Bird (normally €97)
+        // Basic plan - €49/month Early Bird (normally €97) - NO TRIAL
         unitAmount = currency === "ron" ? 24900 : 4900; // 249 RON or €49
         productName = "WarriorOS Basic";
-        trialDays = 3; // 3-day trial
         tier = "basic";
         break;
         
       case "pro":
-        // Pro plan - €97/month Early Bird (normally €197) with 7-day trial
+        // Pro plan - €97/month Early Bird (normally €197) - NO TRIAL
         unitAmount = currency === "ron" ? 49000 : 9700; // 490 RON or €97
         productName = "WarriorOS Pro";
-        trialDays = 7; // 7-day free trial
         tier = "pro";
         break;
         
       case "elite":
-        // Elite plan - €297/month Early Bird (normally €500) with 7-day trial
+        // Elite plan - €297/month Early Bird (normally €500) - NO TRIAL
         // Includes: Pro + Warrior Accelerator + Monthly 1-on-1 coaching
         unitAmount = currency === "ron" ? 149000 : 29700; // 1490 RON or €297
         productName = "WarriorOS Elite (All-Inclusive)";
-        trialDays = 7; // 7-day free trial
         tier = "elite";
         break;
       
