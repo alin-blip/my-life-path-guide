@@ -3074,6 +3074,7 @@ export type Database = {
       subscribers: {
         Row: {
           created_at: string | null
+          early_bird_expires_at: string | null
           email: string
           id: string
           stripe_customer_id: string | null
@@ -3086,6 +3087,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          early_bird_expires_at?: string | null
           email: string
           id?: string
           stripe_customer_id?: string | null
@@ -3098,6 +3100,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          early_bird_expires_at?: string | null
           email?: string
           id?: string
           stripe_customer_id?: string | null

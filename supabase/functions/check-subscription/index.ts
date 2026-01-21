@@ -126,6 +126,15 @@ serve(async (req) => {
     // Get subscription status (trialing or active)
     const subscriptionStatus = activeOrTrial?.status || null;
 
+    // Get existing early_bird_expires_at from database
+    const { data: existingSubscriber } = await supabaseService
+      .from("subscribers")
+      .select("early_bird_expires_at")
+      .eq("email", user.email)
+      .single();
+
+    const earlyBirdExpiresAt = existingSubscriber?.early_bird_expires_at || null;
+
     await supabaseService.from("subscribers").upsert({
       email: user.email,
       user_id: user.id,
@@ -141,6 +150,7 @@ serve(async (req) => {
       subscribed: isSubscribed,
       tier,
       subscription_end: endIso,
+      early_bird_expires_at: earlyBirdExpiresAt,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

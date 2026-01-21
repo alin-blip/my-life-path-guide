@@ -72,6 +72,17 @@ export default function WarriorPower() {
           }
         } else if (signUpData?.session) {
           // User was created AND auto-confirmed (session exists)
+          // Set early_bird_expires_at to 3 days from now
+          const earlyBirdExpiry = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+          await supabase.from('subscribers').upsert({
+            email: data.email,
+            user_id: signUpData.user?.id,
+            subscribed: false,
+            subscription_tier: 'Free',
+            early_bird_expires_at: earlyBirdExpiry,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'email' });
+          
           toast.success('Contul tău Free Plan a fost creat! Verifică emailul pentru detalii.');
         } else if (signUpData?.user && !signUpData?.session) {
           // User created but needs email confirmation (shouldn't happen with auto-confirm)
