@@ -10,9 +10,17 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { plans, getLocalizedPlan } from "@/data/pricing";
 import { Helmet } from "react-helmet-async";
-import { Crown, Zap, Gift, Check, Rocket, Users } from "lucide-react";
+import { Crown, Zap, Gift, Check, Rocket, Users, Timer } from "lucide-react";
 import { trackPurchase } from "@/lib/facebook-pixel";
 import { preOpenWindow, redirectExternal } from "@/lib/externalRedirect";
+import { EarlyBirdCountdown } from "@/components/membership/EarlyBirdCountdown";
+
+// Early Bird Prices vs Normal Prices
+const PLAN_PRICES = {
+  basic: { earlyBird: '€49', normal: '€97', earlyBirdRo: '249 LEI', normalRo: '490 LEI' },
+  pro: { earlyBird: '€97', normal: '€197', earlyBirdRo: '490 LEI', normalRo: '990 LEI' },
+  elite: { earlyBird: '€297', normal: '€500', earlyBirdRo: '1490 LEI', normalRo: '2500 LEI' },
+};
 
 const Pricing: React.FC = () => {
   const { toast } = useToast();
@@ -20,7 +28,7 @@ const Pricing: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, subscribed, refreshSubscription, subscriptionTier } = useAuth();
+  const { user, subscribed, refreshSubscription, subscriptionTier, isEarlyBirdActive, earlyBirdExpiresAt } = useAuth();
   const { language } = useLanguage();
 
   const texts = {
@@ -67,12 +75,36 @@ const Pricing: React.FC = () => {
       ? "Stripe checkout is not yet active. We will complete the setup and get back to you."
       : "Checkout-ul Stripe nu este încă activ. Vom finaliza setarea și revenim.",
     valueLabel: language === 'en' ? "Value" : "Valoare",
+    earlyBirdBanner: language === 'en' 
+      ? "🔥 Early Bird Pricing Active - Save 50%!" 
+      : "🔥 Preț Early Bird Activ - Economisești 50%!",
   };
 
   const planIcons: Record<string, React.ElementType> = {
     free: Gift,
     basic: Zap,
     pro: Crown,
+    elite: Rocket,
+  };
+
+  // Helper to get dynamic price based on Early Bird status
+  const getDynamicPrice = (planId: string) => {
+    if (planId === 'free') return { price: language === 'en' ? 'Free' : 'Gratuit', originalPrice: null };
+    
+    const prices = PLAN_PRICES[planId as keyof typeof PLAN_PRICES];
+    if (!prices) return { price: null, originalPrice: null };
+    
+    if (isEarlyBirdActive) {
+      return {
+        price: language === 'en' ? prices.earlyBird : prices.earlyBirdRo,
+        originalPrice: language === 'en' ? prices.normal : prices.normalRo,
+      };
+    } else {
+      return {
+        price: language === 'en' ? prices.normal : prices.normalRo,
+        originalPrice: null,
+      };
+    }
   };
 
   useEffect(() => {
@@ -188,6 +220,21 @@ const Pricing: React.FC = () => {
             <p className="text-muted-foreground mt-2">{texts.heroSubtitle}</p>
           </section>
 
+          {/* Early Bird Countdown Banner */}
+          {isEarlyBirdActive && earlyBirdExpiresAt && (
+            <div className="mb-6">
+              <div className="p-4 rounded-lg border-2 border-green-500/50 bg-gradient-to-r from-green-500/10 via-emerald-500/5 to-green-500/10">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+                  <div className="flex items-center gap-2 text-green-400 font-bold text-lg">
+                    <Timer className="h-5 w-5 animate-pulse" />
+                    {texts.earlyBirdBanner}
+                  </div>
+                  <EarlyBirdCountdown expiresAt={earlyBirdExpiresAt} />
+                </div>
+              </div>
+            </div>
+          )}
+
           {subscribed && (
             <div className="mb-6 p-4 rounded-md border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
               {texts.activeSubscription}
@@ -205,14 +252,19 @@ const Pricing: React.FC = () => {
             </div>
           )}
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
             {localizedPlans.map((plan) => {
               const isActive = activePlanId === plan.id;
               const Icon = planIcons[plan.id] || Zap;
               const isPro = plan.id === 'pro';
               const isBasic = plan.id === 'basic';
+              const isElite = plan.id === 'elite';
               const isFree = plan.id === 'free';
-              const trialDays = (plan as any).trialDays;
+              
+              // Get dynamic pricing based on Early Bird status
+              const dynamicPricing = getDynamicPrice(plan.id);
+              const displayPrice = dynamicPricing.price || plan.price;
+              const displayOriginalPrice = dynamicPricing.originalPrice;
               
               return (
                 <Card 
@@ -220,24 +272,31 @@ const Pricing: React.FC = () => {
                   className={`relative overflow-hidden transition-all duration-300 ${
                     plan.featured 
                       ? 'ring-2 ring-primary shadow-lg shadow-primary/20 scale-[1.02]' 
-                      : 'hover:border-primary/50'
+                      : isElite
+                        ? 'ring-2 ring-amber-500/50 shadow-lg shadow-amber-500/20'
+                        : 'hover:border-primary/50'
                   }`}
                 >
-                  {/* Trial Badge - Prominent */}
-                  {trialDays && (
+                  {/* Early Bird Badge for paid plans */}
+                  {isEarlyBirdActive && !isFree && (
                     <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-10">
                       <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg border-0 rounded-b-lg rounded-t-none">
-                        🎁 {trialDays} {language === 'en' ? 'Days FREE Trial' : 'Zile Trial GRATUIT'}
+                        🔥 Early Bird -50%
                       </Badge>
                     </div>
                   )}
                   
                   {/* Top gradient bar for featured */}
-                  {plan.featured && !trialDays && (
+                  {plan.featured && !isEarlyBirdActive && (
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary" />
                   )}
                   
-                  <CardHeader className={trialDays ? 'pt-10' : ''}>
+                  {/* Elite gradient bar */}
+                  {isElite && !isEarlyBirdActive && (
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500" />
+                  )}
+                  
+                  <CardHeader className={isEarlyBirdActive && !isFree ? 'pt-10' : ''}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`p-2 rounded-full ${
@@ -245,19 +304,23 @@ const Pricing: React.FC = () => {
                             ? 'bg-gradient-to-br from-primary to-accent' 
                             : isBasic
                               ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                              : 'bg-muted'
+                              : isElite
+                                ? 'bg-gradient-to-br from-amber-500 to-orange-500'
+                                : 'bg-muted'
                         }`}>
-                          <Icon className={`h-5 w-5 ${isPro || isBasic ? 'text-white' : 'text-foreground'}`} />
+                          <Icon className={`h-5 w-5 ${isPro || isBasic || isElite ? 'text-white' : 'text-foreground'}`} />
                         </div>
                         <CardTitle className="text-foreground">{plan.name}</CardTitle>
                       </div>
                       <div className="flex items-center gap-2">
-                        {plan.highlight && !trialDays && (
+                        {plan.highlight && !isEarlyBirdActive && (
                           <Badge 
                             className={`${
                               isPro || isBasic
                                 ? 'bg-gradient-to-r from-primary to-accent text-white border-0' 
-                                : ''
+                                : isElite
+                                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0'
+                                  : ''
                             }`}
                             variant={!plan.featured ? "secondary" : "default"}
                           >
@@ -270,27 +333,20 @@ const Pricing: React.FC = () => {
                     
                     {/* Price with Early Bird */}
                     <div className="mt-4">
-                      {plan.originalPrice && (
+                      {displayOriginalPrice && (
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-lg text-muted-foreground line-through">{plan.originalPrice}</span>
-                          <Badge variant="secondary" className="text-xs">
-                            {texts.valueLabel}
+                          <span className="text-lg text-muted-foreground line-through">{displayOriginalPrice}</span>
+                          <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-400 border-green-500/30">
+                            -50%
                           </Badge>
                         </div>
                       )}
                       <div className="flex items-baseline gap-1">
                         <span className="text-4xl font-bold text-foreground">
-                          {plan.price}
+                          {displayPrice}
                         </span>
                         {plan.period && <span className="text-muted-foreground">{plan.period}</span>}
                       </div>
-                      {trialDays && (
-                        <p className="text-sm text-green-500 mt-1 font-medium">
-                          {language === 'en' 
-                            ? `Then ${plan.price}${plan.period} after trial` 
-                            : `Apoi ${plan.price}${plan.period} după trial`}
-                        </p>
-                      )}
                     </div>
                     
                     {/* Result description */}
@@ -319,7 +375,9 @@ const Pricing: React.FC = () => {
                           ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg py-6' 
                           : isBasic
                             ? 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90'
-                            : ''
+                            : isElite
+                              ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90'
+                              : ''
                       }`}
                       variant={isFree ? 'outline' : 'default'}
                       size={isPro ? 'lg' : 'default'}
@@ -335,7 +393,7 @@ const Pricing: React.FC = () => {
                         texts.active
                       ) : (
                         <>
-                          {trialDays && <Gift className="h-4 w-4" />}
+                          {isEarlyBirdActive && !isFree && <Timer className="h-4 w-4" />}
                           {plan.cta}
                         </>
                       )}
