@@ -39,8 +39,12 @@ export function useDoorStorageLoad() {
 
       // Try to load Domino + Key Points from weekly_planning
       // Use currentWeekKey directly - service handles format normalization
+      // Fetch all plans for the week and pick the most recent one (handles multiple categories)
       try {
-        const plan = await weeklyPlanningService.getPlanForWeek(currentWeekKey);
+        const plans = await weeklyPlanningService.getPlansForWeek(currentWeekKey);
+        const plan = plans.length > 0 
+          ? plans.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())[0]
+          : null;
         
         if (plan && plan.dominoTitle) {
           // Reconstruct selectedDomino from plan

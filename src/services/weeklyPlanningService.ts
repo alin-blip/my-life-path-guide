@@ -10,6 +10,7 @@ export interface WeeklyPlanningData {
   weekGoal: string;
   keyPoints: PlanningResult['keyPoints'];
   category?: DomainCategory;
+  createdAt?: string;
   reviewData?: {
     completedKeys: number[];
     learnings: string[];
@@ -149,6 +150,7 @@ export const weeklyPlanningService = {
         weekGoal: plan.week_goal,
         keyPoints: plan.key_points as PlanningResult['keyPoints'],
         category: plan.category as DomainCategory,
+        createdAt: plan.created_at,
         reviewData: plan.review_data as WeeklyPlanningData['reviewData'],
       }));
     } catch (error) {
