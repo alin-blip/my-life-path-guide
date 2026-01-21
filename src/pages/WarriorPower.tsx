@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -6,17 +7,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { WarriorPowerLanding } from '@/components/warrior-power/WarriorPowerLanding';
 import { WarriorPowerLeadForm, type LeadFormData } from '@/components/warrior-power/WarriorPowerLeadForm';
 import { WarriorPowerQuiz } from '@/components/warrior-power/WarriorPowerQuiz';
-import { WarriorPowerResults } from '@/components/warrior-power/WarriorPowerResults';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 import { saveRealityMapScores } from '@/services/realityMapService';
 import { trackLead } from '@/lib/facebook-pixel';
 
-type Step = 'landing' | 'lead-form' | 'quiz' | 'results';
+type Step = 'landing' | 'lead-form' | 'quiz';
 
 export default function WarriorPower() {
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>('landing');
   const [leadData, setLeadData] = useState<LeadFormData | null>(null);
-  const [scores, setScores] = useState<WarriorPowerScores | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStartQuiz = () => {
@@ -47,25 +47,23 @@ export default function WarriorPower() {
       const { data: existingSession } = await supabase.auth.getSession();
       
       if (!existingSession?.session) {
-        // No active session - try to create account or sign in
-        const tempPassword = `Warrior${crypto.randomUUID().slice(0, 8)}!`;
-        
-        // First try to sign up
+        // No active session - create account with user's password
+        // Sign up with user's chosen password
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: data.email,
-          password: tempPassword,
+          password: data.password,
           options: {
             data: {
               name: data.name,
               phone: data.phone,
               plan: 'free'
             },
-            emailRedirectTo: `${window.location.origin}/warrior-power`
+            emailRedirectTo: `${window.location.origin}/fact-maps`
           }
         });
 
         if (signUpError) {
-          // If user already exists, that's okay - they can still take the quiz
+          // If user already exists, try to sign them in
           if (signUpError.message?.includes('already registered') || signUpError.message?.includes('already been registered')) {
             console.log('User already exists, continuing as guest...');
             toast.info('Contul există deja. Poți continua quiz-ul și te poți loga ulterior pentru a accesa rezultatele.');
@@ -96,8 +94,6 @@ export default function WarriorPower() {
   };
 
   const handleQuizComplete = async (quizScores: WarriorPowerScores) => {
-    setScores(quizScores);
-    
     if (leadData) {
       try {
         // Get current user if logged in
@@ -152,7 +148,13 @@ export default function WarriorPower() {
       }
     }
 
-    setStep('results');
+    // Navigate directly to /fact-maps with source parameter
+    navigate('/fact-maps?source=warrior-power', {
+      state: {
+        fromWarriorPower: true,
+        userName: leadData?.name
+      }
+    });
   };
 
   return (
@@ -204,20 +206,6 @@ export default function WarriorPower() {
               className="min-h-screen py-8"
             >
               <WarriorPowerQuiz onComplete={handleQuizComplete} />
-            </motion.div>
-          )}
-
-          {step === 'results' && scores && leadData && (
-            <motion.div
-              key="results"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <WarriorPowerResults 
-                scores={scores} 
-                userName={leadData.name}
-              />
             </motion.div>
           )}
         </AnimatePresence>

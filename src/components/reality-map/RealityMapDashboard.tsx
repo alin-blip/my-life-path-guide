@@ -17,6 +17,7 @@ import {
   calculateTotalScore,
   getScorePercentage 
 } from '@/data/warriorPowerQuestions';
+import { InlineMembershipBanner } from '@/components/membership';
 
 const LEVEL_CONFIG = {
   ADORMIT: {
@@ -107,11 +108,13 @@ const DIMENSION_CONFIG = {
 interface RealityMapDashboardProps {
   scores: WarriorPowerScores;
   onReevaluate: (dimension?: string) => void;
+  hasActiveSubscription?: boolean;
 }
 
 export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
   scores,
-  onReevaluate
+  onReevaluate,
+  hasActiveSubscription = false
 }) => {
   const totalScore = calculateTotalScore(scores);
   const totalPercentage = getScorePercentage(scores);
@@ -347,6 +350,9 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
 
         {/* Vision Board CTA */}
         <VisionBoardCTA scores={scores} />
+
+        {/* Inline Membership Banner for non-subscribers */}
+        {!hasActiveSubscription && <InlineMembershipBanner />}
       </div>
     </div>
   );

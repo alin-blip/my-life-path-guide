@@ -2,18 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { RealityMapQuiz, RealityMapDashboard } from '@/components/reality-map';
+import { DelayedMembershipModal } from '@/components/membership';
 import { getRealityMapScores, saveRealityMapScores } from '@/services/realityMapService';
 import { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const FactMaps = () => {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [scores, setScores] = useState<WarriorPowerScores | null>(null);
   const [showQuiz, setShowQuiz] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  
+  const source = searchParams.get('source');
+  const fromWarriorPower = source === 'warrior-power';
 
   useEffect(() => {
     loadScores();
+    checkSubscription();
   }, []);
 
   const loadScores = async () => {
@@ -31,6 +38,28 @@ const FactMaps = () => {
       setShowQuiz(true);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const checkSubscription = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setHasActiveSubscription(false);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      if (error) {
+        console.error('Error checking subscription:', error);
+        setHasActiveSubscription(false);
+        return;
+      }
+
+      setHasActiveSubscription(data?.subscribed === true);
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+      setHasActiveSubscription(false);
     }
   };
 
@@ -75,11 +104,17 @@ const FactMaps = () => {
         <RealityMapDashboard 
           scores={scores}
           onReevaluate={handleReevaluate}
+          hasActiveSubscription={hasActiveSubscription}
         />
       ) : (
         <RealityMapQuiz 
           onComplete={handleQuizComplete}
         />
+      )}
+      
+      {/* Delayed Membership Modal - shows after 30 seconds for users from Warrior Power */}
+      {fromWarriorPower && !hasActiveSubscription && (
+        <DelayedMembershipModal delayMs={30000} />
       )}
     </Layout>
   );
