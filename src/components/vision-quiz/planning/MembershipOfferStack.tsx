@@ -4,8 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Check, Star, Crown, Zap, ArrowRight, Target, Rocket, 
-  Calendar, Map, Users, Video, Brain, Trophy, Sparkles,
-  Gift
+  Calendar, Map, Users, Video, Brain, Trophy, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +13,8 @@ import { useNavigate } from 'react-router-dom';
 import { QuizCategory } from '../quizData';
 import { PlanningAnswers } from './VisionPlanningWizard';
 import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
+import { useAuth } from '@/context/AuthContext';
+import { EarlyBirdCountdown } from '@/components/membership/EarlyBirdCountdown';
 
 interface MembershipOfferStackProps {
   language: 'en' | 'ro';
@@ -21,17 +22,24 @@ interface MembershipOfferStackProps {
   answers: PlanningAnswers;
 }
 
-const OFFER_PLANS = [
+// Dynamic pricing based on Early Bird status
+const PLAN_PRICES = {
+  basic: { earlyBird: '49', normal: '97', originalEarlyBird: '97' },
+  pro: { earlyBird: '97', normal: '197', originalEarlyBird: '197' },
+};
+
+const getOfferPlans = (isEarlyBird: boolean) => [
   {
     id: 'basic',
     name: 'Basic',
-    price: '49',
-    originalPrice: '98',
+    price: isEarlyBird ? PLAN_PRICES.basic.earlyBird : PLAN_PRICES.basic.normal,
+    originalPrice: isEarlyBird ? PLAN_PRICES.basic.originalEarlyBird : null,
     currency: '€',
     period: '/ lună',
     periodEn: '/ month',
-    highlight: 'Early Bird',
-    valueLabel: '50% OFF',
+    highlight: isEarlyBird ? 'Early Bird' : 'Acces Complet',
+    highlightEn: isEarlyBird ? 'Early Bird' : 'Full Access',
+    valueLabel: isEarlyBird ? '50% OFF' : null,
     icon: Zap,
     gradient: 'from-purple-500 to-pink-500',
     borderColor: 'border-purple-500/50',
@@ -46,19 +54,18 @@ const OFFER_PLANS = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '97',
-    originalPrice: '197',
+    price: isEarlyBird ? PLAN_PRICES.pro.earlyBird : PLAN_PRICES.pro.normal,
+    originalPrice: isEarlyBird ? PLAN_PRICES.pro.originalEarlyBird : null,
     currency: '€',
     period: '/ lună',
     periodEn: '/ month',
-    highlight: '7 Zile Trial Gratuit',
-    highlightEn: '7-Day Free Trial',
-    valueLabel: '51% OFF',
+    highlight: isEarlyBird ? 'Early Bird' : 'Cel Mai Popular',
+    highlightEn: isEarlyBird ? 'Early Bird' : 'Most Popular',
+    valueLabel: isEarlyBird ? '51% OFF' : null,
     icon: Crown,
     gradient: 'from-amber-500 to-orange-500',
     borderColor: 'border-amber-500/50',
     featured: true,
-    hasTrial: true,
     features: [
       { icon: Check, labelEn: 'Everything in Basic +', labelRo: 'Tot din Basic +', isHeader: true },
       { icon: Video, labelEn: 'Weekly LIVE Group Coaching', labelRo: 'Coaching de Grup LIVE Săptămânal' },
@@ -77,6 +84,9 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { isEarlyBirdActive, earlyBirdExpiresAt } = useAuth();
+  
+  const OFFER_PLANS = getOfferPlans(isEarlyBirdActive);
 
   const handleCheckout = async (planId: string) => {
     // Pre-open window before async operations (avoids popup blocker in iframe)
@@ -160,6 +170,13 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
             ? 'Your strategic plan is saved. Now choose your execution toolkit to turn your vision into reality.'
             : 'Planul tău strategic este salvat. Acum alege kit-ul de execuție pentru a transforma viziunea în realitate.'}
         </p>
+        
+        {/* Early Bird Countdown */}
+        {earlyBirdExpiresAt && isEarlyBirdActive && (
+          <div className="mt-4">
+            <EarlyBirdCountdown expiresAt={earlyBirdExpiresAt} />
+          </div>
+        )}
       </div>
 
       {/* What You Created */}
@@ -203,23 +220,17 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
             
             {/* Badges */}
             <div className="absolute top-4 right-4 flex flex-col gap-1">
-              {plan.hasTrial && (
-                <Badge className="border-0 text-xs bg-gradient-to-r from-green-500 to-emerald-500 text-white">
-                  <Gift className="w-3 h-3 mr-1" />
-                  {language === 'en' ? plan.highlightEn : plan.highlight}
-                </Badge>
-              )}
-              {!plan.hasTrial && (
-                <Badge className={cn(
-                  "border-0 text-xs bg-gradient-to-r text-white",
-                  plan.gradient
-                )}>
-                  {plan.highlight}
-                </Badge>
-              )}
-              <Badge variant="outline" className="border-green-500/50 text-green-400 text-xs">
-                {plan.valueLabel}
+              <Badge className={cn(
+                "border-0 text-xs bg-gradient-to-r text-white",
+                plan.gradient
+              )}>
+                {language === 'en' ? plan.highlightEn : plan.highlight}
               </Badge>
+              {plan.valueLabel && (
+                <Badge variant="outline" className="border-green-500/50 text-green-400 text-xs">
+                  {plan.valueLabel}
+                </Badge>
+              )}
             </div>
 
             <CardContent className="p-5 pt-12">
@@ -250,14 +261,6 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
                     {language === 'en' ? plan.periodEn : plan.period}
                   </span>
                 </div>
-                
-                {plan.hasTrial && (
-                  <p className="text-green-400 text-xs mt-1">
-                    {language === 'en' 
-                      ? '✓ Try free for 7 days, cancel anytime' 
-                      : '✓ Încearcă gratuit 7 zile, anulează oricând'}
-                  </p>
-                )}
               </div>
 
               {/* Features list */}
@@ -300,10 +303,7 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
                 ) : (
                   <>
                     {plan.featured ? <Crown className="h-4 w-4" /> : <Star className="h-4 w-4" />}
-                    {plan.hasTrial 
-                      ? (language === 'en' ? 'Start 7-Day Trial' : 'Începe Trial 7 Zile')
-                      : (language === 'en' ? `Choose ${plan.name}` : `Alege ${plan.name}`)
-                    }
+                    {language === 'en' ? `Choose ${plan.name}` : `Alege ${plan.name}`}
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
