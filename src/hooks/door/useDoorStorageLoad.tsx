@@ -39,12 +39,16 @@ export function useDoorStorageLoad() {
 
       // Try to load Domino + Key Points from weekly_planning
       // Use currentWeekKey directly - service handles format normalization
-      // Fetch all plans for the week and pick the most recent one (handles multiple categories)
+      // Fetch all plans for the week and pick the most recently UPDATED one (not created)
+      let loadedCategory: string | undefined;
       try {
         const plans = await weeklyPlanningService.getPlansForWeek(currentWeekKey);
         const plan = plans.length > 0 
-          ? plans.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())[0]
+          ? plans.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime())[0]
           : null;
+        
+        // Track the category of the loaded plan for saving
+        loadedCategory = plan?.category;
         
         if (plan && plan.dominoTitle) {
           // Reconstruct selectedDomino from plan
@@ -93,7 +97,13 @@ export function useDoorStorageLoad() {
             weekKey: currentWeekKey,
             dominoTitle: plan.dominoTitle,
             keyPointsCount: plan.keyPoints.length,
+            category: plan.category,
           });
+          
+          // Dispatch event with loaded category for other hooks to use
+          window.dispatchEvent(new CustomEvent('doorCategoryLoaded', { 
+            detail: { category: plan.category } 
+          }));
         } else {
           // No plan exists, reset to default
           setters.setSelectedDomino(null);

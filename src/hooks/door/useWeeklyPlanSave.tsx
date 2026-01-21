@@ -3,11 +3,13 @@ import { HotListItem, DominoKeyPoint } from '@/types/door';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
 import { useDoorStorageLogger } from './useDoorStorageLogger';
 import { useWeeklyPlanDraft } from './useWeeklyPlanDraft';
+import { DomainCategory } from '@/components/door/DomainSelector';
 
 interface WeeklyPlanData {
   currentWeekKey: string;
   selectedDomino: HotListItem | null;
   dominoKeyPoints: DominoKeyPoint[];
+  category?: DomainCategory;
 }
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'offline';
@@ -45,13 +47,20 @@ export function useWeeklyPlanSave() {
     setSaveStatus('saving');
 
     try {
-      // Load existing plan to preserve weekGoal
-      const existingPlan = await weeklyPlanningService.getPlanForWeek(currentWeekKey);
+      // Load existing plans and find the most recently updated one (same logic as load)
+      const plans = await weeklyPlanningService.getPlansForWeek(currentWeekKey);
+      const existingPlan = plans.length > 0
+        ? plans.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime())[0]
+        : null;
+      
+      // Use the explicitly passed category, or fall back to the existing plan's category
+      const categoryToUse = data.category || existingPlan?.category || 'business';
       
       const planPayload = {
         weekKey: currentWeekKey,
         dominoTitle: selectedDomino?.text || existingPlan?.dominoTitle || '',
         weekGoal: existingPlan?.weekGoal || '',
+        category: categoryToUse,
         keyPoints: dominoKeyPoints.map((kp, index) => ({
           id: index + 1,
           title: kp.text || '',
