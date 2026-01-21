@@ -43,6 +43,8 @@ export function useDoorStorage(props: UseDoorStorageProps) {
   // Track if we're currently reloading to prevent save during reload
   const isReloadingRef = useRef(false);
   const weeklyPlanSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Track last emergency save to prevent reload loops
+  const lastEmergencySaveRef = useRef<number>(0);
 
   // Helper to reload data
   const reloadData = useCallback(() => {
@@ -122,6 +124,14 @@ export function useDoorStorage(props: UseDoorStorageProps) {
   useEffect(() => {
     const handleDoorDataUpdated = (event: CustomEvent) => {
       console.log('📬 doorDataUpdated event received:', event.detail);
+      
+      // Skip reload if this was triggered by our own emergency save (within 5 seconds)
+      const timeSinceEmergencySave = Date.now() - lastEmergencySaveRef.current;
+      if (timeSinceEmergencySave < 5000) {
+        console.log('⏭️ Skipping reload - triggered by recent emergency save');
+        return;
+      }
+      
       setTimeout(() => {
         reloadData();
       }, 300);
@@ -192,15 +202,12 @@ export function useDoorStorage(props: UseDoorStorageProps) {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden' && props.currentWeekKey) {
-        console.log('👁️ Tab hidden - emergency save');
-        // Sync save to localStorage
+        console.log('👁️ Tab hidden - local save only (no cloud to prevent reload)');
+        // Mark the time of emergency save
+        lastEmergencySaveRef.current = Date.now();
+        // ONLY sync save to localStorage - no cloud save to prevent reload loops
         saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints);
-        // Attempt async cloud save (best effort)
-        forceSaveWeeklyPlan({
-          currentWeekKey: props.currentWeekKey,
-          selectedDomino: props.selectedDomino,
-          dominoKeyPoints: props.dominoKeyPoints
-        });
+        // Cloud save will happen on next regular debounced save when user returns
       }
     };
 
@@ -219,7 +226,7 @@ export function useDoorStorage(props: UseDoorStorageProps) {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints, saveDraft, forceSaveWeeklyPlan]);
+  }, [props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints, saveDraft]);
 
   // Force save function that can be called from outside
   const handleForceSave = useCallback(() => {
