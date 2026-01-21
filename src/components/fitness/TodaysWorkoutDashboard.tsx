@@ -282,6 +282,12 @@ export function TodaysWorkoutDashboard({ onComplete }: TodaysWorkoutDashboardPro
     return exercise.sets.filter(s => s.completed).length;
   };
 
+  const groupedPresets = PRESET_EXERCISES.reduce((acc, ex) => {
+    if (!acc[ex.category]) acc[ex.category] = [];
+    acc[ex.category].push(ex.name);
+    return acc;
+  }, {} as Record<string, string[]>);
+
   if (loading) {
     return (
       <Card className="animate-pulse">
@@ -297,23 +303,197 @@ export function TodaysWorkoutDashboard({ onComplete }: TodaysWorkoutDashboardPro
 
   if (!hasTodayWorkout) {
     return (
-      <Card>
-        <CardContent className="p-8 text-center space-y-4">
-          <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
-            <Dumbbell className="h-8 w-8 text-muted-foreground" />
+      <Card className="overflow-hidden">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'template' | 'manual')} className="w-full">
+          <div className="border-b">
+            <TabsList className="w-full h-12 p-1 bg-muted/30 rounded-none">
+              <TabsTrigger value="template" className="flex-1 gap-2 data-[state=active]:bg-background">
+                <FileText className="h-4 w-4" />
+                Planificat
+              </TabsTrigger>
+              <TabsTrigger value="manual" className="flex-1 gap-2 data-[state=active]:bg-background">
+                <Pencil className="h-4 w-4" />
+                Manual
+              </TabsTrigger>
+            </TabsList>
           </div>
-          <div>
-            <h3 className="font-semibold text-lg">Niciun antrenament planificat</h3>
-            <p className="text-muted-foreground text-sm mt-1">
-              {todayPlan?.is_rest_day 
-                ? 'Azi e zi de odihnă! 😴'
-                : 'Creează un program săptămânal pentru a vedea antrenamentul zilei.'}
-            </p>
-          </div>
-          <Button variant="outline" onClick={onComplete}>
-            Continuă fără antrenament
-          </Button>
-        </CardContent>
+
+          {/* Planificat Tab - No workout message */}
+          <TabsContent value="template" className="m-0">
+            <CardContent className="p-8 text-center space-y-4">
+              <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
+                <Dumbbell className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Niciun antrenament planificat</h3>
+                <p className="text-muted-foreground text-sm mt-1">
+                  {todayPlan?.is_rest_day 
+                    ? 'Azi e zi de odihnă! 😴'
+                    : 'Creează un program săptămânal pentru a vedea antrenamentul zilei.'}
+                </p>
+              </div>
+              <Button variant="outline" onClick={onComplete}>
+                Continuă fără antrenament
+              </Button>
+            </CardContent>
+          </TabsContent>
+
+          {/* Manual Tab - Allow manual workout */}
+          <TabsContent value="manual" className="m-0">
+            <div className="p-4 space-y-4">
+              {/* Timer and controls */}
+              <div className="p-4 rounded-lg bg-muted/50 text-center">
+                <div className="text-4xl font-mono font-bold text-foreground mb-4">
+                  {formatManualTime(manualElapsedTime)}
+                </div>
+                
+                {!isManualStarted ? (
+                  <Button onClick={startManualWorkout} className="gap-2" size="lg">
+                    <Play className="h-5 w-5" />
+                    Start Workout Manual
+                  </Button>
+                ) : (
+                  <Button onClick={stopManualWorkout} variant="destructive" className="gap-2">
+                    <Square className="h-4 w-4" />
+                    Stop & Salvează
+                  </Button>
+                )}
+              </div>
+
+              {/* Manual exercises */}
+              {isManualStarted && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium">Exerciții</h3>
+                    <div className="flex gap-2">
+                      <Select onValueChange={(value) => addManualExercise(value)}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Adaugă exercițiu..." />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {Object.entries(groupedPresets).map(([category, exList]) => (
+                            <div key={category}>
+                              <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground bg-muted/50">
+                                {category}
+                              </div>
+                              {exList.map((name) => (
+                                <SelectItem key={name} value={name}>
+                                  {name}
+                                </SelectItem>
+                              ))}
+                            </div>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button variant="outline" size="sm" onClick={() => addManualExercise()} className="gap-1">
+                        <Plus className="h-4 w-4" />
+                        Custom
+                      </Button>
+                    </div>
+                  </div>
+
+                  {manualExercises.map((exercise) => (
+                    <div key={exercise.id} className="p-4 rounded-lg border bg-card space-y-4">
+                      {/* Header exercițiu */}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          placeholder="Nume exercițiu (ex: Squat, Bench Press...)"
+                          value={exercise.name}
+                          onChange={(e) => updateManualExerciseName(exercise.id, e.target.value)}
+                          className="flex-1 font-medium"
+                        />
+                        <div className="flex items-center gap-1">
+                          <Label className="text-xs text-muted-foreground whitespace-nowrap">Seturi:</Label>
+                          <Input
+                            type="number"
+                            min={1}
+                            max={10}
+                            value={exercise.plannedSets}
+                            onChange={(e) => updateManualPlannedSets(exercise.id, parseInt(e.target.value) || 1)}
+                            className="w-16"
+                          />
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => removeManualExercise(exercise.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+
+                      {/* Progres */}
+                      <div className="text-sm text-muted-foreground">
+                        Completate: {getManualCompletedSetsCount(exercise)}/{exercise.plannedSets} seturi
+                      </div>
+
+                      {/* Sets individuali */}
+                      <div className="space-y-2">
+                        {exercise.sets.map((set, idx) => (
+                          <div 
+                            key={idx} 
+                            className={`flex items-center gap-2 p-2 rounded-md transition-colors ${
+                              set.completed ? 'bg-green-500/10 border border-green-500/30' : 'bg-muted/30'
+                            }`}
+                          >
+                            <Button
+                              variant={set.completed ? "default" : "outline"}
+                              size="sm"
+                              className={`h-8 w-8 p-0 ${set.completed ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                              onClick={() => toggleManualSetCompleted(exercise.id, idx)}
+                            >
+                              {set.completed ? (
+                                <CheckCircle2 className="h-4 w-4" />
+                              ) : (
+                                <span className="text-xs font-bold">{set.setNumber}</span>
+                              )}
+                            </Button>
+                            
+                            <div className="flex items-center gap-1 flex-1">
+                              <Input
+                                type="number"
+                                placeholder="Reps"
+                                value={set.reps || ''}
+                                onChange={(e) => updateManualSet(exercise.id, idx, 'reps', parseInt(e.target.value) || 0)}
+                                className="w-20 h-8 text-center"
+                              />
+                              <span className="text-muted-foreground text-sm">reps</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-1 flex-1">
+                              <Input
+                                type="number"
+                                placeholder="Kg"
+                                step="0.5"
+                                value={set.weight || ''}
+                                onChange={(e) => updateManualSet(exercise.id, idx, 'weight', parseFloat(e.target.value) || 0)}
+                                className="w-20 h-8 text-center"
+                              />
+                              <span className="text-muted-foreground text-sm">kg</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+
+                  {manualExercises.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Dumbbell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>Adaugă primul exercițiu folosind butoanele de mai sus</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!isManualStarted && (
+                <div className="text-center py-4 text-muted-foreground text-sm">
+                  Apasă "Start Workout Manual" pentru a adăuga exerciții cu nume, seturi, kg și repetări
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </Card>
     );
   }
@@ -328,11 +508,6 @@ export function TodaysWorkoutDashboard({ onComplete }: TodaysWorkoutDashboardPro
     }
   };
 
-  const groupedPresets = PRESET_EXERCISES.reduce((acc, ex) => {
-    if (!acc[ex.category]) acc[ex.category] = [];
-    acc[ex.category].push(ex.name);
-    return acc;
-  }, {} as Record<string, string[]>);
 
   return (
     <Card className="overflow-hidden">
