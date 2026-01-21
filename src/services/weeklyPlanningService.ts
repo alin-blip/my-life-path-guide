@@ -11,6 +11,7 @@ export interface WeeklyPlanningData {
   keyPoints: PlanningResult['keyPoints'];
   category?: DomainCategory;
   createdAt?: string;
+  updatedAt?: string;
   reviewData?: {
     completedKeys: number[];
     learnings: string[];
@@ -151,6 +152,7 @@ export const weeklyPlanningService = {
         keyPoints: plan.key_points as PlanningResult['keyPoints'],
         category: plan.category as DomainCategory,
         createdAt: plan.created_at,
+        updatedAt: plan.updated_at,
         reviewData: plan.review_data as WeeklyPlanningData['reviewData'],
       }));
     } catch (error) {

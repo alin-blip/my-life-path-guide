@@ -7,6 +7,7 @@ import { useDoorStorageStats } from './door/useDoorStorageStats';
 import { useDoorDataIntegrity } from './door/useDoorDataIntegrity';
 import { useWeeklyPlanSave } from './door/useWeeklyPlanSave';
 import { useWeeklyPlanDraft } from './door/useWeeklyPlanDraft';
+import { DomainCategory } from '@/components/door/DomainSelector';
 
 interface UseDoorStorageProps {
   currentWeekKey: string;
@@ -45,6 +46,8 @@ export function useDoorStorage(props: UseDoorStorageProps) {
   const weeklyPlanSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Track last emergency save to prevent reload loops
   const lastEmergencySaveRef = useRef<number>(0);
+  // Track the category of the currently loaded plan
+  const activeCategoryRef = useRef<DomainCategory>('business');
 
   // Helper to reload data
   const reloadData = useCallback(() => {
@@ -69,6 +72,21 @@ export function useDoorStorage(props: UseDoorStorageProps) {
       });
     }
   }, [props.currentWeekKey, loadSavedState]);
+
+  // Listen for category loaded event to track the active category
+  useEffect(() => {
+    const handleCategoryLoaded = (event: CustomEvent<{ category: DomainCategory }>) => {
+      if (event.detail.category) {
+        console.log('📂 Door category loaded:', event.detail.category);
+        activeCategoryRef.current = event.detail.category;
+      }
+    };
+    
+    window.addEventListener('doorCategoryLoaded', handleCategoryLoaded as EventListener);
+    return () => {
+      window.removeEventListener('doorCategoryLoaded', handleCategoryLoaded as EventListener);
+    };
+  }, []);
 
   // Load state when component mounts or week changes
   useEffect(() => {
@@ -182,11 +200,12 @@ export function useDoorStorage(props: UseDoorStorageProps) {
         // Save draft immediately (sync)
         saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints);
         
-        // Then save to cloud (async)
+        // Then save to cloud (async) - include the active category!
         saveWeeklyPlanOnly({
           currentWeekKey: props.currentWeekKey,
           selectedDomino: props.selectedDomino,
-          dominoKeyPoints: props.dominoKeyPoints
+          dominoKeyPoints: props.dominoKeyPoints,
+          category: activeCategoryRef.current
         });
       }
     }, 1500);
@@ -239,11 +258,12 @@ export function useDoorStorage(props: UseDoorStorageProps) {
 
   // Force save function that can be called from outside
   const handleForceSave = useCallback(() => {
-    // Save weekly plan
+    // Save weekly plan with active category
     forceSaveWeeklyPlan({
       currentWeekKey: props.currentWeekKey,
       selectedDomino: props.selectedDomino,
-      dominoKeyPoints: props.dominoKeyPoints
+      dominoKeyPoints: props.dominoKeyPoints,
+      category: activeCategoryRef.current
     });
     
     // Also save lists (legacy behavior for force save button)
