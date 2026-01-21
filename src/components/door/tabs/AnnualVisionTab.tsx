@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,8 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronLeft, ChevronRight, Crown, Dumbbell, Brain, Heart, Briefcase, Plus, Edit2, Star, Sparkles, ChevronDown, Target, Flag, Sword, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Crown, Dumbbell, Brain, Heart, Briefcase, Plus, Edit2, Star, Sparkles, ChevronDown, Target, Flag, Sword, CheckCircle2, Lock } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ import { GoalWizardModal } from '@/components/goal-wizard/GoalWizardModal';
 import { CategorySelectionDialog } from '@/components/goal-wizard/CategorySelectionDialog';
 import { GoalCategory } from '@/types/goalWizard';
 import { useChildMissions } from '@/hooks/useHierarchyData';
+import { UpgradePromptModal } from '@/components/membership/UpgradePromptModal';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 
 interface AnnualVision {
@@ -147,14 +149,18 @@ const ChildMonthlySection: React.FC<{
 
 export const AnnualVisionTab: React.FC = () => {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const incomingState = location.state as { 
     fromWarriorPower?: boolean; 
     fromVisionQuiz?: boolean;
+    fromBusinessLeadMagnet?: boolean;
+    userName?: string;
     scores?: WarriorPowerScores | Record<string, number>;
     suggestedCategory?: string;
   } | null;
   
   const { language } = useLanguage();
+  const { subscribed, subscriptionTier } = useAuth();
   const { toast } = useToast();
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [visions, setVisions] = useState<AnnualVision[]>([]);
@@ -162,7 +168,15 @@ export const AnnualVisionTab: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVision, setEditingVision] = useState<AnnualVision | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [showWelcome, setShowWelcome] = useState(!!incomingState?.fromWarriorPower || !!incomingState?.fromVisionQuiz);
+  const [showWelcome, setShowWelcome] = useState(!!incomingState?.fromWarriorPower || !!incomingState?.fromVisionQuiz || !!incomingState?.fromBusinessLeadMagnet);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  // Determine if user can edit (subscribed and not on trial)
+  const isTrial = subscriptionTier?.toLowerCase().includes('trial');
+  const hasActiveSubscription = subscribed && !isTrial;
+  
+  // Check if from business lead magnet via URL
+  const fromBusinessLeadMagnet = searchParams.get('source') === 'business-lead-magnet' || !!incomingState?.fromBusinessLeadMagnet;
   
   const [formData, setFormData] = useState({
     bigGoal: '',
@@ -271,6 +285,12 @@ export const AnnualVisionTab: React.FC = () => {
   };
 
   const handleEditVision = (vision: AnnualVision) => {
+    // Block editing for trial users
+    if (!hasActiveSubscription) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    
     setSelectedCategory(vision.category);
     setFormData({
       bigGoal: vision.bigGoal,
@@ -369,21 +389,29 @@ export const AnnualVisionTab: React.FC = () => {
 
   return (
     <div className="p-2 sm:p-6">
-      {/* Welcome from Warrior Power or Vision Quiz */}
+      {/* Welcome from Warrior Power, Vision Quiz, or Business Lead Magnet */}
       {showWelcome && (
         <Card className={cn(
           "mb-6 border",
-          incomingState?.fromVisionQuiz 
-            ? "bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-rose-500/10 border-amber-500/30"
-            : "bg-gradient-to-r from-primary/10 via-background to-accent/10 border-primary/30"
+          fromBusinessLeadMagnet
+            ? "bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-purple-500/10 border-blue-500/30"
+            : incomingState?.fromVisionQuiz 
+              ? "bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-rose-500/10 border-amber-500/30"
+              : "bg-gradient-to-r from-primary/10 via-background to-accent/10 border-primary/30"
         )}>
           <CardContent className="p-4">
             <div className="flex items-start gap-4">
               <div className={cn(
                 "p-3 rounded-xl",
-                incomingState?.fromVisionQuiz ? "bg-amber-500/20" : "bg-primary/20"
+                fromBusinessLeadMagnet 
+                  ? "bg-blue-500/20" 
+                  : incomingState?.fromVisionQuiz 
+                    ? "bg-amber-500/20" 
+                    : "bg-primary/20"
               )}>
-                {incomingState?.fromVisionQuiz ? (
+                {fromBusinessLeadMagnet ? (
+                  <Briefcase className="h-6 w-6 text-blue-500" />
+                ) : incomingState?.fromVisionQuiz ? (
                   <Sparkles className="h-6 w-6 text-amber-500" />
                 ) : (
                   <Sword className="h-6 w-6 text-primary" />
@@ -392,32 +420,55 @@ export const AnnualVisionTab: React.FC = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-bold text-lg text-foreground">
-                    {incomingState?.fromVisionQuiz
+                    {fromBusinessLeadMagnet
                       ? (language === 'en' 
-                          ? 'Great! Now set your 2025 goals' 
-                          : 'Excelent! Acum setează obiectivele pentru 2025')
-                      : (language === 'en' 
-                          ? 'Excellent! Now define your annual goals' 
-                          : 'Excelent! Acum definește obiectivele tale anuale')
+                          ? `Welcome${incomingState?.userName ? `, ${incomingState.userName}` : ''}! Let's create your 2026 Business Plan` 
+                          : `Bun venit${incomingState?.userName ? `, ${incomingState.userName}` : ''}! Hai să îți creăm planul de business pentru 2026`)
+                      : incomingState?.fromVisionQuiz
+                        ? (language === 'en' 
+                            ? 'Great! Now set your 2025 goals' 
+                            : 'Excelent! Acum setează obiectivele pentru 2025')
+                        : (language === 'en' 
+                            ? 'Excellent! Now define your annual goals' 
+                            : 'Excelent! Acum definește obiectivele tale anuale')
                     }
                   </h3>
-                  {incomingState?.scores && (
+                  {(incomingState?.scores || fromBusinessLeadMagnet) && (
                     <Badge variant="secondary" className="gap-1">
                       <CheckCircle2 className="w-3 h-3" />
-                      {incomingState?.fromVisionQuiz ? 'Vision 2026 Complet' : 'Warrior Power Complet'}
+                      {fromBusinessLeadMagnet 
+                        ? (language === 'en' ? '3 Days Free' : '3 Zile Gratuit')
+                        : incomingState?.fromVisionQuiz ? 'Vision 2026 Complet' : 'Warrior Power Complet'}
                     </Badge>
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {incomingState?.fromVisionQuiz
-                    ? (language === 'en' 
-                        ? 'Based on your quiz results, start with your weakest area for maximum impact. The AI Goal Wizard will help you create powerful objectives.'
-                        : 'Pe baza rezultatelor quiz-ului, începe cu zona ta cea mai slabă pentru impact maxim. Wizard-ul AI te va ajuta să creezi obiective puternice.')
-                    : (language === 'en'
-                        ? 'Based on your Warrior Power assessment, create one "impossible" goal for each life dimension. These will be your north star for the year.'
-                        : 'Bazat pe evaluarea ta Warrior Power, creează câte un obiectiv "imposibil" pentru fiecare dimensiune a vieții. Acestea vor fi steaua ta călăuzitoare pentru tot anul.')
+                  {fromBusinessLeadMagnet
+                    ? (language === 'en'
+                        ? 'Start with the Business category to define your "impossible" goals for 2026. The AI wizard will guide you step by step.'
+                        : 'Începe cu categoria Business pentru a-ți defini obiectivele "imposibile" pentru 2026. Wizard-ul AI te va ghida pas cu pas.')
+                    : incomingState?.fromVisionQuiz
+                      ? (language === 'en' 
+                          ? 'Based on your quiz results, start with your weakest area for maximum impact. The AI Goal Wizard will help you create powerful objectives.'
+                          : 'Pe baza rezultatelor quiz-ului, începe cu zona ta cea mai slabă pentru impact maxim. Wizard-ul AI te va ajuta să creezi obiective puternice.')
+                      : (language === 'en'
+                          ? 'Based on your Warrior Power assessment, create one "impossible" goal for each life dimension. These will be your north star for the year.'
+                          : 'Bazat pe evaluarea ta Warrior Power, creează câte un obiectiv "imposibil" pentru fiecare dimensiune a vieții. Acestea vor fi steaua ta călăuzitoare pentru tot anul.')
                   }
                 </p>
+                {fromBusinessLeadMagnet && (
+                  <Button 
+                    className="mt-3 gap-2"
+                    onClick={() => {
+                      setWizardCategory('business');
+                      setWizardOpen(true);
+                      setShowWelcome(false);
+                    }}
+                  >
+                    <Briefcase className="w-4 h-4" />
+                    {language === 'en' ? 'Start with Business' : 'Începe cu Business'}
+                  </Button>
+                )}
               </div>
               <Button
                 variant="ghost"
@@ -428,6 +479,31 @@ export const AnnualVisionTab: React.FC = () => {
                 ✕
               </Button>
             </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* Trial user notice */}
+      {isTrial && (
+        <Card className="mb-6 bg-amber-500/10 border-amber-500/30">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Lock className="w-5 h-5 text-amber-500" />
+              <div>
+                <p className="font-medium text-foreground">
+                  {language === 'en' ? 'Trial Mode' : 'Mod Trial'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'en' 
+                    ? 'You can create goals but editing is locked. Upgrade to unlock all features.'
+                    : 'Poți crea obiective dar editarea este blocată. Fă upgrade pentru toate funcțiile.'}
+                </p>
+              </div>
+            </div>
+            <Button onClick={() => setShowUpgradeModal(true)} size="sm" className="gap-2">
+              <Crown className="w-4 h-4" />
+              {language === 'en' ? 'Upgrade' : 'Upgrade'}
+            </Button>
           </CardContent>
         </Card>
       )}
@@ -716,6 +792,13 @@ export const AnnualVisionTab: React.FC = () => {
           // Trigger refetch by toggling state
           window.dispatchEvent(new CustomEvent('annualGoalsUpdated'));
         }}
+      />
+
+      {/* Upgrade Prompt Modal */}
+      <UpgradePromptModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature={language === 'en' ? 'Edit Goals' : 'Editare Obiective'}
       />
     </div>
   );

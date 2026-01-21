@@ -82,6 +82,7 @@ const WarriorPower = lazy(() => import("./pages/WarriorPower"));
 const GameObjectives = lazy(() => import("./pages/GameObjectives"));
 const Brotherhood = lazy(() => import("./pages/Brotherhood"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const Business2026LeadMagnet = lazy(() => import("./pages/Business2026LeadMagnet"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -359,6 +360,7 @@ const App = () => (
                         <Brotherhood />
                       </ProtectedRoute>
                     } />
+                    <Route path="/business-2026" element={<Business2026LeadMagnet />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                       </Suspense>
