@@ -207,7 +207,16 @@ export function useDoorStorage(props: UseDoorStorageProps) {
         lastEmergencySaveRef.current = Date.now();
         // ONLY sync save to localStorage - no cloud save to prevent reload loops
         saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints);
-        // Cloud save will happen on next regular debounced save when user returns
+      } else if (document.visibilityState === 'visible' && props.currentWeekKey) {
+        // Tab becomes visible again - sync draft to cloud after delay
+        console.log('👁️ Tab visible - syncing draft to cloud');
+        setTimeout(() => {
+          forceSaveWeeklyPlan({
+            currentWeekKey: props.currentWeekKey,
+            selectedDomino: props.selectedDomino,
+            dominoKeyPoints: props.dominoKeyPoints
+          });
+        }, 1500);
       }
     };
 
@@ -226,7 +235,7 @@ export function useDoorStorage(props: UseDoorStorageProps) {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints, saveDraft]);
+  }, [props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints, saveDraft, forceSaveWeeklyPlan]);
 
   // Force save function that can be called from outside
   const handleForceSave = useCallback(() => {
