@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { lifeScoreQuestions, categoryLabels } from '@/data/lifeScoreQuestions';
-import { LifeScoreResult } from './LifeScoreResult';
-import { ArrowRight, ArrowLeft, Mail, Loader2, CheckCircle2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Loader2, CheckCircle2, Sparkles, Eye, EyeOff, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { trackLead } from '@/lib/facebook-pixel';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 interface LifeScoreQuizProps {
   language: 'en' | 'ro';
 }
 
-type QuizStep = 'quiz' | 'email' | 'results';
+type QuizStep = 'quiz' | 'signup';
 
 export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -21,8 +21,11 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
   const [step, setStep] = useState<QuizStep>('quiz');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const currentQuestion = lifeScoreQuestions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === lifeScoreQuestions.length - 1;
@@ -38,7 +41,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
       if (!isLastQuestion) {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
-        setStep('email');
+        setStep('signup');
       }
     }, 400);
   };
@@ -64,67 +67,116 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
     return scores;
   };
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
+  const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || !password.trim()) return;
+
+    if (password.length < 6) {
+      toast({
+        title: language === 'en' ? 'Password too short' : 'Parolă prea scurtă',
+        description: language === 'en' ? 'Password must be at least 6 characters' : 'Parola trebuie să aibă minim 6 caractere',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setIsSubmitting(true);
-    try {
-      const categoryScores = calculateCategoryScores();
-      const totalScore = calculateTotalScore();
-      
-      const { error } = await supabase
-        .from('email_leads')
-        .insert({
-          email: email.trim().toLowerCase(),
-          name: name.trim() || null,
-          lead_magnet: 'life_score_60s',
-          source: 'life-score',
-          metadata: {
-            totalScore,
-            categoryScores,
-            answers,
-            completed_at: new Date().toISOString(),
-          },
-        });
+    const emailLower = email.trim().toLowerCase();
+    const categoryScores = calculateCategoryScores();
+    const totalScore = calculateTotalScore();
 
-      if (error) {
-        if (error.code === '23505') {
-          // Email already exists, just show results
-          trackLead();
-          setStep('results');
-          return;
+    try {
+      // 1. Create account
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email: emailLower,
+        password: password,
+        options: {
+          data: {
+            full_name: name.trim() || null,
+            source: 'life_score_quiz'
+          }
         }
-        console.error('Error saving lead:', error);
-        // Still show results even if save fails
-        setStep('results');
-        return;
+      });
+
+      if (signUpError) {
+        if (signUpError.message.includes('already registered')) {
+          // Try to sign in instead
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: emailLower,
+            password: password,
+          });
+          
+          if (signInError) {
+            toast({
+              title: language === 'en' ? 'Account exists' : 'Contul există deja',
+              description: language === 'en' ? 'Please use a different email or login' : 'Folosește alt email sau loghează-te',
+              variant: 'destructive',
+            });
+            setIsSubmitting(false);
+            return;
+          }
+        } else {
+          throw signUpError;
+        }
       }
 
-      // Track Facebook Pixel Lead event
+      const userId = authData?.user?.id;
+
+      // 2. Save to email_leads
+      await supabase.from('email_leads').upsert({
+        email: emailLower,
+        name: name.trim() || null,
+        lead_magnet: 'life_score_quiz',
+        source: 'life-score',
+        metadata: {
+          totalScore,
+          categoryScores,
+          answers,
+          completed_at: new Date().toISOString(),
+        },
+      }, { onConflict: 'email' });
+
+      // 3. Set up 3-day trial if we have userId
+      if (userId) {
+        const trialEnd = new Date();
+        trialEnd.setDate(trialEnd.getDate() + 3);
+
+        await supabase.from('subscribers').upsert({
+          user_id: userId,
+          email: emailLower,
+          subscription_tier: 'trial',
+          subscription_status: 'trialing',
+          early_bird_expires_at: trialEnd.toISOString(),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+      }
+
+      // 4. Track Facebook Pixel
       trackLead();
 
-      setStep('results');
-    } catch (error) {
-      console.error('Error saving lead:', error);
-      // Show results anyway
-      setStep('results');
+      toast({
+        title: language === 'en' ? 'Account created!' : 'Cont creat!',
+        description: language === 'en' ? 'Redirecting to your planning wizard...' : 'Te redirecționăm către wizard-ul de planificare...',
+      });
+
+      // 5. Navigate to annual wizard
+      setTimeout(() => {
+        navigate('/game-objectives?tab=annual&source=life-score');
+      }, 500);
+
+    } catch (error: any) {
+      console.error('Error in signup:', error);
+      toast({
+        title: language === 'en' ? 'Error' : 'Eroare',
+        description: error.message || (language === 'en' ? 'Something went wrong' : 'Ceva nu a mers bine'),
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (step === 'results') {
-    return (
-      <LifeScoreResult 
-        totalScore={calculateTotalScore()}
-        categoryScores={calculateCategoryScores()}
-        language={language}
-      />
-    );
-  }
-
-  if (step === 'email') {
+  if (step === 'signup') {
     return (
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -137,16 +189,16 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
               <Sparkles className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-white mb-3">
-              {language === 'en' ? 'Your Score is Ready!' : 'Scorul Tău e Gata!'}
+              {language === 'en' ? 'Create Your 2026 Plan!' : 'Creează-ți Planul 2026!'}
             </h2>
             <p className="text-white/70 text-lg">
               {language === 'en' 
-                ? 'Enter your email to see your results'
-                : 'Introdu email-ul pentru a vedea rezultatele'}
+                ? 'Create a free account to build your annual vision'
+                : 'Creează un cont gratuit pentru a-ți construi viziunea anuală'}
             </p>
           </div>
 
-          <form onSubmit={handleEmailSubmit} className="space-y-4">
+          <form onSubmit={handleSignupSubmit} className="space-y-4">
             <div>
               <Input
                 type="text"
@@ -166,27 +218,53 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
                 className="h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl focus:border-amber-400 focus:ring-amber-400/20"
               />
             </div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                placeholder={language === 'en' ? 'Create password (min 6 chars)' : 'Creează parolă (min 6 caractere)'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="h-14 pl-12 pr-12 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl focus:border-amber-400 focus:ring-amber-400/20"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
             <Button 
               type="submit" 
               className="w-full h-14 text-lg font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl shadow-[0_10px_30px_rgba(251,146,60,0.3)] hover:shadow-[0_15px_40px_rgba(251,146,60,0.4)] transition-all" 
               size="lg"
-              disabled={!email.trim() || isSubmitting}
+              disabled={!email.trim() || !password.trim() || isSubmitting}
             >
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
               ) : (
                 <CheckCircle2 className="w-5 h-5 mr-2" />
               )}
-              {language === 'en' ? 'See My Life Score' : 'Vezi Scorul Meu'}
+              {language === 'en' ? 'Create My Plan' : 'Creează Planul Meu'}
             </Button>
           </form>
 
-          <p className="text-center text-sm text-white/40 mt-6 flex items-center justify-center gap-2">
-            <span>🔒</span>
-            {language === 'en' 
-              ? 'We respect your privacy. No spam, ever.'
-              : 'Respectăm confidențialitatea ta. Fără spam.'}
-          </p>
+          <div className="mt-6 space-y-3">
+            <p className="text-center text-sm text-white/40 flex items-center justify-center gap-2">
+              <span>🔒</span>
+              {language === 'en' 
+                ? '3-day free trial • No credit card required'
+                : 'Trial gratuit 3 zile • Fără card bancar'}
+            </p>
+            <div className="flex items-center justify-center gap-4 text-xs text-white/30">
+              <span>✓ {language === 'en' ? 'AI Wizard' : 'Wizard AI'}</span>
+              <span>✓ {language === 'en' ? 'Annual Goals' : 'Obiective Anuale'}</span>
+              <span>✓ {language === 'en' ? '90-Day Plan' : 'Plan 90 Zile'}</span>
+            </div>
+          </div>
         </div>
       </motion.div>
     );
