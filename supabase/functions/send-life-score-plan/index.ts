@@ -208,7 +208,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'WarriorSOS <alin@eduforyou.co.uk>',
+        from: 'WarriorSOS <alin@warriorsos.com>',
         to: [email],
         subject: isRo 
           ? `${info.emoji} ${name}, planul tău pentru ${planData.categoryLabel} este gata!`

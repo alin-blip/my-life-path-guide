@@ -231,8 +231,8 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const trackingPixel = `https://exsbnfmaadjyfblperas.supabase.co/functions/v1/track-email-open?t=${trackingId}`;
-    const unsubscribeUrl = `https://my-life-path-guide.lovable.app/unsubscribe?email=${encodeURIComponent(email)}&sequence=warrior_power`;
-    const visionUrl = `https://my-life-path-guide.lovable.app/vision-2026?utm_source=email&utm_medium=sequence&utm_campaign=warrior_power&utm_content=day1`;
+    const unsubscribeUrl = `https://warriorsos.com/unsubscribe?email=${encodeURIComponent(email)}&sequence=warrior_power`;
+    const loginUrl = `https://warriorsos.com/auth?redirect=/fact-maps&utm_source=email&utm_medium=sequence&utm_campaign=warrior_power&utm_content=day1`;
 
     const emailHtml = `<!DOCTYPE html>
 <html>
@@ -339,18 +339,18 @@ const handler = async (req: Request): Promise<Response> => {
 
 <!-- CTA Section -->
 <div style="padding: 50px 30px; text-align: center; background: linear-gradient(180deg, transparent 0%, rgba(102,126,234,0.15) 100%);">
-  <div style="font-size: 40px; margin-bottom: 15px;">🎯</div>
-  <h2 style="margin: 0 0 15px 0; font-size: 26px; color: #fff;">Pasul Următor?</h2>
+  <div style="font-size: 40px; margin-bottom: 15px;">🚀</div>
+  <h2 style="margin: 0 0 15px 0; font-size: 26px; color: #fff;">Începe Transformarea!</h2>
   <p style="margin: 0 0 30px 0; color: #aaa; font-size: 16px; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto;">
-    Acum că știi exact unde te afli, e timpul să definești unde vrei să ajungi. Creează-ți <strong style="color: #fff;">Viziunea pentru 2026</strong> și transformă aceste scoruri.
+    Acum că știi exact unde te afli, e timpul să începi transformarea! Accesează <strong style="color: #fff;">Reality Map</strong> pentru coaching personalizat pe fiecare dimensiune.
   </p>
   
-  <a href="${visionUrl}" style="display: inline-block; padding: 18px 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(102,126,234,0.4);">
-    Setează-ți Viziunea 2026 →
+  <a href="${loginUrl}" style="display: inline-block; padding: 18px 50px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(34,197,94,0.4);">
+    Accesează Reality Map →
   </a>
   
   <p style="margin: 25px 0 0 0; color: #666; font-size: 13px;">
-    Durează doar 5 minute și îți va schimba perspectiva
+    Contul tău te așteaptă cu planul personalizat
   </p>
 </div>
 
@@ -382,7 +382,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Warrior Power <alin@eduforyou.co.uk>',
+        from: 'WarriorSOS <alin@warriorsos.com>',
         to: [email],
         subject: `${name}, Rezultatele Tale Warrior Power - Scor: ${totalScore}/96 (${percentage}%)`,
         html: emailHtml,
