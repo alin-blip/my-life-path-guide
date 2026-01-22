@@ -12,9 +12,10 @@ import { MarketingHub } from './admin/marketing/MarketingHub';
 import { WarriorsWayManager } from './admin/WarriorsWayManager';
 import { EmailAnalytics } from './admin/EmailAnalytics';
 import { CRMDashboard } from './admin/crm/CRMDashboard';
+import { LeadMagnetAnalytics } from './admin/LeadMagnetAnalytics';
 import { 
   Shield, BookOpen, Settings, LayoutDashboard, 
-  Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy
+  Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp
 } from 'lucide-react';
 
 export const SecureAdminPanel: React.FC = () => {
@@ -96,25 +97,31 @@ export const SecureAdminPanel: React.FC = () => {
             <span>👥 CRM</span>
           </TabsTrigger>
           
-          {/* Tab 3: Content */}
+          {/* Tab 3: Leads Analytics */}
+          <TabsTrigger value="leads" className="flex items-center gap-1.5 data-[state=active]:bg-background">
+            <TrendingUp className="h-4 w-4" />
+            <span>📈 Leads</span>
+          </TabsTrigger>
+          
+          {/* Tab 4: Content */}
           <TabsTrigger value="content" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <BookOpen className="h-4 w-4" />
             <span>📚 Content</span>
           </TabsTrigger>
           
-          {/* Tab 4: AI Studio */}
+          {/* Tab 5: AI Studio */}
           <TabsTrigger value="ai-studio" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <Bot className="h-4 w-4" />
             <span>🤖 AI Studio</span>
           </TabsTrigger>
           
-          {/* Tab 5: Marketing */}
+          {/* Tab 6: Marketing */}
           <TabsTrigger value="marketing" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <Megaphone className="h-4 w-4" />
             <span>📢 Marketing</span>
           </TabsTrigger>
           
-          {/* Tab 6: Settings */}
+          {/* Tab 7: Settings */}
           <TabsTrigger value="settings" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <Settings className="h-4 w-4" />
             <span>⚙️ Settings</span>
@@ -201,7 +208,12 @@ export const SecureAdminPanel: React.FC = () => {
           <CRMDashboard />
         </TabsContent>
         
-        {/* Tab 3: Content Content */}
+        {/* Tab 3: Leads Analytics Content */}
+        <TabsContent value="leads" className="pt-4">
+          <LeadMagnetAnalytics />
+        </TabsContent>
+        
+        {/* Tab 4: Content Content */}
         <TabsContent value="content" className="space-y-6">
           <Tabs defaultValue="courses" className="w-full">
             <TabsList className="mb-4">

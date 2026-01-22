@@ -162,7 +162,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 10. BROTHERHOOD
+    // 10. BROTHERHOOD (includes Community features)
     {
       title: 'Brotherhood',
       icon: Users,
@@ -172,21 +172,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: 'Chat', icon: Heart, path: '/brotherhood?tab=chat' },
         { title: 'Tribes', icon: Users, path: '/brotherhood?tab=tribes' },
         { title: language === 'ro' ? 'Membri' : 'Members', icon: Users, path: '/brotherhood?tab=members' },
-      ]
-    },
-
-    // 11. COMUNITATE
-    {
-      title: language === 'ro' ? 'Comunitate' : 'Community',
-      icon: Trophy,
-      path: '/leaderboard',
-      subItems: [
         { title: language === 'ro' ? 'Clasament' : 'Leaderboard', icon: Trophy, path: '/leaderboard' },
         { title: language === 'ro' ? 'Achievements' : 'Achievements', icon: Sparkles, path: '/achievements' },
       ]
     },
 
-    // 11. TOOLS (Advanced Features)
+    // 11. TOOLS (All platform tools)
     {
       title: 'Tools',
       icon: Settings,
@@ -194,11 +185,18 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       subItems: [
         { title: language === 'ro' ? 'Lifebook (Viziune Viață)' : 'Lifebook (Life Vision)', icon: BookOpen, path: '/lifebook' },
         { title: 'Vibe Canvas', icon: Palette, path: '/vibe-canvas' },
+        { title: 'Vision Board', icon: Sparkles, path: '/vision-board' },
+        { title: 'Focus Room', icon: Timer, path: '/focus' },
+        { title: language === 'ro' ? 'Jurnal' : 'Journal', icon: FileText, path: '/journal' },
+        { title: language === 'ro' ? 'Notițe' : 'Notes', icon: Pencil, path: '/notes' },
+        { title: 'Time Tracker', icon: Clock, path: '/time-tracker' },
+        { title: 'Emotional Tracker', icon: Heart, path: '/emotional-tracker' },
+        { title: 'Widget Dashboard', icon: LayoutGrid, path: '/widget-dashboard' },
       ]
     },
 
-    // Admin (hidden for normal users)
-    { title: 'Admin', icon: Shield, path: '/admin', hidden: false },
+    // Admin (hidden from side menu)
+    { title: 'Admin', icon: Shield, path: '/admin', hidden: true },
   ];
 
   const isPathActive = (path: string) => {
