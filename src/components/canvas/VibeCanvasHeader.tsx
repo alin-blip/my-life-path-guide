@@ -89,7 +89,7 @@ export const VibeCanvasHeader: React.FC<VibeCanvasHeaderProps> = ({
           variant="ghost"
           size="icon"
           className="text-white/60 hover:text-white hover:bg-white/10"
-          onClick={() => navigate('/tools')}
+          onClick={() => navigate('/dashboard')}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
