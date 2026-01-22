@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageCircle, Mic, X, Trophy, RotateCcw, Bell, Sparkles } from 'lucide-react';
+import { MessageCircle, X, Trophy, RotateCcw, Sparkles, ListTodo } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAccountabilityCoach } from '@/hooks/useAccountabilityCoach';
 import { useFoundationStatus } from '@/hooks/useFoundationStatus';
 import { useRealityMapStatus } from '@/hooks/useRealityMapStatus';
 import { CoachChatMode } from './CoachChatMode';
-import { CoachVoiceMode } from './CoachVoiceMode';
 import { CoachReminders } from './CoachReminders';
 import { cn } from '@/lib/utils';
 
@@ -29,7 +28,7 @@ const getQuickActionsForCoach = (language: 'en' | 'ro') => {
 
 export const AccountabilityCoachWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeMode, setActiveMode] = useState<'chat' | 'voice' | 'reminders'>('chat');
+  const [activeMode, setActiveMode] = useState<'plan' | 'coach'>('plan');
   const location = useLocation();
   const { language } = useLanguage();
   const { pendingItems, isFoundationComplete } = useFoundationStatus();
@@ -56,6 +55,21 @@ export const AccountabilityCoachWidget: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [isFoundationComplete]);
+
+  // Listen for tour events to open the widget and switch tabs
+  useEffect(() => {
+    const handleOpenForTour = (event: CustomEvent<{ tab?: 'plan' | 'coach' }>) => {
+      setIsOpen(true);
+      if (event.detail?.tab) {
+        setActiveMode(event.detail.tab);
+      }
+    };
+    
+    window.addEventListener('open-accountability-coach', handleOpenForTour as EventListener);
+    return () => {
+      window.removeEventListener('open-accountability-coach', handleOpenForTour as EventListener);
+    };
+  }, []);
 
   const handleReset = () => {
     clearMessages();
@@ -147,50 +161,39 @@ export const AccountabilityCoachWidget: React.FC = () => {
             </div>
           </SheetHeader>
 
-          {/* Mode Tabs */}
+          {/* Mode Tabs - Plan & AI Coach only */}
           <Tabs 
             value={activeMode} 
-            onValueChange={(v) => setActiveMode(v as 'chat' | 'voice' | 'reminders')}
+            onValueChange={(v) => setActiveMode(v as 'plan' | 'coach')}
             className="flex-1 flex flex-col overflow-hidden"
           >
-            <TabsList className="grid w-full grid-cols-3 mx-4 mt-3 max-w-[calc(100%-2rem)]">
-              <TabsTrigger value="chat" className="gap-1.5">
-                <MessageCircle className="w-4 h-4" />
-                Chat
-              </TabsTrigger>
-              <TabsTrigger value="voice" className="gap-1.5">
-                <Mic className="w-4 h-4" />
-                {language === 'ro' ? 'Voce' : 'Voice'}
-              </TabsTrigger>
-              <TabsTrigger value="reminders" className="gap-1.5 relative">
-                <Bell className="w-4 h-4" />
-                {language === 'ro' ? 'Remindere' : 'Reminders'}
+            <TabsList className="grid w-full grid-cols-2 mx-4 mt-3 max-w-[calc(100%-2rem)]" data-tour="accountability-tabs">
+              <TabsTrigger value="plan" className="gap-1.5 relative" data-tour="accountability-plan-tab">
+                <ListTodo className="w-4 h-4" />
+                Plan
                 {pendingCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
                     {pendingCount}
                   </span>
                 )}
               </TabsTrigger>
+              <TabsTrigger value="coach" className="gap-1.5" data-tour="accountability-coach-tab">
+                <MessageCircle className="w-4 h-4" />
+                AI Coach
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="chat" className="flex-1 overflow-hidden m-0 mt-2">
+            <TabsContent value="plan" className="flex-1 overflow-hidden m-0 mt-2" data-tour="accountability-plan-content">
+              <CoachReminders onClose={() => setIsOpen(false)} />
+            </TabsContent>
+
+            <TabsContent value="coach" className="flex-1 overflow-hidden m-0 mt-2" data-tour="accountability-coach-content">
               <CoachChatMode
                 messages={messages}
                 isLoading={isLoading}
                 onSendMessage={sendMessage}
                 quickActions={quickActions}
               />
-            </TabsContent>
-
-            <TabsContent value="voice" className="flex-1 overflow-hidden m-0 mt-2">
-              <CoachVoiceMode
-                currentPage={location.pathname}
-                quickActions={quickActions}
-              />
-            </TabsContent>
-
-            <TabsContent value="reminders" className="flex-1 overflow-hidden m-0 mt-2">
-              <CoachReminders onClose={() => setIsOpen(false)} />
             </TabsContent>
           </Tabs>
 
