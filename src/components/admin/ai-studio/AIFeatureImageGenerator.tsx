@@ -238,8 +238,7 @@ export const AIFeatureImageGenerator: React.FC = () => {
           </div>
 
           {/* Tabs for Upload vs Generate */}
-          {selectedFeature && (
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="upload" className="flex items-center gap-2">
                   <Upload className="w-4 h-4" />
@@ -313,7 +312,6 @@ export const AIFeatureImageGenerator: React.FC = () => {
                 </Button>
               </TabsContent>
             </Tabs>
-          )}
         </CardContent>
       </Card>
 
