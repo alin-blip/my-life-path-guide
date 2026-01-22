@@ -611,22 +611,7 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
     icon: <Calendar className="h-8 w-8 text-blue-500" />,
     position: 'right'
   },
-  {
-    id: 'champion-info',
-    targetSelector: 'a[href="/daily-flow"]',
-    route: '/dashboard',
-    requiresSidebar: true,
-    title: { 
-      en: '🏆 Champion Morning Routine', 
-      ro: '🏆 Rutina Matinală a Campionului' 
-    },
-    description: { 
-      en: 'Start each day with meditation, breathing, visualization, and gratitude. Your complete transformation system.',
-      ro: 'Începe fiecare zi cu meditație, respirație, vizualizare și recunoștință. Sistemul tău complet de transformare.'
-    },
-    icon: <Trophy className="h-8 w-8 text-amber-500" />,
-    position: 'right'
-  },
+  // champion-info step removed - consolidated into AccountabilityCoachWidget
   {
     id: 'accountability-plan',
     targetSelector: '[data-tour="accountability-plan-tab"]',

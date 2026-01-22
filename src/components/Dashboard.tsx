@@ -49,7 +49,7 @@ import { SundayPlanningModal } from '@/components/dashboard/SundayPlanningModal'
 
 // Onboarding components
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
-import { FoundationNotifications } from '@/components/onboarding/FoundationNotifications';
+// FoundationNotifications removed - consolidated into AccountabilityCoachWidget
 import { SpotlightTour, DASHBOARD_TOUR_STEPS } from '@/components/onboarding/SpotlightTour';
 import { useOnboardingTour } from '@/hooks/useOnboardingTour';
 import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNotification';
@@ -168,6 +168,20 @@ export const Dashboard: React.FC = () => {
   
   // Spotlight Tour for new users
   const { isTourOpen, startTour, completeTour, skipTour } = useOnboardingTour();
+
+  // Listen for global events from AccountabilityCoachWidget to open wizard/tour
+  useEffect(() => {
+    const handleOpenWizard = () => setShowOnboardingWizard(true);
+    const handleStartTour = () => startTour();
+    
+    window.addEventListener('open-onboarding-wizard', handleOpenWizard);
+    window.addEventListener('start-platform-tour', handleStartTour);
+    
+    return () => {
+      window.removeEventListener('open-onboarding-wizard', handleOpenWizard);
+      window.removeEventListener('start-platform-tour', handleStartTour);
+    };
+  }, [startTour]);
 
   // Dashboard Widgets
   const { 
@@ -883,11 +897,7 @@ export const Dashboard: React.FC = () => {
         onSkip={skipTour}
       />
       
-      {/* Foundation Notifications (corner) */}
-      <FoundationNotifications 
-        onOpenWizard={() => setShowOnboardingWizard(true)} 
-        onStartTour={startTour}
-      />
+      {/* Foundation Notifications removed - consolidated into AccountabilityCoachWidget */}
       
       {/* Explainer Modal */}
       <ExplainerModal open={explainerModalType !== null} onOpenChange={open => !open && setExplainerModalType(null)} type={explainerModalType || 'core4'} />
