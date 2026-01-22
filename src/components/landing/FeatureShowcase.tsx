@@ -294,37 +294,6 @@ export const FeatureShowcase = () => {
           <div className="space-y-6">
             {/* Screenshot with animated neon border */}
             <div className="relative">
-              {/* Animated gradient border glow */}
-              <motion.div
-                className="absolute -inset-1 rounded-2xl opacity-75"
-                style={{
-                  background: 'linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6)',
-                  backgroundSize: '300% 300%',
-                }}
-                animate={{
-                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-              />
-              {/* Blur glow effect */}
-              <motion.div
-                className="absolute -inset-2 rounded-2xl blur-xl"
-                style={{
-                  background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
-                }}
-                animate={{
-                  opacity: [0.3, 0.5, 0.3],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                }}
-              />
-              
               <motion.div 
                 className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 bg-card touch-pan-y"
                 drag={isMobile ? "x" : false}
@@ -444,18 +413,46 @@ export const FeatureShowcase = () => {
                       </div>
                     )}
                     
-                    {/* Feature image with parallax */}
-                    <motion.img
-                      src={currentFeature.image}
-                      alt={currentFeature.title}
-                      className={`pointer-events-none select-none ${
-                        currentFeature.hasCosmicBg 
-                          ? 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto h-[90%] max-w-[60%] object-contain rounded-xl shadow-2xl shadow-purple-500/30' 
-                          : 'w-full h-full object-cover'
-                      }`}
-                      style={{ y: parallaxY }}
-                      draggable={false}
-                    />
+                    {/* Feature image with shining blue border for cosmic features */}
+                    <div className={`${
+                      currentFeature.hasCosmicBg 
+                        ? 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto max-w-[85%] md:max-w-[70%] h-auto max-h-[85%]' 
+                        : 'w-full h-full'
+                    }`}>
+                      {/* Shining blue border glow - only around the image */}
+                      {currentFeature.hasCosmicBg && (
+                        <motion.div
+                          className="absolute -inset-1 md:-inset-2 rounded-xl z-0"
+                          style={{
+                            background: 'linear-gradient(90deg, #3b82f6, #06b6d4, #60a5fa, #06b6d4, #3b82f6)',
+                            backgroundSize: '300% 100%',
+                          }}
+                          animate={{
+                            backgroundPosition: ['0% 0%', '300% 0%'],
+                            boxShadow: [
+                              '0 0 15px rgba(59, 130, 246, 0.6), 0 0 30px rgba(6, 182, 212, 0.4), 0 0 45px rgba(59, 130, 246, 0.2)',
+                              '0 0 25px rgba(6, 182, 212, 0.8), 0 0 50px rgba(59, 130, 246, 0.5), 0 0 75px rgba(6, 182, 212, 0.3)',
+                              '0 0 15px rgba(59, 130, 246, 0.6), 0 0 30px rgba(6, 182, 212, 0.4), 0 0 45px rgba(59, 130, 246, 0.2)',
+                            ]
+                          }}
+                          transition={{
+                            backgroundPosition: { duration: 3, repeat: Infinity, ease: 'linear' },
+                            boxShadow: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+                          }}
+                        />
+                      )}
+                      <motion.img
+                        src={currentFeature.image}
+                        alt={currentFeature.title}
+                        className={`pointer-events-none select-none relative z-10 ${
+                          currentFeature.hasCosmicBg 
+                            ? 'w-full h-full object-contain rounded-xl' 
+                            : 'w-full h-full object-cover'
+                        }`}
+                        style={{ y: parallaxY }}
+                        draggable={false}
+                      />
+                    </div>
                   </motion.div>
                 </AnimatePresence>
                 
