@@ -560,8 +560,8 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
       const delta = e.deltaY;
       let newZoom = zoom;
 
-      // Apply 75% sensitivity - smaller zoom increments
-      const zoomStep = 3.75; // 75% of 5
+      // Reduced sensitivity - 75% of previous value
+      const zoomStep = 2.81; // 75% of 3.75
       
       if (delta < 0) {
         // Zoom in
