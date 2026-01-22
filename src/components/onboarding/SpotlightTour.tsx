@@ -110,54 +110,36 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
 
   if (!isOpen) return null;
 
-  // Calculate tooltip position based on target element
-  const getTooltipPosition = () => {
+  // Calculate tooltip position - always center for simplicity and reliability
+  const getTooltipPosition = (): React.CSSProperties => {
+    // For center position or when no target, use flexbox centering (handled by parent)
     if (!targetRect || currentStepData?.position === 'center') {
-      return {
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)'
-      };
+      return {};
     }
 
-    const position = currentStepData?.position || 'bottom';
-    const padding = 16;
+    const padding = 20;
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
     
-    switch (position) {
-      case 'top':
-        return {
-          top: `${targetRect.top - padding}px`,
-          left: `${targetRect.left + targetRect.width / 2}px`,
-          transform: 'translate(-50%, -100%)'
-        };
-      case 'bottom':
-        return {
-          top: `${targetRect.bottom + padding}px`,
-          left: `${targetRect.left + targetRect.width / 2}px`,
-          transform: 'translate(-50%, 0)'
-        };
-      case 'left':
-        return {
-          top: `${targetRect.top + targetRect.height / 2}px`,
-          left: `${targetRect.left - padding}px`,
-          transform: 'translate(-100%, -50%)'
-        };
-      case 'right':
-        return {
-          top: `${targetRect.top + targetRect.height / 2}px`,
-          left: `${targetRect.right + padding}px`,
-          transform: 'translate(0, -50%)'
-        };
-      default:
-        return {
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)'
-        };
+    // Calculate position relative to viewport
+    let top = targetRect.bottom + padding;
+    let left = Math.max(20, Math.min(targetRect.left + targetRect.width / 2, viewportWidth - 220));
+    
+    // If tooltip would go below viewport, show above target
+    if (top + 300 > viewportHeight) {
+      top = Math.max(20, targetRect.top - padding - 300);
     }
+    
+    return {
+      position: 'fixed' as const,
+      top: `${top}px`,
+      left: `${left}px`,
+      transform: 'translateX(-50%)'
+    };
   };
 
   const tooltipStyle = getTooltipPosition();
+  const isCentered = !targetRect || currentStepData?.position === 'center';
 
   return (
     <AnimatePresence>
@@ -190,16 +172,20 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
             )}
           </motion.div>
 
-          {/* Tooltip */}
+          {/* Tooltip - centered or positioned */}
           <motion.div
             key={currentStep}
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: -20 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="absolute w-[90vw] max-w-md bg-card border border-border rounded-xl shadow-2xl p-6 z-[102]"
-            style={tooltipStyle}
-          onClick={(e) => e.stopPropagation()}
+            className={`w-[90vw] max-w-md bg-card border border-border rounded-xl shadow-2xl p-6 z-[102] ${
+              isCentered 
+                ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' 
+                : ''
+            }`}
+            style={isCentered ? {} : tooltipStyle}
+            onClick={(e) => e.stopPropagation()}
         >
           {/* Skip button */}
           <Button
