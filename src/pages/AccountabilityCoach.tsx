@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Trophy, Bell, ChevronDown, ChevronUp } from 'lucide-react';
+import { Trophy, ChevronDown, ChevronUp, ListTodo, MessageSquare } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAccountabilityCoach } from '@/hooks/useAccountabilityCoach';
 import { CoachChatMode } from '@/components/accountability/CoachChatMode';
 import { CoachReminders } from '@/components/accountability/CoachReminders';
+import { SidebarChatMode } from '@/components/accountability/SidebarChatMode';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useFoundationStatus } from '@/hooks/useFoundationStatus';
 
 const getQuickActions = (language: 'en' | 'ro') => {
   return language === 'ro' ? [
@@ -25,13 +27,26 @@ const getQuickActions = (language: 'en' | 'ro') => {
 
 const AccountabilityCoach = () => {
   const { language } = useLanguage();
-  const [showReminders, setShowReminders] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const { pendingItems } = useFoundationStatus();
+  const pendingCount = pendingItems.length;
+  
+  // Main chat hook
   const {
     messages,
     isLoading,
     sendMessage,
   } = useAccountabilityCoach({
     currentPage: '/accountability-coach',
+  });
+
+  // Sidebar chat hook (separate instance)
+  const {
+    messages: sidebarMessages,
+    isLoading: sidebarLoading,
+    sendMessage: sendSidebarMessage,
+  } = useAccountabilityCoach({
+    currentPage: '/accountability-coach/sidebar',
   });
 
   const quickActions = getQuickActions(language as 'en' | 'ro');
@@ -67,20 +82,25 @@ const AccountabilityCoach = () => {
             </Card>
           </div>
 
-          {/* Sidebar - Reminders (collapsible on mobile) */}
+          {/* Sidebar - Tabs: Plan / AI Coach */}
           <div className="lg:col-span-1">
             {/* Mobile: Collapsible */}
             <div className="lg:hidden">
-              <Collapsible open={showReminders} onOpenChange={setShowReminders}>
+              <Collapsible open={showSidebar} onOpenChange={setShowSidebar}>
                 <Card className="border-amber-500/30 bg-gradient-to-br from-amber-950/10 to-background">
                   <CollapsibleTrigger asChild>
                     <CardHeader className="cursor-pointer py-3 px-3">
                       <CardTitle className="text-sm flex items-center justify-between">
                         <span className="flex items-center gap-2">
-                          <Bell className="h-4 w-4" />
-                          {language === 'ro' ? 'Reminder-uri' : 'Reminders'}
+                          <ListTodo className="h-4 w-4" />
+                          {language === 'ro' ? 'Asistent' : 'Assistant'}
+                          {pendingCount > 0 && (
+                            <span className="bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                              {pendingCount}
+                            </span>
+                          )}
                         </span>
-                        {showReminders ? (
+                        {showSidebar ? (
                           <ChevronUp className="h-4 w-4" />
                         ) : (
                           <ChevronDown className="h-4 w-4" />
@@ -89,25 +109,73 @@ const AccountabilityCoach = () => {
                     </CardHeader>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <CardContent className="p-0 max-h-[300px] overflow-auto">
-                      <CoachReminders />
+                    <CardContent className="p-0">
+                      <Tabs defaultValue="plan" className="w-full">
+                        <TabsList className="w-full grid grid-cols-2 mx-2 mb-2" style={{ width: 'calc(100% - 16px)' }}>
+                          <TabsTrigger value="plan" className="text-xs gap-1">
+                            <ListTodo className="h-3 w-3" />
+                            {language === 'ro' ? 'De Făcut' : 'Plan'}
+                            {pendingCount > 0 && (
+                              <span className="bg-amber-500/80 text-white text-[10px] px-1 rounded-full ml-1">
+                                {pendingCount}
+                              </span>
+                            )}
+                          </TabsTrigger>
+                          <TabsTrigger value="coach" className="text-xs gap-1">
+                            <MessageSquare className="h-3 w-3" />
+                            AI Coach
+                          </TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="plan" className="m-0 max-h-[300px] overflow-auto">
+                          <CoachReminders />
+                        </TabsContent>
+                        <TabsContent value="coach" className="m-0 h-[300px]">
+                          <SidebarChatMode
+                            messages={sidebarMessages}
+                            isLoading={sidebarLoading}
+                            onSendMessage={sendSidebarMessage}
+                          />
+                        </TabsContent>
+                      </Tabs>
                     </CardContent>
                   </CollapsibleContent>
                 </Card>
               </Collapsible>
             </div>
 
-            {/* Desktop: Always visible */}
-            <Card className="hidden lg:block border-amber-500/30 bg-gradient-to-br from-amber-950/10 to-background h-[75vh]">
-              <CardHeader className="border-b border-amber-500/20 py-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Bell className="h-4 w-4" />
-                  {language === 'ro' ? 'Reminder-uri' : 'Reminders'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 h-[calc(100%-60px)]">
-                <CoachReminders />
-              </CardContent>
+            {/* Desktop: Always visible with tabs */}
+            <Card className="hidden lg:flex flex-col border-amber-500/30 bg-gradient-to-br from-amber-950/10 to-background h-[75vh]">
+              <Tabs defaultValue="plan" className="flex flex-col h-full">
+                <CardHeader className="border-b border-amber-500/20 py-2 px-3 shrink-0">
+                  <TabsList className="w-full grid grid-cols-2 h-9">
+                    <TabsTrigger value="plan" className="text-xs gap-1.5">
+                      <ListTodo className="h-3.5 w-3.5" />
+                      {language === 'ro' ? 'De Făcut' : 'Plan'}
+                      {pendingCount > 0 && (
+                        <span className="bg-amber-500 text-white text-[10px] px-1.5 rounded-full">
+                          {pendingCount}
+                        </span>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="coach" className="text-xs gap-1.5">
+                      <MessageSquare className="h-3.5 w-3.5" />
+                      AI Coach
+                    </TabsTrigger>
+                  </TabsList>
+                </CardHeader>
+                <CardContent className="p-0 flex-1 overflow-hidden">
+                  <TabsContent value="plan" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
+                    <CoachReminders />
+                  </TabsContent>
+                  <TabsContent value="coach" className="h-full m-0">
+                    <SidebarChatMode
+                      messages={sidebarMessages}
+                      isLoading={sidebarLoading}
+                      onSendMessage={sendSidebarMessage}
+                    />
+                  </TabsContent>
+                </CardContent>
+              </Tabs>
             </Card>
           </div>
         </div>
