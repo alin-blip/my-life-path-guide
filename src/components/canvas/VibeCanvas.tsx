@@ -151,9 +151,10 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
       fabricCanvas.isDrawingMode = true;
       // Create PencilBrush explicitly for fabric.js v6
       const brush = new PencilBrush(fabricCanvas);
+      // For pencil, use activeColor (fill picker) - more intuitive for users
       brush.color = activeTool === 'highlighter' 
         ? 'rgba(255, 255, 0, 0.4)' 
-        : strokeColor;
+        : activeColor;
       brush.width = activeTool === 'highlighter' ? 20 : strokeWidth;
       fabricCanvas.freeDrawingBrush = brush;
     } else if (activeTool === 'eraser') {
@@ -164,7 +165,7 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
       brush.width = 20;
       fabricCanvas.freeDrawingBrush = brush;
     }
-  }, [activeTool, strokeColor, strokeWidth, fabricCanvas]);
+  }, [activeTool, activeColor, strokeColor, strokeWidth, fabricCanvas]);
 
   // Add shape to canvas
   const addShape = useCallback((shapeType: ShapeType) => {
@@ -263,7 +264,7 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     const text = new IText('Tap to edit', {
       left: center.left - 60,
       top: center.top - 15,
-      fill: '#ffffff',
+      fill: activeColor, // Use selected color instead of hardcoded white
       fontFamily: 'Inter, sans-serif',
       fontSize: 24,
       fontWeight: '400',
