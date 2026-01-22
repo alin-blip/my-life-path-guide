@@ -19,7 +19,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // Feature screenshots - using placeholder images for now
 // These will be replaced with actual screenshots
 const featureImages = {
-  challenge: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&h=600&fit=crop",
+  challenge: "/images/features/challenge-screenshot.png",
   aiCoaches: "/lovable-uploads/bfb29c37-469c-4d82-a982-46a2433ac2ff.png",
   visionBoard: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
   warriorRoutine: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop",
