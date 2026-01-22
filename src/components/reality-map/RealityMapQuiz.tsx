@@ -136,8 +136,32 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
     }
   };
 
-  const handleScoreSelect = (score: number) => {
+  const handleScoreSelect = (score: number, levelName: string) => {
+    setSelectedLevel(levelName);
     setSelectedScore(score);
+    
+    // Auto-advance after selection
+    setTimeout(() => {
+      const scoreKey = currentQuestion.id as keyof WarriorPowerScores;
+      setScores(prev => ({
+        ...prev,
+        [scoreKey]: score
+      }));
+
+      if (currentQuestionIndex < totalQuestions - 1) {
+        setCurrentQuestionIndex(prev => prev + 1);
+        setSelectedLevel(null);
+        setSelectedScore(null);
+        setShowScoreSelector(false);
+      } else {
+        // Complete on last question
+        const finalScores = {
+          ...scores,
+          [scoreKey]: score
+        };
+        onComplete(finalScores as WarriorPowerScores);
+      }
+    }, 300);
   };
 
   const handleNext = () => {
@@ -291,13 +315,15 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                 </p>
               </div>
 
-              {/* Level Cards */}
+              {/* Level Cards with inline score buttons */}
               <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                 {currentQuestion.levels.map((level, idx) => {
                   const levelKey = level.name.toUpperCase() as keyof typeof LEVEL_CONFIG;
                   const config = LEVEL_CONFIG[levelKey];
                   if (!config) return null;
                   const isSelected = selectedLevel === level.name;
+                  const currentScoreValue = scores[currentQuestion.id as keyof WarriorPowerScores];
+                  const hasScoreInThisLevel = currentScoreValue && config.range.includes(currentScoreValue);
                   
                   return (
                     <motion.div
@@ -305,115 +331,86 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.1 }}
+                      className={cn(
+                        "p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-300",
+                        hasScoreInThisLevel || isSelected ? [
+                          config.bg,
+                          config.border,
+                          "shadow-lg",
+                          config.glow
+                        ] : [
+                          "bg-card/50",
+                          "border-border/30",
+                          "hover:border-border"
+                        ]
+                      )}
                     >
-                      <button
-                        onClick={() => handleLevelSelect(level.name)}
-                        className={cn(
-                          "w-full text-left p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-300",
-                          "hover:scale-[1.01] sm:hover:scale-[1.02] cursor-pointer",
-                          isSelected ? [
-                            config.bg,
-                            config.border,
-                            "shadow-lg",
-                            config.glow
-                          ] : [
-                            "bg-card/50",
-                            "border-border/30",
-                            "hover:border-border"
-                          ]
-                        )}
-                      >
-                        <div className="flex items-start gap-2 sm:gap-3">
-                          <span className="text-xl sm:text-2xl flex-shrink-0">{config.icon}</span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
-                              <span className={cn(
-                                "font-bold text-base sm:text-lg",
-                                isSelected ? config.text : "text-foreground"
-                              )}>
-                                {level.name}
-                              </span>
-                              <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                                {config.range[0]}-{config.range[2]} pts
-                              </span>
-                            </div>
-                            <p className={cn(
-                              "text-xs sm:text-sm font-medium mb-1 sm:mb-2",
-                              isSelected ? config.text : "text-foreground/80"
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <span className="text-xl sm:text-2xl flex-shrink-0">{config.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
+                            <span className={cn(
+                              "font-bold text-base sm:text-lg",
+                              hasScoreInThisLevel || isSelected ? config.text : "text-foreground"
                             )}>
-                              {level.title}
-                            </p>
-                            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                              {level.description}
-                            </p>
+                              {level.name}
+                            </span>
+                            <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                              {config.range[0]}-{config.range[2]} pts
+                            </span>
+                            {hasScoreInThisLevel && (
+                              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                                ✓ {currentScoreValue}
+                              </span>
+                            )}
                           </div>
-                          {isSelected && (
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className={cn(
-                                "w-6 h-6 rounded-full flex items-center justify-center",
-                                `bg-gradient-to-r ${config.gradient}`
-                              )}
-                            >
-                              <span className="text-white text-xs">✓</span>
-                            </motion.div>
-                          )}
+                          <p className={cn(
+                            "text-xs sm:text-sm font-medium mb-1 sm:mb-2",
+                            hasScoreInThisLevel || isSelected ? config.text : "text-foreground/80"
+                          )}>
+                            {level.title}
+                          </p>
+                          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-3">
+                            {level.description}
+                          </p>
+                          
+                          {/* Inline Score Buttons - Always visible */}
+                          <div className="flex flex-wrap gap-2">
+                            {config.range.map((score) => (
+                              <motion.button
+                                key={score}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleScoreSelect(score, level.name);
+                                }}
+                                className={cn(
+                                  "h-10 sm:h-11 px-4 sm:px-5 rounded-xl border-2 font-bold text-sm sm:text-base transition-all duration-200",
+                                  (selectedScore === score && selectedLevel === level.name) || currentScoreValue === score ? [
+                                    `bg-gradient-to-r ${config.gradient}`,
+                                    "border-transparent",
+                                    "text-white",
+                                    "shadow-lg",
+                                    config.glow
+                                  ] : [
+                                    config.bg,
+                                    config.border,
+                                    config.text,
+                                    "hover:brightness-110"
+                                  ]
+                                )}
+                              >
+                                {score}
+                              </motion.button>
+                            ))}
+                          </div>
                         </div>
-                      </button>
+                      </div>
                     </motion.div>
                   );
                 })}
               </div>
-
-              {/* Fine Score Selector */}
-              <AnimatePresence>
-                {showScoreSelector && selectedLevel && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mb-6"
-                  >
-                    <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-card/80 border border-border">
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3 text-center">
-                        Alege scorul exact pentru nivelul <span className="font-bold text-primary">{selectedLevel}</span>:
-                      </p>
-                      <div className="flex justify-center gap-1.5 sm:gap-2">
-                        {(() => {
-                          const levelKey = selectedLevel.toUpperCase() as keyof typeof LEVEL_CONFIG;
-                          const config = LEVEL_CONFIG[levelKey];
-                          if (!config) return null;
-                          
-                          return config.range.map((score) => (
-                            <button
-                              key={score}
-                              onClick={() => handleScoreSelect(score)}
-                              className={cn(
-                                "w-11 h-11 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl border-2 font-bold text-base sm:text-lg transition-all duration-200",
-                                selectedScore === score ? [
-                                  `bg-gradient-to-r ${config.gradient}`,
-                                  "border-transparent",
-                                  "text-white",
-                                  "shadow-lg",
-                                  config.glow
-                                ] : [
-                                  config.bg,
-                                  config.border,
-                                  config.text,
-                                  "hover:scale-105 sm:hover:scale-110"
-                                ]
-                              )}
-                            >
-                              {score}
-                            </button>
-                          ));
-                        })()}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </Card>
           </motion.div>
         </AnimatePresence>
