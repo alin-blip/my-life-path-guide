@@ -74,3 +74,6 @@ verify_jwt = false
 
 [functions.door-ai-planning]
 verify_jwt = false
+
+[functions.send-goal-plan-email]
+verify_jwt = false

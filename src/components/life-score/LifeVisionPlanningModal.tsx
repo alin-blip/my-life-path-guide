@@ -3,11 +3,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Send, Sparkles, Mic } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Loader2, Send, Sparkles, Mic, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { GoalCategory } from '@/types/goalWizard';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -62,9 +65,11 @@ export const LifeVisionPlanningModal: React.FC<LifeVisionPlanningModalProps> = (
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [sendEmailOnComplete, setSendEmailOnComplete] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const MAX_MESSAGES_TO_SEND = 40;
 
@@ -173,6 +178,33 @@ export const LifeVisionPlanningModal: React.FC<LifeVisionPlanningModalProps> = (
                       monthlyFocus: planningData.monthlyFocus,
                       weeklyKeys: planningData.weeklyKeys,
                     };
+                    
+                    // Send email if opted in
+                    if (sendEmailOnComplete && user?.email) {
+                      try {
+                        await supabase.functions.invoke('send-goal-plan-email', {
+                          body: {
+                            email: user.email,
+                            name: user.user_metadata?.display_name || user.user_metadata?.name,
+                            category,
+                            categoryLabel,
+                            annualVision: planningData.annualVision,
+                            quarterlyMilestone: planningData.quarterlyMilestone,
+                            monthlyFocus: planningData.monthlyFocus,
+                            weeklyKeys: planningData.weeklyKeys,
+                            language,
+                          }
+                        });
+                        toast({
+                          title: language === 'ro' ? '📧 Email trimis!' : '📧 Email sent!',
+                          description: language === 'ro' 
+                            ? 'Planul tău a fost trimis pe email.' 
+                            : 'Your plan has been sent to your email.',
+                        });
+                      } catch (emailError) {
+                        console.error('Error sending plan email:', emailError);
+                      }
+                    }
                     
                     onPlanComplete(completePlan);
                     return;
@@ -302,7 +334,23 @@ export const LifeVisionPlanningModal: React.FC<LifeVisionPlanningModalProps> = (
           </div>
         </ScrollArea>
 
-        <div className="p-4 border-t bg-background">
+        <div className="p-4 border-t bg-background space-y-3">
+          {/* Email option */}
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="sendEmail" 
+              checked={sendEmailOnComplete}
+              onCheckedChange={(checked) => setSendEmailOnComplete(checked as boolean)}
+            />
+            <Label 
+              htmlFor="sendEmail" 
+              className="text-sm text-muted-foreground flex items-center gap-1.5 cursor-pointer"
+            >
+              <Mail className="w-3.5 h-3.5" />
+              {language === 'ro' ? 'Trimite-mi planul pe email' : 'Send me the plan via email'}
+            </Label>
+          </div>
+          
           <div className="flex gap-2">
             <Textarea
               value={input}

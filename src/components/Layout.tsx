@@ -13,6 +13,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useTourContext } from '@/context/TourContext';
 
 import { GoalRemindersNotification } from './door/GoalRemindersNotification';
+import { AccountabilityCoachWidget } from './accountability/AccountabilityCoachWidget';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -191,6 +192,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       {/* Goal Reminders Notification */}
       <GoalRemindersNotification />
+      
+      {/* Accountability Coach Widget - Always visible */}
+      <AccountabilityCoachWidget />
       
     </div>
   );
