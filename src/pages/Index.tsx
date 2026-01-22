@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
@@ -17,6 +17,8 @@ import { SalesCoachWidget } from "@/components/landing/SalesCoachWidget";
 
 const Index = () => {
   const { t } = useLanguage();
+  const [pendingSalesMessage, setPendingSalesMessage] = useState<string | null>(null);
+  const [isSalesCoachOpen, setIsSalesCoachOpen] = useState(false);
 
   // Force light theme on index page
   useEffect(() => {
@@ -33,6 +35,19 @@ const Index = () => {
       }
     };
   }, []);
+
+  const handleAskQuestion = (question: string) => {
+    setPendingSalesMessage(question);
+    setIsSalesCoachOpen(true);
+  };
+
+  const handleOpenChat = () => {
+    setIsSalesCoachOpen(true);
+  };
+
+  const handleMessageProcessed = () => {
+    setPendingSalesMessage(null);
+  };
 
   return (
     <div className="light min-h-screen bg-background">
@@ -51,7 +66,10 @@ const Index = () => {
       <StickyHeader />
 
       {/* Hero Section */}
-      <NewHeroSection />
+      <NewHeroSection 
+        onAskQuestion={handleAskQuestion}
+        onOpenChat={handleOpenChat}
+      />
 
       {/* Logo Cloud / Stats */}
       <LogoCloud />
@@ -75,9 +93,15 @@ const Index = () => {
       <NewFooter />
 
       {/* Sales Coach Widget */}
-      <SalesCoachWidget />
+      <SalesCoachWidget 
+        pendingMessage={pendingSalesMessage}
+        onMessageProcessed={handleMessageProcessed}
+        isOpen={isSalesCoachOpen}
+        onOpenChange={setIsSalesCoachOpen}
+      />
     </div>
   );
 };
 
 export default Index;
+

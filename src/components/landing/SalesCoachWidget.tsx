@@ -9,6 +9,13 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 
+interface SalesCoachWidgetProps {
+  pendingMessage?: string | null;
+  onMessageProcessed?: () => void;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
 const quickActionsRo = [
   { label: '💰 Cât costă?', message: 'Cât costă abonamentul?' },
   { label: '🎯 Cum funcționează?', message: 'Cum funcționează platforma?' },
@@ -25,14 +32,29 @@ const quickActionsEn = [
   { label: '✅ Guarantees?', message: 'What guarantees do you offer?' },
 ];
 
-export const SalesCoachWidget: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+export const SalesCoachWidget: React.FC<SalesCoachWidgetProps> = ({ 
+  pendingMessage, 
+  onMessageProcessed,
+  isOpen: controlledIsOpen,
+  onOpenChange 
+}) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const { messages, isLoading, sendMessage, clearMessages, hasMessages } = useSalesCoach();
   const { language } = useLanguage();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Use controlled or internal state
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+  const setIsOpen = (open: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(open);
+    } else {
+      setInternalIsOpen(open);
+    }
+  };
 
   const quickActions = language === 'ro' ? quickActionsRo : quickActionsEn;
   const t = {
@@ -44,6 +66,14 @@ export const SalesCoachWidget: React.FC = () => {
       : 'Hi! 👋 I\'m here to help you understand how WarriorOS can transform your business. What interests you?',
     clear: language === 'ro' ? 'Resetează' : 'Reset',
   };
+
+  // Handle pending message from HeroInlineChat
+  useEffect(() => {
+    if (pendingMessage && isOpen) {
+      sendMessage(pendingMessage);
+      onMessageProcessed?.();
+    }
+  }, [pendingMessage, isOpen]);
 
   // Auto-scroll to bottom
   useEffect(() => {
