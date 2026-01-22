@@ -44,6 +44,20 @@ const categoryIcons: Record<Category, React.ReactNode> = {
   business: <Briefcase className="h-4 w-4" />
 };
 
+const categoryPlaceholders: Record<Category, string> = {
+  body: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=400&fit=crop&q=80',
+  being: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&h=400&fit=crop&q=80',
+  balance: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=400&fit=crop&q=80',
+  business: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=400&fit=crop&q=80'
+};
+
+const categoryMessages: Record<Category, { en: string; ro: string }> = {
+  body: { en: 'Define your ideal body', ro: 'Definește corpul ideal' },
+  being: { en: 'Set your spiritual vision', ro: 'Setează viziunea spirituală' },
+  balance: { en: 'Create strong relationships', ro: 'Creează relații puternice' },
+  business: { en: 'Visualize business success', ro: 'Vizualizează succesul' }
+};
+
 export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
   visionBoard,
   language
@@ -51,28 +65,64 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
   const navigate = useNavigate();
 
   if (!visionBoard) {
+    const categories: Category[] = ['body', 'being', 'balance', 'business'];
+    
     return (
-      <Card className="bg-gradient-to-br from-primary/10 via-accent/5 to-background border-primary/20 overflow-hidden">
-        <CardContent className="p-4 pt-2 flex flex-col items-center text-center">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center mb-4">
-            <Sparkles className="h-7 w-7 text-white" />
+      <Card className="overflow-hidden border-primary/20">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            Vision Board 2026
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="pt-2">
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            {categories.map((category) => (
+              <div 
+                key={category} 
+                className="relative aspect-square rounded-xl overflow-hidden group cursor-pointer"
+                onClick={() => navigate('/vision-board')}
+              >
+                {/* Imagine placeholder aspirațională */}
+                <img 
+                  src={categoryPlaceholders[category]} 
+                  alt={categoryLabels[category][language]}
+                  className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                />
+                
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                
+                {/* Badge categorie + mesaj CTA */}
+                <div className="absolute inset-0 p-2 flex flex-col justify-end">
+                  <div className={cn(
+                    "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs font-medium w-fit bg-gradient-to-r",
+                    categoryColors[category]
+                  )}>
+                    {categoryIcons[category]}
+                    <span>{categoryLabels[category][language]}</span>
+                  </div>
+                  <p className="text-white/90 text-[10px] mt-1 font-medium leading-tight">
+                    {categoryMessages[category][language]}
+                  </p>
+                </div>
+                
+                {/* Sparkle icon indicând AI */}
+                <div className="absolute top-2 right-2">
+                  <Sparkles className="h-3 w-3 text-white/70" />
+                </div>
+              </div>
+            ))}
           </div>
-          
-          <h3 className="text-lg font-bold text-foreground mb-2">
-            {language === 'en' ? 'Create Your Vision Board 2026' : 'Creează Vision Board 2026'}
-          </h3>
-          
-          <p className="text-sm text-muted-foreground mb-4 max-w-xs">
-            {language === 'en'
-              ? 'Visualize your goals with AI-generated images for Body, Being, Balance & Business.'
-              : 'Vizualizează-ți obiectivele cu imagini generate de AI pentru Corp, Suflet, Echilibru & Business.'}
-          </p>
-          
+
+          {/* CTA Button */}
           <Button
             onClick={() => navigate('/vision-board')}
-            className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+            className="w-full gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90"
           >
-            {language === 'en' ? 'Create Vision Board' : 'Creează Vision Board'}
+            <Sparkles className="h-4 w-4" />
+            {language === 'en' ? 'Generate Your Vision' : 'Generează-ți Viziunea'}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </CardContent>
