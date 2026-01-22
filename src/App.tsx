@@ -58,6 +58,7 @@ const Vision2026Plan = lazy(() => import("./pages/Vision2026Plan"));
 const Vision2026Dashboard = lazy(() => import("./pages/Vision2026Dashboard"));
 const VisionBoard2026 = lazy(() => import("./pages/VisionBoard2026"));
 const FactMaps = lazy(() => import("./pages/FactMaps"));
+const QuickQuiz = lazy(() => import("./pages/QuickQuiz"));
 const DailyFlow = lazy(() => import("./pages/DailyFlow"));
 const ChampionRoutineHistory = lazy(() => import("./pages/ChampionRoutineHistory"));
 const WorkoutHistory = lazy(() => import("./pages/WorkoutHistory"));
@@ -368,6 +369,11 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/business-2026" element={<Business2026LeadMagnet />} />
+                    <Route path="/quick-quiz" element={
+                      <ProtectedRoute>
+                        <QuickQuiz />
+                      </ProtectedRoute>
+                    } />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                       </Suspense>
