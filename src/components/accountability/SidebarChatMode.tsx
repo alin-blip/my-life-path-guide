@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import ReactMarkdown from 'react-markdown';
 import { useLanguage } from '@/context/LanguageContext';
+import { ChatMessageWithButtons } from './ChatMessageWithButtons';
 
 interface Message {
   id: string;
@@ -92,18 +92,10 @@ export const SidebarChatMode: React.FC<SidebarChatModeProps> = ({
               )}
             >
               {msg.role === 'assistant' ? (
-                <div className="prose prose-xs dark:prose-invert max-w-none [&>*]:my-1 [&_p]:my-0.5 [&_ul]:my-0.5 [&_li]:my-0">
-                  <ReactMarkdown
-                    components={{
-                      p: ({ children }) => <p className="text-xs leading-relaxed">{children}</p>,
-                      ul: ({ children }) => <ul className="text-xs pl-3 list-disc">{children}</ul>,
-                      li: ({ children }) => <li className="text-xs">{children}</li>,
-                      strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
-                    }}
-                  >
-                    {msg.content}
-                  </ReactMarkdown>
-                </div>
+                <ChatMessageWithButtons 
+                  content={msg.content} 
+                  isCompact={true}
+                />
               ) : (
                 <p className="text-xs">{msg.content}</p>
               )}
