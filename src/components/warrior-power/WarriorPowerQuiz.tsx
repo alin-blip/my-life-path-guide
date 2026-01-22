@@ -200,7 +200,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
 
                       {/* Quick Score Buttons - Always visible on the right */}
                       <div className="flex flex-col gap-1.5 sm:gap-2 flex-shrink-0">
-                        {config.range.map((score, scoreIdx) => (
+                        {config.range.map((score) => (
                           <motion.button
                             key={score}
                             whileHover={{ scale: 1.1 }}
@@ -213,7 +213,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                                 : `${config.bg} ${config.text} border ${config.border} hover:brightness-125`
                             )}
                           >
-                            {scoreIdx + 1}
+                            {score}
                           </motion.button>
                         ))}
                       </div>
