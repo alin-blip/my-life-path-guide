@@ -13,7 +13,9 @@ import {
   Sparkles,
   Trophy,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Flame,
+  GraduationCap
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
@@ -505,30 +507,64 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
     position: 'bottom'
   },
   {
-    id: 'door-info',
+    id: 'challenge-info',
+    targetSelector: 'a[href="/challenge"]',
+    route: '/dashboard',
     title: { 
-      en: '📋 Door - Weekly Planning', 
-      ro: '📋 Door - Planificare Săptămânală' 
+      en: '🔥 Have It All Lifestyle Challenge', 
+      ro: '🔥 Challenge Have It All Lifestyle' 
     },
     description: { 
-      en: 'Access Door from the sidebar to set your weekly HIT list (high-impact tasks) and DO list (daily actions). The Domino effect starts here!',
-      ro: 'Accesează Door din meniul lateral pentru a-ți seta lista HIT (task-uri cu impact mare) și lista DO (acțiuni zilnice). Efectul Domino începe aici!'
+      en: 'Your 7-day foundation: Step-by-step plan, execution guide, and Vision Board creation. Complete all 7 days to unlock the full system!',
+      ro: 'Fundația ta de 7 zile: Plan pas cu pas, ghid de execuție și creare Vision Board. Completează toate cele 7 zile pentru a debloca sistemul complet!'
+    },
+    icon: <Flame className="h-8 w-8 text-orange-500" />,
+    position: 'right'
+  },
+  {
+    id: 'accelerator-info',
+    targetSelector: 'a[href="/warriors-way"]',
+    route: '/dashboard',
+    title: { 
+      en: '🎓 Warrior Launch Accelerator', 
+      ro: '🎓 Warrior Launch Accelerator' 
+    },
+    description: { 
+      en: 'Premium €497 coaching program with 47+ video lessons on business launch, marketing, and personal transformation.',
+      ro: 'Program premium €497 de coaching cu 47+ lecții video despre lansare business, marketing și transformare personală.'
+    },
+    icon: <GraduationCap className="h-8 w-8 text-primary" />,
+    position: 'right'
+  },
+  {
+    id: 'door-info',
+    targetSelector: 'a[href="/door"]',
+    route: '/dashboard',
+    title: { 
+      en: '📋 The Door - Command Center', 
+      ro: '📋 The Door - Centrul de Comandă' 
+    },
+    description: { 
+      en: 'Plan your week with Weekly Goals (high-impact) and Today\'s Focus (daily actions). The Domino effect starts here!',
+      ro: 'Planifică-ți săptămâna cu Obiective Săptămânale (impact mare) și Focusul de Azi (acțiuni zilnice). Efectul Domino începe aici!'
     },
     icon: <Calendar className="h-8 w-8 text-blue-500" />,
-    position: 'center'
+    position: 'right'
   },
   {
     id: 'champion-info',
+    targetSelector: 'a[href="/daily-flow"]',
+    route: '/dashboard',
     title: { 
       en: '🏆 Champion Morning Routine', 
       ro: '🏆 Rutina Matinală a Campionului' 
     },
     description: { 
-      en: 'Start each day with meditation, breathing, visualization, and gratitude. Access from the sidebar under "Rutină".',
-      ro: 'Începe fiecare zi cu meditație, respirație, vizualizare și gratitudine. Accesează din meniul lateral la "Rutină".'
+      en: 'Start each day with meditation, breathing, visualization, and gratitude. Your complete transformation system.',
+      ro: 'Începe fiecare zi cu meditație, respirație, vizualizare și recunoștință. Sistemul tău complet de transformare.'
     },
     icon: <Trophy className="h-8 w-8 text-amber-500" />,
-    position: 'center'
+    position: 'right'
   },
   {
     id: 'complete',

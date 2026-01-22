@@ -42,6 +42,76 @@ export interface FAQItem {
 // All Pages in the Platform - LifeOS Rebrand
 export const PAGES: PageInfo[] = [
   {
+    path: '/challenge',
+    name: 'Have It All Lifestyle Challenge',
+    nameRo: 'Challenge Have It All Lifestyle',
+    description: 'Your 7-day transformation journey with daily exercises, step-by-step execution plans, and Vision Board creation. This is the foundation for the entire WarriorOS system.',
+    descriptionRo: 'Călătoria ta de transformare de 7 zile cu exerciții zilnice, planuri de execuție pas cu pas și crearea Vision Board-ului. Aceasta este fundația pentru întregul sistem WarriorOS.',
+    features: [
+      'Day-by-day structured content with videos',
+      'Step-by-step execution guide for each day',
+      'Vision Board creation wizard',
+      'Daily affirmations and exercises',
+      'Progress tracking with XP rewards',
+      'Reality Map assessment for 4 life dimensions'
+    ],
+    featuresRo: [
+      'Conținut structurat zi de zi cu videoclipuri',
+      'Ghid de execuție pas cu pas pentru fiecare zi',
+      'Wizard pentru crearea Vision Board',
+      'Afirmații și exerciții zilnice',
+      'Urmărirea progresului cu recompense XP',
+      'Evaluarea Hărții Realității pentru 4 dimensiuni ale vieții'
+    ],
+    quickTips: [
+      'Complete each day in order for best results',
+      'Create your Vision Board on Day 3',
+      'Share progress in the Brotherhood community',
+      'Unlock full platform access after 7 days'
+    ],
+    quickTipsRo: [
+      'Completează fiecare zi în ordine pentru rezultate optime',
+      'Creează-ți Vision Board-ul în Ziua 3',
+      'Împărtășește progresul în comunitatea Brotherhood',
+      'Deblochează acces complet la platformă după 7 zile'
+    ]
+  },
+  {
+    path: '/warriors-way',
+    name: 'Warrior Launch Accelerator',
+    nameRo: 'Warrior Launch Accelerator',
+    description: 'Premium €497 coaching program with 47+ video lessons on business launch, marketing, personal branding, and complete transformation. Included free for Elite subscribers.',
+    descriptionRo: 'Program premium €497 de coaching cu 47+ lecții video despre lansare business, marketing, personal branding și transformare completă. Inclus gratuit pentru abonații Elite.',
+    features: [
+      'Complete business launch blueprint',
+      'Advanced marketing strategies',
+      'Personal branding modules',
+      'Sales and closing techniques',
+      'Mastermind community access',
+      'Lifetime access to all content'
+    ],
+    featuresRo: [
+      'Blueprint complet de lansare business',
+      'Strategii avansate de marketing',
+      'Module de personal branding',
+      'Tehnici de vânzări și închidere',
+      'Acces la comunitatea mastermind',
+      'Acces pe viață la tot conținutul'
+    ],
+    quickTips: [
+      'Watch videos in order for structured learning',
+      'Take notes and apply each module',
+      'Join live Q&A sessions for direct support',
+      'Elite subscribers get this included free'
+    ],
+    quickTipsRo: [
+      'Urmărește videoclipurile în ordine pentru învățare structurată',
+      'Ia notițe și aplică fiecare modul',
+      'Participă la sesiunile live Q&A pentru suport direct',
+      'Abonații Elite primesc acest program gratuit'
+    ]
+  },
+  {
     path: '/stack',
     name: 'AI Coaches',
     nameRo: 'Antrenori AI',

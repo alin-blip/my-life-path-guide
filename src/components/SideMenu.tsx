@@ -86,29 +86,40 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   };
 
   const menuItems: MenuItem[] = [
-    // 1. DASHBOARD - Direct link without submenu
+    // 1. HAVE IT ALL LIFESTYLE CHALLENGE - FIRST
+    { 
+      title: 'Have It All Challenge', 
+      icon: Flame, 
+      path: '/challenge',
+      badge: completedDays > 0 ? `${completedDays}/7` : undefined
+    },
+
+    // 2. WARRIOR LAUNCH ACCELERATOR - SECOND
+    {
+      title: "Warrior Launch Accelerator",
+      icon: GraduationCap,
+      path: '/warriors-way',
+      badge: 'NEW'
+    },
+
+    // SEPARATOR
+    { isSeparator: true, title: '', icon: Home, path: '' },
+
+    // 3. DASHBOARD
     { 
       title: 'Dashboard', 
       icon: Home, 
       path: '/dashboard'
     },
 
-    // 2. CHALLENGE 7 ZILE
-    { 
-      title: language === 'ro' ? 'Challenge 7 Zile' : '7-Day Challenge', 
-      icon: Flame, 
-      path: '/challenge',
-      badge: completedDays > 0 ? `${completedDays}/7` : undefined
-    },
-
-    // 3. THE DOOR - Simple link without sub-items
+    // 4. THE DOOR
     { 
       title: 'The Door', 
       icon: Target, 
       path: '/door'
     },
 
-    // 4. GAME - VISION
+    // 5. GAME - VISION
     {
       title: 'Game - Vision',
       icon: Gamepad2,
@@ -121,7 +132,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 4. RUTINA RĂZBOINICULUI (Warrior Routine)
+    // 6. RUTINA RĂZBOINICULUI (Warrior Routine)
     {
       title: language === 'ro' ? 'Rutina Războinicului' : 'Warrior Routine',
       icon: Swords,
@@ -133,33 +144,22 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 5. STACKS (previously in Being)
+    // 7. STACKS
     {
       title: 'Stacks',
       icon: Sparkles,
       path: '/stack',
       subItems: [
-        // Coaching & Mindset
         { title: 'Mindset Coach', icon: Brain, path: '/stack?type=divine-prayer' },
         { title: 'Life Coach', icon: Sparkles, path: '/stack?type=ai-live' },
         { title: 'Business Coach', icon: Target, path: '/stack?type=hormozi-coaching' },
-        // Emotional
         { title: 'Emotion Coach', icon: Flame, path: '/stack?type=anger' },
         { title: 'Transformare Adaptivă', icon: Activity, path: '/stack?type=adaptive-transform' },
-        // Gratitude & Reflection
         { title: 'Divine Gratitude', icon: Heart, path: '/stack?type=divine-gratitude' },
         { title: 'Gratitude Journal', icon: Heart, path: '/stack?type=gratitude' },
         { title: 'Introspection', icon: Brain, path: '/stack?type=introspection' },
         { title: 'Success Principles', icon: BookOpen, path: '/stack?type=napoleon-hill' },
       ]
-    },
-
-    // 9. WARRIOR LAUNCH ACCELERATOR - Course Section
-    {
-      title: "Warrior Launch Accelerator",
-      icon: GraduationCap,
-      path: '/warriors-way',
-      badge: 'NEW'
     },
 
     // 10. BROTHERHOOD
@@ -318,9 +318,15 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       <div className="flex-1 overflow-y-auto py-4 px-3">
         <nav>
           <ul className="space-y-1">
-            {/* Render all menu items */}
+            {/* Render all menu items with separator support */}
             {menuItems.filter(item => !item.hidden).map((item, index) => 
-              renderMenuItem(item, index)
+              item.isSeparator ? (
+                <li key={`separator-${index}`} className="py-2">
+                  <div className="border-t border-border/50" />
+                </li>
+              ) : (
+                renderMenuItem(item, index)
+              )
             )}
           </ul>
         </nav>
