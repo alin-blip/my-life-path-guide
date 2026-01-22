@@ -81,7 +81,6 @@ const Pricing: React.FC = () => {
   };
 
   const planIcons: Record<string, React.ElementType> = {
-    free: Gift,
     basic: Zap,
     pro: Crown,
     elite: Rocket,
@@ -89,8 +88,6 @@ const Pricing: React.FC = () => {
 
   // Helper to get dynamic price based on Early Bird status
   const getDynamicPrice = (planId: string) => {
-    if (planId === 'free') return { price: language === 'en' ? 'Free' : 'Gratuit', originalPrice: null };
-    
     const prices = PLAN_PRICES[planId as keyof typeof PLAN_PRICES];
     if (!prices) return { price: null, originalPrice: null };
     
@@ -252,14 +249,13 @@ const Pricing: React.FC = () => {
             </div>
           )}
 
-          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             {localizedPlans.map((plan) => {
               const isActive = activePlanId === plan.id;
               const Icon = planIcons[plan.id] || Zap;
               const isPro = plan.id === 'pro';
               const isBasic = plan.id === 'basic';
               const isElite = plan.id === 'elite';
-              const isFree = plan.id === 'free';
               
               // Get dynamic pricing based on Early Bird status
               const dynamicPricing = getDynamicPrice(plan.id);
@@ -278,7 +274,7 @@ const Pricing: React.FC = () => {
                   }`}
                 >
                   {/* Early Bird Badge for paid plans */}
-                  {isEarlyBirdActive && !isFree && (
+                  {isEarlyBirdActive && (
                     <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-10">
                       <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg border-0 rounded-b-lg rounded-t-none">
                         🔥 Early Bird -50%
@@ -296,7 +292,7 @@ const Pricing: React.FC = () => {
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500" />
                   )}
                   
-                  <CardHeader className={isEarlyBirdActive && !isFree ? 'pt-10' : ''}>
+                  <CardHeader className={isEarlyBirdActive ? 'pt-10' : ''}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`p-2 rounded-full ${
@@ -379,7 +375,7 @@ const Pricing: React.FC = () => {
                               ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90'
                               : ''
                       }`}
-                      variant={isFree ? 'outline' : 'default'}
+                      variant="default"
                       size={isPro ? 'lg' : 'default'}
                       disabled={loadingPlan === plan.id || isActive} 
                       onClick={() => handleCheckout(plan.id)}
@@ -393,7 +389,7 @@ const Pricing: React.FC = () => {
                         texts.active
                       ) : (
                         <>
-                          {isEarlyBirdActive && !isFree && <Timer className="h-4 w-4" />}
+                          {isEarlyBirdActive && <Timer className="h-4 w-4" />}
                           {plan.cta}
                         </>
                       )}
