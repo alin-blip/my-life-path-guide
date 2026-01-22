@@ -185,7 +185,23 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
     const tooltipWidth = 400;
     
     let top = targetRect!.bottom + padding + spotlightPadding;
-    let left = Math.max(20, Math.min(targetRect!.left + targetRect!.width / 2, viewportWidth - tooltipWidth / 2));
+    
+    // Calculate left position - ensure tooltip stays within viewport
+    let left = targetRect!.left + targetRect!.width / 2;
+    
+    // If target is on the right side of screen, position tooltip to the left of it
+    if (targetRect!.right > viewportWidth - tooltipWidth) {
+      // Target is near right edge - position tooltip to the left
+      left = Math.min(targetRect!.left - padding, viewportWidth - tooltipWidth - 20);
+      
+      // If tooltip would go off left edge, center it
+      if (left < tooltipWidth / 2 + 20) {
+        left = viewportWidth / 2;
+      }
+    } else {
+      // Normal positioning - center below target but keep within bounds
+      left = Math.max(tooltipWidth / 2 + 20, Math.min(left, viewportWidth - tooltipWidth / 2 - 20));
+    }
     
     // If tooltip would go below viewport, show above target
     if (top + tooltipHeight > viewportHeight) {
