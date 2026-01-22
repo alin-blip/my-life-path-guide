@@ -15,12 +15,13 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import accountabilityCoachScreenshot from "@/assets/accountability-coach-screenshot.png";
 
 // Feature screenshots - using placeholder images for now
 // These will be replaced with actual screenshots
 const featureImages = {
   challenge: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&h=600&fit=crop",
-  aiCoaches: "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=800&h=600&fit=crop",
+  aiCoaches: accountabilityCoachScreenshot,
   visionBoard: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
   warriorRoutine: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop",
   theDoor: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop",
@@ -38,6 +39,7 @@ interface Feature {
   image: string;
   icon: LucideIcon;
   color: string;
+  hasCosmicBg?: boolean;
 }
 
 const features: Feature[] = [
@@ -52,12 +54,13 @@ const features: Feature[] = [
   },
   {
     id: 'ai-coaches',
-    title: '4 AI Coaches',
+    title: 'Accountability Coach + 3',
     problem: 'Plătești sute de euro pe un coach... și tot ești blocat după 3 săptămâni. Sau nu-ți permiți deloc.',
-    solution: '4 coach-uri AI specializate pentru Corp, Minte, Relații și Business. Disponibile 24/7. Răspunsuri instant.',
+    solution: 'Coach AI personal care te ține responsabil + 3 coach-uri specializate pentru Corp, Minte și Business. 24/7.',
     image: featureImages.aiCoaches,
     icon: Brain,
-    color: 'from-violet-500 to-purple-500'
+    color: 'from-violet-500 to-purple-500',
+    hasCosmicBg: true
   },
   {
     id: 'vision-board',
@@ -323,17 +326,126 @@ export const FeatureShowcase = () => {
                 whileDrag={{ cursor: "grabbing" }}
               >
                 <AnimatePresence mode="wait">
-                  <motion.img
+                  <motion.div
                     key={currentFeature.id}
-                    src={currentFeature.image}
-                    alt={currentFeature.title}
-                    className="w-full aspect-video object-cover pointer-events-none select-none"
+                    className="relative w-full aspect-video"
                     initial={{ opacity: 0, scale: 1.02 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.4 }}
-                    draggable={false}
-                  />
+                  >
+                    {/* Cosmic background for specific features */}
+                    {currentFeature.hasCosmicBg && (
+                      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 overflow-hidden">
+                        {/* Animated stars */}
+                        <div className="absolute inset-0">
+                          {[...Array(50)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute w-1 h-1 bg-white rounded-full"
+                              style={{
+                                left: `${Math.random() * 100}%`,
+                                top: `${Math.random() * 100}%`,
+                                opacity: 0.3 + Math.random() * 0.7,
+                              }}
+                              animate={{
+                                opacity: [0.3, 1, 0.3],
+                                scale: [1, 1.5, 1],
+                              }}
+                              transition={{
+                                duration: 2 + Math.random() * 3,
+                                repeat: Infinity,
+                                delay: Math.random() * 2,
+                              }}
+                            />
+                          ))}
+                        </div>
+                        
+                        {/* Power lines / energy rays */}
+                        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+                          {/* Radial energy lines from center */}
+                          {[...Array(12)].map((_, i) => (
+                            <motion.line
+                              key={i}
+                              x1="50%"
+                              y1="50%"
+                              x2={`${50 + Math.cos((i * 30 * Math.PI) / 180) * 60}%`}
+                              y2={`${50 + Math.sin((i * 30 * Math.PI) / 180) * 60}%`}
+                              stroke="url(#powerLineGradient)"
+                              strokeWidth="1"
+                              strokeOpacity="0.3"
+                              initial={{ pathLength: 0, opacity: 0 }}
+                              animate={{ 
+                                pathLength: [0, 1, 0],
+                                opacity: [0, 0.6, 0]
+                              }}
+                              transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                delay: i * 0.2,
+                                ease: "easeInOut"
+                              }}
+                            />
+                          ))}
+                          
+                          {/* Gradient definition */}
+                          <defs>
+                            <linearGradient id="powerLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0" />
+                              <stop offset="50%" stopColor="#a855f7" stopOpacity="1" />
+                              <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
+                            </linearGradient>
+                            <radialGradient id="centerGlow">
+                              <stop offset="0%" stopColor="#a855f7" stopOpacity="0.4" />
+                              <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
+                            </radialGradient>
+                          </defs>
+                          
+                          {/* Center glow */}
+                          <motion.circle
+                            cx="50%"
+                            cy="50%"
+                            r="20%"
+                            fill="url(#centerGlow)"
+                            animate={{
+                              r: ["15%", "25%", "15%"],
+                              opacity: [0.3, 0.6, 0.3]
+                            }}
+                            transition={{
+                              duration: 4,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        </svg>
+                        
+                        {/* Orbital rings */}
+                        <motion.div
+                          className="absolute top-1/2 left-1/2 w-[300px] h-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-purple-500/20"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        />
+                        <motion.div
+                          className="absolute top-1/2 left-1/2 w-[400px] h-[200px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-500/15"
+                          style={{ transform: "translateX(-50%) translateY(-50%) rotateX(60deg)" }}
+                          animate={{ rotate: -360 }}
+                          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Feature image */}
+                    <img
+                      src={currentFeature.image}
+                      alt={currentFeature.title}
+                      className={`pointer-events-none select-none ${
+                        currentFeature.hasCosmicBg 
+                          ? 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto h-[90%] max-w-[60%] object-contain rounded-xl shadow-2xl shadow-purple-500/30' 
+                          : 'w-full h-full object-cover'
+                      }`}
+                      draggable={false}
+                    />
+                  </motion.div>
                 </AnimatePresence>
                 
                 {/* Swipe indicators */}
