@@ -114,6 +114,17 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     icon: 'Trophy',
     defaultSize: 'medium',
     category: 'tracking'
+  },
+  {
+    id: 'vibe-canvas',
+    name: { en: 'Vibe Canvas', ro: 'Vibe Canvas' },
+    description: { 
+      en: 'Quick access to your creative canvas for notes and drawing', 
+      ro: 'Acces rapid la canvas-ul tău creativ pentru notițe și desen' 
+    },
+    icon: 'Palette',
+    defaultSize: 'medium',
+    category: 'productivity'
   }
 ];
 
