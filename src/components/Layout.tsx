@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SideMenu } from './SideMenu';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Share, Menu, X, Sun, Moon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, X, Sun, Moon } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from './ui/button';
-import { useAffiliateLink } from '@/hooks/useAffiliateLink';
 import { ReferralTracker } from './ReferralTracker';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useTourContext } from '@/context/TourContext';
+import { UserAccountDropdown } from './UserAccountDropdown';
 
 import { GoalRemindersNotification } from './door/GoalRemindersNotification';
 import { AccountabilityCoachWidget } from './accountability/AccountabilityCoachWidget';
@@ -28,7 +28,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isAuthPage = location.pathname === '/' || location.pathname === '/auth';
   const { user, signOut } = useAuth();
   const { language } = useLanguage();
-  const { isLoading, shareReferralLink } = useAffiliateLink();
   const { theme, toggleTheme } = useTheme();
   const { registerMobileMenuControl } = useTourContext();
 
@@ -153,6 +152,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
                 </Button>
                 <LanguageSelector />
+                {user ? (
+                  <UserAccountDropdown />
+                ) : (
+                  <Button asChild variant="default" size="sm">
+                    <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
+                  </Button>
+                )}
               </div>
             </div>
           )}

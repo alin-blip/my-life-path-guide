@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Home, 
   BookOpen, 
@@ -37,7 +41,10 @@ import {
   Swords,
   Gamepad2,
   Map,
-  Palette
+  Palette,
+  User,
+  CreditCard,
+  LogOut
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -59,12 +66,64 @@ interface MenuItem {
 
 export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const { language } = useLanguage();
   const { completedDaysCount } = useChallengeProgress();
+  const { user, subscribed, signOut } = useAuth();
+  const { toast } = useToast();
   
   const completedDays = completedDaysCount;
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/auth');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: 'Eroare',
+        description: 'Nu s-a putut efectua delogarea.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    if (!subscribed) {
+      navigate('/pricing');
+      onItemClick?.();
+      return;
+    }
+
+    const preOpened = preOpenWindow();
+
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+
+      if (error) throw error;
+
+      if (data?.url) {
+        redirectExternal(data.url, preOpened);
+      } else {
+        if (preOpened) preOpened.close();
+        toast({
+          title: 'Eroare',
+          description: 'Portalul de abonament nu este disponibil momentan.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      if (preOpened) preOpened.close();
+      toast({
+        title: 'Eroare',
+        description: 'Nu s-a putut deschide portalul de abonament.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   // Auto-expand menu containing current path
   useEffect(() => {
@@ -332,6 +391,21 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       
       {/* Footer */}
       <div className="p-3 border-t border-border/30 space-y-1">
+        {user && (
+          <>
+            <Link to="/profile" onClick={onItemClick} className={`sidebar-item ${currentPath === '/profile' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
+              <User className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+              {!isCollapsed && <span className="text-sm font-medium">{language === 'ro' ? 'Profil' : 'Profile'}</span>}
+            </Link>
+            <button 
+              onClick={handleManageSubscription} 
+              className={`sidebar-item w-full ${isCollapsed ? 'justify-center' : ''}`}
+            >
+              <CreditCard className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+              {!isCollapsed && <span className="text-sm font-medium">{subscribed ? (language === 'ro' ? 'Abonament' : 'Subscription') : (language === 'ro' ? 'Upgrade' : 'Upgrade')}</span>}
+            </button>
+          </>
+        )}
         <Link to="/settings" onClick={onItemClick} className={`sidebar-item ${currentPath === '/settings' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
           <Settings className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
           {!isCollapsed && <span className="text-sm font-medium">{language === 'ro' ? 'Setări' : 'Settings'}</span>}
@@ -340,6 +414,15 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
           <HelpCircle className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
           {!isCollapsed && <span className="text-sm font-medium">{language === 'ro' ? 'Suport' : 'Support'}</span>}
         </Link>
+        {user && (
+          <button 
+            onClick={handleSignOut} 
+            className={`sidebar-item w-full text-destructive hover:text-destructive ${isCollapsed ? 'justify-center' : ''}`}
+          >
+            <LogOut className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+            {!isCollapsed && <span className="text-sm font-medium">{language === 'ro' ? 'Log out' : 'Log out'}</span>}
+          </button>
+        )}
       </div>
     </div>
   );
