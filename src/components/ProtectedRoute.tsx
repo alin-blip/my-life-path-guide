@@ -24,6 +24,7 @@ const FREE_TIER_ROUTES = [
   '/game-objectives', // Annual Goals - accessible for lead magnet users (Life Score, Business 2026)
   '/game', // Redirect route to game-objectives
   '/vibe-canvas', // Creative canvas - accessible for all users
+  '/warriors-way', // Warrior Accelerator - viewable by all, but content locked (only first video free)
 ];
 
 // Routes available for BASIC tier (full platform without LIVE coaching)
@@ -65,8 +66,7 @@ const PRO_REQUIRED_ROUTES = [
 
 // Routes that require ELITE tier
 const ELITE_ONLY_ROUTES = [
-  '/warriors-way',
-  '/warrior-launch-accelerator',
+  '/warrior-launch-accelerator', // Sales/checkout page - Elite only
 ];
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
