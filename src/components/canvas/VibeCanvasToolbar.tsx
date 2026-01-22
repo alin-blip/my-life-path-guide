@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   MousePointer2, 
+  Hand,
   Pencil, 
   Highlighter, 
   Eraser, 
@@ -45,6 +46,7 @@ interface VibeCanvasToolbarProps {
 
 const tools: { id: ToolType; icon: React.ElementType; label: string; shortcut?: string }[] = [
   { id: 'select', icon: MousePointer2, label: 'Select', shortcut: 'V' },
+  { id: 'pan', icon: Hand, label: 'Pan / Move', shortcut: 'Space' },
   { id: 'pencil', icon: Pencil, label: 'Pencil', shortcut: 'P' },
   { id: 'highlighter', icon: Highlighter, label: 'Highlighter', shortcut: 'H' },
   { id: 'eraser', icon: Eraser, label: 'Eraser', shortcut: 'E' },
