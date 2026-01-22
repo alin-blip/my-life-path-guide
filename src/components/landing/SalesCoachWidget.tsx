@@ -135,15 +135,16 @@ export const SalesCoachWidget: React.FC<SalesCoachWidgetProps> = ({
               <span className="sr-only">Open chat</span>
             </Button>
             
-            {/* Badge */}
+            {/* Badge - repositioned for mobile visibility */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="absolute -top-2 -left-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md whitespace-nowrap"
+              className="absolute -top-10 right-0 md:-top-2 md:-left-2 md:right-auto bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md whitespace-nowrap"
             >
               <Sparkles className="h-3 w-3 inline mr-1" />
-              {t.subtitle}
+              <span className="hidden md:inline">{t.subtitle}</span>
+              <span className="md:hidden">Întreabă-mă orice despre platformă.</span>
             </motion.div>
           </motion.div>
         )}
