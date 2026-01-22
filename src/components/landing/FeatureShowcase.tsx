@@ -1,30 +1,30 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  LayoutDashboard, 
+  Trophy,
+  Brain,
   Eye, 
   Dumbbell, 
-  Timer, 
-  Target, 
-  Kanban,
+  CalendarDays,
+  Rocket,
   Sparkles,
-  FileText,
-  Calendar,
+  Users,
+  Target,
   LucideIcon
 } from "lucide-react";
 
 // Feature screenshots - using placeholder images for now
 // These will be replaced with actual screenshots
 const featureImages = {
-  dashboard: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
+  challenge: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&h=600&fit=crop",
+  aiCoaches: "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=800&h=600&fit=crop",
   visionBoard: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
   warriorRoutine: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop",
-  focusRoom: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=600&fit=crop",
-  monthlyMission: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop",
-  objectives: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop",
+  theDoor: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop",
+  accelerator: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
   stacks: "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800&h=600&fit=crop",
-  visionDeclaration: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=600&fit=crop",
-  historyCalendar: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&h=600&fit=crop",
+  brotherhood: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=600&fit=crop",
+  monthlyMission: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&h=600&fit=crop",
 };
 
 interface Feature {
@@ -39,13 +39,22 @@ interface Feature {
 
 const features: Feature[] = [
   {
-    id: 'dashboard',
-    title: 'Dashboard Principal',
-    problem: 'Te trezești dimineața și nu știi de unde să începi... Ai 100 de lucruri de făcut și niciun plan clar.',
-    solution: 'Un singur ecran îți arată exact ce contează azi. Core 4, Biz 4, habits - totul într-o privire.',
-    image: featureImages.dashboard,
-    icon: LayoutDashboard,
-    color: 'from-blue-500 to-indigo-500'
+    id: 'challenge',
+    title: 'Have It All Challenge',
+    problem: 'Știi că trebuie să schimbi ceva... dar ideea de "transformare" te copleșește. Nu știi de unde să începi.',
+    solution: '7 zile ghidate pas cu pas. Un singur task pe zi. Zero overwhelm. Rezultate vizibile din ziua 1.',
+    image: featureImages.challenge,
+    icon: Trophy,
+    color: 'from-amber-500 to-orange-500'
+  },
+  {
+    id: 'ai-coaches',
+    title: '4 AI Coaches',
+    problem: 'Plătești sute de euro pe un coach... și tot ești blocat după 3 săptămâni. Sau nu-ți permiți deloc.',
+    solution: '4 coach-uri AI specializate pentru Corp, Minte, Relații și Business. Disponibile 24/7. Răspunsuri instant.',
+    image: featureImages.aiCoaches,
+    icon: Brain,
+    color: 'from-violet-500 to-purple-500'
   },
   {
     id: 'vision-board',
@@ -66,31 +75,22 @@ const features: Feature[] = [
     color: 'from-red-500 to-orange-500'
   },
   {
-    id: 'focus-room',
-    title: 'Camera de Focus',
-    problem: 'Lucrezi 10 ore pe zi dar la final nu ai făcut nimic important. Doar "ocupat", niciodată productiv.',
-    solution: 'Pomodoro cu stats și tracking. Vezi exact unde îți fuge timpul. Recuperezi 3 ore pe zi.',
-    image: featureImages.focusRoom,
-    icon: Timer,
-    color: 'from-cyan-500 to-blue-500'
+    id: 'the-door',
+    title: 'The Door (War Planning)',
+    problem: 'Săptămâna trece și nu știi ce ai făcut. Ai fost "ocupat" dar n-ai avansat cu nimic important.',
+    solution: 'Hit List, Hot List, Do List - vezi exact ce contează săptămâna asta. Prioritizare clară pentru succes.',
+    image: featureImages.theDoor,
+    icon: CalendarDays,
+    color: 'from-blue-500 to-indigo-500'
   },
   {
-    id: 'monthly-mission',
-    title: 'Misiune Lunară',
-    problem: 'Luna trecută ai zis că schimbi totul. Azi ești în același loc. O lună pierdută. Din nou.',
-    solution: 'Obiective clare pe 30 zile cu progres vizibil. Știi exact cât ai avansat în fiecare arie.',
-    image: featureImages.monthlyMission,
-    icon: Target,
-    color: 'from-green-500 to-emerald-500'
-  },
-  {
-    id: 'objectives',
-    title: 'Obiective & Planning',
-    problem: 'Ai idei geniale... într-un notes, pe telefon, pe post-it-uri. Niciunul nu devine realitate.',
-    solution: 'Toate ideile într-un singur Kanban. De la "idee" la "făcut" cu pași clari și deadline-uri.',
-    image: featureImages.objectives,
-    icon: Kanban,
-    color: 'from-amber-500 to-yellow-500'
+    id: 'accelerator',
+    title: 'Warrior Launch Accelerator',
+    problem: 'Vrei să crești business-ul dar nu știi cum. Citești cărți, urmărești podcasturi... și nimic nu se schimbă.',
+    solution: '47+ lecții video structurate. De la ideea inițială la primii 100K euro. Pas cu pas, fără bullshit.',
+    image: featureImages.accelerator,
+    icon: Rocket,
+    color: 'from-emerald-500 to-green-500'
   },
   {
     id: 'stacks',
@@ -102,22 +102,22 @@ const features: Feature[] = [
     color: 'from-violet-500 to-purple-500'
   },
   {
-    id: 'vision-declaration',
-    title: 'Declarație Viziune',
-    problem: 'Dacă te întreb "cine ești și unde mergi?" - nu ai un răspuns clar. Cum să ajungi acolo?',
-    solution: 'Declarația ta de viziune în stilul Napoleon Hill. O citești zilnic. Devii persoana aceea.',
-    image: featureImages.visionDeclaration,
-    icon: FileText,
-    color: 'from-rose-500 to-pink-500'
+    id: 'brotherhood',
+    title: 'Brotherhood Community',
+    problem: 'Te simți singur în lupta ta. Nimeni din jur nu înțelege ce încerci să construiești.',
+    solution: '2000+ războinici care se susțin reciproc. Feed, chat, tribe-uri. Nu mai ești singur în această călătorie.',
+    image: featureImages.brotherhood,
+    icon: Users,
+    color: 'from-pink-500 to-rose-500'
   },
   {
-    id: 'history',
-    title: 'Istoric & Analytics',
-    problem: 'Simți că muncești dar nu vezi progres. Poate chiar te miști în cerc...',
-    solution: 'Calendar heatmap care arată exact când ai fost consistent. Dovada vizuală a transformării tale.',
-    image: featureImages.historyCalendar,
-    icon: Calendar,
-    color: 'from-teal-500 to-cyan-500'
+    id: 'monthly-mission',
+    title: 'Misiune Lunară & Progress',
+    problem: 'Luna trecută ai zis că schimbi totul. Azi ești în același loc. O lună pierdută. Din nou.',
+    solution: 'Obiective clare pe 30 zile cu progres vizibil. Heatmap care dovedește transformarea ta zilnică.',
+    image: featureImages.monthlyMission,
+    icon: Target,
+    color: 'from-cyan-500 to-teal-500'
   },
 ];
 
