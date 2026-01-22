@@ -161,43 +161,44 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100]">
-        {/* Overlay with spotlight cutout */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-black/80"
-          onClick={handleSkip}
-        >
-          {/* Spotlight highlight effect */}
-          {targetRect && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="absolute rounded-lg ring-4 ring-primary ring-offset-4 ring-offset-transparent"
-              style={{
-                top: targetRect.top - 8,
-                left: targetRect.left - 8,
-                width: targetRect.width + 16,
-                height: targetRect.height + 16,
-                boxShadow: '0 0 0 9999px rgba(0,0,0,0.75)',
-                backgroundColor: 'transparent',
-                pointerEvents: 'none'
-              }}
-            />
-          )}
-        </motion.div>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100]">
+          {/* Overlay with spotlight cutout */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/80 z-[101]"
+            onClick={handleSkip}
+          >
+            {/* Spotlight highlight effect */}
+            {targetRect && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="absolute rounded-lg ring-4 ring-primary ring-offset-4 ring-offset-transparent"
+                style={{
+                  top: targetRect.top - 8,
+                  left: targetRect.left - 8,
+                  width: targetRect.width + 16,
+                  height: targetRect.height + 16,
+                  boxShadow: '0 0 0 9999px rgba(0,0,0,0.75)',
+                  backgroundColor: 'transparent',
+                  pointerEvents: 'none'
+                }}
+              />
+            )}
+          </motion.div>
 
-        {/* Tooltip */}
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: -20 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="absolute w-[90vw] max-w-md bg-card border border-border rounded-xl shadow-2xl p-6 z-10"
-          style={tooltipStyle}
+          {/* Tooltip */}
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: -20 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="absolute w-[90vw] max-w-md bg-card border border-border rounded-xl shadow-2xl p-6 z-[102]"
+            style={tooltipStyle}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Skip button */}
@@ -278,6 +279,7 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
           </div>
         </motion.div>
       </div>
+      )}
     </AnimatePresence>
   );
 }
