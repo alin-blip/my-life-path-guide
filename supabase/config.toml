@@ -80,3 +80,6 @@ verify_jwt = false
 
 [functions.sales-coach]
 verify_jwt = false
+
+[functions.generate-feature-images]
+verify_jwt = false
