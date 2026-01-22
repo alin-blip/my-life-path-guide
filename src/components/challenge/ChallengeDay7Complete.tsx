@@ -6,7 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ChallengeRecap } from './ChallengeRecap';
 import { ChallengeWalkthrough } from './ChallengeWalkthrough';
-import { ChallengePremiumOffer } from './ChallengePremiumOffer';
+import { ChallengeDay7Upgrade } from './ChallengeDay7Upgrade';
 
 export const ChallengeDay7Complete = () => {
   const { language } = useLanguage();
@@ -32,8 +32,8 @@ export const ChallengeDay7Complete = () => {
           </h1>
           <p className="text-muted-foreground text-lg">
             {language === 'en' 
-              ? 'Your complete platform walkthrough + Premium upgrade' 
-              : 'Walkthrough complet al platformei + Upgrade Premium'}
+              ? 'Your complete transformation recap + Premium upgrade' 
+              : 'Recapitularea transformării tale + Upgrade Premium'}
           </p>
         </div>
 
@@ -43,8 +43,8 @@ export const ChallengeDay7Complete = () => {
         {/* Section 2: Walkthrough */}
         <ChallengeWalkthrough />
 
-        {/* Section 3: Premium Offer */}
-        <ChallengePremiumOffer />
+        {/* Section 3: Upgrade Forced Section - NEW */}
+        <ChallengeDay7Upgrade completedDays={7} />
       </div>
     </Layout>
   );

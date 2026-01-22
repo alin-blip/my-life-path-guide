@@ -3,54 +3,46 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, X, Sparkles, Rocket, Shield, Zap } from "lucide-react";
+import { CheckCircle2, X, Sparkles, Rocket, Shield, Crown } from "lucide-react";
+import { plans, getLocalizedPlan } from "@/data/pricing";
 
 export const PricingComparison = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
-  const [isAnnual, setIsAnnual] = useState(true);
+  const [isAnnual, setIsAnnual] = useState(false);
 
-  const plans = [
+  // Get monthly plans from centralized pricing
+  const basicPlan = getLocalizedPlan(plans.find(p => p.id === 'basic')!, language as 'en' | 'ro');
+  const proPlan = getLocalizedPlan(plans.find(p => p.id === 'pro')!, language as 'en' | 'ro');
+  const basicAnnual = getLocalizedPlan(plans.find(p => p.id === 'basic-annual')!, language as 'en' | 'ro');
+  const proAnnual = getLocalizedPlan(plans.find(p => p.id === 'pro-annual')!, language as 'en' | 'ro');
+
+  const displayPlans = [
     {
-      id: 'basic',
-      name: language === 'ro' ? 'Warrior Basic' : 'Warrior Basic',
+      id: isAnnual ? 'basic-annual' : 'basic',
+      name: basicPlan.name,
       description: language === 'ro' 
         ? 'Perfect pentru a începe transformarea' 
         : 'Perfect to start your transformation',
-      priceMonthly: 47,
-      priceAnnual: 37,
-      features: [
-        { text: language === 'ro' ? 'Acces la toate 4 pilonii' : 'Access to all 4 pillars', included: true },
-        { text: language === 'ro' ? 'Rutine zilnice personalizate' : 'Personalized daily routines', included: true },
-        { text: language === 'ro' ? 'War Planning (90 zile)' : 'War Planning (90 days)', included: true },
-        { text: language === 'ro' ? 'Tracking progres' : 'Progress tracking', included: true },
-        { text: language === 'ro' ? 'AI Coach Basic' : 'AI Coach Basic', included: true },
-        { text: language === 'ro' ? 'AI Coaches specializați' : 'Specialized AI Coaches', included: false },
-        { text: language === 'ro' ? 'Stack-uri emoționale' : 'Emotional stacks', included: false },
-        { text: language === 'ro' ? 'Comunitate privată' : 'Private community', included: false },
-      ],
-      cta: language === 'ro' ? 'Începe Acum' : 'Start Now',
+      price: isAnnual ? basicAnnual.price : basicPlan.price,
+      period: isAnnual ? basicAnnual.period : basicPlan.period,
+      features: basicPlan.benefits.slice(0, 6).map(b => ({ text: b, included: true })).concat([
+        { text: language === 'ro' ? 'Coaching LIVE săptămânal' : 'Weekly LIVE coaching', included: false },
+        { text: language === 'ro' ? 'Comunitate VIP' : 'VIP community', included: false },
+      ]),
+      cta: basicPlan.cta,
       popular: false,
     },
     {
-      id: 'pro',
-      name: language === 'ro' ? 'Warrior Pro' : 'Warrior Pro',
+      id: isAnnual ? 'pro-annual' : 'pro',
+      name: proPlan.name,
       description: language === 'ro' 
         ? 'Totul pentru transformare maximă' 
         : 'Everything for maximum transformation',
-      priceMonthly: 97,
-      priceAnnual: 77,
-      features: [
-        { text: language === 'ro' ? 'Acces la toate 4 pilonii' : 'Access to all 4 pillars', included: true },
-        { text: language === 'ro' ? 'Rutine zilnice personalizate' : 'Personalized daily routines', included: true },
-        { text: language === 'ro' ? 'War Planning (90 zile)' : 'War Planning (90 days)', included: true },
-        { text: language === 'ro' ? 'Tracking progres' : 'Progress tracking', included: true },
-        { text: language === 'ro' ? 'AI Coach Basic' : 'AI Coach Basic', included: true },
-        { text: language === 'ro' ? 'AI Coaches specializați (4x)' : 'Specialized AI Coaches (4x)', included: true },
-        { text: language === 'ro' ? 'Stack-uri emoționale' : 'Emotional stacks', included: true },
-        { text: language === 'ro' ? 'Comunitate privată' : 'Private community', included: true },
-      ],
-      cta: language === 'ro' ? 'Începe Trial Gratuit' : 'Start Free Trial',
+      price: isAnnual ? proAnnual.price : proPlan.price,
+      period: isAnnual ? proAnnual.period : proPlan.period,
+      features: proPlan.benefits.slice(0, 8).map(b => ({ text: b, included: true })),
+      cta: proPlan.cta,
       popular: true,
     },
   ];
@@ -67,7 +59,7 @@ export const PricingComparison = () => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-4">
             <Sparkles className="w-4 h-4" />
-            {language === 'ro' ? 'Prețuri' : 'Pricing'}
+            {language === 'ro' ? 'Prețuri Early Bird' : 'Early Bird Pricing'}
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             {language === 'ro' 
@@ -76,8 +68,8 @@ export const PricingComparison = () => {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
             {language === 'ro'
-              ? 'Alege planul potrivit pentru tine. Garanție 7 zile pentru toate planurile.'
-              : 'Choose the right plan for you. 7-day guarantee on all plans.'}
+              ? 'Alege planul potrivit pentru tine. Garanție 90 zile pentru toate planurile.'
+              : 'Choose the right plan for you. 90-day guarantee on all plans.'}
           </p>
 
           {/* Toggle */}
@@ -86,7 +78,7 @@ export const PricingComparison = () => {
               onClick={() => setIsAnnual(false)}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                 !isAnnual
-                  ? 'bg-primary text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -96,13 +88,13 @@ export const PricingComparison = () => {
               onClick={() => setIsAnnual(true)}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
                 isAnnual
-                  ? 'bg-primary text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {language === 'ro' ? 'Anual' : 'Annual'}
-              <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs">
-                -20%
+              <span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-xs">
+                -60%
               </span>
             </button>
           </div>
@@ -110,7 +102,7 @@ export const PricingComparison = () => {
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {plans.map((plan, idx) => (
+          {displayPlans.map((plan, idx) => (
             <motion.div
               key={plan.id}
               initial={{ opacity: 0, y: 20 }}
@@ -125,8 +117,9 @@ export const PricingComparison = () => {
             >
               {/* Popular Badge */}
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-primary to-accent text-white text-sm font-medium rounded-full">
-                  {language === 'ro' ? '⭐ Cel mai popular' : '⭐ Most popular'}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm font-medium rounded-full flex items-center gap-1">
+                  <Crown className="w-4 h-4" />
+                  {language === 'ro' ? 'Cel mai popular' : 'Most popular'}
                 </div>
               )}
 
@@ -140,15 +133,15 @@ export const PricingComparison = () => {
               <div className="text-center mb-8">
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-4xl md:text-5xl font-bold text-foreground">
-                    €{isAnnual ? plan.priceAnnual : plan.priceMonthly}
+                    {plan.price}
                   </span>
-                  <span className="text-muted-foreground">/{language === 'ro' ? 'lună' : 'month'}</span>
+                  <span className="text-muted-foreground">{plan.period}</span>
                 </div>
-                {isAnnual && (
-                  <p className="text-sm text-muted-foreground mt-2">
+                {!isAnnual && (
+                  <p className="text-sm text-green-500 mt-2 font-medium">
                     {language === 'ro' 
-                      ? `Facturat anual (€${plan.priceAnnual * 12}/an)` 
-                      : `Billed annually (€${plan.priceAnnual * 12}/year)`}
+                      ? '50% reducere Early Bird' 
+                      : '50% Early Bird discount'}
                   </p>
                 )}
               </div>
@@ -174,7 +167,7 @@ export const PricingComparison = () => {
                 onClick={() => navigate('/auth')}
                 className={`w-full py-6 text-lg ${
                   plan.popular
-                    ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground shadow-lg'
                     : ''
                 }`}
                 variant={plan.popular ? 'default' : 'outline'}
@@ -186,7 +179,7 @@ export const PricingComparison = () => {
               {/* Guarantee */}
               <p className="text-center text-sm text-muted-foreground mt-4 flex items-center justify-center gap-2">
                 <Shield className="w-4 h-4" />
-                {language === 'ro' ? 'Garanție 7 zile' : '7-day guarantee'}
+                {language === 'ro' ? 'Garanție 90 zile' : '90-day guarantee'}
               </p>
             </motion.div>
           ))}
