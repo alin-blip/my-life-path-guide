@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Mail, User, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { trackLead } from '@/lib/facebook-pixel';
+// FB Pixel Lead tracking is now centralized in AuthContext
 import { toast as sonnerToast } from 'sonner';
 
 interface EmailCollectionProps {
@@ -61,8 +61,7 @@ export const EmailCollection: React.FC<EmailCollectionProps> = ({
         });
       }
 
-      // Track Facebook Pixel Lead event
-      trackLead();
+      // FB Pixel Lead is now tracked centrally in AuthContext on SIGNED_IN
 
       // Create FREE account automatically
       const { data: existingSession } = await supabase.auth.getSession();

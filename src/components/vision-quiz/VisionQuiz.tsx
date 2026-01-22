@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { toast as sonnerToast } from 'sonner';
-import { trackLead } from '@/lib/facebook-pixel';
+// FB Pixel Lead tracking is now centralized in AuthContext
 
 interface VisionQuizProps {
   language: 'en' | 'ro';
@@ -107,8 +107,7 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
         console.error('Error saving lead:', error);
       }
 
-      // Track Facebook Pixel Lead event
-      trackLead();
+      // FB Pixel Lead is now tracked centrally in AuthContext on SIGNED_IN
 
       // Create FREE account automatically
       const { data: existingSession } = await supabase.auth.getSession();

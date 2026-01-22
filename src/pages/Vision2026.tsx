@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { useLanguage } from '@/context/LanguageContext';
-import { VisionQuiz } from '@/components/vision-quiz/VisionQuiz';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { 
   Sparkles, 
@@ -12,404 +18,464 @@ import {
   Briefcase, 
   Dumbbell,
   ArrowRight,
-  CheckCircle2,
+  CheckCircle2, 
+  Loader2,
   Clock,
-  Users,
-  TrendingUp,
-  XCircle,
-  Zap,
-  Eye,
-  Calendar,
-  BarChart3,
-  Rocket
+  Users
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+type LifeCategory = 'body' | 'being' | 'balance' | 'business';
+
+const CATEGORIES = [
+  { 
+    id: 'body' as LifeCategory,
+    icon: Dumbbell, 
+    labelEn: 'Body',
+    labelRo: 'Corp',
+    descEn: 'Health, energy & fitness',
+    descRo: 'Sănătate, energie și fitness',
+    gradient: 'from-green-500 to-emerald-400',
+    bgColor: 'bg-green-500/10',
+    borderColor: 'border-green-500/30',
+    hoverBorder: 'hover:border-green-500/60'
+  },
+  { 
+    id: 'being' as LifeCategory,
+    icon: Brain, 
+    labelEn: 'Spirituality',
+    labelRo: 'Spiritualitate',
+    descEn: 'Clarity, peace & purpose',
+    descRo: 'Claritate, pace și scop',
+    gradient: 'from-purple-500 to-violet-400',
+    bgColor: 'bg-purple-500/10',
+    borderColor: 'border-purple-500/30',
+    hoverBorder: 'hover:border-purple-500/60'
+  },
+  { 
+    id: 'balance' as LifeCategory,
+    icon: Heart, 
+    labelEn: 'Relationships',
+    labelRo: 'Relații',
+    descEn: 'Love, family & connection',
+    descRo: 'Dragoste, familie și conexiune',
+    gradient: 'from-pink-500 to-rose-400',
+    bgColor: 'bg-pink-500/10',
+    borderColor: 'border-pink-500/30',
+    hoverBorder: 'hover:border-pink-500/60'
+  },
+  { 
+    id: 'business' as LifeCategory,
+    icon: Briefcase, 
+    labelEn: 'Business',
+    labelRo: 'Business',
+    descEn: 'Career, finances & impact',
+    descRo: 'Carieră, finanțe și impact',
+    gradient: 'from-blue-500 to-cyan-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/30',
+    hoverBorder: 'hover:border-blue-500/60'
+  },
+];
 
 const Vision2026 = () => {
   const { language } = useLanguage();
-  const [showQuiz, setShowQuiz] = useState(false);
+  const navigate = useNavigate();
+  const [selectedCategory, setSelectedCategory] = useState<LifeCategory | null>(null);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const problems = [
-    {
-      icon: Eye,
-      title: language === 'en' ? 'Lack of Clarity' : 'Lipsa Clarității',
-      description: language === 'en' 
-        ? "You don't know exactly where you're losing energy and time"
-        : 'Nu știi exact unde pierzi energie și timp'
-    },
-    {
-      icon: Target,
-      title: language === 'en' ? 'Too Many Goals' : 'Prea Multe Obiective',
-      description: language === 'en'
-        ? 'Overloaded with ideas, but no focus on what truly matters'
-        : 'Supraîncărcat cu idei, dar fără focus pe ce contează cu adevărat'
-    },
-    {
-      icon: Calendar,
-      title: language === 'en' ? 'No System' : 'Fără Sistem',
-      description: language === 'en'
-        ? 'Motivation fades, goals stay in your journal forever'
-        : 'Motivația dispare, obiectivele rămân în jurnal pentru totdeauna'
-    },
-    {
-      icon: BarChart3,
-      title: language === 'en' ? 'No Visibility' : 'Fără Vizibilitate',
-      description: language === 'en'
-        ? "You can't see progress, so you lose direction"
-        : 'Nu vezi progresul, așa că pierzi direcția'
-    },
+  const benefits = [
+    { icon: Target, textEn: 'Clear annual objectives', textRo: 'Obiective anuale clare' },
+    { icon: Brain, textEn: 'AI Wizard guides you step by step', textRo: 'Wizard AI te ghidează pas cu pas' },
+    { icon: Clock, textEn: 'Complete plan in 10 minutes', textRo: 'Plan complet în 10 minute' },
+    { icon: CheckCircle2, textEn: 'Export your plan as PDF', textRo: 'Exportă planul ca PDF' }
   ];
 
-  const pillars = [
-    { 
-      icon: Dumbbell, 
-      title: language === 'en' ? 'Body' : 'Corp',
-      description: language === 'en' 
-        ? 'Energy, fitness & vitality' 
-        : 'Energie, fitness și vitalitate',
-      gradient: 'from-green-500 to-emerald-400'
-    },
-    { 
-      icon: Brain, 
-      title: language === 'en' ? 'Being' : 'Ființă',
-      description: language === 'en' 
-        ? 'Clarity, peace & purpose' 
-        : 'Claritate, pace și scop',
-      gradient: 'from-purple-500 to-violet-400'
-    },
-    { 
-      icon: Heart, 
-      title: language === 'en' ? 'Balance' : 'Echilibru',
-      description: language === 'en' 
-        ? 'Relationships & family' 
-        : 'Relații și familie',
-      gradient: 'from-pink-500 to-rose-400'
-    },
-    { 
-      icon: Briefcase, 
-      title: 'Business',
-      description: language === 'en' 
-        ? 'Career & finances' 
-        : 'Carieră și finanțe',
-      gradient: 'from-blue-500 to-cyan-400'
-    },
+  const features = [
+    language === 'en' ? 'Define "impossible" goals for 2026' : 'Definește obiective "imposibile" pentru 2026',
+    language === 'en' ? 'Breakdown into 90-day milestones' : 'Breakdown în milestones de 90 zile',
+    language === 'en' ? 'Clarity on your WHY' : 'Claritate asupra DE CE-ului tău',
+    language === 'en' ? 'Impact on all life areas' : 'Impact asupra tuturor ariilor vieții',
+    language === 'en' ? 'Week 1 action plan' : 'Plan de acțiune săptămâna 1'
   ];
 
-  const solutionPoints = [
-    language === 'en' ? 'Helps you identify exactly where you lose energy' : 'Te ajută să identifici exact unde pierzi energie',
-    language === 'en' ? 'Organizes your goals into daily actions' : 'Îți organizează obiectivele în acțiuni zilnice',
-    language === 'en' ? 'Shows your progress in real-time' : 'Îți arată progresul în timp real',
-    language === 'en' ? 'Keeps you accountable without overwhelm' : 'Te ține accountable fără să te simți copleșit',
-  ];
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email.trim() || !password.trim()) {
+      toast.error(language === 'en' ? 'Please fill in email and password' : 'Te rog completează email-ul și parola');
+      return;
+    }
 
-  const steps = [
-    {
-      number: '01',
-      title: language === 'en' ? 'Take the Quiz' : 'Completează Quiz-ul',
-      description: language === 'en' ? '3 minutes to discover your gaps' : '3 minute pentru a descoperi lipsurile',
-      icon: CheckCircle2
-    },
-    {
-      number: '02',
-      title: language === 'en' ? 'Get Your Score' : 'Primește Scorul',
-      description: language === 'en' ? 'Personalized analysis across 4 pillars' : 'Analiză personalizată pe 4 piloni',
-      icon: BarChart3
-    },
-    {
-      number: '03',
-      title: language === 'en' ? 'Implement the Plan' : 'Implementează Planul',
-      description: language === 'en' ? 'Daily actions generated automatically' : 'Acțiuni zilnice generate automat',
-      icon: Rocket
-    },
-  ];
+    if (password.length < 6) {
+      toast.error(language === 'en' ? 'Password must be at least 6 characters' : 'Parola trebuie să aibă minim 6 caractere');
+      return;
+    }
 
-  if (showQuiz) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 relative overflow-hidden">
-        <Helmet>
-          <title>{language === 'en' ? '2026 Vision Quiz | LifeOS' : 'Quiz Viziune 2026 | LifeOS'}</title>
-        </Helmet>
-        
-        {/* Ambient background effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-3xl" />
-        </div>
-        
-        <div className="absolute top-4 right-4 z-10">
-          <LanguageSelector />
-        </div>
+    if (!selectedCategory) {
+      toast.error(language === 'en' ? 'Please select a focus area' : 'Te rog selectează o arie de focus');
+      return;
+    }
 
-        <div className="container mx-auto px-4 py-8 md:py-16 relative z-10">
-          <VisionQuiz language={language} />
-        </div>
-      </div>
-    );
-  }
+    setIsLoading(true);
+
+    try {
+      const emailLower = email.toLowerCase().trim();
+      const trialEnd = new Date();
+      trialEnd.setDate(trialEnd.getDate() + 3);
+
+      // 1. Create account
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: emailLower,
+        password: password,
+        options: {
+          data: {
+            full_name: name.trim() || undefined,
+            source: 'vision_2026_lead_magnet'
+          }
+        }
+      });
+
+      if (signUpError) {
+        // If user exists, try to sign in
+        if (signUpError.message.includes('already registered')) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: emailLower,
+            password: password
+          });
+          
+          if (signInError) {
+            toast.error(language === 'en' 
+              ? 'Account exists. Check your password or reset it.' 
+              : 'Contul există. Verifică parola sau resetează-o.');
+            setIsLoading(false);
+            return;
+          }
+        } else {
+          throw signUpError;
+        }
+      }
+
+      const userId = signUpData?.user?.id;
+
+      // 2. Save to email_leads
+      await supabase.from('email_leads').upsert({
+        email: emailLower,
+        name: name.trim() || null,
+        lead_magnet: 'vision_2026_all_areas',
+        source: 'vision-2026-landing',
+        metadata: { 
+          selected_category: selectedCategory,
+          language 
+        },
+        utm_source: new URLSearchParams(window.location.search).get('utm_source') || null,
+        utm_medium: new URLSearchParams(window.location.search).get('utm_medium') || null,
+        utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign') || null,
+      }, { 
+        onConflict: 'email',
+        ignoreDuplicates: false 
+      });
+
+      // 3. Update subscribers with 3-day trial
+      if (userId) {
+        await supabase.from('subscribers').upsert({
+          user_id: userId,
+          email: emailLower,
+          subscription_tier: 'trial',
+          subscription_status: 'trialing',
+          early_bird_expires_at: trialEnd.toISOString(),
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
+        });
+      }
+
+      toast.success(language === 'en' ? 'Account created! Redirecting...' : 'Cont creat! Te redirecționăm...');
+
+      // 4. Redirect to Annual Goals with selected category
+      navigate(`/game-objectives?tab=annual&source=vision-lead-magnet&category=${selectedCategory}`, {
+        state: { 
+          fromVisionLeadMagnet: true,
+          userName: name.trim() || undefined,
+          selectedCategory
+        }
+      });
+
+    } catch (error: any) {
+      console.error('Error:', error);
+      toast.error(error.message || (language === 'en' ? 'An error occurred. Please try again.' : 'A apărut o eroare. Te rog încearcă din nou.'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const selectedCategoryData = CATEGORIES.find(c => c.id === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 text-white relative overflow-hidden">
+    <>
       <Helmet>
-        <title>{language === 'en' ? '2026 Vision Assessment | LifeOS' : 'Evaluare Viziune 2026 | LifeOS'}</title>
+        <title>{language === 'en' ? 'Plan Your 2026 Vision | LifeOS' : 'Planifică-ți Viziunea 2026 | LifeOS'}</title>
         <meta 
           name="description" 
           content={language === 'en' 
-            ? 'Free quiz: Discover where you lose energy in life and create your plan for 2026'
-            : 'Quiz gratuit: Descoperă unde pierzi energie în viață și creează planul pentru 2026'} 
+            ? 'Create clear goals and an action plan for 2026 in just 10 minutes with our AI wizard. Free 3-day trial.'
+            : 'Creează obiective clare și un plan de acțiune pentru 2026 în doar 10 minute cu ajutorul wizard-ului AI. Trial gratuit 3 zile.'
+          } 
         />
       </Helmet>
 
-      {/* Ambient background effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/3 -right-32 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-2/3 left-1/3 w-64 h-64 bg-pink-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
-
-      <div className="absolute top-4 right-4 z-20">
-        <LanguageSelector />
-      </div>
-
-      {/* Hero Section - The Problem */}
-      <section className="relative py-20 md:py-32">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full mb-8 animate-fade-in">
-              <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-              <span className="text-sm font-medium text-white/90">
-                {language === 'en' ? 'FREE Assessment • 3 Minutes' : 'Evaluare GRATUITĂ • 3 Minute'}
-              </span>
-            </div>
-
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              {language === 'en' 
-                ? <>2026 Can Be Your Year of Transformation...<br /><span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Or Just Another Year That Passes</span></>
-                : <>2026 Poate Fi Anul Tău de Transformare...<br /><span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">Sau Doar Încă Un An Care Trece</span></>}
-            </h1>
-
-            <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              {language === 'en'
-                ? 'Most people set goals at the start of the year. 92% fail before March. The difference? A clear system.'
-                : 'Majoritatea oamenilor își stabilesc obiective la început de an. 92% eșuează înainte de Martie. Diferența? Un sistem clar.'}
-            </p>
-
-            <Button 
-              size="lg" 
-              onClick={() => setShowQuiz(true)}
-              className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white px-10 py-7 text-lg font-bold shadow-2xl shadow-orange-500/30 hover:shadow-orange-500/50 transition-all hover:scale-105 animate-fade-in border-0"
-              style={{ animationDelay: '0.3s' }}
-            >
-              {language === 'en' ? 'Start Free Assessment' : 'Începe Evaluarea Gratuită'}
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-
-            <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-white/60 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>{language === 'en' ? '3 minutes' : '3 minute'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>{language === 'en' ? '16 questions' : '16 întrebări'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                <span>{language === 'en' ? '2,847 taken this week' : '2,847 completat săptămâna asta'}</span>
-              </div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900/20 to-gray-900">
+        {/* Language Selector */}
+        <div className="absolute top-4 right-4 z-20">
+          <LanguageSelector />
         </div>
-      </section>
 
-      {/* Problems Section */}
-      <section className="relative py-16 md:py-24">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-4xl font-bold mb-4">
-              {language === 'en' 
-                ? <><span className="text-red-400">Why 92% Fail</span> Before March</> 
-                : <><span className="text-red-400">De Ce Eșuează 92%</span> Înainte de Martie</>}
-            </h2>
-            <p className="text-white/60 max-w-2xl mx-auto">
-              {language === 'en'
-                ? "It's not about motivation. It's about these 4 silent killers:"
-                : 'Nu e vorba despre motivație. E vorba despre acești 4 ucigași tăcuți:'}
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
-            {problems.map((problem, index) => (
-              <div 
-                key={index}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-red-500/30 transition-all duration-300 group animate-fade-in"
-                style={{ animationDelay: `${0.1 + index * 0.1}s` }}
-              >
-                <div className="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <problem.icon className="w-6 h-6 text-red-400" />
-                </div>
-                <h3 className="font-semibold text-white mb-2">{problem.title}</h3>
-                <p className="text-sm text-white/60">{problem.description}</p>
+        {/* Hero Section */}
+        <div className="container max-w-6xl mx-auto px-4 py-12 md:py-20">
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            
+            {/* Left: Content */}
+            <div className="space-y-8">
+              <div>
+                <Badge className="mb-4 bg-amber-500/20 text-amber-400 border-amber-500/30">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  {language === 'en' ? 'Free 3 Days' : 'Gratuit 3 Zile'}
+                </Badge>
+                
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                  {language === 'en' 
+                    ? <>Plan Your <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">2026 Vision</span></>
+                    : <>Planifică-ți <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Viziunea 2026</span></>
+                  }
+                </h1>
+                
+                <p className="text-xl text-gray-300">
+                  {language === 'en'
+                    ? 'Choose a life area, set your "impossible" goals, and create an action plan in 10 minutes with our AI wizard.'
+                    : 'Alege o arie a vieții, setează-ți obiectivele "imposibile" și creează un plan de acțiune în 10 minute cu wizard-ul AI.'}
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Solution Section */}
-      <section className="relative py-16 md:py-24">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-4xl font-bold mb-4">
-                {language === 'en' 
-                  ? <>What If You Had a <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">System</span> That...</> 
-                  : <>Dar Dacă Ai Avea un <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Sistem</span> Care...</>}
-              </h2>
-            </div>
-
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-3xl p-8 md:p-12">
-              <div className="grid gap-4">
-                {solutionPoints.map((point, index) => (
-                  <div 
-                    key={index}
-                    className="flex items-center gap-4 animate-fade-in"
-                    style={{ animationDelay: `${0.1 + index * 0.1}s` }}
-                  >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-400 flex items-center justify-center shrink-0">
-                      <CheckCircle2 className="w-5 h-5 text-white" />
+              {/* Benefits Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                {benefits.map((benefit, idx) => {
+                  const Icon = benefit.icon;
+                  return (
+                    <div 
+                      key={idx} 
+                      className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10"
+                    >
+                      <Icon className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                      <span className="text-sm text-gray-200">
+                        {language === 'en' ? benefit.textEn : benefit.textRo}
+                      </span>
                     </div>
-                    <span className="text-lg text-white/90">{point}</span>
+                  );
+                })}
+              </div>
+
+              {/* Social Proof */}
+              <div className="flex items-center gap-3 text-gray-400 text-sm">
+                <div className="flex -space-x-2">
+                  {['🎯', '🔥', '💪', '🧠'].map((emoji, i) => (
+                    <div 
+                      key={i}
+                      className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-lg border-2 border-gray-900"
+                    >
+                      {emoji}
+                    </div>
+                  ))}
+                </div>
+                <span>
+                  <Users className="w-4 h-4 inline mr-1" />
+                  {language === 'en' ? '2,500+ people planned their 2026' : '2,500+ persoane și-au planificat 2026'}
+                </span>
+              </div>
+            </div>
+
+            {/* Right: Form */}
+            <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
+              <CardContent className="p-6 md:p-8">
+                <div className="text-center mb-6">
+                  <div className="inline-flex p-3 rounded-xl bg-amber-500/20 mb-4">
+                    <Target className="w-8 h-8 text-amber-400" />
                   </div>
-                ))}
-              </div>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    {language === 'en' ? 'Create Your 2026 Plan FREE' : 'Creează-ți Planul 2026 GRATUIT'}
+                  </h2>
+                  <p className="text-gray-400">
+                    {language === 'en' ? 'Full access for 3 days to all features' : 'Acces complet 3 zile la toate funcțiile'}
+                  </p>
+                </div>
 
-              <div className="mt-8 pt-8 border-t border-white/10 text-center">
-                <Button 
-                  size="lg" 
-                  onClick={() => setShowQuiz(true)}
-                  className="bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 text-white px-8 py-6 font-bold shadow-lg shadow-green-500/30 transition-all hover:scale-105 border-0"
-                >
-                  {language === 'en' ? 'Start With the Free Assessment' : 'Începe cu Evaluarea Gratuită'}
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </div>
-            </div>
+                {/* Category Selector */}
+                <div className="mb-6">
+                  <Label className="text-gray-200 mb-3 block">
+                    {language === 'en' ? 'Choose your focus area *' : 'Alege aria ta de focus *'}
+                  </Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {CATEGORIES.map((cat) => {
+                      const Icon = cat.icon;
+                      const isSelected = selectedCategory === cat.id;
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setSelectedCategory(cat.id)}
+                          className={cn(
+                            "p-4 rounded-xl border-2 transition-all text-left",
+                            cat.bgColor,
+                            isSelected 
+                              ? `${cat.borderColor} ring-2 ring-offset-2 ring-offset-gray-800 ring-${cat.id === 'body' ? 'green' : cat.id === 'being' ? 'purple' : cat.id === 'balance' ? 'pink' : 'blue'}-500/50`
+                              : `border-gray-700 ${cat.hoverBorder}`
+                          )}
+                        >
+                          <div className={cn("w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center mb-2", cat.gradient)}>
+                            <Icon className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="font-semibold text-white text-sm">
+                            {language === 'en' ? cat.labelEn : cat.labelRo}
+                          </div>
+                          <div className="text-xs text-gray-400 mt-0.5">
+                            {language === 'en' ? cat.descEn : cat.descRo}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="name" className="text-gray-200">
+                      {language === 'en' ? 'Name (optional)' : 'Nume (opțional)'}
+                    </Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={language === 'en' ? 'Your name' : 'Numele tău'}
+                      className="bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-500"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email" className="text-gray-200">
+                      Email *
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="email@example.com"
+                      required
+                      className="bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-500"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="password" className="text-gray-200">
+                      {language === 'en' ? 'Password *' : 'Parolă *'}
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={language === 'en' ? 'Min 6 characters' : 'Minim 6 caractere'}
+                      required
+                      minLength={6}
+                      className="bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-500"
+                    />
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className={cn(
+                      "w-full h-12 text-lg font-semibold transition-all",
+                      selectedCategoryData 
+                        ? `bg-gradient-to-r ${selectedCategoryData.gradient} hover:opacity-90`
+                        : "bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400"
+                    )}
+                    disabled={isLoading || !selectedCategory}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        {language === 'en' ? 'Creating account...' : 'Se creează contul...'}
+                      </>
+                    ) : (
+                      <>
+                        {language === 'en' 
+                          ? `Start with ${selectedCategoryData?.labelEn || 'Selected Area'}`
+                          : `Începe cu ${selectedCategoryData?.labelRo || 'Aria Selectată'}`
+                        }
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </>
+                    )}
+                  </Button>
+
+                  <p className="text-xs text-center text-gray-500">
+                    {language === 'en' 
+                      ? 'By signing up, you agree to our '
+                      : 'Prin înregistrare, ești de acord cu '}
+                    <a href="/terms" className="text-amber-400 hover:underline">
+                      {language === 'en' ? 'Terms' : 'Termenii'}
+                    </a>
+                    {' '}{language === 'en' ? 'and' : 'și'}{' '}
+                    <a href="/privacy" className="text-amber-400 hover:underline">
+                      {language === 'en' ? 'Privacy Policy' : 'Politica de Confidențialitate'}
+                    </a>
+                  </p>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </section>
 
-      {/* 4 Pillars Section */}
-      <section className="relative py-16 md:py-24">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-12">
-            <p className="text-amber-400 font-medium mb-2 uppercase tracking-wider text-sm">
-              {language === 'en' ? 'Step 1' : 'Pasul 1'}
-            </p>
-            <h2 className="text-2xl md:text-4xl font-bold mb-4">
-              {language === 'en' 
-                ? 'Find Out Where You Are Now' 
-                : 'Află Unde Te Afli Acum'}
-            </h2>
-            <p className="text-white/60 max-w-2xl mx-auto">
-              {language === 'en'
-                ? 'We measure your life across 4 essential pillars. Neglect one and the others eventually suffer.'
-                : 'Măsurăm viața ta pe 4 piloni esențiali. Neglijează unul și ceilalți vor suferi.'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-12">
-            {pillars.map((pillar, index) => (
-              <div 
-                key={index}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 text-center group animate-fade-in"
-                style={{ animationDelay: `${0.1 + index * 0.1}s` }}
-              >
-                <div className={`w-14 h-14 rounded-full bg-gradient-to-r ${pillar.gradient} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
-                  <pillar.icon className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="font-semibold text-white mb-1">{pillar.title}</h3>
-                <p className="text-sm text-white/60">{pillar.description}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <Button 
-              size="lg" 
-              onClick={() => setShowQuiz(true)}
-              className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white px-10 py-7 text-lg font-bold shadow-2xl shadow-orange-500/30 transition-all hover:scale-105 border-0"
-            >
-              {language === 'en' ? 'Take the Free Assessment' : 'Completează Evaluarea Gratuită'}
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="relative py-16 md:py-24">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-4xl font-bold mb-4">
-              {language === 'en' ? 'How It Works' : 'Cum Funcționează'}
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {steps.map((step, index) => (
-              <div 
-                key={index}
-                className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center animate-fade-in"
-                style={{ animationDelay: `${0.1 + index * 0.15}s` }}
-              >
-                <div className="text-5xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent mb-4">
-                  {step.number}
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 flex items-center justify-center mx-auto mb-4">
-                  <step.icon className="w-6 h-6 text-amber-400" />
-                </div>
-                <h3 className="font-semibold text-white mb-2">{step.title}</h3>
-                <p className="text-sm text-white/60">{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA Section */}
-      <section className="relative py-20 md:py-32">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-gradient-to-br from-amber-500/20 via-orange-500/10 to-rose-500/20 backdrop-blur-sm border border-amber-500/30 rounded-3xl p-8 md:p-12 text-center">
-              <Sparkles className="w-12 h-12 mx-auto mb-6 text-amber-400" />
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                {language === 'en' 
-                  ? '2026 Starts With One Decision' 
-                  : '2026 Începe Cu O Decizie'}
+        {/* What's Inside Section */}
+        <div className="bg-gray-800/30 py-16">
+          <div className="container max-w-4xl mx-auto px-4">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-white mb-4">
+                {language === 'en' ? 'What You\'ll Get in 3 Free Days' : 'Ce vei primi în cele 3 zile gratuite'}
               </h2>
-              <p className="text-white/70 mb-8 max-w-xl mx-auto">
-                {language === 'en'
-                  ? 'Join thousands who took control of their life. The assessment is free and takes only 3 minutes.'
-                  : 'Alătură-te miilor care și-au luat viața în propriile mâini. Evaluarea este gratuită și durează doar 3 minute.'}
+              <p className="text-gray-400">
+                {language === 'en' ? 'Full access to all premium features' : 'Acces complet la toate funcțiile premium'}
               </p>
-              <Button 
-                size="lg"
-                onClick={() => setShowQuiz(true)}
-                className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white px-12 py-7 text-lg font-bold shadow-2xl shadow-orange-500/40 transition-all hover:scale-105 border-0"
-              >
-                {language === 'en' ? 'Start My Free Assessment' : 'Începe Evaluarea Mea Gratuită'}
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              <p className="text-white/50 text-sm mt-4">
-                {language === 'en' 
-                  ? '✓ No credit card • ✓ 100% Free • ✓ Instant results' 
-                  : '✓ Fără card de credit • ✓ 100% Gratuit • ✓ Rezultate instant'}
-              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              {features.map((feature, idx) => (
+                <div 
+                  key={idx}
+                  className="flex items-center gap-3 p-4 rounded-xl bg-gray-800/50 border border-gray-700"
+                >
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                  <span className="text-gray-200">{feature}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 border border-amber-500/30">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span className="text-amber-300 text-sm font-medium">
+                  {language === 'en' 
+                    ? 'After 3 days: continue for just 25 RON/month or cancel free'
+                    : 'După 3 zile: continuă cu doar 25 RON/lună sau anulează gratuit'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </>
   );
 };
 

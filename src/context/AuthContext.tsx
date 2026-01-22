@@ -1,7 +1,7 @@
-
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { trackLead } from '@/lib/facebook-pixel';
 
 interface AuthContextType {
   user: User | null;
@@ -53,6 +53,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(session?.user ?? null);
           setLoading(false);
           initialAuthComplete.current = true;
+        }
+
+        // CENTRALIZED FB PIXEL LEAD TRACKING
+        // Track Lead event on SIGNED_IN (new account creation or first login)
+        if (event === 'SIGNED_IN' && session?.user) {
+          const leadTrackedKey = `fb_lead_tracked_${session.user.id}`;
+          const alreadyTracked = localStorage.getItem(leadTrackedKey);
+          if (!alreadyTracked) {
+            trackLead();
+            localStorage.setItem(leadTrackedKey, 'true');
+            if (import.meta.env.DEV) {
+              console.log('[FB Pixel] Lead event tracked for user:', session.user.id);
+            }
+          }
         }
 
         // Defer subscription check to avoid deadlocks
