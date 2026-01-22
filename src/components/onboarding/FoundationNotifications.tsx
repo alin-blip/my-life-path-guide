@@ -73,68 +73,74 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
     );
   }
 
-  // Mobile: Full-screen popup
+  // Mobile: Bottom sheet with spotlight
   if (isMobile) {
     return (
-      <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+      <>
+        {/* Subtle backdrop - click to minimize */}
+        <div 
+          className="fixed inset-0 z-40 bg-background/50 backdrop-blur-sm"
+          onClick={() => setIsMinimized(true)}
+        />
+        
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
-          className="fixed inset-4 flex flex-col"
+          className="fixed bottom-0 left-0 right-0 z-50 flex flex-col px-3 pb-4"
         >
-          {/* Tabs above the panel */}
-          <div className="flex items-center justify-between mb-2">
-            <TabsList className="grid grid-cols-2 w-[200px]">
-              <TabsTrigger value="plan" className="text-xs gap-1.5">
-                <ListTodo className="w-3.5 h-3.5" />
+          {/* Tabs ABOVE panel */}
+          <div className="flex items-center justify-between mb-2 px-1">
+            <TabsList className="grid grid-cols-2 w-[160px] h-8 bg-muted/90">
+              <TabsTrigger value="plan" className="text-xs gap-1 h-7">
+                <ListTodo className="w-3 h-3" />
                 Plan
               </TabsTrigger>
-              <TabsTrigger value="coach" className="text-xs gap-1.5">
-                <MessageSquare className="w-3.5 h-3.5" />
-                AI Coach
+              <TabsTrigger value="coach" className="text-xs gap-1 h-7">
+                <MessageSquare className="w-3 h-3" />
+                Coach
               </TabsTrigger>
             </TabsList>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={handleDismiss}
-            >
-              <X className="h-5 w-5" />
-            </Button>
+            
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 bg-muted/80 rounded-full"
+                onClick={() => setIsMinimized(true)}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 bg-muted/80 rounded-full"
+                onClick={handleDismiss}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
-          {/* Main panel */}
-          <div className="flex-1 overflow-hidden rounded-xl bg-card/95 backdrop-blur-lg border border-border shadow-2xl flex flex-col">
-            {/* Header */}
-            <div className="bg-card/95 backdrop-blur-sm border-b border-border p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                  <Target className="w-5 h-5 text-white" />
+          {/* Main panel - 55% of screen height */}
+          <div className="h-[55vh] overflow-hidden rounded-xl bg-card/95 backdrop-blur-lg border border-border shadow-2xl flex flex-col">
+            {/* Header compact */}
+            <div className="bg-card border-b border-border p-3 shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
+                  <Target className="w-4 h-4 text-white" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-foreground">
-                    {language === 'en' ? 'Accountability Coach' : 'Accountability Coach'}
-                  </h3>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm truncate">Accountability Coach</h3>
                   <p className="text-xs text-muted-foreground">
-                    {pendingItems.length} {language === 'en' ? 'items remaining' : 'elemente rămase'}
+                    {pendingItems.length} {language === 'en' ? 'items left' : 'elemente rămase'}
                   </p>
                 </div>
+                <span className="text-sm font-bold text-primary shrink-0">{completionPercentage}%</span>
               </div>
-
-              {/* Progress bar */}
-              <div className="mt-3">
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-muted-foreground">
-                    {language === 'en' ? 'Progress' : 'Progres'}
-                  </span>
-                  <span className="font-medium text-foreground">{completionPercentage}%</span>
-                </div>
-                <Progress value={completionPercentage} className="h-2" />
-              </div>
+              <Progress value={completionPercentage} className="h-1.5 mt-2" />
             </div>
 
-            {/* Content */}
+            {/* Content - scrollable */}
             <TabsContent value="plan" className="m-0 flex-1 overflow-y-auto p-3 space-y-2">
               {pendingItems.map((item) => (
                 <div
@@ -150,7 +156,7 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
                         {item.message[language as 'en' | 'ro'] || item.message.en}
                       </p>
                       {item.details && (
-                        <p className="text-xs text-muted-foreground mt-0.5">
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                           {item.details[language as 'en' | 'ro'] || item.details.en}
                         </p>
                       )}
@@ -176,26 +182,26 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
               />
             </TabsContent>
 
-            {/* Footer */}
-            <div className="bg-card/95 backdrop-blur-sm border-t border-border p-3 space-y-2">
+            {/* Footer compact */}
+            <div className="bg-card border-t border-border p-2 shrink-0 space-y-1.5">
               <Button
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                className="w-full h-9 text-sm bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                 onClick={onOpenWizard}
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                {language === 'en' ? 'Complete Configuration Wizard' : 'Wizard Complet de Configurare'}
+                <Sparkles className="w-4 h-4 mr-1.5" />
+                {language === 'en' ? 'Setup Wizard' : 'Wizard Configurare'}
               </Button>
 
               {onStartTour && (
-                <Button variant="outline" className="w-full" onClick={onStartTour}>
-                  <Map className="w-4 h-4 mr-2" />
-                  {language === 'en' ? 'Take Platform Tour' : 'Tur Ghidat al Platformei'}
+                <Button variant="outline" className="w-full h-8 text-xs" onClick={onStartTour}>
+                  <Map className="w-3.5 h-3.5 mr-1.5" />
+                  {language === 'en' ? 'Platform Tour' : 'Tur Platformă'}
                 </Button>
               )}
             </div>
           </div>
         </Tabs>
-      </div>
+      </>
     );
   }
 
