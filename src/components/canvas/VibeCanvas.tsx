@@ -155,17 +155,30 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
       fabricCanvas.isDrawingMode = true;
       // Create PencilBrush explicitly for fabric.js v6
       const brush = new PencilBrush(fabricCanvas);
-      // For pencil, use activeColor (fill picker) - more intuitive for users
-      brush.color = activeTool === 'highlighter' 
-        ? 'rgba(255, 255, 0, 0.4)' 
-        : activeColor;
+      
+      // For highlighter, make the selected color semi-transparent
+      // For pencil, use the selected color directly
+      if (activeTool === 'highlighter') {
+        // Convert hex color to rgba with 40% opacity for highlighter effect
+        const hexToRgba = (hex: string, alpha: number) => {
+          const r = parseInt(hex.slice(1, 3), 16);
+          const g = parseInt(hex.slice(3, 5), 16);
+          const b = parseInt(hex.slice(5, 7), 16);
+          return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        };
+        brush.color = hexToRgba(activeColor, 0.4);
+      } else {
+        brush.color = activeColor;
+      }
+      
       brush.width = activeTool === 'highlighter' ? 20 : strokeWidth;
       fabricCanvas.freeDrawingBrush = brush;
       
-      // Set custom cursor for drawing tools
+      // Set custom cursor for drawing tools - use selected color in cursor
+      const encodedColor = encodeURIComponent(activeColor);
       fabricCanvas.freeDrawingCursor = activeTool === 'pencil' 
-        ? 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'white\' stroke-width=\'2\'%3E%3Cpath d=\'m18 2 4 4-14.5 14.5-5.5 1 1-5.5L18 2z\'/%3E%3C/svg%3E") 2 22, crosshair'
-        : 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%23FFFF00\' stroke=\'%23CCCC00\' stroke-width=\'1\'%3E%3Crect x=\'3\' y=\'8\' width=\'18\' height=\'8\' rx=\'2\'/%3E%3C/svg%3E") 12 12, crosshair';
+        ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='${encodedColor}' stroke-width='2'%3E%3Cpath d='m18 2 4 4-14.5 14.5-5.5 1 1-5.5L18 2z'/%3E%3C/svg%3E") 2 22, crosshair`
+        : `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='${encodedColor}' fill-opacity='0.4' stroke='${encodedColor}' stroke-width='1'%3E%3Crect x='3' y='8' width='18' height='8' rx='2'/%3E%3C/svg%3E") 12 12, crosshair`;
     } else if (activeTool === 'eraser') {
       fabricCanvas.isDrawingMode = true;
       // Create eraser brush
@@ -490,12 +503,15 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
       const delta = e.deltaY;
       let newZoom = zoom;
 
+      // Apply 75% sensitivity - smaller zoom increments
+      const zoomStep = 3.75; // 75% of 5
+      
       if (delta < 0) {
         // Zoom in
-        newZoom = Math.min(zoom + 5, 200);
+        newZoom = Math.min(zoom + zoomStep, 200);
       } else {
         // Zoom out
-        newZoom = Math.max(zoom - 5, 25);
+        newZoom = Math.max(zoom - zoomStep, 25);
       }
 
       if (newZoom !== zoom) {
