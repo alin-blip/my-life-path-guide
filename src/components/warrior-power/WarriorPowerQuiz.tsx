@@ -196,26 +196,29 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         )}>
                           {level.description}
                         </p>
-                      </div>
 
-                      {/* Quick Score Buttons - Always visible on the right */}
-                      <div className="flex flex-col gap-1.5 sm:gap-2 flex-shrink-0">
-                        {config.range.map((score) => (
-                          <motion.button
-                            key={score}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handleScoreSelect(score)}
-                            className={cn(
-                              "w-9 h-9 sm:w-10 sm:h-10 rounded-lg font-bold text-sm sm:text-base transition-all",
-                              currentScore === score
-                                ? `bg-gradient-to-br ${config.gradient} text-white shadow-lg ring-2 ring-white/30`
-                                : `${config.bg} ${config.text} border ${config.border} hover:brightness-125`
-                            )}
-                          >
-                            {score}
-                          </motion.button>
-                        ))}
+                        {/* Quick Score Buttons - Always visible under the description */}
+                        <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
+                          {config.range.map((score) => (
+                            <motion.button
+                              key={score}
+                              whileHover={{ scale: 1.06 }}
+                              whileTap={{ scale: 0.94 }}
+                              onClick={() => handleScoreSelect(score)}
+                              className={cn(
+                                "h-10 sm:h-11 px-4 sm:px-5 rounded-xl font-bold text-sm sm:text-base transition-all",
+                                currentScore === score
+                                  ? `bg-gradient-to-br ${config.gradient} text-white shadow-lg ring-2 ring-white/30`
+                                  : `${config.bg} ${config.text} border ${config.border} hover:brightness-125`
+                              )}
+                            >
+                              {score}
+                            </motion.button>
+                          ))}
+                        </div>
+                        <p className="mt-1.5 text-[10px] sm:text-xs text-white/40">
+                          Click pe număr pentru a continua
+                        </p>
                       </div>
                     </div>
                   </motion.div>
