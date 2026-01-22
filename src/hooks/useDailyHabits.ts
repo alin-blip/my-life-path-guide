@@ -105,9 +105,8 @@ export const useDailyHabits = (date: Date = new Date()) => {
     // Check if habits already exist to prevent duplicates
     const { data: existingHabits } = await supabase
       .from('daily_habits')
-      .select('id')
-      .eq('user_id', userId)
-      .limit(1);
+      .select('id, name')
+      .eq('user_id', userId);
     
     if (existingHabits && existingHabits.length > 0) {
       return; // Already has habits, don't seed
@@ -121,9 +120,13 @@ export const useDailyHabits = (date: Date = new Date()) => {
       position: index,
     }));
 
+    // Use upsert with name constraint to prevent duplicates
     const { error } = await supabase
       .from('daily_habits')
-      .insert(habitsToInsert);
+      .upsert(habitsToInsert, { 
+        onConflict: 'user_id,name',
+        ignoreDuplicates: true 
+      });
 
     if (error) {
       console.error('Error seeding default habits:', error);
@@ -230,10 +233,22 @@ export const useDailyHabits = (date: Date = new Date()) => {
         .order('habit_group', { ascending: true })
         .order('position', { ascending: true });
       
-      finalHabits = (seededHabits as DailyHabit[]) || [];
+      // Deduplicate habits by name (safety layer)
+      const seenNames = new Set<string>();
+      finalHabits = ((seededHabits as DailyHabit[]) || []).filter(h => {
+        if (seenNames.has(h.name)) return false;
+        seenNames.add(h.name);
+        return true;
+      });
       setHabits(finalHabits);
     } else {
-      finalHabits = habitsData as DailyHabit[];
+      // Deduplicate habits by name (safety layer)
+      const seenNames = new Set<string>();
+      finalHabits = (habitsData as DailyHabit[]).filter(h => {
+        if (seenNames.has(h.name)) return false;
+        seenNames.add(h.name);
+        return true;
+      });
       setHabits(finalHabits);
     }
     
