@@ -41,12 +41,14 @@ export const useTodaysTasks = () => {
 
       if (tasksError) throw tasksError;
 
-      // Filter for today's tasks
+      // Filter for today's tasks - include tasks with null day_of_week (global for week)
       const todaysTasks = (tasksData || []).filter(task => {
-        if (!task.day_of_week) return false;
+        // Include tasks without a specific day (global weekly tasks)
+        if (!task.day_of_week) return true;
+        // Match today's abbreviation (case-insensitive)
         const normalizedDay = task.day_of_week.toLowerCase();
         const todayLower = todayAbbrev.toLowerCase();
-        return normalizedDay === todayLower || normalizedDay === todayAbbrev;
+        return normalizedDay === todayLower;
       });
 
       setTasks(todaysTasks);

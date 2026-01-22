@@ -44,18 +44,20 @@ export const TodoStep = ({ onComplete }: TodoStepProps) => {
         return;
       }
 
-      // Get current week key
+      // Get current week key using the same logic as other components
       const weekStart = new Date();
       weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
       const weekKey = `door-week-${format(weekStart, 'yyyy-MM-dd')}`;
+      const todayAbbrev = getDayAbbrev();
 
-      // Fetch hit list tasks for today
+      // Fetch hit/do list tasks for today - consistent with TodayTasksWidget
       const { data, error } = await supabase
         .from('user_tasks')
         .select('*')
         .eq('user_id', user.id)
-        .in('list_type', ['hit', 'do'])
-        .or(`day_of_week.eq.${getDayAbbrev()},day_of_week.is.null`);
+        .eq('week_key', weekKey)
+        .in('task_type', ['hit', 'do'])
+        .or(`day_of_week.eq.${todayAbbrev},day_of_week.is.null`);
 
       if (error) throw error;
 
