@@ -1,16 +1,18 @@
-import { Link } from "react-router-dom";
-import { LanguageSelector } from "@/components/LanguageSelector";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { ProblemSectionNew } from "@/components/landing/ProblemSectionNew";
-import { Core4SectionNew } from "@/components/landing/Core4SectionNew";
-import { HowItWorks } from "@/components/landing/HowItWorks";
-import { FeaturesShowcase } from "@/components/landing/FeaturesShowcase";
-import { SocialProofNew } from "@/components/landing/SocialProofNew";
-import { ValueStackPricing } from "@/components/landing/ValueStackPricing";
-import { FinalCTA } from "@/components/landing/FinalCTA";
 import { useLanguage } from "@/context/LanguageContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
+
+// New n8n-inspired components
+import { StickyHeader } from "@/components/landing/StickyHeader";
+import { NewHeroSection } from "@/components/landing/NewHeroSection";
+import { LogoCloud } from "@/components/landing/LogoCloud";
+import { BentoFeatures } from "@/components/landing/BentoFeatures";
+import { InteractiveTimeline } from "@/components/landing/InteractiveTimeline";
+import { TestimonialCarousel } from "@/components/landing/TestimonialCarousel";
+import { PricingComparison } from "@/components/landing/PricingComparison";
+import { FAQSection } from "@/components/landing/FAQSection";
+import { NewFooter } from "@/components/landing/NewFooter";
 
 const Index = () => {
   const { t } = useLanguage();
@@ -40,65 +42,36 @@ const Index = () => {
       </Helmet>
 
       {/* Language Selector */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-50">
+      <div className="fixed top-4 right-20 md:top-6 md:right-24 z-50">
         <LanguageSelector />
       </div>
 
-      <div className="container mx-auto px-4">
-        {/* Section 1: Hero */}
-        <HeroSection />
+      {/* Sticky Header */}
+      <StickyHeader />
 
-        {/* Section 2: Problem */}
-        <ProblemSectionNew />
+      {/* Hero Section */}
+      <NewHeroSection />
 
-        {/* Section 3: Solution - 4 Pillars */}
-        <Core4SectionNew />
+      {/* Logo Cloud / Stats */}
+      <LogoCloud />
 
-        {/* Section 4: How It Works (3 Steps) */}
-        <HowItWorks />
+      {/* Bento Features Grid */}
+      <BentoFeatures />
 
-        {/* Section 5: Features Showcase */}
-        <FeaturesShowcase />
+      {/* How It Works Timeline */}
+      <InteractiveTimeline />
 
-        {/* Section 6: Social Proof */}
-        <SocialProofNew />
+      {/* Testimonials Carousel */}
+      <TestimonialCarousel />
 
-        {/* Section 7: Pricing */}
-        <div id="pricing">
-          <ValueStackPricing />
-        </div>
+      {/* Pricing Comparison */}
+      <PricingComparison />
 
-        {/* Final CTA */}
-        <FinalCTA />
+      {/* FAQ Section */}
+      <FAQSection />
 
-        {/* Footer */}
-        <footer className="py-8 mt-8 border-t border-border">
-          <div className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
-            <Link to="/pricing" className="hover:text-primary transition-colors">
-              {t('footerPricing')}
-            </Link>
-            <span className="text-border">|</span>
-            <Link to="/terms" className="hover:text-primary transition-colors">
-              {t('footerTerms')}
-            </Link>
-            <span className="text-border">|</span>
-            <Link to="/privacy" className="hover:text-primary transition-colors">
-              {t('footerPrivacy')}
-            </Link>
-            <span className="text-border">|</span>
-            <Link to="/support" className="hover:text-primary transition-colors">
-              {t('footerSupport')}
-            </Link>
-            <span className="text-border">|</span>
-            <Link to="/auth" className="hover:text-primary transition-colors">
-              {t('footerLogin')}
-            </Link>
-          </div>
-          <p className="text-center text-xs text-muted-foreground mt-4">
-            © {new Date().getFullYear()} WarriorOS. {t('footerAllRightsReserved')}
-          </p>
-        </footer>
-      </div>
+      {/* Footer */}
+      <NewFooter />
     </div>
   );
 };
