@@ -139,13 +139,17 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     };
   }, [fabricCanvas, saveState]);
 
-  // Handle tool changes
+  // Handle tool changes - including cursor and brush updates
   useEffect(() => {
     if (!fabricCanvas) return;
 
     // Reset drawing mode
     fabricCanvas.isDrawingMode = false;
     fabricCanvas.selection = true;
+    
+    // Reset cursor to default
+    fabricCanvas.defaultCursor = 'default';
+    fabricCanvas.hoverCursor = 'move';
 
     if (activeTool === 'pencil' || activeTool === 'highlighter') {
       fabricCanvas.isDrawingMode = true;
@@ -157,6 +161,11 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
         : activeColor;
       brush.width = activeTool === 'highlighter' ? 20 : strokeWidth;
       fabricCanvas.freeDrawingBrush = brush;
+      
+      // Set custom cursor for drawing tools
+      fabricCanvas.freeDrawingCursor = activeTool === 'pencil' 
+        ? 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'white\' stroke-width=\'2\'%3E%3Cpath d=\'m18 2 4 4-14.5 14.5-5.5 1 1-5.5L18 2z\'/%3E%3C/svg%3E") 2 22, crosshair'
+        : 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%23FFFF00\' stroke=\'%23CCCC00\' stroke-width=\'1\'%3E%3Crect x=\'3\' y=\'8\' width=\'18\' height=\'8\' rx=\'2\'/%3E%3C/svg%3E") 12 12, crosshair';
     } else if (activeTool === 'eraser') {
       fabricCanvas.isDrawingMode = true;
       // Create eraser brush
@@ -164,6 +173,11 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
       brush.color = '#1a1a2e'; // Match background color
       brush.width = 20;
       fabricCanvas.freeDrawingBrush = brush;
+      
+      // Set eraser cursor
+      fabricCanvas.freeDrawingCursor = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%23666\' stroke=\'white\' stroke-width=\'2\'%3E%3Crect x=\'6\' y=\'4\' width=\'12\' height=\'16\' rx=\'2\'/%3E%3C/svg%3E") 12 12, crosshair';
+    } else if (activeTool === 'select') {
+      fabricCanvas.defaultCursor = 'default';
     }
   }, [activeTool, activeColor, strokeColor, strokeWidth, fabricCanvas]);
 
@@ -463,6 +477,41 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     fabricCanvas.setZoom(1);
     setZoom(100);
   }, [fabricCanvas]);
+
+  // Mouse wheel zoom
+  useEffect(() => {
+    if (!fabricCanvas) return;
+
+    const handleWheel = (opt: any) => {
+      const e = opt.e as WheelEvent;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const delta = e.deltaY;
+      let newZoom = zoom;
+
+      if (delta < 0) {
+        // Zoom in
+        newZoom = Math.min(zoom + 5, 200);
+      } else {
+        // Zoom out
+        newZoom = Math.max(zoom - 5, 25);
+      }
+
+      if (newZoom !== zoom) {
+        // Get mouse position for zoom center
+        const pointer = fabricCanvas.getScenePoint(e);
+        fabricCanvas.zoomToPoint(pointer, newZoom / 100);
+        setZoom(newZoom);
+      }
+    };
+
+    fabricCanvas.on('mouse:wheel', handleWheel);
+
+    return () => {
+      fabricCanvas.off('mouse:wheel', handleWheel);
+    };
+  }, [fabricCanvas, zoom]);
 
   return (
     <div className="flex flex-col h-screen bg-[#0d0d1a] overflow-hidden">
