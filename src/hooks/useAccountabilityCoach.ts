@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAccountabilityContext } from '@/hooks/useAccountabilityContext';
 import { useToast } from '@/hooks/use-toast';
+import { PAGES, STACKS, FEATURES, FAQS } from '@/data/platformKnowledge';
 
 export interface CoachMessage {
   id: string;
@@ -14,7 +15,62 @@ export interface CoachMessage {
 interface UseAccountabilityCoachOptions {
   currentPage?: string;
   onAIResponse?: (response: string) => void;
+  hasRealityMap?: boolean;
 }
+
+const generatePlatformKnowledge = (isRomanian: boolean): string => {
+  const pagesInfo = PAGES.map(p => 
+    `- ${isRomanian ? p.nameRo : p.name} (${p.path}): ${isRomanian ? p.descriptionRo : p.description}`
+  ).join('\n');
+  
+  const stacksInfo = STACKS.map(s => 
+    `- ${isRomanian ? s.nameRo : s.name}: ${isRomanian ? s.descriptionRo : s.description} (${s.duration})`
+  ).join('\n');
+  
+  const featuresInfo = FEATURES.slice(0, 10).map(f => 
+    `- ${isRomanian ? f.nameRo : f.name}: ${isRomanian ? f.descriptionRo : f.description}\n  ${isRomanian ? 'Cum folosești' : 'How to use'}: ${isRomanian ? f.howToUseRo : f.howToUse}`
+  ).join('\n');
+  
+  const faqsInfo = FAQS.map(f => 
+    `Q: ${isRomanian ? f.questionRo : f.question}\nA: ${isRomanian ? f.answerRo : f.answer}`
+  ).join('\n\n');
+
+  return isRomanian ? `
+
+CUNOȘTINȚE COMPLETE PLATFORMĂ:
+
+PAGINI DISPONIBILE:
+${pagesInfo}
+
+ANTRENORI AI (STACKS):
+${stacksInfo}
+
+FUNCȚIONALITĂȚI CHEIE:
+${featuresInfo}
+
+ÎNTREBĂRI FRECVENTE:
+${faqsInfo}
+
+Când utilizatorul întreabă despre o funcționalitate sau unde poate face ceva, folosește aceste informații pentru a-l ghida exact.
+` : `
+
+COMPLETE PLATFORM KNOWLEDGE:
+
+AVAILABLE PAGES:
+${pagesInfo}
+
+AI COACHES (STACKS):
+${stacksInfo}
+
+KEY FEATURES:
+${featuresInfo}
+
+FREQUENTLY ASKED QUESTIONS:
+${faqsInfo}
+
+When the user asks about a feature or where they can do something, use this information to guide them precisely.
+`;
+};
 
 const generateCoachSystemPrompt = (
   language: 'en' | 'ro',
@@ -24,12 +80,13 @@ const generateCoachSystemPrompt = (
 ): string => {
   const isRomanian = language === 'ro';
   
-  // If user hasn't completed Reality Map, coach should guide them to it first
   const realityMapInstruction = !hasRealityMap 
     ? (isRomanian 
         ? `\n\nIMPORTANT: Utilizatorul NU a completat încă Harta Realității (Reality Map). Aceasta este PRIORITATEA #1. Întreabă-l dacă vrea să completeze acum evaluarea celor 4 dimensiuni: Body, Being, Balance, Business. Ghidează-l spre /fact-maps sau /warrior-power pentru a începe.\n`
         : `\n\nIMPORTANT: The user has NOT completed the Reality Map yet. This is PRIORITY #1. Ask if they want to complete the evaluation of the 4 dimensions now: Body, Being, Balance, Business. Guide them to /fact-maps or /warrior-power to start.\n`)
     : '';
+  
+  const platformKnowledge = generatePlatformKnowledge(isRomanian);
   
   const basePrompt = isRomanian ? `
 Tu ești Accountability Coach-ul personal al utilizatorului în platforma LifeOS.
@@ -45,6 +102,7 @@ ROLUL TĂU:
 3. Ghidezi spre următorul pas concret
 4. Detectezi când are nevoie de suport sau motivație
 5. Previi burnout-ul prin observarea pattern-urilor
+6. RĂSPUNZI LA ORICE ÎNTREBARE DESPRE PLATFORMĂ - știi toate paginile, funcționalitățile și cum să le folosească
 
 STILUL TĂU:
 - Direct și practic - nu te pierde în detalii
@@ -58,6 +116,7 @@ REGULI:
 - Folosește emoji-uri moderat pentru a face conversația prietenoasă
 - Când nu știi ceva, întreabă
 - Nu repeta ce știi deja despre utilizator în fiecare mesaj
+- Când cineva întreabă "unde fac X?", ghidează-l exact spre pagină
 ` : `
 You are the user's personal Accountability Coach in the LifeOS platform.
 
@@ -72,6 +131,7 @@ YOUR ROLE:
 3. Guide toward the next concrete step
 4. Detect when they need support or motivation
 5. Prevent burnout by observing patterns
+6. ANSWER ANY QUESTION ABOUT THE PLATFORM - you know all pages, features and how to use them
 
 YOUR STYLE:
 - Direct and practical - don't get lost in details
@@ -85,16 +145,13 @@ RULES:
 - Use emojis moderately to make conversation friendly
 - When you don't know something, ask
 - Don't repeat what you know about the user in every message
+- When someone asks "where do I do X?", guide them exactly to the page
 `;
 
-  return basePrompt;
+  return basePrompt + platformKnowledge;
 };
 
-interface UseAccountabilityCoachOptions {
-  currentPage?: string;
-  onAIResponse?: (response: string) => void;
-  hasRealityMap?: boolean;
-}
+// Interface already defined above
 
 export const useAccountabilityCoach = (options: UseAccountabilityCoachOptions = {}) => {
   const { currentPage, onAIResponse, hasRealityMap = true } = options;

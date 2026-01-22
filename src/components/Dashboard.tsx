@@ -63,6 +63,7 @@ import { VisionDeclarationWidget } from '@/components/dashboard/widgets/VisionDe
 import { EmpowermentMeditationCard } from '@/components/dashboard/EmpowermentMeditationCard';
 import { AcceleratorBanner } from '@/components/dashboard/AcceleratorBanner';
 import { EarlyBirdBanner } from '@/components/dashboard/EarlyBirdBanner';
+import { DashboardAICoachBar } from '@/components/dashboard/DashboardAICoachBar';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -795,6 +796,11 @@ export const Dashboard: React.FC = () => {
       {/* Vision Declaration Widget - Napoleon Hill */}
       <div className="mb-6" data-tour="vision-board">
         <VisionDeclarationWidget />
+      </div>
+      
+      {/* AI Coach Bar - Integrated */}
+      <div className="mb-6">
+        <DashboardAICoachBar />
       </div>
       
       {/* Empowerment Meditation Card */}
