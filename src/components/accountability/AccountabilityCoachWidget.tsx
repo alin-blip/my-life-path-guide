@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageCircle, X, Trophy, RotateCcw, Sparkles, ListTodo } from 'lucide-react';
+import { MessageCircle, X, Trophy, RotateCcw, Sparkles, ListTodo, Settings, Map } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAccountabilityCoach } from '@/hooks/useAccountabilityCoach';
@@ -197,8 +197,34 @@ export const AccountabilityCoachWidget: React.FC = () => {
             </TabsContent>
           </Tabs>
 
-          {/* Context indicator */}
-          <div className="px-4 py-2 border-t border-border bg-muted/30 flex-shrink-0">
+          {/* Footer with context + actions */}
+          <div className="px-4 py-3 border-t border-border bg-muted/30 flex-shrink-0 space-y-2">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs gap-1.5"
+                onClick={() => {
+                  setIsOpen(false);
+                  window.dispatchEvent(new CustomEvent('open-onboarding-wizard'));
+                }}
+              >
+                <Settings className="w-3.5 h-3.5" />
+                {language === 'ro' ? 'Configurare' : 'Setup Wizard'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs gap-1.5"
+                onClick={() => {
+                  setIsOpen(false);
+                  window.dispatchEvent(new CustomEvent('start-platform-tour'));
+                }}
+              >
+                <Map className="w-3.5 h-3.5" />
+                {language === 'ro' ? 'Tur Platformă' : 'Platform Tour'}
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground text-center">
               📍 {location.pathname === '/' ? 'Home' : location.pathname.replace('/', '').charAt(0).toUpperCase() + location.pathname.slice(2)}
             </p>
