@@ -5,7 +5,6 @@ import {
   X, 
   ChevronRight, 
   ChevronLeft, 
-  LayoutDashboard, 
   Target, 
   Image, 
   Brain, 
@@ -13,10 +12,12 @@ import {
   Calendar,
   Sparkles,
   Trophy,
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export interface TourStep {
   id: string;
@@ -39,56 +40,89 @@ interface SpotlightTourProps {
 export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTourProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const currentStepData = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
   const isFirstStep = currentStep === 0;
 
-  // Find and highlight target element
-  const updateTargetRect = useCallback(() => {
-    if (currentStepData?.targetSelector) {
-      const element = document.querySelector(currentStepData.targetSelector);
-      if (element) {
-        const rect = element.getBoundingClientRect();
-        setTargetRect(rect);
-        // Scroll element into view
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        setTargetRect(null);
-      }
-    } else {
+  // Scroll to element and update target rect with proper timing
+  const scrollAndHighlight = useCallback(async () => {
+    if (!currentStepData?.targetSelector) {
       setTargetRect(null);
+      setIsTransitioning(false);
+      return;
     }
+
+    setIsTransitioning(true);
+
+    // Wait a bit for any route navigation to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const element = document.querySelector(currentStepData.targetSelector);
+    
+    if (!element) {
+      console.warn(`Tour target not found: ${currentStepData.targetSelector}`);
+      setTargetRect(null);
+      setIsTransitioning(false);
+      return;
+    }
+
+    // Scroll element into view first
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Wait for scroll animation to complete
+    await new Promise(resolve => setTimeout(resolve, 600));
+
+    // Now calculate the rect after scrolling is complete
+    const rect = element.getBoundingClientRect();
+    setTargetRect(rect);
+    setIsTransitioning(false);
   }, [currentStepData?.targetSelector]);
 
+  // Handle step changes
   useEffect(() => {
     if (!isOpen) return;
     
     // Navigate if step requires it
     if (currentStepData?.route) {
       navigate(currentStepData.route);
-      // Wait for navigation to complete
-      setTimeout(updateTargetRect, 300);
+      // Wait for navigation, then scroll and highlight
+      setTimeout(scrollAndHighlight, 400);
     } else {
-      updateTargetRect();
+      scrollAndHighlight();
     }
 
     // Run custom action if defined
     if (currentStepData?.action) {
       currentStepData.action();
     }
-  }, [currentStep, isOpen, currentStepData, navigate, updateTargetRect]);
+  }, [currentStep, isOpen, currentStepData, navigate, scrollAndHighlight]);
 
   // Update target rect on resize
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isTransitioning) return;
     
-    const handleResize = () => updateTargetRect();
+    const handleResize = () => {
+      if (currentStepData?.targetSelector) {
+        const element = document.querySelector(currentStepData.targetSelector);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          setTargetRect(rect);
+        }
+      }
+    };
+    
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isOpen, updateTargetRect]);
+    window.addEventListener('scroll', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleResize);
+    };
+  }, [isOpen, isTransitioning, currentStepData?.targetSelector]);
 
   const handleNext = () => {
     if (isLastStep) {
@@ -110,24 +144,30 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
 
   if (!isOpen) return null;
 
-  // Calculate tooltip position - always center for simplicity and reliability
+  // Spotlight padding around target
+  const spotlightPadding = 16;
+
+  // Check if this is a centered step (no target or position is center)
+  const isCentered = !targetRect || currentStepData?.position === 'center';
+
+  // Calculate tooltip position for desktop
   const getTooltipPosition = (): React.CSSProperties => {
-    // For center position or when no target, use flexbox centering (handled by parent)
-    if (!targetRect || currentStepData?.position === 'center') {
+    if (isCentered || isMobile) {
       return {};
     }
 
     const padding = 20;
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
+    const tooltipHeight = 320;
+    const tooltipWidth = 400;
     
-    // Calculate position relative to viewport
-    let top = targetRect.bottom + padding;
-    let left = Math.max(20, Math.min(targetRect.left + targetRect.width / 2, viewportWidth - 220));
+    let top = targetRect!.bottom + padding + spotlightPadding;
+    let left = Math.max(20, Math.min(targetRect!.left + targetRect!.width / 2, viewportWidth - tooltipWidth / 2));
     
     // If tooltip would go below viewport, show above target
-    if (top + 300 > viewportHeight) {
-      top = Math.max(20, targetRect.top - padding - 300);
+    if (top + tooltipHeight > viewportHeight) {
+      top = Math.max(20, targetRect!.top - padding - tooltipHeight - spotlightPadding);
     }
     
     return {
@@ -138,62 +178,119 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
     };
   };
 
-  const tooltipStyle = getTooltipPosition();
-  const isCentered = !targetRect || currentStepData?.position === 'center';
+  // Mobile tooltip - compact floating tooltip near target
+  const getMobileTooltipPosition = (): React.CSSProperties => {
+    if (!targetRect) {
+      return {
+        position: 'fixed' as const,
+        bottom: '20px',
+        left: '10px',
+        right: '10px'
+      };
+    }
 
-  // Spotlight padding around target
-  const spotlightPadding = 12;
+    const viewportHeight = window.innerHeight;
+    const tooltipHeight = 280;
+    const padding = 12;
+
+    // If target is in top half, show tooltip below
+    if (targetRect.top < viewportHeight / 2) {
+      return {
+        position: 'fixed' as const,
+        top: `${Math.min(targetRect.bottom + padding + spotlightPadding, viewportHeight - tooltipHeight - 20)}px`,
+        left: '10px',
+        right: '10px'
+      };
+    } else {
+      // Target is in bottom half, show tooltip above
+      return {
+        position: 'fixed' as const,
+        top: `${Math.max(20, targetRect.top - tooltipHeight - padding - spotlightPadding)}px`,
+        left: '10px',
+        right: '10px'
+      };
+    }
+  };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[100]" onClick={handleSkip}>
-          {/* SVG Overlay with real cutout for spotlight effect */}
-          <motion.svg
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 w-full h-full z-[101] pointer-events-none"
-            style={{ width: '100vw', height: '100vh' }}
-          >
-            <defs>
-              <mask id="spotlight-mask">
-                {/* White = visible overlay, Black = transparent cutout */}
-                <rect x="0" y="0" width="100%" height="100%" fill="white" />
-                {targetRect && (
-                  <motion.rect
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    x={targetRect.left - spotlightPadding}
-                    y={targetRect.top - spotlightPadding}
-                    width={targetRect.width + spotlightPadding * 2}
-                    height={targetRect.height + spotlightPadding * 2}
-                    rx="12"
-                    ry="12"
-                    fill="black"
-                  />
-                )}
-              </mask>
-            </defs>
-            {/* Dark overlay with cutout */}
-            <rect
-              x="0"
-              y="0"
-              width="100%"
-              height="100%"
-              fill="rgba(0,0,0,0.70)"
-              mask="url(#spotlight-mask)"
-            />
-          </motion.svg>
+          {/* Loading state during transitions */}
+          {isTransitioning && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[101] bg-black/60 flex items-center justify-center"
+            >
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                <span className="text-white/80 text-sm">
+                  {language === 'ro' ? 'Navigare...' : 'Loading...'}
+                </span>
+              </div>
+            </motion.div>
+          )}
 
-          {/* Animated glow border around target */}
-          {targetRect && (
+          {/* SVG Overlay with real cutout for spotlight effect - Desktop */}
+          {!isTransitioning && !isMobile && (
+            <motion.svg
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 w-full h-full z-[101] pointer-events-none"
+              style={{ width: '100vw', height: '100vh' }}
+            >
+              <defs>
+                <mask id="spotlight-mask">
+                  {/* White = visible overlay, Black = transparent cutout */}
+                  <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                  {targetRect && (
+                    <motion.rect
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      x={targetRect.left - spotlightPadding}
+                      y={targetRect.top - spotlightPadding}
+                      width={targetRect.width + spotlightPadding * 2}
+                      height={targetRect.height + spotlightPadding * 2}
+                      rx="16"
+                      ry="16"
+                      fill="black"
+                    />
+                  )}
+                </mask>
+              </defs>
+              {/* Dark overlay with cutout */}
+              <rect
+                x="0"
+                y="0"
+                width="100%"
+                height="100%"
+                fill="rgba(0,0,0,0.75)"
+                mask="url(#spotlight-mask)"
+              />
+            </motion.svg>
+          )}
+
+          {/* Mobile: Simple dark overlay */}
+          {!isTransitioning && isMobile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[101] bg-black/70 pointer-events-none"
+            />
+          )}
+
+          {/* Animated glow border around target - Desktop only */}
+          {!isTransitioning && targetRect && !isMobile && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="absolute rounded-xl pointer-events-none z-[101]"
+              className="absolute rounded-2xl pointer-events-none z-[102]"
               style={{
                 top: targetRect.top - spotlightPadding,
                 left: targetRect.left - spotlightPadding,
@@ -211,99 +308,126 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
             />
           )}
 
-          {/* Tooltip - centered or positioned */}
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className={`w-[90vw] max-w-md bg-card border border-border rounded-xl shadow-2xl p-6 z-[102] ${
-              isCentered 
-                ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' 
-                : ''
-            }`}
-            style={isCentered ? {} : tooltipStyle}
-            onClick={(e) => e.stopPropagation()}
-        >
-          {/* Skip button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSkip}
-            className="absolute top-2 right-2 h-8 w-8 rounded-full"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-
-          {/* Progress dots */}
-          <div className="flex justify-center gap-1.5 mb-4">
-            {steps.map((_, index) => (
-              <div
-                key={index}
-                className={`h-2 w-2 rounded-full transition-all duration-300 ${
-                  index === currentStep 
-                    ? 'bg-primary w-6' 
-                    : index < currentStep 
-                      ? 'bg-primary/60' 
-                      : 'bg-muted'
-                }`}
-              />
-            ))}
-          </div>
-
-          {/* Icon */}
-          <div className="flex justify-center mb-4">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20">
-              {currentStepData?.icon}
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="text-center mb-6">
-            <h3 className="text-xl font-bold text-foreground mb-2">
-              {currentStepData?.title[language as 'en' | 'ro'] || currentStepData?.title.en}
-            </h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {currentStepData?.description[language as 'en' | 'ro'] || currentStepData?.description.en}
-            </p>
-          </div>
-
-          {/* Navigation */}
-          <div className="flex items-center justify-between gap-3">
-            <Button
-              variant="ghost"
-              onClick={handlePrev}
-              disabled={isFirstStep}
-              className="flex items-center gap-1"
+          {/* Mobile: Small indicator arrow pointing to target */}
+          {!isTransitioning && targetRect && isMobile && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute z-[103] pointer-events-none"
+              style={{
+                top: targetRect.top - 40,
+                left: targetRect.left + targetRect.width / 2 - 20,
+              }}
             >
-              <ChevronLeft className="h-4 w-4" />
-              {language === 'ro' ? 'Înapoi' : 'Back'}
-            </Button>
+              <div className="w-10 h-10 flex items-center justify-center">
+                <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[16px] border-t-primary animate-bounce" />
+              </div>
+            </motion.div>
+          )}
 
-            <span className="text-sm text-muted-foreground">
-              {currentStep + 1} / {steps.length}
-            </span>
-
-            <Button
-              onClick={handleNext}
-              className="flex items-center gap-1 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+          {/* Tooltip */}
+          {!isTransitioning && (
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.1 }}
+              className={`bg-card border border-border rounded-xl shadow-2xl z-[103] ${
+                isMobile 
+                  ? 'p-4' 
+                  : isCentered 
+                    ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-md p-6' 
+                    : 'w-[90vw] max-w-md p-6'
+              }`}
+              style={isMobile ? getMobileTooltipPosition() : (isCentered ? {} : getTooltipPosition())}
+              onClick={(e) => e.stopPropagation()}
             >
-              {isLastStep ? (
-                <>
-                  <CheckCircle2 className="h-4 w-4" />
-                  {language === 'ro' ? 'Finalizează' : 'Finish'}
-                </>
-              ) : (
-                <>
-                  {language === 'ro' ? 'Continuă' : 'Next'}
-                  <ChevronRight className="h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </div>
-        </motion.div>
-      </div>
+              {/* Skip button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSkip}
+                className="absolute top-2 right-2 h-8 w-8 rounded-full"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+
+              {/* Progress dots */}
+              <div className="flex justify-center gap-1.5 mb-3">
+                {steps.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      index === currentStep 
+                        ? 'bg-primary w-5' 
+                        : index < currentStep 
+                          ? 'bg-primary/60 w-1.5' 
+                          : 'bg-muted w-1.5'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Icon - smaller on mobile */}
+              <div className={`flex justify-center ${isMobile ? 'mb-2' : 'mb-4'}`}>
+                <div className={`rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20 ${
+                  isMobile ? 'p-2' : 'p-4'
+                }`}>
+                  {React.cloneElement(currentStepData?.icon as React.ReactElement, {
+                    className: isMobile ? 'h-5 w-5' : 'h-8 w-8'
+                  })}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className={`text-center ${isMobile ? 'mb-3' : 'mb-6'}`}>
+                <h3 className={`font-bold text-foreground ${isMobile ? 'text-base mb-1' : 'text-xl mb-2'}`}>
+                  {currentStepData?.title[language as 'en' | 'ro'] || currentStepData?.title.en}
+                </h3>
+                <p className={`text-muted-foreground leading-relaxed ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                  {currentStepData?.description[language as 'en' | 'ro'] || currentStepData?.description.en}
+                </p>
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between gap-2">
+                <Button
+                  variant="ghost"
+                  size={isMobile ? 'sm' : 'default'}
+                  onClick={handlePrev}
+                  disabled={isFirstStep}
+                  className="flex items-center gap-1"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  {!isMobile && (language === 'ro' ? 'Înapoi' : 'Back')}
+                </Button>
+
+                <span className="text-xs text-muted-foreground">
+                  {currentStep + 1}/{steps.length}
+                </span>
+
+                <Button
+                  size={isMobile ? 'sm' : 'default'}
+                  onClick={handleNext}
+                  className="flex items-center gap-1 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                >
+                  {isLastStep ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4" />
+                      {language === 'ro' ? 'Gata' : 'Done'}
+                    </>
+                  ) : (
+                    <>
+                      {!isMobile && (language === 'ro' ? 'Continuă' : 'Next')}
+                      <ChevronRight className="h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </div>
       )}
     </AnimatePresence>
   );
