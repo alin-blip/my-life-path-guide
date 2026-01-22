@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 
 export type ToolType = 
   | 'select' 
+  | 'pan'
   | 'pencil' 
   | 'highlighter' 
   | 'eraser' 
@@ -189,10 +190,66 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
       
       // Set eraser cursor
       fabricCanvas.freeDrawingCursor = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'%23666\' stroke=\'white\' stroke-width=\'2\'%3E%3Crect x=\'6\' y=\'4\' width=\'12\' height=\'16\' rx=\'2\'/%3E%3C/svg%3E") 12 12, crosshair';
+    } else if (activeTool === 'pan') {
+      fabricCanvas.defaultCursor = 'grab';
+      fabricCanvas.hoverCursor = 'grab';
+      fabricCanvas.selection = false;
     } else if (activeTool === 'select') {
       fabricCanvas.defaultCursor = 'default';
     }
   }, [activeTool, activeColor, strokeColor, strokeWidth, fabricCanvas]);
+
+  // Pan mode mouse event handlers
+  useEffect(() => {
+    if (!fabricCanvas) return;
+
+    let panning = false;
+    let lastPos = { x: 0, y: 0 };
+
+    const handleMouseDown = (opt: any) => {
+      const e = opt.e as MouseEvent;
+      
+      // Pan when in pan tool mode
+      if (activeTool === 'pan') {
+        panning = true;
+        lastPos = { x: e.clientX, y: e.clientY };
+        fabricCanvas.defaultCursor = 'grabbing';
+        fabricCanvas.renderAll();
+      }
+    };
+
+    const handleMouseMove = (opt: any) => {
+      if (!panning) return;
+      
+      const e = opt.e as MouseEvent;
+      const vpt = fabricCanvas.viewportTransform;
+      if (!vpt) return;
+      
+      vpt[4] += e.clientX - lastPos.x;
+      vpt[5] += e.clientY - lastPos.y;
+      
+      lastPos = { x: e.clientX, y: e.clientY };
+      fabricCanvas.requestRenderAll();
+    };
+
+    const handleMouseUp = () => {
+      if (activeTool === 'pan' && panning) {
+        panning = false;
+        fabricCanvas.defaultCursor = 'grab';
+        fabricCanvas.renderAll();
+      }
+    };
+
+    fabricCanvas.on('mouse:down', handleMouseDown);
+    fabricCanvas.on('mouse:move', handleMouseMove);
+    fabricCanvas.on('mouse:up', handleMouseUp);
+
+    return () => {
+      fabricCanvas.off('mouse:down', handleMouseDown);
+      fabricCanvas.off('mouse:move', handleMouseMove);
+      fabricCanvas.off('mouse:up', handleMouseUp);
+    };
+  }, [fabricCanvas, activeTool]);
 
   // Add shape to canvas
   const addShape = useCallback((shapeType: ShapeType) => {
