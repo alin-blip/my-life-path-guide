@@ -17,19 +17,20 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Feature images from storage bucket (generated via AI in Admin > AI Studio > Features)
-// Fallback to placeholder images if not yet generated
+// Cache-busting timestamp to force fresh images
 const STORAGE_BASE = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/feature-images`;
+const CACHE_BUSTER = `?v=${Date.now()}`;
 
 const featureImages = {
-  challenge: `${STORAGE_BASE}/challenge.png`,
-  aiCoaches: `${STORAGE_BASE}/aiCoaches.png`,
-  visionBoard: `${STORAGE_BASE}/visionBoard.png`,
-  warriorRoutine: `${STORAGE_BASE}/warriorRoutine.png`,
-  theDoor: `${STORAGE_BASE}/theDoor.png`,
-  accelerator: `${STORAGE_BASE}/accelerator.png`,
-  stacks: `${STORAGE_BASE}/stacks.png`,
-  brotherhood: `${STORAGE_BASE}/brotherhood.png`,
-  monthlyMission: `${STORAGE_BASE}/monthlyMission.png`,
+  challenge: `${STORAGE_BASE}/challenge.png${CACHE_BUSTER}`,
+  aiCoaches: `${STORAGE_BASE}/aiCoaches.png${CACHE_BUSTER}`,
+  visionBoard: `${STORAGE_BASE}/visionBoard.png${CACHE_BUSTER}`,
+  warriorRoutine: `${STORAGE_BASE}/warriorRoutine.png${CACHE_BUSTER}`,
+  theDoor: `${STORAGE_BASE}/theDoor.png${CACHE_BUSTER}`,
+  accelerator: `${STORAGE_BASE}/accelerator.png${CACHE_BUSTER}`,
+  stacks: `${STORAGE_BASE}/stacks.png${CACHE_BUSTER}`,
+  brotherhood: `${STORAGE_BASE}/brotherhood.png${CACHE_BUSTER}`,
+  monthlyMission: `${STORAGE_BASE}/monthlyMission.png${CACHE_BUSTER}`,
 };
 
 interface Feature {
