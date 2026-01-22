@@ -1,5 +1,5 @@
 export type Plan = {
-  id: "free" | "basic" | "pro" | "elite";
+  id: "basic" | "pro" | "elite";
   nameEn: string;
   nameRo: string;
   priceEn: string;
@@ -25,33 +25,6 @@ export type Plan = {
 };
 
 export const plans: Plan[] = [
-  {
-    id: "free",
-    nameEn: "Limited Access",
-    nameRo: "Acces Limitat",
-    priceEn: "Free",
-    priceRo: "Gratuit",
-    periodEn: "3 days trial",
-    periodRo: "3 zile trial",
-    highlightEn: "Start Your Journey",
-    highlightRo: "Începe Călătoria",
-    resultEn: "Test the WarriorOS system: build habits and complete your first challenge.",
-    resultRo: "Testează sistemul WarriorOS: construiește obiceiuri și completează primul challenge.",
-    benefitsEn: [
-      "Habit Tracking for daily discipline",
-      "Access to transformation Challenges",
-      "Discover WarriorOS potential",
-      "Upgrade option anytime",
-    ],
-    benefitsRo: [
-      "Habit Tracking pentru disciplină zilnică",
-      "Acces la Challenge-uri de transformare",
-      "Descoperă potențialul WarriorOS",
-      "Opțiune de upgrade oricând",
-    ],
-    ctaEn: "Start Free",
-    ctaRo: "Începe Gratuit",
-  },
   {
     id: "basic",
     nameEn: "Basic",
