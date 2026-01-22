@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Play, CheckCircle2, Shield, Zap } from "lucide-react";
+import { ArrowRight, Play, CheckCircle2, Shield, Zap, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LandingEarlyBirdTimer } from "./LandingEarlyBirdTimer";
 
 export const NewHeroSection = () => {
   const navigate = useNavigate();
@@ -88,6 +89,16 @@ export const NewHeroSection = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-5xl mx-auto text-center">
+          {/* Early Bird Timer */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="flex justify-center mb-6"
+          >
+            <LandingEarlyBirdTimer />
+          </motion.div>
+
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -173,31 +184,44 @@ export const NewHeroSection = () => {
             ))}
           </motion.div>
 
-          {/* Video Embed Section */}
+          {/* Video Embed Section - Voomly */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6 }}
-            className="n8n-preview-container shadow-2xl max-w-4xl mx-auto cursor-pointer group"
-            onClick={() => setIsVideoPlaying(true)}
+            className="n8n-preview-container shadow-2xl max-w-4xl mx-auto"
           >
-            <div className="relative aspect-video">
-              {/* Video Thumbnail */}
-              <img 
-                src="https://img.youtube.com/vi/sfuey_WNODs/maxresdefault.jpg"
-                alt="WarriorOS Video Preview"
-                className="w-full h-full object-cover rounded-xl"
-              />
-              {/* Play Button Overlay */}
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center rounded-xl group-hover:bg-black/40 transition-colors">
-                <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-                  <Play className="w-10 h-10 text-primary-foreground fill-primary-foreground ml-1" />
+            <div className="relative aspect-video rounded-xl overflow-hidden">
+              {!isVideoPlaying ? (
+                <div 
+                  className="w-full h-full cursor-pointer group relative"
+                  onClick={() => setIsVideoPlaying(true)}
+                >
+                  {/* Placeholder/Thumbnail */}
+                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-20 h-20 mx-auto bg-primary rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                        <Play className="w-10 h-10 text-primary-foreground fill-primary-foreground ml-1" />
+                      </div>
+                      <p className="mt-4 text-lg font-medium text-foreground">
+                        {language === 'ro' ? 'Vezi Demo-ul' : 'Watch Demo'}
+                      </p>
+                    </div>
+                  </div>
+                  {/* Video Label */}
+                  <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-sm font-medium">
+                    🎬 {language === 'ro' ? 'Vezi demo-ul (3 min)' : 'Watch demo (3 min)'}
+                  </div>
                 </div>
-              </div>
-              {/* Video Label */}
-              <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-sm font-medium">
-                🎬 {language === 'ro' ? 'Vezi demo-ul (3 min)' : 'Watch demo (3 min)'}
-              </div>
+              ) : (
+                <iframe 
+                  src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&videoRatio=1.777778&type=v&skinColor=%232758EB" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen 
+                  className="w-full h-full"
+                />
+              )}
             </div>
           </motion.div>
 
@@ -243,34 +267,6 @@ export const NewHeroSection = () => {
         </div>
       </div>
 
-      {/* Video Modal */}
-      <AnimatePresence>
-        {isVideoPlaying && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-            onClick={() => setIsVideoPlaying(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <iframe
-                src="https://www.youtube.com/embed/sfuey_WNODs?rel=0&modestbranding=1&autoplay=1"
-                title="WarriorOS Demo"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 };
