@@ -16,7 +16,8 @@ import {
   Loader2,
   Flame,
   GraduationCap,
-  MessageCircle
+  MessageCircle,
+  ListTodo
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
@@ -627,19 +628,42 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
     position: 'right'
   },
   {
-    id: 'accountability-coach',
-    targetSelector: '[data-tour="accountability-coach"]',
+    id: 'accountability-plan',
+    targetSelector: '[data-tour="accountability-plan-tab"]',
     route: '/dashboard',
     title: { 
-      en: '🤖 AI Accountability Coach', 
-      ro: '🤖 Coach AI de Responsabilitate' 
+      en: '📋 Plan - Your Tasks', 
+      ro: '📋 Plan - Task-urile Tale' 
     },
     description: { 
-      en: 'Your personal AI assistant! Two tabs:\n• **Plan** - All pending tasks & reminders in one place\n• **AI Coach** - Chat with an AI that knows your goals and keeps you on track',
-      ro: 'Asistentul tău personal AI! Două tab-uri:\n• **Plan** - Toate task-urile și reminder-urile într-un singur loc\n• **AI Coach** - Chat cu un AI care îți cunoaște obiectivele și te ajută să rămâi focusat'
+      en: 'All your pending tasks and reminders are here! Complete your foundation steps to unlock your full potential.',
+      ro: 'Toate task-urile și reminder-urile tale sunt aici! Completează pașii de fundație pentru a-ți debloca potențialul maxim.'
+    },
+    icon: <ListTodo className="h-8 w-8 text-amber-500" />,
+    position: 'right',
+    action: () => {
+      // Open the Accountability Coach widget and show Plan tab
+      window.dispatchEvent(new CustomEvent('open-accountability-coach', { detail: { tab: 'plan' } }));
+    }
+  },
+  {
+    id: 'accountability-coach',
+    targetSelector: '[data-tour="accountability-coach-tab"]',
+    route: '/dashboard',
+    title: { 
+      en: '🤖 AI Coach - Ask Anything', 
+      ro: '🤖 AI Coach - Întreabă Orice' 
+    },
+    description: { 
+      en: 'Your personal AI assistant! Ask about your goals, get motivation, plan your day, or just chat. I know your objectives and I\'m here to help!',
+      ro: 'Asistentul tău personal AI! Întreabă despre obiectivele tale, primește motivație, planifică-ți ziua sau doar discută. Îți cunosc obiectivele și sunt aici să te ajut!'
     },
     icon: <MessageCircle className="h-8 w-8 text-primary" />,
-    position: 'right'
+    position: 'right',
+    action: () => {
+      // Switch to AI Coach tab
+      window.dispatchEvent(new CustomEvent('open-accountability-coach', { detail: { tab: 'coach' } }));
+    }
   },
   {
     id: 'complete',
@@ -652,6 +676,10 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
       ro: 'Începe-ți călătoria de transformare acum. Ține minte: Acțiunile mici zilnice se compun în rezultate extraordinare!'
     },
     icon: <CheckCircle2 className="h-8 w-8 text-green-500" />,
-    position: 'center'
+    position: 'center',
+    action: () => {
+      // Close the Accountability Coach when tour ends
+      // Widget will close automatically since we're moving to a step without target
+    }
   }
 ];
