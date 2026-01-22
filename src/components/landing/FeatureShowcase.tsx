@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from "framer-motion";
 import { 
   Trophy,
   Brain,
@@ -10,8 +10,11 @@ import {
   Sparkles,
   Users,
   Target,
-  LucideIcon
+  LucideIcon,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Feature screenshots - using placeholder images for now
 // These will be replaced with actual screenshots
@@ -131,8 +134,16 @@ export const FeatureShowcase = () => {
   const [displaySolution, setDisplaySolution] = useState('');
   const [phase, setPhase] = useState<'problem' | 'pause' | 'solution' | 'reading'>('problem');
   const [progress, setProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
   const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const isMobile = useIsMobile();
+  
+  // Motion values for drag feedback
+  const dragX = useMotionValue(0);
+  const dragOpacityLeft = useTransform(dragX, [0, 50], [0, 0.8]);
+  const dragOpacityRight = useTransform(dragX, [-50, 0], [0.8, 0]);
 
   const currentFeature = features[activeIndex];
 
@@ -169,8 +180,10 @@ export const FeatureShowcase = () => {
     return () => window.clearTimeout(timeout);
   }, [displayProblem, displaySolution, phase, currentFeature]);
 
-  // Auto-rotate features
+  // Auto-rotate features (pause when dragging)
   useEffect(() => {
+    if (isDragging) return;
+    
     const interval = window.setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
@@ -182,10 +195,25 @@ export const FeatureShowcase = () => {
     }, 100);
 
     return () => window.clearInterval(interval);
-  }, [activeIndex]);
+  }, [activeIndex, isDragging]);
+  
+  // Hide swipe hint after 3 seconds
+  useEffect(() => {
+    if (!isMobile) return;
+    const timer = setTimeout(() => setShowSwipeHint(false), 3000);
+    return () => clearTimeout(timer);
+  }, [isMobile]);
 
   const goToNext = useCallback(() => {
     setActiveIndex(prev => (prev + 1) % features.length);
+    setDisplayProblem('');
+    setDisplaySolution('');
+    setPhase('problem');
+    setProgress(0);
+  }, []);
+
+  const goToPrevious = useCallback(() => {
+    setActiveIndex(prev => (prev - 1 + features.length) % features.length);
     setDisplayProblem('');
     setDisplaySolution('');
     setPhase('problem');
@@ -198,6 +226,18 @@ export const FeatureShowcase = () => {
     setDisplaySolution('');
     setPhase('problem');
     setProgress(0);
+  };
+
+  // Handle swipe drag end
+  const handleDragEnd = (_: any, info: PanInfo) => {
+    setIsDragging(false);
+    const threshold = 100;
+    
+    if (info.offset.x < -threshold) {
+      goToNext();
+    } else if (info.offset.x > threshold) {
+      goToPrevious();
+    }
   };
 
   // Calculate indicator position
@@ -272,19 +312,43 @@ export const FeatureShowcase = () => {
                 }}
               />
               
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 bg-card">
+              <motion.div 
+                className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 bg-card touch-pan-y"
+                drag={isMobile ? "x" : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragStart={() => setIsDragging(true)}
+                onDragEnd={handleDragEnd}
+                style={{ x: dragX }}
+                whileDrag={{ cursor: "grabbing" }}
+              >
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={currentFeature.id}
                     src={currentFeature.image}
                     alt={currentFeature.title}
-                    className="w-full aspect-video object-cover"
+                    className="w-full aspect-video object-cover pointer-events-none select-none"
                     initial={{ opacity: 0, scale: 1.02 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.4 }}
+                    draggable={false}
                   />
                 </AnimatePresence>
+                
+                {/* Swipe indicators */}
+                <motion.div 
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 rounded-full p-2 lg:hidden"
+                  style={{ opacity: dragOpacityLeft }}
+                >
+                  <ChevronLeft className="w-6 h-6 text-white" />
+                </motion.div>
+                <motion.div 
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 rounded-full p-2 lg:hidden"
+                  style={{ opacity: dragOpacityRight }}
+                >
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </motion.div>
                 
                 {/* Feature badge */}
                 <div className="absolute top-4 left-4">
@@ -293,6 +357,38 @@ export const FeatureShowcase = () => {
                     {currentFeature.title}
                   </div>
                 </div>
+                
+                {/* Swipe hint for mobile */}
+                <AnimatePresence>
+                  {showSwipeHint && isMobile && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2"
+                    >
+                      <ChevronLeft className="w-4 h-4 text-white/80 animate-pulse" />
+                      <span className="text-xs text-white/80">Swipe pentru a naviga</span>
+                      <ChevronRight className="w-4 h-4 text-white/80 animate-pulse" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+              
+              {/* Mobile dots indicator */}
+              <div className="flex justify-center gap-2 mt-4 lg:hidden">
+                {features.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToFeature(index)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      index === activeIndex 
+                        ? 'bg-primary w-6' 
+                        : 'bg-muted-foreground/30 w-2 hover:bg-muted-foreground/50'
+                    }`}
+                    aria-label={`Go to feature ${index + 1}`}
+                  />
+                ))}
               </div>
             </div>
 
