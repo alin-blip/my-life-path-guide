@@ -409,6 +409,39 @@ export type Database = {
         }
         Relationships: []
       }
+      canvas_projects: {
+        Row: {
+          canvas_data: Json | null
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          canvas_data?: Json | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          canvas_data?: Json | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       challenge_day1_responses: {
         Row: {
           commitment_confirmed: boolean | null
