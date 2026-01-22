@@ -198,7 +198,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         </p>
 
                         {/* Quick Score Buttons - Always visible under the description */}
-                        <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
+                        <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-2">
                           {config.range.map((score) => (
                             <motion.button
                               key={score}
@@ -215,10 +215,10 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                               {score}
                             </motion.button>
                           ))}
+                          <span className="text-xs sm:text-sm text-white/50 ml-1">
+                            — selectează nivelul tău
+                          </span>
                         </div>
-                        <p className="mt-1.5 text-[10px] sm:text-xs text-white/40">
-                          Click pe număr pentru a continua
-                        </p>
                       </div>
                     </div>
                   </motion.div>
