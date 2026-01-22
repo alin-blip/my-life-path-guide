@@ -8,7 +8,10 @@ import {
   Share2, 
   Printer,
   Check,
-  ChevronDown
+  ChevronDown,
+  FolderOpen,
+  Sparkles,
+  Plus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +32,9 @@ interface VibeCanvasHeaderProps {
   onRedo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  onOpenProjects?: () => void;
+  onOpenTemplates?: () => void;
+  onNewProject?: () => void;
 }
 
 export const VibeCanvasHeader: React.FC<VibeCanvasHeaderProps> = ({
@@ -40,6 +46,9 @@ export const VibeCanvasHeader: React.FC<VibeCanvasHeaderProps> = ({
   onRedo,
   canUndo,
   canRedo,
+  onOpenProjects,
+  onOpenTemplates,
+  onNewProject,
 }) => {
   const navigate = useNavigate();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -75,7 +84,7 @@ export const VibeCanvasHeader: React.FC<VibeCanvasHeaderProps> = ({
       className="h-14 bg-[#1a1a2e] border-b border-white/10 flex items-center justify-between px-4"
     >
       {/* Left Section */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <Button
           variant="ghost"
           size="icon"
@@ -84,6 +93,45 @@ export const VibeCanvasHeader: React.FC<VibeCanvasHeaderProps> = ({
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
+
+        {/* Projects Button */}
+        {onOpenProjects && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white/60 hover:text-white hover:bg-white/10 gap-1.5"
+            onClick={onOpenProjects}
+          >
+            <FolderOpen className="h-4 w-4" />
+            <span className="hidden sm:inline">Projects</span>
+          </Button>
+        )}
+
+        {/* New Project Button */}
+        {onNewProject && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-white/60 hover:text-white hover:bg-white/10"
+            onClick={onNewProject}
+            title="New Project"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        )}
+
+        {/* Templates Button */}
+        {onOpenTemplates && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white/60 hover:text-white hover:bg-white/10 gap-1.5"
+            onClick={onOpenTemplates}
+          >
+            <Sparkles className="h-4 w-4" />
+            <span className="hidden sm:inline">Templates</span>
+          </Button>
+        )}
 
         {/* Title */}
         {isEditingTitle ? (

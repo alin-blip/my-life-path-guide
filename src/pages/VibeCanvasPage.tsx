@@ -1,16 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { VibeCanvas } from '@/components/canvas/VibeCanvas';
+import { CanvasProjectsDialog } from '@/components/canvas/CanvasProjectsDialog';
+import { CanvasTemplatesDialog, CanvasTemplate } from '@/components/canvas/CanvasTemplatesDialog';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 const VibeCanvasPage: React.FC = () => {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const projectId = searchParams.get('project');
   const [initialData, setInitialData] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(!!projectId);
+  const [projectsDialogOpen, setProjectsDialogOpen] = useState(false);
+  const [templatesDialogOpen, setTemplatesDialogOpen] = useState(!projectId); // Show templates on first load if no project
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(projectId);
   const { toast } = useToast();
 
   // Load existing project if projectId is provided
@@ -21,7 +27,7 @@ const VibeCanvasPage: React.FC = () => {
       try {
         const { data, error } = await supabase
           .from('canvas_projects')
-          .select('canvas_data')
+          .select('canvas_data, title')
           .eq('id', projectId)
           .eq('user_id', user.id)
           .single();
@@ -46,6 +52,30 @@ const VibeCanvasPage: React.FC = () => {
     loadProject();
   }, [projectId, user, toast]);
 
+  // Handle selecting a project from the projects dialog
+  const handleSelectProject = useCallback((selectedProjectId: string) => {
+    setCurrentProjectId(selectedProjectId);
+    setSearchParams({ project: selectedProjectId });
+    window.location.reload(); // Reload to get fresh data
+  }, [setSearchParams]);
+
+  // Handle creating a new project
+  const handleNewProject = useCallback(() => {
+    setCurrentProjectId(null);
+    setInitialData(undefined);
+    setSearchParams({});
+    setTemplatesDialogOpen(true);
+  }, [setSearchParams]);
+
+  // Handle selecting a template
+  const handleSelectTemplate = useCallback((template: CanvasTemplate) => {
+    setInitialData(JSON.stringify(template.data));
+    setTemplatesDialogOpen(false);
+    // Force re-render of canvas with new data
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 100);
+  }, []);
+
   // Save handler
   const handleSave = async (canvasData: string) => {
     if (!user) {
@@ -60,7 +90,7 @@ const VibeCanvasPage: React.FC = () => {
     try {
       const parsedData = JSON.parse(canvasData);
 
-      if (projectId) {
+      if (currentProjectId) {
         // Update existing project
         const { error } = await supabase
           .from('canvas_projects')
@@ -68,7 +98,7 @@ const VibeCanvasPage: React.FC = () => {
             canvas_data: parsedData,
             updated_at: new Date().toISOString()
           })
-          .eq('id', projectId)
+          .eq('id', currentProjectId)
           .eq('user_id', user.id);
 
         if (error) throw error;
@@ -88,7 +118,8 @@ const VibeCanvasPage: React.FC = () => {
 
         // Update URL with new project ID
         if (data?.id) {
-          window.history.replaceState(null, '', `/vibe-canvas?project=${data.id}`);
+          setCurrentProjectId(data.id);
+          setSearchParams({ project: data.id });
         }
       }
 
@@ -115,11 +146,31 @@ const VibeCanvasPage: React.FC = () => {
   }
 
   return (
-    <VibeCanvas
-      projectId={projectId || undefined}
-      initialData={initialData}
-      onSave={handleSave}
-    />
+    <>
+      <VibeCanvas
+        projectId={currentProjectId || undefined}
+        initialData={initialData}
+        onSave={handleSave}
+        onOpenProjects={() => setProjectsDialogOpen(true)}
+        onOpenTemplates={() => setTemplatesDialogOpen(true)}
+        onNewProject={handleNewProject}
+      />
+
+      {/* Projects Dialog */}
+      <CanvasProjectsDialog
+        open={projectsDialogOpen}
+        onOpenChange={setProjectsDialogOpen}
+        onSelectProject={handleSelectProject}
+        onNewProject={handleNewProject}
+      />
+
+      {/* Templates Dialog */}
+      <CanvasTemplatesDialog
+        open={templatesDialogOpen}
+        onOpenChange={setTemplatesDialogOpen}
+        onSelectTemplate={handleSelectTemplate}
+      />
+    </>
   );
 };
 
