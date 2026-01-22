@@ -10,21 +10,30 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { plans, getLocalizedPlan } from "@/data/pricing";
 import { Helmet } from "react-helmet-async";
-import { Crown, Zap, Gift, Check, Rocket, Users, Timer } from "lucide-react";
+import { Crown, Zap, Gift, Check, Rocket, Users, Timer, AlertTriangle, Calendar } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { trackPurchase } from "@/lib/facebook-pixel";
 import { preOpenWindow, redirectExternal } from "@/lib/externalRedirect";
 import { EarlyBirdCountdown } from "@/components/membership/EarlyBirdCountdown";
 
-// Early Bird Prices vs Normal Prices
+// Early Bird Prices vs Normal Prices (Monthly)
 const PLAN_PRICES = {
   basic: { earlyBird: '€49', normal: '€97', earlyBirdRo: '249 LEI', normalRo: '490 LEI' },
   pro: { earlyBird: '€97', normal: '€197', earlyBirdRo: '490 LEI', normalRo: '990 LEI' },
   elite: { earlyBird: '€297', normal: '€500', earlyBirdRo: '1490 LEI', normalRo: '2500 LEI' },
 };
 
+// Annual Prices (60% locked)
+const ANNUAL_PRICES = {
+  basic: { price: '€399', priceRo: '1990 LEI', original: '€1164', originalRo: '5880 LEI' },
+  pro: { price: '€970', priceRo: '4900 LEI', original: '€2364', originalRo: '11880 LEI' },
+  elite: { price: '€2970', priceRo: '14900 LEI', original: '€6000', originalRo: '30000 LEI' },
+};
+
 const Pricing: React.FC = () => {
   const { toast } = useToast();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -86,8 +95,19 @@ const Pricing: React.FC = () => {
     elite: Rocket,
   };
 
-  // Helper to get dynamic price based on Early Bird status
+  // Helper to get dynamic price based on Early Bird status and billing period
   const getDynamicPrice = (planId: string) => {
+    // Annual pricing
+    if (billingPeriod === 'annual') {
+      const annualPrices = ANNUAL_PRICES[planId as keyof typeof ANNUAL_PRICES];
+      if (!annualPrices) return { price: null, originalPrice: null };
+      return {
+        price: language === 'en' ? annualPrices.price : annualPrices.priceRo,
+        originalPrice: language === 'en' ? annualPrices.original : annualPrices.originalRo,
+      };
+    }
+    
+    // Monthly pricing with Early Bird logic
     const prices = PLAN_PRICES[planId as keyof typeof PLAN_PRICES];
     if (!prices) return { price: null, originalPrice: null };
     
@@ -200,8 +220,17 @@ const Pricing: React.FC = () => {
   };
   const activePlanId = mapTierToPlanId(subscriptionTier);
 
-  // Get localized plans
-  const localizedPlans = plans.map(plan => getLocalizedPlan(plan, language));
+  // Get localized plans - filter based on billing period
+  const monthlyPlanIds = ['basic', 'pro', 'elite'];
+  const annualPlanIds = ['basic-annual', 'pro-annual', 'elite-annual'];
+  
+  const displayPlanIds = billingPeriod === 'monthly' ? monthlyPlanIds : annualPlanIds;
+  const localizedPlans = plans
+    .filter(plan => displayPlanIds.includes(plan.id))
+    .map(plan => getLocalizedPlan(plan, language));
+
+  // Get base plan ID for pricing lookup (remove -annual suffix)
+  const getBasePlanId = (planId: string) => planId.replace('-annual', '');
 
   return (
     <Layout>
@@ -217,8 +246,25 @@ const Pricing: React.FC = () => {
             <p className="text-muted-foreground mt-2">{texts.heroSubtitle}</p>
           </section>
 
-          {/* Early Bird Countdown Banner */}
-          {isEarlyBirdActive && earlyBirdExpiresAt && (
+          {/* Billing Period Toggle */}
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <span className={`text-sm font-medium transition-colors ${billingPeriod === 'monthly' ? 'text-foreground' : 'text-muted-foreground'}`}>
+              {language === 'en' ? 'Monthly' : 'Lunar'}
+            </span>
+            <Switch 
+              checked={billingPeriod === 'annual'}
+              onCheckedChange={(checked) => setBillingPeriod(checked ? 'annual' : 'monthly')}
+            />
+            <span className={`flex items-center gap-2 text-sm font-medium transition-colors ${billingPeriod === 'annual' ? 'text-foreground' : 'text-muted-foreground'}`}>
+              {language === 'en' ? 'Annual' : 'Anual'}
+              <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0">
+                -60%
+              </Badge>
+            </span>
+          </div>
+
+          {/* Early Bird Countdown Banner - only show for monthly */}
+          {isEarlyBirdActive && earlyBirdExpiresAt && billingPeriod === 'monthly' && (
             <div className="mb-6">
               <div className="p-4 rounded-lg border-2 border-green-500/50 bg-gradient-to-r from-green-500/10 via-emerald-500/5 to-green-500/10">
                 <div className="flex flex-col md:flex-row items-center justify-center gap-4">
@@ -227,6 +273,32 @@ const Pricing: React.FC = () => {
                     {texts.earlyBirdBanner}
                   </div>
                   <EarlyBirdCountdown expiresAt={earlyBirdExpiresAt} />
+                </div>
+                {/* Early Bird expiration warning */}
+                <p className="text-center text-sm text-amber-400 mt-3 flex items-center justify-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  {language === 'ro' 
+                    ? 'Prețul Early Bird este valabil doar în perioada trial-ului. Blochează-l pe tot anul cu planul anual pentru 60% discount permanent!'
+                    : 'Early Bird pricing is only available during trial. Lock it in for the whole year with annual plan for 60% permanent discount!'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Annual Plan Info Banner */}
+          {billingPeriod === 'annual' && (
+            <div className="mb-6">
+              <div className="p-4 rounded-lg border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-amber-500/10">
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <div className="flex items-center gap-2 text-amber-400 font-bold text-lg">
+                    <Calendar className="h-5 w-5" />
+                    {language === 'ro' ? '🔒 Blochează 60% Discount pe Tot Anul!' : '🔒 Lock 60% Discount for the Entire Year!'}
+                  </div>
+                  <p className="text-center text-sm text-muted-foreground">
+                    {language === 'ro' 
+                      ? 'Plătești o dată, economisești tot anul. Fără creșteri de preț în timpul abonamentului.'
+                      : 'Pay once, save all year. No price increases during your subscription.'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -251,14 +323,16 @@ const Pricing: React.FC = () => {
 
           <div className="grid md:grid-cols-3 gap-6">
             {localizedPlans.map((plan) => {
-              const isActive = activePlanId === plan.id;
-              const Icon = planIcons[plan.id] || Zap;
-              const isPro = plan.id === 'pro';
-              const isBasic = plan.id === 'basic';
-              const isElite = plan.id === 'elite';
+              const basePlanId = getBasePlanId(plan.id);
+              const isActive = activePlanId === basePlanId;
+              const Icon = planIcons[basePlanId] || Zap;
+              const isPro = basePlanId === 'pro';
+              const isBasic = basePlanId === 'basic';
+              const isElite = basePlanId === 'elite';
+              const isAnnual = billingPeriod === 'annual';
               
-              // Get dynamic pricing based on Early Bird status
-              const dynamicPricing = getDynamicPrice(plan.id);
+              // Get dynamic pricing based on Early Bird status and billing period
+              const dynamicPricing = getDynamicPrice(basePlanId);
               const displayPrice = dynamicPricing.price || plan.price;
               const displayOriginalPrice = dynamicPricing.originalPrice;
               
@@ -273,26 +347,32 @@ const Pricing: React.FC = () => {
                         : 'hover:border-primary/50'
                   }`}
                 >
-                  {/* Early Bird Badge for paid plans */}
-                  {isEarlyBirdActive && (
+                  {/* Badge for plans - Early Bird (monthly) or 60% Locked (annual) */}
+                  {isAnnual ? (
+                    <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-10">
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg border-0 rounded-b-lg rounded-t-none">
+                        🔒 {language === 'ro' ? '60% Blocat' : '60% Locked'}
+                      </Badge>
+                    </div>
+                  ) : isEarlyBirdActive ? (
                     <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-10">
                       <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg border-0 rounded-b-lg rounded-t-none">
                         🔥 Early Bird -50%
                       </Badge>
                     </div>
-                  )}
+                  ) : null}
                   
-                  {/* Top gradient bar for featured */}
-                  {plan.featured && !isEarlyBirdActive && (
+                  {/* Top gradient bar for featured - only when no badge */}
+                  {plan.featured && !isEarlyBirdActive && !isAnnual && (
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary" />
                   )}
                   
-                  {/* Elite gradient bar */}
-                  {isElite && !isEarlyBirdActive && (
+                  {/* Elite gradient bar - only when no badge */}
+                  {isElite && !isEarlyBirdActive && !isAnnual && (
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500" />
                   )}
                   
-                  <CardHeader className={isEarlyBirdActive ? 'pt-10' : ''}>
+                  <CardHeader className={isEarlyBirdActive || isAnnual ? 'pt-10' : ''}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`p-2 rounded-full ${
@@ -389,7 +469,8 @@ const Pricing: React.FC = () => {
                         texts.active
                       ) : (
                         <>
-                          {isEarlyBirdActive && <Timer className="h-4 w-4" />}
+                          {isAnnual && <Calendar className="h-4 w-4" />}
+                          {!isAnnual && isEarlyBirdActive && <Timer className="h-4 w-4" />}
                           {plan.cta}
                         </>
                       )}
