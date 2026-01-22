@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, 
@@ -131,6 +131,8 @@ export const FeatureShowcase = () => {
   const [displaySolution, setDisplaySolution] = useState('');
   const [phase, setPhase] = useState<'problem' | 'pause' | 'solution' | 'reading'>('problem');
   const [progress, setProgress] = useState(0);
+  const listRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const currentFeature = features[activeIndex];
 
@@ -198,6 +200,20 @@ export const FeatureShowcase = () => {
     setProgress(0);
   };
 
+  // Calculate indicator position
+  const getIndicatorStyle = () => {
+    const activeItem = itemRefs.current[activeIndex];
+    if (!activeItem || !listRef.current) return { top: 0, height: 0 };
+    
+    const listRect = listRef.current.getBoundingClientRect();
+    const itemRect = activeItem.getBoundingClientRect();
+    
+    return {
+      top: itemRect.top - listRect.top,
+      height: itemRect.height,
+    };
+  };
+
   return (
     <section className="py-20 md:py-32 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
       {/* Background decoration */}
@@ -223,26 +239,59 @@ export const FeatureShowcase = () => {
         <div className="grid lg:grid-cols-[1fr,320px] gap-8 max-w-6xl mx-auto">
           {/* Main Display Area */}
           <div className="space-y-6">
-            {/* Screenshot */}
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 bg-card">
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={currentFeature.id}
-                  src={currentFeature.image}
-                  alt={currentFeature.title}
-                  className="w-full aspect-video object-cover"
-                  initial={{ opacity: 0, scale: 1.02 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.4 }}
-                />
-              </AnimatePresence>
+            {/* Screenshot with animated neon border */}
+            <div className="relative">
+              {/* Animated gradient border glow */}
+              <motion.div
+                className="absolute -inset-1 rounded-2xl opacity-75"
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6)',
+                  backgroundSize: '300% 300%',
+                }}
+                animate={{
+                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: 'linear',
+                }}
+              />
+              {/* Blur glow effect */}
+              <motion.div
+                className="absolute -inset-2 rounded-2xl blur-xl"
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+                }}
+                animate={{
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                }}
+              />
               
-              {/* Feature badge */}
-              <div className="absolute top-4 left-4">
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${currentFeature.color} text-white text-sm font-medium shadow-lg`}>
-                  <currentFeature.icon className="w-4 h-4" />
-                  {currentFeature.title}
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 bg-card">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={currentFeature.id}
+                    src={currentFeature.image}
+                    alt={currentFeature.title}
+                    className="w-full aspect-video object-cover"
+                    initial={{ opacity: 0, scale: 1.02 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.4 }}
+                  />
+                </AnimatePresence>
+                
+                {/* Feature badge */}
+                <div className="absolute top-4 left-4">
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${currentFeature.color} text-white text-sm font-medium shadow-lg`}>
+                    <currentFeature.icon className="w-4 h-4" />
+                    {currentFeature.title}
+                  </div>
                 </div>
               </div>
             </div>
@@ -290,43 +339,98 @@ export const FeatureShowcase = () => {
             </div>
           </div>
 
-          {/* Feature List Sidebar */}
-          <div className="space-y-2">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              const isActive = index === activeIndex;
-              
-              return (
-                <button
-                  key={feature.id}
-                  onClick={() => goToFeature(index)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-left ${
-                    isActive 
-                      ? 'bg-primary/10 border-2 border-primary/50 shadow-sm' 
-                      : 'bg-card/50 border border-transparent hover:bg-muted/50 hover:border-border'
-                  }`}
-                >
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                    isActive 
-                      ? `bg-gradient-to-br ${feature.color} text-white shadow-md` 
-                      : 'bg-muted text-muted-foreground'
-                  }`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <span className={`font-medium text-sm ${
-                    isActive ? 'text-foreground' : 'text-muted-foreground'
-                  }`}>
-                    {feature.title}
-                  </span>
-                  {isActive && (
-                    <motion.div 
-                      layoutId="activeIndicator"
-                      className="ml-auto w-2 h-2 rounded-full bg-primary"
-                    />
-                  )}
-                </button>
-              );
-            })}
+          {/* Feature List Sidebar with Slide Indicator */}
+          <div className="relative" ref={listRef}>
+            {/* Animated slide indicator */}
+            <motion.div
+              className="absolute left-0 w-1 rounded-full z-10"
+              style={{
+                background: 'linear-gradient(180deg, #3b82f6, #06b6d4, #3b82f6)',
+                boxShadow: '0 0 15px rgba(59, 130, 246, 0.8), 0 0 30px rgba(6, 182, 212, 0.6), 0 0 45px rgba(59, 130, 246, 0.4)',
+              }}
+              animate={{
+                top: getIndicatorStyle().top,
+                height: getIndicatorStyle().height,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+              }}
+            />
+            
+            <div className="space-y-2 pl-4">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                const isActive = index === activeIndex;
+                
+                return (
+                  <motion.button
+                    key={feature.id}
+                    ref={(el) => (itemRefs.current[index] = el)}
+                    onClick={() => goToFeature(index)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-left relative overflow-hidden ${
+                      isActive 
+                        ? 'bg-blue-500/10 text-foreground' 
+                        : 'bg-card/50 border border-transparent hover:bg-muted/50 hover:border-border'
+                    }`}
+                    whileHover={{ x: 4 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {/* Neon glow background for active */}
+                    {isActive && (
+                      <motion.div
+                        className="absolute inset-0 rounded-xl"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                          background: 'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15) 0%, transparent 70%)',
+                          boxShadow: 'inset 0 0 25px rgba(59, 130, 246, 0.1)',
+                        }}
+                      />
+                    )}
+                    
+                    <div className={`relative z-10 w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                      isActive 
+                        ? `bg-gradient-to-br ${feature.color} text-white shadow-md` 
+                        : 'bg-muted text-muted-foreground'
+                    }`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <span className={`relative z-10 font-medium text-sm transition-colors duration-300 ${
+                      isActive ? 'text-blue-400' : 'text-muted-foreground'
+                    }`}>
+                      {feature.title}
+                    </span>
+                    {isActive && (
+                      <motion.div 
+                        className="relative z-10 ml-auto w-2 h-2 rounded-full bg-blue-400"
+                        animate={{ 
+                          boxShadow: [
+                            '0 0 5px rgba(59, 130, 246, 0.8)',
+                            '0 0 15px rgba(59, 130, 246, 1)',
+                            '0 0 5px rgba(59, 130, 246, 0.8)'
+                          ]
+                        }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      />
+                    )}
+                    
+                    {/* Progress bar for active item */}
+                    {isActive && (
+                      <motion.div 
+                        className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-400"
+                        style={{ 
+                          width: `${progress}%`,
+                          boxShadow: '0 0 8px rgba(59, 130, 246, 0.8)',
+                        }}
+                      />
+                    )}
+                  </motion.button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
