@@ -1,28 +1,31 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Play, CheckCircle2, Zap } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowRight, CheckCircle2, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LandingEarlyBirdTimer } from "./LandingEarlyBirdTimer";
+import { HeroInlineChat } from "./HeroInlineChat";
 
-export const NewHeroSection = () => {
+interface NewHeroSectionProps {
+  onAskQuestion?: (question: string) => void;
+  onOpenChat?: () => void;
+}
+
+export const NewHeroSection = ({ onAskQuestion, onOpenChat }: NewHeroSectionProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [realMetrics, setRealMetrics] = useState({ users: 0, completionRate: 0 });
 
   // Fetch real metrics from database
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        // Get total users
         const { count: userCount } = await supabase
           .from('subscribers')
           .select('*', { count: 'exact', head: true });
         
-        // Get challenge completion rate (users who completed day 7)
         const { count: completedCount } = await supabase
           .from('challenge_progress')
           .select('*', { count: 'exact', head: true })
@@ -48,7 +51,6 @@ export const NewHeroSection = () => {
     fetchMetrics();
   }, []);
 
-  // Hormozi-style content
   const heroContent = {
     badge: language === 'ro' ? 'Pentru Antreprenori Ocupați' : 'For Busy Entrepreneurs',
     headline: {
@@ -60,11 +62,18 @@ export const NewHeroSection = () => {
     subheadline: language === 'ro'
       ? 'Sistemul AI care te ajută să fii productiv în business, prezent cu familia, și energetic fizic — toate în același timp.'
       : 'The AI system that helps you be productive in business, present with family, and physically energetic — all at the same time.',
-    cta: language === 'ro' ? 'Începe Gratuit (3 Zile)' : 'Start Free (3 Days)',
-    ctaSecondary: language === 'ro' ? 'Vezi Cum Funcționează' : 'See How It Works',
+    cta: language === 'ro' ? 'Începe Transformarea Gratuit' : 'Start Your Transformation Free',
     guarantees: language === 'ro' 
       ? ['Garanție 90 zile', 'Anulezi oricând', 'Fără card la trial']
       : ['90-day guarantee', 'Cancel anytime', 'No card for trial'],
+  };
+
+  const handleAskQuestion = (question: string) => {
+    onAskQuestion?.(question);
+  };
+
+  const handleOpenChat = () => {
+    onOpenChat?.();
   };
 
   return (
@@ -132,7 +141,7 @@ export const NewHeroSection = () => {
             </h1>
           </motion.div>
 
-          {/* Subheadline - Avatar Specific */}
+          {/* Subheadline */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -142,53 +151,11 @@ export const NewHeroSection = () => {
             {heroContent.subheadline}
           </motion.p>
 
-          {/* CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-8"
-          >
-            <Button
-              size="lg"
-              onClick={() => navigate('/auth')}
-              className="n8n-glow-button text-primary-foreground text-lg px-10 py-7 rounded-xl font-bold group shadow-2xl"
-            >
-              <Zap className="w-5 h-5 mr-2" />
-              {heroContent.cta}
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => setIsVideoPlaying(true)}
-              className="text-lg px-8 py-7 rounded-xl border-2 group"
-            >
-              <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-              {heroContent.ctaSecondary}
-            </Button>
-          </motion.div>
-
-          {/* Trust Badges - No Fake Numbers */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-6 mb-12"
-          >
-            {heroContent.guarantees.map((guarantee, idx) => (
-              <div key={idx} className="flex items-center gap-2 text-muted-foreground">
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <span className="text-sm font-medium">{guarantee}</span>
-              </div>
-            ))}
-          </motion.div>
-
           {/* Video Embed Section - Voomly Autoplay Loop */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
             className="n8n-preview-container shadow-2xl max-w-4xl mx-auto"
           >
             <div className="relative aspect-video rounded-xl overflow-hidden">
@@ -202,7 +169,53 @@ export const NewHeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Real Metrics - Only Show If We Have Data */}
+          {/* CTA Button - Below Video */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-8 flex justify-center"
+          >
+            <Button
+              size="lg"
+              onClick={() => navigate('/auth')}
+              className="n8n-glow-button text-primary-foreground text-lg px-10 py-7 rounded-xl font-bold group shadow-2xl"
+            >
+              <Zap className="w-5 h-5 mr-2" />
+              {heroContent.cta}
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </motion.div>
+
+          {/* Inline Chat Component */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-8"
+          >
+            <HeroInlineChat 
+              onAskQuestion={handleAskQuestion}
+              onOpenChat={handleOpenChat}
+            />
+          </motion.div>
+
+          {/* Trust Badges - Below Chat */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="flex flex-wrap items-center justify-center gap-6 mt-8"
+          >
+            {heroContent.guarantees.map((guarantee, idx) => (
+              <div key={idx} className="flex items-center gap-2 text-muted-foreground">
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <span className="text-sm font-medium">{guarantee}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Real Metrics */}
           {realMetrics.users > 10 && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -243,7 +256,6 @@ export const NewHeroSection = () => {
           )}
         </div>
       </div>
-
     </section>
   );
 };
