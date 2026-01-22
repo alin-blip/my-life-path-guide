@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Wand2, Save, Download, Check, Image as ImageIcon } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, Wand2, Save, Download, Check, Image as ImageIcon, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -67,7 +68,10 @@ export const AIFeatureImageGenerator: React.FC = () => {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [savedFeatures, setSavedFeatures] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<string>('upload');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedConfig = features.find(f => f.id === selectedFeature);
 
@@ -78,6 +82,50 @@ export const AIFeatureImageGenerator: React.FC = () => {
       setCustomPrompt(config.defaultPrompt);
     }
     setGeneratedImage(null);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedFeature) {
+      toast.error('Selectează o funcționalitate întâi');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Te rog selectează o imagine');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileName = `${selectedFeature}.png`;
+      const { error: uploadError } = await supabase.storage
+        .from('feature-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      setSavedFeatures(prev => [...prev.filter(f => f !== selectedFeature), selectedFeature]);
+      toast.success(`Imaginea pentru "${selectedConfig?.name}" a fost încărcată!`);
+      
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setGeneratedImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast.error(error.message || 'Eroare la încărcarea imaginii');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const generateImage = async () => {
@@ -116,7 +164,6 @@ export const AIFeatureImageGenerator: React.FC = () => {
 
     setIsSaving(true);
     try {
-      // Convert base64 to blob
       const base64Data = generatedImage.split(',')[1];
       const byteCharacters = atob(base64Data);
       const byteNumbers = new Array(byteCharacters.length);
@@ -126,7 +173,6 @@ export const AIFeatureImageGenerator: React.FC = () => {
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'image/png' });
 
-      // Upload to storage
       const fileName = `${selectedFeature}.png`;
       const { error: uploadError } = await supabase.storage
         .from('feature-images')
@@ -191,80 +237,128 @@ export const AIFeatureImageGenerator: React.FC = () => {
             </Select>
           </div>
 
-          {/* Custom Prompt */}
+          {/* Tabs for Upload vs Generate */}
           {selectedFeature && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Prompt AI (personalizabil)</label>
-              <Textarea
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-                placeholder="Descrie imaginea dorită..."
-                rows={4}
-              />
-              <p className="text-xs text-muted-foreground">
-                Poți modifica prompt-ul pentru a obține rezultate diferite
-              </p>
-            </div>
-          )}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="upload" className="flex items-center gap-2">
+                  <Upload className="w-4 h-4" />
+                  Upload
+                </TabsTrigger>
+                <TabsTrigger value="generate" className="flex items-center gap-2">
+                  <Wand2 className="w-4 h-4" />
+                  Generează AI
+                </TabsTrigger>
+              </TabsList>
 
-          {/* Generate Button */}
-          <Button
-            onClick={generateImage}
-            disabled={!selectedFeature || isGenerating}
-            className="w-full"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Se generează... (~15 sec)
-              </>
-            ) : (
-              <>
-                <Wand2 className="w-4 h-4 mr-2" />
-                Generează Imagine
-              </>
-            )}
-          </Button>
+              <TabsContent value="upload" className="space-y-4 mt-4">
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="feature-upload"
+                  />
+                  <label
+                    htmlFor="feature-upload"
+                    className="cursor-pointer flex flex-col items-center gap-2"
+                  >
+                    {isUploading ? (
+                      <Loader2 className="w-10 h-10 text-muted-foreground animate-spin" />
+                    ) : (
+                      <Upload className="w-10 h-10 text-muted-foreground" />
+                    )}
+                    <span className="text-sm font-medium">
+                      {isUploading ? 'Se încarcă...' : 'Click pentru a încărca o imagine'}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      PNG, JPG, WEBP (max 10MB)
+                    </span>
+                  </label>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="generate" className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Prompt AI (personalizabil)</label>
+                  <Textarea
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    placeholder="Descrie imaginea dorită..."
+                    rows={4}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Poți modifica prompt-ul pentru a obține rezultate diferite
+                  </p>
+                </div>
+
+                <Button
+                  onClick={generateImage}
+                  disabled={!selectedFeature || isGenerating}
+                  className="w-full"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Se generează... (~15 sec)
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      Generează Imagine
+                    </>
+                  )}
+                </Button>
+              </TabsContent>
+            </Tabs>
+          )}
         </CardContent>
       </Card>
 
-      {/* Generated Image Preview */}
+      {/* Generated/Uploaded Image Preview */}
       {generatedImage && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Imagine Generată</CardTitle>
+            <CardTitle className="text-lg">
+              {activeTab === 'upload' ? 'Imagine Încărcată' : 'Imagine Generată'}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
               <img
                 src={generatedImage}
-                alt={`Generated ${selectedConfig?.name}`}
+                alt={`${selectedConfig?.name}`}
                 className="w-full h-full object-cover"
               />
             </div>
 
             <div className="flex gap-2">
-              <Button
-                onClick={saveToStorage}
-                disabled={isSaving}
-                className="flex-1"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Se salvează...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Salvează în Storage
-                  </>
-                )}
-              </Button>
+              {activeTab === 'generate' && (
+                <Button
+                  onClick={saveToStorage}
+                  disabled={isSaving}
+                  className="flex-1"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Se salvează...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Salvează în Storage
+                    </>
+                  )}
+                </Button>
+              )}
 
               <Button
                 variant="outline"
                 onClick={downloadImage}
+                className={activeTab === 'upload' ? 'flex-1' : ''}
               >
                 <Download className="w-4 h-4 mr-2" />
                 Descarcă
@@ -302,7 +396,7 @@ export const AIFeatureImageGenerator: React.FC = () => {
             ))}
           </div>
           <p className="text-sm text-muted-foreground mt-3">
-            {savedFeatures.length}/9 imagini generate și salvate
+            {savedFeatures.length}/9 imagini salvate
           </p>
         </CardContent>
       </Card>
