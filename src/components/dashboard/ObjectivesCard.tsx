@@ -258,7 +258,7 @@ export const ObjectivesCard: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => navigate(`/door?tab=${getNavigationTab(period)}`)}
+                    onClick={() => navigate(`/game-objectives?tab=${getNavigationTab(period)}`)}
                     className="text-primary hover:text-primary/80"
                   >
                     {language === 'en' 

@@ -304,7 +304,7 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
                 size="sm"
                 variant="secondary"
                 className="text-xs h-7 px-2 bg-white/20 hover:bg-white/30 text-white border-0"
-                onClick={() => navigate('/door?tab=annual')}
+                onClick={() => navigate('/game-objectives?tab=annual')}
               >
                 <Target className="h-3 w-3 mr-1" />
                 {language === 'ro' ? 'Setează Obiective' : 'Set Objectives'}

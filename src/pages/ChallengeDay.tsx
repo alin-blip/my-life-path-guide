@@ -90,14 +90,14 @@ const challengeContent: ChallengeDayContent[] = [
     ],
     exercisesEn: [
       { id: "ex1", title: "Explore Dashboard", description: "Visit the main dashboard and familiarize yourself with the layout", link: "/dashboard", linkLabel: "Open Dashboard" },
-      { id: "ex2", title: "Annual Objectives", description: "Open the Annual Objectives section and set your goals for Body, Being, Balance & Business", area: "being", link: "/door?tab=annual", linkLabel: "Open Annual Goals" },
+      { id: "ex2", title: "Annual Objectives", description: "Open the Annual Objectives section and set your goals for Body, Being, Balance & Business", area: "being", link: "/game-objectives?tab=annual", linkLabel: "Open Annual Goals" },
       { id: "ex3", title: "Fitness Hub Preview", description: "Check out the workout and nutrition tracking features", area: "body", link: "/fitness", linkLabel: "Open Fitness Hub" },
       { id: "ex4", title: "Champion Routine", description: "Preview the morning routine configuration", area: "being", link: "/daily-flow", linkLabel: "Open Champion Routine" },
       { id: "ex5", title: "Stack Explorer", description: "Browse the AI-powered coaching stacks", area: "business", link: "/stack", linkLabel: "Open Stacks" }
     ],
     exercisesRo: [
       { id: "ex1", title: "Explorează Dashboard", description: "Vizitează dashboard-ul principal și familiarizează-te cu layout-ul", link: "/dashboard", linkLabel: "Deschide Dashboard" },
-      { id: "ex2", title: "Obiective Anuale", description: "Deschide secțiunea Obiective Anuale și setează obiectivele pentru Corp, Spirit, Relații & Business", area: "being", link: "/door?tab=annual", linkLabel: "Deschide Obiective Anuale" },
+      { id: "ex2", title: "Obiective Anuale", description: "Deschide secțiunea Obiective Anuale și setează obiectivele pentru Corp, Spirit, Relații & Business", area: "being", link: "/game-objectives?tab=annual", linkLabel: "Deschide Obiective Anuale" },
       { id: "ex3", title: "Fitness Hub Preview", description: "Verifică funcționalitățile de tracking pentru workout și nutriție", area: "body", link: "/fitness", linkLabel: "Deschide Fitness Hub" },
       { id: "ex4", title: "Champion Routine", description: "Previzualizează configurarea rutinei matinale", area: "being", link: "/daily-flow", linkLabel: "Deschide Champion Routine" },
       { id: "ex5", title: "Stack Explorer", description: "Răsfoiește stack-urile de coaching cu AI", area: "business", link: "/stack", linkLabel: "Deschide Stack-uri" }
@@ -131,13 +131,13 @@ const challengeContent: ChallengeDayContent[] = [
       "Creează obiective specifice și măsurabile pentru fiecare arie"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Body Annual Goal", description: "Set your annual Health & Fitness objectives in the Command Center", area: "body", link: "/door?tab=annual", linkLabel: "Set Body Goals" },
-      { id: "ex2", title: "Being Annual Goal", description: "Set your annual Spirituality & Purpose objectives in the Command Center", area: "being", link: "/door?tab=annual", linkLabel: "Set Being Goals" },
+      { id: "ex1", title: "Body Annual Goal", description: "Set your annual Health & Fitness objectives in the Command Center", area: "body", link: "/game-objectives?tab=annual", linkLabel: "Set Body Goals" },
+      { id: "ex2", title: "Being Annual Goal", description: "Set your annual Spirituality & Purpose objectives in the Command Center", area: "being", link: "/game-objectives?tab=annual", linkLabel: "Set Being Goals" },
       { id: "ex3", title: "Review Progress", description: "Confirm you have set clear and measurable goals for Body and Being", area: "being" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Obiectiv Anual Corp", description: "Setează obiectivele anuale de Sănătate & Fitness în Centrul de Comandă", area: "body", link: "/door?tab=annual", linkLabel: "Setează Obiective Corp" },
-      { id: "ex2", title: "Obiectiv Anual Spirit", description: "Setează obiectivele anuale de Spiritualitate & Scop în Centrul de Comandă", area: "being", link: "/door?tab=annual", linkLabel: "Setează Obiective Spirit" },
+      { id: "ex1", title: "Obiectiv Anual Corp", description: "Setează obiectivele anuale de Sănătate & Fitness în Centrul de Comandă", area: "body", link: "/game-objectives?tab=annual", linkLabel: "Setează Obiective Corp" },
+      { id: "ex2", title: "Obiectiv Anual Spirit", description: "Setează obiectivele anuale de Spiritualitate & Scop în Centrul de Comandă", area: "being", link: "/game-objectives?tab=annual", linkLabel: "Setează Obiective Spirit" },
       { id: "ex3", title: "Verifică Progresul", description: "Confirmă că ai setat obiective clare și măsurabile pentru Corp și Spirit", area: "being" }
     ]
   },
@@ -169,14 +169,14 @@ const challengeContent: ChallengeDayContent[] = [
       "Revizuiește toți 4 pilonii pentru completitudine"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Balance Annual Goal", description: "Set your annual Relationships & Love objectives in the Command Center", area: "balance", link: "/door?tab=annual", linkLabel: "Set Balance Goals" },
-      { id: "ex2", title: "Business Annual Goal", description: "Set your annual Career & Business objectives in the Command Center", area: "business", link: "/door?tab=annual", linkLabel: "Set Business Goals" },
-      { id: "ex3", title: "Complete Vision Review", description: "Confirm you have set goals for all 4 pillars: Body, Being, Balance, Business", area: "business", link: "/door?tab=annual", linkLabel: "View All Goals" }
+      { id: "ex1", title: "Balance Annual Goal", description: "Set your annual Relationships & Love objectives in the Command Center", area: "balance", link: "/game-objectives?tab=annual", linkLabel: "Set Balance Goals" },
+      { id: "ex2", title: "Business Annual Goal", description: "Set your annual Career & Business objectives in the Command Center", area: "business", link: "/game-objectives?tab=annual", linkLabel: "Set Business Goals" },
+      { id: "ex3", title: "Complete Vision Review", description: "Confirm you have set goals for all 4 pillars: Body, Being, Balance, Business", area: "business", link: "/game-objectives?tab=annual", linkLabel: "View All Goals" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Obiectiv Anual Relații", description: "Setează obiectivele anuale de Relații & Dragoste în Centrul de Comandă", area: "balance", link: "/door?tab=annual", linkLabel: "Setează Obiective Relații" },
-      { id: "ex2", title: "Obiectiv Anual Business", description: "Setează obiectivele anuale de Carieră & Business în Centrul de Comandă", area: "business", link: "/door?tab=annual", linkLabel: "Setează Obiective Business" },
-      { id: "ex3", title: "Verifică Viziunea Completă", description: "Confirmă că ai setat obiective pentru toți 4 pilonii: Corp, Spirit, Relații, Business", area: "business", link: "/door?tab=annual", linkLabel: "Vezi Toate Obiectivele" }
+      { id: "ex1", title: "Obiectiv Anual Relații", description: "Setează obiectivele anuale de Relații & Dragoste în Centrul de Comandă", area: "balance", link: "/game-objectives?tab=annual", linkLabel: "Setează Obiective Relații" },
+      { id: "ex2", title: "Obiectiv Anual Business", description: "Setează obiectivele anuale de Carieră & Business în Centrul de Comandă", area: "business", link: "/game-objectives?tab=annual", linkLabel: "Setează Obiective Business" },
+      { id: "ex3", title: "Verifică Viziunea Completă", description: "Confirmă că ai setat obiective pentru toți 4 pilonii: Corp, Spirit, Relații, Business", area: "business", link: "/game-objectives?tab=annual", linkLabel: "Vezi Toate Obiectivele" }
     ]
   },
   {
