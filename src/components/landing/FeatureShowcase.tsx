@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from "framer-motion";
+import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform, useScroll } from "framer-motion";
 import { 
   Trophy,
   Brain,
@@ -141,12 +141,20 @@ export const FeatureShowcase = () => {
   const [showSwipeHint, setShowSwipeHint] = useState(true);
   const listRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
   
   // Motion values for drag feedback
   const dragX = useMotionValue(0);
   const dragOpacityLeft = useTransform(dragX, [0, 50], [0, 0.8]);
   const dragOpacityRight = useTransform(dragX, [-50, 0], [0.8, 0]);
+  
+  // Parallax scroll effect
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  });
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [50, -50]);
 
   const currentFeature = features[activeIndex];
 
@@ -258,7 +266,7 @@ export const FeatureShowcase = () => {
   };
 
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
+    <section ref={sectionRef} className="py-20 md:py-32 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -434,8 +442,8 @@ export const FeatureShowcase = () => {
                       </div>
                     )}
                     
-                    {/* Feature image */}
-                    <img
+                    {/* Feature image with parallax */}
+                    <motion.img
                       src={currentFeature.image}
                       alt={currentFeature.title}
                       className={`pointer-events-none select-none ${
@@ -443,6 +451,7 @@ export const FeatureShowcase = () => {
                           ? 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto h-[90%] max-w-[60%] object-contain rounded-xl shadow-2xl shadow-purple-500/30' 
                           : 'w-full h-full object-cover'
                       }`}
+                      style={{ y: parallaxY }}
                       draggable={false}
                     />
                   </motion.div>
