@@ -214,7 +214,7 @@ export const AuthForm: React.FC = () => {
           return;
         }
 
-        const { error } = await withTimeout(
+        const { data: signUpData, error } = await withTimeout(
           supabase.auth.signUp({
             email,
             password,
@@ -226,6 +226,17 @@ export const AuthForm: React.FC = () => {
         );
 
         if (error) throw error;
+
+        // Create subscriber record with early_bird_expires_at (3 days from now)
+        if (signUpData?.user) {
+          const earlyBirdExpiry = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+          await supabase.from('subscribers').upsert({
+            email: email.toLowerCase().trim(),
+            user_id: signUpData.user.id,
+            early_bird_expires_at: earlyBirdExpiry,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'email' });
+        }
 
         toast({
           title: language === 'en' ? "Account created" : "Cont creat",

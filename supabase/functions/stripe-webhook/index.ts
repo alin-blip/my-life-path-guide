@@ -13,9 +13,9 @@ const log = (step: string, details?: any) => {
 
 // Helper function to determine tier from amount (in cents)
 // HORMOZI 3-TIER STRUCTURE (Updated Jan 2025):
-// - Basic: €49 = 4900 cents
-// - Pro: €97 = 9700 cents
-// - Elite: €297 = 29700 cents
+// - Basic: €49 = 4900 cents / €399 annual = 39900 cents
+// - Pro: €97 = 9700 cents / €970 annual = 97000 cents
+// - Elite: €297 = 29700 cents / €2970 annual = 297000 cents
 // - Accelerator: €497 = 49700 cents (one-time)
 const getTierFromAmount = (amount: number, currency: string): string => {
   // Normalize to EUR cents for comparison
@@ -23,6 +23,22 @@ const getTierFromAmount = (amount: number, currency: string): string => {
     ? Math.round(amount / 5) // Approximate RON to EUR conversion
     : amount;
   
+  // Elite Annual: €2970 = 297000 cents (range 290000-305000)
+  if (normalizedAmount >= 290000 && normalizedAmount <= 305000) {
+    return "elite";
+  }
+  // Pro Annual: €970 = 97000 cents (range 95000-100000)
+  if (normalizedAmount >= 95000 && normalizedAmount <= 100000) {
+    return "pro";
+  }
+  // Accelerator: €497 = 49700 cents (range 49000-50500)
+  if (normalizedAmount >= 49000 && normalizedAmount <= 50500) {
+    return "accelerator";
+  }
+  // Basic Annual: €399 = 39900 cents (range 38000-41000)
+  if (normalizedAmount >= 38000 && normalizedAmount <= 41000) {
+    return "basic";
+  }
   // Elite: €297 = 29700 cents (range 29000-30500)
   if (normalizedAmount >= 29000 && normalizedAmount <= 30500) {
     return "elite";
@@ -34,10 +50,6 @@ const getTierFromAmount = (amount: number, currency: string): string => {
   // Basic: €49 = 4900 cents (range 4500-5500)
   if (normalizedAmount >= 4500 && normalizedAmount <= 5500) {
     return "basic";
-  }
-  // Accelerator: €497 = 49700 cents (range 49000-50500)
-  if (normalizedAmount >= 49000 && normalizedAmount <= 50500) {
-    return "accelerator";
   }
   // Default to basic for unknown amounts
   return "basic";
@@ -163,7 +175,14 @@ serve(async (req) => {
         const { data: userData } = await supabaseService.auth.admin.listUsers();
         const user = userData?.users?.find(u => u.email === customerEmail);
 
-        // Upsert subscriber record
+        // Fetch existing early_bird_expires_at to preserve it
+        const { data: existingSubscriber } = await supabaseService
+          .from("subscribers")
+          .select("early_bird_expires_at")
+          .eq("email", customerEmail)
+          .single();
+
+        // Upsert subscriber record - PRESERVE early_bird_expires_at
         const { error: upsertError } = await supabaseService
           .from("subscribers")
           .upsert({
@@ -174,6 +193,7 @@ serve(async (req) => {
             subscription_tier: subscriptionTier,
             subscription_end: subscriptionEnd?.toISOString() || null,
             subscription_status: subscriptionStatus,
+            early_bird_expires_at: existingSubscriber?.early_bird_expires_at || null,
             updated_at: new Date().toISOString(),
           }, { onConflict: "email" });
 
@@ -224,6 +244,13 @@ serve(async (req) => {
         const { data: userData } = await supabaseService.auth.admin.listUsers();
         const user = userData?.users?.find(u => u.email === customerEmail);
 
+        // Fetch existing early_bird_expires_at to preserve it
+        const { data: existingSubscriber } = await supabaseService
+          .from("subscribers")
+          .select("early_bird_expires_at")
+          .eq("email", customerEmail)
+          .single();
+
         const { error: upsertError } = await supabaseService
           .from("subscribers")
           .upsert({
@@ -234,6 +261,7 @@ serve(async (req) => {
             subscription_tier: isActive ? subscriptionTier : null,
             subscription_end: subscriptionEnd.toISOString(),
             subscription_status: subscription.status,
+            early_bird_expires_at: existingSubscriber?.early_bird_expires_at || null,
             updated_at: new Date().toISOString(),
           }, { onConflict: "email" });
 

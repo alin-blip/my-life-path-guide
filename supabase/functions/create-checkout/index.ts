@@ -98,6 +98,28 @@ serve(async (req) => {
         tier = "elite";
         break;
       
+      // === ANNUAL PLANS - 60% DISCOUNT LOCKED ===
+      case "basic-annual":
+        unitAmount = currency === "ron" ? 199000 : 39900; // 1990 RON or €399
+        interval = "year";
+        productName = "WarriorOS Basic Annual (60% Locked)";
+        tier = "basic";
+        break;
+        
+      case "pro-annual":
+        unitAmount = currency === "ron" ? 490000 : 97000; // 4900 RON or €970
+        interval = "year";
+        productName = "WarriorOS Pro Annual (60% Locked)";
+        tier = "pro";
+        break;
+        
+      case "elite-annual":
+        unitAmount = currency === "ron" ? 1490000 : 297000; // 14900 RON or €2970
+        interval = "year";
+        productName = "WarriorOS Elite Annual (60% Locked)";
+        tier = "elite";
+        break;
+      
       // === ONE-TIME PURCHASES ===
       case "warrior-accelerator":
         // Standalone purchase: €497 one-time (reduced from €970)
