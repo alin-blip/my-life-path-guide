@@ -1,167 +1,333 @@
-import { motion } from "framer-motion";
-import { useLanguage } from "@/context/LanguageContext";
-import { CheckCircle2, Zap, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  LayoutDashboard, 
+  Eye, 
+  Dumbbell, 
+  Timer, 
+  Target, 
+  Kanban,
+  Sparkles,
+  FileText,
+  Calendar,
+  LucideIcon
+} from "lucide-react";
+
+// Feature screenshots - using placeholder images for now
+// These will be replaced with actual screenshots
+const featureImages = {
+  dashboard: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
+  visionBoard: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
+  warriorRoutine: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop",
+  focusRoom: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=600&fit=crop",
+  monthlyMission: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop",
+  objectives: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop",
+  stacks: "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800&h=600&fit=crop",
+  visionDeclaration: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=600&fit=crop",
+  historyCalendar: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&h=600&fit=crop",
+};
+
+interface Feature {
+  id: string;
+  title: string;
+  problem: string;
+  solution: string;
+  image: string;
+  icon: LucideIcon;
+  color: string;
+}
+
+const features: Feature[] = [
+  {
+    id: 'dashboard',
+    title: 'Dashboard Principal',
+    problem: 'Te trezești dimineața și nu știi de unde să începi... Ai 100 de lucruri de făcut și niciun plan clar.',
+    solution: 'Un singur ecran îți arată exact ce contează azi. Core 4, Biz 4, habits - totul într-o privire.',
+    image: featureImages.dashboard,
+    icon: LayoutDashboard,
+    color: 'from-blue-500 to-indigo-500'
+  },
+  {
+    id: 'vision-board',
+    title: 'Vision Board AI',
+    problem: 'Știi că vrei mai mult, dar nu poți vizualiza cum arată viața la care visezi...',
+    solution: 'AI-ul generează imagini cu viața ta de vis în toate cele 4 arii. Le vezi zilnic. Devin realitate.',
+    image: featureImages.visionBoard,
+    icon: Eye,
+    color: 'from-purple-500 to-pink-500'
+  },
+  {
+    id: 'warrior-routine',
+    title: 'Rutina Războinicului',
+    problem: 'Ai încercat meditație, exerciții, journaling... separat. Niciuna n-a ținut mai mult de 2 săptămâni.',
+    solution: 'O singură rutină de 20 minute care le combină pe toate. Ghidată pas cu pas. Imposibil să dai greș.',
+    image: featureImages.warriorRoutine,
+    icon: Dumbbell,
+    color: 'from-red-500 to-orange-500'
+  },
+  {
+    id: 'focus-room',
+    title: 'Camera de Focus',
+    problem: 'Lucrezi 10 ore pe zi dar la final nu ai făcut nimic important. Doar "ocupat", niciodată productiv.',
+    solution: 'Pomodoro cu stats și tracking. Vezi exact unde îți fuge timpul. Recuperezi 3 ore pe zi.',
+    image: featureImages.focusRoom,
+    icon: Timer,
+    color: 'from-cyan-500 to-blue-500'
+  },
+  {
+    id: 'monthly-mission',
+    title: 'Misiune Lunară',
+    problem: 'Luna trecută ai zis că schimbi totul. Azi ești în același loc. O lună pierdută. Din nou.',
+    solution: 'Obiective clare pe 30 zile cu progres vizibil. Știi exact cât ai avansat în fiecare arie.',
+    image: featureImages.monthlyMission,
+    icon: Target,
+    color: 'from-green-500 to-emerald-500'
+  },
+  {
+    id: 'objectives',
+    title: 'Obiective & Planning',
+    problem: 'Ai idei geniale... într-un notes, pe telefon, pe post-it-uri. Niciunul nu devine realitate.',
+    solution: 'Toate ideile într-un singur Kanban. De la "idee" la "făcut" cu pași clari și deadline-uri.',
+    image: featureImages.objectives,
+    icon: Kanban,
+    color: 'from-amber-500 to-yellow-500'
+  },
+  {
+    id: 'stacks',
+    title: 'Stack-uri Emoționale',
+    problem: 'Furia, anxietatea, frustrarea... le înghiți. Le ignori. Dar te mănâncă pe dinăuntru.',
+    solution: 'Transformă orice emoție negativă în 10 minute. Ghidare AI care știe exact ce întrebări să pună.',
+    image: featureImages.stacks,
+    icon: Sparkles,
+    color: 'from-violet-500 to-purple-500'
+  },
+  {
+    id: 'vision-declaration',
+    title: 'Declarație Viziune',
+    problem: 'Dacă te întreb "cine ești și unde mergi?" - nu ai un răspuns clar. Cum să ajungi acolo?',
+    solution: 'Declarația ta de viziune în stilul Napoleon Hill. O citești zilnic. Devii persoana aceea.',
+    image: featureImages.visionDeclaration,
+    icon: FileText,
+    color: 'from-rose-500 to-pink-500'
+  },
+  {
+    id: 'history',
+    title: 'Istoric & Analytics',
+    problem: 'Simți că muncești dar nu vezi progres. Poate chiar te miști în cerc...',
+    solution: 'Calendar heatmap care arată exact când ai fost consistent. Dovada vizuală a transformării tale.',
+    image: featureImages.historyCalendar,
+    icon: Calendar,
+    color: 'from-teal-500 to-cyan-500'
+  },
+];
+
+const TYPING_SPEED = 35; // ms per character
+const PAUSE_BETWEEN_TEXTS = 800; // ms pause between problem and solution
+const FEATURE_DURATION = 10000; // 10 seconds per feature
 
 export const FeatureShowcase = () => {
-  const { language } = useLanguage();
-  const navigate = useNavigate();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [displayProblem, setDisplayProblem] = useState('');
+  const [displaySolution, setDisplaySolution] = useState('');
+  const [phase, setPhase] = useState<'problem' | 'pause' | 'solution' | 'reading'>('problem');
+  const [progress, setProgress] = useState(0);
 
-  const features = language === 'ro' 
-    ? [
-        'Sistem AI care învață din comportamentul tău',
-        'Rutine personalizate pentru fiecare etapă',
-        'Feedback în timp real și ajustări automate',
-        'Integrare completă între toate cele 4 arii',
-      ]
-    : [
-        'AI system that learns from your behavior',
-        'Personalized routines for every stage',
-        'Real-time feedback and automatic adjustments',
-        'Complete integration across all 4 areas',
-      ];
+  const currentFeature = features[activeIndex];
+
+  // Typing animation effect
+  useEffect(() => {
+    let timeout: number;
+    
+    if (phase === 'problem') {
+      const targetText = currentFeature.problem;
+      if (displayProblem.length < targetText.length) {
+        timeout = window.setTimeout(() => {
+          setDisplayProblem(targetText.slice(0, displayProblem.length + 1));
+        }, TYPING_SPEED);
+      } else {
+        timeout = window.setTimeout(() => {
+          setPhase('pause');
+        }, PAUSE_BETWEEN_TEXTS);
+      }
+    } else if (phase === 'pause') {
+      timeout = window.setTimeout(() => {
+        setPhase('solution');
+      }, 100);
+    } else if (phase === 'solution') {
+      const targetText = currentFeature.solution;
+      if (displaySolution.length < targetText.length) {
+        timeout = window.setTimeout(() => {
+          setDisplaySolution(targetText.slice(0, displaySolution.length + 1));
+        }, TYPING_SPEED);
+      } else {
+        setPhase('reading');
+      }
+    }
+
+    return () => window.clearTimeout(timeout);
+  }, [displayProblem, displaySolution, phase, currentFeature]);
+
+  // Auto-rotate features
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          goToNext();
+          return 0;
+        }
+        return prev + (100 / (FEATURE_DURATION / 100));
+      });
+    }, 100);
+
+    return () => window.clearInterval(interval);
+  }, [activeIndex]);
+
+  const goToNext = useCallback(() => {
+    setActiveIndex(prev => (prev + 1) % features.length);
+    setDisplayProblem('');
+    setDisplaySolution('');
+    setPhase('problem');
+    setProgress(0);
+  }, []);
+
+  const goToFeature = (index: number) => {
+    setActiveIndex(index);
+    setDisplayProblem('');
+    setDisplaySolution('');
+    setPhase('problem');
+    setProgress(0);
+  };
 
   return (
-    <section className="n8n-section relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 pointer-events-none">
-        <svg className="absolute w-full h-full opacity-5" viewBox="0 0 1000 1000">
-          {/* Circuit lines */}
-          {[...Array(20)].map((_, i) => (
-            <line
-              key={i}
-              x1={Math.random() * 1000}
-              y1={Math.random() * 1000}
-              x2={Math.random() * 1000}
-              y2={Math.random() * 1000}
-              stroke="currentColor"
-              strokeWidth="1"
-              className="circuit-line"
-              style={{ animationDelay: `${i * 0.2}s` }}
-            />
-          ))}
-          {/* Dots */}
-          {[...Array(30)].map((_, i) => (
-            <circle
-              key={i}
-              cx={Math.random() * 1000}
-              cy={Math.random() * 1000}
-              r="3"
-              fill="currentColor"
-              className="opacity-30"
-            />
-          ))}
-        </svg>
+    <section className="py-20 md:py-32 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          {/* Content */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-              {language === 'ro' ? 'Execută.' : 'Execute.'}{' '}
-              {language === 'ro' ? 'Ajustează.' : 'Adjust.'}{' '}
-              <span className="n8n-gradient-text">
-                {language === 'ro' ? 'Repetă.' : 'Repeat.'}
-              </span>
-            </h2>
-            
-            <p className="text-lg text-muted-foreground mb-8">
-              {language === 'ro'
-                ? 'WarriorOS învață din fiecare acțiune pe care o faci. Cu cât îl folosești mai mult, cu atât devine mai bun la a te ghida către obiectivele tale.'
-                : 'WarriorOS learns from every action you take. The more you use it, the better it gets at guiding you towards your goals.'}
-            </p>
-            
-            <ul className="space-y-4 mb-8">
-              {features.map((feature, idx) => (
-                <motion.li
-                  key={feature}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="flex items-center gap-3"
-                >
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span className="text-foreground">{feature}</span>
-                </motion.li>
-              ))}
-            </ul>
-            
-            <Button 
-              onClick={() => navigate('/auth')}
-              className="n8n-glow-button text-white"
-            >
-              {language === 'ro' ? 'Începe transformarea' : 'Start your transformation'}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </motion.div>
+        {/* Section Header */}
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            Tot ce ai nevoie pentru{' '}
+            <span className="bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+              transformare
+            </span>
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            9 funcții integrate care lucrează împreună pentru a-ți construi viața pe care o meriți
+          </p>
+        </div>
 
-          {/* Illustration */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="relative flex items-center justify-center"
-          >
-            {/* Concentric circles */}
-            <div className="relative w-80 h-80">
-              {[1, 2, 3].map((ring) => (
-                <motion.div
-                  key={ring}
-                  animate={{ rotate: ring % 2 === 0 ? 360 : -360 }}
-                  transition={{ duration: 20 + ring * 5, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0"
-                  style={{
-                    top: `${(ring - 1) * 15}%`,
-                    left: `${(ring - 1) * 15}%`,
-                    right: `${(ring - 1) * 15}%`,
-                    bottom: `${(ring - 1) * 15}%`,
-                  }}
-                >
-                  <div 
-                    className="w-full h-full rounded-full border-2 border-dashed"
-                    style={{
-                      borderColor: `hsla(25, 95%, 55%, ${0.4 - ring * 0.1})`,
-                    }}
-                  />
-                </motion.div>
-              ))}
+        <div className="grid lg:grid-cols-[1fr,320px] gap-8 max-w-6xl mx-auto">
+          {/* Main Display Area */}
+          <div className="space-y-6">
+            {/* Screenshot */}
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 bg-card">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentFeature.id}
+                  src={currentFeature.image}
+                  alt={currentFeature.title}
+                  className="w-full aspect-video object-cover"
+                  initial={{ opacity: 0, scale: 1.02 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.4 }}
+                />
+              </AnimatePresence>
               
-              {/* Center lightning icon */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <motion.div
-                  className="w-24 h-24 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-2xl lightning-icon"
-                >
-                  <Zap className="w-12 h-12 text-white" />
-                </motion.div>
+              {/* Feature badge */}
+              <div className="absolute top-4 left-4">
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${currentFeature.color} text-white text-sm font-medium shadow-lg`}>
+                  <currentFeature.icon className="w-4 h-4" />
+                  {currentFeature.title}
+                </div>
               </div>
-              
-              {/* Orbiting dots */}
-              {[0, 1, 2, 3].map((i) => (
-                <motion.div
-                  key={i}
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear", delay: i * 2 }}
-                  className="absolute inset-0"
-                >
-                  <div 
-                    className="absolute w-4 h-4 rounded-full bg-gradient-to-r from-orange-500 to-pink-500"
-                    style={{
-                      top: '10%',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                    }}
-                  />
-                </motion.div>
-              ))}
             </div>
-          </motion.div>
+
+            {/* Typing Text Box */}
+            <div className="bg-card/80 backdrop-blur-sm border border-border rounded-xl p-6 min-h-[140px]">
+              {/* Problem */}
+              <div className="mb-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-xl">⚠️</span>
+                  <p className="text-orange-500/90 font-medium leading-relaxed">
+                    {displayProblem}
+                    {phase === 'problem' && displayProblem.length < currentFeature.problem.length && (
+                      <span className="inline-block w-2 h-5 bg-orange-500 ml-0.5 animate-pulse" />
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Solution */}
+              {(phase === 'solution' || phase === 'reading') && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start gap-3"
+                >
+                  <span className="text-xl">✓</span>
+                  <p className="text-emerald-500/90 font-medium leading-relaxed">
+                    {displaySolution}
+                    {phase === 'solution' && displaySolution.length < currentFeature.solution.length && (
+                      <span className="inline-block w-2 h-5 bg-emerald-500 ml-0.5 animate-pulse" />
+                    )}
+                  </p>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Progress Bar */}
+            <div className="h-1 bg-muted rounded-full overflow-hidden">
+              <motion.div 
+                className={`h-full bg-gradient-to-r ${currentFeature.color}`}
+                style={{ width: `${progress}%` }}
+                transition={{ duration: 0.1 }}
+              />
+            </div>
+          </div>
+
+          {/* Feature List Sidebar */}
+          <div className="space-y-2">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              const isActive = index === activeIndex;
+              
+              return (
+                <button
+                  key={feature.id}
+                  onClick={() => goToFeature(index)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-left ${
+                    isActive 
+                      ? 'bg-primary/10 border-2 border-primary/50 shadow-sm' 
+                      : 'bg-card/50 border border-transparent hover:bg-muted/50 hover:border-border'
+                  }`}
+                >
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                    isActive 
+                      ? `bg-gradient-to-br ${feature.color} text-white shadow-md` 
+                      : 'bg-muted text-muted-foreground'
+                  }`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <span className={`font-medium text-sm ${
+                    isActive ? 'text-foreground' : 'text-muted-foreground'
+                  }`}>
+                    {feature.title}
+                  </span>
+                  {isActive && (
+                    <motion.div 
+                      layoutId="activeIndicator"
+                      className="ml-auto w-2 h-2 rounded-full bg-primary"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

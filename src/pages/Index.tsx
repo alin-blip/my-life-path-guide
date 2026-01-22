@@ -7,7 +7,7 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import { StickyHeader } from "@/components/landing/StickyHeader";
 import { NewHeroSection } from "@/components/landing/NewHeroSection";
 import { LogoCloud } from "@/components/landing/LogoCloud";
-import { BentoFeatures } from "@/components/landing/BentoFeatures";
+import { FeatureShowcase } from "@/components/landing/FeatureShowcase";
 import { InteractiveTimeline } from "@/components/landing/InteractiveTimeline";
 import { TestimonialCarousel } from "@/components/landing/TestimonialCarousel";
 import { PricingComparison } from "@/components/landing/PricingComparison";
@@ -74,8 +74,8 @@ const Index = () => {
       {/* Logo Cloud / Stats */}
       <LogoCloud />
 
-      {/* Bento Features Grid */}
-      <BentoFeatures />
+      {/* Feature Showcase */}
+      <FeatureShowcase />
 
       {/* How It Works Timeline */}
       <InteractiveTimeline />
