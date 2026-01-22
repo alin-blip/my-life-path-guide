@@ -866,15 +866,13 @@ export const Dashboard: React.FC = () => {
         onClose={() => setShowOnboardingWizard(false)} 
       />
       
-      {/* Spotlight Tour for new users */}
-      {!isMobile && (
-        <SpotlightTour
-          steps={DASHBOARD_TOUR_STEPS}
-          isOpen={isTourOpen}
-          onComplete={completeTour}
-          onSkip={skipTour}
-        />
-      )}
+      {/* Spotlight Tour for new users - works on both desktop and mobile */}
+      <SpotlightTour
+        steps={DASHBOARD_TOUR_STEPS}
+        isOpen={isTourOpen}
+        onComplete={completeTour}
+        onSkip={skipTour}
+      />
       
       {/* Foundation Notifications (corner) */}
       <FoundationNotifications 
