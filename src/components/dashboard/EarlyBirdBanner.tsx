@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Gift, ArrowRight, Sparkles, Crown, X } from 'lucide-react';
+import { Gift, ArrowRight, Sparkles, Crown, X, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,9 +10,38 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { redirectExternal } from '@/lib/externalRedirect';
 
+// Countdown hook
+function useCountdown(expiresAt: string | null) {
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0, total: 0 });
+
+  useEffect(() => {
+    if (!expiresAt) return;
+
+    const calculateTime = () => {
+      const now = Date.now();
+      const expiry = new Date(expiresAt).getTime();
+      const diff = Math.max(0, expiry - now);
+
+      return {
+        hours: Math.floor(diff / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+        total: diff
+      };
+    };
+
+    setTimeLeft(calculateTime());
+    const interval = setInterval(() => setTimeLeft(calculateTime()), 1000);
+    return () => clearInterval(interval);
+  }, [expiresAt]);
+
+  return timeLeft;
+}
+
 export function EarlyBirdBanner() {
-  const { user, subscribed, subscriptionTier } = useAuth();
+  const { user, subscribed, subscriptionTier, earlyBirdExpiresAt, isEarlyBirdActive } = useAuth();
   const { language } = useLanguage();
+  const countdown = useCountdown(earlyBirdExpiresAt);
   const [isLoading, setIsLoading] = useState(false);
   const [isDismissed, setIsDismissed] = useState(() => {
     const dismissed = localStorage.getItem('earlyBirdDismissed');
@@ -153,6 +182,26 @@ export function EarlyBirdBanner() {
                   {content.perMonth}
                 </span>
               </div>
+
+              {/* Countdown Timer */}
+              {countdown.total > 0 && (
+                <div className="flex items-center justify-center md:justify-start gap-1.5 mt-2">
+                  <Clock className="h-3.5 w-3.5 text-amber-400" />
+                  <div className="flex items-center gap-0.5 font-mono text-sm font-semibold">
+                    <span className="text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                      {String(countdown.hours).padStart(2, '0')}
+                    </span>
+                    <span className="text-amber-400/60">:</span>
+                    <span className="text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                      {String(countdown.minutes).padStart(2, '0')}
+                    </span>
+                    <span className="text-amber-400/60">:</span>
+                    <span className="text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                      {String(countdown.seconds).padStart(2, '0')}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* CTA Button */}

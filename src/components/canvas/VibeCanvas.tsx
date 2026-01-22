@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Canvas as FabricCanvas, Rect, Circle, Triangle, Line, IText, Path, FabricObject } from 'fabric';
+import { Canvas as FabricCanvas, Rect, Circle, Triangle, Line, IText, Path, FabricObject, PencilBrush } from 'fabric';
 import { VibeCanvasToolbar } from './VibeCanvasToolbar';
 import { VibeCanvasHeader } from './VibeCanvasHeader';
 import { VibeCanvasFooter } from './VibeCanvasFooter';
@@ -149,18 +149,20 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
 
     if (activeTool === 'pencil' || activeTool === 'highlighter') {
       fabricCanvas.isDrawingMode = true;
-      if (fabricCanvas.freeDrawingBrush) {
-        fabricCanvas.freeDrawingBrush.color = activeTool === 'highlighter' 
-          ? 'rgba(255, 255, 0, 0.4)' 
-          : strokeColor;
-        fabricCanvas.freeDrawingBrush.width = activeTool === 'highlighter' ? 20 : strokeWidth;
-      }
+      // Create PencilBrush explicitly for fabric.js v6
+      const brush = new PencilBrush(fabricCanvas);
+      brush.color = activeTool === 'highlighter' 
+        ? 'rgba(255, 255, 0, 0.4)' 
+        : strokeColor;
+      brush.width = activeTool === 'highlighter' ? 20 : strokeWidth;
+      fabricCanvas.freeDrawingBrush = brush;
     } else if (activeTool === 'eraser') {
       fabricCanvas.isDrawingMode = true;
-      if (fabricCanvas.freeDrawingBrush) {
-        fabricCanvas.freeDrawingBrush.color = '#1a1a2e';
-        fabricCanvas.freeDrawingBrush.width = 20;
-      }
+      // Create eraser brush
+      const brush = new PencilBrush(fabricCanvas);
+      brush.color = '#1a1a2e'; // Match background color
+      brush.width = 20;
+      fabricCanvas.freeDrawingBrush = brush;
     }
   }, [activeTool, strokeColor, strokeWidth, fabricCanvas]);
 
