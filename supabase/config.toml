@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.send-goal-plan-email]
 verify_jwt = false
+
+[functions.sales-coach]
+verify_jwt = false

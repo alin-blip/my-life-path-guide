@@ -13,6 +13,7 @@ import { TestimonialCarousel } from "@/components/landing/TestimonialCarousel";
 import { PricingComparison } from "@/components/landing/PricingComparison";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { NewFooter } from "@/components/landing/NewFooter";
+import { SalesCoachWidget } from "@/components/landing/SalesCoachWidget";
 
 const Index = () => {
   const { t } = useLanguage();
@@ -72,6 +73,9 @@ const Index = () => {
 
       {/* Footer */}
       <NewFooter />
+
+      {/* Sales Coach Widget */}
+      <SalesCoachWidget />
     </div>
   );
 };
