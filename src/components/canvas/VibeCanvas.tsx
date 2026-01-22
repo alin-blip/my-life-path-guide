@@ -27,12 +27,18 @@ interface VibeCanvasProps {
   projectId?: string;
   initialData?: string;
   onSave?: (data: string) => void;
+  onOpenProjects?: () => void;
+  onOpenTemplates?: () => void;
+  onNewProject?: () => void;
 }
 
 export const VibeCanvas: React.FC<VibeCanvasProps> = ({ 
   projectId, 
   initialData,
-  onSave 
+  onSave,
+  onOpenProjects,
+  onOpenTemplates,
+  onNewProject,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -467,6 +473,9 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
         onRedo={handleRedo}
         canUndo={canUndo}
         canRedo={canRedo}
+        onOpenProjects={onOpenProjects}
+        onOpenTemplates={onOpenTemplates}
+        onNewProject={onNewProject}
       />
 
       <div className="flex flex-1 overflow-hidden">

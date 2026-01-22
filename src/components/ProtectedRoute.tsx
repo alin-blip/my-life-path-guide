@@ -23,6 +23,7 @@ const FREE_TIER_ROUTES = [
   '/fact-maps', // Reality Map - accessible for lead magnet users
   '/game-objectives', // Annual Goals - accessible for lead magnet users (Life Score, Business 2026)
   '/game', // Redirect route to game-objectives
+  '/vibe-canvas', // Creative canvas - accessible for all users
 ];
 
 // Routes available for BASIC tier (full platform without LIVE coaching)
