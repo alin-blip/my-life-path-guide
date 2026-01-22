@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SideMenu } from './SideMenu';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Share, Menu, X, Sun, Moon } from 'lucide-react';
@@ -10,6 +10,7 @@ import { ReferralTracker } from './ReferralTracker';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useTourContext } from '@/context/TourContext';
 
 import { GoalRemindersNotification } from './door/GoalRemindersNotification';
 
@@ -28,6 +29,22 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { language } = useLanguage();
   const { isLoading, shareReferralLink } = useAffiliateLink();
   const { theme, toggleTheme } = useTheme();
+  const { registerMobileMenuControl } = useTourContext();
+
+  // Register mobile menu controls for tour
+  const openMobileMenuHandler = useCallback(() => {
+    setIsMobileMenuOpen(true);
+  }, []);
+
+  const closeMobileMenuHandler = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) {
+      registerMobileMenuControl(openMobileMenuHandler, closeMobileMenuHandler);
+    }
+  }, [isMobile, registerMobileMenuControl, openMobileMenuHandler, closeMobileMenuHandler]);
 
   if (isAuthPage) {
     return <>{children}</>;
