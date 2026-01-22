@@ -141,36 +141,75 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
   const tooltipStyle = getTooltipPosition();
   const isCentered = !targetRect || currentStepData?.position === 'center';
 
+  // Spotlight padding around target
+  const spotlightPadding = 12;
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100]">
-          {/* Overlay with spotlight cutout */}
-          <motion.div
+        <div className="fixed inset-0 z-[100]" onClick={handleSkip}>
+          {/* SVG Overlay with real cutout for spotlight effect */}
+          <motion.svg
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/80 z-[101]"
-            onClick={handleSkip}
+            className="absolute inset-0 w-full h-full z-[101] pointer-events-none"
+            style={{ width: '100vw', height: '100vh' }}
           >
-            {/* Spotlight highlight effect */}
-            {targetRect && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="absolute rounded-lg ring-4 ring-primary ring-offset-4 ring-offset-transparent"
-                style={{
-                  top: targetRect.top - 8,
-                  left: targetRect.left - 8,
-                  width: targetRect.width + 16,
-                  height: targetRect.height + 16,
-                  boxShadow: '0 0 0 9999px rgba(0,0,0,0.75)',
-                  backgroundColor: 'transparent',
-                  pointerEvents: 'none'
-                }}
-              />
-            )}
-          </motion.div>
+            <defs>
+              <mask id="spotlight-mask">
+                {/* White = visible overlay, Black = transparent cutout */}
+                <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                {targetRect && (
+                  <motion.rect
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    x={targetRect.left - spotlightPadding}
+                    y={targetRect.top - spotlightPadding}
+                    width={targetRect.width + spotlightPadding * 2}
+                    height={targetRect.height + spotlightPadding * 2}
+                    rx="12"
+                    ry="12"
+                    fill="black"
+                  />
+                )}
+              </mask>
+            </defs>
+            {/* Dark overlay with cutout */}
+            <rect
+              x="0"
+              y="0"
+              width="100%"
+              height="100%"
+              fill="rgba(0,0,0,0.70)"
+              mask="url(#spotlight-mask)"
+            />
+          </motion.svg>
+
+          {/* Animated glow border around target */}
+          {targetRect && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="absolute rounded-xl pointer-events-none z-[101]"
+              style={{
+                top: targetRect.top - spotlightPadding,
+                left: targetRect.left - spotlightPadding,
+                width: targetRect.width + spotlightPadding * 2,
+                height: targetRect.height + spotlightPadding * 2,
+                border: '3px solid hsl(var(--primary))',
+                boxShadow: `
+                  0 0 20px hsl(var(--primary) / 0.6),
+                  0 0 40px hsl(var(--primary) / 0.4),
+                  0 0 60px hsl(var(--primary) / 0.2),
+                  inset 0 0 20px hsl(var(--primary) / 0.1)
+                `,
+                animation: 'spotlight-pulse 2s ease-in-out infinite'
+              }}
+            />
+          )}
 
           {/* Tooltip - centered or positioned */}
           <motion.div
