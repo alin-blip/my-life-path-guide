@@ -165,6 +165,7 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
 
   // Spotlight padding around target
   const spotlightPadding = 16;
+  const mobilePadding = 10; // Smaller padding for mobile screens
 
   // Check if this is a centered step (no target or position is center)
   const isCentered = !targetRect || currentStepData?.position === 'center';
@@ -292,14 +293,44 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
             </motion.svg>
           )}
 
-          {/* Mobile: Simple dark overlay */}
+          {/* Mobile: SVG Overlay with real cutout for spotlight effect */}
           {!isTransitioning && isMobile && (
-            <motion.div
+            <motion.svg
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-[101] bg-black/70 pointer-events-none"
-            />
+              className="absolute inset-0 w-full h-full z-[101] pointer-events-none"
+              style={{ width: '100vw', height: '100vh' }}
+            >
+              <defs>
+                <mask id="spotlight-mask-mobile">
+                  {/* White = visible overlay, Black = transparent cutout */}
+                  <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                  {targetRect && (
+                    <motion.rect
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      x={targetRect.left - mobilePadding}
+                      y={targetRect.top - mobilePadding}
+                      width={targetRect.width + mobilePadding * 2}
+                      height={targetRect.height + mobilePadding * 2}
+                      rx="12"
+                      ry="12"
+                      fill="black"
+                    />
+                  )}
+                </mask>
+              </defs>
+              {/* Dark overlay with cutout */}
+              <rect
+                x="0"
+                y="0"
+                width="100%"
+                height="100%"
+                fill="rgba(0,0,0,0.75)"
+                mask="url(#spotlight-mask-mobile)"
+              />
+            </motion.svg>
           )}
 
           {/* Animated glow border around target - Desktop only */}
@@ -327,21 +358,28 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
             />
           )}
 
-          {/* Mobile: Small indicator arrow pointing to target */}
+          {/* Mobile: Animated glow border around target */}
           {!isTransitioning && targetRect && isMobile && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="absolute z-[103] pointer-events-none"
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="absolute rounded-xl pointer-events-none z-[102]"
               style={{
-                top: targetRect.top - 40,
-                left: targetRect.left + targetRect.width / 2 - 20,
+                top: targetRect.top - mobilePadding,
+                left: targetRect.left - mobilePadding,
+                width: targetRect.width + mobilePadding * 2,
+                height: targetRect.height + mobilePadding * 2,
+                border: '2px solid hsl(var(--primary))',
+                boxShadow: `
+                  0 0 15px hsl(var(--primary) / 0.6),
+                  0 0 30px hsl(var(--primary) / 0.4),
+                  0 0 45px hsl(var(--primary) / 0.2)
+                `,
+                animation: 'spotlight-pulse 2s ease-in-out infinite'
               }}
-            >
-              <div className="w-10 h-10 flex items-center justify-center">
-                <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[16px] border-t-primary animate-bounce" />
-              </div>
-            </motion.div>
+            />
           )}
 
           {/* Tooltip */}
