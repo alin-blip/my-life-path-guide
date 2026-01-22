@@ -915,6 +915,155 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_messages: {
+        Row: {
+          client_id: string
+          coach_id: string
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          sender_type: string
+        }
+        Insert: {
+          client_id: string
+          coach_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          sender_type: string
+        }
+        Update: {
+          client_id?: string
+          coach_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_messages_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          commission_rate: number
+          created_at: string
+          display_name: string
+          id: string
+          is_verified: boolean | null
+          pending_payout: number | null
+          referral_code: string
+          stripe_connect_id: string | null
+          stripe_onboarding_complete: boolean | null
+          total_earnings: number | null
+          total_referrals: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          commission_rate?: number
+          created_at?: string
+          display_name: string
+          id?: string
+          is_verified?: boolean | null
+          pending_payout?: number | null
+          referral_code: string
+          stripe_connect_id?: string | null
+          stripe_onboarding_complete?: boolean | null
+          total_earnings?: number | null
+          total_referrals?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          commission_rate?: number
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_verified?: boolean | null
+          pending_payout?: number | null
+          referral_code?: string
+          stripe_connect_id?: string | null
+          stripe_onboarding_complete?: boolean | null
+          total_earnings?: number | null
+          total_referrals?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      commissions: {
+        Row: {
+          amount: number
+          coach_id: string
+          created_at: string
+          currency: string
+          id: string
+          original_payment: number
+          paid_at: string | null
+          referral_id: string
+          status: string
+          stripe_payment_id: string | null
+          stripe_transfer_id: string | null
+        }
+        Insert: {
+          amount: number
+          coach_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          original_payment: number
+          paid_at?: string | null
+          referral_id: string
+          status?: string
+          stripe_payment_id?: string | null
+          stripe_transfer_id?: string | null
+        }
+        Update: {
+          amount?: number
+          coach_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          original_payment?: number
+          paid_at?: string | null
+          referral_id?: string
+          status?: string
+          stripe_payment_id?: string | null
+          stripe_transfer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_creation: {
         Row: {
           completed: boolean | null
@@ -2746,6 +2895,47 @@ export type Database = {
         }
         Relationships: []
       }
+      payout_history: {
+        Row: {
+          amount: number
+          coach_id: string
+          commissions_included: string[]
+          created_at: string
+          currency: string
+          id: string
+          status: string
+          stripe_transfer_id: string
+        }
+        Insert: {
+          amount: number
+          coach_id: string
+          commissions_included: string[]
+          created_at?: string
+          currency?: string
+          id?: string
+          status?: string
+          stripe_transfer_id: string
+        }
+        Update: {
+          amount?: number
+          coach_id?: string
+          commissions_included?: string[]
+          created_at?: string
+          currency?: string
+          id?: string
+          status?: string
+          stripe_transfer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_history_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_rate_limits: {
         Row: {
           created_at: string | null
@@ -2885,6 +3075,50 @@ export type Database = {
           window_start?: string | null
         }
         Relationships: []
+      }
+      referrals: {
+        Row: {
+          coach_id: string
+          created_at: string
+          first_payment_at: string | null
+          id: string
+          lifetime_value: number | null
+          referral_code: string
+          referred_user_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string
+          first_payment_at?: string | null
+          id?: string
+          lifetime_value?: number | null
+          referral_code: string
+          referred_user_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string
+          first_payment_at?: string | null
+          id?: string
+          lifetime_value?: number | null
+          referral_code?: string
+          referred_user_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       relationship_actions: {
         Row: {
@@ -3280,11 +3514,13 @@ export type Database = {
       tribes: {
         Row: {
           avatar_url: string | null
+          coach_id: string | null
           cover_image_url: string | null
           created_at: string | null
           created_by: string
           description: string | null
           id: string
+          is_coach_tribe: boolean | null
           is_public: boolean | null
           member_count: number | null
           name: string
@@ -3292,11 +3528,13 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          coach_id?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           created_by: string
           description?: string | null
           id?: string
+          is_coach_tribe?: boolean | null
           is_public?: boolean | null
           member_count?: number | null
           name: string
@@ -3304,17 +3542,27 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          coach_id?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           created_by?: string
           description?: string | null
           id?: string
+          is_coach_tribe?: boolean | null
           is_public?: boolean | null
           member_count?: number | null
           name?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tribes_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_achievements: {
         Row: {
@@ -4865,6 +5113,7 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      generate_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -4882,7 +5131,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "coach" | "trainer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5010,7 +5259,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "coach", "trainer"],
     },
   },
 } as const
