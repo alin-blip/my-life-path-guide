@@ -15,7 +15,8 @@ import {
   CheckCircle2,
   Loader2,
   Flame,
-  GraduationCap
+  GraduationCap,
+  MessageCircle
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
@@ -623,6 +624,21 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
       ro: 'Începe fiecare zi cu meditație, respirație, vizualizare și recunoștință. Sistemul tău complet de transformare.'
     },
     icon: <Trophy className="h-8 w-8 text-amber-500" />,
+    position: 'right'
+  },
+  {
+    id: 'accountability-coach',
+    targetSelector: '[data-tour="accountability-coach"]',
+    route: '/dashboard',
+    title: { 
+      en: '🤖 AI Accountability Coach', 
+      ro: '🤖 Coach AI de Responsabilitate' 
+    },
+    description: { 
+      en: 'Your personal AI assistant! Two tabs:\n• **Plan** - All pending tasks & reminders in one place\n• **AI Coach** - Chat with an AI that knows your goals and keeps you on track',
+      ro: 'Asistentul tău personal AI! Două tab-uri:\n• **Plan** - Toate task-urile și reminder-urile într-un singur loc\n• **AI Coach** - Chat cu un AI care îți cunoaște obiectivele și te ajută să rămâi focusat'
+    },
+    icon: <MessageCircle className="h-8 w-8 text-primary" />,
     position: 'right'
   },
   {

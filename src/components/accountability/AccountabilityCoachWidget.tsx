@@ -65,6 +65,7 @@ export const AccountabilityCoachWidget: React.FC = () => {
     <>
       {/* Floating Button - Bottom Left */}
       <Button
+        data-tour="accountability-coach"
         onClick={() => setIsOpen(true)}
         className={cn(
           'fixed bottom-4 left-4 z-50 h-14 w-14 rounded-full shadow-lg',

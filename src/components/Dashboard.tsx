@@ -271,8 +271,15 @@ export const Dashboard: React.FC = () => {
   }, [searchParams, setSearchParams, toast, language]);
 
   // Daily popup - shows once per day if there are pending items (disabled on mobile)
+  // Also closes automatically when tour starts to prevent overlap
   useEffect(() => {
     if (foundationStatus.isLoading || isMobile) return;
+    
+    // If tour is active, close the wizard immediately
+    if (isTourOpen) {
+      setShowOnboardingWizard(false);
+      return;
+    }
     
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const shownToday = localStorage.getItem('onboarding-wizard-shown-today');
@@ -284,7 +291,7 @@ export const Dashboard: React.FC = () => {
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [foundationStatus.isLoading, foundationStatus.isFoundationComplete, isMobile]);
+  }, [foundationStatus.isLoading, foundationStatus.isFoundationComplete, isMobile, isTourOpen]);
 
   // Listen for progress updates and XP events
   useEffect(() => {
