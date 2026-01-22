@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
 
 const LOADING_TIMEOUT_MS = 10000; // 10 seconds
 
-// Routes available for FREE tier (habit tracking + challenges + Reality Map for lead magnet)
+// Routes available for FREE tier (habit tracking + challenges + Reality Map + Annual Goals for lead magnet)
 const FREE_TIER_ROUTES = [
   '/dashboard',
   '/habits',
@@ -21,6 +21,8 @@ const FREE_TIER_ROUTES = [
   '/settings',
   '/profile',
   '/fact-maps', // Reality Map - accessible for lead magnet users
+  '/game-objectives', // Annual Goals - accessible for lead magnet users (Life Score, Business 2026)
+  '/game', // Redirect route to game-objectives
 ];
 
 // Routes available for BASIC tier (full platform without LIVE coaching)
