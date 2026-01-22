@@ -20,6 +20,7 @@ import {
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTourContext } from '@/context/TourContext';
 
 export interface TourStep {
   id: string;
@@ -30,6 +31,7 @@ export interface TourStep {
   position?: 'top' | 'bottom' | 'left' | 'right' | 'center';
   route?: string; // Navigate to this route before showing step
   action?: () => void; // Custom action when step is shown
+  requiresSidebar?: boolean; // Open mobile sidebar before highlighting
 }
 
 interface SpotlightTourProps {
@@ -46,6 +48,7 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
   const { language } = useLanguage();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { openMobileMenu, closeMobileMenu } = useTourContext();
 
   const currentStepData = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
@@ -60,6 +63,16 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
     }
 
     setIsTransitioning(true);
+
+    // On mobile, open sidebar if step requires it or targets a sidebar link
+    const needsSidebar = currentStepData.requiresSidebar || 
+      (isMobile && currentStepData.targetSelector?.includes('a[href='));
+    
+    if (needsSidebar && isMobile) {
+      openMobileMenu();
+      // Wait for sidebar animation to complete
+      await new Promise(resolve => setTimeout(resolve, 400));
+    }
 
     // Wait a bit for any route navigation to complete
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -83,7 +96,7 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
     const rect = element.getBoundingClientRect();
     setTargetRect(rect);
     setIsTransitioning(false);
-  }, [currentStepData?.targetSelector]);
+  }, [currentStepData?.targetSelector, currentStepData?.requiresSidebar, isMobile, openMobileMenu]);
 
   // Handle step changes
   useEffect(() => {
@@ -128,6 +141,8 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
 
   const handleNext = () => {
     if (isLastStep) {
+      // Close mobile menu when tour completes
+      if (isMobile) closeMobileMenu();
       onComplete();
     } else {
       setCurrentStep(prev => prev + 1);
@@ -141,6 +156,8 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
   };
 
   const handleSkip = () => {
+    // Close mobile menu when tour is skipped
+    if (isMobile) closeMobileMenu();
     onSkip();
   };
 
@@ -510,6 +527,7 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
     id: 'challenge-info',
     targetSelector: 'a[href="/challenge"]',
     route: '/dashboard',
+    requiresSidebar: true,
     title: { 
       en: '🔥 Have It All Lifestyle Challenge', 
       ro: '🔥 Challenge Have It All Lifestyle' 
@@ -525,6 +543,7 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
     id: 'accelerator-info',
     targetSelector: 'a[href="/warriors-way"]',
     route: '/dashboard',
+    requiresSidebar: true,
     title: { 
       en: '🎓 Warrior Launch Accelerator', 
       ro: '🎓 Warrior Launch Accelerator' 
@@ -540,6 +559,7 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
     id: 'door-info',
     targetSelector: 'a[href="/door"]',
     route: '/dashboard',
+    requiresSidebar: true,
     title: { 
       en: '📋 The Door - Command Center', 
       ro: '📋 The Door - Centrul de Comandă' 
@@ -555,6 +575,7 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
     id: 'champion-info',
     targetSelector: 'a[href="/daily-flow"]',
     route: '/dashboard',
+    requiresSidebar: true,
     title: { 
       en: '🏆 Champion Morning Routine', 
       ro: '🏆 Rutina Matinală a Campionului' 

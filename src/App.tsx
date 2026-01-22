@@ -13,7 +13,7 @@ import { SecurityProvider } from "@/components/SecurityProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeProvider } from "@/context/ThemeContext";
-
+import { TourProvider } from "@/context/TourContext";
 // Eager load critical pages
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -104,6 +104,7 @@ const App = () => (
             <BrowserRouter>
             <AuthProvider>
                   <LanguageProvider>
+                    <TourProvider>
                     <SecurityProvider>
                       <DoorProvider>
                         <ProgressProvider>
@@ -373,6 +374,7 @@ const App = () => (
                       </ProgressProvider>
                       </DoorProvider>
                     </SecurityProvider>
+                    </TourProvider>
                   </LanguageProvider>
             </AuthProvider>
           </BrowserRouter>

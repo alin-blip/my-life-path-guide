@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useTourContext } from '@/context/TourContext';
 
 const TOUR_STORAGE_KEY = 'warrioros-onboarding-tour-completed';
 const TOUR_SKIPPED_KEY = 'warrioros-onboarding-tour-skipped';
@@ -16,6 +17,7 @@ interface UseOnboardingTourReturn {
 
 export function useOnboardingTour(): UseOnboardingTourReturn {
   const { user } = useAuth();
+  const { setIsTourActive } = useTourContext();
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [hasCompletedTour, setHasCompletedTour] = useState(false);
   const [hasSkippedTour, setHasSkippedTour] = useState(false);
@@ -46,7 +48,8 @@ export function useOnboardingTour(): UseOnboardingTourReturn {
 
   const startTour = useCallback(() => {
     setIsTourOpen(true);
-  }, []);
+    setIsTourActive(true);
+  }, [setIsTourActive]);
 
   const completeTour = useCallback(() => {
     if (user) {
@@ -55,7 +58,8 @@ export function useOnboardingTour(): UseOnboardingTourReturn {
       setHasCompletedTour(true);
     }
     setIsTourOpen(false);
-  }, [user]);
+    setIsTourActive(false);
+  }, [user, setIsTourActive]);
 
   const skipTour = useCallback(() => {
     if (user) {
@@ -64,7 +68,8 @@ export function useOnboardingTour(): UseOnboardingTourReturn {
       setHasSkippedTour(true);
     }
     setIsTourOpen(false);
-  }, [user]);
+    setIsTourActive(false);
+  }, [user, setIsTourActive]);
 
   const resetTour = useCallback(() => {
     if (user) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { X, ChevronDown, AlertTriangle, Target, Sparkles, Map, ListTodo, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { useRealityMapStatus } from '@/hooks/useRealityMapStatus';
 import { useAccountabilityCoach } from '@/hooks/useAccountabilityCoach';
 import { SidebarChatMode } from '@/components/accountability/SidebarChatMode';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTourContext } from '@/context/TourContext';
 
 interface FoundationNotificationsProps {
   onOpenWizard: () => void;
@@ -23,9 +24,17 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
   const isMobile = useIsMobile();
   const { pendingItems, completionPercentage, isFoundationComplete, isLoading } = useFoundationStatus();
   const { hasRealityMap } = useRealityMapStatus();
+  const { isTourActive } = useTourContext();
   const [isMinimized, setIsMinimized] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('plan');
+
+  // Auto-minimize when tour is active
+  useEffect(() => {
+    if (isTourActive && !isMinimized) {
+      setIsMinimized(true);
+    }
+  }, [isTourActive, isMinimized]);
 
   const {
     messages: coachMessages,
@@ -49,8 +58,8 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
     }
   };
 
-  // Don't show if loading, complete, or dismissed
-  if (isLoading || isFoundationComplete || isDismissed) {
+  // Don't show if loading, complete, dismissed, or tour is active
+  if (isLoading || isFoundationComplete || isDismissed || isTourActive) {
     return null;
   }
 
