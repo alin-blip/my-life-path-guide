@@ -199,18 +199,29 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     }
   }, [activeTool, activeColor, strokeColor, strokeWidth, fabricCanvas]);
 
-  // Pan mode mouse event handlers
+  // Pan mode mouse event handlers (pan tool, middle mouse button, or right mouse button)
   useEffect(() => {
     if (!fabricCanvas) return;
 
     let panning = false;
+    let panningWithMiddle = false;
     let lastPos = { x: 0, y: 0 };
 
     const handleMouseDown = (opt: any) => {
       const e = opt.e as MouseEvent;
       
-      // Pan when in pan tool mode
-      if (activeTool === 'pan') {
+      // Pan with middle mouse button (button 1) or right mouse button (button 2) - works with any tool
+      if (e.button === 1 || e.button === 2) {
+        e.preventDefault();
+        panningWithMiddle = true;
+        lastPos = { x: e.clientX, y: e.clientY };
+        fabricCanvas.defaultCursor = 'grabbing';
+        fabricCanvas.renderAll();
+        return;
+      }
+      
+      // Pan when in pan tool mode with left click
+      if (activeTool === 'pan' && e.button === 0) {
         panning = true;
         lastPos = { x: e.clientX, y: e.clientY };
         fabricCanvas.defaultCursor = 'grabbing';
@@ -219,7 +230,7 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     };
 
     const handleMouseMove = (opt: any) => {
-      if (!panning) return;
+      if (!panning && !panningWithMiddle) return;
       
       const e = opt.e as MouseEvent;
       const vpt = fabricCanvas.viewportTransform;
@@ -232,7 +243,23 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
       fabricCanvas.requestRenderAll();
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (opt: any) => {
+      const e = opt.e as MouseEvent;
+      
+      // Stop middle/right mouse button panning
+      if (panningWithMiddle) {
+        panningWithMiddle = false;
+        // Restore cursor based on current tool
+        if (activeTool === 'pan') {
+          fabricCanvas.defaultCursor = 'grab';
+        } else {
+          fabricCanvas.defaultCursor = 'default';
+        }
+        fabricCanvas.renderAll();
+        return;
+      }
+      
+      // Stop pan tool panning
       if (activeTool === 'pan' && panning) {
         panning = false;
         fabricCanvas.defaultCursor = 'grab';
@@ -240,14 +267,23 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
       }
     };
 
+    // Prevent context menu on right click
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
     fabricCanvas.on('mouse:down', handleMouseDown);
     fabricCanvas.on('mouse:move', handleMouseMove);
     fabricCanvas.on('mouse:up', handleMouseUp);
+    
+    const canvasEl = fabricCanvas.getElement();
+    canvasEl.addEventListener('contextmenu', handleContextMenu);
 
     return () => {
       fabricCanvas.off('mouse:down', handleMouseDown);
       fabricCanvas.off('mouse:move', handleMouseMove);
       fabricCanvas.off('mouse:up', handleMouseUp);
+      canvasEl.removeEventListener('contextmenu', handleContextMenu);
     };
   }, [fabricCanvas, activeTool]);
 
