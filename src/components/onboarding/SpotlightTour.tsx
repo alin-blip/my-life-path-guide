@@ -186,22 +186,17 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
     
     let top = targetRect!.bottom + padding + spotlightPadding;
     
-    // Calculate left position - ensure tooltip stays within viewport
-    let left = targetRect!.left + targetRect!.width / 2;
+    // Always center tooltip horizontally for consistency
+    // Unless target is very far right, then shift left
+    let left = viewportWidth / 2;
     
-    // If target is on the right side of screen, position tooltip to the left of it
-    if (targetRect!.right > viewportWidth - tooltipWidth) {
-      // Target is near right edge - position tooltip to the left
-      left = Math.min(targetRect!.left - padding, viewportWidth - tooltipWidth - 20);
-      
-      // If tooltip would go off left edge, center it
-      if (left < tooltipWidth / 2 + 20) {
-        left = viewportWidth / 2;
-      }
-    } else {
-      // Normal positioning - center below target but keep within bounds
-      left = Math.max(tooltipWidth / 2 + 20, Math.min(left, viewportWidth - tooltipWidth / 2 - 20));
+    // If target is on the right third of screen, shift tooltip more to center-left
+    if (targetRect!.left > viewportWidth * 0.6) {
+      left = viewportWidth / 2 - 50; // Shift slightly left of center
     }
+    
+    // Ensure tooltip stays within viewport bounds
+    left = Math.max(tooltipWidth / 2 + 20, Math.min(left, viewportWidth - tooltipWidth / 2 - 20));
     
     // If tooltip would go below viewport, show above target
     if (top + tooltipHeight > viewportHeight) {
@@ -408,7 +403,7 @@ export function SpotlightTour({ steps, isOpen, onComplete, onSkip }: SpotlightTo
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.1 }}
-              className={`bg-card border border-border rounded-xl shadow-2xl z-[103] ${
+              className={`bg-card border border-border rounded-xl shadow-2xl z-[103] pointer-events-auto ${
                 isMobile 
                   ? 'p-4' 
                   : isCentered 
