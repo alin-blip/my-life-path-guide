@@ -71,11 +71,11 @@ const Index = () => {
         onOpenChat={handleOpenChat}
       />
 
+      {/* Feature Showcase - Tot ce ai nevoie pentru transformare */}
+      <FeatureShowcase />
+
       {/* Logo Cloud / Stats */}
       <LogoCloud />
-
-      {/* Feature Showcase */}
-      <FeatureShowcase />
 
       {/* How It Works Timeline */}
       <InteractiveTimeline />
