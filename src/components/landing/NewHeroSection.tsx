@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Play, CheckCircle2, Shield, Zap, X } from "lucide-react";
+import { ArrowRight, Play, CheckCircle2, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LandingEarlyBirdTimer } from "./LandingEarlyBirdTimer";
@@ -184,7 +184,7 @@ export const NewHeroSection = () => {
             ))}
           </motion.div>
 
-          {/* Video Embed Section - Voomly */}
+          {/* Video Embed Section - Voomly Autoplay Loop */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -192,36 +192,13 @@ export const NewHeroSection = () => {
             className="n8n-preview-container shadow-2xl max-w-4xl mx-auto"
           >
             <div className="relative aspect-video rounded-xl overflow-hidden">
-              {!isVideoPlaying ? (
-                <div 
-                  className="w-full h-full cursor-pointer group relative"
-                  onClick={() => setIsVideoPlaying(true)}
-                >
-                  {/* Placeholder/Thumbnail */}
-                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-20 h-20 mx-auto bg-primary rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-                        <Play className="w-10 h-10 text-primary-foreground fill-primary-foreground ml-1" />
-                      </div>
-                      <p className="mt-4 text-lg font-medium text-foreground">
-                        {language === 'ro' ? 'Vezi Demo-ul' : 'Watch Demo'}
-                      </p>
-                    </div>
-                  </div>
-                  {/* Video Label */}
-                  <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-sm font-medium">
-                    🎬 {language === 'ro' ? 'Vezi demo-ul (3 min)' : 'Watch demo (3 min)'}
-                  </div>
-                </div>
-              ) : (
-                <iframe 
-                  src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&videoRatio=1.777778&type=v&skinColor=%232758EB" 
-                  frameBorder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen 
-                  className="w-full h-full"
-                />
-              )}
+              <iframe 
+                src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&videoRatio=1.777778&type=v&skinColor=%232758EB&autoplay=1&loop=1&muted=1" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen 
+                className="w-full h-full"
+              />
             </div>
           </motion.div>
 
