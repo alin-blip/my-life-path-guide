@@ -16,7 +16,7 @@ import {
 import { Helmet } from 'react-helmet-async';
 import { useChallengeStats } from '@/hooks/useChallengeStats';
 import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeCard';
-import { trackLead } from '@/lib/facebook-pixel';
+// FB Pixel Lead tracking is now centralized in AuthContext
 const Challenge7ZileLanding = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
@@ -57,8 +57,7 @@ const Challenge7ZileLanding = () => {
         throw error;
       }
 
-      // Track Facebook Pixel Lead event
-      trackLead();
+      // FB Pixel Lead is now tracked centrally in AuthContext on SIGNED_IN
 
       setIsSubscribed(true);
       toast({

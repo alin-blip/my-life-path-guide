@@ -5,7 +5,7 @@ import { lifeScoreQuestions, categoryLabels } from '@/data/lifeScoreQuestions';
 import { ArrowLeft, Loader2, CheckCircle2, Sparkles, Eye, EyeOff, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { trackLead } from '@/lib/facebook-pixel';
+// FB Pixel Lead tracking is now centralized in AuthContext
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
@@ -151,8 +151,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
         }, { onConflict: 'user_id' });
       }
 
-      // 4. Track Facebook Pixel
-      trackLead();
+      // FB Pixel Lead is now tracked centrally in AuthContext on SIGNED_IN
 
       toast({
         title: language === 'en' ? 'Account created!' : 'Cont creat!',

@@ -9,7 +9,7 @@ import { WarriorPowerLeadForm, type LeadFormData } from '@/components/warrior-po
 import { WarriorPowerQuiz } from '@/components/warrior-power/WarriorPowerQuiz';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 import { saveRealityMapScores } from '@/services/realityMapService';
-import { trackLead } from '@/lib/facebook-pixel';
+// FB Pixel Lead tracking is now centralized in AuthContext
 
 type Step = 'landing' | 'lead-form' | 'quiz';
 
@@ -118,8 +118,7 @@ export default function WarriorPower() {
         toast.info('Ești deja autentificat!');
       }
 
-      // Track Facebook Pixel Lead event
-      trackLead();
+      // FB Pixel Lead is now tracked centrally in AuthContext on SIGNED_IN
 
       setLeadData(data);
       setStep('quiz');

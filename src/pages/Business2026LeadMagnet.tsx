@@ -20,7 +20,7 @@ import {
   Brain,
   TrendingUp
 } from 'lucide-react';
-import { trackLead } from '@/lib/facebook-pixel';
+// FB Pixel Lead tracking is now centralized in AuthContext
 
 const Business2026LeadMagnet: React.FC = () => {
   const navigate = useNavigate();
@@ -124,16 +124,16 @@ const Business2026LeadMagnet: React.FC = () => {
         });
       }
 
-      // 4. Track Facebook Pixel
-      trackLead();
+      // FB Pixel Lead is now tracked centrally in AuthContext on SIGNED_IN
 
       toast.success('Cont creat! Te redirecționăm...');
 
-      // 5. Redirect to Annual Goals with business source
-      navigate('/game-objectives?tab=annual&source=business-lead-magnet', {
+      // 5. Redirect to Annual Goals with business source AND category
+      navigate('/game-objectives?tab=annual&source=business-lead-magnet&category=business', {
         state: { 
           fromBusinessLeadMagnet: true,
-          userName: name.trim() || undefined 
+          userName: name.trim() || undefined,
+          selectedCategory: 'business'
         }
       });
 

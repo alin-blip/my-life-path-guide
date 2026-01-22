@@ -154,9 +154,11 @@ export const AnnualVisionTab: React.FC = () => {
     fromWarriorPower?: boolean; 
     fromVisionQuiz?: boolean;
     fromBusinessLeadMagnet?: boolean;
+    fromVisionLeadMagnet?: boolean;
     userName?: string;
     scores?: WarriorPowerScores | Record<string, number>;
     suggestedCategory?: string;
+    selectedCategory?: string;
   } | null;
   
   const { language } = useLanguage();
@@ -168,15 +170,16 @@ export const AnnualVisionTab: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVision, setEditingVision] = useState<AnnualVision | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [showWelcome, setShowWelcome] = useState(!!incomingState?.fromWarriorPower || !!incomingState?.fromVisionQuiz || !!incomingState?.fromBusinessLeadMagnet);
+  const [showWelcome, setShowWelcome] = useState(!!incomingState?.fromWarriorPower || !!incomingState?.fromVisionQuiz || !!incomingState?.fromBusinessLeadMagnet || !!incomingState?.fromVisionLeadMagnet);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
   // Determine if user can edit (subscribed and not on trial)
   const isTrial = subscriptionTier?.toLowerCase().includes('trial');
   const hasActiveSubscription = subscribed && !isTrial;
   
-  // Check if from business lead magnet via URL
+  // Check if from business or vision lead magnet via URL
   const fromBusinessLeadMagnet = searchParams.get('source') === 'business-lead-magnet' || !!incomingState?.fromBusinessLeadMagnet;
+  const fromVisionLeadMagnet = searchParams.get('source') === 'vision-lead-magnet' || !!incomingState?.fromVisionLeadMagnet;
   
   const [formData, setFormData] = useState({
     bigGoal: '',
@@ -190,9 +193,26 @@ export const AnnualVisionTab: React.FC = () => {
   const [wizardCategory, setWizardCategory] = useState<GoalCategory>('body');
   const [showCategorySelection, setShowCategorySelection] = useState(false);
   
-  // Check for startWizard parameter from onboarding or Vision Quiz
+  // Check for startWizard parameter OR category from lead magnet
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const categoryParam = params.get('category');
+    const sourceParam = params.get('source');
+    
+    // If coming from a lead magnet with a category, auto-open wizard on that category
+    if (categoryParam && ['body', 'being', 'balance', 'business'].includes(categoryParam)) {
+      setWizardCategory(categoryParam as GoalCategory);
+      // Auto-open wizard after short delay for state to settle
+      setTimeout(() => {
+        setWizardOpen(true);
+        setShowWelcome(false);
+      }, 300);
+      // Clean the category parameter from URL to prevent re-triggering
+      const newUrl = `${window.location.pathname}?tab=annual${sourceParam ? `&source=${sourceParam}` : ''}`;
+      window.history.replaceState({}, '', newUrl);
+      return;
+    }
+    
     if (params.get('startWizard') === 'true') {
       // If coming from Vision Quiz, pre-select the suggested category (lowest score)
       if (incomingState?.fromVisionQuiz && incomingState.suggestedCategory) {
