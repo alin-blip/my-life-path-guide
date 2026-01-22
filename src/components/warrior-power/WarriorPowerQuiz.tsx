@@ -53,7 +53,6 @@ const LEVEL_CONFIG = {
 export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scores, setScores] = useState<Partial<WarriorPowerScores>>({});
-  const [expandedLevel, setExpandedLevel] = useState<string | null>(null);
 
   const currentQuestion = WARRIOR_POWER_QUESTIONS[currentIndex];
   const progress = ((currentIndex + 1) / WARRIOR_POWER_QUESTIONS.length) * 100;
@@ -71,7 +70,6 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
     setTimeout(() => {
       if (currentIndex < WARRIOR_POWER_QUESTIONS.length - 1) {
         setCurrentIndex(prev => prev + 1);
-        setExpandedLevel(null);
       } else {
         onComplete(newScores as WarriorPowerScores);
       }
@@ -81,12 +79,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
   const handleBack = () => {
     if (currentIndex > 0) {
       setCurrentIndex(prev => prev - 1);
-      setExpandedLevel(null);
     }
-  };
-
-  const handleLevelClick = (levelName: string) => {
-    setExpandedLevel(expandedLevel === levelName ? null : levelName);
   };
 
   return (
@@ -142,7 +135,6 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                 const config = LEVEL_CONFIG[levelKey];
                 if (!config) return null;
                 
-                const isExpanded = expandedLevel === level.name;
                 const currentScore = scores[currentQuestion.id as keyof WarriorPowerScores];
                 const hasScoreInThisLevel = currentScore && config.range.includes(currentScore);
                 
@@ -154,20 +146,17 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                     transition={{ delay: idx * 0.08 }}
                     className={cn(
                       "rounded-xl sm:rounded-2xl border-2 transition-all duration-300 overflow-hidden",
-                      isExpanded || hasScoreInThisLevel
+                      hasScoreInThisLevel
                         ? `${config.border} ${config.bg} shadow-xl` 
                         : "border-white/20 bg-white/5 hover:border-white/40"
                     )}
                   >
-                    {/* Level Header - Clickable */}
-                    <button
-                      onClick={() => handleLevelClick(level.name)}
-                      className="w-full text-left p-3 sm:p-4 flex items-start gap-3 sm:gap-4 min-h-[60px]"
-                    >
+                    {/* Level Card with inline score buttons */}
+                    <div className="p-3 sm:p-4 flex items-start gap-3 sm:gap-4">
                       {/* Icon Badge */}
                       <div className={cn(
                         "flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-lg sm:text-xl",
-                        isExpanded || hasScoreInThisLevel
+                        hasScoreInThisLevel
                           ? `bg-gradient-to-br ${config.gradient}` 
                           : "bg-white/10"
                       )}>
@@ -179,7 +168,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
                           <span className={cn(
                             "font-bold text-sm sm:text-base uppercase tracking-wide",
-                            isExpanded || hasScoreInThisLevel ? config.text : "text-white/90"
+                            hasScoreInThisLevel ? config.text : "text-white/90"
                           )}>
                             {level.name}
                           </span>
@@ -196,59 +185,39 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         {/* Titlu nivel */}
                         <p className={cn(
                           "text-xs sm:text-sm font-semibold mb-0.5 sm:mb-1",
-                          isExpanded || hasScoreInThisLevel ? "text-white" : "text-white/80"
+                          hasScoreInThisLevel ? "text-white" : "text-white/80"
                         )}>
                           {level.title}
                         </p>
                         {/* Descriere completă */}
                         <p className={cn(
-                          "text-xs sm:text-sm md:text-base leading-relaxed",
-                          isExpanded || hasScoreInThisLevel ? "text-white/90" : "text-white/70"
+                          "text-xs sm:text-sm leading-relaxed",
+                          hasScoreInThisLevel ? "text-white/90" : "text-white/70"
                         )}>
                           {level.description}
                         </p>
                       </div>
-                    </button>
 
-                    {/* Score Selector - Shows when expanded */}
-                    <AnimatePresence>
-                      {isExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <div className={cn("px-3 sm:px-4 pb-3 sm:pb-4 pt-2 border-t", config.border)}>
-                            <p className="text-xs sm:text-sm text-white/60 mb-2 sm:mb-3 text-center">
-                              Alege scorul exact:
-                            </p>
-                            <div className="flex justify-center gap-2 sm:gap-3">
-                              {config.range.map(score => (
-                                <motion.button
-                                  key={score}
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.95 }}
-                                  onClick={() => handleScoreSelect(score)}
-                                  className={cn(
-                                    "w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg sm:rounded-xl font-bold text-lg sm:text-xl transition-all min-h-[48px]",
-                                    currentScore === score
-                                      ? `bg-gradient-to-br ${config.gradient} text-white shadow-lg ring-2 ring-white/30`
-                                      : `${config.bg} ${config.text} border-2 ${config.border} hover:brightness-125`
-                                  )}
-                                >
-                                  {score}
-                                </motion.button>
-                              ))}
-                            </div>
-                            <p className="text-[10px] sm:text-xs text-white/40 text-center mt-2 sm:mt-3">
-                              💡 Click pe număr pentru a continua
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                      {/* Quick Score Buttons - Always visible on the right */}
+                      <div className="flex flex-col gap-1.5 sm:gap-2 flex-shrink-0">
+                        {config.range.map((score, scoreIdx) => (
+                          <motion.button
+                            key={score}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleScoreSelect(score)}
+                            className={cn(
+                              "w-9 h-9 sm:w-10 sm:h-10 rounded-lg font-bold text-sm sm:text-base transition-all",
+                              currentScore === score
+                                ? `bg-gradient-to-br ${config.gradient} text-white shadow-lg ring-2 ring-white/30`
+                                : `${config.bg} ${config.text} border ${config.border} hover:brightness-125`
+                            )}
+                          >
+                            {scoreIdx + 1}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
                   </motion.div>
                 );
               })}
