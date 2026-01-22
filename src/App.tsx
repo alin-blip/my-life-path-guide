@@ -47,6 +47,7 @@ const Business = lazy(() => import("./pages/Business"));
 const HormoziAnalysis = lazy(() => import("./pages/HormoziAnalysis"));
 const VoiceAnalysis = lazy(() => import("./pages/VoiceAnalysis"));
 const Lifebook = lazy(() => import("./pages/Lifebook"));
+const VibeCanvasPage = lazy(() => import("./pages/VibeCanvasPage"));
 const About = lazy(() => import("./pages/About"));
 const DailyTimeline = lazy(() => import("./pages/DailyTimeline"));
 const Biz4Report = lazy(() => import("./pages/Biz4Report"));
@@ -358,6 +359,11 @@ const App = () => (
                     <Route path="/brotherhood" element={
                       <ProtectedRoute>
                         <Brotherhood />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/vibe-canvas" element={
+                      <ProtectedRoute>
+                        <VibeCanvasPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/business-2026" element={<Business2026LeadMagnet />} />

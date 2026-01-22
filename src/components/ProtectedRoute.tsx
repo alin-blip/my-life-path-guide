@@ -51,6 +51,9 @@ const BASIC_ROUTES = [
   '/reading',
   '/evening',
   '/ai-coaching',
+  '/vibe-canvas',
+  '/lifebook',
+  '/tools',
 ];
 
 // Routes blocked for BASIC (require PRO or higher)

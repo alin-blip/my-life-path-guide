@@ -36,7 +36,8 @@ import {
   GraduationCap,
   Swords,
   Gamepad2,
-  Map
+  Map,
+  Palette
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -192,6 +193,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       path: '/tools',
       subItems: [
         { title: language === 'ro' ? 'Lifebook (Viziune Viață)' : 'Lifebook (Life Vision)', icon: BookOpen, path: '/lifebook' },
+        { title: 'Vibe Canvas', icon: Palette, path: '/vibe-canvas' },
       ]
     },
 
