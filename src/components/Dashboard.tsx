@@ -50,6 +50,8 @@ import { SundayPlanningModal } from '@/components/dashboard/SundayPlanningModal'
 // Onboarding components
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { FoundationNotifications } from '@/components/onboarding/FoundationNotifications';
+import { SpotlightTour, DASHBOARD_TOUR_STEPS } from '@/components/onboarding/SpotlightTour';
+import { useOnboardingTour } from '@/hooks/useOnboardingTour';
 import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNotification';
 import { useFoundationStatus } from '@/hooks/useFoundationStatus';
 import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
@@ -163,6 +165,9 @@ export const Dashboard: React.FC = () => {
   const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
   const foundationStatus = useFoundationStatus();
   const isMobile = useIsMobile();
+  
+  // Spotlight Tour for new users
+  const { isTourOpen, startTour, completeTour, skipTour } = useOnboardingTour();
 
   // Dashboard Widgets
   const { 
@@ -778,20 +783,22 @@ export const Dashboard: React.FC = () => {
       <AcceleratorBanner />
       
       {/* Objectives Card - Lunar, 90 Zile, Anual */}
-      <ObjectivesCard />
+      <div data-tour="dashboard-header">
+        <ObjectivesCard />
+      </div>
       
       {/* Daily Command Center - Main Score Widget */}
-      <div className="mb-6">
+      <div className="mb-6" data-tour="core-activities">
         <DailyCommandCenterWidget />
       </div>
       
       {/* Vision Declaration Widget - Napoleon Hill */}
-      <div className="mb-6">
+      <div className="mb-6" data-tour="vision-board">
         <VisionDeclarationWidget />
       </div>
       
       {/* Empowerment Meditation Card */}
-      <div className="mb-6">
+      <div className="mb-6" data-tour="stacks">
         <EmpowermentMeditationCard />
       </div>
       <DailyCompactCard />
@@ -859,8 +866,21 @@ export const Dashboard: React.FC = () => {
         onClose={() => setShowOnboardingWizard(false)} 
       />
       
+      {/* Spotlight Tour for new users */}
+      {!isMobile && (
+        <SpotlightTour
+          steps={DASHBOARD_TOUR_STEPS}
+          isOpen={isTourOpen}
+          onComplete={completeTour}
+          onSkip={skipTour}
+        />
+      )}
+      
       {/* Foundation Notifications (corner) */}
-      <FoundationNotifications onOpenWizard={() => setShowOnboardingWizard(true)} />
+      <FoundationNotifications 
+        onOpenWizard={() => setShowOnboardingWizard(true)} 
+        onStartTour={startTour}
+      />
       
       {/* Explainer Modal */}
       <ExplainerModal open={explainerModalType !== null} onOpenChange={open => !open && setExplainerModalType(null)} type={explainerModalType || 'core4'} />

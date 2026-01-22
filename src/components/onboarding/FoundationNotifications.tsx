@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronDown, ChevronUp, AlertTriangle, Target, Sparkles } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, AlertTriangle, Target, Sparkles, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/context/LanguageContext';
@@ -8,9 +8,10 @@ import { useFoundationStatus, FoundationItem } from '@/hooks/useFoundationStatus
 
 interface FoundationNotificationsProps {
   onOpenWizard: () => void;
+  onStartTour?: () => void;
 }
 
-export const FoundationNotifications: React.FC<FoundationNotificationsProps> = ({ onOpenWizard }) => {
+export const FoundationNotifications: React.FC<FoundationNotificationsProps> = ({ onOpenWizard, onStartTour }) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const { pendingItems, completionPercentage, isFoundationComplete, isLoading } = useFoundationStatus();
@@ -146,7 +147,7 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
       </div>
 
       {/* Footer */}
-      <div className="sticky bottom-0 bg-card/95 backdrop-blur-sm border-t border-border p-3">
+      <div className="sticky bottom-0 bg-card/95 backdrop-blur-sm border-t border-border p-3 space-y-2">
         <Button
           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
           onClick={onOpenWizard}
@@ -154,6 +155,17 @@ export const FoundationNotifications: React.FC<FoundationNotificationsProps> = (
           <Sparkles className="w-4 h-4 mr-2" />
           {language === 'en' ? 'Complete Configuration Wizard' : 'Wizard Complet de Configurare'}
         </Button>
+        
+        {onStartTour && (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={onStartTour}
+          >
+            <Map className="w-4 h-4 mr-2" />
+            {language === 'en' ? 'Take Platform Tour' : 'Tur Ghidat al Platformei'}
+          </Button>
+        )}
       </div>
     </div>
   );
