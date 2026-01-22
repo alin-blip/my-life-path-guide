@@ -36,6 +36,14 @@ const categoryGradients: Record<Category, string> = {
   business: 'from-amber-500/20 to-yellow-500/20'
 };
 
+// Default placeholder images for new users
+const categoryPlaceholders: Record<Category, string> = {
+  body: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=400&fit=crop&q=80',
+  being: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=400&fit=crop&q=80',
+  balance: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=400&fit=crop&q=80',
+  business: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&q=80'
+};
+
 const categoryLabels: Record<Category, { en: string; ro: string }> = {
   body: { en: 'Body', ro: 'Corp' },
   being: { en: 'Spirituality', ro: 'Spiritualitate' },
@@ -239,14 +247,12 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
         key={category}
         className={`relative rounded-xl overflow-hidden border border-border/50 aspect-[16/9] bg-gradient-to-br ${categoryGradients[category]}`}
       >
-        {/* Background Image or Gradient */}
-        {imageUrl ? (
-          <img 
-            src={imageUrl} 
-            alt={categoryLabels[category][language === 'ro' ? 'ro' : 'en']}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        ) : null}
+        {/* Background Image - personalized or placeholder */}
+        <img 
+          src={imageUrl || categoryPlaceholders[category]} 
+          alt={categoryLabels[category][language === 'ro' ? 'ro' : 'en']}
+          className={`absolute inset-0 w-full h-full object-cover ${!imageUrl ? 'opacity-70' : ''}`}
+        />
         
         {/* Overlay */}
         <div className={`absolute inset-0 ${imageUrl ? 'bg-black/30' : ''} flex flex-col items-center justify-center p-3`}>
