@@ -96,6 +96,9 @@ const Pricing: React.FC = () => {
   };
 
   // Helper to get dynamic price based on Early Bird status and billing period
+  // For unauthenticated users, show Early Bird prices as incentive to sign up
+  const showEarlyBirdPricing = isEarlyBirdActive || !user;
+  
   const getDynamicPrice = (planId: string) => {
     // Annual pricing
     if (billingPeriod === 'annual') {
@@ -111,7 +114,8 @@ const Pricing: React.FC = () => {
     const prices = PLAN_PRICES[planId as keyof typeof PLAN_PRICES];
     if (!prices) return { price: null, originalPrice: null };
     
-    if (isEarlyBirdActive) {
+    // Show Early Bird prices for active Early Bird users OR unauthenticated visitors
+    if (showEarlyBirdPricing) {
       return {
         price: language === 'en' ? prices.earlyBird : prices.earlyBirdRo,
         originalPrice: language === 'en' ? prices.normal : prices.normalRo,
@@ -263,8 +267,8 @@ const Pricing: React.FC = () => {
             </span>
           </div>
 
-          {/* Early Bird Countdown Banner - only show for monthly */}
-          {isEarlyBirdActive && earlyBirdExpiresAt && billingPeriod === 'monthly' && (
+          {/* Early Bird Countdown Banner - show for monthly: authenticated with active Early Bird OR unauthenticated */}
+          {billingPeriod === 'monthly' && showEarlyBirdPricing && (
             <div className="mb-6">
               <div className="p-4 rounded-lg border-2 border-green-500/50 bg-gradient-to-r from-green-500/10 via-emerald-500/5 to-green-500/10">
                 <div className="flex flex-col md:flex-row items-center justify-center gap-4">
@@ -272,14 +276,23 @@ const Pricing: React.FC = () => {
                     <Timer className="h-5 w-5 animate-pulse" />
                     {texts.earlyBirdBanner}
                   </div>
-                  <EarlyBirdCountdown expiresAt={earlyBirdExpiresAt} />
+                  {/* Show countdown only for authenticated users with active Early Bird */}
+                  {isEarlyBirdActive && earlyBirdExpiresAt && (
+                    <EarlyBirdCountdown expiresAt={earlyBirdExpiresAt} />
+                  )}
                 </div>
-                {/* Early Bird expiration warning */}
+                {/* Early Bird expiration warning - different message for authenticated vs unauthenticated */}
                 <p className="text-center text-sm text-amber-400 mt-3 flex items-center justify-center gap-2">
                   <AlertTriangle className="h-4 w-4" />
-                  {language === 'ro' 
-                    ? 'Prețul Early Bird este valabil doar în perioada trial-ului. Blochează-l pe tot anul cu planul anual pentru 60% discount permanent!'
-                    : 'Early Bird pricing is only available during trial. Lock it in for the whole year with annual plan for 60% permanent discount!'}
+                  {!user ? (
+                    language === 'ro' 
+                      ? 'Înscrie-te acum și primești prețul Early Bird de 50% valabil 3 zile de la înregistrare!'
+                      : 'Sign up now and get the 50% Early Bird price valid for 3 days after registration!'
+                  ) : (
+                    language === 'ro' 
+                      ? 'Prețul Early Bird de 50% este valabil doar în primele 3 zile. După expirare, prețurile revin la normal. Blochează-l pe tot anul cu planul anual!'
+                      : 'The 50% Early Bird price is only valid for the first 3 days. After expiration, prices return to normal. Lock it in for the whole year with annual plan!'
+                  )}
                 </p>
               </div>
             </div>
@@ -354,7 +367,7 @@ const Pricing: React.FC = () => {
                         🔒 {language === 'ro' ? '60% Blocat' : '60% Locked'}
                       </Badge>
                     </div>
-                  ) : isEarlyBirdActive ? (
+                  ) : showEarlyBirdPricing ? (
                     <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-10">
                       <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg border-0 rounded-b-lg rounded-t-none">
                         🔥 Early Bird -50%
@@ -363,16 +376,16 @@ const Pricing: React.FC = () => {
                   ) : null}
                   
                   {/* Top gradient bar for featured - only when no badge */}
-                  {plan.featured && !isEarlyBirdActive && !isAnnual && (
+                  {plan.featured && !showEarlyBirdPricing && !isAnnual && (
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary" />
                   )}
                   
                   {/* Elite gradient bar - only when no badge */}
-                  {isElite && !isEarlyBirdActive && !isAnnual && (
+                  {isElite && !showEarlyBirdPricing && !isAnnual && (
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500" />
                   )}
                   
-                  <CardHeader className={isEarlyBirdActive || isAnnual ? 'pt-10' : ''}>
+                  <CardHeader className={showEarlyBirdPricing || isAnnual ? 'pt-10' : ''}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`p-2 rounded-full ${
