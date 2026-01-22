@@ -549,6 +549,42 @@ export type Database = {
           },
         ]
       }
+      challenge_recovery_emails: {
+        Row: {
+          clicked_at: string | null
+          converted: boolean | null
+          converted_at: string | null
+          email: string
+          id: string
+          opened_at: string | null
+          sent_at: string
+          stuck_on_day: number
+          user_id: string | null
+        }
+        Insert: {
+          clicked_at?: string | null
+          converted?: boolean | null
+          converted_at?: string | null
+          email: string
+          id?: string
+          opened_at?: string | null
+          sent_at?: string
+          stuck_on_day: number
+          user_id?: string | null
+        }
+        Update: {
+          clicked_at?: string | null
+          converted?: boolean | null
+          converted_at?: string | null
+          email?: string
+          id?: string
+          opened_at?: string | null
+          sent_at?: string
+          stuck_on_day?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       champion_routine_logs: {
         Row: {
           apply_completed: boolean | null
@@ -1206,6 +1242,7 @@ export type Database = {
           avatar_emoji: string | null
           created_at: string | null
           current_streak: number | null
+          days_in_current_stage: number | null
           door_completion_rate: number | null
           email: string
           email_clicks: number | null
@@ -1214,6 +1251,7 @@ export type Database = {
           first_purchase_at: string | null
           first_seen_at: string | null
           funnel_stage: string | null
+          funnel_stage_changed_at: string | null
           gender: string | null
           id: string
           last_activity_at: string | null
@@ -1222,8 +1260,10 @@ export type Database = {
           lead_score: number | null
           lead_source: string | null
           lifetime_value: number | null
+          mql_at: string | null
           name: string | null
           phone: string | null
+          sql_at: string | null
           subscription_status: string | null
           subscription_tier: string | null
           tags: string[] | null
@@ -1248,6 +1288,7 @@ export type Database = {
           avatar_emoji?: string | null
           created_at?: string | null
           current_streak?: number | null
+          days_in_current_stage?: number | null
           door_completion_rate?: number | null
           email: string
           email_clicks?: number | null
@@ -1256,6 +1297,7 @@ export type Database = {
           first_purchase_at?: string | null
           first_seen_at?: string | null
           funnel_stage?: string | null
+          funnel_stage_changed_at?: string | null
           gender?: string | null
           id?: string
           last_activity_at?: string | null
@@ -1264,8 +1306,10 @@ export type Database = {
           lead_score?: number | null
           lead_source?: string | null
           lifetime_value?: number | null
+          mql_at?: string | null
           name?: string | null
           phone?: string | null
+          sql_at?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
           tags?: string[] | null
@@ -1290,6 +1334,7 @@ export type Database = {
           avatar_emoji?: string | null
           created_at?: string | null
           current_streak?: number | null
+          days_in_current_stage?: number | null
           door_completion_rate?: number | null
           email?: string
           email_clicks?: number | null
@@ -1298,6 +1343,7 @@ export type Database = {
           first_purchase_at?: string | null
           first_seen_at?: string | null
           funnel_stage?: string | null
+          funnel_stage_changed_at?: string | null
           gender?: string | null
           id?: string
           last_activity_at?: string | null
@@ -1306,8 +1352,10 @@ export type Database = {
           lead_score?: number | null
           lead_source?: string | null
           lifetime_value?: number | null
+          mql_at?: string | null
           name?: string | null
           phone?: string | null
+          sql_at?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
           tags?: string[] | null
