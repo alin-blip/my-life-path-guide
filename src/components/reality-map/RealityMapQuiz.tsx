@@ -375,7 +375,7 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                           </p>
                           
                           {/* Inline Score Buttons - Always visible */}
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             {config.range.map((score) => (
                               <motion.button
                                 key={score}
@@ -404,6 +404,9 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                                 {score}
                               </motion.button>
                             ))}
+                            <span className="text-xs sm:text-sm text-muted-foreground ml-1">
+                              — selectează nivelul tău
+                            </span>
                           </div>
                         </div>
                       </div>
