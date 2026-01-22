@@ -65,22 +65,36 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
-    if (customers.data.length === 0) {
-      log("No stripe customer");
-      await supabaseService.from("subscribers").upsert({
-        email: user.email,
-        user_id: user.id,
-        stripe_customer_id: null,
-        subscribed: false,
-        subscription_tier: null,
-        subscription_end: null,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'email' });
-      return new Response(JSON.stringify({ subscribed: false }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
+  if (customers.data.length === 0) {
+    log("No stripe customer");
+    
+    // Get existing early_bird_expires_at from database BEFORE upsert
+    const { data: existingSubscriber } = await supabaseService
+      .from("subscribers")
+      .select("early_bird_expires_at")
+      .eq("email", user.email)
+      .single();
+    
+    const earlyBirdExpiresAt = existingSubscriber?.early_bird_expires_at || null;
+    
+    await supabaseService.from("subscribers").upsert({
+      email: user.email,
+      user_id: user.id,
+      stripe_customer_id: null,
+      subscribed: false,
+      subscription_tier: null,
+      subscription_end: null,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'email' });
+    
+    return new Response(JSON.stringify({ 
+      subscribed: false,
+      early_bird_expires_at: earlyBirdExpiresAt,
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
+  }
 
     const customerId = customers.data[0].id;
     const subsList = await stripe.subscriptions.list({ customer: customerId, limit: 10 });
