@@ -8,61 +8,60 @@ import { Crown, Zap, Rocket, Check, ArrowRight, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { EarlyBirdCountdown } from './EarlyBirdCountdown';
-
-// Prices: Early Bird vs Normal
-const PLAN_PRICES = {
-  basic: { earlyBird: '€49', normal: '€97' },
-  pro: { earlyBird: '€97', normal: '€197' },
-  elite: { earlyBird: '€297', normal: '€500' }
-};
-
-const getPlans = (isEarlyBird: boolean) => [
-  {
-    id: 'basic',
-    name: 'Basic',
-    price: isEarlyBird ? PLAN_PRICES.basic.earlyBird : PLAN_PRICES.basic.normal,
-    originalPrice: isEarlyBird ? PLAN_PRICES.basic.normal : null,
-    highlight: isEarlyBird ? 'Early Bird' : null,
-    icon: Zap,
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/30'
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: isEarlyBird ? PLAN_PRICES.pro.earlyBird : PLAN_PRICES.pro.normal,
-    originalPrice: isEarlyBird ? PLAN_PRICES.pro.normal : null,
-    highlight: isEarlyBird ? 'Early Bird' : 'Cel Mai Popular',
-    icon: Crown,
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/10',
-    border: 'border-purple-500/30',
-    featured: true,
-    badge: 'Popular'
-  },
-  {
-    id: 'elite',
-    name: 'Elite',
-    price: isEarlyBird ? PLAN_PRICES.elite.earlyBird : PLAN_PRICES.elite.normal,
-    originalPrice: isEarlyBird ? PLAN_PRICES.elite.normal : null,
-    highlight: isEarlyBird ? 'Early Bird' : 'Tot Inclus',
-    icon: Rocket,
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/10',
-    border: 'border-amber-500/30',
-    eliteBadge: true,
-    badge: 'Doar Elitele'
-  }
-];
+import { plans, getLocalizedPlan } from '@/data/pricing';
 
 export function InlineMembershipBanner() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const navigate = useNavigate();
   const { earlyBirdExpiresAt, isEarlyBirdActive } = useAuth();
+  const { language } = useLanguage();
 
-  const plans = getPlans(isEarlyBirdActive);
+  // Get plans from centralized pricing
+  const basicPlan = getLocalizedPlan(plans.find(p => p.id === 'basic')!, language as 'en' | 'ro');
+  const proPlan = getLocalizedPlan(plans.find(p => p.id === 'pro')!, language as 'en' | 'ro');
+  const elitePlan = getLocalizedPlan(plans.find(p => p.id === 'elite')!, language as 'en' | 'ro');
+
+  const displayPlans = [
+    {
+      id: 'basic',
+      name: basicPlan.name,
+      price: basicPlan.price,
+      originalPrice: isEarlyBirdActive ? basicPlan.originalPrice : null,
+      highlight: isEarlyBirdActive ? 'Early Bird' : null,
+      icon: Zap,
+      color: 'text-blue-400',
+      bg: 'bg-blue-500/10',
+      border: 'border-blue-500/30'
+    },
+    {
+      id: 'pro',
+      name: proPlan.name,
+      price: proPlan.price,
+      originalPrice: isEarlyBirdActive ? proPlan.originalPrice : null,
+      highlight: isEarlyBirdActive ? 'Early Bird' : (language === 'ro' ? 'Cel Mai Popular' : 'Most Popular'),
+      icon: Crown,
+      color: 'text-purple-400',
+      bg: 'bg-purple-500/10',
+      border: 'border-purple-500/30',
+      featured: true,
+      badge: language === 'ro' ? 'Popular' : 'Popular'
+    },
+    {
+      id: 'elite',
+      name: elitePlan.name,
+      price: elitePlan.price,
+      originalPrice: isEarlyBirdActive ? elitePlan.originalPrice : null,
+      highlight: isEarlyBirdActive ? 'Early Bird' : (language === 'ro' ? 'Tot Inclus' : 'All Inclusive'),
+      icon: Rocket,
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/10',
+      border: 'border-amber-500/30',
+      eliteBadge: true,
+      badge: language === 'ro' ? 'Doar Elitele' : 'Elite Only'
+    }
+  ];
 
   const handleSelectPlan = async (planId: string) => {
     setLoadingPlan(planId);
@@ -89,7 +88,7 @@ export function InlineMembershipBanner() {
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error('A apărut o eroare. Încearcă din nou.');
+      toast.error(language === 'ro' ? 'A apărut o eroare. Încearcă din nou.' : 'An error occurred. Please try again.');
     } finally {
       setLoadingPlan(null);
     }
@@ -119,22 +118,25 @@ export function InlineMembershipBanner() {
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-3">
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-              {isEarlyBirdActive ? 'Prețuri Early Bird Active' : 'Deblochează Funcții Premium'}
+              {isEarlyBirdActive 
+                ? (language === 'ro' ? 'Prețuri Early Bird Active' : 'Early Bird Prices Active')
+                : (language === 'ro' ? 'Deblochează Funcții Premium' : 'Unlock Premium Features')
+              }
             </div>
             <h3 className="text-lg sm:text-xl font-bold mb-2">
-              Alege Planul Tău de Transformare
+              {language === 'ro' ? 'Alege Planul Tău de Transformare' : 'Choose Your Transformation Plan'}
             </h3>
             <p className="text-sm text-muted-foreground">
               {isEarlyBirdActive 
-                ? 'Blochează prețul special înainte să expire!' 
-                : 'Accesează toate funcțiile premium acum'
+                ? (language === 'ro' ? 'Blochează prețul special înainte să expire!' : 'Lock in the special price before it expires!')
+                : (language === 'ro' ? 'Accesează toate funcțiile premium acum' : 'Access all premium features now')
               }
             </p>
           </div>
 
           {/* Plans Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            {plans.map((plan) => {
+            {displayPlans.map((plan) => {
               const Icon = plan.icon;
               return (
                 <div
@@ -180,7 +182,9 @@ export function InlineMembershipBanner() {
                       {plan.originalPrice && (
                         <span className="text-sm text-muted-foreground line-through">{plan.originalPrice}</span>
                       )}
-                      <span className="text-sm text-muted-foreground">/lună</span>
+                      <span className="text-sm text-muted-foreground">
+                        {language === 'ro' ? '/lună' : '/month'}
+                      </span>
                     </div>
                     <Button
                       size="sm"
@@ -199,7 +203,10 @@ export function InlineMembershipBanner() {
 
           {/* Benefits summary */}
           <div className="flex flex-wrap justify-center gap-4 mt-4 pt-4 border-t border-border/50">
-            {['Acces complet', 'Coaching LIVE', 'Comunitate VIP', 'Suport prioritar'].map((benefit, idx) => (
+            {(language === 'ro' 
+              ? ['Acces complet', 'Coaching LIVE', 'Comunitate VIP', 'Suport prioritar']
+              : ['Full access', 'LIVE Coaching', 'VIP Community', 'Priority support']
+            ).map((benefit, idx) => (
               <div key={idx} className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
                 <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                 <span>{benefit}</span>

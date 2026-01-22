@@ -9,66 +9,9 @@ import { Crown, Zap, Rocket, Check, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { EarlyBirdCountdown } from './EarlyBirdCountdown';
-
-// Prices: Early Bird vs Normal
-const PLAN_PRICES = {
-  basic: { earlyBird: '€49', normal: '€97' },
-  pro: { earlyBird: '€97', normal: '€197' },
-  elite: { earlyBird: '€297', normal: '€500' }
-};
-
-const getPlans = (isEarlyBird: boolean) => [
-  {
-    id: 'basic',
-    name: 'Basic',
-    price: isEarlyBird ? PLAN_PRICES.basic.earlyBird : PLAN_PRICES.basic.normal,
-    originalPrice: isEarlyBird ? PLAN_PRICES.basic.normal : null,
-    period: '/lună',
-    icon: Zap,
-    gradient: 'from-blue-500 to-cyan-500',
-    benefits: [
-      'Acces complet la platformă',
-      'Harta Realității completă',
-      'Sistem DOOR de obiective',
-      'Tracking zilnic'
-    ]
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: isEarlyBird ? PLAN_PRICES.pro.earlyBird : PLAN_PRICES.pro.normal,
-    originalPrice: isEarlyBird ? PLAN_PRICES.pro.normal : null,
-    period: '/lună',
-    icon: Crown,
-    gradient: 'from-purple-500 to-pink-500',
-    featured: true,
-    badge: 'Popular',
-    benefits: [
-      'Tot din Basic +',
-      'Coaching LIVE săptămânal',
-      'Comunitate VIP',
-      'Acces prioritar la funcții noi'
-    ]
-  },
-  {
-    id: 'elite',
-    name: 'Elite',
-    price: isEarlyBird ? PLAN_PRICES.elite.earlyBird : PLAN_PRICES.elite.normal,
-    originalPrice: isEarlyBird ? PLAN_PRICES.elite.normal : null,
-    period: '/lună',
-    icon: Rocket,
-    gradient: 'from-amber-500 to-orange-500',
-    badge: 'Doar Elitele',
-    isElite: true,
-    benefits: [
-      'Tot din Pro +',
-      'Warrior Accelerator (€497)',
-      'Coaching 1-la-1 lunar',
-      'Suport prioritar 24/7'
-    ]
-  }
-];
+import { plans, getLocalizedPlan } from '@/data/pricing';
 
 interface DelayedMembershipModalProps {
   delayMs?: number;
@@ -80,11 +23,51 @@ export function DelayedMembershipModal({ delayMs = 30000, onClose }: DelayedMemb
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const navigate = useNavigate();
   const { earlyBirdExpiresAt, isEarlyBirdActive } = useAuth();
+  const { language } = useLanguage();
 
-  const plans = getPlans(isEarlyBirdActive);
+  // Get plans from centralized pricing
+  const basicPlan = getLocalizedPlan(plans.find(p => p.id === 'basic')!, language as 'en' | 'ro');
+  const proPlan = getLocalizedPlan(plans.find(p => p.id === 'pro')!, language as 'en' | 'ro');
+  const elitePlan = getLocalizedPlan(plans.find(p => p.id === 'elite')!, language as 'en' | 'ro');
+
+  const displayPlans = [
+    {
+      id: 'basic',
+      name: basicPlan.name,
+      price: basicPlan.price,
+      originalPrice: isEarlyBirdActive ? basicPlan.originalPrice : null,
+      period: basicPlan.period,
+      icon: Zap,
+      gradient: 'from-blue-500 to-cyan-500',
+      benefits: basicPlan.benefits.slice(0, 4)
+    },
+    {
+      id: 'pro',
+      name: proPlan.name,
+      price: proPlan.price,
+      originalPrice: isEarlyBirdActive ? proPlan.originalPrice : null,
+      period: proPlan.period,
+      icon: Crown,
+      gradient: 'from-purple-500 to-pink-500',
+      featured: true,
+      badge: language === 'ro' ? 'Popular' : 'Popular',
+      benefits: proPlan.benefits.slice(0, 4)
+    },
+    {
+      id: 'elite',
+      name: elitePlan.name,
+      price: elitePlan.price,
+      originalPrice: isEarlyBirdActive ? elitePlan.originalPrice : null,
+      period: elitePlan.period,
+      icon: Rocket,
+      gradient: 'from-amber-500 to-orange-500',
+      badge: language === 'ro' ? 'Doar Elitele' : 'Elite Only',
+      isElite: true,
+      benefits: elitePlan.benefits.slice(0, 4)
+    }
+  ];
 
   useEffect(() => {
-    // Check if modal was already shown today
     const today = new Date().toISOString().split('T')[0];
     const lastShown = localStorage.getItem('membership_modal_last_shown');
     
@@ -130,7 +113,7 @@ export function DelayedMembershipModal({ delayMs = 30000, onClose }: DelayedMemb
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error('A apărut o eroare. Încearcă din nou.');
+      toast.error(language === 'ro' ? 'A apărut o eroare. Încearcă din nou.' : 'An error occurred. Please try again.');
     } finally {
       setLoadingPlan(null);
     }
@@ -142,7 +125,7 @@ export function DelayedMembershipModal({ delayMs = 30000, onClose }: DelayedMemb
         <Dialog open={isOpen} onOpenChange={handleClose}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 gap-0 border-primary/20">
             <div className="relative bg-gradient-to-br from-background via-background to-primary/5 p-6 sm:p-8">
-              {/* Early Bird Countdown - Prominent at top */}
+              {/* Early Bird Countdown */}
               {earlyBirdExpiresAt && (
                 <div className="mb-6">
                   <EarlyBirdCountdown expiresAt={earlyBirdExpiresAt} />
@@ -162,24 +145,27 @@ export function DelayedMembershipModal({ delayMs = 30000, onClose }: DelayedMemb
                       ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0' 
                       : 'bg-primary/10 text-primary'
                   }`}>
-                    {isEarlyBirdActive ? '🔥 Prețuri Early Bird Active' : 'Ofertă Specială'}
+                    {isEarlyBirdActive 
+                      ? (language === 'ro' ? '🔥 Prețuri Early Bird Active' : '🔥 Early Bird Prices Active')
+                      : (language === 'ro' ? 'Ofertă Specială' : 'Special Offer')
+                    }
                   </Badge>
                   <Sparkles className="w-5 h-5 text-primary" />
                 </motion.div>
                 <DialogTitle className="text-2xl sm:text-3xl font-bold">
-                  Deblochează Potențialul Tău Complet
+                  {language === 'ro' ? 'Deblochează Potențialul Tău Complet' : 'Unlock Your Full Potential'}
                 </DialogTitle>
                 <p className="text-muted-foreground mt-2">
                   {isEarlyBirdActive 
-                    ? 'Prețuri speciale disponibile pentru o perioadă limitată!' 
-                    : 'Alege planul care ți se potrivește și începe transformarea'
+                    ? (language === 'ro' ? 'Prețuri speciale disponibile pentru o perioadă limitată!' : 'Special prices available for a limited time!')
+                    : (language === 'ro' ? 'Alege planul care ți se potrivește' : 'Choose the plan that fits you')
                   }
                 </p>
               </DialogHeader>
 
               {/* Plans Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {plans.map((plan, idx) => {
+                {displayPlans.map((plan, idx) => {
                   const Icon = plan.icon;
                   return (
                     <motion.div
@@ -250,7 +236,10 @@ export function DelayedMembershipModal({ delayMs = 30000, onClose }: DelayedMemb
                           }`}
                           variant={plan.featured || plan.isElite ? 'default' : 'outline'}
                         >
-                          {loadingPlan === plan.id ? 'Se încarcă...' : 'Alege Planul'}
+                          {loadingPlan === plan.id 
+                            ? (language === 'ro' ? 'Se încarcă...' : 'Loading...')
+                            : (language === 'ro' ? 'Alege Planul' : 'Choose Plan')
+                          }
                         </Button>
                       </Card>
                     </motion.div>
@@ -265,7 +254,7 @@ export function DelayedMembershipModal({ delayMs = 30000, onClose }: DelayedMemb
                   onClick={handleClose}
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Continuă explorarea gratuit
+                  {language === 'ro' ? 'Continuă explorarea gratuit' : 'Continue exploring for free'}
                 </Button>
               </div>
             </div>
