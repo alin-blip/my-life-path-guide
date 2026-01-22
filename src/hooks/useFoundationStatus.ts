@@ -259,7 +259,7 @@ export const useFoundationStatus = (): FoundationStatus => {
         },
         action: {
           label: { en: 'Complete', ro: 'Completează' },
-          route: '/door?tab=annual'
+          route: '/game-objectives?tab=annual'
         },
         priority: 1
       });
@@ -275,7 +275,7 @@ export const useFoundationStatus = (): FoundationStatus => {
         },
         action: {
           label: { en: 'Set objectives', ro: 'Setează' },
-          route: '/door?tab=quarterly'
+          route: '/game-objectives?tab=quarterly'
         },
         priority: 2
       });
@@ -291,7 +291,7 @@ export const useFoundationStatus = (): FoundationStatus => {
         },
         action: {
           label: { en: 'Define', ro: 'Definește' },
-          route: '/door?tab=monthly'
+          route: '/game-objectives?tab=monthly'
         },
         priority: 3
       });
