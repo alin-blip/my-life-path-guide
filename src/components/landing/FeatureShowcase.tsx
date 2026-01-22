@@ -21,7 +21,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const featureImages = {
   challenge: "/images/features/challenge-screenshot.png",
   aiCoaches: "/lovable-uploads/bfb29c37-469c-4d82-a982-46a2433ac2ff.png",
-  visionBoard: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
+  visionBoard: "/images/features/vision-board-screenshot.png",
   warriorRoutine: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop",
   theDoor: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop",
   accelerator: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
