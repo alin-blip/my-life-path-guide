@@ -258,15 +258,9 @@ export const AuthForm: React.FC = () => {
 
         logSecurityEvent('Successful login', { email });
         
-        // Check if user has completed quick quiz
-        const hasCompletedQuiz = localStorage.getItem('quick_quiz_completed') === 'true';
-        
         if (isVisionPlanFlow && visionScores && data.user) {
           await setupVisionPlan(data.user.id);
           navigate('/focus', { replace: true });
-        } else if (!hasCompletedQuiz && from === '/dashboard') {
-          // Redirect new users to quick quiz for immediate value
-          navigate('/quick-quiz', { replace: true });
         } else {
           navigate(from, { replace: true });
         }
