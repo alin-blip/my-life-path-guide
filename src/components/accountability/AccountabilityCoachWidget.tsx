@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageCircle, Mic, X, Trophy, RotateCcw, Bell } from 'lucide-react';
+import { MessageCircle, Mic, X, Trophy, RotateCcw, Bell, Sparkles } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAccountabilityCoach } from '@/hooks/useAccountabilityCoach';
@@ -32,8 +32,9 @@ export const AccountabilityCoachWidget: React.FC = () => {
   const [activeMode, setActiveMode] = useState<'chat' | 'voice' | 'reminders'>('chat');
   const location = useLocation();
   const { language } = useLanguage();
-  const { pendingItems } = useFoundationStatus();
+  const { pendingItems, isFoundationComplete } = useFoundationStatus();
   const { hasRealityMap, isLoading: realityMapLoading } = useRealityMapStatus();
+  const [showPulse, setShowPulse] = useState(true);
   
   const {
     messages,
@@ -48,6 +49,14 @@ export const AccountabilityCoachWidget: React.FC = () => {
   const quickActions = getQuickActionsForCoach(language as 'en' | 'ro');
   const pendingCount = pendingItems.length;
 
+  // Show pulse animation for chat bubble when foundation is complete
+  useEffect(() => {
+    if (isFoundationComplete) {
+      const timer = setTimeout(() => setShowPulse(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isFoundationComplete]);
+
   const handleReset = () => {
     clearMessages();
   };
@@ -59,14 +68,33 @@ export const AccountabilityCoachWidget: React.FC = () => {
         onClick={() => setIsOpen(true)}
         className={cn(
           'fixed bottom-4 left-4 z-50 h-14 w-14 rounded-full shadow-lg',
-          'bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700',
           'transition-all duration-300',
           'flex items-center justify-center',
-          isOpen ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 hover:scale-105'
+          isOpen ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 hover:scale-105',
+          // Different styles based on foundation status
+          isFoundationComplete
+            ? 'bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70'
+            : 'bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700'
         )}
       >
-        <Trophy className="w-6 h-6 text-white" />
-        {pendingCount > 0 && (
+        {/* Pulse animation for chat bubble */}
+        {isFoundationComplete && showPulse && (
+          <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping" />
+        )}
+        
+        {/* Icon based on foundation status */}
+        {isFoundationComplete ? (
+          <MessageCircle className="w-6 h-6 text-primary-foreground" />
+        ) : (
+          <Trophy className="w-6 h-6 text-white" />
+        )}
+        
+        {/* Badge - show pending count or sparkle for complete */}
+        {isFoundationComplete ? (
+          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center">
+            <Sparkles className="w-3 h-3" />
+          </span>
+        ) : pendingCount > 0 && (
           <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
             {pendingCount > 9 ? '9+' : pendingCount}
           </span>
