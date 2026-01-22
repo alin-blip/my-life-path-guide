@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, FileText, Image, Lightbulb, GalleryHorizontal, Calendar, Share2 } from 'lucide-react';
+import { MessageSquare, FileText, Image, Lightbulb, GalleryHorizontal, Calendar, Share2, LayoutGrid } from 'lucide-react';
 import { AIChat } from './ai-studio/AIChat';
 import { AIContentGenerator } from './ai-studio/AIContentGenerator';
 import { AIImageGenerator } from './ai-studio/AIImageGenerator';
@@ -8,6 +8,7 @@ import { AIDailyInsights } from './ai-studio/AIDailyInsights';
 import { AIImageGallery } from './ai-studio/AIImageGallery';
 import { AIScheduler } from './ai-studio/AIScheduler';
 import { AISocialShare } from './ai-studio/AISocialShare';
+import { AIFeatureImageGenerator } from './ai-studio/AIFeatureImageGenerator';
 
 export const AdminAIStudio: React.FC = () => {
   return (
@@ -23,7 +24,7 @@ export const AdminAIStudio: React.FC = () => {
       </div>
 
       <Tabs defaultValue="chat" className="w-full">
-        <TabsList className="grid w-full grid-cols-7 mb-6">
+        <TabsList className="grid w-full grid-cols-8 mb-6">
           <TabsTrigger value="chat" className="flex items-center gap-1 text-xs">
             <MessageSquare className="w-4 h-4" />
             <span className="hidden sm:inline">Chat</span>
@@ -35,6 +36,10 @@ export const AdminAIStudio: React.FC = () => {
           <TabsTrigger value="image" className="flex items-center gap-1 text-xs">
             <Image className="w-4 h-4" />
             <span className="hidden sm:inline">Imagini</span>
+          </TabsTrigger>
+          <TabsTrigger value="features" className="flex items-center gap-1 text-xs">
+            <LayoutGrid className="w-4 h-4" />
+            <span className="hidden sm:inline">Features</span>
           </TabsTrigger>
           <TabsTrigger value="gallery" className="flex items-center gap-1 text-xs">
             <GalleryHorizontal className="w-4 h-4" />
@@ -64,6 +69,10 @@ export const AdminAIStudio: React.FC = () => {
 
         <TabsContent value="image">
           <AIImageGenerator />
+        </TabsContent>
+
+        <TabsContent value="features">
+          <AIFeatureImageGenerator />
         </TabsContent>
 
         <TabsContent value="gallery">

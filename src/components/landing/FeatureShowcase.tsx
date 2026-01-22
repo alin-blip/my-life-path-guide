@@ -16,18 +16,20 @@ import {
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Feature screenshots - using placeholder images for now
-// These will be replaced with actual screenshots
+// Feature images from storage bucket (generated via AI in Admin > AI Studio > Features)
+// Fallback to placeholder images if not yet generated
+const STORAGE_BASE = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/feature-images`;
+
 const featureImages = {
-  challenge: "/images/features/challenge-screenshot.png",
-  aiCoaches: "/lovable-uploads/bfb29c37-469c-4d82-a982-46a2433ac2ff.png",
-  visionBoard: "/images/features/vision-board-screenshot.png",
-  warriorRoutine: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop",
-  theDoor: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop",
-  accelerator: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
-  stacks: "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800&h=600&fit=crop",
-  brotherhood: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=600&fit=crop",
-  monthlyMission: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&h=600&fit=crop",
+  challenge: `${STORAGE_BASE}/challenge.png`,
+  aiCoaches: `${STORAGE_BASE}/aiCoaches.png`,
+  visionBoard: `${STORAGE_BASE}/visionBoard.png`,
+  warriorRoutine: `${STORAGE_BASE}/warriorRoutine.png`,
+  theDoor: `${STORAGE_BASE}/theDoor.png`,
+  accelerator: `${STORAGE_BASE}/accelerator.png`,
+  stacks: `${STORAGE_BASE}/stacks.png`,
+  brotherhood: `${STORAGE_BASE}/brotherhood.png`,
+  monthlyMission: `${STORAGE_BASE}/monthlyMission.png`,
 };
 
 interface Feature {
