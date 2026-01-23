@@ -41,14 +41,13 @@ export default function WarriorPower() {
 
     setIsLoading(true);
     try {
-      // Save lead to database (simplified - just name, email, gender)
+      // Save lead to database (simplified - just name, email)
       const { error: leadError } = await supabase
         .from('email_leads')
         .upsert({
           email: data.email,
           name: data.name,
           lead_magnet: 'warrior_power',
-          metadata: { gender: data.gender },
           source: 'warrior_power_quiz'
         }, { onConflict: 'email,lead_magnet' });
 
@@ -112,7 +111,6 @@ export default function WarriorPower() {
         .insert({
           email: data.email,
           name: data.name,
-          gender: data.gender,
           scores: scoresJson,
           total_score: Object.values(quizScores).reduce((a, b) => a + b, 0),
           user_id: user?.id || null
