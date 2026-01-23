@@ -11,6 +11,7 @@ import { AdminAIStudio } from './admin/AdminAIStudio';
 import { MarketingHub } from './admin/marketing/MarketingHub';
 import { WarriorsWayManager } from './admin/WarriorsWayManager';
 import { EmailAnalytics } from './admin/EmailAnalytics';
+import { SplitTestDashboard } from './admin/SplitTestDashboard';
 import { CRMDashboard } from './admin/crm/CRMDashboard';
 import { LeadMagnetAnalytics } from './admin/LeadMagnetAnalytics';
 import { AdminCoaches } from './admin/AdminCoaches';
@@ -248,12 +249,17 @@ export const SecureAdminPanel: React.FC = () => {
           <Tabs defaultValue="hub" className="w-full">
             <TabsList className="mb-4">
               <TabsTrigger value="hub">📢 Marketing Hub</TabsTrigger>
+              <TabsTrigger value="split-tests">🧪 Split Tests</TabsTrigger>
               <TabsTrigger value="emails">📧 Email Analytics</TabsTrigger>
               <TabsTrigger value="revenue">💰 Revenue</TabsTrigger>
             </TabsList>
             
             <TabsContent value="hub">
               <MarketingHub />
+            </TabsContent>
+            
+            <TabsContent value="split-tests">
+              <SplitTestDashboard />
             </TabsContent>
             
             <TabsContent value="emails">
