@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { plans, getLocalizedPlan } from "@/data/pricing";
 import { Helmet } from "react-helmet-async";
-import { Crown, Zap, Gift, Check, Rocket, Users, Timer, AlertTriangle, Calendar } from "lucide-react";
+import { Crown, Zap, Gift, Check, Rocket, Users, Timer, AlertTriangle, Calendar, Star } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { trackPurchase } from "@/lib/facebook-pixel";
 import { preOpenWindow, redirectExternal } from "@/lib/externalRedirect";
@@ -448,12 +448,29 @@ const Pricing: React.FC = () => {
                   
                   <CardContent>
                     <ul className="space-y-2">
-                      {plan.benefits.map((b) => (
-                        <li key={b} className="text-sm text-muted-foreground flex items-start gap-2">
-                          <Check className="h-4 w-4 mt-0.5 flex-shrink-0 text-green-500" />
-                          <span>{b}</span>
-                        </li>
-                      ))}
+                      {plan.benefits.map((b) => {
+                        const isHighlighted = b.startsWith('**');
+                        const cleanText = b.replace(/\*\*/g, '');
+                        
+                        if (isHighlighted) {
+                          return (
+                            <li 
+                              key={b} 
+                              className="text-sm font-bold text-primary flex items-start gap-2 bg-primary/10 rounded-lg px-3 py-2 border border-primary/20"
+                            >
+                              <Star className="h-4 w-4 mt-0.5 flex-shrink-0 fill-primary text-primary" />
+                              <span>{cleanText}</span>
+                            </li>
+                          );
+                        }
+                        
+                        return (
+                          <li key={b} className="text-sm text-muted-foreground flex items-start gap-2">
+                            <Check className="h-4 w-4 mt-0.5 flex-shrink-0 text-green-500" />
+                            <span>{b}</span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </CardContent>
                   
