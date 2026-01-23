@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, X, Sparkles, Rocket, Shield, Crown } from "lucide-react";
+import { CheckCircle2, X, Sparkles, Rocket, Shield, Crown, Star } from "lucide-react";
 import { plans, getLocalizedPlan } from "@/data/pricing";
 
 export const PricingComparison = () => {
@@ -148,18 +148,35 @@ export const PricingComparison = () => {
 
               {/* Features */}
               <div className="space-y-3 mb-8">
-                {plan.features.map((feature, fIdx) => (
-                  <div key={fIdx} className="flex items-center gap-3">
-                    {feature.included ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    ) : (
-                      <X className="w-5 h-5 text-muted-foreground/30 flex-shrink-0" />
-                    )}
-                    <span className={feature.included ? 'text-foreground' : 'text-muted-foreground'}>
-                      {feature.text}
-                    </span>
-                  </div>
-                ))}
+                {plan.features.map((feature, fIdx) => {
+                  const isHighlighted = feature.text.startsWith('**');
+                  const cleanText = feature.text.replace(/\*\*/g, '');
+                  
+                  if (isHighlighted && feature.included) {
+                    return (
+                      <div 
+                        key={fIdx} 
+                        className="flex items-center gap-3 bg-primary/10 rounded-lg px-3 py-2 border border-primary/20"
+                      >
+                        <Star className="w-5 h-5 text-primary fill-primary flex-shrink-0" />
+                        <span className="text-primary font-bold">{cleanText}</span>
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <div key={fIdx} className="flex items-center gap-3">
+                      {feature.included ? (
+                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      ) : (
+                        <X className="w-5 h-5 text-muted-foreground/30 flex-shrink-0" />
+                      )}
+                      <span className={feature.included ? 'text-foreground' : 'text-muted-foreground'}>
+                        {feature.text}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* CTA */}
