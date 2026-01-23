@@ -105,7 +105,7 @@ export function EarlyBirdCountdownCard({ quizCompletedAt }: EarlyBirdCountdownCa
         {/* Price Comparison */}
         <div className="space-y-3">
           {/* Normal Prices - Strikethrough */}
-          <div className="flex items-center justify-center gap-2 text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 text-gray-600">
             <span className="text-xs uppercase tracking-wide">Prețuri normale:</span>
             <div className="flex gap-3">
               <span className="line-through text-sm">Basic €99</span>
@@ -154,7 +154,7 @@ function TimeUnit({ value, label, isUrgent }: { value: number; label: string; is
           {value.toString().padStart(2, '0')}
         </span>
       </div>
-      <span className="text-xs text-muted-foreground mt-1">{label}</span>
+      <span className="text-xs text-gray-600 mt-1">{label}</span>
     </div>
   );
 }

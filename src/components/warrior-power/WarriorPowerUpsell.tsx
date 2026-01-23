@@ -237,13 +237,13 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
           </span>
         </div>
         
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           Alege planul tău de transformare
         </h2>
         
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Cu un scor de <strong className="text-foreground">{totalScore}/96</strong> și 
-          {' '}<strong className="text-foreground">{dimensionNames[weakestDimension]}</strong> ca zonă de focalizare principală, 
+        <p className="text-gray-700 max-w-2xl mx-auto">
+          Cu un scor de <strong className="text-gray-900">{totalScore}/96</strong> și 
+          {' '}<strong className="text-gray-900">{dimensionNames[weakestDimension]}</strong> ca zonă de focalizare principală, 
           ai nevoie de un plan structurat pentru a deveni <strong className="text-primary">ACCELERAT</strong> în toate ariile.
         </p>
       </motion.div>
@@ -296,9 +296,9 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   
                   {/* Value Anchor */}
                   <div className="mb-2 p-2 rounded-lg bg-white border border-gray-200">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Valoare totală:</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Valoare totală:</p>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-lg font-bold line-through text-muted-foreground">{plan.totalValue}</span>
+                      <span className="text-lg font-bold line-through text-gray-500">{plan.totalValue}</span>
                       <TrendingUp className="h-3 w-3 text-green-500" />
                     </div>
                   </div>
@@ -313,11 +313,11 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     )}>
                       {plan.currency}{plan.price}
                     </span>
-                    <span className="text-muted-foreground text-sm">/ {plan.period}</span>
+                    <span className="text-gray-600 text-sm">/ {plan.period}</span>
                   </div>
                   
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-muted-foreground line-through">
+                    <span className="text-xs text-gray-500 line-through">
                       {plan.currency}{plan.normalPrice}/lună
                     </span>
                     <span className="text-xs font-semibold text-green-500">
@@ -335,7 +335,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                         plan.id === 'pro' && "text-amber-500",
                         plan.id === 'elite' && "text-purple-500"
                       )} />
-                      <span className="text-muted-foreground">{benefit}</span>
+                      <span className="text-gray-700">{benefit}</span>
                     </li>
                   ))}
                 </ul>
@@ -382,8 +382,8 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
             <div className="flex items-center gap-3">
               <Shield className="h-10 w-10 text-green-500 flex-shrink-0" />
               <div>
-                <p className="font-bold text-foreground">Garanție 100% Satisfacție</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="font-bold text-gray-900">Garanție 100% Satisfacție</p>
+                <p className="text-xs text-gray-600">
                   Dacă în 7 zile nu vezi rezultate, primești banii înapoi. Fără întrebări.
                 </p>
               </div>
@@ -393,11 +393,11 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
             <div className="flex items-center gap-4 text-center md:text-right">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">{activeUsers.toLocaleString()}+</span>
-                <span className="text-xs text-muted-foreground">utilizatori</span>
+                <span className="text-sm font-semibold text-gray-900">{activeUsers.toLocaleString()}+</span>
+                <span className="text-xs text-gray-600">utilizatori</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-sm font-semibold text-foreground">4.9</span>
+                <span className="text-sm font-semibold text-gray-900">4.9</span>
                 <div className="flex">
                   {[1,2,3,4,5].map(i => (
                     <Star key={i} className="h-3 w-3 text-yellow-500 fill-yellow-500" />
@@ -419,7 +419,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         <Button
           variant="ghost"
           onClick={onContinueFree}
-          className="gap-2 text-muted-foreground hover:text-foreground text-sm"
+          className="gap-2 text-gray-500 hover:text-gray-900 text-sm"
         >
           Continuă fără abonament (funcții limitate)
           <ArrowRight className="h-4 w-4" />
@@ -431,7 +431,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="flex items-center justify-center gap-2 text-sm text-muted-foreground pt-4"
+        className="flex items-center justify-center gap-2 text-sm text-gray-600 pt-4"
       >
         <Zap className="h-4 w-4 text-primary" />
         <span>Rezultatele tale au fost salvate și trimise pe email</span>
