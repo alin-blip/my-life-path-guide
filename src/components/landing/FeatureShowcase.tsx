@@ -131,7 +131,7 @@ export const FeatureShowcase = () => {
     target: sectionRef,
     offset: ["start end", "end start"]
   });
-  const parallaxY = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, -20]);
   const currentFeature = features[activeIndex];
 
   // Typing animation effect
@@ -378,7 +378,7 @@ export const FeatureShowcase = () => {
                         ease: 'easeInOut'
                       }
                     }} />}
-                      <motion.img src={currentFeature.image} alt={currentFeature.title} className={`pointer-events-none select-none relative z-10 ${currentFeature.hasCosmicBg ? 'w-full h-full object-contain rounded-xl' : 'w-full h-full object-cover'}`} style={{
+                      <motion.img src={currentFeature.image} alt={currentFeature.title} className={`pointer-events-none select-none relative z-10 ${currentFeature.hasCosmicBg ? 'w-full h-full object-contain rounded-xl' : 'w-full h-full object-cover object-top'}`} style={{
                       y: parallaxY
                     }} draggable={false} />
                     </div>
