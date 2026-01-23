@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-import { Sword, Flame, Trophy, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Sword, Flame, Trophy, TrendingUp, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WarriorPowerUpsell } from './WarriorPowerUpsell';
+import { LossAversionCard } from './LossAversionCard';
+import { EarlyBirdCountdownCard } from './EarlyBirdCountdownCard';
 import {
   calculateTotalScore,
   getScorePercentage,
@@ -16,6 +17,36 @@ interface WarriorPowerResultsPageProps {
   scores: WarriorPowerScores;
   userName: string;
   onContinueFree: () => void;
+}
+
+// Hormozi-style headlines based on score ranges
+function getPersonalizedHeadline(userName: string, totalScore: number, percentage: number, weakestDim: string): { headline: string; subheadline: string } {
+  const dimensionNames: Record<string, string> = {
+    body: 'Corp',
+    being: 'Ființă',
+    balance: 'Echilibru',
+    business: 'Business'
+  };
+  
+  const weakName = dimensionNames[weakestDim] || weakestDim;
+  const estimatedLoss = Math.round((100 - percentage) * 25);
+
+  if (percentage <= 50) {
+    return {
+      headline: `${userName}, Cu ${totalScore}/96 Pierzi ~€${estimatedLoss}/Lună în Potențial Neexploatat`,
+      subheadline: `Zona critică: ${weakName} - Dar asta înseamnă că ai cel mai mare potențial de creștere RAPIDĂ`
+    };
+  } else if (percentage <= 75) {
+    return {
+      headline: `${userName}, Ești la ${percentage}% din Potențialul Tău. Iată Cum Ajungi la 100%`,
+      subheadline: `${weakName} te încetinește - Rezolvă asta și deblochezi următorul nivel`
+    };
+  } else {
+    return {
+      headline: `${userName}, Ești în Top 10% - Dar ${weakName} Te Împiedică Să Fii ACCELERAT`,
+      subheadline: `Un singur upgrade strategic și vei fi de neoprit`
+    };
+  }
 }
 
 export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: WarriorPowerResultsPageProps) {
@@ -36,9 +67,18 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
   const weakestDimension = sortedDimensions[0];
   const strongestDimension = sortedDimensions[sortedDimensions.length - 1];
 
+  const { headline, subheadline } = getPersonalizedHeadline(
+    userName, 
+    totalScore, 
+    percentage, 
+    weakestDimension[0]
+  );
+
+  const weakestDimName = DIMENSION_INFO[weakestDimension[0] as keyof typeof DIMENSION_INFO]?.name || weakestDimension[0];
+
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-6 md:py-10 safe-area-bottom">
-      {/* Hero Result Section */}
+      {/* Hero Result Section - Hormozi Style */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -47,14 +87,18 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
         <div className="inline-flex items-center gap-2 mb-4">
           <Sword className="h-5 w-5 text-primary" />
           <span className="text-xs uppercase tracking-widest text-primary font-bold">
-            Warrior Power Assessment
+            Warrior Power Assessment - Rezultate
           </span>
           <Sword className="h-5 w-5 text-primary transform scale-x-[-1]" />
         </div>
 
-        <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-3">
-          {userName}, Iată Rezultatele Tale!
+        {/* Personalized Hormozi Headline */}
+        <h1 className="text-xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3 leading-tight">
+          {headline}
         </h1>
+        <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto mb-6">
+          {subheadline}
+        </p>
 
         {/* Score Display */}
         <motion.div 
@@ -129,7 +173,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
                     {dimScore}/24
                   </div>
                 </div>
-                {isWeakest && <span className="text-[10px] text-red-400 font-medium">FOCALIZARE</span>}
+                {isWeakest && <span className="text-[10px] text-red-400 font-medium">⚠️ FOCUS</span>}
                 {isStrongest && <Trophy className="h-4 w-4 text-green-400" />}
               </div>
             );
@@ -137,19 +181,40 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
         </motion.div>
       </motion.div>
 
+      {/* Loss Aversion Card - NEW */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="mb-8"
+      >
+        <LossAversionCard
+          weakestDimension={weakestDimension[0]}
+          weakestScore={weakestDimension[1]}
+          totalScore={totalScore}
+          userName={userName}
+        />
+      </motion.div>
+
       {/* Voomly Video Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="mb-10"
+        className="mb-8"
       >
         <div className="text-center mb-4">
+          <div className="inline-flex items-center gap-2 mb-2">
+            <Target className="h-5 w-5 text-primary" />
+            <span className="text-xs uppercase tracking-widest text-primary font-bold">
+              Planul Tău de Acțiune
+            </span>
+          </div>
           <h2 className="text-xl md:text-2xl font-bold text-foreground">
-            🎬 Descoperă Cum Să Devii ACCELERAT în 7 Zile
+            🎬 Cum Să Transformi {weakestDimName} în 7 Zile
           </h2>
           <p className="text-muted-foreground text-sm mt-1">
-            Privește acest video pentru a înțelege cum funcționează sistemul
+            Privește acest video pentru a înțelege sistemul pas-cu-pas
           </p>
         </div>
         
@@ -166,6 +231,16 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
             />
           </div>
         </div>
+      </motion.div>
+
+      {/* Early Bird Countdown - NEW */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45 }}
+        className="mb-8"
+      >
+        <EarlyBirdCountdownCard />
       </motion.div>
 
       {/* Subscription Plans */}
