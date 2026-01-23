@@ -10,6 +10,7 @@ import { WarriorPowerQuiz } from '@/components/warrior-power/WarriorPowerQuiz';
 import { WarriorPowerResultsPage } from '@/components/warrior-power/WarriorPowerResultsPage';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 import { saveRealityMapScores } from '@/services/realityMapService';
+import { assignWarriorPowerVariant, type SplitVariant } from '@/utils/splitTest';
 
 type Step = 'landing' | 'quiz' | 'lead-form' | 'results';
 
@@ -138,15 +139,47 @@ export default function WarriorPower() {
         if (emailError || (emailData as any)?.error) {
           console.error('Error sending email:', emailError);
           toast.warning('Email-ul cu rezultatele a întâmpinat probleme. Verifică spam.');
-        } else {
-          toast.success('Ți-am trimis rezultatele pe email!');
         }
       } catch (emailError) {
         console.error('Error sending email:', emailError);
       }
 
-      setLeadData(data);
-      setStep('results');
+      // === SPLIT TEST LOGIC ===
+      const variant: SplitVariant = assignWarriorPowerVariant(data.email);
+      console.log(`[Split Test] Assigned variant ${variant} to ${data.email}`);
+
+      // Update email_leads with split variant for tracking
+      try {
+        await supabase
+          .from('email_leads')
+          .update({ 
+            source: `warrior_power_split_${variant.toLowerCase()}` 
+          })
+          .eq('email', data.email)
+          .eq('lead_magnet', 'warrior_power');
+      } catch (err) {
+        console.error('Error updating split variant:', err);
+      }
+
+      // Route based on variant
+      switch (variant) {
+        case 'A':
+          // Redirect to Warrior Launch Accelerator (€497 offer)
+          toast.success('Ți-am trimis rezultatele pe email! Verifică inbox-ul.');
+          navigate('/warrior-launch-accelerator?source=warrior-power-split-a');
+          break;
+        case 'B':
+          // Show results page (current flow with challenge upsell)
+          toast.success('Ți-am trimis rezultatele pe email!');
+          setLeadData(data);
+          setStep('results');
+          break;
+        case 'C':
+          // Redirect to homepage to explore platform
+          toast.success('Ți-am trimis rezultatele pe email! Explorează platforma.');
+          navigate('/?source=warrior-power-split-c');
+          break;
+      }
     } catch (error) {
       console.error('Error:', error);
       toast.error('A apărut o eroare. Încearcă din nou.');
