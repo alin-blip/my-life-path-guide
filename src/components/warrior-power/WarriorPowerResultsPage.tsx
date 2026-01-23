@@ -84,9 +84,9 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
             percentage <= 75 ? "border-blue-500 bg-blue-500/10" :
             "border-green-500 bg-green-500/10"
           )}>
-            <div className="text-3xl md:text-4xl font-black">
+            <div className="text-3xl md:text-4xl font-black text-gray-900">
               {totalScore}
-              <span className="text-lg md:text-xl text-gray-600">/96</span>
+              <span className="text-lg md:text-xl text-gray-900 font-bold">/96</span>
             </div>
             <div className={cn(
               "text-sm font-bold uppercase tracking-wider",
@@ -142,7 +142,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
               Have It All Lifestyle
             </span>
           </div>
-          <h2 className="text-lg md:text-xl font-bold text-foreground">
+          <h2 className="text-lg md:text-xl font-bold text-gray-900">
             Challenge-ul de 7 Zile care îți transformă viața
           </h2>
         </div>

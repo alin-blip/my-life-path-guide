@@ -263,7 +263,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
               key={plan.id}
               className={cn(
                 "relative overflow-hidden transition-all duration-300",
-                `border-2 ${plan.borderColor} bg-gradient-to-br ${plan.bgGradient} shadow-lg`,
+                `border-2 ${plan.borderColor} bg-white shadow-lg`,
                 plan.featured && "ring-2 ring-green-500/50"
               )}
             >
