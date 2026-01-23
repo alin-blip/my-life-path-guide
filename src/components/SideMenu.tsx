@@ -44,7 +44,8 @@ import {
   Palette,
   User,
   CreditCard,
-  LogOut
+  LogOut,
+  UserCheck
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -234,6 +235,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: language === 'ro' ? 'Clasament' : 'Leaderboard', icon: Trophy, path: '/leaderboard' },
         { title: language === 'ro' ? 'Achievements' : 'Achievements', icon: Sparkles, path: '/achievements' },
       ]
+    },
+
+    // COACH DASHBOARD - Visible to all logged-in users
+    {
+      title: language === 'ro' ? 'Coach Dashboard' : 'Coach Dashboard',
+      icon: UserCheck,
+      path: '/coach',
+      badge: 'COACH'
     },
 
     // 11. TOOLS (All platform tools)
