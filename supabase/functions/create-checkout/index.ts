@@ -68,14 +68,6 @@ serve(async (req) => {
 
     switch (plan) {
       // === NEW 3-TIER HORMOZI STRUCTURE ===
-      case "free":
-        // Free trial - Basic with 3-day trial, then €49/mo
-        unitAmount = currency === "ron" ? 24900 : 4900; // 249 RON or €49 after trial
-        productName = "WarriorOS Basic (3-Day Trial)";
-        trialDays = 3;
-        tier = "basic";
-        break;
-        
       case "basic":
         // Basic plan - €49/month Early Bird (normally €97) - NO TRIAL
         unitAmount = currency === "ron" ? 24900 : 4900; // 249 RON or €49
@@ -84,10 +76,11 @@ serve(async (req) => {
         break;
         
       case "pro":
-        // Pro plan - €97/month Early Bird (normally €197) - NO TRIAL
+        // Pro plan - €97/month Early Bird (normally €197) - 7-DAY TRIAL
         unitAmount = currency === "ron" ? 49000 : 9700; // 490 RON or €97
-        productName = "WarriorOS Pro";
+        productName = "WarriorOS Pro (7-Day Trial)";
         tier = "pro";
+        trialDays = 7;
         break;
         
       case "elite":
