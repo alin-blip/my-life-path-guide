@@ -3,6 +3,9 @@ import { Sword, Flame, Trophy, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WarriorPowerUpsell } from './WarriorPowerUpsell';
 import { TransformationMirrorCard } from './TransformationMirrorCard';
+import { FullCycleAnalysisCard } from './FullCycleAnalysisCard';
+import { ChallengeBreakdownCard } from './ChallengeBreakdownCard';
+import { DailyStackPreviewCard } from './DailyStackPreviewCard';
 import { EarlyBirdCountdownCard } from './EarlyBirdCountdownCard';
 import {
   calculateTotalScore,
@@ -181,7 +184,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
         </motion.div>
       </motion.div>
 
-      {/* Transformation Mirror Card - Durere vs Posibil */}
+      {/* Transformation Mirror Card - Durere vs Posibil (Weakest Dimension Focus) */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -196,11 +199,48 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
         />
       </motion.div>
 
-      {/* Voomly Video Section */}
+      {/* Full Cycle Analysis - All 4 Dimensions Interconnected */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
+        className="mb-8"
+      >
+        <FullCycleAnalysisCard
+          scores={dimensionScores}
+          userName={userName}
+        />
+      </motion.div>
+
+      {/* Challenge Breakdown - What They Get Each Day */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45 }}
+        className="mb-8"
+      >
+        <ChallengeBreakdownCard
+          scores={dimensionScores}
+          userName={userName}
+          weakestDimension={weakestDimension[0]}
+        />
+      </motion.div>
+
+      {/* Daily Stack Preview - Morning Ritual */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="mb-8"
+      >
+        <DailyStackPreviewCard userName={userName} />
+      </motion.div>
+
+      {/* Voomly Video Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55 }}
         className="mb-8"
       >
         <div className="text-center mb-4">
@@ -233,11 +273,11 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
         </div>
       </motion.div>
 
-      {/* Early Bird Countdown - NEW */}
+      {/* Early Bird Countdown */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.45 }}
+        transition={{ delay: 0.6 }}
         className="mb-8"
       >
         <EarlyBirdCountdownCard />
@@ -247,7 +287,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.65 }}
       >
         <WarriorPowerUpsell
           scores={scores}
