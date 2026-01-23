@@ -259,7 +259,7 @@ export const FeatureShowcase = () => {
           <div className="space-y-6">
             {/* Screenshot with animated neon border */}
             <div className="relative">
-              <motion.div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-card touch-pan-y opacity-70 border-accent" drag={isMobile ? "x" : false} dragConstraints={{
+              <motion.div className="relative overflow-hidden border bg-card touch-pan-y opacity-70 border-sidebar-primary rounded-3xl shadow-xl" drag={isMobile ? "x" : false} dragConstraints={{
               left: 0,
               right: 0
             }} dragElastic={0.2} onDragStart={() => setIsDragging(true)} onDragEnd={handleDragEnd} style={{
