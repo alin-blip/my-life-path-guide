@@ -100,6 +100,89 @@ serve(async (req) => {
     );
 
     // Handle different event types
+    // Helper function to process coach commissions (50%)
+    const processCoachCommission = async (userId: string, paymentAmount: number, currency: string, stripePaymentId: string) => {
+      try {
+        // Find active referral for this user
+        const { data: referral, error: refError } = await supabaseService
+          .from("referrals")
+          .select("*, coach_profiles!inner(*)")
+          .eq("referred_user_id", userId)
+          .eq("status", "active")
+          .single();
+
+        if (refError || !referral) {
+          log("No active referral found for user", { userId });
+          return;
+        }
+
+        const coachProfile = referral.coach_profiles;
+        const commissionRate = coachProfile.commission_rate || 0.50; // Default 50%
+        const commissionAmount = paymentAmount * commissionRate;
+
+        log("Processing coach commission", {
+          coachId: coachProfile.id,
+          referralId: referral.id,
+          originalPayment: paymentAmount,
+          commissionRate,
+          commissionAmount,
+        });
+
+        // Create commission record
+        const { error: commError } = await supabaseService
+          .from("commissions")
+          .insert({
+            referral_id: referral.id,
+            coach_id: coachProfile.id,
+            amount: commissionAmount,
+            original_payment: paymentAmount,
+            currency: currency.toUpperCase(),
+            stripe_payment_id: stripePaymentId,
+            status: "pending",
+          });
+
+        if (commError) {
+          log("Error creating commission", { error: commError.message });
+          return;
+        }
+
+        // Update coach pending payout
+        const newPendingPayout = (coachProfile.pending_payout || 0) + commissionAmount;
+        const newTotalEarnings = (coachProfile.total_earnings || 0) + commissionAmount;
+
+        const { error: updateError } = await supabaseService
+          .from("coach_profiles")
+          .update({
+            pending_payout: newPendingPayout,
+            total_earnings: newTotalEarnings,
+          })
+          .eq("id", coachProfile.id);
+
+        if (updateError) {
+          log("Error updating coach payout", { error: updateError.message });
+        } else {
+          log("Coach commission processed successfully", {
+            coachId: coachProfile.id,
+            commission: commissionAmount,
+            pendingPayout: newPendingPayout,
+          });
+        }
+
+        // Update referral lifetime value
+        const newLifetimeValue = (referral.lifetime_value || 0) + paymentAmount;
+        await supabaseService
+          .from("referrals")
+          .update({
+            lifetime_value: newLifetimeValue,
+            first_payment_at: referral.first_payment_at || new Date().toISOString(),
+          })
+          .eq("id", referral.id);
+
+      } catch (err) {
+        log("Error in processCoachCommission", { error: err instanceof Error ? err.message : String(err) });
+      }
+    };
+
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
@@ -206,6 +289,13 @@ serve(async (req) => {
             status: subscriptionStatus 
           });
         }
+
+        // Process coach commission on initial checkout
+        if (user?.id && session.amount_total) {
+          const paymentAmountEur = session.amount_total / 100; // Convert cents to euros
+          await processCoachCommission(user.id, paymentAmountEur, session.currency || "eur", session.id);
+        }
+
         break;
       }
 
@@ -305,6 +395,42 @@ serve(async (req) => {
         } else {
           log("Subscription cancelled", { email: customer.email });
         }
+        break;
+      }
+
+      case "invoice.paid": {
+        // Handle recurring subscription payments - process commission
+        const invoice = event.data.object as Stripe.Invoice;
+        
+        // Skip if this is the first invoice (already processed in checkout.session.completed)
+        if (invoice.billing_reason === "subscription_create") {
+          log("Skipping initial invoice - already processed", { invoiceId: invoice.id });
+          break;
+        }
+
+        log("Invoice paid (recurring)", { 
+          customer: invoice.customer,
+          amount: invoice.amount_paid,
+          billingReason: invoice.billing_reason
+        });
+
+        const customerId = invoice.customer as string;
+        const customer = await stripe.customers.retrieve(customerId);
+        
+        if (customer.deleted || !("email" in customer) || !customer.email) {
+          log("Customer not found or no email");
+          break;
+        }
+
+        // Find user by email
+        const { data: invoiceUserData } = await supabaseService.auth.admin.listUsers();
+        const invoiceUser = invoiceUserData?.users?.find(u => u.email === customer.email);
+
+        if (invoiceUser?.id && invoice.amount_paid) {
+          const paymentAmountEur = invoice.amount_paid / 100;
+          await processCoachCommission(invoiceUser.id, paymentAmountEur, invoice.currency || "eur", invoice.id);
+        }
+
         break;
       }
 
