@@ -51,7 +51,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             transition={{ delay: 0.2 }}
             className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-2"
           >
-            Descoperă-ți Puterea Reală în 5 minute. Acest assessment îți va arăta 
+            Descoperă-ți puterea reală în 5 minute. Acest assessment îți va arăta 
             exact unde te afli în cele 4 dimensiuni esențiale ale vieții tale.
           </motion.p>
 
@@ -106,7 +106,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             viewport={{ once: true }}
             className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Cum Funcționează</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Cum funcționează</h2>
             <p className="text-sm sm:text-base text-muted-foreground">
               Un proces simplu în 3 pași pentru a-ți descoperi realitatea
             </p>
@@ -114,9 +114,9 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
             {[
-              { step: 1, title: 'Evaluează-te Sincer', desc: 'Răspunde la 8 întrebări despre cele 4 dimensiuni ale vieții tale' },
-              { step: 2, title: 'Primești Scorul', desc: 'Vezi imediat unde te afli: Adormit, Treaz, Activ sau Accelerat' },
-              { step: 3, title: 'Începe Transformarea', desc: 'Primești un plan personalizat pentru următorii pași' }
+              { step: 1, title: 'Evaluează-te sincer', desc: 'Răspunde la 8 întrebări despre cele 4 dimensiuni ale vieții tale' },
+              { step: 2, title: 'Primești scorul', desc: 'Vezi imediat unde te afli: adormit, treaz, activ sau accelerat' },
+              { step: 3, title: 'Începe transformarea', desc: 'Primești un plan personalizat pentru următorii pași' }
             ].map((item, idx) => (
               <motion.div
                 key={idx}
@@ -146,7 +146,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             viewport={{ once: true }}
             className="text-center mb-8 sm:mb-12"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Cele 4 Dimensiuni</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Cele 4 dimensiuni</h2>
             <p className="text-sm sm:text-base text-muted-foreground">
               Fiecare dimensiune are un impact profund asupra vieții tale
             </p>
@@ -154,10 +154,10 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {[
-              { icon: '💪', name: 'CORPUL', desc: 'Fitness și Alimentație - Fundamentul energiei tale fizice', color: 'from-red-500/20 to-red-500/5' },
-              { icon: '🧘', name: 'FIINȚA', desc: 'Conexiune Spirituală și Certitudine - Puterea ta interioară', color: 'from-purple-500/20 to-purple-500/5' },
-              { icon: '⚖️', name: 'ECHILIBRU', desc: 'Relații și Familie - Legăturile care te susțin', color: 'from-blue-500/20 to-blue-500/5' },
-              { icon: '💼', name: 'BUSINESS', desc: 'Mecanică și Bani - Prosperitatea ta materială', color: 'from-green-500/20 to-green-500/5' }
+              { icon: '💪', name: 'CORPUL', desc: 'Fitness și alimentație - fundamentul energiei tale fizice', color: 'from-red-500/20 to-red-500/5' },
+              { icon: '🧘', name: 'FIINȚA', desc: 'Conexiune spirituală și certitudine - puterea ta interioară', color: 'from-purple-500/20 to-purple-500/5' },
+              { icon: '⚖️', name: 'ECHILIBRU', desc: 'Relații și familie - legăturile care te susțin', color: 'from-blue-500/20 to-blue-500/5' },
+              { icon: '💼', name: 'BUSINESS', desc: 'Mecanică și bani - prosperitatea ta materială', color: 'from-green-500/20 to-green-500/5' }
             ].map((dim, idx) => (
               <motion.div
                 key={idx}
@@ -189,7 +189,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             viewport={{ once: true }}
             className="mb-6 sm:mb-8"
           >
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Ce Vei Primi</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Ce vei primi</h2>
             <div className="space-y-3 sm:space-y-4">
               {benefits.map((benefit, idx) => (
                 <motion.div

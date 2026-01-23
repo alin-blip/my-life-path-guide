@@ -115,10 +115,10 @@ export default function ChallengeLanding() {
     hero: {
       badge: isRo ? "🔥 CHALLENGE GRATUIT 7 ZILE" : "🔥 FREE 7-DAY CHALLENGE",
       headline: isRo 
-        ? "Transformă-ți Viața în 7 Zile SAU Primești Banii Înapoi" 
+        ? "Transformă-ți viața în 7 zile SAU primești banii înapoi" 
         : "Transform Your Life in 7 Days OR Your Money Back",
       subheadline: isRo
-        ? "Fără sacrificii. Fără să renunți la familie. Doar 15 minute/zi pentru Corp, Spirit, Relații și Business — toate în echilibru perfect."
+        ? "Fără sacrificii. Fără să renunți la familie. Doar 15 minute/zi pentru corp, spirit, relații și business — toate în echilibru perfect."
         : "No sacrifices. Without giving up family. Just 15 minutes/day for Body, Mind, Relationships and Business — all in perfect balance."
     },
     problems: {
@@ -140,8 +140,8 @@ export default function ChallengeLanding() {
       items: isRo ? [
         "Sistem pas-cu-pas pentru toate 4 ariile vieții",
         "Doar 15 minute pe zi, 7 zile, rezultate vizibile",
-        "AI Coaching personalizat pentru situația ta",
-        "Vision Board generat automat + Reality Map"
+        "Coaching AI personalizat pentru situația ta",
+        "Vision board generat automat + reality map"
       ] : [
         "Step-by-step system for all 4 life areas",
         "Just 15 minutes per day, 7 days, visible results",
@@ -152,49 +152,49 @@ export default function ChallengeLanding() {
     days: [
       {
         day: 1,
-        title: isRo ? "Viziune & Declarație" : "Vision & Declaration",
+        title: isRo ? "Viziune și declarație" : "Vision & Declaration",
         icon: Target,
         focus: isRo ? "Claritate" : "Clarity",
         color: "text-purple-400"
       },
       {
         day: 2,
-        title: isRo ? "Puterea Minții" : "Mind Power",
+        title: isRo ? "Puterea minții" : "Mind Power",
         icon: Brain,
         focus: isRo ? "Spirit" : "Being",
         color: "text-blue-400"
       },
       {
         day: 3,
-        title: isRo ? "Energie Fizică" : "Physical Energy",
+        title: isRo ? "Energie fizică" : "Physical Energy",
         icon: Zap,
         focus: isRo ? "Corp" : "Body",
         color: "text-green-400"
       },
       {
         day: 4,
-        title: isRo ? "Relații Puternice" : "Strong Relationships",
+        title: isRo ? "Relații puternice" : "Strong Relationships",
         icon: Heart,
         focus: isRo ? "Relații" : "Balance",
         color: "text-pink-400"
       },
       {
         day: 5,
-        title: isRo ? "Business & Valoare" : "Business & Value",
+        title: isRo ? "Business și valoare" : "Business & Value",
         icon: Briefcase,
         focus: isRo ? "Business" : "Business",
         color: "text-amber-400"
       },
       {
         day: 6,
-        title: isRo ? "Sistem de Rutină" : "Routine System",
+        title: isRo ? "Sistem de rutină" : "Routine System",
         icon: Clock,
         focus: isRo ? "Execuție" : "Execution",
         color: "text-cyan-400"
       },
       {
         day: 7,
-        title: isRo ? "Integrare & Sprint" : "Integration & Sprint",
+        title: isRo ? "Integrare și sprint" : "Integration & Sprint",
         icon: Trophy,
         focus: isRo ? "Mastery" : "Mastery",
         color: "text-yellow-400"
@@ -227,10 +227,10 @@ export default function ChallengeLanding() {
       pro: {
         badge: isRo ? "CEL MAI POPULAR" : "MOST POPULAR",
         features: isRo ? [
-          "Tot ce include Trial +",
-          "Coaching LIVE săptămânal cu Alin",
-          "Comunitate VIP Pro members",
-          "Sprint 90 zile cu KPIs",
+          "Tot ce include trial +",
+          "Coaching live săptămânal cu Alin",
+          "Comunitate VIP pro members",
+          "Sprint 90 zile cu KPI-uri",
           "Referral 50% comision recurent",
           "Support VIP dedicat"
         ] : [
@@ -246,10 +246,10 @@ export default function ChallengeLanding() {
       elite: {
         badge: isRo ? "TOT INCLUS" : "ALL-INCLUSIVE",
         features: isRo ? [
-          "Tot ce include Pro +",
+          "Tot ce include pro +",
           "Warrior Accelerator (€497 valoare)",
           "47+ lecții video premium",
-          "Coaching 1-on-1 lunar (30 min)",
+          "Coaching 1-la-1 lunar (30 min)",
           "Coach Dashboard complet",
           "Framework 90 zile implementare"
         ] : [

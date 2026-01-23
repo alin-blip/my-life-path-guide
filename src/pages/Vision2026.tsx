@@ -96,10 +96,10 @@ const Vision2026 = () => {
 
   const features = [
     language === 'en' ? 'Define "impossible" goals for 2026' : 'Definește obiective "imposibile" pentru 2026',
-    language === 'en' ? 'Breakdown into 90-day milestones' : 'Breakdown în milestones de 90 zile',
-    language === 'en' ? 'Clarity on your WHY' : 'Claritate asupra DE CE-ului tău',
+    language === 'en' ? 'Breakdown into 90-day milestones' : 'Împărțire în etape de 90 zile',
+    language === 'en' ? 'Clarity on your WHY' : 'Claritate asupra motivației tale',
     language === 'en' ? 'Impact on all life areas' : 'Impact asupra tuturor ariilor vieții',
-    language === 'en' ? 'Week 1 action plan' : 'Plan de acțiune săptămâna 1'
+    language === 'en' ? 'Week 1 action plan' : 'Plan de acțiune pentru prima săptămână'
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -304,7 +304,7 @@ const Vision2026 = () => {
                     <Target className="w-8 h-8 text-amber-400" />
                   </div>
                   <h2 className="text-2xl font-bold text-white mb-2">
-                    {language === 'en' ? 'Create Your 2026 Plan FREE' : 'Creează-ți Planul 2026 GRATUIT'}
+                    {language === 'en' ? 'Create Your 2026 Plan FREE' : 'Creează-ți planul 2026 GRATUIT'}
                   </h2>
                   <p className="text-gray-400">
                     {language === 'en' ? 'Full access for 3 days to all features' : 'Acces complet 3 zile la toate funcțiile'}

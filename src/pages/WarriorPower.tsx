@@ -197,12 +197,12 @@ export default function WarriorPower() {
   return (
     <>
       <Helmet>
-        <title>Warrior Power Assessment - Descoperă-ți Puterea Reală</title>
+        <title>Warrior Power Assessment - Descoperă-ți puterea reală</title>
         <meta 
           name="description" 
-          content="Evaluează-te în cele 4 dimensiuni ale vieții: Corp, Ființă, Echilibru și Business. Descoperă unde te afli și primește un plan personalizat de transformare." 
+          content="Evaluează-te în cele 4 dimensiuni ale vieții: corp, ființă, echilibru și business. Descoperă unde te afli și primește un plan personalizat de transformare." 
         />
-        <meta property="og:title" content="Warrior Power Assessment - Descoperă-ți Puterea Reală" />
+        <meta property="og:title" content="Warrior Power Assessment - Descoperă-ți puterea reală" />
         <meta property="og:description" content="Evaluează-te în cele 4 dimensiuni ale vieții și descoperă-ți potențialul real." />
       </Helmet>
 
