@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
-import { Sword, Flame, Trophy, TrendingUp, Target } from 'lucide-react';
+import { Sword, Flame, Trophy, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WarriorPowerUpsell } from './WarriorPowerUpsell';
-import { LossAversionCard } from './LossAversionCard';
+import { TransformationMirrorCard } from './TransformationMirrorCard';
 import { EarlyBirdCountdownCard } from './EarlyBirdCountdownCard';
 import {
   calculateTotalScore,
@@ -181,14 +181,14 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
         </motion.div>
       </motion.div>
 
-      {/* Loss Aversion Card - NEW */}
+      {/* Transformation Mirror Card - Durere vs Posibil */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35 }}
         className="mb-8"
       >
-        <LossAversionCard
+        <TransformationMirrorCard
           weakestDimension={weakestDimension[0]}
           weakestScore={weakestDimension[1]}
           totalScore={totalScore}
