@@ -89,7 +89,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5 sm:gap-2">
             <Sword className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
-            <span className="text-xs sm:text-sm text-muted-foreground">
+            <span className="text-xs sm:text-sm text-gray-500">
               {currentIndex + 1}/{WARRIOR_POWER_QUESTIONS.length}
             </span>
           </div>
@@ -97,7 +97,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
             {dimensionInfo.icon} {currentQuestion.dimensionName}
           </span>
         </div>
-        <Progress value={progress} className="h-1.5 sm:h-2" />
+        <Progress value={progress} className="h-1.5 sm:h-2 bg-gray-200" />
       </div>
 
       <div className="max-w-2xl mx-auto">
@@ -120,10 +120,10 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                   {currentQuestion.dimensionName}
                 </span>
               </div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-1.5 sm:mb-2 px-2">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2 px-2">
                 {currentQuestion.section}
               </h2>
-              <p className="text-xs sm:text-sm text-muted-foreground px-2">
+              <p className="text-xs sm:text-sm text-gray-500 px-2">
                 {currentQuestion.sectionDescription}
               </p>
             </div>
@@ -148,7 +148,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                       "rounded-xl sm:rounded-2xl border-2 transition-all duration-300 overflow-hidden",
                       hasScoreInThisLevel
                         ? `${config.border} ${config.bg} shadow-lg` 
-                        : "border-border bg-muted/30 hover:border-muted-foreground/40"
+                        : "border-gray-200 bg-white hover:border-gray-400"
                     )}
                   >
                     {/* Level Card with inline score buttons */}
@@ -158,7 +158,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         "flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-lg sm:text-xl",
                         hasScoreInThisLevel
                           ? `bg-gradient-to-br ${config.gradient} text-white` 
-                          : "bg-muted"
+                          : "bg-gray-100"
                       )}>
                         {config.icon}
                       </div>
@@ -168,11 +168,11 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
                           <span className={cn(
                             "font-bold text-sm sm:text-base uppercase tracking-wide",
-                            hasScoreInThisLevel ? config.text : "text-foreground"
+                            hasScoreInThisLevel ? config.text : "text-gray-900"
                           )}>
                             {level.name}
                           </span>
-                          <span className="text-[10px] sm:text-xs text-muted-foreground">
+                          <span className="text-[10px] sm:text-xs text-gray-500">
                             [{level.range.join('-')}]
                           </span>
                           {hasScoreInThisLevel && (
@@ -185,14 +185,14 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         {/* Titlu nivel */}
                         <p className={cn(
                           "text-xs sm:text-sm font-semibold mb-0.5 sm:mb-1",
-                          hasScoreInThisLevel ? "text-foreground" : "text-foreground/80"
+                          hasScoreInThisLevel ? "text-gray-900" : "text-gray-800"
                         )}>
                           {level.title}
                         </p>
                         {/* Descriere completă */}
                         <p className={cn(
                           "text-xs sm:text-sm leading-relaxed",
-                          hasScoreInThisLevel ? "text-foreground/90" : "text-muted-foreground"
+                          hasScoreInThisLevel ? "text-gray-800" : "text-gray-500"
                         )}>
                           {level.description}
                         </p>
@@ -215,7 +215,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                               {score}
                             </motion.button>
                           ))}
-                          <span className="text-xs sm:text-sm text-muted-foreground ml-1">
+                          <span className="text-xs sm:text-sm text-gray-500 ml-1">
                             — selectează nivelul tău
                           </span>
                         </div>
@@ -228,11 +228,11 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
 
             {/* Back Button */}
             {currentIndex > 0 && (
-              <div className="flex justify-center pt-4 border-t border-border">
+              <div className="flex justify-center pt-4 border-t border-gray-200">
                 <Button
                   variant="ghost"
                   onClick={handleBack}
-                  className="gap-2 text-muted-foreground hover:text-foreground"
+                  className="gap-2 text-gray-500 hover:text-gray-900"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Întrebarea anterioară
