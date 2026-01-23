@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,17 @@ import { Helmet } from 'react-helmet-async';
 import { useChallengeStats } from '@/hooks/useChallengeStats';
 import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeCard';
 import { SocialProofBar } from '@/components/landing/SocialProofBar';
+import { MembershipUpsellCards } from '@/components/membership/MembershipUpsellCards';
+
 // FB Pixel Lead tracking is now centralized in AuthContext
+
+interface LifeScoreData {
+  totalScore: number;
+  categoryScores: Record<string, number>;
+  answers: Record<string, number>;
+  timestamp: number;
+}
+
 const Challenge7ZileLanding = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
@@ -29,10 +39,56 @@ const Challenge7ZileLanding = () => {
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [lifeScoreData, setLifeScoreData] = useState<LifeScoreData | null>(null);
+  const [showMemberships, setShowMemberships] = useState(false);
 
   const utmSource = searchParams.get('utm_source') || '';
   const utmMedium = searchParams.get('utm_medium') || '';
   const utmCampaign = searchParams.get('utm_campaign') || '';
+  const source = searchParams.get('source') || '';
+
+  // Check for life score data from quiz
+  useEffect(() => {
+    const stored = localStorage.getItem('lifeScoreData');
+    if (stored && source === 'life-score') {
+      try {
+        const data: LifeScoreData = JSON.parse(stored);
+        // Valid for 24 hours
+        if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+          setLifeScoreData(data);
+          setShowMemberships(true);
+        } else {
+          localStorage.removeItem('lifeScoreData');
+        }
+      } catch (e) {
+        console.error('Failed to parse life score data:', e);
+        localStorage.removeItem('lifeScoreData');
+      }
+    }
+  }, [source]);
+
+  // Helper function to find weakest dimension
+  const findWeakestDimension = (categoryScores: Record<string, number>): string => {
+    const dimensions: Record<string, string[]> = {
+      body: ['body'],
+      being: ['being'],
+      balance: ['balance'],
+      business: ['business']
+    };
+    
+    let weakest = 'body';
+    let minScore = Infinity;
+    
+    for (const [dim, categories] of Object.entries(dimensions)) {
+      const score = categories.reduce((sum, cat) => sum + (categoryScores[cat] || 0), 0);
+      if (score < minScore) {
+        minScore = score;
+        weakest = dim;
+      }
+    }
+    
+    return weakest;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -278,8 +334,22 @@ const Challenge7ZileLanding = () => {
               </span>
             </motion.div>
 
-            {/* Lead Capture Form */}
-            {!isSubscribed ? (
+            {/* Lead Capture Form OR Membership Cards */}
+            {showMemberships && lifeScoreData ? (
+              /* Show membership cards if user came from life-score quiz */
+              <div className="max-w-5xl mx-auto bg-white rounded-2xl p-6 md:p-8 shadow-xl">
+                <MembershipUpsellCards 
+                  source="challenge-7-zile"
+                  totalScore={lifeScoreData.totalScore}
+                  weakestDimension={findWeakestDimension(lifeScoreData.categoryScores)}
+                  onContinueFree={() => {
+                    // Clear data and navigate to challenge
+                    localStorage.removeItem('lifeScoreData');
+                    navigate('/challenge');
+                  }}
+                />
+              </div>
+            ) : !isSubscribed ? (
               <Card className="max-w-md mx-auto p-6 bg-card/80 backdrop-blur border-primary/20">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Input

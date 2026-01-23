@@ -41,10 +41,30 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
       if (!isLastQuestion) {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
-        // Track quiz completion before showing signup
-        const totalScore = Object.values({ ...answers, [currentQuestion.id]: points }).reduce((sum, score) => sum + score, 0);
+        // Track quiz completion
+        const finalAnswers = { ...answers, [currentQuestion.id]: points };
+        const totalScore = Object.values(finalAnswers).reduce((sum, score) => sum + score, 0);
         trackQuizCompleted('life_score_60s', totalScore);
-        setStep('signup');
+        
+        // Calculate category scores
+        const categoryScores: Record<string, number> = {};
+        lifeScoreQuestions.forEach(question => {
+          const answer = finalAnswers[question.id];
+          if (answer !== undefined) {
+            categoryScores[question.category] = answer;
+          }
+        });
+        
+        // Save to localStorage for challenge-7-zile page
+        localStorage.setItem('lifeScoreData', JSON.stringify({
+          totalScore,
+          categoryScores,
+          answers: finalAnswers,
+          timestamp: Date.now()
+        }));
+        
+        // Navigate directly to challenge-7-zile with membership cards
+        navigate('/challenge-7-zile?source=life-score');
       }
     }, 400);
   };
