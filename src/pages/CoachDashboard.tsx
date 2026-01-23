@@ -2,17 +2,22 @@ import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCoachDashboard } from '@/hooks/useCoachDashboard';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 import { CoachOnboarding } from '@/components/coach/CoachOnboarding';
 import { CoachStats } from '@/components/coach/CoachStats';
 import { CoachReferralLink } from '@/components/coach/CoachReferralLink';
 import { CoachClients } from '@/components/coach/CoachClients';
 import { CoachEarnings } from '@/components/coach/CoachEarnings';
+import { CoachInbox } from '@/components/coach/CoachInbox';
+import { CoachClientProgress } from '@/components/coach/CoachClientProgress';
+import { CoachTribeManager } from '@/components/coach/CoachTribeManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, DollarSign, Link, Loader2 } from 'lucide-react';
+import { Users, DollarSign, MessageSquare, Activity, Loader2 } from 'lucide-react';
 
 const CoachDashboard: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { user } = useAuth();
   const {
     coachProfile,
     referrals,
@@ -27,7 +32,6 @@ const CoachDashboard: React.FC = () => {
     copyReferralLink,
   } = useCoachDashboard();
 
-  // Handle onboarding callback from Stripe
   useEffect(() => {
     const onboardingStatus = searchParams.get('onboarding');
     
@@ -54,7 +58,6 @@ const CoachDashboard: React.FC = () => {
     );
   }
 
-  // Show onboarding if not a coach yet
   if (!isCoach) {
     return <CoachOnboarding onCreateProfile={createCoachProfile} />;
   }
@@ -62,22 +65,18 @@ const CoachDashboard: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">
-          Coach Dashboard
-        </h1>
+        <h1 className="text-3xl font-bold text-foreground">Coach Dashboard</h1>
         <p className="text-muted-foreground mt-1">
           Welcome back, {coachProfile?.display_name}
         </p>
       </div>
 
-      {/* Stats Overview */}
       <CoachStats 
         stats={stats}
         stripeConnected={!!coachProfile?.stripe_onboarding_complete}
         onConnectStripe={startStripeOnboarding}
       />
 
-      {/* Referral Link Section */}
       <div className="mt-8">
         <CoachReferralLink
           referralLink={getReferralLink()}
@@ -86,21 +85,50 @@ const CoachDashboard: React.FC = () => {
         />
       </div>
 
-      {/* Tabs for Clients and Earnings */}
       <Tabs defaultValue="clients" className="mt-8">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="clients" className="flex items-center gap-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-5">
+          <TabsTrigger value="clients" className="gap-2">
             <Users className="h-4 w-4" />
-            Clients ({stats.activeClients})
+            <span className="hidden sm:inline">Clients</span>
           </TabsTrigger>
-          <TabsTrigger value="earnings" className="flex items-center gap-2">
+          <TabsTrigger value="progress" className="gap-2">
+            <Activity className="h-4 w-4" />
+            <span className="hidden sm:inline">Progress</span>
+          </TabsTrigger>
+          <TabsTrigger value="messages" className="gap-2">
+            <MessageSquare className="h-4 w-4" />
+            <span className="hidden sm:inline">Messages</span>
+          </TabsTrigger>
+          <TabsTrigger value="tribe" className="gap-2">
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Tribe</span>
+          </TabsTrigger>
+          <TabsTrigger value="earnings" className="gap-2">
             <DollarSign className="h-4 w-4" />
-            Earnings
+            <span className="hidden sm:inline">Earnings</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="clients" className="mt-6">
           <CoachClients referrals={referrals} />
+        </TabsContent>
+
+        <TabsContent value="progress" className="mt-6">
+          {coachProfile && <CoachClientProgress coachProfileId={coachProfile.id} />}
+        </TabsContent>
+
+        <TabsContent value="messages" className="mt-6">
+          {coachProfile && <CoachInbox coachProfileId={coachProfile.id} />}
+        </TabsContent>
+
+        <TabsContent value="tribe" className="mt-6">
+          {coachProfile && user && (
+            <CoachTribeManager 
+              coachProfileId={coachProfile.id} 
+              userId={user.id}
+              coachName={coachProfile.display_name}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="earnings" className="mt-6">
