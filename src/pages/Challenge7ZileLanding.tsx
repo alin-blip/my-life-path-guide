@@ -16,6 +16,7 @@ import {
 import { Helmet } from 'react-helmet-async';
 import { useChallengeStats } from '@/hooks/useChallengeStats';
 import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeCard';
+import { SocialProofBar } from '@/components/landing/SocialProofBar';
 // FB Pixel Lead tracking is now centralized in AuthContext
 const Challenge7ZileLanding = () => {
   const { language } = useLanguage();
@@ -233,8 +234,13 @@ const Challenge7ZileLanding = () => {
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+        {/* Floating Social Proof Bar */}
+        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50">
+          <SocialProofBar />
+        </div>
+
         {/* Hero Section */}
-        <section className="relative pt-12 pb-16 px-4 overflow-hidden">
+        <section className="relative pt-16 pb-16 px-4 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
           <div className="max-w-4xl mx-auto text-center relative">
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/30 px-4 py-1.5">
