@@ -72,8 +72,8 @@ export function EarlyBirdCountdownCard({ quizCompletedAt }: EarlyBirdCountdownCa
       animate={{ opacity: 1, scale: 1 }}
       className={`relative overflow-hidden rounded-xl border-2 ${
         isUrgent 
-          ? 'border-red-500 bg-gradient-to-br from-red-500/10 via-background to-orange-500/10' 
-          : 'border-primary bg-gradient-to-br from-primary/10 via-background to-primary/5'
+          ? 'border-red-500 bg-gradient-to-br from-red-50 via-white to-orange-50' 
+          : 'border-primary bg-gradient-to-br from-primary/10 via-white to-primary/5'
       }`}
     >
       {/* Animated background pulse for urgency */}

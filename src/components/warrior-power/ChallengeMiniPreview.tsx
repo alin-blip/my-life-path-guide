@@ -87,7 +87,7 @@ export function ChallengeMiniPreview({ weakestDimension }: ChallengeMiniPreviewP
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 + index * 0.08 }}
-            className="bg-muted/30 border border-border/50 rounded-lg p-4"
+            className="bg-gray-50 border border-gray-200 rounded-lg p-4"
           >
             {/* Day Header */}
             <div className="flex items-center gap-3 mb-3">
@@ -128,7 +128,7 @@ export function ChallengeMiniPreview({ weakestDimension }: ChallengeMiniPreviewP
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.8 }}
-        className="mt-6 p-4 bg-muted/50 border border-border rounded-xl"
+        className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl"
       >
         <div className="flex items-center gap-2 mb-2">
           <Zap className="h-5 w-5 text-primary" />

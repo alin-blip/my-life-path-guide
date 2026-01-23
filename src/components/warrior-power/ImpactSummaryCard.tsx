@@ -48,7 +48,7 @@ export function ImpactSummaryCard({ scores, userName }: ImpactSummaryCardProps) 
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-border bg-card/50 backdrop-blur-sm overflow-hidden"
+      className="rounded-xl border border-gray-200 bg-white overflow-hidden"
     >
       {/* Two Column Layout */}
       <div className="grid grid-cols-2 divide-x divide-border">

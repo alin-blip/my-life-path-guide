@@ -45,7 +45,7 @@ const UPSELL_PLANS = [
     ],
     featured: true,
     gradient: 'from-green-500 to-emerald-500',
-    bgGradient: 'from-green-500/10 via-background to-emerald-500/10',
+    bgGradient: 'from-green-50 via-white to-emerald-50',
     borderColor: 'border-green-500',
     icon: Gift,
   },
@@ -78,7 +78,7 @@ const UPSELL_PLANS = [
     ],
     featured: false,
     gradient: 'from-amber-500 to-orange-500',
-    bgGradient: 'from-amber-500/10 via-background to-orange-500/10',
+    bgGradient: 'from-amber-50 via-white to-orange-50',
     borderColor: 'border-amber-500',
     icon: Star,
   },
@@ -112,7 +112,7 @@ const UPSELL_PLANS = [
     ],
     featured: false,
     gradient: 'from-purple-500 to-violet-500',
-    bgGradient: 'from-purple-500/10 via-background to-violet-500/10',
+    bgGradient: 'from-purple-50 via-white to-violet-50',
     borderColor: 'border-purple-500',
     icon: Crown,
   }
@@ -295,7 +295,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   </div>
                   
                   {/* Value Anchor */}
-                  <div className="mb-2 p-2 rounded-lg bg-card/50 border border-border">
+                  <div className="mb-2 p-2 rounded-lg bg-white border border-gray-200">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Valoare totală:</p>
                     <div className="flex items-baseline gap-2">
                       <span className="text-lg font-bold line-through text-muted-foreground">{plan.totalValue}</span>
