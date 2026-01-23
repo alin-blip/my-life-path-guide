@@ -83,7 +83,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white text-foreground px-3 sm:px-4 py-4 sm:py-6 safe-area-bottom">
+    <div className="w-full min-h-screen bg-white text-foreground px-3 sm:px-4 py-4 sm:py-6 safe-area-bottom font-['Montserrat',sans-serif]">
       {/* Progress Header */}
       <div className="max-w-2xl mx-auto mb-4 sm:mb-6">
         <div className="flex items-center justify-between mb-2">
