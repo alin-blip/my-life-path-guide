@@ -86,7 +86,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
           )}>
             <div className="text-3xl md:text-4xl font-black">
               {totalScore}
-              <span className="text-lg md:text-xl text-muted-foreground">/96</span>
+              <span className="text-lg md:text-xl text-gray-600">/96</span>
             </div>
             <div className={cn(
               "text-sm font-bold uppercase tracking-wider",
@@ -108,10 +108,10 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
         </motion.div>
 
         {/* Headline */}
-        <h1 className="text-lg md:text-xl font-bold text-foreground mb-2">
+        <h1 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
           {headline}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-600">
           Focus principal: <span className="text-primary font-medium">{weakestDimName}</span>
         </p>
       </motion.div>
@@ -257,7 +257,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
           >
             🚀 Începe Transformarea ACUM
           </button>
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm text-gray-600">
             7 zile gratuit • Anulezi oricând
           </p>
         </motion.div>

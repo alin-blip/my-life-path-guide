@@ -51,7 +51,7 @@ export function ImpactSummaryCard({ scores, userName }: ImpactSummaryCardProps) 
       className="rounded-xl border border-gray-200 bg-white overflow-hidden"
     >
       {/* Two Column Layout */}
-      <div className="grid grid-cols-2 divide-x divide-border">
+      <div className="grid grid-cols-2 divide-x divide-gray-200">
         {/* LEFT: Current State (Pain) */}
         <div className="p-4 md:p-6 bg-red-500/5">
           <div className="flex items-center gap-2 mb-4">
@@ -76,11 +76,11 @@ export function ImpactSummaryCard({ scores, userName }: ImpactSummaryCardProps) 
                 >
                   <span className="flex items-center gap-1.5">
                     <span>{info.icon}</span>
-                    <span className="text-muted-foreground text-xs">{info.name}</span>
+                    <span className="text-gray-700 text-xs">{info.name}</span>
                   </span>
                   <span className={cn(
                     "font-mono",
-                    isWeakest ? "text-red-400" : "text-muted-foreground"
+                    isWeakest ? "text-red-500" : "text-gray-700"
                   )}>
                     {score}/24
                     {isWeakest && <span className="ml-1 text-[10px]">⚠️</span>}
@@ -96,7 +96,7 @@ export function ImpactSummaryCard({ scores, userName }: ImpactSummaryCardProps) 
               <TrendingDown className="h-4 w-4" />
               <span className="text-lg font-bold">-€{totalLoss.toLocaleString()}/lună</span>
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">
+            <p className="text-[10px] text-gray-600 mt-1">
               Potențial pierdut
             </p>
           </div>
@@ -122,7 +122,7 @@ export function ImpactSummaryCard({ scores, userName }: ImpactSummaryCardProps) 
                 >
                   <span className="flex items-center gap-1.5">
                     <span>{info.icon}</span>
-                    <span className="text-muted-foreground text-xs">{info.name}</span>
+                    <span className="text-gray-700 text-xs">{info.name}</span>
                   </span>
                   <span className="font-semibold text-green-400 text-xs">
                     {gainLabel}
@@ -138,7 +138,7 @@ export function ImpactSummaryCard({ scores, userName }: ImpactSummaryCardProps) 
               <TrendingUp className="h-4 w-4" />
               <span className="text-lg font-bold">+€{totalGain.toLocaleString()}/lună</span>
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">
+            <p className="text-[10px] text-gray-600 mt-1">
               Potențial deblocat
             </p>
           </div>

@@ -75,7 +75,7 @@ export function ChallengeMiniPreview({ weakestDimension }: ChallengeMiniPreviewP
     >
       <div className="flex items-center gap-2 mb-4">
         <Calendar className="h-5 w-5 text-primary" />
-        <span className="text-base font-bold text-foreground">
+        <span className="text-base font-bold text-gray-900">
           Ce primești în Challenge:
         </span>
       </div>
@@ -95,10 +95,10 @@ export function ChallengeMiniPreview({ weakestDimension }: ChallengeMiniPreviewP
                 {day.day}
               </span>
               <div>
-                <span className="text-sm font-bold text-foreground">
+                <span className="text-sm font-bold text-gray-900">
                   {day.title}
                 </span>
-                <span className="text-xs text-muted-foreground ml-2">
+                <span className="text-xs text-gray-600 ml-2">
                   — {day.subtitle}
                 </span>
               </div>
@@ -106,15 +106,15 @@ export function ChallengeMiniPreview({ weakestDimension }: ChallengeMiniPreviewP
 
             {/* Content - Clean typography-driven layout */}
             <div className="space-y-2 text-sm">
-              <p className="text-muted-foreground">
-                <span className="text-muted-foreground/70">• Problema:</span>{' '}
+              <p className="text-gray-700">
+                <span className="text-gray-500">• Problema:</span>{' '}
                 {day.problem}
               </p>
-              <p className="text-muted-foreground">
-                <span className="text-muted-foreground/70">→ Acțiunea:</span>{' '}
+              <p className="text-gray-700">
+                <span className="text-gray-500">→ Acțiunea:</span>{' '}
                 {day.action}
               </p>
-              <p className="text-foreground font-medium">
+              <p className="text-gray-900 font-medium">
                 <span className="text-primary">✓ Rezultat:</span>{' '}
                 {day.benefit}
               </p>
@@ -132,12 +132,12 @@ export function ChallengeMiniPreview({ weakestDimension }: ChallengeMiniPreviewP
       >
         <div className="flex items-center gap-2 mb-2">
           <Zap className="h-5 w-5 text-primary" />
-          <span className="text-sm font-bold text-foreground">
+          <span className="text-sm font-bold text-gray-900">
             Efectul Multiplicator
           </span>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Când îți întărești <span className="text-foreground font-medium">{weakName}</span>, toate celelalte arii 
+        <p className="text-sm text-gray-700">
+          Când îți întărești <span className="text-gray-900 font-medium">{weakName}</span>, toate celelalte arii 
           beneficiază automat. Corpul puternic aduce energie pentru Business. 
           Spiritul clar îmbunătățește Relațiile. Echilibrul susține totul.
         </p>
