@@ -108,6 +108,10 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
     const emailLower = email.trim().toLowerCase();
     const categoryScores = calculateCategoryScores();
     const totalScore = calculateTotalScore();
+    
+    // Assign split test variant BEFORE any database operations
+    const variant: SplitVariant = assignLifeScoreVariant(emailLower);
+    console.log('[Life Score] Assigned split variant:', variant);
 
     try {
       // 1. Create account
@@ -146,16 +150,17 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
 
       const userId = authData?.user?.id;
 
-      // 2. Save to email_leads
+      // 2. Save to email_leads with split test source directly
       await supabase.from('email_leads').upsert({
         email: emailLower,
         name: name.trim() || null,
         lead_magnet: 'life_score_quiz',
-        source: 'life-score',
+        source: `life_score_split_${variant.toLowerCase()}`, // Split test source set directly
         metadata: {
           totalScore,
           categoryScores,
           answers,
+          splitVariant: variant,
           completed_at: new Date().toISOString(),
         },
       }, { onConflict: 'email' });
@@ -194,14 +199,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
         // Don't block the flow if email fails
       }
 
-      // 5. Apply split test variant
-      const variant: SplitVariant = assignLifeScoreVariant(emailLower);
-      
-      // Update source in email_leads for tracking
-      await supabase.from('email_leads').update({
-        source: `life_score_split_${variant.toLowerCase()}`
-      }).eq('email', emailLower);
-
+      // 5. Route based on split test variant (already assigned above)
       // Calculate business score for variant C logic
       const businessScore = categoryScores['business'] || 0;
       const businessPercentage = (businessScore / 4) * 100; // max 4 points per category
