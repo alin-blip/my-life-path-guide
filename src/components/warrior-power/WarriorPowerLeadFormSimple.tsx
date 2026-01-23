@@ -152,7 +152,7 @@ export function WarriorPowerLeadFormSimple({ onSubmit, isLoading }: WarriorPower
             disabled={isLoading}
             className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 min-h-[48px]"
           >
-            {isLoading ? 'Se procesează...' : 'Începe Quiz-ul Gratuit →'}
+            {isLoading ? 'Se procesează...' : 'Vezi Rezultatele →'}
           </Button>
 
           {/* Trust Signals */}
