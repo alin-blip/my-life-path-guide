@@ -87,6 +87,7 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const Business2026LeadMagnet = lazy(() => import("./pages/Business2026LeadMagnet"));
 const CoachDashboard = lazy(() => import("./pages/CoachDashboard"));
 const ReferralProgram = lazy(() => import("./pages/ReferralProgram"));
+const ChallengeLanding = lazy(() => import("./pages/ChallengeLanding"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -382,6 +383,7 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/referral-program" element={<ReferralProgram />} />
+                    <Route path="/challenge-landing" element={<ChallengeLanding />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                       </Suspense>
