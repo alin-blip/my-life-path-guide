@@ -158,9 +158,9 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
         description: language === 'en' ? 'Redirecting to your planning wizard...' : 'Te redirecționăm către wizard-ul de planificare...',
       });
 
-      // 5. Navigate to annual wizard
+      // 5. Navigate to 7-Day Challenge
       setTimeout(() => {
-        navigate('/game-objectives?tab=annual&source=life-score');
+        navigate('/challenge?source=life-score');
       }, 500);
 
     } catch (error: any) {
