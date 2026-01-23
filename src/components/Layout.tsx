@@ -6,6 +6,7 @@ import { LanguageSelector } from './LanguageSelector';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from './ui/button';
 import { ReferralTracker } from './ReferralTracker';
+import { ReferralClientOnboarding } from './coach/ReferralClientOnboarding';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -90,6 +91,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="flex min-h-screen mesh-gradient overflow-x-hidden max-w-[100vw]">
       <ReferralTracker />
+      <ReferralClientOnboarding />
       
       {/* Mobile Overlay */}
       {isMobile && isMobileMenuOpen && (
