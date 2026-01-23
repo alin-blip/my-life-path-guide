@@ -178,6 +178,22 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
       // Track account creation for funnel analytics
       trackAccountCreated('life_score_quiz');
 
+      // 4. Send results email (non-blocking)
+      try {
+        await supabase.functions.invoke('send-life-score-results', {
+          body: {
+            email: emailLower,
+            name: name.trim() || 'Warrior',
+            scores: categoryScores,
+            language
+          }
+        });
+        console.log('Life score results email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send life score results email:', emailError);
+        // Don't block the flow if email fails
+      }
+
       // 5. Apply split test variant
       const variant: SplitVariant = assignLifeScoreVariant(emailLower);
       
