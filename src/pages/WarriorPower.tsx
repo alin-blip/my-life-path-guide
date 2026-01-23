@@ -7,16 +7,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { WarriorPowerLanding } from '@/components/warrior-power/WarriorPowerLanding';
 import { WarriorPowerLeadForm, type LeadFormData } from '@/components/warrior-power/WarriorPowerLeadForm';
 import { WarriorPowerQuiz } from '@/components/warrior-power/WarriorPowerQuiz';
+import { WarriorPowerResultsPage } from '@/components/warrior-power/WarriorPowerResultsPage';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 import { saveRealityMapScores } from '@/services/realityMapService';
 // FB Pixel Lead tracking is now centralized in AuthContext
 
-type Step = 'landing' | 'lead-form' | 'quiz';
+type Step = 'landing' | 'lead-form' | 'quiz' | 'results';
 
 export default function WarriorPower() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>('landing');
   const [leadData, setLeadData] = useState<LeadFormData | null>(null);
+  const [quizScores, setQuizScores] = useState<WarriorPowerScores | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStartQuiz = () => {
@@ -130,14 +132,14 @@ export default function WarriorPower() {
     }
   };
 
-  const handleQuizComplete = async (quizScores: WarriorPowerScores) => {
+  const handleQuizComplete = async (scores: WarriorPowerScores) => {
     if (leadData) {
       try {
         // Get current user if logged in
         const { data: { user } } = await supabase.auth.getUser();
 
         // Save results to database
-        const scoresJson = JSON.parse(JSON.stringify(quizScores));
+        const scoresJson = JSON.parse(JSON.stringify(scores));
         const { error: resultError } = await supabase
           .from('warrior_power_results')
           .insert({
@@ -146,7 +148,7 @@ export default function WarriorPower() {
             phone: leadData.phone,
             gender: leadData.gender,
             scores: scoresJson,
-            total_score: Object.values(quizScores).reduce((a, b) => a + b, 0),
+            total_score: Object.values(scores).reduce((a, b) => a + b, 0),
             user_id: user?.id || null
           });
 
@@ -156,7 +158,7 @@ export default function WarriorPower() {
 
         // Sync scores to Reality Map (fact_maps) for logged in users
         if (user) {
-          await saveRealityMapScores(quizScores);
+          await saveRealityMapScores(scores);
         }
 
         // Send email with results
@@ -165,7 +167,7 @@ export default function WarriorPower() {
             body: {
               email: leadData.email,
               name: leadData.name,
-              scores: quizScores,
+              scores: scores,
             },
           });
 
@@ -185,7 +187,13 @@ export default function WarriorPower() {
       }
     }
 
-    // Navigate directly to /fact-maps with source parameter
+    // Save scores and go to results step instead of navigating away
+    setQuizScores(scores);
+    setStep('results');
+  };
+
+  const handleContinueFree = () => {
+    // Navigate to /fact-maps with source parameter
     navigate('/fact-maps?source=warrior-power', {
       state: {
         fromWarriorPower: true,
@@ -243,6 +251,22 @@ export default function WarriorPower() {
               className="min-h-screen py-8"
             >
               <WarriorPowerQuiz onComplete={handleQuizComplete} />
+            </motion.div>
+          )}
+
+          {step === 'results' && quizScores && (
+            <motion.div
+              key="results"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="min-h-screen py-8"
+            >
+              <WarriorPowerResultsPage
+                scores={quizScores}
+                userName={leadData?.name || 'Warrior'}
+                onContinueFree={handleContinueFree}
+              />
             </motion.div>
           )}
         </AnimatePresence>
