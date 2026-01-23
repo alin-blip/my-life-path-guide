@@ -334,22 +334,8 @@ const Challenge7ZileLanding = () => {
               </span>
             </motion.div>
 
-            {/* Lead Capture Form OR Membership Cards */}
-            {showMemberships && lifeScoreData ? (
-              /* Show membership cards if user came from life-score quiz */
-              <div className="max-w-5xl mx-auto bg-white rounded-2xl p-6 md:p-8 shadow-xl">
-                <MembershipUpsellCards 
-                  source="challenge-7-zile"
-                  totalScore={lifeScoreData.totalScore}
-                  weakestDimension={findWeakestDimension(lifeScoreData.categoryScores)}
-                  onContinueFree={() => {
-                    // Clear data and navigate to challenge
-                    localStorage.removeItem('lifeScoreData');
-                    navigate('/challenge');
-                  }}
-                />
-              </div>
-            ) : !isSubscribed ? (
+            {/* Lead Capture Form (only if NOT from life-score quiz) */}
+            {!showMemberships && !isSubscribed ? (
               <Card className="max-w-md mx-auto p-6 bg-card/80 backdrop-blur border-primary/20">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Input
@@ -385,14 +371,14 @@ const Challenge7ZileLanding = () => {
                     : '🔒 Respectăm confidențialitatea. Te poți dezabona oricând.'}
                 </p>
               </Card>
-            ) : (
+            ) : isSubscribed ? (
               <Card className="max-w-md mx-auto p-6 bg-green-500/10 border-green-500/30">
                 <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
                 <p className="text-lg font-medium text-green-500">
                   {language === 'en' ? 'You\'re in! Redirecting...' : 'Ești înscris! Se redirecționează...'}
                 </p>
               </Card>
-            )}
+            ) : null}
 
             {/* Voomly Video Embed */}
             <motion.div 
@@ -412,6 +398,26 @@ const Challenge7ZileLanding = () => {
                   className="absolute inset-0"
                 />
               </div>
+              
+              {/* Button after video - scrolls to memberships */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                className="mt-6"
+              >
+                <Button 
+                  size="lg"
+                  onClick={() => {
+                    const membershipSection = document.getElementById('membership-section');
+                    membershipSection?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg px-8 py-6"
+                >
+                  {language === 'en' ? 'See Subscription Plans' : 'Vezi Planurile de Abonament'}
+                  <ArrowRight className="h-5 w-5 ml-2" />
+                </Button>
+              </motion.div>
             </motion.div>
           </div>
         </section>
@@ -476,6 +482,33 @@ const Challenge7ZileLanding = () => {
                   language={language}
                 />
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Membership Cards Section - After 7-day journey */}
+        <section id="membership-section" className="py-16 px-4 bg-gradient-to-b from-background to-primary/5">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
+              {language === 'en' ? 'Choose Your Transformation Plan' : 'Alege Planul Tău de Transformare'}
+            </h2>
+            <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
+              {language === 'en'
+                ? 'Start your journey with a 7-day free trial. Cancel anytime.'
+                : 'Începe călătoria cu 7 zile gratuit. Anulezi oricând.'}
+            </p>
+            
+            <div className="bg-card rounded-2xl p-6 md:p-8 shadow-xl border border-border/50">
+              <MembershipUpsellCards 
+                source="challenge-7-zile"
+                totalScore={lifeScoreData?.totalScore}
+                weakestDimension={lifeScoreData ? findWeakestDimension(lifeScoreData.categoryScores) : undefined}
+                onContinueFree={() => {
+                  // Clear data and navigate to challenge
+                  localStorage.removeItem('lifeScoreData');
+                  navigate('/challenge');
+                }}
+              />
             </div>
           </div>
         </section>
