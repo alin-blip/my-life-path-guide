@@ -183,8 +183,8 @@ serve(async (req) => {
       successUrl = `${origin}/warrior-accelerator-thank-you?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
       cancelUrl = `${origin}/warrior-launch-accelerator?canceled=true`;
     } else if (source === 'warrior-power') {
-      // From Warrior Power flow -> redirect to Reality Map (fact-maps)
-      successUrl = `${origin}/fact-maps?checkout=success&plan=${plan}&source=warrior-power`;
+      // From Warrior Power flow -> redirect to Challenge page
+      successUrl = `${origin}/challenge?checkout=success&plan=${plan}&source=warrior-power`;
       cancelUrl = `${origin}/warrior-power?canceled=true`;
     } else {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
