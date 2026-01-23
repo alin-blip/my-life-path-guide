@@ -14,10 +14,10 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white text-gray-900 font-['Montserrat',sans-serif]">
       {/* Hero Section */}
       <section className="relative py-8 sm:py-12 md:py-16 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-background" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white to-white" />
         
         <div className="relative max-w-4xl mx-auto text-center">
           <motion.div
@@ -98,7 +98,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
       </section>
 
       {/* How It Works */}
-      <section className="py-10 sm:py-12 md:py-16 px-4 bg-card/50">
+      <section className="py-10 sm:py-12 md:py-16 px-4 bg-gray-50">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -181,7 +181,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
       </section>
 
       {/* Benefits & CTA */}
-      <section className="py-10 sm:py-12 md:py-16 px-4 bg-gradient-to-b from-background to-primary/5">
+      <section className="py-10 sm:py-12 md:py-16 px-4 bg-gradient-to-b from-white to-primary/5">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -62,7 +62,7 @@ export function WarriorPowerLeadFormSimple({ onSubmit, isLoading }: WarriorPower
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-sm sm:max-w-md mx-auto px-4 sm:px-0"
     >
-      <div className="bg-card/80 backdrop-blur-sm border border-border rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 shadow-xl">
+      <div className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 shadow-xl">
         {/* Hormozi-style Header */}
         <div className="text-center mb-5 sm:mb-6">
           <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
