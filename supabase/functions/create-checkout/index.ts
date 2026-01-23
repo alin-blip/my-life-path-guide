@@ -186,6 +186,10 @@ serve(async (req) => {
       // From Warrior Power flow -> redirect to Challenge page
       successUrl = `${origin}/challenge?checkout=success&plan=${plan}&source=warrior-power`;
       cancelUrl = `${origin}/warrior-power?canceled=true`;
+    } else if (source === 'challenge-7-zile' || source === 'life-score') {
+      // From Challenge 7 Zile or Life Score flow -> redirect to Challenge page
+      successUrl = `${origin}/challenge?checkout=success&plan=${plan}&source=${source}`;
+      cancelUrl = `${origin}/challenge-7-zile?canceled=true`;
     } else {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/pricing?canceled=true`;
