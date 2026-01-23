@@ -261,9 +261,10 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
           return (
             <Card 
               key={plan.id}
+              variant="outline"
               className={cn(
-                "relative overflow-hidden transition-all duration-300",
-                `border-2 ${plan.borderColor} bg-white shadow-lg`,
+                "relative overflow-hidden transition-all duration-300 bg-white",
+                `border-2 ${plan.borderColor} shadow-lg`,
                 plan.featured && "ring-2 ring-green-500/50"
               )}
             >
@@ -291,14 +292,14 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                       plan.id === 'pro' && "text-amber-500",
                       plan.id === 'elite' && "text-purple-500"
                     )} />
-                    <h3 className="text-lg font-bold">{plan.name}</h3>
+                    <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
                   </div>
                   
                   {/* Value Anchor */}
                   <div className="mb-2 p-2 rounded-lg bg-white border border-gray-200">
-                    <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Valoare totală:</p>
+                    <p className="text-[10px] text-gray-600 uppercase tracking-wide mb-1">Valoare totală:</p>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-lg font-bold line-through text-gray-500">{plan.totalValue}</span>
+                      <span className="text-lg font-bold line-through text-gray-400">{plan.totalValue}</span>
                       <TrendingUp className="h-3 w-3 text-green-500" />
                     </div>
                   </div>
@@ -313,11 +314,11 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     )}>
                       {plan.currency}{plan.price}
                     </span>
-                    <span className="text-gray-600 text-sm">/ {plan.period}</span>
+                    <span className="text-gray-700 text-sm">/ {plan.period}</span>
                   </div>
                   
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-500 line-through">
+                    <span className="text-xs text-gray-400 line-through">
                       {plan.currency}{plan.normalPrice}/lună
                     </span>
                     <span className="text-xs font-semibold text-green-500">
@@ -335,7 +336,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                         plan.id === 'pro' && "text-amber-500",
                         plan.id === 'elite' && "text-purple-500"
                       )} />
-                      <span className="text-gray-700">{benefit}</span>
+                      <span className="text-gray-800">{benefit}</span>
                     </li>
                   ))}
                 </ul>
