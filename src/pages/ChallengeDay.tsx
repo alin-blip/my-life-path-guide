@@ -18,6 +18,7 @@ import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Compl
 import { Day1WhyQuestions, Day1VisionDeclaration, Day1PlatformTour, Day1Commitment } from '@/components/challenge/day1';
 import { useDay1Responses } from '@/hooks/useDay1Responses';
 import { supabase } from '@/integrations/supabase/client';
+import { trackChallengeDayStarted } from '@/lib/facebook-pixel';
 interface Exercise {
   id: string;
   title: string;
@@ -383,12 +384,19 @@ const ChallengeDayPage = () => {
   const isUnlocked = isDayUnlocked(dayNumber);
   const isCompleted = isDayCompleted(dayNumber);
 
+  // Track challenge day started and restore progress
   React.useEffect(() => {
     if (dayProgress) {
       setVideoWatched(dayProgress.video_watched);
       setCompletedExercises(dayProgress.actions_completed);
     }
-  }, [dayProgress]);
+    // Track that user started this challenge day (only once per session)
+    const sessionKey = `challenge_day_${dayNumber}_tracked`;
+    if (!sessionStorage.getItem(sessionKey) && isUnlocked) {
+      trackChallengeDayStarted(dayNumber);
+      sessionStorage.setItem(sessionKey, 'true');
+    }
+  }, [dayProgress, dayNumber, isUnlocked]);
 
   if (!isUnlocked && !loading) {
     return (

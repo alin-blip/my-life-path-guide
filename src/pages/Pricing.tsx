@@ -12,7 +12,7 @@ import { plans, getLocalizedPlan } from "@/data/pricing";
 import { Helmet } from "react-helmet-async";
 import { Crown, Zap, Gift, Check, Rocket, Users, Timer, AlertTriangle, Calendar, Star, type LucideIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { trackPurchase } from "@/lib/facebook-pixel";
+import { trackPurchase, trackCheckoutInitiated } from "@/lib/facebook-pixel";
 import { preOpenWindow, redirectExternal } from "@/lib/externalRedirect";
 import { EarlyBirdCountdown } from "@/components/membership/EarlyBirdCountdown";
 
@@ -171,6 +171,11 @@ const Pricing: React.FC = () => {
         return;
       }
       setLoadingPlan(planId);
+      
+      // Track checkout initiated for funnel analytics
+      const priceMap: Record<string, number> = { basic: 49, pro: 97, elite: 297 };
+      trackCheckoutInitiated(planId, priceMap[planId] || 0, 'EUR');
+      
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { plan: planId },
       });

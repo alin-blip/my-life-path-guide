@@ -36,3 +36,44 @@ export const trackEvent = (eventName: string, params?: Record<string, any>) => {
     console.log(`[FB Pixel] ${eventName} event tracked`, params);
   }
 };
+
+// ===== FUNNEL TRACKING EVENTS =====
+
+// Track quiz completion
+export const trackQuizCompleted = (quizType: string, score?: number) => {
+  trackEvent('CompleteRegistration', { 
+    content_name: quizType,
+    value: score,
+    currency: 'EUR'
+  });
+  console.log(`[Funnel] Quiz completed: ${quizType}, score: ${score}`);
+};
+
+// Track account creation
+export const trackAccountCreated = (source: string) => {
+  trackEvent('StartTrial', { 
+    content_name: source,
+    currency: 'EUR',
+    value: 0
+  });
+  console.log(`[Funnel] Account created from: ${source}`);
+};
+
+// Track challenge day started
+export const trackChallengeDayStarted = (dayNumber: number) => {
+  trackEvent('ViewContent', { 
+    content_name: `challenge_day_${dayNumber}`,
+    content_type: 'challenge'
+  });
+  console.log(`[Funnel] Challenge Day ${dayNumber} started`);
+};
+
+// Track checkout initiated
+export const trackCheckoutInitiated = (planId: string, value: number, currency: string = 'EUR') => {
+  trackEvent('InitiateCheckout', { 
+    content_name: planId,
+    value,
+    currency
+  });
+  console.log(`[Funnel] Checkout initiated: ${planId}, ${value} ${currency}`);
+};
