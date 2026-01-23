@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Users, Sparkles, Shield, Clock } from 'lucide-react';
+import { User, Mail, Sparkles, Shield, Clock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
 import { z } from 'zod';
 import { toast } from 'sonner';
 
@@ -17,7 +17,6 @@ const leadFormSchema = z.object({
     .email('Email invalid')
     .max(254, 'Email-ul nu poate depăși 254 caractere')
     .regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, 'Format email invalid'),
-  gender: z.enum(['male', 'female'], { required_error: 'Selectează genul' }),
 });
 
 export type SimpleLeadFormData = z.infer<typeof leadFormSchema>;
@@ -31,7 +30,6 @@ export function WarriorPowerLeadFormSimple({ onSubmit, isLoading }: WarriorPower
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    gender: '' as 'male' | 'female' | '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -117,33 +115,6 @@ export function WarriorPowerLeadFormSimple({ onSubmit, isLoading }: WarriorPower
             />
             {errors.email && (
               <p className="text-xs text-destructive">{errors.email}</p>
-            )}
-          </div>
-
-          {/* Gender Field */}
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2 text-sm text-gray-900">
-              <Users className="h-4 w-4 text-gray-500" />
-              Gen *
-            </Label>
-            <RadioGroup
-              value={formData.gender}
-              onValueChange={(value: 'male' | 'female') => 
-                setFormData(prev => ({ ...prev, gender: value }))
-              }
-              className="flex gap-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="female" id="female" className="h-5 w-5" />
-                <Label htmlFor="female" className="cursor-pointer text-sm py-2">Femeie</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="male" id="male" className="h-5 w-5" />
-                <Label htmlFor="male" className="cursor-pointer text-sm py-2">Bărbat</Label>
-              </div>
-            </RadioGroup>
-            {errors.gender && (
-              <p className="text-xs text-destructive">{errors.gender}</p>
             )}
           </div>
 
