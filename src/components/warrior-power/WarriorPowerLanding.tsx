@@ -49,7 +49,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-2"
+            className="text-base sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8 max-w-2xl mx-auto px-2"
           >
             Descoperă-ți puterea reală în 5 minute. Acest assessment îți va arăta 
             exact unde te afli în cele 4 dimensiuni esențiale ale vieții tale.
@@ -90,7 +90,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
               Începe Evaluarea Gratuită
               <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
+            <p className="text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4">
               ⏱️ Durează doar 5 minute • 100% Gratuit
             </p>
           </motion.div>
@@ -107,7 +107,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             className="text-center mb-8 sm:mb-12"
           >
             <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Cum funcționează</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <p className="text-sm sm:text-base text-gray-700">
               Un proces simplu în 3 pași pentru a-ți descoperi realitatea
             </p>
           </motion.div>
@@ -130,7 +130,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
                   <span className="text-xl sm:text-2xl font-bold text-primary">{item.step}</span>
                 </div>
                 <h3 className="text-base sm:text-lg font-semibold mb-1.5 sm:mb-2">{item.title}</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground">{item.desc}</p>
+                <p className="text-xs sm:text-sm text-gray-600">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -147,7 +147,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
             className="text-center mb-8 sm:mb-12"
           >
             <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Cele 4 dimensiuni</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <p className="text-sm sm:text-base text-gray-700">
               Fiecare dimensiune are un impact profund asupra vieții tale
             </p>
           </motion.div>
@@ -165,13 +165,13 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br ${dim.color} border border-border/50`}
+                className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br ${dim.color} border border-gray-200`}
               >
                 <div className="flex items-start gap-3 sm:gap-4">
                   <span className="text-3xl sm:text-4xl">{dim.icon}</span>
                   <div>
                     <h3 className="font-bold text-base sm:text-lg mb-1">{dim.name}</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">{dim.desc}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">{dim.desc}</p>
                   </div>
                 </div>
               </motion.div>
@@ -222,7 +222,7 @@ export function WarriorPowerLanding({ onStart }: WarriorPowerLandingProps) {
               Începe Evaluarea Gratuită
               <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
+            <p className="text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4">
               ⏱️ Durează doar 5 minute • 100% Gratuit
             </p>
           </motion.div>

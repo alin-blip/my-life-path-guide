@@ -72,19 +72,19 @@ export function WarriorPowerLeadFormSimple({ onSubmit, isLoading }: WarriorPower
             </span>
           </div>
           
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
             Primește Rezultatele pe Email
           </h2>
-          <p className="text-sm text-muted-foreground">
-            Introdu datele pentru a primi <strong className="text-foreground">planul tău personalizat</strong> de transformare
+          <p className="text-sm text-gray-700">
+            Introdu datele pentru a primi <strong className="text-gray-900">planul tău personalizat</strong> de transformare
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name Field */}
           <div className="space-y-1.5">
-            <Label htmlFor="name" className="flex items-center gap-2 text-sm">
-              <User className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="name" className="flex items-center gap-2 text-sm text-gray-900">
+              <User className="h-4 w-4 text-gray-500" />
               Nume *
             </Label>
             <Input
@@ -102,8 +102,8 @@ export function WarriorPowerLeadFormSimple({ onSubmit, isLoading }: WarriorPower
 
           {/* Email Field */}
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="flex items-center gap-2 text-sm">
-              <Mail className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="email" className="flex items-center gap-2 text-sm text-gray-900">
+              <Mail className="h-4 w-4 text-gray-500" />
               Email *
             </Label>
             <Input
@@ -122,8 +122,8 @@ export function WarriorPowerLeadFormSimple({ onSubmit, isLoading }: WarriorPower
 
           {/* Gender Field */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2 text-sm">
-              <Users className="h-4 w-4 text-muted-foreground" />
+            <Label className="flex items-center gap-2 text-sm text-gray-900">
+              <Users className="h-4 w-4 text-gray-500" />
               Gen *
             </Label>
             <RadioGroup
@@ -157,17 +157,17 @@ export function WarriorPowerLeadFormSimple({ onSubmit, isLoading }: WarriorPower
 
           {/* Trust Signals */}
           <div className="flex items-center justify-center gap-4 pt-2">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5 text-xs text-gray-600">
               <Shield className="h-3.5 w-3.5 text-green-500" />
               <span>100% Gratuit</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5 text-xs text-gray-600">
               <Clock className="h-3.5 w-3.5 text-blue-500" />
               <span>~3 minute</span>
             </div>
           </div>
 
-          <p className="text-[10px] text-center text-muted-foreground/70">
+          <p className="text-[10px] text-center text-gray-500">
             Nu trimitem spam. Poți te dezabona oricând.
           </p>
         </form>
