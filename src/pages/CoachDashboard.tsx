@@ -11,8 +11,9 @@ import { CoachEarnings } from '@/components/coach/CoachEarnings';
 import { CoachInbox } from '@/components/coach/CoachInbox';
 import { CoachClientProgress } from '@/components/coach/CoachClientProgress';
 import { CoachTribeManager } from '@/components/coach/CoachTribeManager';
+import { CoachContentManager } from '@/components/coach/CoachContentManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, DollarSign, MessageSquare, Activity, Loader2 } from 'lucide-react';
+import { Users, DollarSign, MessageSquare, Activity, Loader2, Package } from 'lucide-react';
 
 const CoachDashboard: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -86,7 +87,7 @@ const CoachDashboard: React.FC = () => {
       </div>
 
       <Tabs defaultValue="clients" className="mt-8">
-        <TabsList className="grid w-full max-w-2xl grid-cols-5">
+        <TabsList className="grid w-full max-w-3xl grid-cols-6">
           <TabsTrigger value="clients" className="gap-2">
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">Clients</span>
@@ -102,6 +103,10 @@ const CoachDashboard: React.FC = () => {
           <TabsTrigger value="tribe" className="gap-2">
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">Tribe</span>
+          </TabsTrigger>
+          <TabsTrigger value="content" className="gap-2">
+            <Package className="h-4 w-4" />
+            <span className="hidden sm:inline">Content</span>
           </TabsTrigger>
           <TabsTrigger value="earnings" className="gap-2">
             <DollarSign className="h-4 w-4" />
@@ -129,6 +134,10 @@ const CoachDashboard: React.FC = () => {
               coachName={coachProfile.display_name}
             />
           )}
+        </TabsContent>
+
+        <TabsContent value="content" className="mt-6">
+          {coachProfile && <CoachContentManager coachProfileId={coachProfile.id} />}
         </TabsContent>
 
         <TabsContent value="earnings" className="mt-6">
