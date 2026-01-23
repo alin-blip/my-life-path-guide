@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { trackQuizCompleted, trackAccountCreated } from '@/lib/facebook-pixel';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { assignLifeScoreVariant, SplitVariant } from '@/utils/splitTest';
 
 interface LifeScoreQuizProps {
   language: 'en' | 'ro';
@@ -63,8 +64,8 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
           timestamp: Date.now()
         }));
         
-        // Navigate directly to challenge-7-zile with membership cards
-        navigate('/challenge-7-zile?source=life-score');
+        // Go to signup step instead of direct redirect (for split test)
+        setStep('signup');
       }
     }, 400);
   };
@@ -177,15 +178,56 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
       // Track account creation for funnel analytics
       trackAccountCreated('life_score_quiz');
 
-      toast({
-        title: language === 'en' ? 'Account created!' : 'Cont creat!',
-        description: language === 'en' ? 'Redirecting to your planning wizard...' : 'Te redirecționăm către wizard-ul de planificare...',
-      });
+      // 5. Apply split test variant
+      const variant: SplitVariant = assignLifeScoreVariant(emailLower);
+      
+      // Update source in email_leads for tracking
+      await supabase.from('email_leads').update({
+        source: `life_score_split_${variant.toLowerCase()}`
+      }).eq('email', emailLower);
 
-      // 5. Navigate to 7-Day Challenge
-      setTimeout(() => {
-        navigate('/challenge?source=life-score');
-      }, 500);
+      // Calculate business score for variant C logic
+      const businessScore = categoryScores['business'] || 0;
+      const businessPercentage = (businessScore / 4) * 100; // max 4 points per category
+
+      // Routing based on variant
+      switch (variant) {
+        case 'A':
+          // Current flow - Challenge
+          toast({
+            title: language === 'en' ? 'Account created!' : 'Cont creat!',
+            description: language === 'en' ? 'Redirecting to 7-Day Challenge...' : 'Te redirecționăm către Challenge-ul de 7 Zile...',
+          });
+          setTimeout(() => navigate('/challenge?source=life-score-split-a'), 500);
+          break;
+          
+        case 'B':
+          // Direct to dashboard
+          toast({
+            title: language === 'en' ? 'Account created!' : 'Cont creat!',
+            description: language === 'en' ? 'Welcome to your dashboard!' : 'Bine ai venit în aplicație!',
+          });
+          setTimeout(() => navigate('/dashboard?source=life-score-split-b'), 500);
+          break;
+          
+        case 'C':
+          // Business performers → Warrior Launch Accelerator
+          if (businessPercentage >= 60) {
+            toast({
+              title: language === 'en' ? 'Account created!' : 'Cont creat!',
+              description: language === 'en' ? 'You have business potential - check this special offer!' : 'Ai potențial de business - vezi oferta specială!',
+            });
+            setTimeout(() => navigate('/warrior-launch-accelerator?source=life-score-split-c'), 500);
+          } else {
+            // Fallback for low business score - go to challenge
+            toast({
+              title: language === 'en' ? 'Account created!' : 'Cont creat!',
+              description: language === 'en' ? 'Redirecting to your journey...' : 'Te redirecționăm...',
+            });
+            setTimeout(() => navigate('/challenge?source=life-score-split-c-fallback'), 500);
+          }
+          break;
+      }
 
     } catch (error: any) {
       console.error('Error in signup:', error);

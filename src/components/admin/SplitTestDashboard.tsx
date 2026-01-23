@@ -2,19 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
 } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   RefreshCw, TrendingUp, Users, Trophy, Target, 
-  ArrowRight, Beaker, BarChart3
+  ArrowRight, Beaker, BarChart3, FlaskConical
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, Cell, LineChart, Line, Legend
 } from 'recharts';
-import { format, subDays, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 interface VariantStats {
   variant: 'A' | 'B' | 'C';
@@ -32,43 +33,74 @@ interface DailyStats {
   C: number;
 }
 
-const VARIANT_CONFIG = {
+type FunnelType = 'warrior_power' | 'life_score';
+
+const WARRIOR_POWER_CONFIG = {
   A: {
     name: 'Warrior Launch',
     destination: '/warrior-launch-accelerator',
-    color: '#22c55e', // green
+    color: '#22c55e',
     description: 'Redirect to €497 offer page'
   },
   B: {
     name: 'Results Page',
     destination: 'Results + Challenge',
-    color: '#3b82f6', // blue
+    color: '#3b82f6',
     description: 'Show results with challenge upsell'
   },
   C: {
     name: 'Platform Explore',
     destination: '/ (Homepage)',
-    color: '#f59e0b', // amber
+    color: '#f59e0b',
     description: 'Redirect to explore platform'
   }
 };
 
+const LIFE_SCORE_CONFIG = {
+  A: {
+    name: 'Challenge',
+    destination: '/challenge',
+    color: '#22c55e',
+    description: 'Redirect to 7-day challenge'
+  },
+  B: {
+    name: 'Dashboard',
+    destination: '/dashboard',
+    color: '#3b82f6',
+    description: 'Direct access to app dashboard'
+  },
+  C: {
+    name: 'Warrior Launch',
+    destination: '/warrior-launch-accelerator',
+    color: '#f59e0b',
+    description: 'Premium offer for business performers'
+  }
+};
+
 export const SplitTestDashboard: React.FC = () => {
+  const [activeFunnel, setActiveFunnel] = useState<FunnelType>('warrior_power');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<VariantStats[]>([]);
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [totalLeads, setTotalLeads] = useState(0);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
-  const fetchStats = async () => {
+  const getConfig = (funnel: FunnelType) => 
+    funnel === 'warrior_power' ? WARRIOR_POWER_CONFIG : LIFE_SCORE_CONFIG;
+
+  const fetchStats = async (funnel: FunnelType = activeFunnel) => {
     setLoading(true);
     try {
-      // Fetch all leads from warrior power split test
+      const config = getConfig(funnel);
+      const leadMagnet = funnel === 'warrior_power' ? 'warrior_power' : 'life_score_quiz';
+      const sourcePattern = funnel === 'warrior_power' ? 'warrior_power_split_%' : 'life_score_split_%';
+
+      // Fetch all leads from split test
       const { data: leads, error: leadsError } = await supabase
         .from('email_leads')
         .select('email, source, created_at, subscribed')
-        .eq('lead_magnet', 'warrior_power')
-        .like('source', 'warrior_power_split_%');
+        .eq('lead_magnet', leadMagnet)
+        .like('source', sourcePattern);
 
       if (leadsError) throw leadsError;
 
@@ -114,8 +146,8 @@ export const SplitTestDashboard: React.FC = () => {
       // Convert to array format
       const statsArray: VariantStats[] = (['A', 'B', 'C'] as const).map(variant => ({
         variant,
-        name: VARIANT_CONFIG[variant].name,
-        destination: VARIANT_CONFIG[variant].destination,
+        name: config[variant].name,
+        destination: config[variant].destination,
         leads: variantData[variant].leads,
         conversions: variantData[variant].conversions,
         conversionRate: variantData[variant].leads > 0 
@@ -145,18 +177,24 @@ export const SplitTestDashboard: React.FC = () => {
 
   const getVariantFromSource = (source: string | null): 'A' | 'B' | 'C' | null => {
     if (!source) return null;
-    if (source.includes('split_a')) return 'A';
-    if (source.includes('split_b')) return 'B';
-    if (source.includes('split_c')) return 'C';
+    if (source.includes('split_a') || source.includes('split-a')) return 'A';
+    if (source.includes('split_b') || source.includes('split-b')) return 'B';
+    if (source.includes('split_c') || source.includes('split-c')) return 'C';
     return null;
   };
 
   useEffect(() => {
-    fetchStats();
+    fetchStats(activeFunnel);
     // Auto-refresh every 60 seconds
-    const interval = setInterval(fetchStats, 60000);
+    const interval = setInterval(() => fetchStats(activeFunnel), 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [activeFunnel]);
+
+  const handleFunnelChange = (value: string) => {
+    const funnel = value as FunnelType;
+    setActiveFunnel(funnel);
+    fetchStats(funnel);
+  };
 
   const getWinner = (): VariantStats | null => {
     if (stats.length === 0) return null;
@@ -169,6 +207,7 @@ export const SplitTestDashboard: React.FC = () => {
   };
 
   const winner = getWinner();
+  const config = getConfig(activeFunnel);
   const distribution = stats.reduce((acc, s) => {
     acc[s.variant] = totalLeads > 0 ? ((s.leads / totalLeads) * 100).toFixed(1) : '0';
     return acc;
@@ -178,8 +217,10 @@ export const SplitTestDashboard: React.FC = () => {
     name: `Variant ${s.variant}`,
     rate: s.conversionRate,
     leads: s.leads,
-    color: VARIANT_CONFIG[s.variant].color
+    color: config[s.variant].color
   }));
+
+  const funnelLabel = activeFunnel === 'warrior_power' ? 'Warrior Power' : 'Life Score';
 
   if (loading && stats.length === 0) {
     return (
@@ -191,12 +232,24 @@ export const SplitTestDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Funnel Tabs */}
+      <Tabs value={activeFunnel} onValueChange={handleFunnelChange} className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="warrior_power" className="flex items-center gap-2">
+            ⚔️ Warrior Power
+          </TabsTrigger>
+          <TabsTrigger value="life_score" className="flex items-center gap-2">
+            🎯 Life Score
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Beaker className="h-6 w-6 text-primary" />
-            Split Test: Warrior Power
+            <FlaskConical className="h-6 w-6 text-primary" />
+            Split Test: {funnelLabel}
           </h2>
           <p className="text-muted-foreground">
             A/B/C test pentru optimizarea conversiilor după quiz
@@ -209,7 +262,7 @@ export const SplitTestDashboard: React.FC = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={fetchStats}
+            onClick={() => fetchStats(activeFunnel)}
             disabled={loading}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -230,7 +283,7 @@ export const SplitTestDashboard: React.FC = () => {
           <CardContent>
             <div className="text-3xl font-bold">{totalLeads}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Din split test
+              Din split test {funnelLabel}
             </p>
           </CardContent>
         </Card>
@@ -244,13 +297,13 @@ export const SplitTestDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Badge variant="outline" style={{ borderColor: VARIANT_CONFIG.A.color }}>
+              <Badge variant="outline" style={{ borderColor: config.A.color }}>
                 A: {distribution.A}%
               </Badge>
-              <Badge variant="outline" style={{ borderColor: VARIANT_CONFIG.B.color }}>
+              <Badge variant="outline" style={{ borderColor: config.B.color }}>
                 B: {distribution.B}%
               </Badge>
-              <Badge variant="outline" style={{ borderColor: VARIANT_CONFIG.C.color }}>
+              <Badge variant="outline" style={{ borderColor: config.C.color }}>
                 C: {distribution.C}%
               </Badge>
             </div>
@@ -306,7 +359,7 @@ export const SplitTestDashboard: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="h-5 w-5" />
-            Performanță per Variantă
+            Performanță per Variantă ({funnelLabel})
           </CardTitle>
           <CardDescription>
             Detalii comparative pentru fiecare variantă din split test
@@ -331,7 +384,7 @@ export const SplitTestDashboard: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <div 
                         className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: VARIANT_CONFIG[stat.variant].color }}
+                        style={{ backgroundColor: config[stat.variant].color }}
                       />
                       <span className="font-medium">Variant {stat.variant}</span>
                       <span className="text-muted-foreground text-sm">
@@ -434,21 +487,21 @@ export const SplitTestDashboard: React.FC = () => {
                 <Line 
                   type="monotone" 
                   dataKey="A" 
-                  stroke={VARIANT_CONFIG.A.color} 
+                  stroke={config.A.color} 
                   strokeWidth={2}
                   dot={{ r: 4 }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="B" 
-                  stroke={VARIANT_CONFIG.B.color} 
+                  stroke={config.B.color} 
                   strokeWidth={2}
                   dot={{ r: 4 }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="C" 
-                  stroke={VARIANT_CONFIG.C.color} 
+                  stroke={config.C.color} 
                   strokeWidth={2}
                   dot={{ r: 4 }}
                 />
@@ -472,7 +525,7 @@ export const SplitTestDashboard: React.FC = () => {
                 </h4>
                 <p className="text-sm text-muted-foreground mt-1">
                   Pentru semnificație statistică, ai nevoie de minim 100 de leads în total 
-                  și 30+ leads per variantă. Actualmente ai {totalLeads} leads.
+                  și 30+ leads per variantă. Actualmente ai {totalLeads} leads în {funnelLabel}.
                 </p>
               </div>
             </div>
