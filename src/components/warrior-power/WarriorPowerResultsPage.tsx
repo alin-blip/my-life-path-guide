@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Sword, Flame, Target } from 'lucide-react';
+import { Sword, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ImpactSummaryCard } from './ImpactSummaryCard';
 import { ChallengeMiniPreview } from './ChallengeMiniPreview';
@@ -136,13 +136,13 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
       >
         <div className="text-center mb-4">
           <div className="inline-flex items-center gap-2 mb-2">
-            <Target className="h-4 w-4 text-primary" />
+            <Flame className="h-4 w-4 text-primary" />
             <span className="text-xs uppercase tracking-widest text-primary font-bold">
-              Planul Tău
+              Have It All Lifestyle
             </span>
           </div>
           <h2 className="text-lg md:text-xl font-bold text-foreground">
-            Transformă {weakestDimName} în 7 Zile
+            Challenge-ul de 7 Zile care îți transformă viața
           </h2>
         </div>
         
@@ -160,7 +160,24 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
             />
           </div>
           
-          {/* Mini Preview (3 bullets) */}
+          {/* CTA Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-4"
+          >
+            <button
+              onClick={() => {
+                document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="w-full py-3 px-6 bg-gradient-to-r from-primary to-cyan-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              🚀 Începe Gratuit — Alege Trial-ul
+            </button>
+          </motion.div>
+          
+          {/* Detailed Challenge Preview */}
           <ChallengeMiniPreview weakestDimension={weakestDimension} />
         </div>
       </motion.div>
@@ -178,6 +195,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
       </motion.div>
 
       <motion.div
+        id="pricing-section"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
