@@ -30,8 +30,8 @@ export function useAffiliateLink() {
     setIsLoading(true);
 
     try {
-      if (navigator.share) {
-        // Use Web Share API if available
+      // Try Web Share API first (only works in secure contexts with user gesture)
+      if (navigator.share && navigator.canShare?.({ url: referralLink })) {
         await navigator.share({
           title: 'Join Napoleon Hill Academy',
           text: 'Become the best version of yourself in all areas of life: Join the Napoleon Hill Academy community',
@@ -43,22 +43,28 @@ export function useAffiliateLink() {
           description: 'Thank you for sharing Napoleon Hill Academy!',
         });
       } else {
-        // Fallback to clipboard
+        throw new Error('Web Share not available');
+      }
+    } catch (error) {
+      // FALLBACK: Copy to clipboard instead of showing error
+      // This handles both "Web Share not available" and permission denied errors
+      try {
         await navigator.clipboard.writeText(referralLink);
         
         toast({
           title: 'Link copied to clipboard',
           description: 'Share this link with your friends to earn commissions!',
         });
+      } catch (clipboardError) {
+        console.error('Error copying to clipboard:', clipboardError);
+        
+        // Only show error if clipboard also fails
+        toast({
+          title: 'Something went wrong',
+          description: 'Could not copy the link. Please try again.',
+          variant: 'destructive',
+        });
       }
-    } catch (error) {
-      console.error('Error sharing:', error);
-      
-      toast({
-        title: 'Something went wrong',
-        description: 'Could not share the link. Please try again.',
-        variant: 'destructive',
-      });
     } finally {
       setIsLoading(false);
     }
