@@ -210,19 +210,6 @@ export const NewHeroSection = ({
             <HeroInlineChat onAskQuestion={handleAskQuestion} onOpenChat={handleOpenChat} />
           </motion.div>
 
-          {/* Trust Badges - Below Chat */}
-          <motion.div initial={{
-          opacity: 0
-        }} animate={{
-          opacity: 1
-        }} transition={{
-          delay: 0.7
-        }} className="flex flex-wrap items-center justify-center gap-6 mt-8">
-            {heroContent.guarantees.map((guarantee, idx) => <div key={idx} className="flex items-center gap-2 text-muted-foreground">
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <span className="text-sm font-medium">{guarantee}</span>
-              </div>)}
-          </motion.div>
 
           {/* Real Metrics */}
           {realMetrics.users > 10 && <motion.div initial={{
