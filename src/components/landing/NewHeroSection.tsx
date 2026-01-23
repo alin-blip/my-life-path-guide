@@ -59,7 +59,7 @@ export const NewHeroSection = ({
   const heroContent = {
     badge: language === 'ro' ? 'Pentru Antreprenori Ocupați' : 'For Busy Entrepreneurs',
     headline: {
-      result: language === 'ro' ? 'Dublează-ți Claritatea' : 'Double Your Clarity',
+      result: language === 'ro' ? 'Dublează-ți Productivitatea' : 'Double Your Productivity',
       timeframe: language === 'ro' ? 'în 90 de Zile' : 'in 90 Days',
       without: language === 'ro' ? 'FĂRĂ să Sacrifici' : 'WITHOUT Sacrificing',
       pain: language === 'ro' ? 'Familia sau Sănătatea' : 'Family or Health'
