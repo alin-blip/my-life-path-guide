@@ -270,6 +270,7 @@ const ChallengePage = () => {
             const Icon = day.icon;
             const unlocked = isDayUnlocked(day.day);
             const completed = isDayCompleted(day.day);
+            const isPremiumDay = day.day >= 5 && !subscribed;
             
             return (
               <Card 
@@ -278,7 +279,7 @@ const ChallengePage = () => {
                   unlocked 
                     ? 'bg-card border-primary/20 hover:border-primary/40 cursor-pointer' 
                     : 'bg-muted/30 border-border/50 opacity-60'
-                } ${completed ? 'ring-2 ring-green-500/50' : ''}`}
+                } ${completed ? 'ring-2 ring-green-500/50' : ''} ${isPremiumDay ? 'border-amber-500/30' : ''}`}
                 onClick={() => handleStartDay(day)}
               >
                 <div className="flex items-center gap-4">
@@ -294,13 +295,25 @@ const ChallengePage = () => {
                     <span className="absolute -top-2 -left-2 w-6 h-6 bg-background border-2 border-primary rounded-full flex items-center justify-center text-xs font-bold text-primary">
                       {day.day}
                     </span>
+                    {isPremiumDay && (
+                      <span className="absolute -top-2 -right-2">
+                        <Crown className="h-5 w-5 text-amber-400" />
+                      </span>
+                    )}
                   </div>
 
                   {/* Content */}
                   <div className="flex-1">
-                    <h3 className={`font-bold text-lg ${unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      {language === 'en' ? day.titleEn : day.titleRo}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className={`font-bold text-lg ${unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>
+                        {language === 'en' ? day.titleEn : day.titleRo}
+                      </h3>
+                      {isPremiumDay && (
+                        <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/30 text-xs">
+                          Premium
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       {language === 'en' ? day.subtitleEn : day.subtitleRo}
                     </p>
