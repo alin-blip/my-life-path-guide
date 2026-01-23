@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
-import { Sword, Flame } from 'lucide-react';
+import { Sword, Flame, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ImpactSummaryCard } from './ImpactSummaryCard';
 import { ChallengeMiniPreview } from './ChallengeMiniPreview';
 import { WarriorPowerUpsell } from './WarriorPowerUpsell';
 import { EarlyBirdCountdownCard } from './EarlyBirdCountdownCard';
+import { FeatureShowcase } from '@/components/landing/FeatureShowcase';
 import {
   calculateTotalScore,
   getScorePercentage,
@@ -205,6 +206,44 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
           userName={userName}
           onContinueFree={onContinueFree}
         />
+      </motion.div>
+
+      {/* ============================================ */}
+      {/* SECTION 4: PLATFORM VIDEO + FEATURES */}
+      {/* ============================================ */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="mt-12 pt-8 border-t border-border/50"
+      >
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 mb-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-xs uppercase tracking-widest text-primary font-bold">
+              Descoperă Platforma
+            </span>
+          </div>
+          <h2 className="text-lg md:text-xl font-bold text-foreground">
+            Tot ce ai nevoie pentru transformare
+          </h2>
+        </div>
+
+        {/* Platform Demo Video */}
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.4),0_0_30px_rgba(34,211,238,0.2)]">
+            <iframe
+              src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&videoRatio=1.777778&type=v&skinColor=%232758EB&autoplay=0&loop=0&muted=0"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            />
+          </div>
+        </div>
+
+        {/* Interactive Feature Showcase */}
+        <FeatureShowcase />
       </motion.div>
     </div>
   );
