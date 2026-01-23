@@ -915,6 +915,134 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_content: {
+        Row: {
+          coach_id: string
+          content_type: string
+          content_url: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          is_published: boolean | null
+          price_cents: number
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          thumbnail_url: string | null
+          title: string
+          total_revenue: number | null
+          total_sales: number | null
+          updated_at: string
+        }
+        Insert: {
+          coach_id: string
+          content_type?: string
+          content_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          price_cents?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          thumbnail_url?: string | null
+          title: string
+          total_revenue?: number | null
+          total_sales?: number | null
+          updated_at?: string
+        }
+        Update: {
+          coach_id?: string
+          content_type?: string
+          content_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          price_cents?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          total_revenue?: number | null
+          total_sales?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_content_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_content_purchases: {
+        Row: {
+          amount_paid: number
+          coach_id: string
+          coach_share: number
+          content_id: string
+          created_at: string
+          currency: string
+          id: string
+          platform_share: number
+          purchased_at: string
+          status: string
+          stripe_session_id: string | null
+          stripe_transfer_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          coach_id: string
+          coach_share: number
+          content_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          platform_share: number
+          purchased_at?: string
+          status?: string
+          stripe_session_id?: string | null
+          stripe_transfer_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          coach_id?: string
+          coach_share?: number
+          content_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          platform_share?: number
+          purchased_at?: string
+          status?: string
+          stripe_session_id?: string | null
+          stripe_transfer_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_content_purchases_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coach_content_purchases_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "coach_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coach_messages: {
         Row: {
           client_id: string
