@@ -1,6 +1,7 @@
 import React from 'react';
 import { Layout } from '@/components/Layout';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -9,10 +10,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Flame, Heart, Target, Zap, Gift, BookOpen, Crown,
   Play, Lock, CheckCircle2, ArrowRight, Rocket, Dumbbell, Brain, Users,
-  Sparkles, Bell, Trophy, Map
+  Sparkles, Bell, Trophy, Map, Clock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
+import { EarlyBirdCountdown } from '@/components/membership/EarlyBirdCountdown';
 
 interface ChallengeDay {
   day: number;
@@ -122,6 +124,7 @@ const areaLabels = {
 
 const ChallengePage = () => {
   const { language } = useLanguage();
+  const { earlyBirdExpiresAt, isEarlyBirdActive, subscribed } = useAuth();
   const navigate = useNavigate();
   const { 
     loading, 
@@ -186,6 +189,36 @@ const ChallengePage = () => {
             ))}
           </div>
         </div>
+
+        {/* Early Bird Countdown Banner for Trial Users */}
+        {isAuthenticated && !subscribed && isEarlyBirdActive && earlyBirdExpiresAt && (
+          <Card className="p-4 mb-6 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-amber-500/30">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Flame className="h-5 w-5 text-amber-400" />
+                  <span className="font-bold text-amber-400">
+                    {language === 'en' ? 'EARLY BIRD - 50% OFF' : 'EARLY BIRD - 50% REDUCERE'}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'en' 
+                    ? 'Lock in the lowest price before your trial ends!' 
+                    : 'Blochează cel mai mic preț înainte să expire trial-ul!'}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <EarlyBirdCountdown expiresAt={earlyBirdExpiresAt} compact />
+                <Button 
+                  onClick={() => navigate('/pricing')}
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 whitespace-nowrap"
+                >
+                  {language === 'en' ? 'Upgrade Now' : 'Upgrade Acum'}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Login Banner for Unauthenticated Users */}
         {!isAuthenticated && (
