@@ -41,15 +41,24 @@ export default function WarriorPower() {
     }
 
     setIsLoading(true);
+    
+    // Assign split test variant BEFORE any database operations
+    const variant: SplitVariant = assignWarriorPowerVariant(data.email);
+    console.log(`[Split Test] Assigned variant ${variant} to ${data.email}`);
+    
     try {
-      // Save lead to database (simplified - just name, email)
+      // Save lead to database with split test source directly
       const { error: leadError } = await supabase
         .from('email_leads')
         .upsert({
           email: data.email,
           name: data.name,
           lead_magnet: 'warrior_power',
-          source: 'warrior_power_quiz'
+          source: `warrior_power_split_${variant.toLowerCase()}`,
+          metadata: {
+            splitVariant: variant,
+            completed_at: new Date().toISOString()
+          }
         }, { onConflict: 'email,lead_magnet' });
 
       if (leadError) {
@@ -144,24 +153,7 @@ export default function WarriorPower() {
         console.error('Error sending email:', emailError);
       }
 
-      // === SPLIT TEST LOGIC ===
-      const variant: SplitVariant = assignWarriorPowerVariant(data.email);
-      console.log(`[Split Test] Assigned variant ${variant} to ${data.email}`);
-
-      // Update email_leads with split variant for tracking
-      try {
-        await supabase
-          .from('email_leads')
-          .update({ 
-            source: `warrior_power_split_${variant.toLowerCase()}` 
-          })
-          .eq('email', data.email)
-          .eq('lead_magnet', 'warrior_power');
-      } catch (err) {
-        console.error('Error updating split variant:', err);
-      }
-
-      // Route based on variant
+      // Route based on split test variant (already assigned above)
       switch (variant) {
         case 'A':
           // Redirect to Warrior Launch Accelerator (€497 offer)
