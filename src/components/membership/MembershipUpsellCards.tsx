@@ -184,28 +184,28 @@ export function MembershipUpsellCards({
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <div className="inline-flex items-center gap-2 mb-3">
-          <Zap className="h-5 w-5 text-primary" />
-          <span className="text-sm uppercase tracking-widest text-primary font-bold">
+        <div className="inline-flex items-center gap-2 mb-3 px-4 py-2 rounded-full bg-amber-500/20">
+          <Zap className="h-5 w-5 text-amber-600" />
+          <span className="text-sm uppercase tracking-widest text-amber-700 font-bold">
             Pasul Următor
           </span>
         </div>
         
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
           Alege planul tău de transformare
         </h2>
         
         {totalScore !== undefined && weakestDimension && (
-          <p className="text-gray-700 max-w-2xl mx-auto">
-            Cu un scor de <strong className="text-gray-900">{totalScore}</strong> și 
-            {' '}<strong className="text-gray-900">{dimensionNames[weakestDimension] || weakestDimension}</strong> ca zonă de focalizare principală, 
-            ai nevoie de un plan structurat pentru a deveni <strong className="text-primary">ACCELERAT</strong> în toate ariile.
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Cu un scor de <strong className="text-foreground">{totalScore}</strong> și 
+            {' '}<strong className="text-foreground">{dimensionNames[weakestDimension] || weakestDimension}</strong> ca zonă de focalizare principală, 
+            ai nevoie de un plan structurat pentru a deveni <strong className="text-amber-600 font-bold">ACCELERAT</strong> în toate ariile.
           </p>
         )}
         
         {!totalScore && (
-          <p className="text-gray-700 max-w-2xl mx-auto">
-            Alege planul potrivit pentru a-ți transforma viața în <strong className="text-primary">toate cele 4 dimensiuni</strong>.
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Alege planul potrivit pentru a-ți transforma viața în <strong className="text-amber-600 font-bold">toate cele 4 dimensiuni</strong>.
           </p>
         )}
       </motion.div>
