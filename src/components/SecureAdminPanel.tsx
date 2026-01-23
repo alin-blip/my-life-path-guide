@@ -13,9 +13,10 @@ import { WarriorsWayManager } from './admin/WarriorsWayManager';
 import { EmailAnalytics } from './admin/EmailAnalytics';
 import { CRMDashboard } from './admin/crm/CRMDashboard';
 import { LeadMagnetAnalytics } from './admin/LeadMagnetAnalytics';
+import { AdminCoaches } from './admin/AdminCoaches';
 import { 
   Shield, BookOpen, Settings, LayoutDashboard, 
-  Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp
+  Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp, UserCheck
 } from 'lucide-react';
 
 export const SecureAdminPanel: React.FC = () => {
@@ -121,7 +122,13 @@ export const SecureAdminPanel: React.FC = () => {
             <span>📢 Marketing</span>
           </TabsTrigger>
           
-          {/* Tab 7: Settings */}
+          {/* Tab 7: Coaches */}
+          <TabsTrigger value="coaches" className="flex items-center gap-1.5 data-[state=active]:bg-background">
+            <UserCheck className="h-4 w-4" />
+            <span>🎯 Coaches</span>
+          </TabsTrigger>
+          
+          {/* Tab 8: Settings */}
           <TabsTrigger value="settings" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <Settings className="h-4 w-4" />
             <span>⚙️ Settings</span>
@@ -259,7 +266,12 @@ export const SecureAdminPanel: React.FC = () => {
           </Tabs>
         </TabsContent>
         
-        {/* Tab 6: Settings Content */}
+        {/* Tab 7: Coaches Content */}
+        <TabsContent value="coaches" className="pt-4">
+          <AdminCoaches />
+        </TabsContent>
+        
+        {/* Tab 8: Settings Content */}
         <TabsContent value="settings" className="pt-4">
           <div className="space-y-6">
             <ApiConfig />
