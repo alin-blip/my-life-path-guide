@@ -22,31 +22,25 @@ const UPSELL_PLANS = [
   {
     id: 'basic',
     name: 'Basic',
-    price: '0',
-    afterTrialPrice: '49',
-    normalPrice: '99',
+    price: '49',
+    normalPrice: '97',
     currency: '€',
-    period: '3 zile gratuit',
-    highlight: '🎁 Start GRATUIT',
+    period: 'lună',
+    hasTrial: false,
+    highlight: '💪 Începe Acum',
     tier: 'basic',
-    // Value stack
-    valueItems: [
-      { name: 'Harta Realității + AI Coaching', value: '€197' },
-      { name: 'Champion Routine System', value: '€97' },
-      { name: 'Door Planning Framework', value: '€47' },
-    ],
     totalValue: '€341',
     benefits: [
-      '3 zile acces complet GRATUIT',
+      'Acces complet la platformă',
       'Harta Realității interactivă',
       'Champion Routine completă',
       'Door - planificare săptămânală',
       'AI Coaching pentru business',
     ],
-    featured: true,
-    gradient: 'from-green-500 to-emerald-500',
-    bgGradient: 'from-green-50 via-white to-emerald-50',
-    borderColor: 'border-green-500',
+    featured: false,
+    gradient: 'from-blue-500 to-cyan-500',
+    bgGradient: 'from-blue-50 via-white to-cyan-50',
+    borderColor: 'border-blue-500',
     icon: Gift,
   },
   {
@@ -57,15 +51,9 @@ const UPSELL_PLANS = [
     normalPrice: '197',
     currency: '€',
     period: '7 zile trial',
+    hasTrial: true,
     highlight: '⭐ Cel Mai Popular',
     tier: 'pro',
-    valueItems: [
-      { name: 'Tot din Basic', value: '€341' },
-      { name: 'Coaching LIVE Săptămânal', value: '€297' },
-      { name: 'Comunitate VIP Pro', value: '€97' },
-      { name: 'Sprint 90 Zile + KPIs', value: '€147' },
-      { name: 'Referral Program 50%', value: '€∞' },
-    ],
     totalValue: '€882+',
     benefits: [
       '✓ Tot din Basic +',
@@ -76,7 +64,7 @@ const UPSELL_PLANS = [
       '💰 REFERRAL: Câștigă 50% comision recurent',
       'Support VIP dedicat'
     ],
-    featured: false,
+    featured: true,
     gradient: 'from-amber-500 to-orange-500',
     bgGradient: 'from-amber-50 via-white to-orange-50',
     borderColor: 'border-amber-500',
@@ -85,24 +73,16 @@ const UPSELL_PLANS = [
   {
     id: 'elite',
     name: 'Elite',
-    price: '0',
-    afterTrialPrice: '297',
-    normalPrice: '497',
+    price: '297',
+    normalPrice: '500',
     currency: '€',
-    period: '7 zile trial',
+    period: 'lună',
+    hasTrial: false,
     highlight: '🔥 Transformare Totală',
     tier: 'elite',
-    valueItems: [
-      { name: 'Tot din Pro', value: '€882' },
-      { name: 'Warrior Launch Accelerator', value: '€497' },
-      { name: '47+ Lecții Video Premium', value: '€397' },
-      { name: 'Coaching 1-on-1 Lunar', value: '€297' },
-      { name: 'Coach Dashboard', value: '€497' },
-    ],
     totalValue: '€2,570',
     benefits: [
       '✓ Tot din Pro +',
-      '7 zile trial gratuit',
       'Warrior Launch Accelerator (€497)',
       '47+ lecții video premium',
       'Coaching 1-on-1 lunar (30 min)',
@@ -265,7 +245,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
               className={cn(
                 "relative overflow-hidden transition-all duration-300 bg-white",
                 `border-2 ${plan.borderColor} shadow-lg`,
-                plan.featured && "ring-2 ring-green-500/50"
+                plan.featured && "ring-2 ring-amber-500/50"
               )}
             >
               <div className={cn(
@@ -288,7 +268,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                 <div className="mb-3">
                   <div className="flex items-center gap-2 mb-2">
                     <IconComponent className={cn("h-5 w-5", 
-                      plan.id === 'basic' && "text-green-500",
+                      plan.id === 'basic' && "text-blue-500",
                       plan.id === 'pro' && "text-amber-500",
                       plan.id === 'elite' && "text-purple-500"
                     )} />
@@ -308,7 +288,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   <div className="flex items-baseline gap-1">
                     <span className={cn(
                       "text-3xl font-black",
-                      plan.id === 'basic' && "text-green-500",
+                      plan.id === 'basic' && "text-blue-500",
                       plan.id === 'pro' && "text-amber-500",
                       plan.id === 'elite' && "text-purple-500"
                     )}>
@@ -321,9 +301,16 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     <span className="text-xs text-gray-400 line-through">
                       {plan.currency}{plan.normalPrice}/lună
                     </span>
-                    <span className="text-xs font-semibold text-green-500">
-                      Apoi {plan.currency}{plan.afterTrialPrice}/lună
-                    </span>
+                    {plan.hasTrial && plan.afterTrialPrice && (
+                      <span className="text-xs font-semibold text-green-500">
+                        Apoi {plan.currency}{plan.afterTrialPrice}/lună
+                      </span>
+                    )}
+                    {!plan.hasTrial && (
+                      <span className="text-xs font-semibold text-green-500">
+                        Economisești 50%
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -332,7 +319,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                     <li key={bidx} className="flex items-start gap-2 text-xs">
                       <Check className={cn(
                         "h-3.5 w-3.5 mt-0.5 flex-shrink-0",
-                        plan.id === 'basic' && "text-green-500",
+                        plan.id === 'basic' && "text-blue-500",
                         plan.id === 'pro' && "text-amber-500",
                         plan.id === 'elite' && "text-purple-500"
                       )} />
@@ -359,7 +346,7 @@ export function WarriorPowerUpsell({ scores, userName, onContinueFree }: Warrior
                   ) : (
                     <>
                       <Sparkles className="h-3.5 w-3.5" />
-                      Începe {plan.period}
+                      {plan.hasTrial ? `Începe ${plan.period}` : 'Începe acum'}
                       <ArrowRight className="h-3.5 w-3.5" />
                     </>
                   )}
