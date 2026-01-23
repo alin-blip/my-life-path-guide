@@ -190,10 +190,10 @@ export const NewHeroSection = ({
         }} transition={{
           delay: 0.5
         }} className="mt-8 flex justify-center">
-            <Button size="lg" onClick={() => navigate('/auth')} className="n8n-glow-button text-primary-foreground text-lg px-10 py-7 rounded-xl font-bold group shadow-2xl">
-              <Zap className="w-5 h-5 mr-2" />
-              {heroContent.cta}
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            <Button size="lg" onClick={() => navigate('/auth')} className="n8n-glow-button text-primary-foreground text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-10 py-4 sm:py-5 md:py-7 rounded-xl font-bold group shadow-2xl w-full sm:w-auto">
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 flex-shrink-0" />
+              <span className="truncate">{heroContent.cta}</span>
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2 group-hover:translate-x-1 transition-transform flex-shrink-0" />
             </Button>
           </motion.div>
 
