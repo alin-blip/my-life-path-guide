@@ -85,6 +85,7 @@ const GameObjectives = lazy(() => import("./pages/GameObjectives"));
 const Brotherhood = lazy(() => import("./pages/Brotherhood"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const Business2026LeadMagnet = lazy(() => import("./pages/Business2026LeadMagnet"));
+const CoachDashboard = lazy(() => import("./pages/CoachDashboard"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -372,6 +373,11 @@ const App = () => (
                     <Route path="/quick-quiz" element={
                       <ProtectedRoute>
                         <QuickQuiz />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/coach" element={
+                      <ProtectedRoute>
+                        <CoachDashboard />
                       </ProtectedRoute>
                     } />
                         <Route path="*" element={<NotFound />} />

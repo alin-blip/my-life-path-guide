@@ -5121,6 +5121,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_coach_referrals: {
+        Args: { coach_id: string }
+        Returns: undefined
+      }
       is_tribe_member: {
         Args: { _tribe_id: string; _user_id: string }
         Returns: boolean
