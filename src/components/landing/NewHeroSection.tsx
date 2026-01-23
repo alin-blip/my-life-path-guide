@@ -59,10 +59,10 @@ export const NewHeroSection = ({
   const heroContent = {
     badge: language === 'ro' ? 'Pentru Antreprenori Ocupați' : 'For Busy Entrepreneurs',
     headline: {
-      result: language === 'ro' ? 'Dublează-ți Productivitatea' : 'Double Your Productivity',
-      timeframe: language === 'ro' ? 'în 90 de Zile' : 'in 90 Days',
-      without: language === 'ro' ? 'FĂRĂ să Sacrifici' : 'WITHOUT Sacrificing',
-      pain: language === 'ro' ? 'Familia sau Sănătatea' : 'Family or Health'
+      result: language === 'ro' ? 'Dublează-ți productivitatea' : 'Double your productivity',
+      timeframe: language === 'ro' ? 'în 90 de zile' : 'in 90 days',
+      without: language === 'ro' ? 'fără să sacrifici' : 'without sacrificing',
+      pain: language === 'ro' ? 'familia sau sănătatea' : 'family or health'
     },
     subheadline: language === 'ro' ? 'Sistemul AI care te ajută să fii productiv în business, prezent cu familia, și energetic fizic — toate în același timp.' : 'The AI system that helps you be productive in business, present with family, and physically energetic — all at the same time.',
     cta: language === 'ro' ? 'Începe Transformarea Gratuit' : 'Start Your Transformation Free',
