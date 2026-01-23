@@ -174,7 +174,7 @@ export const NewHeroSection = ({
         }} transition={{
           delay: 0.4,
           duration: 0.6
-        }} className="n8n-preview-container shadow-2xl max-w-4xl mx-auto rounded-2xl border-2 border-sky-400/50 ring-4 ring-sky-400/20 shadow-[0_0_30px_rgba(56,189,248,0.3)]">
+        }} className="n8n-preview-container shadow-2xl max-w-4xl mx-auto rounded-2xl border-2 border-cyan-300/60 ring-8 ring-cyan-300/30 shadow-[0_0_50px_rgba(103,232,249,0.5),0_0_100px_rgba(103,232,249,0.25)]">
             <div className="relative aspect-video rounded-xl overflow-hidden">
               <iframe src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&videoRatio=1.777778&type=v&skinColor=%232758EB&autoplay=1&loop=1&muted=1" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="w-full h-full" />
             </div>
