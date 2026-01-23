@@ -224,9 +224,6 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
               Descoperă Platforma
             </span>
           </div>
-          <h2 className="text-lg md:text-xl font-bold text-foreground">
-            Tot ce ai nevoie pentru transformare
-          </h2>
         </div>
 
         {/* Platform Demo Video */}
