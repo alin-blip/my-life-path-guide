@@ -323,6 +323,26 @@ const Challenge7ZileLanding = () => {
                 </p>
               </Card>
             )}
+
+            {/* Voomly Video Embed */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mt-10 max-w-3xl mx-auto"
+            >
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-primary/20 shadow-2xl">
+                <iframe 
+                  src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=Q2rPQbpGVI3G3AQChBI7EptvcVsWzFtGMVz09Gu8CDoxI1d3P&videoRatio=1.777778&type=v&skinColor=%232758EB" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen 
+                  width="100%" 
+                  height="100%"
+                  className="absolute inset-0"
+                />
+              </div>
+            </motion.div>
           </div>
         </section>
 
