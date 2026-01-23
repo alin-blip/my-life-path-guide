@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Rocket } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { SocialProofBar } from "./SocialProofBar";
 
 export const StickyHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -69,22 +70,25 @@ export const StickyHeader = () => {
               ))}
             </nav>
 
-            {/* Desktop CTAs */}
-            <div className="hidden md:flex items-center gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/auth')}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                {language === 'ro' ? 'Autentificare' : 'Login'}
-              </Button>
-              <Button
-                onClick={() => navigate('/auth')}
-                className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white shadow-lg hover:shadow-xl transition-all duration-300 ring-2 ring-primary/20"
-              >
-                <Rocket className="w-4 h-4 mr-2" />
-                {language === 'ro' ? 'Start Gratuit' : 'Start Free'}
-              </Button>
+            {/* Social Proof + Desktop CTAs */}
+            <div className="hidden md:flex items-center gap-4">
+              <SocialProofBar />
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate('/auth')}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  {language === 'ro' ? 'Autentificare' : 'Login'}
+                </Button>
+                <Button
+                  onClick={() => navigate('/auth')}
+                  className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white shadow-lg hover:shadow-xl transition-all duration-300 ring-2 ring-primary/20"
+                >
+                  <Rocket className="w-4 h-4 mr-2" />
+                  {language === 'ro' ? 'Start Gratuit' : 'Start Free'}
+                </Button>
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
