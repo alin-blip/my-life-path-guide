@@ -241,6 +241,26 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
 
         {/* Interactive Feature Showcase */}
         <FeatureShowcase />
+
+        {/* Final CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="mt-10 text-center"
+        >
+          <button
+            onClick={() => {
+              document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="w-full max-w-md mx-auto py-4 px-8 bg-gradient-to-r from-primary via-cyan-500 to-primary text-white font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-all hover:scale-[1.02] active:scale-[0.98] animate-pulse"
+          >
+            🚀 Începe Transformarea ACUM
+          </button>
+          <p className="mt-3 text-sm text-muted-foreground">
+            7 zile gratuit • Anulezi oricând
+          </p>
+        </motion.div>
       </motion.div>
     </div>
   );
