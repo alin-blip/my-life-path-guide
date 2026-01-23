@@ -178,7 +178,7 @@ export default function WarriorPower() {
         <meta property="og:description" content="Evaluează-te în cele 4 dimensiuni ale vieții și descoperă-ți potențialul real." />
       </Helmet>
 
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white font-['Montserrat',sans-serif]">
         <AnimatePresence mode="wait">
           {step === 'landing' && (
             <motion.div

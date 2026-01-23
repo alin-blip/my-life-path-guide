@@ -52,7 +52,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
   const headline = getPersonalizedHeadline(userName, percentage);
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-6 md:py-10 safe-area-bottom bg-white min-h-screen">
+    <div className="w-full max-w-3xl mx-auto px-4 py-6 md:py-10 safe-area-bottom bg-white min-h-screen font-['Montserrat',sans-serif]">
       {/* ============================================ */}
       {/* SECTION 1: IMPACT (Score + Summary) */}
       {/* ============================================ */}
