@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { plans, getLocalizedPlan } from "@/data/pricing";
 import { Helmet } from "react-helmet-async";
-import { Crown, Zap, Gift, Check, Rocket, Users, Timer, AlertTriangle, Calendar, Star } from "lucide-react";
+import { Crown, Zap, Gift, Check, Rocket, Users, Timer, AlertTriangle, Calendar, Star, type LucideIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { trackPurchase } from "@/lib/facebook-pixel";
 import { preOpenWindow, redirectExternal } from "@/lib/externalRedirect";
@@ -453,12 +453,17 @@ const Pricing: React.FC = () => {
                         const cleanText = b.replace(/\*\*/g, '');
                         
                         if (isHighlighted) {
+                          // Determine icon based on content
+                          const isReferral = cleanText.toLowerCase().includes('referral');
+                          const isCoach = cleanText.toLowerCase().includes('coach');
+                          const HighlightIcon = isReferral ? Users : isCoach ? Crown : Star;
+                          
                           return (
                             <li 
                               key={b} 
                               className="text-sm font-bold text-primary flex items-start gap-2 bg-primary/10 rounded-lg px-3 py-2 border border-primary/20"
                             >
-                              <Star className="h-4 w-4 mt-0.5 flex-shrink-0 fill-primary text-primary" />
+                              <HighlightIcon className="h-4 w-4 mt-0.5 flex-shrink-0 fill-primary text-primary" />
                               <span>{cleanText}</span>
                             </li>
                           );

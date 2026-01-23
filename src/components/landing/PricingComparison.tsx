@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, X, Sparkles, Rocket, Shield, Crown, Star } from "lucide-react";
+import { CheckCircle2, X, Sparkles, Rocket, Shield, Crown, Star, Users } from "lucide-react";
 import { plans, getLocalizedPlan } from "@/data/pricing";
 
 export const PricingComparison = () => {
@@ -153,12 +153,17 @@ export const PricingComparison = () => {
                   const cleanText = feature.text.replace(/\*\*/g, '');
                   
                   if (isHighlighted && feature.included) {
+                    // Determine icon based on content
+                    const isReferral = cleanText.toLowerCase().includes('referral');
+                    const isCoach = cleanText.toLowerCase().includes('coach');
+                    const HighlightIcon = isReferral ? Users : isCoach ? Crown : Star;
+                    
                     return (
                       <div 
                         key={fIdx} 
                         className="flex items-center gap-3 bg-primary/10 rounded-lg px-3 py-2 border border-primary/20"
                       >
-                        <Star className="w-5 h-5 text-primary fill-primary flex-shrink-0" />
+                        <HighlightIcon className="w-5 h-5 text-primary fill-primary flex-shrink-0" />
                         <span className="text-primary font-bold">{cleanText}</span>
                       </div>
                     );
