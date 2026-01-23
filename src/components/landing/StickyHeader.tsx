@@ -99,6 +99,11 @@ export const StickyHeader = () => {
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
+          
+          {/* Mobile Social Proof Bar - below header */}
+          <div className="md:hidden flex justify-center pb-2">
+            <SocialProofBar />
+          </div>
         </div>
       </header>
 
