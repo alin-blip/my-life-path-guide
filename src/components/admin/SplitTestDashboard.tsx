@@ -92,15 +92,31 @@ export const SplitTestDashboard: React.FC = () => {
     setLoading(true);
     try {
       const config = getConfig(funnel);
-      const leadMagnet = funnel === 'warrior_power' ? 'warrior_power' : 'life_score_quiz';
       const sourcePattern = funnel === 'warrior_power' ? 'warrior_power_split_%' : 'life_score_split_%';
 
-      // Fetch all leads from split test
-      const { data: leads, error: leadsError } = await supabase
-        .from('email_leads')
-        .select('email, source, created_at, subscribed')
-        .eq('lead_magnet', leadMagnet)
-        .like('source', sourcePattern);
+      // Fetch all leads from split test - aggregate all Life Score variants
+      let leads: any[] = [];
+      let leadsError: any = null;
+
+      if (funnel === 'life_score') {
+        // Aggregate all Life Score lead magnets (legacy + current)
+        const { data, error } = await supabase
+          .from('email_leads')
+          .select('email, source, created_at, subscribed')
+          .in('lead_magnet', ['life_score_quiz', 'life_score', 'life_score_60s'])
+          .like('source', sourcePattern);
+        leads = data || [];
+        leadsError = error;
+      } else {
+        // Warrior Power - single lead magnet
+        const { data, error } = await supabase
+          .from('email_leads')
+          .select('email, source, created_at, subscribed')
+          .eq('lead_magnet', 'warrior_power')
+          .like('source', sourcePattern);
+        leads = data || [];
+        leadsError = error;
+      }
 
       if (leadsError) throw leadsError;
 
