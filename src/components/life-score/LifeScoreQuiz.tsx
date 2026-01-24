@@ -150,12 +150,19 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
 
       const userId = authData?.user?.id;
 
-      // 2. Save to email_leads with split test source directly
-      await supabase.from('email_leads').upsert({
+      // 2. Save to email_leads with split test source - DELETE+INSERT pattern
+      // This ensures split test source is ALWAYS recorded correctly, even for returning users
+      await supabase
+        .from('email_leads')
+        .delete()
+        .eq('email', emailLower)
+        .eq('lead_magnet', 'life_score_quiz');
+
+      await supabase.from('email_leads').insert({
         email: emailLower,
         name: name.trim() || null,
         lead_magnet: 'life_score_quiz',
-        source: `life_score_split_${variant.toLowerCase()}`, // Split test source set directly
+        source: `life_score_split_${variant.toLowerCase()}`,
         metadata: {
           totalScore,
           categoryScores,
@@ -163,7 +170,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
           splitVariant: variant,
           completed_at: new Date().toISOString(),
         },
-      }, { onConflict: 'email' });
+      });
 
       // 3. Set up 3-day trial if we have userId
       if (userId) {

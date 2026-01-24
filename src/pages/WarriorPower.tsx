@@ -47,11 +47,20 @@ export default function WarriorPower() {
     console.log(`[Split Test] Assigned variant ${variant} to ${data.email}`);
     
     try {
-      // Save lead to database with split test source directly
+      // Save lead to database with split test source - DELETE+INSERT pattern
+      // This ensures split test source is ALWAYS recorded correctly, even for returning users
+      const emailLower = data.email.trim().toLowerCase();
+      
+      await supabase
+        .from('email_leads')
+        .delete()
+        .eq('email', emailLower)
+        .eq('lead_magnet', 'warrior_power');
+
       const { error: leadError } = await supabase
         .from('email_leads')
-        .upsert({
-          email: data.email,
+        .insert({
+          email: emailLower,
           name: data.name,
           lead_magnet: 'warrior_power',
           source: `warrior_power_split_${variant.toLowerCase()}`,
@@ -59,7 +68,7 @@ export default function WarriorPower() {
             splitVariant: variant,
             completed_at: new Date().toISOString()
           }
-        }, { onConflict: 'email,lead_magnet' });
+        });
 
       if (leadError) {
         console.error('Error saving lead:', leadError);
