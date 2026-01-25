@@ -448,12 +448,21 @@ export const DailyCommandCenterWidget: React.FC = () => {
             </div>
           </DragDropContext>
 
-          {/* Today's Tasks Section */}
+          {/* Sarcini Section - Synchronized with /door */}
           <div className="mt-4 pt-4 border-t border-border/30">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <ListTodo className="h-5 w-5 text-primary" />
-                <span className="text-lg font-semibold">Today's Tasks</span>
+                <span className="text-lg font-semibold">Sarcini</span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-2 text-xs text-muted-foreground hover:text-primary"
+                  onClick={() => navigate('/door?tab=sarcini')}
+                >
+                  <ArrowRight className="h-3 w-3 mr-1" />
+                  Deschide
+                </Button>
               </div>
               <span className="text-sm text-muted-foreground">
                 {tasksCompleted}/{tasksTotal}
@@ -475,7 +484,7 @@ export const DailyCommandCenterWidget: React.FC = () => {
               <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mb-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-primary mb-1">
                   <Star className="h-4 w-4 fill-primary" />
-                  Big One Today
+                  Prioritatea Zilei
                 </div>
                 <p className="text-foreground font-medium">{tasksBigOne}</p>
               </div>
@@ -489,9 +498,19 @@ export const DailyCommandCenterWidget: React.FC = () => {
                   <div className="h-8 bg-muted rounded"></div>
                 </div>
               ) : tasks.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  Nu ai taskuri pentru azi
-                </p>
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Nu ai sarcini pentru azi
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/door?tab=sarcini')}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Planifică în Door
+                  </Button>
+                </div>
               ) : (
                 tasks.map(task => (
                   <div 
@@ -523,49 +542,60 @@ export const DailyCommandCenterWidget: React.FC = () => {
               )}
             </div>
 
-            {/* Add Task */}
-            {isAddingTask ? (
+            {/* Quick Add + Door Link */}
+            {tasks.length > 0 && (
               <div className="flex gap-2 mt-3">
-                <Input
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
-                  placeholder="Ce ai de făcut azi?"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && newTaskTitle.trim()) {
-                      addTask(newTaskTitle);
-                      setNewTaskTitle('');
-                      setIsAddingTask(false);
-                    }
-                  }}
-                  autoFocus
-                />
-                <Button size="sm" onClick={() => {
-                  if (newTaskTitle.trim()) {
-                    addTask(newTaskTitle);
-                    setNewTaskTitle('');
-                    setIsAddingTask(false);
-                  }
-                }}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+                {isAddingTask ? (
+                  <>
+                    <Input
+                      value={newTaskTitle}
+                      onChange={(e) => setNewTaskTitle(e.target.value)}
+                      placeholder="Sarcină rapidă..."
+                      className="flex-1"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newTaskTitle.trim()) {
+                          addTask(newTaskTitle);
+                          setNewTaskTitle('');
+                          setIsAddingTask(false);
+                        }
+                        if (e.key === 'Escape') {
+                          setIsAddingTask(false);
+                          setNewTaskTitle('');
+                        }
+                      }}
+                      autoFocus
+                    />
+                    <Button size="sm" onClick={() => {
+                      if (newTaskTitle.trim()) {
+                        addTask(newTaskTitle);
+                        setNewTaskTitle('');
+                        setIsAddingTask(false);
+                      }
+                    }}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => setIsAddingTask(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Adaugă rapid
+                    </Button>
+                  </>
+                )}
               </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full mt-3"
-                onClick={() => setIsAddingTask(true)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Adaugă task
-              </Button>
             )}
 
             {/* Completion message */}
             {tasksTotal > 0 && tasksCompleted === tasksTotal && (
               <div className="flex items-center justify-center gap-2 text-sm text-green-600 dark:text-green-400 py-2">
                 <CheckCircle2 className="h-4 w-4" />
-                Toate taskurile completate!
+                Toate sarcinile completate!
               </div>
             )}
           </div>
