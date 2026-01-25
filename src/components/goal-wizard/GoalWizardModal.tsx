@@ -358,7 +358,7 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         };
 
         if (missionType === 'annual') {
-          // UPSERT ANNUAL mission (allows updating existing)
+          // UPSERT ANNUAL mission (allows updating existing) - now with project_name for multiple projects
           const { data: annualMission, error: annualError } = await supabase
             .from('missions')
             .upsert([{
@@ -366,11 +366,12 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
               category,
               mission_type: 'annual',
               period: String(year),
+              project_name: project.name,
               title: project.name,
               measurable_result: project.name,
               goal_data: fullGoalData as any
             }], { 
-              onConflict: 'user_id,category,mission_type,period',
+              onConflict: 'user_id,category,mission_type,period,project_name',
               ignoreDuplicates: false 
             })
             .select('id')
@@ -378,7 +379,7 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
 
           if (annualError) throw annualError;
 
-          // UPSERT QUARTERLY mission
+          // UPSERT QUARTERLY mission with project_name
           const { data: quarterlyMission, error: quarterlyError } = await supabase
             .from('missions')
             .upsert([{
@@ -386,12 +387,13 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
               category,
               mission_type: 'quarterly',
               period: quarterKey,
+              project_name: project.name,
               parent_mission_id: annualMission?.id,
               title: project.milestones.threeMonths || `${quarterKey} - ${project.name}`,
               measurable_result: project.milestones.threeMonths || '',
               goal_data: { parentObjective: project.name, derivedFrom: 'annual', sourceType: 'cascade' } as any
             }], { 
-              onConflict: 'user_id,category,mission_type,period',
+              onConflict: 'user_id,category,mission_type,period,project_name',
               ignoreDuplicates: false 
             })
             .select('id')
@@ -399,18 +401,19 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
 
           if (quarterlyError) throw quarterlyError;
 
-          // UPSERT MONTHLY mission
+          // UPSERT MONTHLY mission with project_name
           await supabase.from('missions').upsert([{
             user_id: userId,
             category,
             mission_type: 'monthly',
             period: monthKey,
+            project_name: project.name,
             parent_mission_id: quarterlyMission?.id,
             title: project.milestones.oneMonth || `Luna 1 - ${project.milestones.threeMonths?.substring(0, 50)}`,
             measurable_result: project.milestones.oneMonth || '',
             goal_data: { parentMilestone: project.milestones.threeMonths, derivedFrom: 'quarterly', sourceType: 'cascade' } as any
           }], { 
-            onConflict: 'user_id,category,mission_type,period',
+            onConflict: 'user_id,category,mission_type,period,project_name',
             ignoreDuplicates: false 
           });
         }

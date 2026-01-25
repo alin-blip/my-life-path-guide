@@ -2748,6 +2748,7 @@ export type Database = {
           parent_mission_id: string | null
           period: string | null
           position: number | null
+          project_name: string | null
           title: string | null
           updated_at: string | null
           user_id: string
@@ -2765,6 +2766,7 @@ export type Database = {
           parent_mission_id?: string | null
           period?: string | null
           position?: number | null
+          project_name?: string | null
           title?: string | null
           updated_at?: string | null
           user_id: string
@@ -2782,6 +2784,7 @@ export type Database = {
           parent_mission_id?: string | null
           period?: string | null
           position?: number | null
+          project_name?: string | null
           title?: string | null
           updated_at?: string | null
           user_id?: string
