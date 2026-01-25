@@ -4675,7 +4675,10 @@ export type Database = {
       weekly_planning_history: {
         Row: {
           created_at: string | null
+          do_list_snapshot: Json | null
           domino_title: string | null
+          hit_list_snapshot: Json | null
+          hot_list_snapshot: Json | null
           id: string
           key_points: Json | null
           review_data: Json | null
@@ -4687,7 +4690,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          do_list_snapshot?: Json | null
           domino_title?: string | null
+          hit_list_snapshot?: Json | null
+          hot_list_snapshot?: Json | null
           id?: string
           key_points?: Json | null
           review_data?: Json | null
@@ -4699,7 +4705,10 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          do_list_snapshot?: Json | null
           domino_title?: string | null
+          hit_list_snapshot?: Json | null
+          hot_list_snapshot?: Json | null
           id?: string
           key_points?: Json | null
           review_data?: Json | null

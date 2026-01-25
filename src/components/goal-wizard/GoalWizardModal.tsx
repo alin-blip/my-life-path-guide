@@ -358,10 +358,10 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         };
 
         if (missionType === 'annual') {
-          // Create ANNUAL mission
+          // UPSERT ANNUAL mission (allows updating existing)
           const { data: annualMission, error: annualError } = await supabase
             .from('missions')
-            .insert([{
+            .upsert([{
               user_id: userId,
               category,
               mission_type: 'annual',
@@ -369,16 +369,19 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
               title: project.name,
               measurable_result: project.name,
               goal_data: fullGoalData as any
-            }])
+            }], { 
+              onConflict: 'user_id,category,mission_type,period',
+              ignoreDuplicates: false 
+            })
             .select('id')
             .single();
 
           if (annualError) throw annualError;
 
-          // Create QUARTERLY mission
+          // UPSERT QUARTERLY mission
           const { data: quarterlyMission, error: quarterlyError } = await supabase
             .from('missions')
-            .insert([{
+            .upsert([{
               user_id: userId,
               category,
               mission_type: 'quarterly',
@@ -387,14 +390,17 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
               title: project.milestones.threeMonths || `${quarterKey} - ${project.name}`,
               measurable_result: project.milestones.threeMonths || '',
               goal_data: { parentObjective: project.name, derivedFrom: 'annual', sourceType: 'cascade' } as any
-            }])
+            }], { 
+              onConflict: 'user_id,category,mission_type,period',
+              ignoreDuplicates: false 
+            })
             .select('id')
             .single();
 
           if (quarterlyError) throw quarterlyError;
 
-          // Create MONTHLY mission
-          await supabase.from('missions').insert([{
+          // UPSERT MONTHLY mission
+          await supabase.from('missions').upsert([{
             user_id: userId,
             category,
             mission_type: 'monthly',
@@ -403,7 +409,10 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
             title: project.milestones.oneMonth || `Luna 1 - ${project.milestones.threeMonths?.substring(0, 50)}`,
             measurable_result: project.milestones.oneMonth || '',
             goal_data: { parentMilestone: project.milestones.threeMonths, derivedFrom: 'quarterly', sourceType: 'cascade' } as any
-          }]);
+          }], { 
+            onConflict: 'user_id,category,mission_type,period',
+            ignoreDuplicates: false 
+          });
         }
 
         // Save tasks based on type - use user_tasks table (not hot_list_items)
