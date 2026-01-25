@@ -1,14 +1,14 @@
-
 import { useState, useEffect } from 'react';
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, parseISO, isValid } from 'date-fns';
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, parseISO, isValid, addDays } from 'date-fns';
 import { DayOfWeek } from '@/types/door';
-import { getWeekKey } from '@/utils/weekUtils';
+import { getActiveWeekKey, isSundayPlanningDay } from '@/utils/weekUtils';
 
 export function useDoorDate() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentDateRange, setCurrentDateRange] = useState('');
   const [currentWeekKey, setCurrentWeekKey] = useState('');
   const [activeDay, setActiveDay] = useState<DayOfWeek>(getCurrentDayOfWeek());
+  const [isPlanningMode, setIsPlanningMode] = useState(false);
 
   // New method to navigate to a specific date without reload
   const navigateToDate = (targetDate: Date) => {
@@ -24,6 +24,9 @@ export function useDoorDate() {
 
   function getCurrentDayOfWeek(): DayOfWeek {
     const dayOfWeek = new Date().getDay();
+    // On Sunday, default to Monday (planning for next week)
+    if (dayOfWeek === 0) return 'M';
+    
     const dayMap: {[key: number]: DayOfWeek} = {
       0: 'Su', 1: 'M', 2: 'T', 3: 'W', 4: 'Th', 5: 'F', 6: 'Sa'
     };
@@ -61,12 +64,22 @@ export function useDoorDate() {
   }, []);
   
   useEffect(() => {
-    // Use centralized getWeekKey for consistency across all features
-    const weekKey = getWeekKey(currentDate);
+    // Check if it's Sunday (planning mode)
+    const isSunday = isSundayPlanningDay(currentDate);
+    setIsPlanningMode(isSunday);
+    
+    // Use getActiveWeekKey which handles Sunday → next week logic
+    const weekKey = getActiveWeekKey(currentDate);
     setCurrentWeekKey(weekKey);
     
-    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
-    const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
+    // For date range display, show the week we're planning/working on
+    let displayDate = currentDate;
+    if (isSunday) {
+      displayDate = addDays(currentDate, 1); // Show next week's range on Sunday
+    }
+    
+    const weekStart = startOfWeek(displayDate, { weekStartsOn: 1 });
+    const weekEnd = endOfWeek(displayDate, { weekStartsOn: 1 });
     const formattedDateRange = `${format(weekStart, 'MM.dd')} - ${format(weekEnd, 'MM.dd')}`;
     setCurrentDateRange(formattedDateRange);
   }, [currentDate]);
@@ -88,6 +101,7 @@ export function useDoorDate() {
     currentDateRange,
     currentWeekKey,
     activeDay,
+    isPlanningMode,
     handlePreviousWeek,
     handleNextWeek,
     selectDayOfWeek,
