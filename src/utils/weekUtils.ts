@@ -69,6 +69,27 @@ export function getTodayAbbrev(): string {
 }
 
 /**
+ * Get tomorrow's day abbreviation (M, T, W, Th, F, Sa, Su)
+ * Respects Sunday planning logic:
+ * - Saturday → Sunday (Su) but this is review day
+ * - Sunday → Monday (M) - next week's first execution day
+ */
+export function getTomorrowAbbrev(date: Date = new Date()): string {
+  const DAY_MAP: Record<number, string> = {
+    1: 'M',
+    2: 'T',
+    3: 'W',
+    4: 'Th',
+    5: 'F',
+    6: 'Sa',
+    0: 'Su',
+  };
+  const tomorrow = addDays(date, 1);
+  const dayOfWeek = tomorrow.getDay();
+  return DAY_MAP[dayOfWeek];
+}
+
+/**
  * Parse a week key to extract year and week number
  */
 export function parseWeekKey(weekKey: string): { year: number; week: number } | null {

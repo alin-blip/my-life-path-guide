@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-import { getWeekKey, getTodayAbbrev } from '@/utils/weekUtils';
+import { getActiveWeekKey, getTodayAbbrev } from '@/utils/weekUtils';
 
 export interface TodayTask {
   id: string;
@@ -19,7 +19,7 @@ export const useTodaysTasks = () => {
   const [bigOne, setBigOne] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const weekKey = getWeekKey();
+  const weekKey = getActiveWeekKey(); // Use getActiveWeekKey for Sunday planning support
   const todayAbbrev = getTodayAbbrev();
 
   const fetchTasks = useCallback(async () => {

@@ -11,11 +11,13 @@ import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { getActiveWeekKey, getTomorrowAbbrev } from '@/utils/weekUtils';
 
 interface TomorrowTask {
   id: string;
   title: string;
   completed: boolean;
+  taskType?: string;
 }
 
 export const EveningRoutineCard: React.FC = () => {
@@ -40,7 +42,8 @@ export const EveningRoutineCard: React.FC = () => {
 
   const today = new Date().toISOString().split('T')[0];
   const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd');
-  const tomorrowDayOfWeek = format(addDays(new Date(), 1), 'EEEE').toLowerCase();
+  // Use centralized getTomorrowAbbrev for consistency (returns M, T, W, etc.)
+  const tomorrowAbbrev = getTomorrowAbbrev();
 
   useEffect(() => {
     loadData();
@@ -73,21 +76,26 @@ export const EveningRoutineCard: React.FC = () => {
         }
       }
 
-      // Load tomorrow's tasks from hot_list_items
-      const weekKey = getWeekKey(addDays(new Date(), 1));
+      // Load tomorrow's tasks from user_tasks (unified table) instead of deprecated hot_list_items
+      // Use getActiveWeekKey with tomorrow's date to respect Sunday planning logic
+      const tomorrowDate = addDays(new Date(), 1);
+      const weekKey = getActiveWeekKey(tomorrowDate);
+      
       const { data: tasksData } = await supabase
-        .from('hot_list_items')
+        .from('user_tasks')
         .select('*')
         .eq('user_id', session.user.id)
         .eq('week_key', weekKey)
-        .eq('day_of_week', tomorrowDayOfWeek)
+        .or(`day_of_week.eq.${tomorrowAbbrev},day_of_week.is.null`)
+        .in('task_type', ['hit', 'do'])
         .order('priority', { ascending: true });
 
       if (tasksData) {
         setTomorrowTasks(tasksData.map(t => ({
           id: t.id,
           title: t.title,
-          completed: t.completed || false
+          completed: t.completed || false,
+          taskType: t.task_type
         })));
       }
     } catch (error) {
@@ -95,13 +103,6 @@ export const EveningRoutineCard: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const getWeekKey = (date: Date) => {
-    const startOfYear = new Date(date.getFullYear(), 0, 1);
-    const days = Math.floor((date.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
-    const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
-    return `${date.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
   };
 
   const handleSave = async () => {
@@ -159,17 +160,21 @@ export const EveningRoutineCard: React.FC = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) return;
 
-      const weekKey = getWeekKey(addDays(new Date(), 1));
+      // Use unified user_tasks table and centralized week key logic
+      const tomorrowDate = addDays(new Date(), 1);
+      const weekKey = getActiveWeekKey(tomorrowDate);
+      
       const { data, error } = await supabase
-        .from('hot_list_items')
+        .from('user_tasks')
         .insert({
           user_id: session.user.id,
+          task_id: crypto.randomUUID(),
           week_key: weekKey,
-          day_of_week: tomorrowDayOfWeek,
+          day_of_week: tomorrowAbbrev,
           day: tomorrow,
           title: newTaskTitle.trim(),
-          item_id: crypto.randomUUID(),
           list_type: 'hit',
+          task_type: 'hit',
           completed: false,
           priority: tomorrowTasks.length + 1
         })
@@ -182,7 +187,8 @@ export const EveningRoutineCard: React.FC = () => {
         setTomorrowTasks([...tomorrowTasks, {
           id: data.id,
           title: data.title,
-          completed: false
+          completed: false,
+          taskType: 'hit'
         }]);
         setNewTaskTitle('');
       }
@@ -193,8 +199,9 @@ export const EveningRoutineCard: React.FC = () => {
 
   const handleDeleteTask = async (taskId: string) => {
     try {
+      // Use unified user_tasks table
       const { error } = await supabase
-        .from('hot_list_items')
+        .from('user_tasks')
         .delete()
         .eq('id', taskId);
 
@@ -211,8 +218,9 @@ export const EveningRoutineCard: React.FC = () => {
     if (!task) return;
 
     try {
+      // Use unified user_tasks table
       const { error } = await supabase
-        .from('hot_list_items')
+        .from('user_tasks')
         .update({ completed: !task.completed })
         .eq('id', taskId);
 

@@ -63,6 +63,12 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
   // Project selection dialog state
   const [showProjectSelectionDialog, setShowProjectSelectionDialog] = useState(false);
   
+  // Overwrite protection state
+  const [showOverwriteWarning, setShowOverwriteWarning] = useState(false);
+  const [showFinalConfirmation, setShowFinalConfirmation] = useState(false);
+  const [pendingSelections, setPendingSelections] = useState<ProjectSaveSelection[]>([]);
+  const [existingMissionsInfo, setExistingMissionsInfo] = useState<string[]>([]);
+  
   // Voice input state
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -320,8 +326,83 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
     setShowProjectSelectionDialog(true);
   };
 
+  // Check for existing missions before saving (overwrite protection)
+  const checkForExistingMissions = async (selections: ProjectSaveSelection[]) => {
+    if (selections.length === 0) return;
+
+    setIsProcessing(true);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
+        throw new Error('Not authenticated');
+      }
+
+      const userId = session.session.user.id;
+      const now = new Date();
+      const year = now.getFullYear();
+
+      // Check for existing missions in this category
+      const { data: existingMissions } = await supabase
+        .from('missions')
+        .select('mission_type, period, project_name')
+        .eq('user_id', userId)
+        .eq('category', category);
+
+      if (existingMissions && existingMissions.length > 0) {
+        // Build list of what will be overwritten
+        const projectNames = selections.map(s => projects[s.projectIndex]?.name).filter(Boolean);
+        const matchingMissions = existingMissions.filter(m => 
+          projectNames.includes(m.project_name || '')
+        );
+
+        if (matchingMissions.length > 0) {
+          const infoList = matchingMissions.map(m => 
+            `${m.mission_type === 'annual' ? 'Anual' : m.mission_type === 'quarterly' ? '90 zile' : 'Lunar'}: ${m.project_name}`
+          );
+          setExistingMissionsInfo(infoList);
+          setPendingSelections(selections);
+          setShowOverwriteWarning(true);
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      // No conflicts, proceed directly
+      await executeProjectSave(selections);
+    } catch (error) {
+      console.error('Error checking existing missions:', error);
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle first confirmation
+  const handleFirstConfirmation = () => {
+    setShowOverwriteWarning(false);
+    setShowFinalConfirmation(true);
+  };
+
+  // Handle final confirmation and execute save
+  const handleFinalConfirmation = async () => {
+    setShowFinalConfirmation(false);
+    await executeProjectSave(pendingSelections);
+  };
+
+  // Cancel overwrite
+  const handleCancelOverwrite = () => {
+    setShowOverwriteWarning(false);
+    setShowFinalConfirmation(false);
+    setPendingSelections([]);
+    setExistingMissionsInfo([]);
+    setIsProcessing(false);
+  };
+
   // Save selected projects from dialog
   const handleSaveSelectedProjects = async (selections: ProjectSaveSelection[]) => {
+    await checkForExistingMissions(selections);
+  };
+
+  // Execute the actual save
+  const executeProjectSave = async (selections: ProjectSaveSelection[]) => {
     if (selections.length === 0) return;
 
     setIsProcessing(true);
@@ -452,23 +533,31 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
               day: k.day
             }));
 
+            // FIX: Add category filter to prevent cross-category overwrites
             const { data: existingPlan } = await supabase
               .from('weekly_planning')
-              .select('id, key_points')
+              .select('id, key_points, category')
               .eq('user_id', userId)
               .eq('week_key', weekKey)
-              .single();
+              .eq('category', category) // CRITICAL: Filter by category!
+              .maybeSingle(); // Use maybeSingle to avoid errors when no plan exists
 
             if (existingPlan) {
+              // Append to existing plan for this category
               const existingKeyPoints = (existingPlan.key_points as any[]) || [];
               await supabase
                 .from('weekly_planning')
-                .update({ key_points: [...existingKeyPoints, ...keyPoints] })
+                .update({ 
+                  key_points: [...existingKeyPoints, ...keyPoints],
+                  updated_at: new Date().toISOString()
+                })
                 .eq('id', existingPlan.id);
             } else {
+              // Create new plan for this category
               await supabase.from('weekly_planning').insert([{
                 user_id: userId,
                 week_key: weekKey,
+                category: category, // Ensure category is set
                 domino_title: project.milestones.weekOne || project.name,
                 week_goal: project.name,
                 key_points: keyPoints
@@ -630,6 +719,73 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         category={category}
         onSaveProjects={handleSaveSelectedProjects}
       />
+
+      {/* Overwrite Warning Dialog (First Confirmation) */}
+      <Dialog open={showOverwriteWarning} onOpenChange={handleCancelOverwrite}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-amber-500 flex items-center gap-2">
+              ⚠️ {language === 'en' ? 'Existing Objectives Found' : 'Obiective Existente Găsite'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-muted-foreground mb-3">
+              {language === 'en' 
+                ? 'The following objectives will be overwritten:' 
+                : 'Următoarele obiective vor fi rescrise:'}
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-sm bg-muted/50 p-3 rounded-lg">
+              {existingMissionsInfo.map((info, i) => (
+                <li key={i}>{info}</li>
+              ))}
+            </ul>
+            <p className="mt-4 text-sm font-medium">
+              {language === 'en' 
+                ? 'Are you sure you want to continue?' 
+                : 'Ești sigur că vrei să continui?'}
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={handleCancelOverwrite}>
+              {language === 'en' ? 'Cancel' : 'Anulează'}
+            </Button>
+            <Button variant="destructive" onClick={handleFirstConfirmation}>
+              {language === 'en' ? 'Yes, Continue' : 'Da, Continuă'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Final Confirmation Dialog (Second Confirmation) */}
+      <Dialog open={showFinalConfirmation} onOpenChange={handleCancelOverwrite}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              🛑 {language === 'en' ? 'Final Confirmation' : 'Confirmare Finală'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-muted-foreground">
+              {language === 'en' 
+                ? 'This action CANNOT be undone. The old data will be permanently replaced.' 
+                : 'Această acțiune NU poate fi anulată. Datele vechi vor fi înlocuite permanent.'}
+            </p>
+            <p className="mt-3 font-semibold">
+              {language === 'en' 
+                ? 'Do you confirm the overwrite?' 
+                : 'Confirmi suprascrierea?'}
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={handleCancelOverwrite}>
+              {language === 'en' ? 'No, Go Back' : 'Nu, Înapoi'}
+            </Button>
+            <Button variant="destructive" onClick={handleFinalConfirmation}>
+              {language === 'en' ? 'Yes, Overwrite' : 'Da, Suprascrie'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };

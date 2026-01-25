@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, Check, Target, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/context/ThemeContext';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
-import { getWeekKey } from '@/utils/weekUtils';
+import { getActiveWeekKey } from '@/utils/weekUtils';
 import { toast } from 'sonner';
 import { PlanningResult } from '@/types/door';
 
@@ -78,7 +78,7 @@ export const KeyPointsDefinitionFlow: React.FC<KeyPointsDefinitionFlowProps> = (
     setIsSaving(true);
     
     try {
-      const weekKey = getWeekKey();
+      const weekKey = getActiveWeekKey(); // Use getActiveWeekKey for Sunday planning support
       
       const formattedKeyPoints: PlanningResult['keyPoints'] = keyPoints.map((kp, index) => ({
         id: index + 1,
