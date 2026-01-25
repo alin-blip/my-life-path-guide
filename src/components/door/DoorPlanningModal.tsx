@@ -317,13 +317,19 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   // Smart auto-scroll: only scroll if user is already at bottom
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   
-  const handleScrollCapture = () => {
-    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
-    if (viewport) {
+  // Attach scroll listener directly to the viewport element for reliable detection
+  useEffect(() => {
+    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+    if (!viewport) return;
+    
+    const handleScroll = () => {
       const isAtBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 50;
       setUserScrolledUp(!isAtBottom);
-    }
-  };
+    };
+    
+    viewport.addEventListener('scroll', handleScroll, { passive: true });
+    return () => viewport.removeEventListener('scroll', handleScroll);
+  }, [planningStep, selectedDomain]); // Re-attach when these change
 
   // Auto-scroll only when user is at bottom or sends a new message
   useEffect(() => {
@@ -782,7 +788,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           ) : (
             <>
               <div className="flex-1 min-h-0 overflow-hidden">
-              <ScrollArea className="h-full px-6 py-4" ref={scrollAreaRef} onScrollCapture={handleScrollCapture}>
+              <ScrollArea className="h-full px-6 py-4" ref={scrollAreaRef}>
                 <div className="space-y-4">
                   {previousWeekData && !isSkippingReview && reviewStats.reviewComplete && (
                     <ReviewProgressStats
