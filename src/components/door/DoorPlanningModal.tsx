@@ -163,6 +163,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       const messagesForAI = cappedMessages.slice(-MAX_MESSAGES_TO_SEND);
 
       setMessages(cappedMessages);
+      setUserScrolledUp(false); // Reset scroll on voice send
       setInput('');
       setIsLoading(true);
       setQuestionsAnswered(prev => prev + 1);
@@ -313,10 +314,28 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     }
   }, [messages, questionsAnswered, isSkippingReview, draftKey, selectedDomain]);
 
-  // Auto-scroll to bottom when messages change
+  // Smart auto-scroll: only scroll if user is already at bottom
+  const [userScrolledUp, setUserScrolledUp] = useState(false);
+  
+  const handleScrollCapture = () => {
+    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+    if (viewport) {
+      const isAtBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 50;
+      setUserScrolledUp(!isAtBottom);
+    }
+  };
+
+  // Auto-scroll only when user is at bottom or sends a new message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+    if (!userScrolledUp) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isLoading, userScrolledUp]);
+
+  // Reset scroll flag when user sends a message
+  const resetScrollOnSend = () => {
+    setUserScrolledUp(false);
+  };
 
   const handleDomainSelect = (domain: DomainCategory) => {
     setSelectedDomain(domain);
@@ -396,6 +415,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading || !selectedDomain) return;
+    resetScrollOnSend();
 
     const userMessage: Message = { role: 'user', content: input.trim() };
     const nextMessages = [...messagesRef.current, userMessage];
@@ -761,7 +781,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
             </div>
           ) : (
             <>
-              <ScrollArea className="flex-1 px-6 py-4" ref={scrollAreaRef}>
+              <div className="flex-1 min-h-0 overflow-hidden">
+              <ScrollArea className="h-full px-6 py-4" ref={scrollAreaRef} onScrollCapture={handleScrollCapture}>
                 <div className="space-y-4">
                   {previousWeekData && !isSkippingReview && reviewStats.reviewComplete && (
                     <ReviewProgressStats
@@ -799,6 +820,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
+              </div>
 
               <div className="px-6 pb-6 border-t pt-4 space-y-3">
                 <div className="space-y-2">
