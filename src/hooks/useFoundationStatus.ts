@@ -70,13 +70,21 @@ export const useFoundationStatus = (): FoundationStatus => {
       const userId = session.user.id;
       const today = new Date();
       const todayStr = format(today, 'yyyy-MM-dd');
-      const weekKey = `${getYear(today)}-W${getISOWeek(today).toString().padStart(2, '0')}`;
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const todayDayName = dayNames[today.getDay()];
-
+      
+      // IMPORTANT: On Sundays, planning is for NEXT week (consistent with Door system)
+      const isSunday = today.getDay() === 0;
+      let targetDate = today;
+      if (isSunday) {
+        // Move to next Monday for week calculation
+        targetDate = new Date(today);
+        targetDate.setDate(today.getDate() + 1);
+      }
+      
+      const weekKey = `${getYear(targetDate)}-W${getISOWeek(targetDate).toString().padStart(2, '0')}`;
       // Build week key in the door-week format
-      const doorWeekKey = `door-week-${getYear(today)}-${getISOWeek(today).toString().padStart(2, '0')}`;
-
+      const doorWeekKey = `door-week-${getYear(targetDate)}-${getISOWeek(targetDate).toString().padStart(2, '0')}`;
       // Fetch all data in parallel
       const [
         annualMissionsResult,
