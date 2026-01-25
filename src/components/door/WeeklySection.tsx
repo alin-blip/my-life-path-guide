@@ -418,6 +418,21 @@ export const WeeklySection: React.FC = () => {
           </div>
         )}
 
+        {/* Sunday Planning Mode Indicator */}
+        {new Date().getDay() === 0 && (
+          <div className="bg-primary/10 border border-primary/20 p-3 rounded-lg mb-4 flex items-center gap-3">
+            <span className="text-xl">📅</span>
+            <div>
+              <p className="text-sm font-medium text-primary">
+                Duminică - Mod Planificare
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Planifici pentru săptămâna viitoare (Luni - Sâmbătă). Review + Setează Domino + Distribuie task-uri.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Weekly Planning Notification - only on desktop */}
         {!isMobile && <WeeklyPlanningNotification onStartPlanning={handleStartPlanningFromNotification} />}
 

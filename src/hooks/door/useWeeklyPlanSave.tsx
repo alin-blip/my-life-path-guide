@@ -32,8 +32,14 @@ export function useWeeklyPlanSave() {
     // Always save to local draft first (instant, synchronous)
     saveDraft(currentWeekKey, selectedDomino, dominoKeyPoints);
 
-    // Skip if no meaningful data to save
-    if (!selectedDomino && !dominoKeyPoints.some(kp => kp.text || kp.metadata)) {
+    // CRITICAL: Skip if no domino title - prevents creating empty/corrupted plans
+    if (!selectedDomino?.text?.trim()) {
+      console.log('⚠️ Skipping cloud save - no domino title set');
+      return true;
+    }
+
+    // Skip if no meaningful key points data
+    if (!dominoKeyPoints.some(kp => kp.text || kp.metadata)) {
       return true;
     }
 
