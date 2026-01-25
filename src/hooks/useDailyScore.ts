@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useProgress } from '@/context/ProgressContext';
 import { useDoor } from '@/context/DoorContext';
 import { supabase } from '@/integrations/supabase/client';
-import { getWeekKey } from '@/utils/weekUtils';
+import { getActiveWeekKey } from '@/utils/weekUtils';
 interface BigOne {
   text: string | null;
   completed: boolean;
@@ -129,7 +129,7 @@ export const useDailyScore = () => {
       
       if (!bigOneFound) {
         // 2 & 3. Check weekly_planning for Domino Door or Key Points
-        const weekKey = getWeekKey();
+        const weekKey = getActiveWeekKey();
         const { data: weeklyPlan } = await supabase
           .from('weekly_planning')
           .select('domino_title, key_points')

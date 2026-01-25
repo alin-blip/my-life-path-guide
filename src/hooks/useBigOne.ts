@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-import { getWeekKey } from '@/utils/weekUtils';
+import { getActiveWeekKey } from '@/utils/weekUtils';
 
 interface KeyPoint {
   title: string;
@@ -27,7 +27,7 @@ export const useBigOne = (): UseBigOneReturn => {
   const [isSaving, setIsSaving] = useState(false);
 
   const today = format(new Date(), 'yyyy-MM-dd');
-  const weekKey = getWeekKey();
+  const weekKey = getActiveWeekKey(); // Use getActiveWeekKey for Sunday planning support
 
   // Fetch Big One - Priority: 1) weekly_planning.key_points (first incomplete), 2) champion_routine_logs
   const fetchBigOne = useCallback(async () => {
