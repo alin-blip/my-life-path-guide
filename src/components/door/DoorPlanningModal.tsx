@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic, CheckCircle, Cloud, CloudOff, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlanningResult, PreviousWeekData, DayOfWeek } from '@/types/door';
@@ -797,7 +797,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           ) : (
             <>
               <div className="flex-1 min-h-0 overflow-hidden">
-              <ScrollArea className="h-full" ref={scrollAreaRef}>
+              <ScrollArea className="h-full pr-4" ref={scrollAreaRef}>
                 <div className="px-6 py-4">
                 <div className="space-y-4">
                   {previousWeekData && !isSkippingReview && reviewStats.reviewComplete && (
@@ -836,6 +836,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                   <div ref={messagesEndRef} />
                 </div>
                 </div>
+                <ScrollBar orientation="vertical" className="visible" />
               </ScrollArea>
               </div>
 
