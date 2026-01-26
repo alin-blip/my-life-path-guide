@@ -339,7 +339,10 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     if (!userScrolledUp) {
       const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
       if (viewport) {
-        viewport.scrollTop = viewport.scrollHeight;
+        // Use setTimeout to ensure DOM is fully updated before scrolling
+        setTimeout(() => {
+          viewport.scrollTop = viewport.scrollHeight;
+        }, 0);
       }
     }
   }, [messages, isLoading, userScrolledUp]);
