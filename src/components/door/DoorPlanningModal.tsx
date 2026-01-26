@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic, CheckCircle, Cloud, CloudOff, ArrowLeft } from 'lucide-react';
+import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic, CheckCircle, Cloud, CloudOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlanningResult, PreviousWeekData, DayOfWeek } from '@/types/door';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
@@ -18,8 +18,7 @@ import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '@/components/stack/VoiceInputButton';
 import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
 import { ReviewProgressStats } from './ReviewProgressStats';
-import { DomainSelector, DomainCategory, DOMAINS } from './DomainSelector';
-import { ContinuePlanningDialog } from './ContinuePlanningDialog';
+import { DomainCategory, DOMAINS } from './DomainSelector';
 import { awardXP } from '@/services/xpService';
 
 interface Message {
@@ -41,7 +40,7 @@ interface DoorPlanningModalProps {
   selectedObjectives?: SelectedObjective[];
 }
 
-type PlanningStep = 'domain-select' | 'planning' | 'continue-prompt';
+type PlanningStep = 'planning';
 
 export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   isOpen,
@@ -53,9 +52,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const currentWeekKey = getWeekKeyForPlanning();
   
   // Planning step state
-  const [planningStep, setPlanningStep] = useState<PlanningStep>('domain-select');
-  const [selectedDomain, setSelectedDomain] = useState<DomainCategory | null>(null);
-  const [completedDomains, setCompletedDomains] = useState<DomainCategory[]>([]);
+ // SIMPLIFIED: Always use 'business' category, no domain selection needed
+ const [planningStep] = useState<PlanningStep>('planning');
+ const [selectedDomain] = useState<DomainCategory>('business');
   
   const draftKey = `doorPlanningDraft_${currentWeekKey}_${selectedDomain || 'business'}`;
   
@@ -213,20 +212,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const totalQuestions = previousWeekData ? 22 : 18;
   const progress = (questionsAnswered / totalQuestions) * 100;
 
-  // Load completed domains on open
-  useEffect(() => {
-    if (isOpen) {
-      weeklyPlanningService.getCompletedDomainsForWeek(currentWeekKey).then(domains => {
-        setCompletedDomains(domains);
-      });
-    }
-  }, [isOpen, currentWeekKey]);
-
   // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
-      setPlanningStep('domain-select');
-      setSelectedDomain(null);
       setMessages([]);
       setQuestionsAnswered(0);
       setDraftLoaded(false);
@@ -360,21 +348,6 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     setUserScrolledUp(false);
   };
 
-  const handleDomainSelect = (domain: DomainCategory) => {
-    setSelectedDomain(domain);
-    setPlanningStep('planning');
-    // Reset scroll state for new domain
-    setUserScrolledUp(false);
-  };
-
-  const handleBackToDomainSelect = () => {
-    setPlanningStep('domain-select');
-    setSelectedDomain(null);
-    setMessages([]);
-    setQuestionsAnswered(0);
-    setDraftLoaded(false);
-  };
-
   const startConversation = async (forceSkip: boolean = false) => {
     if (!selectedDomain) return;
     
@@ -438,7 +411,6 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       title: 'Draft șters',
       description: 'Conversația salvată a fost ștearsă.',
     });
-    handleBackToDomainSelect();
   };
 
   const handleSendMessage = async () => {
@@ -491,45 +463,12 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   };
 
   const handlePlanningComplete = (planningData: PlanningResult) => {
-    if (!selectedDomain) return;
-    
     // Award XP for completing weekly planning
     awardXP('weekly_planning');
     
-    // Add domain to completed list
-    setCompletedDomains(prev => [...prev, selectedDomain]);
-    
-    // Check if there are remaining domains
-    const allDomains: DomainCategory[] = ['business', 'body', 'being', 'balance'];
-    const remaining = allDomains.filter(d => !completedDomains.includes(d) && d !== selectedDomain);
-    
-    if (remaining.length > 0) {
-      // Show continue dialog
-      setPlanningStep('continue-prompt');
-    } else {
-      // All domains done
-      onPlanningComplete(planningData);
-      onClose();
-    }
-  };
-
-  const handleContinueWithDomain = (domain: DomainCategory) => {
-    // Reset for new domain
-    setMessages([]);
-    setQuestionsAnswered(0);
-    setDraftLoaded(false);
-    setIsSkippingReview(false);
-    setLastCloudSave(null);
-    setPreviousWeekData(undefined);
-    
-    // Start new domain
-    setSelectedDomain(domain);
-    setPlanningStep('planning');
-  };
-
-  const handleFinishPlanning = () => {
-    onPlanningComplete();
-    onClose();
+     // Simplified: just complete and close
+     onPlanningComplete(planningData);
+     onClose();
   };
 
   const streamChat = async ({ mode, previousWeekData, messages: chatMessages }: {
@@ -723,44 +662,26 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     setInputMode(prev => prev === 'text' ? 'voice' : 'text');
   };
 
-  const selectedDomainConfig = selectedDomain ? DOMAINS.find(d => d.id === selectedDomain) : null;
-  const remainingDomains = (['business', 'body', 'being', 'balance'] as DomainCategory[])
-    .filter(d => !completedDomains.includes(d) && d !== selectedDomain);
+   const selectedDomainConfig = DOMAINS.find(d => d.id === 'business');
 
   return (
     <>
-      <Dialog open={isOpen && planningStep !== 'continue-prompt'} onOpenChange={onClose}>
+       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-0">
           <DialogHeader className="px-6 pt-6 pb-4 border-b">
             <DialogTitle className="flex items-center justify-between text-xl">
               <div className="flex items-center gap-2">
-                {planningStep === 'planning' && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleBackToDomainSelect}
-                    className="mr-1"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </Button>
-                )}
                 <Sparkles className="w-5 h-5 text-purple-500" />
-                {planningStep === 'domain-select' ? (
-                  'Domino Door Planning'
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <span className={selectedDomainConfig?.color}>
-                      {selectedDomainConfig?.labelRo}
-                    </span>
-                    {previousWeekData && !isSkippingReview && (
-                      <span className="text-sm font-normal text-muted-foreground">
-                        (cu review)
-                      </span>
-                    )}
-                  </span>
-                )}
+                 <span className="flex items-center gap-2">
+                   Domino Door Planning
+                   {previousWeekData && !isSkippingReview && (
+                     <span className="text-sm font-normal text-muted-foreground">
+                       (cu review)
+                     </span>
+                   )}
+                 </span>
               </div>
-              {planningStep === 'planning' && messages.length > 0 && (
+               {messages.length > 0 && (
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     {isSaving ? (
@@ -792,15 +713,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
             </DialogTitle>
           </DialogHeader>
 
-          {planningStep === 'domain-select' ? (
-            <div className="p-6">
-              <DomainSelector
-                selectedDomain={selectedDomain}
-                onSelectDomain={handleDomainSelect}
-                completedDomains={completedDomains}
-              />
-            </div>
-          ) : isLoadingPreviousData ? (
+           {isLoadingPreviousData ? (
             <div className="flex-1 flex items-center justify-center py-12">
               <div className="text-center space-y-3">
                 <Loader2 className="w-8 h-8 animate-spin mx-auto text-purple-500" />
@@ -946,17 +859,6 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           )}
         </DialogContent>
       </Dialog>
-
-      {selectedDomain && (
-        <ContinuePlanningDialog
-          isOpen={planningStep === 'continue-prompt'}
-          onClose={() => setPlanningStep('planning')}
-          completedDomain={selectedDomain}
-          remainingDomains={remainingDomains}
-          onContinue={handleContinueWithDomain}
-          onFinish={handleFinishPlanning}
-        />
-      )}
     </>
   );
 };
