@@ -316,16 +316,15 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
   // Smart auto-scroll: only scroll if user is already at bottom
   const [userScrolledUp, setUserScrolledUp] = useState(false);
+  const isScrollingRef = useRef(false);
   
   // Attach scroll listener directly to the viewport element for reliable detection
   useEffect(() => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
     if (!viewport) return;
     
-    // Enable smooth scrolling on the viewport
-    viewport.style.scrollBehavior = 'smooth';
-    
     const handleScroll = () => {
+      if (isScrollingRef.current) return; // Ignore scroll events during programmatic scrolling
       const isAtBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 50;
       setUserScrolledUp(!isAtBottom);
     };
@@ -334,15 +333,24 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     return () => viewport.removeEventListener('scroll', handleScroll);
   }, [planningStep, selectedDomain]);
 
-  // Auto-scroll using direct viewport manipulation (scrollIntoView doesn't work with Radix ScrollArea)
+  // Auto-scroll using requestAnimationFrame for better timing
   useEffect(() => {
     if (!userScrolledUp) {
       const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
       if (viewport) {
-        // Use setTimeout to ensure DOM is fully updated before scrolling
-        setTimeout(() => {
-          viewport.scrollTop = viewport.scrollHeight;
-        }, 0);
+        // Use requestAnimationFrame for better DOM sync
+        isScrollingRef.current = true;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            viewport.style.scrollBehavior = 'auto';
+            viewport.scrollTop = viewport.scrollHeight;
+            // Re-enable smooth scrolling after programmatic scroll
+            setTimeout(() => {
+              viewport.style.scrollBehavior = 'smooth';
+              isScrollingRef.current = false;
+            }, 50);
+          });
+        });
       }
     }
   }, [messages, isLoading, userScrolledUp]);
@@ -355,6 +363,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const handleDomainSelect = (domain: DomainCategory) => {
     setSelectedDomain(domain);
     setPlanningStep('planning');
+    // Reset scroll state for new domain
+    setUserScrolledUp(false);
   };
 
   const handleBackToDomainSelect = () => {
@@ -367,6 +377,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
   const startConversation = async (forceSkip: boolean = false) => {
     if (!selectedDomain) return;
+    
+    // Force scroll to bottom when starting conversation
+    setUserScrolledUp(false);
     
     setIsLoading(true);
     
