@@ -797,7 +797,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           ) : (
             <>
               <div className="flex-1 min-h-0 overflow-hidden">
-              <ScrollArea className="h-full px-6 py-4" ref={scrollAreaRef}>
+              <ScrollArea className="h-full" ref={scrollAreaRef}>
+                <div className="px-6 py-4">
                 <div className="space-y-4">
                   {previousWeekData && !isSkippingReview && reviewStats.reviewComplete && (
                     <ReviewProgressStats
@@ -833,6 +834,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                     </div>
                   )}
                   <div ref={messagesEndRef} />
+                </div>
                 </div>
               </ScrollArea>
               </div>
