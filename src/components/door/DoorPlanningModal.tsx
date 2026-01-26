@@ -322,6 +322,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
     if (!viewport) return;
     
+    // Enable smooth scrolling on the viewport
+    viewport.style.scrollBehavior = 'smooth';
+    
     const handleScroll = () => {
       const isAtBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 50;
       setUserScrolledUp(!isAtBottom);
@@ -329,12 +332,15 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     
     viewport.addEventListener('scroll', handleScroll, { passive: true });
     return () => viewport.removeEventListener('scroll', handleScroll);
-  }, [planningStep, selectedDomain]); // Re-attach when these change
+  }, [planningStep, selectedDomain]);
 
-  // Auto-scroll only when user is at bottom or sends a new message
+  // Auto-scroll using direct viewport manipulation (scrollIntoView doesn't work with Radix ScrollArea)
   useEffect(() => {
     if (!userScrolledUp) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
     }
   }, [messages, isLoading, userScrolledUp]);
 
