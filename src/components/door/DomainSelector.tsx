@@ -96,13 +96,12 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({
             <button
               key={domain.id}
               onClick={() => onSelectDomain(domain.id)}
-              disabled={isCompleted}
               className={cn(
                 "relative p-4 rounded-xl border-2 transition-all text-left",
                 isSelected 
                   ? `${domain.bgColor} border-current ${domain.color}` 
                   : isCompleted
-                    ? "bg-muted/50 border-border opacity-60 cursor-not-allowed"
+                    ? `${domain.bgColor} border-green-500/50 opacity-80`
                     : `${domain.bgColor} border-transparent hover:border-current`
               )}
             >
