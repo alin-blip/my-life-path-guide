@@ -4,7 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+// NOTE: We intentionally avoid Radix ScrollArea here because it has proven
+// unreliable in this modal (scroll getting stuck). A native overflow container
+// is more predictable across browsers/devices.
 import { Loader2, Send, Sparkles, SkipForward, Keyboard, Mic, CheckCircle, Cloud, CloudOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlanningResult, PreviousWeekData, DayOfWeek } from '@/types/door';
@@ -124,7 +126,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     failedKeys: 0,
     reviewComplete: false
   });
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const chatViewportRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const saveTimerRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
@@ -306,9 +308,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const isScrollingRef = useRef(false);
   
-  // Attach scroll listener directly to the viewport element for reliable detection
+  // Attach scroll listener directly to the scroll container for reliable detection
   useEffect(() => {
-    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+    const viewport = chatViewportRef.current;
     if (!viewport) return;
     
     const handleScroll = () => {
@@ -324,24 +326,41 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   // Auto-scroll using requestAnimationFrame for better timing
   useEffect(() => {
     if (!userScrolledUp) {
-      const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
-      if (viewport) {
-        // Use requestAnimationFrame for better DOM sync
-        isScrollingRef.current = true;
+      const viewport = chatViewportRef.current;
+      if (!viewport) return;
+
+      isScrollingRef.current = true;
+      requestAnimationFrame(() => {
         requestAnimationFrame(() => {
+          // Force a deterministic jump to bottom (no smooth), then restore.
+          viewport.style.scrollBehavior = 'auto';
+          viewport.scrollTop = viewport.scrollHeight;
           requestAnimationFrame(() => {
-            viewport.style.scrollBehavior = 'auto';
             viewport.scrollTop = viewport.scrollHeight;
-            // Re-enable smooth scrolling after programmatic scroll
             setTimeout(() => {
               viewport.style.scrollBehavior = 'smooth';
               isScrollingRef.current = false;
             }, 50);
           });
         });
-      }
+      });
     }
   }, [messages, isLoading, userScrolledUp]);
+
+  // Ensure scroll is initialized correctly when opening (or when a draft loads)
+  useEffect(() => {
+    if (!isOpen) return;
+    if (userScrolledUp) return;
+    const viewport = chatViewportRef.current;
+    if (!viewport) return;
+    requestAnimationFrame(() => {
+      viewport.style.scrollBehavior = 'auto';
+      viewport.scrollTop = viewport.scrollHeight;
+      setTimeout(() => {
+        viewport.style.scrollBehavior = 'smooth';
+      }, 0);
+    });
+  }, [isOpen, draftLoaded, userScrolledUp]);
 
   // Reset scroll flag when user sends a message
   const resetScrollOnSend = () => {
@@ -723,7 +742,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           ) : (
             <>
               <div className="flex-1 min-h-0 overflow-hidden">
-              <ScrollArea className="h-full pr-4" ref={scrollAreaRef}>
+              <div className="h-full overflow-y-auto pr-4" ref={chatViewportRef}>
                 <div className="px-6 py-4">
                 <div className="space-y-4">
                   {previousWeekData && !isSkippingReview && reviewStats.reviewComplete && (
@@ -759,11 +778,10 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
                       </div>
                     </div>
                   )}
-                  <div ref={messagesEndRef} />
-                </div>
-                </div>
-                <ScrollBar orientation="vertical" className="visible" />
-              </ScrollArea>
+                   <div ref={messagesEndRef} />
+                 </div>
+                 </div>
+               </div>
               </div>
 
               <div className="px-6 pb-6 border-t pt-4 space-y-3">
