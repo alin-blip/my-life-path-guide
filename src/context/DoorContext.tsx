@@ -15,8 +15,10 @@ interface DoorContextValue {
   currentDateRange: string;
   currentWeekKey: string;
   hotList: HotListItem[];
-  hitList: HitListItem[];
-  doList: DoListItem[];
+  hitList: HitListItem[];  // Full unfiltered list
+  doList: DoListItem[];    // Full unfiltered list
+  filteredHitList: HitListItem[];  // Filtered by activeDay
+  filteredDoList: DoListItem[];    // Filtered by activeDay
   searchTerm: string;
   activeDay: DayOfWeek;
   draggedItem: HotListItem | null;
@@ -207,8 +209,10 @@ export function DoorProvider({ children }: DoorProviderProps) {
     currentDateRange,
     currentWeekKey,
     hotList,
-    hitList: filteredHitList,
-    doList: filteredDoList,
+    hitList,      // Full list - TaskList will filter
+    doList,       // Full list - TaskList will filter
+    filteredHitList,
+    filteredDoList,
     searchTerm,
     activeDay,
     draggedItem,
