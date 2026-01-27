@@ -685,8 +685,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
   return (
     <>
-       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-0">
+        <Dialog open={isOpen} onOpenChange={onClose}>
+         {/* IMPORTANT: give the modal a deterministic height; relying only on max-h can break nested overflow scrolling */}
+         <DialogContent className="max-w-2xl h-[80vh] max-h-[80vh] flex flex-col p-0 overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-4 border-b">
             <DialogTitle className="flex items-center justify-between text-xl">
               <div className="flex items-center gap-2">
@@ -741,8 +742,13 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
             </div>
           ) : (
             <>
-              <div className="flex-1 min-h-0 overflow-hidden">
-              <div className="h-full overflow-y-auto pr-4" ref={chatViewportRef}>
+              {/* The chat viewport is the ONLY scrollable area inside the modal */}
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              <div
+                ref={chatViewportRef}
+                className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-4"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
                 <div className="px-6 py-4">
                 <div className="space-y-4">
                   {previousWeekData && !isSkippingReview && reviewStats.reviewComplete && (
