@@ -141,8 +141,10 @@ export function useDoorContent() {
     currentDateRange,
     currentWeekKey,
     hotList,
-    hitList: filteredHitList,
-    doList: filteredDoList,
+    hitList,      // Full list - components will filter as needed
+    doList,       // Full list - components will filter as needed
+    filteredHitList,
+    filteredDoList,
     searchTerm,
     activeDay,
     draggedItem,
