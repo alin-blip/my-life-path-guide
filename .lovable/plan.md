@@ -1,251 +1,339 @@
 
-# 🔬 AUDIT COMPLET PLATFORMĂ WARRIOROS - Raport de Lansare
+# 🔬 AUDIT COMPLET: Domino Door, Obiective & Sincronizare Wizard
 
-## 📊 EXECUTIVE SUMMARY
+## 📊 EXECUTIVE SUMMARY - PROBLEME IDENTIFICATE
 
-| Metrică | Valoare | Status |
-|---------|---------|--------|
-| **Total Utilizatori** | 183 | ✅ Bun pentru MVP |
-| **Leads Totale** | 175 | ✅ Funcțional |
-| **Abonați Activi** | 8 (7 Pro + 1 pro) | ⚠️ Rată de conversie ~4.4% |
-| **Utilizatori Activi (7 zile)** | 7 | ⚠️ Necesită îmbunătățire engagement |
-| **Tabele Bază de Date** | 121 | ✅ Arhitectură completă |
-| **Edge Functions** | 54 | ✅ Backend robust |
-| **Pagini Aplicație** | 76 | ✅ Platformă matură |
+| Componentă | Status | Problemă Principală |
+|------------|--------|---------------------|
+| **Domino Door Afișare** | 🔴 CRITIC | Datele din DB sunt GOALE pentru săptămâna curentă |
+| **Obiective Anuale** | ✅ OK | Funcționează corect (14 misiuni în DB) |
+| **Obiective 90 Zile** | ✅ OK | Funcționează corect |
+| **Obiective Lunare** | ✅ OK | Funcționează corect |
+| **GoalWizardModal** | ⚠️ PARȚIAL | Salvează în `missions`, dar nu sincronizează automat cu Domino Door |
+| **DoorPlanningModal** | ⚠️ PARȚIAL | Funcțional, dar save-ul poate suprascrie cu date goale |
+| **Accountability Coach** | 🔴 CRITIC | NU citește date din DB, nu are context despre obiective |
+
+---
+
+## 🔴 PROBLEMĂ PRINCIPALĂ: Datele Domino Door au fost SUPRASCRISE cu GOLI
+
+### Ce am găsit în baza de date:
+
+```text
+SĂPTĂMÂNA CURENTĂ (door-week-2026-05):
+├── domino_title: "" (GOL!)
+├── key1: "" (GOL!)
+├── key2: "" (GOL!)
+├── key3: "" (GOL!)
+├── key4: "" (GOL!)
+└── updated_at: 2026-01-27 11:59:53 (IERI!)
+
+SĂPTĂMÂNA TRECUTĂ (door-week-2026-04):
+├── domino_title: "Creșterea impactului și a numărului de studenți"
+├── key1: "Business Development"
+├── key2: "Strategic"
+├── key3: "Operațional"
+└── key4: "Marketing Vânzări" ✅
+```
+
+### Cauza Problemei:
+
+**`useWeeklyPlanSave.tsx` (linia 36-38)** are o verificare insuficientă:
+```typescript
+// CRITICAL: Skip if no domino title - prevents creating empty/corrupted plans
+if (!selectedDomino?.text?.trim()) {
+  console.log('⚠️ Skipping cloud save - no domino title set');
+  return true;  // Returnează TRUE dar NU ar trebui să facă nimic
+}
+```
+
+**PROBLEMA**: Această verificare oprește salvarea când NU e domino, dar:
+1. Când componenta Door se încarcă **fără date locale**, trimite un save cu `selectedDomino = null`
+2. Save-ul ar trebui să fie blocat, dar ceva în lanțul de apeluri permite suprascriere
+
+**Cauza reală probabilă**: `useDoorStorage.tsx` (linia 175-218) - efectul care declanșează auto-save:
+```typescript
+useEffect(() => {
+  if (initialLoadRef.current || isReloadingRef.current) {
+    return;  // Protecție insuficientă
+  }
+  // ... auto-save logic
+}, [props.selectedDomino?.text, ...]);
+```
+
+Când user-ul deschide pagina Door:
+1. State-ul se inițializează cu `selectedDomino = null`
+2. `useDoorStorageLoad` încarcă datele din cloud
+3. **ÎNAINTE** ca load-ul să se termine, efectul de auto-save detectează că `selectedDomino` s-a schimbat (de la nimic la nimic)
+4. Se declanșează save-ul cu date goale → SUPRASCRIE planul valid din cloud
+
+---
+
+## 🔴 PROBLEMĂ #2: Accountability Coach NU are context despre obiective
+
+### Cod actual (`supabase/functions/accountability-coach/index.ts`):
+
+```typescript
+// Linia 38-43: Primește doar messages și systemPrompt
+const { messages, systemPrompt, language } = await req.json();
+
+// NU citește nimic din DB despre user:
+// - NU citește missions (obiective anuale/90z/lunare)
+// - NU citește weekly_planning (Domino Door)
+// - NU citește user_tasks (sarcini zilnice)
+```
+
+**Rezultat**: AI Coach-ul nu știe ce obiective are user-ul și nu poate da sfaturi contextualizate.
+
+---
+
+## ⚠️ PROBLEMĂ #3: GoalWizardModal NU sincronizează automat cu Domino Door
+
+### Flow actual:
+1. User completează GoalWizardModal pentru obiectiv anual/90z/lunar
+2. Se salvează în tabelul `missions`
+3. Dacă user alege "Massive Objective", se salvează și în `weekly_planning`
+4. **DAR**: Nu se actualizează UI-ul Domino Door automat
+
+### Cod relevant (`GoalWizardModal.tsx` linia 536-565):
+```typescript
+if (selection.saveType === 'massive' && selection.keys) {
+  // Salvează în weekly_planning
+  await supabase.from('weekly_planning').insert([{
+    user_id: userId,
+    week_key: weekKey,
+    category: category,
+    domino_title: project.milestones.weekOne || project.name,
+    key_points: keyPoints
+  }]);
+}
+```
+
+**PROBLEMA**: Dacă există deja un plan pentru săptămâna curentă:
+- Codul face `insert` care eșuează (duplicate key)
+- SAU în alt caz face `update` care adaugă la key_points existente
+- **NU există o sincronizare clară** care să încarce noul plan în UI
 
 ---
 
 ## ✅ CE FUNCȚIONEAZĂ BINE
 
-### 1. Infrastructură Tehnică (Score: 9/10)
-- **Autentificare**: Sistem robust cu rate limiting, timeout handling, health check
-- **Plăți Stripe**: Webhook complet, 3-tier pricing (Basic/Pro/Elite), trial support
-- **RLS Policies**: Tabele protejate, validare email la nivel DB
-- **Edge Functions**: 54 funcții pentru AI coaching, email sequences, plăți
-- **Real-time**: Subscripții Supabase configurate pentru task-uri
-
-### 2. Lead Magnets & Funnels (Score: 8/10)
+### 1. Structura Obiectivelor în DB (Score: 9/10)
 ```text
-Lead Source Performance:
-├── Vision 2026 Quiz: 61 leads (35%)
-├── Vision Board: 54 leads (31%)
-├── Life Score 60s: 24 leads (14%)
-├── Life Score Quiz: 21 leads (12%)
-├── Warrior Power: 13 leads (7%)
-└── Direct Challenge: 1 lead (<1%)
+Obiective salvate pentru user:
+├── ANNUAL (2026)
+│   ├── Business: "1000 de studenti inrolati Eduforyou"
+│   ├── Body: "90 kg și 7% bodyfat"
+│   ├── Balance: "timp de calitate cu familia"
+│   └── Being: "meditez zilnic 20 minute"
+│
+├── QUARTERLY (Q1-2026)
+│   ├── Business: "400 studenți + 50 Agenți + 3 naționalități"
+│   ├── Body: "10% Bodyfat - 94 kg"
+│   ├── Balance: "conexiunea si iubirea neconditionata"
+│   └── Being: "Crearea meditației spirituale"
+│
+└── MONTHLY (2026-01)
+    ├── Business: "100 studenți cu oferte + 10 agenți activi"
+    ├── Body: "12% - 96 kg"
+    └── Being: "structura meditației în platformă"
 ```
-- Split testing implementat (A/B/C)
-- FB Pixel tracking centralizat
-- Email sequences automate
 
-### 3. Sistemul de Planificare "Door" (Score: 8/10)
-- AI Planning complet funcțional
-- Hit/Hot/Do lists cu persistență
-- Week-based organization
-- Task synchronization între componente
-- FIX RECENT: Double-filtering bug rezolvat pentru schimbarea zilelor
+### 2. Weekly Tasks în DB (Score: 8/10)
+- 20+ task-uri pentru `door-week-2026-05`
+- Task-uri cu categorii ([Business], etc.)
+- Persistență corectă în `user_tasks`
 
-### 4. Challenge 7 Zile (Score: 9/10)
-- Curriculum structurat 7 zile
-- Progress tracking per utilizator
-- Early Bird countdown pentru conversie
-- Days 5-7 marcate Premium pentru upsell
-
-### 5. Monetizare (Score: 9/10)
-```text
-Pricing Structure:
-├── Basic: €49/lună (Early Bird)
-├── Pro: €97/lună + 7 zile trial + LIVE coaching
-├── Elite: €297/lună + Accelerator + 1-on-1
-└── Annual Plans: -60% discount
-```
-- Coach referral program (50% comision recurent)
-- Stripe Connect pentru payouts
+### 3. DoorPlanningModal AI (Score: 9/10)
+- Streaming funcțional cu Gemini 2.5 Pro
+- Tool calling pentru `save_planning`
+- Salvare automată în `weekly_planning`
+- Creare task-uri în `user_tasks` cu `doorUserTasksService`
 
 ---
 
-## ⚠️ PROBLEME CRITICE DE REZOLVAT ÎNAINTE DE LANSARE
+## 🔧 SOLUȚII PROPUSE
 
-### 🔴 CRÍTICO #1: Vulnerabilități Securitate (URGENT)
+### FIX #1: Previne suprascrirea cu date goale (CRITIC)
 
-**A. `warrior_power_results` - Date Expuse Public**
-```
-Risc: Email-uri, telefoane, nume accesibile fără autentificare
-Impact: GDPR violation, spam, phishing
+**Fișier**: `src/hooks/door/useWeeklyPlanSave.tsx`
+
+Modificare la funcția `saveWeeklyPlanOnly`:
+```typescript
+// ÎNAINTE:
+if (!selectedDomino?.text?.trim()) {
+  console.log('⚠️ Skipping cloud save - no domino title set');
+  return true;
+}
+
+// DUPĂ:
+if (!selectedDomino?.text?.trim()) {
+  console.log('⚠️ Skipping cloud save - no domino title set');
+  // IMPORTANT: Nu facem NIMIC dacă nu avem domino valid
+  // Asta previne suprascrirea datelor bune cu date goale
+  return true;
+}
+
+// Adaugă și verificare suplimentară:
+const hasValidKeyPoints = dominoKeyPoints.some(kp => kp.text?.trim());
+if (!hasValidKeyPoints && !selectedDomino?.text?.trim()) {
+  console.log('⚠️ Skipping cloud save - no valid data to save');
+  return true;
+}
 ```
 
-**B. `subscribers` - Date Plăți Expuse**
-```
-Risc: Stripe customer IDs, tier abonament, statusuri vizibile
-Impact: Targeted attacks, fraud potențial
+**Fișier**: `src/hooks/door/useDoorStorageLoad.tsx`
+
+Adaugă un guard mai strict la încărcare:
+```typescript
+// Linia 52-53: Verifică dacă planul are date valide
+if (plan && plan.dominoTitle && plan.dominoTitle.trim() !== '') {
+  // Doar atunci setează domino
+  setters.setSelectedDomino({...});
+}
 ```
 
-**Soluție:**
+### FIX #2: Accountability Coach cu context (IMPORTANT)
+
+**Fișier**: `supabase/functions/accountability-coach/index.ts`
+
+Adaugă citire din DB pentru context:
+```typescript
+// După autentificare, citește datele user-ului
+const { data: missions } = await supabaseClient
+  .from('missions')
+  .select('mission_type, category, title, period')
+  .eq('user_id', user.id)
+  .order('mission_type', { ascending: true });
+
+const { data: weeklyPlan } = await supabaseClient
+  .from('weekly_planning')
+  .select('domino_title, key_points, week_key')
+  .eq('user_id', user.id)
+  .order('updated_at', { ascending: false })
+  .limit(1)
+  .maybeSingle();
+
+// Construiește context pentru AI
+const userContext = `
+OBIECTIVELE UTILIZATORULUI:
+${missions?.map(m => `- ${m.mission_type}: ${m.title}`).join('\n')}
+
+FOCUS SĂPTĂMÂNAL:
+Domino Door: ${weeklyPlan?.domino_title || 'Nu este setat'}
+`;
+```
+
+### FIX #3: Sincronizare GoalWizard → Domino Door
+
+**Fișier**: `src/components/goal-wizard/GoalWizardModal.tsx`
+
+După salvarea în `weekly_planning`, emite un eveniment:
+```typescript
+// După linia 565 (după insert/update în weekly_planning)
+window.dispatchEvent(new CustomEvent('doorDataUpdated', { 
+  detail: { weekKey, category, action: 'wizard-save' } 
+}));
+```
+
+### FIX #4: Restaurare date din backup/istoric
+
+**Acțiune imediată** (SQL query):
 ```sql
--- warrior_power_results: Restrict SELECT to own results
-DROP POLICY IF EXISTS "Users can view own results" ON warrior_power_results;
-CREATE POLICY "Users can view own results" 
-ON warrior_power_results FOR SELECT 
-USING (auth.uid() = user_id);
+-- Verifică dacă există un istoric pentru săptămâna curentă
+SELECT * FROM weekly_planning_history 
+WHERE user_id = '74f5b904-95ba-4aaa-af7a-bee4c7ee6a98'
+  AND week_key = 'door-week-2026-05'
+ORDER BY created_at DESC;
 
--- subscribers: Restrict SELECT to own subscription
-DROP POLICY IF EXISTS "Users can view own subscription" ON subscribers;
-CREATE POLICY "Users can view own subscription" 
-ON subscribers FOR SELECT 
-USING (auth.uid() = user_id);
-
--- Admin access via has_role function
-CREATE POLICY "Admins can view all" 
-ON warrior_power_results FOR SELECT 
-USING (public.has_role(auth.uid(), 'admin'));
-```
-
-### 🔴 CRÍTICO #2: Leaked Password Protection DISABLED
-```
-Locație: Supabase Dashboard → Auth → Settings → Security
-Acțiune: Enable "Leaked Password Protection"
-Timp: 2 minute
-```
-
-### 🟡 ATENȚIE #3: Extension in Public Schema
-```
-pg_net extension în public schema
-Status: Acceptable - Supabase platform limitation
-Acțiune: None required
+-- Sau copiază datele de la săptămâna trecută ca template
+UPDATE weekly_planning 
+SET domino_title = 'Creșterea impactului și a numărului de studenți',
+    key_points = (SELECT key_points FROM weekly_planning WHERE week_key = 'door-week-2026-04' AND user_id = '74f5b904-95ba-4aaa-af7a-bee4c7ee6a98' LIMIT 1)
+WHERE week_key = 'door-week-2026-05' 
+  AND user_id = '74f5b904-95ba-4aaa-af7a-bee4c7ee6a98';
 ```
 
 ---
 
-## 📉 PROBLEME DE ENGAGEMENT/CONVERSIE
+## 📋 PLAN DE IMPLEMENTARE
 
-### A. Rata de Activare Scăzută
+### Pasul 1: Previne suprascrieri viitoare (URGENT)
+1. Modifică `useWeeklyPlanSave.tsx` - adaugă verificări suplimentare
+2. Modifică `useDoorStorage.tsx` - protejează efectul de auto-save
 
-| Metrică | Actual | Target |
-|---------|--------|--------|
-| Stacks completate (7d) | 0 | >10 |
-| Onboarding completat | 0 | >50% |
-| Tasks create (7d) | 7 users | >30 users |
+### Pasul 2: Restaurează datele (IMEDIAT)
+1. Rulează SQL pentru a restaura planul pentru săptămâna curentă
+2. Sau reface planificarea cu AI Planning modal
 
-**Cauze Potențiale:**
-1. Onboarding prea lung/complicat
-2. Lipsa notificărilor push
-3. Prea multe funcții → overwhelm
+### Pasul 3: Îmbunătățește Accountability Coach
+1. Actualizează edge function să citească obiective din DB
+2. Adaugă context despre Domino Door curent
 
-### B. Signups Recente (Trend Pozitiv)
+### Pasul 4: Sincronizare GoalWizard → Door
+1. Adaugă event dispatch după salvare
+2. Door să asculte pentru event și să facă reload
+
+---
+
+## 📊 DIAGNOZĂ TEHNICĂ COMPLETĂ
+
+### Fluxul de Date
+
 ```text
-Ultimele 10 zile:
-24 Jan: 16 signups
-23 Jan: 36 signups ⭐
-22 Jan: 24 signups
-21 Jan: 19 signups
-20 Jan: 2 signups (weekend)
+┌─────────────────────────────────────────────────────────────────┐
+│                        USER INPUT                                │
+├─────────────────────────────────────────────────────────────────┤
+│  GoalWizardModal      DoorPlanningModal      Manual Input       │
+│  (Annual/90d/Monthly)  (AI Planning)          (Direct edit)     │
+└─────────┬─────────────────────┬─────────────────────┬───────────┘
+          │                     │                     │
+          ▼                     ▼                     ▼
+┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────┐
+│     missions        │  │   weekly_planning   │  │   DoorContext   │
+│  (Supabase table)   │  │  (Supabase table)   │  │   (React state) │
+│                     │  │                     │  │                 │
+│  ✅ Funcționează    │  │  ⚠️ Suprascrisă    │  │  🔴 Gol la load │
+└─────────────────────┘  └─────────────────────┘  └────────┬────────┘
+                                                          │
+                         ┌────────────────────────────────┘
+                         ▼
+              ┌─────────────────────────┐
+              │   useDoorStorage        │
+              │                         │
+              │  🔴 BUG: Auto-save      │
+              │  declanșat ÎNAINTE      │
+              │  de load complet        │
+              └─────────────────────────┘
 ```
-- Trafic activ și consistent
-- Weekend drop-off semnificativ
 
-### C. Challenge Progress = 0 Completări
+### Race Condition identificată:
+
+```text
+T+0ms:   DoorProvider se montează
+T+1ms:   State inițializat: selectedDomino = null
+T+5ms:   useEffect pentru auto-save verifică: selectedDomino changed? DA (de la undefined la null)
+T+10ms:  saveWeeklyPlanOnly() apelat cu selectedDomino = null
+T+15ms:  Verificare: "no domino title" → return true (DAR paguba e făcută în alt loc)
+T+50ms:  useDoorStorageLoad încarcă datele din cloud
+T+100ms: selectedDomino setat cu valoarea din DB
+T+101ms: useEffect detectează schimbare → SAVE cu datele noi? NU, pentru că acum e OK
+
+PROBLEMA: La T+15ms, sau din alt efect, s-a făcut un save/upsert cu date goale
 ```
-Tabel onboarding_progress: GOLI
-```
-Nimeni nu a completat challenge-ul integral - necesită investigare:
-- Se salvează corect progresul?
-- Hook `useChallengeProgress` scrie în DB?
 
 ---
 
-## 🔧 PROBLEME TEHNICE MINORE
+## 🎯 CONCLUZIE
 
-### 1. Lipsă Tabel `profiles`
-- Query-ul pentru profiles eșuează
-- Soluție: Verifică dacă e nevoie sau elimină referințele
+**De ce nu apare nimic în Domino Door**:
+Datele din baza de date au fost suprascrise cu valori goale din cauza unei **race condition** între încărcarea datelor și efectul de auto-save.
 
-### 2. Subscription Tier Normalizare
-```
-Rezultat: 7 × "Pro" + 1 × "pro" (lowercase)
-```
-- Inconsistență în salvare
-- Soluție: Normalize în webhook/check-subscription
+**Rezolvare imediată**:
+1. Restaurează datele manual (SQL sau refă planificarea cu AI)
+2. Aplică fix-urile pentru a preveni pe viitor
 
-### 3. Task Types Inconsistente
-```
-week_key formats:
-├── door-week-2026-05 ✅
-├── 2026-W02 ❌ (format diferit)
-└── 2025-W05 ❌ (format diferit)
-```
-- Unele task-uri folosesc format ISO week
-- Poate cauza probleme de filtrare
-
----
-
-## 📋 CHECKLIST PRE-LANSARE
-
-### Securitate (OBLIGATORIU)
-- [ ] Fix RLS pentru `warrior_power_results`
-- [ ] Fix RLS pentru `subscribers`
-- [ ] Enable Leaked Password Protection
-- [ ] Verifică toate edge functions au auth
-
-### Funcționalitate
-- [ ] Test complet flow signup → trial → payment
-- [ ] Verifică email sequences se trimit
-- [ ] Test Stripe webhook în producție
-- [ ] Verifică FB Pixel events în Events Manager
-
-### Performance
-- [ ] Verifică load times pe mobile
-- [ ] Test cu network throttling
-- [ ] Check Supabase query limits (1000 rows)
-
-### Legal/Compliance
-- [ ] Terms of Service actualizați
-- [ ] Privacy Policy GDPR compliant
-- [ ] Cookie consent banner
-- [ ] Unsubscribe funcțional
-
----
-
-## 📈 RECOMANDĂRI PRIORITIZATE
-
-### Prioritate 1 - Critice (Fă ACUM)
-1. **Fixează RLS policies** pentru tabele sensibile
-2. **Enable leaked password protection**
-3. **Verifică challenge progress** nu se salvează
-
-### Prioritate 2 - Înainte de Lansare Publică
-1. Adaugă **email onboarding sequence** pentru noi utilizatori
-2. Implementează **push notifications** sau remindere
-3. **Simplifică** prima experiență - focus pe Challenge
-
-### Prioritate 3 - Post-Lansare
-1. **A/B test** diferite landing pages
-2. **Analytics dashboard** pentru funnel tracking
-3. **Customer success** outreach pentru trial users
-
----
-
-## 🎯 VERDICT FINAL
-
-| Categorie | Score | Status |
-|-----------|-------|--------|
-| Arhitectură Tehnică | 9/10 | ✅ Excelent |
-| Securitate | 6/10 | ⚠️ Necesită fix-uri |
-| Funcționalitate | 8/10 | ✅ Bun |
-| Conversion Funnel | 7/10 | ✅ Funcțional |
-| User Engagement | 4/10 | ⚠️ Problematic |
-| **TOTAL** | **6.8/10** | **⚠️ Ready cu fix-uri** |
-
-### CONCLUZIE
-Platforma este **tehnic pregătită pentru lansare** după rezolvarea celor 2 vulnerabilități de securitate critice. Engagement-ul scăzut necesită atenție post-lansare prin:
-- Simplificarea onboarding-ului
-- Email sequences mai agresive
-- Focus pe "Time to Value" - utilizatorul să vadă rezultate în primele 5 minute
-
----
-
-## 🚀 PAȘI URMĂTORI RECOMANDAȚI
-
-1. **IMEDIAT**: Execut fix-urile de securitate (RLS)
-2. **ASTĂZI**: Enable leaked password protection în dashboard
-3. **SĂPTĂMÂNA ACEASTA**: Investighez de ce challenge progress = 0
-4. **PRE-LANSARE**: Test end-to-end flow cu utilizator real
+**Rezolvare pe termen lung**:
+1. Restructurează logica de save pentru a fi mai defensivă
+2. Adaugă confirmare înainte de a suprascrie un plan existent
+3. Îmbunătățește Accountability Coach cu context real din DB
