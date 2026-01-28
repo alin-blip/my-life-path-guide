@@ -42,6 +42,95 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
+    // ========== FETCH USER CONTEXT FROM DATABASE ==========
+    
+    // 1. Fetch user's missions (annual, quarterly, monthly objectives)
+    const { data: missions } = await supabaseClient
+      .from('missions')
+      .select('mission_type, category, title, period, project_name, measurable_result')
+      .eq('user_id', user.id)
+      .order('mission_type', { ascending: true });
+
+    // 2. Fetch current weekly plan (Domino Door)
+    const { data: weeklyPlan } = await supabaseClient
+      .from('weekly_planning')
+      .select('domino_title, key_points, week_key, category')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // 3. Fetch today's pending tasks
+    const today = new Date();
+    const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+    const todayAbbrev = days[today.getDay()];
+    
+    const { data: todayTasks } = await supabaseClient
+      .from('user_tasks')
+      .select('title, completed, priority, is_key_point')
+      .eq('user_id', user.id)
+      .eq('day_of_week', todayAbbrev)
+      .eq('completed', false)
+      .order('priority', { ascending: true })
+      .limit(10);
+
+    // Build user context string
+    let userContext = '';
+    
+    if (missions && missions.length > 0) {
+      userContext += '\n\n📌 OBIECTIVELE UTILIZATORULUI:\n';
+      
+      // Group by mission type
+      const annual = missions.filter(m => m.mission_type === 'annual');
+      const quarterly = missions.filter(m => m.mission_type === 'quarterly');
+      const monthly = missions.filter(m => m.mission_type === 'monthly');
+      
+      if (annual.length > 0) {
+        userContext += '\n🎯 ANUALE:\n';
+        annual.forEach(m => {
+          userContext += `- ${m.category?.toUpperCase()}: ${m.title}${m.project_name ? ` (${m.project_name})` : ''}\n`;
+        });
+      }
+      
+      if (quarterly.length > 0) {
+        userContext += '\n📊 90 ZILE:\n';
+        quarterly.forEach(m => {
+          userContext += `- ${m.category?.toUpperCase()}: ${m.title}\n`;
+        });
+      }
+      
+      if (monthly.length > 0) {
+        userContext += '\n📅 LUNA ACEASTA:\n';
+        monthly.forEach(m => {
+          userContext += `- ${m.category?.toUpperCase()}: ${m.title}\n`;
+        });
+      }
+    }
+
+    if (weeklyPlan && weeklyPlan.domino_title) {
+      userContext += '\n\n🎲 FOCUS SĂPTĂMÂNAL (DOMINO DOOR):\n';
+      userContext += `Obiectiv principal: ${weeklyPlan.domino_title}\n`;
+      
+      if (weeklyPlan.key_points && Array.isArray(weeklyPlan.key_points)) {
+        userContext += 'Puncte cheie:\n';
+        (weeklyPlan.key_points as any[]).slice(0, 4).forEach((kp: any, i: number) => {
+          if (kp.title) {
+            userContext += `  ${i + 1}. ${kp.title}${kp.deadline ? ` (deadline: ${kp.deadline})` : ''}\n`;
+          }
+        });
+      }
+    }
+
+    if (todayTasks && todayTasks.length > 0) {
+      userContext += '\n\n📋 TASK-URI PENTRU AZI (necompletate):\n';
+      todayTasks.forEach((t: any) => {
+        const icon = t.is_key_point ? '🔑' : '•';
+        userContext += `${icon} ${t.title}\n`;
+      });
+    }
+
+    // ========== BUILD SYSTEM PROMPT WITH CONTEXT ==========
+    
     const defaultSystemPrompt = language === 'ro' 
       ? `Tu ești Accountability Coach-ul personal al utilizatorului în platforma LifeOS.
 
@@ -62,7 +151,9 @@ STILUL TĂU:
 REGULI:
 - Răspunsuri scurte și la obiect (max 3-4 propoziții)
 - Folosește emoji-uri moderat pentru a face conversația prietenoasă
-- Când nu știi ceva, întreabă`
+- Când nu știi ceva, întreabă
+- FOLOSEȘTE CONTEXTUL de mai jos pentru a da sfaturi personalizate
+${userContext}`
       : `You are the user's personal Accountability Coach in the LifeOS platform.
 
 YOUR ROLE:
@@ -81,7 +172,9 @@ YOUR STYLE:
 RULES:
 - Short and to-the-point responses (max 3-4 sentences)
 - Use emojis moderately to make conversation friendly
-- When you don't know something, ask`;
+- When you don't know something, ask
+- USE THE CONTEXT below to give personalized advice
+${userContext}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

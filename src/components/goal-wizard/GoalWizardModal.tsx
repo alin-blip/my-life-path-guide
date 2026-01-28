@@ -583,6 +583,11 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
         }
       }
 
+      // SYNC: Dispatch event to notify Domino Door of data change
+      window.dispatchEvent(new CustomEvent('doorDataUpdated', { 
+        detail: { weekKey, category, action: 'wizard-save' } 
+      }));
+
       toast({
         title: language === 'en' ? 'Goals saved!' : 'Obiective salvate!',
         description: language === 'en' 

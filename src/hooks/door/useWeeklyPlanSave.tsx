@@ -35,11 +35,19 @@ export function useWeeklyPlanSave() {
     // CRITICAL: Skip if no domino title - prevents creating empty/corrupted plans
     if (!selectedDomino?.text?.trim()) {
       console.log('⚠️ Skipping cloud save - no domino title set');
+      return true; // Return early WITHOUT saving - protects existing cloud data
+    }
+
+    // ADDITIONAL GUARD: Skip if no meaningful key points AND no domino
+    const hasValidKeyPoints = dominoKeyPoints.some(kp => kp.text?.trim() || kp.metadata?.objective);
+    if (!hasValidKeyPoints && !selectedDomino?.text?.trim()) {
+      console.log('⚠️ Blocking cloud save - no valid data to save, protecting existing data');
       return true;
     }
 
-    // Skip if no meaningful key points data
+    // Skip if no meaningful key points data (but domino exists - allow save)
     if (!dominoKeyPoints.some(kp => kp.text || kp.metadata)) {
+      console.log('⚠️ Skipping cloud save - no key points data yet');
       return true;
     }
 
