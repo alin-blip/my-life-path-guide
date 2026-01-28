@@ -19,16 +19,19 @@ import {
   Trophy,
   Sparkles,
   ChevronDown,
-  Gift
+  Gift,
+  Rocket
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { plans, getLocalizedPlan } from "@/data/pricing";
 import { LandingEarlyBirdTimer } from "@/components/landing/LandingEarlyBirdTimer";
+import { SocialProofBar } from "@/components/landing/SocialProofBar";
 import { redirectExternal } from "@/lib/externalRedirect";
 
 export default function ChallengeLanding() {
@@ -38,6 +41,12 @@ export default function ChallengeLanding() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [realMetrics, setRealMetrics] = useState({ users: 0, completionRate: 0 });
+  
+  // Lead capture state
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLeadCaptured, setIsLeadCaptured] = useState(false);
 
   const isRo = language === 'ro';
 
@@ -70,7 +79,65 @@ export default function ChallengeLanding() {
   const elitePlan = getLocalizedPlan(plans.find(p => p.id === 'elite')!, language);
 
   const handleTrialStart = () => {
+    if (!isLeadCaptured) {
+      // Scroll to lead form
+      const leadForm = document.getElementById('lead-form');
+      leadForm?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
     navigate('/auth?trial=7&redirect=/challenge');
+  };
+
+  // Lead capture handler for A/B Test Variant B
+  const handleLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('email_leads')
+        .insert({
+          email,
+          name: name || null,
+          lead_magnet: 'challenge_free_trial',
+          source: 'ab_test_variant_b',
+          metadata: {
+            test_name: 'challenge_landing_ab',
+            variant: 'B',
+            signup_date: new Date().toISOString()
+          }
+        });
+
+      if (error && !error.message.includes('duplicate')) {
+        throw error;
+      }
+
+      setIsLeadCaptured(true);
+      toast({
+        title: isRo ? '🎉 Ești înscris!' : '🎉 You\'re in!',
+        description: isRo 
+          ? 'Alege planul tău de transformare mai jos.' 
+          : 'Choose your transformation plan below.',
+      });
+
+      // Scroll to pricing
+      setTimeout(() => {
+        const pricingSection = document.getElementById('pricing');
+        pricingSection?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+    } catch (error) {
+      console.error('Error saving lead:', error);
+      toast({
+        title: isRo ? "Eroare" : "Error",
+        description: isRo 
+          ? "Ceva nu a mers. Te rugăm să încerci din nou." 
+          : "Something went wrong. Please try again.",
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCheckout = async (planId: string) => {
@@ -113,10 +180,10 @@ export default function ChallengeLanding() {
         : "Transform your life in 7 days. Body, Mind, Relationships and Business - all in perfect balance. Start free!"
     },
     hero: {
-      badge: isRo ? "🔥 CHALLENGE GRATUIT 7 ZILE" : "🔥 FREE 7-DAY CHALLENGE",
+      badge: isRo ? "🚀 7 ZILE ACCES COMPLET GRATUIT" : "🚀 7 DAYS FULL ACCESS FREE",
       headline: isRo 
-        ? "Transformă-ți viața în 7 zile SAU primești banii înapoi" 
-        : "Transform Your Life in 7 Days OR Your Money Back",
+        ? "Acces GRATUIT 7 Zile la TOT — Anulezi Oricând" 
+        : "7 Days FREE Access to EVERYTHING — Cancel Anytime",
       subheadline: isRo
         ? "Fără sacrificii. Fără să renunți la familie. Doar 15 minute/zi pentru corp, spirit, relații și business — toate în echilibru perfect."
         : "No sacrifices. Without giving up family. Just 15 minutes/day for Body, Mind, Relationships and Business — all in perfect balance."
@@ -325,8 +392,13 @@ export default function ChallengeLanding() {
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
+        {/* Floating Social Proof Bar */}
+        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50">
+          <SocialProofBar />
+        </div>
+
         {/* Hero Section */}
-        <section className="relative pt-8 pb-16 px-4 overflow-hidden">
+        <section className="relative pt-16 pb-16 px-4 overflow-hidden">
           {/* Background Effects */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
@@ -374,6 +446,71 @@ export default function ChallengeLanding() {
                   title="Have It All Challenge Video"
                 />
               </div>
+            </motion.div>
+
+            {/* Lead Capture Form */}
+            <motion.div
+              id="lead-form"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-10 max-w-md mx-auto"
+            >
+              {!isLeadCaptured ? (
+                <Card className="p-6 bg-card/80 backdrop-blur border-primary/20">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold">
+                      {isRo ? 'Începe Trialul Tău de 7 Zile' : 'Start Your 7-Day Trial'}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {isRo ? 'Introdu datele pentru a-ți rezerva locul' : 'Enter your details to reserve your spot'}
+                    </p>
+                  </div>
+                  <form onSubmit={handleLeadSubmit} className="space-y-4">
+                    <Input
+                      type="text"
+                      placeholder={isRo ? 'Numele tău (opțional)' : 'Your name (optional)'}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="bg-background"
+                    />
+                    <Input
+                      type="email"
+                      placeholder={isRo ? 'Adresa ta de email' : 'Your email address'}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="bg-background"
+                    />
+                    <Button 
+                      type="submit" 
+                      size="lg"
+                      disabled={isSubmitting}
+                      className="w-full"
+                      variant="gradient"
+                    >
+                      {isSubmitting 
+                        ? (isRo ? 'Se procesează...' : 'Processing...')
+                        : (isRo ? 'Începe 7 Zile Trial GRATUIT' : 'Start 7-Day FREE Trial')}
+                      <Rocket className="h-5 w-5 ml-2" />
+                    </Button>
+                  </form>
+                  <p className="text-xs text-muted-foreground mt-3 text-center">
+                    {isRo 
+                      ? '🔒 Respectăm confidențialitatea. Te poți dezabona oricând.'
+                      : '🔒 We respect your privacy. Unsubscribe anytime.'}
+                  </p>
+                </Card>
+              ) : (
+                <Card className="p-6 bg-green-500/10 border-green-500/30">
+                  <div className="text-center">
+                    <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-3" />
+                    <p className="text-lg font-medium text-green-500">
+                      {isRo ? 'Perfect! Alege planul tău mai jos.' : 'Perfect! Choose your plan below.'}
+                    </p>
+                  </div>
+                </Card>
+              )}
             </motion.div>
           </div>
         </section>
