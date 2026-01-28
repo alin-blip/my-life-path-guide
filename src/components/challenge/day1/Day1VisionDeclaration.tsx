@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/context/LanguageContext';
-import { ScrollText, ArrowRight, Crown, Calendar, Dumbbell, Sparkles, Heart, Briefcase, HandHeart } from 'lucide-react';
+import { ScrollText, ArrowRight, Crown, Calendar, Dumbbell, Sparkles, Heart, Briefcase, HandHeart, MessageCircle } from 'lucide-react';
 import { addYears, format } from 'date-fns';
 
 interface VisionData {
@@ -23,6 +23,8 @@ interface Day1VisionDeclarationProps {
   onVisionChange: (data: VisionData) => void;
   onComplete: (finalData: VisionData) => void;
   userName?: string;
+  onPostToComments?: (declaration: string) => Promise<void>;
+  declarationSaved?: boolean;
 }
 
 const AREAS = [
@@ -82,8 +84,12 @@ export const Day1VisionDeclaration: React.FC<Day1VisionDeclarationProps> = ({
   visionData,
   onVisionChange,
   onComplete,
-  userName = ''
+  userName = '',
+  onPostToComments,
+  declarationSaved = false
 }) => {
+  const [isPosting, setIsPosting] = React.useState(false);
+  const [posted, setPosted] = React.useState(false);
   const { language } = useLanguage();
   const isRo = language === 'ro';
   
@@ -263,6 +269,36 @@ Mental Signature: ${userName || '[Your Name]'}`;
         {isRo ? 'Salvează Declarația și Continuă' : 'Save Declaration and Continue'}
         <ArrowRight className="h-4 w-4 ml-2" />
       </Button>
+      
+      {/* Share to Comments Button - appears after saving */}
+      {declarationSaved && visionData.vision_declaration && onPostToComments && !posted && (
+        <Button
+          variant="outline"
+          onClick={async () => {
+            if (!visionData.vision_declaration) return;
+            setIsPosting(true);
+            try {
+              await onPostToComments(visionData.vision_declaration);
+              setPosted(true);
+            } finally {
+              setIsPosting(false);
+            }
+          }}
+          disabled={isPosting}
+          className="w-full mt-3 border-amber-500/50 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10"
+        >
+          <MessageCircle className="h-4 w-4 mr-2" />
+          {isPosting 
+            ? (isRo ? 'Se postează...' : 'Posting...')
+            : (isRo ? 'Distribuie declarația în comunitate' : 'Share declaration to community')}
+        </Button>
+      )}
+      
+      {posted && (
+        <p className="text-center text-sm text-green-600 mt-2">
+          {isRo ? '✓ Declarația ta a fost distribuită în comunitate!' : '✓ Your declaration has been shared!'}
+        </p>
+      )}
     </Card>
   );
 };
