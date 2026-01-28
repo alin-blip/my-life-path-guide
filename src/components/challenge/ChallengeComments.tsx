@@ -1,21 +1,34 @@
-import React from 'react';
-import { ModuleComments } from '@/components/warriors-way/ModuleComments';
-import { useLanguage } from '@/context/LanguageContext';
+import React, { forwardRef, useImperativeHandle } from 'react';
+import { ModuleComments, ModuleCommentsRef } from '@/components/warriors-way/ModuleComments';
+import { useModuleComments } from '@/hooks/useModuleComments';
 
 interface ChallengeCommentsProps {
   dayNumber: number;
 }
 
-export const ChallengeComments: React.FC<ChallengeCommentsProps> = ({ dayNumber }) => {
-  const { language } = useLanguage();
-  const isRo = language === 'ro';
-  
-  // Generate module_id in the format used by warriors_way_comments table
-  const moduleId = `challenge-day-${dayNumber}`;
-  
-  return (
-    <div className="mt-6">
-      <ModuleComments moduleId={moduleId} />
-    </div>
-  );
-};
+export interface ChallengeCommentsRef {
+  postComment: (content: string) => Promise<boolean>;
+}
+
+export const ChallengeComments = forwardRef<ChallengeCommentsRef, ChallengeCommentsProps>(
+  ({ dayNumber }, ref) => {
+    // Generate module_id in the format used by warriors_way_comments table
+    const moduleId = `challenge-day-${dayNumber}`;
+    const { addComment } = useModuleComments(moduleId);
+    
+    // Expose postComment method to parent
+    useImperativeHandle(ref, () => ({
+      postComment: async (content: string) => {
+        return await addComment(content);
+      }
+    }));
+    
+    return (
+      <div className="mt-6">
+        <ModuleComments moduleId={moduleId} />
+      </div>
+    );
+  }
+);
+
+ChallengeComments.displayName = 'ChallengeComments';

@@ -12,14 +12,18 @@ interface ChallengeDay {
 }
 
 export const useChallengeProgress = () => {
-  const { user } = useAuth();
+  const { user, subscribed, subscriptionTier } = useAuth();
   const { toast } = useToast();
   const [progress, setProgress] = useState<ChallengeDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentDay, setCurrentDay] = useState(1);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
 
   // Check if user is authenticated
   const isAuthenticated = !!user?.id;
+  
+  // Check if user has premium access (subscribed or trialing)
+  const hasPremiumAccess = subscribed || subscriptionStatus === 'trialing';
 
   const fetchProgress = useCallback(async () => {
     if (!user?.id) {
@@ -29,6 +33,12 @@ export const useChallengeProgress = () => {
     }
 
     try {
+      // Also fetch subscription status for trial detection
+      const { data: subData } = await supabase.functions.invoke('check-subscription');
+      if (subData?.subscription_status) {
+        setSubscriptionStatus(subData.subscription_status);
+      }
+      
       const { data, error } = await supabase
         .from('challenge_progress')
         .select('*')
@@ -191,8 +201,28 @@ export const useChallengeProgress = () => {
   const isDayUnlocked = (dayNumber: number) => {
     // For unauthenticated users, all days are unlocked (preview mode)
     if (!isAuthenticated) return true;
-    if (dayNumber === 1) return true;
+    
+    // Days 1-2 are FREE for all authenticated users
+    if (dayNumber <= 2) {
+      if (dayNumber === 1) return true;
+      // Day 2 requires Day 1 to be completed
+      return progress.some(d => d.day_number === 1 && d.completed);
+    }
+    
+    // Days 3-7 require premium access (subscribed or trialing)
+    if (dayNumber >= 3 && dayNumber <= 7) {
+      if (!hasPremiumAccess) return false;
+      // Also need to complete previous day
+      return progress.some(d => d.day_number === dayNumber - 1 && d.completed);
+    }
+    
+    // Fallback
     return progress.some(d => d.day_number === dayNumber - 1 && d.completed);
+  };
+  
+  // Check if day requires premium (for UI badges)
+  const isDayPremium = (dayNumber: number) => {
+    return dayNumber >= 3 && dayNumber <= 7;
   };
 
   const isDayCompleted = (dayNumber: number) => {
@@ -219,8 +249,11 @@ export const useChallengeProgress = () => {
     completeDay,
     isDayUnlocked,
     isDayCompleted,
+    isDayPremium,
     getDayProgress,
     refetch: fetchProgress,
-    isAuthenticated
+    isAuthenticated,
+    hasPremiumAccess,
+    subscriptionStatus
   };
 };

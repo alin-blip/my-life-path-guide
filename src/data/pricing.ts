@@ -58,8 +58,9 @@ export const plans: Plan[] = [
       "Stacks (Furie, Claritate, Focus) pentru reset rapid",
       "Jurnal de progres și rapoarte săptămânale",
     ],
-    ctaEn: "Choose Basic",
-    ctaRo: "Alege Basic",
+    ctaEn: "Start 5-Day Trial",
+    ctaRo: "Începe 5 Zile Trial",
+    trialDays: 5,
   },
   {
     id: "pro",
@@ -98,10 +99,11 @@ export const plans: Plan[] = [
       "Support VIP dedicat",
       "**PROGRAM REFERRAL** - Câștigă 50% comision recurent",
     ],
-    ctaEn: "Choose Pro",
-    ctaRo: "Alege Pro",
+    ctaEn: "Start 5-Day Trial",
+    ctaRo: "Începe 5 Zile Trial",
     featured: true,
     coachingIncluded: true,
+    trialDays: 5,
   },
   {
     id: "elite",
@@ -138,9 +140,10 @@ export const plans: Plan[] = [
       "Coaching 1-on-1 lunar (30 min)",
       "**COACH DASHBOARD** - Gestionează clienți, urmărește progres, construiește comunitatea",
     ],
-    ctaEn: "Go Elite",
-    ctaRo: "Alege Elite",
+    ctaEn: "Start 5-Day Trial",
+    ctaRo: "Începe 5 Zile Trial",
     coachingIncluded: true,
+    trialDays: 5,
   },
   // ANNUAL PLANS - 60% discount locked for the whole year
   {

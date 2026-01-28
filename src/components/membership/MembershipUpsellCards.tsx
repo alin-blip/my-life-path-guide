@@ -17,16 +17,18 @@ interface MembershipUpsellCardsProps {
   onContinueFree?: () => void;
 }
 
-// HORMOZI 3-TIER STRUCTURE with Value Anchoring
+// HORMOZI 3-TIER STRUCTURE with Value Anchoring - ALL 5-DAY TRIAL
 export const UPSELL_PLANS = [
   {
     id: 'basic',
     name: 'Basic',
-    price: '49',
+    price: '0',
+    afterTrialPrice: '49',
     normalPrice: '97',
     currency: '€',
-    period: 'lună',
-    hasTrial: false,
+    period: '5 zile trial',
+    hasTrial: true,
+    trialDays: 5,
     highlight: '💪 Începe Acum',
     tier: 'basic',
     totalValue: '€341',
@@ -36,6 +38,7 @@ export const UPSELL_PLANS = [
       'Champion Routine completă',
       'Door - planificare săptămânală',
       'AI Coaching pentru business',
+      '5 zile trial gratuit',
     ],
     featured: false,
     gradient: 'from-blue-500 to-cyan-500',
@@ -50,14 +53,15 @@ export const UPSELL_PLANS = [
     afterTrialPrice: '97',
     normalPrice: '197',
     currency: '€',
-    period: '7 zile trial',
+    period: '5 zile trial',
     hasTrial: true,
+    trialDays: 5,
     highlight: '⭐ Cel Mai Popular',
     tier: 'pro',
     totalValue: '€882+',
     benefits: [
       '✓ Tot din Basic +',
-      '7 zile trial gratuit',
+      '5 zile trial gratuit',
       'Coaching de grup LIVE săptămânal',
       'Comunitate VIP Pro',
       'Sprint 90 zile cu KPIs',
@@ -73,11 +77,13 @@ export const UPSELL_PLANS = [
   {
     id: 'elite',
     name: 'Elite',
-    price: '297',
+    price: '0',
+    afterTrialPrice: '297',
     normalPrice: '500',
     currency: '€',
-    period: 'lună',
-    hasTrial: false,
+    period: '5 zile trial',
+    hasTrial: true,
+    trialDays: 5,
     highlight: '🔥 Transformare Totală',
     tier: 'elite',
     totalValue: '€2,570',
@@ -88,7 +94,7 @@ export const UPSELL_PLANS = [
       'Coaching 1-on-1 lunar (30 min)',
       '🎓 COACH DASHBOARD: Creează-ți propria platformă',
       '💰 REFERRAL: 50% comision recurent',
-      'Acces prioritar la toate cursurile'
+      '5 zile trial gratuit'
     ],
     featured: false,
     gradient: 'from-purple-500 to-violet-500',
@@ -328,7 +334,7 @@ export function MembershipUpsellCards({
                   ) : (
                     <>
                       <Sparkles className="h-3.5 w-3.5" />
-                      {plan.hasTrial ? `Începe ${plan.period}` : 'Începe acum'}
+                      Începe 5 Zile Trial
                       <ArrowRight className="h-3.5 w-3.5" />
                     </>
                   )}

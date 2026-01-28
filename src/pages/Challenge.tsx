@@ -133,7 +133,9 @@ const ChallengePage = () => {
     currentDay,
     isDayUnlocked, 
     isDayCompleted,
-    isAuthenticated
+    isDayPremium,
+    isAuthenticated,
+    hasPremiumAccess
   } = useChallengeProgress();
 
   const handleStartDay = (day: ChallengeDay) => {
@@ -266,96 +268,155 @@ const ChallengePage = () => {
 
         {/* Challenge Days Grid */}
         <div className="space-y-4">
-          {challengeDays.map((day) => {
+          {challengeDays.map((day, index) => {
             const Icon = day.icon;
             const unlocked = isDayUnlocked(day.day);
             const completed = isDayCompleted(day.day);
-            const isPremiumDay = day.day >= 5 && !subscribed;
+            const isPremium = isDayPremium(day.day);
+            const isFreeDay = day.day <= 2;
+            
+            // Show upgrade card between Day 2 and Day 3 for non-premium users
+            const showUpgradeCard = day.day === 3 && isAuthenticated && !hasPremiumAccess;
             
             return (
-              <Card 
-                key={day.day}
-                className={`p-4 transition-all duration-300 ${
-                  unlocked 
-                    ? 'bg-card border-primary/20 hover:border-primary/40 cursor-pointer' 
-                    : 'bg-muted/30 border-border/50 opacity-60'
-                } ${completed ? 'ring-2 ring-green-500/50' : ''} ${isPremiumDay ? 'border-amber-500/30' : ''}`}
-                onClick={() => handleStartDay(day)}
-              >
-                <div className="flex items-center gap-4">
-                  {/* Day Number & Icon */}
-                  <div className={`relative flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br ${day.color} ${!unlocked ? 'grayscale' : ''}`}>
-                    {completed ? (
-                      <CheckCircle2 className="h-8 w-8 text-white" />
-                    ) : unlocked ? (
-                      <Icon className="h-8 w-8 text-white" />
-                    ) : (
-                      <Lock className="h-6 w-6 text-white/70" />
-                    )}
-                    <span className="absolute -top-2 -left-2 w-6 h-6 bg-background border-2 border-primary rounded-full flex items-center justify-center text-xs font-bold text-primary">
-                      {day.day}
-                    </span>
-                    {isPremiumDay && (
-                      <span className="absolute -top-2 -right-2">
-                        <Crown className="h-5 w-5 text-amber-400" />
+              <React.Fragment key={day.day}>
+                {/* Upgrade Gate Card - between Day 2 and Day 3 */}
+                {showUpgradeCard && (
+                  <Card className="p-6 border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/10 via-background to-orange-500/10">
+                    <div className="flex flex-col md:flex-row items-center gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                          <Lock className="h-8 w-8 text-white" />
+                        </div>
+                      </div>
+                      <div className="flex-1 text-center md:text-left">
+                        <h3 className="text-lg font-bold text-foreground mb-1">
+                          🔥 {language === 'en' ? 'Unlock Days 3-7' : 'Deblochează Zilele 3-7'}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {language === 'en' 
+                            ? 'Continue your transformation with 5-day FREE trial + Early Bird 50% OFF'
+                            : 'Continuă transformarea cu 5 zile TRIAL gratuit + Early Bird 50% REDUCERE'}
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                          <Badge className="bg-green-500/10 text-green-600 border-green-500/30">
+                            ✓ 5 {language === 'en' ? 'Days Trial' : 'Zile Trial'}
+                          </Badge>
+                          <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30">
+                            🔥 50% {language === 'en' ? 'OFF' : 'Reducere'}
+                          </Badge>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={() => navigate('/pricing')}
+                        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                      >
+                        {language === 'en' ? 'Start 5-Day Trial' : 'Începe 5 Zile Trial'}
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </div>
+                  </Card>
+                )}
+              
+                <Card 
+                  className={`p-4 transition-all duration-300 ${
+                    unlocked 
+                      ? 'bg-card border-primary/20 hover:border-primary/40 cursor-pointer' 
+                      : 'bg-muted/30 border-border/50 opacity-60'
+                  } ${completed ? 'ring-2 ring-green-500/50' : ''} ${isPremium && !hasPremiumAccess ? 'border-amber-500/30' : ''}`}
+                  onClick={() => handleStartDay(day)}
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Day Number & Icon */}
+                    <div className={`relative flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br ${day.color} ${!unlocked ? 'grayscale' : ''}`}>
+                      {completed ? (
+                        <CheckCircle2 className="h-8 w-8 text-white" />
+                      ) : unlocked ? (
+                        <Icon className="h-8 w-8 text-white" />
+                      ) : (
+                        <Lock className="h-6 w-6 text-white/70" />
+                      )}
+                      <span className="absolute -top-2 -left-2 w-6 h-6 bg-background border-2 border-primary rounded-full flex items-center justify-center text-xs font-bold text-primary">
+                        {day.day}
                       </span>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className={`font-bold text-lg ${unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>
-                        {language === 'en' ? day.titleEn : day.titleRo}
-                      </h3>
-                      {isPremiumDay && (
-                        <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/30 text-xs">
-                          Premium
-                        </Badge>
+                      {isPremium && !hasPremiumAccess && (
+                        <span className="absolute -top-2 -right-2">
+                          <Crown className="h-5 w-5 text-amber-400" />
+                        </span>
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {language === 'en' ? day.subtitleEn : day.subtitleRo}
-                    </p>
-                    {/* Focus Areas Badges */}
-                    <div className="flex items-center gap-1.5 mt-2">
-                      {day.focusAreas.map((area) => (
-                        <div 
-                          key={area} 
-                          className={`w-2.5 h-2.5 rounded-full ${areaColors[area]}`}
-                          title={language === 'en' ? areaLabels[area].en : areaLabels[area].ro}
-                        />
-                      ))}
+
+                    {/* Content */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className={`font-bold text-lg ${unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          {language === 'en' ? day.titleEn : day.titleRo}
+                        </h3>
+                        {/* Badge for Free/Premium/Trial */}
+                        {isFreeDay && completed && (
+                          <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/30 text-xs">
+                            ✓ {language === 'en' ? 'FREE' : 'GRATUIT'}
+                          </Badge>
+                        )}
+                        {isFreeDay && !completed && (
+                          <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/30 text-xs">
+                            {language === 'en' ? 'FREE' : 'GRATUIT'}
+                          </Badge>
+                        )}
+                        {isPremium && hasPremiumAccess && (
+                          <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/30 text-xs">
+                            🔓 {language === 'en' ? 'UNLOCKED' : 'DEBLOCAT'}
+                          </Badge>
+                        )}
+                        {isPremium && !hasPremiumAccess && (
+                          <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/30 text-xs">
+                            🔒 Premium
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {language === 'en' ? day.subtitleEn : day.subtitleRo}
+                      </p>
+                      {/* Focus Areas Badges */}
+                      <div className="flex items-center gap-1.5 mt-2">
+                        {day.focusAreas.map((area) => (
+                          <div 
+                            key={area} 
+                            className={`w-2.5 h-2.5 rounded-full ${areaColors[area]}`}
+                            title={language === 'en' ? areaLabels[area].en : areaLabels[area].ro}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <div>
+                      {completed ? (
+                        <Button variant="outline" size="sm" className="border-green-500/50 text-green-500">
+                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          {language === 'en' ? 'Done' : 'Gata'}
+                        </Button>
+                      ) : unlocked ? (
+                        <Button 
+                          size="sm" 
+                          className={`bg-gradient-to-r ${day.color} hover:opacity-90`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStartDay(day);
+                          }}
+                        >
+                          <Play className="h-4 w-4 mr-1" />
+                          {language === 'en' ? 'Start' : 'Începe'}
+                        </Button>
+                      ) : (
+                        <Button variant="ghost" size="sm" disabled>
+                          <Lock className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
-
-                  {/* Action Button */}
-                  <div>
-                    {completed ? (
-                      <Button variant="outline" size="sm" className="border-green-500/50 text-green-500">
-                        <CheckCircle2 className="h-4 w-4 mr-1" />
-                        {language === 'en' ? 'Done' : 'Gata'}
-                      </Button>
-                    ) : unlocked ? (
-                      <Button 
-                        size="sm" 
-                        className={`bg-gradient-to-r ${day.color} hover:opacity-90`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleStartDay(day);
-                        }}
-                      >
-                        <Play className="h-4 w-4 mr-1" />
-                        {language === 'en' ? 'Start' : 'Începe'}
-                      </Button>
-                    ) : (
-                      <Button variant="ghost" size="sm" disabled>
-                        <Lock className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </Card>
+                </Card>
+              </React.Fragment>
             );
           })}
         </div>
