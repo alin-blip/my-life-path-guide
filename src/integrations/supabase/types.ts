@@ -2468,6 +2468,48 @@ export type Database = {
           },
         ]
       }
+      ideas_bank: {
+        Row: {
+          analysis_result: Json | null
+          analyzed_at: string | null
+          category: string | null
+          created_at: string | null
+          id: string
+          linked_objective_id: string | null
+          priority: number | null
+          status: string | null
+          text: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis_result?: Json | null
+          analyzed_at?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          linked_objective_id?: string | null
+          priority?: number | null
+          status?: string | null
+          text: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis_result?: Json | null
+          analyzed_at?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          linked_objective_id?: string | null
+          priority?: number | null
+          status?: string | null
+          text?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       knowledge_base_files: {
         Row: {
           content_preview: string | null

@@ -454,20 +454,6 @@ export const WeeklySection: React.FC = () => {
                     <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{filteredHotList.length}</span>
                   </div>
                   <HotList 
-                    filteredHotList={filteredHotList}
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    toggleHotListItemSelection={toggleHotListItemSelection}
-                    updateHotListItemText={updateHotListItemText}
-                    updateHotListItemPriority={updateHotListItemPriority}
-                    addNewTarget={addNewTarget}
-                    addNewTargetWithText={addNewTargetWithText}
-                    deleteHotListItem={deleteHotListItem}
-                    handleDragStartToDomino={handleDragStartToDomino}
-                    handleDragStart={handleDragStart}
-                    handleDragEnd={handleDragEnd}
-                    handleDominoSelection={handleDominoSelection}
-                    editingNewItem={editingNewItem}
                     isMobile={isMobile}
                   />
                 </div>
@@ -547,20 +533,6 @@ export const WeeklySection: React.FC = () => {
               </div>
               
               <HotList 
-                filteredHotList={filteredHotList}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                toggleHotListItemSelection={toggleHotListItemSelection}
-                updateHotListItemText={updateHotListItemText}
-                updateHotListItemPriority={updateHotListItemPriority}
-                addNewTarget={addNewTarget}
-                addNewTargetWithText={addNewTargetWithText}
-                deleteHotListItem={deleteHotListItem}
-                handleDragStartToDomino={handleDragStartToDomino}
-                handleDragStart={handleDragStart}
-                handleDragEnd={handleDragEnd}
-                handleDominoSelection={handleDominoSelection}
-                editingNewItem={editingNewItem}
                 isMobile={false}
               />
             </div>
