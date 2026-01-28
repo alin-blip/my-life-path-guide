@@ -17,7 +17,14 @@ import { ChallengeAnswersHistory } from '@/components/challenge/ChallengeAnswers
 import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Complete';
 import { ChallengeComments, ChallengeCommentsRef } from '@/components/challenge/ChallengeComments';
 import { ChallengeUpgradeGate } from '@/components/challenge/ChallengeUpgradeGate';
-import { Day1WhyQuestions, Day1VisionDeclaration, Day1PlatformTour, Day1Commitment } from '@/components/challenge/day1';
+import { 
+  Day1WhyQuestions, 
+  Day1VisionDeclaration, 
+  Day1Commitment, 
+  Day1StepsSummary, 
+  Day1DeclarationReview, 
+  Day1VideoPlaceholder 
+} from '@/components/challenge/day1';
 import { useDay1Responses } from '@/hooks/useDay1Responses';
 import { supabase } from '@/integrations/supabase/client';
 import { trackChallengeDayStarted } from '@/lib/facebook-pixel';
@@ -528,9 +535,15 @@ const ChallengeDayPage = () => {
     fetchUserName();
   }, []);
 
-  // Special render for Day 1 - Napoleon Hill style with 4 steps
+  // Special render for Day 1 - Simplified 3-step flow
   if (dayNumber === 1) {
-    const day1Progress = (day1Step / 3) * 100;
+    // Check if user already has a declaration (returning user)
+    const hasExistingDeclaration = Boolean(
+      day1Responses.vision_declaration && 
+      day1Responses.vision_declaration.length > 50
+    );
+    
+    const day1Progress = hasExistingDeclaration ? 100 : ((day1Step + 1) / 3) * 100;
     
     const handleDay1Complete = async () => {
       if (!isAuthenticated) {
@@ -546,6 +559,19 @@ const ChallengeDayPage = () => {
       if (saved) {
         await completeDay(1);
         navigate('/challenge/2');
+      }
+    };
+
+    const handlePostDeclaration = async (declaration: string) => {
+      if (!commentsRef.current) return;
+      const success = await commentsRef.current.postComment(declaration);
+      if (success) {
+        toast({
+          title: language === 'en' ? '🎉 Shared!' : '🎉 Distribuit!',
+          description: language === 'en' 
+            ? 'Your declaration has been shared with the community!' 
+            : 'Declarația ta a fost distribuită în comunitate!',
+        });
       }
     };
 
@@ -609,108 +635,108 @@ const ChallengeDayPage = () => {
             
             <Progress value={day1Progress} className="h-2" />
             <p className="text-xs text-muted-foreground mt-1">
-              {language === 'en' ? 'Step' : 'Pasul'} {day1Step + 1} / 4
+              {hasExistingDeclaration 
+                ? (language === 'en' ? 'Completed ✓' : 'Completat ✓')
+                : `${language === 'en' ? 'Step' : 'Pasul'} ${day1Step + 1} / 3`
+              }
             </p>
           </div>
           
-          {/* Day 1 Steps */}
-          {day1Step === 0 && (
-            <Day1WhyQuestions
-              responses={{
-                question_1: day1Responses.question_1 || '',
-                question_2: day1Responses.question_2 || '',
-                question_3: day1Responses.question_3 || '',
-                question_4: day1Responses.question_4 || '',
-                question_5: day1Responses.question_5 || ''
-              }}
-              onResponsesChange={(data) => updateDay1Responses(data)}
-              onComplete={async () => {
-                if (isAuthenticated) {
-                  await saveDay1Responses(day1Responses);
-                }
-                setDay1Step(1);
-              }}
-            />
+          {/* Video Placeholder */}
+          <Day1VideoPlaceholder />
+          
+          {/* Steps Summary */}
+          <Day1StepsSummary currentStep={hasExistingDeclaration ? 3 : day1Step} />
+          
+          {/* RETURNING USER: Show declaration review */}
+          {hasExistingDeclaration ? (
+            <>
+              <Day1DeclarationReview
+                declaration={day1Responses.vision_declaration || ''}
+                onPostToComments={handlePostDeclaration}
+                onEdit={() => setDay1Step(1)}
+              />
+            </>
+          ) : (
+            <>
+              {/* NEW USER: Step-by-step flow */}
+              {day1Step === 0 && (
+                <Day1WhyQuestions
+                  responses={{
+                    question_1: day1Responses.question_1 || '',
+                    question_2: day1Responses.question_2 || '',
+                    question_3: day1Responses.question_3 || '',
+                    question_4: day1Responses.question_4 || '',
+                    question_5: day1Responses.question_5 || ''
+                  }}
+                  onResponsesChange={(data) => updateDay1Responses(data)}
+                  onComplete={async () => {
+                    if (isAuthenticated) {
+                      await saveDay1Responses(day1Responses);
+                    }
+                    setDay1Step(1);
+                  }}
+                />
+              )}
+              
+              {day1Step === 1 && (
+                <Day1VisionDeclaration
+                  visionData={{
+                    vision_body: day1Responses.vision_body || '',
+                    vision_spirit: day1Responses.vision_spirit || '',
+                    vision_relationships: day1Responses.vision_relationships || '',
+                    vision_business: day1Responses.vision_business || '',
+                    vision_declaration: day1Responses.vision_declaration || '',
+                    target_date: day1Responses.target_date || '',
+                    what_i_will_give: day1Responses.what_i_will_give || ''
+                  }}
+                  onVisionChange={(data) => updateDay1Responses(data)}
+                  onComplete={async (finalVisionData) => {
+                    if (isAuthenticated) {
+                      const saved = await saveDay1Responses({
+                        ...day1Responses,
+                        ...finalVisionData
+                      });
+                      if (!saved) return;
+                    }
+                    updateDay1Responses(finalVisionData);
+                    setDeclarationSaved(true);
+                    setDay1Step(2);
+                  }}
+                  userName={userName}
+                  declarationSaved={declarationSaved}
+                  onPostToComments={handlePostDeclaration}
+                />
+              )}
+              
+              {day1Step === 2 && (
+                <Day1Commitment
+                  isCommitted={day1Responses.commitment_confirmed || false}
+                  onCommitmentChange={(committed) => updateDay1Responses({ commitment_confirmed: committed })}
+                  onComplete={handleDay1Complete}
+                  isLoading={day1Saving}
+                />
+              )}
+              
+              {/* Step Navigation */}
+              {day1Step > 0 && (
+                <div className="mt-6">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setDay1Step(day1Step - 1)}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    {language === 'en' ? 'Previous Step' : 'Pasul Anterior'}
+                  </Button>
+                </div>
+              )}
+            </>
           )}
           
-          {day1Step === 1 && (
-            <Day1VisionDeclaration
-              visionData={{
-                vision_body: day1Responses.vision_body || '',
-                vision_spirit: day1Responses.vision_spirit || '',
-                vision_relationships: day1Responses.vision_relationships || '',
-                vision_business: day1Responses.vision_business || '',
-                vision_declaration: day1Responses.vision_declaration || '',
-                target_date: day1Responses.target_date || '',
-                what_i_will_give: day1Responses.what_i_will_give || ''
-              }}
-              onVisionChange={(data) => updateDay1Responses(data)}
-              onComplete={async (finalVisionData) => {
-                if (isAuthenticated) {
-                  // Save with the final data including vision_declaration
-                  const saved = await saveDay1Responses({
-                    ...day1Responses,
-                    ...finalVisionData
-                  });
-
-                  if (!saved) return;
-                }
-
-                updateDay1Responses(finalVisionData);
-                setDeclarationSaved(true);
-                setDay1Step(2);
-              }}
-              userName={userName}
-              declarationSaved={declarationSaved}
-              onPostToComments={async (declaration) => {
-                if (!commentsRef.current) return;
-                const success = await commentsRef.current.postComment(declaration);
-                if (success) {
-                  toast({
-                    title: language === 'en' ? '🎉 Shared!' : '🎉 Distribuit!',
-                    description: language === 'en' 
-                      ? 'Your declaration has been shared with the community!' 
-                      : 'Declarația ta a fost distribuită în comunitate!',
-                  });
-                }
-              }}
-            />
-          )}
-          
-          {day1Step === 2 && (
-            <Day1PlatformTour
-              onComplete={() => setDay1Step(3)}
-            />
-          )}
-          
-          {day1Step === 3 && (
-            <Day1Commitment
-              isCommitted={day1Responses.commitment_confirmed || false}
-              onCommitmentChange={(committed) => updateDay1Responses({ commitment_confirmed: committed })}
-              onComplete={handleDay1Complete}
-              isLoading={day1Saving}
-            />
-          )}
-          
-          {/* Comments Section for Day 1 - show after commitment step */}
-          {day1Step === 3 && (
-            <div className="mt-6">
-              <ChallengeComments ref={commentsRef} dayNumber={1} />
-            </div>
-          )}
-          
-          {/* Step Navigation */}
-          {day1Step > 0 && (
-            <div className="mt-6">
-              <Button
-                variant="ghost"
-                onClick={() => setDay1Step(day1Step - 1)}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {language === 'en' ? 'Previous Step' : 'Pasul Anterior'}
-              </Button>
-            </div>
-          )}
+          {/* Comments Section - ALWAYS visible */}
+          <div className="mt-6">
+            <ChallengeComments ref={commentsRef} dayNumber={1} />
+          </div>
         </div>
       </Layout>
     );
