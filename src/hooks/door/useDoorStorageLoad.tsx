@@ -50,7 +50,8 @@ export function useDoorStorageLoad() {
         // Track the category of the loaded plan for saving
         loadedCategory = plan?.category;
         
-        if (plan && plan.dominoTitle) {
+        // GUARD: Only set domino if plan has VALID non-empty title
+        if (plan && plan.dominoTitle && plan.dominoTitle.trim() !== '') {
           // Reconstruct selectedDomino from plan
           setters.setSelectedDomino({
             id: `domino-${currentWeekKey}`,
