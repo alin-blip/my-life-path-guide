@@ -31,11 +31,11 @@ interface ChallengeDay {
 const challengeDays: ChallengeDay[] = [
   {
     day: 1,
-    titleEn: "🚀 PLATFORM TOUR",
-    titleRo: "🚀 TOUR PLATFORMĂ",
-    subtitleEn: "Discover all the tools at your disposal",
-    subtitleRo: "Descoperă toate instrumentele disponibile",
-    icon: Map,
+    titleEn: "🔥 THE FOUNDATION",
+    titleRo: "🔥 FUNDAȚIA TRANSFORMĂRII",
+    subtitleEn: "Discover your BIG WHY and create your vision",
+    subtitleRo: "Descoperă-ți MARELE DE CE și creează-ți viziunea",
+    icon: Flame,
     color: "from-purple-500 to-indigo-500",
     actionPath: "/challenge/1",
     focusAreas: ['body', 'being', 'balance', 'business']
@@ -279,7 +279,7 @@ const ChallengePage = () => {
             const showUpgradeCard = day.day === 3 && isAuthenticated && !hasPremiumAccess;
             
             return (
-              <React.Fragment key={day.day}>
+              <div key={day.day} className="space-y-4">
                 {/* Upgrade Gate Card - between Day 2 and Day 3 */}
                 {showUpgradeCard && (
                   <Card className="p-6 border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/10 via-background to-orange-500/10">
@@ -416,7 +416,7 @@ const ChallengePage = () => {
                     </div>
                   </div>
                 </Card>
-              </React.Fragment>
+              </div>
             );
           })}
         </div>
@@ -426,13 +426,13 @@ const ChallengePage = () => {
           <div className="text-center">
             <h3 className="text-xl font-bold mb-2 text-foreground">
               {language === 'en' 
-                ? '🦅 Start Your FREE 7-Day Transformation' 
-                : '🦅 Începe Transformarea ta GRATUITĂ de 7 Zile'}
+                ? '🦅 Start Your FREE Challenge: 2 Days + 5-Day Trial' 
+                : '🦅 Începe Challenge-ul GRATUIT: 2 Zile + 5 Zile Trial'}
             </h3>
             <p className="text-muted-foreground mb-4">
               {language === 'en'
-                ? 'Master Body, Being, Balance & Business — Have It ALL!'
-                : 'Stăpânește Corpul, Spiritul, Relațiile și Business-ul — Ai TOTUL!'}
+                ? '2 days FREE to start, then unlock days 3-7 with a 5-day trial!'
+                : '2 zile GRATUIT pentru început, apoi deblochează zilele 3-7 cu 5 zile trial!'}
             </p>
             <Button 
               size="lg"
