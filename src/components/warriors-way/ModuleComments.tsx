@@ -98,15 +98,22 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
       toggleReaction(commentId, type);
     };
 
-    const getInitials = (userId: string, email?: string) => {
-      if (email) {
-        return email.substring(0, 2).toUpperCase();
+    const getInitials = (displayName?: string, userId?: string) => {
+      if (displayName && displayName.length > 0) {
+        const parts = displayName.split(' ');
+        if (parts.length > 1) {
+          return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+        return displayName.substring(0, 2).toUpperCase();
       }
-      return userId.substring(0, 2).toUpperCase();
+      return userId?.substring(0, 2).toUpperCase() || 'U';
     };
 
-    const getDisplayName = (userId: string) => {
-      return `Warrior ${userId.substring(0, 6)}`;
+    const getDisplayName = (displayName?: string, userId?: string) => {
+      if (displayName && displayName.trim()) {
+        return displayName;
+      }
+      return `Warrior ${userId?.substring(0, 6) || 'Unknown'}`;
     };
 
     const formatDate = (dateString: string) => {
@@ -131,14 +138,14 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
         <div className="flex items-start gap-3">
           <Avatar className={cn("flex-shrink-0", isReply ? "h-6 w-6" : "h-8 w-8")}>
             <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xs">
-              {getInitials(comment.user_id)}
+              {getInitials(comment.display_name, comment.user_id)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <span className={cn("font-medium", isReply ? "text-xs" : "text-sm")}>
-                  {getDisplayName(comment.user_id)}
+                  {getDisplayName(comment.display_name, comment.user_id)}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {formatDate(comment.created_at)}

@@ -67,28 +67,30 @@ serve(async (req) => {
     let tier = "basic";
 
     switch (plan) {
-      // === NEW 3-TIER HORMOZI STRUCTURE ===
+      // === NEW 3-TIER HORMOZI STRUCTURE - ALL WITH 5-DAY TRIAL ===
       case "basic":
-        // Basic plan - €49/month Early Bird (normally €97) - NO TRIAL
+        // Basic plan - €49/month Early Bird (normally €97) - 5-DAY TRIAL
         unitAmount = currency === "ron" ? 24900 : 4900; // 249 RON or €49
-        productName = "WarriorOS Basic";
+        productName = "WarriorOS Basic (5-Day Trial)";
         tier = "basic";
+        trialDays = 5;
         break;
         
       case "pro":
-        // Pro plan - €97/month Early Bird (normally €197) - 7-DAY TRIAL
+        // Pro plan - €97/month Early Bird (normally €197) - 5-DAY TRIAL
         unitAmount = currency === "ron" ? 49000 : 9700; // 490 RON or €97
-        productName = "WarriorOS Pro (7-Day Trial)";
+        productName = "WarriorOS Pro (5-Day Trial)";
         tier = "pro";
-        trialDays = 7;
+        trialDays = 5;
         break;
         
       case "elite":
-        // Elite plan - €297/month Early Bird (normally €500) - NO TRIAL
+        // Elite plan - €297/month Early Bird (normally €500) - 5-DAY TRIAL
         // Includes: Pro + Warrior Accelerator + Monthly 1-on-1 coaching
         unitAmount = currency === "ron" ? 149000 : 29700; // 1490 RON or €297
-        productName = "WarriorOS Elite (All-Inclusive)";
+        productName = "WarriorOS Elite (5-Day Trial)";
         tier = "elite";
+        trialDays = 5;
         break;
       
       // === ANNUAL PLANS - 60% DISCOUNT LOCKED ===

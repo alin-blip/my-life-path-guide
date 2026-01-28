@@ -89,6 +89,12 @@ export const useModuleComments = (moduleId: string) => {
       return false;
     }
 
+    // Extract author name from user metadata or email
+    const authorName = (user as any).user_metadata?.full_name 
+      || (user as any).user_metadata?.name
+      || user.email?.split('@')[0] 
+      || 'Utilizator';
+
     try {
       const { data, error } = await supabase
         .from('warriors_way_comments')
@@ -97,7 +103,8 @@ export const useModuleComments = (moduleId: string) => {
           module_id: moduleId,
           content: content.trim(),
           parent_id: parentId || null,
-          video_url: videoUrl || null
+          video_url: videoUrl || null,
+          author_name: authorName
         })
         .select()
         .single();
@@ -106,7 +113,7 @@ export const useModuleComments = (moduleId: string) => {
 
       const newComment: ModuleComment = {
         ...data,
-        display_name: user.email?.split('@')[0] || 'Utilizator',
+        display_name: authorName,
         replies: []
       };
 
