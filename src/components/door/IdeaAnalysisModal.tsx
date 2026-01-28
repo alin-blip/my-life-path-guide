@@ -7,6 +7,7 @@ import { Loader2, Send, Brain, Target, ListChecks, Archive, CheckCircle2, AlertT
 import { useLanguage } from '@/context/LanguageContext';
 import { IdeaBankItem, IdeaAnalysisResult, ideasBankService } from '@/services/ideasBankService';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
 
 interface Message {
@@ -82,11 +83,17 @@ export const IdeaAnalysisModal: React.FC<IdeaAnalysisModalProps> = ({
   };
 
   const streamAnalysis = async (messagesToSend: Message[]) => {
+    // Get user's session token for authentication
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      throw new Error('Not authenticated');
+    }
+
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-idea`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+        'Authorization': `Bearer ${session.access_token}`
       },
       body: JSON.stringify({
         ideaText: idea?.text,
