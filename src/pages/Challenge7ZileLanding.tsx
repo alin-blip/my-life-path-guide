@@ -149,7 +149,8 @@ const Challenge7ZileLanding = () => {
       titleRo: "Tour Platformă",
       descEn: "Discover all the tools at your disposal",
       descRo: "Descoperă toate instrumentele disponibile",
-      color: "from-purple-500 to-indigo-500"
+      color: "from-purple-500 to-indigo-500",
+      isFree: true
     },
     {
       day: 2,
@@ -158,7 +159,8 @@ const Challenge7ZileLanding = () => {
       titleRo: "Corp + Spirit",
       descEn: "Set objectives for health & inner peace",
       descRo: "Obiective pentru sănătate și spirit",
-      color: "from-green-500 to-purple-500"
+      color: "from-green-500 to-purple-500",
+      isFree: true
     },
     {
       day: 3,
@@ -167,7 +169,8 @@ const Challenge7ZileLanding = () => {
       titleRo: "Relații + Business",
       descEn: "Set objectives for relationships & career",
       descRo: "Obiective pentru relații și carieră",
-      color: "from-pink-500 to-blue-500"
+      color: "from-pink-500 to-blue-500",
+      isFree: false
     },
     {
       day: 4,
@@ -176,7 +179,8 @@ const Challenge7ZileLanding = () => {
       titleRo: "Rutina Campionului",
       descEn: "Configure your winning morning routine",
       descRo: "Configurează rutina matinală câștigătoare",
-      color: "from-amber-500 to-orange-500"
+      color: "from-amber-500 to-orange-500",
+      isFree: false
     },
     {
       day: 5,
@@ -185,7 +189,8 @@ const Challenge7ZileLanding = () => {
       titleRo: "Viziune AI",
       descEn: "Generate images & personalized meditation",
       descRo: "Generează imagini și meditație personalizată",
-      color: "from-cyan-500 to-blue-500"
+      color: "from-cyan-500 to-blue-500",
+      isFree: false
     },
     {
       day: 6,
@@ -194,7 +199,8 @@ const Challenge7ZileLanding = () => {
       titleRo: "Accountability",
       descEn: "Set up your notification system",
       descRo: "Configurează sistemul de notificări",
-      color: "from-red-500 to-pink-500"
+      color: "from-red-500 to-pink-500",
+      isFree: false
     },
     {
       day: 7,
@@ -203,7 +209,8 @@ const Challenge7ZileLanding = () => {
       titleRo: "Punem Totul Împreună",
       descEn: "Complete recap + Premium upgrade",
       descRo: "Recapitulare completă + Upgrade Premium",
-      color: "from-amber-500 to-yellow-600"
+      color: "from-amber-500 to-yellow-600",
+      isFree: false
     }
   ];
 
@@ -299,21 +306,21 @@ const Challenge7ZileLanding = () => {
         <section className="relative pt-16 pb-16 px-4 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
           <div className="max-w-4xl mx-auto text-center relative">
-            <Badge className="mb-4 bg-primary/10 text-primary border-primary/30 px-4 py-1.5">
+            <Badge className="mb-4 bg-green-500/10 text-green-600 border-green-500/30 px-4 py-1.5">
               <Gift className="h-4 w-4 mr-1.5 inline" />
-              {language === 'en' ? 'FREE • 7 Days • No Credit Card' : 'GRATUIT • 7 Zile • Fără Card'}
+              {language === 'en' ? '2 DAYS FREE • 5 DAYS TRIAL' : '2 ZILE GRATUIT • 5 ZILE TRIAL'}
             </Badge>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-red-500">
               {language === 'en' 
-                ? 'Transform Your Life in 7 Days' 
-                : 'Transformă-ți Viața în 7 Zile'}
+                ? 'Start Your FREE 2-Day Challenge' 
+                : 'Începe Challenge-ul GRATUIT de 2 Zile'}
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               {language === 'en'
-                ? 'The FREE challenge that helps you master Body, Being, Balance & Business — Have It ALL!'
-                : 'Challenge-ul GRATUIT care te ajută să stăpânești Corpul, Spiritul, Relațiile și Business-ul — Ai TOTUL!'}
+                ? 'After 2 days, unlock 5 extra days with FREE trial + 50% Early Bird discount!'
+                : 'După 2 zile, deblochează 5 zile extra cu trial GRATUIT + Early Bird 50%!'}
             </p>
 
             <motion.div 
@@ -480,6 +487,7 @@ const Challenge7ZileLanding = () => {
                   color={day.color}
                   completions={getCompletionsForDay(day.day)}
                   language={language}
+                  isFree={day.isFree}
                 />
               ))}
             </div>
@@ -494,8 +502,8 @@ const Challenge7ZileLanding = () => {
             </h2>
             <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
               {language === 'en'
-                ? 'Start your journey with a 7-day free trial. Cancel anytime.'
-                : 'Începe călătoria cu 7 zile gratuit. Anulezi oricând.'}
+                ? 'Start with 2 FREE days, then continue with a 5-day trial. Cancel anytime.'
+                : 'Începe cu 2 zile GRATUIT, apoi continuă cu 5 zile trial. Anulezi oricând.'}
             </p>
             
             <div className="bg-card rounded-2xl p-6 md:p-8 shadow-xl border border-border/50">

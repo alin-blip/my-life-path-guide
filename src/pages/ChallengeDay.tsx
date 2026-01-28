@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Layout } from '@/components/Layout';
 import { useLanguage } from '@/context/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -15,11 +15,13 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { ChallengeAnswersHistory } from '@/components/challenge/ChallengeAnswersHistory';
 import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Complete';
-import { ChallengeComments } from '@/components/challenge/ChallengeComments';
+import { ChallengeComments, ChallengeCommentsRef } from '@/components/challenge/ChallengeComments';
+import { ChallengeUpgradeGate } from '@/components/challenge/ChallengeUpgradeGate';
 import { Day1WhyQuestions, Day1VisionDeclaration, Day1PlatformTour, Day1Commitment } from '@/components/challenge/day1';
 import { useDay1Responses } from '@/hooks/useDay1Responses';
 import { supabase } from '@/integrations/supabase/client';
 import { trackChallengeDayStarted } from '@/lib/facebook-pixel';
+import { useToast } from '@/hooks/use-toast';
 interface Exercise {
   id: string;
   title: string;
@@ -347,12 +349,20 @@ const ChallengeDayPage = () => {
     completeAction, 
     completeDay,
     loading,
-    isAuthenticated
+    isAuthenticated,
+    hasPremiumAccess
   } = useChallengeProgress();
+  
+  const { toast } = useToast();
 
   const [videoWatched, setVideoWatched] = useState(false);
   const [completedExercises, setCompletedExercises] = useState<string[]>([]);
   const [day1Step, setDay1Step] = useState(0); // 0: Why, 1: Vision, 2: Tour, 3: Commitment
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [declarationSaved, setDeclarationSaved] = useState(false);
+  
+  // Ref for comments to post declaration
+  const commentsRef = useRef<ChallengeCommentsRef>(null);
   
   // Day 1 responses hook
   const { 
@@ -398,6 +408,34 @@ const ChallengeDayPage = () => {
       sessionStorage.setItem(sessionKey, 'true');
     }
   }, [dayProgress, dayNumber, isUnlocked]);
+
+  // Check access for Day 3+ (requires premium or trial)
+  useEffect(() => {
+    if (dayNumber >= 3 && isAuthenticated && !loading) {
+      if (!hasPremiumAccess) {
+        setShowUpgradeModal(true);
+      }
+    }
+  }, [dayNumber, isAuthenticated, hasPremiumAccess, loading]);
+
+  // Show upgrade modal for premium days
+  if (showUpgradeModal && !hasPremiumAccess) {
+    return (
+      <Layout>
+        <div className="w-full max-w-4xl mx-auto px-4 py-8">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/challenge')}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {language === 'en' ? 'Back to Challenge' : 'Înapoi la Provocare'}
+          </Button>
+          <ChallengeUpgradeGate onClose={() => navigate('/challenge')} />
+        </div>
+      </Layout>
+    );
+  }
 
   if (!isUnlocked && !loading) {
     return (
@@ -619,9 +657,23 @@ const ChallengeDayPage = () => {
                 }
 
                 updateDay1Responses(finalVisionData);
+                setDeclarationSaved(true);
                 setDay1Step(2);
               }}
               userName={userName}
+              declarationSaved={declarationSaved}
+              onPostToComments={async (declaration) => {
+                if (!commentsRef.current) return;
+                const success = await commentsRef.current.postComment(declaration);
+                if (success) {
+                  toast({
+                    title: language === 'en' ? '🎉 Shared!' : '🎉 Distribuit!',
+                    description: language === 'en' 
+                      ? 'Your declaration has been shared with the community!' 
+                      : 'Declarația ta a fost distribuită în comunitate!',
+                  });
+                }
+              }}
             />
           )}
           
@@ -643,7 +695,7 @@ const ChallengeDayPage = () => {
           {/* Comments Section for Day 1 - show after commitment step */}
           {day1Step === 3 && (
             <div className="mt-6">
-              <ChallengeComments dayNumber={1} />
+              <ChallengeComments ref={commentsRef} dayNumber={1} />
             </div>
           )}
           

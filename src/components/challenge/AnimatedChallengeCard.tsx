@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { Play } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Play, Crown } from 'lucide-react';
 import { ChallengeProgressBadge } from './ChallengeProgressBadge';
 import { LucideIcon } from 'lucide-react';
 
@@ -16,6 +17,7 @@ interface AnimatedChallengeCardProps {
   completions: number;
   language: string;
   onClick?: () => void;
+  isFree?: boolean;
 }
 
 export const AnimatedChallengeCard: React.FC<AnimatedChallengeCardProps> = ({
@@ -28,7 +30,8 @@ export const AnimatedChallengeCard: React.FC<AnimatedChallengeCardProps> = ({
   color,
   completions,
   language,
-  onClick
+  onClick,
+  isFree = false
 }) => {
   return (
     <motion.div
@@ -58,10 +61,23 @@ export const AnimatedChallengeCard: React.FC<AnimatedChallengeCardProps> = ({
         </motion.div>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
+          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
             <span className="text-xs font-medium text-primary">
               {language === 'en' ? `Day ${day}` : `Ziua ${day}`}
             </span>
+            
+            {/* Free/Premium Badge */}
+            {isFree ? (
+              <Badge className="bg-green-500/10 text-green-600 border-green-500/30 text-[10px] px-1.5 py-0">
+                {language === 'en' ? 'FREE' : 'GRATUIT'}
+              </Badge>
+            ) : (
+              <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30 text-[10px] px-1.5 py-0">
+                <Crown className="h-2.5 w-2.5 mr-0.5" />
+                {language === 'en' ? '5-DAY TRIAL' : 'TRIAL 5 ZILE'}
+              </Badge>
+            )}
+            
             <ChallengeProgressBadge 
               completions={completions} 
               language={language} 
