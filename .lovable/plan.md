@@ -1,186 +1,264 @@
 
-# Plan: Fix Audit Challenge - Toate Problemele Identificate
+# Plan: A/B Testing Challenge Landing Pages
 
-## Probleme Identificate
+## Analiza Curentă
 
-### 1. CRITICĂ: `React.Fragment` Warning (Linia 282 Challenge.tsx)
-```typescript
-// PROBLEMĂ - linia 282:
-<React.Fragment key={day.day}>
+### Pagina A: `/challenge-7-zile` (Challenge7ZileLanding.tsx)
+**Scop actual:** Lead capture + redirect la challenge
+- Form cu nume + email
+- Video Voomly embed
+- SocialProofBar floating
+- 4 Pillars section
+- 7 Days preview
+- MembershipUpsellCards
+
+### Pagina B: `/challenge-landing` (ChallengeLanding.tsx)  
+**Scop actual:** Direct sales/pricing page
+- Video Voomly embed
+- LandingEarlyBirdTimer
+- Problem/Solution comparison
+- 7 Days preview
+- 3 Pricing Cards (Trial/Pro/Elite)
+- FAQ section
+- Real metrics din DB
+
+---
+
+## Strategie A/B Testing Propusă
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                     A/B TEST STRATEGY                              │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  VARIANT A: /challenge-7-zile                                      │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                      │
+│  Mesaj: "100% GRATUIT - FĂRĂ MEMBERSHIP"                           │
+│  Ofertă: 2 zile complet gratuit, fără card                         │
+│  CTA: "Începe GRATUIT Acum"                                        │
+│  Obiectiv: Maximize lead capture                                   │
+│                                                                     │
+│  VARIANT B: /challenge-landing                                     │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                      │
+│  Mesaj: "7 ZILE FREE TRIAL"                                        │
+│  Ofertă: Trial 7 zile cu acces complet                             │
+│  CTA: "Începe 7 Zile Trial"                                        │
+│  Obiectiv: Maximize trial signups                                  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
-React.Fragment nu poate primi `data-lov-id` prop (injectat automat de Lovable în dev).
 
-**FIX:** Înlocuiește `<React.Fragment key={...}>` cu `<div key={...}>` sau `<>` fără key extern.
+---
 
-### 2. CRITICĂ: Titlu Day 1 Inconsistent
-**Challenge.tsx (lista):**
+## Îmbunătățiri Recomandate
+
+### VARIANT A: Free, No Membership (`/challenge-7-zile`)
+
+| Prioritate | Îmbunătățire | Detalii |
+|------------|--------------|---------|
+| CRITICĂ | Headline clar "GRATUIT FĂRĂ CARD" | Schimbă din "2 ZILE GRATUIT + 5 ZILE TRIAL" în "100% GRATUIT - FĂRĂ MEMBERSHIP" |
+| CRITICĂ | CTA consistent | "Începe Challenge-ul GRATUIT" (fără menționare trial) |
+| ÎNALTĂ | Elimină referințe la trial/membership | Badge-ul și copy-ul să fie pur "free" |
+| ÎNALTĂ | Adaugă LandingEarlyBirdTimer | Lipsește - copiază din ChallengeLanding |
+| ÎNALTĂ | Adaugă FAQ section | Lipsește - reduce obiecțiile |
+| MEDIE | Adaugă Stats section | Ca în ChallengeLanding (utilizatori, rată completare) |
+| MEDIE | Problem/Solution cards | Copiază din ChallengeLanding |
+
+### VARIANT B: Free Trial (`/challenge-landing`)
+
+| Prioritate | Îmbunătățire | Detalii |
+|------------|--------------|---------|
+| CRITICĂ | Adaugă Lead Form | Lipsește complet - trebuie email capture înainte de pricing |
+| CRITICĂ | Headline focus pe TRIAL | "7 ZILE ACCES COMPLET GRATUIT" |
+| ÎNALTĂ | Adaugă SocialProofBar floating | Lipsește - copiază din Challenge7ZileLanding |
+| ÎNALTĂ | Simplify pricing | Focus pe Trial vs Pro (elimină opțiunea Elite din prima vedere) |
+| MEDIE | 4 Pillars section | Lipsește - adaugă pentru claritate |
+| MEDIE | Video autoplay muted | Deja există dar verifică loading |
+
+---
+
+## Tracking A/B Test
+
+### Modificări Database (email_leads table)
+
+```sql
+-- Source tracking pentru A/B test
+-- Variant A: source = 'challenge_free_no_membership'
+-- Variant B: source = 'challenge_free_trial'
 ```
-day 1 → "🚀 PLATFORM TOUR" / "🚀 TOUR PLATFORMĂ"
-```
-**ChallengeDay.tsx (conținut actual):**
-```
-"🔥 THE FOUNDATION" / "🔥 FUNDAȚIA TRANSFORMĂRII"
-```
 
-**FIX:** Sincronizare → Folosim titlul din ChallengeDay.tsx (cel corect după restructurare):
-- EN: `"🔥 THE FOUNDATION"` 
-- RO: `"🔥 FUNDAȚIA TRANSFORMĂRII"`
+### Events de Tracking
 
-Actualizăm array-ul `challengeDays` din Challenge.tsx.
-
-### 3. MODERATĂ: CTA Final - Text Învechit
-**Challenge.tsx (liniile 427-430):**
-```
-"🦅 Start Your FREE 7-Day Transformation"
-"🦅 Începe Transformarea ta GRATUITĂ de 7 Zile"
-```
-
-**FIX:** Actualizare pentru modelul freemium 2+5:
-- EN: `"🦅 Start Your FREE 2-Day Challenge + 5-Day Trial"`
-- RO: `"🦅 Începe Challenge-ul GRATUIT: 2 Zile + 5 Zile Trial"`
-
-### 4. ACCESS CHECK - Deja implementat ✓
-Am verificat `ChallengeDay.tsx` liniile 419-445 - verificarea de acces pentru Days 3-7 EXISTĂ deja:
-```typescript
-// Check access for Day 3+ (requires premium or trial)
-useEffect(() => {
-  if (dayNumber >= 3 && isAuthenticated && !loading) {
-    if (!hasPremiumAccess) {
-      setShowUpgradeModal(true);
-    }
-  }
-}, [dayNumber, isAuthenticated, hasPremiumAccess, loading]);
-
-// Show upgrade modal for premium days
-if (showUpgradeModal && !hasPremiumAccess) {
-  return <ChallengeUpgradeGate ... />;
-}
-```
-**STATUS:** ✅ Funcționează corect.
+| Eveniment | Variant A | Variant B |
+|-----------|-----------|-----------|
+| Page View | `challenge_7zile_view` | `challenge_landing_view` |
+| Lead Capture | `challenge_7zile_lead` | `challenge_landing_lead` |
+| Trial Start | N/A | `challenge_landing_trial` |
+| Conversion | `challenge_7zile_conversion` | `challenge_landing_conversion` |
 
 ---
 
 ## Fișiere de Modificat
 
-| Fișier | Schimbări |
-|--------|-----------|
-| `src/pages/Challenge.tsx` | 3 modificări |
+| Fișier | Modificări |
+|--------|------------|
+| `src/pages/Challenge7ZileLanding.tsx` | Update headline, badge, CTA, add FAQ + Timer + Stats |
+| `src/pages/ChallengeLanding.tsx` | Add lead form, SocialProofBar, update messaging |
+| `src/utils/splitTest.ts` | Add challenge landing split test functions |
 
 ---
 
-## Modificări Detaliate
+## Implementare Detaliată
 
-### Modificare 1: Fix React.Fragment Warning
-**Linia 282:**
-```typescript
+### 1. Variant A - Free No Membership (`/challenge-7-zile`)
+
+**Badge-ul Hero:**
+```tsx
 // DE LA:
-<React.Fragment key={day.day}>
+"2 ZILE GRATUIT • 5 ZILE TRIAL"
 
 // LA:
-<div key={day.day} className="space-y-4">
+"🎁 100% GRATUIT • FĂRĂ CARD BANCAR"
 ```
 
-**Linia 419:**
-```typescript
+**Headline:**
+```tsx
 // DE LA:
-</React.Fragment>
+"Start Your FREE 2-Day Challenge"
 
 // LA:
-</div>
+"Începe Challenge-ul 100% GRATUIT"
 ```
 
-Și eliminăm `space-y-4` din parent (linia 270) pentru a nu dubla spacing.
-
-### Modificare 2: Sincronizare Titlu Day 1
-**Liniile 33-36 (challengeDays array):**
-```typescript
+**Subheadline:**
+```tsx
 // DE LA:
-titleEn: "🚀 PLATFORM TOUR",
-titleRo: "🚀 TOUR PLATFORMĂ",
+"După 2 zile, deblochează 5 zile extra cu trial GRATUIT + Early Bird 50%!"
 
 // LA:
-titleEn: "🔥 THE FOUNDATION",
-titleRo: "🔥 FUNDAȚIA TRANSFORMĂRII",
+"Transformă-ți viața în 7 zile - ZERO COST, ZERO OBLIGAȚII"
 ```
 
-**Liniile 36-37 (subtitlu):**
-```typescript
+**CTA Button:**
+```tsx
 // DE LA:
-subtitleEn: "Discover all the tools at your disposal",
-subtitleRo: "Descoperă toate instrumentele disponibile",
+"Start FREE Challenge"
 
 // LA:
-subtitleEn: "Discover your BIG WHY and create your vision",
-subtitleRo: "Descoperă-ți MARELE DE CE și creează-ți viziunea",
+"Începe ACUM - E Gratuit!"
 ```
 
-**Linia 38 (icon):**
-```typescript
+**Adăugări noi:**
+- `LandingEarlyBirdTimer` sub video
+- FAQ section cu 4 întrebări (copiate din ChallengeLanding)
+- Stats section (utilizatori, rată completare)
+
+### 2. Variant B - Free Trial (`/challenge-landing`)
+
+**Badge-ul Hero:**
+```tsx
 // DE LA:
-icon: Map,
+"🔥 CHALLENGE GRATUIT 7 ZILE"
 
 // LA:
-icon: Flame,
+"🚀 7 ZILE ACCES COMPLET GRATUIT"
 ```
 
-### Modificare 3: CTA Final - Text Freemium
-**Liniile 427-435:**
-```typescript
+**Headline:**
+```tsx
 // DE LA:
-<h3 className="text-xl font-bold mb-2 text-foreground">
-  {language === 'en' 
-    ? '🦅 Start Your FREE 7-Day Transformation' 
-    : '🦅 Începe Transformarea ta GRATUITĂ de 7 Zile'}
-</h3>
-<p className="text-muted-foreground mb-4">
-  {language === 'en'
-    ? 'Master Body, Being, Balance & Business — Have It ALL!'
-    : 'Stăpânește Corpul, Spiritul, Relațiile și Business-ul — Ai TOTUL!'}
-</p>
+"Transformă-ți viața în 7 zile SAU primești banii înapoi"
 
 // LA:
-<h3 className="text-xl font-bold mb-2 text-foreground">
-  {language === 'en' 
-    ? '🦅 Start Your FREE Challenge: 2 Days + 5-Day Trial' 
-    : '🦅 Începe Challenge-ul GRATUIT: 2 Zile + 5 Zile Trial'}
-</h3>
-<p className="text-muted-foreground mb-4">
-  {language === 'en'
-    ? '2 days FREE to start, then unlock days 3-7 with a 5-day trial!'
-    : '2 zile GRATUIT pentru început, apoi deblochează zilele 3-7 cu 5 zile trial!'}
-</p>
+"Acces GRATUIT 7 Zile la TOT - Anulezi Oricând"
+```
+
+**Adăugări noi:**
+- Lead capture form (nume + email) înainte de pricing
+- SocialProofBar floating la top
+- Tracking diferențiat în source field
+
+---
+
+## Tracking Implementation
+
+### Variant A tracking:
+```tsx
+// În Challenge7ZileLanding.tsx handleSubmit:
+await supabase.from('email_leads').insert({
+  email,
+  name,
+  lead_magnet: 'challenge_free_no_membership',
+  source: 'ab_test_variant_a',
+  metadata: { test_name: 'challenge_landing_ab', variant: 'A' }
+});
+```
+
+### Variant B tracking:
+```tsx
+// În ChallengeLanding.tsx handleSubmit:
+await supabase.from('email_leads').insert({
+  email,
+  name,
+  lead_magnet: 'challenge_free_trial',
+  source: 'ab_test_variant_b',
+  metadata: { test_name: 'challenge_landing_ab', variant: 'B' }
+});
 ```
 
 ---
 
-## Verificări Suplimentare
+## Secțiune Tehnică
 
-### Icon Import - Necesar
-Verificăm că `Flame` este importat (da, este în linia 11):
-```typescript
-import { Flame, Heart, Target, Zap, Gift, BookOpen, Crown, ... }
-```
-✅ OK
+### Dependențe
+- Toate componentele necesare sunt deja instalate
+- `LandingEarlyBirdTimer` există în `src/components/landing/`
+- `SocialProofBar` există în `src/components/landing/`
 
----
-
-## Rezumat Modificări
+### Structura Finală
 
 ```text
-┌─────────────────────────────────────────────────────────────────────┐
-│                    FIX-URI PENTRU /challenge                       │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ✅ 1. React.Fragment → <div> (fix warning)                        │
-│                                                                     │
-│  ✅ 2. Day 1 Titlu: "🚀 PLATFORM TOUR" → "🔥 THE FOUNDATION"       │
-│                                                                     │
-│  ✅ 3. CTA Final: "7 Zile GRATUIT" → "2 Zile + 5 Zile Trial"       │
-│                                                                     │
-│  ✅ 4. Access Check Days 3-7: Deja implementat, funcționează       │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+VARIANT A (/challenge-7-zile):
+├── SocialProofBar (floating)
+├── Hero Section
+│   ├── Badge: "100% GRATUIT"
+│   ├── Headline: No membership
+│   ├── Video
+│   ├── Lead Form (name + email)
+│   └── Early Bird Timer
+├── 4 Pillars
+├── 7 Days Preview
+├── Stats Section (NEW)
+├── FAQ Section (NEW)
+└── Membership Cards
+
+VARIANT B (/challenge-landing):
+├── SocialProofBar (NEW - floating)
+├── Hero Section
+│   ├── Badge: "7 ZILE TRIAL"
+│   ├── Headline: Full access trial
+│   ├── Early Bird Timer
+│   └── Video
+├── Lead Form Section (NEW)
+├── Problem/Solution
+├── 7 Days Preview
+├── Pricing Cards
+├── Stats
+├── FAQ
+└── Final CTA
 ```
+
+---
+
+## Metrici de Succes
+
+| Metrică | Cum o măsurăm |
+|---------|---------------|
+| Lead Conversion Rate | Leads / Page Views |
+| Trial Conversion Rate | Trials / Leads |
+| Paid Conversion Rate | Paid / Trials |
+| Time on Page | Analytics |
+| Scroll Depth | Analytics |
 
 ---
 
@@ -188,7 +266,8 @@ import { Flame, Heart, Target, Zap, Gift, BookOpen, Crown, ... }
 
 | Task | Timp |
 |------|------|
-| Fix React.Fragment warning | 5 min |
-| Sincronizare titlu Day 1 | 5 min |
-| Actualizare CTA text | 5 min |
-| **Total** | **~15 min** |
+| Update Variant A messaging + add FAQ/Timer/Stats | 30 min |
+| Update Variant B messaging + add Lead Form + SocialProofBar | 30 min |
+| Add tracking to both variants | 15 min |
+| Testing | 15 min |
+| **Total** | **~90 min** |
