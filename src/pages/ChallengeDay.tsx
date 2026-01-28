@@ -15,6 +15,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { ChallengeAnswersHistory } from '@/components/challenge/ChallengeAnswersHistory';
 import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Complete';
+import { ChallengeComments } from '@/components/challenge/ChallengeComments';
 import { Day1WhyQuestions, Day1VisionDeclaration, Day1PlatformTour, Day1Commitment } from '@/components/challenge/day1';
 import { useDay1Responses } from '@/hooks/useDay1Responses';
 import { supabase } from '@/integrations/supabase/client';
@@ -639,6 +640,13 @@ const ChallengeDayPage = () => {
             />
           )}
           
+          {/* Comments Section for Day 1 - show after commitment step */}
+          {day1Step === 3 && (
+            <div className="mt-6">
+              <ChallengeComments dayNumber={1} />
+            </div>
+          )}
+          
           {/* Step Navigation */}
           {day1Step > 0 && (
             <div className="mt-6">
@@ -814,6 +822,11 @@ const ChallengeDayPage = () => {
         {/* Answers History Section */}
         <div className="mb-6">
           <ChallengeAnswersHistory dayNumber={dayNumber} />
+        </div>
+
+        {/* Challenge Comments Section */}
+        <div className="mb-6">
+          <ChallengeComments dayNumber={dayNumber} />
         </div>
 
         {/* Complete Day Button */}
