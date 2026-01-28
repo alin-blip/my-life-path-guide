@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { X, GripVertical, Search, Plus, Target, Brain, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { X, GripVertical, Search, Plus, Target, Brain, CheckCircle2, AlertTriangle, XCircle, Send } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { DoorEmptyState } from './DoorEmptyState';
 import { cn } from '@/lib/utils';
@@ -166,24 +167,37 @@ export const HotList: React.FC<HotListProps> = ({
     <div className={isMobile ? 'max-h-[70vh] overflow-y-auto overflow-x-hidden w-full max-w-full' : ''}>
       {/* Add Input */}
       <div className={`${isMobile ? 'mb-3' : 'mb-4'}`}>
-        <div className="relative">
-          <Plus className={`absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground ${isMobile ? 'w-3 h-3' : 'h-4 w-4'}`} />
-          <Input
-            ref={inputRef}
-            value={newItemText}
-            onChange={(e) => setNewItemText(e.target.value)}
-            onKeyDown={async (e) => {
-              if (e.key === 'Enter' && !isAdding) {
-                e.preventDefault();
-                await handleAddItem();
-              }
-            }}
-            placeholder={isAdding ? "Se salvează..." : (t('addItem') + '...')}
-            disabled={isAdding}
-            className={`bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary transition-all ${
-              isMobile ? 'pl-8 text-sm h-9' : 'pl-10 h-10'
-            } ${isAdding ? 'opacity-50' : ''}`}
-          />
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Plus className={`absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground ${isMobile ? 'w-3 h-3' : 'h-4 w-4'}`} />
+            <Input
+              ref={inputRef}
+              value={newItemText}
+              onChange={(e) => setNewItemText(e.target.value)}
+              onKeyDown={async (e) => {
+                if (e.key === 'Enter' && !isAdding) {
+                  e.preventDefault();
+                  await handleAddItem();
+                }
+              }}
+              placeholder={isAdding ? "Se salvează..." : (t('addItem') + '...')}
+              disabled={isAdding}
+              className={`bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary transition-all ${
+                isMobile ? 'pl-8 pr-2 text-sm h-9' : 'pl-10 h-10'
+              } ${isAdding ? 'opacity-50' : ''}`}
+            />
+          </div>
+          {/* Mobile add button */}
+          {isMobile && (
+            <Button
+              size="sm"
+              onClick={handleAddItem}
+              disabled={!newItemText.trim() || isAdding}
+              className="h-9 w-9 p-0 shrink-0"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </div>
       
