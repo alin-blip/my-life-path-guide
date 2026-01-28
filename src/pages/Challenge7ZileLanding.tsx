@@ -341,9 +341,29 @@ const Challenge7ZileLanding = () => {
               </span>
             </motion.div>
 
-            {/* Lead Capture Form (only if NOT from life-score quiz) */}
+            {/* Voomly Video Embed */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mt-6 max-w-3xl mx-auto"
+            >
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-primary/20 shadow-2xl">
+                <iframe 
+                  src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=Q2rPQbpGVI3G3AQChBI7EptvcVsWzFtGMVz09Gu8CDoxI1d3P&videoRatio=1.777778&type=v&skinColor=%232758EB" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen 
+                  width="100%" 
+                  height="100%"
+                  className="absolute inset-0"
+                />
+              </div>
+            </motion.div>
+
+            {/* Lead Capture Form - Below Video */}
             {!showMemberships && !isSubscribed ? (
-              <Card className="max-w-md mx-auto p-6 bg-card/80 backdrop-blur border-primary/20">
+              <Card className="max-w-md mx-auto p-6 bg-card/80 backdrop-blur border-primary/20 mt-8">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Input
                     type="text"
@@ -379,7 +399,7 @@ const Challenge7ZileLanding = () => {
                 </p>
               </Card>
             ) : isSubscribed ? (
-              <Card className="max-w-md mx-auto p-6 bg-green-500/10 border-green-500/30">
+              <Card className="max-w-md mx-auto p-6 bg-green-500/10 border-green-500/30 mt-8">
                 <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
                 <p className="text-lg font-medium text-green-500">
                   {language === 'en' ? 'You\'re in! Redirecting...' : 'Ești înscris! Se redirecționează...'}
@@ -387,44 +407,24 @@ const Challenge7ZileLanding = () => {
               </Card>
             ) : null}
 
-            {/* Voomly Video Embed */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="mt-10 max-w-3xl mx-auto"
+            {/* Button after form - scrolls to memberships */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="mt-6"
             >
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-primary/20 shadow-2xl">
-                <iframe 
-                  src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=Q2rPQbpGVI3G3AQChBI7EptvcVsWzFtGMVz09Gu8CDoxI1d3P&videoRatio=1.777778&type=v&skinColor=%232758EB" 
-                  frameBorder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen 
-                  width="100%" 
-                  height="100%"
-                  className="absolute inset-0"
-                />
-              </div>
-              
-              {/* Button after video - scrolls to memberships */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-                className="mt-6"
+              <Button 
+                size="lg"
+                onClick={() => {
+                  const membershipSection = document.getElementById('membership-section');
+                  membershipSection?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg px-8 py-6"
               >
-                <Button 
-                  size="lg"
-                  onClick={() => {
-                    const membershipSection = document.getElementById('membership-section');
-                    membershipSection?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg px-8 py-6"
-                >
-                  {language === 'en' ? 'See Subscription Plans' : 'Vezi Planurile de Abonament'}
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-              </motion.div>
+                {language === 'en' ? 'See Subscription Plans' : 'Vezi Planurile de Abonament'}
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </Button>
             </motion.div>
           </div>
         </section>
