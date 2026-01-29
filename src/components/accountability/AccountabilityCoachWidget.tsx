@@ -8,6 +8,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useAccountabilityCoach } from '@/hooks/useAccountabilityCoach';
 import { useFoundationStatus } from '@/hooks/useFoundationStatus';
 import { useRealityMapStatus } from '@/hooks/useRealityMapStatus';
+import { useTaskReminders } from '@/hooks/useTaskReminders';
 import { CoachChatMode } from './CoachChatMode';
 import { CoachReminders } from './CoachReminders';
 import { cn } from '@/lib/utils';
@@ -33,6 +34,7 @@ export const AccountabilityCoachWidget: React.FC = () => {
   const { language } = useLanguage();
   const { pendingItems, isFoundationComplete } = useFoundationStatus();
   const { hasRealityMap, isLoading: realityMapLoading } = useRealityMapStatus();
+  const { remainingCount, totalCount } = useTaskReminders();
   const [showPulse, setShowPulse] = useState(true);
   
   const {
@@ -46,15 +48,20 @@ export const AccountabilityCoachWidget: React.FC = () => {
   });
 
   const quickActions = getQuickActionsForCoach(language as 'en' | 'ro');
-  const pendingCount = pendingItems.length;
+  const foundationPendingCount = pendingItems.length;
+  
+  // Badge shows remaining tasks + foundation items
+  const badgeCount = remainingCount + foundationPendingCount;
+  const hasTasksToday = totalCount > 0;
+  const allTasksComplete = hasTasksToday && remainingCount === 0;
 
   // Show pulse animation for chat bubble when foundation is complete
   useEffect(() => {
-    if (isFoundationComplete) {
+    if (isFoundationComplete && allTasksComplete) {
       const timer = setTimeout(() => setShowPulse(false), 5000);
       return () => clearTimeout(timer);
     }
-  }, [isFoundationComplete]);
+  }, [isFoundationComplete, allTasksComplete]);
 
   // Listen for tour events to open the widget and switch tabs
   useEffect(() => {
@@ -75,6 +82,10 @@ export const AccountabilityCoachWidget: React.FC = () => {
     clearMessages();
   };
 
+  // Determine icon and style based on status
+  const showCelebration = isFoundationComplete && allTasksComplete;
+  const showWarning = badgeCount > 0;
+
   return (
     <>
       {/* Floating Button - Bottom Right */}
@@ -86,37 +97,64 @@ export const AccountabilityCoachWidget: React.FC = () => {
           'transition-all duration-300',
           'flex items-center justify-center',
           isOpen ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 hover:scale-105',
-          // Different styles based on foundation status
-          isFoundationComplete
+          // Different styles based on status
+          showCelebration
             ? 'bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70'
-            : 'bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700'
+            : showWarning
+            ? 'bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700'
+            : 'bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70'
         )}
       >
-        {/* Pulse animation for chat bubble */}
-        {isFoundationComplete && showPulse && (
+        {/* Pulse animation for celebration */}
+        {showCelebration && showPulse && (
           <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping" />
         )}
         
-        {/* Icon based on foundation status */}
-        {isFoundationComplete ? (
+        {/* Progress ring for tasks */}
+        {hasTasksToday && !showCelebration && (
+          <svg className="absolute inset-0 w-full h-full -rotate-90">
+            <circle
+              cx="28"
+              cy="28"
+              r="26"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              className="text-white/20"
+            />
+            <circle
+              cx="28"
+              cy="28"
+              r="26"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeDasharray={`${((totalCount - remainingCount) / totalCount) * 163} 163`}
+              className="text-white transition-all duration-500"
+            />
+          </svg>
+        )}
+        
+        {/* Icon based on status */}
+        {showCelebration ? (
           <MessageCircle className="w-6 h-6 text-primary-foreground" />
         ) : (
           <Trophy className="w-6 h-6 text-white" />
         )}
         
         {/* Badge - show pending count or sparkle for complete */}
-        {isFoundationComplete ? (
+        {showCelebration ? (
           <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center">
             <Sparkles className="w-3 h-3" />
           </span>
-        ) : pendingCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
-            {pendingCount > 9 ? '9+' : pendingCount}
+        ) : badgeCount > 0 && (
+          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center animate-pulse">
+            {badgeCount > 9 ? '9+' : badgeCount}
           </span>
         )}
       </Button>
 
-      {/* Coach Sheet - Left Side */}
+      {/* Coach Sheet - Right Side */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent 
           side="right" 
@@ -125,16 +163,31 @@ export const AccountabilityCoachWidget: React.FC = () => {
           <SheetHeader className="p-4 border-b border-border flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                  <Trophy className="w-5 h-5 text-white" />
+                <div className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center",
+                  showCelebration 
+                    ? "bg-gradient-to-br from-green-500 to-emerald-600"
+                    : "bg-gradient-to-br from-amber-500 to-orange-600"
+                )}>
+                  {showCelebration ? (
+                    <Sparkles className="w-5 h-5 text-white" />
+                  ) : (
+                    <Trophy className="w-5 h-5 text-white" />
+                  )}
                 </div>
                 <div>
                   <SheetTitle className="text-base">
                     Accountability Coach
                   </SheetTitle>
-                  {pendingCount > 0 && (
+                  {hasTasksToday && (
                     <p className="text-xs text-muted-foreground">
-                      {pendingCount} {language === 'ro' ? 'reminder-uri' : 'reminders'}
+                      {totalCount - remainingCount}/{totalCount} {language === 'ro' ? 'taskuri' : 'tasks'}
+                      {foundationPendingCount > 0 && ` • ${foundationPendingCount} ${language === 'ro' ? 'reminder-uri' : 'reminders'}`}
+                    </p>
+                  )}
+                  {!hasTasksToday && foundationPendingCount > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {foundationPendingCount} {language === 'ro' ? 'reminder-uri' : 'reminders'}
                     </p>
                   )}
                 </div>
@@ -171,9 +224,9 @@ export const AccountabilityCoachWidget: React.FC = () => {
               <TabsTrigger value="plan" className="gap-1.5 relative" data-tour="accountability-plan-tab">
                 <ListTodo className="w-4 h-4" />
                 Plan
-                {pendingCount > 0 && (
+                {badgeCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
-                    {pendingCount}
+                    {badgeCount > 9 ? '9+' : badgeCount}
                   </span>
                 )}
               </TabsTrigger>
