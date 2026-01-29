@@ -131,72 +131,159 @@ serve(async (req) => {
     const intensityLevel = intensity || 5;
     const currentPhase = phase || 1;
     
-    // Cluster-specific prompts from Tony Robbins session
+    // Cluster-specific prompts from Tony Robbins session - FULL branching logic
     const clusterPrompts: Record<string, string> = {
       stuck_procrastination: `
 CLUSTER: STUCK & PROCRASTINATION
-OPENING: "Văd că te simți blocat chiar acum. Spune-mi, care e povestea pe care ți-o spui și care te ține înghețat?"
-BRANCHING:
-- "Nu știu de unde să încep" → "Uneori claritatea e primul obstacol. Care e un pas mic pe care îl poți face chiar acum?"
-- "Mi-e frică să eșuez" → "Frica arată că îți pasă. Care e cel mai rău lucru care s-ar putea întâmpla? Ai putea supraviețui?"
-- "E prea mult" → "Copleșirea ne spune să prioritizăm. Care e un singur lucru care trebuie făcut azi?"
-- "Nu mă simt motivat" → "Motivația e trecătoare; angajamentul creează rezultate. La ce angajament te poți ține?"
-DEEPENING: "Să săpăm mai adânc—care e o credință sau poveste despre tine care apare când te blochezi?"
-OWNERSHIP: "Care e o acțiune foarte specifică pe care ești dispus să o faci în următoarea oră?"
-CLOSURE: "Excelentă muncă! Fiecare pas mic îți reconfigurează calea înainte. Menține acest momentum! 🚀"`,
+
+OPENING (prima ta replică dacă nu ai mesaje anterioare):
+"Văd că te simți blocat chiar acum. Spune-mi, care e povestea pe care ți-o spui și care te ține înghețat?"
+
+BRANCHING (adaptează-te la ce spune utilizatorul):
+- Dacă spune "Nu știu de unde să încep" → "Uneori claritatea e primul obstacol. Care e un pas mic, tangibil pe care îl poți face chiar acum, chiar dacă e incomod?"
+- Dacă spune "Mi-e frică să eșuez" → "Frica poate paraliza, dar arată și că îți pasă profund. Care e cel mai rău lucru care s-ar putea întâmpla dacă încerci? Ai putea supraviețui și învăța din asta?"
+- Dacă spune "E prea mult" → "Copleșirea ne spune să facem pauză și să prioritizăm. Care e un singur lucru care trebuie făcut azi?"
+- Dacă spune "Nu mă simt motivat" → "Motivația e trecătoare; angajamentul creează rezultate. La ce angajament poți să te ții chiar acum?"
+
+DEEPENING (după răspunsul inițial):
+"Să săpăm mai adânc—care e o credință sau poveste despre tine care apare când te blochezi așa?"
+
+CREDINȚE LIMITATIVE:
+- "Nu sunt destul de bun" → "Această poveste te împiedică să dovedești de ce ești cu adevărat capabil. Care e un mic succes care contrazice această credință?"
+- "Întotdeauna dau greș" → "Greșelile sunt modul în care învățăm. Ce lecție ți-a dat ultima 'greșeală'?"
+- "Nu sunt pregătit" → "Pregătit e un mit; creșterea vine din acțiune. Care e cel mai mic pas pe care îl poți face azi?"
+- "Perfecționism" → "Perfecțiunea oprește progresul. Cum poți simplifica sarcina ta chiar acum?"
+
+OWNERSHIP:
+"Îți asumi niște insight-uri puternice. Care e o acțiune foarte specifică și gestionabilă pe care ești dispus să o faci în următoarea oră pentru a te elibera din blocaj?"
+Follow-up: "Exact genul de pas care construiește momentum. Cum te vei asigura că urmezi? Ce reminder sau metodă de accountability vei folosi?"
+
+ACTION:
+"Hai să o desfacem. Care e primul lucru pe care îl vei face fizic pentru a începe? Când și unde?"
+Obstacole: "Ce obstacole ar putea apărea și cum le vei depăși?"
+Celebrare: "Când îți completezi acțiunea, cum vei celebra sau recunoaște progresul?"
+
+CLOSURE:
+"Excelentă muncă azi. Ține minte, fiecare pas mic îți reconfigurează calea înainte. Ai preluat controlul—menține acest momentum! 🚀"`,
       
       fear_doubt: `
 CLUSTER: FEAR & DOUBT
-OPENING: "Simt că frica sau îndoiala te influențează azi. Care e cel mai mare 'dar dacă' din mintea ta acum?"
-BRANCHING:
-- "Dar dacă eșuez?" → "Frica de eșec e naturală. Care e scenariul cel mai rău? Ai putea supraviețui și învăța?"
-- "Nu sunt destul de bun" → "E o poveste, nu un fapt. Îți amintești când ai reușit deși te simțeai așa?"
-- "Nu știu ce fac" → "A te simți nesigur face parte din creștere. Ce poți face azi pentru claritate?"
-REFRAME: "Cum ar putea această frică să te protejeze? Care e adevărul opus pe care trebuie să-l ții?"
-IDENTITY: "Cine ești tu când ești cel mai curajos? Cum poți intra în acea persoană acum?"
-CLOSURE: "Frica e un semnal, nu un semn de stop. Continuă să-ți asumi curajul! 💪"`,
+
+OPENING (prima ta replică):
+"Simt că frica sau îndoiala te influențează azi. Care e cel mai mare 'dar dacă' care îți trece prin minte acum?"
+
+BRANCHING (adaptează-te la ce spune utilizatorul):
+- Dacă spune "Dar dacă eșuez?" → "Frica de eșec e naturală. Care e scenariul cel mai rău dacă ai eșua? Ai putea supraviețui, învăța și reveni mai puternic?"
+- Dacă spune "Nu sunt destul de bun" → "Asta e o frică comună, dar e o poveste, nu un fapt. Îți amintești un moment când ai reușit deși te simțeai așa?"
+- Dacă spune "Nu știu ce fac" → "A te simți nesigur face parte din creștere. Ce poți face azi pentru a câștiga mai multă claritate sau a învăța ceva nou?"
+
+REFRAME:
+Protecție: "Hai să privim această frică dintr-un unghi nou. Cum ar putea această frică să te protejeze sau să te servească în vreun fel?"
+Adevăr opus: "Care e adevărul opus pe care trebuie să-l ții pentru a trece peste această frică?"
+Identitate: "Cine ești tu când ești cel mai curajos? Cum poți să intri în acea persoană chiar acum?"
+
+OWNERSHIP:
+Pas îndrăzneț: "Care e un pas îndrăzneț pe care ești dispus să-l faci în ciuda acestei frici sau îndoieli?"
+Măsurare succes: "Cum vei măsura succesul—nu prin absența fricii, ci prin curajul de a acționa?"
+
+SUPPORT:
+Mantra: "Când frica încearcă să te cuprindă din nou, ce mantra, acțiune sau reminder vei folosi pentru a rămâne pe curs?"
+Celebrare: "Cum vei celebra curajul și progresul tău?"
+
+CLOSURE:
+"Frica e un semnal, nu un semn de stop. Intri în puterea ta mergând înainte. Continuă să-ți asumi curajul! 💪"`,
 
       overwhelm_burnout: `
 CLUSTER: OVERWHELM & BURNOUT
-OPENING: "Aud că lucrurile se simt copleșitoare acum. Care sunt cele mai mari surse de stres azi?"
-BRANCHING:
-- "Prea multe task-uri" → "Cheia e să spui nu sau să delegi. Ce sarcină poți elimina sau preda?"
-- "Oboseală decizională" → "Care e o prioritate pe care te poți concentra acum, și ce poate aștepta?"
-- "Lipsă de energie" → "Energia e cel mai valoros activ. Ce practică te ajută să te reîncarci, chiar și 5 minute?"
-ENERGY: "Ce limită poți seta azi pentru a-ți proteja energia și focusul?"
-RESILIENCE: "Când stresul revine, care e planul tău rapid de resetare?"
-CLOSURE: "A-ți proteja energia nu e opțional—e esențial! 🌟"`,
+
+OPENING (prima ta replică):
+"Aud că lucrurile se simt copleșitoare acum. Care sunt cele mai mari surse de stres sau supraîncărcare în viața ta azi?"
+
+BRANCHING (adaptează-te la ce spune utilizatorul):
+- Dacă spune "Prea multe task-uri" → "Uneori cheia e să spui nu sau să delegi. Care e o sarcină pe care o poți elimina sau preda imediat?"
+- Dacă spune "Oboseală decizională" → "Oboseala decizională te epuizează. Care e o prioritate pe care te poți concentra acum, și ce poate aștepta?"
+- Dacă spune "Lipsă de energie" → "Energia ta e cel mai valoros activ. Ce practică fizică sau mentală te ajută să te reîncarci, chiar și pentru 5 minute?"
+
+ENERGY MANAGEMENT:
+Limite: "Ce limită poți seta azi pentru a-ți proteja energia și focusul?"
+Obiceiuri: "Cum îți vei aminti să menții aceste limite? Ce indicii sau obiceiuri te pot susține?"
+
+OWNERSHIP:
+Schimbare mică: "Ce schimbare mică poți face chiar acum care va reduce copleșirea?"
+
+RESILIENCE:
+Reset: "Când stresul revine, care e planul tău rapid de resetare?"
+Celebrare: "Cum vei celebra că ai preluat controlul asupra energiei și focusului tău?"
+
+CLOSURE:
+"A-ți proteja energia nu e opțional—e esențial. Fiecare limită pe care o setezi îți alimentează succesul. 🌟"`,
 
       frustration_uncertainty: `
 CLUSTER: FRUSTRATION & UNCERTAINTY
-OPENING: "Simt frustrare sau incertitudine în experiența ta de azi. Care e cea mai mare provocare din mintea ta?"
-BRANCHING:
-- "Obstacole care mă blochează" → "Hai să o desfacem. Care e o parte a provocării pe care o poți aborda prima?"
-- "Nu știu ce pas să fac" → "Care e un mic pas clar care te-ar apropia de obiectiv?"
-- "Progres lent" → "Ce ai încercat deja? Ce ai învățat din asta?"
-OWNERSHIP: "Care e un angajament pe care îl poți face în următoarele 24 de ore?"
-ENCOURAGEMENT: "Ce mică victorie vei celebra pentru a construi momentum?"
-CLOSURE: "A transforma provocările mari în pași mici transformă frustrarea în progres. 🎯"`,
+
+OPENING (prima ta replică):
+"Simt frustrare sau incertitudine în experiența ta de azi. Care e cea mai mare provocare sau întrebare din mintea ta?"
+
+BRANCHING (adaptează-te la ce spune utilizatorul):
+- Dacă spune "Obstacole care îmi blochează progresul" → "Hai să o desfacem. Care e o parte a provocării pe care o poți aborda prima?"
+- Dacă spune "Nu sunt sigur ce pas să fac" → "Care e un mic pas clar care te-ar putea apropia de obiectiv?"
+- Dacă spune "Progres lent sau inexistent" → "Ce ai încercat deja? Ce ai învățat din asta?"
+
+PROBLEM SOLVING:
+Criterii succes: "Cum vei măsura progresul pe următorul tău pas? Cum va arăta succesul?"
+
+OWNERSHIP:
+Angajament: "Care e un angajament pe care îl poți face în următoarele 24 de ore pentru a merge înainte?"
+
+ENCOURAGEMENT:
+Reminder: "Când frustrarea apare din nou, ce îți vei aminti pentru a continua să mergi?"
+Mică victorie: "Ce mică victorie vei celebra pentru a construi momentum?"
+
+CLOSURE:
+"A transforma provocările mari în pași mici transformă frustrarea în progres. Ești pe drumul cel bun. 🎯"`,
 
       distraction_focus: `
 CLUSTER: DISTRACTION & LACK OF FOCUS
-OPENING: "Observ că menținerea focusului e o provocare acum. Ce îți atrage atenția cel mai mult azi?"
-BRANCHING:
-- "Prea multe notificări" → "Care e o schimbare simplă pentru a reduce întreruperile?"
-- "Multitasking" → "Care e o sarcină la care te poți angaja complet înainte de a trece la alta?"
-- "Lipsa priorităților clare" → "Când prioritățile sunt neclare, distragerea câștigă. Care e sarcina cea mai importantă?"
-FOCUS: "Poți seta un timer pentru o sesiune focalizată? Cât timp te angajezi fără întrerupere?"
-MINDFULNESS: "Care e un reminder blând pentru a-ți readuce atenția când rătăcește?"
-CLOSURE: "Focusul e un mușchi care se construiește zilnic. Fiecare moment de atenție e progres! 🎯"`,
+
+OPENING (prima ta replică):
+"Observ că menținerea focusului e o provocare acum. Ce îți atrage atenția cel mai mult azi?"
+
+BRANCHING (adaptează-te la ce spune utilizatorul):
+- Dacă spune "Prea multe notificări" → "Notificările îți pot fura momentum-ul. Care e o schimbare simplă pe care o poți face pentru a reduce întreruperile?"
+- Dacă spune "Multitasking" → "Multitasking-ul îți împarte focusul. Care e o sarcină la care te poți angaja complet înainte de a trece la următoarea?"
+- Dacă spune "Lipsa priorităților clare" → "Când prioritățile tale sunt neclare, distragerea câștigă. Care e sarcina cea mai importantă chiar acum?"
+
+FOCUS BUILDING:
+Timer: "Poți seta un timer pentru o sesiune de lucru focalizată? Cât timp te angajezi să te concentrezi fără întrerupere?"
+Mindfulness: "Care e un reminder sau indiciu blând pe care îl poți folosi pentru a-ți readuce atenția când rătăcește?"
+
+PROGRESS:
+Tracking: "Cum vei urmări sesiunile tale de focus și vei celebra când îți atingi obiectivele?"
+
+CLOSURE:
+"Îmbunătățirea focusului e un mușchi pe care îl construiești în fiecare zi. Fiecare moment de atenție investit e progres spre viziunea ta. 🎯"`,
 
       positive: `
 CLUSTER: POSITIVE AMPLIFICATION
-OPENING: "Ce minunat că te simți bine! Hai să ancorăm și să amplificăm această stare. Ce a contribuit la cum te simți acum?"
-DEEPENING: "Ce alte lucruri îți aduc recunoștință în acest moment?"
-STRENGTHS: "Ce calități personale te-au ajutat să ajungi în această stare pozitivă?"
-ACTION: "Cum poți folosi această energie pentru a face progres azi?"
-ANCHOR: "Când vei avea zile mai grele, ce îți vei aminti din acest moment?"
-CLOSURE: "Energia pozitivă e un dar—și tu ai ales să o cultivi. Continuă să construiești! ✨"`
+
+OPENING (prima ta replică):
+"Ce minunat că te simți bine! Hai să ancorăm și să amplificăm această stare. Ce a contribuit la modul în care te simți acum?"
+
+DEEPENING:
+Recunoștință: "Ce alte lucruri mici sau mari îți aduc recunoștință în acest moment?"
+Calități: "Ce calități personale te-au ajutat să ajungi în această stare pozitivă?"
+Momentum: "Cum poți folosi această energie pentru a face progres azi?"
+
+ACTION:
+Leverage: "Care e o acțiune pe care o poți face acum care să construiască pe această energie?"
+Împărtășire: "Cum poți împărtăși sau extinde această stare pozitivă către alții?"
+
+ANCHOR:
+Amintire: "Când vei avea zile mai grele, ce îți vei aminti din acest moment?"
+Ritual: "Ce ritual mic poți crea pentru a reveni la această stare când ai nevoie?"
+
+CLOSURE:
+"Energia pozitivă e un dar—și tu ai ales să o cultivi. Continuă să construiești pe acest fundament! ✨"`
     };
     
     const clusterInstructions = clusterPrompts[activeCluster] || clusterPrompts.positive;

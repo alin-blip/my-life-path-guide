@@ -287,6 +287,72 @@ export const POSITIVE_AMPLIFICATION_FLOW = {
 // HELPER: GET CLUSTER PROMPT FOR EDGE FUNCTION
 // ============================================================
 
+// ============================================================
+// HELPER: GET CLUSTER FOR EMOTION
+// ============================================================
+
+export function getClusterForEmotion(emotion: string | null): CoachingCluster {
+  if (!emotion) return 'positive';
+  
+  const clusterMap: Record<string, CoachingCluster> = {
+    'stuck': 'stuck_procrastination',
+    'procrastinating': 'stuck_procrastination',
+    'anxious': 'fear_doubt',
+    'sad': 'fear_doubt',
+    'angry': 'frustration_uncertainty',
+    'conflicted': 'frustration_uncertainty',
+    'stressed': 'overwhelm_burnout',
+    'overwhelmed': 'overwhelm_burnout',
+    'distracted': 'distraction_focus',
+    'happy': 'positive',
+    'calm': 'positive',
+    'enthusiastic': 'positive',
+    'natural': 'positive',
+    'motivated': 'positive',
+  };
+  
+  return clusterMap[emotion] || 'positive';
+}
+
+// ============================================================
+// HELPER: GET CLUSTER OPENING MESSAGE
+// ============================================================
+
+export function getClusterOpeningMessage(cluster: CoachingCluster, language: 'ro' | 'en' = 'ro'): string {
+  const openings: Record<CoachingCluster, { ro: string; en: string }> = {
+    stuck_procrastination: {
+      ro: STUCK_PROCRASTINATION_FLOW.opening,
+      en: "I see you're feeling stuck right now. Tell me, what's the story you're telling yourself that's keeping you frozen?"
+    },
+    fear_doubt: {
+      ro: FEAR_DOUBT_FLOW.opening,
+      en: "I sense fear or doubt might be influencing you today. What's the biggest 'what if' running through your mind right now?"
+    },
+    overwhelm_burnout: {
+      ro: OVERWHELM_BURNOUT_FLOW.opening,
+      en: "I hear things feel overwhelming right now. What are the biggest sources of stress or overload in your life today?"
+    },
+    frustration_uncertainty: {
+      ro: FRUSTRATION_UNCERTAINTY_FLOW.opening,
+      en: "I sense frustration or uncertainty in your experience today. What's the biggest challenge or question on your mind?"
+    },
+    distraction_focus: {
+      ro: DISTRACTION_FOCUS_FLOW.opening,
+      en: "I notice maintaining focus is a challenge right now. What's pulling your attention away the most today?"
+    },
+    positive: {
+      ro: POSITIVE_AMPLIFICATION_FLOW.opening,
+      en: "How wonderful that you're feeling good! Let's anchor and amplify this state. What contributed to how you feel now?"
+    }
+  };
+  
+  return openings[cluster]?.[language] || openings.positive[language];
+}
+
+// ============================================================
+// HELPER: GET CLUSTER SYSTEM PROMPT FOR EDGE FUNCTION
+// ============================================================
+
 export function getClusterSystemPrompt(cluster: CoachingCluster): string {
   const prompts: Record<CoachingCluster, string> = {
     stuck_procrastination: `

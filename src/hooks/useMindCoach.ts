@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { MindCoachEmotion, getEmotionInfo } from '@/components/mind-coach/ExtendedEmotionPicker';
+import { getClusterForEmotion } from '@/lib/mind-coach-clusters';
 import { TransformationPhase, getPhaseFromMessageCount } from '@/components/mind-coach/PhaseIndicator';
 import { toast } from 'sonner';
 
@@ -136,6 +137,7 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
 
       const emotionInfo = getEmotionInfo(emotion);
       const allMessages = [...messages, userMsg];
+      const cluster = getClusterForEmotion(emotion);
       
       // Calculate phase based on message count
       const newPhase = getPhaseFromMessageCount(allMessages.length);
@@ -152,6 +154,7 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
           emotion: emotionInfo?.labelRo || emotion,
           intensity,
           phase: newPhase,
+          cluster,
         }),
       });
 
@@ -174,6 +177,9 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let textBuffer = '';
+      
+      // Robust tool call accumulator - handles streaming chunks
+      const toolCallsInProgress: Map<number, { name: string; arguments: string }> = new Map();
 
       const updateAssistant = (content: string) => {
         assistantContent = content;
@@ -214,22 +220,41 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
               updateAssistant(assistantContent);
             }
             
-            // Handle tool calls
+            // Handle tool calls - accumulate arguments across chunks
             const toolCalls = parsed.choices?.[0]?.delta?.tool_calls;
             if (toolCalls) {
               for (const tc of toolCalls) {
+                const idx = tc.index ?? 0;
                 if (tc.function?.name) {
-                  pendingToolCalls.push({
-                    name: tc.function.name,
-                    arguments: tc.function.arguments ? JSON.parse(tc.function.arguments) : {},
+                  // New tool call started
+                  toolCallsInProgress.set(idx, { 
+                    name: tc.function.name, 
+                    arguments: tc.function.arguments || '' 
                   });
+                } else if (tc.function?.arguments) {
+                  // Accumulate arguments for existing tool call
+                  const existing = toolCallsInProgress.get(idx);
+                  if (existing) {
+                    existing.arguments += tc.function.arguments;
+                  }
                 }
               }
             }
 
             // Check for finish reason with tool calls
             const finishReason = parsed.choices?.[0]?.finish_reason;
-            if (finishReason === 'tool_calls' && pendingToolCalls.length > 0) {
+            if (finishReason === 'tool_calls') {
+              // Parse all accumulated tool calls
+              for (const [, tc] of toolCallsInProgress) {
+                try {
+                  pendingToolCalls.push({
+                    name: tc.name,
+                    arguments: tc.arguments ? JSON.parse(tc.arguments) : {},
+                  });
+                } catch (e) {
+                  console.error('Failed to parse tool call arguments:', e, tc.arguments);
+                }
+              }
               await processToolCalls(pendingToolCalls);
             }
           } catch {
@@ -240,9 +265,21 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
         }
       }
 
-      // Process any remaining tool calls
-      if (pendingToolCalls.length > 0) {
-        await processToolCalls(pendingToolCalls);
+      // Process any remaining tool calls that weren't processed yet
+      if (toolCallsInProgress.size > 0 && pendingToolCalls.length === 0) {
+        for (const [, tc] of toolCallsInProgress) {
+          try {
+            pendingToolCalls.push({
+              name: tc.name,
+              arguments: tc.arguments ? JSON.parse(tc.arguments) : {},
+            });
+          } catch (e) {
+            console.error('Failed to parse remaining tool call:', e);
+          }
+        }
+        if (pendingToolCalls.length > 0) {
+          await processToolCalls(pendingToolCalls);
+        }
       }
 
     } catch (error) {

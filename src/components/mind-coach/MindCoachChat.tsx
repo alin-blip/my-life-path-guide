@@ -6,6 +6,7 @@ import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Loader2, Brain, RotateCcw, ArrowLeft } from 'lucide-react';
 import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo } from './ExtendedEmotionPicker';
+import { getClusterForEmotion, getClusterOpeningMessage } from '@/lib/mind-coach-clusters';
 import { PhaseIndicator } from './PhaseIndicator';
 import { BreakthroughCelebration } from './BreakthroughCelebration';
 import { useMindCoach } from '@/hooks/useMindCoach';
@@ -248,16 +249,14 @@ export function MindCoachChat({
         {/* Messages area */}
         <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           <div className="space-y-4">
-            {/* Welcome message if no messages yet */}
-            {messages.length === 0 && (
+            {/* Welcome message if no messages yet - cluster-specific opening */}
+            {messages.length === 0 && selectedEmotion && (
               <div className="bg-primary/10 rounded-xl p-4 text-sm">
                 <p className="font-medium mb-2">
                   {emotionInfo?.emoji} {language === 'ro' ? emotionInfo?.labelRo : emotionInfo?.labelEn} la {selectedIntensity}/10...
                 </p>
                 <p className="text-muted-foreground">
-                  {language === 'ro' 
-                    ? 'Înțeleg, și apreciez că ești onest cu tine însuți. Spune-mi, ce s-a întâmplat care te face să te simți așa?' 
-                    : 'I understand, and I appreciate your honesty. Tell me, what happened that makes you feel this way?'}
+                  {getClusterOpeningMessage(getClusterForEmotion(selectedEmotion), language)}
                 </p>
               </div>
             )}
