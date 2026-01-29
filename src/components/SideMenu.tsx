@@ -204,20 +204,15 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 7. STACKS
+    // 7. STACKS (simplified - Mind Coach replaces most)
     {
       title: 'Stacks',
       icon: Sparkles,
       path: '/stack',
       subItems: [
-        { title: 'Mindset Coach', icon: Brain, path: '/stack?type=divine-prayer' },
-        { title: 'Life Coach', icon: Sparkles, path: '/stack?type=ai-live' },
+        { title: 'Mind Coach', icon: Brain, path: '/mind-coach', badge: 'NEW' },
+        { title: 'Emotion Coach (Anger)', icon: Flame, path: '/stack?type=anger' },
         { title: 'Business Coach', icon: Target, path: '/stack?type=hormozi-coaching' },
-        { title: 'Emotion Coach', icon: Flame, path: '/stack?type=anger' },
-        { title: 'Transformare Adaptivă', icon: Activity, path: '/stack?type=adaptive-transform' },
-        { title: 'Divine Gratitude', icon: Heart, path: '/stack?type=divine-gratitude' },
-        { title: 'Gratitude Journal', icon: Heart, path: '/stack?type=gratitude' },
-        { title: 'Introspection', icon: Brain, path: '/stack?type=introspection' },
         { title: 'Success Principles', icon: BookOpen, path: '/stack?type=napoleon-hill' },
       ]
     },
