@@ -29,6 +29,7 @@ interface UseMindCoachOptions {
   onAddToHitList?: (task: string, priority?: string) => void;
   onAddHabit?: (name: string, category: string) => void;
   onComplete?: (breakthrough: BreakthroughData) => void;
+  onAIResponse?: (text: string) => void; // Callback for TTS when AI responds
 }
 
 export function useMindCoach(options: UseMindCoachOptions = {}) {
@@ -280,6 +281,11 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
         if (pendingToolCalls.length > 0) {
           await processToolCalls(pendingToolCalls);
         }
+      }
+
+      // Callback for TTS if in call mode
+      if (assistantContent && options.onAIResponse) {
+        options.onAIResponse(assistantContent);
       }
 
     } catch (error) {
