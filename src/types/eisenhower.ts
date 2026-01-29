@@ -132,3 +132,9 @@ export function getSelectableQuadrants(): QuadrantConfig[] {
     EISENHOWER_QUADRANTS.q4_eliminator
   ];
 }
+
+// Helper: get quadrant label by priority
+export function getQuadrantLabel(priority: number): string {
+  const quadrant = priorityToQuadrant(priority);
+  return EISENHOWER_QUADRANTS[quadrant].labelRo;
+}
