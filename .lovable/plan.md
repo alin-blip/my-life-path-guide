@@ -1,100 +1,155 @@
 
-# Plan: A/B Testing Challenge Landing Pages
 
-## Analiza Curentă
+# Plan: Remediere Bug Salvare Domino Door
 
-### Pagina A: `/challenge-7-zile` (Challenge7ZileLanding.tsx)
-**Scop actual:** Lead capture + redirect la challenge
-- Form cu nume + email
-- Video Voomly embed
-- SocialProofBar floating
-- 4 Pillars section
-- 7 Days preview
-- MembershipUpsellCards
+## Probleme Identificate
 
-### Pagina B: `/challenge-landing` (ChallengeLanding.tsx)  
-**Scop actual:** Direct sales/pricing page
-- Video Voomly embed
-- LandingEarlyBirdTimer
-- Problem/Solution comparison
-- 7 Days preview
-- 3 Pricing Cards (Trial/Pro/Elite)
-- FAQ section
-- Real metrics din DB
+### 1. CRITICĂ: Categoria nu se transmite corect la salvare
+**Locație:** `useDoorStorage.tsx` linia 233-237 (visibility change handler)
 
----
+Când tab-ul devine vizibil din nou, se apelează `forceSaveWeeklyPlan()` dar **fără parametrul `category`**:
 
-## Strategie A/B Testing Propusă
+```typescript
+// PROBLEMA - linia 233-237:
+forceSaveWeeklyPlan({
+  currentWeekKey: props.currentWeekKey,
+  selectedDomino: props.selectedDomino,
+  dominoKeyPoints: props.dominoKeyPoints
+  // ❌ LIPSEȘTE: category: activeCategoryRef.current
+});
+```
 
-```text
-┌─────────────────────────────────────────────────────────────────────┐
-│                     A/B TEST STRATEGY                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  VARIANT A: /challenge-7-zile                                      │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                      │
-│  Mesaj: "100% GRATUIT - FĂRĂ MEMBERSHIP"                           │
-│  Ofertă: 2 zile complet gratuit, fără card                         │
-│  CTA: "Începe GRATUIT Acum"                                        │
-│  Obiectiv: Maximize lead capture                                   │
-│                                                                     │
-│  VARIANT B: /challenge-landing                                     │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━                                      │
-│  Mesaj: "7 ZILE FREE TRIAL"                                        │
-│  Ofertă: Trial 7 zile cu acces complet                             │
-│  CTA: "Începe 7 Zile Trial"                                        │
-│  Obiectiv: Maximize trial signups                                  │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+Aceasta cauzează salvarea cu categoria default `'business'` în loc de categoria activă.
+
+### 2. CRITICĂ: Local Draft Override Distructiv
+**Locație:** `useDoorStorage.tsx` liniile 110-131
+
+Când draft-ul local este considerat "mai complet", suprascrie datele din cloud fără să verifice categoria:
+
+```typescript
+// PROBLEMA - linia 111:
+if (draft && isDraftMoreComplete(draft, props.selectedDomino?.text || '', props.dominoKeyPoints)) {
+  console.log('📋 Restoring from local draft (more complete than cloud)');
+  // ❌ Nu verifică dacă draft-ul este pentru aceeași categorie!
+```
+
+### 3. MEDIE: Draft localStorage nu salvează categoria
+**Locație:** `useWeeklyPlanDraft.tsx` liniile 31-55
+
+Draft-ul local nu include categoria, deci la restaurare nu știm dacă e pentru Body, Business, etc.
+
+```typescript
+// PROBLEMA - linia 31:
+const draft: WeeklyPlanDraft = {
+  timestamp: Date.now(),
+  weekKey,
+  dominoTitle: selectedDomino?.text || '',
+  dominoId: selectedDomino?.id,
+  keyPoints: dominoKeyPoints.map(...),
+  // ❌ LIPSEȘTE: category: currentCategory
+};
 ```
 
 ---
 
-## Îmbunătățiri Recomandate
+## Date din Baza de Date (Dovezi)
 
-### VARIANT A: Free, No Membership (`/challenge-7-zile`)
+| week_key | category | domino_title | updated_at |
+|----------|----------|--------------|------------|
+| door-week-2026-05 | business | Creșterea impactului... | 2026-01-28 12:09:01 |
 
-| Prioritate | Îmbunătățire | Detalii |
-|------------|--------------|---------|
-| CRITICĂ | Headline clar "GRATUIT FĂRĂ CARD" | Schimbă din "2 ZILE GRATUIT + 5 ZILE TRIAL" în "100% GRATUIT - FĂRĂ MEMBERSHIP" |
-| CRITICĂ | CTA consistent | "Începe Challenge-ul GRATUIT" (fără menționare trial) |
-| ÎNALTĂ | Elimină referințe la trial/membership | Badge-ul și copy-ul să fie pur "free" |
-| ÎNALTĂ | Adaugă LandingEarlyBirdTimer | Lipsește - copiază din ChallengeLanding |
-| ÎNALTĂ | Adaugă FAQ section | Lipsește - reduce obiecțiile |
-| MEDIE | Adaugă Stats section | Ca în ChallengeLanding (utilizatori, rată completare) |
-| MEDIE | Problem/Solution cards | Copiază din ChallengeLanding |
-
-### VARIANT B: Free Trial (`/challenge-landing`)
-
-| Prioritate | Îmbunătățire | Detalii |
-|------------|--------------|---------|
-| CRITICĂ | Adaugă Lead Form | Lipsește complet - trebuie email capture înainte de pricing |
-| CRITICĂ | Headline focus pe TRIAL | "7 ZILE ACCES COMPLET GRATUIT" |
-| ÎNALTĂ | Adaugă SocialProofBar floating | Lipsește - copiază din Challenge7ZileLanding |
-| ÎNALTĂ | Simplify pricing | Focus pe Trial vs Pro (elimină opțiunea Elite din prima vedere) |
-| MEDIE | 4 Pillars section | Lipsește - adaugă pentru claritate |
-| MEDIE | Video autoplay muted | Deja există dar verifică loading |
+Există doar **un singur plan** pentru săptămâna 05 (business). Dacă setezi ceva pentru Body sau Being, se pierde pentru că:
+- La salvare se suprascrie business (categoria default)
+- La încărcare se ia planul cu updated_at cel mai recent (business)
 
 ---
 
-## Tracking A/B Test
+## Soluție
 
-### Modificări Database (email_leads table)
+### Fix 1: Adaugă categoria la forceSaveWeeklyPlan (visibility change)
 
-```sql
--- Source tracking pentru A/B test
--- Variant A: source = 'challenge_free_no_membership'
--- Variant B: source = 'challenge_free_trial'
+**Fișier:** `src/hooks/useDoorStorage.tsx`
+
+```typescript
+// Linia 233-237 - DE LA:
+forceSaveWeeklyPlan({
+  currentWeekKey: props.currentWeekKey,
+  selectedDomino: props.selectedDomino,
+  dominoKeyPoints: props.dominoKeyPoints
+});
+
+// LA:
+forceSaveWeeklyPlan({
+  currentWeekKey: props.currentWeekKey,
+  selectedDomino: props.selectedDomino,
+  dominoKeyPoints: props.dominoKeyPoints,
+  category: activeCategoryRef.current
+});
 ```
 
-### Events de Tracking
+### Fix 2: Adaugă categoria în Draft localStorage
 
-| Eveniment | Variant A | Variant B |
-|-----------|-----------|-----------|
-| Page View | `challenge_7zile_view` | `challenge_landing_view` |
-| Lead Capture | `challenge_7zile_lead` | `challenge_landing_lead` |
-| Trial Start | N/A | `challenge_landing_trial` |
-| Conversion | `challenge_7zile_conversion` | `challenge_landing_conversion` |
+**Fișier:** `src/hooks/door/useWeeklyPlanDraft.tsx`
+
+```typescript
+// Update interface:
+interface WeeklyPlanDraft {
+  timestamp: number;
+  weekKey: string;
+  dominoTitle: string;
+  dominoId?: string;
+  category?: DomainCategory;  // ← ADAUGĂ
+  keyPoints: Array<{...}>;
+}
+
+// Update saveDraft function signature și logica
+const saveDraft = useCallback((
+  weekKey: string,
+  selectedDomino: HotListItem | null,
+  dominoKeyPoints: DominoKeyPoint[],
+  category?: DomainCategory  // ← ADAUGĂ
+) => {
+  const draft: WeeklyPlanDraft = {
+    timestamp: Date.now(),
+    weekKey,
+    dominoTitle: selectedDomino?.text || '',
+    dominoId: selectedDomino?.id,
+    category,  // ← ADAUGĂ
+    keyPoints: ...
+  };
+});
+```
+
+### Fix 3: Verifică categoria la restaurare din draft
+
+**Fișier:** `src/hooks/useDoorStorage.tsx`
+
+```typescript
+// Linia 111 - Adaugă verificare categorie:
+if (draft && 
+    isDraftMoreComplete(draft, props.selectedDomino?.text || '', props.dominoKeyPoints) &&
+    draft.category === activeCategoryRef.current) {  // ← ADAUGĂ
+  console.log('📋 Restoring from local draft (same category, more complete)');
+  ...
+}
+```
+
+### Fix 4: Actualizează apelurile saveDraft să trimită categoria
+
+**Fișier:** `src/hooks/useDoorStorage.tsx`
+
+Toate apelurile `saveDraft()` trebuie să primească `activeCategoryRef.current`:
+
+```typescript
+// Linia 201:
+saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints, activeCategoryRef.current);
+
+// Linia 228:
+saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints, activeCategoryRef.current);
+
+// Linia 246:
+saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints, activeCategoryRef.current);
+```
 
 ---
 
@@ -102,163 +157,46 @@
 
 | Fișier | Modificări |
 |--------|------------|
-| `src/pages/Challenge7ZileLanding.tsx` | Update headline, badge, CTA, add FAQ + Timer + Stats |
-| `src/pages/ChallengeLanding.tsx` | Add lead form, SocialProofBar, update messaging |
-| `src/utils/splitTest.ts` | Add challenge landing split test functions |
+| `src/hooks/useDoorStorage.tsx` | 4 locuri: adaugă categoria la forceSave și saveDraft |
+| `src/hooks/door/useWeeklyPlanDraft.tsx` | Update interface + saveDraft pentru a include categoria |
 
 ---
 
-## Implementare Detaliată
-
-### 1. Variant A - Free No Membership (`/challenge-7-zile`)
-
-**Badge-ul Hero:**
-```tsx
-// DE LA:
-"2 ZILE GRATUIT • 5 ZILE TRIAL"
-
-// LA:
-"🎁 100% GRATUIT • FĂRĂ CARD BANCAR"
-```
-
-**Headline:**
-```tsx
-// DE LA:
-"Start Your FREE 2-Day Challenge"
-
-// LA:
-"Începe Challenge-ul 100% GRATUIT"
-```
-
-**Subheadline:**
-```tsx
-// DE LA:
-"După 2 zile, deblochează 5 zile extra cu trial GRATUIT + Early Bird 50%!"
-
-// LA:
-"Transformă-ți viața în 7 zile - ZERO COST, ZERO OBLIGAȚII"
-```
-
-**CTA Button:**
-```tsx
-// DE LA:
-"Start FREE Challenge"
-
-// LA:
-"Începe ACUM - E Gratuit!"
-```
-
-**Adăugări noi:**
-- `LandingEarlyBirdTimer` sub video
-- FAQ section cu 4 întrebări (copiate din ChallengeLanding)
-- Stats section (utilizatori, rată completare)
-
-### 2. Variant B - Free Trial (`/challenge-landing`)
-
-**Badge-ul Hero:**
-```tsx
-// DE LA:
-"🔥 CHALLENGE GRATUIT 7 ZILE"
-
-// LA:
-"🚀 7 ZILE ACCES COMPLET GRATUIT"
-```
-
-**Headline:**
-```tsx
-// DE LA:
-"Transformă-ți viața în 7 zile SAU primești banii înapoi"
-
-// LA:
-"Acces GRATUIT 7 Zile la TOT - Anulezi Oricând"
-```
-
-**Adăugări noi:**
-- Lead capture form (nume + email) înainte de pricing
-- SocialProofBar floating la top
-- Tracking diferențiat în source field
-
----
-
-## Tracking Implementation
-
-### Variant A tracking:
-```tsx
-// În Challenge7ZileLanding.tsx handleSubmit:
-await supabase.from('email_leads').insert({
-  email,
-  name,
-  lead_magnet: 'challenge_free_no_membership',
-  source: 'ab_test_variant_a',
-  metadata: { test_name: 'challenge_landing_ab', variant: 'A' }
-});
-```
-
-### Variant B tracking:
-```tsx
-// În ChallengeLanding.tsx handleSubmit:
-await supabase.from('email_leads').insert({
-  email,
-  name,
-  lead_magnet: 'challenge_free_trial',
-  source: 'ab_test_variant_b',
-  metadata: { test_name: 'challenge_landing_ab', variant: 'B' }
-});
-```
-
----
-
-## Secțiune Tehnică
-
-### Dependențe
-- Toate componentele necesare sunt deja instalate
-- `LandingEarlyBirdTimer` există în `src/components/landing/`
-- `SocialProofBar` există în `src/components/landing/`
-
-### Structura Finală
+## Fluxul Corectat
 
 ```text
-VARIANT A (/challenge-7-zile):
-├── SocialProofBar (floating)
-├── Hero Section
-│   ├── Badge: "100% GRATUIT"
-│   ├── Headline: No membership
-│   ├── Video
-│   ├── Lead Form (name + email)
-│   └── Early Bird Timer
-├── 4 Pillars
-├── 7 Days Preview
-├── Stats Section (NEW)
-├── FAQ Section (NEW)
-└── Membership Cards
-
-VARIANT B (/challenge-landing):
-├── SocialProofBar (NEW - floating)
-├── Hero Section
-│   ├── Badge: "7 ZILE TRIAL"
-│   ├── Headline: Full access trial
-│   ├── Early Bird Timer
-│   └── Video
-├── Lead Form Section (NEW)
-├── Problem/Solution
-├── 7 Days Preview
-├── Pricing Cards
-├── Stats
-├── FAQ
-└── Final CTA
+┌─────────────────────────────────────────────────────────────────────┐
+│                     FLUX SALVARE CORECTAT                          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  1. User selectează domeniu (ex: Body)                              │
+│     ↓                                                               │
+│  2. doorCategoryLoaded event → activeCategoryRef = 'body'           │
+│     ↓                                                               │
+│  3. User modifică Domino/Key Points                                 │
+│     ↓                                                               │
+│  4. Auto-save (1.5s debounce):                                      │
+│     - saveDraft(weekKey, domino, keyPoints, 'body') ← localStorage  │
+│     - saveWeeklyPlanOnly({ ..., category: 'body' }) ← cloud         │
+│     ↓                                                               │
+│  5. Visibility change (tab hidden/visible):                         │
+│     - forceSaveWeeklyPlan({ ..., category: 'body' }) ← cu categorie │
+│     ↓                                                               │
+│  6. La reload:                                                      │
+│     - Load plans for week → sort by updated_at                      │
+│     - Draft restore DOAR dacă same category                         │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Metrici de Succes
+## Verificare Suplimentară
 
-| Metrică | Cum o măsurăm |
-|---------|---------------|
-| Lead Conversion Rate | Leads / Page Views |
-| Trial Conversion Rate | Trials / Leads |
-| Paid Conversion Rate | Paid / Trials |
-| Time on Page | Analytics |
-| Scroll Depth | Analytics |
+După implementare, verifică în consolă:
+1. `📤 Saving weekly plan: { weekKey, category: 'body', ... }` - să conțină categoria corectă
+2. `📝 Weekly plan draft saved locally: { category: 'body', ... }` - să conțină categoria
+3. `📋 Restoring from local draft (same category)` - doar dacă categoria se potrivește
 
 ---
 
@@ -266,8 +204,10 @@ VARIANT B (/challenge-landing):
 
 | Task | Timp |
 |------|------|
-| Update Variant A messaging + add FAQ/Timer/Stats | 30 min |
-| Update Variant B messaging + add Lead Form + SocialProofBar | 30 min |
-| Add tracking to both variants | 15 min |
-| Testing | 15 min |
-| **Total** | **~90 min** |
+| Fix 1: Category în forceSaveWeeklyPlan | 5 min |
+| Fix 2: Update useWeeklyPlanDraft | 10 min |
+| Fix 3: Verificare categorie la restore | 5 min |
+| Fix 4: Update toate apelurile saveDraft | 10 min |
+| Testing | 10 min |
+| **Total** | **~40 min** |
+
