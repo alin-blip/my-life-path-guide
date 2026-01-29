@@ -2,32 +2,25 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { EmotionPicker, Emotion, getEmotionInfo } from '@/components/emotional/EmotionPicker';
-import { ArrowRight, Sparkles, Zap, ChevronRight, Heart, Brain, Star } from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, ChevronRight, Heart, Brain, Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { InlineStackWrapper } from './InlineStackWrapper';
-
-// Stack types available for selection
-const QUICK_STACKS = [
-  { id: 'divine-prayer', name: 'Rugăciune Divină', emoji: '🙏', color: 'from-purple-500 to-indigo-600', description: 'Conectare spirituală profundă' },
-  { id: 'divine-gratitude', name: 'Recunoștință', emoji: '💛', color: 'from-amber-500 to-orange-600', description: 'Cultivă starea de mulțumire' },
-  { id: 'adaptive-transform', name: 'Transformare', emoji: '⚡', color: 'from-red-500 to-pink-600', description: 'Transformă emoția în putere' },
-];
+import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo, MIND_COACH_EMOTIONS } from '@/components/mind-coach/ExtendedEmotionPicker';
+import { MindCoachChat } from '@/components/mind-coach/MindCoachChat';
 
 interface EmotionalCheckUnifiedStepProps {
-  emotion: Emotion | null;
+  emotion: MindCoachEmotion | null;
   intensity: number;
-  onEmotionChange: (emotion: Emotion) => void;
+  onEmotionChange: (emotion: MindCoachEmotion) => void;
   onIntensityChange: (intensity: number) => void;
-  onComplete: (data: { emotion: Emotion; intensity: number; stackCompleted?: boolean; transformedEnergy?: string }) => void;
+  onComplete: (data: { emotion: MindCoachEmotion; intensity: number; stackCompleted?: boolean; transformedEnergy?: string }) => void;
   onSkip: () => void;
 }
 
-const POSITIVE_EMOTIONS: Emotion[] = ['happy', 'calm', 'excited'];
-const NEGATIVE_EMOTIONS: Emotion[] = ['angry', 'sad', 'anxious', 'stressed'];
+const POSITIVE_EMOTIONS: MindCoachEmotion[] = ['happy', 'calm', 'excited'];
+const NEGATIVE_EMOTIONS: MindCoachEmotion[] = ['angry', 'sad', 'anxious', 'stressed', 'overwhelmed', 'procrastinating', 'not_good_enough', 'frustrated', 'confused'];
 
-type Phase = 'emotion' | 'stack' | 'running';
+type Phase = 'emotion' | 'choice' | 'mind-coach';
 
 export function EmotionalCheckUnifiedStep({
   emotion,
@@ -38,7 +31,6 @@ export function EmotionalCheckUnifiedStep({
   onSkip
 }: EmotionalCheckUnifiedStepProps) {
   const [phase, setPhase] = useState<Phase>('emotion');
-  const [selectedStack, setSelectedStack] = useState<string | null>(null);
   
   const needsTransformation = emotion && (NEGATIVE_EMOTIONS.includes(emotion) || intensity < 4);
   const emotionInfo = emotion ? getEmotionInfo(emotion) : null;
@@ -46,23 +38,20 @@ export function EmotionalCheckUnifiedStep({
 
   const handleEmotionComplete = () => {
     if (needsTransformation) {
-      setPhase('stack');
+      // For negative emotions, go directly to Mind Coach
+      setPhase('mind-coach');
     } else {
-      // Good mood - offer optional stack or continue
-      setPhase('stack');
+      // Good mood - offer choice
+      setPhase('choice');
     }
   };
 
-  const handleStackSelect = (stackId: string) => {
-    setSelectedStack(stackId);
-    setPhase('running');
-  };
-
-  const handleStackComplete = () => {
+  const handleMindCoachComplete = (breakthrough?: any) => {
     onComplete({ 
       emotion: emotion!, 
       intensity, 
-      stackCompleted: true 
+      stackCompleted: true,
+      transformedEnergy: breakthrough?.emotionAfter || 'transformed'
     });
   };
 
@@ -74,22 +63,37 @@ export function EmotionalCheckUnifiedStep({
     });
   };
 
-  // Running stack inline
-  if (phase === 'running' && selectedStack) {
+  // Mind Coach running inline
+  if (phase === 'mind-coach' && emotion) {
     return (
-      <InlineStackWrapper
-        stackType={selectedStack}
-        emotion={emotion}
-        intensity={intensity}
-        onComplete={handleStackComplete}
-        onBack={() => {
-          setSelectedStack(null);
-          setPhase('stack');
-        }}
-        onAddToHitList={(action) => {
-          console.log('Add to hit list:', action);
-        }}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-4"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <div className={cn(
+            "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+            "bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30"
+          )}>
+            <Brain className="w-4 h-4" />
+            <span>Mind Coach - Transformare</span>
+          </div>
+        </div>
+
+        <Card className="border-0 bg-gradient-to-br from-background via-background to-amber-500/5 shadow-xl overflow-hidden">
+          <CardContent className="p-0">
+            <MindCoachChat
+              initialEmotion={emotion}
+              initialIntensity={intensity}
+              embedded={true}
+              onComplete={handleMindCoachComplete}
+              onBack={() => setPhase('emotion')}
+            />
+          </CardContent>
+        </Card>
+      </motion.div>
     );
   }
 
@@ -113,12 +117,12 @@ export function EmotionalCheckUnifiedStep({
         <ChevronRight className="w-4 h-4 text-muted-foreground" />
         <div className={cn(
           "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
-          phase === 'stack' 
+          phase === 'choice' || phase === 'mind-coach'
             ? "bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30" 
             : "bg-muted/50 text-muted-foreground"
         )}>
           <Brain className="w-4 h-4" />
-          <span>Stack</span>
+          <span>Transformare</span>
         </div>
       </div>
 
@@ -151,17 +155,12 @@ export function EmotionalCheckUnifiedStep({
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 relative">
-                {/* Emotion Picker */}
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground mb-3 block">
-                    Selectează emoția dominantă
-                  </label>
-                  <EmotionPicker
-                    value={emotion}
-                    onChange={onEmotionChange}
-                    language="ro"
-                  />
-                </div>
+                {/* Extended Emotion Picker */}
+                <ExtendedEmotionPicker
+                  selectedEmotion={emotion}
+                  onSelect={onEmotionChange}
+                  language="ro"
+                />
 
                 {/* Intensity Slider */}
                 {emotion && (
@@ -219,7 +218,7 @@ export function EmotionalCheckUnifiedStep({
                             Hai să transformăm această stare în putere!
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
-                            Te voi ghida printr-un proces de transformare emoțională.
+                            Mind Coach-ul te va ghida prin procesul Tony Robbins de transformare.
                           </p>
                         </div>
                       </div>
@@ -236,7 +235,7 @@ export function EmotionalCheckUnifiedStep({
                             Minunat! Ești într-o stare excelentă! {emotionInfo?.emoji}
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
-                            Poți amplifica această energie cu un stack rapid.
+                            Poți amplifica această energie sau continua direct.
                           </p>
                         </div>
                       </div>
@@ -251,79 +250,82 @@ export function EmotionalCheckUnifiedStep({
                   className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/25"
                   size="lg"
                 >
-                  Continuă
-                  <ArrowRight className="h-4 w-4" />
+                  {needsTransformation ? (
+                    <>
+                      <Flame className="h-4 w-4" />
+                      Începe Transformarea
+                    </>
+                  ) : (
+                    <>
+                      Continuă
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
           </motion.div>
         )}
 
-        {phase === 'stack' && (
+        {phase === 'choice' && (
           <motion.div
-            key="stack"
+            key="choice"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <Card className="border-0 bg-gradient-to-br from-background via-background to-purple-500/5 shadow-xl overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-indigo-500/5" />
+            <Card className="border-0 bg-gradient-to-br from-background via-background to-green-500/5 shadow-xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-emerald-500/5" />
               <CardHeader className="pb-4 relative">
                 <CardTitle className="flex items-center gap-3 text-xl">
                   <motion.div
-                    className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg"
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg"
                     whileHover={{ scale: 1.1, rotate: -5 }}
                   >
                     <span className="text-2xl filter drop-shadow">✨</span>
                   </motion.div>
                   <div>
-                    <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent font-bold">
-                      {needsTransformation ? 'Alege un Stack de Transformare' : 'Amplifică-ți Energia'}
+                    <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent font-bold">
+                      Excelent! {emotionInfo?.emoji}
                     </span>
                     <p className="text-muted-foreground text-sm font-normal mt-0.5">
-                      Starea actuală: {emotionInfo?.emoji} {emotionInfo?.label || emotion} ({intensity}/10)
+                      Starea ta: {emotionInfo?.labelRo || emotion} ({intensity}/10)
                     </p>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 relative">
-                {/* Quick Stacks */}
-                <div className="grid gap-3">
-                  {QUICK_STACKS.map((stack, index) => (
-                    <motion.button
-                      key={stack.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      onClick={() => handleStackSelect(stack.id)}
-                      className={cn(
-                        "w-full p-4 rounded-xl border-2 border-transparent",
-                        "bg-gradient-to-r hover:border-primary/30 transition-all",
-                        "flex items-center gap-4 text-left group",
-                        "hover:shadow-lg hover:scale-[1.02]"
-                      )}
-                      style={{
-                        background: `linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card)) 100%)`,
-                      }}
-                    >
-                      <motion.div
-                        className={cn("p-3 rounded-xl bg-gradient-to-br shadow-lg", stack.color)}
-                        whileHover={{ scale: 1.1, rotate: 5 }}
-                      >
-                        <span className="text-2xl">{stack.emoji}</span>
-                      </motion.div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                          {stack.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {stack.description}
-                        </p>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                    </motion.button>
-                  ))}
-                </div>
+                {/* Option: Amplify with Mind Coach */}
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={() => setPhase('mind-coach')}
+                  className={cn(
+                    "w-full p-4 rounded-xl border-2 border-transparent",
+                    "bg-gradient-to-r hover:border-primary/30 transition-all",
+                    "flex items-center gap-4 text-left group",
+                    "hover:shadow-lg hover:scale-[1.02]"
+                  )}
+                  style={{
+                    background: `linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card)) 100%)`,
+                  }}
+                >
+                  <motion.div
+                    className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg"
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                  >
+                    <span className="text-2xl">🧠</span>
+                  </motion.div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                      Amplifică cu Mind Coach
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Extinde această energie în toate ariile vieții
+                    </p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                </motion.button>
 
                 {/* Skip Button */}
                 <div className="pt-2">
@@ -332,8 +334,8 @@ export function EmotionalCheckUnifiedStep({
                     variant="ghost"
                     className="w-full text-muted-foreground hover:text-foreground"
                   >
-                    <Star className="w-4 h-4 mr-2" />
-                    Continuă fără stack
+                    <ArrowRight className="w-4 h-4 mr-2" />
+                    Continuă la rutină
                   </Button>
                 </div>
               </CardContent>

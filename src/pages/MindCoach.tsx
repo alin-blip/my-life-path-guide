@@ -11,7 +11,7 @@ export default function MindCoach() {
   const navigate = useNavigate();
   const { language } = useLanguage();
 
-  const handleAddToHitList = async (task: string, priority?: string) => {
+  const handleAddToHitList = async (task: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -31,7 +31,7 @@ export default function MindCoach() {
         list_type: 'hit',
         day_of_week: dayOfWeek,
         week_key: weekKey,
-        priority: priority === 'urgent' ? 1 : priority === 'important' ? 2 : 3,
+        priority: 1,
         completed: false,
       });
 
