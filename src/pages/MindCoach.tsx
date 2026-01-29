@@ -6,6 +6,7 @@ import { MindCoachChat } from '@/components/mind-coach/MindCoachChat';
 import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { getISOWeek, getYear, startOfWeek } from 'date-fns';
 
 export default function MindCoach() {
   const navigate = useNavigate();
@@ -16,9 +17,12 @@ export default function MindCoach() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get current week key
+      // Get current week key using correct ISO week calculation
       const now = new Date();
-      const weekKey = `door-week-${now.getFullYear()}-${String(Math.ceil((now.getDate() + now.getDay()) / 7)).padStart(2, '0')}`;
+      const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+      const weekNum = getISOWeek(weekStart);
+      const year = getYear(weekStart);
+      const weekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
       
       // Get day abbreviation
       const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];

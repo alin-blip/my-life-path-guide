@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Brain, RotateCcw, ArrowLeft, ArrowRight, RefreshCw } from 'lucide-react';
+import { Loader2, Brain, RotateCcw, ArrowLeft, ArrowRight, RefreshCw, Sparkles } from 'lucide-react';
 import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo } from './ExtendedEmotionPicker';
 import { getClusterForEmotion, getClusterOpeningMessage } from '@/lib/mind-coach-clusters';
 import { PhaseIndicator } from './PhaseIndicator';
@@ -53,6 +53,7 @@ export function MindCoachChat({
   const [inputValue, setInputValue] = useState('');
   const [showCelebration, setShowCelebration] = useState(false);
   const [showContinuePrompt, setShowContinuePrompt] = useState(false);
+  const [showChatContent, setShowChatContent] = useState(true);
   
   // Determine current cluster for quick answers
   const currentCluster = selectedEmotion ? getClusterForEmotion(selectedEmotion) : null;
@@ -126,8 +127,12 @@ export function MindCoachChat({
   useEffect(() => {
     if (isComplete && breakthroughData) {
       setShowCelebration(true);
+      // Hide chat content after completion in embedded mode
+      if (embedded) {
+        setShowChatContent(false);
+      }
     }
-  }, [isComplete, breakthroughData]);
+  }, [isComplete, breakthroughData, embedded]);
 
   // After hit list action is added, show continue prompt
   const handleHitListAdded = useCallback(() => {
@@ -333,59 +338,75 @@ export function MindCoachChat({
           <PhaseIndicator currentPhase={currentPhase} language={language} compact />
         </CardHeader>
 
-        {/* Messages area */}
-        <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-          <div className="space-y-4">
-            {/* Welcome message if no messages yet - cluster-specific opening */}
-            {messages.length === 0 && selectedEmotion && (
-              <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-4 text-sm border border-primary/10 animate-fade-in">
-                <p className="font-medium mb-2 text-foreground">
-                  {emotionInfo?.emoji} {language === 'ro' ? emotionInfo?.labelRo : emotionInfo?.labelEn} la {selectedIntensity}/10...
-                </p>
-                <p className="text-muted-foreground leading-relaxed">
-                  {getClusterOpeningMessage(getClusterForEmotion(selectedEmotion), language)}
-                </p>
-              </div>
-            )}
+        {/* Messages area - hide when complete in embedded mode */}
+        {showChatContent ? (
+          <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+            <div className="space-y-4">
+              {/* Welcome message if no messages yet - cluster-specific opening */}
+              {messages.length === 0 && selectedEmotion && (
+                <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-4 text-sm border border-primary/10 animate-fade-in">
+                  <p className="font-medium mb-2 text-foreground">
+                    {emotionInfo?.emoji} {language === 'ro' ? emotionInfo?.labelRo : emotionInfo?.labelEn} la {selectedIntensity}/10...
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {getClusterOpeningMessage(getClusterForEmotion(selectedEmotion), language)}
+                  </p>
+                </div>
+              )}
 
-            {/* Chat messages */}
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={cn(
-                  "flex animate-fade-in",
-                  msg.role === 'user' ? 'justify-end' : 'justify-start'
-                )}
-              >
+              {/* Chat messages */}
+              {messages.map((msg, idx) => (
                 <div
+                  key={idx}
                   className={cn(
-                    "max-w-[85%] rounded-xl p-3 text-sm",
-                    msg.role === 'user'
-                      ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20'
-                      : 'bg-muted/80 border border-border/50'
+                    "flex animate-fade-in",
+                    msg.role === 'user' ? 'justify-end' : 'justify-start'
                   )}
                 >
-                  {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
-                    </div>
-                  ) : (
-                    <p>{msg.content}</p>
-                  )}
+                  <div
+                    className={cn(
+                      "max-w-[85%] rounded-xl p-3 text-sm",
+                      msg.role === 'user'
+                        ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20'
+                        : 'bg-muted/80 border border-border/50'
+                    )}
+                  >
+                    {msg.role === 'assistant' ? (
+                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p>{msg.content}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            {/* Loading indicator */}
-            {isLoading && (
-              <div className="flex justify-start animate-fade-in">
-                <div className="bg-muted/80 rounded-xl p-3 border border-border/50">
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              {/* Loading indicator */}
+              {isLoading && (
+                <div className="flex justify-start animate-fade-in">
+                  <div className="bg-muted/80 rounded-xl p-3 border border-border/50">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  </div>
                 </div>
+              )}
+            </div>
+          </ScrollArea>
+        ) : (
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="text-center space-y-3">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+                <Sparkles className="h-8 w-8 text-white" />
               </div>
-            )}
+              <h3 className="text-lg font-semibold text-foreground">
+                {language === 'ro' ? 'Transformare Completă!' : 'Transformation Complete!'}
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                {breakthroughData?.emotionBefore} → {breakthroughData?.emotionAfter}
+              </p>
+            </div>
           </div>
-        </ScrollArea>
+        )}
 
         {/* Input area with voice controls */}
         <div className="p-4 border-t border-primary/10 shrink-0 bg-gradient-to-t from-primary/5 to-transparent">
