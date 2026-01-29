@@ -200,7 +200,7 @@ const challengeContent: ChallengeDayContent[] = [
     icon: Target,
     color: "from-amber-500 to-orange-500",
     actionPath: "/door",
-    focusAreas: ['body', 'being', 'balance', 'business'],
+    focusAreas: [],
     stepsEn: [
       "Open Domino Door",
       "Follow the AI Wizard to set your weekly milestone + 4 keys + tasks",
@@ -212,12 +212,12 @@ const challengeContent: ChallengeDayContent[] = [
       "Postează un screenshot sau copy-paste în comentarii"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Open Domino Door", description: "The AI Wizard will guide you to set 4 keys and tasks for each key", area: "business", link: "/door", linkLabel: "Open Domino Door" },
-      { id: "ex2", title: "Share Your Domino Door", description: "Post a screenshot or copy-paste your Domino Door in the comments below", area: "balance" }
+      { id: "ex1", title: "Open Domino Door", description: "The AI Wizard will guide you to set 4 keys and tasks for each key", link: "/door", linkLabel: "Open Domino Door" },
+      { id: "ex2", title: "Share Your Domino Door", description: "Post a screenshot or copy-paste your Domino Door in the comments below" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Deschide Domino Door", description: "Wizard-ul AI te va îndruma să setezi 4 chei și task-uri pentru fiecare cheie", area: "business", link: "/door", linkLabel: "Deschide Domino Door" },
-      { id: "ex2", title: "Distribuie Domino Door-ul Tău", description: "Postează un screenshot sau copy-paste cu Domino Door-ul tău în comentariile de mai jos", area: "balance" }
+      { id: "ex1", title: "Deschide Domino Door", description: "Wizard-ul AI te va îndruma să setezi 4 chei și task-uri pentru fiecare cheie", link: "/door", linkLabel: "Deschide Domino Door" },
+      { id: "ex2", title: "Distribuie Domino Door-ul Tău", description: "Postează un screenshot sau copy-paste cu Domino Door-ul tău în comentariile de mai jos" }
     ]
   },
   {
