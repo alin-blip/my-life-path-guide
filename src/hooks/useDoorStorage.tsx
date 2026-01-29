@@ -107,9 +107,11 @@ export function useDoorStorage(props: UseDoorStorageProps) {
         setActiveList: props.setActiveList,
         checkDominoCompletion: props.checkDominoCompletion
       }).then(() => {
-        // After cloud load, check if draft has more complete data
-        if (draft && isDraftMoreComplete(draft, props.selectedDomino?.text || '', props.dominoKeyPoints)) {
-          console.log('📋 Restoring from local draft (more complete than cloud)');
+        // After cloud load, check if draft has more complete data AND same category
+        if (draft && 
+            isDraftMoreComplete(draft, props.selectedDomino?.text || '', props.dominoKeyPoints) &&
+            draft.category === activeCategoryRef.current) {
+          console.log('📋 Restoring from local draft (same category, more complete):', draft.category);
           
           if (draft.dominoTitle) {
             props.setSelectedDomino({
@@ -197,8 +199,8 @@ export function useDoorStorage(props: UseDoorStorageProps) {
     // Debounced save - 1.5 second delay for weekly plan
     weeklyPlanSaveTimeoutRef.current = setTimeout(() => {
       if (props.currentWeekKey) {
-        // Save draft immediately (sync)
-        saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints);
+        // Save draft immediately (sync) - include category!
+        saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints, activeCategoryRef.current);
         
         // Then save to cloud (async) - include the active category!
         saveWeeklyPlanOnly({
@@ -224,16 +226,17 @@ export function useDoorStorage(props: UseDoorStorageProps) {
         console.log('👁️ Tab hidden - local save only (no cloud to prevent reload)');
         // Mark the time of emergency save
         lastEmergencySaveRef.current = Date.now();
-        // ONLY sync save to localStorage - no cloud save to prevent reload loops
-        saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints);
+        // ONLY sync save to localStorage - no cloud save to prevent reload loops - include category!
+        saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints, activeCategoryRef.current);
       } else if (document.visibilityState === 'visible' && props.currentWeekKey) {
-        // Tab becomes visible again - sync draft to cloud after delay
-        console.log('👁️ Tab visible - syncing draft to cloud');
+        // Tab becomes visible again - sync draft to cloud after delay - include category!
+        console.log('👁️ Tab visible - syncing draft to cloud with category:', activeCategoryRef.current);
         setTimeout(() => {
           forceSaveWeeklyPlan({
             currentWeekKey: props.currentWeekKey,
             selectedDomino: props.selectedDomino,
-            dominoKeyPoints: props.dominoKeyPoints
+            dominoKeyPoints: props.dominoKeyPoints,
+            category: activeCategoryRef.current
           });
         }, 1500);
       }
@@ -242,8 +245,8 @@ export function useDoorStorage(props: UseDoorStorageProps) {
     const handleBeforeUnload = () => {
       if (props.currentWeekKey) {
         console.log('🚪 Before unload - emergency save');
-        // Sync save to localStorage only (no time for async)
-        saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints);
+        // Sync save to localStorage only (no time for async) - include category!
+        saveDraft(props.currentWeekKey, props.selectedDomino, props.dominoKeyPoints, activeCategoryRef.current);
       }
     };
 

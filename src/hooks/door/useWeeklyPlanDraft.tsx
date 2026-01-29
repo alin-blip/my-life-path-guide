@@ -1,11 +1,13 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { HotListItem, DominoKeyPoint } from '@/types/door';
+import { DomainCategory } from '@/components/door/DomainSelector';
 
 interface WeeklyPlanDraft {
   timestamp: number;
   weekKey: string;
   dominoTitle: string;
   dominoId?: string;
+  category?: DomainCategory;
   keyPoints: Array<{
     id: string;
     text: string;
@@ -24,7 +26,8 @@ export function useWeeklyPlanDraft() {
   const saveDraft = useCallback((
     weekKey: string,
     selectedDomino: HotListItem | null,
-    dominoKeyPoints: DominoKeyPoint[]
+    dominoKeyPoints: DominoKeyPoint[],
+    category?: DomainCategory
   ) => {
     if (!weekKey) return;
 
@@ -34,6 +37,7 @@ export function useWeeklyPlanDraft() {
         weekKey,
         dominoTitle: selectedDomino?.text || '',
         dominoId: selectedDomino?.id,
+        category,
         keyPoints: dominoKeyPoints.map(kp => ({
           id: kp.id,
           text: kp.text || '',
@@ -47,6 +51,7 @@ export function useWeeklyPlanDraft() {
       
       console.log('📝 Weekly plan draft saved locally:', {
         weekKey,
+        category: draft.category,
         dominoTitle: draft.dominoTitle,
         keyPointsCount: draft.keyPoints.filter(kp => kp.text).length
       });
