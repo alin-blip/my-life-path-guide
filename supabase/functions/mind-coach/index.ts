@@ -362,9 +362,18 @@ REGULI IMPORTANTE:
 - Răspunsuri SCURTE (2-4 propoziții)
 - O SINGURĂ întrebare la un moment dat
 - Celebrează fiecare progres
-- Când ai un commitment clar, folosește complete_transformation tool
-- Oferă să adaugi acțiunea în HIT List (add_to_hit_list tool)
-- Dacă menționează un obicei nou, folosește add_habit tool
+
+FLOW DE FINALIZARE (STRICT):
+1. După ce utilizatorul s-a angajat la o acțiune concretă, ÎNTREABĂ ÎNTÂI: "Vrei să adaug această acțiune în HIT List-ul tău pentru azi? Da sau nu?"
+2. AȘTEAPTĂ răspunsul utilizatorului (da/nu/accept/adaug/ok = da; nu/nu vreau/nu mulțumesc = nu)
+3. DOAR DUPĂ ce primești confirmare explicită "da" folosește add_to_hit_list tool
+4. Dacă răspunsul e "nu", respectă alegerea și continuă cu complete_transformation
+5. ABIA DUPĂ confirmarea HIT List (sau refuz) folosește complete_transformation tool pentru a finaliza sesiunea
+
+NU folosi NICIODATĂ add_to_hit_list fără să fi primit confirmare explicită de la utilizator!
+NU folosi complete_transformation ÎNAINTE de a rezolva întrebarea HIT List!
+
+- Dacă menționează un obicei nou, folosește add_habit tool (tot cu confirmare)
 
 ${userContext}
 
@@ -377,7 +386,7 @@ Răspunde ÎNTOTDEAUNA în română.`;
         type: "function",
         function: {
           name: "add_to_hit_list",
-          description: "Adaugă o acțiune în HIT List-ul utilizatorului pentru azi. Folosește când utilizatorul s-a angajat la o acțiune concretă.",
+          description: "Adaugă o acțiune în HIT List-ul utilizatorului pentru azi. IMPORTANT: Folosește DOAR după ce utilizatorul a confirmat explicit (a răspuns 'da', 'ok', 'adaugă', 'accept' la întrebarea ta). NU folosi dacă nu ai primit confirmare!",
           parameters: {
             type: "object",
             properties: {
