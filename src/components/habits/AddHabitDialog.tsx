@@ -16,7 +16,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Dumbbell, Brain, Users, Briefcase, Sparkles } from 'lucide-react';
-import { HabitCategory, HabitGroup } from '@/hooks/useDailyHabits';
+import { HabitGroup } from '@/hooks/useDailyHabits';
+import { toast } from 'sonner';
 
 interface AddHabitDialogProps {
   open: boolean;
@@ -70,6 +71,20 @@ export function AddHabitDialog({
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Validare pentru categorii custom (a-z, 0-9, _, -)
+  const validateCategory = (cat: string): boolean => {
+    return /^[a-z0-9_-]{2,50}$/.test(cat);
+  };
+
+  // Normalizează categoria (lowercase, spații -> underscore, caractere invalide eliminate)
+  const normalizeCategory = (cat: string): string => {
+    return cat
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_-]/g, '');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
@@ -79,7 +94,15 @@ export function AddHabitDialog({
     // Determine which category to use
     let finalCategory = category;
     if (showNewCategory && newCategory.trim()) {
-      finalCategory = newCategory.trim().toLowerCase().replace(/\s+/g, '_');
+      const normalized = normalizeCategory(newCategory);
+      
+      if (!validateCategory(normalized)) {
+        toast.error('Categoria trebuie să aibă 2-50 caractere (litere, numere, _ sau -)');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      finalCategory = normalized;
       onAddCategory?.(finalCategory);
     }
 
