@@ -190,54 +190,34 @@ const challengeContent: ChallengeDayContent[] = [
   },
   {
     day: 4,
-    titleEn: "🎯 DOMINO DOOR (Plan Săptămânal)",
-    titleRo: "🎯 DOMINO DOOR (Planul Săptămânii)",
-    principleEn: "Day 4: The Vital Few - Maximum Impact Actions",
-    principleRo: "Ziua 4: Puținele Vitale - Acțiuni cu Impact Maxim",
-    descriptionEn: "Choose the 'vital few' - few actions with big impact. Use the AI Wizard Domino Door to define your weekly milestone, 4 keys, and connect each action to your WHY. This becomes your Sunday ritual: planning + recap for the next week.",
-    descriptionRo: "Alege 'puținele vitale' - acțiuni puține cu impact mare. Folosește AI Wizard Domino Door pentru a defini milestone-ul săptămânii, 4 chei, și conectează fiecare acțiune la DE CE-ul tău. Acesta devine ritualul de duminică: planificare + recap pentru săptămâna următoare.",
+    titleEn: "🎯 DOMINO DOOR",
+    titleRo: "🎯 DOMINO DOOR",
+    principleEn: "Day 4: Your Weekly Strategic Planning System",
+    principleRo: "Ziua 4: Sistemul Tău de Planificare Săptămânală",
+    descriptionEn: "Domino Door is your weekly strategic planning system. Like a domino that knocks down all the others, you choose ONE main objective for the week and break it into 4 measurable keys. Each key has specific tasks. The AI Wizard guides you step by step through the entire process.",
+    descriptionRo: "Domino Door este sistemul tău de planificare strategică săptămânală. Ca un domino care dărâmă toate celelalte, alegi UN singur obiectiv principal pentru săptămână și îl împarți în 4 chei măsurabile. Fiecare cheie are task-uri specifice. Wizard-ul AI te ghidează pas cu pas prin întregul proces.",
     videoPlaceholder: "🎬 Video: Domino Door - Weekly Planning System",
     icon: Target,
     color: "from-amber-500 to-orange-500",
     actionPath: "/door",
     focusAreas: ['body', 'being', 'balance', 'business'],
     stepsEn: [
-      "Open Domino Door system",
-      "Define your weekly milestone - the ONE thing that makes this week a success",
-      "Use AI Wizard to create 4 measurable key points",
-      "Set concrete actions for each key",
-      "Connect each action to your WHY from Day 1",
-      "Make this your Sunday ritual",
-      "Share milestone + tasks in comments"
+      "Open Domino Door",
+      "Follow the AI Wizard to set your weekly milestone + 4 keys + tasks",
+      "Share a screenshot or copy-paste in comments"
     ],
     stepsRo: [
-      "Deschide sistemul Domino Door",
-      "Definește milestone-ul săptămânii - UN lucru care face săptămâna un succes",
-      "Folosește AI Wizard pentru a crea 4 puncte cheie măsurabile",
-      "Setează acțiuni concrete pentru fiecare cheie",
-      "Conectează fiecare acțiune la DE CE-ul tău din Ziua 1",
-      "Transformă asta în ritualul de duminică",
-      "Postează milestone + task-uri în comentarii"
+      "Deschide Domino Door",
+      "Urmează Wizard-ul AI pentru a seta milestone + 4 chei + task-uri",
+      "Postează un screenshot sau copy-paste în comentarii"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Open Domino Door", description: "Navigate to the weekly planning system", area: "business", link: "/door", linkLabel: "Open Door" },
-      { id: "ex2", title: "Set Weekly Milestone", description: "Define the ONE thing that would make this week a success", area: "business" },
-      { id: "ex3", title: "AI Wizard - Key 1", description: "Use AI to create your first measurable key point", area: "business" },
-      { id: "ex4", title: "AI Wizard - Key 2", description: "Create your second key point with specific actions", area: "business" },
-      { id: "ex5", title: "AI Wizard - Key 3", description: "Create your third key point with responsible person", area: "balance" },
-      { id: "ex6", title: "AI Wizard - Key 4", description: "Create your fourth key point with deadline", area: "being" },
-      { id: "ex7", title: "Connect to Your WHY", description: "Link each key to your vision declaration from Day 1", area: "being" },
-      { id: "ex8", title: "Share in Comments", description: "Post your milestone + Domino Door tasks to the community", area: "balance" }
+      { id: "ex1", title: "Open Domino Door", description: "The AI Wizard will guide you to set 4 keys and tasks for each key", area: "business", link: "/door", linkLabel: "Open Domino Door" },
+      { id: "ex2", title: "Share Your Domino Door", description: "Post a screenshot or copy-paste your Domino Door in the comments below", area: "balance" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Deschide Domino Door", description: "Navighează la sistemul de planificare săptămânală", area: "business", link: "/door", linkLabel: "Deschide Door" },
-      { id: "ex2", title: "Setează Milestone-ul Săptămânii", description: "Definește UN lucru care ar face săptămâna aceasta un succes", area: "business" },
-      { id: "ex3", title: "AI Wizard - Cheie 1", description: "Folosește AI pentru a crea primul punct cheie măsurabil", area: "business" },
-      { id: "ex4", title: "AI Wizard - Cheie 2", description: "Creează al doilea punct cheie cu acțiuni specifice", area: "business" },
-      { id: "ex5", title: "AI Wizard - Cheie 3", description: "Creează al treilea punct cheie cu persoana responsabilă", area: "balance" },
-      { id: "ex6", title: "AI Wizard - Cheie 4", description: "Creează al patrulea punct cheie cu deadline", area: "being" },
-      { id: "ex7", title: "Conectează la DE CE-ul Tău", description: "Leagă fiecare cheie de declarația ta din Ziua 1", area: "being" },
-      { id: "ex8", title: "Postează în Comentarii", description: "Publică milestone + task-urile Domino Door în comunitate", area: "balance" }
+      { id: "ex1", title: "Deschide Domino Door", description: "Wizard-ul AI te va îndruma să setezi 4 chei și task-uri pentru fiecare cheie", area: "business", link: "/door", linkLabel: "Deschide Domino Door" },
+      { id: "ex2", title: "Distribuie Domino Door-ul Tău", description: "Postează un screenshot sau copy-paste cu Domino Door-ul tău în comentariile de mai jos", area: "balance" }
     ]
   },
   {
