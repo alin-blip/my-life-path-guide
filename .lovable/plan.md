@@ -1,346 +1,180 @@
 
+# Plan: Fix Mind Coach Flow în Rutina Campionului
 
-# Plan: Task Reminders cu Notificări Sonore în Accountability Coach
+## Probleme Identificate
 
-## Rezumat
-
-Implementăm un sistem de remindere periodice pentru taskurile de astăzi în Accountability Coach, care va:
-1. Afișa taskurile de azi direct în tab-ul "Plan" (chiar dacă ai setat Domino Door)
-2. Trimite notificări periodice cu sunet pentru taskurile rămase
-3. Permite configurarea frecvenței de reminder
+1. **TTS nu termină de vorbit** - AI-ul trece la pasul următor înainte ca vocea să termine
+2. **Lipsesc butoanele de navigare manuală** - utilizatorul nu poate alege să continue
+3. **Dialog-ul de finalizare nu apare corect** în modul embedded
 
 ---
 
-## Arhitectură
+## Soluție
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│              AccountabilityCoachWidget                       │
-│                                                              │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │                    Tab: PLAN                             │ │
-│  │  ┌───────────────────────────────────────────────────┐  │ │
-│  │  │  📋 Taskuri Astăzi                                 │  │ │
-│  │  │  ┌──────────────────────────────────────────────┐ │  │ │
-│  │  │  │ ○ Finalizează prezentarea                    │ │  │ │
-│  │  │  │ ✓ Trimite email la client                    │ │  │ │
-│  │  │  │ ○ Revizuie contractul                        │ │  │ │
-│  │  │  └──────────────────────────────────────────────┘ │  │ │
-│  │  │  Progress: 1/3 completate                         │  │ │
-│  │  └───────────────────────────────────────────────────┘  │ │
-│  │                                                          │ │
-│  │  ┌───────────────────────────────────────────────────┐  │ │
-│  │  │  🔔 Remindere de completat                        │  │ │
-│  │  │  • Completează obiectivele anuale                 │  │ │
-│  │  │  • Începe Rutina de Campion                       │  │ │
-│  │  └───────────────────────────────────────────────────┘  │ │
-│  └─────────────────────────────────────────────────────────┘ │
-│                                                              │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │  ⚙️ Reminder Settings                                    │ │
-│  │  La fiecare: [15 min ▾] [30 min] [1 oră] [Off]          │ │
-│  └─────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+### 1. Adaug Butoane de Navigare Manuală în EmotionalCheckUnifiedStep
+
+Când Mind Coach rulează inline, voi adăuga butoane floating pentru:
+- **"Continuă Rutina"** - trece la pasul următor
+- **"Altă Sesiune"** - resetează Mind Coach pentru o nouă emoție
+
+```
+┌─────────────────────────────────────────────────────┐
+│          Mind Coach Chat (embedded)                  │
+│  ┌─────────────────────────────────────────────────┐│
+│  │  [Messages...]                                   ││
+│  │                                                  ││
+│  │  AI: "Excelent! Ai identificat..."              ││
+│  └─────────────────────────────────────────────────┘│
+│                                                      │
+│  ┌─────────────────────────────────────────────────┐│
+│  │  [Input area with voice controls]               ││
+│  └─────────────────────────────────────────────────┘│
+│                                                      │
+│  ╔═════════════════════════════════════════════════╗│
+│  ║  🎯 Butoane de Navigare                         ║│
+│  ║  ┌─────────────────┐  ┌─────────────────────┐  ║│
+│  ║  │  Altă Sesiune   │  │  Continuă Rutina →  │  ║│
+│  ║  │       🧠        │  │       ✓             │  ║│
+│  ║  └─────────────────┘  └─────────────────────┘  ║│
+│  ╚═════════════════════════════════════════════════╝│
+└─────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 1. Hook Nou: `useTaskReminders`
+### 2. Oprire TTS înainte de Navigare
 
-Creez un hook dedicat pentru gestionarea reminderelor de taskuri:
-
-**Funcționalități:**
-- Încarcă taskurile de azi din `user_tasks` via `useTodaysTasks`
-- Verifică periodic dacă mai sunt taskuri necompletate
-- Trimite notificări sonore la interval configurat
-- Persistă configurările în localStorage
-
-**Logica:**
-```typescript
-interface TaskReminderSettings {
-  enabled: boolean;
-  intervalMinutes: number; // 15, 30, 60, sau 0 (off)
-  soundEnabled: boolean;
-}
-
-const useTaskReminders = () => {
-  const { tasks, completedCount, totalCount } = useTodaysTasks();
-  const [settings, setSettings] = useLocalStorage('task-reminder-settings', defaultSettings);
-  const [lastReminderAt, setLastReminderAt] = useState<Date | null>(null);
-  
-  // Interval pentru verificare
-  useEffect(() => {
-    if (!settings.enabled || settings.intervalMinutes === 0) return;
-    
-    const interval = setInterval(() => {
-      const remainingTasks = tasks.filter(t => !t.completed);
-      if (remainingTasks.length > 0) {
-        triggerReminder(remainingTasks);
-      }
-    }, settings.intervalMinutes * 60 * 1000);
-    
-    return () => clearInterval(interval);
-  }, [settings, tasks]);
-  
-  const triggerReminder = (remainingTasks) => {
-    // Redă sunet
-    if (settings.soundEnabled) {
-      playNotificationSound();
-    }
-    
-    // Arată notificare browser (dacă e permis)
-    showBrowserNotification(remainingTasks);
-    
-    // Deschide widgetul accountability
-    dispatchEvent(new CustomEvent('open-accountability-coach', { detail: { tab: 'plan' } }));
-  };
-  
-  return { tasks, remainingTasks, settings, updateSettings };
-};
-```
+Când utilizatorul apasă "Continuă Rutina":
+1. Stop TTS imediat (`voice.endCall()` sau `voice.skipAISpeaking()`)
+2. Apelează `onComplete` pentru a trece la pasul următor
 
 ---
 
-## 2. Sunet de Notificare
+### 3. Modificări în MindCoachChat pentru Modul Embedded
 
-**Opțiuni de implementare:**
-
-### Opțiunea A: Generare programatică (Web Audio API)
-- Nu necesită fișiere externe
-- Sunet "ding" simplu și elegant
-- Funcționează instant
-
-```typescript
-const playNotificationSound = () => {
-  const audioContext = new AudioContext();
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
-  
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-  
-  oscillator.type = 'sine';
-  oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5
-  oscillator.frequency.setValueAtTime(1047, audioContext.currentTime + 0.1); // C6
-  
-  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-  
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + 0.3);
-};
-```
-
-### Opțiunea B: Fișier audio extern
-- Sunet mai profesionist
-- Necesită adăugarea unui fișier în `/public/sounds/`
-
-**Recomand Opțiunea A** - nu necesită resurse externe și funcționează imediat.
+Adaug prop-uri noi:
+- `showNavigationButtons?: boolean` - arată butoane de navigare
+- `onContinueRoutine?: () => void` - callback pentru "Continuă Rutina"
+- `onNewSession?: () => void` - callback pentru "Altă Sesiune"
 
 ---
 
-## 3. Componentă Nouă: `TodaysTasksList`
-
-Afișează taskurile de astăzi direct în tab-ul Plan:
-
-```typescript
-interface TodaysTasksListProps {
-  onToggleTask: (taskId: string) => void;
-  showAddButton?: boolean;
-}
-
-const TodaysTasksList = ({ onToggleTask }) => {
-  const { tasks, completedCount, totalCount, toggleTask } = useTodaysTasks();
-  
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold flex items-center gap-2">
-          <ListChecks className="w-4 h-4" />
-          Taskuri Astăzi
-        </h3>
-        <Badge variant="outline">
-          {completedCount}/{totalCount}
-        </Badge>
-      </div>
-      
-      {/* Progress bar */}
-      <Progress value={(completedCount / totalCount) * 100} />
-      
-      {/* Task list */}
-      <div className="space-y-2">
-        {tasks.map(task => (
-          <TaskItem key={task.id} task={task} onToggle={toggleTask} />
-        ))}
-      </div>
-      
-      {/* Empty state */}
-      {tasks.length === 0 && (
-        <div className="text-center py-4 text-muted-foreground">
-          <p>Nu ai taskuri pentru azi.</p>
-          <Button variant="link" onClick={() => navigate('/door')}>
-            Planifică în Domino Door →
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-};
-```
-
----
-
-## 4. Componentă Nouă: `ReminderSettings`
-
-Permite configurarea intervalului de remindere:
-
-```typescript
-const ReminderSettings = () => {
-  const { settings, updateSettings } = useTaskReminders();
-  
-  const intervals = [
-    { value: 15, label: '15 min' },
-    { value: 30, label: '30 min' },
-    { value: 60, label: '1 oră' },
-    { value: 120, label: '2 ore' },
-    { value: 0, label: 'Off' },
-  ];
-  
-  return (
-    <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
-      <Bell className="w-4 h-4 text-muted-foreground" />
-      <span className="text-sm">Remind la fiecare:</span>
-      <ToggleGroup value={settings.intervalMinutes} onValueChange={...}>
-        {intervals.map(int => (
-          <ToggleGroupItem key={int.value} value={int.value}>
-            {int.label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-      
-      <Button 
-        variant="ghost" 
-        size="icon"
-        onClick={() => updateSettings({ soundEnabled: !settings.soundEnabled })}
-      >
-        {settings.soundEnabled ? <Volume2 /> : <VolumeX />}
-      </Button>
-    </div>
-  );
-};
-```
-
----
-
-## 5. Actualizare `CoachReminders.tsx`
-
-Integrăm lista de taskuri în componenta existentă:
-
-**Înainte:**
-- Arată doar foundation items (obiective, rutină, vision board)
-
-**După:**
-- Arată ÎNTÂI taskurile de azi (prioritate maximă)
-- Apoi foundation items rămase
-- La final, opțiuni de configurare reminder
-
----
-
-## 6. Fișiere de Creat
-
-| Fișier | Scop |
-|--------|------|
-| `src/hooks/useTaskReminders.ts` | Hook pentru gestionarea reminderelor periodice |
-| `src/utils/notificationSound.ts` | Utilitar pentru generarea sunetului de notificare |
-| `src/components/accountability/TodaysTasksList.tsx` | Lista de taskuri pentru azi |
-| `src/components/accountability/ReminderSettings.tsx` | Configurări interval reminder |
-
-## 7. Fișiere de Modificat
+## Fișiere de Modificat
 
 | Fișier | Modificări |
 |--------|------------|
-| `src/components/accountability/CoachReminders.tsx` | Adaug TodaysTasksList și ReminderSettings |
-| `src/components/accountability/AccountabilityCoachWidget.tsx` | Integrare useTaskReminders pentru periodic checks |
+| `src/components/mind-coach/MindCoachChat.tsx` | Adaug prop-uri și butoane de navigare pentru modul embedded |
+| `src/components/champion-routine/steps/EmotionalCheckUnifiedStep.tsx` | Transmit callback-uri pentru navigare și gestionez flow-ul |
 
 ---
 
-## 8. Flow de Notificare
+## Detalii Implementare
 
-```text
-1. Utilizator are taskuri pentru azi (din Domino Door sau manual)
-2. Hook verifică la fiecare X minute (configurat de user)
-3. Dacă există taskuri necompletate:
-   a. Redă sunet "ding" (Web Audio API)
-   b. Încearcă să arate notificare browser (dacă e permis)
-   c. Afișează toast în aplicație cu "Ai X taskuri rămase"
-   d. Opțional: Deschide automat widgetul Accountability Coach
-4. Click pe notificare → deschide tab Plan cu lista de taskuri
-5. Utilizatorul poate bifat taskurile direct din widget
-6. Când toate sunt completate → felicitări + sunet celebrare
+### A. MindCoachChat.tsx
+
+Adaug la interface:
+```typescript
+interface MindCoachChatProps {
+  // ... existing props
+  showNavigationButtons?: boolean;
+  onContinueRoutine?: () => void;
+  onNewSession?: () => void;
+}
 ```
 
----
-
-## 9. Browser Notifications
-
-Adăugăm suport pentru notificări native browser:
-
+Adaug butoane floating după input area:
 ```typescript
-const requestNotificationPermission = async () => {
-  if (!('Notification' in window)) return false;
-  
-  if (Notification.permission === 'granted') return true;
-  
-  const permission = await Notification.requestPermission();
-  return permission === 'granted';
-};
+{/* Navigation buttons for embedded mode */}
+{embedded && showNavigationButtons && (
+  <div className="p-4 border-t border-primary/10 bg-gradient-to-t from-primary/10 to-transparent">
+    <div className="flex gap-3">
+      <Button
+        variant="outline"
+        className="flex-1 gap-2"
+        onClick={() => {
+          // Stop any ongoing TTS
+          if (voice.isInCall) voice.endCall();
+          onNewSession?.();
+        }}
+      >
+        <Brain className="h-4 w-4" />
+        Altă Sesiune
+      </Button>
+      <Button
+        className="flex-1 gap-2 bg-gradient-to-r from-green-500 to-emerald-600"
+        onClick={() => {
+          // Stop TTS and continue
+          if (voice.isInCall) voice.endCall();
+          onContinueRoutine?.();
+        }}
+      >
+        Continuă Rutina
+        <ArrowRight className="h-4 w-4" />
+      </Button>
+    </div>
+  </div>
+)}
+```
 
-const showBrowserNotification = (remainingTasks: Task[]) => {
-  if (Notification.permission !== 'granted') return;
-  
-  new Notification('📋 Taskuri Rămase', {
-    body: `Ai ${remainingTasks.length} taskuri de completat astăzi`,
-    icon: '/favicon.ico',
-    tag: 'task-reminder', // Previne duplicate
-    requireInteraction: false,
+### B. EmotionalCheckUnifiedStep.tsx
+
+Modific `handleMindCoachComplete`:
+```typescript
+const handleMindCoachComplete = (breakthrough?: any) => {
+  // NU mai apelăm automat onComplete
+  // Așteptăm ca utilizatorul să aleagă manual
+};
+```
+
+Adaug handlers pentru navigare:
+```typescript
+const handleContinueRoutine = () => {
+  onComplete({ 
+    emotion: emotion!, 
+    intensity, 
+    stackCompleted: true,
+    transformedEnergy: 'transformed'
   });
 };
-```
 
----
-
-## 10. Persistența Setărilor
-
-Setările se salvează în localStorage:
-
-```typescript
-const defaultSettings: TaskReminderSettings = {
-  enabled: true,
-  intervalMinutes: 60, // default: la fiecare oră
-  soundEnabled: true,
-  browserNotifications: false, // trebuie permisiune explicită
+const handleNewSession = () => {
+  setPhase('emotion');
+  // Reset state for new session
 };
 ```
 
+Transmit la MindCoachChat:
+```typescript
+<MindCoachChat
+  initialEmotion={emotion}
+  initialIntensity={intensity}
+  embedded={true}
+  showNavigationButtons={true}
+  onContinueRoutine={handleContinueRoutine}
+  onNewSession={handleNewSession}
+  onComplete={handleMindCoachComplete}
+  onBack={() => setPhase('emotion')}
+/>
+```
+
 ---
 
-## 11. Ordinea Implementării
+## UX Flow Nou
 
-1. **Pas 1:** Creez `notificationSound.ts` - sunet Web Audio API
-2. **Pas 2:** Creez `useTaskReminders.ts` - hook complet cu setări
-3. **Pas 3:** Creez `TodaysTasksList.tsx` - lista de taskuri
-4. **Pas 4:** Creez `ReminderSettings.tsx` - configurări
-5. **Pas 5:** Actualizez `CoachReminders.tsx` - integrare componente
-6. **Pas 6:** Actualizez `AccountabilityCoachWidget.tsx` - hook reminder
-7. **Pas 7:** Testare end-to-end
+1. Utilizator selectează emoție negativă
+2. Mind Coach pornește inline
+3. Conversația progresează (text sau voce)
+4. **Oricând**, utilizatorul poate:
+   - Apăsa **"Continuă Rutina"** → oprește TTS, trece la pasul următor
+   - Apăsa **"Altă Sesiune"** → resetează pentru altă emoție
+5. Dacă AI completează transformarea (tool call), butoanele rămân vizibile
+6. Utilizatorul decide când e gata să continue
 
 ---
 
-## 12. UX Îmbunătățiri Incluse
+## Testing
 
-- **Badge dinamic** pe butonul Accountability Coach care arată numărul de taskuri rămase
-- **Progress ring** vizual în jurul iconului
-- **Sunet diferit** pentru reminder vs completare task
-- **Animație** când se deschide widgetul din notificare
-- **Smart timing** - nu trimite reminder dacă utilizatorul tocmai a interacționat cu app-ul
-
+- Testează că TTS se oprește când apeși "Continuă Rutina"
+- Testează că "Altă Sesiune" resetează corect starea
+- Verifică că butoanele sunt vizibile în timpul conversației
+- Verifică flow-ul în call mode și speak mode
