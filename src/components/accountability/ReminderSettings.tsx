@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Bell, Volume2, VolumeX, BellRing } from 'lucide-react';
+import { Bell, Volume2, VolumeX, BellRing, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { TaskReminderSettings } from '@/hooks/useTaskReminders';
 import { cn } from '@/lib/utils';
@@ -26,7 +26,9 @@ export const ReminderSettings: React.FC<ReminderSettingsProps> = ({
   onEnableBrowserNotifications,
 }) => {
   const { language } = useLanguage();
-  const hasBrowserPermission = 'Notification' in window && Notification.permission === 'granted';
+  const permissionStatus = 'Notification' in window ? Notification.permission : 'default';
+  const hasBrowserPermission = permissionStatus === 'granted';
+  const isDenied = permissionStatus === 'denied';
 
   return (
     <div className="p-3 bg-muted/30 rounded-lg border border-border/50 space-y-3">
@@ -83,8 +85,8 @@ export const ReminderSettings: React.FC<ReminderSettingsProps> = ({
             {language === 'ro' ? 'Sunet' : 'Sound'}
           </Button>
 
-          {/* Browser notifications */}
-          {!hasBrowserPermission && (
+          {/* Browser notifications - show only if not granted AND not denied */}
+          {!hasBrowserPermission && !isDenied && (
             <Button
               variant="ghost"
               size="sm"
@@ -104,6 +106,18 @@ export const ReminderSettings: React.FC<ReminderSettingsProps> = ({
           )}
         </div>
       </div>
+
+      {/* Notifications blocked warning */}
+      {isDenied && (
+        <div className="text-xs text-amber-600 bg-amber-500/10 p-2 rounded flex items-start gap-2">
+          <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+          <span>
+            {language === 'ro' 
+              ? 'Notificările sunt blocate de browser. Apasă pe iconița 🔒 din bara de adresă și permite notificările.' 
+              : 'Notifications are blocked. Click the 🔒 icon in address bar and allow notifications.'}
+          </span>
+        </div>
+      )}
     </div>
   );
 };

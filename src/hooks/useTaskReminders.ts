@@ -100,7 +100,13 @@ export const useTaskReminders = () => {
       updateSettings({ browserNotifications: true });
       toast.success('Notificări browser activate!');
     } else {
-      toast.error('Nu am primit permisiunea pentru notificări');
+      if (Notification.permission === 'denied') {
+        toast.error('Notificările sunt blocate. Verifică setările browserului (click pe 🔒 din bara de adresă).', {
+          duration: 5000,
+        });
+      } else {
+        toast.error('Nu am primit permisiunea pentru notificări. Încearcă din nou.');
+      }
     }
   }, [updateSettings]);
 
