@@ -1,90 +1,179 @@
 
-# Plan: Îmbunătățiri Accountability Coach Widget
+# Plan: Rezolvare Mind Coach - Finalizare Chat + Salvare HIT List + Library
 
 ## Probleme Identificate
 
-Din screenshot și analiză cod:
+### 1. Task-ul NU se salvează în HIT List
+**Cauză:** `EmotionalCheckUnifiedStep.tsx` NU pasează callback-ul `onAddToHitList` către `MindCoachChat`.
 
-1. **Taskurile sunt tăiate** - `ScrollArea` are `max-h-[200px]` care limitează vizibilitatea
-2. **Lipsește buton Focus Room** - utilizatorul dorește navigare rapidă la Focus Room
-3. **Eroare notificări neclară** - mesajul "Nu am primit permisiunea pentru notificări" nu explică ce trebuie făcut
+```typescript
+// EmotionalCheckUnifiedStep.tsx - linia 99
+<MindCoachChat
+  initialEmotion={emotion}
+  embedded={true}
+  showNavigationButtons={true}
+  onContinueRoutine={handleContinueRoutine}
+  onNewSession={handleNewSession}
+  onComplete={handleMindCoachComplete}
+  onBack={() => setPhase('emotion')}
+  // LIPSEȘTE: onAddToHitList={???}
+/>
+```
+
+### 2. Chatul rămâne vizibil după "da"/"nu"
+**Cauză:** După ce AI-ul primește răspunsul și apelează `complete_transformation`, chatul rămâne deschis cu toate mesajele. Utilizatorul vrea să vadă doar butoanele.
+
+### 3. Week key-ul este calculat greșit
+**Cauză:** În `MindCoach.tsx`, calculul week key-ului nu corespunde cu cel din Domino Door:
+```typescript
+// Greșit:
+const weekKey = `door-week-${now.getFullYear()}-${String(Math.ceil((now.getDate() + now.getDay()) / 7)).padStart(2, '0')}`;
+
+// Corect (din edge function):
+// Folosește getISOWeek sau logica Monday-based
+```
+
+### 4. Conversațiile nu sunt salvate
+**Cauză:** Mind Coach nu salvează conversațiile în `stack_library` sau `stack_sessions` pentru a putea fi revizualizate ulterior.
 
 ---
 
 ## Soluții Propuse
 
-### 1. Afișare Completă Taskuri
+### A. Adaug `onAddToHitList` în EmotionalCheckUnifiedStep
 
-Voi mări limita de înălțime și voi adăuga opțiune "Vezi toate":
+Voi adăuga un callback care salvează task-ul direct în baza de date:
 
-**Modificări în `TodaysTasksList.tsx`:**
-- Măresc `max-h-[200px]` la `max-h-[280px]` pentru a arăta mai multe taskuri
-- Afișez contorul total clar în header
-- Dacă sunt > 6 taskuri, afișez un indicator "și încă X..."
+```typescript
+// În EmotionalCheckUnifiedStep.tsx
+const handleAddToHitList = async (task: string) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-### 2. Buton Focus Room
+    // Calculez week key corect (conform logicii Door)
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() + mondayOffset);
+    const weekNum = getISOWeek(weekStart);
+    const year = getYear(weekStart);
+    const weekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
 
-Adaug buton nou sub "Gestionează în Domino Door":
+    // Day abbreviation
+    const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+    const todayAbbrev = days[now.getDay()];
 
-```text
-┌─────────────────────────────────────┐
-│  [Taskuri Astăzi]       2/6        │
-│  ▢ Task 1                          │
-│  ▢ Task 2                          │
-│  ✓ Task 3                          │
-│  ...                               │
-│                                    │
-│  [Gestionează în Domino Door →]    │  ← existent
-│  [🎯 Implementează în Focus Room →] │  ← NOU
-└─────────────────────────────────────┘
+    await supabase.from('user_tasks').insert({
+      user_id: user.id,
+      title: task,
+      task_type: 'hit',
+      list_type: 'hit',
+      day_of_week: todayAbbrev,
+      week_key: weekKey,
+      priority: 1,
+      completed: false,
+    });
+  } catch (error) {
+    console.error('Error adding to HIT list:', error);
+  }
+};
+
+// Apoi pasez către MindCoachChat
+<MindCoachChat
+  onAddToHitList={handleAddToHitList}
+  // ... restul props
+/>
 ```
 
-**Cod propus:**
+### B. Ascund chatul după finalizare
+
+Adaug o stare `showChatMessages` care se setează pe `false` după `isComplete`:
+
 ```typescript
-{/* Link to Focus Room - NEW */}
-<Button 
-  variant="ghost" 
-  size="sm" 
-  onClick={() => { navigate('/focus'); onClose?.(); }}
-  className="w-full text-xs text-muted-foreground hover:text-primary"
->
-  <Target className="w-3 h-3 mr-1" />
-  {language === 'ro' ? 'Implementează în Focus Room' : 'Implement in Focus Room'}
-  <ArrowRight className="w-3 h-3 ml-1" />
-</Button>
-```
+// În MindCoachChat.tsx
+const [showChatMessages, setShowChatMessages] = useState(true);
 
-### 3. Eroare Notificări Îmbunătățită
+// Când isComplete devine true, ascund mesajele
+useEffect(() => {
+  if (isComplete) {
+    setShowChatMessages(false);
+  }
+}, [isComplete]);
 
-Problema: Browser-ul poate refuza permisiunea, dar utilizatorul nu știe cum să o rezolve.
+// În render, condiționez afișarea mesajelor
+{showChatMessages && (
+  <ScrollArea className="flex-1 p-4">
+    {/* Messages */}
+  </ScrollArea>
+)}
 
-**Modificări în `ReminderSettings.tsx`:**
-- Verificare stare permisiune (`denied` vs `default`)
-- Mesaj clar când e blocată de browser
-- Link/instrucțiuni pentru deblocare
-
-**Cod propus:**
-```typescript
-// Verificare permisiune
-const permissionStatus = 'Notification' in window ? Notification.permission : 'default';
-const hasBrowserPermission = permissionStatus === 'granted';
-const isDenied = permissionStatus === 'denied';
-
-// În UI:
-{isDenied && (
-  <div className="text-xs text-amber-600 bg-amber-500/10 p-2 rounded flex items-start gap-2">
-    <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-    <span>
-      {language === 'ro' 
-        ? 'Notificările sunt blocate. Click pe 🔒 din bara de adresă → Permite notificări' 
-        : 'Notifications blocked. Click 🔒 in address bar → Allow notifications'}
-    </span>
+{/* Când isComplete și embedded, afișez doar butoanele */}
+{embedded && isComplete && !showChatMessages && (
+  <div className="flex-1 flex items-center justify-center p-8">
+    <div className="text-center">
+      <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
+      <h3>Transformare Completă!</h3>
+      <p className="text-muted-foreground">
+        Alege cum vrei să continui...
+      </p>
+    </div>
   </div>
 )}
 ```
 
-**Modificări în `useTaskReminders.ts`:**
-- Mesaj mai descriptiv la refuz
+### C. Salvez conversația în Library
+
+Adaug salvare în `stack_library` la finalizarea sesiunii:
+
+```typescript
+// În useMindCoach.ts - în processToolCalls, la complete_transformation
+case 'complete_transformation':
+  // ... cod existent ...
+  
+  // Salvez conversația în stack_library
+  await saveConversationToLibrary(messages, breakthrough);
+  break;
+
+// Funcție nouă
+const saveConversationToLibrary = async (msgs: Message[], breakthrough: BreakthroughData) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase.from('stack_library').insert({
+      user_id: user.id,
+      title: `Mind Coach - ${breakthrough.emotionBefore} → ${breakthrough.emotionAfter}`,
+      type: 'mind-coach',
+      content: {
+        messages: msgs,
+        breakthrough,
+        savedAt: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error saving to library:', error);
+  }
+};
+```
+
+### D. Corectez week key în MindCoach.tsx
+
+```typescript
+// Înlocuiesc calculul greșit cu unul corect
+import { getISOWeek, getYear, startOfWeek } from 'date-fns';
+
+const handleAddToHitList = async (task: string) => {
+  // ...
+  const now = new Date();
+  const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+  const weekNum = getISOWeek(weekStart);
+  const year = getYear(weekStart);
+  const weekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
+  // ...
+};
+```
 
 ---
 
@@ -92,124 +181,228 @@ const isDenied = permissionStatus === 'denied';
 
 | Fișier | Modificări |
 |--------|------------|
-| `src/components/accountability/TodaysTasksList.tsx` | Măresc vizibilitate taskuri + adaug buton Focus Room |
-| `src/components/accountability/ReminderSettings.tsx` | Adaug mesaj clar pentru notificări blocate |
-| `src/hooks/useTaskReminders.ts` | Îmbunătățesc mesajul de eroare |
+| `src/components/champion-routine/steps/EmotionalCheckUnifiedStep.tsx` | Adaug `handleAddToHitList` și pasez către MindCoachChat |
+| `src/components/mind-coach/MindCoachChat.tsx` | Ascund mesajele după finalizare, afișez doar butoanele |
+| `src/hooks/useMindCoach.ts` | Adaug salvare conversație în `stack_library` |
+| `src/pages/MindCoach.tsx` | Corectez calculul week key |
 
 ---
 
 ## Detalii Tehnice
 
-### A. TodaysTasksList.tsx
+### 1. EmotionalCheckUnifiedStep.tsx
 
-1. **Măresc înălțimea maximă:**
+**Imports noi:**
 ```typescript
-// Înainte:
-<ScrollArea className="max-h-[200px]">
-
-// După:
-<ScrollArea className="max-h-[280px]">
+import { supabase } from '@/integrations/supabase/client';
+import { getISOWeek, getYear, startOfWeek } from 'date-fns';
+import { toast } from 'sonner';
 ```
 
-2. **Adaug buton Focus Room după butonul Domino Door:**
+**Handler nou:**
 ```typescript
-import { Target } from 'lucide-react';
+const handleAddToHitList = async (task: string) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-// După butonul "Gestionează în Domino Door":
-const handleGoToFocusRoom = () => {
-  navigate('/focus');
-  onClose?.();
+    const now = new Date();
+    const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+    const weekNum = getISOWeek(weekStart);
+    const year = getYear(weekStart);
+    const weekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
+    
+    const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+    const todayAbbrev = days[now.getDay()];
+
+    await supabase.from('user_tasks').insert({
+      user_id: user.id,
+      title: task,
+      task_type: 'hit',
+      list_type: 'hit',
+      day_of_week: todayAbbrev,
+      week_key: weekKey,
+      priority: 1,
+      completed: false,
+    });
+
+    toast.success('Acțiune adăugată în HIT List! 🎯');
+  } catch (error) {
+    console.error('Error adding to HIT list:', error);
+    toast.error('Eroare la adăugarea în HIT List');
+  }
 };
-
-// În JSX, după Link to Domino Door:
-<Button 
-  variant="ghost" 
-  size="sm" 
-  onClick={handleGoToFocusRoom}
-  className="w-full text-xs text-muted-foreground hover:text-primary mt-1"
->
-  <Target className="w-3 h-3 mr-1" />
-  {language === 'ro' ? 'Implementează în Focus Room' : 'Implement in Focus Room'}
-  <ArrowRight className="w-3 h-3 ml-1" />
-</Button>
 ```
 
-### B. ReminderSettings.tsx
-
-1. **Adaug verificare stare permisiune:**
+**Pasare către MindCoachChat (linia ~99):**
 ```typescript
-import { AlertTriangle } from 'lucide-react';
-
-// În component:
-const permissionStatus = 'Notification' in window ? Notification.permission : 'default';
-const hasBrowserPermission = permissionStatus === 'granted';
-const isDenied = permissionStatus === 'denied';
+<MindCoachChat
+  initialEmotion={emotion}
+  initialIntensity={intensity}
+  embedded={true}
+  showNavigationButtons={true}
+  onContinueRoutine={handleContinueRoutine}
+  onNewSession={handleNewSession}
+  onComplete={handleMindCoachComplete}
+  onAddToHitList={handleAddToHitList}  // ADĂUGAT
+  onBack={() => setPhase('emotion')}
+/>
 ```
 
-2. **Adaug UI pentru starea "blocked":**
+### 2. MindCoachChat.tsx
+
+**Stare nouă:**
 ```typescript
-{/* Notifications blocked warning */}
-{isDenied && (
-  <div className="text-xs text-amber-600 bg-amber-500/10 p-2 rounded flex items-start gap-2 mt-2">
-    <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-    <span>
-      {language === 'ro' 
-        ? 'Notificările sunt blocate de browser. Apasă pe iconița 🔒 din bara de adresă și permite notificările.' 
-        : 'Notifications are blocked. Click the 🔒 icon in address bar and allow notifications.'}
-    </span>
+const [showChatContent, setShowChatContent] = useState(true);
+```
+
+**Effect pentru ascundere:**
+```typescript
+useEffect(() => {
+  if (isComplete && embedded) {
+    // Ascundem chatul după ce transformarea e completă
+    setShowChatContent(false);
+  }
+}, [isComplete, embedded]);
+```
+
+**UI condiționat - în secțiunea chat (în loc de ScrollArea):**
+```typescript
+{/* Messages area - hide when complete in embedded mode */}
+{showChatContent ? (
+  <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+    {/* ... mesajele existente ... */}
+  </ScrollArea>
+) : (
+  <div className="flex-1 flex items-center justify-center p-8">
+    <div className="text-center space-y-3">
+      <div className="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+        <Sparkles className="h-8 w-8 text-white" />
+      </div>
+      <h3 className="text-lg font-semibold text-foreground">
+        Transformare Completă!
+      </h3>
+      <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+        {breakthroughData?.emotionBefore} → {breakthroughData?.emotionAfter}
+      </p>
+    </div>
   </div>
 )}
 ```
 
-3. **Ascund butonul "Activează notificări" când e blocat:**
+### 3. useMindCoach.ts
+
+**Funcție nouă pentru salvare:**
 ```typescript
-{/* Browser notifications - show only if not granted AND not denied */}
-{!hasBrowserPermission && !isDenied && (
-  <Button onClick={onEnableBrowserNotifications} ...>
-    Activează notificări
-  </Button>
-)}
+const saveConversationToLibrary = async (msgs: Message[], breakthrough: BreakthroughData) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase.from('stack_library').insert({
+      user_id: user.id,
+      title: `Mind Coach - ${breakthrough.emotionBefore} → ${breakthrough.emotionAfter}`,
+      type: 'mind-coach',
+      content: {
+        messages: msgs.map(m => ({
+          role: m.role,
+          content: m.content,
+          timestamp: new Date().toISOString()
+        })),
+        breakthrough,
+        savedAt: new Date().toISOString()
+      }
+    });
+    
+    console.log('Conversation saved to library');
+  } catch (error) {
+    console.error('Error saving conversation to library:', error);
+  }
+};
 ```
 
-### C. useTaskReminders.ts
-
-Îmbunătățesc mesajul de eroare:
+**În processToolCalls, la complete_transformation:**
 ```typescript
-// Înainte:
-toast.error('Nu am primit permisiunea pentru notificări');
+case 'complete_transformation':
+  // ... cod existent până la setIsComplete(true) ...
+  
+  // Salvăm conversația în library
+  await saveConversationToLibrary(
+    [...messages, { role: 'assistant', content: '' }],  // Include all messages
+    breakthrough
+  );
+  
+  // Save to database (existent)
+  await saveBreakthrough(breakthrough);
+  
+  if (options.onComplete) {
+    options.onComplete(breakthrough);
+  }
+  break;
+```
 
-// După:
-if (Notification.permission === 'denied') {
-  toast.error('Notificările sunt blocate. Verifică setările browserului (click pe 🔒 din bara de adresă).', {
-    duration: 5000,
-  });
-} else {
-  toast.error('Nu am primit permisiunea pentru notificări. Încearcă din nou.');
-}
+### 4. MindCoach.tsx
+
+**Import corectat:**
+```typescript
+import { getISOWeek, getYear, startOfWeek } from 'date-fns';
+```
+
+**Calculul week key corectat:**
+```typescript
+const handleAddToHitList = async (task: string) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Calculez week key corect
+    const now = new Date();
+    const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+    const weekNum = getISOWeek(weekStart);
+    const year = getYear(weekStart);
+    const weekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
+    
+    const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+    const dayOfWeek = days[now.getDay()];
+
+    await supabase.from('user_tasks').insert({
+      user_id: user.id,
+      title: task,
+      task_type: 'hit',
+      list_type: 'hit',
+      day_of_week: dayOfWeek,
+      week_key: weekKey,
+      priority: 1,
+      completed: false,
+    });
+
+    toast.success('Acțiune adăugată în HIT List! 🎯');
+  } catch (error) {
+    console.error('Error adding to HIT list:', error);
+    toast.error('Eroare la adăugarea în HIT List');
+  }
+};
 ```
 
 ---
 
-## UX Flow Îmbunătățit
+## Flow Final
 
-### Taskuri:
-1. Utilizatorul deschide Accountability Coach
-2. Vede toate taskurile (sau primele 8-10, cu scroll pentru restul)
-3. Poate naviga rapid la Focus Room cu noul buton
-
-### Notificări:
-1. Utilizatorul apasă "Activează notificări"
-2. Dacă browserul întreabă → răspunde da/nu
-3. Dacă e blocat:
-   - Nu mai arată butonul
-   - Arată mesaj clar cum să deblocheze
-   - Toast mai descriptiv
+1. Utilizatorul parcurge sesiunea Mind Coach
+2. AI întreabă: "Vrei să adaug în HIT List?"
+3. Utilizatorul răspunde "da" sau "nu"
+4. AI apelează `add_to_hit_list` (dacă da) apoi `complete_transformation`
+5. `processToolCalls` execută:
+   - `add_to_hit_list` → salvează în `user_tasks` cu week key corect
+   - `complete_transformation` → salvează în `breakthrough_logs` + `stack_library`
+6. `isComplete = true` → chatul dispare, rămân doar butoanele
+7. Utilizatorul alege "Altă Sesiune" sau "Continuă Rutina"
 
 ---
 
 ## Testing
 
-1. **Taskuri:** Verifică că se văd mai multe taskuri fără să fie tăiate
-2. **Focus Room:** Click pe buton → te duce la /focus și închide widget-ul
-3. **Notificări blocate:** Blochează manual în browser → verifică mesajul de avertizare
-4. **Notificări permise:** Permite în browser → verifică că apare "Notificări active"
+1. **HIT List:** Verifică în Door → Sarcini că apare task-ul pentru ziua curentă
+2. **Chat ascuns:** După "da"/"nu", chatul dispare, rămân doar butoanele
+3. **Library:** Verifică în stack_library (sau Tools dacă există UI) că apare conversația
+4. **Week key:** Verifică că week_key corespunde săptămânii curente (ex: `door-week-2026-05`)
