@@ -17,8 +17,8 @@ interface EmotionalCheckUnifiedStepProps {
   onSkip: () => void;
 }
 
-const POSITIVE_EMOTIONS: MindCoachEmotion[] = ['happy', 'calm', 'excited'];
-const NEGATIVE_EMOTIONS: MindCoachEmotion[] = ['angry', 'sad', 'anxious', 'stressed', 'overwhelmed', 'procrastinating', 'not_good_enough', 'frustrated', 'confused'];
+const POSITIVE_EMOTIONS: MindCoachEmotion[] = ['happy', 'calm', 'enthusiastic', 'natural', 'motivated'];
+const NEGATIVE_EMOTIONS: MindCoachEmotion[] = ['angry', 'sad', 'anxious', 'stressed', 'overwhelmed', 'procrastinating', 'stuck', 'distracted', 'conflicted'];
 
 type Phase = 'emotion' | 'choice' | 'mind-coach';
 
