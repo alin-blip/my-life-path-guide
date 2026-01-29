@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 
-export type HabitCategory = 'body' | 'being' | 'balance' | 'business';
+// Permite categorii custom (ex: caracter-abilitati, mindset, etc.)
+export type HabitCategory = string;
 export type HabitGroup = 'core4' | 'biz4' | 'custom';
 
 export interface DailyHabit {
