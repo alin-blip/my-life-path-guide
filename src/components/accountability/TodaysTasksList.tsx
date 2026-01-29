@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ListChecks, ArrowRight, Sparkles } from 'lucide-react';
+import { ListChecks, ArrowRight, Sparkles, Target } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { TodayTask } from '@/hooks/useTodaysTasks';
 import { cn } from '@/lib/utils';
@@ -34,6 +34,11 @@ export const TodaysTasksList: React.FC<TodaysTasksListProps> = ({
 
   const handleGoToDoor = () => {
     navigate('/door?tab=sarcini');
+    onClose?.();
+  };
+
+  const handleGoToFocusRoom = () => {
+    navigate('/focus');
     onClose?.();
   };
 
@@ -92,7 +97,7 @@ export const TodaysTasksList: React.FC<TodaysTasksListProps> = ({
       </div>
 
       {/* Task list */}
-      <ScrollArea className="max-h-[200px]">
+      <ScrollArea className="max-h-[280px]">
         <div className="space-y-1 px-3">
           {tasks.map(task => (
             <div
@@ -132,7 +137,7 @@ export const TodaysTasksList: React.FC<TodaysTasksListProps> = ({
       )}
 
       {/* Link to Domino Door */}
-      <div className="px-3 pb-2">
+      <div className="px-3 pb-1">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -140,6 +145,20 @@ export const TodaysTasksList: React.FC<TodaysTasksListProps> = ({
           className="w-full text-xs text-muted-foreground hover:text-primary"
         >
           {language === 'ro' ? 'Gestionează în Domino Door' : 'Manage in Domino Door'}
+          <ArrowRight className="w-3 h-3 ml-1" />
+        </Button>
+      </div>
+
+      {/* Link to Focus Room */}
+      <div className="px-3 pb-2">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleGoToFocusRoom}
+          className="w-full text-xs text-muted-foreground hover:text-primary"
+        >
+          <Target className="w-3 h-3 mr-1" />
+          {language === 'ro' ? 'Implementează în Focus Room' : 'Implement in Focus Room'}
           <ArrowRight className="w-3 h-3 ml-1" />
         </Button>
       </div>
