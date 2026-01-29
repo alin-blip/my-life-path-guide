@@ -131,37 +131,29 @@ const challengeContent: ChallengeDayContent[] = [
     focusAreas: ['body', 'being'],
     stepsEn: [
       "Understand why body and spirit are the foundation",
-      "Set your 2026 annual objectives for Body & Spirit",
-      "Set your 90-day objectives for Body & Spirit",
-      "Set your 30-day objectives for Body & Spirit",
+      "Set your Body objectives: 2026 → 90 Days → 30 Days",
+      "Set your Spirit objectives: 2026 → 90 Days → 30 Days",
       "Define simple sustainable daily rituals",
       "Share in comments your declaration + 2-3 key objectives"
     ],
     stepsRo: [
       "Înțelege de ce corpul și spiritul sunt fundația",
-      "Setează obiectivele anuale 2026 pentru Corp și Spirit",
-      "Setează obiectivele pe 90 zile pentru Corp și Spirit",
-      "Setează obiectivele pe 30 zile pentru Corp și Spirit",
+      "Setează obiectivele Corp: 2026 → 90 Zile → 30 Zile",
+      "Setează obiectivele Spirit: 2026 → 90 Zile → 30 Zile",
       "Definește ritualuri zilnice simple și sustenabile",
       "Scrie în comentarii declarația + 2-3 obiective cheie"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Body Annual Goals 2026", description: "Set your health and fitness objectives for the year", area: "body", link: "/game-objectives?tab=annual", linkLabel: "Open Annual Goals" },
-      { id: "ex2", title: "Being Annual Goals 2026", description: "Set your spiritual and purpose objectives for the year", area: "being", link: "/game-objectives?tab=annual", linkLabel: "Open Annual Goals" },
-      { id: "ex3", title: "Body 90-Day Goals", description: "Set your health objectives for the next 90 days", area: "body", link: "/game-objectives?tab=90-day", linkLabel: "Open 90-Day Goals" },
-      { id: "ex4", title: "Being 90-Day Goals", description: "Set your spiritual objectives for the next 90 days", area: "being", link: "/game-objectives?tab=90-day", linkLabel: "Open 90-Day Goals" },
-      { id: "ex5", title: "Body Monthly Goals", description: "Set your health objectives for this month", area: "body", link: "/game-objectives?tab=monthly", linkLabel: "Open Monthly Goals" },
-      { id: "ex6", title: "Being Monthly Goals", description: "Set your spiritual objectives for this month", area: "being", link: "/game-objectives?tab=monthly", linkLabel: "Open Monthly Goals" },
-      { id: "ex7", title: "Share in Comments", description: "Post your declaration + 2-3 key objectives for Body/Spirit", area: "balance" }
+      { id: "ex1", title: "Body Objectives: 2026 → 90 Days → 30 Days", description: "Set your health and fitness goals on all 3 levels: annual vision, 90-day milestone, monthly focus", area: "body", link: "/game-objectives", linkLabel: "Set Body Goals" },
+      { id: "ex2", title: "Spirit Objectives: 2026 → 90 Days → 30 Days", description: "Set your spiritual and purpose goals on all 3 levels: annual vision, 90-day milestone, monthly focus", area: "being", link: "/game-objectives", linkLabel: "Set Spirit Goals" },
+      { id: "ex3", title: "Set Daily Rituals", description: "Choose 2-3 simple sustainable daily habits for body & spirit", area: "being" },
+      { id: "ex4", title: "Share in Comments", description: "Post your declaration + 2-3 key objectives for Body/Spirit", area: "balance" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Obiective Anuale Corp 2026", description: "Setează obiectivele de sănătate și fitness pentru an", area: "body", link: "/game-objectives?tab=annual", linkLabel: "Deschide Obiective Anuale" },
-      { id: "ex2", title: "Obiective Anuale Spirit 2026", description: "Setează obiectivele spirituale și de scop pentru an", area: "being", link: "/game-objectives?tab=annual", linkLabel: "Deschide Obiective Anuale" },
-      { id: "ex3", title: "Obiective 90 Zile Corp", description: "Setează obiectivele de sănătate pentru următoarele 90 zile", area: "body", link: "/game-objectives?tab=90-day", linkLabel: "Deschide Obiective 90 Zile" },
-      { id: "ex4", title: "Obiective 90 Zile Spirit", description: "Setează obiectivele spirituale pentru următoarele 90 zile", area: "being", link: "/game-objectives?tab=90-day", linkLabel: "Deschide Obiective 90 Zile" },
-      { id: "ex5", title: "Obiective Lunare Corp", description: "Setează obiectivele de sănătate pentru luna aceasta", area: "body", link: "/game-objectives?tab=monthly", linkLabel: "Deschide Obiective Lunare" },
-      { id: "ex6", title: "Obiective Lunare Spirit", description: "Setează obiectivele spirituale pentru luna aceasta", area: "being", link: "/game-objectives?tab=monthly", linkLabel: "Deschide Obiective Lunare" },
-      { id: "ex7", title: "Postează în Comentarii", description: "Postează declarația + 2-3 obiective cheie pentru Corp/Spirit", area: "balance" }
+      { id: "ex1", title: "Obiective Corp: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele de sănătate și fitness pe toate cele 3 nivele: viziune anuală, milestone 90 zile, focus lunar", area: "body", link: "/game-objectives", linkLabel: "Setează Obiective Corp" },
+      { id: "ex2", title: "Obiective Spirit: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele spirituale pe toate cele 3 nivele: viziune anuală, milestone 90 zile, focus lunar", area: "being", link: "/game-objectives", linkLabel: "Setează Obiective Spirit" },
+      { id: "ex3", title: "Setează Ritualuri Zilnice", description: "Alege 2-3 obiceiuri zilnice simple și sustenabile pentru corp & spirit", area: "being" },
+      { id: "ex4", title: "Postează în Comentarii", description: "Postează declarația + 2-3 obiective cheie pentru Corp/Spirit", area: "balance" }
     ]
   },
   {
@@ -179,37 +171,29 @@ const challengeContent: ChallengeDayContent[] = [
     focusAreas: ['balance', 'business'],
     stepsEn: [
       "Understand the connection between business and relationships",
-      "Set your 2026 annual objectives for Balance & Business",
-      "Set your 90-day objectives for Balance & Business",
-      "Set your 30-day objectives for Balance & Business",
+      "Set your Business objectives: 2026 → 90 Days → 30 Days",
+      "Set your Relationship objectives: 2026 → 90 Days → 30 Days",
       "Define weekly action steps",
       "Share in comments: 1 business objective + 1 relationship intention"
     ],
     stepsRo: [
       "Înțelege conexiunea dintre business și relații",
-      "Setează obiectivele anuale 2026 pentru Relații și Business",
-      "Setează obiectivele pe 90 zile pentru Relații și Business",
-      "Setează obiectivele pe 30 zile pentru Relații și Business",
+      "Setează obiectivele Business: 2026 → 90 Zile → 30 Zile",
+      "Setează obiectivele Relații: 2026 → 90 Zile → 30 Zile",
       "Definește pașii de acțiune săptămânali",
       "Scrie în comentarii: 1 obiectiv business + 1 intenție pentru o relație importantă"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Balance Annual Goals 2026", description: "Set your relationship objectives for the year", area: "balance", link: "/game-objectives?tab=annual", linkLabel: "Open Annual Goals" },
-      { id: "ex2", title: "Business Annual Goals 2026", description: "Set your career and financial objectives for the year", area: "business", link: "/game-objectives?tab=annual", linkLabel: "Open Annual Goals" },
-      { id: "ex3", title: "Balance 90-Day Goals", description: "Set your relationship objectives for the next 90 days", area: "balance", link: "/game-objectives?tab=90-day", linkLabel: "Open 90-Day Goals" },
-      { id: "ex4", title: "Business 90-Day Goals", description: "Set your business objectives for the next 90 days", area: "business", link: "/game-objectives?tab=90-day", linkLabel: "Open 90-Day Goals" },
-      { id: "ex5", title: "Balance Monthly Goals", description: "Set your relationship objectives for this month", area: "balance", link: "/game-objectives?tab=monthly", linkLabel: "Open Monthly Goals" },
-      { id: "ex6", title: "Business Monthly Goals", description: "Set your business objectives for this month", area: "business", link: "/game-objectives?tab=monthly", linkLabel: "Open Monthly Goals" },
-      { id: "ex7", title: "Share in Comments", description: "Post 1 business objective + 1 intention for an important relationship", area: "balance" }
+      { id: "ex1", title: "Business Objectives: 2026 → 90 Days → 30 Days", description: "Set your career and financial goals on all 3 levels: annual vision, 90-day milestone, monthly focus", area: "business", link: "/game-objectives", linkLabel: "Set Business Goals" },
+      { id: "ex2", title: "Relationship Objectives: 2026 → 90 Days → 30 Days", description: "Set your relationship goals on all 3 levels: annual vision, 90-day milestone, monthly focus", area: "balance", link: "/game-objectives", linkLabel: "Set Relationship Goals" },
+      { id: "ex3", title: "Weekly Action Steps", description: "Define specific weekly actions for business & relationships", area: "business" },
+      { id: "ex4", title: "Share in Comments", description: "Post 1 business objective + 1 intention for an important relationship", area: "balance" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Obiective Anuale Relații 2026", description: "Setează obiectivele de relații pentru an", area: "balance", link: "/game-objectives?tab=annual", linkLabel: "Deschide Obiective Anuale" },
-      { id: "ex2", title: "Obiective Anuale Business 2026", description: "Setează obiectivele de carieră și financiare pentru an", area: "business", link: "/game-objectives?tab=annual", linkLabel: "Deschide Obiective Anuale" },
-      { id: "ex3", title: "Obiective 90 Zile Relații", description: "Setează obiectivele de relații pentru următoarele 90 zile", area: "balance", link: "/game-objectives?tab=90-day", linkLabel: "Deschide Obiective 90 Zile" },
-      { id: "ex4", title: "Obiective 90 Zile Business", description: "Setează obiectivele de business pentru următoarele 90 zile", area: "business", link: "/game-objectives?tab=90-day", linkLabel: "Deschide Obiective 90 Zile" },
-      { id: "ex5", title: "Obiective Lunare Relații", description: "Setează obiectivele de relații pentru luna aceasta", area: "balance", link: "/game-objectives?tab=monthly", linkLabel: "Deschide Obiective Lunare" },
-      { id: "ex6", title: "Obiective Lunare Business", description: "Setează obiectivele de business pentru luna aceasta", area: "business", link: "/game-objectives?tab=monthly", linkLabel: "Deschide Obiective Lunare" },
-      { id: "ex7", title: "Postează în Comentarii", description: "Postează 1 obiectiv business + 1 intenție pentru o relație importantă", area: "balance" }
+      { id: "ex1", title: "Obiective Business: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele de carieră și financiare pe toate cele 3 nivele: viziune anuală, milestone 90 zile, focus lunar", area: "business", link: "/game-objectives", linkLabel: "Setează Obiective Business" },
+      { id: "ex2", title: "Obiective Relații: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele de relații pe toate cele 3 nivele: viziune anuală, milestone 90 zile, focus lunar", area: "balance", link: "/game-objectives", linkLabel: "Setează Obiective Relații" },
+      { id: "ex3", title: "Pași Săptămânali", description: "Definește acțiuni săptămânale specifice pentru business & relații", area: "business" },
+      { id: "ex4", title: "Postează în Comentarii", description: "Postează 1 obiectiv business + 1 intenție pentru o relație importantă", area: "balance" }
     ]
   },
   {
