@@ -1,133 +1,90 @@
 
-# Plan: UX Îmbunătățit pentru Voice + Context AI Complet
+# Plan: Îmbunătățiri Accountability Coach Widget
 
-## Rezumat
+## Probleme Identificate
 
-Voi implementa două îmbunătățiri:
+Din screenshot și analiză cod:
 
-1. **SpeakButton stabil** - fără pâlpâire, stare clară "apăsat"
-2. **Context AI extins** - taskurile zilei + mai multe informații despre utilizator
+1. **Taskurile sunt tăiate** - `ScrollArea` are `max-h-[200px]` care limitează vizibilitatea
+2. **Lipsește buton Focus Room** - utilizatorul dorește navigare rapidă la Focus Room
+3. **Eroare notificări neclară** - mesajul "Nu am primit permisiunea pentru notificări" nu explică ce trebuie făcut
 
 ---
 
-## Partea 1: SpeakButton Fără Pâlpâire
+## Soluții Propuse
 
-### Problemă Identificată
-În `SpeakButton.tsx`, linia 52:
-```typescript
-isRecording && "bg-destructive hover:bg-destructive animate-pulse ring-2 ring-destructive/50"
-```
+### 1. Afișare Completă Taskuri
 
-`animate-pulse` cauzează pâlpâirea. Butonul ar trebui să rămână SOLID când e apăsat.
+Voi mări limita de înălțime și voi adăuga opțiune "Vezi toate":
 
-### Soluție
-Voi înlocui animația cu o stare vizuală fermă:
-- Background solid roșu (fără pulsare)
-- Efect de "apăsat" (scale-95, shadow-inner)
-- Ring colorat pentru vizibilitate
-- Indicator recording separat (pulsează doar el)
+**Modificări în `TodaysTasksList.tsx`:**
+- Măresc `max-h-[200px]` la `max-h-[280px]` pentru a arăta mai multe taskuri
+- Afișez contorul total clar în header
+- Dacă sunt > 6 taskuri, afișez un indicator "și încă X..."
 
-### Noul Design SpeakButton
+### 2. Buton Focus Room
+
+Adaug buton nou sub "Gestionează în Domino Door":
 
 ```text
 ┌─────────────────────────────────────┐
-│  NORMAL (neapăsat)                   │
-│  ┌─────────────────────────────┐    │
-│  │ 🎤 Apasă și vorbește        │    │
-│  │ bg-outline, normal state    │    │
-│  └─────────────────────────────┘    │
-│                                      │
-│  RECORDING (apăsat)                  │
-│  ┌─────────────────────────────┐    │
-│  │ 🎤 Vorbesc... ●(pulsează)   │    │
-│  │ bg-red SOLID, scale-95     │    │
-│  │ ring-4 glow, pressed effect │    │
-│  └─────────────────────────────┘    │
+│  [Taskuri Astăzi]       2/6        │
+│  ▢ Task 1                          │
+│  ▢ Task 2                          │
+│  ✓ Task 3                          │
+│  ...                               │
+│                                    │
+│  [Gestionează în Domino Door →]    │  ← existent
+│  [🎯 Implementează în Focus Room →] │  ← NOU
 └─────────────────────────────────────┘
 ```
 
-### Cod Propus
-
+**Cod propus:**
 ```typescript
-className={cn(
-  "relative flex items-center gap-2 transition-all select-none touch-none",
-  isRecording && [
-    "bg-red-600 hover:bg-red-600 text-white",
-    "scale-[0.98] shadow-inner",           // Efect "apăsat"
-    "ring-4 ring-red-500/50 ring-offset-2", // Glow vizibil
-    "border-red-700"
-  ].join(' '),
-  className
+{/* Link to Focus Room - NEW */}
+<Button 
+  variant="ghost" 
+  size="sm" 
+  onClick={() => { navigate('/focus'); onClose?.(); }}
+  className="w-full text-xs text-muted-foreground hover:text-primary"
+>
+  <Target className="w-3 h-3 mr-1" />
+  {language === 'ro' ? 'Implementează în Focus Room' : 'Implement in Focus Room'}
+  <ArrowRight className="w-3 h-3 ml-1" />
+</Button>
+```
+
+### 3. Eroare Notificări Îmbunătățită
+
+Problema: Browser-ul poate refuza permisiunea, dar utilizatorul nu știe cum să o rezolve.
+
+**Modificări în `ReminderSettings.tsx`:**
+- Verificare stare permisiune (`denied` vs `default`)
+- Mesaj clar când e blocată de browser
+- Link/instrucțiuni pentru deblocare
+
+**Cod propus:**
+```typescript
+// Verificare permisiune
+const permissionStatus = 'Notification' in window ? Notification.permission : 'default';
+const hasBrowserPermission = permissionStatus === 'granted';
+const isDenied = permissionStatus === 'denied';
+
+// În UI:
+{isDenied && (
+  <div className="text-xs text-amber-600 bg-amber-500/10 p-2 rounded flex items-start gap-2">
+    <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+    <span>
+      {language === 'ro' 
+        ? 'Notificările sunt blocate. Click pe 🔒 din bara de adresă → Permite notificări' 
+        : 'Notifications blocked. Click 🔒 in address bar → Allow notifications'}
+    </span>
+  </div>
 )}
 ```
 
-Indicatorul ● (ping) rămâne, dar butonul NU pâlpâie.
-
----
-
-## Partea 2: Context AI Extins pentru Mind Coach
-
-### Ce Are Acum
-Din analiza edge function (`mind-coach/index.ts`):
-- ✅ Missions (annual, quarterly, monthly)
-- ✅ Weekly planning (domino_title, key_points)
-- ✅ Today's breakthroughs
-
-### Ce Îi Lipsește
-- ❌ **Taskurile de azi** (user_tasks pentru ziua curentă)
-- ❌ **Obiceiuri active** (daily_habits configurate)
-- ❌ **Key Points specifice** (4 chei ale săptămânii)
-
-### Adăugări în Edge Function
-
-Voi adăuga un query pentru taskurile de azi:
-
-```typescript
-// 4. Fetch today's tasks (HIT List + DO List)
-const todayAbbrev = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'][new Date().getDay()];
-const weekStart = new Date();
-weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
-const weekKey = weekStart.toISOString().split('T')[0];
-
-const { data: todayTasks } = await supabaseClient
-  .from('user_tasks')
-  .select('title, completed, task_type, day_of_week')
-  .eq('user_id', user.id)
-  .eq('week_key', weekKey)
-  .in('task_type', ['hit', 'do'])
-  .order('position', { ascending: true });
-```
-
-### Context String Actualizat
-
-```typescript
-// Adaug în userContext:
-if (todayTasks && todayTasks.length > 0) {
-  const todayOnly = todayTasks.filter(t => 
-    !t.day_of_week || t.day_of_week.toLowerCase() === todayAbbrev.toLowerCase()
-  );
-  
-  const completed = todayOnly.filter(t => t.completed);
-  const remaining = todayOnly.filter(t => !t.completed);
-  
-  userContext += '\n\n📋 SARCINILE DE AZI:\n';
-  userContext += `Completate: ${completed.length}/${todayOnly.length}\n`;
-  
-  if (remaining.length > 0) {
-    userContext += '\nDe făcut:\n';
-    remaining.forEach(t => {
-      userContext += `• ${t.title}\n`;
-    });
-  }
-}
-
-if (weeklyPlan && weeklyPlan.key_points) {
-  userContext += '\n\n🔑 CHEILE SĂPTĂMÂNII:\n';
-  weeklyPlan.key_points.forEach((kp: any, i: number) => {
-    userContext += `${i + 1}. ${kp.title || kp} ${kp.completed ? '✓' : ''}\n`;
-  });
-}
-```
+**Modificări în `useTaskReminders.ts`:**
+- Mesaj mai descriptiv la refuz
 
 ---
 
@@ -135,124 +92,124 @@ if (weeklyPlan && weeklyPlan.key_points) {
 
 | Fișier | Modificări |
 |--------|------------|
-| `src/components/mind-coach/SpeakButton.tsx` | Înlocuiesc `animate-pulse` cu stare solidă "apăsat" |
-| `supabase/functions/mind-coach/index.ts` | Adaug query pentru `user_tasks` + context extins |
+| `src/components/accountability/TodaysTasksList.tsx` | Măresc vizibilitate taskuri + adaug buton Focus Room |
+| `src/components/accountability/ReminderSettings.tsx` | Adaug mesaj clar pentru notificări blocate |
+| `src/hooks/useTaskReminders.ts` | Îmbunătățesc mesajul de eroare |
 
 ---
 
 ## Detalii Tehnice
 
-### 1. SpeakButton.tsx - Modificări
+### A. TodaysTasksList.tsx
 
-**Înainte:**
+1. **Măresc înălțimea maximă:**
 ```typescript
-isRecording && "bg-destructive hover:bg-destructive animate-pulse ring-2 ring-destructive/50"
+// Înainte:
+<ScrollArea className="max-h-[200px]">
+
+// După:
+<ScrollArea className="max-h-[280px]">
 ```
 
-**După:**
+2. **Adaug buton Focus Room după butonul Domino Door:**
 ```typescript
-isRecording && cn(
-  "bg-red-600 hover:bg-red-600 text-white border-red-700",
-  "scale-[0.98] shadow-inner",  // Efect apăsat
-  "ring-4 ring-red-500/50"      // Glow fără animație
-)
+import { Target } from 'lucide-react';
+
+// După butonul "Gestionează în Domino Door":
+const handleGoToFocusRoom = () => {
+  navigate('/focus');
+  onClose?.();
+};
+
+// În JSX, după Link to Domino Door:
+<Button 
+  variant="ghost" 
+  size="sm" 
+  onClick={handleGoToFocusRoom}
+  className="w-full text-xs text-muted-foreground hover:text-primary mt-1"
+>
+  <Target className="w-3 h-3 mr-1" />
+  {language === 'ro' ? 'Implementează în Focus Room' : 'Implement in Focus Room'}
+  <ArrowRight className="w-3 h-3 ml-1" />
+</Button>
 ```
 
-### 2. Edge Function - Query Adăugat
+### B. ReminderSettings.tsx
 
-După linia 91 (după `todayBreakthroughs`):
-
+1. **Adaug verificare stare permisiune:**
 ```typescript
-// 4. Fetch today's tasks
-const dayNames = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
-const todayAbbrev = dayNames[new Date().getDay()];
-const weekStart = new Date();
-weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
-const weekKey = weekStart.toISOString().split('T')[0];
+import { AlertTriangle } from 'lucide-react';
 
-const { data: todayTasks } = await supabaseClient
-  .from('user_tasks')
-  .select('title, completed, task_type, day_of_week')
-  .eq('user_id', user.id)
-  .eq('week_key', weekKey)
-  .in('task_type', ['hit', 'do'])
-  .order('position', { ascending: true });
+// În component:
+const permissionStatus = 'Notification' in window ? Notification.permission : 'default';
+const hasBrowserPermission = permissionStatus === 'granted';
+const isDenied = permissionStatus === 'denied';
 ```
 
-### 3. User Context - Adăugări
-
-După linia 126 (după breakthroughs context):
-
+2. **Adaug UI pentru starea "blocked":**
 ```typescript
-// Add today's tasks context
-if (todayTasks && todayTasks.length > 0) {
-  const todayOnly = todayTasks.filter((t: any) => 
-    !t.day_of_week || t.day_of_week.toLowerCase() === todayAbbrev.toLowerCase()
-  );
-  
-  if (todayOnly.length > 0) {
-    const completed = todayOnly.filter((t: any) => t.completed);
-    const remaining = todayOnly.filter((t: any) => !t.completed);
-    
-    userContext += '\n\n📋 SARCINILE DE AZI:\n';
-    userContext += `Progres: ${completed.length}/${todayOnly.length} completate\n`;
-    
-    if (remaining.length > 0) {
-      userContext += '\nDe făcut:\n';
-      remaining.slice(0, 5).forEach((t: any) => {
-        userContext += `• ${t.title}\n`;
-      });
-      if (remaining.length > 5) {
-        userContext += `... și încă ${remaining.length - 5} taskuri\n`;
-      }
-    }
-  }
-}
+{/* Notifications blocked warning */}
+{isDenied && (
+  <div className="text-xs text-amber-600 bg-amber-500/10 p-2 rounded flex items-start gap-2 mt-2">
+    <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+    <span>
+      {language === 'ro' 
+        ? 'Notificările sunt blocate de browser. Apasă pe iconița 🔒 din bara de adresă și permite notificările.' 
+        : 'Notifications are blocked. Click the 🔒 icon in address bar and allow notifications.'}
+    </span>
+  </div>
+)}
+```
 
-// Add weekly keys context  
-if (weeklyPlan && weeklyPlan.key_points && Array.isArray(weeklyPlan.key_points)) {
-  userContext += '\n\n🔑 CHEILE SĂPTĂMÂNII:\n';
-  weeklyPlan.key_points.slice(0, 4).forEach((kp: any, i: number) => {
-    const title = typeof kp === 'string' ? kp : kp.title || kp.text || '';
-    const completed = typeof kp === 'object' && kp.completed;
-    userContext += `${i + 1}. ${title} ${completed ? '✓' : ''}\n`;
+3. **Ascund butonul "Activează notificări" când e blocat:**
+```typescript
+{/* Browser notifications - show only if not granted AND not denied */}
+{!hasBrowserPermission && !isDenied && (
+  <Button onClick={onEnableBrowserNotifications} ...>
+    Activează notificări
+  </Button>
+)}
+```
+
+### C. useTaskReminders.ts
+
+Îmbunătățesc mesajul de eroare:
+```typescript
+// Înainte:
+toast.error('Nu am primit permisiunea pentru notificări');
+
+// După:
+if (Notification.permission === 'denied') {
+  toast.error('Notificările sunt blocate. Verifică setările browserului (click pe 🔒 din bara de adresă).', {
+    duration: 5000,
   });
+} else {
+  toast.error('Nu am primit permisiunea pentru notificări. Încearcă din nou.');
 }
 ```
 
 ---
 
-## Ce Va Ști AI-ul Acum
+## UX Flow Îmbunătățit
 
-**Înainte:**
-- Obiective anuale/90 zile
-- Focus săptămânal (domino_title)
-- Transformări de azi
+### Taskuri:
+1. Utilizatorul deschide Accountability Coach
+2. Vede toate taskurile (sau primele 8-10, cu scroll pentru restul)
+3. Poate naviga rapid la Focus Room cu noul buton
 
-**După (+adăugări):**
-- Obiective anuale/90 zile
-- Focus săptămânal (domino_title)
-- **📋 SARCINILE DE AZI:** Lista de taskuri și progresul
-- **🔑 CHEILE SĂPTĂMÂNII:** Cele 4 puncte cheie din Domino Door
-- Transformări de azi
+### Notificări:
+1. Utilizatorul apasă "Activează notificări"
+2. Dacă browserul întreabă → răspunde da/nu
+3. Dacă e blocat:
+   - Nu mai arată butonul
+   - Arată mesaj clar cum să deblocheze
+   - Toast mai descriptiv
 
 ---
 
 ## Testing
 
-1. **SpeakButton:**
-   - Ține apăsat → butonul rămâne solid roșu (nu pâlpâie)
-   - Indicatorul ● continuă să pulseze (vizibilitate)
-   - La eliberare → revine la normal
-
-2. **Context AI:**
-   - Întreabă AI-ul "Ce taskuri am de făcut azi?" → trebuie să le enumere
-   - Întreabă "Care sunt cheile mele pentru săptămâna asta?" → le citește
-
----
-
-## Impact pe Funcționalitate Existentă
-
-- **SpeakButton:** Doar vizual - logica rămâne identică
-- **Edge Function:** Doar adaug context - nu modific logica existentă
-- **Fără breaking changes** - totul e aditiv
+1. **Taskuri:** Verifică că se văd mai multe taskuri fără să fie tăiate
+2. **Focus Room:** Click pe buton → te duce la /focus și închide widget-ul
+3. **Notificări blocate:** Blochează manual în browser → verifică mesajul de avertizare
+4. **Notificări permise:** Permite în browser → verifică că apare "Notificări active"
