@@ -1,328 +1,202 @@
 
-
-# Plan: Voice Input pentru Mind Coach
-## Buton Call, Speak și Text Input
-
----
-
-## Rezumat
-
-Adaug 3 moduri de input în Mind Coach pentru o experiență conversațională completă:
-
-| Mod | Descriere | Comportament |
-|-----|-----------|--------------|
-| **Text** | Input text clasic | Scrie și apasă Send (deja existent) |
-| **Speak** | Push-to-talk | Apasă, vorbește, eliberează → transcrie și trimite |
-| **Call** | Conversație telefonică | AI vorbește răspunsul, apoi ascultă automat |
+# Plan de Reparații Voice + Quick Answers + UI Premium
+## Mind Coach - Fixuri și Îmbunătățiri
 
 ---
 
-## Arhitectură Tehnică
+## 1. Diagnoză Probleme Voice
 
-```text
-┌─────────────────────────────────────────────────────┐
-│                   MindCoachChat.tsx                 │
-│                                                     │
-│  ┌───────────────────────────────────────────────┐  │
-│  │              Messages Area                     │  │
-│  │  (Chat bubbles cu markdown support)            │  │
-│  └───────────────────────────────────────────────┘  │
-│                                                     │
-│  ┌───────────────────────────────────────────────┐  │
-│  │           Voice Status Bar (nou)               │  │
-│  │  [Waveform] [Transcript live] [Timer]         │  │
-│  └───────────────────────────────────────────────┘  │
-│                                                     │
-│  ┌───────────────────────────────────────────────┐  │
-│  │              Input Area (redesign)             │  │
-│  │                                                │  │
-│  │  ┌─────────────────────────────────────────┐  │  │
-│  │  │           Textarea (text input)          │  │  │
-│  │  └─────────────────────────────────────────┘  │  │
-│  │                                                │  │
-│  │  ┌──────┐   ┌──────────┐   ┌──────────┐      │  │
-│  │  │ Send │   │  Speak   │   │   Call   │      │  │
-│  │  │  ▶   │   │   🎤     │   │   📞     │      │  │
-│  │  └──────┘   └──────────┘   └──────────┘      │  │
-│  │                                                │  │
-│  └───────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────┘
-```
+Din analiza console logs și cod, am identificat 2 probleme:
+
+### Problema A: Speak Mode (Push-to-Talk)
+**Simptom:** Transcriptul apare în logs ("Da vreau să vorbesc despre") dar nu se trimite.
+
+**Cauza:** În `useVoiceInput.tsx`, linia 197, `browserSTTRef.current = null` este setat ÎNAINTE de a se declanșa `recognition.onend`. Apoi, în `onend` (linia 156), se verifică `if (browserSTTRef.current)` care e deja null, deci `onMicStop` nu se apelează niciodată.
+
+**Fix:** Mutarea `browserSTTRef.current = null` DUPĂ ce se apelează `onMicStop`, sau folosirea unui flag separat pentru a ști dacă oprirea a fost intenționată.
+
+### Problema B: Call Mode
+**Simptom:** La "Conversație vocală" nu se întâmplă nimic vizibil.
+
+**Cauza:** 
+1. `startConversation()` doar setează `isActive = true`, nu pornește TTS sau listening
+2. Nu există un mesaj de bun venit vocal la începutul conversației
+3. Listening-ul pornește doar DUPĂ ce AI termină de vorbit (via `scheduleAutoStart`)
+
+**Fix:** La `startCall`, trebuie să pornim listening imediat SAU să trimitem un mesaj de bun venit pe care AI să-l citească vocal.
 
 ---
 
-## 1. Buton SPEAK (Push-to-Talk)
+## 2. Quick Answer Suggestions (Butoane Floating)
 
-**Comportament:**
-- Utilizatorul ține apăsat butonul
-- Se activează Browser STT (Web Speech API)
-- Când eliberează → transcrie și trimite automat
-- AI răspunde text (fără voce)
+Conform planului Tony, fiecare cluster are `expectedResponses` - răspunsuri anticipate care pot fi butoane rapide:
+
+**Exemplu pentru Stuck & Procrastination:**
+- "Nu știu de unde să încep"
+- "Mi-e frică să nu eșuez"
+- "E prea mult, nu pot face față"
+- "Nu mă simt motivat"
 
 **Implementare:**
-- Folosesc `useVoiceInput` existent din proiect
-- Adaug `onMouseDown` / `onMouseUp` sau `onTouchStart` / `onTouchEnd`
-- La stop → apelăm `sendMessage(transcript)`
+- Componentă nouă `QuickAnswerSuggestions.tsx`
+- Butoane floating deasupra input-ului
+- Se afișează doar când:
+  1. AI tocmai a pus o întrebare
+  2. Input-ul e gol
+  3. Nu suntem în call mode
 
-```typescript
-// În MindCoachChat.tsx
-const {
-  isConnected,
-  isMicOn,
-  isUserSpeaking,
-  voiceLanguage,
-  changeVoiceLanguage,
-  toggleMic
-} = useVoiceInput({
-  onTranscript: (text) => {
-    // Adaugă transcriptul la inputValue
-    setInputValue(prev => prev ? `${prev} ${text}` : text);
-  },
-  onMicStop: () => {
-    // Auto-submit când se oprește
-    if (inputValue.trim()) {
-      handleSend();
-    }
-  },
-  voiceLanguage: language === 'ro' ? 'ro-RO' : 'en-US'
-});
+**Design:**
+```
+┌──────────────────────────────────────────────────┐
+│  Quick Answers (butoane floating)                │
+│  ┌────────────────┐ ┌────────────────┐          │
+│  │ Nu știu de     │ │ Mi-e frică să  │          │
+│  │ unde să încep  │ │ eșuez          │          │
+│  └────────────────┘ └────────────────┘          │
+│  ┌────────────────┐ ┌────────────────┐          │
+│  │ E prea mult    │ │ Nu mă simt     │          │
+│  │                │ │ motivat        │          │
+│  └────────────────┘ └────────────────┘          │
+├──────────────────────────────────────────────────┤
+│  [Textarea - Input text]                    [▶]  │
+│  [🎤 Speak]          [📞 Call]                  │
+└──────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Buton CALL (Conversație Telefonică)
+## 3. UI Premium Warrior Style
 
-**Comportament:**
-- Utilizatorul apasă Call → intră în mod conversație
-- AI vorbește răspunsul (ElevenLabs TTS)
-- După ce AI termină → microfonul pornește automat
-- Utilizatorul vorbește → după 3 secunde de tăcere, se trimite automat
-- Ciclul continuă până când utilizatorul închide
+Îmbunătățiri vizuale păstrând stilul existent:
 
-**Implementare:**
-- Folosesc `useVoiceConversation` existent
-- Integrare cu edge function `mind-coach`
-- ElevenLabs TTS pentru răspunsuri (cheia există deja: `ELEVENLABS_API_KEY`)
+### A. Card Principal
+- Gradient mai pronunțat: `from-slate-900/80 to-primary/10`
+- Border subtil luminos: `border-primary/30`
+- Efect de "glow" pe hover
 
-```typescript
-// Hook nou: useMindCoachVoice.ts
-import { useVoiceConversation } from '@/hooks/useVoiceConversation';
-import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+### B. Message Bubbles
+- User: gradient `from-primary to-primary/80` cu shadow
+- AI: `bg-slate-800/50` cu border fin
+- Animație de fade-in la apariție
 
-export const useMindCoachVoice = (options: {
-  onMessage: (text: string) => void;
-  language: 'ro' | 'en';
-  voiceId?: string;
-}) => {
-  const voiceConversation = useVoiceConversation({
-    onUserMessage: options.onMessage,
-    silenceThreshold: 3000,
-    language: options.language === 'ro' ? 'ro-RO' : 'en-US',
-    voiceId: options.voiceId || 'EXAVITQu4vr4xnSDxMaL',
-    playbackRate: 1.15
-  });
-  
-  return {
-    // Call mode controls
-    isInCall: voiceConversation.isActive,
-    startCall: voiceConversation.startConversation,
-    endCall: voiceConversation.stopConversation,
-    speakResponse: voiceConversation.speakAI,
-    
-    // Status
-    isAISpeaking: voiceConversation.isAISpeaking,
-    isListening: voiceConversation.isListening,
-    currentTranscript: voiceConversation.currentTranscript,
-    silenceTimer: voiceConversation.silenceTimer,
-    audioLevel: voiceConversation.audioLevel,
-    
-    // Actions
-    skipAI: voiceConversation.skipAISpeaking,
-    manualSend: voiceConversation.manualSend
-  };
-};
-```
+### C. Input Area
+- Background `bg-slate-900/50`
+- Border luminos când e focused
+- Butoanele cu iconițe mai elegante
+
+### D. Phase Indicator
+- Progress bar cu gradient animat
+- Iconițe pentru fiecare fază
+- Highlighting mai clar pe faza curentă
+
+### E. Quick Answer Buttons
+- `variant="ghost"` cu `border border-primary/20`
+- Hover: `bg-primary/10` cu glow subtil
+- Text `text-sm` pentru a nu fi prea intruzive
 
 ---
 
-## 3. Redesign Input Area
-
-### Layout Nou
-
-```
-┌────────────────────────────────────────────────────┐
-│  [Textarea - Input text]                      [▶ Send]│
-├────────────────────────────────────────────────────┤
-│        [🎤 Speak]          [📞 Call]               │
-│         Apasă pt voce      Conversație live        │
-└────────────────────────────────────────────────────┘
-```
-
-### Când e în Call Mode
-
-```
-┌────────────────────────────────────────────────────┐
-│  ╭──────────────────────────────────────────────╮  │
-│  │  🔊 AI vorbește... [Skip] [⏸ Pauză]          │  │
-│  ╰──────────────────────────────────────────────╯  │
-│                                                    │
-│  ╭──────────────────────────────────────────────╮  │
-│  │  🎤 "Ce ai spus tu..." [3s] [Manual Send]    │  │
-│  │  ▁▂▃▅▆▅▃▂▁  (audio waveform)                 │  │
-│  ╰──────────────────────────────────────────────╯  │
-│                                                    │
-│               [📞 Închide Apelul]                  │
-└────────────────────────────────────────────────────┘
-```
-
----
-
-## 4. Componente Noi
-
-### A. `MindCoachInputBar.tsx`
-
-Componenta principală pentru input area:
-
-```typescript
-interface MindCoachInputBarProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSend: () => void;
-  onSpeakStart: () => void;
-  onSpeakStop: () => void;
-  onCallToggle: () => void;
-  isLoading: boolean;
-  isComplete: boolean;
-  isSpeaking: boolean;
-  isInCall: boolean;
-  isListening: boolean;
-  currentTranscript: string;
-  silenceTimer: number;
-  audioLevel: number;
-  language: 'ro' | 'en';
-}
-```
-
-### B. `CallModeOverlay.tsx`
-
-Overlay pentru modul Call cu:
-- Status indicator (AI Speaking / Listening / Processing)
-- Audio waveform în timp real
-- Transcript live
-- Silence countdown
-- Buton Skip AI
-- Buton Închide Apel
-
-### C. `SpeakButton.tsx`
-
-Buton cu state vizual pentru Speak mode:
-- Idle: Gri
-- Recording: Roșu pulsând
-- Processing: Spinner
-
----
-
-## 5. Integrare cu useMindCoach
-
-Modific hook-ul existent pentru a suporta TTS:
-
-```typescript
-// În useMindCoach.ts
-export const useMindCoach = (options: UseMindCoachOptions & {
-  onAIResponse?: (text: string) => void; // Callback pentru TTS
-}) => {
-  // ... existing code ...
-  
-  // În sendMessage, după ce primim răspunsul:
-  const sendMessage = async (text: string) => {
-    // ... streaming logic ...
-    
-    // Când avem răspunsul complet:
-    if (options.onAIResponse && assistantMessage) {
-      options.onAIResponse(assistantMessage);
-    }
-  };
-};
-```
-
----
-
-## 6. Fișiere de Creat
-
-| Fișier | Scop |
-|--------|------|
-| `src/hooks/useMindCoachVoice.ts` | Hook pentru voice mode în Mind Coach |
-| `src/components/mind-coach/MindCoachInputBar.tsx` | Input area cu toate butoanele |
-| `src/components/mind-coach/CallModeOverlay.tsx` | UI pentru call mode |
-| `src/components/mind-coach/SpeakButton.tsx` | Buton push-to-talk |
-
-## 7. Fișiere de Modificat
+## 4. Fișiere de Modificat
 
 | Fișier | Modificări |
 |--------|------------|
-| `src/components/mind-coach/MindCoachChat.tsx` | Integrare voice hooks și noile componente |
-| `src/hooks/useMindCoach.ts` | Adaug callback `onAIResponse` pentru TTS |
+| `src/hooks/useVoiceInput.tsx` | Fix `onMicStop` callback timing |
+| `src/hooks/useMindCoachVoice.ts` | Adaug `startListening` la începutul call mode |
+| `src/components/mind-coach/MindCoachInputBar.tsx` | Adaug Quick Answers, UI polish |
+| `src/components/mind-coach/MindCoachChat.tsx` | Pass cluster info pentru sugestii, UI polish |
+| `src/lib/mind-coach-clusters.ts` | Export `getQuickAnswersForCluster()` helper |
+
+## 5. Fișiere de Creat
+
+| Fișier | Scop |
+|--------|------|
+| `src/components/mind-coach/QuickAnswerSuggestions.tsx` | Butoane floating cu sugestii |
 
 ---
 
-## 8. Flow Detaliat
+## 6. Detalii Tehnice
 
-### Flow SPEAK (Push-to-Talk)
+### Fix useVoiceInput.tsx
 
-```text
-1. User apasă buton Speak
-2. Browser STT pornește
-3. User vorbește
-4. User eliberează buton
-5. Transcript se adaugă în textarea
-6. Auto-submit sau user apasă Send
-7. AI răspunde (text only)
+```typescript
+// Problema: browserSTTRef.current = null înainte de onend
+
+// ÎNAINTE (buggy):
+const stopBrowserSTT = useCallback(() => {
+  if (browserSTTRef.current) {
+    browserSTTRef.current.stop();
+    browserSTTRef.current = null;  // ❌ Prea devreme!
+  }
+});
+
+// DUPĂ (fix):
+const stopBrowserSTT = useCallback(() => {
+  if (browserSTTRef.current) {
+    isStoppingIntentionallyRef.current = true;
+    browserSTTRef.current.stop();
+    // NU mai setăm null aici - lăsăm onend să o facă
+  }
+});
+
+// În onend:
+recognition.onend = () => {
+  const shouldCallCallback = browserSTTRef.current !== null;
+  browserSTTRef.current = null;  // Acum e safe
+  
+  if (shouldCallCallback && onMicStop) {
+    onMicStop();  // ✅ Acum se apelează!
+  }
+};
 ```
 
-### Flow CALL (Conversație)
+### Fix useMindCoachVoice.ts
 
-```text
-1. User apasă Call
-2. AI salută vocal (TTS): "Bun venit! Cum te pot ajuta?"
-3. Microfonul pornește automat
-4. User vorbește
-5. După 3s tăcere → mesaj trimis automat
-6. AI procesează și răspunde vocal
-7. Ciclul se repetă (pasul 3)
-8. User apasă "Închide" → conversația se oprește
+```typescript
+// Adaug startListening la startCall
+const startCall = useCallback(() => {
+  console.log('📞 Starting call mode');
+  voiceConversation.startConversation();
+  
+  // Pornește listening imediat (sau trimite welcome și lasă TTS să termine)
+  setTimeout(() => {
+    voiceConversation.startListening?.();
+  }, 500);
+}, [voiceConversation]);
+```
+
+### QuickAnswerSuggestions Component
+
+```typescript
+interface QuickAnswerSuggestionsProps {
+  cluster: CoachingCluster;
+  language: 'ro' | 'en';
+  onSelect: (answer: string) => void;
+  isVisible: boolean;
+}
+
+// Logica: când AI pune o întrebare și nu avem text în input,
+// afișăm răspunsurile anticipate din cluster-ul activ
 ```
 
 ---
 
-## 9. Dependențe
+## 7. Ordinea Implementării
 
-**Existente în proiect:**
-- `useVoiceInput` - Browser STT simplu
-- `useVoiceConversation` - Conversație vocală completă
-- `useTextToSpeech` - ElevenLabs TTS
-- `ELEVENLABS_API_KEY` - Secret deja configurat
-
-**Nu sunt necesare dependențe noi.**
-
----
-
-## 10. Ordinea Implementării
-
-1. **Pas 1:** Creez `useMindCoachVoice.ts` - wrapper pentru voice in Mind Coach
-2. **Pas 2:** Creez `SpeakButton.tsx` - buton push-to-talk
-3. **Pas 3:** Creez `CallModeOverlay.tsx` - UI pentru call mode
-4. **Pas 4:** Creez `MindCoachInputBar.tsx` - input area complet
-5. **Pas 5:** Actualizez `useMindCoach.ts` cu callback TTS
-6. **Pas 6:** Actualizez `MindCoachChat.tsx` cu noile componente
-7. **Pas 7:** Testare end-to-end
+1. **Pas 1:** Fix `useVoiceInput.tsx` - callback timing pentru Speak mode
+2. **Pas 2:** Fix `useMindCoachVoice.ts` - startListening la Call mode
+3. **Pas 3:** Creez `QuickAnswerSuggestions.tsx` - butoane floating
+4. **Pas 4:** Adaug helper `getQuickAnswersForCluster()` în clusters
+5. **Pas 5:** Actualizez `MindCoachInputBar.tsx` cu Quick Answers
+6. **Pas 6:** Actualizez `MindCoachChat.tsx` cu cluster info și UI polish
+7. **Pas 7:** Aplică styling premium pe toate componentele
 
 ---
 
-## 11. Note UX
+## 8. Testing Checklist
 
-- **Speak Button**: Afișez feedback vizual clar (pulsare roșie) când se înregistrează
-- **Call Mode**: Afișez countdown vizual pentru silence timer
-- **Audio Waveform**: Animație fluidă pentru nivel audio
-- **Language Toggle**: Permite schimbarea limbii (RO/EN) pentru recunoaștere vocală
-- **Skip Button**: Permite utilizatorului să sară peste AI speaking dacă vrea să vorbească mai repede
+După implementare, vei putea testa:
 
+- **Speak Mode:** Ține apăsat butonul, vorbește, eliberează → textul trebuie să se trimită automat
+- **Call Mode:** Apasă "Conversație vocală" → microfonul pornește, vorbești, după 3s de tăcere se trimite
+- **Quick Answers:** După ce AI pune o întrebare, apar butoane cu sugestii deasupra input-ului
+- **UI:** Verifică aspectul premium pe desktop și mobile
