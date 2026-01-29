@@ -8,6 +8,7 @@ import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo } from './Exten
 import { getClusterForEmotion, getClusterOpeningMessage } from '@/lib/mind-coach-clusters';
 import { PhaseIndicator } from './PhaseIndicator';
 import { BreakthroughCelebration } from './BreakthroughCelebration';
+import { ContinueMindsetDialog } from './ContinueMindsetDialog';
 import { MindCoachInputBar } from './MindCoachInputBar';
 import { useMindCoach } from '@/hooks/useMindCoach';
 import { useMindCoachVoice } from '@/hooks/useMindCoachVoice';
@@ -44,6 +45,7 @@ export function MindCoachChat({
   const [selectedIntensity, setSelectedIntensity] = useState(initialIntensity);
   const [inputValue, setInputValue] = useState('');
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showContinuePrompt, setShowContinuePrompt] = useState(false);
   
   // Determine current cluster for quick answers
   const currentCluster = selectedEmotion ? getClusterForEmotion(selectedEmotion) : null;
@@ -94,14 +96,17 @@ export function MindCoachChat({
     };
   }, [voice.speakAIResponse]);
 
-  // Handle call toggle
+  // Handle call toggle - speak first message when starting call
   const handleCallToggle = useCallback(() => {
     if (voice.isInCall) {
       voice.endCall();
     } else {
-      voice.startCall();
+      // Get the opening message to speak when starting call
+      const cluster = selectedEmotion ? getClusterForEmotion(selectedEmotion) : null;
+      const openingMessage = cluster ? getClusterOpeningMessage(cluster, language) : undefined;
+      voice.startCall(openingMessage);
     }
-  }, [voice]);
+  }, [voice, selectedEmotion, language]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -110,12 +115,34 @@ export function MindCoachChat({
     }
   }, [messages]);
 
-  // Show celebration when complete
+  // Show celebration when complete, then show continue prompt
   useEffect(() => {
     if (isComplete && breakthroughData) {
       setShowCelebration(true);
     }
   }, [isComplete, breakthroughData]);
+
+  // After hit list action is added, show continue prompt
+  const handleHitListAdded = useCallback(() => {
+    // Wait a moment, then show the continue prompt
+    setTimeout(() => {
+      setShowContinuePrompt(true);
+    }, 1500);
+  }, []);
+
+  // Handle continue with mindset work
+  const handleContinueMindset = useCallback(() => {
+    setShowContinuePrompt(false);
+    resetSession();
+    setStep('emotion');
+    setSelectedEmotion(null);
+    setSelectedIntensity(5);
+  }, [resetSession]);
+
+  // Handle decline continue
+  const handleDeclineContinue = useCallback(() => {
+    setShowContinuePrompt(false);
+  }, []);
 
   // Handle emotion selection
   const handleEmotionSelect = (emotion: MindCoachEmotion) => {
@@ -153,9 +180,11 @@ export function MindCoachChat({
     setSelectedIntensity(5);
   };
 
-  // Celebration close
+  // Celebration close - show continue prompt after
   const handleCelebrationClose = () => {
     setShowCelebration(false);
+    // Show continue prompt after celebration
+    setShowContinuePrompt(true);
     if (onComplete && breakthroughData) {
       onComplete(breakthroughData);
     }
@@ -390,6 +419,14 @@ export function MindCoachChat({
         actionCommitted={breakthroughData?.actionCommitted}
         onClose={handleCelebrationClose}
         onAddToHitList={onAddToHitList}
+      />
+
+      {/* Continue mindset dialog - after celebration or hit list add */}
+      <ContinueMindsetDialog
+        isOpen={showContinuePrompt}
+        onContinue={handleContinueMindset}
+        onClose={handleDeclineContinue}
+        language={language}
       />
     </>
   );

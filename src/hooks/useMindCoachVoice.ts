@@ -73,18 +73,26 @@ export const useMindCoachVoice = (options: UseMindCoachVoiceOptions) => {
   }, [voiceInput]);
 
   // Call mode controls
-  const startCall = useCallback(() => {
+  const startCall = useCallback((initialMessage?: string) => {
     console.log('📞 Starting call mode');
     voiceConversation.startConversation();
     
-    // Start listening immediately after a short delay
-    // This ensures the user can start speaking right away
-    setTimeout(() => {
-      if (voiceConversation.startListening) {
-        console.log('📞 Auto-starting listening in call mode');
-        voiceConversation.startListening();
-      }
-    }, 500);
+    // If there's an initial message, speak it first, then start listening
+    if (initialMessage) {
+      console.log('📞 Speaking initial message:', initialMessage);
+      // Short delay to let conversation start, then speak
+      setTimeout(() => {
+        voiceConversation.speakAI(initialMessage);
+      }, 300);
+    } else {
+      // No initial message - start listening immediately
+      setTimeout(() => {
+        if (voiceConversation.startListening) {
+          console.log('📞 Auto-starting listening in call mode');
+          voiceConversation.startListening();
+        }
+      }, 500);
+    }
   }, [voiceConversation]);
 
   const endCall = useCallback(() => {
