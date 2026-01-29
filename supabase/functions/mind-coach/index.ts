@@ -90,6 +90,24 @@ serve(async (req) => {
       .order('created_at', { ascending: false })
       .limit(3);
 
+    // 4. Fetch today's tasks (HIT List + DO List)
+    const dayNames = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+    const todayAbbrev = dayNames[new Date().getDay()];
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() + mondayOffset);
+    const weekKey = `door-week-${weekStart.getFullYear()}-${String(Math.ceil((weekStart.getTime() - new Date(weekStart.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1).padStart(2, '0')}`;
+
+    const { data: todayTasks } = await supabaseClient
+      .from('user_tasks')
+      .select('title, completed, task_type, day_of_week')
+      .eq('user_id', user.id)
+      .eq('week_key', weekKey)
+      .in('task_type', ['hit', 'do'])
+      .order('position', { ascending: true });
+
     // Build user context string
     let userContext = '';
     
@@ -122,6 +140,41 @@ serve(async (req) => {
       userContext += '\n\n✨ TRANSFORMĂRI DE AZI:\n';
       todayBreakthroughs.forEach((b: any) => {
         userContext += `- ${b.emotion_before} → ${b.emotion_after || 'în progres'}\n`;
+      });
+    }
+
+    // Add today's tasks context
+    if (todayTasks && todayTasks.length > 0) {
+      const todayOnly = todayTasks.filter((t: any) => 
+        !t.day_of_week || t.day_of_week.toLowerCase() === todayAbbrev.toLowerCase()
+      );
+      
+      if (todayOnly.length > 0) {
+        const completed = todayOnly.filter((t: any) => t.completed);
+        const remaining = todayOnly.filter((t: any) => !t.completed);
+        
+        userContext += '\n\n📋 SARCINILE DE AZI:\n';
+        userContext += `Progres: ${completed.length}/${todayOnly.length} completate\n`;
+        
+        if (remaining.length > 0) {
+          userContext += '\nDe făcut:\n';
+          remaining.slice(0, 5).forEach((t: any) => {
+            userContext += `• ${t.title}\n`;
+          });
+          if (remaining.length > 5) {
+            userContext += `... și încă ${remaining.length - 5} taskuri\n`;
+          }
+        }
+      }
+    }
+
+    // Add weekly keys context  
+    if (weeklyPlan && weeklyPlan.key_points && Array.isArray(weeklyPlan.key_points)) {
+      userContext += '\n\n🔑 CHEILE SĂPTĂMÂNII:\n';
+      weeklyPlan.key_points.slice(0, 4).forEach((kp: any, i: number) => {
+        const title = typeof kp === 'string' ? kp : kp.title || kp.text || '';
+        const completed = typeof kp === 'object' && kp.completed;
+        userContext += `${i + 1}. ${title} ${completed ? '✓' : ''}\n`;
       });
     }
 

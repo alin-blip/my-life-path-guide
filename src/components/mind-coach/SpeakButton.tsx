@@ -48,8 +48,12 @@ export const SpeakButton: React.FC<SpeakButtonProps> = ({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       className={cn(
-        "relative flex items-center gap-2 transition-all select-none",
-        isRecording && "bg-destructive hover:bg-destructive animate-pulse ring-2 ring-destructive/50",
+        "relative flex items-center gap-2 transition-all select-none touch-none",
+        isRecording && [
+          "bg-red-600 hover:bg-red-600 text-white border-red-700",
+          "scale-[0.98] shadow-inner",
+          "ring-4 ring-red-500/50 ring-offset-2 ring-offset-background"
+        ].join(' '),
         className
       )}
     >
