@@ -92,3 +92,6 @@ verify_jwt = false
 
 [functions.send-life-score-results]
 verify_jwt = false
+
+[functions.mind-coach]
+verify_jwt = false

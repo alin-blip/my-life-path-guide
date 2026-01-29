@@ -329,6 +329,51 @@ export type Database = {
         }
         Relationships: []
       }
+      breakthrough_logs: {
+        Row: {
+          action_added_to_hit_list: boolean | null
+          action_committed: string | null
+          created_at: string | null
+          emotion_after: string | null
+          emotion_before: string
+          id: string
+          intensity_after: number | null
+          intensity_before: number | null
+          session_id: string | null
+          story_identified: string | null
+          transformation_insight: string | null
+          user_id: string
+        }
+        Insert: {
+          action_added_to_hit_list?: boolean | null
+          action_committed?: string | null
+          created_at?: string | null
+          emotion_after?: string | null
+          emotion_before: string
+          id?: string
+          intensity_after?: number | null
+          intensity_before?: number | null
+          session_id?: string | null
+          story_identified?: string | null
+          transformation_insight?: string | null
+          user_id: string
+        }
+        Update: {
+          action_added_to_hit_list?: boolean | null
+          action_committed?: string | null
+          created_at?: string | null
+          emotion_after?: string | null
+          emotion_before?: string
+          id?: string
+          intensity_after?: number | null
+          intensity_before?: number | null
+          session_id?: string | null
+          story_identified?: string | null
+          transformation_insight?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       brotherhood_messages: {
         Row: {
           content: string
