@@ -851,6 +851,46 @@ const ChallengeDayPage = () => {
           </div>
           
           <div className="space-y-6">
+            {/* Render exercises without areas (for days like Day 4 Domino Door) */}
+            {content.focusAreas.length === 0 && (
+              <div className="space-y-3">
+                {exercises.map((exercise) => {
+                  const isExerciseCompleted = completedExercises.includes(exercise.id);
+                  return (
+                    <div 
+                      key={exercise.id}
+                      className={`flex items-start gap-3 p-4 rounded-lg border transition-all ${
+                        isExerciseCompleted 
+                          ? 'bg-green-500/10 border-green-500/30' 
+                          : 'bg-muted/50 border-border hover:border-primary/30'
+                      }`}
+                    >
+                      <Checkbox 
+                        checked={isExerciseCompleted}
+                        onCheckedChange={() => handleToggleExercise(exercise.id)}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <h3 className={`font-medium ${isExerciseCompleted ? 'text-green-500' : 'text-foreground'}`}>
+                          {exercise.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">{exercise.description}</p>
+                        {exercise.link && (
+                          <Link to={exercise.link}>
+                            <Button variant="link" size="sm" className="px-0 h-auto mt-1 text-primary">
+                              <ExternalLink className="h-3 w-3 mr-1" />
+                              {exercise.linkLabel}
+                            </Button>
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            
+            {/* Render exercises by area for days with focus areas */}
             {content.focusAreas.map((area) => {
               const areaExercises = exercisesByArea[area] || [];
               if (areaExercises.length === 0) return null;
