@@ -4,6 +4,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Send, Loader2, Phone } from 'lucide-react';
 import { SpeakButton } from './SpeakButton';
 import { CallModeOverlay } from './CallModeOverlay';
+import { QuickAnswerSuggestions } from './QuickAnswerSuggestions';
+import { CoachingCluster } from '@/lib/mind-coach-clusters';
 import { cn } from '@/lib/utils';
 
 interface MindCoachInputBarProps {
@@ -35,6 +37,10 @@ interface MindCoachInputBarProps {
   onSkipAI: () => void;
   onManualSend: () => void;
   
+  // Quick answers
+  cluster?: CoachingCluster | null;
+  showQuickAnswers?: boolean;
+  
   // Language
   language?: 'ro' | 'en';
 }
@@ -60,8 +66,18 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
   onCallToggle,
   onSkipAI,
   onManualSend,
+  cluster,
+  showQuickAnswers = false,
   language = 'ro'
 }) => {
+  // Handle quick answer selection
+  const handleQuickAnswer = (answer: string) => {
+    onChange(answer);
+    // Auto-send after a short delay
+    setTimeout(() => {
+      onSend();
+    }, 100);
+  };
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -94,6 +110,14 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
       {/* Normal input mode */}
       {!isInCall && (
         <>
+          {/* Quick answer suggestions */}
+          <QuickAnswerSuggestions
+            cluster={cluster || null}
+            language={language}
+            onSelect={handleQuickAnswer}
+            isVisible={showQuickAnswers && !value.trim() && !isLoading}
+          />
+          
           {/* Text input row */}
           <div className="flex gap-2">
             <Textarea

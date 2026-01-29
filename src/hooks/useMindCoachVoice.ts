@@ -76,6 +76,15 @@ export const useMindCoachVoice = (options: UseMindCoachVoiceOptions) => {
   const startCall = useCallback(() => {
     console.log('📞 Starting call mode');
     voiceConversation.startConversation();
+    
+    // Start listening immediately after a short delay
+    // This ensures the user can start speaking right away
+    setTimeout(() => {
+      if (voiceConversation.startListening) {
+        console.log('📞 Auto-starting listening in call mode');
+        voiceConversation.startListening();
+      }
+    }, 500);
   }, [voiceConversation]);
 
   const endCall = useCallback(() => {

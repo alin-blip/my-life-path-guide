@@ -152,18 +152,21 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
 
     recognition.onend = () => {
       logger.log('🔚 Browser STT ended');
+      // Check if we should call the callback BEFORE clearing the ref
+      const shouldCallCallback = browserSTTRef.current !== null;
+      
+      // Now it's safe to clear the ref
+      browserSTTRef.current = null;
+      
       // Clean up state
-      if (browserSTTRef.current) {
-        browserSTTRef.current = null;
-        setIsConnected(false);
-        setIsMicOn(false);
-        setIsUserSpeaking(false);
-        
-        // Call onMicStop callback when mic is stopped
-        if (onMicStop) {
-          logger.log('📞 Calling onMicStop callback');
-          onMicStop();
-        }
+      setIsConnected(false);
+      setIsMicOn(false);
+      setIsUserSpeaking(false);
+      
+      // Call onMicStop callback when mic was stopped intentionally
+      if (shouldCallCallback && onMicStop) {
+        logger.log('📞 Calling onMicStop callback');
+        onMicStop();
       }
     };
 
@@ -194,19 +197,15 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
         logger.warn('Error stopping recognition:', error);
         isStoppingIntentionallyRef.current = false;
       }
-      browserSTTRef.current = null;
+      // DON'T set browserSTTRef.current = null here!
+      // Let onend handler do it so the callback fires correctly
     }
     
     // Reset deduplication refs
     lastFinalTranscriptRef.current = '';
     lastInterimTranscriptRef.current = '';
     
-    // Update state
-    setIsConnected(false);
-    setIsMicOn(false);
-    setIsUserSpeaking(false);
-    setIsAISpeaking(false);
-    setAudioLevel(0);
+    // Note: state updates will happen in onend handler
   }, []);
 
   const startVoice = useCallback(async () => {
