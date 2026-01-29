@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Brain, RotateCcw, ArrowLeft } from 'lucide-react';
+import { Loader2, Brain, RotateCcw, ArrowLeft, ArrowRight, RefreshCw } from 'lucide-react';
 import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo } from './ExtendedEmotionPicker';
 import { getClusterForEmotion, getClusterOpeningMessage } from '@/lib/mind-coach-clusters';
 import { PhaseIndicator } from './PhaseIndicator';
@@ -24,6 +24,10 @@ interface MindCoachChatProps {
   onBack?: () => void;
   embedded?: boolean;
   language?: 'ro' | 'en';
+  // Navigation buttons for embedded mode (Champion Routine)
+  showNavigationButtons?: boolean;
+  onContinueRoutine?: () => void;
+  onNewSession?: () => void;
 }
 
 export function MindCoachChat({
@@ -35,6 +39,9 @@ export function MindCoachChat({
   onBack,
   embedded = false,
   language = 'ro',
+  showNavigationButtons = false,
+  onContinueRoutine,
+  onNewSession,
 }: MindCoachChatProps) {
   const [step, setStep] = useState<'emotion' | 'intensity' | 'chat'>(
     initialEmotion ? 'intensity' : 'emotion'
@@ -408,6 +415,39 @@ export function MindCoachChat({
             language={language}
           />
         </div>
+
+        {/* Navigation buttons for embedded mode (Champion Routine) */}
+        {embedded && showNavigationButtons && (
+          <div className="p-4 border-t border-primary/10 bg-gradient-to-t from-primary/10 to-transparent">
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 gap-2"
+                onClick={() => {
+                  // Stop any ongoing TTS
+                  if (voice.isInCall) voice.endCall();
+                  voice.skipAISpeaking();
+                  onNewSession?.();
+                }}
+              >
+                <RefreshCw className="h-4 w-4" />
+                {language === 'ro' ? 'Altă Sesiune' : 'New Session'}
+              </Button>
+              <Button
+                className="flex-1 gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
+                onClick={() => {
+                  // Stop TTS and continue routine
+                  if (voice.isInCall) voice.endCall();
+                  voice.skipAISpeaking();
+                  onContinueRoutine?.();
+                }}
+              >
+                {language === 'ro' ? 'Continuă Rutina' : 'Continue Routine'}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* Breakthrough celebration */}

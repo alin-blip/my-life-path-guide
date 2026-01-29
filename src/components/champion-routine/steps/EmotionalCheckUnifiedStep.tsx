@@ -47,12 +47,24 @@ export function EmotionalCheckUnifiedStep({
   };
 
   const handleMindCoachComplete = (breakthrough?: any) => {
+    // Nu mai apelăm automat onComplete - așteptăm ca utilizatorul să aleagă manual
+    // Breakthrough-ul este salvat și utilizatorul va apăsa "Continuă Rutina"
+    console.log('Mind Coach completed:', breakthrough);
+  };
+
+  // Handler pentru butonul "Continuă Rutina"
+  const handleContinueRoutine = () => {
     onComplete({ 
       emotion: emotion!, 
       intensity, 
       stackCompleted: true,
-      transformedEnergy: breakthrough?.emotionAfter || 'transformed'
+      transformedEnergy: 'transformed'
     });
+  };
+
+  // Handler pentru butonul "Altă Sesiune"
+  const handleNewSession = () => {
+    setPhase('emotion');
   };
 
   const handleSkipStack = () => {
@@ -88,6 +100,9 @@ export function EmotionalCheckUnifiedStep({
               initialEmotion={emotion}
               initialIntensity={intensity}
               embedded={true}
+              showNavigationButtons={true}
+              onContinueRoutine={handleContinueRoutine}
+              onNewSession={handleNewSession}
               onComplete={handleMindCoachComplete}
               onBack={() => setPhase('emotion')}
             />
