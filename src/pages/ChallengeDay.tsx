@@ -222,54 +222,40 @@ const challengeContent: ChallengeDayContent[] = [
   },
   {
     day: 5,
-    titleEn: "✨ VISION AI + WARRIOR ROUTINE",
-    titleRo: "✨ VIZIUNE AI + WARRIOR ROUTINE",
-    principleEn: "Day 5: One-Click Execution",
-    principleRo: "Ziua 5: Execuție cu Un Click",
-    descriptionEn: "Generate your Vision AI board on 4 quadrants: Body/Being/Balance/Business (daily visual). Set up your personalized Warrior Routine with actions/habits in each category. After setup: start daily with 'Start Routine' - no mental negotiation.",
-    descriptionRo: "Generează Vision AI pe 4 cadrane: Corp/Spirit/Relații/Business (vizual zilnic). Setează Warrior Routine personalizată cu acțiuni/obiceiuri în fiecare categorie. După setare: începi zilnic cu 'Start Routine' - fără negociere mentală.",
-    videoPlaceholder: "🎬 Video: Vision AI + Warrior Routine - One-Click Execution",
+    titleEn: "🎨 VISION AI + MEDITAȚIE + WARRIOR ROUTINE",
+    titleRo: "🎨 VISION AI + MEDITAȚIE + WARRIOR ROUTINE",
+    principleEn: "Day 5: Visualize, Meditate, Execute",
+    principleRo: "Ziua 5: Vizualizează, Meditează, Execută",
+    descriptionEn: "Create powerful AI-generated images for all 4 life areas. Then create your personalized empowerment meditation that includes all your objectives. Finally, configure your Warrior Routine to execute daily.",
+    descriptionRo: "Creează imagini AI puternice pentru toate cele 4 arii ale vieții. Apoi creează meditația ta personalizată de empowerment care include toate obiectivele tale. În final, configurează Warrior Routine pentru execuție zilnică.",
+    videoPlaceholder: "🎬 Video: Vision AI + Personalized Meditation + Warrior Routine",
     icon: Sparkles,
-    color: "from-cyan-500 to-blue-500",
+    color: "from-indigo-500 to-purple-600",
     actionPath: "/vision-board",
-    focusAreas: ['body', 'being', 'balance', 'business'],
+    focusAreas: [],
     stepsEn: [
-      "Open Vision AI generator",
-      "Generate Body quadrant image",
-      "Generate Being quadrant image",
-      "Generate Balance quadrant image",
-      "Generate Business quadrant image",
-      "Configure Warrior Routine with habits in each category",
-      "Test 'Start Routine' button",
-      "Share daily action in comments"
+      "Generate AI images for all 4 vision quadrants (Body, Being, Balance, Business)",
+      "Create personalized meditation with all your objectives",
+      "Configure Warrior Routine with your habits",
+      "Post your AHA moment and feedback in comments"
     ],
     stepsRo: [
-      "Deschide generatorul Vision AI",
-      "Generează imaginea pentru cadranul Corp",
-      "Generează imaginea pentru cadranul Spirit",
-      "Generează imaginea pentru cadranul Relații",
-      "Generează imaginea pentru cadranul Business",
-      "Configurează Warrior Routine cu obiceiuri în fiecare categorie",
-      "Testează butonul 'Start Routine'",
-      "Postează acțiunea zilnică în comentarii"
+      "Generează imagini AI pentru toate cele 4 cadrane (Corp, Spirit, Relații, Business)",
+      "Creează meditația personalizată cu toate obiectivele tale",
+      "Configurează Warrior Routine cu obiceiurile tale",
+      "Postează momentul tău AHA și feedback în comentarii"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Vision AI - Body", description: "Generate an AI image for your body/fitness goals", area: "body", link: "/vision-board", linkLabel: "Generate Vision" },
-      { id: "ex2", title: "Vision AI - Being", description: "Generate an AI image for your spiritual/purpose goals", area: "being", link: "/vision-board", linkLabel: "Generate Vision" },
-      { id: "ex3", title: "Vision AI - Balance", description: "Generate an AI image for your relationship goals", area: "balance", link: "/vision-board", linkLabel: "Generate Vision" },
-      { id: "ex4", title: "Vision AI - Business", description: "Generate an AI image for your career/business goals", area: "business", link: "/vision-board", linkLabel: "Generate Vision" },
-      { id: "ex5", title: "Configure Warrior Routine", description: "Set up your personalized morning routine with habits", area: "being", link: "/daily-flow", linkLabel: "Configure Routine" },
-      { id: "ex6", title: "Test Start Routine", description: "Click 'Start Routine' to experience the flow", area: "being", link: "/daily-flow", linkLabel: "Start Routine" },
-      { id: "ex7", title: "Share Daily Action", description: "Post 1 daily action from your routine that brings you closest to your vision", area: "balance" }
+      { id: "ex1", title: "🎨 Create Vision AI for All 4 Areas", description: "Generate AI images for Body, Being, Balance, and Business. If you haven't set your vision in Day 2-3, do it first!", link: "/vision-board", linkLabel: "Open Vision Board" },
+      { id: "ex2", title: "🧘 Create Personalized Meditation", description: "Generate your empowerment meditation that includes all your objectives from Vision Board", link: "/daily-flow", linkLabel: "Create Meditation" },
+      { id: "ex3", title: "⚡ Configure Warrior Routine", description: "Set up your personalized daily routine with habits and steps", link: "/daily-flow", linkLabel: "Configure Routine" },
+      { id: "ex4", title: "💬 Share Your AHA Moment", description: "Post your breakthrough insight and feedback in the comments below" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Vision AI - Corp", description: "Generează o imagine AI pentru obiectivele tale de corp/fitness", area: "body", link: "/vision-board", linkLabel: "Generează Viziune" },
-      { id: "ex2", title: "Vision AI - Spirit", description: "Generează o imagine AI pentru obiectivele tale spirituale/de scop", area: "being", link: "/vision-board", linkLabel: "Generează Viziune" },
-      { id: "ex3", title: "Vision AI - Relații", description: "Generează o imagine AI pentru obiectivele tale de relații", area: "balance", link: "/vision-board", linkLabel: "Generează Viziune" },
-      { id: "ex4", title: "Vision AI - Business", description: "Generează o imagine AI pentru obiectivele tale de carieră/business", area: "business", link: "/vision-board", linkLabel: "Generează Viziune" },
-      { id: "ex5", title: "Configurează Warrior Routine", description: "Setează rutina ta matinală personalizată cu obiceiuri", area: "being", link: "/daily-flow", linkLabel: "Configurează Rutina" },
-      { id: "ex6", title: "Testează Start Routine", description: "Apasă 'Start Routine' pentru a experimenta flow-ul", area: "being", link: "/daily-flow", linkLabel: "Începe Rutina" },
-      { id: "ex7", title: "Postează Acțiunea Zilnică", description: "Postează 1 acțiune zilnică din rutina ta care te apropie cel mai mult de viziune", area: "balance" }
+      { id: "ex1", title: "🎨 Creează Vision AI pentru Toate 4 Ariile", description: "Generează imagini AI pentru Corp, Spirit, Relații și Business. Dacă nu ai setat viziunea în Ziua 2-3, fă-o acum!", link: "/vision-board", linkLabel: "Deschide Vision Board" },
+      { id: "ex2", title: "🧘 Creează Meditația Personalizată", description: "Generează meditația ta de empowerment care include toate obiectivele din Vision Board", link: "/daily-flow", linkLabel: "Creează Meditație" },
+      { id: "ex3", title: "⚡ Configurează Warrior Routine", description: "Setează rutina ta zilnică personalizată cu obiceiuri și pași", link: "/daily-flow", linkLabel: "Configurează Rutina" },
+      { id: "ex4", title: "💬 Postează Momentul Tău AHA", description: "Postează insight-ul tău de breakthrough și feedback-ul în comentariile de mai jos" }
     ]
   },
   {
