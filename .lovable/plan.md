@@ -1,61 +1,133 @@
 
-# Plan: Fix Mind Coach Flow în Rutina Campionului
+# Plan: UX Îmbunătățit pentru Voice + Context AI Complet
 
-## Probleme Identificate
+## Rezumat
 
-1. **TTS nu termină de vorbit** - AI-ul trece la pasul următor înainte ca vocea să termine
-2. **Lipsesc butoanele de navigare manuală** - utilizatorul nu poate alege să continue
-3. **Dialog-ul de finalizare nu apare corect** în modul embedded
+Voi implementa două îmbunătățiri:
+
+1. **SpeakButton stabil** - fără pâlpâire, stare clară "apăsat"
+2. **Context AI extins** - taskurile zilei + mai multe informații despre utilizator
 
 ---
 
-## Soluție
+## Partea 1: SpeakButton Fără Pâlpâire
 
-### 1. Adaug Butoane de Navigare Manuală în EmotionalCheckUnifiedStep
-
-Când Mind Coach rulează inline, voi adăuga butoane floating pentru:
-- **"Continuă Rutina"** - trece la pasul următor
-- **"Altă Sesiune"** - resetează Mind Coach pentru o nouă emoție
-
-```
-┌─────────────────────────────────────────────────────┐
-│          Mind Coach Chat (embedded)                  │
-│  ┌─────────────────────────────────────────────────┐│
-│  │  [Messages...]                                   ││
-│  │                                                  ││
-│  │  AI: "Excelent! Ai identificat..."              ││
-│  └─────────────────────────────────────────────────┘│
-│                                                      │
-│  ┌─────────────────────────────────────────────────┐│
-│  │  [Input area with voice controls]               ││
-│  └─────────────────────────────────────────────────┘│
-│                                                      │
-│  ╔═════════════════════════════════════════════════╗│
-│  ║  🎯 Butoane de Navigare                         ║│
-│  ║  ┌─────────────────┐  ┌─────────────────────┐  ║│
-│  ║  │  Altă Sesiune   │  │  Continuă Rutina →  │  ║│
-│  ║  │       🧠        │  │       ✓             │  ║│
-│  ║  └─────────────────┘  └─────────────────────┘  ║│
-│  ╚═════════════════════════════════════════════════╝│
-└─────────────────────────────────────────────────────┘
+### Problemă Identificată
+În `SpeakButton.tsx`, linia 52:
+```typescript
+isRecording && "bg-destructive hover:bg-destructive animate-pulse ring-2 ring-destructive/50"
 ```
 
+`animate-pulse` cauzează pâlpâirea. Butonul ar trebui să rămână SOLID când e apăsat.
+
+### Soluție
+Voi înlocui animația cu o stare vizuală fermă:
+- Background solid roșu (fără pulsare)
+- Efect de "apăsat" (scale-95, shadow-inner)
+- Ring colorat pentru vizibilitate
+- Indicator recording separat (pulsează doar el)
+
+### Noul Design SpeakButton
+
+```text
+┌─────────────────────────────────────┐
+│  NORMAL (neapăsat)                   │
+│  ┌─────────────────────────────┐    │
+│  │ 🎤 Apasă și vorbește        │    │
+│  │ bg-outline, normal state    │    │
+│  └─────────────────────────────┘    │
+│                                      │
+│  RECORDING (apăsat)                  │
+│  ┌─────────────────────────────┐    │
+│  │ 🎤 Vorbesc... ●(pulsează)   │    │
+│  │ bg-red SOLID, scale-95     │    │
+│  │ ring-4 glow, pressed effect │    │
+│  └─────────────────────────────┘    │
+└─────────────────────────────────────┘
+```
+
+### Cod Propus
+
+```typescript
+className={cn(
+  "relative flex items-center gap-2 transition-all select-none touch-none",
+  isRecording && [
+    "bg-red-600 hover:bg-red-600 text-white",
+    "scale-[0.98] shadow-inner",           // Efect "apăsat"
+    "ring-4 ring-red-500/50 ring-offset-2", // Glow vizibil
+    "border-red-700"
+  ].join(' '),
+  className
+)}
+```
+
+Indicatorul ● (ping) rămâne, dar butonul NU pâlpâie.
+
 ---
 
-### 2. Oprire TTS înainte de Navigare
+## Partea 2: Context AI Extins pentru Mind Coach
 
-Când utilizatorul apasă "Continuă Rutina":
-1. Stop TTS imediat (`voice.endCall()` sau `voice.skipAISpeaking()`)
-2. Apelează `onComplete` pentru a trece la pasul următor
+### Ce Are Acum
+Din analiza edge function (`mind-coach/index.ts`):
+- ✅ Missions (annual, quarterly, monthly)
+- ✅ Weekly planning (domino_title, key_points)
+- ✅ Today's breakthroughs
 
----
+### Ce Îi Lipsește
+- ❌ **Taskurile de azi** (user_tasks pentru ziua curentă)
+- ❌ **Obiceiuri active** (daily_habits configurate)
+- ❌ **Key Points specifice** (4 chei ale săptămânii)
 
-### 3. Modificări în MindCoachChat pentru Modul Embedded
+### Adăugări în Edge Function
 
-Adaug prop-uri noi:
-- `showNavigationButtons?: boolean` - arată butoane de navigare
-- `onContinueRoutine?: () => void` - callback pentru "Continuă Rutina"
-- `onNewSession?: () => void` - callback pentru "Altă Sesiune"
+Voi adăuga un query pentru taskurile de azi:
+
+```typescript
+// 4. Fetch today's tasks (HIT List + DO List)
+const todayAbbrev = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'][new Date().getDay()];
+const weekStart = new Date();
+weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+const weekKey = weekStart.toISOString().split('T')[0];
+
+const { data: todayTasks } = await supabaseClient
+  .from('user_tasks')
+  .select('title, completed, task_type, day_of_week')
+  .eq('user_id', user.id)
+  .eq('week_key', weekKey)
+  .in('task_type', ['hit', 'do'])
+  .order('position', { ascending: true });
+```
+
+### Context String Actualizat
+
+```typescript
+// Adaug în userContext:
+if (todayTasks && todayTasks.length > 0) {
+  const todayOnly = todayTasks.filter(t => 
+    !t.day_of_week || t.day_of_week.toLowerCase() === todayAbbrev.toLowerCase()
+  );
+  
+  const completed = todayOnly.filter(t => t.completed);
+  const remaining = todayOnly.filter(t => !t.completed);
+  
+  userContext += '\n\n📋 SARCINILE DE AZI:\n';
+  userContext += `Completate: ${completed.length}/${todayOnly.length}\n`;
+  
+  if (remaining.length > 0) {
+    userContext += '\nDe făcut:\n';
+    remaining.forEach(t => {
+      userContext += `• ${t.title}\n`;
+    });
+  }
+}
+
+if (weeklyPlan && weeklyPlan.key_points) {
+  userContext += '\n\n🔑 CHEILE SĂPTĂMÂNII:\n';
+  weeklyPlan.key_points.forEach((kp: any, i: number) => {
+    userContext += `${i + 1}. ${kp.title || kp} ${kp.completed ? '✓' : ''}\n`;
+  });
+}
+```
 
 ---
 
@@ -63,118 +135,124 @@ Adaug prop-uri noi:
 
 | Fișier | Modificări |
 |--------|------------|
-| `src/components/mind-coach/MindCoachChat.tsx` | Adaug prop-uri și butoane de navigare pentru modul embedded |
-| `src/components/champion-routine/steps/EmotionalCheckUnifiedStep.tsx` | Transmit callback-uri pentru navigare și gestionez flow-ul |
+| `src/components/mind-coach/SpeakButton.tsx` | Înlocuiesc `animate-pulse` cu stare solidă "apăsat" |
+| `supabase/functions/mind-coach/index.ts` | Adaug query pentru `user_tasks` + context extins |
 
 ---
 
-## Detalii Implementare
+## Detalii Tehnice
 
-### A. MindCoachChat.tsx
+### 1. SpeakButton.tsx - Modificări
 
-Adaug la interface:
+**Înainte:**
 ```typescript
-interface MindCoachChatProps {
-  // ... existing props
-  showNavigationButtons?: boolean;
-  onContinueRoutine?: () => void;
-  onNewSession?: () => void;
+isRecording && "bg-destructive hover:bg-destructive animate-pulse ring-2 ring-destructive/50"
+```
+
+**După:**
+```typescript
+isRecording && cn(
+  "bg-red-600 hover:bg-red-600 text-white border-red-700",
+  "scale-[0.98] shadow-inner",  // Efect apăsat
+  "ring-4 ring-red-500/50"      // Glow fără animație
+)
+```
+
+### 2. Edge Function - Query Adăugat
+
+După linia 91 (după `todayBreakthroughs`):
+
+```typescript
+// 4. Fetch today's tasks
+const dayNames = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+const todayAbbrev = dayNames[new Date().getDay()];
+const weekStart = new Date();
+weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+const weekKey = weekStart.toISOString().split('T')[0];
+
+const { data: todayTasks } = await supabaseClient
+  .from('user_tasks')
+  .select('title, completed, task_type, day_of_week')
+  .eq('user_id', user.id)
+  .eq('week_key', weekKey)
+  .in('task_type', ['hit', 'do'])
+  .order('position', { ascending: true });
+```
+
+### 3. User Context - Adăugări
+
+După linia 126 (după breakthroughs context):
+
+```typescript
+// Add today's tasks context
+if (todayTasks && todayTasks.length > 0) {
+  const todayOnly = todayTasks.filter((t: any) => 
+    !t.day_of_week || t.day_of_week.toLowerCase() === todayAbbrev.toLowerCase()
+  );
+  
+  if (todayOnly.length > 0) {
+    const completed = todayOnly.filter((t: any) => t.completed);
+    const remaining = todayOnly.filter((t: any) => !t.completed);
+    
+    userContext += '\n\n📋 SARCINILE DE AZI:\n';
+    userContext += `Progres: ${completed.length}/${todayOnly.length} completate\n`;
+    
+    if (remaining.length > 0) {
+      userContext += '\nDe făcut:\n';
+      remaining.slice(0, 5).forEach((t: any) => {
+        userContext += `• ${t.title}\n`;
+      });
+      if (remaining.length > 5) {
+        userContext += `... și încă ${remaining.length - 5} taskuri\n`;
+      }
+    }
+  }
+}
+
+// Add weekly keys context  
+if (weeklyPlan && weeklyPlan.key_points && Array.isArray(weeklyPlan.key_points)) {
+  userContext += '\n\n🔑 CHEILE SĂPTĂMÂNII:\n';
+  weeklyPlan.key_points.slice(0, 4).forEach((kp: any, i: number) => {
+    const title = typeof kp === 'string' ? kp : kp.title || kp.text || '';
+    const completed = typeof kp === 'object' && kp.completed;
+    userContext += `${i + 1}. ${title} ${completed ? '✓' : ''}\n`;
+  });
 }
 ```
 
-Adaug butoane floating după input area:
-```typescript
-{/* Navigation buttons for embedded mode */}
-{embedded && showNavigationButtons && (
-  <div className="p-4 border-t border-primary/10 bg-gradient-to-t from-primary/10 to-transparent">
-    <div className="flex gap-3">
-      <Button
-        variant="outline"
-        className="flex-1 gap-2"
-        onClick={() => {
-          // Stop any ongoing TTS
-          if (voice.isInCall) voice.endCall();
-          onNewSession?.();
-        }}
-      >
-        <Brain className="h-4 w-4" />
-        Altă Sesiune
-      </Button>
-      <Button
-        className="flex-1 gap-2 bg-gradient-to-r from-green-500 to-emerald-600"
-        onClick={() => {
-          // Stop TTS and continue
-          if (voice.isInCall) voice.endCall();
-          onContinueRoutine?.();
-        }}
-      >
-        Continuă Rutina
-        <ArrowRight className="h-4 w-4" />
-      </Button>
-    </div>
-  </div>
-)}
-```
-
-### B. EmotionalCheckUnifiedStep.tsx
-
-Modific `handleMindCoachComplete`:
-```typescript
-const handleMindCoachComplete = (breakthrough?: any) => {
-  // NU mai apelăm automat onComplete
-  // Așteptăm ca utilizatorul să aleagă manual
-};
-```
-
-Adaug handlers pentru navigare:
-```typescript
-const handleContinueRoutine = () => {
-  onComplete({ 
-    emotion: emotion!, 
-    intensity, 
-    stackCompleted: true,
-    transformedEnergy: 'transformed'
-  });
-};
-
-const handleNewSession = () => {
-  setPhase('emotion');
-  // Reset state for new session
-};
-```
-
-Transmit la MindCoachChat:
-```typescript
-<MindCoachChat
-  initialEmotion={emotion}
-  initialIntensity={intensity}
-  embedded={true}
-  showNavigationButtons={true}
-  onContinueRoutine={handleContinueRoutine}
-  onNewSession={handleNewSession}
-  onComplete={handleMindCoachComplete}
-  onBack={() => setPhase('emotion')}
-/>
-```
-
 ---
 
-## UX Flow Nou
+## Ce Va Ști AI-ul Acum
 
-1. Utilizator selectează emoție negativă
-2. Mind Coach pornește inline
-3. Conversația progresează (text sau voce)
-4. **Oricând**, utilizatorul poate:
-   - Apăsa **"Continuă Rutina"** → oprește TTS, trece la pasul următor
-   - Apăsa **"Altă Sesiune"** → resetează pentru altă emoție
-5. Dacă AI completează transformarea (tool call), butoanele rămân vizibile
-6. Utilizatorul decide când e gata să continue
+**Înainte:**
+- Obiective anuale/90 zile
+- Focus săptămânal (domino_title)
+- Transformări de azi
+
+**După (+adăugări):**
+- Obiective anuale/90 zile
+- Focus săptămânal (domino_title)
+- **📋 SARCINILE DE AZI:** Lista de taskuri și progresul
+- **🔑 CHEILE SĂPTĂMÂNII:** Cele 4 puncte cheie din Domino Door
+- Transformări de azi
 
 ---
 
 ## Testing
 
-- Testează că TTS se oprește când apeși "Continuă Rutina"
-- Testează că "Altă Sesiune" resetează corect starea
-- Verifică că butoanele sunt vizibile în timpul conversației
-- Verifică flow-ul în call mode și speak mode
+1. **SpeakButton:**
+   - Ține apăsat → butonul rămâne solid roșu (nu pâlpâie)
+   - Indicatorul ● continuă să pulseze (vizibilitate)
+   - La eliberare → revine la normal
+
+2. **Context AI:**
+   - Întreabă AI-ul "Ce taskuri am de făcut azi?" → trebuie să le enumere
+   - Întreabă "Care sunt cheile mele pentru săptămâna asta?" → le citește
+
+---
+
+## Impact pe Funcționalitate Existentă
+
+- **SpeakButton:** Doar vizual - logica rămâne identică
+- **Edge Function:** Doar adaug context - nu modific logica existentă
+- **Fără breaking changes** - totul e aditiv
