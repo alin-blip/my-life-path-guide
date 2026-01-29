@@ -7,6 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo, MIND_COACH_EMOTIONS } from '@/components/mind-coach/ExtendedEmotionPicker';
 import { MindCoachChat } from '@/components/mind-coach/MindCoachChat';
+import { supabase } from '@/integrations/supabase/client';
+import { getISOWeek, getYear, startOfWeek } from 'date-fns';
+import { toast } from 'sonner';
 
 interface EmotionalCheckUnifiedStepProps {
   emotion: MindCoachEmotion | null;
@@ -67,6 +70,39 @@ export function EmotionalCheckUnifiedStep({
     setPhase('emotion');
   };
 
+  // Handler pentru salvare task în HIT List
+  const handleAddToHitList = async (task: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const now = new Date();
+      const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+      const weekNum = getISOWeek(weekStart);
+      const year = getYear(weekStart);
+      const weekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
+      
+      const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+      const todayAbbrev = days[now.getDay()];
+
+      await supabase.from('user_tasks').insert({
+        user_id: user.id,
+        title: task,
+        task_type: 'hit',
+        list_type: 'hit',
+        day_of_week: todayAbbrev,
+        week_key: weekKey,
+        priority: 1,
+        completed: false,
+      });
+
+      toast.success('Acțiune adăugată în HIT List! 🎯');
+    } catch (error) {
+      console.error('Error adding to HIT list:', error);
+      toast.error('Eroare la adăugarea în HIT List');
+    }
+  };
+
   const handleSkipStack = () => {
     onComplete({ 
       emotion: emotion!, 
@@ -104,6 +140,7 @@ export function EmotionalCheckUnifiedStep({
               onContinueRoutine={handleContinueRoutine}
               onNewSession={handleNewSession}
               onComplete={handleMindCoachComplete}
+              onAddToHitList={handleAddToHitList}
               onBack={() => setPhase('emotion')}
             />
           </CardContent>

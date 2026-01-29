@@ -78,6 +78,9 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
           // Save to database
           await saveBreakthrough(breakthrough);
           
+          // Save conversation to library
+          await saveConversationToLibrary(messages, breakthrough);
+          
           if (options.onComplete) {
             options.onComplete(breakthrough);
           }
@@ -105,6 +108,36 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
       });
     } catch (error) {
       console.error('Error saving breakthrough:', error);
+    }
+  };
+
+  // Save conversation to stack_library
+  const saveConversationToLibrary = async (msgs: Message[], breakthrough: BreakthroughData) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Use type assertion for the insert since we're storing dynamic JSON content
+      const libraryEntry = {
+        user_id: user.id,
+        title: `Mind Coach - ${breakthrough.emotionBefore} → ${breakthrough.emotionAfter}`,
+        type: 'mind-coach',
+        content: {
+          messages: msgs.map(m => ({
+            role: m.role,
+            content: m.content,
+            timestamp: new Date().toISOString()
+          })),
+          breakthrough,
+          savedAt: new Date().toISOString()
+        }
+      };
+
+      await supabase.from('stack_library').insert(libraryEntry as any);
+      
+      console.log('Conversation saved to library');
+    } catch (error) {
+      console.error('Error saving conversation to library:', error);
     }
   };
 
