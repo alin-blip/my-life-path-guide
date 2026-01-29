@@ -8,6 +8,9 @@ import { cn } from '@/lib/utils';
 import { IdeaBankItem, IdeaAnalysisResult, ideasBankService } from '@/services/ideasBankService';
 import { IdeaAnalysisModal } from './IdeaAnalysisModal';
 import { useToast } from '@/hooks/use-toast';
+import { EisenhowerSelector } from '@/components/ui/EisenhowerSelector';
+import { QuadrantBadge } from '@/components/ui/QuadrantBadge';
+import { priorityToQuadrant, EISENHOWER_QUADRANTS } from '@/types/eisenhower';
 
 interface HotListProps {
   onMoveToHit?: (idea: IdeaBankItem) => void;
@@ -257,7 +260,36 @@ export const HotList: React.FC<HotListProps> = ({
                   <GripVertical className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
                 </div>
                 
-                {/* Status badge */}
+                {/* Eisenhower Quadrant Badge */}
+                <EisenhowerSelector
+                  priority={idea.priority}
+                  onSelect={async (newPriority) => {
+                    // If Q4 (eliminator), confirm deletion
+                    if (newPriority === 1) {
+                      if (confirm('Această idee nu este importantă și nici urgentă. Vrei să o ștergi?')) {
+                        await handleDelete(idea.id);
+                      }
+                      return;
+                    }
+                    try {
+                      await ideasBankService.updateIdea(idea.id, { priority: newPriority });
+                      setIdeas(prev => prev.map(i => 
+                        i.id === idea.id ? { ...i, priority: newPriority } : i
+                      ));
+                    } catch (error) {
+                      console.error('Error updating priority:', error);
+                    }
+                  }}
+                  trigger={
+                    <QuadrantBadge 
+                      priority={idea.priority} 
+                      size="sm"
+                      onClick={() => {}}
+                    />
+                  }
+                />
+                
+                {/* Status badge (AI analysis) */}
                 {getStatusBadge(idea)}
                 
                 {/* Text / Edit */}

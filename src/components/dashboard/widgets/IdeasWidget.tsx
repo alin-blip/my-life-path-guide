@@ -18,6 +18,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { CategoryBadge, IdeaCategory, getCategoryOptions } from './CategoryBadge';
 import { IdeaEmpowermentDialog } from './IdeaEmpowermentDialog';
+import { EisenhowerSelector } from '@/components/ui/EisenhowerSelector';
+import { QuadrantBadge } from '@/components/ui/QuadrantBadge';
+import { priorityToQuadrant, EISENHOWER_QUADRANTS, getSelectableQuadrants } from '@/types/eisenhower';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -42,11 +45,13 @@ interface IdeasWidgetProps {
   dragHandleProps?: any;
 }
 
+// Eisenhower-based priority colors (mapped to quadrants)
 const priorityColors: Record<number, string> = {
-  0: 'border-l-muted-foreground/30',
-  1: 'border-l-blue-500',
-  2: 'border-l-yellow-500',
-  3: 'border-l-red-500'
+  0: 'border-l-muted-foreground/30', // unset
+  1: 'border-l-gray-500',            // Q4 eliminator
+  2: 'border-l-orange-500',          // Q3 delegator
+  3: 'border-l-green-500',           // Q2 creator (best)
+  4: 'border-l-red-500'              // Q1 reactor
 };
 
 export const IdeasWidget: React.FC<IdeasWidgetProps> = ({
@@ -222,6 +227,35 @@ export const IdeasWidget: React.FC<IdeasWidgetProps> = ({
       ));
     } catch (error) {
       console.error('Error updating category:', error);
+    }
+  };
+
+  // Update priority (Eisenhower quadrant)
+  const updatePriority = async (ideaId: string, priority: number) => {
+    if (!user?.id) return;
+
+    // If Q4 (eliminator), confirm deletion
+    if (priority === 1) {
+      if (confirm('Această idee nu este importantă și nici urgentă. Vrei să o ștergi?')) {
+        await deleteIdea(ideaId);
+      }
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('user_tasks')
+        .update({ priority })
+        .eq('id', ideaId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setIdeas(prev => prev.map(i => 
+        i.id === ideaId ? { ...i, priority } : i
+      ));
+    } catch (error) {
+      console.error('Error updating priority:', error);
     }
   };
 
@@ -435,9 +469,17 @@ export const IdeasWidget: React.FC<IdeasWidgetProps> = ({
                                   {idea.text}
                                 </p>
                                 <div className="flex items-center gap-1 mt-0.5">
-                                  <CategoryBadge 
-                                    category={idea.category} 
-                                    size="sm"
+                                  {/* Eisenhower Quadrant Selector */}
+                                  <EisenhowerSelector
+                                    priority={idea.priority}
+                                    onSelect={(newPriority) => updatePriority(idea.id, newPriority)}
+                                    trigger={
+                                      <QuadrantBadge 
+                                        priority={idea.priority} 
+                                        size="sm"
+                                        onClick={() => {}}
+                                      />
+                                    }
                                   />
                                   {idea.isEmpowered && (
                                     <Zap className="h-3 w-3 text-yellow-500" />
