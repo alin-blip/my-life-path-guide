@@ -45,6 +45,9 @@ export function MindCoachChat({
   const [inputValue, setInputValue] = useState('');
   const [showCelebration, setShowCelebration] = useState(false);
   
+  // Determine current cluster for quick answers
+  const currentCluster = selectedEmotion ? getClusterForEmotion(selectedEmotion) : null;
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -258,26 +261,36 @@ export function MindCoachChat({
 
   // Render chat step
   const emotionInfo = selectedEmotion ? getEmotionInfo(selectedEmotion) : null;
+  
+  // Show quick answers when AI has asked a question (last message is from assistant)
+  const lastMessage = messages[messages.length - 1];
+  const showQuickAnswers = !isLoading && 
+    !isComplete && 
+    messages.length > 0 && 
+    lastMessage?.role === 'assistant' &&
+    !inputValue.trim();
 
   return (
     <>
       <Card className={cn(
-        "flex flex-col h-[600px] border-primary/20",
+        "flex flex-col h-[600px]",
+        "bg-gradient-to-br from-background via-background to-primary/5",
+        "border-primary/20 shadow-lg shadow-primary/5",
         embedded && "border-0 shadow-none h-full"
       )}>
         {/* Header with phase indicator */}
-        <CardHeader className="pb-2 border-b shrink-0">
+        <CardHeader className="pb-2 border-b border-primary/10 shrink-0 bg-gradient-to-r from-primary/5 to-transparent">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="text-xl">{emotionInfo?.emoji}</span>
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium text-foreground">
                 {language === 'ro' ? emotionInfo?.labelRo : emotionInfo?.labelEn}
               </span>
-              <span className="text-xs text-muted-foreground">
-                ({selectedIntensity}/10)
+              <span className="text-xs text-muted-foreground bg-primary/10 px-2 py-0.5 rounded-full">
+                {selectedIntensity}/10
               </span>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleRestart}>
+            <Button variant="ghost" size="sm" onClick={handleRestart} className="hover:bg-primary/10">
               <RotateCcw className="h-4 w-4" />
             </Button>
           </div>
@@ -289,11 +302,11 @@ export function MindCoachChat({
           <div className="space-y-4">
             {/* Welcome message if no messages yet - cluster-specific opening */}
             {messages.length === 0 && selectedEmotion && (
-              <div className="bg-primary/10 rounded-xl p-4 text-sm">
-                <p className="font-medium mb-2">
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-4 text-sm border border-primary/10 animate-fade-in">
+                <p className="font-medium mb-2 text-foreground">
                   {emotionInfo?.emoji} {language === 'ro' ? emotionInfo?.labelRo : emotionInfo?.labelEn} la {selectedIntensity}/10...
                 </p>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground leading-relaxed">
                   {getClusterOpeningMessage(getClusterForEmotion(selectedEmotion), language)}
                 </p>
               </div>
@@ -304,7 +317,7 @@ export function MindCoachChat({
               <div
                 key={idx}
                 className={cn(
-                  "flex",
+                  "flex animate-fade-in",
                   msg.role === 'user' ? 'justify-end' : 'justify-start'
                 )}
               >
@@ -312,8 +325,8 @@ export function MindCoachChat({
                   className={cn(
                     "max-w-[85%] rounded-xl p-3 text-sm",
                     msg.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                      ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20'
+                      : 'bg-muted/80 border border-border/50'
                   )}
                 >
                   {msg.role === 'assistant' ? (
@@ -329,9 +342,9 @@ export function MindCoachChat({
 
             {/* Loading indicator */}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-muted rounded-xl p-3">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+              <div className="flex justify-start animate-fade-in">
+                <div className="bg-muted/80 rounded-xl p-3 border border-border/50">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
                 </div>
               </div>
             )}
@@ -339,7 +352,7 @@ export function MindCoachChat({
         </ScrollArea>
 
         {/* Input area with voice controls */}
-        <div className="p-4 border-t shrink-0">
+        <div className="p-4 border-t border-primary/10 shrink-0 bg-gradient-to-t from-primary/5 to-transparent">
           <MindCoachInputBar
             value={inputValue}
             onChange={setInputValue}
@@ -361,6 +374,8 @@ export function MindCoachChat({
             onCallToggle={handleCallToggle}
             onSkipAI={voice.skipAISpeaking}
             onManualSend={voice.manualSendInCall}
+            cluster={currentCluster}
+            showQuickAnswers={showQuickAnswers}
             language={language}
           />
         </div>
