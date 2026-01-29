@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { X, GripVertical, Search, Plus, Target, Brain, CheckCircle2, AlertTriangle, XCircle, Send } from 'lucide-react';
+import { X, GripVertical, Search, Plus, Target, Brain, CheckCircle2, AlertTriangle, XCircle, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { DoorEmptyState } from './DoorEmptyState';
 import { cn } from '@/lib/utils';
 import { IdeaBankItem, IdeaAnalysisResult, ideasBankService } from '@/services/ideasBankService';
 import { IdeaAnalysisModal } from './IdeaAnalysisModal';
+import { IdeaQuadrantModal } from './IdeaQuadrantModal';
 import { useToast } from '@/hooks/use-toast';
 import { EisenhowerSelector } from '@/components/ui/EisenhowerSelector';
 import { QuadrantBadge } from '@/components/ui/QuadrantBadge';
-import { priorityToQuadrant, EISENHOWER_QUADRANTS } from '@/types/eisenhower';
+import { priorityToQuadrant, EISENHOWER_QUADRANTS, getQuadrantLabel } from '@/types/eisenhower';
 
 interface HotListProps {
   onMoveToHit?: (idea: IdeaBankItem) => void;
@@ -32,6 +33,11 @@ export const HotList: React.FC<HotListProps> = ({
   const [editValue, setEditValue] = useState('');
   const [selectedIdea, setSelectedIdea] = useState<IdeaBankItem | null>(null);
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  
+  // Quadrant modal state
+  const [pendingIdea, setPendingIdea] = useState<IdeaBankItem | null>(null);
+  const [showQuadrantModal, setShowQuadrantModal] = useState(false);
+  
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -58,14 +64,14 @@ export const HotList: React.FC<HotListProps> = ({
     if (newItemText.trim() && !isAdding) {
       setIsAdding(true);
       try {
-        const newIdea = await ideasBankService.addIdea(newItemText.trim());
+        // Save with priority 0 (unset) - will be classified in modal
+        const newIdea = await ideasBankService.addIdea(newItemText.trim(), 'work', 0);
         setIdeas(prev => [newIdea, ...prev]);
         setNewItemText('');
-        toast({
-          title: "✅ Idee adăugată",
-          description: `"${newIdea.text}" a fost salvată permanent`,
-        });
-        setTimeout(() => inputRef.current?.focus(), 0);
+        
+        // Open quadrant modal for classification
+        setPendingIdea(newIdea);
+        setShowQuadrantModal(true);
       } catch (error) {
         console.error('Error adding idea:', error);
         toast({
@@ -76,6 +82,56 @@ export const HotList: React.FC<HotListProps> = ({
       } finally {
         setIsAdding(false);
       }
+    }
+  };
+
+  // Quadrant modal handlers
+  const handleQuadrantSelect = async (priority: number) => {
+    if (!pendingIdea) return;
+    
+    try {
+      // If Q4 (eliminator, priority=1), delete the idea
+      if (priority === 1) {
+        await handleDelete(pendingIdea.id);
+        toast({
+          title: "🗑️ Idee eliminată",
+          description: "Nu era importantă și nici urgentă",
+        });
+      } else {
+        await ideasBankService.updateIdea(pendingIdea.id, { priority });
+        setIdeas(prev => prev.map(i => 
+          i.id === pendingIdea.id ? { ...i, priority } : i
+        ));
+        toast({
+          title: "✅ Idee clasificată!",
+          description: `Cadran: ${getQuadrantLabel(priority)}`,
+        });
+      }
+    } catch (error) {
+      console.error('Error updating idea priority:', error);
+    }
+    
+    setShowQuadrantModal(false);
+    setPendingIdea(null);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const handleSkipClassification = () => {
+    setShowQuadrantModal(false);
+    setPendingIdea(null);
+    toast({
+      title: "💡 Idee salvată",
+      description: "Poți clasifica mai târziu",
+    });
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const handleAnalyzeFromModal = () => {
+    setShowQuadrantModal(false);
+    if (pendingIdea) {
+      setSelectedIdea(pendingIdea);
+      setIsAnalysisModalOpen(true);
+      setPendingIdea(null);
     }
   };
 
@@ -183,22 +239,29 @@ export const HotList: React.FC<HotListProps> = ({
                   await handleAddItem();
                 }
               }}
-              placeholder={isAdding ? "Se salvează..." : (t('addItem') + '...')}
+              placeholder={isAdding ? "Se salvează..." : `${t('addItem')}...${!isMobile ? ' (Enter ↵)' : ''}`}
               disabled={isAdding}
               className={`bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary transition-all ${
                 isMobile ? 'pl-8 pr-2 text-sm h-9' : 'pl-10 h-10'
               } ${isAdding ? 'opacity-50' : ''}`}
             />
           </div>
-          {/* Mobile add button */}
-          {isMobile && (
+          {/* Mobile add button - improved visibility */}
+          {isMobile && newItemText.trim() && (
             <Button
               size="sm"
               onClick={handleAddItem}
-              disabled={!newItemText.trim() || isAdding}
-              className="h-9 w-9 p-0 shrink-0"
+              disabled={isAdding}
+              className="h-10 px-4 shrink-0 bg-primary text-primary-foreground font-medium"
             >
-              <Send className="w-4 h-4" />
+              {isAdding ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-1" />
+                  <span>Adaugă</span>
+                </>
+              )}
             </Button>
           )}
         </div>
@@ -255,10 +318,12 @@ export const HotList: React.FC<HotListProps> = ({
                   isMobile ? 'p-2' : 'p-2'
                 )}
               >
-                {/* Drag handle */}
-                <div className="cursor-grab text-muted-foreground/50 group-hover:text-muted-foreground">
-                  <GripVertical className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-                </div>
+                {/* Drag handle - hidden on mobile */}
+                {!isMobile && (
+                  <div className="cursor-grab text-muted-foreground/50 group-hover:text-muted-foreground">
+                    <GripVertical className="w-4 h-4" />
+                  </div>
+                )}
                 
                 {/* Eisenhower Quadrant Badge */}
                 <EisenhowerSelector
@@ -323,8 +388,11 @@ export const HotList: React.FC<HotListProps> = ({
                   </span>
                 )}
                 
-                {/* Actions */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* Actions - visible on mobile, hover on desktop */}
+                <div className={cn(
+                  "flex items-center gap-1 transition-opacity",
+                  isMobile ? "opacity-70" : "opacity-0 group-hover:opacity-100"
+                )}>
                   {/* Analyze button */}
                   <button
                     className="p-1 text-muted-foreground hover:text-primary transition-colors"
@@ -358,12 +426,29 @@ export const HotList: React.FC<HotListProps> = ({
           <DoorEmptyState 
             onAddItem={() => inputRef.current?.focus()}
             onAddTemplate={async (text) => {
-              const newIdea = await ideasBankService.addIdea(text);
+              const newIdea = await ideasBankService.addIdea(text, 'work', 0);
               setIdeas(prev => [newIdea, ...prev]);
+              // Open quadrant modal for template ideas too
+              setPendingIdea(newIdea);
+              setShowQuadrantModal(true);
             }}
           />
         )}
       </div>
+
+      {/* Quadrant Classification Modal */}
+      <IdeaQuadrantModal
+        isOpen={showQuadrantModal}
+        onClose={() => {
+          setShowQuadrantModal(false);
+          setPendingIdea(null);
+        }}
+        ideaText={pendingIdea?.text || ''}
+        onSelectQuadrant={handleQuadrantSelect}
+        onSkip={handleSkipClassification}
+        onAnalyze={handleAnalyzeFromModal}
+        isMobile={isMobile}
+      />
 
       {/* Analysis Modal */}
       <IdeaAnalysisModal
