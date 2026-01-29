@@ -1,15 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Loader2, Brain, RotateCcw, ArrowLeft } from 'lucide-react';
+import { Loader2, Brain, RotateCcw, ArrowLeft } from 'lucide-react';
 import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo } from './ExtendedEmotionPicker';
 import { getClusterForEmotion, getClusterOpeningMessage } from '@/lib/mind-coach-clusters';
 import { PhaseIndicator } from './PhaseIndicator';
 import { BreakthroughCelebration } from './BreakthroughCelebration';
+import { MindCoachInputBar } from './MindCoachInputBar';
 import { useMindCoach } from '@/hooks/useMindCoach';
+import { useMindCoachVoice } from '@/hooks/useMindCoachVoice';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 
@@ -47,6 +48,16 @@ export function MindCoachChat({
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Voice integration - needs to be declared before useMindCoach to use speakAIResponse
+  const voiceRef = useRef<{ speakAIResponse: (text: string) => void } | null>(null);
+
+  const handleAIResponse = useCallback((text: string) => {
+    // Speak AI response if in call mode
+    if (voiceRef.current) {
+      voiceRef.current.speakAIResponse(text);
+    }
+  }, []);
+
   const {
     messages,
     isLoading,
@@ -60,7 +71,34 @@ export function MindCoachChat({
     onAddToHitList,
     onAddHabit,
     onComplete,
+    onAIResponse: handleAIResponse,
   });
+
+  // Voice hook for Speak and Call modes
+  const voice = useMindCoachVoice({
+    onUserMessage: (text) => {
+      if (text.trim()) {
+        sendMessage(text.trim());
+      }
+    },
+    language,
+  });
+
+  // Update voice ref for AI responses
+  useEffect(() => {
+    voiceRef.current = {
+      speakAIResponse: voice.speakAIResponse
+    };
+  }, [voice.speakAIResponse]);
+
+  // Handle call toggle
+  const handleCallToggle = useCallback(() => {
+    if (voice.isInCall) {
+      voice.endCall();
+    } else {
+      voice.startCall();
+    }
+  }, [voice]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -300,31 +338,31 @@ export function MindCoachChat({
           </div>
         </ScrollArea>
 
-        {/* Input area */}
+        {/* Input area with voice controls */}
         <div className="p-4 border-t shrink-0">
-          <div className="flex gap-2">
-            <Textarea
-              ref={inputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder={language === 'ro' ? 'Scrie aici...' : 'Type here...'}
-              className="min-h-[44px] max-h-[120px] resize-none"
-              disabled={isLoading || isComplete}
-            />
-            <Button
-              onClick={handleSend}
-              disabled={!inputValue.trim() || isLoading || isComplete}
-              size="icon"
-              className="shrink-0"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
+          <MindCoachInputBar
+            value={inputValue}
+            onChange={setInputValue}
+            onSend={handleSend}
+            placeholder={language === 'ro' ? 'Scrie aici...' : 'Type here...'}
+            isLoading={isLoading}
+            isComplete={isComplete}
+            isSpeaking={voice.isSpeaking}
+            onSpeakStart={voice.handleSpeakStart}
+            onSpeakStop={voice.handleSpeakStop}
+            isInCall={voice.isInCall}
+            isAISpeaking={voice.isAISpeaking}
+            isListening={voice.isListening}
+            isProcessing={voice.isProcessing}
+            isTTSLoading={voice.isTTSLoading}
+            currentTranscript={voice.currentTranscript}
+            silenceTimer={voice.silenceTimer}
+            audioLevel={voice.audioLevel}
+            onCallToggle={handleCallToggle}
+            onSkipAI={voice.skipAISpeaking}
+            onManualSend={voice.manualSendInCall}
+            language={language}
+          />
         </div>
       </Card>
 
