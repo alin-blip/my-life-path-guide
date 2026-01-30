@@ -1,271 +1,324 @@
 
+# Plan: Restructurare Challenge 7 Zile - Flow Final
 
-# Plan: Mind Coach Lead Magnet Optimizat + AI Voice Rapid
+## Rezumat Modificări
 
-## Obiective
-1. **AI Coach specializat pentru lead magnet** - focusat pe 4 probleme: Frustrare, Anxietate, Procrastinare, Frică
-2. **Conversație scurtă de transformare** (3-5 schimburi) → apoi deblochează Challenge
-3. **Pop-up de deblocare** cu oferta 7-Day Challenge
-4. **Optimizare timp răspuns voice** de la 10+ sec la 2-4 sec
+Restructurarea completă a Challenge-ului de 7 zile conform planului final:
+- **Zilele 1-2**: FREE (cu invitații referral)
+- **Zilele 3-7**: TRIAL (cu Early Bird upgrade)
+- Fiecare zi are un flow clar și task-uri specifice
 
 ---
 
-## Partea 1: Optimizare Timp Răspuns AI Voice
+## ZIUA 1 - VIZIUNE + DECLARAȚIE (FREE)
 
-### Problema actuală (10+ secunde):
-```text
-User vorbește → STT (1s) → AI gemini-2.5-pro (5-8s) → TTS call separat (3-5s) → Play
-Total: 10-15 secunde
+### Task-uri noi:
+1. **Viziune Napoleon Hill** - rămâne (1 an, 4 zone)
+2. **Scrie Declarația** - rămâne (citire AM/PM)
+3. **Join Community** - NOU - buton → `/brotherhood?tab=tribes` (tribul Warrior)
+4. **Invită 1-3 Prieteni** - NOU - buton cu mesaj embedded
+
+### Mesaj Referral (Română):
+```
+Tocmai am început acest challenge și am 3 invitații exclusive.
+Vrei să faci acest challenge împreună cu mine?
+
+Ziua 1: Viziune & Claritate
+Ziua 2: Corp, Spirit & Relații
+Ziua 3: Business & Execuție
+Ziua 4: Rutina Zilnică de Execuție
+Ziua 5: Accountability & Mindset
+Ziua 6: Gândire Strategică & Idei
+Ziua 7: Continuitate & Creștere
+
+Alătură-te aici 👇
+{REFERRAL_LINK}
 ```
 
-### Soluția optimizată (2-4 secunde):
-```text
-User vorbește → STT (1s) → AI gemini-3-flash-preview (1-2s) → TTS streaming (0.5s) → Play
-Total: 2-4 secunde
-```
+### Fișiere modificate:
+- `src/pages/ChallengeDay.tsx` - adaug task-uri pentru Join Community și Invite Friends
+- `src/hooks/useAffiliateLink.ts` - adaug funcție pentru mesaj custom embedded
+
+---
+
+## ZIUA 2 - CORP + SPIRIT + RELAȚII (FREE)
+
+### Task-uri actualizate:
+1. **Obiective Corp** (2026 → 90 zile → 30 zile) → `/game-objectives?category=body`
+2. **Obiective Spirit** (2026 → 90 zile → 30 zile) → `/game-objectives?category=being`
+3. **Obiective Relații** (2026 → 90 zile → 30 zile) → `/game-objectives?category=balance` - NOU
+4. **Rutine Corp + Spirit + Relații** - opțional, link → `/daily-flow`
+5. **Community Share** - postează în comentarii
 
 ### Modificări:
-
-#### 1. Edge Function `mind-coach-demo/index.ts`
-- Schimbăm modelul de la `google/gemini-2.5-pro` → `google/gemini-3-flash-preview`
-- Acest model e de 3-4x mai rapid cu calitate aproape identică pentru coaching
-
-#### 2. TTS pentru demo (fără autentificare)
-- Creăm `text-to-speech-demo` Edge Function (verify_jwt = false)
-- Rate limiting bazat pe IP
-- Răspunsuri scurte (max 200 caractere) = TTS instant
-
-#### 3. `useTextToSpeech.tsx` - Versiune demo
-- Adăugăm parametru `publicMode` pentru a folosi endpoint-ul fără auth
-- Pre-fetch primele răspunsuri AI comune
+- Adăugăm categoria Relații (Balance) la exerciții
+- Păstrăm structura 2026 → 90 zile → 30 zile
 
 ---
 
-## Partea 2: AI Coach Specializat Lead Magnet
+## ZIUA 3 - BUSINESS + DOMINO DOOR (TRIAL ÎNCEPE)
 
-### Flow nou:
+### Task-uri consolidate:
+1. **Business Vision + Plan** - AI Wizard ONE GO:
+   - Business 1 an
+   - 90 zile targets
+   - First month milestone
+   - Domino Door săptămânal (1 milestone + 4 chei + WHY pentru fiecare)
+   
+2. **Share în comunitate** - screenshot/copy-paste Domino Door
 
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  PASUL 1: Selectare Problemă                                   │
-│                                                                 │
-│  Ce te blochează cel mai mult acum?                            │
-│                                                                 │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐           │
-│  │  😤     │  │  😰     │  │  😴     │  │  😨     │           │
-│  │FRUSTRARE│  │ANXIETATE│  │PROCRAS- │  │ FRICĂ   │           │
-│  │         │  │         │  │ TINARE  │  │         │           │
-│  │Obiective│  │Viitorul │  │Nu știu  │  │Eșec,    │           │
-│  │blocate  │  │incert   │  │de unde  │  │judecată │           │
-│  └─────────┘  └─────────┘  └─────────┘  └─────────┘           │
-└─────────────────────────────────────────────────────────────────┘
+### Flow:
+- Utilizatorul deschide `/game-objectives?category=business&wizard=full`
+- Wizard-ul ghidează prin toate nivelurile: Annual → 90 days → Monthly → Weekly Door
+- La final, Door-ul e setat cu milestone + 4 chei + task-uri
 
-┌─────────────────────────────────────────────────────────────────┐
-│  PASUL 2: Conversație Scurtă (3-5 mesaje)                      │
-│                                                                 │
-│  AI: "Văd că te simți frustrat. Care e situația specifică      │
-│       care te-a adus în acest punct?"                          │
-│                                                                 │
-│  User: [răspuns]                                                │
-│                                                                 │
-│  AI: "Ce poveste îți spui despre tine în legătură cu asta?"    │
-│                                                                 │
-│  User: [răspuns]                                                │
-│                                                                 │
-│  AI: "Acum hai să înlocuim această poveste. Care e un pas      │
-│       mic pe care îl poți face AZI?"                           │
-│                                                                 │
-│  User: [angajament la acțiune]                                 │
-│                                                                 │
-│  → TRIGGER: complete_transformation tool                       │
-└─────────────────────────────────────────────────────────────────┘
+### Modificări:
+- Eliminăm Relationships din Ziua 3 (mutat în Ziua 2)
+- Adăugăm Domino Door integrat cu Business flow
+- Actualizăm link-ul să deschidă wizard-ul complet
 
-┌─────────────────────────────────────────────────────────────────┐
-│  PASUL 3: Pop-up Deblocare (BreakthroughOverlay actualizat)    │
-│                                                                 │
-│  🎉 FELICITĂRI!                                                │
-│  Ai făcut primul pas spre transformare.                        │
-│                                                                 │
-│  [Frustrare] → [Claritate & Acțiune]                           │
-│                                                                 │
-│  ────────────────────────────────────────────────────────────  │
-│                                                                 │
-│  ⭐ DEBLOCHEAZĂ ACUM:                                          │
-│                                                                 │
-│  ✓ Challenge de 7 Zile - Transformă-ți Viața                  │
-│  ✓ Claritate despre ce vrei CU ADEVĂRAT                       │
-│  ✓ Plan strategic pentru obiective                             │
-│  ✓ Energie și productivitate zilnică                          │
-│  ✓ Timp pentru familie și ce contează                          │
-│                                                                 │
-│  [🚀 ÎNCEPE CHALLENGE-UL GRATUIT - 7 ZILE]                     │
-│                                                                 │
-│  Fără card • Acces instant • 10,000+ transformări              │
-└─────────────────────────────────────────────────────────────────┘
+---
+
+## ZIUA 4 - WARRIOR ROUTINE + VISION AI + MEDITAȚIE (TRIAL)
+
+### Task-uri:
+1. **Vision AI** - generează imagini AI pentru toate 4 cadranele → `/vision-board`
+2. **Warrior Routine** - configurează rutina zilnică cu 1 click → `/daily-flow`
+3. **Meditație Personalizată** - creează meditație bazată pe obiective → `/daily-flow`
+4. **Start Execution** - începe prima execuție a rutinei
+
+### Explicații adăugate:
+- Meditația este personalizată pe obiectivele lor setate în Zilele 2-3
+- Warrior Routine automatizează dimineața și seara
+
+---
+
+## ZIUA 5 - ACCOUNTABILITY COACH + MIND COACH (TRIAL)
+
+### Task-uri:
+1. **Accountability Coach** - știe ce e făcut/nefăcut → `/accountability-coach`
+2. **Mind Coach** - transformă emoții negative în putere:
+   - Angry → Power
+   - Anxious → Calm Action
+   - Stuck → Clarity
+   - Procrastination → Momentum
+3. **Share Breakthrough** - postează în comentarii
+
+### Link-uri:
+- `/accountability-coach` pentru status check
+- `/mind-coach` pentru transformare emoțională
+
+---
+
+## ZIUA 6 - IDEA LIST (STRATEGIC FILTER) (TRIAL) - NOU
+
+### Scopul Zilei 6:
+- NU pentru execuție
+- Pentru CONTROLUL IMPULSULUI
+- Scoate ideile din cap fără să distrugă execuția setată în Ziua 3
+
+### Task-uri:
+1. **Creează Idea List** (Idea Parking Lot) → `/door?tab=weekly` (secțiunea Ideas)
+2. **Clasifică ideile cu Eisenhower Matrix**:
+   - Q1 Reactor (Important + Urgent) → Fă ACUM
+   - Q2 Creator (Important + Not Urgent) → PLANIFICĂ ✨
+   - Q3 Delegator (Not Important + Urgent) → DELEGĂ
+   - Q4 Eliminator (Not Important + Not Urgent) → ȘTERGE
+3. **Înțelege mesajul cheie**
+
+### Mesaj Cheie:
+```
+"Ideas don't build freedom.
+Execution over time does."
+
+"Ideile nu construiesc libertatea.
+Execuția în timp construiește."
+```
+
+### Explicații în UI:
+- De ce este important să "parchezi" ideile
+- Cum să nu lași ideile noi să distrugă focusul
+- Cum să folosești cadranele Eisenhower
+
+---
+
+## ZIUA 7 - MEMBERSHIP + REFERRALS + CONTINUITY (TRIAL → CONVERSIE)
+
+### Secțiuni:
+1. **Recap** - ce ai realizat:
+   - Viziune clară
+   - Plan anual
+   - 90-day targets
+   - First month milestone
+   - Weekly execution system
+   - Control mental asupra ideilor
+   
+2. **Membership Options**:
+   - Basic (fără AI)
+   - Pro (AI + 50% referral)
+   - Elite (Pro + Accelerator + Weekly Coaching + Coach Dashboard)
+
+3. **Invite 1-3 Friends** - final push
+
+### Mesaj Referral Final:
+```
+Tocmai am terminat acest challenge.
+
+În primele zile, am obținut mai multă claritate decât în ani.
+
+Acum am:
+– O viziune clară
+– Un plan anual
+– Obiective pe 90 de zile
+– Milestone-ul primei luni
+– Sistem de execuție săptămânală
+– Control asupra ideilor mele
+
+Și am o invitație exclusivă gratuită pentru tine.
+
+Alătură-te aici 👇
+{REFERRAL_LINK}
 ```
 
 ---
 
 ## Fișiere de Modificat
 
-| Fișier | Modificare |
+| Fișier | Modificări |
 |--------|------------|
-| `supabase/functions/mind-coach-demo/index.ts` | Schimbăm model la `gemini-3-flash-preview`, simplificăm prompt pentru 4 probleme focusate |
-| `supabase/functions/text-to-speech-demo/index.ts` | **NOU** - TTS public fără auth, rate limited |
-| `src/components/mind-coach/MindCoachDemo.tsx` | Simplificăm emotion picker la 4 opțiuni, eliminăm intensitate |
-| `src/components/mind-coach/BreakthroughOverlay.tsx` | Actualizăm cu oferta Challenge 7 zile |
-| `src/hooks/useTextToSpeech.tsx` | Adăugăm `publicMode` pentru demo fără auth |
-| `src/hooks/useMindCoachDemo.ts` | Folosim TTS demo |
-| `supabase/config.toml` | Adăugăm `text-to-speech-demo` cu verify_jwt = false |
+| `src/pages/Challenge.tsx` | Actualizez `challengeDays` array cu noile titluri și descrieri pentru toate 7 zilele |
+| `src/pages/ChallengeDay.tsx` | Refactor complet `challengeContent` array cu noul curriculum pentru fiecare zi |
+| `src/hooks/useAffiliateLink.ts` | Adaug funcție `shareWithCustomMessage(message)` pentru mesaje embedded |
+| `src/components/challenge/day1/Day1InviteFriends.tsx` | **NOU** - component pentru invite cu mesaj embedded |
+| `src/components/challenge/day1/Day1JoinCommunity.tsx` | **NOU** - component pentru join Brotherhood tribe |
+| `src/components/challenge/ChallengeDay6Ideas.tsx` | **NOU** - component pentru Ziua 6 cu explicații Eisenhower |
+| `src/components/challenge/ChallengeDay7Upgrade.tsx` | Actualizez cu noul recap și mesaj referral final |
 
 ---
 
 ## Detalii Tehnice
 
-### 1. Model AI optimizat
+### 1. Challenge.tsx - Titluri Actualizate
+
 ```typescript
-// În mind-coach-demo/index.ts
-model: 'google/gemini-3-flash-preview',  // 3x mai rapid
-max_tokens: 150,  // Răspunsuri scurte
-temperature: 0.8,
-```
-
-### 2. Prompt simplificat (4 probleme focusate)
-```typescript
-const systemPrompt = `Ești Mind Coach - transformi rapid blocajele în acțiune.
-
-PROBLEMA UTILIZATORULUI: ${emotion} // frustration, anxiety, procrastination, fear
-
-FLOW ULTRA-SCURT (max 4 schimburi):
-1. Validează + întreabă situația concretă
-2. Identifică povestea/credința limitatoare
-3. Reframe + angajament la o acțiune mică
-4. Folosește complete_transformation
-
-RĂSPUNSURI: Maximum 2 propoziții. O singură întrebare.
-VOCEA: Caldă dar directă. Fără fluff.
-
-Răspunde doar în română.`;
-```
-
-### 3. TTS Demo (fără auth)
-```typescript
-// text-to-speech-demo/index.ts
-serve(async (req) => {
-  // Rate limit per IP
-  if (!checkRateLimit(clientIP)) {
-    return new Response(JSON.stringify({ error: 'Rate limited' }), { status: 429 });
+const challengeDays: ChallengeDay[] = [
+  {
+    day: 1,
+    titleRo: "🔥 VIZIUNE + DECLARAȚIE",
+    subtitleRo: "Viziune Napoleon Hill + Join Community + Invită Prieteni",
+    focusAreas: ['body', 'being', 'balance', 'business']
+  },
+  {
+    day: 2,
+    titleRo: "💪✨💕 CORP + SPIRIT + RELAȚII",
+    subtitleRo: "Obiective 2026 / 90 zile / 30 zile pentru toate 3 ariile",
+    focusAreas: ['body', 'being', 'balance']
+  },
+  {
+    day: 3,
+    titleRo: "💰🎯 BUSINESS + DOMINO DOOR",
+    subtitleRo: "Business Vision + 90 Days + Monthly + Weekly Door (ONE GO)",
+    focusAreas: ['business']
+  },
+  {
+    day: 4,
+    titleRo: "⚡ WARRIOR ROUTINE + VISION AI + MEDITAȚIE",
+    subtitleRo: "Rutină zilnică + Imagini AI + Meditație personalizată",
+    focusAreas: ['body', 'being', 'balance', 'business']
+  },
+  {
+    day: 5,
+    titleRo: "🧠 ACCOUNTABILITY + MIND COACH",
+    subtitleRo: "Status check + Transformare emoții în putere",
+    focusAreas: ['body', 'being', 'balance', 'business']
+  },
+  {
+    day: 6,
+    titleRo: "💡 IDEA LIST (FILTRU STRATEGIC)",
+    subtitleRo: "Controlul impulsului + Clasificare Eisenhower",
+    focusAreas: ['business']
+  },
+  {
+    day: 7,
+    titleRo: "🏆 MEMBERSHIP + CONTINUITATE",
+    subtitleRo: "Recap + Upgrade + Invită prieteni finali",
+    focusAreas: ['body', 'being', 'balance', 'business']
   }
-
-  const { text, voiceId } = await req.json();
-  
-  // Limit text length for demo
-  const truncatedText = text.substring(0, 250);
-  
-  // Call ElevenLabs cu turbo model
-  const response = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
-    {
-      body: JSON.stringify({
-        text: truncatedText,
-        model_id: 'eleven_turbo_v2_5',  // Cel mai rapid model
-        voice_settings: { stability: 0.5, similarity_boost: 0.7 }
-      })
-    }
-  );
-  
-  return new Response(response.body, { headers: { 'Content-Type': 'audio/mpeg' } });
-});
-```
-
-### 4. Emotion Picker Simplificat
-```tsx
-const LEAD_MAGNET_EMOTIONS = [
-  { id: 'frustration', emoji: '😤', label: 'Frustrare', desc: 'Obiective blocate' },
-  { id: 'anxiety', emoji: '😰', label: 'Anxietate', desc: 'Viitorul incert' },
-  { id: 'procrastination', emoji: '😴', label: 'Amânare', desc: 'Nu știu de unde să încep' },
-  { id: 'fear', emoji: '😨', label: 'Frică', desc: 'Eșec, judecată' }
 ];
 ```
 
-### 5. Breakthrough Overlay cu Challenge CTA
-```tsx
-<div className="space-y-4">
-  <h2 className="text-2xl font-bold">🎉 Felicitări!</h2>
-  <p>Ai făcut primul pas spre transformare.</p>
-  
-  <div className="transformation-badge">
-    {breakthroughData.emotionBefore} → Claritate & Acțiune
-  </div>
-  
-  <div className="unlock-section">
-    <h3>⭐ DEBLOCHEAZĂ ACUM:</h3>
-    <ul className="benefits-list">
-      <li>✓ Challenge de 7 Zile - Transformă-ți Viața</li>
-      <li>✓ Claritate despre ce vrei CU ADEVĂRAT</li>
-      <li>✓ Plan strategic pentru obiective</li>
-      <li>✓ Energie și productivitate zilnică</li>
-      <li>✓ Timp pentru familie și ce contează</li>
-    </ul>
-    
-    <Button onClick={handleStartChallenge}>
-      🚀 ÎNCEPE CHALLENGE-UL GRATUIT - 7 ZILE
-    </Button>
-    
-    <p className="trust-line">
-      Fără card • Acces instant • 10,000+ transformări
-    </p>
-  </div>
-</div>
+### 2. Day1InviteFriends.tsx - Component Nou
+
+```typescript
+// Folosește useAffiliateLink cu mesaj custom
+const { referralLink, shareWithMessage } = useAffiliateLink();
+
+const inviteMessage = language === 'ro' 
+  ? `Tocmai am început acest challenge și am 3 invitații exclusive...`
+  : `I just started this challenge and I've got 3 exclusive invites...`;
+
+const handleInvite = () => {
+  shareWithMessage(inviteMessage);
+};
+```
+
+### 3. Day1JoinCommunity.tsx - Component Nou
+
+```typescript
+// Redirect către Brotherhood cu tab-ul Tribes selectat
+const handleJoinCommunity = () => {
+  navigate('/brotherhood?tab=tribes');
+};
+```
+
+### 4. ChallengeDay6Ideas.tsx - Component Nou
+
+Explicații despre:
+- Scopul Idea List (parking lot pentru idei)
+- Cum să nu distrugă execuția din Ziua 3
+- Cum funcționează Eisenhower Matrix (4 cadrane)
+- Buton → `/door?tab=weekly` (secțiunea Ideas)
+- Mesaj cheie: "Ideas don't build freedom. Execution over time does."
+
+### 5. Referral System - Early Bird Flow
+
+- Zilele 1-2: Buton "Invită Prieteni" vizibil
+- Zilele 3-7: Early Bird countdown + upgrade CTA
+- Ziua 7: Final push pentru referral + membership upgrade
+
+---
+
+## Flow Psihologic Corect
+
+```
+ZIUA 1-2: CLARITATE
+  └── Viziune + Declarație + Obiective Corp/Spirit/Relații
+
+ZIUA 3: EXECUȚIE
+  └── Business + Domino Door (weekly plan setat)
+
+ZIUA 4: AUTOMATIZARE
+  └── Warrior Routine + Vision AI + Meditație
+
+ZIUA 5: REZILIENȚĂ
+  └── Accountability + Mind Coach (transformare emoții)
+
+ZIUA 6: CONTROL
+  └── Idea List (nu lăsa ideile să distrugă execuția)
+
+ZIUA 7: CONTINUITATE
+  └── Recap + Membership + Referral final
 ```
 
 ---
 
 ## Pași de Implementare
 
-1. **Creez TTS Demo Edge Function** (`text-to-speech-demo`)
-   - Fără autentificare
-   - Rate limiting IP
-   - Model turbo ElevenLabs
-
-2. **Optimizez AI Edge Function** (`mind-coach-demo`)
-   - Switch la `gemini-3-flash-preview`
-   - Prompt simplificat pentru 4 probleme
-   - Răspunsuri mai scurte
-
-3. **Actualizez `useTextToSpeech.tsx`**
-   - Adaug `publicMode` parameter
-   - Folosește endpoint demo când e activ
-
-4. **Simplific `MindCoachDemo.tsx`**
-   - 4 emoții în loc de 14
-   - Fără slider intensitate
-   - Flow mai direct
-
-5. **Actualizez `BreakthroughOverlay.tsx`**
-   - Design nou cu oferta Challenge
-   - Benefits list
-   - CTA către signup/challenge
-
-6. **Config update**
-   - Adaug `text-to-speech-demo` în `config.toml`
-
----
-
-## Comparație Timpi
-
-| Acțiune | Înainte | După |
-|---------|---------|------|
-| AI Response | 5-8 sec | 1-2 sec |
-| TTS Generation | 3-5 sec | 0.5-1 sec |
-| **Total** | **10-15 sec** | **2-4 sec** |
-
----
-
-## Rezultat Final
-
-- **Lead magnet focusat**: 4 probleme clare (nu 14 emoții)
-- **Conversație scurtă**: 3-5 mesaje → deblocare
-- **Voice ultra-rapid**: 2-4 secunde în loc de 10+
-- **CTA clar**: Challenge 7 zile cu benefits specifice
+1. **Actualizez Challenge.tsx** cu noile titluri și descrieri
+2. **Refactor ChallengeDay.tsx** cu noul curriculum complet
+3. **Creez Day1InviteFriends.tsx** cu mesaj embedded
+4. **Creez Day1JoinCommunity.tsx** cu redirect Brotherhood
+5. **Creez ChallengeDay6Ideas.tsx** cu explicații Eisenhower
+6. **Actualizez useAffiliateLink.ts** cu funcție pentru mesaj custom
+7. **Actualizez ChallengeDay7Upgrade.tsx** cu recap și mesaj final
 
