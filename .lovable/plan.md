@@ -1,226 +1,97 @@
 
-# AUDIT COMPLET PLATFORMĂ - Pregătire Lansare 7000 Utilizatori
+# Implementare Verificare HIBP (Leaked Password Protection)
 
-## EXECUTIVE SUMMARY
-
-| Metrică | Valoare Actuală |
-|---------|-----------------|
-| Utilizatori înregistrați | 183 |
-| Leads în CRM | 213 |
-| Email leads | 175 |
-| Tabele Supabase | 120+ |
-| Edge Functions | 60+ |
-| Pagini/Routes | 78 |
+## Obiectiv
+Verificarea în timp real dacă parola aleasă de utilizator a fost compromisă în breșe de securitate cunoscute, folosind API-ul Have I Been Pwned (HIBP) cu protecție k-anonymity.
 
 ---
 
-## 1. CE FUNCȚIONEAZĂ BINE
+## Cum Funcționează HIBP API
 
-### 1.1 Securitate Bază de Date
-- **RLS activat pe TOATE tabelele** - verificat, 100% acoperire
-- Policies configurate corect pentru user isolation
-- Niciun tabel expus public fără protecție
-
-### 1.2 Arhitectură Scalabilă
-- **Lazy loading** pentru 70+ pagini (code splitting)
-- React Query pentru caching și state management
-- Edge Functions cu streaming pentru AI responses
-- Lovable AI Gateway pentru toate funcțiile AI (nu depinde de API keys externe pentru AI principal)
-
-### 1.3 Error Handling
-- **ErrorBoundary** global care loghează erorile în Supabase
-- Try/catch în majoritatea componentelor critice
-- Fallback UI pentru loading states
-
-### 1.4 Rate Limiting
-- Implementat în Edge Functions publice (mind-coach-demo, text-to-speech-demo)
-- 50-100 requests/oră per IP pentru funcții demo
-- Rate limiting pe utilizator pentru funcții autentificate
-
-### 1.5 Autentificare
-- AuthContext centralizat cu subscription management
-- ProtectedRoute cu tier-based access control (free/basic/pro/elite)
-- Facebook Pixel tracking integrat
+API-ul HIBP folosește **k-anonymity** pentru a nu expune niciodată parola completă:
+1. Se calculează hash-ul SHA-1 al parolei
+2. Se trimit doar primele 5 caractere ale hash-ului către API
+3. API-ul returnează toate hash-urile care încep cu acele 5 caractere
+4. Verificarea se face local - parola nu părăsește niciodată dispozitivul utilizatorului
 
 ---
 
-## 2. PROBLEME CRITICE DE REZOLVAT
+## Plan de Implementare
 
-### 2.1 Dependența Excesivă de localStorage
+### Pasul 1: Crearea Serviciului HIBP
+**Fișier nou: `src/services/hibpService.ts`**
 
-**117 fișiere folosesc localStorage!** Date critice stocate doar local:
+Funcționalitate:
+- Calcul SHA-1 hash folosind Web Crypto API (nativ în browser)
+- Trimitere request către API-ul HIBP cu primele 5 caractere
+- Verificare locală dacă hash-ul complet se găsește în răspuns
+- Return: numărul de apariții în breșe sau 0 dacă e sigură
 
-| Feature | Storage Key | Risc |
-|---------|-------------|------|
-| Notițe | `sacred-notes` | Pierdere date la clear cache |
-| Jurnal | `journal-entries`, `journalEntries` | Duplicare + pierdere |
-| Voice Settings | `preferred-tts-voice` | Minor |
-| Stack Drafts | `stack-draft-*` | Se pierd la logout |
-| Impersonation | `admin_impersonation` | OK (temporal) |
-| Split Tests | `warrior-power-variant` | OK (tracking) |
+### Pasul 2: Actualizare AuthForm.tsx
+**Modificări în formularul principal de autentificare:**
 
-**Recomandare**: Migrare Notițe și Jurnal la Supabase cu sync.
+- Adăugare stare pentru verificare HIBP (`isCheckingPassword`, `passwordBreached`)
+- Verificare asincronă când utilizatorul termină de tastat parola (debounce 500ms)
+- Indicator vizual cu icon și mesaj de avertizare (portocaliu/roșu)
+- Blocare submit dacă parola e compromisă (cu opțiune de a ignora)
 
-### 2.2 Lipsă Index-uri pe Tabele Critice
+### Pasul 3: Actualizare InlineAuthModal.tsx
+**Aceleași modificări pentru modal-ul de autentificare:**
 
-Tabelele mari vor avea probleme de performanță:
-- `user_tasks` (484 rows, va crește rapid)
-- `missions` (35 rows, vor fi mii)
-- `weekly_planning` (14 rows, va crește)
+- Integrare serviciu HIBP
+- Indicator vizual pentru parole compromise
+- Blocare înregistrare cu parole compromise
 
-**Recomandare**: Adăugare index-uri pe:
-```sql
-CREATE INDEX idx_user_tasks_user_week ON user_tasks(user_id, week_key);
-CREATE INDEX idx_missions_user_type ON missions(user_id, mission_type);
-CREATE INDEX idx_weekly_planning_user_week ON weekly_planning(user_id, week_key);
+---
+
+## Detalii Tehnice
+
+### Serviciu HIBP (hibpService.ts)
+```typescript
+// Algoritm k-anonymity:
+// 1. SHA-1("password123") = "CBFDAC6008F9CAB4083784CBD1874F76618D2A97"
+// 2. Trimite request: GET api.pwnedpasswords.com/range/CBFDA
+// 3. Primește lista de sufixe + count
+// 4. Caută local dacă C6008F9CAB4083784CBD1874F76618D2A97 există
 ```
 
-### 2.3 Warnings de Securitate Supabase
+### Indicator Vizual în Formular
+- **Verde**: Parola verificată, nu apare în breșe
+- **Roșu/Portocaliu**: "Această parolă a fost expusă în X breșe de securitate. Te recomandăm să alegi alta."
+- **Spinner**: "Se verifică securitatea parolei..."
 
-Linter a detectat:
-1. **Extension în Public Schema** - risc minor, de mutat
-2. **Leaked Password Protection Disabled** - CRITIC pentru 7000 useri!
-
-**Recomandare**: Activare leaked password protection în Supabase Auth settings.
-
----
-
-## 3. PROBLEME MODERATE
-
-### 3.1 Edge Functions fără Rate Limiting per User
-
-Funcții care pot fi abuzate:
-- `door-ai-planning` - 20/oră dar doar tracking simplu
-- `hormozi-coaching` - 50/oră
-- `ai-live-coaching` - 50/oră
-
-**Recomandare**: Verificare că rate_limits table funcționează corect și cleanup automat.
-
-### 3.2 Challenge Progress Scăzut
-
-```text
-Day 1: 3 users
-Day 2: 1 user
-Day 3: 1 user
-Day 4: 1 user
-Day 5: 1 user
-Day 6: 1 user
-Day 7: 0 users completed
-```
-
-**Recomandare**: Activare email recovery sequences pentru drop-offs.
-
-### 3.3 Console Warning
-
-```text
-cdn.tailwindcss.com should not be used in production
-```
-
-**Status**: Aceasta e doar în development preview, nu afectează producția.
+### Comportament
+- Verificarea se face doar la REGISTER, nu la LOGIN
+- Debounce de 500ms pentru a nu spama API-ul
+- Timeout de 3 secunde - dacă API-ul nu răspunde, permite înregistrarea (fail-open)
+- Logare event de securitate când utilizatorul ignoră avertismentul
 
 ---
 
-## 4. RECOMANDĂRI PRIORITIZATE
+## Fișiere Afectate
 
-### PRIORITATE 1 (Înainte de Lansare)
-
-| Task | Efort | Impact |
-|------|-------|--------|
-| Activare Leaked Password Protection | 5 min | CRITIC |
-| Migrare Notițe la Supabase | 2-3 ore | Mare |
-| Adăugare index-uri DB | 30 min | Mare |
-| Test load pe Edge Functions | 1 oră | Mare |
-
-### PRIORITATE 2 (Prima Săptămână)
-
-| Task | Efort | Impact |
-|------|-------|--------|
-| Migrare Jurnal la Supabase | 2 ore | Mare |
-| Implementare email recovery Challenge | 1 oră | Mare |
-| Cleanup rate_limits automat (cron) | 1 oră | Mediu |
-| Dashboard admin pentru monitorizare | 3 ore | Mediu |
-
-### PRIORITATE 3 (Luna 1)
-
-| Task | Efort | Impact |
-|------|-------|--------|
-| Sync localStorage → Cloud pentru toate features | 5-10 ore | Mare |
-| Implementare push notifications | 5 ore | Mare |
-| Caching agresiv pentru content static | 3 ore | Mediu |
+| Fișier | Acțiune |
+|--------|---------|
+| `src/services/hibpService.ts` | Nou |
+| `src/components/AuthForm.tsx` | Modificat |
+| `src/components/life-score/InlineAuthModal.tsx` | Modificat |
 
 ---
 
-## 5. CAPACITATE ESTIMATĂ
+## Mesaje UI (RO/EN)
 
-### Database
-- **Supabase Free Tier**: 500MB storage, 2GB bandwidth/month
-- **Pro Tier recomandat**: Unlimited API requests, 8GB storage
-- Cu 7000 useri activi: ~50-100 requests/user/zi = 350k-700k requests/zi
-
-### Edge Functions
-- Lovable AI Gateway: Rate limits generoase pentru funcții AI
-- ElevenLabs TTS: Verifică quota (100k chars/month pe free)
-
-### Estimare Load
-```text
-7000 useri × 20% active daily = 1400 DAU
-1400 × 50 requests/zi = 70,000 requests/zi
-= ~800 requests/oră peak (16 ore active)
-```
-
-**Concluzie**: Infrastructura actuală poate susține 7000 useri cu upgrade la Supabase Pro.
+| Context | Română | Engleză |
+|---------|--------|---------|
+| Verificare | Se verifică securitatea parolei... | Checking password security... |
+| Compromisă | Această parolă a fost expusă în breșe de securitate. Alege altă parolă. | This password has been exposed in data breaches. Choose a different password. |
+| Sigură | Parola nu apare în breșe cunoscute | Password not found in known breaches |
+| Blocare | Nu poți folosi o parolă compromisă | Cannot use a compromised password |
 
 ---
 
-## 6. CHECKLIST PRE-LANSARE
+## Beneficii
 
-```text
-[x] Adăugare index-uri DB pentru performanță (8 indexuri create)
-[x] Creare tabel notes + RLS pentru cloud sync
-[x] Migrare Notițe la Supabase cu auto-sync din localStorage
-[ ] Activare Leaked Password Protection (trebuie făcut manual în Supabase Auth)
-[ ] Verificare toate Edge Functions pornesc corect
-[ ] Test login/signup flow end-to-end
-[ ] Test Challenge Day 1-7 flow complet
-[ ] Test Door/weekly planning cu date reale
-[ ] Verificare emails se trimit (Resend)
-[ ] Backup database înainte de lansare
-[ ] Pregătire monitoring dashboard
-[ ] Contact Lovable support pentru scaling dacă e nevoie
-```
-
----
-
-## 7. DETALII TEHNICE
-
-### Structura Edge Functions
-
-| Funcție | Autentificare | Rate Limit | Status |
-|---------|---------------|------------|--------|
-| mind-coach | JWT | 50/oră | ✅ |
-| mind-coach-demo | IP | 50/oră | ✅ |
-| door-ai-planning | JWT | 20/oră | ✅ |
-| text-to-speech | JWT | 100/oră | ✅ |
-| text-to-speech-demo | IP | 100/oră | ✅ |
-| whisper-transcribe | JWT | 100/oră | ✅ |
-| hormozi-coaching | JWT | 50/oră | ✅ |
-
-### Funcții Fără Rate Limiting Explicit
-- generate-vision-board-images
-- generate-empowerment-meditation
-- life-vision-ai
-- goal-wizard-ai
-
-**Recomandare**: Adăugare rate limiting sau verificare că Lovable Gateway are limits.
-
----
-
-## CONCLUZIE
-
-Platforma este **70% ready** pentru 7000 utilizatori. Cele mai critice:
-
-1. **Activare leaked password protection** (5 minute)
-2. **Migrare Notițe la Supabase** (să nu piardă datele)
-3. **Adăugare index-uri** (performanță)
-
-Restul pot fi făcute după lansare fără a afecta experiența utilizatorilor.
+1. **Securitate sporită** - Blochează parolele cunoscute ca fiind compromise
+2. **Privacitate** - Parola nu părăsește niciodată dispozitivul (k-anonymity)
+3. **UX bun** - Verificare în timp real, feedback clar
+4. **Fail-safe** - Dacă API-ul e offline, permite înregistrarea
