@@ -212,7 +212,7 @@ export function MindCoachDemo({
   const emotionInfo = selectedEmotion ? getEmotionInfo(selectedEmotion) : null;
 
   return (
-    <Card className="flex flex-col h-[600px] bg-gradient-to-br from-background via-background to-primary/5 border-primary/20 shadow-lg shadow-primary/5">
+    <Card className="flex flex-col h-[500px] md:h-[550px] bg-gradient-to-br from-background via-background to-primary/5 border-0">
       {/* Header with phase indicator */}
       <CardHeader className="pb-2 border-b border-primary/10 shrink-0 bg-gradient-to-r from-primary/5 to-transparent">
         <div className="flex items-center justify-between mb-2">
