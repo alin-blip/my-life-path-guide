@@ -17,17 +17,7 @@ import { Helmet } from 'react-helmet-async';
 import { useChallengeStats } from '@/hooks/useChallengeStats';
 import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeCard';
 import { SocialProofBar } from '@/components/landing/SocialProofBar';
-import { MembershipUpsellCards } from '@/components/membership/MembershipUpsellCards';
 import { LandingEarlyBirdTimer } from '@/components/landing/LandingEarlyBirdTimer';
-
-// FB Pixel Lead tracking is now centralized in AuthContext
-
-interface LifeScoreData {
-  totalScore: number;
-  categoryScores: Record<string, number>;
-  answers: Record<string, number>;
-  timestamp: number;
-}
 
 const Challenge7ZileLanding = () => {
   const { language } = useLanguage();
@@ -40,35 +30,12 @@ const Challenge7ZileLanding = () => {
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [lifeScoreData, setLifeScoreData] = useState<LifeScoreData | null>(null);
-  const [showMemberships, setShowMemberships] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [realMetrics, setRealMetrics] = useState({ users: 0, completionRate: 0 });
 
   const utmSource = searchParams.get('utm_source') || '';
   const utmMedium = searchParams.get('utm_medium') || '';
   const utmCampaign = searchParams.get('utm_campaign') || '';
-  const source = searchParams.get('source') || '';
-
-  // Check for life score data from quiz
-  useEffect(() => {
-    const stored = localStorage.getItem('lifeScoreData');
-    if (stored && source === 'life-score') {
-      try {
-        const data: LifeScoreData = JSON.parse(stored);
-        // Valid for 24 hours
-        if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
-          setLifeScoreData(data);
-          setShowMemberships(true);
-        } else {
-          localStorage.removeItem('lifeScoreData');
-        }
-      } catch (e) {
-        console.error('Failed to parse life score data:', e);
-        localStorage.removeItem('lifeScoreData');
-      }
-    }
-  }, [source]);
 
   // Fetch real metrics from database
   useEffect(() => {
@@ -94,46 +61,21 @@ const Challenge7ZileLanding = () => {
     fetchMetrics();
   }, []);
 
-  // Helper function to find weakest dimension
-  const findWeakestDimension = (categoryScores: Record<string, number>): string => {
-    const dimensions: Record<string, string[]> = {
-      body: ['body'],
-      being: ['being'],
-      balance: ['balance'],
-      business: ['business']
-    };
-    
-    let weakest = 'body';
-    let minScore = Infinity;
-    
-    for (const [dim, categories] of Object.entries(dimensions)) {
-      const score = categories.reduce((sum, cat) => sum + (categoryScores[cat] || 0), 0);
-      if (score < minScore) {
-        minScore = score;
-        weakest = dim;
-      }
-    }
-    
-    return weakest;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
     setIsSubmitting(true);
     try {
-      // A/B Test Variant A: Free No Membership
+      // Save lead with free account source
       const { error } = await supabase
         .from('email_leads')
         .insert({
           email,
           name: name || null,
-          lead_magnet: 'challenge_free_no_membership',
-          source: 'ab_test_variant_a',
+          lead_magnet: 'challenge_free_account',
+          source: 'challenge-7-zile-landing',
           metadata: {
-            test_name: 'challenge_landing_ab',
-            variant: 'A',
             utm_source: utmSource,
             utm_medium: utmMedium,
             utm_campaign: utmCampaign,
@@ -145,18 +87,17 @@ const Challenge7ZileLanding = () => {
         throw error;
       }
 
-      // FB Pixel Lead is now tracked centrally in AuthContext on SIGNED_IN
-
       setIsSubscribed(true);
       toast({
-        title: language === 'en' ? '🎉 You\'re in!' : '🎉 Ești înscris!',
+        title: language === 'en' ? '🎉 Account ready!' : '🎉 Cont pregătit!',
         description: language === 'en' 
-          ? 'Redirecting to your challenge...' 
-          : 'Te redirecționăm către challenge...',
+          ? 'Redirecting to create your account...' 
+          : 'Te redirecționăm pentru a crea contul...',
       });
 
+      // Redirect to auth page for account creation
       setTimeout(() => {
-        navigate('/challenge');
+        navigate('/auth?redirect=/challenge');
       }, 1500);
     } catch (error) {
       console.error('Error saving lead:', error);
@@ -176,70 +117,70 @@ const Challenge7ZileLanding = () => {
     {
       day: 1,
       icon: Map,
-      titleEn: "Platform Tour",
-      titleRo: "Tour Platformă",
-      descEn: "Discover all the tools at your disposal",
-      descRo: "Descoperă toate instrumentele disponibile",
+      titleEn: "Vision & Declaration",
+      titleRo: "Viziune & Declarație",
+      descEn: "Napoleon Hill vision + Join community + Invite friends",
+      descRo: "Viziune Napoleon Hill + Join comunitate + Invită prieteni",
       color: "from-purple-500 to-indigo-500",
       isFree: true
     },
     {
       day: 2,
       icon: Target,
-      titleEn: "Body + Being",
-      titleRo: "Corp + Spirit",
-      descEn: "Set objectives for health & inner peace",
-      descRo: "Obiective pentru sănătate și spirit",
+      titleEn: "Body + Spirit + Relationships",
+      titleRo: "Corp + Spirit + Relații",
+      descEn: "Set objectives for all 3 personal areas",
+      descRo: "Obiective pentru toate cele 3 arii personale",
       color: "from-green-500 to-purple-500",
       isFree: true
     },
     {
       day: 3,
       icon: Target,
-      titleEn: "Balance + Business",
-      titleRo: "Relații + Business",
-      descEn: "Set objectives for relationships & career",
-      descRo: "Obiective pentru relații și carieră",
-      color: "from-pink-500 to-blue-500",
+      titleEn: "Business + Domino Door",
+      titleRo: "Business + Domino Door",
+      descEn: "Business vision + 90 days + Monthly + Weekly Door",
+      descRo: "Viziune business + 90 zile + Lunar + Door săptămânal",
+      color: "from-blue-500 to-cyan-500",
       isFree: false
     },
     {
       day: 4,
       icon: Crown,
-      titleEn: "Champion Routine",
-      titleRo: "Rutina Campionului",
-      descEn: "Configure your winning morning routine",
-      descRo: "Configurează rutina matinală câștigătoare",
+      titleEn: "Warrior Routine + Vision AI",
+      titleRo: "Rutina Warrior + Vision AI",
+      descEn: "Daily flow + AI images + Personalized meditation",
+      descRo: "Flow zilnic + Imagini AI + Meditație personalizată",
       color: "from-amber-500 to-orange-500",
       isFree: false
     },
     {
       day: 5,
       icon: Sparkles,
-      titleEn: "AI Vision",
-      titleRo: "Viziune AI",
-      descEn: "Generate images & personalized meditation",
-      descRo: "Generează imagini și meditație personalizată",
+      titleEn: "Accountability + Mind Coach",
+      titleRo: "Accountability + Mind Coach",
+      descEn: "Status check + Transform emotions into power",
+      descRo: "Status check + Transformă emoțiile în putere",
       color: "from-cyan-500 to-blue-500",
       isFree: false
     },
     {
       day: 6,
       icon: Bell,
-      titleEn: "Accountability",
-      titleRo: "Accountability",
-      descEn: "Set up your notification system",
-      descRo: "Configurează sistemul de notificări",
+      titleEn: "Idea List (Strategic Filter)",
+      titleRo: "Lista de Idei (Filtru Strategic)",
+      descEn: "Control impulse + Eisenhower classification",
+      descRo: "Controlul impulsului + Clasificare Eisenhower",
       color: "from-red-500 to-pink-500",
       isFree: false
     },
     {
       day: 7,
       icon: Trophy,
-      titleEn: "Putting It All Together",
-      titleRo: "Punem Totul Împreună",
-      descEn: "Complete recap + Premium upgrade",
-      descRo: "Recapitulare completă + Upgrade Premium",
+      titleEn: "Membership + Continuity",
+      titleRo: "Membership + Continuitate",
+      descEn: "Recap + Upgrade + Final referral push",
+      descRo: "Recapitulare + Upgrade + Invitații finale",
       color: "from-amber-500 to-yellow-600",
       isFree: false
     }
@@ -327,14 +268,14 @@ const Challenge7ZileLanding = () => {
     {
       q: language === 'en' ? "Is this really 100% free?" : "Este cu adevărat 100% gratuit?",
       a: language === 'en' 
-        ? "Yes! The first 2 days are completely free with no credit card required. After that, you can continue with a 5-day trial to experience the full platform." 
-        : "Da! Primele 2 zile sunt complet gratuite, fără card bancar. După aceea, poți continua cu un trial de 5 zile pentru a experimenta platforma completă."
+        ? "Yes! Days 1-2 are completely free with no credit card required. From Day 3, you can activate a 5-day trial to experience the full platform including Business, AI Vision, and Mind Coach." 
+        : "Da! Zilele 1-2 sunt complet gratuite, fără card bancar. Din Ziua 3, poți activa un trial de 5 zile pentru a experimenta platforma completă incluzând Business, AI Vision și Mind Coach."
     },
     {
       q: language === 'en' ? "What happens after the 7 days?" : "Ce se întâmplă după cele 7 zile?",
       a: language === 'en' 
-        ? "You can continue with the free version (limited access) or upgrade to Pro/Elite for full access to all features, live coaching and community." 
-        : "Poți continua cu versiunea gratuită (acces limitat) sau upgrade la Pro/Elite pentru acces complet la toate funcționalitățile, coaching live și comunitate."
+        ? "You can continue with the free version (Days 1-2 content) or upgrade to Pro/Elite for full access to all features, live coaching and community." 
+        : "Poți continua cu versiunea gratuită (conținutul Zilelor 1-2) sau upgrade la Pro/Elite pentru acces complet la toate funcționalitățile, coaching live și comunitate."
     },
     {
       q: language === 'en' ? "Does it work on mobile?" : "Funcționează pe mobil?",
@@ -381,13 +322,13 @@ const Challenge7ZileLanding = () => {
           <div className="max-w-4xl mx-auto text-center relative">
             <Badge className="mb-4 bg-green-500/10 text-green-600 border-green-500/30 px-4 py-1.5">
               <Gift className="h-4 w-4 mr-1.5 inline" />
-              {language === 'en' ? '🎁 100% FREE • NO CREDIT CARD' : '🎁 100% GRATUIT • FĂRĂ CARD BANCAR'}
+              {language === 'en' ? '🎁 100% FREE - INSTANT ACCOUNT' : '🎁 100% GRATUIT - CONT INSTANT'}
             </Badge>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-red-500">
               {language === 'en' 
-                ? 'Start Your 100% FREE Challenge' 
-                : 'Începe Challenge-ul 100% GRATUIT'}
+                ? 'Start Your FREE Challenge Now' 
+                : 'Începe Challenge-ul GRATUIT Acum'}
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
@@ -419,28 +360,26 @@ const Challenge7ZileLanding = () => {
               <LandingEarlyBirdTimer />
             </div>
 
-            {/* Voomly Video Embed */}
+            {/* Voomly Video Embed - Same as Homepage with Cyan Glow */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
               className="mt-6 max-w-3xl mx-auto"
             >
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-primary/20 shadow-2xl">
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.6),0_0_30px_rgba(34,211,238,0.4),0_0_60px_rgba(34,211,238,0.3),0_0_100px_rgba(34,211,238,0.2)] animate-pulse-glow">
                 <iframe 
-                  src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=Q2rPQbpGVI3G3AQChBI7EptvcVsWzFtGMVz09Gu8CDoxI1d3P&videoRatio=1.777778&type=v&skinColor=%232758EB" 
+                  src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&videoRatio=1.777778&type=v&skinColor=%232758EB&autoplay=1&loop=1&muted=1" 
                   frameBorder="0" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowFullScreen 
-                  width="100%" 
-                  height="100%"
-                  className="absolute inset-0"
+                  className="w-full h-full"
                 />
               </div>
             </motion.div>
 
-            {/* Lead Capture Form - Below Video */}
-            {!showMemberships && !isSubscribed ? (
+            {/* Lead Capture Form - Always Visible */}
+            {!isSubscribed ? (
               <Card className="max-w-md mx-auto p-6 bg-card/80 backdrop-blur border-primary/20 mt-8">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Input
@@ -465,45 +404,25 @@ const Challenge7ZileLanding = () => {
                     className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6"
                   >
                     {isSubmitting 
-                      ? (language === 'en' ? 'Starting...' : 'Se pornește...')
-                      : (language === 'en' ? 'Start NOW — It\'s Free!' : 'Începe ACUM — E Gratuit!')}
+                      ? (language === 'en' ? 'Creating account...' : 'Se creează contul...')
+                      : (language === 'en' ? 'Create Free Account & Start' : 'Creează Cont Gratuit și Începe')}
                     <Rocket className="h-5 w-5 ml-2" />
                   </Button>
                 </form>
                 <p className="text-xs text-muted-foreground mt-3 text-center">
                   {language === 'en' 
-                    ? '🔒 We respect your privacy. Unsubscribe anytime.'
-                    : '🔒 Respectăm confidențialitatea. Te poți dezabona oricând.'}
+                    ? '🔒 100% FREE • No credit card required • Start immediately'
+                    : '🔒 100% GRATUIT • Fără card bancar • Începi imediat'}
                 </p>
               </Card>
-            ) : isSubscribed ? (
+            ) : (
               <Card className="max-w-md mx-auto p-6 bg-green-500/10 border-green-500/30 mt-8">
                 <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
                 <p className="text-lg font-medium text-green-500">
-                  {language === 'en' ? 'You\'re in! Redirecting...' : 'Ești înscris! Se redirecționează...'}
+                  {language === 'en' ? 'Account ready! Redirecting...' : 'Cont pregătit! Se redirecționează...'}
                 </p>
               </Card>
-            ) : null}
-
-            {/* Button after form - scrolls to memberships */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="mt-6"
-            >
-              <Button 
-                size="lg"
-                onClick={() => {
-                  const membershipSection = document.getElementById('membership-section');
-                  membershipSection?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg px-8 py-6"
-              >
-                {language === 'en' ? 'See Subscription Plans' : 'Vezi Planurile de Abonament'}
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </Button>
-            </motion.div>
+            )}
           </div>
         </section>
 
@@ -548,8 +467,8 @@ const Challenge7ZileLanding = () => {
             </h2>
             <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
               {language === 'en'
-                ? 'Each day builds on the previous one, creating unstoppable momentum.'
-                : 'Fiecare zi construiește pe cea anterioară, creând un impuls de neoprit.'}
+                ? 'Days 1-2 are FREE. From Day 3, activate your trial to continue the transformation.'
+                : 'Zilele 1-2 sunt GRATUITE. Din Ziua 3, activează trial-ul pentru a continua transformarea.'}
             </p>
             
             <div className="space-y-3">
@@ -568,33 +487,6 @@ const Challenge7ZileLanding = () => {
                   isFree={day.isFree}
                 />
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Membership Cards Section - After 7-day journey */}
-        <section id="membership-section" className="py-16 px-4 bg-gradient-to-b from-background to-primary/5">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
-              {language === 'en' ? 'Choose Your Transformation Plan' : 'Alege Planul Tău de Transformare'}
-            </h2>
-            <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
-              {language === 'en'
-                ? 'Start with 2 FREE days, then continue with a 5-day trial. Cancel anytime.'
-                : 'Începe cu 2 zile GRATUIT, apoi continuă cu 5 zile trial. Anulezi oricând.'}
-            </p>
-            
-            <div className="bg-card rounded-2xl p-6 md:p-8 shadow-xl border border-border/50">
-              <MembershipUpsellCards 
-                source="challenge-7-zile"
-                totalScore={lifeScoreData?.totalScore}
-                weakestDimension={lifeScoreData ? findWeakestDimension(lifeScoreData.categoryScores) : undefined}
-                onContinueFree={() => {
-                  // Clear data and navigate to challenge
-                  localStorage.removeItem('lifeScoreData');
-                  navigate('/challenge');
-                }}
-              />
             </div>
           </div>
         </section>
@@ -721,12 +613,14 @@ const Challenge7ZileLanding = () => {
               size="lg"
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement | null;
-                emailInput?.focus();
+                setTimeout(() => {
+                  const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement | null;
+                  emailInput?.focus();
+                }, 500);
               }}
               className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg px-8 py-6"
             >
-              {language === 'en' ? 'Start Your FREE Challenge Now' : 'Începe Challenge-ul GRATUIT Acum'}
+              {language === 'en' ? 'Create Free Account Now' : 'Creează Cont Gratuit Acum'}
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
             
