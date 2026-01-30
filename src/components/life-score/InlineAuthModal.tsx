@@ -7,6 +7,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { usePasswordCheck, getPasswordCheckMessages } from '@/hooks/usePasswordCheck';
+import { PasswordBreachIndicator } from '@/components/auth/PasswordBreachIndicator';
+import { useSecurity } from '@/components/SecurityProvider';
 
 interface InlineAuthModalProps {
   isOpen: boolean;
@@ -30,6 +33,11 @@ export const InlineAuthModal: React.FC<InlineAuthModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
+  const { logSecurityEvent } = useSecurity();
+
+  // HIBP password breach check
+  const passwordCheckState = usePasswordCheck(password, mode === 'signup');
+  const passwordCheckMessages = getPasswordCheckMessages(language);
 
   const t = {
     title: {
@@ -86,6 +94,19 @@ export const InlineAuthModal: React.FC<InlineAuthModalProps> = ({
         title: t.errors.shortPassword,
         variant: 'destructive',
       });
+      return;
+    }
+
+    // Block signup if password is breached
+    if (mode === 'signup' && passwordCheckState.result?.isBreached) {
+      toast({
+        title: language === 'ro' ? 'Parolă compromisă' : 'Compromised password',
+        description: passwordCheckMessages.breached,
+        variant: 'destructive',
+      });
+      logSecurityEvent('Breached password registration blocked (modal)', { 
+        breachCount: passwordCheckState.result.breachCount 
+      }, 'medium');
       return;
     }
 
@@ -243,6 +264,13 @@ export const InlineAuthModal: React.FC<InlineAuthModalProps> = ({
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-1">{t.passwordHint}</p>
+            {/* HIBP Password breach indicator - only shown during signup */}
+            {mode === 'signup' && (
+              <PasswordBreachIndicator 
+                state={passwordCheckState} 
+                messages={passwordCheckMessages} 
+              />
+            )}
           </div>
 
           <Button
