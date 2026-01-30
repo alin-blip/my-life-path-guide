@@ -15,9 +15,9 @@ export function useAffiliateLink() {
       if (session?.user) {
         setUserId(session.user.id);
         
-        // Generate the referral link
-        const baseUrl = window.location.origin;
-        setReferralLink(`${baseUrl}/?ref=${session.user.id}`);
+        // Generate the referral link - ALWAYS use production domain
+        const baseUrl = 'https://warriorsos.com';
+        setReferralLink(`${baseUrl}/challenge-landing?ref=${session.user.id}`);
       }
     };
 
