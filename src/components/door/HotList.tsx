@@ -1,7 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { X, GripVertical, Search, Plus, Target, Brain, CheckCircle2, AlertTriangle, XCircle, Loader2 } from 'lucide-react';
+import { X, GripVertical, Search, Plus, Target, Brain, CheckCircle2, AlertTriangle, XCircle, Loader2, Filter, ArrowUpDown } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/context/LanguageContext';
 import { DoorEmptyState } from './DoorEmptyState';
 import { cn } from '@/lib/utils';
@@ -38,6 +46,12 @@ export const HotList: React.FC<HotListProps> = ({
   const [pendingIdea, setPendingIdea] = useState<IdeaBankItem | null>(null);
   const [showQuadrantModal, setShowQuadrantModal] = useState(false);
   
+  // Filter and sort state
+  type FilterOption = 'all' | 'reactor' | 'creator' | 'delegator' | 'unclassified';
+  type SortOption = 'newest' | 'priority' | 'alphabetical';
+  const [filterBy, setFilterBy] = useState<FilterOption>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
+  
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -56,9 +70,66 @@ export const HotList: React.FC<HotListProps> = ({
     }
   };
 
-  const filteredIdeas = ideas.filter(idea =>
-    idea.text.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter by search term and quadrant
+  const filteredIdeas = ideas.filter(idea => {
+    // Search filter
+    const matchesSearch = idea.text.toLowerCase().includes(searchTerm.toLowerCase());
+    if (!matchesSearch) return false;
+    
+    // Quadrant filter
+    if (filterBy === 'all') return true;
+    if (filterBy === 'unclassified') return idea.priority === 0;
+    if (filterBy === 'reactor') return idea.priority === 4; // Q1: Important+Urgent
+    if (filterBy === 'creator') return idea.priority === 3; // Q2: Important
+    if (filterBy === 'delegator') return idea.priority === 2; // Q3: Urgent
+    return true;
+  });
+  
+  // Sort ideas
+  const sortedIdeas = [...filteredIdeas].sort((a, b) => {
+    switch (sortBy) {
+      case 'priority':
+        return (b.priority || 0) - (a.priority || 0);
+      case 'alphabetical':
+        return a.text.localeCompare(b.text);
+      case 'newest':
+      default:
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+  });
+  
+  // Drag and drop handler
+  const handleDragEnd = useCallback((result: DropResult) => {
+    if (!result.destination) return;
+    
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+    
+    if (sourceIndex === destinationIndex) return;
+    
+    // Reorder ideas locally
+    setIdeas(prev => {
+      const reordered = [...prev];
+      const [removed] = reordered.splice(sourceIndex, 1);
+      reordered.splice(destinationIndex, 0, removed);
+      return reordered;
+    });
+  }, []);
+  
+  // Filter options config
+  const filterOptions: { value: FilterOption; label: string; emoji: string }[] = [
+    { value: 'all', label: 'Toate', emoji: '📋' },
+    { value: 'reactor', label: 'Reactor (Urgent+Important)', emoji: '⚡' },
+    { value: 'creator', label: 'Creator (Important)', emoji: '✨' },
+    { value: 'delegator', label: 'Delegator (Urgent)', emoji: '👥' },
+    { value: 'unclassified', label: 'Neclasificate', emoji: '❓' },
+  ];
+  
+  const sortOptions: { value: SortOption; label: string }[] = [
+    { value: 'newest', label: 'Cele mai noi' },
+    { value: 'priority', label: 'După prioritate' },
+    { value: 'alphabetical', label: 'Alfabetic' },
+  ];
 
   const handleAddItem = async () => {
     if (newItemText.trim() && !isAdding) {
@@ -267,9 +338,66 @@ export const HotList: React.FC<HotListProps> = ({
         </div>
       </div>
       
-      {/* Search */}
-      {filteredIdeas.length > 5 && (
-        <div className={`${isMobile ? 'mb-3' : 'mb-4'}`}>
+      {/* Filter, Sort & Search Controls */}
+      <div className={`flex items-center gap-2 flex-wrap ${isMobile ? 'mb-3' : 'mb-4'}`}>
+        {/* Filter dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+              <Filter className="w-3 h-3" />
+              <span className={isMobile ? 'hidden' : ''}>
+                {filterOptions.find(f => f.value === filterBy)?.label || 'Filtrează'}
+              </span>
+              <span className={isMobile ? '' : 'hidden'}>
+                {filterOptions.find(f => f.value === filterBy)?.emoji}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48">
+            {filterOptions.map(option => (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() => setFilterBy(option.value)}
+                className={cn(
+                  "cursor-pointer",
+                  filterBy === option.value && "bg-accent"
+                )}
+              >
+                <span className="mr-2">{option.emoji}</span>
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        {/* Sort dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+              <ArrowUpDown className="w-3 h-3" />
+              <span className={isMobile ? 'hidden' : ''}>
+                {sortOptions.find(s => s.value === sortBy)?.label || 'Sortează'}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {sortOptions.map(option => (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() => setSortBy(option.value)}
+                className={cn(
+                  "cursor-pointer",
+                  sortBy === option.value && "bg-accent"
+                )}
+              >
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        {/* Search */}
+        <div className="flex-1 min-w-0">
           {showSearch ? (
             <div className="relative">
               <Search className={`absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground ${isMobile ? 'w-3 h-3' : 'h-4 w-4'}`} />
@@ -280,7 +408,7 @@ export const HotList: React.FC<HotListProps> = ({
                 onBlur={() => !searchTerm && setShowSearch(false)}
                 autoFocus
                 className={`bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary ${
-                  isMobile ? 'pl-8 text-sm h-8' : 'pl-10'
+                  isMobile ? 'pl-8 text-sm h-8' : 'pl-10 h-8'
                 }`}
               />
               {searchTerm && (
@@ -293,148 +421,189 @@ export const HotList: React.FC<HotListProps> = ({
               )}
             </div>
           ) : (
-            <button 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setShowSearch(true)}
-              className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="h-8 gap-1.5 text-xs text-muted-foreground"
             >
               <Search className="w-3 h-3" />
               <span>{t('searchItems')}</span>
-            </button>
+            </Button>
           )}
         </div>
-      )}
-      
-      {/* Ideas List */}
-      <div className={`space-y-1 ${isMobile ? 'max-h-[calc(70vh-120px)] overflow-y-auto' : ''}`}>
-        {filteredIdeas.length > 0 ? (
-          filteredIdeas.map(idea => {
-            const isEditing = editingId === idea.id;
-            
-            return (
-              <div 
-                key={idea.id} 
-                className={cn(
-                  "group relative flex items-center gap-2 rounded-lg hover:bg-muted/50 transition-all",
-                  isMobile ? 'p-2' : 'p-2'
-                )}
-              >
-                {/* Drag handle - hidden on mobile */}
-                {!isMobile && (
-                  <div className="cursor-grab text-muted-foreground/50 group-hover:text-muted-foreground">
-                    <GripVertical className="w-4 h-4" />
-                  </div>
-                )}
-                
-                {/* Eisenhower Quadrant Badge */}
-                <EisenhowerSelector
-                  priority={idea.priority}
-                  onSelect={async (newPriority) => {
-                    // If Q4 (eliminator), confirm deletion
-                    if (newPriority === 1) {
-                      if (confirm('Această idee nu este importantă și nici urgentă. Vrei să o ștergi?')) {
-                        await handleDelete(idea.id);
-                      }
-                      return;
-                    }
-                    try {
-                      await ideasBankService.updateIdea(idea.id, { priority: newPriority });
-                      setIdeas(prev => prev.map(i => 
-                        i.id === idea.id ? { ...i, priority: newPriority } : i
-                      ));
-                    } catch (error) {
-                      console.error('Error updating priority:', error);
-                    }
-                  }}
-                  trigger={
-                    <QuadrantBadge 
-                      priority={idea.priority} 
-                      size="sm"
-                      onClick={() => {}}
-                    />
-                  }
-                />
-                
-                {/* Status badge (AI analysis) */}
-                {getStatusBadge(idea)}
-                
-                {/* Text / Edit */}
-                {isEditing ? (
-                  <Input
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleUpdateText(idea.id, editValue);
-                      } else if (e.key === 'Escape') {
-                        setEditingId(null);
-                      }
-                    }}
-                    onBlur={() => handleUpdateText(idea.id, editValue)}
-                    autoFocus
-                    className={`flex-grow bg-transparent border-none focus:ring-1 focus:ring-primary text-foreground ${
-                      isMobile ? 'p-1 text-sm h-7' : 'p-1 h-7'
-                    }`}
-                  />
-                ) : (
-                  <span 
-                    className={`flex-grow text-foreground cursor-text hover:text-primary transition-colors ${isMobile ? 'text-sm' : 'text-sm'}`}
-                    onClick={() => {
-                      setEditValue(idea.text);
-                      setEditingId(idea.id);
-                    }}
-                  >
-                    {idea.text}
-                  </span>
-                )}
-                
-                {/* Actions - visible on mobile, hover on desktop */}
-                <div className={cn(
-                  "flex items-center gap-1 transition-opacity",
-                  isMobile ? "opacity-70" : "opacity-0 group-hover:opacity-100"
-                )}>
-                  {/* Analyze button */}
-                  <button
-                    className="p-1 text-muted-foreground hover:text-primary transition-colors"
-                    title="Analizează ideea cu AI"
-                    onClick={() => handleAnalyze(idea)}
-                  >
-                    <Brain className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-                  </button>
-                  
-                  {/* Move to HIT */}
-                  <button
-                    className="p-1 text-muted-foreground hover:text-primary transition-colors"
-                    title={t('setWeeklyFocus')}
-                    onClick={() => handleMoveToHit(idea)}
-                  >
-                    <Target className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-                  </button>
-                  
-                  {/* Delete */}
-                  <button
-                    className="p-1 text-muted-foreground hover:text-destructive transition-colors"
-                    onClick={() => handleDelete(idea.id)}
-                  >
-                    <X className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-                  </button>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <DoorEmptyState 
-            onAddItem={() => inputRef.current?.focus()}
-            onAddTemplate={async (text) => {
-              const newIdea = await ideasBankService.addIdea(text, 'work', 0);
-              setIdeas(prev => [newIdea, ...prev]);
-              // Open quadrant modal for template ideas too
-              setPendingIdea(newIdea);
-              setShowQuadrantModal(true);
-            }}
-          />
-        )}
+        
+        {/* Count badge */}
+        <span className="text-xs text-muted-foreground">
+          {sortedIdeas.length} {sortedIdeas.length === 1 ? 'idee' : 'idei'}
+        </span>
       </div>
+      
+      {/* Ideas List with Drag & Drop */}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="ideas-list">
+          {(provided, snapshot) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className={cn(
+                "space-y-1",
+                isMobile ? 'max-h-[calc(70vh-180px)] overflow-y-auto' : '',
+                snapshot.isDraggingOver && 'bg-accent/20 rounded-lg'
+              )}
+            >
+              {sortedIdeas.length > 0 ? (
+                sortedIdeas.map((idea, index) => {
+                  const isEditing = editingId === idea.id;
+                  
+                  return (
+                    <Draggable key={idea.id} draggableId={idea.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div 
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={cn(
+                            "group relative flex items-center gap-2 rounded-lg hover:bg-muted/50 transition-all",
+                            isMobile ? 'p-2' : 'p-2',
+                            snapshot.isDragging && 'bg-muted shadow-lg ring-2 ring-primary/50'
+                          )}
+                        >
+                          {/* Drag handle */}
+                          <div 
+                            {...provided.dragHandleProps}
+                            className={cn(
+                              "cursor-grab text-muted-foreground/50 hover:text-muted-foreground touch-none",
+                              isMobile ? "opacity-50" : "opacity-0 group-hover:opacity-100"
+                            )}
+                          >
+                            <GripVertical className="w-4 h-4" />
+                          </div>
+                          
+                          {/* Eisenhower Quadrant Badge */}
+                          <EisenhowerSelector
+                            priority={idea.priority}
+                            onSelect={async (newPriority) => {
+                              // If Q4 (eliminator), confirm deletion
+                              if (newPriority === 1) {
+                                if (confirm('Această idee nu este importantă și nici urgentă. Vrei să o ștergi?')) {
+                                  await handleDelete(idea.id);
+                                }
+                                return;
+                              }
+                              try {
+                                await ideasBankService.updateIdea(idea.id, { priority: newPriority });
+                                setIdeas(prev => prev.map(i => 
+                                  i.id === idea.id ? { ...i, priority: newPriority } : i
+                                ));
+                              } catch (error) {
+                                console.error('Error updating priority:', error);
+                              }
+                            }}
+                            trigger={
+                              <QuadrantBadge 
+                                priority={idea.priority} 
+                                size="sm"
+                                onClick={() => {}}
+                              />
+                            }
+                          />
+                          
+                          {/* Status badge (AI analysis) */}
+                          {getStatusBadge(idea)}
+                          
+                          {/* Text / Edit */}
+                          {isEditing ? (
+                            <Input
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleUpdateText(idea.id, editValue);
+                                } else if (e.key === 'Escape') {
+                                  setEditingId(null);
+                                }
+                              }}
+                              onBlur={() => handleUpdateText(idea.id, editValue)}
+                              autoFocus
+                              className={`flex-grow bg-transparent border-none focus:ring-1 focus:ring-primary text-foreground ${
+                                isMobile ? 'p-1 text-sm h-7' : 'p-1 h-7'
+                              }`}
+                            />
+                          ) : (
+                            <span 
+                              className={`flex-grow text-foreground cursor-text hover:text-primary transition-colors ${isMobile ? 'text-sm' : 'text-sm'}`}
+                              onClick={() => {
+                                setEditValue(idea.text);
+                                setEditingId(idea.id);
+                              }}
+                            >
+                              {idea.text}
+                            </span>
+                          )}
+                          
+                          {/* Actions - visible on mobile, hover on desktop */}
+                          <div className={cn(
+                            "flex items-center gap-1 transition-opacity",
+                            isMobile ? "opacity-70" : "opacity-0 group-hover:opacity-100"
+                          )}>
+                            {/* Analyze button */}
+                            <button
+                              className="p-1 text-muted-foreground hover:text-primary transition-colors"
+                              title="Analizează ideea cu AI"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAnalyze(idea);
+                              }}
+                            >
+                              <Brain className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                            </button>
+                            
+                            {/* Move to HIT */}
+                            <button
+                              className="p-1 text-muted-foreground hover:text-primary transition-colors"
+                              title={t('setWeeklyFocus')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMoveToHit(idea);
+                              }}
+                            >
+                              <Target className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                            </button>
+                            
+                            {/* Delete */}
+                            <button
+                              className="p-1 text-muted-foreground hover:text-destructive transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(idea.id);
+                              }}
+                            >
+                              <X className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  );
+                })
+              ) : (
+                <DoorEmptyState 
+                  onAddItem={() => inputRef.current?.focus()}
+                  onAddTemplate={async (text) => {
+                    const newIdea = await ideasBankService.addIdea(text, 'work', 0);
+                    setIdeas(prev => [newIdea, ...prev]);
+                    // Open quadrant modal for template ideas too
+                    setPendingIdea(newIdea);
+                    setShowQuadrantModal(true);
+                  }}
+                />
+              )}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       {/* Quadrant Classification Modal */}
       <IdeaQuadrantModal
