@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { X, GripVertical, Search, Plus, Target, Brain, CheckCircle2, AlertTriangle, XCircle, Loader2, Filter, ArrowUpDown } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { X, GripVertical, Search, Plus, Target, Brain, CheckCircle2, AlertTriangle, XCircle, Loader2, Filter, ArrowUpDown, Trash2, CheckSquare } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import {
   DropdownMenu,
@@ -50,6 +51,10 @@ export const HotList: React.FC<HotListProps> = ({
   type FilterOption = 'all' | 'reactor' | 'creator' | 'delegator' | 'unclassified';
   type SortOption = 'newest' | 'priority' | 'alphabetical';
   const [filterBy, setFilterBy] = useState<FilterOption>('all');
+  
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   
   const inputRef = useRef<HTMLInputElement>(null);
@@ -115,6 +120,52 @@ export const HotList: React.FC<HotListProps> = ({
       return reordered;
     });
   }, []);
+  
+  // Bulk selection handlers
+  const toggleSelection = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+  
+  const selectAll = useCallback(() => {
+    setSelectedIds(new Set(sortedIdeas.map(i => i.id)));
+  }, [sortedIdeas]);
+  
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+    setIsSelectionMode(false);
+  }, []);
+  
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+    
+    const count = selectedIds.size;
+    if (!confirm(`Sigur vrei să ștergi ${count} ${count === 1 ? 'idee' : 'idei'}?`)) return;
+    
+    try {
+      await Promise.all([...selectedIds].map(id => ideasBankService.deleteIdea(id)));
+      setIdeas(prev => prev.filter(idea => !selectedIds.has(idea.id)));
+      toast({
+        title: `🗑️ ${count} ${count === 1 ? 'idee ștearsă' : 'idei șterse'}`,
+        description: "Ideile au fost eliminate",
+      });
+      clearSelection();
+    } catch (error) {
+      console.error('Error bulk deleting ideas:', error);
+      toast({
+        title: '⚠️ Eroare',
+        description: 'Nu s-au putut șterge toate ideile',
+        variant: 'destructive',
+      });
+    }
+  }, [selectedIds, toast, clearSelection]);
   
   // Filter options config
   const filterOptions: { value: FilterOption; label: string; emoji: string }[] = [
@@ -407,7 +458,7 @@ export const HotList: React.FC<HotListProps> = ({
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onBlur={() => !searchTerm && setShowSearch(false)}
                 autoFocus
-                className={`bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary ${
+                className={`bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary text-foreground placeholder:text-muted-foreground ${
                   isMobile ? 'pl-8 text-sm h-8' : 'pl-10 h-8'
                 }`}
               />
@@ -433,11 +484,80 @@ export const HotList: React.FC<HotListProps> = ({
           )}
         </div>
         
+        {/* Bulk selection toggle */}
+        <Button
+          variant={isSelectionMode ? "secondary" : "ghost"}
+          size="sm"
+          onClick={() => {
+            if (isSelectionMode) {
+              clearSelection();
+            } else {
+              setIsSelectionMode(true);
+            }
+          }}
+          className="h-8 gap-1.5 text-xs"
+          title="Selectare multiplă"
+        >
+          <CheckSquare className="w-3 h-3" />
+          {!isMobile && <span>Selectează</span>}
+        </Button>
+        
         {/* Count badge */}
         <span className="text-xs text-muted-foreground">
           {sortedIdeas.length} {sortedIdeas.length === 1 ? 'idee' : 'idei'}
         </span>
       </div>
+      
+      {/* Bulk actions bar */}
+      {isSelectionMode && (
+        <div className={`flex items-center gap-2 p-2 mb-3 rounded-lg bg-muted/50 border border-border ${isMobile ? 'flex-wrap' : ''}`}>
+          <Checkbox
+            checked={selectedIds.size === sortedIdeas.length && sortedIdeas.length > 0}
+            onCheckedChange={(checked) => {
+              if (checked) {
+                selectAll();
+              } else {
+                setSelectedIds(new Set());
+              }
+            }}
+          />
+          <span className="text-sm text-muted-foreground">
+            {selectedIds.size} selectate
+          </span>
+          
+          <div className="flex-1" />
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={selectAll}
+            className="h-7 text-xs"
+            disabled={selectedIds.size === sortedIdeas.length}
+          >
+            Selectează toate
+          </Button>
+          
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleBulkDelete}
+            disabled={selectedIds.size === 0}
+            className="h-7 gap-1 text-xs"
+          >
+            <Trash2 className="w-3 h-3" />
+            Șterge ({selectedIds.size})
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearSelection}
+            className="h-7 text-xs"
+          >
+            Anulează
+          </Button>
+        </div>
+      )}
       
       {/* Ideas List with Drag & Drop */}
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -468,16 +588,28 @@ export const HotList: React.FC<HotListProps> = ({
                             snapshot.isDragging && 'bg-muted shadow-lg ring-2 ring-primary/50'
                           )}
                         >
+                          {/* Selection checkbox (when in selection mode) */}
+                          {isSelectionMode && (
+                            <Checkbox
+                              checked={selectedIds.has(idea.id)}
+                              onCheckedChange={() => toggleSelection(idea.id)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="shrink-0"
+                            />
+                          )}
+                          
                           {/* Drag handle */}
-                          <div 
-                            {...provided.dragHandleProps}
-                            className={cn(
-                              "cursor-grab text-muted-foreground/50 hover:text-muted-foreground touch-none",
-                              isMobile ? "opacity-50" : "opacity-0 group-hover:opacity-100"
-                            )}
-                          >
-                            <GripVertical className="w-4 h-4" />
-                          </div>
+                          {!isSelectionMode && (
+                            <div 
+                              {...provided.dragHandleProps}
+                              className={cn(
+                                "cursor-grab text-muted-foreground/50 hover:text-muted-foreground touch-none",
+                                isMobile ? "opacity-50" : "opacity-0 group-hover:opacity-100"
+                              )}
+                            >
+                              <GripVertical className="w-4 h-4" />
+                            </div>
+                          )}
                           
                           {/* Eisenhower Quadrant Badge */}
                           <EisenhowerSelector
