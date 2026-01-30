@@ -1,263 +1,251 @@
 
-# Audit: Salvare Date în Cloud (Supabase) - Platforma Life Path Guide
 
-## Executive Summary
+# Mind Coach Transform Landing Page - PRO & ELITE Focus
 
-Am analizat codul sursă și am identificat **starea actuală a persistenței datelor**. Platforma folosește un sistem hibrid: unele funcționalități salvează în cloud (Supabase), altele doar local (localStorage), iar altele folosesc ambele cu sincronizare parțială.
-
----
-
-## Status Curent - Ce SE Salvează în Cloud ✅
-
-### 1. Door System (Sarcini zilnice)
-| Componentă | Tabel Supabase | Status |
-|------------|----------------|--------|
-| HIT List (sarcini importante) | `user_tasks` | ✅ Salvat cloud |
-| DO List (sarcini de făcut) | `user_tasks` | ✅ Salvat cloud |
-| Weekly Plan (Domino + Key Points) | `weekly_planning` | ✅ Salvat cloud |
-| Ideas Bank (Idei) | `ideas_bank` | ✅ Salvat cloud |
-
-**Servicii folosite:** `doorUserTasksService.ts`, `weeklyPlanningService.ts`, `ideasBankService.ts`
-
-### 2. Mind Coach & Stacks
-| Componentă | Tabel Supabase | Status |
-|------------|----------------|--------|
-| Breakthrough logs | `breakthrough_logs` | ✅ Salvat cloud |
-| Stack Sessions | `stack_sessions` | ✅ Salvat cloud |
-| Stack Library | `stack_library` | ✅ Salvat cloud |
-
-### 3. Master Plan / Napoleon Hill
-| Componentă | Tabel Supabase | Status |
-|------------|----------------|--------|
-| Proiecte | `napoleon_hill_projects` | ✅ Salvat cloud |
-| Drafturi principii | `napoleon_hill_principle_drafts` | ✅ Salvat cloud |
-| Backups | `napoleon-hill-backups` bucket | ✅ Salvat cloud |
-
-### 4. Fitness & Workout
-| Componentă | Tabel Supabase | Status |
-|------------|----------------|--------|
-| Workout Sessions | `workout_sessions` | ✅ Salvat cloud |
-| Workout Programs | `workout_programs` | ✅ Salvat cloud |
-
-### 5. User Progress
-| Componentă | Tabel Supabase | Status |
-|------------|----------------|--------|
-| Daily tracking | `daily_tracking` | ✅ Salvat cloud |
-| Journal entries | `daily_progress` | ✅ Salvat cloud (când user e autentificat) |
-| XP / Achievements | `user_xp`, `user_achievements` | ✅ Salvat cloud |
-| Time entries | `time_entries` | ✅ Salvat cloud |
-| Weekly objectives | `objectives` | ✅ Salvat cloud |
-
-### 6. Reality Map / Fact Maps
-| Componentă | Tabel Supabase | Status |
-|------------|----------------|--------|
-| Reality Map scores | `fact_maps` (category='reality-scores') | ✅ Salvat cloud |
-| Warrior Power results | `warrior_power_results` | ✅ Salvat cloud |
+## Obiectiv Principal
+Creez un landing page high-conversion `/mind-coach-transform` care oferă test gratuit complet pe UN feeling, apoi prezintă 2 planuri (PRO €97 și ELITE €297) cu Challenge-ul de 7 zile ca BONUS exclusiv.
 
 ---
 
-## PROBLEME CRITICE - Ce NU se salvează în cloud 🔴
+## Flow Utilizator
 
-### 1. ThreeStepSystem (Annual Goals & Monthly Missions)
-
-**Locație:** `src/components/mission/ThreeStepSystem.tsx`
-
-**Problema:** Răspunsurile la întrebările anuale și misiunile lunare se salvează DOAR în localStorage:
-
-```typescript
-// Linia 60-61 - DOAR localStorage
-function saveAnnualGoalAnswers(category, language, answers) {
-  localStorage.setItem(getAnnualGoalAnswersKey(category, language), JSON.stringify(answers));
-}
-
-// Linia 74-76 - DOAR localStorage  
-function saveMonthlyMissionAnswers(category, language, answers) {
-  localStorage.setItem(getMonthlyMissionAnswersKey(category, language), JSON.stringify(answers));
-}
-
-// Linia 140-141 - Citește din localStorage
-const storedMissions = JSON.parse(localStorage.getItem('monthlyMissions') || '[]');
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  1. HERO - Dynamic based on ?emotion= param                     │
+│     "Transform [Procrastinare/Frici/Blocaj] in 5 Minutes"       │
+├─────────────────────────────────────────────────────────────────┤
+│  2. TEST GRATUIT - 1 Feeling Complet (AI Real, No Limit)        │
+│     - Alege emoție (pre-selectată din URL param)                │
+│     - Slider intensitate                                        │
+│     - Chat AI complet până la breakthrough                      │
+├─────────────────────────────────────────────────────────────────┤
+│  3. BREAKTHROUGH → BLUR OVERLAY                                  │
+│                                                                 │
+│     ✨ Ready to take control?                                   │
+│     Unlock your full potential with 7-days trial now.           │
+│                                                                 │
+│     [🚀 UNLOCK MY MIND COACH NOW]                               │
+├─────────────────────────────────────────────────────────────────┤
+│  4. CHALLENGE BONUS - BEAUTIFUL UI (7 Days Pain → Pleasure)    │
+│                                                                 │
+│     🎁 BONUS: 7-Day Transformation Challenge                    │
+│     (Sign up TODAY and get it FREE!)                            │
+│                                                                 │
+│     [7 Cards: Day 1-7 with Pain ❌ → Pleasure ✅]               │
+├─────────────────────────────────────────────────────────────────┤
+│  5. MEMBERSHIP CARDS - PRO & ELITE ONLY                         │
+│                                                                 │
+│     ┌─────────────────┐    ┌─────────────────┐                 │
+│     │  👑 PRO         │    │  💎 ELITE       │                 │
+│     │  €97/mo         │    │  €297/mo        │                 │
+│     │  (€197 normal)  │    │  (€500 normal)  │                 │
+│     │                 │    │                 │                 │
+│     │  7-Day Trial    │    │  7-Day Trial    │                 │
+│     │  Mind Coach ∞   │    │  Everything PRO │                 │
+│     │  LIVE Coaching  │    │  + Accelerator  │                 │
+│     │  50% Referral   │    │  + 1-on-1 Coach │                 │
+│     │                 │    │  (€1000 value)  │                 │
+│     │  [START TRIAL]  │    │  [GO ELITE]     │                 │
+│     └─────────────────┘    └─────────────────┘                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-**Impact:** Utilizatorii PIERD Annual Goals și Monthly Missions dacă:
-- Schimbă browser-ul
-- Curăță cache-ul
-- Folosesc alt dispozitiv
+---
 
-### 2. FactMaps Content - Răspunsuri la întrebări
+## Challenge Bonus Section - PAIN → PLEASURE Copy
 
-**Locație:** `src/components/FactMapsContent.tsx` (liniile 227-242)
+Fiecare zi cu design vizual compelling:
 
-**Problema:** Răspunsurile la întrebările din Fact Maps se salvează DOAR în localStorage:
+### Day 1: Viziune și Declarație
+| Element | Content |
+|---------|---------|
+| **Durere ❌** | Te trezești dimineața fără să știi CE vrei și DE CE contează. Energia se risipește. |
+| **Acțiune 🎯** | Scrii Declarația ta oficială pentru Corp, Spirit, Relații și Business. |
+| **Plăcere ✅** | Claritate cristalină. Fiecare decizie devine simplă când știi exact unde mergi. |
 
-```typescript
-// Linia 227 - Citește din localStorage
-const savedAnswers = localStorage.getItem(answerKey);
+### Day 2-3: Obiective Complete
+| Element | Content |
+|---------|---------|
+| **Durere ❌** | Confuzie și haos. Visele rămân vise, lunile trec, nimic nu se schimbă real. |
+| **Acțiune 🎯** | Obiective anuale → 90 zile → lunar → săptămânal. Plan structurat. |
+| **Plăcere ✅** | Eliminarea completă a confuziei. Știi EXACT ce ai de făcut în fiecare zi. |
 
-// Linia 242 - Salvează în localStorage
-localStorage.setItem('factMaps', JSON.stringify(updatedMaps));
-```
+### Day 4: Rutina Campionului
+| Element | Content |
+|---------|---------|
+| **Durere ❌** | "Nu am chef" e scuza zilnică. Dimineața haotică, seara te întrebi ce ai făcut. |
+| **Acțiune 🎯** | Morning Stack: Intenție → Centrare → Recunoștință → Putere → Plan → Angajament. |
+| **Plăcere ✅** | Fiecare dimineață începi cu ENERGIE și FOCUS. Motivația nu mai e opțională. |
 
-**Notă:** Serviciul `factMapService.ts` ARE integrare cu Supabase, dar componenta NU îl folosește corect pentru răspunsuri.
+### Day 5: Viziune AI
+| Element | Content |
+|---------|---------|
+| **Durere ❌** | Mintea nu urmărește ce nu poate vedea. Motivația scade în timp fără vizualizare. |
+| **Acțiune 🎯** | AI generează imagini pentru obiective + meditație ghidată personalizată. |
+| **Plăcere ✅** | Subconștientul lucrează pentru tine 24/7. Viziunea devine mai reală în fiecare zi. |
 
-### 3. DoorStorageManager - Backup-uri Locale
+### Day 6: Accountability
+| Element | Content |
+|---------|---------|
+| **Durere ❌** | Singur cedezi. 92% din obiective eșuează pentru că nimeni nu te ține responsabil. |
+| **Acțiune 🎯** | Notificări, remindere + partener accountability din comunitate. |
+| **Plăcere ✅** | Nu mai poți fugi de tine. Sistemul te împinge înainte când mintea vrea să renunțe. |
 
-**Locație:** `src/services/doorStorageManager.ts`
-
-**Problema:** Manager-ul face backup-uri DOAR în localStorage (liniile 130-175):
-
-```typescript
-// Salvează în localStorage, nu în cloud
-localStorage.setItem('door-hot-list', JSON.stringify(data.hotList));
-localStorage.setItem(`${this.backupPrefix}hot-list-${Date.now()}`, JSON.stringify(hotListBackup));
-```
-
-**Impact:** Backup-urile automate se pierd la ștergerea cache-ului.
-
-### 4. Champion Routine Progress
-
-**Locație:** `src/components/champion-routine/ChampionRoutineFlow.tsx`
-
-**Problema:** Progresul în rutina de dimineață se salvează DOAR local:
-
-```typescript
-// Linia 462-463
-localStorage.setItem(routineProgressKey, JSON.stringify({
-  stepIndex,
-  lastUpdate: Date.now()
-}));
-```
-
-### 5. Morning Routine Items Order
-
-**Locație:** `src/components/daily-flow/MorningRoutineStep.tsx`
-
-**Problema:** Ordinea rutinei de dimineață = DOAR localStorage.
-
-### 6. Onboarding Status
-
-**Locație:** `src/components/door/WeeklySection.tsx`, `src/components/focus/WelcomeVisionModal.tsx`
-
-**Problema:** Status-ul de onboarding = DOAR localStorage.
-
-### 7. Stack Preferences (Audio Voice)
-
-**Locație:** `src/components/stack/AiGuidedStack.tsx`
-
-**Problema:** Preferința de voce TTS = DOAR localStorage:
-
-```typescript
-localStorage.getItem('preferred-tts-voice')
-localStorage.setItem('preferred-tts-voice', voiceId);
-```
-
-### 8. Sound Settings
-
-**Locație:** `src/hooks/useSoundSettings.tsx`
-
-**Problema:** Setările de sunet = DOAR localStorage.
+### Day 7: Integrare Completă
+| Element | Content |
+|---------|---------|
+| **Durere ❌** | Ai piesele dar nu funcționează împreună. Fără integrare, totul se destramă. |
+| **Acțiune 🎯** | Conectare Corp → Spirit → Relații → Business într-un ciclu virtuos. |
+| **Plăcere ✅** | CICLUL VIRTUOS activat: Corp puternic → Minte clară → Relații armonioase → Business în creștere. |
 
 ---
 
-## Probleme de Sincronizare (Hibrid dar incomplet) 🟡
+## PRO vs ELITE Comparison - Value-First Copy
 
-### 1. JournalWidget - Fallback la localStorage
+### PRO (€97/lună - Early Bird)
+**Preț normal: €197/lună (economisești €100)**
 
-**Locație:** `src/components/dashboard/widgets/JournalWidget.tsx`
+| Benefit | What You Get |
+|---------|--------------|
+| Mind Coach AI | Sesiuni nelimitate de transformare emoțională |
+| LIVE Coaching | Săptămânal cu Alin Radu (Q&A, strategie, accountability) |
+| Comunitate VIP | Acces la membership Pro - networking cu antreprenori |
+| Sprint 90 Zile | KPIs clare, tracking, suport |
+| Referral Program | **50% comision RECURENT** pe fiecare referral |
+| 7-Day Challenge | **BONUS** - Transformare completă în 7 zile |
 
-**Comportament:**
-- Dacă user autentificat → salvează în Supabase ✅
-- Dacă user neautentificat → salvează în localStorage ⚠️
+**CTA:** "ÎNCEPE 7 ZILE TRIAL GRATUIT"
 
-**Problema:** Datele din localStorage NU se sincronizează când user-ul se autentifică.
+### ELITE (€297/lună - Early Bird)
+**Preț normal: €500/lună (economisești €203)**
+**Include: Warrior Launch Accelerator (€1000/lună valoare)**
 
-### 2. Divine Coaching / Gratitude Stack - Emergency Saves
+| Benefit | What You Get |
+|---------|--------------|
+| Tot din PRO | Mind Coach, LIVE Coaching, Comunitate, Sprint, Referral |
+| Warrior Accelerator | 47+ lecții video premium (valoare €497 standalone) |
+| 1-on-1 Coaching | 30 min lunar cu Alin - plan personalizat |
+| Coach Dashboard | Gestionează clienți, construiește tribul tău |
+| Framework 90 Zile | Implementare pas-cu-pas cu suport dedicat |
+| 7-Day Challenge | **BONUS** - Transformare completă în 7 zile |
 
-**Locații:** 
-- `src/components/stack/divine-stack/useDivinePrayerStack.tsx`
-- `src/components/stack/gratitude-stack/useGratitudeStack.tsx`
+**Value Stack:**
+- Warrior Accelerator: €497/one-time
+- Weekly Coaching Access: ~€400/mo value
+- 1-on-1 Monthly Session: €200/mo value
+- **TOTAL VALUE: €1,097+/mo**
+- **YOU PAY: €297/mo (73% saving)**
 
-**Comportament:** Salvează în localStorage ca "emergency backup":
+**CTA:** "ALEGE ELITE - TRANSFORMARE COMPLETĂ"
+
+---
+
+## UI/UX Design - Premium Feel
+
+### Color Scheme
+- PRO Card: Gradient `from-primary/10 to-purple-500/10`, border `primary/30`
+- ELITE Card: Gradient `from-amber-500/10 to-orange-500/10`, border `amber-500/30`, glow effect
+- Challenge Days: Alternating gradients pentru pain (red/gray) și pleasure (green/emerald)
+
+### Animations
+- Blur overlay smooth fade-in după breakthrough
+- Staggered reveal pentru Challenge days (0.1s delay fiecare)
+- Hover scale (1.02) pe pricing cards
+- Parallax subtle pe background elements
+
+### Mobile Optimizations
+- Cards stacked vertical
+- Challenge days collapsed accordion pe mobile
+- Sticky CTA button la bottom
+- Swipe gestures pentru testimoniale
+
+---
+
+## Fișiere de Creat
+
+| Fișier | Descriere |
+|--------|-----------|
+| `src/pages/MindCoachLanding.tsx` | Landing page principal |
+| `src/components/mind-coach/MindCoachDemo.tsx` | Demo wrapper fără auth |
+| `src/components/mind-coach/BreakthroughOverlay.tsx` | Blur modal post-breakthrough |
+| `src/components/mind-coach/ChallengeBonusSection.tsx` | 7-Day Challenge UI compelling |
+| `src/components/mind-coach/MindCoachPricingCards.tsx` | PRO + ELITE cards |
+| `src/hooks/useMindCoachDemo.ts` | Hook pentru demo API |
+| `supabase/functions/mind-coach-demo/index.ts` | Edge function publică |
+
+## Fișiere de Modificat
+
+| Fișier | Modificare |
+|--------|------------|
+| `src/App.tsx` | Adaug ruta `/mind-coach-transform` |
+| `supabase/config.toml` | `[functions.mind-coach-demo]` cu `verify_jwt = false` |
+
+---
+
+## Edge Function - mind-coach-demo
+
+Public endpoint pentru demo fără autentificare:
 
 ```typescript
-localStorage.setItem(`emergency-divine-${sessionId}`, JSON.stringify(emergencyData));
+// supabase/functions/mind-coach-demo/index.ts
+// - verify_jwt = false în config.toml
+// - NU citește context user din DB
+// - NU persistă breakthrough (demo only)
+// - Rate limiting: 50 messages/IP/hour
+// - Tools disponibile dar non-persistente
 ```
 
-**Problema:** Emergency saves NU se sincronizează ulterior cu cloud-ul.
+---
+
+## Copy Final - Breakthrough Overlay
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│  🎉 Congratulations!                                            │
+│                                                                 │
+│  You just discovered what's been holding you back.             │
+│                                                                 │
+│  Imagine what's possible when you unlock your full             │
+│  personalized Mind Coach experience—continuous support,         │
+│  clarity, and momentum created just for you.                    │
+│                                                                 │
+│  ✨ Ready to take control?                                      │
+│  Unlock your full potential with 7-days trial now.             │
+│                                                                 │
+│  ┌───────────────────────────────────────────────────────────┐ │
+│  │  🚀 UNLOCK MY MIND COACH NOW                              │ │
+│  └───────────────────────────────────────────────────────────┘ │
+│                                                                 │
+│  or                                                             │
+│                                                                 │
+│  ┌───────────────────────────────────────────────────────────┐ │
+│  │  🧠 START MY TRANSFORMATION                               │ │
+│  └───────────────────────────────────────────────────────────┘ │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Tabele Supabase Existente (pentru referință)
+## Tracking & Analytics
 
-Tabele relevante care EXISTĂ și ar trebui folosite:
-
-| Tabel | Scop |
-|-------|------|
-| `missions` | Pentru Annual Goals / Monthly Missions |
-| `objectives` | Deja folosit pentru Weekly Objectives |
-| `user_preferences` | Pentru setări utilizator (sunet, voce, etc.) |
-| `fact_maps` | Deja folosit dar incomplet |
-| `onboarding_progress` | Pentru status onboarding |
-| `champion_routine_settings` | Pentru setări rutină |
+- FB Pixel: `Lead` la breakthrough complet
+- Event: `mind_coach_demo_completed`
+- UTM params preserved: `?emotion=`, `?utm_source=`, etc.
+- Lead capture în `email_leads` cu `lead_magnet: 'mind_coach_transform'`
 
 ---
 
-## Plan de Remediere
+## Implementare
 
-### Prioritate CRITICĂ (Date utilizator pierdute)
+1. Creez edge function `mind-coach-demo` (public, fără auth)
+2. Creez `useMindCoachDemo` hook
+3. Creez `MindCoachDemo.tsx` wrapper
+4. Creez `BreakthroughOverlay.tsx` cu blur effect
+5. Creez `ChallengeBonusSection.tsx` cu 7-day Pain→Pleasure cards
+6. Creez `MindCoachPricingCards.tsx` cu PRO + ELITE
+7. Creez `MindCoachLanding.tsx` - assembly complet
+8. Adaug ruta în App.tsx
+9. Test flow: demo → breakthrough → overlay → signup → checkout
 
-| # | Componentă | Soluție | Efort | Status |
-|---|-----------|---------|-------|--------|
-| 1 | ThreeStepSystem | Migrare la tabel `missions` | 🔴 Mare | ✅ DONE |
-| 2 | FactMaps Answers | Folosește `saveFactMapGoalAnswers` din service | 🟡 Mediu | ✅ DONE |
-| 3 | JournalWidget Sync | Migrare localStorage → Supabase la login | 🟡 Mediu | 🔜 Pending |
-
-### Prioritate MEDIE (Preferințe pierdute)
-
-| # | Componentă | Soluție | Efort | Status |
-|---|-----------|---------|-------|--------|
-| 4 | Sound Settings | Salvare în `user_preferences` | 🟢 Mic | ✅ DONE |
-| 5 | TTS Voice Preference | Salvare în `user_preferences` | 🟢 Mic | ✅ DONE (via userPreferencesService) |
-| 6 | Onboarding Status | Salvare în `onboarding_progress` | 🟢 Mic | ✅ DONE (via userPreferencesService) |
-| 7 | Morning Routine Order | Salvare în `champion_routine_settings` | 🟢 Mic | 🔜 Pending |
-
-### Prioritate SCĂZUTĂ (Nice to have)
-
-| # | Componentă | Soluție | Efort |
-|---|-----------|---------|-------|
-| 8 | Emergency Saves Sync | Background sync când user revine online | 🟡 Mediu |
-| 9 | Champion Routine Progress | Sync cu `champion_routine_logs` | 🟡 Mediu |
-
----
-
-## Recomandare Imediată
-
-**Pasul 1:** Creez un serviciu `userPreferencesService.ts` care:
-- Salvează preferințele în `user_preferences` 
-- Fallback la localStorage pentru useri neautentificați
-- Sincronizare automată la autentificare
-
-**Pasul 2:** Migrez ThreeStepSystem pentru:
-- Salvare Annual Goals în `missions` (type='annual')
-- Salvare Monthly Missions în `missions` (type='monthly')
-- Sync bidirectional cu localStorage
-
-**Pasul 3:** Fix FactMapsContent:
-- Înlocuiesc localStorage cu apeluri la `factMapService.saveFactMapGoalAnswers()`
-
----
-
-## Rezumat
-
-| Categorie | Count | Status |
-|-----------|-------|--------|
-| Funcționalități cu cloud COMPLET | 15+ | ✅ OK |
-| Funcționalități cu cloud PARȚIAL | 3 | 🟡 Necesită sync |
-| Funcționalități DOAR localStorage | 8 | 🔴 CRITIC |
-
-**Concluzie:** Aproximativ **80%** din funcționalitățile critice SE SALVEAZĂ în cloud corect. Problemele principale sunt în:
-1. Annual Goals & Monthly Missions (ThreeStepSystem)
-2. FactMaps răspunsuri
-3. Preferințe utilizator (sunet, voce, onboarding)
-
-Dorești să implementez remedierea pentru aceste probleme?
