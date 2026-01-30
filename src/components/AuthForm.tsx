@@ -9,6 +9,8 @@ import { lovable } from '@/integrations/lovable';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSecurity } from './SecurityProvider';
 import { SecureInput } from './SecureInput';
+import { usePasswordCheck, getPasswordCheckMessages } from '@/hooks/usePasswordCheck';
+import { PasswordBreachIndicator } from '@/components/auth/PasswordBreachIndicator';
 
 const AUTH_TIMEOUT_MS = 12000; // 12 second timeout for auth operations
 
@@ -45,6 +47,10 @@ export const AuthForm: React.FC = () => {
   const { toast } = useToast();
   const { language } = useLanguage();
   const { validateEmail, logSecurityEvent } = useSecurity();
+  
+  // HIBP password breach check
+  const passwordCheckState = usePasswordCheck(password, mode === AuthMode.REGISTER);
+  const passwordCheckMessages = getPasswordCheckMessages(language as 'en' | 'ro');
   
   // Check for vision plan flow
   const isVisionPlanFlow = searchParams.get('from') === 'vision-plan';
@@ -212,6 +218,19 @@ export const AuthForm: React.FC = () => {
             description: language === 'en' ? "Password must be at least 8 characters long." : "Parola trebuie să aibă cel puțin 8 caractere.",
             variant: "destructive",
           });
+          return;
+        }
+
+        // Block registration if password is breached
+        if (passwordCheckState.result?.isBreached) {
+          toast({
+            title: language === 'en' ? "Compromised password" : "Parolă compromisă",
+            description: passwordCheckMessages.breached,
+            variant: "destructive",
+          });
+          logSecurityEvent('Breached password registration blocked', { 
+            breachCount: passwordCheckState.result.breachCount 
+          }, 'medium');
           return;
         }
 
@@ -471,6 +490,13 @@ export const AuthForm: React.FC = () => {
                 )}
               </button>
             </div>
+            {/* HIBP Password breach indicator - only shown during registration */}
+            {mode === AuthMode.REGISTER && (
+              <PasswordBreachIndicator 
+                state={passwordCheckState} 
+                messages={passwordCheckMessages} 
+              />
+            )}
           </div>
         )}
 
