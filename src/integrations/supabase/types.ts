@@ -3946,6 +3946,10 @@ export type Database = {
           dashboard_widgets: Json | null
           id: string
           language: string | null
+          onboarding_completed: Json | null
+          preferred_tts_voice: string | null
+          sound_muted: boolean | null
+          sound_volume: number | null
           updated_at: string | null
           user_id: string
         }
@@ -3954,6 +3958,10 @@ export type Database = {
           dashboard_widgets?: Json | null
           id?: string
           language?: string | null
+          onboarding_completed?: Json | null
+          preferred_tts_voice?: string | null
+          sound_muted?: boolean | null
+          sound_volume?: number | null
           updated_at?: string | null
           user_id: string
         }
@@ -3962,6 +3970,10 @@ export type Database = {
           dashboard_widgets?: Json | null
           id?: string
           language?: string | null
+          onboarding_completed?: Json | null
+          preferred_tts_voice?: string | null
+          sound_muted?: boolean | null
+          sound_volume?: number | null
           updated_at?: string | null
           user_id?: string
         }

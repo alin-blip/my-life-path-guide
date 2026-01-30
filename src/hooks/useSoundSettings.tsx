@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { getSoundSettings, updateSoundSettings, syncLocalPreferencesToCloud } from '@/services/userPreferencesService';
+import { supabase } from '@/integrations/supabase/client';
 
 const SOUND_SETTINGS_KEY = 'rowarrior-sound-settings';
 
@@ -14,6 +16,7 @@ const defaultSettings: SoundSettings = {
 
 export function useSoundSettings() {
   const [settings, setSettings] = useState<SoundSettings>(() => {
+    // Initial load from localStorage for instant UI
     try {
       const saved = localStorage.getItem(SOUND_SETTINGS_KEY);
       return saved ? JSON.parse(saved) : defaultSettings;
@@ -21,18 +24,78 @@ export function useSoundSettings() {
       return defaultSettings;
     }
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Load from cloud on mount
   useEffect(() => {
-    localStorage.setItem(SOUND_SETTINGS_KEY, JSON.stringify(settings));
-  }, [settings]);
+    let isMounted = true;
+    
+    const loadSettings = async () => {
+      try {
+        const cloudSettings = await getSoundSettings();
+        if (isMounted) {
+          setSettings(cloudSettings);
+          // Also update localStorage for offline access
+          localStorage.setItem(SOUND_SETTINGS_KEY, JSON.stringify(cloudSettings));
+        }
+      } catch (error) {
+        console.warn('Failed to load sound settings from cloud:', error);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+    
+    loadSettings();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Sync preferences when auth state changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        syncLocalPreferencesToCloud();
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Debounced save to cloud
+  const saveToCloud = useCallback((newSettings: SoundSettings) => {
+    // Always save to localStorage immediately
+    localStorage.setItem(SOUND_SETTINGS_KEY, JSON.stringify(newSettings));
+    
+    // Debounce cloud save
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    saveTimeoutRef.current = setTimeout(() => {
+      updateSoundSettings(newSettings.muted, newSettings.volume).catch(err => {
+        console.warn('Failed to save sound settings to cloud:', err);
+      });
+    }, 500);
+  }, []);
 
   const toggleMute = useCallback(() => {
-    setSettings(prev => ({ ...prev, muted: !prev.muted }));
-  }, []);
+    setSettings(prev => {
+      const updated = { ...prev, muted: !prev.muted };
+      saveToCloud(updated);
+      return updated;
+    });
+  }, [saveToCloud]);
 
   const setVolume = useCallback((volume: number) => {
-    setSettings(prev => ({ ...prev, volume: Math.max(0, Math.min(1, volume)) }));
-  }, []);
+    setSettings(prev => {
+      const updated = { ...prev, volume: Math.max(0, Math.min(1, volume)) };
+      saveToCloud(updated);
+      return updated;
+    });
+  }, [saveToCloud]);
 
   const playBeep = useCallback(() => {
     if (settings.muted) return;
@@ -92,6 +155,7 @@ export function useSoundSettings() {
   return {
     muted: settings.muted,
     volume: settings.volume,
+    isLoading,
     toggleMute,
     setVolume,
     playBeep,
