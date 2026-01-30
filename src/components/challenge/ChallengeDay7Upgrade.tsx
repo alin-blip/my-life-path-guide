@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Trophy, Crown, Zap, Rocket, Check, X, Clock, 
-  Target, Brain, Heart, Briefcase, AlertTriangle, Gift
+  Target, Brain, Heart, Briefcase, AlertTriangle, Gift,
+  Share2, Copy, Users, Lightbulb, CheckCircle2
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
+import { useAffiliateLink } from '@/hooks/useAffiliateLink';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { plans, getLocalizedPlan } from '@/data/pricing';
@@ -21,9 +23,11 @@ interface ChallengeDay7UpgradeProps {
 export function ChallengeDay7Upgrade({ completedDays = 7 }: ChallengeDay7UpgradeProps) {
   const { language } = useLanguage();
   const { isEarlyBirdActive, earlyBirdExpiresAt, user } = useAuth();
+  const { referralLink, shareWithMessage, isLoading: shareLoading } = useAffiliateLink();
   const navigate = useNavigate();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState({ hours: 24, minutes: 0, seconds: 0 });
+  const [copied, setCopied] = useState(false);
 
   // Get plans from centralized pricing
   const proPlan = getLocalizedPlan(plans.find(p => p.id === 'pro')!, language as 'en' | 'ro');
@@ -81,24 +85,78 @@ export function ChallengeDay7Upgrade({ completedDays = 7 }: ChallengeDay7Upgrade
     }
   };
 
+  // Referral message for Day 7
+  const referralMessageRo = `Tocmai am terminat acest challenge.
+
+În primele zile, am obținut mai multă claritate decât în ani.
+
+Acum am:
+– O viziune clară
+– Un plan anual
+– Obiective pe 90 de zile
+– Milestone-ul primei luni
+– Sistem de execuție săptămânală
+– Control asupra ideilor mele
+
+Și am o invitație exclusivă gratuită pentru tine.
+
+Alătură-te aici 👇
+${referralLink}`;
+
+  const referralMessageEn = `I've just completed this challenge.
+
+In the first days, I achieved more clarity than in years.
+
+I now have:
+– A clear vision
+– A yearly plan
+– 90-day targets
+– First month milestone
+– Weekly execution system
+– Control over my ideas
+
+And I have a free exclusive invite for you.
+
+Join here 👇
+${referralLink}`;
+
+  const referralMessage = language === 'ro' ? referralMessageRo : referralMessageEn;
+
+  const handleShareInvite = () => {
+    shareWithMessage(referralMessage);
+  };
+
+  const handleCopyInvite = async () => {
+    try {
+      await navigator.clipboard.writeText(referralMessage);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
+
+  // Updated achievements to match new curriculum
   const achievements = [
-    { icon: Target, label: language === 'ro' ? 'Obiective Anuale Setate' : 'Annual Goals Set', area: 'all' },
-    { icon: Brain, label: language === 'ro' ? 'Champion Routine Configurată' : 'Champion Routine Configured', area: 'being' },
-    { icon: Heart, label: language === 'ro' ? 'AI Vision Board Creat' : 'AI Vision Board Created', area: 'balance' },
-    { icon: Briefcase, label: language === 'ro' ? 'Sistem Accountability Activ' : 'Accountability System Active', area: 'business' },
+    { icon: Target, label: language === 'ro' ? 'Viziune Clară pentru 2026' : 'Clear Vision for 2026', area: 'all' },
+    { icon: Briefcase, label: language === 'ro' ? 'Plan Anual + 90 Zile' : 'Yearly Plan + 90 Days', area: 'business' },
+    { icon: Zap, label: language === 'ro' ? 'Sistem Execuție Săptămânală' : 'Weekly Execution System', area: 'business' },
+    { icon: Brain, label: language === 'ro' ? 'Warrior Routine Configurată' : 'Warrior Routine Configured', area: 'being' },
+    { icon: Heart, label: language === 'ro' ? 'Vision AI + Meditație' : 'Vision AI + Meditation', area: 'balance' },
+    { icon: Lightbulb, label: language === 'ro' ? 'Control Mental (Idea List)' : 'Mental Control (Idea List)', area: 'business' },
   ];
 
   const whatYouLose = language === 'ro' ? [
     'Toate obiectivele și planurile create',
     'Accesul la AI Coaching personalizat',
-    'Progresul din Champion Routine',
+    'Progresul din Warrior Routine',
     'Vision Board-ul și meditațiile AI',
     'Sistemul de tracking și rapoarte',
     'Comunitatea și suportul'
   ] : [
     'All goals and plans you created',
     'Access to personalized AI Coaching',
-    'Champion Routine progress',
+    'Warrior Routine progress',
     'AI Vision Board and meditations',
     'Tracking system and reports',
     'Community and support'
@@ -122,7 +180,7 @@ export function ChallengeDay7Upgrade({ completedDays = 7 }: ChallengeDay7Upgrade
 
   return (
     <div className="space-y-8">
-      {/* Achievement Summary */}
+      {/* Achievement Summary - Updated with new recap */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -145,7 +203,7 @@ export function ChallengeDay7Upgrade({ completedDays = 7 }: ChallengeDay7Upgrade
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
             {achievements.map((achievement, idx) => {
               const Icon = achievement.icon;
               return (
@@ -160,7 +218,7 @@ export function ChallengeDay7Upgrade({ completedDays = 7 }: ChallengeDay7Upgrade
                     <Icon className="w-5 h-5 text-green-500" />
                   </div>
                   <span className="text-xs text-center font-medium">{achievement.label}</span>
-                  <Check className="w-4 h-4 text-green-500" />
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
                 </motion.div>
               );
             })}
@@ -300,6 +358,83 @@ export function ChallengeDay7Upgrade({ completedDays = 7 }: ChallengeDay7Upgrade
               : '✅ 90-day guarantee | ✅ Cancel anytime | ✅ Priority support'
             }
           </p>
+        </Card>
+      </motion.div>
+
+      {/* Final Referral Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Card className="p-6 border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/10">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+              <Gift className="h-6 w-6 text-white" />
+            </div>
+            
+            <div className="flex-1 space-y-3">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">
+                  {language === 'ro' 
+                    ? '🎁 Invită Prieteni - Final Push' 
+                    : '🎁 Invite Friends - Final Push'}
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {language === 'ro'
+                    ? 'Ai terminat challenge-ul! Trimite o invitație exclusivă prietenilor care vor aceeași transformare.'
+                    : 'You finished the challenge! Send an exclusive invite to friends who want the same transformation.'}
+                </p>
+              </div>
+
+              <div className="bg-background/50 rounded-lg p-3 border border-amber-500/20">
+                <p className="text-xs text-muted-foreground mb-2 font-medium">
+                  {language === 'ro' ? 'Mesajul care va fi trimis:' : 'Message that will be sent:'}
+                </p>
+                <pre className="text-xs text-foreground whitespace-pre-wrap font-sans leading-relaxed max-h-32 overflow-y-auto">
+                  {referralMessage}
+                </pre>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={handleShareInvite}
+                  disabled={shareLoading || !referralLink}
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  {language === 'ro' ? 'Trimite Invitația' : 'Send Invite'}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleCopyInvite}
+                  disabled={!referralLink}
+                  className="border-amber-500/30"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="h-4 w-4 mr-2 text-green-500" />
+                      {language === 'ro' ? 'Copiat!' : 'Copied!'}
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4 mr-2" />
+                      {language === 'ro' ? 'Copiază' : 'Copy'}
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Users className="h-4 w-4" />
+                <span>
+                  {language === 'ro' 
+                    ? 'Invitațiile din Ziua 1 rămân active - acum poți trimite și mesajul final!'
+                    : 'Day 1 invites remain active - now you can send the final message too!'}
+                </span>
+              </div>
+            </div>
+          </div>
         </Card>
       </motion.div>
     </div>

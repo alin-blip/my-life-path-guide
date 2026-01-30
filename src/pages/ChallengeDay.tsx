@@ -74,240 +74,244 @@ const areaLabels = {
 const challengeContent: ChallengeDayContent[] = [
   {
     day: 1,
-    titleEn: "🔥 VIZIUNE + DECLARAȚIE",
+    titleEn: "🔥 VISION + DECLARATION",
     titleRo: "🔥 VIZIUNE + DECLARAȚIE",
     principleEn: "Day 1: Vision + Declaration (Napoleon Hill)",
     principleRo: "Ziua 1: Viziune + Declarație (Napoleon Hill)",
-    descriptionEn: "Set your direction: how does your life look in 1 year across all 4 zones. Write your Personal Declaration (in present tense). Read it morning and evening. Share your declaration with the community.",
-    descriptionRo: "Setează direcția: cum arată viața ta peste 1 an în cele 4 zone. Scrie Declarația Personală (la prezent). Citește-o dimineața și seara. Publică declarația în comunitate.",
+    descriptionEn: "Set your direction: how does your life look in 1 year across all 4 zones. Write your Personal Declaration (in present tense). Read it morning and evening. Join the community and invite 1-3 friends.",
+    descriptionRo: "Setează direcția: cum arată viața ta peste 1 an în cele 4 zone. Scrie Declarația Personală (la prezent). Citește-o dimineața și seara. Alătură-te comunității și invită 1-3 prieteni.",
     videoPlaceholder: "🎬 Video: Vision + Declaration - Napoleon Hill Style",
     icon: Flame,
     color: "from-purple-500 to-indigo-500",
     actionPath: "/challenge/1",
     focusAreas: ['body', 'being', 'balance', 'business'],
     stepsEn: [
-      "Set your direction for all 4 life zones",
+      "Set your vision for all 4 life zones (1 year)",
       "Write your Personal Declaration at present tense",
       "Commit to reading it every morning and evening",
-      "Share your declaration with the community"
+      "Join the Warrior community and introduce yourself",
+      "Invite 1-3 friends with your exclusive link"
     ],
     stepsRo: [
-      "Setează direcția pentru toate cele 4 zone ale vieții",
+      "Setează viziunea pentru toate cele 4 zone ale vieții (1 an)",
       "Scrie Declarația Personală la timpul prezent",
       "Angajează-te să o citești în fiecare dimineață și seară",
-      "Publică declarația în comunitate"
+      "Alătură-te comunității Warrior și prezintă-te",
+      "Invită 1-3 prieteni cu link-ul tău exclusiv"
     ],
     exercisesEn: [
       { id: "ex1", title: "Discover Your WHY", description: "Answer the 5 fundamental questions about your desires and purpose", area: "being" },
-      { id: "ex2", title: "Vision Body 2026", description: "Define how your body and health will look in 1 year", area: "body" },
-      { id: "ex3", title: "Vision Being 2026", description: "Define your spiritual and purpose goals for 1 year", area: "being" },
-      { id: "ex4", title: "Vision Balance 2026", description: "Define your relationship goals for 1 year", area: "balance" },
-      { id: "ex5", title: "Vision Business 2026", description: "Define your career and financial goals for 1 year", area: "business" },
-      { id: "ex6", title: "Write Declaration", description: "Create your Napoleon Hill style declaration", area: "being" },
-      { id: "ex7", title: "Share in Comments", description: "Post your declaration to the community for accountability", area: "balance" }
+      { id: "ex2", title: "Vision 2026 (All 4 Areas)", description: "Define your vision for Body, Spirit, Relationships, and Business", area: "being" },
+      { id: "ex3", title: "Write Declaration", description: "Create your Napoleon Hill style declaration", area: "being" },
+      { id: "ex4", title: "Join Community", description: "Enter the Warrior tribe and introduce yourself", area: "balance", link: "/brotherhood?tab=tribes", linkLabel: "Join Community" },
+      { id: "ex5", title: "Invite 1-3 Friends", description: "Share your exclusive invite link with friends who want to transform", area: "balance" }
     ],
     exercisesRo: [
       { id: "ex1", title: "Descoperă DE CE-ul Tău", description: "Răspunde la cele 5 întrebări fundamentale despre dorințele și scopul tău", area: "being" },
-      { id: "ex2", title: "Viziune Corp 2026", description: "Definește cum va arăta corpul și sănătatea ta peste 1 an", area: "body" },
-      { id: "ex3", title: "Viziune Spirit 2026", description: "Definește obiectivele tale spirituale și de scop pentru 1 an", area: "being" },
-      { id: "ex4", title: "Viziune Relații 2026", description: "Definește obiectivele tale de relații pentru 1 an", area: "balance" },
-      { id: "ex5", title: "Viziune Business 2026", description: "Definește obiectivele tale de carieră și financiare pentru 1 an", area: "business" },
-      { id: "ex6", title: "Scrie Declarația", description: "Creează declarația ta în stilul Napoleon Hill", area: "being" },
-      { id: "ex7", title: "Postează în Comentarii", description: "Publică declarația ta în comunitate pentru accountability", area: "balance" }
+      { id: "ex2", title: "Viziune 2026 (Toate 4 Ariile)", description: "Definește viziunea pentru Corp, Spirit, Relații și Business", area: "being" },
+      { id: "ex3", title: "Scrie Declarația", description: "Creează declarația ta în stilul Napoleon Hill", area: "being" },
+      { id: "ex4", title: "Alătură-te Comunității", description: "Intră în tribul Warrior și prezintă-te", area: "balance", link: "/brotherhood?tab=tribes", linkLabel: "Intră în Comunitate" },
+      { id: "ex5", title: "Invită 1-3 Prieteni", description: "Trimite link-ul tău exclusiv prietenilor care vor să se transforme", area: "balance" }
     ]
   },
   {
     day: 2,
-    titleEn: "💪✨ CORP + SPIRIT (Fundația)",
-    titleRo: "💪✨ CORP + SPIRIT (Fundația)",
-    principleEn: "Day 2: Build Your Foundation - Energy + Peace + Focus",
-    principleRo: "Ziua 2: Construiește Fundația - Energie + Pace + Focus",
-    descriptionEn: "Understand why Body and Spirit are the foundation (energy + peace + focus). Set objectives on 3 levels: 2026, 90 days, 30 days + simple sustainable daily rituals.",
-    descriptionRo: "Înțelege de ce Corpul și Spiritul sunt baza (energie + pace + focus). Setează obiective pe 3 nivele: 2026, 90 zile, 30 zile + câteva ritualuri zilnice simple și sustenabile.",
-    videoPlaceholder: "🎬 Video: Body + Spirit - Your Foundation",
+    titleEn: "💪✨💕 BODY + SPIRIT + RELATIONSHIPS",
+    titleRo: "💪✨💕 CORP + SPIRIT + RELAȚII",
+    principleEn: "Day 2: Build Your Foundation - Energy + Peace + Connection",
+    principleRo: "Ziua 2: Construiește Fundația - Energie + Pace + Conexiune",
+    descriptionEn: "Set objectives for Body, Spirit, AND Relationships on 3 levels: 2026, 90 days, 30 days. These 3 areas are the foundation for everything else.",
+    descriptionRo: "Setează obiective pentru Corp, Spirit și Relații pe 3 nivele: 2026, 90 zile, 30 zile. Aceste 3 arii sunt fundația pentru tot restul.",
+    videoPlaceholder: "🎬 Video: Body + Spirit + Relationships Foundation",
     icon: Target,
     color: "from-green-500 to-purple-500",
     actionPath: "/game-objectives",
-    focusAreas: ['body', 'being'],
+    focusAreas: ['body', 'being', 'balance'],
     stepsEn: [
-      "Understand why body and spirit are the foundation",
       "Set your Body objectives: 2026 → 90 Days → 30 Days",
       "Set your Spirit objectives: 2026 → 90 Days → 30 Days",
-      "Share in comments your declaration + 2-3 key objectives"
+      "Set your Relationship objectives: 2026 → 90 Days → 30 Days",
+      "Share in comments your 2-3 key objectives"
     ],
     stepsRo: [
-      "Înțelege de ce corpul și spiritul sunt fundația",
       "Setează obiectivele Corp: 2026 → 90 Zile → 30 Zile",
       "Setează obiectivele Spirit: 2026 → 90 Zile → 30 Zile",
-      "Scrie în comentarii declarația + 2-3 obiective cheie"
+      "Setează obiectivele Relații: 2026 → 90 Zile → 30 Zile",
+      "Scrie în comentarii 2-3 obiective cheie"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Body Objectives: 2026 → 90 Days → 30 Days", description: "Set your health and fitness goals on all 3 levels: annual vision, 90-day milestone, monthly focus", area: "body", link: "/game-objectives", linkLabel: "Set Body Goals" },
-      { id: "ex2", title: "Spirit Objectives: 2026 → 90 Days → 30 Days", description: "Set your spiritual and purpose goals on all 3 levels: annual vision, 90-day milestone, monthly focus", area: "being", link: "/game-objectives", linkLabel: "Set Spirit Goals" },
-      { id: "ex3", title: "Share in Comments", description: "Post your declaration + 2-3 key objectives for Body/Spirit", area: "balance" }
+      { id: "ex1", title: "💪 Body Objectives: 2026 → 90 Days → 30 Days", description: "Set your health and fitness goals on all 3 levels", area: "body", link: "/game-objectives?category=body", linkLabel: "Set Body Goals" },
+      { id: "ex2", title: "✨ Spirit Objectives: 2026 → 90 Days → 30 Days", description: "Set your spiritual and purpose goals on all 3 levels", area: "being", link: "/game-objectives?category=being", linkLabel: "Set Spirit Goals" },
+      { id: "ex3", title: "💕 Relationship Objectives: 2026 → 90 Days → 30 Days", description: "Set your relationship goals on all 3 levels", area: "balance", link: "/game-objectives?category=balance", linkLabel: "Set Relationship Goals" },
+      { id: "ex4", title: "Share in Comments", description: "Post your 2-3 key objectives for Body, Spirit, and Relationships", area: "balance" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Obiective Corp: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele de sănătate și fitness pe toate cele 3 nivele: viziune anuală, milestone 90 zile, focus lunar", area: "body", link: "/game-objectives", linkLabel: "Setează Obiective Corp" },
-      { id: "ex2", title: "Obiective Spirit: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele spirituale pe toate cele 3 nivele: viziune anuală, milestone 90 zile, focus lunar", area: "being", link: "/game-objectives", linkLabel: "Setează Obiective Spirit" },
-      { id: "ex3", title: "Postează în Comentarii", description: "Postează declarația + 2-3 obiective cheie pentru Corp/Spirit", area: "balance" }
+      { id: "ex1", title: "💪 Obiective Corp: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele de sănătate și fitness pe toate cele 3 nivele", area: "body", link: "/game-objectives?category=body", linkLabel: "Setează Obiective Corp" },
+      { id: "ex2", title: "✨ Obiective Spirit: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele spirituale pe toate cele 3 nivele", area: "being", link: "/game-objectives?category=being", linkLabel: "Setează Obiective Spirit" },
+      { id: "ex3", title: "💕 Obiective Relații: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele de relații pe toate cele 3 nivele", area: "balance", link: "/game-objectives?category=balance", linkLabel: "Setează Obiective Relații" },
+      { id: "ex4", title: "Postează în Comentarii", description: "Postează 2-3 obiective cheie pentru Corp, Spirit și Relații", area: "balance" }
     ]
   },
   {
     day: 3,
-    titleEn: "💰💕 BUSINESS + RELAȚII",
-    titleRo: "💰💕 BUSINESS + RELAȚII",
-    principleEn: "Day 3: Connection & Contribution",
-    principleRo: "Ziua 3: Conexiune și Contribuție",
-    descriptionEn: "See how Business and Relationships are interconnected. Set objectives and milestones on 3 levels: 2026, 90 days, 30 days + weekly action steps.",
-    descriptionRo: "Vezi cum Business-ul și Relațiile sunt interconectate. Setează obiective și etape pe 3 nivele: 2026, 90 zile, 30 zile + pași săptămânali.",
-    videoPlaceholder: "🎬 Video: Business + Relationships - Connection & Contribution",
+    titleEn: "💰🎯 BUSINESS + DOMINO DOOR",
+    titleRo: "💰🎯 BUSINESS + DOMINO DOOR",
+    principleEn: "Day 3: Business Vision + Weekly Execution System",
+    principleRo: "Ziua 3: Viziune Business + Sistem de Execuție Săptămânală",
+    descriptionEn: "The AI Wizard guides you through a complete flow: Business vision (1 year) → 90-day targets → First month milestone → Weekly Domino Door (1 milestone + 4 keys + WHY for each). This is where the magic happens.",
+    descriptionRo: "Wizard-ul AI te ghidează printr-un flow complet: Viziune Business (1 an) → Ținte pe 90 zile → Milestone prima lună → Domino Door săptămânal (1 milestone + 4 chei + WHY pentru fiecare). Aici se întâmplă magia.",
+    videoPlaceholder: "🎬 Video: Business + Domino Door - ONE GO",
     icon: Target,
-    color: "from-pink-500 to-blue-500",
-    actionPath: "/game-objectives",
-    focusAreas: ['balance', 'business'],
+    color: "from-blue-500 to-amber-500",
+    actionPath: "/game-objectives?category=business&wizard=full",
+    focusAreas: ['business'],
     stepsEn: [
-      "Understand the connection between business and relationships",
-      "Set your Business objectives: 2026 → 90 Days → 30 Days",
-      "Set your Relationship objectives: 2026 → 90 Days → 30 Days",
-      "Share in comments: 1 business objective + 1 relationship intention"
+      "Open the Business AI Wizard (ONE GO)",
+      "Set Business Vision for 1 year",
+      "Define 90-day targets",
+      "Set first month milestone",
+      "Configure Domino Door: 1 milestone + 4 keys + WHY for each",
+      "Share your Domino Door in comments"
     ],
     stepsRo: [
-      "Înțelege conexiunea dintre business și relații",
-      "Setează obiectivele Business: 2026 → 90 Zile → 30 Zile",
-      "Setează obiectivele Relații: 2026 → 90 Zile → 30 Zile",
-      "Scrie în comentarii: 1 obiectiv business + 1 intenție pentru o relație importantă"
+      "Deschide Wizard-ul AI Business (ONE GO)",
+      "Setează Viziunea Business pentru 1 an",
+      "Definește țintele pe 90 zile",
+      "Setează milestone-ul primei luni",
+      "Configurează Domino Door: 1 milestone + 4 chei + WHY pentru fiecare",
+      "Postează Domino Door-ul în comentarii"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Business Objectives: 2026 → 90 Days → 30 Days", description: "Set your career and financial goals on all 3 levels: annual vision, 90-day milestone, monthly focus", area: "business", link: "/game-objectives", linkLabel: "Set Business Goals" },
-      { id: "ex2", title: "Relationship Objectives: 2026 → 90 Days → 30 Days", description: "Set your relationship goals on all 3 levels: annual vision, 90-day milestone, monthly focus", area: "balance", link: "/game-objectives", linkLabel: "Set Relationship Goals" },
-      { id: "ex3", title: "Share in Comments", description: "Post 1 business objective + 1 intention for an important relationship", area: "balance" }
+      { id: "ex1", title: "💰 Complete Business Flow (ONE GO)", description: "AI Wizard: Annual → 90 Days → Monthly → Weekly Door with 4 keys", area: "business", link: "/game-objectives?category=business&wizard=full", linkLabel: "Start AI Wizard" },
+      { id: "ex2", title: "Share Your Domino Door", description: "Post a screenshot or copy-paste your Domino Door in comments", area: "business" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Obiective Business: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele de carieră și financiare pe toate cele 3 nivele: viziune anuală, milestone 90 zile, focus lunar", area: "business", link: "/game-objectives", linkLabel: "Setează Obiective Business" },
-      { id: "ex2", title: "Obiective Relații: 2026 → 90 Zile → 30 Zile", description: "Setează obiectivele de relații pe toate cele 3 nivele: viziune anuală, milestone 90 zile, focus lunar", area: "balance", link: "/game-objectives", linkLabel: "Setează Obiective Relații" },
-      { id: "ex3", title: "Postează în Comentarii", description: "Postează 1 obiectiv business + 1 intenție pentru o relație importantă", area: "balance" }
+      { id: "ex1", title: "💰 Flow Business Complet (ONE GO)", description: "AI Wizard: Anual → 90 Zile → Lunar → Door Săptămânal cu 4 chei", area: "business", link: "/game-objectives?category=business&wizard=full", linkLabel: "Începe AI Wizard" },
+      { id: "ex2", title: "Distribuie Domino Door-ul", description: "Postează un screenshot sau copy-paste cu Domino Door-ul în comentarii", area: "business" }
     ]
   },
   {
     day: 4,
-    titleEn: "🎯 DOMINO DOOR",
-    titleRo: "🎯 DOMINO DOOR",
-    principleEn: "Day 4: Your Weekly Strategic Planning System",
-    principleRo: "Ziua 4: Sistemul Tău de Planificare Săptămânală",
-    descriptionEn: "Domino Door is your weekly strategic planning system. Like a domino that knocks down all the others, you choose ONE main objective for the week and break it into 4 measurable keys. Each key has specific tasks. The AI Wizard guides you step by step through the entire process.",
-    descriptionRo: "Domino Door este sistemul tău de planificare strategică săptămânală. Ca un domino care dărâmă toate celelalte, alegi UN singur obiectiv principal pentru săptămână și îl împarți în 4 chei măsurabile. Fiecare cheie are task-uri specifice. Wizard-ul AI te ghidează pas cu pas prin întregul proces.",
-    videoPlaceholder: "🎬 Video: Domino Door - Weekly Planning System",
-    icon: Target,
-    color: "from-amber-500 to-orange-500",
-    actionPath: "/door",
-    focusAreas: [],
+    titleEn: "⚡ WARRIOR ROUTINE + VISION AI + MEDITATION",
+    titleRo: "⚡ WARRIOR ROUTINE + VISION AI + MEDITAȚIE",
+    principleEn: "Day 4: Automate Your Daily Execution",
+    principleRo: "Ziua 4: Automatizează Execuția Zilnică",
+    descriptionEn: "Generate AI images for all 4 life areas. Create your personalized meditation based on YOUR objectives from Days 2-3. Configure Warrior Routine for daily execution. Start living your transformation.",
+    descriptionRo: "Generează imagini AI pentru toate cele 4 arii. Creează meditația personalizată bazată pe obiectivele TALE din Zilele 2-3. Configurează Warrior Routine pentru execuție zilnică. Începe să trăiești transformarea.",
+    videoPlaceholder: "🎬 Video: Vision AI + Personalized Meditation + Warrior Routine",
+    icon: Sparkles,
+    color: "from-cyan-500 to-purple-500",
+    actionPath: "/vision-board",
+    focusAreas: ['body', 'being', 'balance', 'business'],
     stepsEn: [
-      "Open Domino Door",
-      "Follow the AI Wizard to set your weekly milestone + 4 keys + tasks",
-      "Share a screenshot or copy-paste in comments"
+      "Generate AI images for all 4 vision quadrants",
+      "Create personalized meditation with YOUR objectives",
+      "Configure Warrior Routine with your habits",
+      "Start your first execution",
+      "Post your AHA moment in comments"
     ],
     stepsRo: [
-      "Deschide Domino Door",
-      "Urmează Wizard-ul AI pentru a seta milestone + 4 chei + task-uri",
-      "Postează un screenshot sau copy-paste în comentarii"
+      "Generează imagini AI pentru toate 4 cadranele",
+      "Creează meditația personalizată cu obiectivele TALE",
+      "Configurează Warrior Routine cu obiceiurile tale",
+      "Începe prima ta execuție",
+      "Postează momentul tău AHA în comentarii"
     ],
     exercisesEn: [
-      { id: "ex1", title: "Open Domino Door", description: "The AI Wizard will guide you to set 4 keys and tasks for each key", link: "/door", linkLabel: "Open Domino Door" },
-      { id: "ex2", title: "Share Your Domino Door", description: "Post a screenshot or copy-paste your Domino Door in the comments below" }
+      { id: "ex1", title: "🎨 Vision AI (4 Quadrants)", description: "Generate AI images for Body, Spirit, Relationships, and Business", area: "being", link: "/vision-board", linkLabel: "Open Vision Board" },
+      { id: "ex2", title: "⚡ Configure Warrior Routine", description: "Set up your personalized daily routine with habits", area: "body", link: "/daily-flow", linkLabel: "Configure Routine" },
+      { id: "ex3", title: "🧘 Personalized Meditation", description: "Create meditation based on YOUR objectives - it knows your goals!", area: "being", link: "/daily-flow", linkLabel: "Create Meditation" },
+      { id: "ex4", title: "🚀 Start Execution", description: "Begin your first daily routine execution", area: "body", link: "/daily-flow", linkLabel: "Start Now" },
+      { id: "ex5", title: "💬 Share Your AHA Moment", description: "Post your breakthrough insight in comments", area: "balance" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "Deschide Domino Door", description: "Wizard-ul AI te va îndruma să setezi 4 chei și task-uri pentru fiecare cheie", link: "/door", linkLabel: "Deschide Domino Door" },
-      { id: "ex2", title: "Distribuie Domino Door-ul Tău", description: "Postează un screenshot sau copy-paste cu Domino Door-ul tău în comentariile de mai jos" }
+      { id: "ex1", title: "🎨 Vision AI (4 Cadrane)", description: "Generează imagini AI pentru Corp, Spirit, Relații și Business", area: "being", link: "/vision-board", linkLabel: "Deschide Vision Board" },
+      { id: "ex2", title: "⚡ Configurează Warrior Routine", description: "Setează rutina ta zilnică personalizată cu obiceiuri", area: "body", link: "/daily-flow", linkLabel: "Configurează Rutina" },
+      { id: "ex3", title: "🧘 Meditație Personalizată", description: "Creează meditație bazată pe obiectivele TALE - știe goal-urile tale!", area: "being", link: "/daily-flow", linkLabel: "Creează Meditație" },
+      { id: "ex4", title: "🚀 Începe Execuția", description: "Începe prima ta execuție a rutinei zilnice", area: "body", link: "/daily-flow", linkLabel: "Începe Acum" },
+      { id: "ex5", title: "💬 Postează Momentul AHA", description: "Postează insight-ul tău de breakthrough în comentarii", area: "balance" }
     ]
   },
   {
     day: 5,
-    titleEn: "🎨 VISION AI + MEDITAȚIE + WARRIOR ROUTINE",
-    titleRo: "🎨 VISION AI + MEDITAȚIE + WARRIOR ROUTINE",
-    principleEn: "Day 5: Visualize, Meditate, Execute",
-    principleRo: "Ziua 5: Vizualizează, Meditează, Execută",
-    descriptionEn: "Create powerful AI-generated images for all 4 life areas. Then create your personalized empowerment meditation that includes all your objectives. Finally, configure your Warrior Routine to execute daily.",
-    descriptionRo: "Creează imagini AI puternice pentru toate cele 4 arii ale vieții. Apoi creează meditația ta personalizată de empowerment care include toate obiectivele tale. În final, configurează Warrior Routine pentru execuție zilnică.",
-    videoPlaceholder: "🎬 Video: Vision AI + Personalized Meditation + Warrior Routine",
-    icon: Sparkles,
-    color: "from-indigo-500 to-purple-600",
-    actionPath: "/vision-board",
-    focusAreas: [],
-    stepsEn: [
-      "Generate AI images for all 4 vision quadrants (Body, Being, Balance, Business)",
-      "Create personalized meditation with all your objectives",
-      "Configure Warrior Routine with your habits",
-      "Post your AHA moment and feedback in comments"
-    ],
-    stepsRo: [
-      "Generează imagini AI pentru toate cele 4 cadrane (Corp, Spirit, Relații, Business)",
-      "Creează meditația personalizată cu toate obiectivele tale",
-      "Configurează Warrior Routine cu obiceiurile tale",
-      "Postează momentul tău AHA și feedback în comentarii"
-    ],
-    exercisesEn: [
-      { id: "ex1", title: "🎨 Create Vision AI for All 4 Areas", description: "Generate AI images for Body, Being, Balance, and Business. If you haven't set your vision in Day 2-3, do it first!", link: "/vision-board", linkLabel: "Open Vision Board" },
-      { id: "ex2", title: "🧘 Create Personalized Meditation", description: "Generate your empowerment meditation that includes all your objectives from Vision Board", link: "/daily-flow", linkLabel: "Create Meditation" },
-      { id: "ex3", title: "⚡ Configure Warrior Routine", description: "Set up your personalized daily routine with habits and steps", link: "/daily-flow", linkLabel: "Configure Routine" },
-      { id: "ex4", title: "💬 Share Your AHA Moment", description: "Post your breakthrough insight and feedback in the comments below" }
-    ],
-    exercisesRo: [
-      { id: "ex1", title: "🎨 Creează Vision AI pentru Toate 4 Ariile", description: "Generează imagini AI pentru Corp, Spirit, Relații și Business. Dacă nu ai setat viziunea în Ziua 2-3, fă-o acum!", link: "/vision-board", linkLabel: "Deschide Vision Board" },
-      { id: "ex2", title: "🧘 Creează Meditația Personalizată", description: "Generează meditația ta de empowerment care include toate obiectivele din Vision Board", link: "/daily-flow", linkLabel: "Creează Meditație" },
-      { id: "ex3", title: "⚡ Configurează Warrior Routine", description: "Setează rutina ta zilnică personalizată cu obiceiuri și pași", link: "/daily-flow", linkLabel: "Configurează Rutina" },
-      { id: "ex4", title: "💬 Postează Momentul Tău AHA", description: "Postează insight-ul tău de breakthrough și feedback-ul în comentariile de mai jos" }
-    ]
-  },
-  {
-    day: 6,
-    titleEn: "🧠 ACCOUNTABILITY COACH + MIND COACH",
-    titleRo: "🧠 ACCOUNTABILITY COACH + MIND COACH",
-    principleEn: "Day 6: Transform Fear, Anger, Doubt into Power",
-    principleRo: "Ziua 6: Transformă Frica, Furia, Îndoiala în Putere",
-    descriptionEn: "The Accountability Coach knows everything: tells you what's missing and what's next. Mind Coach (daily, at the start of routine): transforms fear, anger, sadness, doubt, procrastination → power. This isn't about suppressing emotions. It's about transforming them into fuel.",
-    descriptionRo: "Accountability Coach știe tot: îți spune ce lipsește și ce urmează. Mind Coach (zilnic, la începutul rutinei): transformă frica, furia, tristețea, îndoiala, procrastinarea → putere. Nu e vorba să suprim emoțiile. E vorba să le transformi în combustibil.",
+    titleEn: "🧠 ACCOUNTABILITY + MIND COACH",
+    titleRo: "🧠 ACCOUNTABILITY + MIND COACH",
+    principleEn: "Day 5: Transform Emotions into Power",
+    principleRo: "Ziua 5: Transformă Emoțiile în Putere",
+    descriptionEn: "Accountability Coach knows everything: tells you what's done and what's missing. Mind Coach transforms fear, anger, anxiety, procrastination → power. This isn't about suppressing emotions. It's about transforming them into fuel.",
+    descriptionRo: "Accountability Coach știe tot: îți spune ce e făcut și ce lipsește. Mind Coach transformă frica, furia, anxietatea, procrastinarea → putere. Nu e vorba să suprim emoțiile. E vorba să le transformi în combustibil.",
     videoPlaceholder: "🎬 Video: Accountability Coach + Mind Coach Transformation",
     icon: Brain,
     color: "from-red-500 to-pink-500",
-    actionPath: "/mind-coach",
+    actionPath: "/accountability-coach",
     focusAreas: ['body', 'being', 'balance', 'business'],
     stepsEn: [
-      "Open Mind Coach",
-      "Identify what you're feeling (fear, anger, sadness, doubt, procrastination)",
-      "Discover the story behind that feeling",
-      "Separate facts from interpretations",
-      "Define what you really want + why",
-      "Choose your power state for the day",
+      "Open Accountability Coach - see what's done/missing",
+      "Open Mind Coach for emotional transformation",
+      "Transform: Angry → Power, Anxious → Calm Action, Stuck → Clarity, Procrastination → Momentum",
       "Commit to a concrete action",
       "Share your breakthrough in comments"
     ],
     stepsRo: [
-      "Deschide Mind Coach",
-      "Identifică ce simți (frică, furie, tristețe, îndoială, procrastinare)",
-      "Descoperă povestea din spatele emoției",
-      "Separă faptele de interpretări",
-      "Definește ce vrei de fapt + de ce",
-      "Alege starea ta de putere pentru zi",
+      "Deschide Accountability Coach - vezi ce e făcut/lipsește",
+      "Deschide Mind Coach pentru transformare emoțională",
+      "Transformă: Furie → Putere, Anxietate → Acțiune Calmă, Blocat → Claritate, Procrastinare → Momentum",
       "Angajează-te la o acțiune concretă",
       "Postează breakthrough-ul în comentarii"
     ],
     exercisesEn: [
-      { id: "ex1", title: "🧠 Open Mind Coach", description: "Transform fear, anger, sadness, or procrastination into power with AI guidance (Tony Robbins style)", area: "being", link: "/mind-coach", linkLabel: "Start Session" },
-      { id: "ex2", title: "💬 Post Your Breakthrough", description: "Share in comments: what story are you leaving behind / what changed", area: "balance" }
+      { id: "ex1", title: "📊 Accountability Coach", description: "Check your status: what's done, what's missing, what's next", area: "business", link: "/accountability-coach", linkLabel: "Open Accountability" },
+      { id: "ex2", title: "🧠 Mind Coach Session", description: "Transform fear, anger, anxiety, or procrastination into power", area: "being", link: "/mind-coach", linkLabel: "Start Session" },
+      { id: "ex3", title: "💬 Share Your Breakthrough", description: "Post in comments: what story did you leave behind / what changed", area: "balance" }
     ],
     exercisesRo: [
-      { id: "ex1", title: "🧠 Deschide Mind Coach", description: "Transformă frica, furia, tristețea sau procrastinarea în putere cu ghidare AI (stilul Tony Robbins)", area: "being", link: "/mind-coach", linkLabel: "Începe Sesiunea" },
-      { id: "ex2", title: "💬 Postează Breakthrough-ul", description: "Postează în comentarii: ce poveste lași în urmă / ce s-a schimbat", area: "balance" }
+      { id: "ex1", title: "📊 Accountability Coach", description: "Verifică statusul: ce e făcut, ce lipsește, ce urmează", area: "business", link: "/accountability-coach", linkLabel: "Deschide Accountability" },
+      { id: "ex2", title: "🧠 Sesiune Mind Coach", description: "Transformă frica, furia, anxietatea sau procrastinarea în putere", area: "being", link: "/mind-coach", linkLabel: "Începe Sesiunea" },
+      { id: "ex3", title: "💬 Postează Breakthrough-ul", description: "Postează în comentarii: ce poveste ai lăsat în urmă / ce s-a schimbat", area: "balance" }
+    ]
+  },
+  {
+    day: 6,
+    titleEn: "💡 IDEA LIST (STRATEGIC FILTER)",
+    titleRo: "💡 IDEA LIST (FILTRU STRATEGIC)",
+    principleEn: "Day 6: Impulse Control - Don't Let Ideas Destroy Execution",
+    principleRo: "Ziua 6: Controlul Impulsului - Nu Lăsa Ideile să Distrugă Execuția",
+    descriptionEn: "This section is NOT for execution. It's for getting ideas out of your head without destroying the focus set on Day 3. Classify ideas with Eisenhower Matrix: Important+Urgent, Important+Not Urgent, Not Important+Urgent, Not Important+Not Urgent.",
+    descriptionRo: "Această secțiune NU este pentru execuție. Este pentru a scoate ideile din cap fără să distrugă focusul setat în Ziua 3. Clasifică ideile cu Matricea Eisenhower: Important+Urgent, Important+NU Urgent, NU Important+Urgent, NU Important+NU Urgent.",
+    videoPlaceholder: "🎬 Video: Idea List - Strategic Filter",
+    icon: Target,
+    color: "from-amber-500 to-yellow-500",
+    actionPath: "/door?tab=weekly",
+    focusAreas: ['business'],
+    stepsEn: [
+      "Understand why impulse control is critical",
+      "Create your Idea List (Idea Parking Lot)",
+      "Classify ideas with Eisenhower Matrix",
+      "Remember: Ideas don't build freedom. Execution over time does."
+    ],
+    stepsRo: [
+      "Înțelege de ce controlul impulsului este critic",
+      "Creează Idea List (Parking Lot pentru idei)",
+      "Clasifică ideile cu Matricea Eisenhower",
+      "Amintește-ți: Ideile nu construiesc libertatea. Execuția în timp construiește."
+    ],
+    exercisesEn: [
+      { id: "ex1", title: "💡 Learn About Idea List", description: "Understand the Eisenhower Matrix and impulse control", area: "business" },
+      { id: "ex2", title: "📝 Open Idea List", description: "Add your ideas and classify them strategically", area: "business", link: "/door?tab=weekly", linkLabel: "Open Ideas" }
+    ],
+    exercisesRo: [
+      { id: "ex1", title: "💡 Învață Despre Idea List", description: "Înțelege Matricea Eisenhower și controlul impulsului", area: "business" },
+      { id: "ex2", title: "📝 Deschide Idea List", description: "Adaugă ideile și clasifică-le strategic", area: "business", link: "/door?tab=weekly", linkLabel: "Deschide Idei" }
     ]
   },
   {
     day: 7,
-    titleEn: "🏆 INTEGRARE + CONTINUARE",
-    titleRo: "🏆 INTEGRARE + CONTINUARE",
+    titleEn: "🏆 MEMBERSHIP + CONTINUITY",
+    titleRo: "🏆 MEMBERSHIP + CONTINUITATE",
     principleEn: "Day 7: Full System Integration + Membership",
     principleRo: "Ziua 7: Integrare Completă a Sistemului + Membership",
-    descriptionEn: "Put the whole system together: vision + domino door + routine + stack + accountability. Decision: how do you continue to keep the momentum? Early bird membership plans available.",
-    descriptionRo: "Pui tot sistemul împreună: viziune + domino door + rutină + stack + accountability. Decizia: cum continui ca să nu se stingă momentum-ul? Planuri early bird disponibile.",
+    descriptionEn: "Recap what you've achieved: clear vision, yearly plan, 90-day targets, first month milestone, weekly execution system, control over ideas. Decision: how do you continue?",
+    descriptionRo: "Recapitulare ce ai realizat: viziune clară, plan anual, ținte 90 zile, milestone prima lună, sistem execuție săptămânală, control asupra ideilor. Decizie: cum continui?",
     videoPlaceholder: "",
     icon: Trophy,
     color: "from-amber-500 to-yellow-600",
