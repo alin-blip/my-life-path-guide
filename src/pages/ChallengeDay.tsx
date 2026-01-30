@@ -716,6 +716,13 @@ const ChallengeDayPage = () => {
             </>
           )}
           
+          {/* Invite Friends Section - Day 1 */}
+          {isAuthenticated && (
+            <div className="mt-6 mb-6">
+              <ChallengeInviteFriends dayNumber={1} />
+            </div>
+          )}
+
           {/* Comments Section - ALWAYS visible */}
           <div className="mt-6">
             <ChallengeComments ref={commentsRef} dayNumber={1} />
