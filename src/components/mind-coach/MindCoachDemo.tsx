@@ -1,16 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Brain, RotateCcw, ArrowLeft, Send } from 'lucide-react';
+import { Loader2, Brain, RotateCcw, ArrowLeft } from 'lucide-react';
 import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo } from './ExtendedEmotionPicker';
 import { getClusterForEmotion, getClusterOpeningMessage } from '@/lib/mind-coach-clusters';
 import { PhaseIndicator } from './PhaseIndicator';
 import { useMindCoachDemo } from '@/hooks/useMindCoachDemo';
+import { useMindCoachVoice } from '@/hooks/useMindCoachVoice';
+import { MindCoachInputBar } from './MindCoachInputBar';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
-import { Textarea } from '@/components/ui/textarea';
 
 interface MindCoachDemoProps {
   initialEmotion?: MindCoachEmotion;
@@ -33,6 +34,7 @@ export function MindCoachDemo({
   );
   const [selectedIntensity, setSelectedIntensity] = useState(initialIntensity);
   const [inputValue, setInputValue] = useState('');
+  const [lastAIResponse, setLastAIResponse] = useState<string>('');
   
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +49,33 @@ export function MindCoachDemo({
     resetSession,
   } = useMindCoachDemo({
     onComplete,
+    onAIResponse: (text) => {
+      setLastAIResponse(text);
+    },
   });
+
+  // Get current cluster for quick answers
+  const currentCluster = selectedEmotion ? getClusterForEmotion(selectedEmotion) : null;
+
+  // Voice integration
+  const voice = useMindCoachVoice({
+    onUserMessage: (text) => {
+      sendMessage(text);
+    },
+    onAIResponse: (text) => {
+      // Voice will speak AI responses in call mode
+    },
+    language,
+    silenceThreshold: 3000,
+    playbackRate: 1.15,
+  });
+
+  // Speak AI response when in call mode
+  useEffect(() => {
+    if (lastAIResponse && voice.isInCall && !isLoading) {
+      voice.speakAIResponse(lastAIResponse);
+    }
+  }, [lastAIResponse, voice.isInCall, isLoading]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -70,23 +98,32 @@ export function MindCoachDemo({
   };
 
   // Handle send message
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     if (!inputValue.trim() || isLoading) return;
     sendMessage(inputValue.trim());
     setInputValue('');
-  };
+  }, [inputValue, isLoading, sendMessage]);
 
-  // Handle key press
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+  // Handle call toggle
+  const handleCallToggle = useCallback(() => {
+    if (voice.isInCall) {
+      voice.endCall();
+    } else {
+      // Get opening message for call mode
+      const openingMessage = selectedEmotion 
+        ? getClusterOpeningMessage(getClusterForEmotion(selectedEmotion), language)
+        : language === 'ro' 
+          ? 'Bun venit la Mind Coach. Cum te simți acum?' 
+          : 'Welcome to Mind Coach. How are you feeling now?';
+      
+      voice.startCall(openingMessage);
     }
-  };
+  }, [voice, selectedEmotion, language]);
 
   // Handle restart
   const handleRestart = () => {
     resetSession();
+    voice.endCall();
     setStep('emotion');
     setSelectedEmotion(null);
     setSelectedIntensity(5);
@@ -102,9 +139,7 @@ export function MindCoachDemo({
             Mind Coach
           </CardTitle>
           <p className="text-muted-foreground text-sm text-center mt-2">
-            {language === 'ro' 
-              ? 'Cum te simți în acest moment?' 
-              : 'How are you feeling right now?'}
+            Cum te simți în acest moment?
           </p>
         </CardHeader>
         <CardContent>
@@ -128,11 +163,11 @@ export function MindCoachDemo({
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="sm" onClick={() => setStep('emotion')}>
               <ArrowLeft className="h-4 w-4 mr-1" />
-              {language === 'ro' ? 'Înapoi' : 'Back'}
+              Înapoi
             </Button>
             <CardTitle className="flex items-center gap-2 text-xl">
               <span className="text-2xl">{emotionInfo?.emoji}</span>
-              {language === 'ro' ? emotionInfo?.labelRo : emotionInfo?.labelEn}
+              {emotionInfo?.labelRo}
             </CardTitle>
             <div className="w-16" />
           </div>
@@ -140,9 +175,7 @@ export function MindCoachDemo({
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <p className="text-center text-muted-foreground">
-              {language === 'ro' 
-                ? 'Cât de intens simți asta?' 
-                : 'How intense is this feeling?'}
+              Cât de intens simți asta?
             </p>
             
             <div className="px-4">
@@ -155,9 +188,9 @@ export function MindCoachDemo({
                 className="w-full"
               />
               <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-                <span>1 - {language === 'ro' ? 'Ușor' : 'Mild'}</span>
+                <span>1 - Ușor</span>
                 <span className="text-2xl font-bold text-primary">{selectedIntensity}</span>
-                <span>10 - {language === 'ro' ? 'Intens' : 'Intense'}</span>
+                <span>10 - Intens</span>
               </div>
             </div>
           </div>
@@ -168,7 +201,7 @@ export function MindCoachDemo({
             size="lg"
           >
             <Brain className="h-5 w-5 mr-2" />
-            {language === 'ro' ? 'Începe Transformarea' : 'Start Transformation'}
+            Începe Transformarea
           </Button>
         </CardContent>
       </Card>
@@ -179,14 +212,14 @@ export function MindCoachDemo({
   const emotionInfo = selectedEmotion ? getEmotionInfo(selectedEmotion) : null;
 
   return (
-    <Card className="flex flex-col h-[500px] bg-gradient-to-br from-background via-background to-primary/5 border-primary/20 shadow-lg shadow-primary/5">
+    <Card className="flex flex-col h-[600px] bg-gradient-to-br from-background via-background to-primary/5 border-primary/20 shadow-lg shadow-primary/5">
       {/* Header with phase indicator */}
       <CardHeader className="pb-2 border-b border-primary/10 shrink-0 bg-gradient-to-r from-primary/5 to-transparent">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="text-xl">{emotionInfo?.emoji}</span>
             <span className="text-sm font-medium text-foreground">
-              {language === 'ro' ? emotionInfo?.labelRo : emotionInfo?.labelEn}
+              {emotionInfo?.labelRo}
             </span>
             <span className="text-xs text-muted-foreground bg-primary/10 px-2 py-0.5 rounded-full">
               {selectedIntensity}/10
@@ -206,7 +239,7 @@ export function MindCoachDemo({
           {messages.length === 0 && selectedEmotion && (
             <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-4 text-sm border border-primary/10 animate-fade-in">
               <p className="font-medium mb-2 text-foreground">
-                {emotionInfo?.emoji} {language === 'ro' ? emotionInfo?.labelRo : emotionInfo?.labelEn} la {selectedIntensity}/10...
+                {emotionInfo?.emoji} {emotionInfo?.labelRo} la {selectedIntensity}/10...
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 {getClusterOpeningMessage(getClusterForEmotion(selectedEmotion), language)}
@@ -253,25 +286,36 @@ export function MindCoachDemo({
         </div>
       </ScrollArea>
 
-      {/* Input area */}
+      {/* Input area with voice buttons */}
       <div className="p-4 border-t border-primary/10 shrink-0 bg-gradient-to-t from-primary/5 to-transparent">
-        <div className="flex gap-2">
-          <Textarea
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyPress}
-            placeholder={language === 'ro' ? 'Scrie aici...' : 'Type here...'}
-            className="min-h-[44px] max-h-[120px] resize-none"
-            disabled={isLoading || isComplete}
-          />
-          <Button
-            onClick={handleSend}
-            disabled={!inputValue.trim() || isLoading || isComplete}
-            className="shrink-0"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
+        <MindCoachInputBar
+          value={inputValue}
+          onChange={setInputValue}
+          onSend={handleSend}
+          placeholder="Scrie aici..."
+          isLoading={isLoading}
+          isComplete={isComplete}
+          // Speak mode props
+          isSpeaking={voice.isSpeaking}
+          onSpeakStart={voice.handleSpeakStart}
+          onSpeakStop={voice.handleSpeakStop}
+          // Call mode props
+          isInCall={voice.isInCall}
+          isAISpeaking={voice.isAISpeaking}
+          isListening={voice.isListening}
+          isProcessing={voice.isProcessing}
+          isTTSLoading={voice.isTTSLoading}
+          currentTranscript={voice.currentTranscript}
+          silenceTimer={voice.silenceTimer}
+          audioLevel={voice.audioLevel}
+          onCallToggle={handleCallToggle}
+          onSkipAI={voice.skipAISpeaking}
+          onManualSend={voice.manualSendInCall}
+          // Quick answers
+          cluster={currentCluster}
+          showQuickAnswers={messages.length > 0 && !isComplete}
+          language={language}
+        />
       </div>
     </Card>
   );
