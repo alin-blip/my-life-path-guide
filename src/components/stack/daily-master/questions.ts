@@ -1,4 +1,45 @@
-export const getDailyMasterQuestions = () => {
+export const getDailyMasterQuestions = (language: 'en' | 'ro' = 'ro') => {
+  if (language === 'en') {
+    return {
+      awakening: [
+        "Welcome to a new day full of possibilities! How do you feel right now, physically and emotionally?",
+        "What powerful intention do you want to set for today? What do you want this day to represent for you?"
+      ],
+      spiritual: [
+        "Let's connect with your inner source. Close your eyes for a few seconds and breathe deeply... What message do you receive from your higher self for today?",
+        "Who or what are you praying for this morning? What blessing do you ask for?"
+      ],
+      gratitude: [
+        "What are 3 things you are deeply grateful for right now, in this moment?",
+        "How does this gratitude make you feel? Let your heart fill with this energy."
+      ],
+      mentalPower: [
+        "What is a limiting belief you choose to abandon today? What has been holding you back?",
+        "What is the NEW powerful belief that will guide you today? What do you now believe about yourself?",
+        "Tell me a powerful affirmation - your mantra for today. Something that energizes you!"
+      ],
+      goalSetting: [
+        "What is the BIG GOAL you want to achieve today? (One major thing)",
+        "What are 2-3 sub-goals or steps for this big goal?",
+        "Is there another important goal for today? (if yes, what is it?)",
+        "What is your concrete PLAN? What steps will you follow, in what order?",
+        "WHY do you want to do this? What is your deep motivation?",
+        "What is the POSITIVE IMPACT if you succeed? What changes in your life?",
+        "What is the NEGATIVE IMPACT if you DON'T do this? What do you lose?",
+        "What should your main FOCUS be? What do you need to concentrate on most?",
+        "What are the DISTRACTIONS you need to eliminate? What could lead you astray?"
+      ],
+      divinePrayer: [
+        "Now let's ask for divine help. Repeat after me or adapt with your own words: 'Lord, please remove all obstacles from my path. Make this way easy and simple. Let things come synchronized to me for achieving this goal. Guide my steps and open my path. Amen.'"
+      ],
+      commitment: [
+        "On a scale of 1 to 10, how determined are you to make today an extraordinary day?",
+        "What would help you raise that number by 1-2 points? What do you need?",
+        "Do you want to add today's goals and actions to the HIT List? (YES or NO)"
+      ]
+    };
+  }
+  
   return {
     awakening: [
       "Bun venit într-o nouă zi plină de posibilități! Cum te simți chiar în acest moment, fizic și emoțional?",
@@ -39,18 +80,42 @@ export const getDailyMasterQuestions = () => {
   };
 };
 
-export const getDailyMasterSections = () => [
-  { key: 'awakening', title: '🌅 Trezire & Intenție', icon: '🌅', duration: '2-3 min' },
-  { key: 'spiritual', title: '🧘 Centrare Spirituală', icon: '🧘', duration: '2-3 min' },
-  { key: 'gratitude', title: '🙏 Recunoștință Rapidă', icon: '🙏', duration: '2 min' },
-  { key: 'mentalPower', title: '💪 Putere Mentală', icon: '💪', duration: '3 min' },
-  { key: 'goalSetting', title: '🎯 Obiective & Plan', icon: '🎯', duration: '5 min' },
-  { key: 'divinePrayer', title: '✨ Rugăciune Divină', icon: '✨', duration: '1 min' },
-  { key: 'commitment', title: '🚀 Angajament & Lansare', icon: '🚀', duration: '2 min' }
-];
+export const getDailyMasterSections = (language: 'en' | 'ro' = 'ro') => {
+  if (language === 'en') {
+    return [
+      { key: 'awakening', title: '🌅 Awakening & Intention', icon: '🌅', duration: '2-3 min' },
+      { key: 'spiritual', title: '🧘 Spiritual Centering', icon: '🧘', duration: '2-3 min' },
+      { key: 'gratitude', title: '🙏 Quick Gratitude', icon: '🙏', duration: '2 min' },
+      { key: 'mentalPower', title: '💪 Mental Power', icon: '💪', duration: '3 min' },
+      { key: 'goalSetting', title: '🎯 Goals & Plan', icon: '🎯', duration: '5 min' },
+      { key: 'divinePrayer', title: '✨ Divine Prayer', icon: '✨', duration: '1 min' },
+      { key: 'commitment', title: '🚀 Commitment & Launch', icon: '🚀', duration: '2 min' }
+    ];
+  }
+  
+  return [
+    { key: 'awakening', title: '🌅 Trezire & Intenție', icon: '🌅', duration: '2-3 min' },
+    { key: 'spiritual', title: '🧘 Centrare Spirituală', icon: '🧘', duration: '2-3 min' },
+    { key: 'gratitude', title: '🙏 Recunoștință Rapidă', icon: '🙏', duration: '2 min' },
+    { key: 'mentalPower', title: '💪 Putere Mentală', icon: '💪', duration: '3 min' },
+    { key: 'goalSetting', title: '🎯 Obiective & Plan', icon: '🎯', duration: '5 min' },
+    { key: 'divinePrayer', title: '✨ Rugăciune Divină', icon: '✨', duration: '1 min' },
+    { key: 'commitment', title: '🚀 Angajament & Lansare', icon: '🚀', duration: '2 min' }
+  ];
+};
 
-export const getDivinePrayerText = () => `Doamne, te rog, elimină toate obstacolele din calea mea. 
+export const getDivinePrayerText = (language: 'en' | 'ro' = 'ro') => {
+  if (language === 'en') {
+    return `Lord, please remove all obstacles from my path. 
+Make this way easy and simple. 
+Let things come synchronized to me for achieving this goal. 
+Guide my steps and open my path. 
+Amen.`;
+  }
+  
+  return `Doamne, te rog, elimină toate obstacolele din calea mea. 
 Fă această cale ușoară și simplă. 
 Lasă lucrurile să vină sincronizat către mine pentru realizarea acestui obiectiv. 
 Ghidează-mi pașii și deschide-mi drumul. 
 Amin.`;
+};

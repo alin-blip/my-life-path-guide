@@ -197,7 +197,7 @@ export const useGodsSchoolStack = ({ onAddToHitList }: UseGodsSchoolStackProps =
   }, [saveSessionData]);
 
   const getCurrentQuestion = useCallback(() => {
-    return getGodsSchoolQuestionText(state.currentStep, state.answers);
+    return getGodsSchoolQuestionText(state.currentStep, state.answers, 'ro');
   }, [state.currentStep, state.answers]);
 
   return {
@@ -212,7 +212,7 @@ export const useGodsSchoolStack = ({ onAddToHitList }: UseGodsSchoolStackProps =
     },
     utils: {
       getCurrentQuestion,
-      getPlaceholder: () => getGodsSchoolPlaceholder(state.currentStep),
+      getPlaceholder: () => getGodsSchoolPlaceholder('ro'),
       getTotalQuestions: () => godsSchoolQuestions.length
     },
     session: {

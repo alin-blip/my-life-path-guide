@@ -1,5 +1,28 @@
-
-export const getQuestions = () => {
+export const getQuestions = (language: 'en' | 'ro' = 'ro') => {
+  if (language === 'en') {
+    return [
+      "What title will you give this stack?",
+      "Who or what are you Stacking?",
+      "Why has {peCine} prompted you to pray at this moment?",
+      "What is the story you tell yourself, created by this trigger, about {peCine} and the situation?",
+      "Describe in a single word the feelings that arise for you when you tell yourself that story?",
+      "Lord I want you to know that: Category or situation 1:",
+      "Lord I want you to know that: Category or situation 2:",
+      "Lord I want you to know that: Category or situation 3:",
+      "Lord I want you to know that: Category or situation 4:",
+      "Lord, what is here that you want me to see?",
+      "Lord, what is here to be heard?",
+      "Lord, what do you want me to feel?",
+      "Lord what do you want me to know?",
+      "What do you want me to do, Lord?",
+      "What is the singular life lesson you take from this prayer stack?",
+      "What is the most significant revelation or understanding you leave with from this prayer stack and why do you feel that way?",
+      "What immediate actions are you determined to take after completing this prayer stack?",
+      "Do you want to add to hot list?",
+      "More actions?"
+    ];
+  }
+  
   return [
     "Ce titlu vei da acestui stack?",
     "Pe cine sau ce Stackuiesti?",

@@ -1,4 +1,48 @@
-export const getDivineGratitudeQuestions = () => {
+export const getDivineGratitudeQuestions = (language: 'en' | 'ro' = 'ro') => {
+  if (language === 'en') {
+    return {
+      intro: [
+        "What title will you give this sacred moment of connection and gratitude?",
+        "Who or what do you bring before God today?",
+        "Why has this person or situation caused you to pray at this moment?",
+        "What is the story you tell yourself about this situation?",
+        "Describe in a single word the feeling that arises when you think about this."
+      ],
+      divineConnection: [
+        "Lord, I want you to know that... (first category or situation from your heart):",
+        "Lord, I want you to know that... (second category or situation):",
+        "Lord, I want you to know that... (third category or situation):",
+        "Lord, I want you to know that... (fourth category or situation):",
+        "Lord, what is here that you want me to SEE?",
+        "Lord, what is here to be HEARD?",
+        "Lord, what do you want me to FEEL?",
+        "Lord, what do you want me to KNOW?",
+        "What do you want me to DO, Lord?"
+      ],
+      gratitude: [
+        "🌍 What is the first thing from the WORLD you are grateful for?",
+        "🌍 What is the second thing from the WORLD you are grateful for?",
+        "🌍 What is the third thing from the WORLD you are grateful for?",
+        "💖 What is the first thing from YOUR PERSONAL LIFE you are grateful for?",
+        "💖 What is the second thing from YOUR PERSONAL LIFE you are grateful for?",
+        "💖 What is the third thing from YOUR PERSONAL LIFE you are grateful for?",
+        "💼 What is the first thing from YOUR PROFESSIONAL LIFE you are grateful for?",
+        "💼 What is the second thing from YOUR PROFESSIONAL LIFE you are grateful for?",
+        "💼 What is the third thing from YOUR PROFESSIONAL LIFE you are grateful for?",
+        "🌟 What is the first thing ABOUT YOURSELF you are grateful for?",
+        "🌟 What is the second thing ABOUT YOURSELF you are grateful for?",
+        "🌟 What is the third thing ABOUT YOURSELF you are grateful for?"
+      ],
+      closing: [
+        "What is the SINGULAR life lesson you take from this experience?",
+        "What is the most significant REVELATION you leave with?",
+        "What IMMEDIATE ACTIONS are you determined to take?",
+        "Do you want to add these actions to the HIT List? (YES or NO)",
+        "Are there other actions you want to add? (YES or NO)"
+      ]
+    };
+  }
+  
   return {
     intro: [
       "Ce titlu vei da acestui moment sacru de conexiune și recunoștință?",
@@ -42,9 +86,20 @@ export const getDivineGratitudeQuestions = () => {
   };
 };
 
-export const getDivineGratitudeSections = () => [
-  { key: 'intro', title: '🙏 Deschidere', questionCount: 5 },
-  { key: 'divineConnection', title: '✨ Conexiune Divină', questionCount: 9 },
-  { key: 'gratitude', title: '💝 Practică de Recunoștință', questionCount: 12 },
-  { key: 'closing', title: '🎯 Lecții & Acțiuni', questionCount: 5 }
-];
+export const getDivineGratitudeSections = (language: 'en' | 'ro' = 'ro') => {
+  if (language === 'en') {
+    return [
+      { key: 'intro', title: '🙏 Opening', questionCount: 5 },
+      { key: 'divineConnection', title: '✨ Divine Connection', questionCount: 9 },
+      { key: 'gratitude', title: '💝 Gratitude Practice', questionCount: 12 },
+      { key: 'closing', title: '🎯 Lessons & Actions', questionCount: 5 }
+    ];
+  }
+  
+  return [
+    { key: 'intro', title: '🙏 Deschidere', questionCount: 5 },
+    { key: 'divineConnection', title: '✨ Conexiune Divină', questionCount: 9 },
+    { key: 'gratitude', title: '💝 Practică de Recunoștință', questionCount: 12 },
+    { key: 'closing', title: '🎯 Lecții & Acțiuni', questionCount: 5 }
+  ];
+};

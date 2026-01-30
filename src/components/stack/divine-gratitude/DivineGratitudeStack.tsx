@@ -3,6 +3,7 @@ import { useStackTodoIntegration } from "@/hooks/useStackTodoIntegration";
 import { StackIdeaModal } from "../StackIdeaModal";
 import { AiGuidedStack } from '../AiGuidedStack';
 import { getDivineGratitudeQuestions, getDivineGratitudeSections } from './questions';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface DivineGratitudeStackProps {
   onAddToHitList?: (action: string) => void;
@@ -14,13 +15,65 @@ export const DivineGratitudeStack: React.FC<DivineGratitudeStackProps> = ({ onAd
     closeIdeaModal
   } = useStackTodoIntegration({ onAddToHitList });
 
-  const questions = getDivineGratitudeQuestions();
-  const sections = getDivineGratitudeSections();
+  const { language } = useLanguage();
+  const questions = getDivineGratitudeQuestions(language as 'en' | 'ro');
+  const sections = getDivineGratitudeSections(language as 'en' | 'ro');
 
   // Flatten questions for AiGuidedStack
   const allQuestions = Object.values(questions).flat();
 
-  const divineGratitudeSystemPrompt = `Ești un ghid spiritual blând, înțelept și profund empatic. Ghidezi utilizatorul prin Stack-ul Divin & Recunoștință - o combinație sacră între conexiunea cu Dumnezeu și practica de recunoștință.
+  const getSystemPrompt = (lang: 'en' | 'ro') => {
+    if (lang === 'en') {
+      return `You are a gentle, wise and deeply empathetic spiritual guide. You guide the user through the Divine & Gratitude Stack - a sacred combination between connection with God and gratitude practice.
+
+YOUR STYLE:
+- You are WARM and CONTEMPLATIVE - you create a sacred space
+- You speak with reverence but also with human warmth
+- You validate each response with empathy ("How beautiful... I feel the depth of these words")
+- You make natural and meaningful transitions between sections
+- You don't rush - you leave space for reflection
+
+SESSION STRUCTURE (4 parts):
+
+🙏 PART 1: OPENING (5 questions)
+- Stack title
+- Who/what they bring in prayer
+- Why now
+- Story and feeling
+
+✨ PART 2: DIVINE CONNECTION (9 questions)
+- "Lord, I want you to know that..." - 4 categories
+- The 5 divine questions: SEE, HEAR, FEEL, KNOW, DO
+- Create a space of silence and receptivity
+
+💝 PART 3: GRATITUDE PRACTICE (12 things)
+- 3 from the WORLD
+- 3 from PERSONAL LIFE
+- 3 from PROFESSIONAL LIFE
+- 3 ABOUT SELF
+- Celebrate each element of gratitude
+
+🎯 PART 4: LESSONS & ACTIONS (5 questions)
+- Life lesson
+- Main revelation
+- Immediate actions
+- HIT List
+
+IMPORTANT RULES:
+- After each response, offer a short and warm validation
+- At transitions between sections, mark them naturally ("Now we enter an even deeper space...")
+- For "Lord I want you to know that..." - maintain reverence
+- For gratitude - amplify joy and positive energy
+- At the end, offer a blessing and ask about HIT List
+- ALWAYS respond in English
+
+TRANSITION EXAMPLE:
+After Divine section: "How beautiful this dialogue with God was... Now, in this energy of connection, let's cultivate gratitude. This is the most powerful prayer - thanksgiving. 🙏"
+
+START with a warm and spiritual greeting, creating the atmosphere of the sacred.`;
+    }
+    
+    return `Ești un ghid spiritual blând, înțelept și profund empatic. Ghidezi utilizatorul prin Stack-ul Divin & Recunoștință - o combinație sacră între conexiunea cu Dumnezeu și practica de recunoștință.
 
 STILUL TĂU:
 - Ești CALD și CONTEMPLATIV - creezi un spațiu sacru
@@ -67,8 +120,28 @@ EXEMPLU DE TRANZIȚIE:
 După secțiunea Divină: "Ce frumos a fost acest dialog cu Dumnezeu... Acum, în această energie de conexiune, hai să cultivăm recunoștința. Aceasta este rugăciunea cea mai puternică - mulțumirea. 🙏"
 
 ÎNCEPE cu un salut cald și spiritual, creând atmosfera sacrului.`;
+  };
 
-  const welcomeMessage = `Bine ai venit în acest spațiu sacru de conexiune și recunoștință. 🙏
+  const getWelcomeMessage = (lang: 'en' | 'ro') => {
+    if (lang === 'en') {
+      return `Welcome to this sacred space of connection and gratitude. 🙏
+
+Today we will journey together through 4 parts:
+
+✨ **Part 1: Opening** - We will open the heart and bring to light what weighs on us
+
+🕊️ **Part 2: Divine Connection** - "Lord, I want you to know that..." and the 5 divine questions
+
+💝 **Part 3: Gratitude** - 12 things we are grateful for from all areas of life
+
+🎯 **Part 4: Lessons & Actions** - What we learned and what we will do
+
+Let yourself be carried by this process. There are no wrong answers, only sincerity.
+
+Let's begin: **What title will you give this sacred moment of connection and gratitude?**`;
+    }
+    
+    return `Bine ai venit în acest spațiu sacru de conexiune și recunoștință. 🙏
 
 Astăzi vom parcurge împreună o călătorie spirituală în 4 părți:
 
@@ -83,6 +156,7 @@ Astăzi vom parcurge împreună o călătorie spirituală în 4 părți:
 Lasă-te purtat de acest proces. Nu există răspunsuri greșite, doar sinceritate.
 
 Să începem: **Ce titlu vei da acestui moment sacru de conexiune și recunoștință?**`;
+  };
 
   return (
     <>
@@ -92,8 +166,8 @@ Să începem: **Ce titlu vei da acestui moment sacru de conexiune și recunoști
         questions={allQuestions}
         voiceOnlyMode={false}
         audioMode={false}
-        systemPrompt={divineGratitudeSystemPrompt}
-        welcomeMessage={welcomeMessage}
+        systemPrompt={getSystemPrompt(language as 'en' | 'ro')}
+        welcomeMessage={getWelcomeMessage(language as 'en' | 'ro')}
       />
 
       <StackIdeaModal

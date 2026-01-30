@@ -11,6 +11,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Target, Flame, Brain, Lightbulb, Users, Zap, Heart, Eye, ArrowRight, RotateCcw, BookOpen, ChevronDown, FileText, Trash2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/context/LanguageContext';
 
 const NAPOLEON_HILL_PRINCIPLES = [
   { id: 1, name: "Dorința", icon: Flame, description: "Definirea clară a obiectivului tău arzător", color: "bg-orange-500" },
@@ -43,6 +44,7 @@ export const MasterPlanQuickStack: React.FC<NapoleonHillStackProps> = ({
   const [knowledgeBaseOpen, setKnowledgeBaseOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, file_name: string, file_path: string}>>([]);
   const { toast } = useToast();
+  const { language } = useLanguage();
 
   const {
     isIdeaModalOpen,
@@ -114,14 +116,14 @@ export const MasterPlanQuickStack: React.FC<NapoleonHillStackProps> = ({
       setKnowledgeBaseFiles(prev => prev.filter(f => f !== filePath));
       
       toast({
-        title: "Fișier șters",
-        description: "Fișierul a fost eliminat din knowledge base",
+        title: language === 'en' ? "File deleted" : "Fișier șters",
+        description: language === 'en' ? "The file has been removed from the knowledge base" : "Fișierul a fost eliminat din knowledge base",
       });
     } catch (error) {
       console.error('Error deleting file:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut șterge fișierul",
+        title: language === 'en' ? "Error" : "Eroare",
+        description: language === 'en' ? "Could not delete the file" : "Nu am putut șterge fișierul",
         variant: "destructive"
       });
     }
@@ -130,7 +132,7 @@ export const MasterPlanQuickStack: React.FC<NapoleonHillStackProps> = ({
   const getQuickStackPrompt = (principleId: number) => {
     const principle = NAPOLEON_HILL_PRINCIPLES.find(p => p.id === principleId);
     
-    const principleContext: Record<number, string> = {
+    const principleContextRo: Record<number, string> = {
       1: 'DORINȚA este punctul de pornire al tuturor realizărilor. "The starting point of all achievement is desire."',
       2: 'CREDINȚA este capul de pod între gândire și realitate. "Faith is the head chemist of the mind."',
       3: 'AUTOSUGGESTIA este tehnica prin care îți programezi subconștientul. "Any idea, plan, or purpose may be placed in the mind through repetition of thought."',
@@ -146,7 +148,65 @@ export const MasterPlanQuickStack: React.FC<NapoleonHillStackProps> = ({
       13: 'AL ȘASELEA SIMȚ este "templul înțelepciunii" - intuiția care vine din experiență și cunoaștere acumulată.',
       14: 'CELE 6 FRICI (sărăcie, critică, boală, pierderea iubirii, bătrânețe, moarte) sunt inamicii succesului care trebuie eliminați.'
     };
+
+    const principleContextEn: Record<number, string> = {
+      1: 'DESIRE is the starting point of all achievement. "The starting point of all achievement is desire."',
+      2: 'FAITH is the bridge between thinking and reality. "Faith is the head chemist of the mind."',
+      3: 'AUTOSUGGESTION is the technique by which you program your subconscious. "Any idea, plan, or purpose may be placed in the mind through repetition of thought."',
+      4: 'SPECIALIZED KNOWLEDGE produces wealth when organized and intelligently applied.',
+      5: 'IMAGINATION is the workshop where all plans are created. Synthetic and creative imagination are the two forms.',
+      6: 'ORGANIZED PLANNING transforms desire into concrete action through clear and measurable steps.',
+      7: 'DECISION is the opposite of procrastination. Successful people make decisions quickly and change them slowly.',
+      8: 'PERSISTENCE is the common factor of all successful people. "Persistence is to character what carbon is to steel."',
+      9: 'MASTER MIND is the coordination of knowledge and effort between two or more people for a definite purpose.',
+      10: 'TRANSMUTATION OF ENERGY means channeling creative and passionate energy toward your main goal.',
+      11: 'THE SUBCONSCIOUS MIND is the link between the conscious mind and Infinite Intelligence.',
+      12: 'THE BRAIN works as a broadcast and receiving station for thoughts.',
+      13: 'THE SIXTH SENSE is the "temple of wisdom" - intuition that comes from experience and accumulated knowledge.',
+      14: 'THE 6 FEARS (poverty, criticism, illness, loss of love, old age, death) are enemies of success that must be eliminated.'
+    };
+
+    const principleContext = language === 'en' ? principleContextEn : principleContextRo;
     
+    if (language === 'en') {
+      return `You are a coach EXCLUSIVELY based on the 14 principles of success from the Master Plan system.
+IMPORTANT: You are MASTER PLAN COACH, not any other type of coach. All your responses must be anchored in these universal principles.
+
+Today you focus on PRINCIPLE ${principleId}: ${principle?.name?.toUpperCase()}.
+
+${principleContext[principleId] || ''}
+
+=== QUICK STACK FRAMEWORK - ${principle?.name} ===
+
+This quick stack helps you unblock and take ACTION TODAY using the ${principle?.name} principle.
+
+CONVERSATION STRUCTURE (5-7 short questions):
+
+1. "What specific goal do you have in mind today related to ${principle?.name}?"
+2. "${getSpecificQuestion(principleId, 1)}"
+3. "${getSpecificQuestion(principleId, 2)}"
+4. "What is blocking you NOW from making progress in this direction?"
+5. "How can you apply the ${principle?.name} principle to overcome this block?"
+6. "What SINGLE ACTION can you take in the next 2 hours?"
+7. "Do you want to add this action to the HIT list?"
+
+STRICT INSTRUCTIONS:
+- Be DIRECT and ACTION-oriented
+- Each response maximum 2-3 sentences
+- Focus on TODAY, not long-term plans
+- Ask ONE question per message
+- Use relevant motivational quotes
+- At the end, extract a concrete action for the HIT list
+
+QUOTES TO USE:
+- "Whatever the mind can conceive and believe, it can achieve."
+- "A goal is a dream with a deadline."
+- "Action is the real measure of intelligence."
+- "Every adversity carries with it the seed of an equal or greater benefit."
+
+START NOW: "Welcome to the Master Plan Stack for ${principle?.name}! ${principleContext[principleId]?.split('.')[0] || ''} What specific goal do you have in mind today related to this principle?"`;
+    }
+
     return `Ești un coach EXCLUSIV bazat pe cele 14 principii ale succesului din sistemul Master Plan.
 IMPORTANT: Ești MASTER PLAN COACH, nu orice alt tip de coach. Toate răspunsurile trebuie ancorate în aceste principii universale.
 
@@ -186,6 +246,53 @@ CITATE DE FOLOSIT:
   };
 
   const getFullStackPrompt = () => {
+    if (language === 'en') {
+      return `You are a coach EXCLUSIVELY based on the 14 principles of success from the Master Plan system.
+You guide the user through a RAPID MORNING STACK through all 14 principles.
+
+IMPORTANT: You are MASTER PLAN COACH, nothing else. Your responses must be anchored in these universal principles.
+
+=== FULL RAPID STACK FRAMEWORK (14 principles, 1 question per principle) ===
+
+For EACH principle, ask ONE key question and move to the next:
+
+1. DESIRE: "What do you want most to achieve? Be SPECIFIC (amount, date, details)."
+2. FAITH: "On a scale of 1-10, how convinced are you that you will succeed? Why?"
+3. AUTOSUGGESTION: "What positive affirmation will you repeat today about this goal?"
+4. KNOWLEDGE: "What SINGLE thing do you need to learn this week to advance?"
+5. IMAGINATION: "Describe in 2-3 sentences what your life looks like when you've achieved this goal."
+6. PLANNING: "What are the 3 CONCRETE STEPS you will take this week?"
+7. DECISION: "Are you 100% DETERMINED to do this? YES or NO?"
+8. PERSISTENCE: "What is the biggest obstacle and how will you overcome it?"
+9. MASTER MIND: "Who can help you? Who can you ask for advice or support?"
+10. ENERGY: "How will you channel your energy and motivation today?"
+11. SUBCONSCIOUS: "What limiting belief do you need to replace?"
+12. BRAIN: "At what time will you dedicate 15 minutes of concentrated thinking on the goal?"
+13. INTUITION: "What does your instinct tell you about the first step?"
+14. FEARS: "Which of the 6 fears (poverty, criticism, illness, loss of love, old age, death) blocks you most?"
+
+FINAL:
+- "What is the SINGLE ACTION you will do TODAY, in the next 2 hours?"
+- "Do you want to add it to the HIT list?"
+
+STRICT INSTRUCTIONS:
+- ONE question per message
+- AI responses maximum 2-3 sentences
+- Use relevant motivational quotes
+- Fast pace, no long philosophizing
+- Focus on IMMEDIATE ACTION
+- Entire stack in 15-20 minutes maximum
+
+QUOTES TO USE:
+- "Whatever the mind can conceive and believe, it can achieve."
+- "A goal is a dream with a deadline."
+- "Action is the real measure of intelligence."
+- "Every adversity carries with it the seed of an equal or greater benefit."
+- "The starting point of all achievement is desire."
+
+Start with: "Let's do a quick morning reset! PRINCIPLE 1 - DESIRE: What do you want most to achieve? Be SPECIFIC."`;
+    }
+
     return `Ești un coach EXCLUSIV bazat pe cele 14 principii ale succesului din sistemul Master Plan.
 Ghidezi utilizatorul printr-un STACK RAPID DE DIMINEAȚĂ prin toate cele 14 principii.
 
