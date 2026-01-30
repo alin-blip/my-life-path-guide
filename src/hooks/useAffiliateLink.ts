@@ -70,10 +70,55 @@ export function useAffiliateLink() {
     }
   };
 
+  // Share with custom message (for challenge invites)
+  const shareWithMessage = async (message: string) => {
+    if (!referralLink) return;
+
+    setIsLoading(true);
+
+    try {
+      // Try Web Share API first
+      if (navigator.share && navigator.canShare?.({ text: message })) {
+        await navigator.share({
+          title: 'Have It All Lifestyle Challenge',
+          text: message,
+        });
+        
+        toast({
+          title: 'Message shared successfully',
+          description: 'Thank you for inviting your friends!',
+        });
+      } else {
+        throw new Error('Web Share not available');
+      }
+    } catch (error) {
+      // FALLBACK: Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(message);
+        
+        toast({
+          title: 'Message copied to clipboard',
+          description: 'Paste it to share with your friends!',
+        });
+      } catch (clipboardError) {
+        console.error('Error copying to clipboard:', clipboardError);
+        
+        toast({
+          title: 'Something went wrong',
+          description: 'Could not copy the message. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     userId,
     referralLink,
     isLoading,
-    shareReferralLink
+    shareReferralLink,
+    shareWithMessage
   };
 }
