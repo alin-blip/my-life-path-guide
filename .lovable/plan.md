@@ -1,222 +1,271 @@
 
-# Plan: Redesign Mind Coach Transform - n8n Style + Demo in Hero
 
-## Obiectiv
-1. Adopt n8n-style design (dark gradients, glow effects) ca pe homepage
-2. Pune demo-ul direct in Hero (fara buton, testeaza imediat)
-3. Elimina etichetele "Durere", "Actiune", "Placere" din Challenge
-4. Optimizare mobil completa
-5. Pastram butoanele Speak & Call
+# Plan: Mind Coach Lead Magnet Optimizat + AI Voice Rapid
+
+## Obiective
+1. **AI Coach specializat pentru lead magnet** - focusat pe 4 probleme: Frustrare, Anxietate, Procrastinare, Frică
+2. **Conversație scurtă de transformare** (3-5 schimburi) → apoi deblochează Challenge
+3. **Pop-up de deblocare** cu oferta 7-Day Challenge
+4. **Optimizare timp răspuns voice** de la 10+ sec la 2-4 sec
 
 ---
 
-## Modificari Principale
+## Partea 1: Optimizare Timp Răspuns AI Voice
 
-### 1. MindCoachLanding.tsx - Redesign Complet
+### Problema actuală (10+ secunde):
+```text
+User vorbește → STT (1s) → AI gemini-2.5-pro (5-8s) → TTS call separat (3-5s) → Play
+Total: 10-15 secunde
+```
 
-**Hero Section:**
-- Inlocuim butonul CTA cu demo-ul direct integrat
-- Folosim `n8n-hero-gradient` pentru background
-- Folosim `n8n-gradient-text` pentru headline
-- Badge animat cu puls verde (ca pe homepage)
-- Eliminam scroll indicator si feature pills (demo e vizibil imediat)
+### Soluția optimizată (2-4 secunde):
+```text
+User vorbește → STT (1s) → AI gemini-3-flash-preview (1-2s) → TTS streaming (0.5s) → Play
+Total: 2-4 secunde
+```
 
-**Structura noua Hero:**
+### Modificări:
+
+#### 1. Edge Function `mind-coach-demo/index.ts`
+- Schimbăm modelul de la `google/gemini-2.5-pro` → `google/gemini-3-flash-preview`
+- Acest model e de 3-4x mai rapid cu calitate aproape identică pentru coaching
+
+#### 2. TTS pentru demo (fără autentificare)
+- Creăm `text-to-speech-demo` Edge Function (verify_jwt = false)
+- Rate limiting bazat pe IP
+- Răspunsuri scurte (max 200 caractere) = TTS instant
+
+#### 3. `useTextToSpeech.tsx` - Versiune demo
+- Adăugăm parametru `publicMode` pentru a folosi endpoint-ul fără auth
+- Pre-fetch primele răspunsuri AI comune
+
+---
+
+## Partea 2: AI Coach Specializat Lead Magnet
+
+### Flow nou:
+
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
-│  [n8n-hero-gradient background]                                 │
+│  PASUL 1: Selectare Problemă                                   │
 │                                                                 │
-│  ● [Mind Coach AI] [TEST GRATUIT]                              │
+│  Ce te blochează cel mai mult acum?                            │
 │                                                                 │
-│  Transformă Orice Emoție                                       │
-│  în Putere și Acțiune                                          │
-│  ───────────────────────                                        │
-│  în doar 5 minute                                               │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐           │
+│  │  😤     │  │  😰     │  │  😴     │  │  😨     │           │
+│  │FRUSTRARE│  │ANXIETATE│  │PROCRAS- │  │ FRICĂ   │           │
+│  │         │  │         │  │ TINARE  │  │         │           │
+│  │Obiective│  │Viitorul │  │Nu știu  │  │Eșec,    │           │
+│  │blocate  │  │incert   │  │de unde  │  │judecată │           │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘           │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  PASUL 2: Conversație Scurtă (3-5 mesaje)                      │
 │                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │  [MindCoachDemo direct integrat]                            ││
-│  │  - Emotion picker                                           ││
-│  │  - Intensity slider                                         ││
-│  │  - Chat cu voice buttons                                    ││
-│  └─────────────────────────────────────────────────────────────┘│
+│  AI: "Văd că te simți frustrat. Care e situația specifică      │
+│       care te-a adus în acest punct?"                          │
 │                                                                 │
-│  ✓ Fara cont • ✓ Gratuit • ✓ 5 minute                          │
+│  User: [răspuns]                                                │
+│                                                                 │
+│  AI: "Ce poveste îți spui despre tine în legătură cu asta?"    │
+│                                                                 │
+│  User: [răspuns]                                                │
+│                                                                 │
+│  AI: "Acum hai să înlocuim această poveste. Care e un pas      │
+│       mic pe care îl poți face AZI?"                           │
+│                                                                 │
+│  User: [angajament la acțiune]                                 │
+│                                                                 │
+│  → TRIGGER: complete_transformation tool                       │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  PASUL 3: Pop-up Deblocare (BreakthroughOverlay actualizat)    │
+│                                                                 │
+│  🎉 FELICITĂRI!                                                │
+│  Ai făcut primul pas spre transformare.                        │
+│                                                                 │
+│  [Frustrare] → [Claritate & Acțiune]                           │
+│                                                                 │
+│  ────────────────────────────────────────────────────────────  │
+│                                                                 │
+│  ⭐ DEBLOCHEAZĂ ACUM:                                          │
+│                                                                 │
+│  ✓ Challenge de 7 Zile - Transformă-ți Viața                  │
+│  ✓ Claritate despre ce vrei CU ADEVĂRAT                       │
+│  ✓ Plan strategic pentru obiective                             │
+│  ✓ Energie și productivitate zilnică                          │
+│  ✓ Timp pentru familie și ce contează                          │
+│                                                                 │
+│  [🚀 ÎNCEPE CHALLENGE-UL GRATUIT - 7 ZILE]                     │
+│                                                                 │
+│  Fără card • Acces instant • 10,000+ transformări              │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Flow nou:**
-- Hero → Demo integrat → Cum Funcționează → Challenge → Pricing
-
 ---
 
-### 2. ChallengeBonusSection.tsx - Simplificare
+## Fișiere de Modificat
 
-**Eliminari:**
-- Eliminam etichetele "Durere", "Actiune", "Placere" (span-urile uppercase)
-- Pastram doar textul descriptiv pentru fiecare aspect
-- Folosim icoane mai subtile pentru a diferentia
-
-**Design nou pentru fiecare zi:**
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  Ziua 1                                                         │
-│  🎯 Viziune și Declarație                                      │
-│                                                                 │
-│  • Te trezești fără să știi CE vrei...                         │
-│  → Scrii Declarația ta oficială pentru Corp, Spirit...          │
-│  ✓ Claritate cristalină. Fiecare decizie devine simplă...       │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Simboluri subtile:**
-- `•` pentru problema (fara sa scrie "Durere")
-- `→` pentru actiune (fara sa scrie "Actiune")
-- `✓` pentru rezultat (fara sa scrie "Placere")
-
-**Optimizare mobil:**
-- Stack vertical complet pe mobil
-- Font-size mai mic
-- Padding redus
-- Iconite inline cu textul
-
----
-
-### 3. MindCoachDemo.tsx - Wrapper cu n8n Style
-
-**Modificari vizuale:**
-- Adaugam glow effect pe card (`n8n-preview-container` style)
-- Border cyan cu pulse animation
-- Background gradient dark
-- Pastram butoanele Speak & Call asa cum sunt
-
----
-
-## Fisiere de Modificat
-
-| Fisier | Modificari |
+| Fișier | Modificare |
 |--------|------------|
-| `src/pages/MindCoachLanding.tsx` | Redesign Hero cu n8n style, demo integrat, eliminare sectiune CTA separata |
-| `src/components/mind-coach/ChallengeBonusSection.tsx` | Eliminare etichete "Durere/Actiune/Placere", folosire simboluri subtile, optimizare mobil |
-| `src/components/mind-coach/MindCoachDemo.tsx` | Adaugare glow effect si n8n styling pe container |
+| `supabase/functions/mind-coach-demo/index.ts` | Schimbăm model la `gemini-3-flash-preview`, simplificăm prompt pentru 4 probleme focusate |
+| `supabase/functions/text-to-speech-demo/index.ts` | **NOU** - TTS public fără auth, rate limited |
+| `src/components/mind-coach/MindCoachDemo.tsx` | Simplificăm emotion picker la 4 opțiuni, eliminăm intensitate |
+| `src/components/mind-coach/BreakthroughOverlay.tsx` | Actualizăm cu oferta Challenge 7 zile |
+| `src/hooks/useTextToSpeech.tsx` | Adăugăm `publicMode` pentru demo fără auth |
+| `src/hooks/useMindCoachDemo.ts` | Folosim TTS demo |
+| `supabase/config.toml` | Adăugăm `text-to-speech-demo` cu verify_jwt = false |
 
 ---
 
 ## Detalii Tehnice
 
-### MindCoachLanding.tsx
+### 1. Model AI optimizat
+```typescript
+// În mind-coach-demo/index.ts
+model: 'google/gemini-3-flash-preview',  // 3x mai rapid
+max_tokens: 150,  // Răspunsuri scurte
+temperature: 0.8,
+```
 
-**Schimbari Hero:**
-- Background: `n8n-hero-gradient` (din CSS existent)
-- Headline: foloseste `n8n-gradient-text` pentru "Transformă Orice Emoție"
-- Badge: `n8n-badge` cu puls verde
-- Demo container: border glow cyan similar cu video embed pe homepage
-- Elimina: feature pills, butonul CTA mare, scroll indicator
+### 2. Prompt simplificat (4 probleme focusate)
+```typescript
+const systemPrompt = `Ești Mind Coach - transformi rapid blocajele în acțiune.
 
-**Structura noua:**
-```tsx
-<section className="relative min-h-screen n8n-hero-gradient pt-20 pb-12">
-  {/* Background orbs animate */}
+PROBLEMA UTILIZATORULUI: ${emotion} // frustration, anxiety, procrastination, fear
+
+FLOW ULTRA-SCURT (max 4 schimburi):
+1. Validează + întreabă situația concretă
+2. Identifică povestea/credința limitatoare
+3. Reframe + angajament la o acțiune mică
+4. Folosește complete_transformation
+
+RĂSPUNSURI: Maximum 2 propoziții. O singură întrebare.
+VOCEA: Caldă dar directă. Fără fluff.
+
+Răspunde doar în română.`;
+```
+
+### 3. TTS Demo (fără auth)
+```typescript
+// text-to-speech-demo/index.ts
+serve(async (req) => {
+  // Rate limit per IP
+  if (!checkRateLimit(clientIP)) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), { status: 429 });
+  }
+
+  const { text, voiceId } = await req.json();
   
-  <div className="container max-w-4xl mx-auto px-4">
-    {/* Badge */}
-    <div className="n8n-badge">...</div>
-    
-    {/* Headline cu gradient */}
-    <h1>
-      <span className="n8n-gradient-text">Transformă Orice Emoție</span>
-      <br />
-      în Putere și Acțiune
-    </h1>
-    
-    {/* Subheadline */}
-    <p>AI Coaching pentru transformare în 5 minute</p>
-    
-    {/* Demo direct in hero - cu glow effect */}
-    <div className="border-2 border-cyan-400 shadow-[glow] rounded-2xl">
-      <MindCoachDemo ... />
-    </div>
-    
-    {/* Trust line */}
-    <p>✓ Fara cont • ✓ Gratuit • ✓ 5 minute</p>
+  // Limit text length for demo
+  const truncatedText = text.substring(0, 250);
+  
+  // Call ElevenLabs cu turbo model
+  const response = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
+    {
+      body: JSON.stringify({
+        text: truncatedText,
+        model_id: 'eleven_turbo_v2_5',  // Cel mai rapid model
+        voice_settings: { stability: 0.5, similarity_boost: 0.7 }
+      })
+    }
+  );
+  
+  return new Response(response.body, { headers: { 'Content-Type': 'audio/mpeg' } });
+});
+```
+
+### 4. Emotion Picker Simplificat
+```tsx
+const LEAD_MAGNET_EMOTIONS = [
+  { id: 'frustration', emoji: '😤', label: 'Frustrare', desc: 'Obiective blocate' },
+  { id: 'anxiety', emoji: '😰', label: 'Anxietate', desc: 'Viitorul incert' },
+  { id: 'procrastination', emoji: '😴', label: 'Amânare', desc: 'Nu știu de unde să încep' },
+  { id: 'fear', emoji: '😨', label: 'Frică', desc: 'Eșec, judecată' }
+];
+```
+
+### 5. Breakthrough Overlay cu Challenge CTA
+```tsx
+<div className="space-y-4">
+  <h2 className="text-2xl font-bold">🎉 Felicitări!</h2>
+  <p>Ai făcut primul pas spre transformare.</p>
+  
+  <div className="transformation-badge">
+    {breakthroughData.emotionBefore} → Claritate & Acțiune
   </div>
-</section>
+  
+  <div className="unlock-section">
+    <h3>⭐ DEBLOCHEAZĂ ACUM:</h3>
+    <ul className="benefits-list">
+      <li>✓ Challenge de 7 Zile - Transformă-ți Viața</li>
+      <li>✓ Claritate despre ce vrei CU ADEVĂRAT</li>
+      <li>✓ Plan strategic pentru obiective</li>
+      <li>✓ Energie și productivitate zilnică</li>
+      <li>✓ Timp pentru familie și ce contează</li>
+    </ul>
+    
+    <Button onClick={handleStartChallenge}>
+      🚀 ÎNCEPE CHALLENGE-UL GRATUIT - 7 ZILE
+    </Button>
+    
+    <p className="trust-line">
+      Fără card • Acces instant • 10,000+ transformări
+    </p>
+  </div>
+</div>
 ```
 
 ---
 
-### ChallengeBonusSection.tsx
+## Pași de Implementare
 
-**Eliminari specifice:**
-- Liniile 195-197: eliminam `<span>Durere</span>`
-- Liniile 208-209: eliminam `<span>Actiune</span>`
-- Liniile 221-222: eliminam `<span>Placere</span>`
+1. **Creez TTS Demo Edge Function** (`text-to-speech-demo`)
+   - Fără autentificare
+   - Rate limiting IP
+   - Model turbo ElevenLabs
 
-**Inlocuire cu simboluri inline:**
-```tsx
-// Inainte:
-<span className="text-xs font-medium text-destructive uppercase">
-  Durere ❌
-</span>
-<p className="text-sm">{day.pain[language]}</p>
+2. **Optimizez AI Edge Function** (`mind-coach-demo`)
+   - Switch la `gemini-3-flash-preview`
+   - Prompt simplificat pentru 4 probleme
+   - Răspunsuri mai scurte
 
-// Dupa:
-<p className="text-sm text-muted-foreground">
-  <span className="text-destructive/70">•</span> {day.pain[language]}
-</p>
-```
+3. **Actualizez `useTextToSpeech.tsx`**
+   - Adaug `publicMode` parameter
+   - Folosește endpoint demo când e activ
 
-**Grid mobil:**
-- De la `grid md:grid-cols-3` la `flex flex-col` pe mobil
-- Text mai compact
-- Eliminare iconite XCircle, Target, CheckCircle2 mari
+4. **Simplific `MindCoachDemo.tsx`**
+   - 4 emoții în loc de 14
+   - Fără slider intensitate
+   - Flow mai direct
 
----
+5. **Actualizez `BreakthroughOverlay.tsx`**
+   - Design nou cu oferta Challenge
+   - Benefits list
+   - CTA către signup/challenge
 
-### MindCoachDemo.tsx
-
-**Adaugare glow effect:**
-```tsx
-// Card wrapper actual:
-<Card className="flex flex-col h-[600px] bg-gradient-to-br ...">
-
-// Devine:
-<Card className="flex flex-col h-[600px] md:h-[650px] 
-  bg-gradient-to-br from-background via-background to-primary/5 
-  border-2 border-cyan-400/50 
-  shadow-[0_0_15px_rgba(34,211,238,0.4),0_0_30px_rgba(34,211,238,0.2)] 
-  rounded-2xl">
-```
-
-**Mobil:**
-- Height responsive: `h-[500px] md:h-[600px]`
-- Padding mai mic pe mobil
+6. **Config update**
+   - Adaug `text-to-speech-demo` în `config.toml`
 
 ---
 
-## Paleta de Culori (din CSS existent)
+## Comparație Timpi
 
-- **n8n-hero-gradient**: Gradient purple/pink/orange radial
-- **n8n-gradient-text**: Orange → Pink → Purple
-- **n8n-glow-button**: Orange glow
-- **Glow cyan**: `border-cyan-400`, `shadow rgba(34,211,238,...)`
-- **n8n-badge**: Primary color cu opacity
+| Acțiune | Înainte | După |
+|---------|---------|------|
+| AI Response | 5-8 sec | 1-2 sec |
+| TTS Generation | 3-5 sec | 0.5-1 sec |
+| **Total** | **10-15 sec** | **2-4 sec** |
 
 ---
 
-## Pasi de Implementare
+## Rezultat Final
 
-1. **MindCoachLanding.tsx:**
-   - Refactor Hero section cu n8n classes
-   - Muta MindCoachDemo direct in Hero
-   - Elimina sectiunea Demo separata (liniile 237-276)
-   - Adauga glow container pe demo
-
-2. **ChallengeBonusSection.tsx:**
-   - Elimina span-urile "Durere", "Actiune", "Placere"
-   - Inlocuieste cu simboluri inline (•, →, ✓)
-   - Simplifica grid pentru mobil
-
-3. **MindCoachDemo.tsx:**
-   - Adauga clasele de glow pe Card principal
-   - Ajusteaza height pentru mobil
+- **Lead magnet focusat**: 4 probleme clare (nu 14 emoții)
+- **Conversație scurtă**: 3-5 mesaje → deblocare
+- **Voice ultra-rapid**: 2-4 secunde în loc de 10+
+- **CTA clar**: Challenge 7 zile cu benefits specifice
 
