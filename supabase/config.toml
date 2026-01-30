@@ -95,3 +95,6 @@ verify_jwt = false
 
 [functions.mind-coach]
 verify_jwt = false
+
+[functions.mind-coach-demo]
+verify_jwt = false
