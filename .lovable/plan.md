@@ -1,242 +1,290 @@
 
-# Plan: Optimizare Challenge Landing - Cont Gratuit Direct + Video Homepage
+# Plan: Sistem de Invitații Contextuale pe Toate Zilele Challenge-ului
 
-## Obiectiv
-Simplificarea `/challenge-landing` (Challenge7ZileLanding.tsx):
-1. **Eliminare carduri membership** - utilizatorii fac upgrade in Ziua 3
-2. **Creare cont direct gratuit** - fara abonamente in aceasta pagina
-3. **Adaugare video de pe homepage** - acelasi Voomly embed cu autoplay/loop
+## Rezumat
+Creăm un component reutilizabil `ChallengeInviteFriends.tsx` care apare pe TOATE cele 7 zile cu mesaje contextuale diferite pentru fiecare zi, explicând ce s-a întâmplat și ce urmează.
 
 ---
 
-## Modificari Challenge7ZileLanding.tsx
+## Structura Mesajelor pe Zile
 
-### 1. Eliminare Elemente
-
-**Elemente de sters:**
-- Import `MembershipUpsellCards` (linia 20)
-- State `showMemberships` (linia 44)
-- Sectiunea `membership-section` completa (liniile 575-600)
-- Butonul "Vezi Planurile de Abonament" (liniile 488-506)
-- Logica `lifeScoreData` si `showMemberships` din conditional (liniile 443, 479-486)
-
-### 2. Actualizare Video
-
-**Inlocuire video existent (liniile 428-440):**
+### ZIUA 1 - Încep Challenge-ul
 ```
-Video vechi:
-videoId=Q2rPQbpGVI3G3AQChBI7EptvcVsWzFtGMVz09Gu8CDoxI1d3P
+RO:
+"Tocmai am început acest challenge și am o invitație exclusivă gratuită pentru tine.
 
-Video nou (de pe homepage):
-videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&autoplay=1&loop=1&muted=1
+Uite ce se întâmplă în următoarele 7 zile:
+• Ziua 1: Viziune & Claritate
+• Ziua 2: Corp, Spirit & Relații  
+• Ziua 3: Business & Execuție
+• Ziua 4: Rutina Zilnică de Execuție
+• Ziua 5: Accountability & Mindset
+• Ziua 6: Gândire Strategică & Idei
+• Ziua 7: Continuitate & Creștere
+
+Vrei să faci acest challenge împreună cu mine?
+
+Alătură-te aici 👇
+{REFERRAL_LINK}"
 ```
 
-Adaugam:
-- Border glow cyan ca pe homepage
-- Animatie pulse-glow
-- Parametri autoplay/loop/muted
+### ZIUA 2 - Am finalizat prima zi
+```
+RO:
+"Hei! Am început challenge-ul și sunt în Ziua 2! 💪
 
-### 3. Simplificare Formular
+Ieri (Ziua 1) mi-am setat:
+✅ Viziunea pentru 2026 în toate cele 4 zone
+✅ Declarația personală Napoleon Hill
+✅ M-am alăturat comunității
 
-**Flow nou:**
-- Formular email + nume → Creaza cont → Redirect `/challenge`
-- Eliminare conditional pentru `showMemberships`
-- Formular vizibil mereu (fara conditii)
-- Buton CTA: "Creaza Cont Gratuit" / "Create Free Account"
+Astăzi lucrez la obiective pentru Corp, Spirit și Relații.
 
-### 4. Actualizare Texte
+Următoarele zile:
+• Ziua 3: Business + Sistem Execuție
+• Ziua 4: Rutină Zilnică + Meditație AI
+• Ziua 5-7: Accountability + Control + Continuitate
 
-**Hero Badge:**
-- RO: "100% GRATUIT - CONT INSTANT"
-- EN: "100% FREE - INSTANT ACCOUNT"
+Am o invitație exclusivă gratuită pentru tine!
 
-**CTA Button:**
-- RO: "Creaza Cont Gratuit si Incepe"
-- EN: "Create Free Account & Start"
+Alătură-te aici 👇
+{REFERRAL_LINK}"
+```
 
-**FAQ Actualizat:**
-- Eliminam intrebarea despre preturi
-- Actualizam raspunsul la "Este gratuit?" → Da, primele 2 zile sunt gratuite, apoi trial 5 zile din Ziua 3
+### ZIUA 3 - Corp/Spirit/Relații complete
+```
+RO:
+"Sunt în Ziua 3 din Challenge! 🎯
 
-### 5. Final CTA Simplificat
+Ce am realizat până acum:
+✅ Viziune clară pentru 2026
+✅ Obiective Corp, Spirit & Relații (an/90 zile/30 zile)
 
-**Eliminam:**
-- Orice referinta la planuri/abonamente
-- Butonul de scroll la membership
+Astăzi e ziua magică - setez Business + Domino Door:
+→ Viziune business 1 an
+→ Ținte 90 zile
+→ Milestone prima lună
+→ Plan săptămânal cu 4 chei
 
-**Pastram:**
-- CTA catre scroll top + focus pe email input
-- Mesaj "100% GRATUIT"
+Urmează Warrior Routine, Mind Coach, și Control Idei.
+
+Am invitație gratuită exclusivă pentru tine!
+
+Alătură-te aici 👇
+{REFERRAL_LINK}"
+```
+
+### ZIUA 4 - Business + Domino Door complete
+```
+RO:
+"Ziua 4 în Challenge! ⚡
+
+Am realizat deja:
+✅ Viziune 2026 completă
+✅ Obiective toate ariile (an/90/30 zile)
+✅ Business Plan + Domino Door săptămânal
+
+Astăzi configurez:
+→ Vision Board AI (imagini pentru obiective)
+→ Warrior Routine (rutină zilnică)
+→ Meditație personalizată pe obiectivele MELE
+
+Mai am 3 zile: Accountability, Control Idei, Continuitate.
+
+Vrei să te alături? Am invitație exclusivă!
+
+Alătură-te aici 👇
+{REFERRAL_LINK}"
+```
+
+### ZIUA 5 - Rutină configurată
+```
+RO:
+"Ziua 5 - Accountability & Mind Coach! 🧠
+
+Ce am până acum:
+✅ Viziune + Plan complet (an/90/30/săptămână)
+✅ Warrior Routine configurată
+✅ Vision Board AI + Meditație personalizată
+
+Astăzi lucrez la:
+→ Accountability Coach (știe tot ce am de făcut)
+→ Mind Coach (transformă frici/anxietăți în putere)
+
+Mai am 2 zile: Control Idei + Finalizare.
+
+Încă am invitații exclusive gratuite!
+
+Alătură-te aici 👇
+{REFERRAL_LINK}"
+```
+
+### ZIUA 6 - Accountability complete
+```
+RO:
+"Ziua 6 - Control Mental! 💡
+
+Am realizat:
+✅ Viziune + Plan complet
+✅ Rutină zilnică funcțională
+✅ Accountability + Mind Coach setup
+
+Astăzi învăț să controlez impulsul ideilor noi:
+→ Idea List (Parking Lot pentru idei)
+→ Matricea Eisenhower
+→ Să nu las ideile să distrugă execuția
+
+Mâine finalizez și fac recap complet!
+
+Ultimele invitații exclusive gratuite!
+
+Alătură-te aici 👇
+{REFERRAL_LINK}"
+```
+
+### ZIUA 7 - Challenge complet (mesajul final)
+```
+RO:
+"Tocmai am terminat acest challenge! 🏆
+
+În 7 zile am obținut mai multă claritate decât în ani.
+
+Acum am:
+✅ Viziune clară pentru 2026
+✅ Plan anual + 90 zile + 30 zile
+✅ Sistem execuție săptămânală (Domino Door)
+✅ Rutină zilnică automatizată
+✅ Control asupra ideilor
+
+Am o invitație exclusivă gratuită pentru tine.
+
+Alătură-te aici 👇
+{REFERRAL_LINK}"
+```
 
 ---
 
-## Structura Noua Pagina
+## Fișiere de Modificat/Creat
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  HERO                                                          │
-│  - Badge: 100% GRATUIT                                         │
-│  - Headline: Incepe Challenge Gratuit                          │
-│  - Stats: X persoane inscrise                                  │
-│  - Early Bird Timer                                            │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │  VIDEO (autoplay, loop, muted)                              ││
-│  │  Cu glow cyan ca pe homepage                                ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │  FORMULAR SIMPLU                                            ││
-│  │  [Nume (optional)] [Email] [Creaza Cont Gratuit]           ││
-│  └─────────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│  4 PILLARS SECTION                                             │
-│  - Corp, Spirit, Relatii, Business                             │
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│  7 DAYS JOURNEY                                                │
-│  - Ziua 1-2: FREE badge                                        │
-│  - Ziua 3-7: TRIAL badge                                       │
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│  STATS SECTION                                                 │
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│  BENEFITS SECTION                                              │
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│  FAQ SECTION (actualizat)                                      │
-└─────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│  FINAL CTA                                                     │
-│  - Scroll to form → Focus email                                │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Fisier de Modificat
-
-| Fisier | Modificari |
-|--------|------------|
-| `src/pages/Challenge7ZileLanding.tsx` | Eliminare membership section, actualizare video, simplificare form |
+| Fișier | Acțiune |
+|--------|---------|
+| `src/components/challenge/ChallengeInviteFriends.tsx` | **NOU** - Component reutilizabil cu mesaje contextuale per zi |
+| `src/pages/ChallengeDay.tsx` | Adaug componenta pe toate zilele (1-6) |
+| `src/components/challenge/ChallengeDay7Complete.tsx` | Folosesc componenta și pentru ziua 7 (sau păstrez mesajul existent) |
+| `src/components/challenge/day1/Day1InviteFriends.tsx` | **ȘTERS** sau păstrat pentru backward compatibility |
 
 ---
 
 ## Detalii Tehnice
 
-### Video Container (stil homepage)
+### 1. Component Nou: ChallengeInviteFriends.tsx
 
-```tsx
-<motion.div className="mt-6 max-w-3xl mx-auto">
-  <div className="relative w-full aspect-video rounded-2xl overflow-hidden 
-    border-2 border-cyan-400 
-    shadow-[0_0_15px_rgba(34,211,238,0.6),0_0_30px_rgba(34,211,238,0.4),0_0_60px_rgba(34,211,238,0.3),0_0_100px_rgba(34,211,238,0.2)] 
-    animate-pulse-glow">
-    <iframe 
-      src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&videoRatio=1.777778&type=v&skinColor=%232758EB&autoplay=1&loop=1&muted=1" 
-      frameBorder="0" 
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-      allowFullScreen 
-      className="w-full h-full" 
-    />
-  </div>
-</motion.div>
-```
+```typescript
+interface ChallengeInviteFriendsProps {
+  dayNumber: number;  // 1-7
+}
 
-### Formular Simplificat
+export const ChallengeInviteFriends: React.FC<ChallengeInviteFriendsProps> = ({ dayNumber }) => {
+  const { language } = useLanguage();
+  const { referralLink, shareWithMessage, isLoading } = useAffiliateLink();
+  const [copied, setCopied] = useState(false);
 
-```tsx
-<Card className="max-w-md mx-auto p-6 bg-card/80 backdrop-blur border-primary/20 mt-8">
-  <form onSubmit={handleSubmit} className="space-y-4">
-    <Input
-      type="text"
-      placeholder={language === 'en' ? 'Your name (optional)' : 'Numele tau (optional)'}
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-    />
-    <Input
-      type="email"
-      placeholder={language === 'en' ? 'Your email address' : 'Adresa ta de email'}
-      value={email}
-      onChange={(e) => setEmail(e.target.value)}
-      required
-    />
-    <Button type="submit" size="lg" disabled={isSubmitting}
-      className="w-full bg-gradient-to-r from-amber-500 to-orange-500 ...">
-      {isSubmitting 
-        ? (language === 'en' ? 'Creating account...' : 'Se creaza contul...')
-        : (language === 'en' ? 'Create Free Account & Start' : 'Creaza Cont Gratuit si Incepe')}
-      <Rocket className="h-5 w-5 ml-2" />
-    </Button>
-  </form>
-</Card>
-```
+  // Generează mesajul contextual bazat pe ziua curentă
+  const getInviteMessage = (day: number): string => {
+    // Switch pentru fiecare zi cu mesaj specific
+    switch(day) {
+      case 1: return generateDay1Message();
+      case 2: return generateDay2Message();
+      // ... etc
+    }
+  };
 
-### HandleSubmit Actualizat
-
-```tsx
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!email) return;
-
-  setIsSubmitting(true);
-  try {
-    // Save lead
-    await supabase.from('email_leads').insert({
-      email,
-      name: name || null,
-      lead_magnet: 'challenge_free_account',
-      source: 'challenge-7-zile-landing',
-      metadata: { signup_date: new Date().toISOString() }
-    });
-
-    toast({
-      title: language === 'en' ? 'Account created!' : 'Cont creat!',
-      description: language === 'en' 
-        ? 'Redirecting to your challenge...' 
-        : 'Te redirectionam catre challenge...',
-    });
-
-    // Redirect to auth page pentru creare cont
-    navigate('/auth?redirect=/challenge');
-  } catch (error) {
-    // handle error
-  } finally {
-    setIsSubmitting(false);
-  }
+  const inviteMessage = getInviteMessage(dayNumber);
+  
+  // ... rest of component (Share button, Copy button, preview)
 };
 ```
 
+### 2. Integrare în ChallengeDay.tsx
+
+Pentru zilele 2-6, adăugăm componenta înainte de secțiunea de comentarii:
+
+```tsx
+{/* Invite Friends Section - Apare pe toate zilele */}
+{isAuthenticated && dayNumber >= 1 && dayNumber <= 6 && (
+  <div className="mb-6">
+    <ChallengeInviteFriends dayNumber={dayNumber} />
+  </div>
+)}
+
+{/* Comments Section */}
+<div className="mb-6">
+  <ChallengeComments dayNumber={dayNumber} />
+</div>
+```
+
+### 3. Ziua 1 - Integrare în Flow-ul Special
+
+Pentru Ziua 1 care are flow special (Day1InviteFriends.tsx existent), putem:
+- **Opțiunea A**: Înlocuim `Day1InviteFriends.tsx` cu noul component
+- **Opțiunea B**: Folosim noul component doar pentru zilele 2-7 și păstrăm cel existent pentru ziua 1
+
+Recomand **Opțiunea A** pentru consistență.
+
+### 4. Design Component
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  🎁 INVITĂ 1-3 PRIETENI                                        │
+│                                                                 │
+│  [Icon] Ai invitații exclusive gratuite. Împarte experiența   │
+│         cu prietenii care vor să se transforme.                │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │  📝 Mesajul care va fi trimis:                              ││
+│  │                                                             ││
+│  │  "Hei! Sunt în Ziua X din Challenge!                       ││
+│  │   Ce am realizat: ...                                       ││
+│  │   Ce fac astăzi: ...                                        ││
+│  │   Ce urmează: ...                                           ││
+│  │   Am invitație gratuită pentru tine!                        ││
+│  │   {REFERRAL_LINK}"                                          ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                 │
+│  [🚀 Share / Trimite]  [📋 Copiază]                            │
+│                                                                 │
+│  👥 Prietenii primesc acces gratuit la Zilele 1-2              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
-## Elemente Eliminate
+## Pași de Implementare
 
-1. Import `MembershipUpsellCards`
-2. State `showMemberships`
-3. State `lifeScoreData` (poate fi pastrat pentru analytics)
-4. `findWeakestDimension` function
-5. Sectiunea `membership-section` completa (liniile 575-600)
-6. Butonul "Vezi Planurile de Abonament" (liniile 488-506)
-7. Conditional rendering bazat pe `showMemberships`
+1. **Creez `ChallengeInviteFriends.tsx`**
+   - Component cu props `dayNumber`
+   - Funcție pentru generare mesaj contextual per zi
+   - UI identic cu Day1InviteFriends dar mesaj dinamic
+
+2. **Actualizez `ChallengeDay.tsx`**
+   - Import noul component
+   - Adaug render înainte de Comments pentru zilele 2-6
+   - Pentru Ziua 1, integrez în flow-ul special existent
+
+3. **Actualizez Ziua 7**
+   - Înlocuiesc secțiunea de referral din `ChallengeDay7Upgrade.tsx` cu noul component
+   - Sau las ambele (mesajul existent e bun pentru Ziua 7)
+
+4. **Șterg/Refactor Day1InviteFriends.tsx**
+   - Migrăm la noul component unificat
+   - Actualizez `src/components/challenge/day1/index.ts`
 
 ---
 
-## Pasi de Implementare
+## Beneficii
 
-1. **Sterg importul MembershipUpsellCards**
-2. **Sterg state-urile nefolosite** (showMemberships)
-3. **Actualizez video embed** cu URL-ul de pe homepage + glow effect
-4. **Simplific formularul** - vizibil mereu, fara conditii
-5. **Actualizez CTA** - "Creaza Cont Gratuit"
-6. **Sterg membership section** complet
-7. **Sterg butonul** "Vezi Planurile de Abonament"
-8. **Actualizez Final CTA** - focus pe form, nu pe membership
-9. **Actualizez FAQ** - raspunsuri despre flow gratuit
+- **Mesaje contextuale**: Fiecare zi are poveste specifică
+- **Social proof**: Arată progresul real al utilizatorului
+- **Urgență crescătoare**: "Ultimele invitații" pe zilele finale
+- **Consistență UI**: Același design pe toate zilele
+- **Cod reutilizabil**: Un singur component pentru toate zilele
