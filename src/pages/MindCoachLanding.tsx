@@ -52,7 +52,7 @@ const emotionHeadlines: Record<string, { ro: string; en: string; subtitle: { ro:
   default: {
     ro: 'Transformă Orice Emoție în Putere',
     en: 'Transform Any Emotion Into Power',
-    subtitle: { ro: 'Metodologia Tony Robbins pentru breakthrough emoțional', en: 'Tony Robbins methodology for emotional breakthrough' }
+    subtitle: { ro: 'AI Coaching pentru transformare emoțională în 5 minute', en: 'AI Coaching for emotional transformation in 5 minutes' }
   },
 };
 
@@ -191,7 +191,7 @@ export default function MindCoachLanding() {
           </div>
         </section>
 
-        {/* Tony Robbins Method Section */}
+        {/* Cum Funcționează Mind Coach Section */}
         <section className="py-12 px-4 bg-gradient-to-b from-primary/5 to-transparent">
           <div className="container max-w-4xl mx-auto">
             <motion.div
@@ -201,22 +201,20 @@ export default function MindCoachLanding() {
               className="text-center mb-8"
             >
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                {lang === 'ro' ? 'Metodologia Tony Robbins în 5 Pași' : 'Tony Robbins 5-Step Methodology'}
+                Cum Funcționează Mind Coach
               </h2>
               <p className="text-muted-foreground">
-                {lang === 'ro' 
-                  ? 'Aceeași metodă folosită de milioane de oameni pentru transformare emoțională'
-                  : 'The same method used by millions of people for emotional transformation'}
+                5 pași spre transformare emoțională rapidă și durabilă
               </p>
             </motion.div>
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {[
-                { step: 1, label: lang === 'ro' ? 'Identificare' : 'Identification', icon: '🎯' },
-                { step: 2, label: lang === 'ro' ? 'Investigare' : 'Investigation', icon: '🔍' },
-                { step: 3, label: lang === 'ro' ? 'Clarificare' : 'Clarification', icon: '💡' },
-                { step: 4, label: lang === 'ro' ? 'Transformare' : 'Transformation', icon: '⚡' },
-                { step: 5, label: lang === 'ro' ? 'Acțiune' : 'Action', icon: '🚀' },
+                { step: 1, label: 'Identificare', description: 'Ce simți?', icon: '🎯' },
+                { step: 2, label: 'Investigare', description: 'Ce poveste îți spui?', icon: '🔍' },
+                { step: 3, label: 'Clarificare', description: 'Fapte vs Ficțiune', icon: '💡' },
+                { step: 4, label: 'Transformare', description: 'Reframe-ul puterii', icon: '⚡' },
+                { step: 5, label: 'Acțiune', description: 'Un pas concret', icon: '🚀' },
               ].map((phase, idx) => (
                 <motion.div
                   key={phase.step}
@@ -227,10 +225,9 @@ export default function MindCoachLanding() {
                   className="text-center p-4 rounded-xl bg-background/50 border border-border/50 hover:border-primary/30 transition-colors"
                 >
                   <span className="text-2xl">{phase.icon}</span>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {lang === 'ro' ? 'Pas' : 'Step'} {phase.step}
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">Pas {phase.step}</p>
                   <p className="font-medium text-sm mt-1">{phase.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{phase.description}</p>
                 </motion.div>
               ))}
             </div>
@@ -290,15 +287,13 @@ export default function MindCoachLanding() {
         <section className="py-12 px-4 bg-gradient-to-t from-primary/10 to-transparent">
           <div className="container max-w-2xl mx-auto text-center">
             <p className="text-muted-foreground mb-4">
-              {lang === 'ro'
-                ? '💡 Mind Coach folosește metodologia Tony Robbins pentru transformare emoțională în 5 pași'
-                : '💡 Mind Coach uses Tony Robbins methodology for emotional transformation in 5 steps'}
+              💡 Mind Coach te ajută să transformi orice emoție în putere și acțiune concretă în doar 5 minute
             </p>
             <Button
               variant="outline"
               onClick={() => navigate('/')}
             >
-              {lang === 'ro' ? 'Află mai multe despre WarriorOS' : 'Learn more about WarriorOS'}
+              Află mai multe despre WarriorOS
             </Button>
           </div>
         </section>
