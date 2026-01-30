@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChallengeRecap } from './ChallengeRecap';
 import { ChallengeWalkthrough } from './ChallengeWalkthrough';
 import { ChallengeDay7Upgrade } from './ChallengeDay7Upgrade';
+import { ChallengeInviteFriends } from './ChallengeInviteFriends';
 
 export const ChallengeDay7Complete = () => {
   const { language } = useLanguage();
@@ -43,7 +44,10 @@ export const ChallengeDay7Complete = () => {
         {/* Section 2: Walkthrough */}
         <ChallengeWalkthrough />
 
-        {/* Section 3: Upgrade Forced Section - NEW */}
+        {/* Section 3: Invite Friends - Share Success */}
+        <ChallengeInviteFriends dayNumber={7} />
+
+        {/* Section 4: Upgrade Forced Section */}
         <ChallengeDay7Upgrade completedDays={7} />
       </div>
     </Layout>
