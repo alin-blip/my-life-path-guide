@@ -57,8 +57,8 @@ const Index = () => {
         <link rel="canonical" href={`${window.location.origin}/`} />
       </Helmet>
 
-      {/* Language Selector */}
-      <div className="fixed top-4 right-20 md:top-6 md:right-24 z-50">
+      {/* Language Selector - above sticky header */}
+      <div className="fixed top-4 right-20 md:top-6 md:right-24 z-[60]">
         <LanguageSelector />
       </div>
 
