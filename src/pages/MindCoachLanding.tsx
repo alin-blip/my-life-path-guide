@@ -1,14 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
-import { Brain, Sparkles, Zap, Target, Heart, ArrowDown, Shield, Clock, Users } from 'lucide-react';
+import { Brain } from 'lucide-react';
 import { MindCoachDemo } from '@/components/mind-coach/MindCoachDemo';
 import { BreakthroughOverlay } from '@/components/mind-coach/BreakthroughOverlay';
 import { ChallengeBonusSection } from '@/components/mind-coach/ChallengeBonusSection';
 import { MindCoachPricingCards } from '@/components/mind-coach/MindCoachPricingCards';
-import { useLanguage } from '@/context/LanguageContext';
 import { MindCoachEmotion } from '@/components/mind-coach/ExtendedEmotionPicker';
 import { trackLead } from '@/lib/facebook-pixel';
 
@@ -70,7 +69,6 @@ const paramToEmotion: Record<string, MindCoachEmotion> = {
 export default function MindCoachLanding() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { language } = useLanguage();
   const pricingRef = useRef<HTMLDivElement>(null);
   
   const emotionParam = searchParams.get('emotion') || 'default';
@@ -81,25 +79,19 @@ export default function MindCoachLanding() {
   const [showBreakthroughOverlay, setShowBreakthroughOverlay] = useState(false);
   const [breakthroughData, setBreakthroughData] = useState<any>(null);
 
+  // Force Romanian language
+  const lang = 'ro';
+
   const handleBreakthroughComplete = (data: any) => {
     setBreakthroughData(data);
     setShowBreakthroughOverlay(true);
-    
-    // Track lead event
     trackLead();
   };
 
   const handleOverlayContinue = () => {
     setShowBreakthroughOverlay(false);
-    // Scroll to pricing
     pricingRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-
-  const scrollToDemo = () => {
-    document.getElementById('demo-section')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const lang = language === 'ro' ? 'ro' : 'en';
 
   return (
     <>
@@ -108,113 +100,103 @@ export default function MindCoachLanding() {
         <meta name="description" content={headlines.subtitle[lang]} />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/10">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden">
-          {/* Background effects */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-purple-500/5 to-primary/5" />
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
-          
-          <div className="container max-w-4xl mx-auto px-4 py-16 md:py-24 relative z-10">
+      <div className="min-h-screen n8n-hero-gradient">
+        {/* Animated Background Orbs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        </div>
+
+        {/* Hero Section with Demo */}
+        <section className="relative pt-16 pb-8 md:pt-20 md:pb-12 px-4">
+          <div className="container max-w-3xl mx-auto relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center space-y-6"
+              className="text-center space-y-4 md:space-y-6"
             >
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20">
-                <Brain className="h-5 w-5 text-primary" />
+              <div className="inline-flex items-center gap-2 n8n-badge">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <Brain className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium">Mind Coach AI</span>
-                <span className="text-xs bg-green-500/20 text-green-500 px-2 py-0.5 rounded-full">
-                  {lang === 'ro' ? 'TEST GRATUIT' : 'FREE TEST'}
+                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-semibold">
+                  TEST GRATUIT
                 </span>
               </div>
 
-              {/* Main headline */}
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                {headlines[lang]}
+              {/* Main headline with n8n gradient */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+                <span className="n8n-gradient-text">{headlines[lang]}</span>
+                <br />
+                <span className="text-foreground/90 text-2xl md:text-3xl lg:text-4xl">în doar 5 minute</span>
               </h1>
 
               {/* Subtitle */}
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
                 {headlines.subtitle[lang]}
               </p>
-
-              {/* Feature pills */}
-              <div className="flex flex-wrap justify-center gap-3 pt-4">
-                {[
-                  { icon: Target, label: lang === 'ro' ? 'Identifică blocajul' : 'Identify the block' },
-                  { icon: Sparkles, label: lang === 'ro' ? 'Fapte vs Povești' : 'Facts vs Stories' },
-                  { icon: Zap, label: lang === 'ro' ? 'Transformă în putere' : 'Transform into power' },
-                  { icon: Heart, label: lang === 'ro' ? 'Acțiune concretă' : 'Concrete action' },
-                ].map((feature, idx) => (
-                  <div key={idx} className="flex items-center gap-2 bg-background/50 backdrop-blur-sm px-4 py-2 rounded-full border border-border/50">
-                    <feature.icon className="h-4 w-4 text-primary" />
-                    <span className="text-sm">{feature.label}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA */}
-              <div className="pt-6">
-                <Button
-                  size="lg"
-                  onClick={scrollToDemo}
-                  className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white shadow-lg shadow-primary/30 text-lg px-8"
-                >
-                  <Brain className="h-5 w-5 mr-2" />
-                  {lang === 'ro' ? 'ÎNCEPE TESTUL GRATUIT' : 'START FREE TEST'}
-                </Button>
-                <p className="text-sm text-muted-foreground mt-3">
-                  ✓ {lang === 'ro' ? 'Fără cont necesar' : 'No account needed'} • 
-                  ✓ {lang === 'ro' ? 'Sesiune completă gratuită' : 'Complete free session'} • 
-                  ✓ {lang === 'ro' ? 'Rezultate în 5 minute' : 'Results in 5 minutes'}
-                </p>
-              </div>
-
-              {/* Scroll indicator */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-                className="pt-8 flex flex-col items-center"
-              >
-                <motion.div
-                  animate={{ y: [0, 8, 0] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                >
-                  <ArrowDown className="h-6 w-6 text-muted-foreground" />
-                </motion.div>
-              </motion.div>
             </motion.div>
+
+            {/* Demo Container with Glow Effect */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mt-6 md:mt-8"
+            >
+              <div className="relative rounded-2xl p-[2px] bg-gradient-to-r from-cyan-400 via-primary to-purple-500">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400 via-primary to-purple-500 blur-xl opacity-40" />
+                <div className="relative bg-background rounded-2xl overflow-hidden">
+                  <MindCoachDemo
+                    initialEmotion={initialEmotion}
+                    onComplete={handleBreakthroughComplete}
+                    language={lang}
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Trust line */}
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-center text-xs md:text-sm text-muted-foreground mt-4 md:mt-6"
+            >
+              ✓ Fără cont necesar • ✓ Sesiune completă gratuită • ✓ Rezultate în 5 minute
+            </motion.p>
           </div>
         </section>
 
         {/* Cum Funcționează Mind Coach Section */}
-        <section className="py-12 px-4 bg-gradient-to-b from-primary/5 to-transparent">
+        <section className="py-10 md:py-16 px-4 relative">
           <div className="container max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-center mb-8"
+              className="text-center mb-6 md:mb-8"
             >
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                Cum Funcționează Mind Coach
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">
+                <span className="n8n-gradient-text">Cum Funcționează</span>
               </h2>
-              <p className="text-muted-foreground">
-                5 pași spre transformare emoțională rapidă și durabilă
+              <p className="text-sm md:text-base text-muted-foreground">
+                5 pași spre transformare emoțională
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-5 gap-2 md:gap-4">
               {[
-                { step: 1, label: 'Identificare', description: 'Ce simți?', icon: '🎯' },
-                { step: 2, label: 'Investigare', description: 'Ce poveste îți spui?', icon: '🔍' },
-                { step: 3, label: 'Clarificare', description: 'Fapte vs Ficțiune', icon: '💡' },
-                { step: 4, label: 'Transformare', description: 'Reframe-ul puterii', icon: '⚡' },
-                { step: 5, label: 'Acțiune', description: 'Un pas concret', icon: '🚀' },
+                { step: 1, label: 'Identificare', icon: '🎯' },
+                { step: 2, label: 'Investigare', icon: '🔍' },
+                { step: 3, label: 'Clarificare', icon: '💡' },
+                { step: 4, label: 'Transformare', icon: '⚡' },
+                { step: 5, label: 'Acțiune', icon: '🚀' },
               ].map((phase, idx) => (
                 <motion.div
                   key={phase.step}
@@ -222,54 +204,11 @@ export default function MindCoachLanding() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
-                  className="text-center p-4 rounded-xl bg-background/50 border border-border/50 hover:border-primary/30 transition-colors"
+                  className="text-center p-2 md:p-4 rounded-xl bg-background/30 backdrop-blur-sm border border-border/30 hover:border-primary/50 transition-all hover:bg-background/50"
                 >
-                  <span className="text-2xl">{phase.icon}</span>
-                  <p className="text-xs text-muted-foreground mt-1">Pas {phase.step}</p>
-                  <p className="font-medium text-sm mt-1">{phase.label}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{phase.description}</p>
+                  <span className="text-xl md:text-2xl">{phase.icon}</span>
+                  <p className="font-medium text-xs md:text-sm mt-1 md:mt-2">{phase.label}</p>
                 </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Demo Section */}
-        <section id="demo-section" className="py-16 px-4">
-          <div className="container max-w-2xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-8"
-            >
-              <h2 className="text-2xl md:text-3xl font-bold mb-2">
-                {lang === 'ro' ? '🧪 Testează GRATUIT Acum' : '🧪 Test FREE Now'}
-              </h2>
-              <p className="text-muted-foreground">
-                {lang === 'ro' 
-                  ? 'O sesiune completă de transformare - fără cont, fără card'
-                  : 'One complete transformation session - no account, no card'}
-              </p>
-            </motion.div>
-
-            <MindCoachDemo
-              initialEmotion={initialEmotion}
-              onComplete={handleBreakthroughComplete}
-              language={lang}
-            />
-
-            {/* Trust badges */}
-            <div className="flex flex-wrap justify-center gap-6 mt-8">
-              {[
-                { icon: Shield, text: lang === 'ro' ? '100% Privat' : '100% Private' },
-                { icon: Clock, text: lang === 'ro' ? '5 min' : '5 min' },
-                { icon: Users, text: lang === 'ro' ? '10,000+ utilizatori' : '10,000+ users' },
-              ].map((badge, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-muted-foreground">
-                  <badge.icon className="h-4 w-4" />
-                  <span className="text-sm">{badge.text}</span>
-                </div>
               ))}
             </div>
           </div>
@@ -284,14 +223,16 @@ export default function MindCoachLanding() {
         </div>
 
         {/* Footer CTA */}
-        <section className="py-12 px-4 bg-gradient-to-t from-primary/10 to-transparent">
+        <section className="py-8 md:py-12 px-4">
           <div className="container max-w-2xl mx-auto text-center">
-            <p className="text-muted-foreground mb-4">
-              💡 Mind Coach te ajută să transformi orice emoție în putere și acțiune concretă în doar 5 minute
+            <p className="text-sm text-muted-foreground mb-4">
+              💡 Mind Coach te ajută să transformi orice emoție în putere și acțiune concretă
             </p>
             <Button
               variant="outline"
+              size="sm"
               onClick={() => navigate('/')}
+              className="border-border/50 hover:border-primary/50"
             >
               Află mai multe despre WarriorOS
             </Button>

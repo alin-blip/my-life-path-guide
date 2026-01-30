@@ -8,8 +8,6 @@ import {
   ImageIcon, 
   Users, 
   Zap,
-  CheckCircle2,
-  XCircle,
   Gift
 } from 'lucide-react';
 
@@ -23,16 +21,16 @@ const challengeDays = [
     title: { ro: 'Viziune și Declarație', en: 'Vision & Declaration' },
     icon: Target,
     pain: { 
-      ro: 'Te trezești dimineața fără să știi CE vrei și DE CE contează. Energia se risipește.', 
-      en: 'You wake up not knowing WHAT you want and WHY it matters. Energy dissipates.' 
+      ro: 'Te trezești dimineața fără să știi CE vrei și DE CE contează.', 
+      en: 'You wake up not knowing WHAT you want and WHY it matters.' 
     },
     action: { 
       ro: 'Scrii Declarația ta oficială pentru Corp, Spirit, Relații și Business.', 
       en: 'Write your official Declaration for Body, Spirit, Relationships and Business.' 
     },
     pleasure: { 
-      ro: 'Claritate cristalină. Fiecare decizie devine simplă când știi exact unde mergi.', 
-      en: 'Crystal clarity. Every decision becomes simple when you know exactly where you\'re going.' 
+      ro: 'Claritate cristalină. Fiecare decizie devine simplă.', 
+      en: 'Crystal clarity. Every decision becomes simple.' 
     },
     gradient: 'from-red-500/20 to-orange-500/20',
   },
@@ -41,16 +39,16 @@ const challengeDays = [
     title: { ro: 'Obiective Complete', en: 'Complete Objectives' },
     icon: Calendar,
     pain: { 
-      ro: 'Confuzie și haos. Visele rămân vise, lunile trec, nimic nu se schimbă real.', 
-      en: 'Confusion and chaos. Dreams stay dreams, months pass, nothing really changes.' 
+      ro: 'Confuzie și haos. Visele rămân vise, lunile trec.', 
+      en: 'Confusion and chaos. Dreams stay dreams, months pass.' 
     },
     action: { 
-      ro: 'Obiective anuale → 90 zile → lunar → săptămânal. Plan structurat.', 
-      en: 'Annual goals → 90 days → monthly → weekly. Structured plan.' 
+      ro: 'Obiective anuale → 90 zile → lunar → săptămânal.', 
+      en: 'Annual goals → 90 days → monthly → weekly.' 
     },
     pleasure: { 
-      ro: 'Eliminarea completă a confuziei. Știi EXACT ce ai de făcut în fiecare zi.', 
-      en: 'Complete elimination of confusion. You know EXACTLY what to do every day.' 
+      ro: 'Știi EXACT ce ai de făcut în fiecare zi.', 
+      en: 'You know EXACTLY what to do every day.' 
     },
     gradient: 'from-orange-500/20 to-yellow-500/20',
   },
@@ -59,16 +57,16 @@ const challengeDays = [
     title: { ro: 'Rutina Campionului', en: 'Champion Routine' },
     icon: Sunrise,
     pain: { 
-      ro: '"Nu am chef" e scuza zilnică. Dimineața haotică, seara te întrebi ce ai făcut.', 
-      en: '"I don\'t feel like it" is the daily excuse. Chaotic mornings, evenings wondering what you did.' 
+      ro: '"Nu am chef" e scuza zilnică. Dimineața haotică.', 
+      en: '"I don\'t feel like it" is the daily excuse.' 
     },
     action: { 
-      ro: 'Morning Stack: Intenție → Centrare → Recunoștință → Putere → Plan → Angajament.', 
-      en: 'Morning Stack: Intention → Centering → Gratitude → Power → Plan → Commitment.' 
+      ro: 'Morning Stack: Intenție → Centrare → Recunoștință → Putere.', 
+      en: 'Morning Stack: Intention → Centering → Gratitude → Power.' 
     },
     pleasure: { 
-      ro: 'Fiecare dimineață începi cu ENERGIE și FOCUS. Motivația nu mai e opțională.', 
-      en: 'Every morning starts with ENERGY and FOCUS. Motivation is no longer optional.' 
+      ro: 'Fiecare dimineață începi cu ENERGIE și FOCUS.', 
+      en: 'Every morning starts with ENERGY and FOCUS.' 
     },
     gradient: 'from-yellow-500/20 to-green-500/20',
   },
@@ -77,16 +75,16 @@ const challengeDays = [
     title: { ro: 'Viziune AI', en: 'AI Vision' },
     icon: ImageIcon,
     pain: { 
-      ro: 'Mintea nu urmărește ce nu poate vedea. Motivația scade în timp fără vizualizare.', 
-      en: 'The mind doesn\'t chase what it can\'t see. Motivation fades over time without visualization.' 
+      ro: 'Mintea nu urmărește ce nu poate vedea.', 
+      en: 'The mind doesn\'t chase what it can\'t see.' 
     },
     action: { 
-      ro: 'AI generează imagini pentru obiective + meditație ghidată personalizată.', 
-      en: 'AI generates images for goals + personalized guided meditation.' 
+      ro: 'AI generează imagini pentru obiective + meditație ghidată.', 
+      en: 'AI generates images for goals + guided meditation.' 
     },
     pleasure: { 
-      ro: 'Subconștientul lucrează pentru tine 24/7. Viziunea devine mai reală în fiecare zi.', 
-      en: 'Your subconscious works for you 24/7. The vision becomes more real every day.' 
+      ro: 'Subconștientul lucrează pentru tine 24/7.', 
+      en: 'Your subconscious works for you 24/7.' 
     },
     gradient: 'from-green-500/20 to-teal-500/20',
   },
@@ -95,16 +93,16 @@ const challengeDays = [
     title: { ro: 'Accountability', en: 'Accountability' },
     icon: Users,
     pain: { 
-      ro: 'Singur cedezi. 92% din obiective eșuează pentru că nimeni nu te ține responsabil.', 
-      en: 'Alone, you give in. 92% of goals fail because no one holds you accountable.' 
+      ro: 'Singur cedezi. 92% din obiective eșuează.', 
+      en: 'Alone, you give in. 92% of goals fail.' 
     },
     action: { 
-      ro: 'Notificări, remindere + partener accountability din comunitate.', 
-      en: 'Notifications, reminders + accountability partner from the community.' 
+      ro: 'Notificări, remindere + partener accountability.', 
+      en: 'Notifications, reminders + accountability partner.' 
     },
     pleasure: { 
-      ro: 'Nu mai poți fugi de tine. Sistemul te împinge înainte când mintea vrea să renunțe.', 
-      en: 'You can\'t run from yourself anymore. The system pushes you forward when the mind wants to quit.' 
+      ro: 'Nu mai poți fugi de tine. Sistemul te împinge înainte.', 
+      en: 'You can\'t run from yourself anymore.' 
     },
     gradient: 'from-teal-500/20 to-blue-500/20',
   },
@@ -113,16 +111,16 @@ const challengeDays = [
     title: { ro: 'Integrare Completă', en: 'Complete Integration' },
     icon: Zap,
     pain: { 
-      ro: 'Ai piesele dar nu funcționează împreună. Fără integrare, totul se destramă.', 
-      en: 'You have the pieces but they don\'t work together. Without integration, everything falls apart.' 
+      ro: 'Ai piesele dar nu funcționează împreună.', 
+      en: 'You have the pieces but they don\'t work together.' 
     },
     action: { 
-      ro: 'Conectare Corp → Spirit → Relații → Business într-un ciclu virtuos.', 
-      en: 'Connecting Body → Spirit → Relationships → Business in a virtuous cycle.' 
+      ro: 'Conectare Corp → Spirit → Relații → Business.', 
+      en: 'Connecting Body → Spirit → Relationships → Business.' 
     },
     pleasure: { 
-      ro: 'CICLUL VIRTUOS activat: Corp puternic → Minte clară → Relații armonioase → Business în creștere.', 
-      en: 'VIRTUOUS CYCLE activated: Strong body → Clear mind → Harmonious relationships → Growing business.' 
+      ro: 'CICLUL VIRTUOS activat: totul funcționează în armonie.', 
+      en: 'VIRTUOUS CYCLE activated: everything works in harmony.' 
     },
     gradient: 'from-blue-500/20 to-purple-500/20',
   },
@@ -130,102 +128,75 @@ const challengeDays = [
 
 export function ChallengeBonusSection({ language = 'ro' }: ChallengeBonusSectionProps) {
   return (
-    <section className="py-16 px-4">
-      <div className="max-w-4xl mx-auto">
+    <section className="py-10 md:py-16 px-4">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-4 py-2 rounded-full border border-amber-500/30 mb-4">
-            <Gift className="h-5 w-5 text-amber-500" />
-            <span className="text-sm font-semibold text-amber-500">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-3 py-1.5 rounded-full border border-amber-500/30 mb-3">
+            <Gift className="h-4 w-4 text-amber-500" />
+            <span className="text-xs font-semibold text-amber-500">
               {language === 'ro' ? 'BONUS EXCLUSIV' : 'EXCLUSIVE BONUS'}
             </span>
           </div>
           
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            {language === 'ro' 
-              ? '7-Day Transformation Challenge' 
-              : '7-Day Transformation Challenge'}
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">
+            <span className="n8n-gradient-text">7-Day Transformation Challenge</span>
           </h2>
           
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
             {language === 'ro'
-              ? 'Sign up TODAY și primești GRATUIT provocarea care transformă visele în realitate.'
-              : 'Sign up TODAY and get FREE the challenge that transforms dreams into reality.'}
+              ? 'Înscrie-te azi și primești GRATUIT provocarea completă'
+              : 'Sign up today and get the complete challenge FREE'}
           </p>
         </motion.div>
 
-        {/* Challenge Days Grid */}
-        <div className="space-y-6">
+        {/* Challenge Days - Simplified Mobile-First Layout */}
+        <div className="space-y-3 md:space-y-4">
           {challengeDays.map((day, index) => (
             <motion.div
               key={day.day}
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.05 }}
             >
               <Card className={`overflow-hidden border-0 bg-gradient-to-r ${day.gradient} backdrop-blur-sm`}>
-                <CardContent className="p-0">
-                  <div className="flex flex-col md:flex-row">
+                <CardContent className="p-3 md:p-4">
+                  <div className="flex items-start gap-3 md:gap-4">
                     {/* Day indicator */}
-                    <div className="bg-background/50 p-4 md:p-6 flex flex-col items-center justify-center min-w-[100px] border-b md:border-b-0 md:border-r border-border/50">
-                      <span className="text-xs text-muted-foreground uppercase">
+                    <div className="flex flex-col items-center justify-center min-w-[50px] md:min-w-[60px] text-center shrink-0">
+                      <span className="text-[10px] text-muted-foreground uppercase">
                         {language === 'ro' ? 'Ziua' : 'Day'}
                       </span>
-                      <span className="text-2xl font-bold">{day.day}</span>
-                      <day.icon className="h-6 w-6 mt-2 text-primary" />
+                      <span className="text-lg md:text-xl font-bold">{day.day}</span>
+                      <day.icon className="h-4 w-4 md:h-5 md:w-5 text-primary mt-1" />
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 p-4 md:p-6">
-                      <h3 className="text-lg font-semibold mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm md:text-base font-semibold mb-2">
                         {day.title[language]}
                       </h3>
 
-                      <div className="grid md:grid-cols-3 gap-4">
-                        {/* Pain */}
-                        <div className="flex gap-3">
-                          <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-                          <div>
-                            <span className="text-xs font-medium text-destructive uppercase">
-                              {language === 'ro' ? 'Durere' : 'Pain'} ❌
-                            </span>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {day.pain[language]}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Action */}
-                        <div className="flex gap-3">
-                          <Target className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                          <div>
-                            <span className="text-xs font-medium text-primary uppercase">
-                              {language === 'ro' ? 'Acțiune' : 'Action'} 🎯
-                            </span>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {day.action[language]}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Pleasure */}
-                        <div className="flex gap-3">
-                          <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                          <div>
-                            <span className="text-xs font-medium text-green-500 uppercase">
-                              {language === 'ro' ? 'Plăcere' : 'Pleasure'} ✅
-                            </span>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {day.pleasure[language]}
-                            </p>
-                          </div>
-                        </div>
+                      {/* Simplified 3-row content with symbols */}
+                      <div className="space-y-1.5 text-xs md:text-sm">
+                        <p className="text-muted-foreground flex items-start gap-2">
+                          <span className="text-red-400/80 shrink-0">•</span>
+                          <span>{day.pain[language]}</span>
+                        </p>
+                        <p className="text-muted-foreground flex items-start gap-2">
+                          <span className="text-primary shrink-0">→</span>
+                          <span>{day.action[language]}</span>
+                        </p>
+                        <p className="text-muted-foreground flex items-start gap-2">
+                          <span className="text-green-400/80 shrink-0">✓</span>
+                          <span>{day.pleasure[language]}</span>
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -235,14 +206,14 @@ export function ChallengeBonusSection({ language = 'ro' }: ChallengeBonusSection
           ))}
         </div>
 
-        {/* Bottom CTA */}
+        {/* Bottom note */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mt-10"
+          className="text-center mt-6"
         >
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             💡 {language === 'ro'
               ? 'Disponibil doar pentru membri noi care se înscriu azi.'
               : 'Available only for new members who sign up today.'}
