@@ -1,4 +1,38 @@
-export const getQuestions = () => {
+export const getQuestions = (language: 'en' | 'ro' = 'ro') => {
+  if (language === 'en') {
+    return [
+      "What title will you give this introspection session?",
+      
+      // Self-awareness
+      "What is the most important thing you learned about yourself in the last week?",
+      "What predominant emotion did you feel today and why do you think it appeared?",
+      "What are the 3 fundamental values that guide you in life?",
+      
+      // Growth & Development
+      "In what area of your life do you feel you have stagnated and why?",
+      "What fear prevents you most from advancing?",
+      "If you had complete courage, what would you do differently in your life?",
+      
+      // Relationships
+      "How have you behaved lately with the important people in your life?",
+      "What relationship in your life needs more attention and why?",
+      
+      // Purpose & Meaning
+      "What gives you the most meaning in daily life?",
+      "What is your unique contribution that you can bring to the world?",
+      
+      // Self-improvement
+      "What negative habit do you want to eliminate and why haven't you succeeded yet?",
+      "What personal quality do you want to develop in the next 90 days?",
+      
+      // Reflection & Action
+      "What is the most important realization from this introspection session?",
+      "What concrete action will you take as a result of this reflection?",
+      "Do you want to add this action to the HIT list? (YES or NO)",
+      "Are there other actions you want to add? (YES or NO)"
+    ];
+  }
+  
   return [
     "Ce titlu vei da acestei sesiuni de introspecție?",
     
@@ -32,10 +66,22 @@ export const getQuestions = () => {
   ];
 };
 
-export const getIntrospectionCategories = () => ({
-  selfAwareness: { start: 1, end: 3, label: "🔍 Conștientizare de Sine" },
-  growth: { start: 4, end: 6, label: "🌱 Creștere Personală" },
-  relationships: { start: 7, end: 8, label: "💕 Relații" },
-  purpose: { start: 9, end: 10, label: "🎯 Scop & Sens" },
-  improvement: { start: 11, end: 12, label: "⚡ Auto-Îmbunătățire" }
-});
+export const getIntrospectionCategories = (language: 'en' | 'ro' = 'ro') => {
+  if (language === 'en') {
+    return {
+      selfAwareness: { start: 1, end: 3, label: "🔍 Self-Awareness" },
+      growth: { start: 4, end: 6, label: "🌱 Personal Growth" },
+      relationships: { start: 7, end: 8, label: "💕 Relationships" },
+      purpose: { start: 9, end: 10, label: "🎯 Purpose & Meaning" },
+      improvement: { start: 11, end: 12, label: "⚡ Self-Improvement" }
+    };
+  }
+  
+  return {
+    selfAwareness: { start: 1, end: 3, label: "🔍 Conștientizare de Sine" },
+    growth: { start: 4, end: 6, label: "🌱 Creștere Personală" },
+    relationships: { start: 7, end: 8, label: "💕 Relații" },
+    purpose: { start: 9, end: 10, label: "🎯 Scop & Sens" },
+    improvement: { start: 11, end: 12, label: "⚡ Auto-Îmbunătățire" }
+  };
+};
