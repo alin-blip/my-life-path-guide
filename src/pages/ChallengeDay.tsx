@@ -25,6 +25,7 @@ import {
   Day1DeclarationReview, 
   Day1VideoPlaceholder 
 } from '@/components/challenge/day1';
+import { ChallengeInviteFriends } from '@/components/challenge/ChallengeInviteFriends';
 import { useDay1Responses } from '@/hooks/useDay1Responses';
 import { supabase } from '@/integrations/supabase/client';
 import { trackChallengeDayStarted } from '@/lib/facebook-pixel';
@@ -923,6 +924,13 @@ const ChallengeDayPage = () => {
         <div className="mb-6">
           <ChallengeAnswersHistory dayNumber={dayNumber} />
         </div>
+
+        {/* Invite Friends Section - All Days */}
+        {isAuthenticated && (
+          <div className="mb-6">
+            <ChallengeInviteFriends dayNumber={dayNumber} />
+          </div>
+        )}
 
         {/* Challenge Comments Section */}
         <div className="mb-6">
