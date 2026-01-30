@@ -98,3 +98,6 @@ verify_jwt = false
 
 [functions.mind-coach-demo]
 verify_jwt = false
+
+[functions.text-to-speech-demo]
+verify_jwt = false
