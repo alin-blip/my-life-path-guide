@@ -1,295 +1,263 @@
 
+# Audit: Salvare Date în Cloud (Supabase) - Platforma Life Path Guide
 
-# Plan: Îmbunătățiri UX Complete pentru Secțiunea "Idei" din /door
+## Executive Summary
 
-## Probleme Confirmate din Feedback Utilizator
-
-| # | Problemă | Status Actual |
-|---|----------|---------------|
-| 1 | **Modal selecție cadran lipsește** | La adăugare, ideea se salvează direct cu priority=1, fără opțiune de clasificare |
-| 2 | **Mobile: nu pot adăuga idei** | Butonul Send există (linia 194-203), dar utilizatorul nu îl vede sau nu funcționează |
-| 3 | **Acțiuni ascunse pe hover** | `opacity-0 group-hover:opacity-100` - nu funcționează pe touch |
+Am analizat codul sursă și am identificat **starea actuală a persistenței datelor**. Platforma folosește un sistem hibrid: unele funcționalități salvează în cloud (Supabase), altele doar local (localStorage), iar altele folosesc ambele cu sincronizare parțială.
 
 ---
 
-## Soluții Propuse
+## Status Curent - Ce SE Salvează în Cloud ✅
 
-### 1. Mini-Modal Eisenhower după Adăugare Idee
+### 1. Door System (Sarcini zilnice)
+| Componentă | Tabel Supabase | Status |
+|------------|----------------|--------|
+| HIT List (sarcini importante) | `user_tasks` | ✅ Salvat cloud |
+| DO List (sarcini de făcut) | `user_tasks` | ✅ Salvat cloud |
+| Weekly Plan (Domino + Key Points) | `weekly_planning` | ✅ Salvat cloud |
+| Ideas Bank (Idei) | `ideas_bank` | ✅ Salvat cloud |
 
-La fel ca în screenshot, după ce utilizatorul adaugă o idee, va apărea un modal compact:
+**Servicii folosite:** `doorUserTasksService.ts`, `weeklyPlanningService.ts`, `ideasBankService.ts`
 
-```text
-┌─────────────────────────────────────────────┐
-│         Clasifică ideea ta                  │
-│                                             │
-│  ┌─────────────┬─────────────┐              │
-│  │ ⚡ Reactor  │ ✨ Creator  │  ← Important │
-│  │  Fă ACUM   │  Planifică  │              │
-│  ├─────────────┼─────────────┤              │
-│  │ 👥 Delegator│ 🗑️ Eliminator│ ← Neimportant│
-│  │  Delegă    │  Șterge     │              │
-│  └─────────────┴─────────────┘              │
-│      URGENT       NU URGENT                 │
-│                                             │
-│  [⏭️ Sari peste]                            │
-│  sau                                        │
-│  [🧠 Analizează cu AI]                      │
-└─────────────────────────────────────────────┘
-```
+### 2. Mind Coach & Stacks
+| Componentă | Tabel Supabase | Status |
+|------------|----------------|--------|
+| Breakthrough logs | `breakthrough_logs` | ✅ Salvat cloud |
+| Stack Sessions | `stack_sessions` | ✅ Salvat cloud |
+| Stack Library | `stack_library` | ✅ Salvat cloud |
 
-**Flow:**
-1. Utilizatorul scrie ideea și apasă Enter/Send
-2. Ideea se salvează temporar cu `priority: 0` (unset)
-3. Apare modalul compact cu cele 4 cadrane
-4. Utilizatorul alege cadranul SAU:
-   - "Sări peste" → rămâne priority 0 (neclasificată)
-   - "Analizează cu AI" → deschide IdeaAnalysisModal
-5. Modalul se închide, focus revine la input
+### 3. Master Plan / Napoleon Hill
+| Componentă | Tabel Supabase | Status |
+|------------|----------------|--------|
+| Proiecte | `napoleon_hill_projects` | ✅ Salvat cloud |
+| Drafturi principii | `napoleon_hill_principle_drafts` | ✅ Salvat cloud |
+| Backups | `napoleon-hill-backups` bucket | ✅ Salvat cloud |
 
-### 2. Fix Mobile Add Button
+### 4. Fitness & Workout
+| Componentă | Tabel Supabase | Status |
+|------------|----------------|--------|
+| Workout Sessions | `workout_sessions` | ✅ Salvat cloud |
+| Workout Programs | `workout_programs` | ✅ Salvat cloud |
 
-Problema identificată: butonul Send există dar posibil:
-- E prea mic (w-9 h-9)
-- Nu e suficient de vizibil
+### 5. User Progress
+| Componentă | Tabel Supabase | Status |
+|------------|----------------|--------|
+| Daily tracking | `daily_tracking` | ✅ Salvat cloud |
+| Journal entries | `daily_progress` | ✅ Salvat cloud (când user e autentificat) |
+| XP / Achievements | `user_xp`, `user_achievements` | ✅ Salvat cloud |
+| Time entries | `time_entries` | ✅ Salvat cloud |
+| Weekly objectives | `objectives` | ✅ Salvat cloud |
 
-**Soluții:**
-- Măresc butonul pe mobile
-- Adaug culoare mai vizibilă (primary)
-- Adaug text "+" în loc de Send pe ecrane mici
-- Asigur că butonul e vizibil când input-ul are text
-
-### 3. Acțiuni Always-Visible pe Mobile
-
-Schimb comportamentul acțiunilor:
-
-```typescript
-// Din:
-className="opacity-0 group-hover:opacity-100"
-
-// În:
-className={cn(
-  "transition-opacity",
-  isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-)}
-```
+### 6. Reality Map / Fact Maps
+| Componentă | Tabel Supabase | Status |
+|------------|----------------|--------|
+| Reality Map scores | `fact_maps` (category='reality-scores') | ✅ Salvat cloud |
+| Warrior Power results | `warrior_power_results` | ✅ Salvat cloud |
 
 ---
 
-## Detalii Tehnice
+## PROBLEME CRITICE - Ce NU se salvează în cloud 🔴
 
-### A. Creez componenta `IdeaQuadrantModal.tsx`
+### 1. ThreeStepSystem (Annual Goals & Monthly Missions)
+
+**Locație:** `src/components/mission/ThreeStepSystem.tsx`
+
+**Problema:** Răspunsurile la întrebările anuale și misiunile lunare se salvează DOAR în localStorage:
 
 ```typescript
-// src/components/door/IdeaQuadrantModal.tsx
-interface IdeaQuadrantModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  ideaText: string;
-  onSelectQuadrant: (priority: number) => void;
-  onSkip: () => void;
-  onAnalyze: () => void;
+// Linia 60-61 - DOAR localStorage
+function saveAnnualGoalAnswers(category, language, answers) {
+  localStorage.setItem(getAnnualGoalAnswersKey(category, language), JSON.stringify(answers));
 }
-```
 
-Caracteristici:
-- Dialog compact (Dialog sau Sheet pe mobile)
-- Grid 2x2 cu cele 4 cadrane (reutilizez QuadrantCell din EisenhowerSelector)
-- Butoane "Sări peste" și "Analizează cu AI"
-- Animație subtilă la deschidere
-
-### B. Modific `HotList.tsx` - Flow Adăugare
-
-```typescript
-// State nou:
-const [pendingIdea, setPendingIdea] = useState<IdeaBankItem | null>(null);
-const [showQuadrantModal, setShowQuadrantModal] = useState(false);
-
-// În handleAddItem:
-const handleAddItem = async () => {
-  if (newItemText.trim() && !isAdding) {
-    setIsAdding(true);
-    try {
-      // Salvez cu priority 0 (unset)
-      const newIdea = await ideasBankService.addIdea(newItemText.trim(), 'work', 0);
-      setIdeas(prev => [newIdea, ...prev]);
-      setNewItemText('');
-      
-      // Deschid modalul pentru clasificare
-      setPendingIdea(newIdea);
-      setShowQuadrantModal(true);
-      
-    } catch (error) { ... }
-    finally { setIsAdding(false); }
-  }
-};
-
-// Handler pentru selecție cadran:
-const handleQuadrantSelect = async (priority: number) => {
-  if (!pendingIdea) return;
-  
-  // Dacă e Eliminator (priority 1), confirm ștergere
-  if (priority === 1) {
-    await handleDelete(pendingIdea.id);
-    toast({ title: "Idee eliminată", description: "Nu era importantă/urgentă" });
-  } else {
-    await ideasBankService.updateIdea(pendingIdea.id, { priority });
-    setIdeas(prev => prev.map(i => 
-      i.id === pendingIdea.id ? { ...i, priority } : i
-    ));
-    toast({ title: "Idee clasificată!", description: `Cadran: ${getQuadrantLabel(priority)}` });
-  }
-  
-  setShowQuadrantModal(false);
-  setPendingIdea(null);
-  inputRef.current?.focus();
-};
-
-// Handler skip:
-const handleSkipClassification = () => {
-  setShowQuadrantModal(false);
-  setPendingIdea(null);
-  toast({ title: "Idee salvată", description: "Poți clasifica mai târziu" });
-  inputRef.current?.focus();
-};
-
-// Handler analyze:
-const handleAnalyzeFromModal = () => {
-  setShowQuadrantModal(false);
-  if (pendingIdea) {
-    setSelectedIdea(pendingIdea);
-    setIsAnalysisModalOpen(true);
-  }
-};
-```
-
-### C. Modific `HotList.tsx` - Mobile Add Button
-
-```typescript
-// Linia 194-203, îmbunătățesc butonul:
-{isMobile && newItemText.trim() && (
-  <Button
-    size="sm"
-    onClick={handleAddItem}
-    disabled={isAdding}
-    className="h-10 px-4 shrink-0 bg-primary text-primary-foreground font-medium"
-  >
-    {isAdding ? (
-      <Loader2 className="w-4 h-4 animate-spin" />
-    ) : (
-      <>
-        <Plus className="w-4 h-4 mr-1" />
-        <span>Adaugă</span>
-      </>
-    )}
-  </Button>
-)}
-```
-
-**Schimbări cheie:**
-- Butonul apare DOAR când există text (evită confuzie)
-- Măresc din `h-9 w-9` în `h-10 px-4`
-- Adaug text "Adaugă" pentru claritate
-- Adaug Loader în timpul salvării
-
-### D. Modific `HotList.tsx` - Acțiuni Mobile
-
-```typescript
-// Linia 327, schimb:
-<div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-
-// În:
-<div className={cn(
-  "flex items-center gap-1 transition-opacity",
-  isMobile ? "opacity-70" : "opacity-0 group-hover:opacity-100"
-)}>
-```
-
-### E. Input Hint pe Desktop
-
-```typescript
-// Adaug text hint în input:
-placeholder={isAdding 
-  ? "Se salvează..." 
-  : `${t('addItem')}... ${!isMobile ? '(Enter ↵)' : ''}`
+// Linia 74-76 - DOAR localStorage  
+function saveMonthlyMissionAnswers(category, language, answers) {
+  localStorage.setItem(getMonthlyMissionAnswersKey(category, language), JSON.stringify(answers));
 }
+
+// Linia 140-141 - Citește din localStorage
+const storedMissions = JSON.parse(localStorage.getItem('monthlyMissions') || '[]');
 ```
 
----
+**Impact:** Utilizatorii PIERD Annual Goals și Monthly Missions dacă:
+- Schimbă browser-ul
+- Curăță cache-ul
+- Folosesc alt dispozitiv
 
-## Fișiere de Modificat/Creat
+### 2. FactMaps Content - Răspunsuri la întrebări
 
-| Fișier | Acțiune |
-|--------|---------|
-| **NOU:** `src/components/door/IdeaQuadrantModal.tsx` | Creez componenta modal |
-| `src/components/door/HotList.tsx` | Integrez modalul, fix mobile, acțiuni vizibile |
-| `src/types/eisenhower.ts` | Export funcție `getQuadrantLabel()` helper |
+**Locație:** `src/components/FactMapsContent.tsx` (liniile 227-242)
 
----
+**Problema:** Răspunsurile la întrebările din Fact Maps se salvează DOAR în localStorage:
 
-## Flow Complet după Implementare
+```typescript
+// Linia 227 - Citește din localStorage
+const savedAnswers = localStorage.getItem(answerKey);
 
-### Desktop:
-1. Utilizatorul scrie ideea în input
-2. Apasă Enter
-3. Apare mini-modalul cu 4 cadrane
-4. Click pe cadran → clasifică și închide
-5. "Sări peste" → salvează fără clasificare
-6. "Analizează" → deschide AI chat
-7. Focus revine automat la input
-
-### Mobile:
-1. Utilizatorul scrie ideea
-2. Apare butonul "➕ Adaugă" vizibil
-3. Tap pe buton → salvează ideea
-4. Apare Sheet (de jos) cu 4 cadrane
-5. Tap pe cadran → clasifică
-6. Acțiunile pe fiecare idee sunt vizibile permanent (opacity-70)
-
----
-
-## UI Modal Propus
-
-```text
-┌──────────────────────────────────────────────────────┐
-│                                                      │
-│  📝 "Finalizează raportul Q1"                        │
-│                                                      │
-│  ┌─────────────────────┬─────────────────────┐       │
-│  │                     │                     │       │
-│  │    ⚡ REACTOR       │    ✨ CREATOR       │       │
-│  │    Important+Urgent │    Important        │       │
-│  │       Fă ACUM       │     Planifică       │       │
-│  │                     │                     │       │
-│  ├─────────────────────┼─────────────────────┤       │
-│  │                     │                     │       │
-│  │   👥 DELEGATOR      │   🗑️ ELIMINATOR     │       │
-│  │      Urgent         │    Neimportant      │       │
-│  │      Delegă         │      Șterge         │       │
-│  │                     │                     │       │
-│  └─────────────────────┴─────────────────────┘       │
-│                                                      │
-│       ← URGENT                    NU URGENT →        │
-│                                                      │
-│  ┌──────────────────────────────────────────────┐    │
-│  │    ⏭️ Sări peste (clasifici mai târziu)      │    │
-│  └──────────────────────────────────────────────┘    │
-│                                                      │
-│  ┌──────────────────────────────────────────────┐    │
-│  │    🧠 Analizează cu AI                        │    │
-│  └──────────────────────────────────────────────┘    │
-│                                                      │
-└──────────────────────────────────────────────────────┘
+// Linia 242 - Salvează în localStorage
+localStorage.setItem('factMaps', JSON.stringify(updatedMaps));
 ```
 
+**Notă:** Serviciul `factMapService.ts` ARE integrare cu Supabase, dar componenta NU îl folosește corect pentru răspunsuri.
+
+### 3. DoorStorageManager - Backup-uri Locale
+
+**Locație:** `src/services/doorStorageManager.ts`
+
+**Problema:** Manager-ul face backup-uri DOAR în localStorage (liniile 130-175):
+
+```typescript
+// Salvează în localStorage, nu în cloud
+localStorage.setItem('door-hot-list', JSON.stringify(data.hotList));
+localStorage.setItem(`${this.backupPrefix}hot-list-${Date.now()}`, JSON.stringify(hotListBackup));
+```
+
+**Impact:** Backup-urile automate se pierd la ștergerea cache-ului.
+
+### 4. Champion Routine Progress
+
+**Locație:** `src/components/champion-routine/ChampionRoutineFlow.tsx`
+
+**Problema:** Progresul în rutina de dimineață se salvează DOAR local:
+
+```typescript
+// Linia 462-463
+localStorage.setItem(routineProgressKey, JSON.stringify({
+  stepIndex,
+  lastUpdate: Date.now()
+}));
+```
+
+### 5. Morning Routine Items Order
+
+**Locație:** `src/components/daily-flow/MorningRoutineStep.tsx`
+
+**Problema:** Ordinea rutinei de dimineață = DOAR localStorage.
+
+### 6. Onboarding Status
+
+**Locație:** `src/components/door/WeeklySection.tsx`, `src/components/focus/WelcomeVisionModal.tsx`
+
+**Problema:** Status-ul de onboarding = DOAR localStorage.
+
+### 7. Stack Preferences (Audio Voice)
+
+**Locație:** `src/components/stack/AiGuidedStack.tsx`
+
+**Problema:** Preferința de voce TTS = DOAR localStorage:
+
+```typescript
+localStorage.getItem('preferred-tts-voice')
+localStorage.setItem('preferred-tts-voice', voiceId);
+```
+
+### 8. Sound Settings
+
+**Locație:** `src/hooks/useSoundSettings.tsx`
+
+**Problema:** Setările de sunet = DOAR localStorage.
+
 ---
 
-## Testing
+## Probleme de Sincronizare (Hibrid dar incomplet) 🟡
 
-1. **Desktop - Modal:** Adaugă idee → verifică că apare modalul → selectează cadran → verifică salvare
-2. **Desktop - Skip:** Adaugă idee → click "Sări" → verifică că ideea rămâne neclasificată
-3. **Desktop - AI:** Adaugă idee → click "Analizează" → verifică că se deschide AI modal
-4. **Mobile - Buton:** Scrie text → verifică că apare butonul "Adaugă"
-5. **Mobile - Acțiuni:** Verifică că Brain/Target/X sunt vizibile fără hover
-6. **Mobile - Modal:** Adaugă idee → verifică că apare Sheet de jos
-7. **Eliminator:** Selectează Eliminator → verifică că se șterge ideea
+### 1. JournalWidget - Fallback la localStorage
 
+**Locație:** `src/components/dashboard/widgets/JournalWidget.tsx`
+
+**Comportament:**
+- Dacă user autentificat → salvează în Supabase ✅
+- Dacă user neautentificat → salvează în localStorage ⚠️
+
+**Problema:** Datele din localStorage NU se sincronizează când user-ul se autentifică.
+
+### 2. Divine Coaching / Gratitude Stack - Emergency Saves
+
+**Locații:** 
+- `src/components/stack/divine-stack/useDivinePrayerStack.tsx`
+- `src/components/stack/gratitude-stack/useGratitudeStack.tsx`
+
+**Comportament:** Salvează în localStorage ca "emergency backup":
+
+```typescript
+localStorage.setItem(`emergency-divine-${sessionId}`, JSON.stringify(emergencyData));
+```
+
+**Problema:** Emergency saves NU se sincronizează ulterior cu cloud-ul.
+
+---
+
+## Tabele Supabase Existente (pentru referință)
+
+Tabele relevante care EXISTĂ și ar trebui folosite:
+
+| Tabel | Scop |
+|-------|------|
+| `missions` | Pentru Annual Goals / Monthly Missions |
+| `objectives` | Deja folosit pentru Weekly Objectives |
+| `user_preferences` | Pentru setări utilizator (sunet, voce, etc.) |
+| `fact_maps` | Deja folosit dar incomplet |
+| `onboarding_progress` | Pentru status onboarding |
+| `champion_routine_settings` | Pentru setări rutină |
+
+---
+
+## Plan de Remediere
+
+### Prioritate CRITICĂ (Date utilizator pierdute)
+
+| # | Componentă | Soluție | Efort |
+|---|-----------|---------|-------|
+| 1 | ThreeStepSystem | Migrare la tabel `missions` | 🔴 Mare |
+| 2 | FactMaps Answers | Folosește `saveFactMapGoalAnswers` din service | 🟡 Mediu |
+| 3 | JournalWidget Sync | Migrare localStorage → Supabase la login | 🟡 Mediu |
+
+### Prioritate MEDIE (Preferințe pierdute)
+
+| # | Componentă | Soluție | Efort |
+|---|-----------|---------|-------|
+| 4 | Sound Settings | Salvare în `user_preferences` | 🟢 Mic |
+| 5 | TTS Voice Preference | Salvare în `user_preferences` | 🟢 Mic |
+| 6 | Onboarding Status | Salvare în `onboarding_progress` | 🟢 Mic |
+| 7 | Morning Routine Order | Salvare în `champion_routine_settings` | 🟢 Mic |
+
+### Prioritate SCĂZUTĂ (Nice to have)
+
+| # | Componentă | Soluție | Efort |
+|---|-----------|---------|-------|
+| 8 | Emergency Saves Sync | Background sync când user revine online | 🟡 Mediu |
+| 9 | Champion Routine Progress | Sync cu `champion_routine_logs` | 🟡 Mediu |
+
+---
+
+## Recomandare Imediată
+
+**Pasul 1:** Creez un serviciu `userPreferencesService.ts` care:
+- Salvează preferințele în `user_preferences` 
+- Fallback la localStorage pentru useri neautentificați
+- Sincronizare automată la autentificare
+
+**Pasul 2:** Migrez ThreeStepSystem pentru:
+- Salvare Annual Goals în `missions` (type='annual')
+- Salvare Monthly Missions în `missions` (type='monthly')
+- Sync bidirectional cu localStorage
+
+**Pasul 3:** Fix FactMapsContent:
+- Înlocuiesc localStorage cu apeluri la `factMapService.saveFactMapGoalAnswers()`
+
+---
+
+## Rezumat
+
+| Categorie | Count | Status |
+|-----------|-------|--------|
+| Funcționalități cu cloud COMPLET | 15+ | ✅ OK |
+| Funcționalități cu cloud PARȚIAL | 3 | 🟡 Necesită sync |
+| Funcționalități DOAR localStorage | 8 | 🔴 CRITIC |
+
+**Concluzie:** Aproximativ **80%** din funcționalitățile critice SE SALVEAZĂ în cloud corect. Problemele principale sunt în:
+1. Annual Goals & Monthly Missions (ThreeStepSystem)
+2. FactMaps răspunsuri
+3. Preferințe utilizator (sunet, voce, onboarding)
+
+Dorești să implementez remedierea pentru aceste probleme?
