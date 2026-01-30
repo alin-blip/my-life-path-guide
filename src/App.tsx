@@ -89,6 +89,7 @@ const CoachDashboard = lazy(() => import("./pages/CoachDashboard"));
 const ReferralProgram = lazy(() => import("./pages/ReferralProgram"));
 const ChallengeLanding = lazy(() => import("./pages/ChallengeLanding"));
 const MindCoach = lazy(() => import("./pages/MindCoach"));
+const MindCoachLanding = lazy(() => import("./pages/MindCoachLanding"));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -390,6 +391,7 @@ const App = () => (
                         <MindCoach />
                       </ProtectedRoute>
                     } />
+                    <Route path="/mind-coach-transform" element={<MindCoachLanding />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                       </Suspense>
