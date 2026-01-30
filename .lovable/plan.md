@@ -1,111 +1,161 @@
 
-# Plan: Corectare Sistem Referral - Link Corect + Afișare pe Ziua 1
+# Plan: Implementare Completă Funcționalitate Notițe
 
-## Probleme Identificate
+## Problema Curentă
 
-### 1. Link-ul de Referral Incorect
-- **Acum**: `${window.location.origin}/?ref=${userId}` → rezultă `https://lovable.app/?ref=...`
-- **Trebuie**: `https://warriorsos.com/challenge-landing?ref=${userId}`
+Pagina `/notes` este un **placeholder gol** care nu face nimic:
+- Butonul "Notiță Nouă" nu are funcționalitate
+- Nu există stocare (nici în baza de date, nici în localStorage)
+- Nu se pot crea, vizualiza sau edita notițe
 
-### 2. Ziua 1 - Componenta Invite Friends nu Apare
-- Ziua 1 are un `return` separat (linia 725) care NU include `ChallengeInviteFriends`
-- Componenta e render-uită doar pentru zilele 2-7 (în blocul return de la linia 728)
+## Soluție Propusă
+
+Vom implementa un sistem de notițe funcțional similar cu Jurnalul, dar cu diferențe:
+- **Jurnal**: intrări zilnice cu reflecții și lecții
+- **Notițe**: note rapide, fără restricții de dată, cu categorii
 
 ---
 
-## Modificări Necesare
+## Fișiere de Creat/Modificat
 
-### 1. Fișier: `src/hooks/useAffiliateLink.ts`
-
-**Modificare linia 18-20:**
-
-| Vechi | Nou |
-|-------|-----|
-| `const baseUrl = window.location.origin;` | `const baseUrl = 'https://warriorsos.com';` |
-| `setReferralLink(\`${baseUrl}/?ref=${session.user.id}\`);` | `setReferralLink(\`${baseUrl}/challenge-landing?ref=${session.user.id}\`);` |
-
-Rezultat:
-- Link-ul va fi: `https://warriorsos.com/challenge-landing?ref=USER_ID`
-- Funcționează atât în preview cât și în producție
-
-### 2. Fișier: `src/pages/ChallengeDay.tsx`
-
-**Adăugare în blocul return pentru Ziua 1 (înainte de linia 720):**
-
-Trebuie adăugat `ChallengeInviteFriends` în structura Zilei 1, înainte de secțiunea de comentarii.
-
-Poziție: între sfârșitul flow-ului Day1 (linia ~716-719) și `ChallengeComments` (linia 720-722)
+| Fișier | Acțiune |
+|--------|---------|
+| `src/pages/Notes.tsx` | **Rescris complet** - pagină cu CRUD pentru notițe |
+| `src/components/notes/NoteEditor.tsx` | **NOU** - Editor pentru creare/editare notițe |
+| `src/components/notes/NotesList.tsx` | **NOU** - Lista de notițe cu căutare și filtrare |
+| `src/components/notes/NoteCard.tsx` | **NOU** - Card pentru afișare notiță individuală |
+| `src/hooks/useNotes.ts` | **NOU** - Hook pentru management notițe (localStorage + DB) |
 
 ---
 
 ## Detalii Tehnice
 
-### useAffiliateLink.ts - Cod Actualizat
+### 1. Structura Notelor
 
 ```typescript
-useEffect(() => {
-  const getUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      setUserId(session.user.id);
-      
-      // Generate the referral link - ALWAYS use production domain
-      const baseUrl = 'https://warriorsos.com';
-      setReferralLink(`${baseUrl}/challenge-landing?ref=${session.user.id}`);
-    }
-  };
-
-  getUser();
-}, []);
+interface Note {
+  id: string;
+  title: string;
+  content: string;
+  category: 'personal' | 'business' | 'health' | 'relationships' | 'ideas' | 'other';
+  color?: string;
+  pinned: boolean;
+  created_at: string;
+  updated_at: string;
+}
 ```
 
-### ChallengeDay.tsx - Ziua 1 Return Block
+### 2. Hook useNotes
 
-```tsx
-{/* Ziua 1 - După flow-ul principal, înainte de Comments */}
+Strategia de stocare (în absența unui tabel dedicat):
 
-{/* Invite Friends Section - Ziua 1 */}
-{isAuthenticated && (
-  <div className="mt-6 mb-6">
-    <ChallengeInviteFriends dayNumber={1} />
-  </div>
-)}
+**Opțiunea A** - localStorage (imediat funcțional):
+```typescript
+const STORAGE_KEY = 'sacred-notes';
 
-{/* Comments Section - ALWAYS visible */}
-<div className="mt-6">
-  <ChallengeComments ref={commentsRef} dayNumber={1} />
-</div>
+export const useNotes = () => {
+  const [notes, setNotes] = useState<Note[]>([]);
+  
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) setNotes(JSON.parse(saved));
+  }, []);
+  
+  const saveNote = (note: Note) => { /* ... */ };
+  const deleteNote = (id: string) => { /* ... */ };
+  const updateNote = (id: string, updates: Partial<Note>) => { /* ... */ };
+  
+  return { notes, saveNote, deleteNote, updateNote };
+};
 ```
+
+**Opțiunea B** - Tabel Supabase (necesită migrare):
+- Creăm tabel `notes` cu RLS policies
+- Sincronizare cloud pentru utilizatori autentificați
+
+Propun **Opțiunea A acum** (localStorage) + **Opțiunea B mai târziu** când e nevoie.
+
+### 3. Pagina Notes.tsx Rescrisă
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  HEADER                                                        │
+│  [← Back to Dashboard]  Notițe Sacre  [+ Notiță Nouă]         │
+│                                                                 │
+│  [🔍 Caută...]  [Filtru Categorie ▼]                          │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  NOTES GRID (2-3 coloane responsive)                           │
+│                                                                 │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐                        │
+│  │ 📌 Note │  │   Note  │  │   Note  │                        │
+│  │ Titlu   │  │  Titlu  │  │  Titlu  │                        │
+│  │ Preview │  │ Preview │  │ Preview │                        │
+│  │ [Cat]   │  │  [Cat]  │  │  [Cat]  │                        │
+│  └─────────┘  └─────────┘  └─────────┘                        │
+│                                                                 │
+│  ┌─────────┐  ┌─────────┐                                     │
+│  │   Note  │  │   Note  │                                     │
+│  │  Titlu  │  │  Titlu  │                                     │
+│  │ Preview │  │ Preview │                                     │
+│  │  [Cat]  │  │  [Cat]  │                                     │
+│  └─────────┘  └─────────┘                                     │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  NOTE EDITOR (Dialog/Modal)                                    │
+│                                                                 │
+│  [Titlu: ____________________________________________]         │
+│                                                                 │
+│  [Categorie: Personal ▼]                                       │
+│                                                                 │
+│  [Conținut:                                                    │
+│   _______________________________________________________     │
+│   _______________________________________________________     │
+│   _______________________________________________________]    │
+│                                                                 │
+│  [📌 Pin]  [🗑️ Șterge]           [Anulează] [💾 Salvează]    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 4. Funcționalități
+
+- **Creare**: Modal cu titlu, categorie, conținut
+- **Vizualizare**: Grid de carduri cu preview
+- **Editare**: Click pe card → editor modal
+- **Ștergere**: Confirmare + ștergere
+- **Căutare**: Filtrare în timp real
+- **Categorii**: Personal, Business, Sănătate, Relații, Idei, Altele
+- **Pin**: Note importante apar primele
+- **Culori**: Opțional - fundal colorat per notă
+
+### 5. Design
+
+- **Stil**: Consistent cu restul aplicației (dark theme, gradients)
+- **Grid responsive**: 1 coloană mobile, 2 tablet, 3 desktop
+- **Animații**: Fade in/out pentru adăugare/ștergere
+- **Iconuri**: Lucide icons (Pin, Trash2, Edit, Plus, Search)
 
 ---
 
-## Verificare Finală - Toate Zilele
+## Pași de Implementare
 
-| Zi | Afișare ChallengeInviteFriends | Link Corect |
-|----|-------------------------------|-------------|
-| 1 | ✅ (după adăugare în return Ziua 1) | ✅ warriorsos.com/challenge-landing?ref=... |
-| 2 | ✅ (deja în return general) | ✅ warriorsos.com/challenge-landing?ref=... |
-| 3 | ✅ (deja în return general) | ✅ warriorsos.com/challenge-landing?ref=... |
-| 4 | ✅ (deja în return general) | ✅ warriorsos.com/challenge-landing?ref=... |
-| 5 | ✅ (deja în return general) | ✅ warriorsos.com/challenge-landing?ref=... |
-| 6 | ✅ (deja în return general) | ✅ warriorsos.com/challenge-landing?ref=... |
-| 7 | ✅ (în ChallengeDay7Complete) | ✅ warriorsos.com/challenge-landing?ref=... |
-
----
-
-## Fișiere de Modificat
-
-| Fișier | Modificări |
-|--------|------------|
-| `src/hooks/useAffiliateLink.ts` | Schimb `window.location.origin` cu `https://warriorsos.com` și path-ul în `/challenge-landing` |
-| `src/pages/ChallengeDay.tsx` | Adaug `ChallengeInviteFriends` în blocul return pentru Ziua 1 |
+1. **Creez hook `useNotes.ts`** - logica de stocare localStorage
+2. **Creez `NoteCard.tsx`** - componentă pentru afișare notiță
+3. **Creez `NoteEditor.tsx`** - modal/dialog pentru creare/editare
+4. **Creez `NotesList.tsx`** - grid cu căutare și filtrare
+5. **Rescriu `Notes.tsx`** - pagina completă cu toate componentele
+6. **Opțional**: Adaug tabel Supabase pentru sincronizare cloud
 
 ---
 
 ## Rezultat Așteptat
 
 După implementare:
-1. **Toate zilele** vor afișa secțiunea "Invită 1-3 Prieteni"
-2. **Link-ul de referral** va fi întotdeauna `https://warriorsos.com/challenge-landing?ref=USER_ID`
-3. **Mesajul** va fi contextual pentru fiecare zi (cum e deja implementat)
-4. Prietenii care dau click pe link ajung pe `/challenge-landing` cu parametrul `ref` setat
+- Utilizatorii pot crea notițe rapide
+- Notițele se salvează în localStorage (instant funcțional)
+- Pot căuta și filtra după categorie
+- Pot fixa (pin) notițe importante
+- Pot edita și șterge notițe existente
+- Design consistent cu restul platformei
