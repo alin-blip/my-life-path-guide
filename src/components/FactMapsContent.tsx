@@ -217,34 +217,40 @@ export const FactMapsContent: React.FC<FactMapsContentProps> = ({
       }]
     }];
   };
-  const checkForAnswersAndUpdateColors = () => {
+  const checkForAnswersAndUpdateColors = async () => {
     try {
       const updatedMaps = [...factMaps];
-      const basicMap = updatedMaps.find(map => map.id === 'f1');
+      const basicMap = updatedMaps.find(map => map.category === 'foundation');
       if (!basicMap) return;
+      
+      let hasUpdates = false;
+      
       basicMap.items.forEach((item, index) => {
-        const answerKey = `factMap-${basicMap.id}-${item.id}-answers`;
-        const savedAnswers = localStorage.getItem(answerKey);
-        if (savedAnswers) {
-          const answers = JSON.parse(savedAnswers);
-          const hasContent = Object.values(answers).some(answer => answer && (answer as string).trim() !== '');
-          if (hasContent) {
-            basicMap.items[index] = {
-              ...item,
-              isBlue: true,
-              isCompleted: true,
-              status: 'completed'
-            };
-          }
+        // Check if item has answers in its own data (from Supabase)
+        const hasContent = item.answers && Object.values(item.answers).some(
+          answer => answer && (answer as string).trim() !== ''
+        );
+        
+        if (hasContent && !item.isCompleted) {
+          basicMap.items[index] = {
+            ...item,
+            isBlue: true,
+            isCompleted: true,
+            status: 'completed'
+          };
+          hasUpdates = true;
         }
       });
-      setFactMaps(updatedMaps);
-      localStorage.setItem('factMaps', JSON.stringify(updatedMaps));
+      
+      if (hasUpdates) {
+        setFactMaps(updatedMaps);
+        await saveFactMaps(updatedMaps);
+      }
     } catch (error) {
       console.error('Error updating item colors based on answers:', error);
     }
   };
-  const updateGoalStatuses = () => {
+  const updateGoalStatuses = async () => {
     try {
       const storedMissions = JSON.parse(localStorage.getItem('monthlyMissions') || '[]') as MonthlyMission[];
       if (!storedMissions.length) return;
@@ -397,8 +403,7 @@ export const FactMapsContent: React.FC<FactMapsContentProps> = ({
         }
       });
       setFactMaps(updatedMaps);
-      localStorage.setItem('factMaps', JSON.stringify(updatedMaps));
-      saveFactMaps(updatedMaps);
+      await saveFactMaps(updatedMaps);
     } catch (error) {
       console.error('Error updating goal statuses:', error);
     }

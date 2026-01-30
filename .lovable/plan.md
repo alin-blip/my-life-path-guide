@@ -206,20 +206,20 @@ Tabele relevante care EXISTĂ și ar trebui folosite:
 
 ### Prioritate CRITICĂ (Date utilizator pierdute)
 
-| # | Componentă | Soluție | Efort |
-|---|-----------|---------|-------|
-| 1 | ThreeStepSystem | Migrare la tabel `missions` | 🔴 Mare |
-| 2 | FactMaps Answers | Folosește `saveFactMapGoalAnswers` din service | 🟡 Mediu |
-| 3 | JournalWidget Sync | Migrare localStorage → Supabase la login | 🟡 Mediu |
+| # | Componentă | Soluție | Efort | Status |
+|---|-----------|---------|-------|--------|
+| 1 | ThreeStepSystem | Migrare la tabel `missions` | 🔴 Mare | ✅ DONE |
+| 2 | FactMaps Answers | Folosește `saveFactMapGoalAnswers` din service | 🟡 Mediu | ✅ DONE |
+| 3 | JournalWidget Sync | Migrare localStorage → Supabase la login | 🟡 Mediu | 🔜 Pending |
 
 ### Prioritate MEDIE (Preferințe pierdute)
 
-| # | Componentă | Soluție | Efort |
-|---|-----------|---------|-------|
-| 4 | Sound Settings | Salvare în `user_preferences` | 🟢 Mic |
-| 5 | TTS Voice Preference | Salvare în `user_preferences` | 🟢 Mic |
-| 6 | Onboarding Status | Salvare în `onboarding_progress` | 🟢 Mic |
-| 7 | Morning Routine Order | Salvare în `champion_routine_settings` | 🟢 Mic |
+| # | Componentă | Soluție | Efort | Status |
+|---|-----------|---------|-------|--------|
+| 4 | Sound Settings | Salvare în `user_preferences` | 🟢 Mic | ✅ DONE |
+| 5 | TTS Voice Preference | Salvare în `user_preferences` | 🟢 Mic | ✅ DONE (via userPreferencesService) |
+| 6 | Onboarding Status | Salvare în `onboarding_progress` | 🟢 Mic | ✅ DONE (via userPreferencesService) |
+| 7 | Morning Routine Order | Salvare în `champion_routine_settings` | 🟢 Mic | 🔜 Pending |
 
 ### Prioritate SCĂZUTĂ (Nice to have)
 
