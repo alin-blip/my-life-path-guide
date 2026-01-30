@@ -1,6 +1,4 @@
 import { useState, useCallback } from 'react';
-import { MindCoachEmotion, getEmotionInfo } from '@/components/mind-coach/ExtendedEmotionPicker';
-import { getClusterForEmotion } from '@/lib/mind-coach-clusters';
 import { TransformationPhase, getPhaseFromMessageCount } from '@/components/mind-coach/PhaseIndicator';
 import { toast } from 'sonner';
 
@@ -28,12 +26,20 @@ interface UseMindCoachDemoOptions {
   onAIResponse?: (text: string) => void;
 }
 
+// Map lead magnet problems to labels
+const problemLabels: Record<string, string> = {
+  frustration: 'Frustrare',
+  anxiety: 'Anxietate',
+  procrastination: 'Amânare',
+  fear: 'Frică',
+};
+
 export function useMindCoachDemo(options: UseMindCoachDemoOptions = {}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPhase, setCurrentPhase] = useState<TransformationPhase>(1);
-  const [emotion, setEmotion] = useState<MindCoachEmotion | null>(null);
-  const [intensity, setIntensity] = useState(5);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [intensity, setIntensity] = useState(7);
   const [isComplete, setIsComplete] = useState(false);
   const [breakthroughData, setBreakthroughData] = useState<BreakthroughData | null>(null);
 
@@ -43,11 +49,11 @@ export function useMindCoachDemo(options: UseMindCoachDemoOptions = {}) {
   const processToolCalls = useCallback(async (toolCalls: ToolCall[]) => {
     for (const tool of toolCalls) {
       if (tool.name === 'complete_transformation') {
-        const emotionInfo = emotion ? getEmotionInfo(emotion) : null;
+        const problemLabel = problem ? problemLabels[problem] || problem : tool.arguments.emotion_before;
         const breakthrough: BreakthroughData = {
-          emotionBefore: emotionInfo?.labelRo || tool.arguments.emotion_before,
+          emotionBefore: problemLabel,
           intensityBefore: intensity,
-          emotionAfter: tool.arguments.emotion_after || 'Putere',
+          emotionAfter: tool.arguments.emotion_after || 'Claritate',
           insight: tool.arguments.breakthrough_insight || '',
           actionCommitted: tool.arguments.action_committed || '',
         };
@@ -60,11 +66,11 @@ export function useMindCoachDemo(options: UseMindCoachDemoOptions = {}) {
         }
       }
     }
-  }, [emotion, intensity, options]);
+  }, [problem, intensity, options]);
 
   // Start a new session
-  const startSession = useCallback((selectedEmotion: MindCoachEmotion, selectedIntensity: number) => {
-    setEmotion(selectedEmotion);
+  const startSession = useCallback((selectedProblem: string, selectedIntensity: number) => {
+    setProblem(selectedProblem);
     setIntensity(selectedIntensity);
     setMessages([]);
     setCurrentPhase(1);
@@ -74,7 +80,7 @@ export function useMindCoachDemo(options: UseMindCoachDemoOptions = {}) {
 
   // Send message to Mind Coach Demo
   const sendMessage = useCallback(async (userMessage: string) => {
-    if (!emotion) return;
+    if (!problem) return;
 
     const userMsg: Message = { role: 'user', content: userMessage };
     setMessages(prev => [...prev, userMsg]);
@@ -84,9 +90,7 @@ export function useMindCoachDemo(options: UseMindCoachDemoOptions = {}) {
     const pendingToolCalls: ToolCall[] = [];
 
     try {
-      const emotionInfo = getEmotionInfo(emotion);
       const allMessages = [...messages, userMsg];
-      const cluster = getClusterForEmotion(emotion);
       
       // Calculate phase based on message count
       const newPhase = getPhaseFromMessageCount(allMessages.length);
@@ -100,10 +104,9 @@ export function useMindCoachDemo(options: UseMindCoachDemoOptions = {}) {
         },
         body: JSON.stringify({
           messages: allMessages,
-          emotion: emotionInfo?.labelRo || emotion,
+          emotion: problem, // Send problem type (frustration, anxiety, etc.)
           intensity,
           phase: newPhase,
-          cluster,
         }),
       });
 
@@ -227,13 +230,13 @@ export function useMindCoachDemo(options: UseMindCoachDemoOptions = {}) {
     } finally {
       setIsLoading(false);
     }
-  }, [emotion, intensity, messages, processToolCalls, DEMO_URL, options]);
+  }, [problem, intensity, messages, processToolCalls, DEMO_URL, options]);
 
   // Reset session
   const resetSession = useCallback(() => {
     setMessages([]);
-    setEmotion(null);
-    setIntensity(5);
+    setProblem(null);
+    setIntensity(7);
     setCurrentPhase(1);
     setIsComplete(false);
     setBreakthroughData(null);
@@ -243,7 +246,7 @@ export function useMindCoachDemo(options: UseMindCoachDemoOptions = {}) {
     messages,
     isLoading,
     currentPhase,
-    emotion,
+    problem,
     intensity,
     isComplete,
     breakthroughData,

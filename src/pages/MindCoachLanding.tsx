@@ -5,10 +5,8 @@ import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Brain } from 'lucide-react';
 import { MindCoachDemo } from '@/components/mind-coach/MindCoachDemo';
-import { BreakthroughOverlay } from '@/components/mind-coach/BreakthroughOverlay';
 import { ChallengeBonusSection } from '@/components/mind-coach/ChallengeBonusSection';
 import { MindCoachPricingCards } from '@/components/mind-coach/MindCoachPricingCards';
-import { MindCoachEmotion } from '@/components/mind-coach/ExtendedEmotionPicker';
 import { trackLead } from '@/lib/facebook-pixel';
 
 // Dynamic headlines based on URL emotion param
@@ -55,42 +53,19 @@ const emotionHeadlines: Record<string, { ro: string; en: string; subtitle: { ro:
   },
 };
 
-// Map URL param to MindCoachEmotion
-const paramToEmotion: Record<string, MindCoachEmotion> = {
-  stuck: 'stuck',
-  procrastinating: 'procrastinating',
-  anxious: 'anxious',
-  overwhelmed: 'overwhelmed',
-  stressed: 'stressed',
-  distracted: 'distracted',
-  angry: 'angry',
-};
-
 export default function MindCoachLanding() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const pricingRef = useRef<HTMLDivElement>(null);
   
   const emotionParam = searchParams.get('emotion') || 'default';
-  const initialEmotion = paramToEmotion[emotionParam];
-  
   const headlines = emotionHeadlines[emotionParam] || emotionHeadlines.default;
-  
-  const [showBreakthroughOverlay, setShowBreakthroughOverlay] = useState(false);
-  const [breakthroughData, setBreakthroughData] = useState<any>(null);
 
   // Force Romanian language
   const lang = 'ro';
 
   const handleBreakthroughComplete = (data: any) => {
-    setBreakthroughData(data);
-    setShowBreakthroughOverlay(true);
     trackLead();
-  };
-
-  const handleOverlayContinue = () => {
-    setShowBreakthroughOverlay(false);
-    pricingRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -153,7 +128,6 @@ export default function MindCoachLanding() {
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400 via-primary to-purple-500 blur-xl opacity-40" />
                 <div className="relative bg-background rounded-2xl overflow-hidden">
                   <MindCoachDemo
-                    initialEmotion={initialEmotion}
                     onComplete={handleBreakthroughComplete}
                     language={lang}
                   />
@@ -239,14 +213,6 @@ export default function MindCoachLanding() {
           </div>
         </section>
       </div>
-
-      {/* Breakthrough Overlay */}
-      <BreakthroughOverlay
-        isVisible={showBreakthroughOverlay}
-        breakthroughData={breakthroughData}
-        onContinue={handleOverlayContinue}
-        language={lang}
-      />
     </>
   );
 }

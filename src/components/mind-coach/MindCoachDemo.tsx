@@ -1,81 +1,83 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Brain, RotateCcw, ArrowLeft } from 'lucide-react';
-import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo } from './ExtendedEmotionPicker';
-import { getClusterForEmotion, getClusterOpeningMessage } from '@/lib/mind-coach-clusters';
-import { PhaseIndicator } from './PhaseIndicator';
+import { Loader2, Brain, RotateCcw, Mic, Phone, PhoneOff, Volume2, VolumeX } from 'lucide-react';
+import { LeadMagnetEmotionPicker, LeadMagnetProblem, getProblemInfo } from './LeadMagnetEmotionPicker';
 import { useMindCoachDemo } from '@/hooks/useMindCoachDemo';
-import { useMindCoachVoice } from '@/hooks/useMindCoachVoice';
-import { MindCoachInputBar } from './MindCoachInputBar';
+import { useDemoTextToSpeech } from '@/hooks/useDemoTextToSpeech';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
+import { BreakthroughOverlay } from './BreakthroughOverlay';
 
 interface MindCoachDemoProps {
-  initialEmotion?: MindCoachEmotion;
-  initialIntensity?: number;
   onComplete?: (breakthrough: any) => void;
   language?: 'ro' | 'en';
 }
 
 export function MindCoachDemo({
-  initialEmotion,
-  initialIntensity = 5,
   onComplete,
   language = 'ro',
 }: MindCoachDemoProps) {
-  const [step, setStep] = useState<'emotion' | 'intensity' | 'chat'>(
-    initialEmotion ? 'intensity' : 'emotion'
-  );
-  const [selectedEmotion, setSelectedEmotion] = useState<MindCoachEmotion | null>(
-    initialEmotion || null
-  );
-  const [selectedIntensity, setSelectedIntensity] = useState(initialIntensity);
+  const [step, setStep] = useState<'problem' | 'chat'>('problem');
+  const [selectedProblem, setSelectedProblem] = useState<LeadMagnetProblem | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [lastAIResponse, setLastAIResponse] = useState<string>('');
+  const [showBreakthrough, setShowBreakthrough] = useState(false);
+  const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [isSpeakHeld, setIsSpeakHeld] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const {
     messages,
     isLoading,
-    currentPhase,
     isComplete,
     breakthroughData,
     startSession,
     sendMessage,
     resetSession,
   } = useMindCoachDemo({
-    onComplete,
+    onComplete: (data) => {
+      setShowBreakthrough(true);
+      onComplete?.(data);
+    },
     onAIResponse: (text) => {
       setLastAIResponse(text);
     },
   });
 
-  // Get current cluster for quick answers
-  const currentCluster = selectedEmotion ? getClusterForEmotion(selectedEmotion) : null;
-
-  // Voice integration
-  const voice = useMindCoachVoice({
-    onUserMessage: (text) => {
-      sendMessage(text);
-    },
-    onAIResponse: (text) => {
-      // Voice will speak AI responses in call mode
-    },
-    language,
-    silenceThreshold: 3000,
-    playbackRate: 1.15,
+  // Demo TTS (no auth required)
+  const tts = useDemoTextToSpeech({
+    onSpeakingStart: () => console.log('🎵 TTS started'),
+    onSpeakingEnd: () => console.log('🎵 TTS ended'),
+    initialPlaybackRate: 1.15,
   });
 
-  // Speak AI response when in call mode
+  // Voice input for speak mode
+  const accumulatedTextRef = useRef('');
+  const voiceInput = useVoiceInput({
+    onTranscript: (text) => {
+      accumulatedTextRef.current += ' ' + text;
+    },
+    onMicStop: () => {
+      const finalText = accumulatedTextRef.current.trim();
+      if (finalText) {
+        sendMessage(finalText);
+        accumulatedTextRef.current = '';
+      }
+    },
+    voiceLanguage: language === 'ro' ? 'ro-RO' : 'en-US',
+    enabled: true,
+  });
+
+  // Speak AI response when voice mode is on
   useEffect(() => {
-    if (lastAIResponse && voice.isInCall && !isLoading) {
-      voice.speakAIResponse(lastAIResponse);
+    if (lastAIResponse && isVoiceMode && !isLoading) {
+      tts.speak(lastAIResponse);
     }
-  }, [lastAIResponse, voice.isInCall, isLoading]);
+  }, [lastAIResponse, isVoiceMode, isLoading]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -84,16 +86,18 @@ export function MindCoachDemo({
     }
   }, [messages]);
 
-  // Handle emotion selection
-  const handleEmotionSelect = (emotion: MindCoachEmotion) => {
-    setSelectedEmotion(emotion);
-    setStep('intensity');
-  };
+  // Show breakthrough overlay when complete
+  useEffect(() => {
+    if (isComplete && breakthroughData) {
+      setShowBreakthrough(true);
+    }
+  }, [isComplete, breakthroughData]);
 
-  // Handle start chat
-  const handleStartChat = () => {
-    if (!selectedEmotion) return;
-    startSession(selectedEmotion, selectedIntensity);
+  // Handle problem selection
+  const handleProblemSelect = (problem: LeadMagnetProblem) => {
+    setSelectedProblem(problem);
+    // Start session immediately with fixed intensity of 7
+    startSession(problem as any, 7);
     setStep('chat');
   };
 
@@ -104,33 +108,44 @@ export function MindCoachDemo({
     setInputValue('');
   }, [inputValue, isLoading, sendMessage]);
 
-  // Handle call toggle
-  const handleCallToggle = useCallback(() => {
-    if (voice.isInCall) {
-      voice.endCall();
-    } else {
-      // Get opening message for call mode
-      const openingMessage = selectedEmotion 
-        ? getClusterOpeningMessage(getClusterForEmotion(selectedEmotion), language)
-        : language === 'ro' 
-          ? 'Bun venit la Mind Coach. Cum te simți acum?' 
-          : 'Welcome to Mind Coach. How are you feeling now?';
-      
-      voice.startCall(openingMessage);
+  // Handle speak button press/release
+  const handleSpeakStart = useCallback(() => {
+    setIsSpeakHeld(true);
+    accumulatedTextRef.current = '';
+    voiceInput.startVoice();
+  }, [voiceInput]);
+
+  const handleSpeakStop = useCallback(() => {
+    setIsSpeakHeld(false);
+    voiceInput.stopVoice();
+  }, [voiceInput]);
+
+  // Toggle voice mode (auto-speak AI responses)
+  const toggleVoiceMode = useCallback(() => {
+    if (isVoiceMode) {
+      tts.stop();
     }
-  }, [voice, selectedEmotion, language]);
+    setIsVoiceMode(!isVoiceMode);
+  }, [isVoiceMode, tts]);
 
   // Handle restart
   const handleRestart = () => {
     resetSession();
-    voice.endCall();
-    setStep('emotion');
-    setSelectedEmotion(null);
-    setSelectedIntensity(5);
+    tts.stop();
+    setStep('problem');
+    setSelectedProblem(null);
+    setIsVoiceMode(false);
+    setShowBreakthrough(false);
   };
 
-  // Render emotion selection step
-  if (step === 'emotion') {
+  // Handle breakthrough continue (navigate to signup)
+  const handleBreakthroughContinue = () => {
+    // Navigate to challenge signup
+    window.location.href = '/challenge-7-zile';
+  };
+
+  // Render problem selection step
+  if (step === 'problem') {
     return (
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5">
         <CardHeader className="pb-4">
@@ -139,13 +154,13 @@ export function MindCoachDemo({
             Mind Coach
           </CardTitle>
           <p className="text-muted-foreground text-sm text-center mt-2">
-            Cum te simți în acest moment?
+            {language === 'ro' ? 'Transformă blocajele în acțiune' : 'Transform blocks into action'}
           </p>
         </CardHeader>
         <CardContent>
-          <ExtendedEmotionPicker
-            selectedEmotion={selectedEmotion}
-            onSelect={handleEmotionSelect}
+          <LeadMagnetEmotionPicker
+            selectedProblem={selectedProblem}
+            onSelect={handleProblemSelect}
             language={language}
           />
         </CardContent>
@@ -153,170 +168,157 @@ export function MindCoachDemo({
     );
   }
 
-  // Render intensity selection step
-  if (step === 'intensity') {
-    const emotionInfo = selectedEmotion ? getEmotionInfo(selectedEmotion) : null;
-    
-    return (
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" size="sm" onClick={() => setStep('emotion')}>
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Înapoi
-            </Button>
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <span className="text-2xl">{emotionInfo?.emoji}</span>
-              {emotionInfo?.labelRo}
-            </CardTitle>
-            <div className="w-16" />
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <p className="text-center text-muted-foreground">
-              Cât de intens simți asta?
-            </p>
-            
-            <div className="px-4">
-              <Slider
-                value={[selectedIntensity]}
-                onValueChange={(v) => setSelectedIntensity(v[0])}
-                min={1}
-                max={10}
-                step={1}
-                className="w-full"
-              />
-              <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-                <span>1 - Ușor</span>
-                <span className="text-2xl font-bold text-primary">{selectedIntensity}</span>
-                <span>10 - Intens</span>
-              </div>
-            </div>
-          </div>
-
-          <Button
-            onClick={handleStartChat}
-            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-            size="lg"
-          >
-            <Brain className="h-5 w-5 mr-2" />
-            Începe Transformarea
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
   // Render chat step
-  const emotionInfo = selectedEmotion ? getEmotionInfo(selectedEmotion) : null;
+  const problemInfo = selectedProblem ? getProblemInfo(selectedProblem) : null;
+
+  // Opening messages for each problem
+  const openingMessages: Record<LeadMagnetProblem, string> = {
+    frustration: 'Văd că te simți frustrat. Care e situația concretă care te-a adus în acest punct?',
+    anxiety: 'Simt că anxietatea te apasă acum. Care e cel mai mare "dar dacă" care îți trece prin minte?',
+    procrastination: 'Observ că amâni lucruri importante. Ce te oprește să începi chiar acum?',
+    fear: 'Văd că frica te ține pe loc. De ce ți-e frică cel mai tare acum?',
+  };
 
   return (
-    <Card className="flex flex-col h-[500px] md:h-[550px] bg-gradient-to-br from-background via-background to-primary/5 border-0">
-      {/* Header with phase indicator */}
-      <CardHeader className="pb-2 border-b border-primary/10 shrink-0 bg-gradient-to-r from-primary/5 to-transparent">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">{emotionInfo?.emoji}</span>
-            <span className="text-sm font-medium text-foreground">
-              {emotionInfo?.labelRo}
-            </span>
-            <span className="text-xs text-muted-foreground bg-primary/10 px-2 py-0.5 rounded-full">
-              {selectedIntensity}/10
-            </span>
-          </div>
-          <Button variant="ghost" size="sm" onClick={handleRestart} className="hover:bg-primary/10">
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-        </div>
-        <PhaseIndicator currentPhase={currentPhase} language={language} compact />
-      </CardHeader>
-
-      {/* Messages area */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="space-y-4">
-          {/* Welcome message */}
-          {messages.length === 0 && selectedEmotion && (
-            <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-4 text-sm border border-primary/10 animate-fade-in">
-              <p className="font-medium mb-2 text-foreground">
-                {emotionInfo?.emoji} {emotionInfo?.labelRo} la {selectedIntensity}/10...
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                {getClusterOpeningMessage(getClusterForEmotion(selectedEmotion), language)}
-              </p>
+    <>
+      <Card className="flex flex-col h-[500px] md:h-[550px] bg-gradient-to-br from-background via-background to-primary/5 border-0">
+        {/* Header */}
+        <CardHeader className="pb-2 border-b border-primary/10 shrink-0 bg-gradient-to-r from-primary/5 to-transparent">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">{problemInfo?.emoji}</span>
+              <span className="text-sm font-medium text-foreground">
+                {problemInfo?.label}
+              </span>
             </div>
-          )}
-
-          {/* Chat messages */}
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={cn(
-                "flex animate-fade-in",
-                msg.role === 'user' ? 'justify-end' : 'justify-start'
-              )}
-            >
-              <div
+            <div className="flex items-center gap-2">
+              {/* Voice mode toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleVoiceMode}
                 className={cn(
-                  "max-w-[85%] rounded-xl p-3 text-sm",
-                  msg.role === 'user'
-                    ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20'
-                    : 'bg-muted/80 border border-border/50'
+                  "hover:bg-primary/10",
+                  isVoiceMode && "text-primary bg-primary/10"
                 )}
               >
-                {msg.role === 'assistant' ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
-                  </div>
-                ) : (
-                  <p>{msg.content}</p>
+                {isVoiceMode ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleRestart} className="hover:bg-primary/10">
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+
+        {/* Messages area */}
+        <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+          <div className="space-y-4">
+            {/* Welcome message */}
+            {messages.length === 0 && selectedProblem && (
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-4 text-sm border border-primary/10 animate-fade-in">
+                <p className="text-muted-foreground leading-relaxed">
+                  {openingMessages[selectedProblem]}
+                </p>
+              </div>
+            )}
+
+            {/* Chat messages */}
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={cn(
+                  "flex animate-fade-in",
+                  msg.role === 'user' ? 'justify-end' : 'justify-start'
                 )}
+              >
+                <div
+                  className={cn(
+                    "max-w-[85%] rounded-xl p-3 text-sm",
+                    msg.role === 'user'
+                      ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20'
+                      : 'bg-muted/80 border border-border/50'
+                  )}
+                >
+                  {msg.role === 'assistant' ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p>{msg.content}</p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
-          {/* Loading indicator */}
-          {isLoading && (
-            <div className="flex justify-start animate-fade-in">
-              <div className="bg-muted/80 rounded-xl p-3 border border-border/50">
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            {/* Loading indicator */}
+            {isLoading && (
+              <div className="flex justify-start animate-fade-in">
+                <div className="bg-muted/80 rounded-xl p-3 border border-border/50">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        </ScrollArea>
+
+        {/* Input area */}
+        <div className="p-4 border-t border-primary/10 shrink-0 bg-gradient-to-t from-primary/5 to-transparent">
+          <div className="flex items-center gap-2">
+            {/* Speak button (push-to-talk) */}
+            <Button
+              variant="outline"
+              size="icon"
+              className={cn(
+                "shrink-0 transition-all",
+                isSpeakHeld && "bg-red-500/20 border-red-500 text-red-500"
+              )}
+              onMouseDown={handleSpeakStart}
+              onMouseUp={handleSpeakStop}
+              onMouseLeave={handleSpeakStop}
+              onTouchStart={handleSpeakStart}
+              onTouchEnd={handleSpeakStop}
+              disabled={isLoading}
+            >
+              <Mic className={cn("h-4 w-4", isSpeakHeld && "animate-pulse")} />
+            </Button>
+
+            {/* Text input */}
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Scrie aici..."
+              className="flex-1 bg-muted/50 border border-border/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              disabled={isLoading || isComplete}
+            />
+
+            {/* Send button */}
+            <Button
+              size="sm"
+              onClick={handleSend}
+              disabled={!inputValue.trim() || isLoading || isComplete}
+              className="shrink-0"
+            >
+              Trimite
+            </Button>
+          </div>
         </div>
-      </ScrollArea>
+      </Card>
 
-      {/* Input area with voice buttons */}
-      <div className="p-4 border-t border-primary/10 shrink-0 bg-gradient-to-t from-primary/5 to-transparent">
-        <MindCoachInputBar
-          value={inputValue}
-          onChange={setInputValue}
-          onSend={handleSend}
-          placeholder="Scrie aici..."
-          isLoading={isLoading}
-          isComplete={isComplete}
-          // Speak mode props
-          isSpeaking={voice.isSpeaking}
-          onSpeakStart={voice.handleSpeakStart}
-          onSpeakStop={voice.handleSpeakStop}
-          // Call mode props
-          isInCall={voice.isInCall}
-          isAISpeaking={voice.isAISpeaking}
-          isListening={voice.isListening}
-          isProcessing={voice.isProcessing}
-          isTTSLoading={voice.isTTSLoading}
-          currentTranscript={voice.currentTranscript}
-          silenceTimer={voice.silenceTimer}
-          audioLevel={voice.audioLevel}
-          onCallToggle={handleCallToggle}
-          onSkipAI={voice.skipAISpeaking}
-          onManualSend={voice.manualSendInCall}
-          // Quick answers
-          cluster={currentCluster}
-          showQuickAnswers={messages.length > 0 && !isComplete}
-          language={language}
-        />
-      </div>
-    </Card>
+      {/* Breakthrough overlay */}
+      <BreakthroughOverlay
+        isVisible={showBreakthrough}
+        breakthroughData={breakthroughData ? {
+          emotionBefore: problemInfo?.label || breakthroughData.emotionBefore,
+          emotionAfter: breakthroughData.emotionAfter || 'Claritate',
+          insight: breakthroughData.insight,
+          actionCommitted: breakthroughData.actionCommitted,
+        } : undefined}
+        onContinue={handleBreakthroughContinue}
+        language={language}
+      />
+    </>
   );
 }
