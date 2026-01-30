@@ -175,7 +175,10 @@ cdn.tailwindcss.com should not be used in production
 ## 6. CHECKLIST PRE-LANSARE
 
 ```text
-[ ] Activare Leaked Password Protection
+[x] Adăugare index-uri DB pentru performanță (8 indexuri create)
+[x] Creare tabel notes + RLS pentru cloud sync
+[x] Migrare Notițe la Supabase cu auto-sync din localStorage
+[ ] Activare Leaked Password Protection (trebuie făcut manual în Supabase Auth)
 [ ] Verificare toate Edge Functions pornesc corect
 [ ] Test login/signup flow end-to-end
 [ ] Test Challenge Day 1-7 flow complet

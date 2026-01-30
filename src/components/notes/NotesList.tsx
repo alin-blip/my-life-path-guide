@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Search, StickyNote } from 'lucide-react';
-import { Note, NoteCategory, CATEGORY_CONFIG } from '@/hooks/useNotes';
+import { Note, NoteCategory, CATEGORY_CONFIG } from '@/hooks/useNotesCloud';
 import { NoteCard } from './NoteCard';
 import { useLanguage } from '@/context/LanguageContext';
 

@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Pin, PinOff, Trash2, Save } from 'lucide-react';
-import { Note, NoteCategory, CATEGORY_CONFIG } from '@/hooks/useNotes';
+import { Note, NoteCategory, CATEGORY_CONFIG } from '@/hooks/useNotesCloud';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface NoteEditorProps {
