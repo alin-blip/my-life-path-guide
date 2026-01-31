@@ -57,7 +57,7 @@ export const NewHeroSection = ({
     fetchMetrics();
   }, []);
   const heroContent = {
-    badge: language === 'ro' ? 'Pentru Antreprenori Ocupați' : 'For Busy Entrepreneurs',
+    badge: 'Pentru High Performance',
     headline: {
       result: language === 'ro' ? 'Fii de 2-10X mai productiv' : 'Get 2-10x more done',
       timeframe: language === 'ro' ? 'în maxim 40 de zile' : 'in just 40 days',
@@ -76,7 +76,7 @@ export const NewHeroSection = ({
   const handleOpenChat = () => {
     onOpenChat?.();
   };
-  return <section className="relative min-h-screen flex items-center pt-20 pb-12 md:py-24 overflow-hidden n8n-hero-gradient">
+  return <section className="relative min-h-screen flex items-center pt-8 pb-12 md:pt-16 md:pb-24 overflow-hidden n8n-hero-gradient">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div animate={{
