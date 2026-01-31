@@ -1,192 +1,216 @@
 
-# Audit Complet: Funcționalitate Platformă în Limba Engleză
+# Challenge AI Coach - Antrenor AI Dedicat pentru Challenge-ul de 7 Zile
 
-## Sumar Executiv
+## Obiectiv
 
-Platforma WarriorOS are un **sistem de traduceri robust** implementat în `src/context/LanguageContext.tsx` cu peste 1600 de linii de traduceri pentru atât română cât și engleză. Cu toate acestea, există **zone semnificative cu text hardcodat în română** care împiedică funcționarea completă în engleză.
-
----
-
-## Stare Curentă: Ce Funcționează Bine
-
-| Componentă | Status |
-|------------|--------|
-| Landing Page Principal | Tradus |
-| Pagina de Autentificare | Tradus |
-| Dashboard Principal | Tradus |
-| Sistemul XP/Gamificare | Tradus |
-| Meniu Navigare | Tradus |
-| Door (Planificare Săptămânală) | Tradus |
-| Setări | Tradus |
+Crearea unui AI Coach dedicat pentru Challenge-ul "Have It All Lifestyle" de 7 zile care:
+- Cunoaște TOTUL despre cele 7 zile de Challenge (scripturi, exerciții, flow-uri)
+- Cunoaște platforma complet (folosind `platformKnowledge.ts`)
+- Funcționează cu TEXT și AUDIO (voce)
+- Este disponibil pe `/challenge` și pe fiecare pagină de zi (`/challenge/1`, `/challenge/2`, etc.)
+- Accountability Coach-ul general să fie ascuns pe paginile de Challenge
 
 ---
 
-## Probleme Identificate: Zone cu Text Hardcodat în Română
+## Arhitectură Propusă
 
-### Categoria 1: AI Coaching Stacks (CRITICĂ)
-
-Următoarele stack-uri AI au **system prompts** și **welcome messages** hardcodate în română:
-
-| Fișier | Problemă |
-|--------|----------|
-| `src/components/stack/daily-master/DailyMasterStack.tsx` | System prompt și welcome message în română |
-| `src/components/stack/gods-school/GodsSchoolStack.tsx` | System prompt și welcome message în română |
-| `src/components/stack/divine-gratitude/DivineGratitudeStack.tsx` | System prompt în română |
-| `src/components/stack/gratitude-stack/GratitudeStack.tsx` | Welcome message în română |
-| `src/components/stack/introspection-stack/IntrospectionStack.tsx` | System prompt și welcome message în română |
-| `src/components/stack/master-plan/MasterPlanQuickStack.tsx` | Welcome messages în română |
-| `src/components/stack/HormoziCoachingStack.tsx` | Welcome message în română |
-
-### Categoria 2: Fișiere de Întrebări (CRITICĂ)
-
-| Fișier | Problemă |
-|--------|----------|
-| `src/components/stack/divine-stack/questions.ts` | 19 întrebări complet în română, fără versiune EN |
-| `src/components/stack/gods-school/questions.ts` | 8 întrebări în română |
-| `src/components/stack/divine-gratitude/questions.ts` | Toate întrebările în română |
-| `src/components/stack/daily-master/questions.ts` | Toate secțiunile în română |
-| `src/components/stack/emotional-transform/questions.ts` | 15 întrebări în română |
-
-### Categoria 3: Edge Functions (MODERATĂ-CRITICĂ)
-
-| Edge Function | Problemă |
-|---------------|----------|
-| `supabase/functions/warrior-ai-coach/index.ts` | System prompt complet în română (NU verifică limba) |
-| `supabase/functions/door-ai-planning/index.ts` | REVIEW_SYSTEM_PROMPT în română (NU verifică limba) |
-| `supabase/functions/hormozi-platform-analysis/index.ts` | System prompt în română |
-| `supabase/functions/send-power-results/index.ts` | Email content în română |
-
-Unele edge functions au suport pentru limbă (verifică `language === 'ro'`):
-- `sales-coach/index.ts` - Are versiuni RO și EN
-- `goal-wizard-ai/index.ts` - Are suport pentru limbă
-- `lifebook-mission-suggest/index.ts` - Are suport pentru limbă
-
-### Categoria 4: UI Components cu Text Hardcodat (MODERATĂ)
-
-| Componentă | Problemă |
-|------------|----------|
-| `src/components/admin/ai-studio/AIFeatureImageGenerator.tsx` | "Se încarcă...", "Se salvează..." |
-| `src/components/journal/JournalList.tsx` | "Se încarcă intrările..." |
-| `src/components/champion-routine/CardioTimer.tsx` | "Progresul se salvează automat", "Continuă", "Stop & Salvează" |
-| `src/components/fitness/TodaysWorkoutDashboard.tsx` | "Adaugă exercițiu...", "Selectează exercițiu..." |
-| `src/components/setup/steps/ProfileStep.tsx` | "Selectează nivelul" |
-| `src/pages/SetupWizard.tsx` | "Continuă" button |
-| `src/pages/ChallengeDay.tsx` | Multiple exerciții în română |
-| `src/components/admin/ClientManager.tsx` | Toast messages în română |
-| `src/components/door/WeeklyPlanningHistory.tsx` | "Șterge plan" tooltip |
-
-### Categoria 5: Challenge Content (MODERATĂ)
-
-| Componentă | Problemă |
-|------------|----------|
-| `src/pages/ChallengeDay.tsx` | `exercisesRo` sunt hardcodate, dar există și `exercisesEn` |
-| `src/pages/ChallengeLanding.tsx` | "Alege Calea Ta de Transformare" hardcodat |
-
----
-
-## Plan de Implementare
-
-### Faza 1: AI Stack System Prompts (Prioritate ÎNALTĂ)
-**Efort estimat: 4-6 ore**
-
-1. **Modificare pattern pentru toate Stack-urile AI**:
-   - Adaugă parametrul `language` din `useLanguage()` în toate componentele
-   - Creează funcții `getSystemPrompt(language)` și `getWelcomeMessage(language)` pentru fiecare stack
-   - Implementează versiuni EN pentru toate prompt-urile
-
-2. **Fișiere de modificat**:
-   - `DailyMasterStack.tsx`
-   - `GodsSchoolStack.tsx`
-   - `DivineGratitudeStack.tsx`
-   - `GratitudeStack.tsx`
-   - `IntrospectionStack.tsx`
-   - `MasterPlanQuickStack.tsx`
-   - `HormoziCoachingStack.tsx`
-
-### Faza 2: Fișiere de Întrebări (Prioritate ÎNALTĂ)
-**Efort estimat: 3-4 ore**
-
-1. **Refactorizare pattern întrebări**:
 ```text
-// Înainte:
-export const getQuestions = () => ["Întrebare în română..."];
-
-// După:
-export const getQuestions = (language: 'en' | 'ro') => 
-  language === 'en' 
-    ? ["Question in English..."]
-    : ["Întrebare în română..."];
+┌─────────────────────────────────────────────────────────────────┐
+│                        CHALLENGE AI COACH                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────┐    ┌──────────────────┐                   │
+│  │   Text Mode      │    │   Voice Mode      │                  │
+│  │   (Chat input)   │    │   (Call/Speak)    │                  │
+│  └────────┬─────────┘    └────────┬──────────┘                  │
+│           │                       │                              │
+│           └───────────┬───────────┘                              │
+│                       ▼                                          │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │              useChallengeCoach Hook                        │ │
+│  │  - Tracks current day number                               │ │
+│  │  - Injects day-specific context                            │ │
+│  │  - Uses useVoiceConversation for audio                     │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                       │                                          │
+│                       ▼                                          │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │           Edge Function: challenge-coach                   │ │
+│  │  - Full 7-day curriculum knowledge                         │ │
+│  │  - Platform knowledge base                                 │ │
+│  │  - User context (progress, tasks, missions)                │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-2. **Fișiere de modificat**:
-   - `divine-stack/questions.ts`
-   - `gods-school/questions.ts`
-   - `divine-gratitude/questions.ts`
-   - `daily-master/questions.ts`
-   - `emotional-transform/questions.ts`
+---
 
-### Faza 3: Edge Functions (Prioritate MEDIE)
-**Efort estimat: 3-4 ore**
+## Fișiere Noi de Creat
 
-1. **Adaugă suport pentru limbă în edge functions**:
-   - Acceptă parametrul `language` în request body
-   - Creează versiuni EN pentru system prompts
-   - Implementează condiționare `language === 'ro' ? promptRo : promptEn`
+| Fișier | Descriere |
+|--------|-----------|
+| `src/data/challengeKnowledge.ts` | Toate scripturile și cunoștințele despre cele 7 zile (din input-ul tău) |
+| `src/hooks/useChallengeCoach.ts` | Hook principal pentru Challenge AI Coach |
+| `src/components/challenge/ChallengeCoachWidget.tsx` | Widget-ul flotant pentru Challenge (similar cu Mind Coach) |
+| `src/components/challenge/ChallengeCoachChat.tsx` | Interfața de chat text + voice |
+| `src/components/challenge/ChallengeCoachInputBar.tsx` | Input bar cu suport text/speak/call |
+| `supabase/functions/challenge-coach/index.ts` | Edge function pentru AI cu cunoștințe complete despre challenge |
 
-2. **Edge functions de modificat**:
-   - `warrior-ai-coach/index.ts`
-   - `door-ai-planning/index.ts`
-   - `hormozi-platform-analysis/index.ts`
+---
 
-### Faza 4: UI Components Hardcodate (Prioritate MEDIE)
-**Efort estimat: 2-3 ore**
+## Fișiere de Modificat
 
-1. **Adaugă chei noi în LanguageContext.tsx** pentru textele lipsă
-2. **Înlocuiește text hardcodat** cu `t('cheiaTradusă')`
+| Fișier | Modificare |
+|--------|------------|
+| `src/components/Layout.tsx` | Ascunde AccountabilityCoachWidget pe rute /challenge |
+| `src/pages/Challenge.tsx` | Adaugă ChallengeCoachWidget |
+| `src/pages/ChallengeDay.tsx` | Adaugă ChallengeCoachWidget cu dayNumber |
 
-**Chei noi necesare** (exemplu):
-```text
-en: {
-  "uploading": "Uploading...",
-  "saving": "Saving...",
-  "loadingEntries": "Loading entries...",
-  "progressAutoSaved": "Progress auto-saved",
-  "addExercise": "Add exercise...",
-  "selectExercise": "Select exercise...",
-  "selectLevel": "Select level",
-  "deletePlan": "Delete plan",
-  ...
+---
+
+## Detalii Tehnice
+
+### 1. Challenge Knowledge Base (`challengeKnowledge.ts`)
+
+Fișier cu toate scripturile furnizate de tine, structurate astfel:
+
+```typescript
+export interface ChallengeDayScript {
+  day: number;
+  titleEn: string;
+  titleRo: string;
+  scriptEn: string;
+  scriptRo: string;
+  focusAreas: ('body' | 'being' | 'balance' | 'business')[];
+  exercisesEn: string[];
+  exercisesRo: string[];
+  keyInsightsEn: string[];
+  keyInsightsRo: string[];
 }
+
+export const CHALLENGE_SCRIPTS: ChallengeDayScript[] = [
+  {
+    day: 1,
+    titleEn: "VISION & DECLARATION",
+    titleRo: "VIZIUNE ȘI DECLARAȚIE",
+    scriptEn: `Welcome to Day One of your transformation journey...`,
+    scriptRo: `Bine ai venit în Prima Zi a călătoriei tale de transformare...`,
+    // ... restul conținutului din input-ul tău
+  },
+  // ... zilele 2-7
+];
 ```
 
-### Faza 5: QA și Testare
-**Efort estimat: 2-3 ore**
+### 2. Edge Function (`challenge-coach/index.ts`)
 
-1. Setează limba pe EN și testează fiecare pagină
-2. Verifică toate AI coaching flows
-3. Testează edge functions cu language='en'
-4. Documentează orice text rămas în română
+System prompt care include:
+- **Cunoștințe complete despre Challenge** (toate cele 7 zile, scripturi, exerciții)
+- **Cunoștințe despre platformă** (din `platformKnowledge.ts`)
+- **Context utilizator** (progres challenge, zi curentă, missions, weekly plan)
+- **Tool calling** pentru `complete_exercise`, `navigate_to_page`
+
+Modelul recomandat: `google/gemini-3-flash-preview` pentru latenŢă mică
+
+### 3. Challenge Coach Widget (`ChallengeCoachWidget.tsx`)
+
+Widget flotant care:
+- Apare pe `/challenge` și `/challenge/:dayNumber`
+- Arată buton cu icon și badge pentru ziua curentă
+- Se deschide ca Sheet (drawer) din dreapta
+- Suportă 3 moduri: Text, Speak (push-to-talk), Call (conversație continuă)
+
+### 4. Voice Integration
+
+Reutilizează infrastructura existentă:
+- `useVoiceConversation.tsx` pentru Call mode
+- `useVoiceInput.ts` pentru Speak mode
+- `text-to-speech` edge function pentru TTS
+- Voice ID: `EXAVITQu4vr4xnSDxMaL` (Sarah - multilingual)
+
+### 5. Layout Modification
+
+```typescript
+// src/components/Layout.tsx
+const isChallengeRoute = location.pathname.startsWith('/challenge');
+
+// In return:
+{!isChallengeRoute && <AccountabilityCoachWidget />}
+```
 
 ---
 
-## Rezumat Efort Total
+## Flow Utilizator
 
-| Fază | Efort | Prioritate |
-|------|-------|------------|
-| Faza 1: AI Stack System Prompts | 4-6 ore | ÎNALTĂ |
-| Faza 2: Fișiere de Întrebări | 3-4 ore | ÎNALTĂ |
-| Faza 3: Edge Functions | 3-4 ore | MEDIE |
-| Faza 4: UI Components | 2-3 ore | MEDIE |
-| Faza 5: QA | 2-3 ore | ÎNALTĂ |
-| **TOTAL** | **14-20 ore** | - |
+1. Utilizatorul intră pe `/challenge` sau `/challenge/3`
+2. Vede butonul flotant "Challenge Coach" (nu Accountability Coach)
+3. Click pe buton deschide drawer-ul
+4. Poate:
+   - **Scrie** întrebări în română/engleză
+   - **Speak** (push-to-talk): ține apăsat, vorbește, eliberează
+   - **Call** (conversație): click pentru a începe conversația hands-free
+5. AI-ul știe:
+   - În ce zi este utilizatorul
+   - Ce exerciții are de făcut
+   - Ce a completat deja
+   - Cum funcționează întreaga platformă
 
 ---
 
-## Recomandare
+## Exemple de Interacțiuni
 
-Recomand să implementăm **Faza 1 și Faza 2** imediat, deoarece afectează experiența utilizatorilor englezofoni cel mai mult (AI coaching e funcționalitatea principală). Fazele 3-4 pot fi implementate incremental.
+**Utilizator pe Ziua 3:**
+> "Ce trebuie să fac azi?"
 
-Dacă aprobi, voi începe cu:
-1. Refactorizarea `DailyMasterStack.tsx` ca model
-2. Crearea funcțiilor `getSystemPrompt(language)` pentru toate stack-urile
-3. Traducerea fișierelor de întrebări
+**Challenge Coach:**
+> "Astăzi e Ziua 3 - Business + Domino Door! 🎯
+> 
+> Ai de parcurs un flow complet ghidat de AI:
+> 1. Viziune Business pentru 1 an
+> 2. Ținte pe 90 de zile
+> 3. Milestone pentru prima lună
+> 4. Configurare Domino Door cu 4 chei + WHY pentru fiecare
+> 
+> Apasă pe 'Start AI Wizard' pentru a începe. Vrei să îți explic mai multe despre Domino Door?"
+
+---
+
+**Utilizator:**
+> "Unde pot să văd progresul meu?"
+
+**Challenge Coach:**
+> "Progresul tău apare în partea de sus a paginii Challenge - vezi bara de progres care arată zilele completate. Ai terminat 2 din 7 zile. De asemenea, poți vedea un rezumat complet în Ziua 7 când vei avea Recap-ul transformării tale!"
+
+---
+
+## Beneficii
+
+1. **Contextual**: Știe exact în ce zi ești și ce ai de făcut
+2. **Hands-free**: Modul Call permite coaching vocal continuu
+3. **Personalizat**: Cunoaște obiectivele și progresul tău
+4. **Consistent**: Același mesaj ca în videoclipuri, dar interactiv
+5. **Separat**: Nu interferează cu Accountability Coach-ul general
+
+---
+
+## Estimare Efort
+
+| Component | Timp Estimat |
+|-----------|--------------|
+| `challengeKnowledge.ts` | 30 min |
+| Edge Function `challenge-coach` | 1-2 ore |
+| `useChallengeCoach.ts` hook | 45 min |
+| `ChallengeCoachWidget.tsx` | 1 oră |
+| `ChallengeCoachChat.tsx` + InputBar | 1 oră |
+| Modificări Layout + Pages | 30 min |
+| Testare și ajustări | 1 oră |
+| **TOTAL** | **5-7 ore** |
+
+---
+
+## Internationalizare (i18n)
+
+Toate componentele vor suporta RO/EN folosind `useLanguage()`:
+- System prompts cu versiuni RO și EN
+- UI labels bilingve
+- Scripturi în ambele limbi din `challengeKnowledge.ts`
