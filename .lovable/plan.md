@@ -1,106 +1,161 @@
 
+# Plan: Pagina Tools + Integrare Framework-uri de Storytelling
 
-# Plan: Headline Nou + "în maxim 40 de zile"
+## Problema Identificată
 
-## Modificări
+| Problemă | Cauză |
+|----------|-------|
+| `/tools` dă 404 | Ruta nu există în App.tsx - doar în meniu |
+| Storytelling Framework nu e accesibil | Componenta există dar nu e integrată |
+| Hero's Journey nu e accesibil | Componenta există dar nu e integrată |
+| Path to Success funcționează | Este în Stack.tsx dar necesită URL direct |
 
-### Headline Complet Nou
+## Soluția
 
-| Limba | Text |
-|-------|------|
-| 🇷🇴 **RO** | **Fii de 2-10X mai productiv în maxim 40 de zile** în timp ce-ți reconstruiești **relațiile, corpul și sufletul** |
-| 🇬🇧 **EN** | **Get 2-10x more done in just 40 days** while you rebuild your **marriage, body and soul** |
+### 1. Crearea paginii `/tools` - Tools.tsx
 
-### Subheadline
-
-| Limba | Text |
-|-------|------|
-| 🇷🇴 **RO** | Sistemul Dovedit alimentat de AI pentru productivitate, impact, fericire și sens |
-| 🇬🇧 **EN** | The Proven System powered by AI for productivity, impact, happiness and meaning |
-
-## Structura Vizuală
+O pagină dedicată care listează toate tool-urile AI disponibile în formă de carduri:
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│              🟢 Pentru Antreprenori Ocupați                 │
-│                                                             │
-│     ╔═══════════════════════════════════════════════════╗   │
-│     ║  Fii de 2-10X mai productiv                       ║ ← gradient
-│     ║  în maxim 40 de zile                              ║ ← normal
-│     ║                                                   ║   │
-│     ║  în timp ce-ți reconstruiești                     ║ ← muted, smaller
-│     ║  relațiile, corpul și sufletul                    ║ ← foreground
-│     ╚═══════════════════════════════════════════════════╝   │
-│                                                             │
-│     Sistemul Dovedit alimentat de AI pentru                 │
-│     productivitate, impact, fericire și sens                │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  🛠️ AI Tools & Frameworks                                       │
+│  Unelte AI pentru transformare și creație de conținut           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐    │
+│  │ 📖 Storytelling │ │ 🗺️ Hero's      │ │ 🏔️ Path to     │    │
+│  │ Framework       │ │ Journey         │ │ Success         │    │
+│  │                 │ │                 │ │                 │    │
+│  │ 7 Elemente ale  │ │ 7 Etape ale     │ │ 7 Pași spre     │    │
+│  │ unei povești    │ │ călătoriei      │ │ transformare    │    │
+│  │ captivante      │ │ eroului         │ │ totală          │    │
+│  │                 │ │                 │ │                 │    │
+│  │  [Deschide →]   │ │  [Deschide →]   │ │  [Deschide →]   │    │
+│  └─────────────────┘ └─────────────────┘ └─────────────────┘    │
+│                                                                 │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │ 📂 Alte unelte existente:                                 │  │
+│  │ Lifebook • Vibe Canvas • Vision Board • Focus Room        │  │
+│  │ Journal • Notes • Time Tracker • Emotional Tracker        │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## Cod Tehnic
+### 2. Integrarea în Stack.tsx
 
-### Modificare în `NewHeroSection.tsx`
+Adăugarea Storytelling și Hero's Journey în switch-ul din `renderActiveStack()`:
 
-**heroContent object:**
 ```typescript
-const heroContent = {
-  badge: language === 'ro' ? 'Pentru Antreprenori Ocupați' : 'For Busy Entrepreneurs',
-  headline: {
-    // Linia 1 - rezultat cu gradient
-    result: language === 'ro' 
-      ? 'Fii de 2-10X mai productiv' 
-      : 'Get 2-10x more done',
-    // Linia 2 - timeframe specific
-    timeframe: language === 'ro' 
-      ? 'în maxim 40 de zile' 
-      : 'in just 40 days',
-    // Linia 3 - connector mai mic
-    connector: language === 'ro' 
-      ? 'în timp ce-ți reconstruiești' 
-      : 'while you rebuild your',
-    // Linia 4 - transformare finală
-    transformation: language === 'ro' 
-      ? 'relațiile, corpul și sufletul' 
-      : 'marriage, body and soul'
-  },
-  subheadline: language === 'ro' 
-    ? 'Sistemul Dovedit alimentat de AI pentru productivitate, impact, fericire și sens' 
-    : 'The Proven System powered by AI for productivity, impact, happiness and meaning',
-  // ... rest
-};
+case "storytelling":
+  return <StorytellingStack language={language} onAddToHitList={stackProps.onAddToHitList} />;
+case "hero-journey":
+  return <HeroJourneyStack language={language} onAddToHitList={stackProps.onAddToHitList} />;
 ```
 
-**JSX pentru Headline:**
-```tsx
-<h1 className="text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-  {/* Linia 1 - Rezultat principal cu gradient */}
-  <span className="n8n-gradient-text">{heroContent.headline.result}</span>
-  <br />
-  {/* Linia 2 - Timeframe */}
-  <span className="text-foreground">{heroContent.headline.timeframe}</span>
-  <br />
-  {/* Linia 3 - Connector mai mic */}
-  <span className="text-muted-foreground text-xl sm:text-3xl md:text-4xl">
-    {heroContent.headline.connector}
-  </span>
-  <br />
-  {/* Linia 4 - Transformare */}
-  <span className="text-foreground">{heroContent.headline.transformation}</span>
-</h1>
+### 3. Adăugarea rutei în App.tsx
+
+```typescript
+const Tools = lazy(() => import("./pages/Tools"));
+
+// În Routes:
+<Route path="/tools" element={
+  <ProtectedRoute>
+    <Tools />
+  </ProtectedRoute>
+} />
 ```
 
-## Fișier de Modificat
+## Fișiere de Creat
+
+| Fișier | Descriere |
+|--------|-----------|
+| `src/pages/Tools.tsx` | Pagina principală pentru AI Tools cu carduri interactive |
+
+## Fișiere de Modificat
 
 | Fișier | Modificare |
 |--------|------------|
-| `src/components/landing/NewHeroSection.tsx` | Actualizare heroContent + JSX headline |
+| `src/App.tsx` | Adaugă ruta `/tools` și lazy import |
+| `src/pages/Stack.tsx` | Adaugă case-uri pentru `storytelling` și `hero-journey` |
+
+## Detalii Tehnice
+
+### Tools.tsx - Structura Paginii
+
+```typescript
+// Categorii de tools
+const aiFrameworks = [
+  {
+    id: 'storytelling',
+    name: 'Storytelling Framework',
+    description: '7 Elemente ale unei Povești Captivante',
+    icon: BookOpen,
+    color: 'purple',
+    path: '/stack?type=storytelling'
+  },
+  {
+    id: 'hero-journey',
+    name: "Hero's Journey",
+    description: '7 Etape ale Călătoriei Eroului (Joseph Campbell)',
+    icon: Compass,
+    color: 'cyan',
+    path: '/stack?type=hero-journey'
+  },
+  {
+    id: 'path-to-success',
+    name: 'Calea spre Succes',
+    description: '7 Pași pentru Transformare Totală (Tony Robbins)',
+    icon: Mountain,
+    color: 'amber',
+    path: '/stack?type=path-to-success'
+  }
+];
+
+const existingTools = [
+  { name: 'Lifebook', path: '/lifebook', icon: BookOpen },
+  { name: 'Vibe Canvas', path: '/vibe-canvas', icon: Palette },
+  { name: 'Vision Board', path: '/vision-board', icon: Sparkles },
+  // ... etc
+];
+```
+
+### Stack.tsx - Import și Switch Update
+
+```typescript
+// Importuri noi
+import { StorytellingStack } from '@/components/content-creation/StorytellingStack';
+import { HeroJourneyStack } from '@/components/content-creation/HeroJourneyStack';
+
+// În switch din renderActiveStack():
+case "storytelling":
+  return <StorytellingStack 
+    language={language} 
+    onComplete={(script) => {
+      toast({ title: "Script generat!", description: "Verifică scriptul și salvează-l." });
+    }}
+  />;
+case "hero-journey":
+  return <HeroJourneyStack 
+    language={language}
+    onComplete={(script) => {
+      toast({ title: "Script generat!", description: "Verifică scriptul și salvează-l." });
+    }}
+  />;
+```
+
+## URL-uri Finale
+
+| Tool | URL |
+|------|-----|
+| Tools Page | `/tools` |
+| Storytelling | `/stack?type=storytelling` |
+| Hero's Journey | `/stack?type=hero-journey` |
+| Path to Success | `/stack?type=path-to-success` |
 
 ## Beneficii
 
-- **Promisiune specifică**: "2-10X" e mai impactant decât "Dublează"
-- **Timeframe clar**: "40 de zile" e mai credibil și urgent
-- **Transformare completă**: relații + corp + suflet = tot ce contează
-- **Subheadline puternic**: AI + productivitate + impact + fericire + sens
-
+- **Un singur loc** pentru toate AI tools-urile
+- **Carduri vizuale** care arată clar ce face fiecare tool
+- **Navigare rapidă** între diferite framework-uri
+- **Extensibilitate** - ușor de adăugat noi tools în viitor
