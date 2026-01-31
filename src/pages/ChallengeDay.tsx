@@ -560,8 +560,10 @@ const ChallengeDayPage = () => {
     };
 
     return (
-      <Layout>
-        <div className="w-full max-w-3xl mx-auto px-4 py-8">
+      <>
+        <ChallengeCoachWidget currentDay={dayNumber} />
+        <Layout>
+          <div className="w-full max-w-3xl mx-auto px-4 py-8">
           {/* Login Banner */}
           {!isAuthenticated && (
             <Card className="p-4 mb-6 bg-amber-500/10 border-amber-500/30">
@@ -728,14 +730,17 @@ const ChallengeDayPage = () => {
           <div className="mt-6">
             <ChallengeComments ref={commentsRef} dayNumber={1} />
           </div>
-        </div>
-      </Layout>
+          </div>
+        </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
-      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+    <>
+      <ChallengeCoachWidget currentDay={dayNumber} />
+      <Layout>
+        <div className="w-full max-w-4xl mx-auto px-4 py-8">
         {/* Login Banner for Unauthenticated Users */}
         {!isAuthenticated && (
           <Card className="p-4 mb-6 bg-amber-500/10 border-amber-500/30">
@@ -989,6 +994,7 @@ const ChallengeDayPage = () => {
         </Card>
       </div>
     </Layout>
+    </>
   );
 };
 

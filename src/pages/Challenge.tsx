@@ -164,8 +164,10 @@ const ChallengePage = () => {
   }
 
   return (
-    <Layout>
-      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+    <>
+      <ChallengeCoachWidget currentDay={currentDay} />
+      <Layout>
+        <div className="w-full max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
@@ -445,8 +447,9 @@ const ChallengePage = () => {
             </Button>
           </div>
         </Card>
-      </div>
-    </Layout>
+        </div>
+      </Layout>
+    </>
   );
 };
 
