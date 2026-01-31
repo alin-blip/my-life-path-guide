@@ -1,154 +1,213 @@
 
-# Fix: Voice Mode în Challenge Coach Widget
+# Plan: Fix Voice Mode în MindCoachDemo (pagina /mind-coach-transform)
 
-## Problema Identificată
+## Probleme Identificate
 
-Funcția `speakResponse` din `ChallengeCoachWidget.tsx` folosește `supabase.functions.invoke()` care așteaptă un răspuns JSON, dar edge function-ul `text-to-speech` returnează un stream audio mpeg binar direct.
+### 1. Butonul Speak (Microfonul)
+- Există în UI dar **nu are feedback vizual suficient** când e apăsat
+- Culoarea se schimbă doar ușor, nu e clar că funcționează
+- Lipsesc indicatori vizuali ca pulsul roșu și starea activă
 
-**Cod curent (incorect):**
-```typescript
-const { data, error } = await supabase.functions.invoke('text-to-speech', {
-  body: { text, voiceId }
-});
-if (data?.audioContent) {
-  const audio = new Audio(`data:audio/mpeg;base64,${data.audioContent}`);
-```
+### 2. Butonul Call 
+- **NU EXISTĂ** în interfața `MindCoachDemo.tsx`
+- Există doar un toggle pentru Voice Mode (TTS) care nu e buton de Call
+- Pagina normală Mind Coach (`MindCoachInputBar.tsx`) are Call, dar demo-ul nu
 
-**Problema:** `supabase.functions.invoke()` nu gestionează corect răspunsurile binare și încearcă să parseze JSON, rezultând în `data` care e audio raw, nu un obiect JSON.
+### 3. Feedback General
+- Nu există indicatori de stare clare (Listening, Speaking, etc.)
+- Utilizatorul nu știe dacă microfonul captează vocea
 
-## Soluția
+## Soluție Propusă
 
-Înlocuiește implementarea cu pattern-ul corect folosit în `useTextToSpeech.tsx`:
+### Modificări în `src/components/mind-coach/MindCoachDemo.tsx`:
 
-1. Folosește `fetch()` direct cu header-ele de autentificare
-2. Convertește răspunsul în `Blob` cu `response.blob()`
-3. Creează URL din blob cu `URL.createObjectURL()`
-4. Redă audio-ul cu elementul `Audio`
+1. **Înlocuiește sistemul de voice cu hook-ul complet `useMindCoachVoice`**
+   - Oferă atât Speak mode (push-to-talk) cât și Call mode (conversație continuă)
+   - Gestionează automat TTS și STT
 
-## Modificări Tehnice
+2. **Adaugă buton Call lângă butonul Speak**
+   - Buton cu iconița Phone pentru a porni conversația vocală
+   - Când e activ, afișează `CallModeOverlay` peste input
 
-### Fișier: `src/components/challenge/ChallengeCoachWidget.tsx`
+3. **Îmbunătățește feedback-ul vizual pentru Speak**
+   - Fundal roșu intens când e apăsat
+   - Animație de pulsare vizibilă
+   - Indicator de recording în colțul butonului
 
-**Înlocuiește funcția `speakResponse` (liniile 87-120):**
+4. **Adaugă stări vizuale**
+   - Indicator când AI-ul vorbește
+   - Indicator când microfonul e activ
+   - Transcript live când vorbești
 
-```typescript
-// Text-to-speech for AI responses
-const speakResponse = useCallback(async (text: string) => {
-  if (!text || isSpeaking) return;
-  
-  try {
-    setIsSpeaking(true);
-    
-    // Get user session for authentication
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      throw new Error('Not authenticated');
-    }
+## Cod Tehnic
 
-    // Use fetch directly to get binary audio response
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: JSON.stringify({ 
-          text, 
-          voiceId: 'EXAVITQu4vr4xnSDxMaL' // Sarah multilingual
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('TTS API error:', errorText);
-      throw new Error('Failed to generate speech');
-    }
-
-    // Get audio blob directly from response
-    const audioBlob = await response.blob();
-    
-    if (!audioBlob || audioBlob.size === 0) {
-      throw new Error('Invalid audio data received');
-    }
-    
-    const audioUrl = URL.createObjectURL(audioBlob);
-
-    // Create and play audio
-    const audio = new Audio(audioUrl);
-    audioRef.current = audio;
-    
-    audio.onended = () => {
-      setIsSpeaking(false);
-      URL.revokeObjectURL(audioUrl);
-      // In call mode, restart listening after AI finishes speaking
-      if (isCallActive) {
-        startVoice();
-      }
-    };
-    
-    audio.onerror = (e) => {
-      console.error('Audio playback error:', e);
-      setIsSpeaking(false);
-      URL.revokeObjectURL(audioUrl);
-    };
-    
-    await audio.play();
-  } catch (error) {
-    console.error('TTS error:', error);
-    setIsSpeaking(false);
-  }
-}, [isSpeaking, isCallActive, startVoice]);
-```
-
-## Flux Corectat
+### Structura nouă a zonei de input:
 
 ```text
-User clicks "Start Conversation"
-        │
-        ▼
-startVoice() - activează microfonul
-        │
-        ▼
-User vorbește → transcript se acumulează
-        │
-        ▼
-handleVoiceSend() → sendMessage(transcript)
-        │
-        ▼
-AI răspunde → messages se actualizează
-        │
-        ▼
-useEffect detectează noul mesaj AI
-        │
-        ▼
-speakResponse(lastMessage.content)
-        │
-        ├─ fetch() → edge function → audio/mpeg stream
-        ├─ response.blob() → Blob
-        ├─ URL.createObjectURL(blob) → blob:// URL
-        └─ new Audio(url).play() → Audio redă
-                │
-                ▼ (onended)
-        isCallActive ? startVoice() : idle
+┌─────────────────────────────────────────────────────┐
+│                    CHAT AREA                         │
+├─────────────────────────────────────────────────────┤
+│ [În modul Call → CallModeOverlay complet]           │
+├─────────────────────────────────────────────────────┤
+│ [În modul normal:]                                   │
+│ ┌────┐ ┌──────────────────────────┐ ┌────┐ ┌──────┐ │
+│ │ 🎤 │ │ Scrie aici...            │ │ 📞 │ │Trimite│ │
+│ │Speak│ │                          │ │Call│ │      │ │
+│ └────┘ └──────────────────────────┘ └────┘ └──────┘ │
+└─────────────────────────────────────────────────────┘
 ```
 
-## De Ce Funcționează Acum
+### Importuri noi necesare:
+```typescript
+import { useMindCoachVoice } from '@/hooks/useMindCoachVoice';
+import { CallModeOverlay } from './CallModeOverlay';
+import { Phone, PhoneOff } from 'lucide-react';
+```
 
-1. **Fetch Direct**: `fetch()` gestionează corect răspunsurile binare, spre deosebire de `supabase.functions.invoke()` care așteaptă JSON
-2. **Blob API**: `response.blob()` convertește stream-ul audio în format utilizabil
-3. **Object URL**: `URL.createObjectURL()` creează un URL valid pentru elementul Audio
-4. **Cleanup**: `URL.revokeObjectURL()` în `onended` previne memory leaks
+### State nou:
+```typescript
+const [isCallMode, setIsCallMode] = useState(false);
+```
 
-## Testare
+### Integrare useMindCoachVoice:
+```typescript
+const voice = useMindCoachVoice({
+  onUserMessage: (text) => {
+    sendMessage(text);
+  },
+  onAIResponse: (text) => {
+    // Handled by useMindCoachVoice internally
+  },
+  language: language,
+  voiceId: 'EXAVITQu4vr4xnSDxMaL',
+  silenceThreshold: 3000,
+  playbackRate: 1.15
+});
+```
 
-După implementare, verifică:
-1. Navighează la `/challenge`
-2. Click pe widget-ul Challenge Coach
-3. Selectează tab-ul "Voce"
-4. Click pe butonul de telefon pentru a începe conversația
-5. Vorbește - AI-ul ar trebui să răspundă verbal
-6. Iconița verde ar trebui să apară în loc de cea roșie
+### Hook nou pentru demo TTS fără auth:
+Trebuie să modific `useMindCoachVoice` sau să creez o versiune demo care folosește `text-to-speech-demo` endpoint în loc de cel autentificat.
+
+### Buton Speak îmbunătățit:
+```tsx
+<Button
+  variant={isSpeakHeld ? "destructive" : "outline"}
+  size="icon"
+  className={cn(
+    "shrink-0 transition-all relative",
+    isSpeakHeld && [
+      "bg-red-600 border-red-700 scale-95",
+      "ring-4 ring-red-500/50 ring-offset-2"
+    ]
+  )}
+  onMouseDown={handleSpeakStart}
+  onMouseUp={handleSpeakStop}
+  onMouseLeave={handleSpeakStop}
+  onTouchStart={(e) => { e.preventDefault(); handleSpeakStart(); }}
+  onTouchEnd={(e) => { e.preventDefault(); handleSpeakStop(); }}
+  disabled={isLoading || isCallMode}
+>
+  <Mic className={cn("h-4 w-4", isSpeakHeld && "animate-pulse text-white")} />
+  
+  {/* Recording indicator dot */}
+  {isSpeakHeld && (
+    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+    </span>
+  )}
+</Button>
+```
+
+### Buton Call nou:
+```tsx
+<Button
+  variant={isCallMode ? "destructive" : "outline"}
+  size="icon"
+  onClick={() => {
+    if (isCallMode) {
+      voice.endCall();
+      setIsCallMode(false);
+    } else {
+      setIsCallMode(true);
+      // Start call with opening message
+      const openingMsg = openingMessages[selectedProblem];
+      voice.startCall(openingMsg);
+    }
+  }}
+  className={cn(
+    "shrink-0 transition-all",
+    isCallMode && "bg-red-600 border-red-700"
+  )}
+  disabled={isLoading}
+>
+  {isCallMode ? (
+    <PhoneOff className="h-4 w-4 text-white" />
+  ) : (
+    <Phone className="h-4 w-4" />
+  )}
+</Button>
+```
+
+### Call Mode Overlay condiționat:
+```tsx
+{isCallMode && (
+  <CallModeOverlay
+    isActive={isCallMode}
+    isAISpeaking={voice.isAISpeaking}
+    isListening={voice.isListening}
+    isProcessing={isLoading}
+    isTTSLoading={voice.isTTSLoading}
+    currentTranscript={voice.currentTranscript}
+    silenceTimer={voice.silenceTimer}
+    audioLevel={voice.audioLevel}
+    onSkipAI={voice.skipAISpeaking}
+    onManualSend={voice.manualSendInCall}
+    onEndCall={() => {
+      voice.endCall();
+      setIsCallMode(false);
+    }}
+    language={language}
+  />
+)}
+```
+
+## Probleme de Rezolvat
+
+### Authentication pentru TTS
+`useMindCoachVoice` folosește `useVoiceConversation` care apelează edge function-ul `text-to-speech` cu autentificare. Pentru demo (fără login), trebuie să:
+
+**Opțiunea A**: Creez un hook `useMindCoachVoiceDemo` care folosește `text-to-speech-demo` endpoint
+**Opțiunea B**: Modific `useDemoTextToSpeech` să fie folosit în loc de cel standard
+
+**Recomandare**: Opțiunea A - creez `useMindCoachVoiceDemo.ts` similar cu `useMindCoachVoice.ts` dar care folosește endpoint-urile demo fără autentificare.
+
+## Fișiere de Modificat
+
+| Fișier | Acțiune |
+|--------|---------|
+| `src/components/mind-coach/MindCoachDemo.tsx` | Modificare majoră - UI complet pentru voice |
+| `src/hooks/useMindCoachVoiceDemo.ts` | **Nou** - Hook pentru demo voice fără auth |
+| `src/hooks/useVoiceConversationDemo.ts` | **Nou** - Versiune demo a useVoiceConversation |
+
+## Flux Final
+
+```text
+Utilizator alege emoție
+        │
+        ▼
+Chat UI cu 3 opțiuni de input:
+├── 📝 Text input + Trimite
+├── 🎤 Speak (push-to-talk) - ține apăsat
+└── 📞 Call (conversație continuă)
+        │
+        ├── [Speak apăsat] ──► STT activ ──► Eliberează ──► Trimite mesaj
+        │
+        └── [Call activat] ──► CallModeOverlay
+                                    │
+                                    ├── AI vorbește prima replică
+                                    ├── Ascultă utilizatorul  
+                                    ├── 3s silence → trimite automat
+                                    ├── AI răspunde vocal
+                                    └── [Repetă până la End Call]
+```
