@@ -89,30 +89,65 @@ export const ChallengeCoachWidget: React.FC<ChallengeCoachWidgetProps> = ({
     
     try {
       setIsSpeaking(true);
-      const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { 
-          text, 
-          voiceId: 'EXAVITQu4vr4xnSDxMaL' // Sarah multilingual
-        }
-      });
-
-      if (error) throw error;
-
-      if (data?.audioContent) {
-        const audio = new Audio(`data:audio/mpeg;base64,${data.audioContent}`);
-        audioRef.current = audio;
-        
-        audio.onended = () => {
-          setIsSpeaking(false);
-          // In call mode, restart listening after AI finishes speaking
-          if (isCallActive) {
-            startVoice();
-          }
-        };
-        
-        audio.onerror = () => setIsSpeaking(false);
-        await audio.play();
+      
+      // Get user session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
       }
+
+      // Use fetch directly to get binary audio response
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ 
+            text, 
+            voiceId: 'EXAVITQu4vr4xnSDxMaL' // Sarah multilingual
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('TTS API error:', errorText);
+        throw new Error('Failed to generate speech');
+      }
+
+      // Get audio blob directly from response
+      const audioBlob = await response.blob();
+      
+      if (!audioBlob || audioBlob.size === 0) {
+        throw new Error('Invalid audio data received');
+      }
+      
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      // Create and play audio
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      
+      audio.onended = () => {
+        setIsSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+        // In call mode, restart listening after AI finishes speaking
+        if (isCallActive) {
+          startVoice();
+        }
+      };
+      
+      audio.onerror = (e) => {
+        console.error('Audio playback error:', e);
+        setIsSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+      
+      await audio.play();
     } catch (error) {
       console.error('TTS error:', error);
       setIsSpeaking(false);
