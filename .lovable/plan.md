@@ -1,22 +1,22 @@
 
-# Plan: Story Framework pentru Content Creation în Rutina Războinicului
+# Plan: Hero's Journey Framework pentru Content Creation
 
 ## Obiectiv
-Adăugarea unui framework de storytelling bazat pe cele **7 Elemente ale unei Povești** în secțiunea de Content Creation din rutina campionului, care să:
-1. Ghideze utilizatorul prin cele 7 întrebări ale framework-ului
-2. Genereze un script bazat pe răspunsuri folosind AI
-3. Fie accesibil și din secțiunea Tools/Stacks
+Adăugarea unui al doilea framework de storytelling bazat pe **"The Hero's Journey"** (Joseph Campbell) în secțiunea de Content Creation din rutina campionului, care să:
+1. Ghideze utilizatorul prin cele 7 etape ale călătoriei eroului
+2. Genereze un script bazat pe răspunsuri folosind AI (cu prompt de copywriter/storyteller expert)
+3. Fie accesibil atât din rutină (alegere între Storytelling și Hero's Journey) cât și din Tools (ambele disponibile)
 
-## Cele 7 Elemente ale Storytelling-ului (din imagine)
+## Cele 7 Etape ale Hero's Journey (din imaginea ta)
 
 ```text
-1. DESIRE       - Ce dorește protagonistul (audiența)?
-2. PROBLEM/NEED - Ce problemă sau nevoie are?
-3. OPPONENT     - Cine/ce se opune? (extern, intern, intim)
-4. PLAN         - Care e planul de acțiune?
-5. BATTLE       - Ce luptă trebuie dată?
-6. SELF-REVELATION - Ce revelație/transformare apare?
-7. EQUILIBRIUM  - Care e starea finală nouă?
+Step 1: The Ordinary World        - Lumea obișnuită a protagonistului
+Step 2: The Call to Adventure     - Chemarea la aventură
+Step 3: Refusal of the Call       - Refuzul chemării
+Step 4: Meeting the Mentor        - Întâlnirea cu mentorul / Găsirea aliaților
+Step 5: Crossing the Threshold    - Traversarea pragului (Punctul fără întoarcere)
+Step 6: The Ordeal/Transformation - Încercarea / Transformarea
+Step 7: The Return and Elixir     - Întoarcerea cu elixirul
 ```
 
 ## Arhitectura Soluției
@@ -25,324 +25,252 @@ Adăugarea unui framework de storytelling bazat pe cele **7 Elemente ale unei Po
 
 | Fișier | Descriere |
 |--------|-----------|
-| `src/components/content-creation/StorytellingStack.tsx` | Componentă principală cu UI pentru cele 7 întrebări |
-| `src/components/content-creation/storytellingQuestions.ts` | Definiție întrebări bilingve (RO/EN) |
-| `src/components/content-creation/useStorytellingStack.ts` | Hook pentru state management și logică |
-| `supabase/functions/generate-story-script/index.ts` | Edge function pentru generare script cu AI |
+| `src/components/content-creation/HeroJourneyStack.tsx` | Componentă UI pentru cele 7 etape (similar cu StorytellingStack) |
+| `src/components/content-creation/heroJourneyQuestions.ts` | Întrebări bilingve (RO/EN) pentru Hero's Journey |
+| `src/components/content-creation/useHeroJourneyStack.ts` | Hook pentru state management și logică |
+| `supabase/functions/generate-hero-journey-script/index.ts` | Edge function pentru generare script cu AI |
 
 ### Modificări Existente
 
 | Fișier | Modificare |
 |--------|------------|
-| `src/components/champion-routine/steps/ContentCreationStep.tsx` | Adaugă opțiune Storytelling alături de Simple Topic |
-| `src/components/stack/AiGuidedStack.tsx` | Adaugă `storytelling` ca stackType nou |
-| `src/pages/Tools.tsx` sau echivalent | Adaugă Storytelling Stack în lista de tools |
+| `src/components/champion-routine/steps/ContentCreationStep.tsx` | Adaugă opțiune Hero's Journey ca a 3-a metodă |
+| Tools/Stacks page | Adaugă ambele framework-uri (Storytelling + Hero's Journey) |
 
 ---
 
 ## Detalii Tehnice
 
-### 1. Definiția Întrebărilor (`storytellingQuestions.ts`)
+### 1. Întrebările Hero's Journey (`heroJourneyQuestions.ts`)
 
-```typescript
-export const getStorytellingQuestions = (language: 'en' | 'ro' = 'ro') => {
-  if (language === 'en') {
-    return [
-      {
-        step: 1,
-        element: 'Desire',
-        emoji: '🎯',
-        question: 'What does your audience/protagonist deeply WANT?',
-        placeholder: 'E.g.: To feel confident, to make more money, to be healthy...',
-        hint: 'The burning desire that drives action'
-      },
-      {
-        step: 2,
-        element: 'Problem/Need',
-        emoji: '💔',
-        question: 'What PROBLEM or NEED are they facing?',
-        placeholder: 'E.g.: They feel stuck, overwhelmed, lacking direction...',
-        hint: 'The gap between current reality and desire'
-      },
-      {
-        step: 3,
-        element: 'Opponent',
-        emoji: '⚔️',
-        question: 'Who or what is the OPPONENT? (external, internal, or intimate)',
-        placeholder: 'External: competition, economy. Internal: fear, doubt. Intimate: family, friends...',
-        hint: 'The force that blocks progress'
-      },
-      {
-        step: 4,
-        element: 'Plan',
-        emoji: '📋',
-        question: 'What is the PLAN to overcome this?',
-        placeholder: 'E.g.: Follow these 5 steps, use this method, adopt this mindset...',
-        hint: 'Your solution/framework/system'
-      },
-      {
-        step: 5,
-        element: 'Battle',
-        emoji: '🔥',
-        question: 'What BATTLE must be fought?',
-        placeholder: 'E.g.: The moment of confrontation, the hard work required...',
-        hint: 'The climax, the real test'
-      },
-      {
-        step: 6,
-        element: 'Self-Revelation',
-        emoji: '💡',
-        question: 'What REVELATION or transformation occurs?',
-        placeholder: 'E.g.: They realize their true potential, discover hidden strength...',
-        hint: 'The "aha" moment, the inner change'
-      },
-      {
-        step: 7,
-        element: 'Equilibrium',
-        emoji: '✨',
-        question: 'What is the NEW EQUILIBRIUM?',
-        placeholder: 'E.g.: Living with confidence, financial freedom, peace of mind...',
-        hint: 'The new normal after transformation'
-      }
-    ];
-  }
-  
-  // Romanian version
-  return [
-    {
-      step: 1,
-      element: 'Dorință',
-      emoji: '🎯',
-      question: 'Ce DOREȘTE profund audiența/protagonistul tău?',
-      placeholder: 'Ex: Să se simtă încrezător, să facă mai mulți bani, să fie sănătos...',
-      hint: 'Dorința arzătoare care motivează acțiunea'
-    },
-    {
-      step: 2,
-      element: 'Problemă/Nevoie',
-      emoji: '💔',
-      question: 'Ce PROBLEMĂ sau NEVOIE are?',
-      placeholder: 'Ex: Se simt blocați, copleșiți, fără direcție...',
-      hint: 'Gap-ul între realitatea curentă și dorință'
-    },
-    {
-      step: 3,
-      element: 'Oponent',
-      emoji: '⚔️',
-      question: 'Cine sau ce este OPONENTUL? (extern, intern sau intim)',
-      placeholder: 'Extern: competiția, economia. Intern: frica, îndoiala. Intim: familia, prietenii...',
-      hint: 'Forța care blochează progresul'
-    },
-    {
-      step: 4,
-      element: 'Plan',
-      emoji: '📋',
-      question: 'Care este PLANUL pentru a depăși asta?',
-      placeholder: 'Ex: Urmează acești 5 pași, folosește această metodă, adoptă această mentalitate...',
-      hint: 'Soluția ta / framework-ul / sistemul'
-    },
-    {
-      step: 5,
-      element: 'Bătălie',
-      emoji: '🔥',
-      question: 'Ce BĂTĂLIE trebuie dată?',
-      placeholder: 'Ex: Momentul confruntării, munca grea necesară...',
-      hint: 'Climax-ul, testul real'
-    },
-    {
-      step: 6,
-      element: 'Revelație',
-      emoji: '💡',
-      question: 'Ce REVELAȚIE sau transformare apare?',
-      placeholder: 'Ex: Realizează potențialul adevărat, descoperă forța ascunsă...',
-      hint: 'Momentul "aha", schimbarea interioară'
-    },
-    {
-      step: 7,
-      element: 'Echilibru Nou',
-      emoji: '✨',
-      question: 'Care este NOUL ECHILIBRU?',
-      placeholder: 'Ex: Trăiește cu încredere, libertate financiară, liniște sufletească...',
-      hint: 'Normalul nou după transformare'
-    }
-  ];
-};
+**Română:**
+```text
+🏠 Step 1 - Lumea Obișnuită
+   "Cum arată viața protagonistului ÎNAINTE de schimbare?"
+   Placeholder: "Ex: Trăiește în rutină, are un job stabil dar nu e fericit..."
+   Hint: "Status quo-ul inițial, zona de confort"
+
+📢 Step 2 - Chemarea la Aventură  
+   "Ce EVENIMENT sau SITUAȚIE îl cheamă spre schimbare?"
+   Placeholder: "Ex: Pierde jobul, descoperă o oportunitate, întâlnește pe cineva..."
+   Hint: "Catalizatorul, momentul care schimbă totul"
+
+😰 Step 3 - Refuzul Chemării
+   "De ce EZITĂ sau REFUZĂ inițial?"
+   Placeholder: "Ex: Frica de eșec, lipsa de încredere, ce vor spune alții..."
+   Hint: "Fricile și barierele interne"
+
+🧙 Step 4 - Întâlnirea cu Mentorul
+   "Cine/ce îl AJUTĂ să accepte provocarea?"
+   Placeholder: "Ex: Un mentor, o carte, o experiență, TU ca ghid..."
+   Hint: "Suportul, cunoștințele, uneltele primite"
+
+🚪 Step 5 - Traversarea Pragului
+   "Care este PUNCTUL FĂRĂ ÎNTOARCERE?"
+   Placeholder: "Ex: Demisionează, investește, face primul pas public..."
+   Hint: "Decizia ireversibilă, commitment-ul"
+
+🔥 Step 6 - Încercarea/Transformarea
+   "Ce TESTE și TRANSFORMĂRI traversează?"
+   Placeholder: "Ex: Eșecuri, lecții, momente de creștere..."
+   Hint: "Provocările care îl schimbă"
+
+👑 Step 7 - Întoarcerea cu Elixirul
+   "Ce ADUCE ÎNAPOI în lumea lui?"
+   Placeholder: "Ex: Cunoștințe, succes, transformare pe care o împărtășește..."
+   Hint: "Lecția, rezultatul, ce oferă lumii"
 ```
 
-### 2. Componenta StorytellingStack
+### 2. Componenta HeroJourneyStack
 
-Structură UI modernă cu:
-- **Progress indicator** vizual pentru cele 7 etape
-- **Card pentru fiecare întrebare** cu emoji și context
-- **Textarea** pentru răspuns
-- **Navigare înainte/înapoi** între etape
-- **Preview colapsabil** al răspunsurilor anterioare
-- **Buton "Generează Script"** la final
+**UI identic cu StorytellingStack dar cu:**
+- Culoarare diferită (cyan/teal în loc de purple)
+- Icon diferit (Compass/Map în loc de BookOpen)
+- 7 etape cu emojis specifici
 
 ```text
-UI Flow:
 ┌─────────────────────────────────────────┐
-│ 🎬 Storytelling Framework               │
+│ 🗺️ Hero's Journey Framework            │
 │ ─────────────────────────────────────── │
-│  ① ② ③ ④ ⑤ ⑥ ⑦                          │
+│  🏠 📢 😰 🧙 🚪 🔥 👑                    │
 │        ↑ (current: 3)                   │
 ├─────────────────────────────────────────┤
-│ ⚔️ Pasul 3: Oponent                     │
+│ 😰 Pasul 3: Refuzul Chemării            │
 │                                         │
-│ "Cine sau ce este OPONENTUL?"           │
-│ (extern, intern sau intim)              │
+│ "De ce EZITĂ sau REFUZĂ inițial?"       │
 │                                         │
 │ ┌─────────────────────────────────────┐ │
 │ │ [Textarea pentru răspuns]           │ │
-│ │                                     │ │
 │ └─────────────────────────────────────┘ │
 │                                         │
-│ 💡 Hint: Forța care blochează progresul │
+│ 💡 Hint: Fricile și barierele interne   │
 │                                         │
 │ [← Înapoi]              [Continuă →]    │
-├─────────────────────────────────────────┤
-│ ▼ Vezi răspunsurile anterioare          │
-│   ① Dorință: "Să devină influencer..."  │
-│   ② Problemă: "Nu știe de unde..."      │
 └─────────────────────────────────────────┘
 ```
 
-### 3. Edge Function pentru Generare Script
+### 3. Edge Function pentru Generare Script (`generate-hero-journey-script`)
+
+**Prompt de Copywriter Expert:**
 
 ```typescript
-// supabase/functions/generate-story-script/index.ts
+const systemPrompt = language === 'en' 
+  ? `You are an expert storyteller and copywriter specializing in the Hero's Journey framework by Joseph Campbell.
+You create captivating social media scripts that take the audience on an emotional journey.
 
-const systemPrompt = `Ești un expert în storytelling pentru social media.
-Creezi scripturi captivante bazate pe cele 7 elemente ale unei povești:
-Desire, Problem, Opponent, Plan, Battle, Self-Revelation, Equilibrium.
+YOUR EXPERTISE:
+- Master of narrative structure and story arcs
+- Expert in emotional triggers and audience psychology  
+- Skilled in transforming abstract concepts into relatable stories
+- Specialist in hooks that stop the scroll
 
-Reguli:
-1. Hook puternic bazat pe DESIRE + PROBLEM
-2. Introduce OPPONENT ca obstacol relatable
-3. Prezintă PLAN ca soluție concretă
-4. BATTLE = momentul de turning point
-5. SELF-REVELATION = insight-ul cheie
-6. EQUILIBRIUM = CTA + viziunea finală
-7. Ton conversațional, empatic, direct`;
+THE 7 STAGES YOU WORK WITH:
+1. Ordinary World - Establish relatability
+2. Call to Adventure - Create intrigue
+3. Refusal of the Call - Build tension through relatable fears
+4. Meeting the Mentor - Introduce hope and guidance
+5. Crossing the Threshold - Show commitment and courage
+6. The Ordeal - Build through challenges and transformation
+7. Return with Elixir - Deliver the payoff and CTA
 
-const userPrompt = `Creează un script pentru ${contentType} bazat pe aceste elemente:
+SCRIPT STRUCTURE:
+- HOOK (3 sec): Start in the Ordinary World OR with a provocative question
+- SETUP (10 sec): Call to Adventure + initial refusal
+- BUILD (20-30 sec): Mentor + Crossing threshold + Ordeal
+- PAYOFF (10 sec): Transformation + Return with wisdom
+- CTA (5 sec): Invite audience to their own journey
 
-🎯 DESIRE: ${answers[1]}
-💔 PROBLEM: ${answers[2]}
-⚔️ OPPONENT: ${answers[3]}
-📋 PLAN: ${answers[4]}
-🔥 BATTLE: ${answers[5]}
-💡 REVELATION: ${answers[6]}
-✨ EQUILIBRIUM: ${answers[7]}
+TONE: Conversational, empathetic, inspiring. Speak as if sharing a powerful story with a close friend.`
+  : `Ești un storyteller și copywriter expert specializat în Hero's Journey framework de Joseph Campbell.
+Creezi scripturi captivante pentru social media care duc audiența printr-o călătorie emoțională.
+
+EXPERTIZA TA:
+- Maestru în structura narativă și arcuri narative
+- Expert în triggere emoționale și psihologia audienței
+- Abil în transformarea conceptelor abstracte în povești relatable
+- Specialist în hook-uri care opresc scroll-ul
+
+CELE 7 ETAPE CU CARE LUCREZI:
+1. Lumea Obișnuită - Stabilește relatability
+2. Chemarea la Aventură - Creează intriga
+3. Refuzul Chemării - Construiește tensiune prin frici relatable
+4. Întâlnirea cu Mentorul - Introduce speranța și ghidarea
+5. Traversarea Pragului - Arată commitment și curaj
+6. Încercarea - Construiește prin provocări și transformare
+7. Întoarcerea cu Elixirul - Livrează payoff-ul și CTA
+
+STRUCTURA SCRIPTULUI:
+- HOOK (3 sec): Începe în Lumea Obișnuită SAU cu o întrebare provocatoare
+- SETUP (10 sec): Chemarea + refuzul inițial
+- BUILD (20-30 sec): Mentor + Traversarea pragului + Încercarea
+- PAYOFF (10 sec): Transformarea + Întoarcerea cu înțelepciune
+- CTA (5 sec): Invită audiența la propria călătorie
+
+TON: Conversațional, empatic, inspirațional. Vorbește ca și cum împărtășești o poveste puternică cu un prieten apropiat.`;
+
+const userPrompt = `Creează un script pentru ${contentTypeLabel} bazat pe Hero's Journey:
+
+🏠 LUMEA OBIȘNUITĂ: ${answers[1]}
+📢 CHEMAREA LA AVENTURĂ: ${answers[2]}
+😰 REFUZUL CHEMĂRII: ${answers[3]}
+🧙 MENTORUL/ALIAȚII: ${answers[4]}
+🚪 TRAVERSAREA PRAGULUI: ${answers[5]}
+🔥 ÎNCERCAREA/TRANSFORMAREA: ${answers[6]}
+👑 ÎNTOARCEREA CU ELIXIRUL: ${answers[7]}
 
 Format:
-- HOOK (3 sec) - bazat pe desire/problem
-- CONFLICT (10-15 sec) - opponent + stakes
-- JOURNEY (20-30 sec) - plan + battle
-- TRANSFORMATION (10 sec) - revelation
-- CTA (5 sec) - equilibrium + action`;
+- 🎬 HOOK (3 sec) - captează atenția
+- ⚡ SETUP (10 sec) - stabilește contextul
+- 🚀 BUILD (20-30 sec) - călătoria și transformarea
+- 💫 PAYOFF (10 sec) - revelația finală
+- 🎯 CTA (5 sec) - invitația la acțiune
+
+Scrie natural, ca și cum spui o poveste unui prieten. Include pauze [PAUZĂ] și accent *unde e nevoie*.`;
 ```
 
 ### 4. Integrare în ContentCreationStep
 
-Modificare pentru a oferi două opțiuni:
+**Modificare pentru 3 opțiuni:**
 
 ```text
-┌─────────────────────────────────────────┐
-│ 🎬 Content Creation                     │
-│                                         │
-│ Alege metoda de creare:                 │
-│                                         │
-│ ┌─────────────┐  ┌─────────────────────┐│
-│ │ 📝 Simple   │  │ 📖 Storytelling     ││
-│ │ Topic       │  │ Framework           ││
-│ │             │  │                     ││
-│ │ Scrie un    │  │ Ghidare pas cu pas  ││
-│ │ topic și AI │  │ prin 7 elemente     ││
-│ │ generează   │  │ pentru povești care ││
-│ │             │  │ captează atenția    ││
-│ └─────────────┘  └─────────────────────┘│
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│ 🎬 Content Creation                                 │
+│                                                     │
+│ Alege metoda pentru a crea conținut captivant:      │
+│                                                     │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────────┐ │
+│ │ 📝 Topic    │ │ 📖 Story-   │ │ 🗺️ Hero's      │ │
+│ │ Simplu      │ │ telling     │ │ Journey        │ │
+│ │             │ │             │ │                │ │
+│ │ Rapid       │ │ 7 Elemente  │ │ 7 Etape ale    │ │
+│ │ și direct   │ │ ale unei    │ │ călătoriei     │ │
+│ │             │ │ povești     │ │ eroului        │ │
+│ └─────────────┘ └─────────────┘ └─────────────────┘ │
+└─────────────────────────────────────────────────────┘
 ```
 
-### 5. Integrare ca Tool/Stack
+### 5. Integrare în Tools (ambele framework-uri)
 
-Adăugare în lista de stacks disponibile pentru acces independent:
+Trebuie să găsim pagina/componenta pentru Tools și să adăugăm:
 
 ```typescript
-// În configurația stacks-urilor
-{
-  id: 'storytelling',
-  name: 'Storytelling Framework',
-  icon: BookOpen,
-  description: 'Creează content captivant cu cele 7 elemente ale unei povești',
-  category: 'business',
-  component: StorytellingStack
-}
+// În configurația tools/stacks
+[
+  {
+    id: 'storytelling',
+    name: 'Storytelling Framework',
+    icon: BookOpen,
+    color: 'purple',
+    description: '7 Elemente ale unei Povești Captivante',
+    component: StorytellingStack
+  },
+  {
+    id: 'hero-journey',
+    name: "Hero's Journey",
+    icon: Compass,
+    color: 'cyan',
+    description: '7 Etape ale Călătoriei Eroului (Joseph Campbell)',
+    component: HeroJourneyStack
+  }
+]
 ```
 
 ---
 
-## Flux Utilizator
+## Fișiere de Creat
 
-### Din Rutina Campionului
+| Fișier | Descriere |
+|--------|-----------|
+| `src/components/content-creation/heroJourneyQuestions.ts` | Întrebări bilingve pentru cele 7 etape |
+| `src/components/content-creation/useHeroJourneyStack.ts` | Hook similar cu useStorytellingStack |
+| `src/components/content-creation/HeroJourneyStack.tsx` | Componentă UI cu styling cyan/teal |
+| `supabase/functions/generate-hero-journey-script/index.ts` | Edge function cu prompt expert |
 
-```text
-User în ContentCreationStep
-        │
-        ▼
-Alege "Storytelling Framework"
-        │
-        ▼
-Răspunde la cele 7 întrebări
-        │
-        ▼
-Click "Generează Script"
-        │
-        ▼
-AI generează script bazat pe poveste
-        │
-        ▼
-Editează/Confirmă script
-        │
-        ▼
-Trece la Pomodoro pentru creare
-```
+## Fișiere de Modificat
 
-### Acces Direct din Tools
-
-```text
-User în Tools/Stacks
-        │
-        ▼
-Click pe "Storytelling Framework"
-        │
-        ▼
-UI identic cu cel din rutină
-        │
-        ▼
-Script salvat în Stack Library
-```
+| Fișier | Modificare |
+|--------|------------|
+| `src/components/champion-routine/steps/ContentCreationStep.tsx` | Adaugă Hero's Journey ca a 3-a opțiune |
+| `supabase/config.toml` | Adaugă noua edge function |
+| Tools/Stacks page (de identificat) | Adaugă ambele framework-uri |
 
 ---
 
-## Fișiere de Creat/Modificat
+## Comparație Vizuală: Storytelling vs Hero's Journey
 
-| Acțiune | Fișier |
-|---------|--------|
-| **Creare** | `src/components/content-creation/storytellingQuestions.ts` |
-| **Creare** | `src/components/content-creation/useStorytellingStack.ts` |
-| **Creare** | `src/components/content-creation/StorytellingStack.tsx` |
-| **Creare** | `supabase/functions/generate-story-script/index.ts` |
-| **Modificare** | `src/components/champion-routine/steps/ContentCreationStep.tsx` |
-| **Modificare** | Configurația stacks/tools pentru adăugare în lista disponibilă |
+| Aspect | Storytelling | Hero's Journey |
+|--------|-------------|----------------|
+| **Culoare** | Purple (#8B5CF6) | Cyan (#06B6D4) |
+| **Icon** | BookOpen 📖 | Compass 🗺️ |
+| **Focus** | Elemente narative | Etape de transformare |
+| **Utilizare** | Content educațional | Content inspirațional |
+| **Pași** | 7 (Desire → Equilibrium) | 7 (Ordinary → Return) |
 
 ---
 
 ## Beneficii
 
-1. **Structură clară** - Utilizatorul nu mai trebuie să știe storytelling, framework-ul îl ghidează
-2. **Scripturi mai bune** - AI-ul primește context complet, nu doar un topic vag
-3. **Refolosibil** - Poate fi accesat și din Tools, nu doar din rutină
-4. **Educativ** - Utilizatorul învață storytelling prin practică
-5. **Consistent** - Folosește aceleași pattern-uri UI ca celelalte stacks (Hormozi, Gods School, etc.)
+1. **Diversitate** - Două framework-uri diferite pentru nevoi diferite
+2. **Flexibilitate** - Alegere în rutină, ambele în Tools
+3. **Expertiză** - Prompt-uri scrise ca un copywriter/storyteller profesionist
+4. **Consistență** - Aceeași experiență UI, culori și iconuri diferite pentru diferențiere clară
