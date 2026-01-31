@@ -104,3 +104,6 @@ verify_jwt = false
 
 [functions.challenge-coach]
 verify_jwt = false
+
+[functions.generate-story-script]
+verify_jwt = false
