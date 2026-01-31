@@ -59,12 +59,14 @@ export const NewHeroSection = ({
   const heroContent = {
     badge: language === 'ro' ? 'Pentru Antreprenori Ocupați' : 'For Busy Entrepreneurs',
     headline: {
-      result: language === 'ro' ? 'Dublează-ți productivitatea' : 'Double your productivity',
-      timeframe: language === 'ro' ? 'în 90 de zile' : 'in 90 days',
-      without: language === 'ro' ? 'fără să sacrifici' : 'without sacrificing',
-      pain: language === 'ro' ? 'familia sau sănătatea' : 'family or health'
+      result: language === 'ro' ? 'Fii de 2-10X mai productiv' : 'Get 2-10x more done',
+      timeframe: language === 'ro' ? 'în maxim 40 de zile' : 'in just 40 days',
+      connector: language === 'ro' ? 'în timp ce-ți reconstruiești' : 'while you rebuild your',
+      transformation: language === 'ro' ? 'relațiile, corpul și sufletul' : 'marriage, body and soul'
     },
-    subheadline: language === 'ro' ? 'Sistemul AI care te ajută să fii productiv în business, prezent cu familia, și energetic fizic — toate în același timp.' : 'The AI system that helps you be productive in business, present with family, and physically energetic — all at the same time.',
+    subheadline: language === 'ro' 
+      ? 'Sistemul Dovedit alimentat de AI pentru productivitate, impact, fericire și sens' 
+      : 'The Proven System powered by AI for productivity, impact, happiness and meaning',
     cta: language === 'ro' ? 'Începe Transformarea Gratuit' : 'Start Your Transformation Free',
     guarantees: language === 'ro' ? ['Garanție 90 zile', 'Anulezi oricând', 'Fără card la trial'] : ['90-day guarantee', 'Cancel anytime', 'No card for trial']
   };
@@ -143,11 +145,11 @@ export const NewHeroSection = ({
               <br />
               <span className="text-foreground">{heroContent.headline.timeframe}</span>
               <br />
-              <span className="text-muted-foreground text-3xl sm:text-4xl md:text-5xl">
-                {heroContent.headline.without}
+              <span className="text-muted-foreground text-xl sm:text-3xl md:text-4xl">
+                {heroContent.headline.connector}
               </span>
               <br />
-              <span className="text-foreground">{heroContent.headline.pain}</span>
+              <span className="text-foreground">{heroContent.headline.transformation}</span>
             </h1>
           </motion.div>
 
