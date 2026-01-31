@@ -101,3 +101,6 @@ verify_jwt = false
 
 [functions.text-to-speech-demo]
 verify_jwt = false
+
+[functions.challenge-coach]
+verify_jwt = false

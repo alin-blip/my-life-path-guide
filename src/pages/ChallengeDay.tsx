@@ -30,6 +30,7 @@ import { useDay1Responses } from '@/hooks/useDay1Responses';
 import { supabase } from '@/integrations/supabase/client';
 import { trackChallengeDayStarted } from '@/lib/facebook-pixel';
 import { useToast } from '@/hooks/use-toast';
+import { ChallengeCoachWidget } from '@/components/challenge/ChallengeCoachWidget';
 interface Exercise {
   id: string;
   title: string;

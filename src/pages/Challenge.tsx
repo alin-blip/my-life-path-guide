@@ -15,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { EarlyBirdCountdown } from '@/components/membership/EarlyBirdCountdown';
+import { ChallengeCoachWidget } from '@/components/challenge/ChallengeCoachWidget';
 
 interface ChallengeDay {
   day: number;

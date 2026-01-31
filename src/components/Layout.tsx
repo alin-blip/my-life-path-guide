@@ -27,6 +27,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthPage = location.pathname === '/' || location.pathname === '/auth';
+  const isChallengeRoute = location.pathname.startsWith('/challenge');
   const { user, signOut } = useAuth();
   const { language } = useLanguage();
   const { theme, toggleTheme } = useTheme();
@@ -201,8 +202,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Goal Reminders Notification */}
       <GoalRemindersNotification />
       
-      {/* Accountability Coach Widget - Always visible */}
-      <AccountabilityCoachWidget />
+      {/* Accountability Coach Widget - Hidden on Challenge routes */}
+      {!isChallengeRoute && <AccountabilityCoachWidget />}
       
     </div>
   );
