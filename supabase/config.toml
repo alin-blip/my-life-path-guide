@@ -110,3 +110,6 @@ verify_jwt = false
 
 [functions.generate-hero-journey-script]
 verify_jwt = false
+
+[functions.generate-path-plan]
+verify_jwt = false
