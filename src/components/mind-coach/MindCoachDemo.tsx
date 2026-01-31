@@ -5,11 +5,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Brain, RotateCcw, Mic, Phone, PhoneOff, Volume2, VolumeX } from 'lucide-react';
 import { LeadMagnetEmotionPicker, LeadMagnetProblem, getProblemInfo } from './LeadMagnetEmotionPicker';
 import { useMindCoachDemo } from '@/hooks/useMindCoachDemo';
+import { useMindCoachVoiceDemo } from '@/hooks/useMindCoachVoiceDemo';
 import { useDemoTextToSpeech } from '@/hooks/useDemoTextToSpeech';
-import { useVoiceInput } from '@/hooks/useVoiceInput';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 import { BreakthroughOverlay } from './BreakthroughOverlay';
+import { CallModeOverlay } from './CallModeOverlay';
 
 interface MindCoachDemoProps {
   onComplete?: (breakthrough: any) => void;
@@ -26,9 +27,17 @@ export function MindCoachDemo({
   const [lastAIResponse, setLastAIResponse] = useState<string>('');
   const [showBreakthrough, setShowBreakthrough] = useState(false);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
-  const [isSpeakHeld, setIsSpeakHeld] = useState(false);
+  const [isCallMode, setIsCallMode] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Opening messages for each problem
+  const openingMessages: Record<LeadMagnetProblem, string> = {
+    frustration: 'Văd că te simți frustrat. Care e situația concretă care te-a adus în acest punct?',
+    anxiety: 'Simt că anxietatea te apasă acum. Care e cel mai mare "dar dacă" care îți trece prin minte?',
+    procrastination: 'Observ că amâni lucruri importante. Ce te oprește să începi chiar acum?',
+    fear: 'Văd că frica te ține pe loc. De ce ți-e frică cel mai tare acum?',
+  };
 
   const {
     messages,
@@ -48,36 +57,40 @@ export function MindCoachDemo({
     },
   });
 
-  // Demo TTS (no auth required)
+  // Demo TTS for voice mode toggle (auto-speak AI responses)
   const tts = useDemoTextToSpeech({
     onSpeakingStart: () => console.log('🎵 TTS started'),
     onSpeakingEnd: () => console.log('🎵 TTS ended'),
     initialPlaybackRate: 1.15,
   });
 
-  // Voice input for speak mode
-  const accumulatedTextRef = useRef('');
-  const voiceInput = useVoiceInput({
-    onTranscript: (text) => {
-      accumulatedTextRef.current += ' ' + text;
+  // Voice hook for both Speak and Call modes
+  const voice = useMindCoachVoiceDemo({
+    onUserMessage: (text) => {
+      sendMessage(text);
     },
-    onMicStop: () => {
-      const finalText = accumulatedTextRef.current.trim();
-      if (finalText) {
-        sendMessage(finalText);
-        accumulatedTextRef.current = '';
-      }
+    onAIResponse: (text) => {
+      console.log('📞 AI responded in call mode');
     },
-    voiceLanguage: language === 'ro' ? 'ro-RO' : 'en-US',
-    enabled: true,
+    language: language,
+    voiceId: 'EXAVITQu4vr4xnSDxMaL',
+    silenceThreshold: 3000,
+    playbackRate: 1.15
   });
 
-  // Speak AI response when voice mode is on
+  // Speak AI response when voice mode is on (not in call mode - call mode handles its own TTS)
   useEffect(() => {
-    if (lastAIResponse && isVoiceMode && !isLoading) {
+    if (lastAIResponse && isVoiceMode && !isLoading && !isCallMode) {
       tts.speak(lastAIResponse);
     }
-  }, [lastAIResponse, isVoiceMode, isLoading]);
+  }, [lastAIResponse, isVoiceMode, isLoading, isCallMode]);
+
+  // Speak AI response in call mode
+  useEffect(() => {
+    if (lastAIResponse && isCallMode && !isLoading) {
+      voice.speakAIResponse(lastAIResponse);
+    }
+  }, [lastAIResponse, isCallMode, isLoading]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -90,13 +103,16 @@ export function MindCoachDemo({
   useEffect(() => {
     if (isComplete && breakthroughData) {
       setShowBreakthrough(true);
+      if (isCallMode) {
+        voice.endCall();
+        setIsCallMode(false);
+      }
     }
-  }, [isComplete, breakthroughData]);
+  }, [isComplete, breakthroughData, isCallMode]);
 
   // Handle problem selection
   const handleProblemSelect = (problem: LeadMagnetProblem) => {
     setSelectedProblem(problem);
-    // Start session immediately with fixed intensity of 7
     startSession(problem as any, 7);
     setStep('chat');
   };
@@ -108,17 +124,14 @@ export function MindCoachDemo({
     setInputValue('');
   }, [inputValue, isLoading, sendMessage]);
 
-  // Handle speak button press/release
+  // Handle speak button press/release with improved feedback
   const handleSpeakStart = useCallback(() => {
-    setIsSpeakHeld(true);
-    accumulatedTextRef.current = '';
-    voiceInput.startVoice();
-  }, [voiceInput]);
+    voice.handleSpeakStart();
+  }, [voice]);
 
   const handleSpeakStop = useCallback(() => {
-    setIsSpeakHeld(false);
-    voiceInput.stopVoice();
-  }, [voiceInput]);
+    voice.handleSpeakStop();
+  }, [voice]);
 
   // Toggle voice mode (auto-speak AI responses)
   const toggleVoiceMode = useCallback(() => {
@@ -128,19 +141,35 @@ export function MindCoachDemo({
     setIsVoiceMode(!isVoiceMode);
   }, [isVoiceMode, tts]);
 
+  // Call mode controls
+  const handleStartCall = useCallback(() => {
+    if (!selectedProblem) return;
+    setIsCallMode(true);
+    const openingMsg = openingMessages[selectedProblem];
+    voice.startCall(openingMsg);
+  }, [selectedProblem, voice, openingMessages]);
+
+  const handleEndCall = useCallback(() => {
+    voice.endCall();
+    setIsCallMode(false);
+  }, [voice]);
+
   // Handle restart
   const handleRestart = () => {
     resetSession();
     tts.stop();
+    if (isCallMode) {
+      voice.endCall();
+    }
     setStep('problem');
     setSelectedProblem(null);
     setIsVoiceMode(false);
+    setIsCallMode(false);
     setShowBreakthrough(false);
   };
 
   // Handle breakthrough continue (navigate to signup)
   const handleBreakthroughContinue = () => {
-    // Navigate to challenge signup
     window.location.href = '/challenge-7-zile';
   };
 
@@ -171,14 +200,6 @@ export function MindCoachDemo({
   // Render chat step
   const problemInfo = selectedProblem ? getProblemInfo(selectedProblem) : null;
 
-  // Opening messages for each problem
-  const openingMessages: Record<LeadMagnetProblem, string> = {
-    frustration: 'Văd că te simți frustrat. Care e situația concretă care te-a adus în acest punct?',
-    anxiety: 'Simt că anxietatea te apasă acum. Care e cel mai mare "dar dacă" care îți trece prin minte?',
-    procrastination: 'Observ că amâni lucruri importante. Ce te oprește să începi chiar acum?',
-    fear: 'Văd că frica te ține pe loc. De ce ți-e frică cel mai tare acum?',
-  };
-
   return (
     <>
       <Card className="flex flex-col h-[500px] md:h-[550px] bg-gradient-to-br from-background via-background to-primary/5 border-0">
@@ -201,6 +222,7 @@ export function MindCoachDemo({
                   "hover:bg-primary/10",
                   isVoiceMode && "text-primary bg-primary/10"
                 )}
+                disabled={isCallMode}
               >
                 {isVoiceMode ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
               </Button>
@@ -215,7 +237,7 @@ export function MindCoachDemo({
         <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           <div className="space-y-4">
             {/* Welcome message */}
-            {messages.length === 0 && selectedProblem && (
+            {messages.length === 0 && selectedProblem && !isCallMode && (
               <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-4 text-sm border border-primary/10 animate-fade-in">
                 <p className="text-muted-foreground leading-relaxed">
                   {openingMessages[selectedProblem]}
@@ -262,49 +284,111 @@ export function MindCoachDemo({
           </div>
         </ScrollArea>
 
-        {/* Input area */}
-        <div className="p-4 border-t border-primary/10 shrink-0 bg-gradient-to-t from-primary/5 to-transparent">
-          <div className="flex items-center gap-2">
-            {/* Speak button (push-to-talk) */}
-            <Button
-              variant="outline"
-              size="icon"
-              className={cn(
-                "shrink-0 transition-all",
-                isSpeakHeld && "bg-red-500/20 border-red-500 text-red-500"
-              )}
-              onMouseDown={handleSpeakStart}
-              onMouseUp={handleSpeakStop}
-              onMouseLeave={handleSpeakStop}
-              onTouchStart={handleSpeakStart}
-              onTouchEnd={handleSpeakStop}
-              disabled={isLoading}
-            >
-              <Mic className={cn("h-4 w-4", isSpeakHeld && "animate-pulse")} />
-            </Button>
-
-            {/* Text input */}
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Scrie aici..."
-              className="flex-1 bg-muted/50 border border-border/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-              disabled={isLoading || isComplete}
+        {/* Call Mode Overlay */}
+        {isCallMode && (
+          <div className="px-4 pb-2">
+            <CallModeOverlay
+              isActive={isCallMode}
+              isAISpeaking={voice.isAISpeaking}
+              isListening={voice.isListening}
+              isProcessing={isLoading}
+              isTTSLoading={voice.isTTSLoading}
+              currentTranscript={voice.currentTranscript}
+              silenceTimer={voice.silenceTimer}
+              audioLevel={voice.audioLevel}
+              onSkipAI={voice.skipAISpeaking}
+              onManualSend={voice.manualSendInCall}
+              onEndCall={handleEndCall}
+              language={language}
             />
-
-            {/* Send button */}
-            <Button
-              size="sm"
-              onClick={handleSend}
-              disabled={!inputValue.trim() || isLoading || isComplete}
-              className="shrink-0"
-            >
-              Trimite
-            </Button>
           </div>
-        </div>
+        )}
+
+        {/* Input area - hidden during call mode */}
+        {!isCallMode && (
+          <div className="p-4 border-t border-primary/10 shrink-0 bg-gradient-to-t from-primary/5 to-transparent">
+            <div className="flex items-center gap-2">
+              {/* Speak button (push-to-talk) with improved feedback */}
+              <Button
+                variant={voice.isSpeaking ? "destructive" : "outline"}
+                size="icon"
+                className={cn(
+                  "shrink-0 transition-all relative select-none touch-none",
+                  voice.isSpeaking && [
+                    "bg-red-600 hover:bg-red-600 border-red-700",
+                    "scale-[0.98] shadow-inner",
+                    "ring-4 ring-red-500/50 ring-offset-2 ring-offset-background"
+                  ]
+                )}
+                onMouseDown={handleSpeakStart}
+                onMouseUp={handleSpeakStop}
+                onMouseLeave={handleSpeakStop}
+                onTouchStart={(e) => { e.preventDefault(); handleSpeakStart(); }}
+                onTouchEnd={(e) => { e.preventDefault(); handleSpeakStop(); }}
+                disabled={isLoading || isComplete}
+              >
+                <Mic className={cn(
+                  "h-4 w-4",
+                  voice.isSpeaking && "text-white animate-pulse"
+                )} />
+                
+                {/* Recording indicator dot */}
+                {voice.isSpeaking && (
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+                  </span>
+                )}
+              </Button>
+
+              {/* Text input */}
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                placeholder={language === 'ro' ? 'Scrie aici...' : 'Type here...'}
+                className="flex-1 bg-muted/50 border border-border/50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                disabled={isLoading || isComplete}
+              />
+
+              {/* Call button */}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleStartCall}
+                className={cn(
+                  "shrink-0 transition-all",
+                  "hover:bg-green-500/10 hover:border-green-500 hover:text-green-500"
+                )}
+                disabled={isLoading || isComplete}
+                title={language === 'ro' ? 'Pornește apelul vocal' : 'Start voice call'}
+              >
+                <Phone className="h-4 w-4" />
+              </Button>
+
+              {/* Send button */}
+              <Button
+                size="sm"
+                onClick={handleSend}
+                disabled={!inputValue.trim() || isLoading || isComplete}
+                className="shrink-0"
+              >
+                {language === 'ro' ? 'Trimite' : 'Send'}
+              </Button>
+            </div>
+
+            {/* Voice recording hint */}
+            {voice.isSpeaking && (
+              <p className="text-xs text-muted-foreground mt-2 text-center animate-pulse">
+                {language === 'ro' 
+                  ? '🎤 Vorbește acum... Eliberează pentru a trimite'
+                  : '🎤 Speaking... Release to send'
+                }
+              </p>
+            )}
+          </div>
+        )}
       </Card>
 
       {/* Breakthrough overlay */}
