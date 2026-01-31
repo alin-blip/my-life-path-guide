@@ -21,6 +21,7 @@ import { MasterPlanQuickStack } from '@/components/stack/master-plan/MasterPlanQ
 import { GratitudeStack } from '@/components/stack/gratitude-stack/GratitudeStack';
 import { DailyMasterStack } from '@/components/stack/daily-master/DailyMasterStack';
 import { DivineGratitudeStack } from '@/components/stack/divine-gratitude/DivineGratitudeStack';
+import { PathToSuccessStack } from '@/components/stack/path-to-success';
 import { getWeek } from 'date-fns';
 
 const CoachingPage = () => {
@@ -79,53 +80,56 @@ const CoachingPage = () => {
     }
     
     // Handle stack type selection
-    if (typeParam) {
-      switch (typeParam) {
-        case 'anger':
-          setActiveStack('anger');
-          break;
-        case 'divine-prayer':
-          setActiveStack('divine-prayer');
-          break;
-        case 'ai-live':
-          setActiveStack('ai-live');
-          break;
-        case 'hormozi-coaching':
-          setActiveStack('hormozi-coaching');
-          break;
-        case 'gods-school':
-          setActiveStack('gods-school');
-          break;
-        case 'gratitude':
-          setActiveStack('gratitude');
-          break;
-        case 'daily-master':
-          setActiveStack('daily-master');
-          break;
-        case 'divine-gratitude':
-          setActiveStack('divine-gratitude');
-          break;
-        case 'introspection':
-          setActiveStack('introspection');
-          break;
-        case 'adaptive-transform':
-          setActiveStack('adaptive-transform');
-          break;
+      if (typeParam) {
+        switch (typeParam) {
+          case 'anger':
+            setActiveStack('anger');
+            break;
+          case 'divine-prayer':
+            setActiveStack('divine-prayer');
+            break;
+          case 'ai-live':
+            setActiveStack('ai-live');
+            break;
+          case 'hormozi-coaching':
+            setActiveStack('hormozi-coaching');
+            break;
+          case 'gods-school':
+            setActiveStack('gods-school');
+            break;
+          case 'gratitude':
+            setActiveStack('gratitude');
+            break;
+          case 'daily-master':
+            setActiveStack('daily-master');
+            break;
+          case 'divine-gratitude':
+            setActiveStack('divine-gratitude');
+            break;
+          case 'introspection':
+            setActiveStack('introspection');
+            break;
+          case 'adaptive-transform':
+            setActiveStack('adaptive-transform');
+            break;
+          case 'path-to-success':
+            setActiveStack('path-to-success');
+            break;
 
-        // Backwards-compatible URLs
-        case 'napoleon-hill':
-        case 'master-plan':
-          setActiveStack('napoleon-hill');
-          break;
-        case 'napoleon-hill-quick':
-        case 'master-plan-quick':
-          setActiveStack('napoleon-hill-quick');
-          break;
+          // Backwards-compatible URLs
+          case 'napoleon-hill':
+          case 'master-plan':
+            setActiveStack('napoleon-hill');
+            break;
+          case 'napoleon-hill-quick':
+          case 'master-plan-quick':
+            setActiveStack('napoleon-hill-quick');
+            break;
 
-        default:
-          setActiveStack('divine-prayer');
+          default:
+            setActiveStack('divine-prayer');
+        }
       }
-    }
   }, [location]);
   
   const createRequiredTables = async () => {
@@ -367,6 +371,8 @@ const renderActiveStack = () => {
         return <IntrospectionStack {...stackProps} />;
       case "adaptive-transform":
         return <AiLiveCoaching {...stackProps} stackType="adaptive-transform" />;
+      case "path-to-success":
+        return <PathToSuccessStack onAddToHitList={stackProps.onAddToHitList} />;
       case "napoleon-hill":
         return <MasterPlanStack {...stackProps} />;
       case "napoleon-hill-quick":
