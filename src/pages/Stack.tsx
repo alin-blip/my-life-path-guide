@@ -22,6 +22,8 @@ import { GratitudeStack } from '@/components/stack/gratitude-stack/GratitudeStac
 import { DailyMasterStack } from '@/components/stack/daily-master/DailyMasterStack';
 import { DivineGratitudeStack } from '@/components/stack/divine-gratitude/DivineGratitudeStack';
 import { PathToSuccessStack } from '@/components/stack/path-to-success';
+import { StorytellingStack } from '@/components/content-creation/StorytellingStack';
+import { HeroJourneyStack } from '@/components/content-creation/HeroJourneyStack';
 import { getWeek } from 'date-fns';
 
 const CoachingPage = () => {
@@ -115,7 +117,12 @@ const CoachingPage = () => {
           case 'path-to-success':
             setActiveStack('path-to-success');
             break;
-
+          case 'storytelling':
+            setActiveStack('storytelling');
+            break;
+          case 'hero-journey':
+            setActiveStack('hero-journey');
+            break;
           // Backwards-compatible URLs
           case 'napoleon-hill':
           case 'master-plan':
@@ -373,6 +380,20 @@ const renderActiveStack = () => {
         return <AiLiveCoaching {...stackProps} stackType="adaptive-transform" />;
       case "path-to-success":
         return <PathToSuccessStack onAddToHitList={stackProps.onAddToHitList} />;
+      case "storytelling":
+        return <StorytellingStack 
+          language="ro" 
+          onComplete={(script) => {
+            toast({ title: "Script generat!", description: "Verifică scriptul și salvează-l." });
+          }}
+        />;
+      case "hero-journey":
+        return <HeroJourneyStack 
+          language="ro"
+          onComplete={(script) => {
+            toast({ title: "Script generat!", description: "Verifică scriptul și salvează-l." });
+          }}
+        />;
       case "napoleon-hill":
         return <MasterPlanStack {...stackProps} />;
       case "napoleon-hill-quick":
