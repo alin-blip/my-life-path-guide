@@ -240,22 +240,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       badge: 'COACH'
     },
 
-    // 11. TOOLS (All platform tools)
+    // 11. TOOLS (All platform tools) - Direct link, no dropdown
     {
       title: 'Tools',
       icon: Settings,
-      path: '/tools',
-      subItems: [
-        { title: language === 'ro' ? 'Lifebook (Viziune Viață)' : 'Lifebook (Life Vision)', icon: BookOpen, path: '/lifebook' },
-        { title: 'Vibe Canvas', icon: Palette, path: '/vibe-canvas' },
-        { title: 'Vision Board', icon: Sparkles, path: '/vision-board' },
-        { title: 'Focus Room', icon: Timer, path: '/focus' },
-        { title: language === 'ro' ? 'Jurnal' : 'Journal', icon: FileText, path: '/journal' },
-        { title: language === 'ro' ? 'Notițe' : 'Notes', icon: Pencil, path: '/notes' },
-        { title: 'Time Tracker', icon: Clock, path: '/time-tracker' },
-        { title: 'Emotional Tracker', icon: Heart, path: '/emotional-tracker' },
-        { title: 'Widget Dashboard', icon: LayoutGrid, path: '/widget-dashboard' },
-      ]
+      path: '/tools'
     },
 
     // Admin (hidden from side menu)
