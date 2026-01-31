@@ -79,8 +79,13 @@ export default function MindCoach() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(-1)}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              navigate(-1);
+            }}
             className="mb-4"
+            type="button"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             {language === 'ro' ? 'Înapoi' : 'Back'}
