@@ -1,213 +1,348 @@
 
-# Plan: Fix Voice Mode în MindCoachDemo (pagina /mind-coach-transform)
+# Plan: Story Framework pentru Content Creation în Rutina Războinicului
 
-## Probleme Identificate
+## Obiectiv
+Adăugarea unui framework de storytelling bazat pe cele **7 Elemente ale unei Povești** în secțiunea de Content Creation din rutina campionului, care să:
+1. Ghideze utilizatorul prin cele 7 întrebări ale framework-ului
+2. Genereze un script bazat pe răspunsuri folosind AI
+3. Fie accesibil și din secțiunea Tools/Stacks
 
-### 1. Butonul Speak (Microfonul)
-- Există în UI dar **nu are feedback vizual suficient** când e apăsat
-- Culoarea se schimbă doar ușor, nu e clar că funcționează
-- Lipsesc indicatori vizuali ca pulsul roșu și starea activă
-
-### 2. Butonul Call 
-- **NU EXISTĂ** în interfața `MindCoachDemo.tsx`
-- Există doar un toggle pentru Voice Mode (TTS) care nu e buton de Call
-- Pagina normală Mind Coach (`MindCoachInputBar.tsx`) are Call, dar demo-ul nu
-
-### 3. Feedback General
-- Nu există indicatori de stare clare (Listening, Speaking, etc.)
-- Utilizatorul nu știe dacă microfonul captează vocea
-
-## Soluție Propusă
-
-### Modificări în `src/components/mind-coach/MindCoachDemo.tsx`:
-
-1. **Înlocuiește sistemul de voice cu hook-ul complet `useMindCoachVoice`**
-   - Oferă atât Speak mode (push-to-talk) cât și Call mode (conversație continuă)
-   - Gestionează automat TTS și STT
-
-2. **Adaugă buton Call lângă butonul Speak**
-   - Buton cu iconița Phone pentru a porni conversația vocală
-   - Când e activ, afișează `CallModeOverlay` peste input
-
-3. **Îmbunătățește feedback-ul vizual pentru Speak**
-   - Fundal roșu intens când e apăsat
-   - Animație de pulsare vizibilă
-   - Indicator de recording în colțul butonului
-
-4. **Adaugă stări vizuale**
-   - Indicator când AI-ul vorbește
-   - Indicator când microfonul e activ
-   - Transcript live când vorbești
-
-## Cod Tehnic
-
-### Structura nouă a zonei de input:
+## Cele 7 Elemente ale Storytelling-ului (din imagine)
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│                    CHAT AREA                         │
-├─────────────────────────────────────────────────────┤
-│ [În modul Call → CallModeOverlay complet]           │
-├─────────────────────────────────────────────────────┤
-│ [În modul normal:]                                   │
-│ ┌────┐ ┌──────────────────────────┐ ┌────┐ ┌──────┐ │
-│ │ 🎤 │ │ Scrie aici...            │ │ 📞 │ │Trimite│ │
-│ │Speak│ │                          │ │Call│ │      │ │
-│ └────┘ └──────────────────────────┘ └────┘ └──────┘ │
-└─────────────────────────────────────────────────────┘
+1. DESIRE       - Ce dorește protagonistul (audiența)?
+2. PROBLEM/NEED - Ce problemă sau nevoie are?
+3. OPPONENT     - Cine/ce se opune? (extern, intern, intim)
+4. PLAN         - Care e planul de acțiune?
+5. BATTLE       - Ce luptă trebuie dată?
+6. SELF-REVELATION - Ce revelație/transformare apare?
+7. EQUILIBRIUM  - Care e starea finală nouă?
 ```
 
-### Importuri noi necesare:
+## Arhitectura Soluției
+
+### Componente Noi
+
+| Fișier | Descriere |
+|--------|-----------|
+| `src/components/content-creation/StorytellingStack.tsx` | Componentă principală cu UI pentru cele 7 întrebări |
+| `src/components/content-creation/storytellingQuestions.ts` | Definiție întrebări bilingve (RO/EN) |
+| `src/components/content-creation/useStorytellingStack.ts` | Hook pentru state management și logică |
+| `supabase/functions/generate-story-script/index.ts` | Edge function pentru generare script cu AI |
+
+### Modificări Existente
+
+| Fișier | Modificare |
+|--------|------------|
+| `src/components/champion-routine/steps/ContentCreationStep.tsx` | Adaugă opțiune Storytelling alături de Simple Topic |
+| `src/components/stack/AiGuidedStack.tsx` | Adaugă `storytelling` ca stackType nou |
+| `src/pages/Tools.tsx` sau echivalent | Adaugă Storytelling Stack în lista de tools |
+
+---
+
+## Detalii Tehnice
+
+### 1. Definiția Întrebărilor (`storytellingQuestions.ts`)
+
 ```typescript
-import { useMindCoachVoice } from '@/hooks/useMindCoachVoice';
-import { CallModeOverlay } from './CallModeOverlay';
-import { Phone, PhoneOff } from 'lucide-react';
-```
-
-### State nou:
-```typescript
-const [isCallMode, setIsCallMode] = useState(false);
-```
-
-### Integrare useMindCoachVoice:
-```typescript
-const voice = useMindCoachVoice({
-  onUserMessage: (text) => {
-    sendMessage(text);
-  },
-  onAIResponse: (text) => {
-    // Handled by useMindCoachVoice internally
-  },
-  language: language,
-  voiceId: 'EXAVITQu4vr4xnSDxMaL',
-  silenceThreshold: 3000,
-  playbackRate: 1.15
-});
-```
-
-### Hook nou pentru demo TTS fără auth:
-Trebuie să modific `useMindCoachVoice` sau să creez o versiune demo care folosește `text-to-speech-demo` endpoint în loc de cel autentificat.
-
-### Buton Speak îmbunătățit:
-```tsx
-<Button
-  variant={isSpeakHeld ? "destructive" : "outline"}
-  size="icon"
-  className={cn(
-    "shrink-0 transition-all relative",
-    isSpeakHeld && [
-      "bg-red-600 border-red-700 scale-95",
-      "ring-4 ring-red-500/50 ring-offset-2"
-    ]
-  )}
-  onMouseDown={handleSpeakStart}
-  onMouseUp={handleSpeakStop}
-  onMouseLeave={handleSpeakStop}
-  onTouchStart={(e) => { e.preventDefault(); handleSpeakStart(); }}
-  onTouchEnd={(e) => { e.preventDefault(); handleSpeakStop(); }}
-  disabled={isLoading || isCallMode}
->
-  <Mic className={cn("h-4 w-4", isSpeakHeld && "animate-pulse text-white")} />
+export const getStorytellingQuestions = (language: 'en' | 'ro' = 'ro') => {
+  if (language === 'en') {
+    return [
+      {
+        step: 1,
+        element: 'Desire',
+        emoji: '🎯',
+        question: 'What does your audience/protagonist deeply WANT?',
+        placeholder: 'E.g.: To feel confident, to make more money, to be healthy...',
+        hint: 'The burning desire that drives action'
+      },
+      {
+        step: 2,
+        element: 'Problem/Need',
+        emoji: '💔',
+        question: 'What PROBLEM or NEED are they facing?',
+        placeholder: 'E.g.: They feel stuck, overwhelmed, lacking direction...',
+        hint: 'The gap between current reality and desire'
+      },
+      {
+        step: 3,
+        element: 'Opponent',
+        emoji: '⚔️',
+        question: 'Who or what is the OPPONENT? (external, internal, or intimate)',
+        placeholder: 'External: competition, economy. Internal: fear, doubt. Intimate: family, friends...',
+        hint: 'The force that blocks progress'
+      },
+      {
+        step: 4,
+        element: 'Plan',
+        emoji: '📋',
+        question: 'What is the PLAN to overcome this?',
+        placeholder: 'E.g.: Follow these 5 steps, use this method, adopt this mindset...',
+        hint: 'Your solution/framework/system'
+      },
+      {
+        step: 5,
+        element: 'Battle',
+        emoji: '🔥',
+        question: 'What BATTLE must be fought?',
+        placeholder: 'E.g.: The moment of confrontation, the hard work required...',
+        hint: 'The climax, the real test'
+      },
+      {
+        step: 6,
+        element: 'Self-Revelation',
+        emoji: '💡',
+        question: 'What REVELATION or transformation occurs?',
+        placeholder: 'E.g.: They realize their true potential, discover hidden strength...',
+        hint: 'The "aha" moment, the inner change'
+      },
+      {
+        step: 7,
+        element: 'Equilibrium',
+        emoji: '✨',
+        question: 'What is the NEW EQUILIBRIUM?',
+        placeholder: 'E.g.: Living with confidence, financial freedom, peace of mind...',
+        hint: 'The new normal after transformation'
+      }
+    ];
+  }
   
-  {/* Recording indicator dot */}
-  {isSpeakHeld && (
-    <span className="absolute -top-1 -right-1 flex h-3 w-3">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
-      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
-    </span>
-  )}
-</Button>
-```
-
-### Buton Call nou:
-```tsx
-<Button
-  variant={isCallMode ? "destructive" : "outline"}
-  size="icon"
-  onClick={() => {
-    if (isCallMode) {
-      voice.endCall();
-      setIsCallMode(false);
-    } else {
-      setIsCallMode(true);
-      // Start call with opening message
-      const openingMsg = openingMessages[selectedProblem];
-      voice.startCall(openingMsg);
+  // Romanian version
+  return [
+    {
+      step: 1,
+      element: 'Dorință',
+      emoji: '🎯',
+      question: 'Ce DOREȘTE profund audiența/protagonistul tău?',
+      placeholder: 'Ex: Să se simtă încrezător, să facă mai mulți bani, să fie sănătos...',
+      hint: 'Dorința arzătoare care motivează acțiunea'
+    },
+    {
+      step: 2,
+      element: 'Problemă/Nevoie',
+      emoji: '💔',
+      question: 'Ce PROBLEMĂ sau NEVOIE are?',
+      placeholder: 'Ex: Se simt blocați, copleșiți, fără direcție...',
+      hint: 'Gap-ul între realitatea curentă și dorință'
+    },
+    {
+      step: 3,
+      element: 'Oponent',
+      emoji: '⚔️',
+      question: 'Cine sau ce este OPONENTUL? (extern, intern sau intim)',
+      placeholder: 'Extern: competiția, economia. Intern: frica, îndoiala. Intim: familia, prietenii...',
+      hint: 'Forța care blochează progresul'
+    },
+    {
+      step: 4,
+      element: 'Plan',
+      emoji: '📋',
+      question: 'Care este PLANUL pentru a depăși asta?',
+      placeholder: 'Ex: Urmează acești 5 pași, folosește această metodă, adoptă această mentalitate...',
+      hint: 'Soluția ta / framework-ul / sistemul'
+    },
+    {
+      step: 5,
+      element: 'Bătălie',
+      emoji: '🔥',
+      question: 'Ce BĂTĂLIE trebuie dată?',
+      placeholder: 'Ex: Momentul confruntării, munca grea necesară...',
+      hint: 'Climax-ul, testul real'
+    },
+    {
+      step: 6,
+      element: 'Revelație',
+      emoji: '💡',
+      question: 'Ce REVELAȚIE sau transformare apare?',
+      placeholder: 'Ex: Realizează potențialul adevărat, descoperă forța ascunsă...',
+      hint: 'Momentul "aha", schimbarea interioară'
+    },
+    {
+      step: 7,
+      element: 'Echilibru Nou',
+      emoji: '✨',
+      question: 'Care este NOUL ECHILIBRU?',
+      placeholder: 'Ex: Trăiește cu încredere, libertate financiară, liniște sufletească...',
+      hint: 'Normalul nou după transformare'
     }
-  }}
-  className={cn(
-    "shrink-0 transition-all",
-    isCallMode && "bg-red-600 border-red-700"
-  )}
-  disabled={isLoading}
->
-  {isCallMode ? (
-    <PhoneOff className="h-4 w-4 text-white" />
-  ) : (
-    <Phone className="h-4 w-4" />
-  )}
-</Button>
+  ];
+};
 ```
 
-### Call Mode Overlay condiționat:
-```tsx
-{isCallMode && (
-  <CallModeOverlay
-    isActive={isCallMode}
-    isAISpeaking={voice.isAISpeaking}
-    isListening={voice.isListening}
-    isProcessing={isLoading}
-    isTTSLoading={voice.isTTSLoading}
-    currentTranscript={voice.currentTranscript}
-    silenceTimer={voice.silenceTimer}
-    audioLevel={voice.audioLevel}
-    onSkipAI={voice.skipAISpeaking}
-    onManualSend={voice.manualSendInCall}
-    onEndCall={() => {
-      voice.endCall();
-      setIsCallMode(false);
-    }}
-    language={language}
-  />
-)}
-```
+### 2. Componenta StorytellingStack
 
-## Probleme de Rezolvat
-
-### Authentication pentru TTS
-`useMindCoachVoice` folosește `useVoiceConversation` care apelează edge function-ul `text-to-speech` cu autentificare. Pentru demo (fără login), trebuie să:
-
-**Opțiunea A**: Creez un hook `useMindCoachVoiceDemo` care folosește `text-to-speech-demo` endpoint
-**Opțiunea B**: Modific `useDemoTextToSpeech` să fie folosit în loc de cel standard
-
-**Recomandare**: Opțiunea A - creez `useMindCoachVoiceDemo.ts` similar cu `useMindCoachVoice.ts` dar care folosește endpoint-urile demo fără autentificare.
-
-## Fișiere de Modificat
-
-| Fișier | Acțiune |
-|--------|---------|
-| `src/components/mind-coach/MindCoachDemo.tsx` | Modificare majoră - UI complet pentru voice |
-| `src/hooks/useMindCoachVoiceDemo.ts` | **Nou** - Hook pentru demo voice fără auth |
-| `src/hooks/useVoiceConversationDemo.ts` | **Nou** - Versiune demo a useVoiceConversation |
-
-## Flux Final
+Structură UI modernă cu:
+- **Progress indicator** vizual pentru cele 7 etape
+- **Card pentru fiecare întrebare** cu emoji și context
+- **Textarea** pentru răspuns
+- **Navigare înainte/înapoi** între etape
+- **Preview colapsabil** al răspunsurilor anterioare
+- **Buton "Generează Script"** la final
 
 ```text
-Utilizator alege emoție
+UI Flow:
+┌─────────────────────────────────────────┐
+│ 🎬 Storytelling Framework               │
+│ ─────────────────────────────────────── │
+│  ① ② ③ ④ ⑤ ⑥ ⑦                          │
+│        ↑ (current: 3)                   │
+├─────────────────────────────────────────┤
+│ ⚔️ Pasul 3: Oponent                     │
+│                                         │
+│ "Cine sau ce este OPONENTUL?"           │
+│ (extern, intern sau intim)              │
+│                                         │
+│ ┌─────────────────────────────────────┐ │
+│ │ [Textarea pentru răspuns]           │ │
+│ │                                     │ │
+│ └─────────────────────────────────────┘ │
+│                                         │
+│ 💡 Hint: Forța care blochează progresul │
+│                                         │
+│ [← Înapoi]              [Continuă →]    │
+├─────────────────────────────────────────┤
+│ ▼ Vezi răspunsurile anterioare          │
+│   ① Dorință: "Să devină influencer..."  │
+│   ② Problemă: "Nu știe de unde..."      │
+└─────────────────────────────────────────┘
+```
+
+### 3. Edge Function pentru Generare Script
+
+```typescript
+// supabase/functions/generate-story-script/index.ts
+
+const systemPrompt = `Ești un expert în storytelling pentru social media.
+Creezi scripturi captivante bazate pe cele 7 elemente ale unei povești:
+Desire, Problem, Opponent, Plan, Battle, Self-Revelation, Equilibrium.
+
+Reguli:
+1. Hook puternic bazat pe DESIRE + PROBLEM
+2. Introduce OPPONENT ca obstacol relatable
+3. Prezintă PLAN ca soluție concretă
+4. BATTLE = momentul de turning point
+5. SELF-REVELATION = insight-ul cheie
+6. EQUILIBRIUM = CTA + viziunea finală
+7. Ton conversațional, empatic, direct`;
+
+const userPrompt = `Creează un script pentru ${contentType} bazat pe aceste elemente:
+
+🎯 DESIRE: ${answers[1]}
+💔 PROBLEM: ${answers[2]}
+⚔️ OPPONENT: ${answers[3]}
+📋 PLAN: ${answers[4]}
+🔥 BATTLE: ${answers[5]}
+💡 REVELATION: ${answers[6]}
+✨ EQUILIBRIUM: ${answers[7]}
+
+Format:
+- HOOK (3 sec) - bazat pe desire/problem
+- CONFLICT (10-15 sec) - opponent + stakes
+- JOURNEY (20-30 sec) - plan + battle
+- TRANSFORMATION (10 sec) - revelation
+- CTA (5 sec) - equilibrium + action`;
+```
+
+### 4. Integrare în ContentCreationStep
+
+Modificare pentru a oferi două opțiuni:
+
+```text
+┌─────────────────────────────────────────┐
+│ 🎬 Content Creation                     │
+│                                         │
+│ Alege metoda de creare:                 │
+│                                         │
+│ ┌─────────────┐  ┌─────────────────────┐│
+│ │ 📝 Simple   │  │ 📖 Storytelling     ││
+│ │ Topic       │  │ Framework           ││
+│ │             │  │                     ││
+│ │ Scrie un    │  │ Ghidare pas cu pas  ││
+│ │ topic și AI │  │ prin 7 elemente     ││
+│ │ generează   │  │ pentru povești care ││
+│ │             │  │ captează atenția    ││
+│ └─────────────┘  └─────────────────────┘│
+└─────────────────────────────────────────┘
+```
+
+### 5. Integrare ca Tool/Stack
+
+Adăugare în lista de stacks disponibile pentru acces independent:
+
+```typescript
+// În configurația stacks-urilor
+{
+  id: 'storytelling',
+  name: 'Storytelling Framework',
+  icon: BookOpen,
+  description: 'Creează content captivant cu cele 7 elemente ale unei povești',
+  category: 'business',
+  component: StorytellingStack
+}
+```
+
+---
+
+## Flux Utilizator
+
+### Din Rutina Campionului
+
+```text
+User în ContentCreationStep
         │
         ▼
-Chat UI cu 3 opțiuni de input:
-├── 📝 Text input + Trimite
-├── 🎤 Speak (push-to-talk) - ține apăsat
-└── 📞 Call (conversație continuă)
+Alege "Storytelling Framework"
         │
-        ├── [Speak apăsat] ──► STT activ ──► Eliberează ──► Trimite mesaj
+        ▼
+Răspunde la cele 7 întrebări
         │
-        └── [Call activat] ──► CallModeOverlay
-                                    │
-                                    ├── AI vorbește prima replică
-                                    ├── Ascultă utilizatorul  
-                                    ├── 3s silence → trimite automat
-                                    ├── AI răspunde vocal
-                                    └── [Repetă până la End Call]
+        ▼
+Click "Generează Script"
+        │
+        ▼
+AI generează script bazat pe poveste
+        │
+        ▼
+Editează/Confirmă script
+        │
+        ▼
+Trece la Pomodoro pentru creare
 ```
+
+### Acces Direct din Tools
+
+```text
+User în Tools/Stacks
+        │
+        ▼
+Click pe "Storytelling Framework"
+        │
+        ▼
+UI identic cu cel din rutină
+        │
+        ▼
+Script salvat în Stack Library
+```
+
+---
+
+## Fișiere de Creat/Modificat
+
+| Acțiune | Fișier |
+|---------|--------|
+| **Creare** | `src/components/content-creation/storytellingQuestions.ts` |
+| **Creare** | `src/components/content-creation/useStorytellingStack.ts` |
+| **Creare** | `src/components/content-creation/StorytellingStack.tsx` |
+| **Creare** | `supabase/functions/generate-story-script/index.ts` |
+| **Modificare** | `src/components/champion-routine/steps/ContentCreationStep.tsx` |
+| **Modificare** | Configurația stacks/tools pentru adăugare în lista disponibilă |
+
+---
+
+## Beneficii
+
+1. **Structură clară** - Utilizatorul nu mai trebuie să știe storytelling, framework-ul îl ghidează
+2. **Scripturi mai bune** - AI-ul primește context complet, nu doar un topic vag
+3. **Refolosibil** - Poate fi accesat și din Tools, nu doar din rutină
+4. **Educativ** - Utilizatorul învață storytelling prin practică
+5. **Consistent** - Folosește aceleași pattern-uri UI ca celelalte stacks (Hormozi, Gods School, etc.)
