@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Video, Sparkles, ArrowRight, Loader2, Edit3, Check, BookOpen, FileText } from 'lucide-react';
+import { Video, Sparkles, ArrowRight, Loader2, Edit3, Check, BookOpen, FileText, Compass } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PomodoroTimer } from '../PomodoroTimer';
 import { StorytellingStack } from '@/components/content-creation/StorytellingStack';
+import { HeroJourneyStack } from '@/components/content-creation/HeroJourneyStack';
 
 interface ContentCreationStepProps {
   topic: string;
@@ -18,8 +19,8 @@ interface ContentCreationStepProps {
   onNext: () => void;
 }
 
-type ContentPhase = 'method' | 'topic' | 'storytelling' | 'script' | 'create';
-type CreationMethod = 'simple' | 'storytelling';
+type ContentPhase = 'method' | 'topic' | 'storytelling' | 'hero-journey' | 'script' | 'create';
+type CreationMethod = 'simple' | 'storytelling' | 'hero-journey';
 
 export function ContentCreationStep({
   topic,
@@ -42,8 +43,10 @@ export function ContentCreationStep({
     setCreationMethod(method);
     if (method === 'simple') {
       setPhase('topic');
-    } else {
+    } else if (method === 'storytelling') {
       setPhase('storytelling');
+    } else {
+      setPhase('hero-journey');
     }
   };
 
@@ -53,6 +56,14 @@ export function ContentCreationStep({
     onTopicChange('Storytelling Framework');
     setPhase('create');
     toast.success('Script din storytelling confirmat!');
+  };
+
+  const handleHeroJourneyComplete = (generatedScript: string) => {
+    setLocalScript(generatedScript);
+    onScriptChange(generatedScript);
+    onTopicChange("Hero's Journey");
+    setPhase('create');
+    toast.success("Script din Hero's Journey confirmat!");
   };
 
   const handleGenerateScript = async () => {
@@ -118,24 +129,24 @@ export function ContentCreationStep({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Simple Topic Option */}
             <button
               onClick={() => handleSelectMethod('simple')}
-              className="p-6 rounded-xl border-2 border-border bg-card hover:border-blue-500/50 hover:bg-blue-500/5 transition-all text-left group"
+              className="p-5 rounded-xl border-2 border-border bg-card hover:border-blue-500/50 hover:bg-blue-500/5 transition-all text-left group"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <FileText className="h-6 w-6 text-blue-500" />
+                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-blue-500" />
                 </div>
-                <h3 className="text-lg font-semibold group-hover:text-blue-500 transition-colors">
+                <h3 className="text-base font-semibold group-hover:text-blue-500 transition-colors">
                   Topic Simplu
                 </h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                Scrie un topic și AI-ul generează un script rapid. Perfect pentru idei spontane.
+                Scrie un topic și AI-ul generează un script rapid.
               </p>
-              <div className="mt-4 flex items-center text-xs text-muted-foreground">
+              <div className="mt-3 flex items-center text-xs text-muted-foreground">
                 <span className="bg-muted px-2 py-1 rounded">⚡ Rapid</span>
               </div>
             </button>
@@ -143,22 +154,42 @@ export function ContentCreationStep({
             {/* Storytelling Framework Option */}
             <button
               onClick={() => handleSelectMethod('storytelling')}
-              className="p-6 rounded-xl border-2 border-border bg-card hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left group"
+              className="p-5 rounded-xl border-2 border-border bg-card hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left group"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <BookOpen className="h-6 w-6 text-purple-500" />
+                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <BookOpen className="h-5 w-5 text-purple-500" />
                 </div>
-                <h3 className="text-lg font-semibold group-hover:text-purple-500 transition-colors">
-                  Framework Storytelling
+                <h3 className="text-base font-semibold group-hover:text-purple-500 transition-colors">
+                  Storytelling
                 </h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                7 elemente ale unei povești captivante. Ghidare pas cu pas pentru scripturi care vând.
+                7 elemente ale unei povești captivante.
               </p>
-              <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded">📖 7 Pași</span>
-                <span className="bg-muted px-2 py-1 rounded">⭐ Recomandat</span>
+              </div>
+            </button>
+
+            {/* Hero's Journey Option */}
+            <button
+              onClick={() => handleSelectMethod('hero-journey')}
+              className="p-5 rounded-xl border-2 border-border bg-card hover:border-cyan-500/50 hover:bg-cyan-500/5 transition-all text-left group"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                  <Compass className="h-5 w-5 text-cyan-500" />
+                </div>
+                <h3 className="text-base font-semibold group-hover:text-cyan-500 transition-colors">
+                  Hero's Journey
+                </h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                7 etape ale călătoriei eroului (Joseph Campbell).
+              </p>
+              <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded">🗺️ 7 Etape</span>
               </div>
             </button>
           </div>
@@ -182,6 +213,19 @@ export function ContentCreationStep({
         <StorytellingStack
           language="ro"
           onComplete={handleStorytellingComplete}
+          onBack={() => setPhase('method')}
+        />
+      </div>
+    );
+  }
+
+  // Phase: Hero's Journey Framework
+  if (phase === 'hero-journey') {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 py-8">
+        <HeroJourneyStack
+          language="ro"
+          onComplete={handleHeroJourneyComplete}
           onBack={() => setPhase('method')}
         />
       </div>
