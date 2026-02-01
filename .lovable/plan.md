@@ -1,95 +1,112 @@
 
-# Plan: Internationalizare Completă Decision Breakthrough
+# Plan: Rezolvare Bug Salvare Plan Domino Door
 
 ## Problema Identificată
 
-Conținutul cursului este **amestecat** între română și engleză deoarece:
+### Bug Principal: Parsare Streaming Tool Calls
 
-| Element | Starea Actuală | Problemă |
-|---------|----------------|----------|
-| UI (butoane, labels) | ✅ Tradus cu `language === 'ro'` | OK |
-| `courseModules` (conținut curs) | ❌ Doar în engleză | Nu citește limba |
-| `weeklyPrompts` (prompturi săptămânale) | ❌ Doar în engleză | Nu citește limba |
-| `gettingStartedPrompt` | ❌ Doar în engleză | Nu citește limba |
-
-## Soluția
-
-Restructurăm `decisionBreakthroughContent.ts` cu getters care primesc parametrul `language`:
+În `DoorPlanningModal.tsx` (linia 565-567), codul încearcă să parseze `toolCall.function.arguments` imediat ce primește o porțiune din stream:
 
 ```typescript
-// Înainte (problematic)
-export const courseModules: CourseModule[] = [...]
+// ❌ BUG: Încearcă să parseze fragmente parțiale ca JSON complet
+if (toolCall?.function?.name === 'save_planning' && toolCall?.function?.arguments) {
+  const planningData = JSON.parse(toolCall.function.arguments);  // CRASH!
+  // ...
+}
+```
 
-// După (corect)
-export const getCourseModules = (language: 'en' | 'ro'): CourseModule[] => {...}
-export const getWeeklyPrompts = (language: 'en' | 'ro'): WeeklyPrompt[] => {...}
-export const getGettingStartedPrompt = (language: 'en' | 'ro'): string => {...}
+**Ce se întâmplă:**
+1. AI-ul trimite `save_planning` cu datele planului (toate 4 cheile, pașii, etc.)
+2. Datele sunt mari (planul tău complex) și vin în **fragmente multiple** prin streaming
+3. Primul fragment (ex: `{"dominoTi`) nu este JSON valid → `JSON.parse` aruncă eroare
+4. Catch block-ul prinde eroarea și o ignorează
+5. **Niciodată nu se acumulează fragmentele** pentru a forma JSON-ul complet
+6. Planul NU se salvează (sau se salvează doar ce a prins din prima/ultima bucată validă)
+
+### De ce ai în baza de date doar 1 cheie:
+Uneori, un fragment poate fi suficient de mic pentru a fi valid JSON parțial. Sistemul a reușit să salveze ce a prins, dar restul s-a pierdut.
+
+### Modelul AI:
+Folosești `google/gemini-2.5-flash` care este bun, dar problema este în parsare, nu în AI.
+
+## Soluția Tehnică
+
+### Trebuie să acumulăm argumentele tool call într-un buffer și să parsăm doar la final:
+
+```typescript
+// ÎNAINTE streaming loop
+let toolCallArgumentsBuffer = '';
+let toolCallName = '';
+
+// ÎN loop, la fiecare chunk
+if (toolCall?.function?.name) {
+  toolCallName = toolCall.function.name;  // Capturăm numele
+}
+if (toolCall?.function?.arguments) {
+  toolCallArgumentsBuffer += toolCall.function.arguments;  // ACUMULĂM
+}
+
+// La finish_reason === 'tool_calls' SAU după done, parsăm
+if (toolCallName === 'save_planning' && toolCallArgumentsBuffer) {
+  try {
+    const planningData = JSON.parse(toolCallArgumentsBuffer);
+    // ... salvare corectă
+  } catch (e) {
+    console.error('Invalid planning data:', e);
+  }
+}
 ```
 
 ## Fișiere de Modificat
 
 | Fișier | Modificare |
 |--------|------------|
-| `src/data/decisionBreakthroughContent.ts` | Adaug versiuni RO/EN pentru toate modulele și prompturile |
-| `src/components/learn/CourseTextReader.tsx` | Folosesc `getCourseModules(language)` în loc de `courseModules` |
-| `src/components/learn/DecisionCoach.tsx` | Folosesc `getWeeklyPrompts(language)` și `getGettingStartedPrompt(language)` |
+| `src/components/door/DoorPlanningModal.tsx` | Adaug buffer pentru tool call arguments și parsez la final |
+| `src/components/door/VoicePlanningModal.tsx` | Aceeași problemă - trebuie fix similar |
 
-## Conținut de Tradus în Română
+## Cod de Implementat
 
-### Module Curs (8 module)
-1. **The Creator's Playbook** → "Ghidul Creatorului"
-2. **My Personal Playbook** → "Ghidul Meu Personal"
-3. **Mastering Invisible Forces** → "Stăpânirea Forțelor Invizibile"
-4. **Part 1: Decide** → "Partea 1: Decide"
-5. **Part 2: Commit** → "Partea 2: Angajează-te"
-6. **Part 3: Resolve** → "Partea 3: Rezolvă"
-7. **The Cost of Not Deciding** → "Costul Indeciziei"
-8. **Closing** → "Încheiere"
+### În `DoorPlanningModal.tsx`:
 
-### Weekly Prompts (4 săptămâni)
-- Week 1: "Ajută-mă să clarific cine sunt acum versus cine trebuie să devin..."
-- Week 2: "Ajută-mă să identific fricile, credințele și pattern-urile..."
-- Week 3: "Ajută-mă să evaluez ce funcționează, ce nu..."
-- Week 4: "Ajută-mă să transform acest momentum în obiceiuri zilnice..."
-
-### Getting Started Prompt
-RO: "Înainte să începem, ajută-mă să clarific cine sunt acum, ce vreau cel mai mult, ce obiective contează pentru mine și ce provocări sau pattern-uri m-au ținut pe loc. Pune-mi întrebările de care ai nevoie pentru a mă ghida eficient."
-
-## Implementare Tehnică
-
+1. **Adaug variabile de buffer** (linia ~540):
 ```typescript
-// decisionBreakthroughContent.ts
-export const getCourseModules = (language: 'en' | 'ro'): CourseModule[] => {
-  if (language === 'en') {
-    return [
-      {
-        id: 'intro',
-        title: "The Creator's Playbook",
-        content: `We are living through...`,
-        // ... restul în engleză
-      }
-    ];
-  }
-  
-  // Română
-  return [
-    {
-      id: 'intro',
-      title: "Ghidul Creatorului",
-      content: `Trăim cel mai extraordinar moment din istoria umanității...`,
-      // ... restul în română
-    }
-  ];
-};
-
-// CourseTextReader.tsx
-const { language } = useLanguage();
-const modules = getCourseModules(language);
-const prompts = getWeeklyPrompts(language);
+let toolCallArgumentsBuffer = '';
+let toolCallName = '';
+let toolCallId = '';
 ```
 
-## Rezultat Așteptat
+2. **Modific logica de parsare** (linia 563-639):
+- În loc să parsez imediat `toolCall.function.arguments`, le adaug la buffer
+- Verific `finish_reason` pentru `'tool_calls'` sau `'stop'`
+- Parsez și salvez doar când stream-ul s-a terminat
 
-- Dacă utilizatorul are limba setată pe **RO** → tot conținutul apare în română
-- Dacă utilizatorul are limba setată pe **EN** → tot conținutul apare în engleză
-- Schimbarea limbii din LanguageSelector → actualizează instant tot conținutul
+3. **Adaug salvare și după loop** (linia ~667):
+```typescript
+// După while loop - verifică dacă avem date nesalvate în buffer
+if (toolCallName === 'save_planning' && toolCallArgumentsBuffer) {
+  // ... parsare și salvare
+}
+```
+
+## Schimbări Detaliate
+
+### DoorPlanningModal.tsx - Secțiunea de streaming (~liniile 538-668)
+
+**Pas 1**: Adaug variabile buffer înainte de loop
+**Pas 2**: La `parsed.choices?.[0]?.delta?.tool_calls`, acumulez în loc să parsez
+**Pas 3**: La `parsed.choices?.[0]?.finish_reason === 'tool_calls'` SAU după loop, parsez bufferul și salvez
+
+## Verificare Model AI
+
+Modelul `google/gemini-2.5-flash` este corect - este un model rapid și capabil. Problema nu era inteligența AI-ului, ci bug-ul de streaming în frontend.
+
+## Beneficii După Fix
+
+- ✅ Planuri complete cu toate 4 cheile se salvează corect
+- ✅ Funcționează pe mobil și desktop
+- ✅ Nu mai pierzi munca ta din conversația cu AI-ul
+- ✅ Pașii sunt adăugați corect în HIT/DO lists
+
+## Prioritate
+
+**CRITICĂ** - Acest bug blochează funcționalitatea principală a platformei.
