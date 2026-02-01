@@ -6,7 +6,7 @@ import { getActiveWeekKey, isSundayPlanningDay } from '@/utils/weekUtils';
 export function useDoorDate() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentDateRange, setCurrentDateRange] = useState('');
-  const [currentWeekKey, setCurrentWeekKey] = useState('');
+  const [currentWeekKey, setCurrentWeekKey] = useState(() => getActiveWeekKey(new Date()));
   const [activeDay, setActiveDay] = useState<DayOfWeek>(getCurrentDayOfWeek());
   const [isPlanningMode, setIsPlanningMode] = useState(false);
 
