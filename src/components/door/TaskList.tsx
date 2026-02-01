@@ -27,6 +27,7 @@ interface TaskListProps {
   isDragOver?: boolean;
   onDragOver?: (e: React.DragEvent) => void;
   onDrop?: (e: React.DragEvent) => void;
+  weekKey?: string;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({
@@ -48,7 +49,8 @@ export const TaskList: React.FC<TaskListProps> = ({
   onTasksAdded,
   isDragOver: propIsDragOver,
   onDragOver: propOnDragOver,
-  onDrop: propOnDrop
+  onDrop: propOnDrop,
+  weekKey = ''
 }) => {
   const [localIsDragOver, setLocalIsDragOver] = useState(false);
   const [showDropSuccess, setShowDropSuccess] = useState(false);
@@ -205,7 +207,7 @@ export const TaskList: React.FC<TaskListProps> = ({
               )
             ))
           ) : (
-            <EmptyTaskList activeList="hit" isMobile={isMobile} onTasksAdded={onTasksAdded} />
+            <EmptyTaskList activeList="hit" isMobile={isMobile} onTasksAdded={onTasksAdded} weekKey={weekKey} activeDay={activeDay} />
           )
         ) : (
           filteredDoList.length > 0 ? (
@@ -236,7 +238,7 @@ export const TaskList: React.FC<TaskListProps> = ({
               )
             ))
           ) : (
-            <EmptyTaskList activeList="do" isMobile={isMobile} onTasksAdded={onTasksAdded} />
+            <EmptyTaskList activeList="do" isMobile={isMobile} onTasksAdded={onTasksAdded} weekKey={weekKey} activeDay={activeDay} />
           )
         )}
       </div>

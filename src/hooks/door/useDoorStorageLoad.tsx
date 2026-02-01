@@ -61,14 +61,19 @@ export function useDoorStorageLoad() {
           });
 
           // Map key points from plan with full metadata - preserve ALL 4 key points
+          // IMPORTANT: Always use index-based IDs (key1-key4) to prevent duplicate key warnings
           const mappedKeyPoints: DominoKeyPoint[] = [];
           for (let i = 0; i < 4; i++) {
             const kp = plan.keyPoints[i];
-            if (kp) {
+            // Always use deterministic index-based ID, not kp.id from database
+            const keyPointId = `key${i + 1}`;
+            
+            if (kp && kp.title) {
               mappedKeyPoints.push({
-                id: kp.id ? `key${kp.id}` : `key${i + 1}`,
+                id: keyPointId,
                 text: kp.title || '',
                 completed: false,
+                isContinued: kp.isContinued || false,
                 metadata: {
                   objective: kp.objective || '',
                   why: kp.why || '',
@@ -80,9 +85,9 @@ export function useDoorStorageLoad() {
                 },
               });
             } else {
-              // Empty key point
+              // Empty key point slot
               mappedKeyPoints.push({
-                id: `key${i + 1}`,
+                id: keyPointId,
                 text: '',
                 completed: false,
               });

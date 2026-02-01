@@ -403,12 +403,51 @@ export const useDailyHabits = (date: Date = new Date()) => {
     );
   }, []);
 
+  // Add habit from a goal/mission (used by Goal Wizard integration)
+  const addHabitFromGoal = useCallback(async (
+    name: string,
+    category: HabitCategory,
+    icon: string = 'target',
+    sourceMissionId?: string
+  ): Promise<DailyHabit | null> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    // Get max position
+    const maxPosition = habits.length > 0 
+      ? Math.max(...habits.map(h => h.position || 0)) 
+      : 0;
+
+    const { data, error } = await supabase
+      .from('daily_habits')
+      .insert({
+        user_id: user.id,
+        name,
+        category,
+        habit_group: 'custom' as HabitGroup,
+        icon,
+        is_active: true,
+        position: maxPosition + 1,
+        source_mission_id: sourceMissionId || null,
+        sync_to_routine: true
+      })
+      .select()
+      .single();
+
+    if (!error && data) {
+      setHabits(prev => [...prev, data as DailyHabit]);
+      return data as DailyHabit;
+    }
+    return null;
+  }, [habits]);
+
   return {
     habits,
     completions,
     isLoading,
     toggleHabit,
     addHabit,
+    addHabitFromGoal,
     updateHabit,
     deleteHabit,
     isHabitCompleted,

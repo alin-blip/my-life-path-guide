@@ -24,7 +24,7 @@ import { DivineGratitudeStack } from '@/components/stack/divine-gratitude/Divine
 import { PathToSuccessStack } from '@/components/stack/path-to-success';
 import { StorytellingStack } from '@/components/content-creation/StorytellingStack';
 import { HeroJourneyStack } from '@/components/content-creation/HeroJourneyStack';
-import { getWeek } from 'date-fns';
+import { getActiveWeekKey } from '@/utils/weekUtils';
 
 const CoachingPage = () => {
   const [activeTab, setActiveTab] = useState<string>("power-stacks");
@@ -265,8 +265,8 @@ const CoachingPage = () => {
       
       // Save to database with better error handling
       try {
-        const now = new Date();
-        const currentWeekKey = `door-week-${now.getFullYear()}-${getWeek(now)}`;
+        // Use centralized utility that respects Sunday planning logic
+        const currentWeekKey = getActiveWeekKey();
         
         if (import.meta.env.DEV) {
           console.log("💾 Saving to database with week key:", currentWeekKey);

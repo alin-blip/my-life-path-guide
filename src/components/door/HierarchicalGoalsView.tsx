@@ -30,6 +30,7 @@ import {
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { getActiveWeekKey } from '@/utils/weekUtils';
 import { cn } from '@/lib/utils';
 
 interface LinkedMission {
@@ -410,9 +411,8 @@ export const HierarchicalGoalsView: React.FC<HierarchicalGoalsViewProps> = ({
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) return;
 
-      // Get current week key
-      const now = new Date();
-      const weekKey = `door-week-${now.getFullYear()}-${String(Math.ceil((now.getDate() + new Date(now.getFullYear(), now.getMonth(), 1).getDay()) / 7)).padStart(2, '0')}`;
+      // Get current week key using centralized utility (respects Sunday planning)
+      const weekKey = getActiveWeekKey();
 
       // Check if task already exists
       const { data: existingTask } = await supabase
