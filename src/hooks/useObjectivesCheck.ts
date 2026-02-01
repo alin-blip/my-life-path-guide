@@ -49,16 +49,40 @@ export const useObjectivesCheck = () => {
           return;
         }
 
-        const { data: missions, error } = await supabase
-          .from('missions')
-          .select('*')
-          .eq('user_id', user.id);
+        // Calculate current periods
+        const now = new Date();
+        const currentYear = now.getFullYear().toString();
 
-        if (error) throw error;
+        // Fetch missions filtered by current period for each type
+        const [annualResult, quarterlyResult, monthlyResult] = await Promise.all([
+          supabase
+            .from('missions')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('mission_type', 'annual')
+            .eq('period', currentYear),
+          supabase
+            .from('missions')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('mission_type', 'quarterly')
+            .like('period', `%${currentYear}%`),
+          supabase
+            .from('missions')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('mission_type', 'monthly')
+            .like('period', `${currentYear}-%`)
+        ]);
 
-        const annual = missions?.filter(m => m.mission_type === 'annual') || [];
-        const quarterly = missions?.filter(m => m.mission_type === 'quarterly') || [];
-        const monthly = missions?.filter(m => m.mission_type === 'monthly') || [];
+        if (annualResult.error) throw annualResult.error;
+        if (quarterlyResult.error) throw quarterlyResult.error;
+        if (monthlyResult.error) throw monthlyResult.error;
+
+        const annual = annualResult.data || [];
+        const quarterly = quarterlyResult.data || [];
+        const monthly = monthlyResult.data || [];
+        const missions = [...annual, ...quarterly, ...monthly];
 
         // Group by category
         const objectivesByCategory: ObjectivesByCategory = {
