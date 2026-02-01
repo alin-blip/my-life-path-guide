@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Input } from '@/components/ui/input';
@@ -6,19 +5,23 @@ import { Button } from '@/components/ui/button';
 import { Plus, Loader2, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
-import { getWeekKey, getTodayAbbrev } from '@/utils/weekUtils';
 import { toast } from '@/hooks/use-toast';
+import { DayOfWeek } from '@/types/door';
 
 interface EmptyTaskListProps {
   activeList: 'hit' | 'do';
   isMobile?: boolean;
   onTasksAdded?: () => void;
+  weekKey: string;
+  activeDay: DayOfWeek;
 }
 
 export const EmptyTaskList: React.FC<EmptyTaskListProps> = ({
   activeList,
   isMobile = false,
-  onTasksAdded
+  onTasksAdded,
+  weekKey,
+  activeDay
 }) => {
   const { t, language } = useLanguage();
   const [priorities, setPriorities] = useState<string[]>(['', '', '', '']);
@@ -46,9 +49,6 @@ export const EmptyTaskList: React.FC<EmptyTaskListProps> = ({
         return;
       }
 
-      const weekKey = getWeekKey();
-      const todayAbbrev = getTodayAbbrev();
-
       // Priority levels: 3 = urgent-important, 2 = important, 1 = urgent, 0 = none
       const tasksToInsert = validPriorities.map((title, index) => ({
         id: uuidv4(),
@@ -57,10 +57,10 @@ export const EmptyTaskList: React.FC<EmptyTaskListProps> = ({
         task_type: activeList,
         list_type: activeList,
         week_key: weekKey,
-        day_of_week: todayAbbrev,
+        day_of_week: activeDay,
         completed: false,
         position: index,
-        priority: index === 0 ? 3 : index === 1 ? 2 : 0
+        priority: index === 0 ? 3 : index === 1 ? 2 : index === 2 ? 1 : 0
       }));
 
       const { error } = await supabase
@@ -78,8 +78,8 @@ export const EmptyTaskList: React.FC<EmptyTaskListProps> = ({
 
       setPriorities(['', '', '', '']);
       setShowInputs(false);
-      onTasksAdded?.();
-    } catch (error) {
+      await onTasksAdded?.();
+    } catch (error: any) {
       console.error('Error adding priorities:', error);
       toast({
         title: language === 'en' ? 'Error' : 'Eroare',

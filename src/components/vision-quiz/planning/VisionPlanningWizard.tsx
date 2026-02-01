@@ -7,8 +7,10 @@ import { MembershipOfferStack } from './MembershipOfferStack';
 import { QuizCategory } from '../quizData';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { HabitCreationDialog } from '@/components/goal-wizard/HabitCreationDialog';
+import { DominoCreationDialog } from '@/components/goal-wizard/DominoCreationDialog';
 
-export type PlanningStep = 'annual' | 'quarterly' | 'monthly' | 'summary' | 'offer';
+export type PlanningStep = 'annual' | 'quarterly' | 'monthly' | 'integration' | 'summary' | 'offer';
 
 export interface PlanningAnswers {
   annual: Record<string, string>;
@@ -40,6 +42,10 @@ export const VisionPlanningWizard: React.FC<VisionPlanningWizardProps> = ({
     quarterly?: string;
     monthly?: string;
   }>({});
+  
+  // Integration dialog states
+  const [showHabitDialog, setShowHabitDialog] = useState(false);
+  const [showDominoDialog, setShowDominoDialog] = useState(false);
 
   const handleAnnualComplete = async (annualAnswers: Record<string, string>) => {
     setAnswers(prev => ({ ...prev, annual: annualAnswers }));
@@ -151,8 +157,27 @@ export const VisionPlanningWizard: React.FC<VisionPlanningWizardProps> = ({
       console.error('Error saving monthly mission:', err);
     }
     
+    // After saving monthly mission, show integration dialog based on category
+    setCurrentStep('integration');
+  };
+
+  const handleIntegrationComplete = () => {
     setCurrentStep('summary');
   };
+
+  // Trigger appropriate dialog when entering integration step
+  React.useEffect(() => {
+    if (currentStep === 'integration') {
+      if (lowestCategory === 'business') {
+        setShowDominoDialog(true);
+      } else if (['body', 'being', 'balance'].includes(lowestCategory)) {
+        setShowHabitDialog(true);
+      } else {
+        // Unknown category, skip to summary
+        setCurrentStep('summary');
+      }
+    }
+  }, [currentStep, lowestCategory]);
 
   const handleSummaryComplete = () => {
     setCurrentStep('offer');
@@ -184,6 +209,41 @@ export const VisionPlanningWizard: React.FC<VisionPlanningWizardProps> = ({
           onComplete={handleMonthlyComplete}
           onBack={() => setCurrentStep('quarterly')}
         />
+      )}
+      
+      {currentStep === 'integration' && (
+        <>
+          {/* Integration dialogs render here but step shows loading */}
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                {language === 'en' ? 'Setting up your system...' : 'Configurăm sistemul tău...'}
+              </p>
+            </div>
+          </div>
+          
+          {/* Habit Dialog for Body/Being/Balance */}
+          <HabitCreationDialog
+            isOpen={showHabitDialog}
+            onClose={() => setShowHabitDialog(false)}
+            category={lowestCategory as 'body' | 'being' | 'balance'}
+            monthlyGoal={answers.monthly.monthly_focus || ''}
+            missionId={savedMissionIds.monthly}
+            language={language}
+            onComplete={handleIntegrationComplete}
+          />
+          
+          {/* Domino Dialog for Business */}
+          <DominoCreationDialog
+            isOpen={showDominoDialog}
+            onClose={() => setShowDominoDialog(false)}
+            annualGoal={answers.annual.main_goal || ''}
+            monthlyGoal={answers.monthly.monthly_focus || ''}
+            language={language}
+            onComplete={handleIntegrationComplete}
+          />
+        </>
       )}
       
       {currentStep === 'summary' && (

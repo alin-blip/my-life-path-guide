@@ -479,6 +479,7 @@ export const WeeklyTab: React.FC = () => {
                     moveTaskBackToHotList={moveTaskBackToHotList}
                     isMobile={isMobile}
                     onTasksAdded={refreshLists}
+                    weekKey={currentWeekKey}
                   />
                 </div>
               )}
@@ -556,6 +557,7 @@ export const WeeklyTab: React.FC = () => {
                 moveTaskBackToHotList={moveTaskBackToHotList}
                 isMobile={false}
                 onTasksAdded={refreshLists}
+                weekKey={currentWeekKey}
               />
             </div>
           </div>

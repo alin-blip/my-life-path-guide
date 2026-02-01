@@ -1854,6 +1854,8 @@ export type Database = {
           is_active: boolean | null
           name: string
           position: number | null
+          source_mission_id: string | null
+          sync_to_routine: boolean | null
           updated_at: string | null
           user_id: string
         }
@@ -1866,6 +1868,8 @@ export type Database = {
           is_active?: boolean | null
           name: string
           position?: number | null
+          source_mission_id?: string | null
+          sync_to_routine?: boolean | null
           updated_at?: string | null
           user_id: string
         }
@@ -1878,10 +1882,20 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           position?: number | null
+          source_mission_id?: string | null
+          sync_to_routine?: boolean | null
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "daily_habits_source_mission_id_fkey"
+            columns: ["source_mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       daily_progress: {
         Row: {
