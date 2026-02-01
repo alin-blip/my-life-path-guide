@@ -38,6 +38,20 @@ export const EmptyTaskList: React.FC<EmptyTaskListProps> = ({
     const validPriorities = priorities.filter(p => p.trim());
     if (validPriorities.length === 0) return;
 
+    // Validare week key înainte de insert
+    if (!weekKey || weekKey.trim() === '') {
+      console.error('❌ Cannot add tasks: weekKey is empty!', { weekKey, activeDay });
+      toast({
+        title: language === 'en' ? 'Loading...' : 'Se încarcă...',
+        description: language === 'en' 
+          ? 'Week data is loading. Please wait a moment and try again.' 
+          : 'Datele săptămânii se încarcă. Te rog așteaptă un moment.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    console.log('✅ Adding priorities to:', { weekKey, activeDay });
     setIsAdding(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -182,7 +196,7 @@ export const EmptyTaskList: React.FC<EmptyTaskListProps> = ({
         <Button
           size="sm"
           onClick={handleAddPriorities}
-          disabled={!hasAnyPriority || isAdding}
+          disabled={!hasAnyPriority || isAdding || !weekKey}
           className="gap-2"
         >
           {isAdding ? (
