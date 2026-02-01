@@ -328,38 +328,65 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
 
     console.log('Sending request to Lovable AI...');
     
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-pro',
-        messages: aiMessages,
-        tools: tools,
-        tool_choice: 'auto',
-        stream: true,
-      }),
-    });
-
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limits exceeded, please try again later.' }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // Retry logic for transient failures
+    let response: Response | null = null;
+    let lastError: string = '';
+    
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        console.log(`Attempt ${attempt}/3...`);
+        response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: aiMessages,
+            tools: tools,
+            tool_choice: 'auto',
+            stream: true,
+          }),
         });
+        
+        if (response.ok) {
+          break;
+        }
+        
+        if (response.status === 429) {
+          return new Response(JSON.stringify({ error: 'Rate limits exceeded, please try again later.' }), {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        if (response.status === 402) {
+          return new Response(JSON.stringify({ error: 'Payment required, please add funds to your Lovable AI workspace.' }), {
+            status: 402,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        lastError = await response.text();
+        console.error(`Attempt ${attempt} failed:`, response.status, lastError);
+        
+        // Wait before retry (exponential backoff)
+        if (attempt < 3) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+      } catch (fetchError) {
+        console.error(`Attempt ${attempt} network error:`, fetchError);
+        lastError = fetchError instanceof Error ? fetchError.message : 'Network error';
+        if (attempt < 3) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'Payment required, please add funds to your Lovable AI workspace.' }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      const errorText = await response.text();
-      console.error('AI gateway error:', response.status, errorText);
-      return new Response(JSON.stringify({ error: 'AI gateway error' }), {
-        status: 500,
+    }
+    
+    if (!response || !response.ok) {
+      console.error('All retry attempts failed:', lastError);
+      return new Response(JSON.stringify({ error: 'AI gateway temporarily unavailable. Please try again.' }), {
+        status: 503,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
