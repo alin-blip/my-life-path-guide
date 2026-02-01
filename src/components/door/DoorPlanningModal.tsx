@@ -539,10 +539,96 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     let buffer = '';
     let currentAssistantMessage = '';
     let hasStartedAssistantMessage = false;
+    
+    // Tool call buffering - accumulate arguments until stream ends
+    let toolCallArgumentsBuffer = '';
+    let toolCallName = '';
+
+    const processSavePlanning = async () => {
+      if (toolCallName !== 'save_planning' || !toolCallArgumentsBuffer) return;
+      
+      try {
+        const planningData = JSON.parse(toolCallArgumentsBuffer);
+        
+        console.log('📝 Planning data received from AI:', planningData);
+        
+        // Save to database with category
+        const saveSuccess = await weeklyPlanningService.savePlan({
+          weekKey: currentWeekKey,
+          dominoTitle: planningData.dominoTitle,
+          weekGoal: planningData.weekGoal,
+          keyPoints: planningData.keyPoints,
+          category: selectedDomain,
+        });
+        
+        if (saveSuccess) {
+          console.log('✅ Planning saved successfully to database');
+          
+          // Add steps to daily tasks with domain category
+          let stepsAdded = 0;
+          for (const keyPoint of planningData.keyPoints || []) {
+            for (const step of keyPoint.steps || []) {
+              const stepText = typeof step === 'string' ? step : step.text;
+              const stepDay = typeof step === 'object' ? step.day : null;
+              const stepListType = typeof step === 'object' ? step.listType : 'do';
+              
+              if (stepText && stepDay) {
+                try {
+                  await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
+                    id: uuidv4(),
+                    text: `[${domainConfig?.labelRo || selectedDomain}] ${stepText}`,
+                    category: stepListType as 'hit' | 'do',
+                    priority: 'important',
+                    day: stepDay as DayOfWeek
+                  });
+                  stepsAdded++;
+                } catch (stepError) {
+                  console.error('Error adding step to tasks:', stepError);
+                }
+              }
+            }
+          }
+          
+          console.log(`📋 Total ${stepsAdded} steps added to daily tasks`);
+          
+          // Clear draft
+          localStorage.removeItem(draftKey);
+          await weeklyPlanningDraftService.deleteDraft(currentWeekKey, selectedDomain);
+          
+          toast({
+            title: 'Plan salvat cu succes!',
+            description: stepsAdded > 0 
+              ? `Planul ${domainConfig?.labelRo} și ${stepsAdded} pași au fost adăugați.`
+              : `Planul ${domainConfig?.labelRo} a fost salvat.`,
+          });
+          
+          // Trigger continue flow
+          handlePlanningComplete(planningData);
+        } else {
+          console.error('❌ Failed to save planning to database');
+          toast({
+            title: 'Eroare la salvare',
+            description: 'Planul nu a putut fi salvat. Încearcă din nou.',
+            variant: 'destructive',
+          });
+        }
+      } catch (e) {
+        console.error('❌ Error parsing or saving planning data:', e, 'Buffer:', toolCallArgumentsBuffer.substring(0, 200));
+        toast({
+          title: 'Eroare la procesare',
+          description: 'A apărut o eroare la parsarea datelor. Datele rămân în draft.',
+          variant: 'destructive',
+        });
+      }
+    };
 
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {
+        // Stream finished - process any buffered tool call
+        await processSavePlanning();
+        break;
+      }
 
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split('\n');
@@ -554,89 +640,36 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
         if (!line.startsWith('data: ')) continue;
 
         const data = line.slice(6).trim();
-        if (data === '[DONE]') continue;
+        if (data === '[DONE]') {
+          // Stream finished via [DONE] marker - process buffered tool call
+          await processSavePlanning();
+          continue;
+        }
 
         try {
           const parsed = JSON.parse(data);
           
-          // Check for tool calls (structured output)
+          // Check for tool calls (structured output) - ACCUMULATE instead of parse immediately
           if (parsed.choices?.[0]?.delta?.tool_calls) {
             const toolCall = parsed.choices[0].delta.tool_calls[0];
-            if (toolCall?.function?.name === 'save_planning' && toolCall?.function?.arguments) {
-              try {
-                const planningData = JSON.parse(toolCall.function.arguments);
-                
-                console.log('📝 Planning data received from AI:', planningData);
-                
-                // Save to database with category
-                const saveSuccess = await weeklyPlanningService.savePlan({
-                  weekKey: currentWeekKey,
-                  dominoTitle: planningData.dominoTitle,
-                  weekGoal: planningData.weekGoal,
-                  keyPoints: planningData.keyPoints,
-                  category: selectedDomain,
-                });
-                
-                if (saveSuccess) {
-                  console.log('✅ Planning saved successfully to database');
-                  
-                  // Add steps to daily tasks with domain category
-                  let stepsAdded = 0;
-                  for (const keyPoint of planningData.keyPoints || []) {
-                    for (const step of keyPoint.steps || []) {
-                      const stepText = typeof step === 'string' ? step : step.text;
-                      const stepDay = typeof step === 'object' ? step.day : null;
-                      const stepListType = typeof step === 'object' ? step.listType : 'do';
-                      
-                      if (stepText && stepDay) {
-                        try {
-                          await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
-                            id: uuidv4(),
-                            text: `[${domainConfig?.labelRo || selectedDomain}] ${stepText}`,
-                            category: stepListType as 'hit' | 'do',
-                            priority: 'important',
-                            day: stepDay as DayOfWeek
-                          });
-                          stepsAdded++;
-                        } catch (stepError) {
-                          console.error('Error adding step to tasks:', stepError);
-                        }
-                      }
-                    }
-                  }
-                  
-                  console.log(`📋 Total ${stepsAdded} steps added to daily tasks`);
-                  
-                  // Clear draft
-                  localStorage.removeItem(draftKey);
-                  await weeklyPlanningDraftService.deleteDraft(currentWeekKey, selectedDomain);
-                  
-                  toast({
-                    title: 'Plan salvat cu succes!',
-                    description: stepsAdded > 0 
-                      ? `Planul ${domainConfig?.labelRo} și ${stepsAdded} pași au fost adăugați.`
-                      : `Planul ${domainConfig?.labelRo} a fost salvat.`,
-                  });
-                  
-                  // Trigger continue flow
-                  handlePlanningComplete(planningData);
-                } else {
-                  console.error('❌ Failed to save planning to database');
-                  toast({
-                    title: 'Eroare la salvare',
-                    description: 'Planul nu a putut fi salvat. Încearcă din nou.',
-                    variant: 'destructive',
-                  });
-                }
-              } catch (e) {
-                console.error('❌ Error parsing or saving planning data:', e);
-                toast({
-                  title: 'Eroare la procesare',
-                  description: 'A apărut o eroare. Datele rămân în draft.',
-                  variant: 'destructive',
-                });
-              }
+            
+            // Capture tool name when it appears
+            if (toolCall?.function?.name) {
+              toolCallName = toolCall.function.name;
+              console.log('🔧 Tool call detected:', toolCallName);
             }
+            
+            // ACCUMULATE arguments - don't parse yet!
+            if (toolCall?.function?.arguments) {
+              toolCallArgumentsBuffer += toolCall.function.arguments;
+            }
+          }
+          
+          // Check for finish_reason indicating tool call is complete
+          const finishReason = parsed.choices?.[0]?.finish_reason;
+          if (finishReason === 'tool_calls' || finishReason === 'stop') {
+            console.log('✅ Stream finish_reason:', finishReason, '- processing buffered tool call');
+            await processSavePlanning();
           }
 
           // Regular content streaming
@@ -661,7 +694,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
             }
           }
         } catch (e) {
-          // Ignore parse errors for incomplete JSON
+          // Ignore parse errors for incomplete JSON chunks
         }
       }
     }
