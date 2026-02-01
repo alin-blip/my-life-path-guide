@@ -1,161 +1,95 @@
 
-# Plan: Pagina Tools + Integrare Framework-uri de Storytelling
+# Plan: Rezolvare Discrepanță Obiective Anuale
 
 ## Problema Identificată
 
-| Problemă | Cauză |
-|----------|-------|
-| `/tools` dă 404 | Ruta nu există în App.tsx - doar în meniu |
-| Storytelling Framework nu e accesibil | Componenta există dar nu e integrată |
-| Hero's Journey nu e accesibil | Componenta există dar nu e integrată |
-| Path to Success funcționează | Este în Stack.tsx dar necesită URL direct |
+Am găsit cauza exactă a problemei din baza de date:
 
-## Soluția
+| Locație | Ce Afișează | Perioada |
+|---------|-------------|----------|
+| Modal "Plan Next Week" | "2 case transformate în 12 unități..." | **2025** (obiectiv vechi) |
+| "Viziune Anuală" | "1000 de studenți înrolați Eduforyou" | **2026** (obiectiv curent) |
 
-### 1. Crearea paginii `/tools` - Tools.tsx
-
-O pagină dedicată care listează toate tool-urile AI disponibile în formă de carduri:
+### Cauza Tehnică
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
-│  🛠️ AI Tools & Frameworks                                       │
-│  Unelte AI pentru transformare și creație de conținut           │
-├─────────────────────────────────────────────────────────────────┤
+│  AnnualVisionTab.tsx                                            │
+│  ✓ CORECT - Filtrează după anul curent                          │
 │                                                                 │
-│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐    │
-│  │ 📖 Storytelling │ │ 🗺️ Hero's      │ │ 🏔️ Path to     │    │
-│  │ Framework       │ │ Journey         │ │ Success         │    │
-│  │                 │ │                 │ │                 │    │
-│  │ 7 Elemente ale  │ │ 7 Etape ale     │ │ 7 Pași spre     │    │
-│  │ unei povești    │ │ călătoriei      │ │ transformare    │    │
-│  │ captivante      │ │ eroului         │ │ totală          │    │
-│  │                 │ │                 │ │                 │    │
-│  │  [Deschide →]   │ │  [Deschide →]   │ │  [Deschide →]   │    │
-│  └─────────────────┘ └─────────────────┘ └─────────────────┘    │
+│  .eq('mission_type', 'annual')                                  │
+│  .eq('period', '2026')   ← Afișează doar obiectivele din 2026   │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  useObjectivesCheck.ts                                          │
+│  ✗ PROBLEMĂ - NU filtrează după an                              │
 │                                                                 │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │ 📂 Alte unelte existente:                                 │  │
-│  │ Lifebook • Vibe Canvas • Vision Board • Focus Room        │  │
-│  │ Journal • Notes • Time Tracker • Emotional Tracker        │  │
-│  └───────────────────────────────────────────────────────────┘  │
+│  .eq('user_id', user.id)  ← Preia TOATE obiectivele (2025+2026) │
 │                                                                 │
+│  Rezultat: catData.annual conține obiective din AMBII ani       │
+│  → Afișează primul găsit, care poate fi din 2025                │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 2. Integrarea în Stack.tsx
+### Date din Bază de Date
 
-Adăugarea Storytelling și Hero's Journey în switch-ul din `renderActiveStack()`:
+Pentru categoria **Business**, există multiple obiective anuale:
+
+| ID | Perioadă | Titlu | Status |
+|----|----------|-------|--------|
+| 66636d80... | 2026 | "1000 de studenți înrolați Eduforyou - Recucerire piata" | ✓ Curent |
+| 852e2b50... | 2026 | "Business" | Alt utilizator |
+| acf16b8d... | **2025** | "2 case transformate în 12 unități..." | ← Acest apare în modal |
+
+## Soluția
+
+### Modificare în `src/hooks/useObjectivesCheck.ts`
+
+Adaug filtrare pe perioada curentă pentru fiecare tip de obiectiv:
 
 ```typescript
-case "storytelling":
-  return <StorytellingStack language={language} onAddToHitList={stackProps.onAddToHitList} />;
-case "hero-journey":
-  return <HeroJourneyStack language={language} onAddToHitList={stackProps.onAddToHitList} />;
+// Calculez perioadele curente
+const currentYear = new Date().getFullYear().toString();
+const currentQuarter = `Q${Math.ceil((new Date().getMonth() + 1) / 3)}-${currentYear}`;
+const currentMonth = `${currentYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+// Query-uri separate pentru fiecare tip
+const [annualData, quarterlyData, monthlyData] = await Promise.all([
+  supabase
+    .from('missions')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('mission_type', 'annual')
+    .eq('period', currentYear),
+  supabase
+    .from('missions')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('mission_type', 'quarterly')
+    .like('period', `%${currentYear}%`),
+  supabase
+    .from('missions')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('mission_type', 'monthly')
+    .like('period', `${currentYear}-%`)
+]);
 ```
-
-### 3. Adăugarea rutei în App.tsx
-
-```typescript
-const Tools = lazy(() => import("./pages/Tools"));
-
-// În Routes:
-<Route path="/tools" element={
-  <ProtectedRoute>
-    <Tools />
-  </ProtectedRoute>
-} />
-```
-
-## Fișiere de Creat
-
-| Fișier | Descriere |
-|--------|-----------|
-| `src/pages/Tools.tsx` | Pagina principală pentru AI Tools cu carduri interactive |
 
 ## Fișiere de Modificat
 
 | Fișier | Modificare |
 |--------|------------|
-| `src/App.tsx` | Adaugă ruta `/tools` și lazy import |
-| `src/pages/Stack.tsx` | Adaugă case-uri pentru `storytelling` și `hero-journey` |
-
-## Detalii Tehnice
-
-### Tools.tsx - Structura Paginii
-
-```typescript
-// Categorii de tools
-const aiFrameworks = [
-  {
-    id: 'storytelling',
-    name: 'Storytelling Framework',
-    description: '7 Elemente ale unei Povești Captivante',
-    icon: BookOpen,
-    color: 'purple',
-    path: '/stack?type=storytelling'
-  },
-  {
-    id: 'hero-journey',
-    name: "Hero's Journey",
-    description: '7 Etape ale Călătoriei Eroului (Joseph Campbell)',
-    icon: Compass,
-    color: 'cyan',
-    path: '/stack?type=hero-journey'
-  },
-  {
-    id: 'path-to-success',
-    name: 'Calea spre Succes',
-    description: '7 Pași pentru Transformare Totală (Tony Robbins)',
-    icon: Mountain,
-    color: 'amber',
-    path: '/stack?type=path-to-success'
-  }
-];
-
-const existingTools = [
-  { name: 'Lifebook', path: '/lifebook', icon: BookOpen },
-  { name: 'Vibe Canvas', path: '/vibe-canvas', icon: Palette },
-  { name: 'Vision Board', path: '/vision-board', icon: Sparkles },
-  // ... etc
-];
-```
-
-### Stack.tsx - Import și Switch Update
-
-```typescript
-// Importuri noi
-import { StorytellingStack } from '@/components/content-creation/StorytellingStack';
-import { HeroJourneyStack } from '@/components/content-creation/HeroJourneyStack';
-
-// În switch din renderActiveStack():
-case "storytelling":
-  return <StorytellingStack 
-    language={language} 
-    onComplete={(script) => {
-      toast({ title: "Script generat!", description: "Verifică scriptul și salvează-l." });
-    }}
-  />;
-case "hero-journey":
-  return <HeroJourneyStack 
-    language={language}
-    onComplete={(script) => {
-      toast({ title: "Script generat!", description: "Verifică scriptul și salvează-l." });
-    }}
-  />;
-```
-
-## URL-uri Finale
-
-| Tool | URL |
-|------|-----|
-| Tools Page | `/tools` |
-| Storytelling | `/stack?type=storytelling` |
-| Hero's Journey | `/stack?type=hero-journey` |
-| Path to Success | `/stack?type=path-to-success` |
+| `src/hooks/useObjectivesCheck.ts` | Adaug filtrare pe perioadele curente (2026) |
 
 ## Beneficii
 
-- **Un singur loc** pentru toate AI tools-urile
-- **Carduri vizuale** care arată clar ce face fiecare tool
-- **Navigare rapidă** între diferite framework-uri
-- **Extensibilitate** - ușor de adăugat noi tools în viitor
+- **Consistență**: Același obiectiv apare în toate locurile
+- **Relevanță**: Se afișează doar obiectivele din anul curent, nu cele vechi
+- **Prevenție**: Utilizatorii nu vor mai vedea obiective din trecut amestecate cu cele actuale
+- **Compatibilitate**: Lead magnet-urile noi nu vor mai "suprascrie" vizual obiectivele existente
+
+## Impact Minimal
+
+Această modificare afectează doar `SundayPlanningModal` (singurul component care folosește acest hook), asigurând că modalul afișează aceleași obiective ca și pagina Viziune Anuală.
