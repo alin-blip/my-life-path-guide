@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 interface Message {
@@ -385,8 +385,8 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
     
     if (!response || !response.ok) {
       console.error('All retry attempts failed:', lastError);
-      return new Response(JSON.stringify({ error: 'AI gateway temporarily unavailable. Please try again.' }), {
-        status: 503,
+      return new Response(JSON.stringify({ error: 'AI gateway error', details: lastError }), {
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
