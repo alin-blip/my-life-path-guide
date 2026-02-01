@@ -342,7 +342,7 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
+            model: 'google/gemini-2.5-pro',
             messages: aiMessages,
             tools: tools,
             tool_choice: 'auto',
