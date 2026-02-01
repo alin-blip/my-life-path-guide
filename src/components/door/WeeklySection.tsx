@@ -507,6 +507,7 @@ export const WeeklySection: React.FC = () => {
                     moveTaskBackToHotList={moveTaskBackToHotList}
                     isMobile={isMobile}
                     onTasksAdded={refreshLists}
+                    weekKey={currentWeekKey}
                   />
                 </div>
               )}
@@ -584,6 +585,7 @@ export const WeeklySection: React.FC = () => {
                 moveTaskBackToHotList={moveTaskBackToHotList}
                 isMobile={false}
                 onTasksAdded={refreshLists}
+                weekKey={currentWeekKey}
               />
             </div>
           </div>

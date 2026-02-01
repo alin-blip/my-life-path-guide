@@ -478,6 +478,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                     moveTaskBackToHotList={moveTaskBackToHotList}
                     isMobile={isMobile}
                     onTasksAdded={refreshLists}
+                    weekKey={currentWeekKey}
                   />
                 </div>
               )}
@@ -560,6 +561,7 @@ export const SimplifiedDoorContent: React.FC = () => {
                 moveTaskBackToHotList={moveTaskBackToHotList}
                 isMobile={false}
                 onTasksAdded={refreshLists}
+                weekKey={currentWeekKey}
               />
             </div>
           </div>
