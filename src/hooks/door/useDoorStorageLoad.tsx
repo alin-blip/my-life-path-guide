@@ -25,12 +25,20 @@ export function useDoorStorageLoad() {
   const loadSavedState = async (currentWeekKey: string, setters: LoadStateSetters) => {
     try {
       logStorageAction('Loading Door lists from Supabase', { weekKey: currentWeekKey });
+      console.log('🔄 [useDoorStorageLoad] Loading for week:', currentWeekKey);
 
       // Load global hot list (permanent inbox)
       const hotList = await doorUserTasksService.fetchGlobalHotList();
       
       // Load weekly hit/do lists
       const { hitList, doList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
+
+      console.log('✅ [useDoorStorageLoad] Loaded:', {
+        weekKey: currentWeekKey,
+        hotCount: hotList.length,
+        hitCount: hitList.length,
+        doCount: doList.length
+      });
 
       // Set hot/hit/do lists
       setters.setHotList(hotList);
