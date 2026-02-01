@@ -18,30 +18,35 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
   const [editingNewItem, setEditingNewItem] = useState(false);
   const { toast } = useToast();
 
-  // Load data from Supabase and set up real-time subscriptions
+  // NOTE: Data loading is now handled ONLY by useDoorStorage/useDoorStorageLoad
+  // This hook only manages state and provides CRUD operations
+  // The initial load and week-change reload happen in useDoorStorage.tsx
+  
+  // Set up real-time subscription for live updates (but NOT initial load)
   useEffect(() => {
     if (!currentWeekKey) return;
 
+    console.log('🔄 [useDoorLists] Setting up realtime for week:', currentWeekKey);
+
+    // Helper to reload data (used by realtime subscription)
     const loadData = async () => {
       try {
-        // Load global hot list (permanent inbox)
+        console.log('📥 [useDoorLists] Realtime reload for week:', currentWeekKey);
         const loadedHotList = await doorUserTasksService.fetchGlobalHotList();
-        
-        // Load weekly hit/do lists
         const { hitList: loadedHitList, doList: loadedDoList } = await doorUserTasksService.fetchWeekLists(currentWeekKey);
+        
+        console.log('✅ [useDoorLists] Realtime loaded:', {
+          weekKey: currentWeekKey,
+          hitCount: loadedHitList.length
+        });
         
         setHotList(loadedHotList);
         setHitList(loadedHitList);
         setDoList(loadedDoList);
       } catch (error) {
         console.error('Error loading Door data:', error);
-        setHotList([]);
-        setHitList([]);
-        setDoList([]);
       }
     };
-
-    loadData();
 
     // Set up real-time subscription with user_id filter to prevent false reloads
     const setupRealtime = async () => {
