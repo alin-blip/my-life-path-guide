@@ -1,95 +1,269 @@
 
-# Plan: Rezolvare Discrepanță Obiective Anuale
+# Plan: Decision Breakthrough Course + Learn Hub
 
-## Problema Identificată
+## Rezumat Executiv
 
-Am găsit cauza exactă a problemei din baza de date:
+Vom crea un **curs complet bazat pe Tony Robbins' Decision Breakthrough** cu text, audio, AI coach și integrare în Domino Door. Vom restructura secțiunea Learn pentru a deveni un hub de cursuri și vom crea un landing page pentru lead magnet.
 
-| Locație | Ce Afișează | Perioada |
-|---------|-------------|----------|
-| Modal "Plan Next Week" | "2 case transformate în 12 unități..." | **2025** (obiectiv vechi) |
-| "Viziune Anuală" | "1000 de studenți înrolați Eduforyou" | **2026** (obiectiv curent) |
+## Conținut Document Tony Robbins
 
-### Cauza Tehnică
+Documentul conține framework-ul **Decide → Commit → Resolve** în 4 săptămâni:
+
+| Săptămână | Focus | AI Prompt |
+|-----------|-------|-----------|
+| Week 1 | Identity & Vision | "Help me clarify who I am now versus who I need to become..." |
+| Week 2 | Anticipate Challenges | "Help me identify the fears, beliefs, and patterns..." |
+| Week 3 | Assess & Adjust | "Help me evaluate what's working, what's not..." |
+| Week 4 | Lock In Habits | "Help me turn this momentum into daily habits..." |
+
+### Principii Cheie din Document:
+1. **Decision** = Cut off all other options (Latin: de-caedere)
+2. **Commitment** = Taking decision into the future with 2+ actions
+3. **Resolve** = Identity-level certainty, peace, effortless action
+4. **Rule**: "Never leave the site of a decision without taking action immediately"
+
+## Arhitectura Soluției
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
-│  AnnualVisionTab.tsx                                            │
-│  ✓ CORECT - Filtrează după anul curent                          │
-│                                                                 │
-│  .eq('mission_type', 'annual')                                  │
-│  .eq('period', '2026')   ← Afișează doar obiectivele din 2026   │
+│                    /learn - LEARN HUB                           │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐             │
+│  │ Think & Grow │ │ Decision     │ │ Viitoare     │             │
+│  │ Rich (Existent) │ Breakthrough│ │ Cursuri      │             │
+│  │              │ │ (NOU!)       │ │              │             │
+│  └──────────────┘ └──────────────┘ └──────────────┘             │
 └─────────────────────────────────────────────────────────────────┘
-
+                              │
+                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  useObjectivesCheck.ts                                          │
-│  ✗ PROBLEMĂ - NU filtrează după an                              │
+│           /learn/decision-breakthrough - CURS                   │
+├─────────────────────────────────────────────────────────────────┤
+│  Tabs: Citește | Ascultă | AI Coach | Implementează             │
 │                                                                 │
-│  .eq('user_id', user.id)  ← Preia TOATE obiectivele (2025+2026) │
-│                                                                 │
-│  Rezultat: catData.annual conține obiective din AMBII ani       │
-│  → Afișează primul găsit, care poate fi din 2025                │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │ CITEȘTE - Text structurat pe module:                        ││
+│  │ • Intro: The Creator's Playbook                             ││
+│  │ • Module 1: Mastering Invisible Forces                      ││
+│  │ • Module 2: Decide (Present Moment)                         ││
+│  │ • Module 3: Commit (Future Action)                          ││
+│  │ • Module 4: Resolve (Identity Certainty)                    ││
+│  │ • Week 1-4: Roadmap                                         ││
+│  └─────────────────────────────────────────────────────────────┘│
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │ ASCULTĂ - Buton TTS pentru fiecare secțiune (ElevenLabs)    ││
+│  └─────────────────────────────────────────────────────────────┘│
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │ AI COACH - Chat + Talk + Speak (ca Mind Coach)              ││
+│  │ • Prompturile din document pre-încărcate                    ││
+│  │ • Buton "Use This Prompt" pentru fiecare săptămână          ││
+│  └─────────────────────────────────────────────────────────────┘│
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │ IMPLEMENTEAZĂ - Integrare Domino Door                       ││
+│  │ • Transformă decizia în Domino (obiectivul săptămânii)      ││
+│  │ • 2 Commitments → Key Points                                ││
+│  │ • Resolve → Habit tracking                                  ││
+│  └─────────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Date din Bază de Date
+## Integrarea cu Domino Door
 
-Pentru categoria **Business**, există multiple obiective anuale:
+Framework-ul Tony Robbins se potrivește PERFECT cu Domino Door:
 
-| ID | Perioadă | Titlu | Status |
-|----|----------|-------|--------|
-| 66636d80... | 2026 | "1000 de studenți înrolați Eduforyou - Recucerire piata" | ✓ Curent |
-| 852e2b50... | 2026 | "Business" | Alt utilizator |
-| acf16b8d... | **2025** | "2 case transformate în 12 unități..." | ← Acest apare în modal |
-
-## Soluția
-
-### Modificare în `src/hooks/useObjectivesCheck.ts`
-
-Adaug filtrare pe perioada curentă pentru fiecare tip de obiectiv:
-
-```typescript
-// Calculez perioadele curente
-const currentYear = new Date().getFullYear().toString();
-const currentQuarter = `Q${Math.ceil((new Date().getMonth() + 1) / 3)}-${currentYear}`;
-const currentMonth = `${currentYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-
-// Query-uri separate pentru fiecare tip
-const [annualData, quarterlyData, monthlyData] = await Promise.all([
-  supabase
-    .from('missions')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('mission_type', 'annual')
-    .eq('period', currentYear),
-  supabase
-    .from('missions')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('mission_type', 'quarterly')
-    .like('period', `%${currentYear}%`),
-  supabase
-    .from('missions')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('mission_type', 'monthly')
-    .like('period', `${currentYear}-%`)
-]);
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  TONY ROBBINS               →      DOMINO DOOR                  │
+├─────────────────────────────────────────────────────────────────┤
+│  DECIDE (Cut off options)   →      Selectează Domino            │
+│                                    (1 singur focus săptămânal)  │
+│                                                                 │
+│  COMMIT (2+ actions)        →      4 Key Points                 │
+│                                    (acțiuni concrete)           │
+│                                                                 │
+│  RESOLVE (Identity)         →      Weekly Completion            │
+│                                    + Add to Habits              │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+## Fișiere de Creat
+
+| Fișier | Scop |
+|--------|------|
+| `src/pages/LearnHub.tsx` | Noul hub pentru cursuri (înlocuiește /learn curent) |
+| `src/pages/DecisionBreakthroughCourse.tsx` | Pagina cursului complet |
+| `src/components/learn/CourseTextReader.tsx` | Componentă pentru citit text + audio |
+| `src/components/learn/DecisionCoach.tsx` | AI Coach specific pentru Decision Breakthrough |
+| `src/components/learn/ImplementationTab.tsx` | Integrare cu Domino Door |
+| `src/pages/DecisionBreakthroughLanding.tsx` | Landing page pentru lead magnet |
+| `supabase/functions/decision-coach/index.ts` | Edge function pentru AI coach |
+| `src/data/decisionBreakthroughContent.ts` | Conținutul cursului structurat |
 
 ## Fișiere de Modificat
 
 | Fișier | Modificare |
 |--------|------------|
-| `src/hooks/useObjectivesCheck.ts` | Adaug filtrare pe perioadele curente (2026) |
+| `src/App.tsx` | Adaugă rute noi: `/learn` (hub), `/learn/decision-breakthrough`, `/decision-breakthrough-landing` |
+| `src/components/SideMenu.tsx` | Adaugă "Learn" în meniu lateral |
+| `supabase/config.toml` | Adaugă funcția `decision-coach` |
+
+## Structura Cursului în Cod
+
+```typescript
+// src/data/decisionBreakthroughContent.ts
+export const courseModules = [
+  {
+    id: 'intro',
+    title: "The Creator's Playbook",
+    content: `We are living through the most extraordinary moment...`,
+    aiPrompt: null,
+    duration: '3 min'
+  },
+  {
+    id: 'week-1',
+    title: 'Week 1: Build Your Foundation',
+    subtitle: 'Identity, Inner Work & Vision',
+    content: `...`,
+    aiPrompt: "Help me clarify who I am now versus who I need to become. What identity shift must I make to create real transformation across my life?",
+    duration: '15 min'
+  },
+  // ... more modules
+];
+```
+
+## AI Coach - Prompturi din Document
+
+```typescript
+const weeklyPrompts = [
+  {
+    week: 1,
+    title: 'Build Your Foundation',
+    prompt: "Help me clarify who I am now versus who I need to become. What identity shift must I make to create real transformation across my life?"
+  },
+  {
+    week: 2,
+    title: 'Anticipate Challenges',
+    prompt: "Help me identify the fears, beliefs, and patterns that will surface when resistance appears. Build a plan to stay empowered under pressure."
+  },
+  {
+    week: 3,
+    title: 'Assess & Adjust',
+    prompt: "Help me evaluate what's working, what's not, and what I can learn from setbacks. What adjustments will accelerate momentum?"
+  },
+  {
+    week: 4,
+    title: 'Lock In Habits',
+    prompt: "Help me turn this month's momentum into daily habits. What rituals will reinforce my new identity and sustain progress?"
+  }
+];
+```
+
+## Landing Page pentru Lead Magnet
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  /decision-breakthrough-landing                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  🎯 DECISION BREAKTHROUGH                                       │
+│  Sistemul în 3 Pași pentru a Lua Decizii Care Îți Schimbă Viața │
+│                                                                 │
+│  "Așa cum Tony Robbins ne învață..."                           │
+│                                                                 │
+│  ✓ Framework: Decide → Commit → Resolve                         │
+│  ✓ 4 Săptămâni de Transformare Ghidată                          │
+│  ✓ AI Coach pentru Fiecare Etapă                                │
+│  ✓ Integrare cu Sistemul tău de Planificare                     │
+│                                                                 │
+│  [Începe GRATUIT - 3 Zile Trial]                                │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Side Menu Update
+
+```typescript
+// În SideMenu.tsx - după Stacks
+{
+  title: 'Learn',
+  icon: GraduationCap,  // sau BookOpen
+  path: '/learn',
+  badge: 'NEW'
+},
+```
+
+## Edge Function pentru Decision Coach
+
+```typescript
+// supabase/functions/decision-coach/index.ts
+// Similar cu mind-coach dar cu system prompt specific:
+
+const systemPrompt = `You are Tony Robbins' Decision Breakthrough Coach.
+
+Your role is to guide users through the 3-step decision process:
+1. DECIDE - Cut off all other options
+2. COMMIT - Take 2+ actions while in state
+3. RESOLVE - Reach identity-level certainty
+
+Key principles:
+- "Never leave the site of a decision without taking action immediately"
+- Commitment reaches into the future with emotional fuel
+- Resolve is peace, not pressure
+
+You have access to tools:
+- add_to_domino: Set user's weekly focus decision
+- add_key_point: Add commitment actions to Domino Door
+- add_habit: Lock in resolve as daily habit
+
+Guide users through their specific decisions using this framework.`;
+```
+
+## Flux Utilizator
+
+```text
+1. User accesează /learn
+   └→ Vede hub-ul cu cursurile disponibile
+
+2. Click pe "Decision Breakthrough"
+   └→ /learn/decision-breakthrough
+
+3. Navighează prin tabs:
+   ├→ Citește: Text structurat pe module
+   ├→ Ascultă: Play audio pentru fiecare secțiune
+   ├→ AI Coach: Conversație cu prompturi pregătite
+   └→ Implementează: 
+       ├→ Scrie decizia → devine Domino
+       ├→ Scrie 2 commitments → devin Key Points
+       └→ Definește resolve → devine Habit
+
+4. Utilizatorul are decizia integrată în Door-ul său săptămânal
+```
+
+## Migrare Database
+
+Nu e nevoie de tabele noi - folosim:
+- `weekly_planning` pentru Domino integration
+- `daily_habits` pentru Resolve → Habits
+- `user_tasks` pentru Key Points → HIT List
+- `email_leads` pentru lead magnet tracking
+
+## Prioritizare Implementare
+
+| Prioritate | Component | Timp Estimat |
+|------------|-----------|--------------|
+| 1 | Conținut curs (data file) | 30 min |
+| 2 | LearnHub.tsx + routing | 20 min |
+| 3 | DecisionBreakthroughCourse.tsx | 45 min |
+| 4 | CourseTextReader + TTS | 30 min |
+| 5 | DecisionCoach + Edge Function | 45 min |
+| 6 | ImplementationTab (Domino integration) | 30 min |
+| 7 | Landing Page | 30 min |
+| 8 | Side Menu update | 5 min |
 
 ## Beneficii
 
-- **Consistență**: Același obiectiv apare în toate locurile
-- **Relevanță**: Se afișează doar obiectivele din anul curent, nu cele vechi
-- **Prevenție**: Utilizatorii nu vor mai vedea obiective din trecut amestecate cu cele actuale
-- **Compatibilitate**: Lead magnet-urile noi nu vor mai "suprascrie" vizual obiectivele existente
-
-## Impact Minimal
-
-Această modificare afectează doar `SundayPlanningModal` (singurul component care folosește acest hook), asigurând că modalul afișează aceleași obiective ca și pagina Viziune Anuală.
+- **Educație + Execuție**: Nu doar citești, ci implementezi
+- **AI Personalizat**: Prompturile Tony Robbins adaptate la contextul tău
+- **Integrare Nativă**: Deciziile devin automat parte din planificarea săptămânală
+- **Lead Magnet Puternic**: Landing page cu valoare reală pentru achiziții
+- **Scalabilitate**: Structura permite adăugarea de noi cursuri în viitor
