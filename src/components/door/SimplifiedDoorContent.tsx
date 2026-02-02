@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDoor } from '@/context/DoorContext';
 import { useDoorUndo } from '@/hooks/useDoorUndo';
 import { useStreakTracking } from '@/hooks/useStreakTracking';
+import { useIdeaToTaskBridge } from '@/hooks/useIdeaToTaskBridge';
 import { DoorHeader } from '@/components/door/DoorHeader';
 import { HotList } from '@/components/door/HotList';
 import { DominoDoor } from '@/components/door/DominoDoor';
@@ -200,6 +201,13 @@ export const SimplifiedDoorContent: React.FC = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { language } = useLanguage();
+
+  // Idea-to-Task bridge for HotList callbacks
+  const { handleMoveIdeaToHit, handleMoveIdeaToDo } = useIdeaToTaskBridge(
+    currentWeekKey,
+    activeDay,
+    refreshLists
+  );
   
   // Streak tracking
   const { streakData, updateDailyProgress } = useStreakTracking();
@@ -428,6 +436,8 @@ export const SimplifiedDoorContent: React.FC = () => {
                   </div>
                   <HotList 
                     isMobile={isMobile}
+                    onMoveToHit={handleMoveIdeaToHit}
+                    onMoveToDo={handleMoveIdeaToDo}
                   />
                 </div>
               )}
@@ -516,6 +526,8 @@ export const SimplifiedDoorContent: React.FC = () => {
               
               <HotList 
                 isMobile={false}
+                onMoveToHit={handleMoveIdeaToHit}
+                onMoveToDo={handleMoveIdeaToDo}
               />
             </div>
 

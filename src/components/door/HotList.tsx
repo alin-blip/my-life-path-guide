@@ -582,8 +582,20 @@ export const HotList: React.FC<HotListProps> = ({
                         <div 
                           ref={provided.innerRef}
                           {...provided.draggableProps}
+                          draggable={true}
+                          onDragStart={(e) => {
+                            // Set native drag data for cross-component dropping (to TaskList)
+                            e.dataTransfer.setData('application/json', JSON.stringify({
+                              type: 'idea-bank-item',
+                              id: idea.id,
+                              text: idea.text,
+                              priority: idea.priority,
+                              category: idea.category
+                            }));
+                            e.dataTransfer.effectAllowed = 'copyMove';
+                          }}
                           className={cn(
-                            "group relative flex items-center gap-2 rounded-lg hover:bg-muted/50 transition-all",
+                            "group relative flex items-center gap-2 rounded-lg hover:bg-muted/50 transition-all cursor-grab",
                             isMobile ? 'p-2' : 'p-2',
                             snapshot.isDragging && 'bg-muted shadow-lg ring-2 ring-primary/50'
                           )}

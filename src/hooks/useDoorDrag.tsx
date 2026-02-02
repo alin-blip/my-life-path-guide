@@ -1,6 +1,18 @@
 
 import { useState } from 'react';
-import { HotListItem, HitListItem, DoListItem, DominoKeyPoint, DayOfWeek } from '@/types/door';
+import { HotListItem, HitListItem, DoListItem, DominoKeyPoint, DayOfWeek, TaskPriority } from '@/types/door';
+
+/**
+ * Map ideas_bank priority (0-4) to TaskPriority
+ */
+function mapIdeaPriorityToTaskPriority(priority: number): TaskPriority {
+  switch (priority) {
+    case 4: return 'urgent-important';
+    case 3: return 'important';
+    case 2: return 'urgent';
+    default: return 'none';
+  }
+}
 
 interface UseDoorDragProps {
   activeDay: DayOfWeek;  // Changed from string to DayOfWeek
@@ -15,6 +27,7 @@ interface UseDoorDragProps {
   setDominoKeyPoints: React.Dispatch<React.SetStateAction<DominoKeyPoint[]>>;
   dominoKeyPoints: DominoKeyPoint[];
   checkDominoCompletion: (keyPoints: DominoKeyPoint[]) => boolean;
+  onIdeaDropped?: (ideaId: string, targetList: 'hit' | 'do') => Promise<void>;
 }
 
 export function useDoorDrag({
@@ -122,6 +135,48 @@ export function useDoorDrag({
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    
+    // FIRST: Check if it's an idea-bank-item being dropped (from HotList)
+    const jsonData = e.dataTransfer.getData('application/json');
+    if (jsonData) {
+      try {
+        const data = JSON.parse(jsonData);
+        if (data.type === 'idea-bank-item') {
+          console.log('📥 [DnD] Idea dropped on TaskList:', { data, activeList, activeDay });
+          
+          // Create a task directly in the local state
+          // The actual DB persistence happens via useIdeaToTaskBridge in parent
+          const priority = mapIdeaPriorityToTaskPriority(data.priority || 0);
+          
+          if (activeList === 'hit') {
+            const newHitItem: HitListItem = {
+              id: `idea-to-hit-${Date.now()}`,
+              text: data.text,
+              day: activeDay,
+              completed: false,
+              priority: priority,
+              isKeyPoint: false
+            };
+            setHitList(prevList => [...prevList, newHitItem]);
+          } else {
+            const newDoItem: DoListItem = {
+              id: `idea-to-do-${Date.now()}`,
+              text: data.text,
+              day: activeDay,
+              completed: false,
+              priority: priority
+            };
+            setDoList(prevList => [...prevList, newDoItem]);
+          }
+          
+          console.log('✅ [DnD] Idea added to', activeList, 'list');
+          return; // Exit early - idea handled
+        }
+      } catch (parseError) {
+        // Not valid JSON or not idea-bank-item, continue with normal flow
+        console.debug('[DnD] Drop data is not idea-bank-item, continuing with normal flow');
+      }
+    }
     
     if (draggedItem) {
       // Remove from hot list
