@@ -50,11 +50,7 @@ const DailyFlow = () => {
       {/* Cosmic Focus Mode Background */}
       <FocusModeBackground />
       
-      {/* Gradient Overlay based on time of day - Theme aware */}
-      <div className={cn(
-        "absolute inset-0 bg-gradient-to-b pointer-events-none z-[1]",
-        theme === 'dark' ? greeting.gradientDark : greeting.gradientLight
-      )} />
+      {/* Removed time-of-day gradient overlay to keep pure blue background */}
       
       {/* Content Layer */}
       <div className="relative z-10">
