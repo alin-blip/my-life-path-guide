@@ -125,3 +125,6 @@ verify_jwt = false
 
 [functions.send-challenge-upgrade]
 verify_jwt = false
+
+[functions.send-challenge-promo-sequence]
+verify_jwt = false
