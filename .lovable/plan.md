@@ -1,167 +1,254 @@
 
 
-# Plan de Reparație: Task-uri cu `week_key` Gol
+# Audit Complet Lansare: Domino Door - Idei și Sarcini
 
-## Problema Identificată
+## Rezumat Executiv
 
-Din audit-ul bazei de date, am descoperit că task-urile adăugate prin butonul "Adaugă Top 4 Priorități" au **`week_key` gol** (string `""`):
+Am identificat **3 probleme majore** care împiedică funcționarea corectă a sistemului Idei → Sarcini:
 
+---
+
+## Problemele Găsite
+
+### 1. DOUĂ SISTEME DE DATE SEPARATE (Problema Principală)
+
+Componenta `HotList.tsx` (Idei) folosește **tabelul `ideas_bank`** via `ideasBankService`, în timp ce restul sistemului (drag-drop, `useDoorLists`, `TaskList`) folosește **tabelul `user_tasks`** via `doorUserTasksService`.
+
+```text
+┌────────────────────────────────────────────────────────────────────┐
+│                    ARHITECTURA ACTUALĂ (RUPTĂ)                     │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│   HotList.tsx (Idei)          TaskList.tsx (Sarcini)              │
+│         ↓                            ↓                            │
+│   ideasBankService             doorUserTasksService               │
+│         ↓                            ↓                            │
+│   ideas_bank table             user_tasks table                   │
+│                                                                    │
+│   ❌ ACESTE DOUĂ NU COMUNICĂ!                                      │
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
 ```
-week_key: ""  ← GOL!
-day_of_week: M
-created_at: 2026-02-01 22:17:36
-title: "introducere fact map inainte de scrisoare ziua 1 challenge"
-```
 
-Asta înseamnă că task-urile se salvează în baza de date, dar când UI-ul încarcă listele (filtrând după `week_key = door-week-2026-06`), aceste task-uri nu apar pentru că nu au week key valid.
+**Dovadă din baza de date:**
+- `ideas_bank`: 4 idei (inclusiv "adaugare fact map in ziua 1 challenge")
+- `user_tasks` cu `list_type='hot'`: 10 task-uri cu titluri simple ("1", "2", "3", "4")
 
-## Cauza Rădăcină
+### 2. CALLBACK-URI LIPSĂ pentru Mutare Idei
 
-1. **Inițializare cu string gol**: În `useDoorDate.tsx` (linia 9):
-   ```tsx
-   const [currentWeekKey, setCurrentWeekKey] = useState('');
-   ```
-   
-2. **Week key se setează asincron** în `useEffect` (linia 66-73), dar **componenta se randează imediat** cu `weekKey = ''`.
-
-3. **Timing issue**: Dacă utilizatorul interacționează rapid sau dacă `useEffect` nu s-a executat încă, `weekKey` care se pasează la `EmptyTaskList` este gol.
-
-4. **Flow-ul complet**:
-   ```
-   useDoorDate: currentWeekKey = '' (inițial)
-       ↓
-   DoorContext: expune currentWeekKey = ''
-       ↓
-   WeeklyTab: primește currentWeekKey = ''
-       ↓
-   TaskList: weekKey = ''
-       ↓
-   EmptyTaskList: weekKey = '' ← SALVEAZĂ CU WEEK KEY GOL!
-   ```
-
-## Soluția
-
-### Partea 1: Validare în `EmptyTaskList.tsx`
-
-Adăugăm validare înainte de insert pentru a preveni salvarea cu week key gol:
+În toate componentele părinte (`WeeklyTab.tsx`, `SimplifiedDoorContent.tsx`, `WeeklySection.tsx`), componenta `<HotList />` este randată **fără callback-uri**:
 
 ```tsx
-// În handleAddPriorities(), ÎNAINTE de insert:
-if (!weekKey || weekKey.trim() === '') {
-  console.error('❌ Cannot add tasks: weekKey is empty');
-  toast({
-    title: language === 'en' ? 'Error' : 'Eroare',
-    description: language === 'en' 
-      ? 'Week not loaded yet. Please wait and try again.' 
-      : 'Săptămâna nu s-a încărcat încă. Așteaptă și încearcă din nou.',
-    variant: 'destructive'
+// ACTUAL (GREȘIT):
+<HotList isMobile={isMobile} />
+
+// NECESAR:
+<HotList 
+  isMobile={isMobile}
+  onMoveToHit={(idea) => handleMoveIdeaToHit(idea)}  // ← LIPSĂ
+  onMoveToDo={(idea) => handleMoveIdeaToDo(idea)}   // ← LIPSĂ
+/>
+```
+
+**Consecință:** Când apesi pe iconița Target (🎯) din Idei pentru a muta în Sarcini, funcția internă `handleMoveToHit` din HotList apelează `onMoveToHit?.()`, dar callback-ul este `undefined`, deci nu se întâmplă nimic în `user_tasks`.
+
+### 3. DRAG & DROP ÎNTRE Idei → Sarcini NU FUNCȚIONEAZĂ
+
+Sistemul actual de drag-drop (`useDoorDrag.tsx`) este proiectat pentru `HotListItem` din vechiul sistem (`user_tasks` cu `task_type='hot'`).
+
+Când tragi o idee din `HotList` (care folosește `@hello-pangea/dnd` intern), aceasta NU setează `draggedItem` în contextul `useDoorDrag`, deci când faci drop pe `TaskList`, nu se întâmplă nimic.
+
+```text
+DragDropContext din HotList (hello-pangea)
+          ↓
+  NU COMUNICĂ CU
+          ↓
+handleDragStart/handleDrop din useDoorDrag (evenimente native)
+```
+
+---
+
+## Problemele Secundare
+
+### 4. "Top 4 Priorități" merge în Sarcini, NU în Idei
+
+Când adaugi 4 priorități prin butonul din `EmptyTaskList.tsx`, acestea se salvează direct în `user_tasks` cu `task_type='hit'` pentru ziua/săptămâna curentă.
+
+**NU există nicio "săgeată înapoi"** care să ducă task-urile în Idei. Butoanele de navigare (←/→) din header schimbă săptămâna, nu mută task-uri între secțiuni.
+
+### 5. Duplicate în `user_tasks`
+
+Am găsit task-uri duplicate în baza de date:
+- Multiple înregistrări cu titluri "1", "2", "3", "4" (teste)
+- Task-uri cu `week_key=''` (string gol) care nu apar în UI
+
+---
+
+## Planul de Reparație
+
+### Pasul 1: Unificarea Arhitecturii (Decizie Necesară)
+
+Există două opțiuni:
+
+| Opțiune | Descriere | Pro | Contra |
+|---------|-----------|-----|--------|
+| **A: Migrare la `ideas_bank`** | HotList devine sursa principală; `user_tasks` doar pentru HIT/DO | Sistemul de clasificare Eisenhower rămâne | Necesită rescrierea drag-drop |
+| **B: Migrare la `user_tasks`** | Revenire la vechiul sistem, HotList folosește `doorUserTasksService` | Drag-drop funcționează nativ | Pierdem clasificarea Eisenhower |
+
+**Recomandare: Opțiunea A** - păstrăm `ideas_bank` pentru Idei, dar adăugăm funcții de transfer către `user_tasks` când ideea este mutată în Sarcini.
+
+### Pasul 2: Implementare Callback-uri în Componente Părinte
+
+**Fișiere de modificat:**
+- `src/components/door/tabs/WeeklyTab.tsx`
+- `src/components/door/SimplifiedDoorContent.tsx`
+- `src/components/door/WeeklySection.tsx`
+
+**Cod de adăugat:**
+
+```tsx
+// Funcție nouă pentru mutare idee în Sarcini
+const handleMoveIdeaToHit = async (idea: IdeaBankItem) => {
+  // 1. Adaugă în user_tasks
+  await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
+    id: idea.id,
+    text: idea.text,
+    category: 'hit',
+    priority: idea.priority === 4 ? 'urgent-important' :
+              idea.priority === 3 ? 'important' :
+              idea.priority === 2 ? 'urgent' : 'none',
+    day: activeDay
   });
-  return;
-}
+  
+  // 2. Refresh listele
+  refreshLists();
+  
+  toast({
+    title: "✅ Idee mutată în Sarcini",
+    description: `"${idea.text}" adăugată pentru ${activeDay}`,
+  });
+};
+
+// În randare:
+<HotList 
+  isMobile={isMobile}
+  onMoveToHit={handleMoveIdeaToHit}
+  onMoveToDo={(idea) => handleMoveIdeaToHit(idea)} // Sau DO logic
+/>
 ```
 
-### Partea 2: Inițializare corectă în `useDoorDate.tsx`
+### Pasul 3: Implementare Cross-Library Drag & Drop
 
-Schimbăm inițializarea pentru a calcula week key-ul imediat (nu în useEffect):
+Pentru a permite tragerea din `HotList` (hello-pangea) către `TaskList`:
+
+1. Adăugăm un wrapper de drag nativ pe fiecare idee
+2. Setăm `dataTransfer` cu informații serializate ale ideii
+3. `TaskList.handleDrop` citește aceste date și apelează `doorUserTasksService`
+
+**Modificări necesare în `HotList.tsx`:**
 
 ```tsx
-// ÎNAINTE (problematic):
-const [currentWeekKey, setCurrentWeekKey] = useState('');
-
-// DUPĂ (corect):
-const [currentWeekKey, setCurrentWeekKey] = useState(() => getActiveWeekKey(new Date()));
+// Pe fiecare item din lista de idei, adăugăm:
+onDragStart={(e) => {
+  e.dataTransfer.setData('application/json', JSON.stringify({
+    type: 'idea-bank-item',
+    id: idea.id,
+    text: idea.text,
+    priority: idea.priority
+  }));
+  e.dataTransfer.effectAllowed = 'copyMove';
+}}
+draggable={true}
 ```
 
-### Partea 3: Dezactivare buton când week key lipsește
-
-În `EmptyTaskList.tsx`, dezactivăm butonul "Add" dacă `weekKey` este gol:
+**Modificări necesare în `useDoorDrag.tsx`:**
 
 ```tsx
-<Button
-  size="sm"
-  onClick={handleAddPriorities}
-  disabled={!hasAnyPriority || isAdding || !weekKey}  // ← adăugat !weekKey
-  className="gap-2"
->
-```
-
-### Partea 4: Migrare date existente (opțional)
-
-Task-urile deja create cu `week_key = ''` pot fi reparate cu un query SQL:
-
-```sql
--- Găsește și afișează task-urile cu week_key gol
-SELECT id, title, day_of_week, created_at 
-FROM user_tasks 
-WHERE user_id = '74f5b904-95ba-4aaa-af7a-bee4c7ee6a98' 
-  AND (week_key IS NULL OR week_key = '');
-
--- Opțional: Șterge-le sau setează-le la săptămâna curentă
--- UPDATE user_tasks SET week_key = 'door-week-2026-06' WHERE week_key = '';
-```
-
-## Fișiere de Modificat
-
-| Fișier | Modificare |
-|--------|------------|
-| `src/hooks/useDoorDate.tsx` | Inițializare `currentWeekKey` cu valoare calculată |
-| `src/components/door/task-list/EmptyTaskList.tsx` | Validare week key înainte de insert + dezactivare buton |
-
-## Cod Final
-
-### `useDoorDate.tsx` - Linia 9
-
-```tsx
-// Schimbă din:
-const [currentWeekKey, setCurrentWeekKey] = useState('');
-
-// În:
-const [currentWeekKey, setCurrentWeekKey] = useState(() => getActiveWeekKey(new Date()));
-```
-
-### `EmptyTaskList.tsx` - În `handleAddPriorities()`
-
-```tsx
-const handleAddPriorities = async () => {
-  const validPriorities = priorities.filter(p => p.trim());
-  if (validPriorities.length === 0) return;
-
-  // ADAUGĂ ACEASTĂ VALIDARE:
-  if (!weekKey || weekKey.trim() === '') {
-    console.error('❌ Cannot add tasks: weekKey is empty!', { weekKey, activeDay });
-    toast({
-      title: language === 'en' ? 'Loading...' : 'Se încarcă...',
-      description: language === 'en' 
-        ? 'Week data is loading. Please wait a moment and try again.' 
-        : 'Datele săptămânii se încarcă. Te rog așteaptă un moment.',
-      variant: 'destructive'
-    });
-    return;
+const handleDrop = (e: React.DragEvent) => {
+  e.preventDefault();
+  
+  // Verifică dacă vine din Ideas Bank
+  const jsonData = e.dataTransfer.getData('application/json');
+  if (jsonData) {
+    try {
+      const data = JSON.parse(jsonData);
+      if (data.type === 'idea-bank-item') {
+        // Adaugă ideea în user_tasks
+        await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
+          id: data.id,
+          text: data.text,
+          category: activeList,
+          priority: mapPriority(data.priority),
+          day: activeDay
+        });
+        return;
+      }
+    } catch {}
   }
-
-  // Log pentru debugging
-  console.log('✅ Adding priorities to:', { weekKey, activeDay });
-
-  setIsAdding(true);
-  // ... restul codului
+  
+  // ... restul logicii existente
 };
 ```
 
-### `EmptyTaskList.tsx` - Butonul Add (linia ~182)
+### Pasul 4: Curățare Date Invalide
+
+Rulăm un query pentru a elimina task-urile cu `week_key` gol sau invalid:
+
+```sql
+-- Șterge task-urile cu week_key gol sau invalid
+DELETE FROM user_tasks 
+WHERE user_id = '74f5b904-95ba-4aaa-af7a-bee4c7ee6a98'
+  AND (week_key IS NULL OR week_key = '' OR week_key NOT LIKE 'door-week-%')
+  AND task_type IN ('hit', 'do');
+```
+
+### Pasul 5: Adăugare Buton "Mută în Idei" în TaskList
+
+Pentru a permite mutarea înapoi din Sarcini în Idei:
 
 ```tsx
-<Button
-  size="sm"
-  onClick={handleAddPriorities}
-  disabled={!hasAnyPriority || isAdding || !weekKey}
-  className="gap-2"
->
+// În TaskItem.tsx, adăugăm un nou callback:
+onMoveToIdeas={(taskId) => {
+  const task = hitList.find(t => t.id === taskId);
+  if (task) {
+    // 1. Adaugă în ideas_bank
+    await ideasBankService.addIdea(task.text, 'work', 0);
+    // 2. Șterge din user_tasks
+    // 3. Refresh
+  }
+}}
 ```
+
+---
+
+## Fișiere Afectate
+
+| Fișier | Acțiune |
+|--------|---------|
+| `src/components/door/tabs/WeeklyTab.tsx` | Adaugă `onMoveToHit`/`onMoveToDo` la HotList |
+| `src/components/door/SimplifiedDoorContent.tsx` | Idem |
+| `src/components/door/WeeklySection.tsx` | Idem |
+| `src/components/door/HotList.tsx` | Adaugă `draggable` și `onDragStart` nativ |
+| `src/hooks/useDoorDrag.tsx` | Extinde `handleDrop` pentru `idea-bank-item` |
+| `src/context/DoorContext.tsx` | Expune funcția `moveIdeaToTasks` |
+
+---
 
 ## Rezultat Așteptat
 
-1. Task-urile adăugate prin "Top 4 Priorități" vor avea întotdeauna `week_key` valid
-2. Utilizatorul nu poate adăuga task-uri până când week key-ul nu s-a încărcat
-3. Task-urile vor apărea imediat în ziua și săptămâna selectată
-4. Navigarea între săptămâni/zile va funcționa corect pentru adăugare
+După implementare:
+
+1. ✅ Ideile din secțiunea "Idei" pot fi trase și lăsate în "Sarcini"
+2. ✅ Click pe iconița 🎯 mută ideea în lista de sarcini pentru ziua activă
+3. ✅ "Top 4 Priorități" adaugă task-uri în Sarcini (nu în Idei) - acesta este comportamentul corect
+4. ✅ Toate task-urile au `week_key` valid
+5. ✅ Nu mai există duplicare date între cele două tabele
+
+---
+
+## Confirmare Necesară
+
+Înainte de implementare, te rog confirmă:
+- **Opțiunea A** (păstrăm `ideas_bank` + adăugăm integrare) este acceptabilă?
+- "Top 4 Priorități" ar trebui să meargă în Sarcini (comportament actual) sau în Idei?
 
