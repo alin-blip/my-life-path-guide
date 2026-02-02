@@ -1,165 +1,121 @@
 
 
-# Plan: Secvență de 5 Emailuri Promoționale pentru Challenge
+# Diagnostic: Lead-urile nu apar în Meta când utilizatorul ajunge pe /challenge
 
-## Rezumat
+## Problema Identificată
 
-Voi crea o Edge Function nouă care trimite o secvență de 5 emailuri către cele **170 lead-uri existente** din lead magnets non-challenge (vision_2026_quiz, vision_board, life_score, warrior_power, etc.) pentru a le invita la Challenge-ul gratuit de 7 zile.
+Am analizat fluxul complet și am identificat **2 probleme critice** care fac ca evenimentul **Lead** să nu se trimită la Meta/Facebook Pixel:
+
+### 1. ChallengeInlineAuth nu apelează trackLead() direct
+
+În `src/components/challenge/ChallengeInlineAuth.tsx`:
+- Linia 191: Lead-ul se salvează în baza de date (✅ funcționează)
+- Liniile 211-221: Welcome email se trimite (✅ funcționează)
+- **trackLead() nu este apelat nicăieri** în acest component
+
+### 2. AuthContext se bazează doar pe evenimentul SIGNED_IN
+
+În `src/context/AuthContext.tsx` (linia 60):
+```typescript
+if (event === 'SIGNED_IN' && session?.user) {
+  trackLead();
+}
+```
+
+**Problema**: Pentru signup cu email/password, Supabase nu emite `SIGNED_IN` imediat după `signUp()`. Emite `INITIAL_SESSION` sau `USER_UPDATED`. Doar pentru OAuth sau login se emite `SIGNED_IN`.
+
+### Rezultat:
+- **OAuth (Google/Apple)**: ✅ După redirect, `SIGNED_IN` se declanșează → trackLead funcționează
+- **Email signup**: ❌ `signUp()` nu declanșează `SIGNED_IN` → trackLead NU se apelează
 
 ---
 
-## Fișiere de Creat/Modificat
+## Evidența din baza de date
 
-| Fișier | Acțiune |
-|--------|---------|
-| `supabase/functions/send-challenge-promo-sequence/index.ts` | **CREARE** - Edge Function pentru secvența de 5 emailuri |
-| `supabase/config.toml` | **MODIFICARE** - Adaugă configurație pentru noua funcție |
-
----
-
-## Audiența Țintă
-
-**170 lead-uri active** din:
-- vision_2026_quiz: 59 leads
-- vision_board: 52 leads
-- life_score_60s: 24 leads
-- life_score: 21 leads
-- warrior_power: 13 leads
-- vision_board_2026: 1 lead
+| Lead | Provider | Lead Salvat | Welcome Email | trackLead() |
+|------|----------|-------------|---------------|-------------|
+| kalanceav@mail.ru | email | ✅ 21:04:56 | ✅ trimis | ❌ neprobabil |
+| alin@eduforyou.co.uk | google | ✅ | ✅ | ✅ (prin OAuth redirect) |
 
 ---
 
-## Secvența de 5 Emailuri
+## Soluția Propusă
 
-### Email 1: Lansare (Trimis Imediat)
-**Subject:** 🎁 Am ceva special pentru tine — Challenge GRATUIT de 7 Zile
-- Hook personalizat: "Ai făcut deja primul pas testând unul dintre instrumentele noastre..."
-- Prezentare Challenge cu toate cele 7 zile
-- CTA: "Începe Ziua 1 Acum →" → `https://warriorsos.com/challenge-7-zile`
+### Fișiere de Modificat
 
-### Email 2: Problema (+24h)
-**Subject:** ❌ De ce 92% dintre oameni eșuează (și cum să fii în cei 8%)
-- Hook: Minciunile pe care ni le spunem ("voi începe luni...")
-- Problema lipsei de sistem
-- CTA: "Fii în cei 8% →"
+| Fișier | Modificare |
+|--------|------------|
+| `src/components/challenge/ChallengeInlineAuth.tsx` | Adaugă `trackLead()` direct după signup/login reușit |
+| `src/context/AuthContext.tsx` | (opțional) Extinde să asculte și `INITIAL_SESSION` pentru new users |
 
-### Email 3: Transformarea (+48h)
-**Subject:** 🔥 Ce se întâmplă în fiecare zi din Challenge
-- Detaliere completă ziua cu ziua
-- Beneficiul final: "După 7 zile, vei ști EXACT ce să faci"
-- CTA: "Începe Transformarea →"
+### Implementare în ChallengeInlineAuth.tsx
 
-### Email 4: Urgență (+72h)
-**Subject:** ⏰ Locurile pentru Challenge sunt limitate
-- Urgență: "Nu putem susține asta pentru totdeauna"
-- FOMO: Ce pierzi fără sistem
-- CTA: "Asigură-ți Locul ACUM →"
+Voi adăuga apelul `trackLead()` direct în handler-ul de succes, imediat după `saveLeadBeforeAuth()`:
 
-### Email 5: Ultimul Reminder (+96h)
-**Subject:** 👋 Ultima șansă, [Name]
-- Recapitulare finală
-- Touch personal
-- CTA: "Ultimele 24 de ore → Începe ACUM"
+```typescript
+import { trackLead } from '@/lib/facebook-pixel';
+
+// În handleEmailAuth, după if (mode === 'signup'):
+if (mode === 'signup') {
+  const { error } = await supabase.auth.signUp({...});
+  if (error) throw error;
+  
+  // TRACK FB PIXEL LEAD - Imediat la signup
+  trackLead();
+  
+  // Restul codului existent...
+}
+```
+
+### De ce această soluție?
+
+1. **Tracking imediat**: Lead-ul se trimite la Meta în același moment când:
+   - Utilizatorul completează formularul
+   - Email-ul este salvat în baza de date
+   - Welcome email-ul este trimis
+   
+2. **Deduplicare sigură**: AuthContext are deja localStorage check (`fb_lead_tracked_${userId}`), deci nu vor exista duplicate dacă utilizatorul revine.
+
+3. **Consistență cu alte lead magnets**: `Core4LeadMagnet.tsx` și `MindCoachLanding.tsx` folosesc deja `trackLead()` direct.
 
 ---
 
 ## Specificații Tehnice
 
-### Edge Function: send-challenge-promo-sequence
+### Modificări în ChallengeInlineAuth.tsx
 
 ```text
-Moduri de Operare:
-┌─────────────────────────────────────────────────┐
-│  MANUAL MODE                                     │
-│  POST { email: "test@x.com", emailNumber: 1 }   │
-│  → Trimite email specific la adresa specificată  │
-├─────────────────────────────────────────────────┤
-│  AUTOMATIC MODE                                  │
-│  POST {} sau GET                                │
-│  → Procesează toate lead-urile eligibile        │
-│  → Verifică intervalul de 24h între emailuri    │
-│  → Trimite emailul următor în secvență (1-5)    │
-└─────────────────────────────────────────────────┘
+Linia 1-14: Adaugă import pentru trackLead
++ import { trackLead } from '@/lib/facebook-pixel';
+
+Linia 206-229: După signUp reușit
+  if (error) throw error;
++ 
++ // FB Pixel - Track Lead imediat la signup
++ trackLead();
+  
+  // Send welcome email...
 ```
 
-### Logica de Trimitere
+### Acoperire completă
 
-```text
-Pentru fiecare lead din email_leads:
-  1. Verifică dacă lead_magnet e în lista țintă
-  2. Verifică dacă e subscribed = true
-  3. Verifică în email_sequence_log ce emailuri au fost trimise
-  4. Dacă nu a primit nimic → Trimite Email 1
-  5. Dacă a primit Email N și au trecut 24h → Trimite Email N+1
-  6. Stop la Email 5
-```
-
-### Tracking și Logging
-
-- **Tracking Pixel:** Pentru open rate
-- **Unsubscribe Link:** Dezabonare cu un click
-- **UTM Parameters:** `utm_source=email&utm_campaign=challenge_promo&utm_content=email_X`
-- **Log în email_sequence_log:** `sequence_type = 'challenge_promo'`
-
-### Configurare config.toml
-
-```toml
-[functions.send-challenge-promo-sequence]
-verify_jwt = false
-```
+După fix:
+- ✅ Email signup pe /challenge-7-zile → trackLead() direct
+- ✅ OAuth pe /challenge-7-zile → trackLead() prin AuthContext (rămâne)
+- ✅ Login pe /challenge-7-zile → trackLead() direct (pentru returning users care nu au fost tracked)
 
 ---
 
-## Design Email Template
+## Verificare Post-Implementare
 
-- **From:** `WarriorOS <noreply@warriorsos.com>` (domeniu verificat)
-- **Culori:** Dark theme (#0a0a0a background), accent orange (#f59e0b)
-- **CTA Button:** Gradient orange (#f59e0b → #ea580c)
-- **Footer:** Link dezabonare + "WarriorOS • Have It All Lifestyle Challenge"
-
----
-
-## Workflow de Execuție
-
-```text
-[Invocă Funcția - PRIMUL EMAIL]
-         ↓
-[170 lead-uri primesc Email 1 imediat]
-         ↓
-[Setup CRON Job zilnic - opțional]
-         ↓
-[La fiecare 24h, funcția verifică și trimite emailul următor]
-         ↓
-[După 5 zile, secvența e completă]
-```
-
----
-
-## Cum să Trigger Secvența
-
-### Opțiunea 1: Invocă Manual din Browser/Postman
-```bash
-POST https://exsbnfmaadjyfblperas.supabase.co/functions/v1/send-challenge-promo-sequence
-Headers: { "Authorization": "Bearer YOUR_ANON_KEY" }
-Body: {} # empty pentru automatic mode
-```
-
-### Opțiunea 2: Cron Job Zilnic (Recomandat)
-Configurezi un cron job în Supabase care invocă funcția zilnic la ora 10:00.
-
----
-
-## Rezultat Așteptat
-
-După implementare și invocare:
-- ✅ 170 lead-uri primesc Email 1 imediat
-- ✅ Email 2-5 se trimit automat la interval de 24h (cu cron)
-- ✅ Toate emailurile au CTA spre `/challenge-7-zile`
-- ✅ Tracking complet (opens, clicks, unsubscribes)
-- ✅ Domeniu verificat `warriorsos.com` - deliverabilitate maximă
+1. Deschide Facebook Pixel Helper (extensie Chrome)
+2. Accesează warriorsos.com/challenge-7-zile
+3. Completează signup cu email
+4. Verifică în Pixel Helper că apare evenimentul "Lead"
+5. Verifică în Meta Events Manager că lead-ul apare
 
 ---
 
 ## Timp Estimat
-~15 minute pentru creare funcție + deploy + testare
+~5 minute pentru implementare și deploy
 
