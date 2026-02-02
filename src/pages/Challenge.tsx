@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
@@ -137,8 +137,16 @@ const ChallengePage = () => {
     isDayCompleted,
     isDayPremium,
     isAuthenticated,
-    hasPremiumAccess
+    hasPremiumAccess,
+    trackChallengeStarted
   } = useChallengeProgress();
+
+  // Automatically track challenge started when authenticated user enters
+  useEffect(() => {
+    if (isAuthenticated && !loading) {
+      trackChallengeStarted();
+    }
+  }, [isAuthenticated, loading, trackChallengeStarted]);
 
   const handleStartDay = (day: ChallengeDay) => {
     if (!isDayUnlocked(day.day)) return;

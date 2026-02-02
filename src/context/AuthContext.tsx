@@ -67,6 +67,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               console.log('[FB Pixel] Lead event tracked for user:', session.user.id);
             }
           }
+          
+          // CHALLENGE OAUTH LEAD CAPTURE
+          // Save lead + link CRM profile when user comes from challenge via OAuth
+          const fromChallenge = window.location.pathname.includes('/challenge');
+          if (fromChallenge && session.user.email) {
+            const challengeLeadKey = `challenge_lead_saved_${session.user.id}`;
+            if (!localStorage.getItem(challengeLeadKey)) {
+              // Insert into email_leads
+              supabase.from('email_leads').insert({
+                email: session.user.email,
+                lead_magnet: 'challenge_oauth',
+                source: 'challenge-7-zile-oauth',
+                metadata: { 
+                  auth_provider: session.user.app_metadata?.provider || 'unknown',
+                  signup_date: new Date().toISOString()
+                }
+              }).then((result) => {
+                if (!result.error) {
+                  localStorage.setItem(challengeLeadKey, 'true');
+                }
+              });
+              
+              // Upsert CRM contact with user_id linked
+              supabase.from('crm_contact_profiles')
+                .upsert({
+                  email: session.user.email,
+                  user_id: session.user.id,
+                  funnel_stage: 'engaged',
+                  lead_source: 'challenge_oauth',
+                  account_created_at: new Date().toISOString()
+                }, { onConflict: 'email' })
+                .then(() => {});
+              
+              if (import.meta.env.DEV) {
+                console.log('[Challenge] OAuth lead saved for:', session.user.email);
+              }
+            }
+          }
         }
 
         // Defer subscription check to avoid deadlocks

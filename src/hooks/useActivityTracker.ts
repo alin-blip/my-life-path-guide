@@ -39,11 +39,11 @@ export const useActivityTracker = () => {
     if (!user?.id) return;
 
     try {
-      // First, find or create the contact profile
+      // First, find or create the contact profile (check by user_id OR email)
       const { data: contact, error: contactError } = await supabase
         .from('crm_contact_profiles')
-        .select('id')
-        .eq('user_id', user.id)
+        .select('id, user_id')
+        .or(`user_id.eq.${user.id},email.eq.${user.email}`)
         .single();
 
       if (contactError && contactError.code !== 'PGRST116') {
@@ -73,6 +73,12 @@ export const useActivityTracker = () => {
           return;
         }
         contactId = newContact?.id;
+      } else if (contact && !contact.user_id) {
+        // Link existing contact to auth user if user_id is NULL
+        await supabase
+          .from('crm_contact_profiles')
+          .update({ user_id: user.id })
+          .eq('id', contact.id);
       }
 
       if (!contactId) return;
