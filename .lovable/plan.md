@@ -1,81 +1,66 @@
 
-# Plan: Reparare Eroare Salvare Obiective Anuale
+# Plan: Integrare Tracking Challenge în Admin CRM
 
-## Problema Identificată
+## Problema identificată
+Sistemul de tracking (`useActivityTracker`) există dar **nu este activ** - nu este integrat nicăieri în aplicație. De aceea tabelul `crm_activity_timeline` este gol și nu există vizibilitate în admin asupra utilizatorilor care accesează Challenge-ul.
 
-**Eroarea din baza de date:**
-```
-there is no unique or exclusion constraint matching the ON CONFLICT specification
-```
+## Soluție în 4 pași
 
-**Cauza root:**
-- Indexul unic din baza de date folosește `COALESCE()`:
-  ```sql
-  CREATE UNIQUE INDEX missions_user_category_type_period_project_idx 
-  ON public.missions USING btree (user_id, category, mission_type, period, COALESCE(project_name, ''::text))
-  ```
-- Codul încearcă să facă `upsert` cu:
-  ```typescript
-  onConflict: 'user_id,category,mission_type,period,project_name'
-  ```
-- **PostgREST NU poate** face match pe indecși care folosesc funcții (COALESCE) - are nevoie de un constraint simplu pe coloane directe.
+### 1. Activare Activity Tracker Global
+Integrarea hook-ului `useActivityTracker` în componenta `Layout.tsx` pentru a începe să înregistreze automat:
+- Page views (inclusiv `/challenge`, `/challenge/1`, `/challenge/2`, etc.)
+- Sesiuni utilizator
+- Device type și timestamp
+
+Aceasta va popula automat tabelul `crm_activity_timeline` cu activitatea tuturor utilizatorilor autentificați.
+
+### 2. Tracking Events Specifice pentru Challenge
+Adăugarea de events explicite în `useChallengeProgress.tsx`:
+- `challenge_started` - când un utilizator intră prima dată în challenge
+- `challenge_day_started` - când deschide o zi
+- `challenge_video_watched` - când marchează videoul ca vizionat  
+- `challenge_day_completed` - când completează o zi
+- `challenge_completed` - când termină toate cele 7 zile
+
+### 3. Câmpuri noi în CRM pentru Challenge
+Adăugarea de coloane în tabelul `crm_contact_profiles`:
+- `challenge_started_at` - data când a intrat prima dată în challenge
+- `challenge_current_day` - ziua curentă (1-7)
+- `challenge_days_completed` - numărul de zile completate
+- `challenge_completed_at` - data finalizării complete
+
+### 4. Vizualizare Challenge în ContactProfile360
+Adăugarea unui tab nou "Challenge" în profilul contactului care afișează:
+- Progresul vizual pe cele 7 zile
+- Data la care a completat fiecare zi
+- Status curent (în curs, completat, abandonat)
+- Timeline cu toate activitățile challenge
 
 ---
 
-## Soluția
+## Detalii Tehnice
 
-Trebuie să creăm un **UNIQUE CONSTRAINT** pe coloane simple (nu index cu funcție) pentru ca `onConflict` să funcționeze corect.
+### Fișiere de modificat:
+1. `src/components/Layout.tsx` - import și utilizare useActivityTracker
+2. `src/hooks/useChallengeProgress.tsx` - adăugare tracking events la fiecare acțiune
+3. `src/hooks/useActivityTracker.ts` - extindere cu funcții helper pentru challenge
+4. `src/components/admin/crm/ContactProfile360.tsx` - tab nou pentru challenge progress
 
-### Pas 1: Migrare SQL
-
-Vom executa o migrare care:
-1. Șterge indexul vechi cu `COALESCE`
-2. Creează un constraint unic pe coloane simple
-3. Gestionează valorile `NULL` din `project_name` setându-le la string gol
-
+### Migrație bază de date:
 ```sql
--- 1. Actualizăm project_name NULL la string gol pentru consistență
-UPDATE public.missions 
-SET project_name = '' 
-WHERE project_name IS NULL;
-
--- 2. Ștergem indexul vechi care folosește COALESCE
-DROP INDEX IF EXISTS public.missions_user_category_type_period_project_idx;
-
--- 3. Creăm un CONSTRAINT unic pe coloane simple (nu funcție)
-ALTER TABLE public.missions 
-ADD CONSTRAINT missions_unique_user_category_type_period_project 
-UNIQUE (user_id, category, mission_type, period, project_name);
-
--- 4. Setăm default pentru project_name să fie string gol în loc de NULL
-ALTER TABLE public.missions 
-ALTER COLUMN project_name SET DEFAULT '';
+ALTER TABLE crm_contact_profiles 
+ADD COLUMN challenge_started_at TIMESTAMPTZ,
+ADD COLUMN challenge_current_day INTEGER DEFAULT 0,
+ADD COLUMN challenge_days_completed INTEGER DEFAULT 0,
+ADD COLUMN challenge_completed_at TIMESTAMPTZ;
 ```
 
-### Pas 2: Actualizare Cod (opțional dar recomandat)
+### Estimare timp implementare:
+~15-20 minute
 
-În `GoalWizardModal.tsx`, ne asigurăm că `project_name` nu e niciodată NULL:
-
-```typescript
-// Linia 450 - asigurăm că project_name e string gol dacă e undefined
-project_name: project.name || '',
-```
-
----
-
-## De ce funcționează
-
-| Înainte | După |
-|---------|------|
-| Index cu `COALESCE(project_name, '')` | Constraint pe `project_name` (coloană simplă) |
-| PostgREST nu găsește constraint | PostgREST găsește constraint exact |
-| Eroare la `onConflict` | `upsert` funcționează corect |
-
----
-
-## Checklist Implementare
-
-1. [ ] Execută migrarea SQL pentru a crea constraint-ul unic
-2. [ ] Actualizează codul pentru a seta default `''` la `project_name`
-3. [ ] Testează salvarea obiectivelor prin Goal Wizard
-4. [ ] Verifică că obiectivele existente nu sunt afectate
+### Rezultat final:
+În admin vei putea vedea pentru fiecare contact:
+- Dacă a intrat în challenge și când
+- Care e progresul său (ziua curentă)
+- Toate acțiunile făcute în challenge (timeline)
+- Statistici agregate în ChallengeDropOffStats
