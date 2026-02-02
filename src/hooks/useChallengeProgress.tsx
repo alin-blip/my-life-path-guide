@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useActivityTracker } from './useActivityTracker';
 
 interface ChallengeDay {
   day_number: number;
@@ -14,10 +15,12 @@ interface ChallengeDay {
 export const useChallengeProgress = () => {
   const { user, subscribed, subscriptionTier } = useAuth();
   const { toast } = useToast();
+  const { trackEvent } = useActivityTracker();
   const [progress, setProgress] = useState<ChallengeDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentDay, setCurrentDay] = useState(1);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+  const challengeStartedTrackedRef = useRef(false);
 
   // Check if user is authenticated
   const isAuthenticated = !!user?.id;
@@ -71,11 +74,44 @@ export const useChallengeProgress = () => {
     fetchProgress();
   }, [fetchProgress]);
 
+  // Track challenge started when user first enters and has progress
+  const trackChallengeStarted = useCallback(async () => {
+    if (!user?.id || challengeStartedTrackedRef.current) return;
+    challengeStartedTrackedRef.current = true;
+    
+    trackEvent('challenge_started', 'User started 7-Day Challenge', {});
+    
+    // Update CRM profile
+    try {
+      const { data: contact } = await supabase
+        .from('crm_contact_profiles')
+        .select('id, challenge_started_at')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (contact && !contact.challenge_started_at) {
+        await supabase
+          .from('crm_contact_profiles')
+          .update({ 
+            challenge_started_at: new Date().toISOString(),
+            challenge_current_day: 1
+          })
+          .eq('id', contact.id);
+      }
+    } catch (error) {
+      console.error('Error updating CRM challenge start:', error);
+    }
+  }, [user?.id, trackEvent]);
+
+
   const markVideoWatched = async (dayNumber: number) => {
     if (!user?.id) return;
 
     try {
       const existingDay = progress.find(d => d.day_number === dayNumber);
+      
+      // Track video watched event
+      trackEvent('challenge_video_watched', `Challenge Day ${dayNumber} Video Watched`, { dayNumber });
       
       if (existingDay) {
         const { error } = await supabase
@@ -153,6 +189,9 @@ export const useChallengeProgress = () => {
     try {
       const existingDay = progress.find(d => d.day_number === dayNumber);
       
+      // Track day completed event
+      trackEvent('challenge_day_completed', `Challenge Day ${dayNumber} Completed`, { dayNumber });
+      
       if (existingDay) {
         const { error } = await supabase
           .from('challenge_progress')
@@ -178,6 +217,36 @@ export const useChallengeProgress = () => {
           });
 
         if (error) throw error;
+      }
+
+      // Update CRM profile with challenge progress
+      try {
+        const { data: contact } = await supabase
+          .from('crm_contact_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (contact) {
+          const completedCount = progress.filter(d => d.completed).length + 1;
+          const updateData: Record<string, unknown> = {
+            challenge_current_day: Math.min(dayNumber + 1, 7),
+            challenge_days_completed: completedCount
+          };
+          
+          // If completed all 7 days, mark challenge as completed
+          if (dayNumber === 7) {
+            updateData.challenge_completed_at = new Date().toISOString();
+            trackEvent('challenge_completed', 'User completed entire 7-Day Challenge', { totalDays: 7 });
+          }
+          
+          await supabase
+            .from('crm_contact_profiles')
+            .update(updateData)
+            .eq('id', contact.id);
+        }
+      } catch (error) {
+        console.error('Error updating CRM challenge progress:', error);
       }
 
       toast({
@@ -254,6 +323,7 @@ export const useChallengeProgress = () => {
     refetch: fetchProgress,
     isAuthenticated,
     hasPremiumAccess,
-    subscriptionStatus
+    subscriptionStatus,
+    trackChallengeStarted
   };
 };

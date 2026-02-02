@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { ContactTimeline } from './ContactTimeline';
 import { AdminClientDoorPreview } from './AdminClientDoorPreview';
+import { ChallengeProgressTab } from './ChallengeProgressTab';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 
@@ -53,9 +54,13 @@ interface ContactData {
   lifetime_value: number;
   total_purchases: number;
   warrior_power_score: number | null;
-  warrior_power_data: any;
+  warrior_power_data: unknown;
   tags: string[] | null;
   admin_notes: string | null;
+  challenge_started_at: string | null;
+  challenge_current_day: number | null;
+  challenge_days_completed: number | null;
+  challenge_completed_at: string | null;
 }
 
 export const ContactProfile360: React.FC<ContactProfile360Props> = ({ contactId, onBack }) => {
@@ -285,6 +290,7 @@ export const ContactProfile360: React.FC<ContactProfile360Props> = ({ contactId,
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="challenge">Challenge</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="warrior">Warrior Power</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
@@ -406,6 +412,17 @@ export const ContactProfile360: React.FC<ContactProfile360Props> = ({ contactId,
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="challenge">
+          <ChallengeProgressTab
+            contactId={contactId}
+            userId={contact.user_id}
+            challengeStartedAt={contact.challenge_started_at}
+            challengeCurrentDay={contact.challenge_current_day ?? 0}
+            challengeDaysCompleted={contact.challenge_days_completed ?? 0}
+            challengeCompletedAt={contact.challenge_completed_at}
+          />
         </TabsContent>
 
         <TabsContent value="timeline">
