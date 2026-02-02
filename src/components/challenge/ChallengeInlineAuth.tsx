@@ -48,7 +48,9 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
       passwordPlaceholder: 'Choose a password',
       confirmPasswordPlaceholder: 'Confirm password',
       signupBtn: 'CREATE ACCOUNT & START FREE',
+      signupBtnShort: 'START FREE',
       loginBtn: 'Sign In & Continue',
+      loginBtnShort: 'Sign In',
       hasAccount: 'Already have an account?',
       noAccount: "Don't have an account?",
       loginLink: 'Sign in',
@@ -70,7 +72,9 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
       passwordPlaceholder: 'Alege o parolă',
       confirmPasswordPlaceholder: 'Confirmă parola',
       signupBtn: 'CREEAZĂ CONT ȘI ÎNCEPE GRATUIT',
+      signupBtnShort: 'ÎNCEPE GRATUIT',
       loginBtn: 'Conectează-te și Continuă',
+      loginBtnShort: 'Conectează-te',
       hasAccount: 'Ai deja cont?',
       noAccount: 'Nu ai cont?',
       loginLink: 'Conectează-te',
@@ -377,7 +381,14 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
                 {language === 'en' ? 'Please wait...' : 'Te rugăm așteaptă...'}
               </>
             ) : (
-              mode === 'signup' ? t.signupBtn : t.loginBtn
+              <>
+                <span className="hidden sm:inline">
+                  {mode === 'signup' ? t.signupBtn : t.loginBtn}
+                </span>
+                <span className="sm:hidden">
+                  {mode === 'signup' ? t.signupBtnShort : t.loginBtnShort}
+                </span>
+              </>
             )}
           </Button>
         </form>
