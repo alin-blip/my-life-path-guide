@@ -163,6 +163,17 @@ const ChallengePage = () => {
     );
   }
 
+  // Video URLs for each day (null means no video)
+  const dayVideos: Record<number, string | null> = {
+    1: "https://us06web.zoom.us/clips/embed/zx6Y36ecRyevoBcm8We9Tw",
+    2: null,
+    3: null,
+    4: null,
+    5: null,
+    6: null,
+    7: null,
+  };
+
   return (
     <>
       <ChallengeCoachWidget currentDay={currentDay} />
@@ -194,6 +205,21 @@ const ChallengePage = () => {
             ))}
           </div>
         </div>
+
+        {/* Hero Video - Introduction */}
+        <Card className="p-4 mb-6 overflow-hidden border-primary/20">
+          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+            <iframe 
+              src="https://us06web.zoom.us/clips/embed/iNO2HuCsRw2g8G2TkGH04g" 
+              frameBorder="0" 
+              allowFullScreen
+              className="absolute top-0 left-0 w-full h-full rounded-lg"
+            />
+          </div>
+          <p className="text-center text-sm text-muted-foreground mt-3">
+            {language === 'en' ? '👆 Watch this before starting each day' : '👆 Urmărește acest video înainte de fiecare zi'}
+          </p>
+        </Card>
 
         {/* Early Bird Countdown Banner for Trial Users */}
         {isAuthenticated && !subscribed && isEarlyBirdActive && earlyBirdExpiresAt && (
@@ -322,95 +348,114 @@ const ChallengePage = () => {
                 )}
               
                 <Card 
-                  className={`p-3 sm:p-4 transition-all duration-300 ${
+                  className={`transition-all duration-300 ${
                     unlocked 
                       ? 'bg-card border-primary/20 hover:border-primary/40 cursor-pointer' 
                       : 'bg-muted/30 border-border/50 opacity-60'
                   } ${completed ? 'ring-2 ring-green-500/50' : ''} ${isPremium && !hasPremiumAccess ? 'border-amber-500/30' : ''}`}
                   onClick={() => handleStartDay(day)}
                 >
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    {/* Day Number & Icon */}
-                    <div className={`relative flex-shrink-0 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br ${day.color} ${!unlocked ? 'grayscale' : ''}`}>
-                      {completed ? (
-                        <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-                      ) : unlocked ? (
-                        <Icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-                      ) : (
-                        <Lock className="h-5 w-5 sm:h-6 sm:w-6 text-white/70" />
-                      )}
-                      <span className="absolute -top-1.5 -left-1.5 sm:-top-2 sm:-left-2 w-5 h-5 sm:w-6 sm:h-6 bg-background border-2 border-primary rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-primary">
-                        {day.day}
-                      </span>
-                      {isPremium && !hasPremiumAccess && (
-                        <span className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2">
-                          <Crown className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
+                  {/* Day Video (if available) */}
+                  {dayVideos[day.day] && unlocked && (
+                    <div 
+                      className="p-3 border-b border-border/50"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                        <iframe 
+                          src={dayVideos[day.day]!} 
+                          frameBorder="0" 
+                          allowFullScreen
+                          className="absolute top-0 left-0 w-full h-full rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="p-3 sm:p-4">
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      {/* Day Number & Icon */}
+                      <div className={`relative flex-shrink-0 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br ${day.color} ${!unlocked ? 'grayscale' : ''}`}>
+                        {completed ? (
+                          <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+                        ) : unlocked ? (
+                          <Icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+                        ) : (
+                          <Lock className="h-5 w-5 sm:h-6 sm:w-6 text-white/70" />
+                        )}
+                        <span className="absolute -top-1.5 -left-1.5 sm:-top-2 sm:-left-2 w-5 h-5 sm:w-6 sm:h-6 bg-background border-2 border-primary rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-primary">
+                          {day.day}
                         </span>
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-0.5">
-                        <h3 className={`font-bold text-sm sm:text-lg leading-tight ${unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>
-                          {language === 'en' ? day.titleEn : day.titleRo}
-                        </h3>
-                        {/* Badge for Free/Premium/Trial */}
-                        {isFreeDay && (
-                          <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/30 text-[10px] sm:text-xs px-1.5 py-0">
-                            {completed ? '✓ ' : ''}{language === 'en' ? 'FREE' : 'GRATUIT'}
-                          </Badge>
-                        )}
-                        {isPremium && hasPremiumAccess && (
-                          <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/30 text-[10px] sm:text-xs px-1.5 py-0">
-                            🔓 {language === 'en' ? 'UNLOCKED' : 'DEBLOCAT'}
-                          </Badge>
-                        )}
                         {isPremium && !hasPremiumAccess && (
-                          <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/30 text-[10px] sm:text-xs px-1.5 py-0">
-                            🔒 Premium
-                          </Badge>
+                          <span className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2">
+                            <Crown className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
+                          </span>
                         )}
                       </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-                        {language === 'en' ? day.subtitleEn : day.subtitleRo}
-                      </p>
-                      {/* Focus Areas Badges */}
-                      <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2">
-                        {day.focusAreas.map((area) => (
-                          <div 
-                            key={area} 
-                            className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${areaColors[area]}`}
-                            title={language === 'en' ? areaLabels[area].en : areaLabels[area].ro}
-                          />
-                        ))}
-                      </div>
-                    </div>
 
-                    {/* Action Button */}
-                    <div className="flex-shrink-0">
-                      {completed ? (
-                        <Button variant="outline" size="sm" className="border-green-500/50 text-green-500 h-8 px-2 sm:px-3 text-xs sm:text-sm">
-                          <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
-                          <span className="hidden sm:inline">{language === 'en' ? 'Done' : 'Gata'}</span>
-                        </Button>
-                      ) : unlocked ? (
-                        <Button 
-                          size="sm" 
-                          className={`bg-gradient-to-r ${day.color} hover:opacity-90 h-8 px-2 sm:px-3 text-xs sm:text-sm`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleStartDay(day);
-                          }}
-                        >
-                          <Play className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
-                          <span className="hidden sm:inline">{language === 'en' ? 'Start' : 'Începe'}</span>
-                        </Button>
-                      ) : (
-                        <Button variant="ghost" size="sm" disabled className="h-8 px-2">
-                          <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                        </Button>
-                      )}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-0.5">
+                          <h3 className={`font-bold text-sm sm:text-lg leading-tight ${unlocked ? 'text-foreground' : 'text-muted-foreground'}`}>
+                            {language === 'en' ? day.titleEn : day.titleRo}
+                          </h3>
+                          {/* Badge for Free/Premium/Trial */}
+                          {isFreeDay && (
+                            <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/30 text-[10px] sm:text-xs px-1.5 py-0">
+                              {completed ? '✓ ' : ''}{language === 'en' ? 'FREE' : 'GRATUIT'}
+                            </Badge>
+                          )}
+                          {isPremium && hasPremiumAccess && (
+                            <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/30 text-[10px] sm:text-xs px-1.5 py-0">
+                              🔓 {language === 'en' ? 'UNLOCKED' : 'DEBLOCAT'}
+                            </Badge>
+                          )}
+                          {isPremium && !hasPremiumAccess && (
+                            <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/30 text-[10px] sm:text-xs px-1.5 py-0">
+                              🔒 Premium
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+                          {language === 'en' ? day.subtitleEn : day.subtitleRo}
+                        </p>
+                        {/* Focus Areas Badges */}
+                        <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2">
+                          {day.focusAreas.map((area) => (
+                            <div 
+                              key={area} 
+                              className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${areaColors[area]}`}
+                              title={language === 'en' ? areaLabels[area].en : areaLabels[area].ro}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Action Button */}
+                      <div className="flex-shrink-0">
+                        {completed ? (
+                          <Button variant="outline" size="sm" className="border-green-500/50 text-green-500 h-8 px-2 sm:px-3 text-xs sm:text-sm">
+                            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">{language === 'en' ? 'Done' : 'Gata'}</span>
+                          </Button>
+                        ) : unlocked ? (
+                          <Button 
+                            size="sm" 
+                            className={`bg-gradient-to-r ${day.color} hover:opacity-90 h-8 px-2 sm:px-3 text-xs sm:text-sm`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStartDay(day);
+                            }}
+                          >
+                            <Play className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">{language === 'en' ? 'Start' : 'Începe'}</span>
+                          </Button>
+                        ) : (
+                          <Button variant="ghost" size="sm" disabled className="h-8 px-2">
+                            <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Card>
