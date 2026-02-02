@@ -151,7 +151,7 @@ export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
           </div>
         </div>
         
-        {/* Complete Button */}
+        {/* Continue Button */}
         <Button
           onClick={onComplete}
           disabled={!canComplete || isLoading}
@@ -178,7 +178,7 @@ export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
           ) : (
             <>
               <Trophy className="h-5 w-5 mr-2" />
-              {isRo ? 'Finalizează Ziua 1 și Începe Transformarea' : 'Complete Day 1 and Start Your Transformation'}
+              {isRo ? 'Continuă →' : 'Continue →'}
             </>
           )}
         </Button>

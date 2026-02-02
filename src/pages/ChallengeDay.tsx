@@ -24,7 +24,8 @@ import {
   Day1StepsSummary, 
   Day1DeclarationReview, 
   Day1VideoPlaceholder,
-  Day1RealityCheck
+  Day1RealityCheck,
+  Day1InviteFriendsStep
 } from '@/components/challenge/day1';
 import { ChallengeInviteFriends } from '@/components/challenge/ChallengeInviteFriends';
 import { useDay1Responses } from '@/hooks/useDay1Responses';
@@ -680,7 +681,7 @@ const ChallengeDayPage = () => {
           <Day1VideoPlaceholder />
           
           {/* Steps Summary */}
-          <Day1StepsSummary currentStep={hasExistingDeclaration ? 4 : day1Step} />
+          <Day1StepsSummary currentStep={hasExistingDeclaration ? 5 : day1Step} />
           
           {/* RETURNING USER: Show declaration review */}
           {hasExistingDeclaration ? (
@@ -693,10 +694,21 @@ const ChallengeDayPage = () => {
             </>
           ) : (
             <>
-              {/* NEW USER: Step-by-step flow - 4 STEPS */}
+              {/* NEW USER: Step-by-step flow - 5 STEPS */}
               
-              {/* Step 0: WHY Questions */}
+              {/* Step 0: Reality Check (FIRST NOW) */}
               {day1Step === 0 && (
+                <Day1RealityCheck
+                  onComplete={(scores) => {
+                    // Scores are saved inside the component
+                    setDay1Step(1);
+                  }}
+                  onPostScore={handlePostRealityScore}
+                />
+              )}
+              
+              {/* Step 1: WHY Questions (MOVED FROM 0) */}
+              {day1Step === 1 && (
                 <Day1WhyQuestions
                   responses={{
                     question_1: day1Responses.question_1 || '',
@@ -710,19 +722,8 @@ const ChallengeDayPage = () => {
                     if (isAuthenticated) {
                       await saveDay1Responses(day1Responses);
                     }
-                    setDay1Step(1);
-                  }}
-                />
-              )}
-              
-              {/* Step 1: Reality Check (NEW) */}
-              {day1Step === 1 && (
-                <Day1RealityCheck
-                  onComplete={(scores) => {
-                    // Scores are saved inside the component
                     setDay1Step(2);
                   }}
-                  onPostScore={handlePostRealityScore}
                 />
               )}
               
@@ -762,10 +763,17 @@ const ChallengeDayPage = () => {
                 <Day1Commitment
                   isCommitted={day1Responses.commitment_confirmed || false}
                   onCommitmentChange={(committed) => updateDay1Responses({ commitment_confirmed: committed })}
-                  onComplete={handleDay1Complete}
+                  onComplete={() => setDay1Step(4)}
                   isLoading={day1Saving}
                   commentCount={userCommentCount}
                   requiredComments={3}
+                />
+              )}
+              
+              {/* Step 4: Invite Friends (NEW STEP) */}
+              {day1Step === 4 && (
+                <Day1InviteFriendsStep
+                  onComplete={handleDay1Complete}
                 />
               )}
               
@@ -782,13 +790,6 @@ const ChallengeDayPage = () => {
                 </div>
               )}
             </>
-          )}
-          
-          {/* Invite Friends Section - Day 1 */}
-          {isAuthenticated && (
-            <div className="mt-6 mb-6">
-              <ChallengeInviteFriends dayNumber={1} />
-            </div>
           )}
 
           {/* Comments Section - ALWAYS visible */}

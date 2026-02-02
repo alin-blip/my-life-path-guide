@@ -1,26 +1,15 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { useLanguage } from '@/context/LanguageContext';
-import { Flame, ScrollText, Users, Check, Map } from 'lucide-react';
+import { Flame, ScrollText, Users, Check, Map, Gift } from 'lucide-react';
 
 interface Day1StepsSummaryProps {
-  currentStep: number; // 0, 1, 2, 3 or 4 (completed)
+  currentStep: number; // 0, 1, 2, 3, 4 or 5 (completed)
 }
 
 const STEPS = [
   {
     id: 1,
-    titleRo: 'Descoperă-ți MARELE DE CE',
-    titleEn: 'Discover Your BIG WHY',
-    descriptionRo: 'Răspunde la 5 întrebări pentru a-ți găsi motivația profundă de transformare.',
-    descriptionEn: 'Answer 5 questions to find your deep motivation for transformation.',
-    icon: Flame,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-500/10 border-orange-500/20',
-    activeGradient: 'from-orange-500 to-amber-500'
-  },
-  {
-    id: 2,
     titleRo: 'Evaluează REALITATEA DE ASTĂZI',
     titleEn: 'Assess Your CURRENT REALITY',
     descriptionRo: 'Folosește Harta Realității pentru a vedea de unde pornești în cele 4 dimensiuni.',
@@ -29,6 +18,17 @@ const STEPS = [
     color: 'text-cyan-500',
     bgColor: 'bg-cyan-500/10 border-cyan-500/20',
     activeGradient: 'from-cyan-500 to-blue-500'
+  },
+  {
+    id: 2,
+    titleRo: 'Descoperă-ți MARELE DE CE',
+    titleEn: 'Discover Your BIG WHY',
+    descriptionRo: 'Răspunde la 5 întrebări pentru a-ți găsi motivația profundă de transformare.',
+    descriptionEn: 'Answer 5 questions to find your deep motivation for transformation.',
+    icon: Flame,
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/10 border-orange-500/20',
+    activeGradient: 'from-orange-500 to-amber-500'
   },
   {
     id: 3,
@@ -51,6 +51,17 @@ const STEPS = [
     color: 'text-emerald-500',
     bgColor: 'bg-emerald-500/10 border-emerald-500/20',
     activeGradient: 'from-emerald-500 to-green-500'
+  },
+  {
+    id: 5,
+    titleRo: 'INVITĂ 1-3 PRIETENI',
+    titleEn: 'INVITE 1-3 FRIENDS',
+    descriptionRo: 'Trimite invitația exclusivă prietenilor care vor să se transforme!',
+    descriptionEn: 'Send the exclusive invite to friends who want to transform!',
+    icon: Gift,
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10 border-amber-500/20',
+    activeGradient: 'from-amber-500 to-orange-500'
   }
 ];
 
@@ -67,7 +78,7 @@ export const Day1StepsSummary: React.FC<Day1StepsSummaryProps> = ({ currentStep 
       <div className="space-y-4">
         {STEPS.map((step, index) => {
           const Icon = step.icon;
-          const stepNumber = index; // 0, 1, 2, 3
+          const stepNumber = index; // 0, 1, 2, 3, 4
           const isCompleted = currentStep > stepNumber;
           const isActive = currentStep === stepNumber;
           const isPending = currentStep < stepNumber;
