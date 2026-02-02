@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDoor } from '@/context/DoorContext';
 import { useDoorUndo } from '@/hooks/useDoorUndo';
 import { useStreakTracking } from '@/hooks/useStreakTracking';
+import { useIdeaToTaskBridge } from '@/hooks/useIdeaToTaskBridge';
 import { HotList } from '@/components/door/HotList';
 import { DominoDoor } from '@/components/door/DominoDoor';
 import { TaskList } from '@/components/door/TaskList';
@@ -145,6 +146,13 @@ export const WeeklyTab: React.FC = () => {
     navigateToDate,
     refreshLists
   } = useDoor();
+
+  // Idea-to-Task bridge for HotList callbacks
+  const { handleMoveIdeaToHit, handleMoveIdeaToDo } = useIdeaToTaskBridge(
+    currentWeekKey,
+    activeDay,
+    refreshLists
+  );
 
   // Streak tracking
   const { streakData, updateDailyProgress } = useStreakTracking();
@@ -427,6 +435,8 @@ export const WeeklyTab: React.FC = () => {
                   </div>
                   <HotList 
                     isMobile={isMobile}
+                    onMoveToHit={handleMoveIdeaToHit}
+                    onMoveToDo={handleMoveIdeaToDo}
                   />
                 </div>
               )}
@@ -507,6 +517,8 @@ export const WeeklyTab: React.FC = () => {
               
               <HotList 
                 isMobile={false}
+                onMoveToHit={handleMoveIdeaToHit}
+                onMoveToDo={handleMoveIdeaToDo}
               />
             </div>
 
