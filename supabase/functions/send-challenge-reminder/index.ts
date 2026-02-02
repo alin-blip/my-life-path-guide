@@ -11,7 +11,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Have It All <onboarding@resend.dev>",
+      from: "WarriorOS <noreply@warriorsos.com>",
       to: [to],
       subject,
       html,
@@ -72,7 +72,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const results = [];
-    const baseUrl = Deno.env.get("SITE_URL") || "https://haveitall.lovable.app";
+    const baseUrl = "https://warriorsos.com";
 
     for (const participant of participants || []) {
       // Calculate which day they should be on based on signup date

@@ -55,7 +55,7 @@ serve(async (req) => {
       const html = generateDay7UpgradeEmail(body.email, earlyBirdActive);
       
       const emailResult = await resend.emails.send({
-        from: "Warriors <noreply@mylifepathguide.com>",
+        from: "WarriorOS <noreply@warriorsos.com>",
         to: [body.email],
         subject: earlyBirdActive 
           ? "🎉 Felicitări! Ai Terminat Challenge-ul - Ofertă Specială Early Bird"
@@ -133,7 +133,7 @@ serve(async (req) => {
         const html = generateDay7UpgradeEmail(sub.email, earlyBirdActive);
 
         await resend.emails.send({
-          from: "Warriors <noreply@mylifepathguide.com>",
+          from: "WarriorOS <noreply@warriorsos.com>",
           to: [sub.email],
           subject: earlyBirdActive 
             ? "🎉 Felicitări! Ai Terminat Challenge-ul - Ofertă Specială Early Bird"
@@ -167,7 +167,7 @@ serve(async (req) => {
 });
 
 function generateDay7UpgradeEmail(email: string, earlyBirdActive: boolean): string {
-  const appUrl = "https://my-life-path-guide.lovable.app";
+  const appUrl = "https://warriorsos.com";
   
   const earlyBirdSection = earlyBirdActive ? `
     <div style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); border-radius: 16px; padding: 24px; margin: 24px 0; text-align: center;">

@@ -11,7 +11,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       Authorization: `Bearer ${RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: "MyLifePathGuide <noreply@my-life-path-guide.lovable.app>",
+      from: "WarriorOS <noreply@warriorsos.com>",
       to: [to],
       subject,
       html,
@@ -47,7 +47,7 @@ const recoveryTemplates: Record<number, { subject: string; html: (name: string, 
           <li>Primești claritate imediată asupra direcției tale</li>
           <li>AI Coach-ul te ghidează pas cu pas</li>
         </ul>
-        <a href="https://my-life-path-guide.lovable.app/challenge/1" 
+        <a href="https://warriorsos.com/challenge/1" 
            style="display: inline-block; background: #7c3aed; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; margin-top: 20px; font-weight: bold;">
           Începe Ziua 1 Acum →
         </a>
@@ -66,7 +66,7 @@ const recoveryTemplates: Record<number, { subject: string; html: (name: string, 
         <p>Ai completat Ziua 1 și ai făcut primul pas important. Dar ai rămas blocat la Ziua 2.</p>
         <p><strong>Ziua 2: Definește-ți Identitatea</strong></p>
         <p>Aceasta este ziua în care decizi cine vrei să devii.</p>
-        <a href="https://my-life-path-guide.lovable.app/challenge/2" 
+        <a href="https://warriorsos.com/challenge/2" 
            style="display: inline-block; background: #7c3aed; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px;">
           Continuă Ziua 2 →
         </a>
@@ -80,7 +80,7 @@ const recoveryTemplates: Record<number, { subject: string; html: (name: string, 
         <h1>${name || 'Warrior'}, continuă!</h1>
         <p>Ziua 3 este despre identificarea obstacolelor. Ironic, nu? Poate că viața ta de zi cu zi a devenit un obstacol pentru challenge.</p>
         <p>Dar tocmai de asta ai nevoie de acest exercițiu.</p>
-        <a href="https://my-life-path-guide.lovable.app/challenge/3" 
+        <a href="https://warriorsos.com/challenge/3" 
            style="display: inline-block; background: #7c3aed; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px;">
           Completează Ziua 3 →
         </a>
@@ -94,7 +94,7 @@ const recoveryTemplates: Record<number, { subject: string; html: (name: string, 
         <h1>${name || 'Warrior'}, ești aproape!</h1>
         <p>Ai trecut prin cele mai grele zile. Ziua 4 este despre a crea planul concret.</p>
         <p>Mai sunt doar 4 zile până la transformare.</p>
-        <a href="https://my-life-path-guide.lovable.app/challenge/4" 
+        <a href="https://warriorsos.com/challenge/4" 
            style="display: inline-block; background: #7c3aed; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px;">
           Creează Planul - Ziua 4 →
         </a>
@@ -108,7 +108,7 @@ const recoveryTemplates: Record<number, { subject: string; html: (name: string, 
         <h1>${name || 'Warrior'}, Ziua 5 e specială!</h1>
         <p>În Ziua 5 înveți metoda STACK - sistemul nostru secret pentru transformare rapidă.</p>
         <p>Nu rata asta.</p>
-        <a href="https://my-life-path-guide.lovable.app/challenge/5" 
+        <a href="https://warriorsos.com/challenge/5" 
            style="display: inline-block; background: #7c3aed; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px;">
           Descoperă Metoda STACK →
         </a>
@@ -122,7 +122,7 @@ const recoveryTemplates: Record<number, { subject: string; html: (name: string, 
         <h1>${name || 'Warrior'}, mai e o singură zi!</h1>
         <p>Ziua 6 este despre accountability - găsirea suportului de care ai nevoie.</p>
         <p>Mâine e Ziua 7 - accelerarea finală.</p>
-        <a href="https://my-life-path-guide.lovable.app/challenge/6" 
+        <a href="https://warriorsos.com/challenge/6" 
            style="display: inline-block; background: #7c3aed; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px;">
           Completează Ziua 6 →
         </a>
@@ -139,7 +139,7 @@ const recoveryTemplates: Record<number, { subject: string; html: (name: string, 
         <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 0;"><strong>🎁 Bonus:</strong> Cei care completează toate 7 zile primesc acces la resurse exclusive!</p>
         </div>
-        <a href="https://my-life-path-guide.lovable.app/challenge/7" 
+        <a href="https://warriorsos.com/challenge/7" 
            style="display: inline-block; background: #eab308; color: #1a1a1a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold;">
           Finalizează Challenge-ul →
         </a>

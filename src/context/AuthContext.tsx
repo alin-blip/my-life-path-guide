@@ -100,6 +100,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }, { onConflict: 'email' })
                 .then(() => {});
               
+              // Trimite welcome email pentru OAuth users
+              supabase.functions.invoke('send-challenge-welcome', {
+                body: {
+                  email: session.user.email,
+                  name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
+                  userId: session.user.id,
+                  language: 'ro'
+                }
+              }).catch(err => console.warn('[Challenge] Welcome email failed:', err));
+              
               if (import.meta.env.DEV) {
                 console.log('[Challenge] OAuth lead saved for:', session.user.email);
               }
