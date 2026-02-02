@@ -1,66 +1,102 @@
 
-# Plan: Integrare Tracking Challenge în Admin CRM
+# Plan: Fixare Lead Tracking pentru Challenge-7-Zile (OAuth + Email)
 
-## Problema identificată
-Sistemul de tracking (`useActivityTracker`) există dar **nu este activ** - nu este integrat nicăieri în aplicație. De aceea tabelul `crm_activity_timeline` este gol și nu există vizibilitate în admin asupra utilizatorilor care accesează Challenge-ul.
+## Problema Identificată
 
-## Soluție în 4 pași
+Când utilizatorii se autentifică cu **Google sau Apple** pe pagina `/challenge-7-zile`:
+1. **Nu se salvează în `email_leads`** - funcția `saveLeadBeforeAuth` este apelată doar pentru email/password auth
+2. **Nu se creează/linkuiește CRM profile** - `crm_contact_profiles.user_id` rămâne NULL
+3. **`trackChallengeStarted` nu este apelată** - funcția există dar nu e utilizată
 
-### 1. Activare Activity Tracker Global
-Integrarea hook-ului `useActivityTracker` în componenta `Layout.tsx` pentru a începe să înregistreze automat:
-- Page views (inclusiv `/challenge`, `/challenge/1`, `/challenge/2`, etc.)
-- Sesiuni utilizator
-- Device type și timestamp
+## Soluție în 3 Pași
 
-Aceasta va popula automat tabelul `crm_activity_timeline` cu activitatea tuturor utilizatorilor autentificați.
+### Pas 1: Salvare Lead după OAuth Redirect (AuthContext)
+Când utilizatorul revine din OAuth pe `/challenge`, vom salva lead-ul cu email-ul din `session.user.email`.
 
-### 2. Tracking Events Specifice pentru Challenge
-Adăugarea de events explicite în `useChallengeProgress.tsx`:
-- `challenge_started` - când un utilizator intră prima dată în challenge
-- `challenge_day_started` - când deschide o zi
-- `challenge_video_watched` - când marchează videoul ca vizionat  
-- `challenge_day_completed` - când completează o zi
-- `challenge_completed` - când termină toate cele 7 zile
+Modificări în `src/context/AuthContext.tsx`:
+- La evenimentul `SIGNED_IN`, verificăm dacă URL-ul curent este `/challenge`
+- Dacă da, salvăm email-ul în `email_leads` cu `lead_magnet: 'challenge_oauth'`
+- Creăm/updatăm `crm_contact_profiles` cu `user_id` linkuit
 
-### 3. Câmpuri noi în CRM pentru Challenge
-Adăugarea de coloane în tabelul `crm_contact_profiles`:
-- `challenge_started_at` - data când a intrat prima dată în challenge
-- `challenge_current_day` - ziua curentă (1-7)
-- `challenge_days_completed` - numărul de zile completate
-- `challenge_completed_at` - data finalizării complete
+### Pas 2: Trigger trackChallengeStarted automat (Challenge.tsx)
+Adăugăm un `useEffect` în pagina Challenge care:
+- Verifică dacă utilizatorul e autentificat
+- Apelează `trackChallengeStarted()` automat la prima vizită
+- Actualizează `challenge_started_at` în CRM
 
-### 4. Vizualizare Challenge în ContactProfile360
-Adăugarea unui tab nou "Challenge" în profilul contactului care afișează:
-- Progresul vizual pe cele 7 zile
-- Data la care a completat fiecare zi
-- Status curent (în curs, completat, abandonat)
-- Timeline cu toate activitățile challenge
+### Pas 3: Linkuire CRM Contact cu Auth User
+Când se creează sau găsește un contact CRM (în `useActivityTracker`):
+- Verificăm dacă `user_id` este NULL
+- Dacă da, îl setăm cu ID-ul utilizatorului curent
+
+---
+
+## Fișiere de Modificat
+
+| Fișier | Modificare |
+|--------|------------|
+| `src/context/AuthContext.tsx` | Salvare lead OAuth + creare CRM profile |
+| `src/pages/Challenge.tsx` | Apelare `trackChallengeStarted()` la mount |
+| `src/hooks/useActivityTracker.ts` | Update `user_id` pe contactele existente |
 
 ---
 
 ## Detalii Tehnice
 
-### Fișiere de modificat:
-1. `src/components/Layout.tsx` - import și utilizare useActivityTracker
-2. `src/hooks/useChallengeProgress.tsx` - adăugare tracking events la fiecare acțiune
-3. `src/hooks/useActivityTracker.ts` - extindere cu funcții helper pentru challenge
-4. `src/components/admin/crm/ContactProfile360.tsx` - tab nou pentru challenge progress
-
-### Migrație bază de date:
-```sql
-ALTER TABLE crm_contact_profiles 
-ADD COLUMN challenge_started_at TIMESTAMPTZ,
-ADD COLUMN challenge_current_day INTEGER DEFAULT 0,
-ADD COLUMN challenge_days_completed INTEGER DEFAULT 0,
-ADD COLUMN challenge_completed_at TIMESTAMPTZ;
+### AuthContext.tsx - Modificări
+```typescript
+// În onAuthStateChange, după SIGNED_IN:
+if (event === 'SIGNED_IN' && session?.user) {
+  // Salvează lead pentru OAuth dacă vine din challenge
+  const fromChallenge = window.location.pathname.includes('/challenge');
+  if (fromChallenge && session.user.email) {
+    // Insert în email_leads
+    supabase.from('email_leads').insert({
+      email: session.user.email,
+      lead_magnet: 'challenge_oauth',
+      source: 'challenge-7-zile-oauth',
+      metadata: { 
+        auth_provider: session.user.app_metadata?.provider || 'unknown',
+        signup_date: new Date().toISOString()
+      }
+    }).then(() => {}).catch(() => {});
+    
+    // Upsert CRM contact cu user_id
+    supabase.from('crm_contact_profiles')
+      .upsert({
+        email: session.user.email,
+        user_id: session.user.id,
+        funnel_stage: 'engaged',
+        lead_source: 'challenge_oauth',
+        account_created_at: new Date().toISOString()
+      }, { onConflict: 'email' })
+      .then(() => {}).catch(() => {});
+  }
+}
 ```
 
-### Estimare timp implementare:
-~15-20 minute
+### Challenge.tsx - Trigger automat
+```typescript
+const { trackChallengeStarted, isAuthenticated } = useChallengeProgress();
 
-### Rezultat final:
-În admin vei putea vedea pentru fiecare contact:
-- Dacă a intrat în challenge și când
-- Care e progresul său (ziua curentă)
-- Toate acțiunile făcute în challenge (timeline)
-- Statistici agregate în ChallengeDropOffStats
+useEffect(() => {
+  if (isAuthenticated) {
+    trackChallengeStarted();
+  }
+}, [isAuthenticated, trackChallengeStarted]);
+```
+
+---
+
+## Rezultat Așteptat
+
+După implementare:
+- ✅ Lead-urile OAuth vor fi salvate în `email_leads` cu `lead_magnet: 'challenge_oauth'`
+- ✅ CRM contacts vor avea `user_id` setat corect
+- ✅ `challenge_started_at` se va popula automat când utilizatorul intră în Challenge
+- ✅ Timeline-ul de activități va fi vizibil în Admin CRM
+
+---
+
+## Timp Estimat
+~10 minute implementare
