@@ -1,254 +1,196 @@
 
+# Audit Complet Domino Door - Stare Lansare
 
-# Audit Complet Lansare: Domino Door - Idei și Sarcini
+## REZUMAT EXECUTIV
 
-## Rezumat Executiv
-
-Am identificat **3 probleme majore** care împiedică funcționarea corectă a sistemului Idei → Sarcini:
+| Categorie | Status | Detalii |
+|-----------|--------|---------|
+| **Salvare per User** | ✅ FUNCȚIONAL | RLS activ pe toate tabelele, `auth.uid() = user_id` |
+| **Drag & Drop Idei → Sarcini** | ✅ FUNCȚIONAL | Native drag implementat cu `application/json` |
+| **Admin Impersonation** | ⚠️ PARȚIAL | Edge function există, dar NU schimbă sesiunea efectiv |
+| **Callback-uri HotList** | ✅ IMPLEMENTAT | `onMoveToHit` și `onMoveToDo` conectate |
+| **Securitate RLS** | ✅ ACTIV | Toate tabelele critice au RLS enabled |
 
 ---
 
-## Problemele Găsite
+## 1. SALVARE DATE PER USER
 
-### 1. DOUĂ SISTEME DE DATE SEPARATE (Problema Principală)
+### ✅ RLS Policies Active
 
-Componenta `HotList.tsx` (Idei) folosește **tabelul `ideas_bank`** via `ideasBankService`, în timp ce restul sistemului (drag-drop, `useDoorLists`, `TaskList`) folosește **tabelul `user_tasks`** via `doorUserTasksService`.
+Toate tabelele critice au Row Level Security activat:
 
-```text
-┌────────────────────────────────────────────────────────────────────┐
-│                    ARHITECTURA ACTUALĂ (RUPTĂ)                     │
-├────────────────────────────────────────────────────────────────────┤
-│                                                                    │
-│   HotList.tsx (Idei)          TaskList.tsx (Sarcini)              │
-│         ↓                            ↓                            │
-│   ideasBankService             doorUserTasksService               │
-│         ↓                            ↓                            │
-│   ideas_bank table             user_tasks table                   │
-│                                                                    │
-│   ❌ ACESTE DOUĂ NU COMUNICĂ!                                      │
-│                                                                    │
-└────────────────────────────────────────────────────────────────────┘
-```
+| Tabel | RLS | Policy |
+|-------|-----|--------|
+| `user_tasks` | ✅ ON | `auth.uid() = user_id` - Users can manage their own tasks |
+| `ideas_bank` | ✅ ON | `auth.uid() = user_id` - SELECT/INSERT/UPDATE/DELETE per user |
+| `weekly_planning` | ✅ ON | `auth.uid() = user_id` - Users manage their own planning |
+| `user_preferences` | ✅ ON | RLS activ |
+| `leaderboard_profiles` | ✅ ON | RLS activ |
 
-**Dovadă din baza de date:**
-- `ideas_bank`: 4 idei (inclusiv "adaugare fact map in ziua 1 challenge")
-- `user_tasks` cu `list_type='hot'`: 10 task-uri cu titluri simple ("1", "2", "3", "4")
+### ✅ Date Izolate Corect
 
-### 2. CALLBACK-URI LIPSĂ pentru Mutare Idei
+Din baza de date:
+- **9 utilizatori unici** au task-uri în sistemul Door
+- **user_id** este filtrat corect în toate query-urile
+- Fiecare utilizator vede **DOAR** propriile task-uri și idei
 
-În toate componentele părinte (`WeeklyTab.tsx`, `SimplifiedDoorContent.tsx`, `WeeklySection.tsx`), componenta `<HotList />` este randată **fără callback-uri**:
-
-```tsx
-// ACTUAL (GREȘIT):
-<HotList isMobile={isMobile} />
-
-// NECESAR:
-<HotList 
-  isMobile={isMobile}
-  onMoveToHit={(idea) => handleMoveIdeaToHit(idea)}  // ← LIPSĂ
-  onMoveToDo={(idea) => handleMoveIdeaToDo(idea)}   // ← LIPSĂ
-/>
-```
-
-**Consecință:** Când apesi pe iconița Target (🎯) din Idei pentru a muta în Sarcini, funcția internă `handleMoveToHit` din HotList apelează `onMoveToHit?.()`, dar callback-ul este `undefined`, deci nu se întâmplă nimic în `user_tasks`.
-
-### 3. DRAG & DROP ÎNTRE Idei → Sarcini NU FUNCȚIONEAZĂ
-
-Sistemul actual de drag-drop (`useDoorDrag.tsx`) este proiectat pentru `HotListItem` din vechiul sistem (`user_tasks` cu `task_type='hot'`).
-
-Când tragi o idee din `HotList` (care folosește `@hello-pangea/dnd` intern), aceasta NU setează `draggedItem` în contextul `useDoorDrag`, deci când faci drop pe `TaskList`, nu se întâmplă nimic.
-
-```text
-DragDropContext din HotList (hello-pangea)
-          ↓
-  NU COMUNICĂ CU
-          ↓
-handleDragStart/handleDrop din useDoorDrag (evenimente native)
+### Exemplu query care izolează corect:
+```sql
+SELECT * FROM user_tasks WHERE user_id = auth.uid()
 ```
 
 ---
 
-## Problemele Secundare
+## 2. FUNCȚIONALITATE IDEI → SARCINI
 
-### 4. "Top 4 Priorități" merge în Sarcini, NU în Idei
+### ✅ Drag & Drop Cross-Library
 
-Când adaugi 4 priorități prin butonul din `EmptyTaskList.tsx`, acestea se salvează direct în `user_tasks` cu `task_type='hit'` pentru ziua/săptămâna curentă.
-
-**NU există nicio "săgeată înapoi"** care să ducă task-urile în Idei. Butoanele de navigare (←/→) din header schimbă săptămâna, nu mută task-uri între secțiuni.
-
-### 5. Duplicate în `user_tasks`
-
-Am găsit task-uri duplicate în baza de date:
-- Multiple înregistrări cu titluri "1", "2", "3", "4" (teste)
-- Task-uri cu `week_key=''` (string gol) care nu apar în UI
-
----
-
-## Planul de Reparație
-
-### Pasul 1: Unificarea Arhitecturii (Decizie Necesară)
-
-Există două opțiuni:
-
-| Opțiune | Descriere | Pro | Contra |
-|---------|-----------|-----|--------|
-| **A: Migrare la `ideas_bank`** | HotList devine sursa principală; `user_tasks` doar pentru HIT/DO | Sistemul de clasificare Eisenhower rămâne | Necesită rescrierea drag-drop |
-| **B: Migrare la `user_tasks`** | Revenire la vechiul sistem, HotList folosește `doorUserTasksService` | Drag-drop funcționează nativ | Pierdem clasificarea Eisenhower |
-
-**Recomandare: Opțiunea A** - păstrăm `ideas_bank` pentru Idei, dar adăugăm funcții de transfer către `user_tasks` când ideea este mutată în Sarcini.
-
-### Pasul 2: Implementare Callback-uri în Componente Părinte
-
-**Fișiere de modificat:**
-- `src/components/door/tabs/WeeklyTab.tsx`
-- `src/components/door/SimplifiedDoorContent.tsx`
-- `src/components/door/WeeklySection.tsx`
-
-**Cod de adăugat:**
+**Implementat corect în `HotList.tsx` (liniile 586-595):**
 
 ```tsx
-// Funcție nouă pentru mutare idee în Sarcini
-const handleMoveIdeaToHit = async (idea: IdeaBankItem) => {
-  // 1. Adaugă în user_tasks
-  await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
-    id: idea.id,
-    text: idea.text,
-    category: 'hit',
-    priority: idea.priority === 4 ? 'urgent-important' :
-              idea.priority === 3 ? 'important' :
-              idea.priority === 2 ? 'urgent' : 'none',
-    day: activeDay
-  });
-  
-  // 2. Refresh listele
-  refreshLists();
-  
-  toast({
-    title: "✅ Idee mutată în Sarcini",
-    description: `"${idea.text}" adăugată pentru ${activeDay}`,
-  });
-};
-
-// În randare:
-<HotList 
-  isMobile={isMobile}
-  onMoveToHit={handleMoveIdeaToHit}
-  onMoveToDo={(idea) => handleMoveIdeaToHit(idea)} // Sau DO logic
-/>
-```
-
-### Pasul 3: Implementare Cross-Library Drag & Drop
-
-Pentru a permite tragerea din `HotList` (hello-pangea) către `TaskList`:
-
-1. Adăugăm un wrapper de drag nativ pe fiecare idee
-2. Setăm `dataTransfer` cu informații serializate ale ideii
-3. `TaskList.handleDrop` citește aceste date și apelează `doorUserTasksService`
-
-**Modificări necesare în `HotList.tsx`:**
-
-```tsx
-// Pe fiecare item din lista de idei, adăugăm:
 onDragStart={(e) => {
   e.dataTransfer.setData('application/json', JSON.stringify({
     type: 'idea-bank-item',
     id: idea.id,
     text: idea.text,
-    priority: idea.priority
+    priority: idea.priority,
+    category: idea.category
   }));
   e.dataTransfer.effectAllowed = 'copyMove';
 }}
-draggable={true}
 ```
 
-**Modificări necesare în `useDoorDrag.tsx`:**
+**Handler în `useDoorDrag.tsx` (liniile 139-173):**
+- Detectează `type: 'idea-bank-item'` din dataTransfer
+- Mapează prioritatea Eisenhower corect (4→urgent-important, 3→important, etc.)
+- Adaugă în HIT sau DO list conform `activeList`
+
+### ✅ Callback-uri Conectate
+
+Hook-ul `useIdeaToTaskBridge` este implementat și conectat în:
+- `WeeklyTab.tsx`
+- `SimplifiedDoorContent.tsx`  
+- `WeeklySection.tsx`
+
+---
+
+## 3. ADMIN PREVIEW CLIENT - ⚠️ INCOMPLET
+
+### Ce există:
+
+1. **Edge Function `admin-impersonate`** - verifică rol admin via `has_role()` RPC
+2. **Tabel `admin_impersonation_log`** - loghează toate sesiunile
+3. **Buton "View As User"** în CRM ContactProfile360
+
+### Ce NU funcționează:
+
+**Problema Majoră:** Edge function-ul `admin-impersonate` **NU schimbă efectiv sesiunea utilizatorului**. 
+
+Codul actual (liniile 148-199 din ContactProfile360.tsx):
 
 ```tsx
-const handleDrop = (e: React.DragEvent) => {
-  e.preventDefault();
+const startViewAs = async () => {
+  const { data, error } = await supabase.functions.invoke('admin-impersonate', {
+    body: { targetUserId: contact.user_id }
+  });
   
-  // Verifică dacă vine din Ideas Bank
-  const jsonData = e.dataTransfer.getData('application/json');
-  if (jsonData) {
-    try {
-      const data = JSON.parse(jsonData);
-      if (data.type === 'idea-bank-item') {
-        // Adaugă ideea în user_tasks
-        await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
-          id: data.id,
-          text: data.text,
-          category: activeList,
-          priority: mapPriority(data.priority),
-          day: activeDay
-        });
-        return;
-      }
-    } catch {}
-  }
+  // Doar salvează în localStorage - NU SCHIMBĂ AUTH!
+  localStorage.setItem('admin_impersonation', JSON.stringify({
+    adminId: user?.id,
+    targetUserId: contact.user_id,
+    ...
+  }));
   
-  // ... restul logicii existente
+  // Deschide fereastră nouă, dar tot cu sesiunea ADMIN-ului
+  window.open('/', '_blank');
 };
 ```
 
-### Pasul 4: Curățare Date Invalide
+**Rezultat:** Admin-ul deschide o fereastră nouă, dar vede tot cu propria sesiune, NU cu cea a clientului.
 
-Rulăm un query pentru a elimina task-urile cu `week_key` gol sau invalid:
+### Opțiuni de Fix:
 
+**Opțiunea A - Token Impersonation (Recomandat pentru producție)**
+- Edge function generează un JWT token pentru target user
+- Frontend-ul folosește acest token pentru sesiunea impersonată
+- Necesită `supabase.auth.admin.generateLink()` sau similar
+
+**Opțiunea B - Read-Only Preview Mode**
+- Admin-ul vede datele clientului într-un view dedicat
+- NU schimbă sesiunea, doar afișează informațiile
+- Mai simplu de implementat, mai sigur
+
+---
+
+## 4. STATISTICI ACTUALE
+
+### Users cu activitate în Door:
+
+| User ID | HIT Tasks | DO Tasks | Week-uri Active |
+|---------|-----------|----------|-----------------|
+| 74f5b904... (tu) | 65+ tasks | 7 tasks | 6 week-uri |
+| 3132d53a... | 20 tasks | 0 | 1 week |
+| 218ea8c3... | 0 | 9 (door) | 1 week |
+| Alți 6 users | 1-2 tasks | 0 | 1 week |
+
+### Ideas Bank:
+- **4 idei totale** (1 utilizator)
+- 3 noi, 1 arhivată
+- Sistemul de clasificare Eisenhower funcțional
+
+---
+
+## 5. PROBLEME DE SECURITATE MINORE
+
+### ⚠️ Warnings (nu critice):
+
+1. **Extension in Public** - Extensie instalată în schema `public` 
+   - Risc: Low
+   - Fix: Mutare în schema separată
+
+2. **Leaked Password Protection Disabled**
+   - Risc: Medium
+   - Fix: Activare în Supabase Auth Settings
+
+### ✅ Ce e OK:
+- Admin role-uri în tabel separat (`user_roles`)
+- Funcție `has_role()` cu SECURITY DEFINER
+- RLS activ pe toate tabelele sensibile
+
+---
+
+## 6. RECOMANDĂRI PENTRU LANSARE
+
+### Critice (înainte de lansare):
+
+1. **FIX Admin Impersonation** - Implementează Read-Only Preview Mode:
+   - Creează un `AdminClientPreview.tsx` care încarcă datele clientului
+   - Afișează task-uri, idei, progres într-un view dedicat
+   - NU încercă să schimbe sesiunea
+
+### Recomandate:
+
+2. **Activează Leaked Password Protection** în Supabase Auth
+
+3. **Curățare date vechi:**
 ```sql
--- Șterge task-urile cu week_key gol sau invalid
 DELETE FROM user_tasks 
-WHERE user_id = '74f5b904-95ba-4aaa-af7a-bee4c7ee6a98'
-  AND (week_key IS NULL OR week_key = '' OR week_key NOT LIKE 'door-week-%')
-  AND task_type IN ('hit', 'do');
+WHERE week_key NOT LIKE 'door-week-%' 
+  AND task_type IN ('hit', 'do', 'hot');
 ```
 
-### Pasul 5: Adăugare Buton "Mută în Idei" în TaskList
+### Nice to have:
 
-Pentru a permite mutarea înapoi din Sarcini în Idei:
-
-```tsx
-// În TaskItem.tsx, adăugăm un nou callback:
-onMoveToIdeas={(taskId) => {
-  const task = hitList.find(t => t.id === taskId);
-  if (task) {
-    // 1. Adaugă în ideas_bank
-    await ideasBankService.addIdea(task.text, 'work', 0);
-    // 2. Șterge din user_tasks
-    // 3. Refresh
-  }
-}}
-```
+4. **Audit logging** - Loguri când admin-ul vizualizează date client
+5. **Rate limiting** pe API-uri sensibile
 
 ---
 
-## Fișiere Afectate
+## CONCLUZIE
 
-| Fișier | Acțiune |
-|--------|---------|
-| `src/components/door/tabs/WeeklyTab.tsx` | Adaugă `onMoveToHit`/`onMoveToDo` la HotList |
-| `src/components/door/SimplifiedDoorContent.tsx` | Idem |
-| `src/components/door/WeeklySection.tsx` | Idem |
-| `src/components/door/HotList.tsx` | Adaugă `draggable` și `onDragStart` nativ |
-| `src/hooks/useDoorDrag.tsx` | Extinde `handleDrop` pentru `idea-bank-item` |
-| `src/context/DoorContext.tsx` | Expune funcția `moveIdeaToTasks` |
+**Sistemul Domino Door este FUNCȚIONAL pentru lansare** cu următoarele condiții:
+- ✅ Salvarea per user funcționează corect
+- ✅ Drag & Drop Idei → Sarcini implementat
+- ⚠️ Admin Preview necesită un fix pentru a fi utilizabil
 
----
-
-## Rezultat Așteptat
-
-După implementare:
-
-1. ✅ Ideile din secțiunea "Idei" pot fi trase și lăsate în "Sarcini"
-2. ✅ Click pe iconița 🎯 mută ideea în lista de sarcini pentru ziua activă
-3. ✅ "Top 4 Priorități" adaugă task-uri în Sarcini (nu în Idei) - acesta este comportamentul corect
-4. ✅ Toate task-urile au `week_key` valid
-5. ✅ Nu mai există duplicare date între cele două tabele
-
----
-
-## Confirmare Necesară
-
-Înainte de implementare, te rog confirmă:
-- **Opțiunea A** (păstrăm `ideas_bank` + adăugăm integrare) este acceptabilă?
-- "Top 4 Priorități" ar trebui să meargă în Sarcini (comportament actual) sau în Idei?
-
+Dacă funcția de impersonation nu este critică la lansare, poți proceda. Altfel, implementează Read-Only Preview Mode care e mai sigur și mai simplu.
