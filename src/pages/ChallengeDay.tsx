@@ -23,7 +23,8 @@ import {
   Day1Commitment, 
   Day1StepsSummary, 
   Day1DeclarationReview, 
-  Day1VideoPlaceholder 
+  Day1VideoPlaceholder,
+  Day1RealityCheck
 } from '@/components/challenge/day1';
 import { ChallengeInviteFriends } from '@/components/challenge/ChallengeInviteFriends';
 import { useDay1Responses } from '@/hooks/useDay1Responses';
@@ -348,9 +349,10 @@ const ChallengeDayPage = () => {
 
   const [videoWatched, setVideoWatched] = useState(false);
   const [completedExercises, setCompletedExercises] = useState<string[]>([]);
-  const [day1Step, setDay1Step] = useState(0); // 0: Why, 1: Vision, 2: Tour, 3: Commitment
+  const [day1Step, setDay1Step] = useState(0); // 0: Why, 1: Reality, 2: Vision, 3: Commitment
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [declarationSaved, setDeclarationSaved] = useState(false);
+  const [userCommentCount, setUserCommentCount] = useState(0);
   
   // Ref for comments to post declaration
   const commentsRef = useRef<ChallengeCommentsRef>(null);
@@ -519,7 +521,48 @@ const ChallengeDayPage = () => {
     fetchUserName();
   }, []);
 
-  // Special render for Day 1 - Simplified 3-step flow
+  // Fetch user comment count for engagement tracking
+  useEffect(() => {
+    const fetchCommentCount = async () => {
+      if (!isAuthenticated) return;
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      // Count comments where parent_id is not null (replies to others, not own posts)
+      const { count, error } = await supabase
+        .from('warriors_way_comments')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('module_id', 'challenge-day-1')
+        .not('parent_id', 'is', null);
+      
+      if (!error && count !== null) {
+        setUserCommentCount(count);
+      }
+    };
+    
+    fetchCommentCount();
+    
+    // Set up realtime listener for comment updates
+    const channel = supabase
+      .channel('day1-comments')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'warriors_way_comments',
+        filter: `module_id=eq.challenge-day-1`
+      }, () => {
+        fetchCommentCount();
+      })
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAuthenticated]);
+
+  // Special render for Day 1 - Simplified 4-step flow
   if (dayNumber === 1) {
     // Check if user already has a declaration (returning user)
     const hasExistingDeclaration = Boolean(
@@ -527,7 +570,7 @@ const ChallengeDayPage = () => {
       day1Responses.vision_declaration.length > 50
     );
     
-    const day1Progress = hasExistingDeclaration ? 100 : ((day1Step + 1) / 3) * 100;
+    const day1Progress = hasExistingDeclaration ? 100 : ((day1Step + 1) / 4) * 100;
     
     const handleDay1Complete = async () => {
       if (!isAuthenticated) {
@@ -557,6 +600,11 @@ const ChallengeDayPage = () => {
             : 'Declarația ta a fost distribuită în comunitate!',
         });
       }
+    };
+
+    const handlePostRealityScore = async (message: string) => {
+      if (!commentsRef.current) return;
+      await commentsRef.current.postComment(message);
     };
 
     return (
@@ -623,7 +671,7 @@ const ChallengeDayPage = () => {
             <p className="text-xs text-muted-foreground mt-1">
               {hasExistingDeclaration 
                 ? (language === 'en' ? 'Completed ✓' : 'Completat ✓')
-                : `${language === 'en' ? 'Step' : 'Pasul'} ${day1Step + 1} / 3`
+                : `${language === 'en' ? 'Step' : 'Pasul'} ${day1Step + 1} / 4`
               }
             </p>
           </div>
@@ -632,7 +680,7 @@ const ChallengeDayPage = () => {
           <Day1VideoPlaceholder />
           
           {/* Steps Summary */}
-          <Day1StepsSummary currentStep={hasExistingDeclaration ? 3 : day1Step} />
+          <Day1StepsSummary currentStep={hasExistingDeclaration ? 4 : day1Step} />
           
           {/* RETURNING USER: Show declaration review */}
           {hasExistingDeclaration ? (
@@ -640,12 +688,14 @@ const ChallengeDayPage = () => {
               <Day1DeclarationReview
                 declaration={day1Responses.vision_declaration || ''}
                 onPostToComments={handlePostDeclaration}
-                onEdit={() => setDay1Step(1)}
+                onEdit={() => setDay1Step(2)}
               />
             </>
           ) : (
             <>
-              {/* NEW USER: Step-by-step flow */}
+              {/* NEW USER: Step-by-step flow - 4 STEPS */}
+              
+              {/* Step 0: WHY Questions */}
               {day1Step === 0 && (
                 <Day1WhyQuestions
                   responses={{
@@ -665,7 +715,19 @@ const ChallengeDayPage = () => {
                 />
               )}
               
+              {/* Step 1: Reality Check (NEW) */}
               {day1Step === 1 && (
+                <Day1RealityCheck
+                  onComplete={(scores) => {
+                    // Scores are saved inside the component
+                    setDay1Step(2);
+                  }}
+                  onPostScore={handlePostRealityScore}
+                />
+              )}
+              
+              {/* Step 2: Vision Declaration */}
+              {day1Step === 2 && (
                 <Day1VisionDeclaration
                   visionData={{
                     vision_body: day1Responses.vision_body || '',
@@ -687,7 +749,7 @@ const ChallengeDayPage = () => {
                     }
                     updateDay1Responses(finalVisionData);
                     setDeclarationSaved(true);
-                    setDay1Step(2);
+                    setDay1Step(3);
                   }}
                   userName={userName}
                   declarationSaved={declarationSaved}
@@ -695,12 +757,15 @@ const ChallengeDayPage = () => {
                 />
               )}
               
-              {day1Step === 2 && (
+              {/* Step 3: Commitment + Engagement */}
+              {day1Step === 3 && (
                 <Day1Commitment
                   isCommitted={day1Responses.commitment_confirmed || false}
                   onCommitmentChange={(committed) => updateDay1Responses({ commitment_confirmed: committed })}
                   onComplete={handleDay1Complete}
                   isLoading={day1Saving}
+                  commentCount={userCommentCount}
+                  requiredComments={3}
                 />
               )}
               
