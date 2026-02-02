@@ -1,173 +1,223 @@
 
-# Audit Complet Domino Door - Stare Lansare
 
-## REZUMAT EXECUTIV
+# Plan: Diferențiere Comisioane PRO vs ELITE
 
-| Categorie | Status | Detalii |
-|-----------|--------|---------|
-| **Salvare per User** | ✅ FUNCȚIONAL | RLS activ pe toate tabelele, `auth.uid() = user_id` |
-| **Drag & Drop Idei → Sarcini** | ✅ FUNCȚIONAL | Native drag implementat cu `application/json` |
-| **Admin Preview Client** | ✅ IMPLEMENTAT | Read-Only Preview Mode cu `AdminClientDoorPreview` |
-| **Callback-uri HotList** | ✅ IMPLEMENTAT | `onMoveToHit` și `onMoveToDo` conectate |
-| **Securitate RLS** | ✅ ACTIV | Toate tabelele critice au RLS enabled |
+## Rezumat Modificare
+
+| Plan | Comision | Când se aplică |
+|------|----------|----------------|
+| **PRO** | 50% o singură dată | Doar la prima plată (checkout inițial) |
+| **ELITE** | 50% lifetime | La fiecare plată recurentă (pe viață) |
 
 ---
 
-## 1. SALVARE DATE PER USER
+## Modificări Necesare
 
-### ✅ RLS Policies Active
+### 1. `supabase/functions/stripe-webhook/index.ts`
 
-Toate tabelele critice au Row Level Security activat:
+**Problema actuală:** `invoice.paid` apelează `processCoachCommission` pentru TOȚI utilizatorii, indiferent de tier.
 
-| Tabel | RLS | Policy |
-|-------|-----|--------|
-| `user_tasks` | ✅ ON | `auth.uid() = user_id` - Users can manage their own tasks |
-| `ideas_bank` | ✅ ON | `auth.uid() = user_id` - SELECT/INSERT/UPDATE/DELETE per user |
-| `weekly_planning` | ✅ ON | `auth.uid() = user_id` - Users manage their own planning |
-| `user_preferences` | ✅ ON | RLS activ |
-| `leaderboard_profiles` | ✅ ON | RLS activ |
+**Modificare în `invoice.paid` (liniile 401-435):**
 
-### ✅ Date Izolate Corect
+```typescript
+case "invoice.paid": {
+  const invoice = event.data.object as Stripe.Invoice;
+  
+  // Skip initial invoice
+  if (invoice.billing_reason === "subscription_create") {
+    log("Skipping initial invoice - already processed", { invoiceId: invoice.id });
+    break;
+  }
 
-Din baza de date:
-- **9 utilizatori unici** au task-uri în sistemul Door
-- **user_id** este filtrat corect în toate query-urile
-- Fiecare utilizator vede **DOAR** propriile task-uri și idei
+  // DETERMINE SUBSCRIPTION TIER
+  const customerId = invoice.customer as string;
+  const customer = await stripe.customers.retrieve(customerId);
+  
+  if (customer.deleted || !("email" in customer) || !customer.email) {
+    log("Customer not found or no email");
+    break;
+  }
 
-### Exemplu query care izolează corect:
-```sql
-SELECT * FROM user_tasks WHERE user_id = auth.uid()
+  // Get subscriber tier from database
+  const { data: subscriber } = await supabaseService
+    .from("subscribers")
+    .select("subscription_tier")
+    .eq("email", customer.email)
+    .single();
+
+  const userTier = subscriber?.subscription_tier || "basic";
+
+  // CRITICAL: Only process recurring commission for ELITE tier
+  // PRO gets 50% only on first payment (handled in checkout.session.completed)
+  if (userTier !== "elite") {
+    log("Skipping recurring commission - not elite tier", { 
+      email: customer.email, 
+      tier: userTier 
+    });
+    break;
+  }
+
+  log("Processing ELITE recurring commission", { 
+    customer: invoice.customer,
+    amount: invoice.amount_paid,
+    tier: userTier
+  });
+
+  // Find user and process commission (only for ELITE)
+  const { data: invoiceUserData } = await supabaseService.auth.admin.listUsers();
+  const invoiceUser = invoiceUserData?.users?.find(u => u.email === customer.email);
+
+  if (invoiceUser?.id && invoice.amount_paid) {
+    const paymentAmountEur = invoice.amount_paid / 100;
+    await processCoachCommission(invoiceUser.id, paymentAmountEur, invoice.currency || "eur", invoice.id);
+  }
+
+  break;
+}
 ```
 
 ---
 
-## 2. FUNCȚIONALITATE IDEI → SARCINI
+### 2. `src/data/pricing.ts` - Actualizare Beneficii
 
-### ✅ Drag & Drop Cross-Library
+**PRO (linia 90 și 100):**
+```typescript
+// benefitsEn:
+"**REFERRAL PROGRAM** - Earn 50% one-time commission",
 
-**Implementat corect în `HotList.tsx` (liniile 586-595):**
-
-```tsx
-onDragStart={(e) => {
-  e.dataTransfer.setData('application/json', JSON.stringify({
-    type: 'idea-bank-item',
-    id: idea.id,
-    text: idea.text,
-    priority: idea.priority,
-    category: idea.category
-  }));
-  e.dataTransfer.effectAllowed = 'copyMove';
-}}
+// benefitsRo:
+"**PROGRAM REFERRAL** - Câștigă 50% comision (prima lună)",
 ```
 
-**Handler în `useDoorDrag.tsx` (liniile 139-173):**
-- Detectează `type: 'idea-bank-item'` din dataTransfer
-- Mapează prioritatea Eisenhower corect (4→urgent-important, 3→important, etc.)
-- Adaugă în HIT sau DO list conform `activeList`
+**ELITE (linia 132 și 141) - Adaugă:**
+```typescript
+// benefitsEn:
+"**COACH OPPORTUNITY** - Earn 50% lifetime commission from your clients",
+"**COACH DASHBOARD** - Manage clients, track progress, build your tribe",
 
-### ✅ Callback-uri Conectate
-
-Hook-ul `useIdeaToTaskBridge` este implementat și conectat în:
-- `WeeklyTab.tsx`
-- `SimplifiedDoorContent.tsx`  
-- `WeeklySection.tsx`
-
----
-
-## 3. ADMIN PREVIEW CLIENT - ✅ IMPLEMENTAT
-
-### Ce există acum:
-
-1. **Edge Function `admin-impersonate`** - verifică rol admin via `has_role()` RPC
-2. **Tabel `admin_impersonation_log`** - loghează toate sesiunile
-3. **Componentă `AdminClientDoorPreview`** - NEW! View dedicat pentru datele clientului
-4. **Buton "View Door Data"** în CRM ContactProfile360
-
-### ✅ Read-Only Preview Mode (Implementat)
-
-Admin-ul poate vizualiza datele Door ale clientului într-un view dedicat:
-- Task-uri HIT și DO pentru orice săptămână
-- Statistici de completare
-- Banca de idei
-- Navigare între săptămâni
-- Mod read-only securizat (fără posibilitate de modificare)
-- Logging automat al sesiunilor de preview
-
-**Fișiere noi:**
-- `src/components/admin/crm/AdminClientDoorPreview.tsx`
-
-**Modificări:**
-- `src/components/admin/crm/ContactProfile360.tsx` - buton actualizat la "View Door Data"
-
----
-
-## 4. STATISTICI ACTUALE
-
-### Users cu activitate în Door:
-
-| User ID | HIT Tasks | DO Tasks | Week-uri Active |
-|---------|-----------|----------|-----------------|
-| 74f5b904... (tu) | 65+ tasks | 7 tasks | 6 week-uri |
-| 3132d53a... | 20 tasks | 0 | 1 week |
-| 218ea8c3... | 0 | 9 (door) | 1 week |
-| Alți 6 users | 1-2 tasks | 0 | 1 week |
-
-### Ideas Bank:
-- **4 idei totale** (1 utilizator)
-- 3 noi, 1 arhivată
-- Sistemul de clasificare Eisenhower funcțional
-
----
-
-## 5. PROBLEME DE SECURITATE MINORE
-
-### ⚠️ Warnings (nu critice):
-
-1. **Extension in Public** - Extensie instalată în schema `public` 
-   - Risc: Low
-   - Fix: Mutare în schema separată
-
-2. **Leaked Password Protection Disabled**
-   - Risc: Medium
-   - Fix: Activare în Supabase Auth Settings
-
-### ✅ Ce e OK:
-- Admin role-uri în tabel separat (`user_roles`)
-- Funcție `has_role()` cu SECURITY DEFINER
-- RLS activ pe toate tabelele sensibile
-
----
-
-## 6. STATUS FINAL LANSARE
-
-### ✅ Toate funcționalitățile critice sunt implementate:
-
-1. **Salvarea per user** - RLS activ, date izolate corect
-2. **Drag & Drop Idei → Sarcini** - Funcțional cu cross-library bridge
-3. **Admin Preview Client** - Read-Only mode implementat
-4. **Callback-uri HotList** - Conectate în toate componentele părinte
-
-### Recomandate (opțional):
-
-1. **Activează Leaked Password Protection** în Supabase Auth
-
-2. **Curățare date vechi:**
-```sql
-DELETE FROM user_tasks 
-WHERE week_key NOT LIKE 'door-week-%' 
-  AND task_type IN ('hit', 'do', 'hot');
+// benefitsRo:
+"🔥 **OPORTUNITATE COACH** - Câștigă 50% comision pe viață (lifetime)",
+"🔥 **COACH DASHBOARD** - Gestionează clienții și construiește-ți echipa",
 ```
 
-### Nice to have:
+---
 
-3. **Rate limiting** pe API-uri sensibile
+### 3. `src/data/pricing.ts` - Actualizare Prețuri și Beneficii Complete
+
+**BASIC (fără referral deloc):**
+```typescript
+benefitsRo: [
+  "Harta Realității - Evaluarea vieții tale",
+  "Warrior Routine completă (4 domenii)",
+  "Door - Sistem de planificare săptămânală",
+  "Stacks (Furie, Claritate, Focus) pentru reset rapid",
+  "Jurnal de progres și rapoarte săptămânale",
+],
+```
+
+**PRO (AI + Comunitate + 50% o singură dată):**
+```typescript
+benefitsRo: [
+  "✓ Tot ce include planul Basic",
+  "AI Accountability Coach - tracking zilnic",
+  "AI Mind Coach - transformă emoțiile în putere",
+  "Comunitate VIP cu membri Pro Warriors",
+  "Sesiune Q&A exclusivă lunară",
+  "Sprint de 90 de zile cu KPIs",
+  "Napoleon Hill Software Implementation",
+  "Breakthrough Tools and Applied Courses",
+  "Support VIP dedicat",
+  "Acces prioritar la funcționalități noi",
+  "**PROGRAM REFERRAL** - 50% comision (prima lună)",
+],
+```
+
+**ELITE (Accelerator + Coach + 50% Lifetime):**
+```typescript
+originalPriceEn: "€970",
+originalPriceRo: "4850 LEI",
+benefitsRo: [
+  "✓ Tot ce include planul Pro",
+  "Warrior Launch Accelerator (€2.497 valoare)",
+  "Coaching de grup LIVE săptămânal cu Alin Radu (90 min - Hot Seats)",
+  "Elite Brotherhood - comunitate exclusivă",
+  "47+ lecții video premium - Execution Done With You",
+  "Framework de implementare daily",
+  "Acces complet la toate cursurile noi",
+  "Coaching 1-on-1 lunar (30 min)",
+  "🔥 **OPORTUNITATE COACH** - 50% comision pe viață (lifetime)",
+  "🔥 **COACH DASHBOARD** - Gestionează echipa și clienții",
+],
+```
 
 ---
 
-## CONCLUZIE
+### 4. Planuri Anuale - Sincronizare
 
-**Sistemul Domino Door este COMPLET FUNCȚIONAL pentru lansare:**
-- ✅ Salvarea per user funcționează corect
-- ✅ Drag & Drop Idei → Sarcini implementat
-- ✅ Admin Preview implementat cu Read-Only Mode
-- ✅ Toate callback-urile conectate
+**PRO Annual (liniile 203 și 210):**
+```typescript
+// benefitsEn:
+"**REFERRAL PROGRAM** - Earn 50% one-time commission",
+
+// benefitsRo:
+"**PROGRAM REFERRAL** - 50% comision (prima lună)",
+```
+
+**ELITE Annual (liniile 239 și 247) - Adaugă:**
+```typescript
+// benefitsEn:
+"**COACH OPPORTUNITY** - Earn 50% lifetime commission from your clients",
+
+// benefitsRo:
+"🔥 **OPORTUNITATE COACH** - 50% comision pe viață (lifetime)",
+```
+
+---
+
+## Fișiere de Modificat
+
+| Fișier | Modificare |
+|--------|------------|
+| `supabase/functions/stripe-webhook/index.ts` | Adaugă verificare tier în `invoice.paid` - skip pentru non-elite |
+| `src/data/pricing.ts` | Actualizare beneficii PRO/ELITE + preț normal Elite €970 |
+| `src/components/membership/MembershipUpsellCards.tsx` | Sincronizare cu pricing.ts |
+| `src/components/challenge/ChallengeDay7Upgrade.tsx` | Actualizare whatYouGet |
+
+---
+
+## Logica Finală
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                    FLUX COMISIOANE                                  │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│   checkout.session.completed                                        │
+│         ↓                                                           │
+│   processCoachCommission() → 50% pentru TOȚI (prima plată)         │
+│                                                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│   invoice.paid (plăți recurente)                                    │
+│         ↓                                                           │
+│   Verifică subscription_tier                                        │
+│         ↓                                                           │
+│   tier === "elite" ?                                                │
+│         ├── DA → processCoachCommission() (50% lifetime)            │
+│         └── NU → SKIP (PRO/Basic nu primesc comision recurent)      │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Rezultat Business
+
+| Tier | Prima Plată | Plăți Recurente | Total Potențial/An |
+|------|-------------|-----------------|-------------------|
+| **BASIC** | - | - | €0 |
+| **PRO** | 50% × €97 = **€48.50** | - | €48.50 (o dată) |
+| **ELITE** | 50% × €297 = **€148.50** | 50% × €297 × 11 = **€1,633.50** | **€1,782/an** |
+
+Diferența masivă face upgrade-ul la ELITE extrem de atractiv pentru coachi/afiliați.
+
