@@ -90,7 +90,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex min-h-screen mesh-gradient overflow-x-hidden max-w-[100vw]">
+    <div className="flex min-h-screen mesh-gradient overflow-x-hidden overflow-y-auto max-w-[100vw]">
       <ReferralTracker />
       <ReferralClientOnboarding />
       
@@ -135,10 +135,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       {/* Main Content */}
       <div className={`
-        flex-1 transition-all duration-300 ease-in-out w-full overflow-x-hidden
+        flex-1 transition-all duration-300 ease-in-out w-full overflow-x-hidden overflow-y-auto
         ${isMobile ? 'ml-0' : isMenuCollapsed ? 'ml-[70px]' : 'ml-[260px]'}
       `}>
-        <div className={`${isMobile ? 'px-3 py-4 pt-16' : 'p-8'} overflow-x-hidden`}>
+        <div className={`${isMobile ? 'px-3 py-4 pt-16' : 'p-8'} overflow-x-hidden min-h-full`}>
           {/* Header - Desktop */}
           {!isMobile && (
             <div className="flex justify-between items-center mb-8">
