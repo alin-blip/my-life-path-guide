@@ -9,6 +9,7 @@ import { lovable } from '@/integrations/lovable/index';
 import { usePasswordCheck, getPasswordCheckMessages } from '@/hooks/usePasswordCheck';
 import { PasswordBreachIndicator } from '@/components/auth/PasswordBreachIndicator';
 import { useSecurity } from '@/components/SecurityProvider';
+import { trackLead } from '@/lib/facebook-pixel';
 import { Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -206,6 +207,9 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
         });
 
         if (error) throw error;
+
+        // FB Pixel - Track Lead imediat la signup (înainte de AuthContext pentru email signup)
+        trackLead();
 
         // Send welcome email (fire and forget - don't block UI)
         supabase.auth.getUser().then(({ data: userData }) => {
