@@ -1,160 +1,259 @@
 
-# Plan: Reparare Probleme Ziua 1 Challenge
+# Plan: Adăugare Comentarii Fictive pentru Challenge (7 Zile)
 
-## Probleme Identificate
+## Verificare Sistem Comentarii
 
-Din analiza codului am identificat **4 probleme distincte**:
+Codul de comentarii este corect configurat:
+- `ChallengeComments.tsx` - face `refetch()` după postare pentru sincronizare imediată
+- `ModuleComments.tsx` - afișează comentarii cu avatar, nume, reacții și răspunsuri
+- `useModuleComments.tsx` - gestionează CRUD pentru comentarii
 
-### Problema 1: Comentariile nu se văd imediat după postare
-**Cauză:** În `useModuleComments.tsx`, când postezi un comentariu, starea locală SE ACTUALIZEAZĂ corect (liniile 132-135), dar componenta `ChallengeComments.tsx` nu face refetch după postare. Aceasta face ca UI-ul să nu se sincronizeze cu datele din bază până la refresh.
-
-**Soluție:** Adăugăm un `refetch()` explicit după postarea comentariului în `ChallengeComments.tsx`.
-
----
-
-### Problema 2: Nu există buton de "Mergi la Ziua Următoare" pentru utilizatorii care revin
-**Cauză:** În `ChallengeDay.tsx` (liniile 686-694), când utilizatorul are deja o declarație (`hasExistingDeclaration = true`), se afișează doar `Day1DeclarationReview` - fără niciun buton de navigare sau finalizare a zilei.
-
-**Soluție:** Adăugăm un bloc sub `Day1DeclarationReview` care:
-1. Afișează `ChallengeInviteFriends` pentru Day 1
-2. Verifică dacă Ziua 1 e completată
-3. Dacă DA → Buton "Continuă la Ziua 2"
-4. Dacă NU → Buton "Finalizează Ziua 1" care apelează `handleDay1Complete`
+**Status curent comentarii:**
+- Ziua 1: 4 comentarii (2 declarații + 2 răspunsuri reale)
+- Zilele 2-7: 0 comentarii
 
 ---
 
-### Problema 3: Secțiunea "Invită Prieteni" nu apare în Ziua 1 pentru utilizatorii noi
-**Cauză:** Utilizatorii noi (care parcurg step-by-step) văd secțiunea "Invită Prieteni" doar la Step 4 (ultimul pas). Dar utilizatorii care revin (`hasExistingDeclaration = true`) nu văd deloc această secțiune.
+## Comentarii Fictive de Adăugat
 
-**Soluție:** Adăugăm `ChallengeInviteFriends dayNumber={1}` sub `Day1DeclarationReview` pentru utilizatorii care revin.
+Vom adăuga **3-7 comentarii per zi** cu:
+- Nume românești realiste
+- Conținut relevant pentru activitățile fiecărei zile
+- Răspunsuri între utilizatori pentru interacțiune
+- Date diferite pentru a arăta activitate în timp
+
+### Structura pe Zile
+
+| Zi | Temă | Nr. Comentarii | Tip Conținut |
+|----|------|---------------|--------------|
+| 1 | Viziune & Declarație | 5 | Declarații Napoleon Hill, Fact Map scores |
+| 2 | Corp, Spirit, Relații | 5 | Obiective 30/90 zile, realizări personale |
+| 3 | Business & Domino Door | 4 | Milestone-uri, cele 4 chei, planuri |
+| 4 | Warrior Routine | 5 | Rutine zilnice, Vision AI, meditație |
+| 5 | Accountability & Mind Coach | 4 | Breakthrough-uri, transformări mindset |
+| 6 | Idea List & Focus | 4 | Eisenhower Matrix, protejare Domino Door |
+| 7 | Finalizare & Continuitate | 5 | Reflecții finale, testimoniale |
+
+**Total: ~32 comentarii noi**
 
 ---
 
-### Problema 4: Finalizarea Zilei 1 nu funcționează corect pentru utilizatorii care revin
-**Cauză:** Utilizatorii care au deja declarația salvată (`hasExistingDeclaration = true`) nu au nicio modalitate de a marca Ziua 1 ca finalizată sau de a naviga la Ziua 2.
+## Utilizatori Fictivi
 
-**Soluție:** Adăugăm logică pentru a verifica dacă Ziua 1 e deja completată și afișăm:
-- Dacă ziua e completată: Buton "Continuă la Ziua 2"
-- Dacă ziua nu e completată: Buton "Finalizează Ziua 1"
+Vom crea UUID-uri speciale pentru utilizatorii fictivi:
+
+| UUID | Nume | Stil |
+|------|------|------|
+| `a0000001-0001-4000-8000-000000000001` | Andrei Popescu | Motivator, lider |
+| `a0000001-0001-4000-8000-000000000002` | Elena Mihai | Reflectivă, empatică |
+| `a0000001-0001-4000-8000-000000000003` | Marius Ionescu | Pragmatic, focusat business |
+| `a0000001-0001-4000-8000-000000000004` | Ana Vasilescu | Energică, orientată relații |
+| `a0000001-0001-4000-8000-000000000005` | Cristian Stancu | Analitic, mindset growth |
+| `a0000001-0001-4000-8000-000000000006` | Oana Dinu | Creativă, spirituală |
 
 ---
 
-## Modificări de Implementat
+## Exemple de Comentarii
 
-### Fișier 1: `src/components/challenge/ChallengeComments.tsx`
+### Ziua 1 - Viziune & Declarație
 
-```typescript
-// Adăugăm refetch după postare pentru a asigura sincronizarea
-export const ChallengeComments = forwardRef<ChallengeCommentsRef, ChallengeCommentsProps>(
-  ({ dayNumber }, ref) => {
-    const moduleId = `challenge-day-${dayNumber}`;
-    const { addComment, refetch } = useModuleComments(moduleId); // Adăugăm refetch
-    
-    useImperativeHandle(ref, () => ({
-      postComment: async (content: string) => {
-        const success = await addComment(content);
-        if (success) {
-          await refetch(); // Refetch imediat după postare
-        }
-        return success;
-      }
-    }));
-    
-    // ... rest
-  }
-);
+**Andrei Popescu:**
+```
+🎯 HARTA MEA DE START - Ziua 1
+
+💪 Corp: 18/24 ⚡
+✨ Spirit: 16/24 ⚡
+💕 Relații: 20/24 🔥
+💼 Business: 14/24 👁️
+
+📊 Scor Total: 68/96 (71%)
+
+Sunt recunoscător că am claritate acum. Acesta e punctul meu de plecare! 💪
 ```
 
-### Fișier 2: `src/pages/ChallengeDay.tsx`
-
-Modificăm secțiunea pentru utilizatorii care revin (liniile 686-694):
-
-```typescript
-{/* RETURNING USER: Show declaration review */}
-{hasExistingDeclaration ? (
-  <>
-    <Day1DeclarationReview
-      declaration={day1Responses.vision_declaration || ''}
-      onPostToComments={handlePostDeclaration}
-      onEdit={() => setDay1Step(2)}
-    />
-    
-    {/* ADĂUGAT: Secțiune Invită Prieteni pentru utilizatorii care revin */}
-    <div className="mt-6">
-      <ChallengeInviteFriends dayNumber={1} />
-    </div>
-    
-    {/* ADĂUGAT: Buton de navigare/finalizare */}
-    <Card className={`p-6 mt-6 ${isCompleted ? 'bg-green-500/10 border-green-500/30' : 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30'}`}>
-      {isCompleted ? (
-        <div className="text-center">
-          <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-2" />
-          <h3 className="text-xl font-bold text-green-500 mb-2">
-            {language === 'en' ? 'Day 1 Completed!' : 'Ziua 1 Completată!'}
-          </h3>
-          <p className="text-muted-foreground mb-4">
-            {language === 'en' 
-              ? 'Great work! You can continue to Day 2.' 
-              : 'Excelent! Poți continua la Ziua 2.'}
-          </p>
-          <Button 
-            onClick={() => navigate('/challenge/2')}
-            className="bg-gradient-to-r from-green-500 to-emerald-500"
-            size="lg"
-          >
-            {language === 'en' ? 'Continue to Day 2' : 'Continuă la Ziua 2'}
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Button>
-        </div>
-      ) : (
-        <div className="text-center">
-          <Trophy className="h-12 w-12 text-amber-500 mx-auto mb-2" />
-          <h3 className="text-xl font-bold text-foreground mb-2">
-            {language === 'en' ? 'Ready to Complete Day 1?' : 'Gata să Finalizezi Ziua 1?'}
-          </h3>
-          <p className="text-muted-foreground mb-4">
-            {language === 'en' 
-              ? 'You have your vision declaration. Finalize Day 1 to unlock Day 2!' 
-              : 'Ai declarația de viziune. Finalizează Ziua 1 pentru a debloca Ziua 2!'}
-          </p>
-          <Button 
-            onClick={handleDay1Complete}
-            className="bg-gradient-to-r from-green-500 to-emerald-500"
-            size="lg"
-          >
-            <Trophy className="h-5 w-5 mr-2" />
-            {language === 'en' ? 'Complete Day 1' : 'Finalizează Ziua 1'}
-          </Button>
-        </div>
-      )}
-    </Card>
-  </>
-) : (
-  // ... new user flow rămâne neschimbat
-)}
+**Elena Mihai (răspuns):**
+```
+Andrei, scorul tău e foarte bun! Eu am 52/96 dar nu mă descurajez - 
+în 7 zile voi vedea progresul! Îmi place că ai scor mare la relații 💕
 ```
 
-### Import-uri noi necesare în `ChallengeDay.tsx`:
-- Verificăm că `Trophy` e importat (deja ar trebui să fie din lucide-react)
-- `isCompleted` - trebuie calculat din `isDayCompleted(1)`
+**Marius Ionescu:**
+```
+DECLARAȚIA MEA DE VIZIUNE
+
+Eu, Marius, am un SCOP DEFINIT:
+Până la 31 decembrie 2026, voi construi o companie de 1 milion EUR revenue,
+cu 10 angajați pasionați și 500 de clienți mulțumiți.
+
+📌 CORP: 85kg, 15% grăsime, alergare semi-maraton
+📌 SPIRIT: Meditație zilnică 20 minute, recunoștință serală
+📌 RELAȚII: Vacanță lunară cu familia, cină romantică săptămânală
+📌 BUSINESS: €1M revenue, exit sau scaling
+
+Această declarație e sigilată cu credință absolută! 🔥
+```
+
+### Ziua 2 - Corp, Spirit, Relații
+
+**Ana Vasilescu:**
+```
+💪 Obiectivele mele pentru următoarele 90 de zile:
+
+CORP: 
+- Pierdut 8 kg (de la 72 la 64)
+- 4 antrenamente/săptămână
+- Somn 7-8 ore constant
+
+SPIRIT:
+- Meditație 10 min zilnic
+- Jurnal de recunoștință
+- O carte pe lună
+
+RELAȚII:
+- Date night săptămânal cu soțul
+- Apel video lunar cu părinții
+- Timp de calitate cu copiii fără telefon
+
+Sunt entuziasmată să le urmăresc! 🙌
+```
+
+**Cristian Stancu (răspuns):**
+```
+Ana, obiectivele tale sunt super clare! Mă inspiră să fiu mai specific cu ale mele.
+Am observat că la Spirit am cel mai mult de lucru - meditația e nouă pentru mine.
+Ai recomandări de aplicații sau tehnici?
+```
+
+### Ziua 3 - Business & Domino Door
+
+**Marius Ionescu:**
+```
+🎯 DOMINO DOOR - Milestone Săptămâna 1
+
+Obiectiv: Lansare campanie email pentru noul curs
+
+CELE 4 CHEI:
+1. ✅ Finalizare landing page (Luni)
+2. 🔄 Scriere secvență email 5 zile (Marți-Miercuri)
+3. ⏳ Setup automatizare Mailchimp (Joi)
+4. ⏳ Test & lansare (Vineri)
+
+Focusul pe O SINGURĂ PIATRĂ DE DOMINO schimbă totul!
+Nu mai sunt distras de 100 de idei. #DominoEffect
+```
+
+### Ziua 4 - Warrior Routine
+
+**Oana Dinu:**
+```
+✨ WARRIOR ROUTINE - Dimineața mea perfectă
+
+05:30 - Trezire fără snooze
+05:35 - Meditație AI personalizată (15 min)
+05:50 - Journaling + Declarație viziune
+06:10 - Exerciții fizice (30 min)
+06:40 - Duș rece (2 min)
+06:45 - Mic dejun sănătos
+07:15 - Review Domino Door + planificare zi
+
+Vision Board-ul generat de AI este INCREDIBIL! 
+L-am pus ca wallpaper pe telefon și laptop. 
+Mă motivează în fiecare secundă! 🌟
+```
+
+### Ziua 5 - Accountability & Mind Coach
+
+**Elena Mihai:**
+```
+🧠 SESIUNE MIND COACH - Breakthrough!
+
+Am lucrat pe frica de eșec care mă bloca de ani.
+Mind Coach m-a ajutat să înțeleg că eșecul e feedback, nu identitate.
+
+Întrebarea care a deblocat totul:
+"Ce ai face dacă ai ști sigur că nu poți eșua?"
+
+Răspunsul m-a șocat: Aș lansa business-ul meu de coaching MÂINE.
+Și ghici ce? Am programat sesiunea de discovery pentru săptămâna viitoare!
+
+Accountability Coach mă ține pe drumul cel bun. 
+Știe exact ce am promis și mă întreabă dacă am executat. 💪
+```
+
+### Ziua 6 - Idea List & Focus
+
+**Andrei Popescu:**
+```
+💡 IDEA LIST - Eliberare mentală
+
+Am avut 47 de idei "geniale" în cap care mă distrăgeau.
+Le-am trecut TOATE prin Matricea Eisenhower:
+
+📊 URGENT + IMPORTANT: 3 idei → Execute NOW
+📋 IMPORTANT (nu urgent): 8 idei → Schedule pentru Q2
+🔔 URGENT (nu important): 12 idei → Delegat
+🗑️ Nici-nici: 24 idei → ȘTERS sau parcat
+
+Rezultat: Focus 100% pe Domino Door!
+Nu mai las ideile noi să-mi distrugă momentum-ul.
+
+Frica că "ratez o oportunitate" a dispărut când am înțeles că 
+FOCUS > Diversificare.
+```
+
+### Ziua 7 - Finalizare
+
+**Cristian Stancu:**
+```
+🏆 ZIUA 7 COMPLETĂ - Transformare în 7 zile!
+
+Ce am câștigat:
+✅ Viziune clară pentru următorii 5 ani
+✅ Obiective SMART pentru Corp, Spirit, Relații, Business
+✅ Sistem Domino Door pentru execuție săptămânală
+✅ Warrior Routine care mă propulsează zilnic
+✅ AI Coach care mă ține responsabil
+✅ Filtru pentru ideile care distrag
+
+Înainte de challenge: Copleșit, fără direcție, reactiv
+După challenge: Focusat, proactiv, cu sistem
+
+Recommend ORICUI acest challenge. E gratuit zilele 1-2.
+Nu ai nimic de pierdut și totul de câștigat!
+
+Mulțumesc WarriorOS! 🙏
+```
 
 ---
 
-## Rezumat Tehnic
+## Implementare Tehnică
 
-| Problemă | Fișier | Modificare |
-|----------|--------|------------|
-| Comentarii nu apar imediat | `ChallengeComments.tsx` | Adaugă `refetch()` după `addComment()` |
-| Lipsește "Invită Prieteni" pentru returning users | `ChallengeDay.tsx` | Adaugă `<ChallengeInviteFriends dayNumber={1} />` |
-| Lipsește buton "Next Day" | `ChallengeDay.tsx` | Adaugă Card cu buton de navigare/finalizare |
-| Nu se poate finaliza ziua | `ChallengeDay.tsx` | Adaugă apel `handleDay1Complete` sau buton navigate |
+### Migrare SQL
+
+Vom crea o migrare SQL care:
+1. Inserează comentariile fictive în `warriors_way_comments`
+2. Folosește UUID-uri distincte pentru utilizatorii fictivi
+3. Setează `created_at` cu date diferite pentru aspect natural
+4. Include răspunsuri (`parent_id` non-null) pentru interacțiune
+
+### Ordinea inserărilor:
+1. Comentarii părinte (parent_id = NULL)
+2. Răspunsuri (parent_id = UUID comentariu părinte)
+
+### Câmpuri pentru fiecare comentariu:
+- `id`: UUID generat
+- `user_id`: UUID utilizator fictiv
+- `module_id`: `challenge-day-X`
+- `content`: Textul comentariului
+- `created_at`: Data recentă (ultimele 30 zile)
+- `parent_id`: NULL sau UUID pentru răspunsuri
+- `author_name`: Numele afișat
 
 ---
 
-## Testare
+## Checklist Implementare
 
-După implementare:
-1. ✅ Postează un comentariu → trebuie să apară IMEDIAT fără refresh
-2. ✅ Utilizator care revine cu declarație → vede "Invită Prieteni" și buton "Finalizează Ziua 1"
-3. ✅ După finalizare → poate naviga la Ziua 2
-4. ✅ Dacă Ziua 1 e deja completată → vede buton "Continuă la Ziua 2"
+1. [ ] Creare migrare SQL pentru comentarii fictive
+2. [ ] Inserare 32 comentarii (5-6 per zi)
+3. [ ] Verificare afișare corectă în UI
+4. [ ] Testare reacții și răspunsuri
