@@ -399,7 +399,7 @@ serve(async (req) => {
       }
 
       case "invoice.paid": {
-        // Handle recurring subscription payments - process commission
+        // Handle recurring subscription payments
         const invoice = event.data.object as Stripe.Invoice;
         
         // Skip if this is the first invoice (already processed in checkout.session.completed)
@@ -422,7 +422,33 @@ serve(async (req) => {
           break;
         }
 
-        // Find user by email
+        // CRITICAL: Get subscriber tier from database
+        // Only ELITE tier gets lifetime recurring commissions
+        // PRO gets 50% only on first payment (handled in checkout.session.completed)
+        const { data: subscriber } = await supabaseService
+          .from("subscribers")
+          .select("subscription_tier")
+          .eq("email", customer.email)
+          .single();
+
+        const userTier = subscriber?.subscription_tier || "basic";
+
+        // Only process recurring commission for ELITE tier
+        if (userTier !== "elite") {
+          log("Skipping recurring commission - not elite tier", { 
+            email: customer.email, 
+            tier: userTier 
+          });
+          break;
+        }
+
+        log("Processing ELITE recurring commission (50% lifetime)", { 
+          customer: invoice.customer,
+          amount: invoice.amount_paid,
+          tier: userTier
+        });
+
+        // Find user by email and process commission (only for ELITE)
         const { data: invoiceUserData } = await supabaseService.auth.admin.listUsers();
         const invoiceUser = invoiceUserData?.users?.find(u => u.email === customer.email);
 

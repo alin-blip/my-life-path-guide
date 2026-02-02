@@ -148,33 +148,37 @@ ${referralLink}`;
 
   const whatYouLose = language === 'ro' ? [
     'Toate obiectivele și planurile create',
-    'Accesul la AI Coaching personalizat',
-    'Progresul din Warrior Routine',
-    'Vision Board-ul și meditațiile AI',
-    'Sistemul de tracking și rapoarte',
-    'Comunitatea și suportul'
+    'Accesul la Warrior Routine configurată',
+    'Sistemul Door de planificare',
+    'Progresul din Stacks',
+    'Jurnalul și rapoartele de progres',
+    'Posibilitatea de upgrade la AI Coaching'
   ] : [
     'All goals and plans you created',
-    'Access to personalized AI Coaching',
-    'Warrior Routine progress',
-    'AI Vision Board and meditations',
-    'Tracking system and reports',
-    'Community and support'
+    'Access to your configured Warrior Routine',
+    'The Door planning system',
+    'Progress from Stacks',
+    'Journal and progress reports',
+    'Upgrade path to AI Coaching'
   ];
 
   const whatYouGet = language === 'ro' ? [
     'Acces complet NELIMITAT la platformă',
-    'Coaching de grup LIVE săptămânal',
-    'Comunitate VIP cu antreprenori',
-    'Suport prioritar 24/7',
-    'Toate funcțiile AI premium',
+    'AI Accountability Coach + Mind Coach',
+    'Comunitate VIP Pro Warriors',
+    'Sesiune Q&A exclusivă lunară',
+    'Napoleon Hill Implementation',
+    'Breakthrough Tools & Applied Courses',
+    '50% comision referral (prima lună)',
     'Garanție 90 zile satisfacție'
   ] : [
     'UNLIMITED full platform access',
-    'Weekly LIVE group coaching',
-    'VIP community with entrepreneurs',
-    'Priority 24/7 support',
-    'All premium AI features',
+    'AI Accountability Coach + Mind Coach',
+    'VIP Pro Warriors community',
+    'Monthly exclusive Q&A session',
+    'Napoleon Hill Implementation',
+    'Breakthrough Tools & Applied Courses',
+    '50% one-time referral commission',
     '90-day satisfaction guarantee'
   ];
 
