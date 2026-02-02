@@ -115,61 +115,18 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
   const handleOAuth = async (provider: 'google' | 'apple') => {
     setOauthLoading(provider);
     try {
-      // Detect if we're on a custom domain (not lovable.app or lovableproject.com)
-      const isCustomDomain = 
-        !window.location.hostname.includes('lovable.app') &&
-        !window.location.hostname.includes('lovableproject.com') &&
-        !window.location.hostname.includes('localhost');
-
-      if (isCustomDomain) {
-        // For custom domains, bypass auth-bridge by using skipBrowserRedirect
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider,
-          options: {
-            redirectTo: `${window.location.origin}/challenge`,
-            skipBrowserRedirect: true,
-          },
+      // Always use Lovable managed OAuth - it handles all domains correctly
+      const { error } = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: `${window.location.origin}/challenge`,
+      });
+      
+      if (error) {
+        logSecurityEvent('OAuth failed', { provider, error: error.message }, 'medium');
+        toast({
+          title: language === 'en' ? 'Error' : 'Eroare',
+          description: t.error,
+          variant: 'destructive'
         });
-
-        if (error) {
-          logSecurityEvent('OAuth failed', { provider, error: error.message }, 'medium');
-          toast({
-            title: language === 'en' ? 'Error' : 'Eroare',
-            description: t.error,
-            variant: 'destructive'
-          });
-          return;
-        }
-
-        // Validate and redirect to OAuth URL
-        if (data?.url) {
-          const oauthUrl = new URL(data.url);
-          const allowedHosts = [
-            'accounts.google.com',
-            'appleid.apple.com',
-            'exsbnfmaadjyfblperas.supabase.co'
-          ];
-          
-          if (allowedHosts.some(host => oauthUrl.hostname.includes(host))) {
-            window.location.href = data.url;
-          } else {
-            throw new Error('Invalid OAuth redirect URL');
-          }
-        }
-      } else {
-        // For Lovable domains, use the managed auth flow
-        const { error } = await lovable.auth.signInWithOAuth(provider, {
-          redirect_uri: `${window.location.origin}/challenge`,
-        });
-        
-        if (error) {
-          logSecurityEvent('OAuth failed', { provider, error: error.message }, 'medium');
-          toast({
-            title: language === 'en' ? 'Error' : 'Eroare',
-            description: t.error,
-            variant: 'destructive'
-          });
-        }
       }
     } catch (error: any) {
       console.error('OAuth error:', error);
