@@ -1,102 +1,107 @@
 
-# Plan: Fixare Lead Tracking pentru Challenge-7-Zile (OAuth + Email)
+# Plan: Fixare Emailuri Challenge - Domeniu warriorsos.com
 
-## Problema Identificată
+## Problema Principală
 
-Când utilizatorii se autentifică cu **Google sau Apple** pe pagina `/challenge-7-zile`:
-1. **Nu se salvează în `email_leads`** - funcția `saveLeadBeforeAuth` este apelată doar pentru email/password auth
-2. **Nu se creează/linkuiește CRM profile** - `crm_contact_profiles.user_id` rămâne NULL
-3. **`trackChallengeStarted` nu este apelată** - funcția există dar nu e utilizată
+Emailurile challenge **nu se trimit** sau **ajung în spam** din cauza utilizării unor adrese `from` care nu sunt de pe domeniul verificat în Resend (`warriorsos.com`).
 
-## Soluție în 3 Pași
+## Funcții de Corectat
 
-### Pas 1: Salvare Lead după OAuth Redirect (AuthContext)
-Când utilizatorul revine din OAuth pe `/challenge`, vom salva lead-ul cu email-ul din `session.user.email`.
+### 1. send-challenge-reminder/index.ts
+**Linia 14** - Schimbă adresa `from`:
+```typescript
+// DE LA:
+from: "Have It All <onboarding@resend.dev>",
 
-Modificări în `src/context/AuthContext.tsx`:
-- La evenimentul `SIGNED_IN`, verificăm dacă URL-ul curent este `/challenge`
-- Dacă da, salvăm email-ul în `email_leads` cu `lead_magnet: 'challenge_oauth'`
-- Creăm/updatăm `crm_contact_profiles` cu `user_id` linkuit
+// LA:
+from: "WarriorOS <noreply@warriorsos.com>",
+```
 
-### Pas 2: Trigger trackChallengeStarted automat (Challenge.tsx)
-Adăugăm un `useEffect` în pagina Challenge care:
-- Verifică dacă utilizatorul e autentificat
-- Apelează `trackChallengeStarted()` automat la prima vizită
-- Actualizează `challenge_started_at` în CRM
+**Linia 75** - Actualizează URL-ul:
+```typescript
+// DE LA:
+const baseUrl = Deno.env.get("SITE_URL") || "https://haveitall.lovable.app";
 
-### Pas 3: Linkuire CRM Contact cu Auth User
-Când se creează sau găsește un contact CRM (în `useActivityTracker`):
-- Verificăm dacă `user_id` este NULL
-- Dacă da, îl setăm cu ID-ul utilizatorului curent
+// LA:
+const baseUrl = "https://warriorsos.com";
+```
+
+### 2. send-challenge-day7-upgrade/index.ts
+**Liniile 58 și 136** - Schimbă adresa `from`:
+```typescript
+// DE LA:
+from: "Warriors <noreply@mylifepathguide.com>",
+
+// LA:
+from: "WarriorOS <noreply@warriorsos.com>",
+```
+
+**Linia 170** - Actualizează URL-ul aplicației:
+```typescript
+// DE LA:
+const appUrl = "https://my-life-path-guide.lovable.app";
+
+// LA:
+const appUrl = "https://warriorsos.com";
+```
+
+### 3. send-challenge-recovery/index.ts
+**Linia 14** - Schimbă adresa `from`:
+```typescript
+// DE LA:
+from: "MyLifePathGuide <noreply@my-life-path-guide.lovable.app>",
+
+// LA:
+from: "WarriorOS <noreply@warriorsos.com>",
+```
+
+**Actualizează toate URL-urile** din template-uri (linii 50, 69, 84, 97, 111, 125, 143):
+```typescript
+// DE LA:
+"https://my-life-path-guide.lovable.app/challenge/..."
+
+// LA:
+"https://warriorsos.com/challenge/..."
+```
+
+### 4. AuthContext.tsx - Trimitere Email Welcome pentru OAuth
+
+Adaugă invocarea emailului de bun venit pentru utilizatorii OAuth:
+```typescript
+// După salvarea lead-ului OAuth (linia ~90)
+// Trimite welcome email pentru OAuth users
+supabase.functions.invoke('send-challenge-welcome', {
+  body: {
+    email: session.user.email,
+    name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
+    userId: session.user.id,
+    language: 'ro' // detectează din metadata sau default
+  }
+}).catch(err => console.warn('[Challenge] Welcome email failed:', err));
+```
 
 ---
 
 ## Fișiere de Modificat
 
-| Fișier | Modificare |
-|--------|------------|
-| `src/context/AuthContext.tsx` | Salvare lead OAuth + creare CRM profile |
-| `src/pages/Challenge.tsx` | Apelare `trackChallengeStarted()` la mount |
-| `src/hooks/useActivityTracker.ts` | Update `user_id` pe contactele existente |
-
----
-
-## Detalii Tehnice
-
-### AuthContext.tsx - Modificări
-```typescript
-// În onAuthStateChange, după SIGNED_IN:
-if (event === 'SIGNED_IN' && session?.user) {
-  // Salvează lead pentru OAuth dacă vine din challenge
-  const fromChallenge = window.location.pathname.includes('/challenge');
-  if (fromChallenge && session.user.email) {
-    // Insert în email_leads
-    supabase.from('email_leads').insert({
-      email: session.user.email,
-      lead_magnet: 'challenge_oauth',
-      source: 'challenge-7-zile-oauth',
-      metadata: { 
-        auth_provider: session.user.app_metadata?.provider || 'unknown',
-        signup_date: new Date().toISOString()
-      }
-    }).then(() => {}).catch(() => {});
-    
-    // Upsert CRM contact cu user_id
-    supabase.from('crm_contact_profiles')
-      .upsert({
-        email: session.user.email,
-        user_id: session.user.id,
-        funnel_stage: 'engaged',
-        lead_source: 'challenge_oauth',
-        account_created_at: new Date().toISOString()
-      }, { onConflict: 'email' })
-      .then(() => {}).catch(() => {});
-  }
-}
-```
-
-### Challenge.tsx - Trigger automat
-```typescript
-const { trackChallengeStarted, isAuthenticated } = useChallengeProgress();
-
-useEffect(() => {
-  if (isAuthenticated) {
-    trackChallengeStarted();
-  }
-}, [isAuthenticated, trackChallengeStarted]);
-```
+| Fișier | Modificări |
+|--------|-----------|
+| `supabase/functions/send-challenge-reminder/index.ts` | from address + baseUrl |
+| `supabase/functions/send-challenge-day7-upgrade/index.ts` | from address (2 locuri) + appUrl |
+| `supabase/functions/send-challenge-recovery/index.ts` | from address + toate URL-urile |
+| `src/context/AuthContext.tsx` | Adaugă send-challenge-welcome pentru OAuth |
 
 ---
 
 ## Rezultat Așteptat
 
 După implementare:
-- ✅ Lead-urile OAuth vor fi salvate în `email_leads` cu `lead_magnet: 'challenge_oauth'`
-- ✅ CRM contacts vor avea `user_id` setat corect
-- ✅ `challenge_started_at` se va popula automat când utilizatorul intră în Challenge
-- ✅ Timeline-ul de activități va fi vizibil în Admin CRM
+- ✅ Toate emailurile challenge se trimit de pe `noreply@warriorsos.com`
+- ✅ Emailurile ajung în inbox (nu spam) pentru că domeniul e verificat
+- ✅ Utilizatorii OAuth primesc emailul de bun venit
+- ✅ Toate link-urile din emailuri duc la `warriorsos.com`
 
 ---
 
 ## Timp Estimat
-~10 minute implementare
+~15 minute implementare + redeploy funcții
