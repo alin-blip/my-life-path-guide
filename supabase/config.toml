@@ -113,3 +113,15 @@ verify_jwt = false
 
 [functions.generate-path-plan]
 verify_jwt = false
+
+[functions.send-challenge-welcome]
+verify_jwt = false
+
+[functions.send-challenge-daily]
+verify_jwt = false
+
+[functions.send-challenge-reactivation]
+verify_jwt = false
+
+[functions.send-challenge-upgrade]
+verify_jwt = false
