@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { ContactTimeline } from './ContactTimeline';
+import { AdminClientDoorPreview } from './AdminClientDoorPreview';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 
@@ -63,6 +64,7 @@ export const ContactProfile360: React.FC<ContactProfile360Props> = ({ contactId,
   const [contact, setContact] = useState<ContactData | null>(null);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState('');
+  const [showDoorPreview, setShowDoorPreview] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
 
   useEffect(() => {
@@ -145,7 +147,7 @@ export const ContactProfile360: React.FC<ContactProfile360Props> = ({ contactId,
     }
   };
 
-  const startViewAs = async () => {
+  const openDoorPreview = () => {
     if (!contact?.user_id) {
       toast({
         title: 'Imposibil',
@@ -154,49 +156,20 @@ export const ContactProfile360: React.FC<ContactProfile360Props> = ({ contactId,
       });
       return;
     }
-
-    try {
-      const { data, error } = await supabase.functions.invoke('admin-impersonate', {
-        body: { targetUserId: contact.user_id }
-      });
-
-      if (error) throw error;
-
-      // Store impersonation state in localStorage
-      localStorage.setItem('admin_impersonation', JSON.stringify({
-        adminId: user?.id,
-        targetUserId: contact.user_id,
-        targetEmail: contact.email,
-        targetName: contact.name,
-        startedAt: new Date().toISOString()
-      }));
-
-      // Log the session
-      await supabase.from('crm_admin_sessions').insert({
-        admin_id: user?.id,
-        admin_email: user?.email,
-        target_contact_id: contactId,
-        target_user_id: contact.user_id,
-        target_email: contact.email,
-        session_type: 'view_as'
-      });
-
-      toast({
-        title: 'View As activat',
-        description: `Acum vezi platforma ca ${contact.name || contact.email}. Deschide o fereastră nouă pentru a vedea experiența lor.`
-      });
-
-      // Open new window
-      window.open('/', '_blank');
-    } catch (error) {
-      console.error('Error starting view as:', error);
-      toast({
-        title: 'Eroare',
-        description: 'Nu am putut activa View As',
-        variant: 'destructive'
-      });
-    }
+    setShowDoorPreview(true);
   };
+
+  // Show Door Preview if active
+  if (showDoorPreview && contact?.user_id) {
+    return (
+      <AdminClientDoorPreview
+        userId={contact.user_id}
+        userEmail={contact.email}
+        userName={contact.name}
+        onBack={() => setShowDoorPreview(false)}
+      />
+    );
+  }
 
   if (loading) {
     return (
@@ -266,9 +239,9 @@ export const ContactProfile360: React.FC<ContactProfile360Props> = ({ contactId,
           <p className="text-sm text-muted-foreground">Lead Score</p>
         </div>
         {contact.user_id && (
-          <Button onClick={startViewAs} variant="outline">
+          <Button onClick={openDoorPreview} variant="outline">
             <Eye className="h-4 w-4 mr-2" />
-            View As User
+            View Door Data
           </Button>
         )}
       </div>

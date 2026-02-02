@@ -7,7 +7,7 @@
 |-----------|--------|---------|
 | **Salvare per User** | ✅ FUNCȚIONAL | RLS activ pe toate tabelele, `auth.uid() = user_id` |
 | **Drag & Drop Idei → Sarcini** | ✅ FUNCȚIONAL | Native drag implementat cu `application/json` |
-| **Admin Impersonation** | ⚠️ PARȚIAL | Edge function există, dar NU schimbă sesiunea efectiv |
+| **Admin Preview Client** | ✅ IMPLEMENTAT | Read-Only Preview Mode cu `AdminClientDoorPreview` |
 | **Callback-uri HotList** | ✅ IMPLEMENTAT | `onMoveToHit` și `onMoveToDo` conectate |
 | **Securitate RLS** | ✅ ACTIV | Toate tabelele critice au RLS enabled |
 
@@ -74,51 +74,30 @@ Hook-ul `useIdeaToTaskBridge` este implementat și conectat în:
 
 ---
 
-## 3. ADMIN PREVIEW CLIENT - ⚠️ INCOMPLET
+## 3. ADMIN PREVIEW CLIENT - ✅ IMPLEMENTAT
 
-### Ce există:
+### Ce există acum:
 
 1. **Edge Function `admin-impersonate`** - verifică rol admin via `has_role()` RPC
 2. **Tabel `admin_impersonation_log`** - loghează toate sesiunile
-3. **Buton "View As User"** în CRM ContactProfile360
+3. **Componentă `AdminClientDoorPreview`** - NEW! View dedicat pentru datele clientului
+4. **Buton "View Door Data"** în CRM ContactProfile360
 
-### Ce NU funcționează:
+### ✅ Read-Only Preview Mode (Implementat)
 
-**Problema Majoră:** Edge function-ul `admin-impersonate` **NU schimbă efectiv sesiunea utilizatorului**. 
+Admin-ul poate vizualiza datele Door ale clientului într-un view dedicat:
+- Task-uri HIT și DO pentru orice săptămână
+- Statistici de completare
+- Banca de idei
+- Navigare între săptămâni
+- Mod read-only securizat (fără posibilitate de modificare)
+- Logging automat al sesiunilor de preview
 
-Codul actual (liniile 148-199 din ContactProfile360.tsx):
+**Fișiere noi:**
+- `src/components/admin/crm/AdminClientDoorPreview.tsx`
 
-```tsx
-const startViewAs = async () => {
-  const { data, error } = await supabase.functions.invoke('admin-impersonate', {
-    body: { targetUserId: contact.user_id }
-  });
-  
-  // Doar salvează în localStorage - NU SCHIMBĂ AUTH!
-  localStorage.setItem('admin_impersonation', JSON.stringify({
-    adminId: user?.id,
-    targetUserId: contact.user_id,
-    ...
-  }));
-  
-  // Deschide fereastră nouă, dar tot cu sesiunea ADMIN-ului
-  window.open('/', '_blank');
-};
-```
-
-**Rezultat:** Admin-ul deschide o fereastră nouă, dar vede tot cu propria sesiune, NU cu cea a clientului.
-
-### Opțiuni de Fix:
-
-**Opțiunea A - Token Impersonation (Recomandat pentru producție)**
-- Edge function generează un JWT token pentru target user
-- Frontend-ul folosește acest token pentru sesiunea impersonată
-- Necesită `supabase.auth.admin.generateLink()` sau similar
-
-**Opțiunea B - Read-Only Preview Mode**
-- Admin-ul vede datele clientului într-un view dedicat
-- NU schimbă sesiunea, doar afișează informațiile
-- Mai simplu de implementat, mai sigur
+**Modificări:**
+- `src/components/admin/crm/ContactProfile360.tsx` - buton actualizat la "View Door Data"
 
 ---
 
@@ -159,20 +138,20 @@ const startViewAs = async () => {
 
 ---
 
-## 6. RECOMANDĂRI PENTRU LANSARE
+## 6. STATUS FINAL LANSARE
 
-### Critice (înainte de lansare):
+### ✅ Toate funcționalitățile critice sunt implementate:
 
-1. **FIX Admin Impersonation** - Implementează Read-Only Preview Mode:
-   - Creează un `AdminClientPreview.tsx` care încarcă datele clientului
-   - Afișează task-uri, idei, progres într-un view dedicat
-   - NU încercă să schimbe sesiunea
+1. **Salvarea per user** - RLS activ, date izolate corect
+2. **Drag & Drop Idei → Sarcini** - Funcțional cu cross-library bridge
+3. **Admin Preview Client** - Read-Only mode implementat
+4. **Callback-uri HotList** - Conectate în toate componentele părinte
 
-### Recomandate:
+### Recomandate (opțional):
 
-2. **Activează Leaked Password Protection** în Supabase Auth
+1. **Activează Leaked Password Protection** în Supabase Auth
 
-3. **Curățare date vechi:**
+2. **Curățare date vechi:**
 ```sql
 DELETE FROM user_tasks 
 WHERE week_key NOT LIKE 'door-week-%' 
@@ -181,16 +160,14 @@ WHERE week_key NOT LIKE 'door-week-%'
 
 ### Nice to have:
 
-4. **Audit logging** - Loguri când admin-ul vizualizează date client
-5. **Rate limiting** pe API-uri sensibile
+3. **Rate limiting** pe API-uri sensibile
 
 ---
 
 ## CONCLUZIE
 
-**Sistemul Domino Door este FUNCȚIONAL pentru lansare** cu următoarele condiții:
+**Sistemul Domino Door este COMPLET FUNCȚIONAL pentru lansare:**
 - ✅ Salvarea per user funcționează corect
 - ✅ Drag & Drop Idei → Sarcini implementat
-- ⚠️ Admin Preview necesită un fix pentru a fi utilizabil
-
-Dacă funcția de impersonation nu este critică la lansare, poți proceda. Altfel, implementează Read-Only Preview Mode care e mai sigur și mai simplu.
+- ✅ Admin Preview implementat cu Read-Only Mode
+- ✅ Toate callback-urile conectate
