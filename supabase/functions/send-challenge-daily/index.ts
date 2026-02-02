@@ -389,6 +389,14 @@ ${inviteMessage}
   return { subject: content.subject, html };
 };
 
+interface ManualRequest {
+  email?: string;
+  name?: string;
+  userId?: string;
+  dayNumber?: number;
+  language?: 'en' | 'ro';
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -396,9 +404,61 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    
+    // Check if this is a manual request with specific email
+    let manualRequest: ManualRequest | null = null;
+    try {
+      const body = await req.json();
+      if (body.email) {
+        manualRequest = body;
+      }
+    } catch {
+      // No body or invalid JSON - proceed with automatic mode
+    }
 
-    // Get users who should receive daily emails
-    // This finds users based on challenge_progress or email_leads signup date
+    // MANUAL MODE: Send to specific email
+    if (manualRequest?.email && manualRequest?.dayNumber) {
+      const { email, name, dayNumber, language = 'ro', userId = 'manual' } = manualRequest;
+      
+      const content = getDayContent(dayNumber, language);
+      const trackingId = generateTrackingId(dayNumber);
+      const referralLink = `https://warriorsos.com/challenge-landing?ref=${userId}`;
+      const trackingPixelUrl = `${SUPABASE_URL}/functions/v1/track-email-open?t=${trackingId}`;
+      const unsubscribeUrl = `${SUPABASE_URL}/functions/v1/unsubscribe-email?id=${trackingId}`;
+
+      const { subject, html } = getEmailTemplate(
+        name || 'Warrior', 
+        dayNumber, 
+        content, 
+        referralLink, 
+        trackingPixelUrl, 
+        unsubscribeUrl, 
+        language
+      );
+
+      // Send email
+      const emailResponse = await resend.emails.send({
+        from: "WarriorOS <noreply@warriorsos.com>",
+        to: [email],
+        subject,
+        html,
+      });
+
+      console.log(`Manual email sent to ${email} for day ${dayNumber}`);
+
+      return new Response(JSON.stringify({ 
+        success: true, 
+        emailsSent: 1,
+        email,
+        dayNumber,
+        resendId: (emailResponse as any)?.data?.id
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // AUTOMATIC MODE: Send to all users based on progress
     const { data: users, error: usersError } = await supabase
       .from('challenge_progress')
       .select('user_id, day_number, completed, created_at')
