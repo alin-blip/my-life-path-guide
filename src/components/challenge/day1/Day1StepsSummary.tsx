@@ -1,10 +1,10 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { useLanguage } from '@/context/LanguageContext';
-import { Flame, ScrollText, Share2, Check } from 'lucide-react';
+import { Flame, ScrollText, Users, Check, Map } from 'lucide-react';
 
 interface Day1StepsSummaryProps {
-  currentStep: number; // 0, 1, 2 or 3 (completed)
+  currentStep: number; // 0, 1, 2, 3 or 4 (completed)
 }
 
 const STEPS = [
@@ -21,6 +21,17 @@ const STEPS = [
   },
   {
     id: 2,
+    titleRo: 'Evaluează REALITATEA DE ASTĂZI',
+    titleEn: 'Assess Your CURRENT REALITY',
+    descriptionRo: 'Folosește Harta Realității pentru a vedea de unde pornești în cele 4 dimensiuni.',
+    descriptionEn: 'Use the Reality Map to see where you start in all 4 dimensions.',
+    icon: Map,
+    color: 'text-cyan-500',
+    bgColor: 'bg-cyan-500/10 border-cyan-500/20',
+    activeGradient: 'from-cyan-500 to-blue-500'
+  },
+  {
+    id: 3,
     titleRo: 'Creează DECLARAȚIA VIZIUNII',
     titleEn: 'Create Your VISION DECLARATION',
     descriptionRo: 'În stilul Napoleon Hill, scrie viziunea ta pentru Corp, Spirit, Relații și Business.',
@@ -31,12 +42,12 @@ const STEPS = [
     activeGradient: 'from-purple-500 to-indigo-500'
   },
   {
-    id: 3,
-    titleRo: 'DISTRIBUIE și ANGAJEAZĂ-TE',
-    titleEn: 'SHARE and COMMIT',
-    descriptionRo: 'Postează declarația în comunitate pentru a-ți întări angajamentul și a inspira ceilalți războinici!',
-    descriptionEn: 'Post your declaration to the community to strengthen your commitment and inspire fellow warriors!',
-    icon: Share2,
+    id: 4,
+    titleRo: 'ANGAJEAZĂ-TE și CONECTEAZĂ-TE',
+    titleEn: 'COMMIT and CONNECT',
+    descriptionRo: 'Comentează la 3 postări ale altor Warriors pentru accountability reciprocă!',
+    descriptionEn: 'Comment on 3 other Warriors posts for mutual accountability!',
+    icon: Users,
     color: 'text-emerald-500',
     bgColor: 'bg-emerald-500/10 border-emerald-500/20',
     activeGradient: 'from-emerald-500 to-green-500'
@@ -56,7 +67,7 @@ export const Day1StepsSummary: React.FC<Day1StepsSummaryProps> = ({ currentStep 
       <div className="space-y-4">
         {STEPS.map((step, index) => {
           const Icon = step.icon;
-          const stepNumber = index; // 0, 1, 2
+          const stepNumber = index; // 0, 1, 2, 3
           const isCompleted = currentStep > stepNumber;
           const isActive = currentStep === stepNumber;
           const isPending = currentStep < stepNumber;
