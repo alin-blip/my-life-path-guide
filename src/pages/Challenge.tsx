@@ -166,7 +166,7 @@ const ChallengePage = () => {
 
   // Video URLs for each day (null means no video)
   const dayVideos: Record<number, string | null> = {
-    1: "https://us06web.zoom.us/clips/embed/zx6Y36ecRyevoBcm8We9Tw",
+    1: "https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=go9bXtqEsDTLGYdXU4_JNbKMGBDMHDfRU9dYEOMGNqzMjEIY4&videoRatio=1.777778&type=v&skinColor=%232758EB",
     2: null,
     3: null,
     4: null,
