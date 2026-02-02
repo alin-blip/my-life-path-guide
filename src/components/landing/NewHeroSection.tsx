@@ -76,7 +76,7 @@ export const NewHeroSection = ({
   const handleOpenChat = () => {
     onOpenChat?.();
   };
-  return <section className="relative min-h-screen flex items-center pt-8 pb-12 md:pt-16 md:pb-24 overflow-hidden n8n-hero-gradient">
+  return <section className="relative min-h-screen flex items-center pt-8 pb-12 md:pt-16 md:pb-24 overflow-x-hidden n8n-hero-gradient">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div animate={{

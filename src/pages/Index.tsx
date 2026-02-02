@@ -50,7 +50,7 @@ const Index = () => {
   };
 
   return (
-    <div className="light min-h-screen bg-background">
+    <div className="light min-h-screen bg-background relative overflow-y-auto">
       <Helmet>
         <title>{t('indexMetaTitle')}</title>
         <meta name="description" content={t('indexMetaDescription')} />
