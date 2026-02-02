@@ -524,15 +524,15 @@ const handler = async (req: Request): Promise<Response> => {
     for (const lead of leads || []) {
       const leadLogs = logsByEmail.get(lead.email) || [];
       
-      // Sort logs by email_number descending to get the latest
-      leadLogs.sort((a, b) => b.email_number - a.email_number);
+      // Sort logs by day_number descending to get the latest
+      leadLogs.sort((a, b) => b.day_number - a.day_number);
       
       const latestLog = leadLogs[0];
       let nextEmailNumber = 1;
 
       if (latestLog) {
         // Check if they've completed the sequence
-        if (latestLog.email_number >= 5) {
+        if (latestLog.day_number >= 5) {
           console.log(`${lead.email}: Sequence complete, skipping`);
           continue;
         }
@@ -546,7 +546,7 @@ const handler = async (req: Request): Promise<Response> => {
           continue;
         }
 
-        nextEmailNumber = latestLog.email_number + 1;
+        nextEmailNumber = latestLog.day_number + 1;
       }
 
       console.log(`${lead.email}: Sending email ${nextEmailNumber}`);
@@ -555,13 +555,16 @@ const handler = async (req: Request): Promise<Response> => {
       const emailContent = getEmailContent(nextEmailNumber, lead.name, trackingId);
 
       try {
+        // Rate limit: Resend allows max 2 requests/second, add 1000ms delay for safety
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         const emailResponse = await sendEmail(lead.email, emailContent.subject, emailContent.html);
 
         // Log the email
         await supabase.from('email_sequence_log').insert({
           email: lead.email,
           sequence_type: SEQUENCE_TYPE,
-          email_number: nextEmailNumber,
+          day_number: nextEmailNumber,
           tracking_id: trackingId,
           sent_at: new Date().toISOString()
         });
