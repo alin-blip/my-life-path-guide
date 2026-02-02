@@ -1562,6 +1562,10 @@ export type Database = {
           account_created_at: string | null
           admin_notes: string | null
           avatar_emoji: string | null
+          challenge_completed_at: string | null
+          challenge_current_day: number | null
+          challenge_days_completed: number | null
+          challenge_started_at: string | null
           created_at: string | null
           current_streak: number | null
           days_in_current_stage: number | null
@@ -1608,6 +1612,10 @@ export type Database = {
           account_created_at?: string | null
           admin_notes?: string | null
           avatar_emoji?: string | null
+          challenge_completed_at?: string | null
+          challenge_current_day?: number | null
+          challenge_days_completed?: number | null
+          challenge_started_at?: string | null
           created_at?: string | null
           current_streak?: number | null
           days_in_current_stage?: number | null
@@ -1654,6 +1662,10 @@ export type Database = {
           account_created_at?: string | null
           admin_notes?: string | null
           avatar_emoji?: string | null
+          challenge_completed_at?: string | null
+          challenge_current_day?: number | null
+          challenge_days_completed?: number | null
+          challenge_started_at?: string | null
           created_at?: string | null
           current_streak?: number | null
           days_in_current_stage?: number | null

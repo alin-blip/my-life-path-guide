@@ -15,6 +15,7 @@ import { UserAccountDropdown } from './UserAccountDropdown';
 
 import { GoalRemindersNotification } from './door/GoalRemindersNotification';
 import { AccountabilityCoachWidget } from './accountability/AccountabilityCoachWidget';
+import { useActivityTracker } from '@/hooks/useActivityTracker';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -32,6 +33,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { language } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const { registerMobileMenuControl } = useTourContext();
+  
+  // Activity tracker - tracks page views and sessions automatically
+  useActivityTracker();
 
   // Register mobile menu controls for tour
   const openMobileMenuHandler = useCallback(() => {
