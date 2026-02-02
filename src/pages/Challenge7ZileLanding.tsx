@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,6 +17,7 @@ import { useChallengeStats } from '@/hooks/useChallengeStats';
 import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeCard';
 import { SocialProofBar } from '@/components/landing/SocialProofBar';
 import { LandingEarlyBirdTimer } from '@/components/landing/LandingEarlyBirdTimer';
+import { ChallengeInlineAuth } from '@/components/challenge/ChallengeInlineAuth';
 
 const Challenge7ZileLanding = () => {
   const { language } = useLanguage();
@@ -26,9 +26,6 @@ const Challenge7ZileLanding = () => {
   const { toast } = useToast();
   const { totalParticipants, getCompletionsForDay, loading: statsLoading } = useChallengeStats();
   
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [realMetrics, setRealMetrics] = useState({ users: 0, completionRate: 0 });
@@ -61,56 +58,17 @@ const Challenge7ZileLanding = () => {
     fetchMetrics();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setIsSubmitting(true);
-    try {
-      // Save lead with free account source
-      const { error } = await supabase
-        .from('email_leads')
-        .insert({
-          email,
-          name: name || null,
-          lead_magnet: 'challenge_free_account',
-          source: 'challenge-7-zile-landing',
-          metadata: {
-            utm_source: utmSource,
-            utm_medium: utmMedium,
-            utm_campaign: utmCampaign,
-            signup_date: new Date().toISOString()
-          }
-        });
-
-      if (error && !error.message.includes('duplicate')) {
-        throw error;
-      }
-
-      setIsSubscribed(true);
-      toast({
-        title: language === 'en' ? '🎉 Account ready!' : '🎉 Cont pregătit!',
-        description: language === 'en' 
-          ? 'Redirecting to create your account...' 
-          : 'Te redirecționăm pentru a crea contul...',
-      });
-
-      // Redirect to auth page for account creation
-      setTimeout(() => {
-        navigate('/auth?redirect=/challenge');
-      }, 1500);
-    } catch (error) {
-      console.error('Error saving lead:', error);
-      toast({
-        title: language === 'en' ? 'Error' : 'Eroare',
-        description: language === 'en' 
-          ? 'Something went wrong. Please try again.' 
-          : 'Ceva nu a mers. Te rugăm să încerci din nou.',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleAuthSuccess = () => {
+    setIsSubscribed(true);
+    toast({
+      title: language === 'en' ? '🎉 Account ready!' : '🎉 Cont pregătit!',
+      description: language === 'en' 
+        ? 'Redirecting to your challenge...' 
+        : 'Te redirecționăm către challenge...',
+    });
+    setTimeout(() => {
+      navigate('/challenge');
+    }, 1500);
   };
 
   const challengeDays = [
@@ -378,47 +336,17 @@ const Challenge7ZileLanding = () => {
               </div>
             </motion.div>
 
-            {/* Lead Capture Form - Always Visible */}
+            {/* Inline Auth Widget */}
             {!isSubscribed ? (
-              <Card className="max-w-md mx-auto p-6 bg-card/80 backdrop-blur border-primary/20 mt-8">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <Input
-                    type="text"
-                    placeholder={language === 'en' ? 'Your name (optional)' : 'Numele tău (opțional)'}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="bg-background"
-                  />
-                  <Input
-                    type="email"
-                    placeholder={language === 'en' ? 'Your email address' : 'Adresa ta de email'}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="bg-background"
-                  />
-                  <Button 
-                    type="submit" 
-                    size="lg"
-                    disabled={isSubmitting}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6"
-                  >
-                    {isSubmitting 
-                      ? (language === 'en' ? 'Creating account...' : 'Se creează contul...')
-                      : (language === 'en' ? 'Create Free Account & Start' : 'Creează Cont Gratuit și Începe')}
-                    <Rocket className="h-5 w-5 ml-2" />
-                  </Button>
-                </form>
-                <p className="text-xs text-muted-foreground mt-3 text-center">
-                  {language === 'en' 
-                    ? '🔒 100% FREE • No credit card required • Start immediately'
-                    : '🔒 100% GRATUIT • Fără card bancar • Începi imediat'}
-                </p>
-              </Card>
+              <ChallengeInlineAuth
+                language={language}
+                utmParams={{ source: utmSource, medium: utmMedium, campaign: utmCampaign }}
+                onSuccess={handleAuthSuccess}
+              />
             ) : (
               <Card className="max-w-md mx-auto p-6 bg-green-500/10 border-green-500/30 mt-8">
                 <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
-                <p className="text-lg font-medium text-green-500">
+                <p className="text-lg font-medium text-green-500 text-center">
                   {language === 'en' ? 'Account ready! Redirecting...' : 'Cont pregătit! Se redirecționează...'}
                 </p>
               </Card>
