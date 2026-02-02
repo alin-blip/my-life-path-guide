@@ -327,7 +327,7 @@ const Challenge7ZileLanding = () => {
             >
               <div className="relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.6),0_0_30px_rgba(34,211,238,0.4),0_0_60px_rgba(34,211,238,0.3),0_0_100px_rgba(34,211,238,0.2)] animate-pulse-glow">
                 <iframe 
-                  src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&videoRatio=1.777778&type=v&skinColor=%232758EB&autoplay=1&loop=1&muted=1" 
+                  src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=a1UxQlSF_zsIRg949UdpevBeG3kFJw9e8Ddw8GgXOiKdfh4tG&videoRatio=1.777778&type=v&skinColor=%232758EB" 
                   frameBorder="0" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowFullScreen 
