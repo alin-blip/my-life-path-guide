@@ -207,6 +207,20 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
 
         if (error) throw error;
 
+        // Send welcome email (fire and forget - don't block UI)
+        supabase.auth.getUser().then(({ data: userData }) => {
+          if (userData?.user) {
+            supabase.functions.invoke('send-challenge-welcome', {
+              body: {
+                email,
+                name: userData.user.user_metadata?.full_name || userData.user.user_metadata?.name || '',
+                userId: userData.user.id,
+                language
+              }
+            }).catch(err => console.warn('Welcome email failed:', err));
+          }
+        });
+
         toast({
           title: '🎉 ' + (language === 'en' ? 'Account created!' : 'Cont creat!'),
           description: t.signupSuccess,
