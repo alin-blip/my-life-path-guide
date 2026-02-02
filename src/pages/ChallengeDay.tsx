@@ -691,6 +691,56 @@ const ChallengeDayPage = () => {
                 onPostToComments={handlePostDeclaration}
                 onEdit={() => setDay1Step(2)}
               />
+              
+              {/* Invite Friends section for returning users */}
+              <div className="mt-6">
+                <ChallengeInviteFriends dayNumber={1} />
+              </div>
+              
+              {/* Navigation/Completion Card for returning users */}
+              <Card className={`p-6 mt-6 ${isDayCompleted(1) ? 'bg-green-500/10 border-green-500/30' : 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30'}`}>
+                {isDayCompleted(1) ? (
+                  <div className="text-center">
+                    <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-2" />
+                    <h3 className="text-xl font-bold text-green-500 mb-2">
+                      {language === 'en' ? 'Day 1 Completed!' : 'Ziua 1 Completată!'}
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      {language === 'en' 
+                        ? 'Great work! You can continue to Day 2.' 
+                        : 'Excelent! Poți continua la Ziua 2.'}
+                    </p>
+                    <Button 
+                      onClick={() => navigate('/challenge/2')}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500"
+                      size="lg"
+                    >
+                      {language === 'en' ? 'Continue to Day 2' : 'Continuă la Ziua 2'}
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Trophy className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+                    <h3 className="text-xl font-bold text-foreground mb-2">
+                      {language === 'en' ? 'Ready to Complete Day 1?' : 'Gata să Finalizezi Ziua 1?'}
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      {language === 'en' 
+                        ? 'You have your vision declaration. Finalize Day 1 to unlock Day 2!' 
+                        : 'Ai declarația de viziune. Finalizează Ziua 1 pentru a debloca Ziua 2!'}
+                    </p>
+                    <Button 
+                      onClick={handleDay1Complete}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500"
+                      size="lg"
+                    >
+                      <Trophy className="h-5 w-5 mr-2" />
+                      {language === 'en' ? 'Complete Day 1' : 'Finalizează Ziua 1'}
+                    </Button>
+                  </div>
+                )}
+              </Card>
             </>
           ) : (
             <>

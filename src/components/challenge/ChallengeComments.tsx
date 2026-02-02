@@ -14,12 +14,17 @@ export const ChallengeComments = forwardRef<ChallengeCommentsRef, ChallengeComme
   ({ dayNumber }, ref) => {
     // Generate module_id in the format used by warriors_way_comments table
     const moduleId = `challenge-day-${dayNumber}`;
-    const { addComment } = useModuleComments(moduleId);
+    const { addComment, refetch } = useModuleComments(moduleId);
     
     // Expose postComment method to parent
     useImperativeHandle(ref, () => ({
       postComment: async (content: string) => {
-        return await addComment(content);
+        const success = await addComment(content);
+        if (success) {
+          // Refetch immediately to show the new comment
+          await refetch();
+        }
+        return success;
       }
     }));
     
