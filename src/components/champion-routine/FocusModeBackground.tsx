@@ -9,14 +9,30 @@ export const FocusModeBackground: React.FC = () => {
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
-      {/* Deep warrior blue base gradient */}
+      {/* Deep navy blue base - using Tailwind bg colors */}
       <div 
-        className="absolute inset-0 transition-colors duration-500"
+        className={cn(
+          "absolute inset-0",
+          isDark ? "bg-slate-950" : "bg-slate-100"
+        )}
+      />
+      
+      {/* Overlay gradient for depth */}
+      <div 
+        className="absolute inset-0"
         style={{
           background: isDark 
-            ? 'radial-gradient(ellipse at 50% 30%, hsl(220 80% 8%) 0%, hsl(220 90% 4%) 50%, hsl(220 95% 2%) 100%)'
-            : 'radial-gradient(ellipse at 50% 30%, hsl(220 70% 92%) 0%, hsl(225 60% 88%) 50%, hsl(230 50% 82%) 100%)'
+            ? 'radial-gradient(ellipse at 50% 30%, rgba(15, 23, 42, 1) 0%, rgba(2, 6, 23, 1) 50%, rgba(0, 0, 0, 1) 100%)'
+            : 'radial-gradient(ellipse at 50% 30%, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%)'
         }}
+      />
+      
+      {/* Blue tint overlay */}
+      <div 
+        className={cn(
+          "absolute inset-0",
+          isDark ? "bg-blue-950/40" : "bg-blue-100/30"
+        )}
       />
       
       {/* Animated energy rings - Focus symbol */}
@@ -79,8 +95,8 @@ export const FocusModeBackground: React.FC = () => {
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         style={{ 
           background: isDark 
-            ? 'radial-gradient(ellipse at 50% 100%, hsl(210 100% 50% / 0.2) 0%, hsl(220 90% 40% / 0.1) 40%, transparent 70%)'
-            : 'radial-gradient(ellipse at 50% 100%, hsl(210 80% 60% / 0.15) 0%, hsl(220 70% 50% / 0.08) 40%, transparent 70%)'
+            ? 'radial-gradient(ellipse at 50% 100%, rgba(59, 130, 246, 0.2) 0%, rgba(30, 64, 175, 0.1) 40%, transparent 70%)'
+            : 'radial-gradient(ellipse at 50% 100%, rgba(59, 130, 246, 0.15) 0%, rgba(30, 64, 175, 0.08) 40%, transparent 70%)'
         }}
       />
       
@@ -89,8 +105,8 @@ export const FocusModeBackground: React.FC = () => {
         className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2"
         style={{
           background: isDark
-            ? 'linear-gradient(to bottom, transparent 0%, hsl(200 90% 50% / 0.15) 30%, hsl(200 90% 50% / 0.15) 70%, transparent 100%)'
-            : 'linear-gradient(to bottom, transparent 0%, hsl(200 70% 50% / 0.1) 30%, hsl(200 70% 50% / 0.1) 70%, transparent 100%)'
+            ? 'linear-gradient(to bottom, transparent 0%, rgba(56, 189, 248, 0.15) 30%, rgba(56, 189, 248, 0.15) 70%, transparent 100%)'
+            : 'linear-gradient(to bottom, transparent 0%, rgba(56, 189, 248, 0.1) 30%, rgba(56, 189, 248, 0.1) 70%, transparent 100%)'
         }}
       />
       
@@ -99,16 +115,16 @@ export const FocusModeBackground: React.FC = () => {
         className="absolute left-0 top-1/4 w-32 h-96"
         style={{
           background: isDark
-            ? 'linear-gradient(to right, hsl(220 80% 40% / 0.1) 0%, transparent 100%)'
-            : 'linear-gradient(to right, hsl(220 60% 50% / 0.08) 0%, transparent 100%)'
+            ? 'linear-gradient(to right, rgba(30, 64, 175, 0.15) 0%, transparent 100%)'
+            : 'linear-gradient(to right, rgba(59, 130, 246, 0.08) 0%, transparent 100%)'
         }}
       />
       <div 
         className="absolute right-0 top-1/4 w-32 h-96"
         style={{
           background: isDark
-            ? 'linear-gradient(to left, hsl(220 80% 40% / 0.1) 0%, transparent 100%)'
-            : 'linear-gradient(to left, hsl(220 60% 50% / 0.08) 0%, transparent 100%)'
+            ? 'linear-gradient(to left, rgba(30, 64, 175, 0.15) 0%, transparent 100%)'
+            : 'linear-gradient(to left, rgba(59, 130, 246, 0.08) 0%, transparent 100%)'
         }}
       />
       
@@ -170,11 +186,8 @@ export const FocusModeBackground: React.FC = () => {
           isDark ? "opacity-20" : "opacity-10"
         )}
         style={{
-          backgroundImage: isDark
-            ? `linear-gradient(hsl(210 80% 50% / 0.04) 1px, transparent 1px),
-               linear-gradient(90deg, hsl(210 80% 50% / 0.04) 1px, transparent 1px)`
-            : `linear-gradient(hsl(210 60% 50% / 0.06) 1px, transparent 1px),
-               linear-gradient(90deg, hsl(210 60% 50% / 0.06) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.04) 1px, transparent 1px),
+             linear-gradient(90deg, rgba(59, 130, 246, 0.04) 1px, transparent 1px)`,
           backgroundSize: '50px 50px'
         }}
       />
@@ -184,8 +197,8 @@ export const FocusModeBackground: React.FC = () => {
         className="absolute inset-0"
         style={{
           background: isDark
-            ? 'radial-gradient(ellipse at 50% 50%, transparent 20%, hsl(220 90% 3% / 0.6) 100%)'
-            : 'radial-gradient(ellipse at 50% 50%, transparent 30%, hsl(220 30% 95% / 0.4) 100%)'
+            ? 'radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(2, 6, 23, 0.7) 100%)'
+            : 'radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(241, 245, 249, 0.4) 100%)'
         }}
       />
     </div>
