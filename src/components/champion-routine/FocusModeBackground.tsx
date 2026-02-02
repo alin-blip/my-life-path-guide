@@ -14,8 +14,8 @@ export const FocusModeBackground: React.FC = () => {
         className="absolute inset-0 transition-colors duration-500"
         style={{
           background: isDark 
-            ? 'radial-gradient(ellipse at 50% 30%, hsl(220 70% 12%) 0%, hsl(220 80% 6%) 50%, hsl(220 90% 3%) 100%)'
-            : 'radial-gradient(ellipse at 50% 30%, hsl(215 80% 96%) 0%, hsl(220 60% 92%) 50%, hsl(225 50% 88%) 100%)'
+            ? 'radial-gradient(ellipse at 50% 30%, hsl(220 80% 8%) 0%, hsl(220 90% 4%) 50%, hsl(220 95% 2%) 100%)'
+            : 'radial-gradient(ellipse at 50% 30%, hsl(220 70% 92%) 0%, hsl(225 60% 88%) 50%, hsl(230 50% 82%) 100%)'
         }}
       />
       
