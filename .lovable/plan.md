@@ -1,104 +1,156 @@
 
-# Plan: Fix Global Mouse Scroll
+# Plan: Widget Autentificare Complet pe Pagina /challenge-7-zile
 
-## Problema Identificată
+## Rezumat
 
-Scroll-ul de pe mouse nu funcționează din cauza mai multor conflicte CSS:
+Vom înlocui formularul simplu de pe pagina `/challenge-7-zile` (care colectează doar email + nume și redirecționează la `/auth`) cu un **widget complet de autentificare inline** care permite crearea contului direct pe landing page.
 
-1. **`overflow-y: visible !important`** pe `#root` - această valoare NU permite scroll
-2. **Lipsă `position: relative`** pe containere - framer-motion aruncă warning pentru calcule scroll
-3. **Container Index.tsx** fără overflow explicit
+## Schimbări Vizuale
 
-## Soluția
+```text
+ÎNAINTE (formular simplu):
+┌─────────────────────────────────────────┐
+│  Nume (opțional)                        │
+│  Email                                  │
+│  [Creează Cont Gratuit și Începe]       │
+└─────────────────────────────────────────┘
+         ↓
+    Redirect → /auth
+         ↓
+    Creează cont acolo
 
-### 1. Modificare `src/index.css` (liniile 170-214)
-
-**Problema:** `overflow-y: visible` pe `#root` blochează scroll-ul
-
-```css
-html {
-  scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
-  overflow-x: hidden;
-  overflow-y: scroll;
-  height: auto;
-  min-height: 100%;
-}
-
-body {
-  @apply bg-background text-foreground;
-  font-feature-settings: "rlig" 1, "calt" 1;
-  overflow-x: hidden;
-  overflow-y: scroll;
-  max-width: 100vw;
-  min-height: 100vh;
-  height: auto;
-  position: relative; /* CRITICAL pentru framer-motion */
-}
-
-#root {
-  overflow-x: hidden;
-  overflow-y: auto; /* SCHIMBAT de la visible */
-  max-width: 100vw;
-  min-height: 100vh;
-  height: auto;
-  position: relative; /* CRITICAL pentru framer-motion */
-}
+DUPĂ (widget complet):
+┌─────────────────────────────────────────┐
+│  ┌─────────────────────────────────────┐│
+│  │  [G] Continuă cu Google             ││
+│  └─────────────────────────────────────┘│
+│  ┌─────────────────────────────────────┐│
+│  │  [🍎] Continuă cu Apple             ││
+│  └─────────────────────────────────────┘│
+│                                         │
+│  ─────────── sau cu email ────────────  │
+│                                         │
+│  Email:           [________________]    │
+│  Parolă:          [________________] 👁 │
+│  Confirmă Parola: [________________] 👁 │
+│  [indicator HIBP - parolă sigură/nu]    │
+│                                         │
+│  [   CREEAZĂ CONT ȘI ÎNCEPE GRATUIT   ] │
+│                                         │
+│  Ai deja cont? [Conectează-te]          │
+└─────────────────────────────────────────┘
+         ↓
+    Cont creat INSTANT
+         ↓
+    Redirect → /challenge
 ```
 
-**Schimbări cheie:**
-- `#root`: `overflow-y: visible` → `overflow-y: auto`
-- Adăugat `position: relative` pe `body` și `#root` pentru framer-motion
-- Eliminat `!important` care poate crea conflicte
+## Flow Utilizator
 
-### 2. Modificare `src/pages/Index.tsx` (linia 53)
+1. User ajunge pe `/challenge-7-zile`
+2. Vede videoul și widget-ul de autentificare dedesubt
+3. Alege metoda de înregistrare:
+   - **Click Google/Apple** → OAuth instant → Cont creat → Redirect `/challenge`
+   - **Email + Parolă** → Completează formular → Cont creat → Redirect `/challenge`
+4. User autentificat ajunge pe `/challenge` și poate începe Day 1
 
-**Problema:** Container-ul paginii nu are proprietăți de scroll
+## Fișiere Afectate
+
+| Fișier | Acțiune | Descriere |
+|--------|---------|-----------|
+| `src/components/challenge/ChallengeInlineAuth.tsx` | **CREARE** | Componentă nouă cu OAuth + email/parolă |
+| `src/pages/Challenge7ZileLanding.tsx` | **MODIFICARE** | Înlocuire formular simplu (liniile 381-426) cu ChallengeInlineAuth |
+
+## Funcționalități Widget
+
+- **Butoane OAuth** - Google și Apple cu design oficial
+- **Formular Email/Parolă** - cu confirmare parolă pentru signup
+- **Toggle Show/Hide Parolă** - pentru ambele câmpuri
+- **Verificare HIBP** - blochează parole compromise
+- **Toggle Login/Signup** - pentru utilizatori existenți
+- **Bilingv RO/EN** - bazat pe context
+- **Salvare Lead** - email salvat în `email_leads` înainte de creare cont
+- **Redirect automat** - către `/challenge` după succes
+
+## Secțiune Tehnică
+
+### Structura Componentei ChallengeInlineAuth
 
 ```tsx
-// Înainte:
-<div className="light min-h-screen bg-background">
+interface Props {
+  language: 'en' | 'ro';
+  onSuccess?: () => void;
+  utmParams?: { source: string; medium: string; campaign: string };
+}
 
-// După:
-<div className="light min-h-screen bg-background relative overflow-y-auto">
+ChallengeInlineAuth
+├── OAuth Section
+│   ├── Google Button (lovable.auth.signInWithOAuth)
+│   └── Apple Button (lovable.auth.signInWithOAuth)
+├── Separator ("sau cu email")
+├── Email/Password Form
+│   ├── Email Input
+│   ├── Password Input + Eye Toggle
+│   ├── Confirm Password Input (doar signup) + Eye Toggle
+│   ├── PasswordBreachIndicator (doar signup)
+│   └── Submit Button
+└── Mode Switcher (Login ↔ Signup)
 ```
 
-### 3. Modificare `src/components/landing/NewHeroSection.tsx` (linia 79)
+### Dependențe Existente (fără instalări)
 
-**Problema:** Container cu `overflow-hidden` poate interfera
+- `@lovable.dev/cloud-auth-js` - OAuth Google/Apple
+- `@supabase/supabase-js` - signup/login cu email
+- `usePasswordCheck` hook - verificare HIBP
+- `PasswordBreachIndicator` - indicator vizual breach
+- `SecureInput` - input-uri sigure
+- `useSecurity` - validare email și logging
+
+### Modificări Challenge7ZileLanding.tsx
+
+Înlocuire liniilor 381-426 (formularul simplu) cu:
 
 ```tsx
-// Înainte:
-<section className="relative min-h-screen flex items-center ... overflow-hidden n8n-hero-gradient">
+import { ChallengeInlineAuth } from '@/components/challenge/ChallengeInlineAuth';
 
-// După:
-<section className="relative min-h-screen flex items-center ... overflow-x-hidden n8n-hero-gradient">
+// În secțiunea Hero, sub video:
+{!isSubscribed ? (
+  <ChallengeInlineAuth 
+    language={language}
+    utmParams={{ source: utmSource, medium: utmMedium, campaign: utmCampaign }}
+    onSuccess={() => {
+      setIsSubscribed(true);
+      setTimeout(() => navigate('/challenge'), 1500);
+    }}
+  />
+) : (
+  <Card className="...">
+    <CheckCircle2 ... />
+    <p>Cont pregătit! Se redirecționează...</p>
+  </Card>
+)}
 ```
 
-**Schimbat `overflow-hidden` în `overflow-x-hidden`** pentru a permite scroll vertical.
+### OAuth Redirect URL
 
-## Fișiere de Modificat
+Pentru OAuth, redirect-ul va fi setat la `/challenge`:
+```tsx
+const { error } = await lovable.auth.signInWithOAuth('google', {
+  redirect_uri: `${window.location.origin}/challenge`,
+});
+```
 
-| Fișier | Modificare |
-|--------|------------|
-| `src/index.css` | Fix `#root` overflow + adăugare `position: relative` |
-| `src/pages/Index.tsx` | Adăugare `relative overflow-y-auto` pe container |
-| `src/components/landing/NewHeroSection.tsx` | Schimbare `overflow-hidden` → `overflow-x-hidden` |
+### Salvare Lead + Creare Cont
 
-## Detalii Tehnice
+1. Salvăm email-ul în `email_leads` (pentru tracking)
+2. Creăm contul cu `supabase.auth.signUp`
+3. Creăm subscriber cu `early_bird_expires_at`
+4. Redirect la `/challenge`
 
-**De ce `overflow-y: visible` blochează scroll:**
-- `visible` nu creează un scroll container
-- Body/html au `overflow-y: scroll` dar `#root` cu `visible` nu propagă scroll-ul corect
-- Când `#root` are `overflow-y: auto`, devine un scroll container valid
+## Beneficii
 
-**De ce `position: relative` este necesar:**
-- Framer-motion calculează scroll offset relativ la primul container cu poziție non-statică
-- Fără `position: relative`, calculul eșuează și scroll events pot fi ignorate
-- Warning-ul din consolă confirmă această problemă
-
-**Testare după implementare:**
-- Verifică scroll pe pagina Index (`/`)
-- Verifică scroll în Challenge Day 1 (`/challenge/1`)
-- Verifică scroll pe dashboard (`/dashboard`)
-- Testează pe mobile și desktop
+1. **Zero fricțiune** - contul se creează direct pe landing, fără redirect
+2. **Opțiuni multiple** - Google, Apple sau email+parolă
+3. **Securitate** - verificare parolă compromisă HIBP
+4. **Conversie mai bună** - 1 click vs 2 pagini
+5. **UX consistent** - același stil ca restul platformei
