@@ -122,7 +122,7 @@ export function LandingEarlyBirdTimer() {
       
       <div className="flex items-center gap-2">
         <span className={`text-sm font-semibold ${isUrgent ? 'text-red-500' : 'text-amber-500'}`}>
-          {language === 'ro' ? '50% REDUCERE' : '50% OFF'}
+          Have It All Lifestyle Free Challenge
         </span>
         
         <div className="flex items-center gap-1 font-mono text-sm font-bold">
