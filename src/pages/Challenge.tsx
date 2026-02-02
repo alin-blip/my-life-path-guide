@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { EarlyBirdCountdown } from '@/components/membership/EarlyBirdCountdown';
 import { ChallengeCoachWidget } from '@/components/challenge/ChallengeCoachWidget';
+import { InstallAppPrompt } from '@/components/pwa/InstallAppPrompt';
 
 interface ChallengeDay {
   day: number;
@@ -220,6 +221,9 @@ const ChallengePage = () => {
             {language === 'en' ? '👆 Watch this before starting each day' : '👆 Urmărește acest video înainte de fiecare zi'}
           </p>
         </Card>
+
+        {/* Install App Prompt */}
+        <InstallAppPrompt />
 
         {/* Early Bird Countdown Banner for Trial Users */}
         {isAuthenticated && !subscribed && isEarlyBirdActive && earlyBirdExpiresAt && (
