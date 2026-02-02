@@ -9,8 +9,9 @@ export const Day1VideoPlaceholder: React.FC = () => {
         style={{ paddingBottom: '56.25%' }}
       >
         <iframe 
-          src="https://us06web.zoom.us/clips/embed/zx6Y36ecRyevoBcm8We9Tw" 
+          src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=EmSYV-az3RPM1F2dgE82gFhgBtO6C9nQVNVAE4IeNa7M1V0a6&videoRatio=1.777778&type=v&skinColor=%232758EB" 
           frameBorder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           className="absolute top-0 left-0 w-full h-full"
         />

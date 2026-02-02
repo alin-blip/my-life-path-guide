@@ -211,8 +211,9 @@ const ChallengePage = () => {
         <Card className="p-4 mb-6 overflow-hidden border-primary/20">
           <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
             <iframe 
-              src="https://us06web.zoom.us/clips/embed/iNO2HuCsRw2g8G2TkGH04g" 
+              src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=go9bXtqEsDTLGYdXU4_JNbKMGBDMHDfRU9dYEOMGNqzMjEIY4&videoRatio=1.777778&type=v&skinColor=%232758EB" 
               frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               className="absolute top-0 left-0 w-full h-full rounded-lg"
             />
