@@ -218,7 +218,6 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-    }
 
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 100) {
       console.error('❌ Invalid messages array:', {
