@@ -16,11 +16,11 @@ import {
   GoalProject,
   CATEGORY_INFO 
 } from '@/types/goalWizard';
-import { DayOfWeek } from '@/types/door';
 import { GoalWizardProgress } from './GoalWizardProgress';
 import { GoalWizardChat } from './GoalWizardChat';
 import { GoalWizardVoiceInput } from './GoalWizardVoiceInput';
-import { ProjectSelectionDialog, ProjectSaveSelection, KeyItem } from './ProjectSelectionDialog';
+import { ProjectSelectionDialog, ProjectSaveSelection } from './ProjectSelectionDialog';
+import { DoorPlanningModal } from '@/components/door/DoorPlanningModal';
 
 interface GoalWizardModalProps {
   isOpen: boolean;
@@ -62,6 +62,14 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
   
   // Project selection dialog state
   const [showProjectSelectionDialog, setShowProjectSelectionDialog] = useState(false);
+  
+  // Door AI Planning state - triggered when "massive" is selected
+  const [showDoorAIPlanning, setShowDoorAIPlanning] = useState(false);
+  const [aiPlanningContext, setAIPlanningContext] = useState<{
+    dominoTitle: string;
+    weekGoal: string;
+    category: string;
+  } | null>(null);
   
   // Overwrite protection state
   const [showOverwriteWarning, setShowOverwriteWarning] = useState(false);
@@ -516,70 +524,52 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
               is_key_point: false
             }]);
           }
-        } else if (selection.saveType === 'massive' && selection.keys) {
-          // Massive Objective with keys
-          const validKeys = selection.keys.filter(k => k.text.trim() !== '');
+        } else if (selection.saveType === 'massive') {
+          // Massive Objective - save minimal structure and trigger AI Planning
+          const weekGoal = project.milestones.weekOne || project.name;
           
-          if (validKeys.length > 0) {
-            const keyPoints = validKeys.map((k, index) => ({
-              id: index + 1,
-              title: k.text,
-              objective: project.milestones.weekOne || '',
-              why: goalData.why || '',
-              positiveImpact: goalData.positiveImpact || '',
-              negativeImpact: goalData.negativeConsequence || '',
-              projectName: project.name,
-              steps: [],
-              day: k.day
-            }));
+          // Save minimal weekly_planning structure
+          const { data: existingPlan } = await supabase
+            .from('weekly_planning')
+            .select('id, category')
+            .eq('user_id', userId)
+            .eq('week_key', weekKey)
+            .eq('category', category)
+            .maybeSingle();
 
-            // FIX: Add category filter to prevent cross-category overwrites
-            const { data: existingPlan } = await supabase
+          if (existingPlan) {
+            // Update existing plan with new domino title
+            await supabase
               .from('weekly_planning')
-              .select('id, key_points, category')
-              .eq('user_id', userId)
-              .eq('week_key', weekKey)
-              .eq('category', category) // CRITICAL: Filter by category!
-              .maybeSingle(); // Use maybeSingle to avoid errors when no plan exists
-
-            if (existingPlan) {
-              // Append to existing plan for this category
-              const existingKeyPoints = (existingPlan.key_points as any[]) || [];
-              await supabase
-                .from('weekly_planning')
-                .update({ 
-                  key_points: [...existingKeyPoints, ...keyPoints],
-                  updated_at: new Date().toISOString()
-                })
-                .eq('id', existingPlan.id);
-            } else {
-              // Create new plan for this category
-              await supabase.from('weekly_planning').insert([{
-                user_id: userId,
-                week_key: weekKey,
-                category: category, // Ensure category is set
-                domino_title: project.milestones.weekOne || project.name,
+              .update({ 
+                domino_title: weekGoal,
                 week_goal: project.name,
-                key_points: keyPoints
-              }]);
-            }
-
-            // Create key tasks in user_tasks table
-            const keyTasks = validKeys.map((k) => ({
+                key_points: [], // Empty - AI will fill
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', existingPlan.id);
+          } else {
+            // Create new minimal plan
+            await supabase.from('weekly_planning').insert([{
               user_id: userId,
-              task_id: uuidv4(),
-              title: `🔑 ${k.text}`,
-              list_type: 'hit',
-              task_type: 'hit',
               week_key: weekKey,
-              day_of_week: k.day,
-              completed: false,
-              priority: 2,
-              is_key_point: true
-            }));
-
-            await supabase.from('user_tasks').insert(keyTasks);
+              category: category,
+              domino_title: weekGoal,
+              week_goal: project.name,
+              key_points: [] // Empty - AI will fill
+            }]);
           }
+
+          // Set context for AI Planning and trigger modal
+          setAIPlanningContext({
+            dominoTitle: weekGoal,
+            weekGoal: project.name,
+            category: CATEGORY_INFO[category].label.ro
+          });
+          setShowDoorAIPlanning(true);
+          setShowProjectSelectionDialog(false);
+          setIsProcessing(false);
+          return; // Exit early - AI Planning will handle the rest
         }
       }
 
@@ -791,6 +781,24 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Door AI Planning Modal - triggered for "massive" objectives */}
+      {showDoorAIPlanning && aiPlanningContext && (
+        <DoorPlanningModal
+          isOpen={showDoorAIPlanning}
+          onClose={() => {
+            setShowDoorAIPlanning(false);
+            setAIPlanningContext(null);
+          }}
+          onPlanningComplete={() => {
+            setShowDoorAIPlanning(false);
+            setAIPlanningContext(null);
+            onComplete?.();
+            onClose();
+          }}
+          wizardContext={aiPlanningContext}
+        />
+      )}
     </Dialog>
   );
 };
