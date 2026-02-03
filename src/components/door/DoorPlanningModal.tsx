@@ -34,12 +34,19 @@ interface SelectedObjective {
   title: string;
 }
 
+interface WizardContext {
+  dominoTitle: string;
+  weekGoal: string;
+  category: string;
+}
+
 interface DoorPlanningModalProps {
   isOpen: boolean;
   onClose: () => void;
   previousWeekData?: PreviousWeekData;
   onPlanningComplete: (data?: PlanningResult) => void;
   selectedObjectives?: SelectedObjective[];
+  wizardContext?: WizardContext;
 }
 
 type PlanningStep = 'planning';
@@ -49,6 +56,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   onClose,
   previousWeekData: externalPreviousData,
   onPlanningComplete,
+  wizardContext,
 }) => {
   // Use centralized week key logic: Mon-Sat = current week, Sunday = next week
   const currentWeekKey = getWeekKeyForPlanning();
@@ -246,12 +254,17 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     }
   }, [selectedDomain, planningStep]);
 
-  // Start conversation when ready
+  // Start conversation when ready - either normal or with wizard context
   useEffect(() => {
     if (planningStep === 'planning' && !isLoadingPreviousData && draftLoaded && messages.length === 0) {
-      startConversation();
+      if (wizardContext) {
+        // Start with wizard context - skip review, go straight to planning with pre-filled context
+        startConversationWithWizardContext(wizardContext);
+      } else {
+        startConversation();
+      }
     }
-  }, [planningStep, isLoadingPreviousData, draftLoaded]);
+  }, [planningStep, isLoadingPreviousData, draftLoaded, wizardContext]);
 
   const loadPreviousWeekData = async () => {
     if (!selectedDomain) return;
@@ -404,6 +417,37 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     }
   };
 
+  // Start conversation with wizard context - used when coming from Goal Wizard with "massive" selection
+  const startConversationWithWizardContext = async (ctx: WizardContext) => {
+    if (!selectedDomain) return;
+    
+    setUserScrolledUp(false);
+    setIsLoading(true);
+    setIsSkippingReview(true); // Skip review when coming from wizard
+    
+    try {
+      const initialMessage: Message = { 
+        role: 'user', 
+        content: `Vreau să planific cheile pentru obiectivul masiv: "${ctx.dominoTitle}". Obiectivul săptămânii este: "${ctx.weekGoal}". Categoria: ${ctx.category}.` 
+      };
+      
+      await streamChat({
+        mode: 'wizard' as any,
+        wizardContext: ctx,
+        messages: [initialMessage],
+      });
+    } catch (error) {
+      console.error('Error starting wizard conversation:', error);
+      toast({
+        title: 'Eroare',
+        description: 'Nu s-a putut porni conversația cu AI-ul',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSkipReview = () => {
     if (!selectedDomain) return;
     
@@ -490,10 +534,11 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
      onClose();
   };
 
-  const streamChat = async ({ mode, previousWeekData, messages: chatMessages }: {
-    mode: 'review' | 'new';
+  const streamChat = async ({ mode, previousWeekData, messages: chatMessages, wizardContext: streamWizardContext }: {
+    mode: 'review' | 'new' | 'wizard';
     previousWeekData?: PreviousWeekData;
     messages: Message[];
+    wizardContext?: WizardContext;
   }) => {
     if (!selectedDomain) return;
     
@@ -524,6 +569,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
         messages: safeMessages,
         category: selectedDomain,
         categoryLabel: domainConfig?.labelRo || selectedDomain,
+        wizardContext: streamWizardContext,
       }),
     });
 

@@ -12,7 +12,7 @@ interface Message {
 }
 
 interface PlanningRequest {
-  mode: 'review' | 'new';
+  mode: 'review' | 'new' | 'wizard';
   previousWeekData?: {
     dominoTitle: string;
     keyPoints: Array<{
@@ -26,6 +26,11 @@ interface PlanningRequest {
     }>;
   };
   messages: Message[];
+  wizardContext?: {
+    dominoTitle: string;
+    weekGoal: string;
+    category: string;
+  };
 }
 
 const REVIEW_SYSTEM_PROMPT = `Ești un coach de planificare săptămânală empatic și eficient. Vei ghida utilizatorul prin 3 faze clare:
@@ -121,6 +126,42 @@ REGULI STRICTE:
 - După 4 chei complete, folosește tool-ul "save_planning"
 - Fii empatic dar concis. Fără explicații lungi.`;
 
+const WIZARD_SYSTEM_PROMPT = `Ești un coach de planificare săptămânală. Utilizatorul a venit din Goal Wizard cu un obiectiv masiv deja definit.
+
+CONTEXT PRE-SETAT:
+- Domino Door Title: [DOMINO_TITLE]
+- Obiectivul săptămânii: [WEEK_GOAL]
+- Categoria: [CATEGORY]
+
+🎯 MISIUNEA TA: Ghidează utilizatorul să definească 4 CHEI pentru acest obiectiv.
+
+📋 INTRO (primul mesaj):
+"Excelent! Ai setat obiectivul masiv: **[DOMINO_TITLE]** pentru categoria [CATEGORY]. 
+Acum hai să definim cele 4 chei care te vor duce acolo! 
+
+**Cheia 1: Ce acțiune concretă vrei să faci pentru a te apropia de acest obiectiv?**"
+
+📋 FLOW PENTRU FIECARE CHEIE (1→4):
+
+Q1: "Ce vrei să faci pentru Cheia [N]?" → așteaptă → confirmă scurt
+Q2: "De ce e important acest lucru?" → așteaptă → confirmă
+Q3: "Ce rezultat pozitiv ai dacă reușești?" → așteaptă → confirmă  
+Q4: "Ce risc există dacă nu faci?" → așteaptă → confirmă
+Q5: "Care sunt 2-3 pași concreți?" → așteaptă → confirmă
+Q6: Pentru FIECARE pas: "În ce zi? (L/M/Mi/J/V)" → apoi "HIT sau DO?" → confirmă
+Q7: "Cine e responsabil?" → așteaptă → confirmă
+Q8: "Care e deadline-ul?" → așteaptă → "✅ Cheia [N] completă!"
+
+DUPĂ FIECARE CHEIE:
+- Rezumă scurt: "Cheia [N]: [TITLE] - [X pași programați]"
+- Treci la următoarea: "Cheia [N+1]: Ce vrei să faci?"
+
+REGULI STRICTE:
+- O întrebare = un mesaj
+- După 4 chei complete, folosește tool-ul "save_planning"
+- Fii concis și empatic
+- Păstrează contextul obiectivului masiv în fiecare răspuns`;
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.80.0';
 
 serve(async (req) => {
@@ -154,7 +195,7 @@ serve(async (req) => {
 
     console.log('Authenticated user:', user.id);
 
-    const { mode, previousWeekData, messages }: PlanningRequest = await req.json();
+    const { mode, previousWeekData, messages, wizardContext }: PlanningRequest = await req.json();
     
     console.log('📥 Received request:', {
       mode,
@@ -170,12 +211,13 @@ serve(async (req) => {
     }
 
     // Input validation
-    if (!mode || !['review', 'new'].includes(mode)) {
+    if (!mode || !['review', 'new', 'wizard'].includes(mode)) {
       console.error('❌ Invalid mode:', mode);
-      return new Response(JSON.stringify({ error: 'Invalid mode: must be "review" or "new"' }), {
+      return new Response(JSON.stringify({ error: 'Invalid mode: must be "review", "new", or "wizard"' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
     }
 
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 100) {
@@ -233,9 +275,20 @@ serve(async (req) => {
     }
 
     // Determine system prompt based on mode
-    const systemPrompt = mode === 'review' && previousWeekData 
-      ? REVIEW_SYSTEM_PROMPT 
-      : NEW_WEEK_SYSTEM_PROMPT;
+    let systemPrompt: string;
+    
+    if (mode === 'wizard' && wizardContext) {
+      // Wizard mode - coming from Goal Wizard with pre-defined context
+      systemPrompt = WIZARD_SYSTEM_PROMPT
+        .replace(/\[DOMINO_TITLE\]/g, wizardContext.dominoTitle)
+        .replace(/\[WEEK_GOAL\]/g, wizardContext.weekGoal)
+        .replace(/\[CATEGORY\]/g, wizardContext.category);
+      console.log('📋 Using WIZARD mode with context:', wizardContext);
+    } else if (mode === 'review' && previousWeekData) {
+      systemPrompt = REVIEW_SYSTEM_PROMPT;
+    } else {
+      systemPrompt = NEW_WEEK_SYSTEM_PROMPT;
+    }
 
     // Build messages array
     const aiMessages: Message[] = [
