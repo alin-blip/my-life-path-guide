@@ -89,6 +89,7 @@ const Business2026LeadMagnet = lazy(() => import("./pages/Business2026LeadMagnet
 const CoachDashboard = lazy(() => import("./pages/CoachDashboard"));
 const ReferralProgram = lazy(() => import("./pages/ReferralProgram"));
 const ChallengeLanding = lazy(() => import("./pages/ChallengeLanding"));
+const ChallengeEnglish = lazy(() => import("./pages/ChallengeEnglish"));
 const MindCoach = lazy(() => import("./pages/MindCoach"));
 const MindCoachLanding = lazy(() => import("./pages/MindCoachLanding"));
 const Tools = lazy(() => import("./pages/Tools"));
@@ -151,6 +152,7 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/challenge-7-zile" element={<Challenge7ZileLanding />} />
+                    <Route path="/challenge-en" element={<ChallengeEnglish />} />
                     <Route path="/challenge" element={<Challenge />} />
                     <Route path="/challenge/:day" element={<ChallengeDay />} />
                     <Route path="/learn" element={

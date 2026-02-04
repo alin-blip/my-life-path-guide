@@ -1,0 +1,192 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Play, Pause, Volume2, Loader2, RotateCcw } from 'lucide-react';
+import { getPlainTextScript } from '@/data/challengeScripts';
+
+interface ChallengeAudioPlayerProps {
+  script: string;
+}
+
+const formatTime = (seconds: number): string => {
+  if (isNaN(seconds)) return '0:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
+export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ script }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  const generateAudio = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Convert markdown to plain text for TTS
+      const plainText = getPlainTextScript(script);
+      // Limit text length for TTS API (max ~300 chars for demo endpoint)
+      const truncatedText = plainText.substring(0, 300);
+
+      const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/text-to-speech-demo`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+          },
+          body: JSON.stringify({
+            text: truncatedText,
+            voiceId: 'EXAVITQu4vr4xnSDxMaL', // Sarah - natural female voice
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to generate audio');
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setAudioUrl(url);
+
+      // Create audio element
+      const audio = new Audio(url);
+      audioRef.current = audio;
+
+      audio.onloadedmetadata = () => {
+        setDuration(audio.duration);
+      };
+
+      audio.ontimeupdate = () => {
+        setCurrentTime(audio.currentTime);
+        setProgress((audio.currentTime / audio.duration) * 100);
+      };
+
+      audio.onended = () => {
+        setIsPlaying(false);
+        setProgress(100);
+      };
+
+      audio.onerror = () => {
+        setError('Error playing audio');
+        setIsPlaying(false);
+      };
+
+      // Start playing
+      await audio.play();
+      setIsPlaying(true);
+    } catch (err) {
+      console.error('TTS error:', err);
+      setError('Failed to generate audio. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const togglePlay = async () => {
+    if (!audioUrl) {
+      await generateAudio();
+      return;
+    }
+
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  const restart = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      setProgress(0);
+      setCurrentTime(0);
+    }
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
+
+  return (
+    <div className="p-4 border-b border-border/50">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+          <Volume2 className="h-4 w-4 text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-medium">Challenge Coach Audio</p>
+          <p className="text-xs text-muted-foreground">Listen to the introduction</p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <Button
+          onClick={togglePlay}
+          size="icon"
+          variant="outline"
+          disabled={isLoading}
+          className="h-12 w-12 rounded-full border-2 flex-shrink-0"
+        >
+          {isLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : isPlaying ? (
+            <Pause className="h-5 w-5" />
+          ) : (
+            <Play className="h-5 w-5 ml-0.5" />
+          )}
+        </Button>
+
+        <div className="flex-1 space-y-1">
+          <Progress value={progress} className="h-2" />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
+        </div>
+
+        {audioUrl && (
+          <Button
+            onClick={restart}
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 flex-shrink-0"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+
+      {error && (
+        <p className="text-xs text-destructive mt-2">{error}</p>
+      )}
+    </div>
+  );
+};
+
+export default ChallengeAudioPlayer;
