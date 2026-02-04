@@ -494,15 +494,13 @@ const ChallengeDayEnglish: React.FC = () => {
             </p>
           </div>
           
-          {/* Audio + Script Card (replaces video) */}
+          {/* Audio + Script + Chat - Unified Card (replaces video) */}
           <Card className="mb-6 overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
             <ChallengeAudioPlayer script={script} />
             <ChallengeScriptCard script={script} maxHeight="300px" />
-          </Card>
-          
-          {/* Inline Chat */}
-          <Card className="mb-6 overflow-hidden border-amber-500/20">
-            <ChallengeInlineChat currentDay={dayNumber} />
+            <div className="border-t border-border/50">
+              <ChallengeInlineChat currentDay={dayNumber} />
+            </div>
           </Card>
           
           {/* Steps Summary */}
@@ -701,15 +699,13 @@ const ChallengeDayEnglish: React.FC = () => {
           </p>
         </div>
         
-        {/* Audio + Script Card (replaces video) */}
+        {/* Audio + Script + Chat - Unified Card (replaces video) */}
         <Card className="mb-6 overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
           <ChallengeAudioPlayer script={script} />
           <ChallengeScriptCard script={script} maxHeight="300px" />
-        </Card>
-        
-        {/* Inline Chat */}
-        <Card className="mb-6 overflow-hidden border-amber-500/20">
-          <ChallengeInlineChat currentDay={dayNumber} />
+          <div className="border-t border-border/50">
+            <ChallengeInlineChat currentDay={dayNumber} />
+          </div>
         </Card>
         
         {/* Today's Steps */}

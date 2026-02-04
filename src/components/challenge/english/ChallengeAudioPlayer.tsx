@@ -38,7 +38,7 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
 
     try {
       const plainText = getPlainTextScript(script);
-      const truncatedText = plainText.substring(0, 300);
+      const truncatedText = plainText.substring(0, 2000);
 
       const response = await fetch(
         `${SUPABASE_URL}/functions/v1/text-to-speech-demo`,

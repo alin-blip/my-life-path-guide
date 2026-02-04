@@ -92,18 +92,14 @@ const ChallengeEnglish: React.FC = () => {
         </div>
       </section>
 
-      {/* Audio + Script Card */}
+      {/* Audio + Script + Chat - Unified Card */}
       <section className="px-4 pb-8">
         <Card className="max-w-3xl mx-auto overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
           <ChallengeAudioPlayer script={script} />
-          <ChallengeScriptCard script={script} maxHeight="350px" />
-        </Card>
-      </section>
-
-      {/* Inline Chat */}
-      <section className="px-4 pb-8">
-        <Card className="max-w-3xl mx-auto overflow-hidden border-amber-500/20">
-          <ChallengeInlineChat currentDay={0} />
+          <ChallengeScriptCard script={script} maxHeight="300px" />
+          <div className="border-t border-border/50">
+            <ChallengeInlineChat currentDay={0} />
+          </div>
         </Card>
       </section>
 

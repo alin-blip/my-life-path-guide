@@ -12,9 +12,9 @@ export const ChallengeScriptCard: React.FC<ChallengeScriptCardProps> = ({
   maxHeight = '300px',
 }) => {
   return (
-    <div className="relative">
-      <ScrollArea className="p-6" style={{ maxHeight }}>
-        <div className="prose prose-sm dark:prose-invert max-w-none">
+    <div className="relative" style={{ height: maxHeight }}>
+      <ScrollArea className="h-full">
+        <div className="p-6 prose prose-sm dark:prose-invert max-w-none">
           <ReactMarkdown
             components={{
               h1: ({ children }) => (
