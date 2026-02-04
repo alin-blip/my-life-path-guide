@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles, Send, Mic, MicOff, Loader2, User, Bot } from 'lucide-react';
 import { useChallengeCoach } from '@/hooks/useChallengeCoach';
+import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 
 interface ChallengeInlineChatProps {
@@ -54,15 +56,47 @@ export const ChallengeInlineChat: React.FC<ChallengeInlineChatProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const { messages, isLoading, sendMessage, initializeChat } = useChallengeCoach({
     currentDay,
   });
 
-  // Initialize chat on mount
+  // Initialize chat on mount (only if user is authenticated)
   useEffect(() => {
-    initializeChat();
-  }, [initializeChat]);
+    if (user) {
+      initializeChat();
+    }
+  }, [initializeChat, user]);
+
+  // Show sign-in prompt for unauthenticated users
+  if (!user) {
+    return (
+      <div className="flex flex-col h-[400px]">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-amber-500" />
+            <h3 className="font-semibold text-foreground">Ask Your Challenge Coach</h3>
+          </div>
+        </div>
+        
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <Bot className="h-16 w-16 text-amber-500/50 mb-4" />
+          <h3 className="font-semibold mb-2">Your Challenge Coach is Ready!</h3>
+          <p className="text-muted-foreground text-sm mb-6 max-w-xs">
+            Sign in to chat with your AI coach and get personalized guidance through the challenge.
+          </p>
+          <Button 
+            onClick={() => navigate('/auth?redirect=/challenge-en')}
+            className="bg-amber-500 hover:bg-amber-600"
+          >
+            Sign In to Start Chatting
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
