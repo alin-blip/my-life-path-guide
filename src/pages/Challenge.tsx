@@ -208,7 +208,13 @@ const ChallengePage = () => {
           
           {/* Hero Video */}
           <div className="mt-6 max-w-2xl mx-auto">
-            <div className="relative w-full rounded-xl overflow-hidden shadow-lg" style={{ paddingBottom: '56.25%' }}>
+            <div 
+              className="relative w-full rounded-xl overflow-hidden" 
+              style={{ 
+                paddingBottom: '56.25%',
+                boxShadow: '0 0 30px 4px rgba(59, 130, 246, 0.5), 0 0 60px 8px rgba(59, 130, 246, 0.3)'
+              }}
+            >
               <iframe 
                 src={heroVideoUrl}
                 frameBorder="0" 
