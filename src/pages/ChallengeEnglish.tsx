@@ -50,9 +50,9 @@ const ChallengeEnglish: React.FC = () => {
 
   const handleStartChallenge = () => {
     if (user) {
-      navigate('/challenge/1');
+      navigate('/challenge-en/1');
     } else {
-      navigate('/auth?redirect=/challenge/1');
+      navigate('/auth?redirect=/challenge-en/1');
     }
   };
 
