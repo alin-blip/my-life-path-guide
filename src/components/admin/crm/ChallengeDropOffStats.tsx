@@ -5,11 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { 
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription
+} from '@/components/ui/sheet';
+import { 
   AlertTriangle, TrendingDown, Users, Mail, 
-  RefreshCw, CheckCircle, XCircle, Clock
+  RefreshCw, CheckCircle, XCircle, Clock, Eye
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { format, formatDistanceToNow } from 'date-fns';
+import { ro } from 'date-fns/locale';
 
 interface DayStats {
   day: number;
@@ -29,11 +34,25 @@ interface ChallengeStats {
   recoveryConversions: number;
 }
 
+interface DayUser {
+  email: string;
+  name: string | null;
+  completed: boolean;
+  completed_at: string | null;
+  video_watched: boolean;
+  created_at: string;
+}
+
 export const ChallengeDropOffStats: React.FC = () => {
   const { toast } = useToast();
   const [stats, setStats] = useState<ChallengeStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [sendingRecovery, setSendingRecovery] = useState(false);
+  
+  // Sheet state for day users
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [dayUsers, setDayUsers] = useState<DayUser[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
     loadStats();
@@ -50,13 +69,17 @@ export const ChallengeDropOffStats: React.FC = () => {
 
       if (progressError) throw progressError;
 
-      // Get email leads who signed up for challenge
+      // Get email leads who signed up for challenge - include ALL challenge sources
       const { data: challengeLeads, error: leadsError } = await supabase
         .from('email_leads')
         .select('email, created_at')
-        .eq('lead_magnet', 'challenge_7_zile');
+        .ilike('lead_magnet', 'challenge%');
 
       if (leadsError) throw leadsError;
+
+      // Deduplicate leads by email (lowercase)
+      const uniqueEmails = new Set(challengeLeads?.map(l => l.email.toLowerCase()));
+      const uniqueParticipants = uniqueEmails.size;
 
       // Get recovery emails sent
       const { data: recoveryEmails, error: recoveryError } = await supabase
@@ -87,7 +110,7 @@ export const ChallengeDropOffStats: React.FC = () => {
           }));
 
         const prevDayCompleted = day === 1 
-          ? (challengeLeads?.length || 0) 
+          ? uniqueParticipants 
           : (progress?.filter(p => p.day_number === day - 1 && p.completed).length || 0);
 
         dayStats.push({
@@ -102,14 +125,13 @@ export const ChallengeDropOffStats: React.FC = () => {
       }
 
       // Calculate overall stats
-      const totalParticipants = challengeLeads?.length || 0;
       const completedAll = progress?.filter(p => p.day_number === 7 && p.completed).length || 0;
       const recoveryConversions = recoveryEmails?.filter(e => e.converted).length || 0;
 
       setStats({
-        totalParticipants,
+        totalParticipants: uniqueParticipants,
         completedAll,
-        overallCompletionRate: totalParticipants > 0 ? (completedAll / totalParticipants) * 100 : 0,
+        overallCompletionRate: uniqueParticipants > 0 ? (completedAll / uniqueParticipants) * 100 : 0,
         dayStats,
         atRiskCount: dayStats.reduce((sum, d) => sum + d.stuckUsers.length, 0),
         recoveryEmailsSent: recoveryEmails?.length || 0,
@@ -124,6 +146,59 @@ export const ChallengeDropOffStats: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadDayUsers = async (dayNumber: number) => {
+    setLoadingUsers(true);
+    setSelectedDay(dayNumber);
+    
+    try {
+      // Get challenge progress for this day with user info via user_id
+      const { data: progressData, error: progressError } = await supabase
+        .from('challenge_progress')
+        .select('user_id, completed, completed_at, video_watched, created_at')
+        .eq('day_number', dayNumber)
+        .order('completed_at', { ascending: false, nullsFirst: false });
+
+      if (progressError) throw progressError;
+
+      // Get CRM contact profiles to match emails
+      const userIds = progressData?.map(p => p.user_id) || [];
+      const { data: contacts, error: contactsError } = await supabase
+        .from('crm_contact_profiles')
+        .select('user_id, email, name')
+        .in('user_id', userIds);
+
+      if (contactsError) throw contactsError;
+
+      // Map contact info by user_id
+      const contactMap = new Map(contacts?.map(c => [c.user_id, c]) || []);
+
+      // Combine data
+      const users: DayUser[] = (progressData || []).map(p => {
+        const contact = contactMap.get(p.user_id);
+        return {
+          email: contact?.email || 'Unknown',
+          name: contact?.name || null,
+          completed: p.completed || false,
+          completed_at: p.completed_at,
+          video_watched: p.video_watched || false,
+          created_at: p.created_at || ''
+        };
+      });
+
+      setDayUsers(users);
+    } catch (error) {
+      console.error('Error loading day users:', error);
+      toast({
+        title: 'Eroare',
+        description: 'Nu am putut încărca utilizatorii',
+        variant: 'destructive'
+      });
+      setDayUsers([]);
+    } finally {
+      setLoadingUsers(false);
     }
   };
 
@@ -285,7 +360,7 @@ export const ChallengeDropOffStats: React.FC = () => {
             Drop-off pe Zile
           </CardTitle>
           <CardDescription>
-            Analiza completărilor și abandonului pe fiecare zi
+            Click pe o zi pentru a vedea utilizatorii - Analiza completărilor și abandonului
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -300,7 +375,11 @@ export const ChallengeDropOffStats: React.FC = () => {
                 : 0;
 
               return (
-                <div key={day.day} className="space-y-2">
+                <div 
+                  key={day.day} 
+                  className="space-y-2 cursor-pointer hover:bg-muted/50 p-3 rounded-lg border transition-colors"
+                  onClick={() => loadDayUsers(day.day)}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Badge 
@@ -310,6 +389,7 @@ export const ChallengeDropOffStats: React.FC = () => {
                         {day.day}
                       </Badge>
                       <span className="font-medium">{dayNames[index]}</span>
+                      <Eye className="h-4 w-4 text-muted-foreground ml-2" />
                     </div>
                     <div className="flex items-center gap-4 text-sm">
                       <span className="text-muted-foreground">
@@ -378,6 +458,90 @@ export const ChallengeDropOffStats: React.FC = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Day Users Sheet */}
+      <Sheet open={selectedDay !== null} onOpenChange={() => setSelectedDay(null)}>
+        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              Utilizatori {selectedDay ? dayNames[selectedDay - 1] : ''}
+            </SheetTitle>
+            <SheetDescription>
+              {dayUsers.length} utilizatori au ajuns la această zi
+            </SheetDescription>
+          </SheetHeader>
+          
+          <div className="space-y-3 mt-6">
+            {loadingUsers ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map(i => (
+                  <Skeleton key={i} className="h-20 w-full" />
+                ))}
+              </div>
+            ) : dayUsers.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                Niciun utilizator la această zi
+              </p>
+            ) : (
+              dayUsers.map((user, i) => (
+                <div 
+                  key={i} 
+                  className={`flex items-start gap-3 p-4 rounded-lg border ${
+                    user.completed 
+                      ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' 
+                      : user.video_watched 
+                        ? 'bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800'
+                        : 'bg-muted/30'
+                  }`}
+                >
+                  <div className={`p-2 rounded-full ${
+                    user.completed ? 'bg-green-100' : user.video_watched ? 'bg-blue-100' : 'bg-muted'
+                  }`}>
+                    {user.completed ? (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    ) : user.video_watched ? (
+                      <Eye className="h-5 w-5 text-blue-600" />
+                    ) : (
+                      <Clock className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{user.email}</p>
+                    {user.name && (
+                      <p className="text-sm text-muted-foreground">{user.name}</p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      {user.completed ? (
+                        <Badge className="bg-green-500 text-white text-xs">
+                          ✓ Completat
+                        </Badge>
+                      ) : user.video_watched ? (
+                        <Badge className="bg-blue-500 text-white text-xs">
+                          👁️ Video vizionat
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-xs">
+                          ⏳ Început
+                        </Badge>
+                      )}
+                      {user.completed_at ? (
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(user.completed_at), 'dd MMM yyyy, HH:mm', { locale: ro })}
+                        </span>
+                      ) : user.created_at ? (
+                        <span className="text-xs text-muted-foreground">
+                          Început {formatDistanceToNow(new Date(user.created_at), { addSuffix: true, locale: ro })}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

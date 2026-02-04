@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { format, startOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { ro } from 'date-fns/locale';
+import { ClientObjectivesSection } from './ClientObjectivesSection';
 
 interface AdminClientDoorPreviewProps {
   userId: string;
@@ -48,6 +49,21 @@ interface WeekStats {
   doCount: number;
 }
 
+interface Mission {
+  id: string;
+  category: string;
+  title: string;
+  mission_type: string;
+  period: string | null;
+  created_at: string;
+}
+
+interface WeeklyPlanning {
+  domino_title: string | null;
+  week_goal: string | null;
+  key_points: { id: string; title: string; completed: boolean }[] | null;
+}
+
 export const AdminClientDoorPreview: React.FC<AdminClientDoorPreviewProps> = ({
   userId,
   userEmail,
@@ -61,6 +77,12 @@ export const AdminClientDoorPreview: React.FC<AdminClientDoorPreviewProps> = ({
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [ideas, setIdeas] = useState<IdeaItem[]>([]);
   const [weekStats, setWeekStats] = useState<WeekStats>({ total: 0, completed: 0, hitCount: 0, doCount: 0 });
+  const [missions, setMissions] = useState<{
+    annual: Mission[];
+    quarterly: Mission[];
+    monthly: Mission[];
+  }>({ annual: [], quarterly: [], monthly: [] });
+  const [weeklyPlanning, setWeeklyPlanning] = useState<WeeklyPlanning | null>(null);
 
   const weekKey = `door-week-${format(currentWeek, 'yyyy-MM-dd')}`;
 
@@ -123,6 +145,56 @@ export const AdminClientDoorPreview: React.FC<AdminClientDoorPreviewProps> = ({
         hitCount: hitTasks.length,
         doCount: doTasks.length
       });
+
+      // Fetch missions (objectives)
+      const currentYear = new Date().getFullYear();
+      const currentQuarter = Math.ceil((new Date().getMonth() + 1) / 3);
+      const currentMonth = new Date().getMonth() + 1;
+      const currentMonthStr = currentMonth.toString().padStart(2, '0');
+      
+      const { data: missionsData, error: missionsError } = await supabase
+        .from('missions')
+        .select('id, category, title, mission_type, period, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (!missionsError && missionsData) {
+        // Group by mission type using period field
+        // period formats: "2026" (annual), "2026-Q1" (quarterly), "2026-02" (monthly)
+        const annualMissions = missionsData.filter(m => 
+          m.mission_type === 'annual' && m.period === String(currentYear)
+        );
+        const quarterlyMissions = missionsData.filter(m => 
+          m.mission_type === 'quarterly' && m.period === `${currentYear}-Q${currentQuarter}`
+        );
+        const monthlyMissions = missionsData.filter(m => 
+          m.mission_type === 'monthly' && m.period === `${currentYear}-${currentMonthStr}`
+        );
+
+        setMissions({
+          annual: annualMissions,
+          quarterly: quarterlyMissions,
+          monthly: monthlyMissions
+        });
+      }
+
+      // Fetch weekly planning (Domino Door)
+      const { data: planningData, error: planningError } = await supabase
+        .from('weekly_planning')
+        .select('domino_title, week_goal, key_points')
+        .eq('user_id', userId)
+        .eq('week_key', weekKey)
+        .maybeSingle();
+
+      if (!planningError && planningData) {
+        setWeeklyPlanning({
+          domino_title: planningData.domino_title,
+          week_goal: planningData.week_goal,
+          key_points: planningData.key_points as { id: string; title: string; completed: boolean }[] | null
+        });
+      } else {
+        setWeeklyPlanning(null);
+      }
 
     } catch (error) {
       console.error('Error loading client data:', error);
@@ -220,6 +292,13 @@ export const AdminClientDoorPreview: React.FC<AdminClientDoorPreviewProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Client Objectives Section */}
+      <ClientObjectivesSection
+        missions={missions}
+        weeklyPlanning={weeklyPlanning}
+        currentYear={new Date().getFullYear()}
+      />
 
       {/* Stats Overview */}
       <div className="grid grid-cols-4 gap-4">
