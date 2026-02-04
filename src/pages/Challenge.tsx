@@ -172,16 +172,8 @@ const ChallengePage = () => {
     );
   }
 
-  // Video URLs for each day (null means no video)
-  const dayVideos: Record<number, string | null> = {
-    1: "https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=EmSYV-az3RPM1F2dgE82gFhgBtO6C9nQVNVAE4IeNa7M1V0a6&videoRatio=1.777778&type=v&skinColor=%232758EB",
-    2: "https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=zphPUZ-a0Mn4kkBSgE1-gC7ERwSYYyP36L4BAVc4ZeLSSBFpR&videoRatio=1.777778&type=v&skinColor=%232758EB",
-    3: null,
-    4: null,
-    5: null,
-    6: null,
-    7: null,
-  };
+  // Hero video URL
+  const heroVideoUrl = "https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=EmSYV-az3RPM1F2dgE82gFhgBtO6C9nQVNVAE4IeNa7M1V0a6&videoRatio=1.777778&type=v&skinColor=%232758EB";
 
   return (
     <>
@@ -212,6 +204,19 @@ const ChallengePage = () => {
                 </span>
               </div>
             ))}
+          </div>
+          
+          {/* Hero Video */}
+          <div className="mt-6 max-w-2xl mx-auto">
+            <div className="relative w-full rounded-xl overflow-hidden shadow-lg" style={{ paddingBottom: '56.25%' }}>
+              <iframe 
+                src={heroVideoUrl}
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute top-0 left-0 w-full h-full"
+              />
+            </div>
           </div>
         </div>
 
@@ -353,23 +358,6 @@ const ChallengePage = () => {
                   } ${completed ? 'ring-2 ring-green-500/50' : ''} ${isPremium && !hasPremiumAccess ? 'border-amber-500/30' : ''}`}
                   onClick={() => handleStartDay(day)}
                 >
-                  {/* Day Video (if available) */}
-                  {dayVideos[day.day] && unlocked && (
-                    <div 
-                      className="p-3 border-b border-border/50"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                        <iframe 
-                          src={dayVideos[day.day]!} 
-                          frameBorder="0" 
-                          allowFullScreen
-                          className="absolute top-0 left-0 w-full h-full rounded-lg"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  
                   <div className="p-3 sm:p-4">
                     <div className="flex items-start gap-3 sm:gap-4">
                       {/* Day Number & Icon */}
