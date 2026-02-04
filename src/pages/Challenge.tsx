@@ -186,7 +186,7 @@ const ChallengePage = () => {
           </p>
           
           {/* 4 Areas Legend */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
+          <div className="flex-wrap mt-4 items-start justify-center flex flex-row my-[7px] gap-[2px]">
             {(['body', 'being', 'balance', 'business'] as const).map(area => <div key={area} className="flex items-center gap-1.5">
                 <div className={`w-3 h-3 rounded-full ${areaColors[area]}`} />
                 <span className="text-sm text-muted-foreground">
