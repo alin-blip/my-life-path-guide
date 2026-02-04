@@ -18,6 +18,7 @@ const formatTime = (seconds: number): string => {
 export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ script }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -29,13 +30,14 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
   const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   const generateAudio = async () => {
+    if (isGenerating) return;
+    
+    setIsGenerating(true);
     setIsLoading(true);
     setError(null);
 
     try {
-      // Convert markdown to plain text for TTS
       const plainText = getPlainTextScript(script);
-      // Limit text length for TTS API (max ~300 chars for demo endpoint)
       const truncatedText = plainText.substring(0, 300);
 
       const response = await fetch(
@@ -48,7 +50,7 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
           },
           body: JSON.stringify({
             text: truncatedText,
-            voiceId: 'EXAVITQu4vr4xnSDxMaL', // Sarah - natural female voice
+            voiceId: 'EXAVITQu4vr4xnSDxMaL',
           }),
         }
       );
@@ -61,7 +63,6 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
       const url = URL.createObjectURL(blob);
       setAudioUrl(url);
 
-      // Create audio element
       const audio = new Audio(url);
       audioRef.current = audio;
 
@@ -82,20 +83,37 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
       audio.onerror = () => {
         setError('Error playing audio');
         setIsPlaying(false);
+        setIsGenerating(false);
       };
 
-      // Start playing
-      await audio.play();
-      setIsPlaying(true);
+      // Wait for audio to be ready before playing
+      audio.oncanplaythrough = async () => {
+        setIsLoading(false);
+        setIsGenerating(false);
+        try {
+          await audio.play();
+          setIsPlaying(true);
+        } catch (err: any) {
+          if (err?.name !== 'AbortError') {
+            console.error('Playback error:', err);
+            setError('Error playing audio');
+          }
+        }
+      };
+
+      audio.load();
+
     } catch (err) {
       console.error('TTS error:', err);
       setError('Failed to generate audio. Please try again.');
-    } finally {
       setIsLoading(false);
+      setIsGenerating(false);
     }
   };
 
   const togglePlay = async () => {
+    if (isGenerating || isLoading) return;
+
     if (!audioUrl) {
       await generateAudio();
       return;
@@ -106,8 +124,14 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        await audioRef.current.play();
-        setIsPlaying(true);
+        try {
+          await audioRef.current.play();
+          setIsPlaying(true);
+        } catch (err: any) {
+          if (err?.name !== 'AbortError') {
+            setError('Error playing audio');
+          }
+        }
       }
     }
   };

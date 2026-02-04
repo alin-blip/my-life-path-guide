@@ -24,6 +24,9 @@ import { ChallengeInviteFriends } from '@/components/challenge/ChallengeInviteFr
 import { ChallengeComments } from '@/components/challenge/ChallengeComments';
 import { getChallengeIntroScript } from '@/data/challengeScripts';
 
+import { cn } from '@/lib/utils';
+import { Lock } from 'lucide-react';
+
 const days = [
   { day: 1, icon: Target, title: 'Vision + Declaration', free: true },
   { day: 2, icon: Heart, title: 'Body, Spirit & Relationships', free: true },
@@ -50,6 +53,16 @@ const ChallengeEnglish: React.FC = () => {
       navigate('/challenge/1');
     } else {
       navigate('/auth?redirect=/challenge/1');
+    }
+  };
+
+  const handleDayClick = (day: number, free: boolean) => {
+    if (!free) return;
+    
+    if (user) {
+      navigate(`/challenge/${day}`);
+    } else {
+      navigate(`/auth?redirect=/challenge/${day}`);
     }
   };
 
@@ -106,21 +119,24 @@ const ChallengeEnglish: React.FC = () => {
             {days.map(({ day, icon: Icon, title, free }) => (
               <Card
                 key={day}
-                className={`p-4 transition-all ${
+                onClick={() => handleDayClick(day, free)}
+                className={cn(
+                  'p-4 transition-all',
                   free
-                    ? 'border-amber-500/30 bg-gradient-to-r from-amber-500/5 to-transparent'
-                    : 'border-border/50 opacity-80'
-                }`}
+                    ? 'border-amber-500/30 bg-gradient-to-r from-amber-500/5 to-transparent cursor-pointer hover:shadow-md hover:border-amber-500/50'
+                    : 'border-border/50 opacity-80 cursor-not-allowed'
+                )}
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    className={cn(
+                      'w-10 h-10 rounded-full flex items-center justify-center',
                       free
                         ? 'bg-gradient-to-br from-amber-500 to-orange-500'
                         : 'bg-muted'
-                    }`}
+                    )}
                   >
-                    <Icon className={`h-5 w-5 ${free ? 'text-white' : 'text-muted-foreground'}`} />
+                    <Icon className={cn('h-5 w-5', free ? 'text-white' : 'text-muted-foreground')} />
                   </div>
 
                   <div className="flex-1">
@@ -140,7 +156,11 @@ const ChallengeEnglish: React.FC = () => {
                     <p className="text-sm text-muted-foreground">{title}</p>
                   </div>
 
-                  {free && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+                  {free ? (
+                    <ArrowRight className="h-5 w-5 text-amber-500" />
+                  ) : (
+                    <Lock className="h-4 w-4 text-muted-foreground" />
+                  )}
                 </div>
               </Card>
             ))}
