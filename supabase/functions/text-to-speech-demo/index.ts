@@ -62,8 +62,8 @@ serve(async (req) => {
       throw new Error('ELEVENLABS_API_KEY is not configured');
     }
 
-    // Truncate text for demo (max 300 chars for fast response)
-    const truncatedText = text.substring(0, 300);
+    // Truncate text for demo (max 2000 chars for ~2-3 min audio)
+    const truncatedText = text.substring(0, 2000);
 
     // Use turbo model for fastest response
     const response = await fetch(
