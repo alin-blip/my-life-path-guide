@@ -90,6 +90,7 @@ const CoachDashboard = lazy(() => import("./pages/CoachDashboard"));
 const ReferralProgram = lazy(() => import("./pages/ReferralProgram"));
 const ChallengeLanding = lazy(() => import("./pages/ChallengeLanding"));
 const ChallengeEnglish = lazy(() => import("./pages/ChallengeEnglish"));
+const ChallengeDayEnglish = lazy(() => import("./pages/ChallengeDayEnglish"));
 const MindCoach = lazy(() => import("./pages/MindCoach"));
 const MindCoachLanding = lazy(() => import("./pages/MindCoachLanding"));
 const Tools = lazy(() => import("./pages/Tools"));
@@ -153,6 +154,7 @@ const App = () => (
                     } />
                     <Route path="/challenge-7-zile" element={<Challenge7ZileLanding />} />
                     <Route path="/challenge-en" element={<ChallengeEnglish />} />
+                    <Route path="/challenge-en/:day" element={<ChallengeDayEnglish />} />
                     <Route path="/challenge" element={<Challenge />} />
                     <Route path="/challenge/:day" element={<ChallengeDay />} />
                     <Route path="/learn" element={
