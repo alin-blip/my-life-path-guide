@@ -482,12 +482,20 @@ Răspunde în română cu un ton cald și profesionist.`;
     }
   }, [messages, currentQuestionNumber, finalAction, mode, isAutoSaveEnabled, saveSession, sessionId, stackType]);
 
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Scroll within the chat container only, not the entire page
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Use requestAnimationFrame to ensure DOM is updated before scrolling
+    requestAnimationFrame(() => {
+      scrollToBottom();
+    });
   }, [messages, isLoading]);
 
   // Stop microphone when AI starts speaking to prevent feedback
@@ -1351,7 +1359,7 @@ Răspunde în română cu un ton cald și profesionist.`;
       </div>
 
       {/* Zona de mesaje - scrollable */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto px-4 py-6">
         {voiceOnlyMode && (
           <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border-b border-purple-700/50 p-4 mb-6 rounded-lg">
             <div className="max-w-3xl mx-auto flex items-center justify-between">
