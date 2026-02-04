@@ -1,135 +1,109 @@
 
-# Plan: Fix Challenge English Page - Audio & Navigation Issues
+# Plan: English Challenge Day Pages - Complete Flow with Audio + Text
 
 ## Summary
 
-Am identificat **3 probleme majore** pe pagina `/challenge-en`:
-
-1. **Audio Player Race Condition** - `play()` este apelat înainte ca audio-ul să fie complet încărcat
-2. **Day Cards Non-clickable** - Cardurile zilelor nu au onClick handlers pentru navigare
-3. **Chat Requires Auth** - useChallengeCoach necesită autentificare, dar aceasta este o pagină publică de landing
+Creăm un sistem complet de Challenge în engleză cu rută `/challenge-en/:day` care să înlocuiască video-ul cu experiența **Audio + Text + Chat**. Va include toate funcționalitățile de pe versiunea română:
+- Toate exercițiile cu checkboxes și link-uri
+- Butoane pentru Reality Check, Vision Letter, Domino Door
+- Invite Friends + Community Comments
+- Progress tracking cu unlock pentru zilele următoare
 
 ---
 
-## Problem 1: Audio Player Race Condition
+## Architecture Decision
 
-### Cauza
-În `ChallengeAudioPlayer.tsx`, audio-ul este generat și `play()` este apelat imediat după crearea obiectului Audio, fără să aștepte încărcarea completă:
+### Opțiunea implementată: Pagină unică cu routing
 
-```typescript
-// Problema actuală (linia 88-89):
-await audio.play();  // Se apelează înainte de încărcarea completă
-setIsPlaying(true);
-```
+Creăm o pagină nouă `ChallengeDayEnglish.tsx` care:
+1. Folosește aceeași structură de content (`challengeContent`) dar hardcoded EN
+2. Înlocuiește video-ul cu cardurile Audio + Text + Chat
+3. Refolosește componentele existente (`Day1RealityCheck`, `Day1VisionDeclaration`, etc.)
+4. Păstrează aceleași hook-uri (`useChallengeProgress`, `useDay1Responses`)
 
-Eroarea din consolă: `The play() request was interrupted by a call to pause()`
-
-### Soluția
-Așteptăm evenimentul `canplaythrough` înainte de a reda audio-ul:
-
-```typescript
-// În generateAudio:
-audio.oncanplaythrough = async () => {
-  setIsLoading(false);
-  try {
-    await audio.play();
-    setIsPlaying(true);
-  } catch (err) {
-    if (err.name !== 'AbortError') {
-      setError('Error playing audio');
-    }
-  }
-};
-```
-
-Și adăugăm un flag `isGenerating` pentru a preveni click-uri multiple:
-
-```typescript
-const [isGenerating, setIsGenerating] = useState(false);
-
-const togglePlay = async () => {
-  if (isGenerating) return; // Previne click-uri repetate
-  
-  if (!audioUrl) {
-    setIsGenerating(true);
-    await generateAudio();
-    return;
-  }
-  // ...
-};
+```text
+/challenge-en         → Landing page (already created)
+/challenge-en/:day    → Day pages (NEW - to create)
 ```
 
 ---
 
-## Problem 2: Day Cards Not Clickable
+## What User Will Experience
 
-### Cauza
-Cardurile zilelor sunt statice, fără event handlers pentru navigare.
+```text
+/challenge-en/1 (Day 1 English)
+┌─────────────────────────────────────────────────────────────┐
+│  ← Back to Challenge                                        │
+│                                                             │
+│  🔥 Day 1: VISION + DECLARATION                            │
+│  Progress: [████████░░░░] 65%                              │
+└─────────────────────────────────────────────────────────────┘
 
-### Soluția
-Adăugăm click handlers și vizual feedback (cursor, hover effects):
+┌─────────────────────────────────────────────────────────────┐
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │  🎧 AUDIO (replaces video)                              │ │
+│ │  ▶️ Play Day 1 Coaching ━━━━○━━━━━━━━  2:34 / 8:45     │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                             │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │  📜 Day 1 Coaching Script (scrollable)                  │ │
+│ │                                                         │ │
+│ │  Welcome to Day 1 of your transformation...             │ │
+│ │  Today we're building the foundation of everything...   │ │
+│ │                                    (scroll for more)    │ │
+│ └─────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 
-```typescript
-const handleDayClick = (day: number, free: boolean) => {
-  if (!free) {
-    // Optional: Show upgrade modal or toast
-    return;
-  }
-  
-  if (user) {
-    navigate(`/challenge/${day}`);
-  } else {
-    navigate(`/auth?redirect=/challenge/${day}`);
-  }
-};
+┌─────────────────────────────────────────────────────────────┐
+│  💬 ASK YOUR CHALLENGE COACH                               │
+│  [Text] [Voice]                                            │
+│  ┌──────────────────────────┐  [🎤 Talk] [📞 Call]        │
+└─────────────────────────────────────────────────────────────┘
 
-// În render:
-<Card
-  key={day}
-  onClick={() => handleDayClick(day, free)}
-  className={cn(
-    'p-4 transition-all cursor-pointer hover:shadow-md',
-    free && 'hover:border-amber-500/50',
-    !free && 'cursor-not-allowed'
-  )}
->
+┌─────────────────────────────────────────────────────────────┐
+│  📋 TODAY'S STEPS                                          │
+│  1. Complete the Reality Check (where are you now?)        │
+│  2. Discover your BIG WHY (what truly drives you?)         │
+│  3. Write your Napoleon Hill Declaration                    │
+│  4. Share with the community (accountability)              │
+│  5. Invite 1-3 friends to transform together               │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  📚 EXERCISES                                              │
+│                                                             │
+│  [✨ Spirit]                                               │
+│  □ Discover Your WHY → Answer the 5 fundamental questions  │
+│  □ Vision 2026 → Define your vision for all 4 areas        │
+│  □ Write Declaration → Create your Napoleon Hill style     │
+│                                                             │
+│  [💕 Relationships]                                        │
+│  □ Join Community → [🔗 Join Community]                    │
+│  □ Invite 1-3 Friends → Share your exclusive link          │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  🎁 INVITE 1-3 FRIENDS                                     │
+│  [Share] [Copy Link]                                       │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  💬 COMMUNITY COMMENTS (Day 1)                             │
+│  [Comment input + feed]                                    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│      [✅ COMPLETE DAY 1]                                   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Problem 3: Chat Requires Authentication
+## Files to Create
 
-### Cauza
-Hook-ul `useChallengeCoach` verifică sesiunea și afișează toast de eroare dacă utilizatorul nu este autentificat. Aceasta este o pagină publică de landing.
-
-### Soluția A (Simplă): Afișăm un mesaj de welcome + prompt pentru autentificare
-
-Modificăm `ChallengeInlineChat` pentru a detecta dacă userul este logat:
-
-```typescript
-const { user } = useAuth();
-
-// Dacă nu e logat, afișăm un mesaj informativ și buton de login:
-if (!user) {
-  return (
-    <div className="flex flex-col items-center justify-center h-[400px] p-6 text-center">
-      <Sparkles className="h-12 w-12 text-amber-500 mb-4" />
-      <h3 className="font-semibold mb-2">Your Challenge Coach is Ready!</h3>
-      <p className="text-muted-foreground text-sm mb-4">
-        Sign in to chat with your AI coach and get personalized guidance.
-      </p>
-      <Button onClick={() => navigate('/auth?redirect=/challenge-en')}>
-        Sign In to Start
-      </Button>
-    </div>
-  );
-}
-```
-
-### Soluția B (Avansată): Public Demo Chat
-Folosim endpoint-ul `challenge-coach-demo` fără autentificare (dacă există sau îl creăm).
-
-**Recomand Soluția A** pentru simplitate și pentru că scopul paginii este să convertească utilizatori.
+| File | Purpose |
+|------|---------|
+| `src/pages/ChallengeDayEnglish.tsx` | Full day page with Audio + Text + exercises + all features |
 
 ---
 
@@ -137,226 +111,217 @@ Folosim endpoint-ul `challenge-coach-demo` fără autentificare (dacă există s
 
 | File | Changes |
 |------|---------|
-| `src/components/challenge/english/ChallengeAudioPlayer.tsx` | Fix race condition: wait for `canplaythrough`, add generation lock |
-| `src/pages/ChallengeEnglish.tsx` | Add click handlers to day cards for navigation |
-| `src/components/challenge/english/ChallengeInlineChat.tsx` | Add auth check with fallback UI for unauthenticated users |
+| `src/App.tsx` | Add route `/challenge-en/:day` → `ChallengeDayEnglish` |
+| `src/pages/ChallengeEnglish.tsx` | Update day click handlers to navigate to `/challenge-en/:day` |
+| `src/data/challengeScripts.ts` | Add scripts for Days 4-7 |
 
 ---
 
-## Technical Implementation Details
+## Technical Implementation
 
-### 1. ChallengeAudioPlayer.tsx Fix
+### 1. ChallengeDayEnglish.tsx Structure
 
 ```typescript
-// Add state for generation lock
-const [isGenerating, setIsGenerating] = useState(false);
+// Core structure - mirrors ChallengeDay.tsx but with Audio + Text hero
 
-const generateAudio = async () => {
-  if (isGenerating) return; // Prevent double-calls
+const ChallengeDayEnglish: React.FC = () => {
+  const { day } = useParams();
+  const dayNumber = parseInt(day || '1');
   
-  setIsGenerating(true);
-  setIsLoading(true);
-  setError(null);
-
-  try {
-    const plainText = getPlainTextScript(script);
-    const truncatedText = plainText.substring(0, 300);
-
-    const response = await fetch(
-      `${SUPABASE_URL}/functions/v1/text-to-speech-demo`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_KEY,
-        },
-        body: JSON.stringify({
-          text: truncatedText,
-          voiceId: 'EXAVITQu4vr4xnSDxMaL',
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error('Failed to generate audio');
-    }
-
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    setAudioUrl(url);
-
-    const audio = new Audio(url);
-    audioRef.current = audio;
-
-    audio.onloadedmetadata = () => {
-      setDuration(audio.duration);
-    };
-
-    audio.ontimeupdate = () => {
-      setCurrentTime(audio.currentTime);
-      setProgress((audio.currentTime / audio.duration) * 100);
-    };
-
-    audio.onended = () => {
-      setIsPlaying(false);
-      setProgress(100);
-    };
-
-    audio.onerror = () => {
-      setError('Error playing audio');
-      setIsPlaying(false);
-      setIsGenerating(false);
-    };
-
-    // Wait for audio to be ready before playing
-    audio.oncanplaythrough = async () => {
-      setIsLoading(false);
-      setIsGenerating(false);
-      try {
-        await audio.play();
-        setIsPlaying(true);
-      } catch (err: any) {
-        // Ignore AbortError (user clicked pause before play completed)
-        if (err?.name !== 'AbortError') {
-          console.error('Playback error:', err);
-          setError('Error playing audio');
-        }
-      }
-    };
-
-    // Load the audio
-    audio.load();
-
-  } catch (err) {
-    console.error('TTS error:', err);
-    setError('Failed to generate audio. Please try again.');
-    setIsLoading(false);
-    setIsGenerating(false);
-  }
-};
-
-const togglePlay = async () => {
-  // Prevent action during generation
-  if (isGenerating || isLoading) return;
-
-  if (!audioUrl) {
-    await generateAudio();
-    return;
-  }
-
-  if (audioRef.current) {
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      try {
-        await audioRef.current.play();
-        setIsPlaying(true);
-      } catch (err: any) {
-        if (err?.name !== 'AbortError') {
-          setError('Error playing audio');
-        }
-      }
-    }
-  }
-};
-```
-
-### 2. ChallengeEnglish.tsx - Clickable Day Cards
-
-```typescript
-// Add imports
-import { cn } from '@/lib/utils';
-import { Lock } from 'lucide-react';
-
-// Add handler
-const handleDayClick = (day: number, free: boolean) => {
-  if (!free) {
-    // Show premium required message or do nothing
-    return;
-  }
+  // Same hooks as Romanian version
+  const { isDayUnlocked, isDayCompleted, ... } = useChallengeProgress();
+  const { day1Responses, saveDay1Responses, ... } = useDay1Responses();
   
-  if (user) {
-    navigate(`/challenge/${day}`);
-  } else {
-    navigate(`/auth?redirect=/challenge/${day}`);
-  }
-};
-
-// Update Card rendering
-<Card
-  key={day}
-  onClick={() => handleDayClick(day, free)}
-  className={cn(
-    'p-4 transition-all',
-    free 
-      ? 'border-amber-500/30 bg-gradient-to-r from-amber-500/5 to-transparent cursor-pointer hover:shadow-md hover:border-amber-500/50'
-      : 'border-border/50 opacity-80 cursor-not-allowed'
-  )}
->
-  <div className="flex items-center gap-4">
-    {/* ... existing content ... */}
-    
-    {/* Replace CheckCircle2 with appropriate icon */}
-    {free ? (
-      <ArrowRight className="h-5 w-5 text-amber-500" />
-    ) : (
-      <Lock className="h-4 w-4 text-muted-foreground" />
-    )}
-  </div>
-</Card>
-```
-
-### 3. ChallengeInlineChat.tsx - Auth Fallback
-
-```typescript
-// Add imports
-import { useAuth } from '@/context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-
-// Inside component
-const { user } = useAuth();
-const navigate = useNavigate();
-
-// Add auth check before main render
-if (!user) {
+  // Force English language
+  const { setLanguage } = useLanguage();
+  useEffect(() => setLanguage('en'), []);
+  
+  // Get day content (English only)
+  const content = challengeContentEnglish[dayNumber - 1];
+  const script = getDayScript(dayNumber);
+  
   return (
-    <div className="flex flex-col h-[400px]">
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-amber-500" />
-          <h3 className="font-semibold text-foreground">Ask Your Challenge Coach</h3>
-        </div>
-      </div>
+    <Layout>
+      {/* Header with back button + day info */}
       
-      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-        <Bot className="h-16 w-16 text-amber-500/50 mb-4" />
-        <h3 className="font-semibold mb-2">Your Challenge Coach is Ready!</h3>
-        <p className="text-muted-foreground text-sm mb-6 max-w-xs">
-          Sign in to chat with your AI coach and get personalized guidance through the challenge.
-        </p>
-        <Button 
-          onClick={() => navigate('/auth?redirect=/challenge-en')}
-          className="bg-amber-500 hover:bg-amber-600"
-        >
-          Sign In to Start Chatting
-        </Button>
-      </div>
-    </div>
+      {/* NEW: Audio + Text + Chat Card (replaces video) */}
+      <Card className="mb-6">
+        <ChallengeAudioPlayer script={script} />
+        <ChallengeScriptCard script={script} maxHeight="300px" />
+      </Card>
+      
+      {/* Inline Chat */}
+      <Card className="mb-6">
+        <ChallengeInlineChat currentDay={dayNumber} />
+      </Card>
+      
+      {/* Day 1 Special Flow (Reality Check → WHY → Vision → Commitment → Invite) */}
+      {dayNumber === 1 && (
+        // Reuse existing Day1 components
+        <Day1RealityCheck ... />
+        <Day1WhyQuestions ... />
+        <Day1VisionDeclaration ... />
+        <Day1Commitment ... />
+        <Day1InviteFriendsStep ... />
+      )}
+      
+      {/* Days 2-7: Standard Flow */}
+      {dayNumber > 1 && (
+        <>
+          {/* Today's Steps */}
+          <Card>steps list</Card>
+          
+          {/* Exercises with Checkboxes + Links */}
+          <Card>exercises by area</Card>
+        </>
+      )}
+      
+      {/* Invite Friends (all days) */}
+      <ChallengeInviteFriends dayNumber={dayNumber} />
+      
+      {/* Comments */}
+      <ChallengeComments dayNumber={dayNumber} />
+      
+      {/* Complete Day Button */}
+      <Button>Complete Day {dayNumber}</Button>
+    </Layout>
   );
-}
-
-// ... rest of the existing component for authenticated users
+};
 ```
+
+### 2. Route Addition (App.tsx)
+
+```typescript
+// Add new route for English day pages
+<Route path="/challenge-en/:day" element={<ChallengeDayEnglish />} />
+```
+
+### 3. Update ChallengeEnglish.tsx Navigation
+
+```typescript
+// Change from:
+navigate(`/challenge/${day}`);
+
+// To:
+navigate(`/challenge-en/${day}`);
+```
+
+### 4. Add Missing Scripts (Days 4-7)
+
+```typescript
+// src/data/challengeScripts.ts
+
+export const getDay4RoutineScript = (): string => `
+# Day 4: Warrior Routine + AI Vision + Meditation
+
+**Today you build your daily execution system.**
+
+The Warrior Routine is your morning ritual that sets up every day for success...
+`;
+
+export const getDay5MindCoachScript = (): string => `
+# Day 5: Accountability + Mind Coach
+
+**Today we transform emotions into power.**
+
+You've set goals. You've built systems. But what happens when fear shows up?...
+`;
+
+export const getDay6ImpulseScript = (): string => `
+# Day 6: Strategic Impulse Control
+
+**Today we master the Idea List filter.**
+
+Not every idea deserves your attention. The Idea List is where you capture...
+`;
+
+export const getDay7IntegrationScript = (): string => `
+# Day 7: Integration + Continuity
+
+**Today we lock in permanent change.**
+
+You've spent 6 days building an incredible foundation. Today we integrate...
+`;
+```
+
+---
+
+## Key Differences from Romanian Version
+
+| Aspect | Romanian `/challenge/:day` | English `/challenge-en/:day` |
+|--------|---------------------------|------------------------------|
+| Hero Section | Voomly Video Embed | Audio Player + Text Card + Chat |
+| Language | Uses `useLanguage()` context | Hardcoded English |
+| Navigation | Back to `/challenge` | Back to `/challenge-en` |
+| Coach Widget | Floating widget | Inline embedded chat |
+| Content | From `challengeContent` array | From same array but `.titleEn`, `.stepsEn`, etc. |
+
+---
+
+## Components Reused (No Changes Needed)
+
+These existing components work with English and will be reused:
+- `Day1RealityCheck` - Already supports English
+- `Day1WhyQuestions` - Already supports English
+- `Day1VisionDeclaration` - Already supports English
+- `Day1Commitment` - Already supports English
+- `Day1InviteFriendsStep` - Already supports English
+- `ChallengeInviteFriends` - Already supports English
+- `ChallengeComments` - Already supports English
+- `ChallengeUpgradeGate` - Already supports English (for Days 3+)
+- `useChallengeProgress` hook - Language agnostic
+- `useDay1Responses` hook - Language agnostic
+
+---
+
+## Content Data Structure
+
+The existing `challengeContent` array in `ChallengeDay.tsx` already has English translations:
+- `titleEn`, `titleRo`
+- `principleEn`, `principleRo`
+- `descriptionEn`, `descriptionRo`
+- `stepsEn`, `stepsRo`
+- `exercisesEn`, `exercisesRo`
+
+We will import and use only the English fields.
+
+---
+
+## Implementation Steps
+
+1. **Add Route** (`App.tsx`)
+   - Add `/challenge-en/:day` route with lazy loading
+
+2. **Create Page** (`ChallengeDayEnglish.tsx`)
+   - Copy structure from `ChallengeDay.tsx`
+   - Replace video with Audio + Text + Chat cards
+   - Force English language
+   - Update navigation to use `/challenge-en/` prefix
+
+3. **Update Landing** (`ChallengeEnglish.tsx`)
+   - Change day navigation from `/challenge/:day` to `/challenge-en/:day`
+
+4. **Add Scripts** (`challengeScripts.ts`)
+   - Add scripts for Days 4, 5, 6, 7
+
+---
+
+## Premium Access (Days 3+)
+
+The same `ChallengeUpgradeGate` logic will be used:
+- Days 1-2: Free access
+- Days 3-7: Require premium or trial
+- Same Stripe integration for upgrades
 
 ---
 
 ## Testing Checklist
 
 After implementation:
-1. Click Play on audio player - should generate and play without errors
-2. Click Play multiple times quickly - should not cause race conditions
-3. Click on Day 1 card (free) - should navigate to `/challenge/1` or auth
-4. Click on Day 3 card (premium) - should not navigate (locked)
-5. View chat as unauthenticated user - should see sign-in prompt
-6. View chat as authenticated user - should see full chat interface
+1. Navigate to `/challenge-en` → Click Day 1 → Should go to `/challenge-en/1`
+2. On Day 1 page → Audio player works, text displays, chat works
+3. Complete Reality Check → Proceeds to WHY Questions
+4. Complete all Day 1 steps → Day 1 marked complete
+5. Navigate to Day 2 → Should see Body/Spirit/Relationships exercises
+6. Click Day 3 (premium) → Should show upgrade gate
+7. Comments and Invite Friends work on all days
