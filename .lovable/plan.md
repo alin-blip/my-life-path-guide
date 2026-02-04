@@ -1,238 +1,320 @@
 
-# Plan: Integrare Fluid Business Wizard → Domino Door AI Planning
 
-## Problema Curentă
+# Plan: Îmbunătățiri Admin CRM - Challenge Stats Interactiv + Vizualizare Obiective în Door Preview
 
-Când finalizezi Business Wizard anual și selectezi "Obiectiv Masiv" (Domino Door):
-1. ❌ Apare un formular static care cere introducerea manuală a 4 chei
-2. ❌ După salvare, nu se deschide AI Planning-ul Domino Door
-3. ❌ Utilizatorul trebuie să meargă manual pe pagina Door și să apese "AI Planning"
+## Rezumat
 
-## Soluția Propusă
+Două îmbunătățiri principale pentru Admin CRM:
+1. **Challenge Stats Clickable** - Poți da click pe fiecare zi și vezi lista de utilizatori care au completat-o
+2. **Door Preview cu Obiective** - Adaugă vizualizarea obiectivelor Anuale, 90 Zile și Lunare lângă Domino Door
 
-Un singur flux fluid: **Wizard → Salvare minimă → AI Planning pornește automat**
+---
+
+## Partea 1: Challenge Stats Interactiv
+
+### Starea Actuală
+- Zilele sunt afișate ca bare de progres statice
+- Nu poți vedea cine a completat fiecare zi
+
+### Soluția
+- Fiecare zi devine clickable
+- La click, se deschide un panel/dialog cu lista utilizatorilor
+- Se arată: email, nume, data completării
+
+### Fișier de Modificat
+
+**`src/components/admin/crm/ChallengeDropOffStats.tsx`**
+
+#### Modificări:
+1. Adaugă state pentru ziua selectată
+2. La click pe o zi, încarcă utilizatorii din `challenge_progress` JOIN `crm_contact_profiles`
+3. Afișează un dialog/panel cu lista
+
+#### Preview UI:
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                    FLUXUL ACTUAL (FRAGMENTAT)                   │
-├─────────────────────────────────────────────────────────────────┤
-│ 1. Wizard: Anual → 90 zile → Lunar → Week 1 action              │
-│ 2. Dialog: "Cum salvezi?" → Selectezi "Massive"                 │
-│ 3. Formular static: Introduci manual 4 chei + zile (GREOI)      │
-│ 4. Salvare → Toast "Gata!" → Modal se închide                   │
-│ 5. BLOCARE: Utilizatorul nu știe că trebuie să meargă pe /door  │
-└─────────────────────────────────────────────────────────────────┘
-
-                              ↓ DEVINE ↓
-
-┌─────────────────────────────────────────────────────────────────┐
-│                    FLUXUL NOU (FLUID)                           │
-├─────────────────────────────────────────────────────────────────┤
-│ 1. Wizard: Anual → 90 zile → Lunar → Week 1 action              │
-│ 2. Dialog: "Cum salvezi?" → Selectezi "Massive"                 │
-│ 3. FĂRĂ formular static - direct salvare structură minimă       │
-│ 4. → Se deschide DoorPlanningModal cu context din wizard        │
-│ 5. AI ghidează: 4 chei + detalii + pași zilnici (O ÎNTREBARE)   │
-│ 6. La final AI face save_planning → Totul gata în one-go!       │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  Ziua 2 - Identitate                    2 începuți  1 ✓    │
+│  ████████████████░░░░░░░░░░░░░░  50%              [CLICK]  │
+└─────────────────────────────────────────────────────────────┘
+                              ↓ click ↓
+┌─────────────────────────────────────────────────────────────┐
+│  📋 Utilizatori Ziua 2                                     │
+├─────────────────────────────────────────────────────────────┤
+│  ✓ alin@eduforyou.co.uk          03 Feb 2026, 04:57       │
+│  ✓ alinflorinradu@icloud.com     11 Ian 2026, 11:21       │
+│  ⏳ user@example.com              Început, necompletat     │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Fișiere de Modificat
+## Partea 2: Door Preview cu Obiective
 
-| Fișier | Modificări |
-|--------|-----------|
-| `src/components/goal-wizard/GoalWizardModal.tsx` | Adaugă state pentru a deschide DoorPlanningModal după save masiv |
-| `src/components/goal-wizard/ProjectSelectionDialog.tsx` | Elimină formularul static de chei pentru "massive" - doar salvează titlu |
-| `src/components/door/DoorPlanningModal.tsx` | Acceptă context din wizard (domino title, week goal, category) |
-| `supabase/functions/door-ai-planning/index.ts` | Adaugă mod `wizard` care știe context-ul deja |
+### Starea Actuală
+- `AdminClientDoorPreview` arată doar: HIT/DO Lists, Ideas Bank
+- Nu sunt vizibile obiectivele (Annual, 90 Days, Monthly)
+
+### Soluția
+- Adaugă o nouă secțiune "Obiective Client" în preview
+- Grupează după: Anual → 90 Zile → Lunar
+- Include și `weekly_planning` (Domino Door data) dacă există
+
+### Fișier de Modificat
+
+**`src/components/admin/crm/AdminClientDoorPreview.tsx`**
+
+#### Modificări:
+1. Adaugă fetch din `missions` pentru userId
+2. Adaugă fetch din `weekly_planning` pentru weekKey curent
+3. Afișează secțiune nouă cu obiectivele grupate
+
+#### Preview UI:
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ 🎯 Obiective Client                                         │
+├─────────────────────────────────────────────────────────────┤
+│ ┌── ANUAL 2026 ─────────────────────────────────────────┐  │
+│ │ Body:     90 kg și 7% bodyfat                         │  │
+│ │ Being:    Meditez zilnic 20 minute                    │  │
+│ │ Balance:  Timp de calitate cu familia                 │  │
+│ │ Business: 1000 studenți înrolați                      │  │
+│ └───────────────────────────────────────────────────────┘  │
+│                                                             │
+│ ┌── 90 ZILE (Q1-2026) ──────────────────────────────────┐  │
+│ │ Body:     10% Bodyfat - 94 kg                         │  │
+│ │ Business: 400 studenți + 50 Agenți                    │  │
+│ └───────────────────────────────────────────────────────┘  │
+│                                                             │
+│ ┌── LUNAR (2026-02) ────────────────────────────────────┐  │
+│ │ Body:     12% - 96 kg                                 │  │
+│ │ Business: 100 studenți cu oferte                      │  │
+│ └───────────────────────────────────────────────────────┘  │
+│                                                             │
+│ ┌── DOMINO DOOR (Săptămâna curentă) ────────────────────┐  │
+│ │ 🎯 Titlu: "Lansare campanie recruitment"               │  │
+│ │ 📌 Obiectiv: "50 aplicanți noi"                        │  │
+│ │ 🔑 Cheie 1: Email marketing - 500 contacte            │  │
+│ │ 🔑 Cheie 2: Social media - 10 postări                 │  │
+│ └───────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## Detalii Tehnice
 
-### 1. GoalWizardModal.tsx - Adaugă Stare AI Planning
+### ChallengeDropOffStats.tsx - Cod Nou
 
 ```typescript
-// State nou pentru a controla deschiderea AI Planning
-const [showDoorAIPlanning, setShowDoorAIPlanning] = useState(false);
-const [aiPlanningContext, setAIPlanningContext] = useState<{
-  dominoTitle: string;
-  weekGoal: string;
-  category: string;
-} | null>(null);
+// State nou
+const [selectedDay, setSelectedDay] = useState<number | null>(null);
+const [dayUsers, setDayUsers] = useState<{
+  email: string;
+  name: string | null;
+  completed: boolean;
+  completed_at: string | null;
+}[]>([]);
+const [loadingUsers, setLoadingUsers] = useState(false);
 
-// În executeProjectSave, pentru saveType === 'massive':
-// 1. NU mai cerem cheile în formular
-// 2. Salvăm doar structura minimă (domino_title + category)
-// 3. Setăm context și deschidem AI Planning
-
-if (selection.saveType === 'massive') {
-  // Salvează structură minimă
-  await supabase.from('weekly_planning').upsert({
-    user_id: userId,
-    week_key: weekKey,
-    category: category,
-    domino_title: project.milestones.weekOne || project.name,
-    week_goal: project.name,
-    key_points: [] // Gol - AI-ul le va completa
-  });
+// Funcție nouă pentru a încărca utilizatorii unei zile
+const loadDayUsers = async (dayNumber: number) => {
+  setLoadingUsers(true);
+  setSelectedDay(dayNumber);
   
-  // Pregătește context pentru AI Planning
-  setAIPlanningContext({
-    dominoTitle: project.milestones.weekOne || project.name,
-    weekGoal: project.name,
-    category: category
-  });
-  setShowDoorAIPlanning(true);
-}
-
-// La finalul componentei, randăm DoorPlanningModal:
-{showDoorAIPlanning && aiPlanningContext && (
-  <DoorPlanningModal
-    isOpen={showDoorAIPlanning}
-    onClose={() => {
-      setShowDoorAIPlanning(false);
-      onComplete?.();
-      onClose();
-    }}
-    onPlanningComplete={() => {
-      setShowDoorAIPlanning(false);
-      onComplete?.();
-      onClose();
-    }}
-    wizardContext={aiPlanningContext}
-  />
-)}
-```
-
-### 2. ProjectSelectionDialog.tsx - Simplificare UI
-
-Pentru `saveType === 'massive'`:
-- ❌ Elimină secțiunea expandabilă cu input-uri pentru 4 chei
-- ✅ Afișează doar un mesaj explicativ: "AI-ul te va ghida să definești cheile pas cu pas"
-
-```tsx
-{selection.saveType === 'massive' && (
-  <div className="border-t bg-muted/30 p-4">
-    <div className="flex items-center gap-2 text-primary">
-      <Sparkles className="w-4 h-4" />
-      <p className="text-sm font-medium">
-        {language === 'en' 
-          ? 'AI will guide you step-by-step to define the 4 keys'
-          : 'AI-ul te va ghida pas cu pas să definești cele 4 chei'}
-      </p>
-    </div>
-    <p className="text-xs text-muted-foreground mt-2">
-      {language === 'en'
-        ? 'Each key will have objectives, steps, and daily assignments'
-        : 'Fiecare cheie va avea obiective, pași și alocări pe zile'}
-    </p>
-  </div>
-)}
-```
-
-### 3. DoorPlanningModal.tsx - Acceptă Context din Wizard
-
-```typescript
-interface DoorPlanningModalProps {
-  // ... existing props
-  wizardContext?: {
-    dominoTitle: string;
-    weekGoal: string;
-    category: string;
-  };
-}
-
-// Dacă wizardContext există, folosește-l pentru a seta domino title și skip welcome
-useEffect(() => {
-  if (wizardContext && draftLoaded && messages.length === 0) {
-    // Start cu context pregătit
-    startConversationWithContext(wizardContext);
+  const { data, error } = await supabase
+    .from('challenge_progress')
+    .select(`
+      user_id,
+      completed,
+      completed_at,
+      crm_contact_profiles!inner(email, name)
+    `)
+    .eq('day_number', dayNumber)
+    .order('completed_at', { ascending: false });
+  
+  if (!error && data) {
+    setDayUsers(data.map(d => ({
+      email: d.crm_contact_profiles.email,
+      name: d.crm_contact_profiles.name,
+      completed: d.completed,
+      completed_at: d.completed_at
+    })));
   }
-}, [wizardContext, draftLoaded]);
-
-const startConversationWithContext = async (ctx: typeof wizardContext) => {
-  const initialMessage = `Vreau să planific cheile pentru obiectivul masiv: "${ctx.dominoTitle}". Obiectivul săptămânii este: "${ctx.weekGoal}".`;
-  // Trimite direct la AI cu modul 'wizard'
-  await streamChat({
-    mode: 'wizard', // Nou mod
-    wizardContext: ctx,
-    messages: [{ role: 'user', content: initialMessage }]
-  });
+  setLoadingUsers(false);
 };
+
+// UI: Fiecare zi devine clickable
+<div 
+  key={day.day} 
+  className="space-y-2 cursor-pointer hover:bg-muted/50 p-2 rounded-lg"
+  onClick={() => loadDayUsers(day.day)}
+>
+  {/* ... existing day content */}
+</div>
+
+// Dialog/Sheet pentru afișarea utilizatorilor
+{selectedDay && (
+  <Sheet open={!!selectedDay} onOpenChange={() => setSelectedDay(null)}>
+    <SheetContent>
+      <SheetHeader>
+        <SheetTitle>Utilizatori Ziua {selectedDay}</SheetTitle>
+      </SheetHeader>
+      <div className="space-y-2 mt-4">
+        {dayUsers.map((user, i) => (
+          <div key={i} className="flex items-center gap-3 p-3 border rounded">
+            {user.completed ? <CheckCircle /> : <Clock />}
+            <div>
+              <p className="font-medium">{user.email}</p>
+              {user.name && <p className="text-sm text-muted-foreground">{user.name}</p>}
+              {user.completed_at && (
+                <p className="text-xs text-muted-foreground">
+                  Completat: {format(new Date(user.completed_at), 'dd MMM yyyy, HH:mm')}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </SheetContent>
+  </Sheet>
+)}
 ```
 
-### 4. door-ai-planning Edge Function - Mod Wizard
+### AdminClientDoorPreview.tsx - Cod Nou
 
 ```typescript
-// Adaugă nou mod 'wizard' care știe context-ul
-interface PlanningRequest {
-  mode: 'review' | 'new' | 'wizard';
-  wizardContext?: {
-    dominoTitle: string;
-    weekGoal: string;
-    category: string;
-  };
-  // ... existing
-}
+// State nou pentru obiective
+const [missions, setMissions] = useState<{
+  annual: Mission[];
+  quarterly: Mission[];
+  monthly: Mission[];
+}>({ annual: [], quarterly: [], monthly: [] });
+const [weeklyPlanning, setWeeklyPlanning] = useState<WeeklyPlanning | null>(null);
 
-const WIZARD_SYSTEM_PROMPT = `Ești un coach de planificare săptămânală. Utilizatorul a venit din Goal Wizard cu un obiectiv masiv deja definit.
+// În loadClientData, adaugă:
+// Fetch missions
+const { data: missionsData } = await supabase
+  .from('missions')
+  .select('*')
+  .eq('user_id', userId)
+  .order('created_at', { ascending: false });
 
-CONTEXT PRE-SETAT:
-- Domino Door Title: [Va fi injectat]
-- Obiectivul săptămânii: [Va fi injectat]
+// Grupează după mission_type
+const grouped = {
+  annual: missionsData?.filter(m => m.mission_type === 'annual') || [],
+  quarterly: missionsData?.filter(m => m.mission_type === 'quarterly') || [],
+  monthly: missionsData?.filter(m => m.mission_type === 'monthly') || []
+};
+setMissions(grouped);
 
-🎯 MISIUNEA TA: Ghidează utilizatorul să definească 4 CHEI pentru acest obiectiv.
+// Fetch weekly planning (Domino Door)
+const { data: planningData } = await supabase
+  .from('weekly_planning')
+  .select('*')
+  .eq('user_id', userId)
+  .eq('week_key', weekKey)
+  .single();
 
-📋 FLOW PENTRU FIECARE CHEIE (1→4):
+if (planningData) setWeeklyPlanning(planningData);
 
-Q1: "Care este Cheia [N] care te va duce spre [DOMINO TITLE]?" → așteaptă
-Q2: "De ce e important acest lucru?" → așteaptă
-Q3: "Ce rezultat pozitiv ai dacă reușești?" → așteaptă  
-Q4: "Ce risc există dacă nu faci?" → așteaptă
-Q5: "Care sunt 2-3 pași concreți?" → așteaptă
-Q6: Pentru fiecare pas: "În ce zi?" + "HIT sau DO?" → așteaptă
-Q7: "Cine e responsabil?" → așteaptă
-Q8: "Care e deadline-ul?" → "✅ Cheia [N] completă!"
-
-REGULI:
-- O întrebare = un mesaj
-- După 4 chei complete, folosește tool-ul "save_planning"
-- Fii concis și empatic`;
-
-// În handlerul principal:
-if (mode === 'wizard' && wizardContext) {
-  systemPrompt = WIZARD_SYSTEM_PROMPT
-    .replace('[DOMINO TITLE]', wizardContext.dominoTitle)
-    .replace('[WEEK GOAL]', wizardContext.weekGoal);
-}
+// UI nouă - secțiune Obiective
+<Card>
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2">
+      <Crown className="h-5 w-5 text-yellow-500" />
+      Obiective Client
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    {/* Annual */}
+    {missions.annual.length > 0 && (
+      <div className="mb-4">
+        <h4 className="font-semibold text-sm mb-2">📅 Anual 2026</h4>
+        <div className="grid grid-cols-2 gap-2">
+          {missions.annual.map(m => (
+            <Badge key={m.id} variant="outline">{m.category}: {m.title}</Badge>
+          ))}
+        </div>
+      </div>
+    )}
+    
+    {/* 90 Days */}
+    {missions.quarterly.length > 0 && (
+      <div className="mb-4">
+        <h4 className="font-semibold text-sm mb-2">🎯 90 Zile</h4>
+        {/* Similar structure */}
+      </div>
+    )}
+    
+    {/* Monthly */}
+    {missions.monthly.length > 0 && (
+      <div className="mb-4">
+        <h4 className="font-semibold text-sm mb-2">🚀 Lunar</h4>
+        {/* Similar structure */}
+      </div>
+    )}
+    
+    {/* Domino Door */}
+    {weeklyPlanning && (
+      <div className="border-t pt-4 mt-4">
+        <h4 className="font-semibold text-sm mb-2">🎲 Domino Door</h4>
+        <p><strong>Titlu:</strong> {weeklyPlanning.domino_title}</p>
+        <p><strong>Obiectiv:</strong> {weeklyPlanning.week_goal}</p>
+        {weeklyPlanning.key_points?.length > 0 && (
+          <div className="mt-2">
+            {weeklyPlanning.key_points.map((kp, i) => (
+              <Badge key={i} className="mr-1">🔑 {kp.title}</Badge>
+            ))}
+          </div>
+        )}
+      </div>
+    )}
+  </CardContent>
+</Card>
 ```
 
 ---
 
-## Beneficii
+## Bonus: Fix Statistici Challenge (din issue anterior)
 
-| Înainte | După |
-|---------|------|
-| 3-4 dialoguri separate | 1 flux continuu |
-| Introducere manuală a cheilor | AI ghidează conversațional |
-| Utilizatorul se blochează | Totul e fluid, one-go |
-| Fără pași zilnici alocați | AI alocă pași pe zile + hit/do |
-| ~5-10 minute, abandonare frecventă | ~3-5 minute, engagement crescut |
+Query-ul pentru lead-uri trebuie să includă toate sursele:
+
+```typescript
+// Înlocuiește:
+.eq('lead_magnet', 'challenge_7_zile')
+
+// Cu:
+.ilike('lead_magnet', 'challenge%')
+
+// Și deduplicare pe email:
+const uniqueEmails = new Set(challengeLeads?.map(l => l.email.toLowerCase()));
+const totalParticipants = uniqueEmails.size;
+```
 
 ---
 
 ## Pași de Implementare
 
-1. **Modifică DoorPlanningModal** să accepte `wizardContext` prop
-2. **Modifică ProjectSelectionDialog** să elimine form static pentru massive
-3. **Modifică GoalWizardModal** să deschidă DoorPlanningModal pentru massive
-4. **Actualizează door-ai-planning** cu modul `wizard`
-5. **Test end-to-end**: Business Wizard Anual → Massive → AI Planning → Save
+1. **ChallengeDropOffStats.tsx**
+   - Adaugă state pentru ziua selectată și utilizatori
+   - Adaugă funcția `loadDayUsers`
+   - Fă zilele clickable
+   - Adaugă Sheet/Dialog pentru afișarea utilizatorilor
+   - Fix query pentru a include toate lead_magnet-urile challenge
+
+2. **AdminClientDoorPreview.tsx**
+   - Adaugă interfețe pentru Mission și WeeklyPlanning
+   - Extinde `loadClientData` cu fetch pentru missions și weekly_planning
+   - Adaugă secțiunea UI pentru obiective
+   - Grupează și afișează obiectivele după tip
 
 ---
 
 ## Timp Estimat
-~45 minute pentru implementare completă
+
+- Challenge Stats Interactiv: ~20 minute
+- Door Preview cu Obiective: ~25 minute
+- Total: ~45 minute
+
