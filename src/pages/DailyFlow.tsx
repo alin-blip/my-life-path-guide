@@ -46,14 +46,14 @@ const DailyFlow = () => {
   const greeting = getGreeting();
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="h-screen relative overflow-hidden flex flex-col">
       {/* Cosmic Focus Mode Background */}
       <FocusModeBackground />
       
       {/* Removed time-of-day gradient overlay to keep pure blue background */}
       
       {/* Content Layer */}
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col h-full">
         {/* Floating Header - Theme aware */}
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
@@ -122,17 +122,19 @@ const DailyFlow = () => {
           </div>
         </motion.div>
 
-        {/* Main Content */}
+        {/* Main Content - takes remaining space */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="container max-w-4xl mx-auto px-4 py-4"
+          className="flex-1 overflow-y-auto"
         >
-          <ChampionRoutineFlow 
-            onComplete={() => navigate('/dashboard')} 
-            initialStep={initialStep || undefined}
-          />
+          <div className="container max-w-4xl mx-auto px-4 py-4">
+            <ChampionRoutineFlow 
+              onComplete={() => navigate('/dashboard')} 
+              initialStep={initialStep || undefined}
+            />
+          </div>
         </motion.div>
       </div>
     </div>
