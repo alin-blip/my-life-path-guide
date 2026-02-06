@@ -35,6 +35,17 @@ You're on **Day ${currentDay}**. I'm here to guide you through exercises, answer
 What can I do for you today?`;
   }, [currentDay, language]);
 
+  // Generate or retrieve session ID for grouping conversations
+  const getSessionId = useCallback(() => {
+    const key = `challenge_coach_session_${currentDay}`;
+    let sessionId = sessionStorage.getItem(key);
+    if (!sessionId) {
+      sessionId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      sessionStorage.setItem(key, sessionId);
+    }
+    return sessionId;
+  }, [currentDay]);
+
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim()) return;
 
@@ -65,6 +76,8 @@ What can I do for you today?`;
         content: m.content,
       }));
 
+      const sessionId = getSessionId();
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/challenge-coach`,
         {
@@ -77,6 +90,7 @@ What can I do for you today?`;
             messages: allMessages,
             language,
             currentDay,
+            sessionId,
           }),
           signal: abortControllerRef.current.signal,
         }

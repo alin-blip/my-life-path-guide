@@ -18,6 +18,7 @@ import { useAuth } from '@/context/AuthContext';
 import { ContactTimeline } from './ContactTimeline';
 import { AdminClientDoorPreview } from './AdminClientDoorPreview';
 import { ChallengeProgressTab } from './ChallengeProgressTab';
+import { ChallengeConversationsTab } from './ChallengeConversationsTab';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 
@@ -291,6 +292,10 @@ export const ContactProfile360: React.FC<ContactProfile360Props> = ({ contactId,
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="challenge">Challenge</TabsTrigger>
+          <TabsTrigger value="ai-chat" className="flex items-center gap-1">
+            <MessageSquare className="h-3 w-3" />
+            AI Chat
+          </TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="warrior">Warrior Power</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
@@ -423,6 +428,10 @@ export const ContactProfile360: React.FC<ContactProfile360Props> = ({ contactId,
             challengeDaysCompleted={contact.challenge_days_completed ?? 0}
             challengeCompletedAt={contact.challenge_completed_at}
           />
+        </TabsContent>
+
+        <TabsContent value="ai-chat">
+          <ChallengeConversationsTab userId={contact.user_id} />
         </TabsContent>
 
         <TabsContent value="timeline">
