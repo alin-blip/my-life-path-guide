@@ -98,12 +98,12 @@ export function QuickResultsQuiz({ onComplete }: QuickResultsQuizProps) {
   const getRecommendation = () => {
     if (percentage < 50) {
       return {
-        titleRo: 'Ai nevoie de un sistem complet',
-        titleEn: 'You need a complete system',
-        descRo: 'Challenge-ul de 7 zile te va ajuta să construiești fundația pentru succes în business, sănătate și mindset.',
-        descEn: 'The 7-day challenge will help you build the foundation for success in business, health and mindset.',
-        ctaRo: 'Începe Challenge-ul Gratuit',
-        ctaEn: 'Start Free Challenge',
+        titleRo: 'Ești în ciclul burnout-procrastinare',
+        titleEn: 'You\'re in the burnout-procrastination cycle',
+        descRo: 'Challenge-ul anti-burnout de 7 zile te va ajuta să spargi ciclul și să construiești momentum real.',
+        descEn: 'The 7-day anti-burnout challenge will help you break the cycle and build real momentum.',
+        ctaRo: 'Ieși din Burnout — Challenge Gratuit',
+        ctaEn: 'Escape Burnout — Free Challenge',
         path: '/challenge'
       };
     }

@@ -29,12 +29,12 @@ export const ChallengeDay7Complete = () => {
         {/* Header */}
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-500 mb-2">
-            🏆 {language === 'en' ? 'PUTTING IT ALL TOGETHER' : 'PUNEM TOTUL ÎMPREUNĂ'}
+            🏆 {language === 'en' ? 'FROM BURNOUT TO MOMENTUM' : 'DE LA BURNOUT LA MOMENTUM'}
           </h1>
           <p className="text-muted-foreground text-lg">
             {language === 'en' 
-              ? 'Your complete transformation recap + Premium upgrade' 
-              : 'Recapitularea transformării tale + Upgrade Premium'}
+              ? 'Your anti-burnout journey recap + Continue the momentum' 
+              : 'Recapitularea călătoriei tale anti-burnout + Continuă momentum-ul'}
           </p>
         </div>
 

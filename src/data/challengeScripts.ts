@@ -61,9 +61,9 @@ Let's go! 🚀
 
 export const getDay1VisionScript = (): string => `# Day 1: Vision + Declaration
 
-**Welcome to the first day of your transformation.**
+**Welcome to the first day of breaking the burnout cycle.**
 
-Today we're building the foundation of everything that follows. Without a clear vision, you're just wandering. With a vision, every step has purpose.
+Today we're building the foundation of everything that follows. Without a clear vision, you're just drifting — and drifting is what got you burned out. With a vision, every step has purpose and builds momentum.
 
 ## Part 1: Reality Check
 
@@ -107,14 +107,14 @@ Transformation is contagious. Who in your life needs this?
 
 ---
 
-**Ready?** Let's start with the Reality Check exercise.
+**Ready?** Let's start with the Reality Check — your first step out of burnout.
 `;
 
 export const getDay2FoundationScript = (): string => `# Day 2: Body, Spirit & Relationships
 
-**Yesterday you created your vision. Today we build the pillars.**
+**Yesterday you broke through the fog. Today we rebuild what burnout destroyed.**
 
-The Have It All Lifestyle stands on three personal pillars:
+The burnout-procrastination cycle collapses three pillars first:
 1. **Body** - Your physical vessel
 2. **Spirit** - Your inner peace and purpose
 3. **Relationships** - Your connections with others
@@ -152,16 +152,16 @@ Who are the most important people in your life?
 
 For each area, we'll guide you through setting specific, measurable goals that connect back to your Day 1 vision.
 
-**Remember:** These goals should excite you AND slightly scare you. If they're too comfortable, they're too small.
+**Remember:** These goals should pull you out of survival mode and into momentum. If they're too comfortable, they won't break the cycle.
 
-Let's begin! 💪✨💕
+Let's rebuild! 💪✨💕
 `;
 
 export const getDay3BusinessScript = (): string => `# Day 3: Business + Domino Door
 
-**Today is the magic day.**
+**Today you go from planning to executing — without burning out.**
 
-You've set your personal foundation. Now we build your professional engine.
+You've set your personal foundation. Now we build the engine that creates momentum, not exhaustion.
 
 ## Part 1: Business Vision (1 Year)
 
@@ -192,7 +192,7 @@ Every week, you'll open these 4 doors. When all 4 are open, you complete your Do
 
 ## Why "Domino Door"?
 
-When you knock down one domino, it triggers the next. When you open one door, opportunities appear behind it. Consistent weekly action creates compound results.
+When you knock down one domino, it triggers the next. Consistent weekly action creates compound momentum — without the burnout.
 
 ---
 
@@ -201,14 +201,14 @@ When you knock down one domino, it triggers the next. When you open one door, op
 - Your first Domino Door weekly plan
 - The 4 key actions for this week
 
-Let's build your business engine! 💰
+Let's build your momentum engine! 💰
 `;
 
 export const getDay4RoutineScript = (): string => `# Day 4: Warrior Routine + AI Vision + Meditation
 
-**Today you build your daily execution system.**
+**Today you build your daily anti-burnout engine.**
 
-The Warrior Routine is your morning ritual that sets up every day for success. Combined with AI-generated vision images and personalized meditation, you create a powerful daily practice.
+The Warrior Routine is your morning ritual that replaces overwhelm with momentum. Combined with AI-generated vision images and personalized meditation, you create a daily practice that prevents burnout from returning.
 
 ## Part 1: Vision AI (4 Quadrants)
 
@@ -235,14 +235,14 @@ The meditation knows YOUR goals from Days 2-3. It's not generic—it speaks dire
 
 ---
 
-**Today's mission:** Set up your complete daily execution system.
+**Today's mission:** Set up your complete daily anti-burnout system — execution without exhaustion.
 `;
 
 export const getDay5MindCoachScript = (): string => `# Day 5: Accountability + Mind Coach
 
-**Today we transform emotions into power.**
+**Today we break the procrastination loop — for good.**
 
-You've set goals. You've built systems. But what happens when fear shows up? When anxiety paralyzes you? When procrastination wins?
+You've set goals. You've built systems. But what happens when the old burnout patterns show up? When anxiety paralyzes you? When procrastination wins again?
 
 ## Part 1: Accountability Coach
 
@@ -258,8 +258,8 @@ It tells you exactly where you stand.
 
 This isn't about suppressing emotions. It's about transforming them:
 
-🔥 **Angry?** → Channel it into powerful action
-😰 **Anxious?** → Transform into calm, focused execution
+🔥 **Angry?** → Channel it into focused action
+😰 **Anxious?** → Transform into calm momentum
 🧊 **Stuck?** → Find clarity through structured questioning
 😴 **Procrastinating?** → Build momentum with the first tiny step
 
@@ -273,18 +273,18 @@ This isn't about suppressing emotions. It's about transforming them:
 
 ---
 
-**Remember:** Fear is a signal, not a stop sign.
+**Remember:** Burnout is a signal to change your system, not to push harder.
 `;
 
 export const getDay6ImpulseScript = (): string => `# Day 6: Strategic Impulse Control
 
-**Today we master the Idea List filter.**
+**Today we master the Idea List filter — protecting your momentum.**
 
-Not every idea deserves your attention. The Idea List is where you capture impulses WITHOUT destroying the focused execution you built on Day 3.
+Not every idea deserves your attention. The Idea List is where you capture impulses WITHOUT destroying the momentum you built on Day 3.
 
-## The Danger of Unfiltered Ideas
+## The Hidden Burnout Trap
 
-Every new idea feels urgent. Every shiny object looks like the answer. But switching focus destroys momentum.
+Burnout survivors often swing from paralysis to hyperactivity. Every new idea feels urgent. Every shiny object looks like the answer. But switching focus destroys momentum — and that's just burnout in disguise.
 
 ## The Idea List Process
 
@@ -302,14 +302,14 @@ By having a PLACE for ideas, you stop carrying them in your head. Your mental ba
 
 ---
 
-**Today's mission:** Dump all ideas, classify them, and protect your focus.
+**Today's mission:** Dump all ideas, classify them, and protect your momentum from shiny object syndrome.
 `;
 
 export const getDay7IntegrationScript = (): string => `# Day 7: Integration + Continuity
 
-**Today we lock in permanent change.**
+**Today the momentum you've built becomes permanent.**
 
-You've spent 6 days building an incredible foundation:
+You've spent 6 days breaking the burnout-procrastination cycle:
 - Day 1: Vision + Declaration
 - Day 2: Body + Spirit + Relationships goals
 - Day 3: Business + Domino Door
@@ -317,7 +317,7 @@ You've spent 6 days building an incredible foundation:
 - Day 5: Accountability + Mind Coach
 - Day 6: Idea List filter
 
-Now we integrate everything for long-term success.
+Now we lock in momentum so burnout never returns.
 
 ## Part 1: Full Review
 
@@ -325,7 +325,7 @@ Go through each day's work:
 - Is your declaration still powerful?
 - Are your goals still aligned?
 - Is your Domino Door focused?
-- Is your routine sustainable?
+- Is your routine sustainable (not exhausting)?
 
 ## Part 2: Weekly Review Ritual
 
@@ -341,11 +341,11 @@ Find 1-2 people from the community for mutual accountability. Check in weekly.
 
 ## Part 4: 90-Day Commitment
 
-Sign your commitment to 90 days of consistent execution. This is where transformation becomes permanent.
+Sign your commitment to 90 days of consistent momentum. This is where the cycle breaks permanently.
 
 ---
 
-**Congratulations!** You've completed the 7-Day Challenge. The real journey begins now. 🏆
+**Congratulations!** You've broken the burnout cycle. The momentum is yours now — protect it. 🏆
 `;
 
 // Get script by day number

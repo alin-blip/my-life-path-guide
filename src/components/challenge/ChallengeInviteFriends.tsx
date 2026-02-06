@@ -20,33 +20,33 @@ export const ChallengeInviteFriends: React.FC<ChallengeInviteFriendsProps> = ({ 
     switch (day) {
       case 1:
         return {
-          ro: `Tocmai am început acest challenge și am o invitație exclusivă gratuită pentru tine.
+          ro: `Tocmai am început un challenge anti-burnout și am o invitație exclusivă gratuită pentru tine.
 
-Uite ce se întâmplă în următoarele 7 zile:
-• Ziua 1: Viziune & Claritate
-• Ziua 2: Corp, Spirit & Relații
-• Ziua 3: Business & Execuție
-• Ziua 4: Rutina Zilnică de Execuție
-• Ziua 5: Accountability & Mindset
-• Ziua 6: Gândire Strategică & Idei
-• Ziua 7: Continuitate & Creștere
+Uite ce se întâmplă în 7 zile:
+• Ziua 1: Oprești deriva — Viziune & Claritate
+• Ziua 2: Reconstruiești fundația — Corp, Spirit & Relații
+• Ziua 3: Treci la execuție — Business & Domino Door
+• Ziua 4: Automatizezi momentum-ul — Rutina Zilnică
+• Ziua 5: Spargi procrastinarea — Accountability & Mindset
+• Ziua 6: Controlezi impulsurile — Filtru Strategic
+• Ziua 7: Blochezi momentum-ul — Permanent
 
-Vrei să faci acest challenge împreună cu mine?
+Vrei să ieșim din burnout împreună?
 
 Alătură-te aici 👇
 ${link}`,
-          en: `I just started this challenge and I have an exclusive free invite for you.
+          en: `I just started an anti-burnout challenge and I have an exclusive free invite for you.
 
-Here's what happens in the next 7 days:
-• Day 1: Vision & Clarity
-• Day 2: Body, Spirit & Relationships
-• Day 3: Business & Execution
-• Day 4: Daily Execution Routine
-• Day 5: Accountability & Mindset
-• Day 6: Strategic Thinking & Ideas
-• Day 7: Continuity & Growth
+Here's what happens in 7 days:
+• Day 1: Stop drifting — Vision & Clarity
+• Day 2: Rebuild the foundation — Body, Spirit & Relationships
+• Day 3: Start executing — Business & Domino Door
+• Day 4: Automate momentum — Daily Routine
+• Day 5: Break procrastination — Accountability & Mindset
+• Day 6: Control impulses — Strategic Filter
+• Day 7: Lock in momentum — Permanently
 
-Do you want to take this challenge with me?
+Want to escape burnout together?
 
 Join here 👇
 ${link}`
@@ -54,37 +54,37 @@ ${link}`
       
       case 2:
         return {
-          ro: `Hei! Am început challenge-ul și sunt în Ziua 2! 💪
+          ro: `Hei! Am început challenge-ul anti-burnout și sunt în Ziua 2! 💪
 
-Ieri (Ziua 1) mi-am setat:
-✅ Viziunea pentru 2026 în toate cele 4 zone
-✅ Declarația personală Napoleon Hill
-✅ M-am alăturat comunității
+Ieri (Ziua 1) am spart ceața:
+✅ Am descoperit DE CE-ul meu real
+✅ Am scris declarația anti-burnout
+✅ Am intrat în comunitate
 
-Astăzi lucrez la obiective pentru Corp, Spirit și Relații.
+Astăzi reconstruiesc fundația — Corp, Spirit și Relații.
 
 Următoarele zile:
-• Ziua 3: Business + Sistem Execuție
+• Ziua 3: Business + Sistem Execuție fără epuizare
 • Ziua 4: Rutină Zilnică + Meditație AI
-• Ziua 5-7: Accountability + Control + Continuitate
+• Ziua 5-7: Accountability + Control + Momentum Permanent
 
 Am o invitație exclusivă gratuită pentru tine!
 
 Alătură-te aici 👇
 ${link}`,
-          en: `Hey! I started the challenge and I'm on Day 2! 💪
+          en: `Hey! I started the anti-burnout challenge and I'm on Day 2! 💪
 
-Yesterday (Day 1) I set:
-✅ My 2026 vision for all 4 life areas
-✅ My personal Napoleon Hill declaration
+Yesterday (Day 1) I cut through the fog:
+✅ Discovered my real WHY
+✅ Wrote my anti-burnout declaration
 ✅ Joined the community
 
-Today I'm working on Body, Spirit, and Relationship goals.
+Today I'm rebuilding the foundation — Body, Spirit, and Relationships.
 
 Upcoming days:
-• Day 3: Business + Execution System
+• Day 3: Business + Execution System without exhaustion
 • Day 4: Daily Routine + AI Meditation
-• Days 5-7: Accountability + Control + Continuity
+• Days 5-7: Accountability + Control + Permanent Momentum
 
 I have an exclusive free invite for you!
 
@@ -94,37 +94,35 @@ ${link}`
       
       case 3:
         return {
-          ro: `Sunt în Ziua 3 din Challenge! 🎯
+          ro: `Sunt în Ziua 3 din Challenge-ul Anti-Burnout! 🎯
 
-Ce am realizat până acum:
-✅ Viziune clară pentru 2026
-✅ Obiective Corp, Spirit & Relații (an/90 zile/30 zile)
+Ce am construit până acum:
+✅ Claritate totală — viziune + declarație
+✅ Fundație reconstruită — Corp, Spirit & Relații
 
-Astăzi e ziua magică - setez Business + Domino Door:
-→ Viziune business 1 an
-→ Ținte 90 zile
-→ Milestone prima lună
-→ Plan săptămânal cu 4 chei
+Astăzi trec la execuție:
+→ Plan business fără epuizare
+→ Domino Door — sistem săptămânal de momentum
+→ 4 chei care mișcă totul înainte
 
-Urmează Warrior Routine, Mind Coach, și Control Idei.
+Urmează Rutina Anti-Burnout, Mind Coach, și Control Impulsuri.
 
 Am invitație gratuită exclusivă pentru tine!
 
 Alătură-te aici 👇
 ${link}`,
-          en: `I'm on Day 3 of the Challenge! 🎯
+          en: `I'm on Day 3 of the Anti-Burnout Challenge! 🎯
 
-What I've accomplished so far:
-✅ Clear 2026 vision
-✅ Body, Spirit & Relationship goals (year/90 days/30 days)
+What I've built so far:
+✅ Total clarity — vision + declaration
+✅ Foundation rebuilt — Body, Spirit & Relationships
 
-Today is the magic day - setting Business + Domino Door:
-→ 1 year business vision
-→ 90 day targets
-→ First month milestone
-→ Weekly plan with 4 keys
+Today I move to execution:
+→ Business plan without exhaustion
+→ Domino Door — weekly momentum system
+→ 4 keys that move everything forward
 
-Next up: Warrior Routine, Mind Coach, and Idea Control.
+Next up: Anti-Burnout Routine, Mind Coach, and Impulse Control.
 
 I have an exclusive free invite for you!
 
@@ -134,39 +132,39 @@ ${link}`
       
       case 4:
         return {
-          ro: `Ziua 4 în Challenge! ⚡
+          ro: `Ziua 4 în Challenge-ul Anti-Burnout! ⚡
 
-Am realizat deja:
-✅ Viziune 2026 completă
-✅ Obiective toate ariile (an/90/30 zile)
-✅ Business Plan + Domino Door săptămânal
+Am construit deja:
+✅ Claritate + Viziune anti-burnout
+✅ Fundație reconstruită (Corp, Spirit, Relații)
+✅ Sistem de execuție fără epuizare (Domino Door)
 
-Astăzi configurez:
+Astăzi automatizez momentum-ul:
 → Vision Board AI (imagini pentru obiective)
-→ Warrior Routine (rutină zilnică)
+→ Rutina Zilnică Anti-Burnout
 → Meditație personalizată pe obiectivele MELE
 
-Mai am 3 zile: Accountability, Control Idei, Continuitate.
+Mai am 3 zile: Accountability, Control Impulsuri, Momentum Permanent.
 
-Vrei să te alături? Am invitație exclusivă!
+Vrei să ieși din burnout? Am invitație exclusivă!
 
 Alătură-te aici 👇
 ${link}`,
-          en: `Day 4 in the Challenge! ⚡
+          en: `Day 4 in the Anti-Burnout Challenge! ⚡
 
-Already accomplished:
-✅ Complete 2026 vision
-✅ Goals for all areas (year/90/30 days)
-✅ Business Plan + Weekly Domino Door
+Already built:
+✅ Anti-burnout clarity + Vision
+✅ Foundation rebuilt (Body, Spirit, Relationships)
+✅ Execution system without exhaustion (Domino Door)
 
-Today I'm configuring:
+Today I'm automating momentum:
 → Vision Board AI (images for goals)
-→ Warrior Routine (daily routine)
+→ Daily Anti-Burnout Routine
 → Personalized meditation based on MY goals
 
-3 more days: Accountability, Idea Control, Continuity.
+3 more days: Accountability, Impulse Control, Permanent Momentum.
 
-Want to join? I have an exclusive invite!
+Want to escape burnout? I have an exclusive invite!
 
 Join here 👇
 ${link}`
@@ -174,35 +172,35 @@ ${link}`
       
       case 5:
         return {
-          ro: `Ziua 5 - Accountability & Mind Coach! 🧠
+          ro: `Ziua 5 - Sparg bucla procrastinării! 🧠
 
-Ce am până acum:
-✅ Viziune + Plan complet (an/90/30/săptămână)
-✅ Warrior Routine configurată
+Ce am construit până acum:
+✅ Claritate + Plan anti-burnout complet
+✅ Rutina zilnică care nu epuizează
 ✅ Vision Board AI + Meditație personalizată
 
 Astăzi lucrez la:
 → Accountability Coach (știe tot ce am de făcut)
-→ Mind Coach (transformă frici/anxietăți în putere)
+→ Mind Coach (transformă burnout-ul în momentum)
 
-Mai am 2 zile: Control Idei + Finalizare.
+Mai am 2 zile: Control Impulsuri + Momentum Permanent.
 
 Încă am invitații exclusive gratuite!
 
 Alătură-te aici 👇
 ${link}`,
-          en: `Day 5 - Accountability & Mind Coach! 🧠
+          en: `Day 5 - Breaking the procrastination loop! 🧠
 
-What I have so far:
-✅ Complete Vision + Plan (year/90/30/week)
-✅ Warrior Routine configured
+What I've built so far:
+✅ Complete anti-burnout clarity + Plan
+✅ Daily routine that doesn't exhaust
 ✅ Vision Board AI + Personalized Meditation
 
 Today I'm working on:
 → Accountability Coach (knows everything I need to do)
-→ Mind Coach (transforms fears/anxiety into power)
+→ Mind Coach (transforms burnout into momentum)
 
-2 more days: Idea Control + Finalization.
+2 more days: Impulse Control + Permanent Momentum.
 
 I still have exclusive free invites!
 
@@ -212,37 +210,37 @@ ${link}`
       
       case 6:
         return {
-          ro: `Ziua 6 - Control Mental! 💡
+          ro: `Ziua 6 - Control Impulsuri! 💡
 
-Am realizat:
-✅ Viziune + Plan complet
-✅ Rutină zilnică funcțională
-✅ Accountability + Mind Coach setup
+Am construit:
+✅ Plan anti-burnout complet
+✅ Rutină zilnică + Accountability setup
+✅ Mind Coach — procrastinarea devine acțiune
 
-Astăzi învăț să controlez impulsul ideilor noi:
-→ Idea List (Parking Lot pentru idei)
+Astăzi învăț să nu las ideile noi să distrugă momentum-ul:
+→ Idea List (Parking Lot strategic)
 → Matricea Eisenhower
-→ Să nu las ideile să distrugă execuția
+→ Protejez execuția de sindromul obiectului strălucitor
 
-Mâine finalizez și fac recap complet!
+Mâine blochez momentum-ul permanent!
 
 Ultimele invitații exclusive gratuite!
 
 Alătură-te aici 👇
 ${link}`,
-          en: `Day 6 - Mental Control! 💡
+          en: `Day 6 - Impulse Control! 💡
 
-Accomplished:
-✅ Complete Vision + Plan
-✅ Functional daily routine
-✅ Accountability + Mind Coach setup
+Built so far:
+✅ Complete anti-burnout plan
+✅ Daily routine + Accountability setup
+✅ Mind Coach — procrastination becomes action
 
-Today I'm learning to control the impulse of new ideas:
-→ Idea List (Parking Lot for ideas)
+Today I'm learning to protect momentum from new ideas:
+→ Idea List (Strategic Parking Lot)
 → Eisenhower Matrix
-→ Not letting ideas destroy execution
+→ Protecting execution from shiny object syndrome
 
-Tomorrow I finalize and do a complete recap!
+Tomorrow I lock in momentum permanently!
 
 Last exclusive free invites!
 
@@ -253,31 +251,31 @@ ${link}`
       case 7:
       default:
         return {
-          ro: `Tocmai am terminat acest challenge! 🏆
+          ro: `Tocmai am terminat challenge-ul anti-burnout! 🏆
 
-În 7 zile am obținut mai multă claritate decât în ani.
+În 7 zile am spart ciclul procrastinării și am construit momentum real.
 
 Acum am:
-✅ Viziune clară pentru 2026
-✅ Plan anual + 90 zile + 30 zile
+✅ Claritate totală asupra direcției
+✅ Plan anti-burnout pe 4 arii (Corp, Spirit, Relații, Business)
 ✅ Sistem execuție săptămânală (Domino Door)
-✅ Rutină zilnică automatizată
-✅ Control asupra ideilor
+✅ Rutină zilnică care nu epuizează
+✅ Control asupra impulsurilor
 
 Am o invitație exclusivă gratuită pentru tine.
 
 Alătură-te aici 👇
 ${link}`,
-          en: `I just finished this challenge! 🏆
+          en: `I just finished the anti-burnout challenge! 🏆
 
-In 7 days I gained more clarity than in years.
+In 7 days I broke the procrastination cycle and built real momentum.
 
 Now I have:
-✅ Clear 2026 vision
-✅ Annual + 90 day + 30 day plan
+✅ Total clarity on my direction
+✅ Anti-burnout plan across 4 areas (Body, Spirit, Relationships, Business)
 ✅ Weekly execution system (Domino Door)
-✅ Automated daily routine
-✅ Control over ideas
+✅ Daily routine that doesn't exhaust
+✅ Control over impulses
 
 I have an exclusive free invite for you.
 
@@ -307,8 +305,8 @@ ${link}`
   const getHeaderText = () => {
     if (dayNumber === 7) {
       return language === 'ro' 
-        ? '🎁 Distribuie Succesul' 
-        : '🎁 Share Your Success';
+        ? '🎁 Distribuie Momentum-ul' 
+        : '🎁 Share the Momentum';
     }
     return language === 'ro' 
       ? '🎁 Invită 1-3 Prieteni' 
@@ -318,17 +316,17 @@ ${link}`
   const getSubtitleText = () => {
     if (dayNumber === 7) {
       return language === 'ro'
-        ? 'Ai terminat challenge-ul! Invită prietenii să experimenteze aceeași transformare.'
-        : 'You finished the challenge! Invite friends to experience the same transformation.';
+        ? 'Ai spart ciclul burnout-ului! Invită prietenii să construiască același momentum.'
+        : 'You broke the burnout cycle! Invite friends to build the same momentum.';
     }
     if (dayNumber === 1) {
       return language === 'ro'
-        ? 'Ai o invitație exclusivă gratuită. Trimite-o prietenilor care vor să-și transforme viața alături de tine.'
-        : 'You have an exclusive free invite. Send it to friends who want to transform their life alongside you.';
+        ? 'Ai o invitație exclusivă gratuită. Trimite-o prietenilor care vor să iasă din burnout alături de tine.'
+        : 'You have an exclusive free invite. Send it to friends who want to escape burnout alongside you.';
     }
     return language === 'ro'
-      ? 'Împarte experiența cu prietenii care vor să se transforme. Ai invitații exclusive gratuite!'
-      : 'Share the experience with friends who want to transform. You have exclusive free invites!';
+      ? 'Împarte experiența cu prietenii care vor să iasă din burnout. Ai invitații exclusive gratuite!'
+      : 'Share the experience with friends who want to escape burnout. You have exclusive free invites!';
   };
 
   return (

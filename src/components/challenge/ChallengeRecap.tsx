@@ -134,8 +134,8 @@ export const ChallengeRecap = () => {
         </h2>
         <p className="text-muted-foreground">
           {language === 'en' 
-            ? 'You completed the Viziunea 2026 Challenge! Here\'s what you achieved:' 
-            : 'Ai completat Challenge-ul Viziunea 2026! Iată ce ai realizat:'}
+            ? 'You broke the burnout cycle! Here\'s the momentum you\'ve built:' 
+            : 'Ai spart ciclul burnout-ului! Iată momentum-ul pe care l-ai construit:'}
         </p>
       </div>
 
@@ -166,8 +166,8 @@ export const ChallengeRecap = () => {
       <div className="mt-6 p-4 rounded-lg bg-primary/10 border border-primary/20 text-center">
         <p className="text-sm text-foreground">
           {language === 'en' 
-            ? '✨ You\'ve built a complete vision for your life! Now let\'s make sure you achieve it.' 
-            : '✨ Ai construit o viziune completă pentru viața ta! Acum hai să ne asigurăm că o realizezi.'}
+            ? '✨ You\'ve built a complete anti-burnout system! Now let\'s make the momentum permanent.' 
+            : '✨ Ai construit un sistem complet anti-burnout! Acum hai să facem momentum-ul permanent.'}
         </p>
       </div>
     </Card>
