@@ -28,9 +28,9 @@ import {
   Day1InviteFriendsStep
 } from '@/components/challenge/day1';
 import { ChallengeInviteFriends } from '@/components/challenge/ChallengeInviteFriends';
-import { ChallengeAudioPlayer } from '@/components/challenge/english/ChallengeAudioPlayer';
-import { ChallengeScriptCard } from '@/components/challenge/english/ChallengeScriptCard';
-import { ChallengeInlineChat } from '@/components/challenge/english/ChallengeInlineChat';
+import { ChallengeAudioPlayer } from '@/components/challenge/ChallengeAudioPlayer';
+import { ChallengeScriptCard } from '@/components/challenge/ChallengeScriptCard';
+import { ChallengeInlineChat } from '@/components/challenge/ChallengeInlineChat';
 import { getDayScript } from '@/data/challengeScripts';
 import { useDay1Responses } from '@/hooks/useDay1Responses';
 import { supabase } from '@/integrations/supabase/client';
@@ -496,10 +496,10 @@ const ChallengeDayEnglish: React.FC = () => {
           
           {/* Audio + Script + Chat - Unified Card (replaces video) */}
           <Card className="mb-6 overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
-            <ChallengeAudioPlayer script={script} />
+            <ChallengeAudioPlayer script={script} language="en" />
             <ChallengeScriptCard script={script} maxHeight="300px" />
             <div className="border-t border-border/50">
-              <ChallengeInlineChat currentDay={dayNumber} />
+              <ChallengeInlineChat currentDay={dayNumber} language="en" />
             </div>
           </Card>
           
@@ -701,10 +701,10 @@ const ChallengeDayEnglish: React.FC = () => {
         
         {/* Audio + Script + Chat - Unified Card (replaces video) */}
         <Card className="mb-6 overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
-          <ChallengeAudioPlayer script={script} />
+          <ChallengeAudioPlayer script={script} language="en" />
           <ChallengeScriptCard script={script} maxHeight="300px" />
           <div className="border-t border-border/50">
-            <ChallengeInlineChat currentDay={dayNumber} />
+            <ChallengeInlineChat currentDay={dayNumber} language="en" />
           </div>
         </Card>
         

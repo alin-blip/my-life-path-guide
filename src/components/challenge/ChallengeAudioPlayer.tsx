@@ -6,6 +6,7 @@ import { getPlainTextScript } from '@/data/challengeScripts';
 
 interface ChallengeAudioPlayerProps {
   script: string;
+  language?: 'ro' | 'en';
 }
 
 const formatTime = (seconds: number): string => {
@@ -15,7 +16,21 @@ const formatTime = (seconds: number): string => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
-export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ script }) => {
+const labels = {
+  ro: {
+    title: 'Coach Audio Challenge',
+    subtitle: 'Ascultă introducerea',
+  },
+  en: {
+    title: 'Challenge Coach Audio',
+    subtitle: 'Listen to the introduction',
+  },
+};
+
+export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ 
+  script,
+  language = 'ro'
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -28,6 +43,8 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
 
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  const l = labels[language];
 
   const generateAudio = async () => {
     if (isGenerating) return;
@@ -81,7 +98,7 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
       };
 
       audio.onerror = () => {
-        setError('Error playing audio');
+        setError(language === 'ro' ? 'Eroare la redarea audio' : 'Error playing audio');
         setIsPlaying(false);
         setIsGenerating(false);
       };
@@ -96,7 +113,7 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
         } catch (err: any) {
           if (err?.name !== 'AbortError') {
             console.error('Playback error:', err);
-            setError('Error playing audio');
+            setError(language === 'ro' ? 'Eroare la redarea audio' : 'Error playing audio');
           }
         }
       };
@@ -105,7 +122,7 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
 
     } catch (err) {
       console.error('TTS error:', err);
-      setError('Failed to generate audio. Please try again.');
+      setError(language === 'ro' ? 'Eroare la generarea audio. Încearcă din nou.' : 'Failed to generate audio. Please try again.');
       setIsLoading(false);
       setIsGenerating(false);
     }
@@ -129,7 +146,7 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
           setIsPlaying(true);
         } catch (err: any) {
           if (err?.name !== 'AbortError') {
-            setError('Error playing audio');
+            setError(language === 'ro' ? 'Eroare la redarea audio' : 'Error playing audio');
           }
         }
       }
@@ -164,8 +181,8 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({ scri
           <Volume2 className="h-4 w-4 text-primary" />
         </div>
         <div>
-          <p className="text-sm font-medium">Challenge Coach Audio</p>
-          <p className="text-xs text-muted-foreground">Listen to the introduction</p>
+          <p className="text-sm font-medium">{l.title}</p>
+          <p className="text-xs text-muted-foreground">{l.subtitle}</p>
         </div>
       </div>
 
