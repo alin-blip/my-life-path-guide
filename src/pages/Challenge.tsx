@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Flame, Heart, Target, Zap, Gift, BookOpen, Crown, Play, Lock, CheckCircle2, ArrowRight, Rocket, Dumbbell, Brain, Users, Sparkles, Bell, Trophy, Map, Clock } from 'lucide-react';
+import { Flame, Target, Sparkles, Play, Lock, CheckCircle2, ArrowRight, Rocket, Dumbbell, Brain, Trophy, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { EarlyBirdCountdown } from '@/components/membership/EarlyBirdCountdown';
@@ -32,8 +32,8 @@ interface ChallengeDay {
 }
 const challengeDays: ChallengeDay[] = [{
   day: 1,
-  titleEn: "🔥 VISION + DECLARATION",
-  titleRo: "🔥 VIZIUNE + DECLARAȚIE",
+  titleEn: "VISION + DECLARATION",
+  titleRo: "VIZIUNE + DECLARAȚIE",
   subtitleEn: "Map reality + Set direction + Join community",
   subtitleRo: "Evaluează realitatea + Setează direcția + Comunitate",
   icon: Flame,
@@ -42,8 +42,8 @@ const challengeDays: ChallengeDay[] = [{
   focusAreas: ['body', 'being', 'balance', 'business']
 }, {
   day: 2,
-  titleEn: "💪✨💕 BODY + SPIRIT + RELATIONSHIPS",
-  titleRo: "💪✨💕 CORP + SPIRIT + RELAȚII",
+  titleEn: "BODY + SPIRIT + RELATIONSHIPS",
+  titleRo: "CORP + SPIRIT + RELAȚII",
   subtitleEn: "Rebuild energy: Body, Spirit & Relationships goals",
   subtitleRo: "Reconstruiește energia: obiective Corp, Spirit & Relații",
   icon: Dumbbell,
@@ -52,8 +52,8 @@ const challengeDays: ChallengeDay[] = [{
   focusAreas: ['body', 'being', 'balance']
 }, {
   day: 3,
-  titleEn: "💰🎯 BUSINESS + DOMINO DOOR",
-  titleRo: "💰🎯 BUSINESS + DOMINO DOOR",
+  titleEn: "BUSINESS + DOMINO DOOR",
+  titleRo: "BUSINESS + DOMINO DOOR",
   subtitleEn: "Stop the planning loop — Build your execution machine",
   subtitleRo: "Oprește ciclul planificării — Construiește mașina de execuție",
   icon: Target,
@@ -62,8 +62,8 @@ const challengeDays: ChallengeDay[] = [{
   focusAreas: ['business']
 }, {
   day: 4,
-  titleEn: "⚡ WARRIOR ROUTINE + VISION AI + MEDITATION",
-  titleRo: "⚡ WARRIOR ROUTINE + VISION AI + MEDITAȚIE",
+  titleEn: "WARRIOR ROUTINE + VISION AI + MEDITATION",
+  titleRo: "WARRIOR ROUTINE + VISION AI + MEDITAȚIE",
   subtitleEn: "Anti-burnout routine + AI vision + personalized meditation",
   subtitleRo: "Rutină anti-burnout + Viziune AI + Meditație personalizată",
   icon: Sparkles,
@@ -72,8 +72,8 @@ const challengeDays: ChallengeDay[] = [{
   focusAreas: ['body', 'being', 'balance', 'business']
 }, {
   day: 5,
-  titleEn: "🧠 ACCOUNTABILITY + MIND COACH",
-  titleRo: "🧠 ACCOUNTABILITY + MIND COACH",
+  titleEn: "ACCOUNTABILITY + MIND COACH",
+  titleRo: "ACCOUNTABILITY + MIND COACH",
   subtitleEn: "Break emotional resistance + Transform procrastination into momentum",
   subtitleRo: "Sparge rezistența emoțională + Transformă procrastinarea în momentum",
   icon: Brain,
@@ -82,8 +82,8 @@ const challengeDays: ChallengeDay[] = [{
   focusAreas: ['body', 'being', 'balance', 'business']
 }, {
   day: 6,
-  titleEn: "💡 IDEA LIST (STRATEGIC FILTER)",
-  titleRo: "💡 IDEA LIST (FILTRU STRATEGIC)",
+  titleEn: "IDEA LIST (STRATEGIC FILTER)",
+  titleRo: "IDEA LIST (FILTRU STRATEGIC)",
   subtitleEn: "Protect your momentum from shiny distractions",
   subtitleRo: "Protejează-ți momentum-ul de distracții strălucitoare",
   icon: Target,
@@ -92,8 +92,8 @@ const challengeDays: ChallengeDay[] = [{
   focusAreas: ['business']
 }, {
   day: 7,
-  titleEn: "🏆 MEMBERSHIP + CONTINUITY",
-  titleRo: "🏆 MEMBERSHIP + CONTINUITATE",
+  titleEn: "MEMBERSHIP + CONTINUITY",
+  titleRo: "MEMBERSHIP + CONTINUITATE",
   subtitleEn: "Make the momentum permanent + Continue the system",
   subtitleRo: "Fă momentum-ul permanent + Continuă sistemul",
   icon: Trophy,
@@ -101,30 +101,7 @@ const challengeDays: ChallengeDay[] = [{
   actionPath: "/challenge/7",
   focusAreas: ['body', 'being', 'balance', 'business']
 }];
-const areaColors = {
-  body: 'bg-green-500',
-  being: 'bg-purple-500',
-  balance: 'bg-pink-500',
-  business: 'bg-blue-500'
-};
-const areaLabels = {
-  body: {
-    en: 'Body',
-    ro: 'Corp'
-  },
-  being: {
-    en: 'Spirituality',
-    ro: 'Spiritualitate'
-  },
-  balance: {
-    en: 'Relationships',
-    ro: 'Relații'
-  },
-  business: {
-    en: 'Business',
-    ro: 'Business'
-  }
-};
+// Area colors kept for potential future use but not rendered in cards
 const ChallengePage = () => {
   const {
     language
@@ -191,15 +168,6 @@ const ChallengePage = () => {
             {language === 'en' ? 'From stuck & burnout to clarity & momentum' : 'De la blocaj & burnout la claritate & momentum'}
           </p>
           
-          {/* 4 Areas Legend */}
-          <div className="flex-wrap mt-4 items-start justify-center flex flex-row my-[7px] gap-[2px]">
-            {(['body', 'being', 'balance', 'business'] as const).map(area => <div key={area} className="flex items-center gap-1.5">
-                <div className={`w-3 h-3 rounded-full ${areaColors[area]}`} />
-                <span className="text-sm text-muted-foreground">
-                  {language === 'en' ? areaLabels[area].en : areaLabels[area].ro}
-                </span>
-              </div>)}
-          </div>
           
           {/* Hero Video */}
           <div className="mt-6 max-w-2xl mx-auto">
@@ -244,7 +212,7 @@ const ChallengePage = () => {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-center sm:text-left">
                 <p className="font-medium text-foreground">
-                  {language === 'en' ? "🔥 Don't lose momentum — Save your progress" : '🔥 Nu pierde momentum-ul — Salvează progresul'}
+                  {language === 'en' ? "Don't lose momentum — Save your progress" : 'Nu pierde momentum-ul — Salvează progresul'}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {language === 'en' ? 'Create a free account to track your challenge progress' : 'Creează un cont gratuit pentru a-ți urmări progresul'}
@@ -268,7 +236,7 @@ const ChallengePage = () => {
           </div>
           <Progress value={progressPercentage} className="h-3 mb-2" />
           <p className="text-xs text-muted-foreground text-center">
-            {!isAuthenticated ? language === 'en' ? 'Login to track your progress' : 'Autentifică-te pentru a-ți urmări progresul' : progressPercentage === 100 ? language === 'en' ? '🎉 Challenge Complete! You broke the burnout cycle!' : '🎉 Challenge Complet! Ai spart ciclul burnout-ului!' : language === 'en' ? `Day ${currentDay} of 7 - Momentum is building!` : `Ziua ${currentDay} din 7 - Momentum-ul crește!`}
+            {!isAuthenticated ? language === 'en' ? 'Login to track your progress' : 'Autentifică-te pentru a-ți urmări progresul' : progressPercentage === 100 ? language === 'en' ? 'Challenge Complete! You broke the burnout cycle!' : 'Challenge Complet! Ai spart ciclul burnout-ului!' : language === 'en' ? `Day ${currentDay} of 7 - Momentum is building!` : `Ziua ${currentDay} din 7 - Momentum-ul crește!`}
           </p>
         </Card>
 
@@ -312,17 +280,17 @@ const ChallengePage = () => {
                       </div>
                       <div className="flex-1 text-center md:text-left">
                         <h3 className="text-lg font-bold text-foreground mb-1">
-                          🔥 {language === 'en' ? 'Continue the Momentum — Days 3-7' : 'Continuă Momentum-ul — Zilele 3-7'}
+                          {language === 'en' ? 'Continue the Momentum — Days 3-7' : 'Continuă Momentum-ul — Zilele 3-7'}
                         </h3>
                         <p className="text-sm text-muted-foreground mb-2">
                           {language === 'en' ? 'Keep building momentum with 5-day FREE trial + Early Bird 50% OFF' : 'Continuă momentum-ul cu 5 zile TRIAL gratuit + Early Bird 50% REDUCERE'}
                         </p>
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
                           <Badge className="bg-green-500/10 text-green-600 border-green-500/30">
-                            ✓ 5 {language === 'en' ? 'Days Trial' : 'Zile Trial'}
+                            5 {language === 'en' ? 'Days Trial' : 'Zile Trial'}
                           </Badge>
                           <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30">
-                            🔥 50% {language === 'en' ? 'OFF' : 'Reducere'}
+                            50% {language === 'en' ? 'OFF' : 'Reducere'}
                           </Badge>
                         </div>
                       </div>
@@ -355,22 +323,18 @@ const ChallengePage = () => {
                           </h3>
                           {/* Badge for Free/Premium/Trial */}
                           {isFreeDay && <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/30 text-[10px] sm:text-xs px-1.5 py-0">
-                              {completed ? '✓ ' : ''}{language === 'en' ? 'FREE' : 'GRATUIT'}
+                              {language === 'en' ? 'FREE' : 'GRATUIT'}
                             </Badge>}
                           {isPremium && hasPremiumAccess && <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/30 text-[10px] sm:text-xs px-1.5 py-0">
-                              🔓 {language === 'en' ? 'UNLOCKED' : 'DEBLOCAT'}
+                              {language === 'en' ? 'UNLOCKED' : 'DEBLOCAT'}
                             </Badge>}
                           {isPremium && !hasPremiumAccess && <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/30 text-[10px] sm:text-xs px-1.5 py-0">
-                              🔒 Premium
+                              Premium
                             </Badge>}
                         </div>
                         <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                           {language === 'en' ? day.subtitleEn : day.subtitleRo}
                         </p>
-                        {/* Focus Areas Badges */}
-                        <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2">
-                          {day.focusAreas.map(area => <div key={area} className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${areaColors[area]}`} title={language === 'en' ? areaLabels[area].en : areaLabels[area].ro} />)}
-                        </div>
                       </div>
 
                       {/* Action Button */}
@@ -399,7 +363,7 @@ const ChallengePage = () => {
         <Card className="mt-8 p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30">
           <div className="text-center">
             <h3 className="text-xl font-bold mb-2 text-foreground">
-              {language === 'en' ? '🔥 Break free from burnout: 2 Days Free + 5-Day Trial' : '🔥 Ieși din burnout: 2 Zile Gratuit + 5 Zile Trial'}
+              {language === 'en' ? 'Break free from burnout: 2 Days Free + 5-Day Trial' : 'Ieși din burnout: 2 Zile Gratuit + 5 Zile Trial'}
             </h3>
             <p className="text-muted-foreground mb-4">
               {language === 'en' ? '2 days FREE to start building momentum, then unlock days 3-7 with a 5-day trial!' : '2 zile GRATUIT pentru a construi momentum, apoi deblochează zilele 3-7 cu 5 zile trial!'}
