@@ -10,30 +10,30 @@ export const Day1InviteFriends: React.FC = () => {
   const { referralLink, shareWithMessage, isLoading } = useAffiliateLink();
   const [copied, setCopied] = useState(false);
 
-  const inviteMessageRo = `Tocmai am început acest challenge și am 3 invitații exclusive.
-Vrei să faci acest challenge împreună cu mine?
+  const inviteMessageRo = `Tocmai am început un challenge anti-burnout și am 3 invitații exclusive.
+Vrei să ieșim din burnout împreună?
 
-Ziua 1: Viziune & Claritate
-Ziua 2: Corp, Spirit & Relații
-Ziua 3: Business & Execuție
-Ziua 4: Rutina Zilnică de Execuție
-Ziua 5: Accountability & Mindset
-Ziua 6: Gândire Strategică & Idei
-Ziua 7: Continuitate & Creștere
+Ziua 1: Oprești deriva — Viziune & Claritate
+Ziua 2: Reconstruiești fundația — Corp, Spirit & Relații
+Ziua 3: Treci la execuție — Business & Domino Door
+Ziua 4: Automatizezi momentum-ul — Rutina Zilnică
+Ziua 5: Spargi procrastinarea — Accountability & Mindset
+Ziua 6: Controlezi impulsurile — Filtru Strategic
+Ziua 7: Blochezi momentum-ul — Permanent
 
 Alătură-te aici 👇
 ${referralLink}`;
 
-  const inviteMessageEn = `I just started this challenge and I've got 3 exclusive invites.
-Do you want to take this challenge with me?
+  const inviteMessageEn = `I just started an anti-burnout challenge and I've got 3 exclusive invites.
+Want to escape burnout together?
 
-Day 1: Vision & Clarity
-Day 2: Body, Being & Relationships
-Day 3: Business & Execution
-Day 4: Daily Execution System
-Day 5: Accountability & Mindset
-Day 6: Strategic Thinking & Ideas
-Day 7: Continuity & Growth
+Day 1: Stop drifting — Vision & Clarity
+Day 2: Rebuild the foundation — Body, Spirit & Relationships
+Day 3: Start executing — Business & Domino Door
+Day 4: Automate momentum — Daily Routine
+Day 5: Break procrastination — Accountability & Mindset
+Day 6: Control impulses — Strategic Filter
+Day 7: Lock in momentum — Permanently
 
 Join me here 👇
 ${referralLink}`;
@@ -70,8 +70,8 @@ ${referralLink}`;
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
               {language === 'ro'
-                ? 'Ai 3 invitații exclusive. Trimite-le prietenilor care vor să-și transforme viața alături de tine.'
-                : 'You have 3 exclusive invites. Send them to friends who want to transform their life alongside you.'}
+                ? 'Ai 3 invitații exclusive. Trimite-le prietenilor care vor să iasă din burnout alături de tine.'
+                : 'You have 3 exclusive invites. Send them to friends who want to escape burnout alongside you.'}
             </p>
           </div>
 

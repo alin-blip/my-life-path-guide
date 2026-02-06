@@ -20,56 +20,56 @@ export const CHALLENGE_SCRIPTS: ChallengeDayScript[] = [
     day: 1,
     titleEn: "VISION & DECLARATION",
     titleRo: "VIZIUNE ȘI DECLARAȚIE",
-    scriptEn: `Welcome to Day One of your transformation journey.
+    scriptEn: `Welcome to Day One — the day you stop drifting and start building momentum.
 
-I want to start by celebrating your decision to show up—because that's where all breakthroughs begin.
+If you're here, it's because something isn't working. Maybe you're exhausted but can't stop. Maybe you keep planning but never executing. That cycle ends today.
 
-Today, we're going to ignite the vision for your life by connecting deeply to the reasons why you want change.
+Today, we're going to cut through the fog by connecting deeply to your WHY — the reason change is no longer optional.
 
-Think about where you want to be one year from today. What does your ideal life look like? The kind of health, peace of mind, relationships, and success you want.
+Think about where you want to be one year from today. What does clarity, energy, and real momentum look like for you?
 
-This isn't wishful thinking — this is clarity on what drives you.
+This isn't wishful thinking — this is your anti-burnout blueprint.
 
-One of the most powerful tools for making this real is a personal declaration, like Napoleon Hill taught us. This is a statement—your statement—that you commit to read every morning and night.
+One of the most powerful tools for breaking the cycle is a personal declaration, like Napoleon Hill taught us. This is a statement — your statement — that you commit to read every morning and night.
 
-It's a promise to yourself that fuels your motivation and rewires your mind for success.
+It rewires your mind from "I'm stuck" to "I'm building momentum."
 
-So today, I want you to write your own declaration. Speak it out loud—feel every word.
+So today, write your own declaration. Speak it out loud — feel every word.
 
 Insert your declaration below, and when you're ready, click the "Share in the comment section" button.
 
-Sharing it creates accountability and inspires others in this community.
+Sharing it creates accountability and kills procrastination.
 
-Remember: what you say to yourself becomes your destiny.
+Remember: the burnout cycle breaks when you take the first step with intention.
 
-This is your moment to own your future.
+This is your moment to reclaim your energy and direction.
 
-Let's start this journey with power, passion, and unstoppable commitment.`,
-    scriptRo: `Bine ai venit în Prima Zi a călătoriei tale de transformare.
+Let's build momentum — starting now.`,
+    scriptRo: `Bine ai venit în Prima Zi — ziua în care oprești deriva și începi să construiești momentum.
 
-Vreau să încep prin a celebra decizia ta de a fi aici—pentru că de aici pornesc toate schimbările.
+Dacă ești aici, e pentru că ceva nu funcționează. Poate ești epuizat dar nu te poți opri. Poate tot planifici dar nu execuți niciodată. Ciclul ăsta se termină azi.
 
-Astăzi, vom aprinde viziunea pentru viața ta conectându-ne profund la motivele pentru care vrei schimbare.
+Astăzi vom tăia prin ceață conectându-ne profund la DE CE-ul tău — motivul pentru care schimbarea nu mai e opțională.
 
-Gândește-te unde vrei să fii peste un an. Cum arată viața ta ideală? Ce fel de sănătate, pace mentală, relații și succes vrei.
+Gândește-te unde vrei să fii peste un an. Cum arată claritatea, energia și momentum-ul real pentru tine?
 
-Nu e vorba de visare—e vorba de claritate asupra a ceea ce te motivează.
+Nu e vorba de visare — e planul tău anti-burnout.
 
-Unul dintre cele mai puternice instrumente pentru a face asta real este o declarație personală, așa cum ne-a învățat Napoleon Hill. Este o afirmație—afirmația ta—pe care te angajezi să o citești în fiecare dimineață și seară.
+Unul dintre cele mai puternice instrumente pentru a sparge ciclul este o declarație personală, așa cum ne-a învățat Napoleon Hill. Este o afirmație — afirmația ta — pe care te angajezi să o citești în fiecare dimineață și seară.
 
-Este o promisiune către tine însuți care îți alimentează motivația și îți reprogramează mintea pentru succes.
+Îți reprogramează mintea de la "sunt blocat" la "construiesc momentum."
 
-Așadar, astăzi vreau să îți scrii propria declarație. Spune-o cu voce tare—simte fiecare cuvânt.
+Așadar, astăzi scrie-ți propria declarație. Spune-o cu voce tare — simte fiecare cuvânt.
 
 Introdu declarația ta mai jos și când ești pregătit, apasă butonul "Distribuie în secțiunea de comentarii".
 
-Distribuirea creează responsabilitate și inspiră pe alții din această comunitate.
+Distribuirea creează responsabilitate și ucide procrastinarea.
 
-Adu-ți aminte: ceea ce îți spui ție însuți devine destinul tău.
+Adu-ți aminte: ciclul burnout-ului se sparge când faci primul pas cu intenție.
 
-Acesta este momentul tău să îți preiei viitorul.
+Acesta este momentul tău să îți recapeți energia și direcția.
 
-Să începem această călătorie cu putere, pasiune și angajament de neoprit.`,
+Să construim momentum — începând acum.`,
     focusAreas: ['being', 'balance'],
     exercisesEn: [
       "Discover Your WHY - Answer 5 fundamental questions about your desires and purpose",
@@ -86,14 +86,14 @@ Să începem această călătorie cu putere, pasiune și angajament de neoprit.`
       "Invită 1-3 Prieteni - Trimite link-ul tău exclusiv"
     ],
     keyInsightsEn: [
-      "What you say to yourself becomes your destiny",
-      "A personal declaration read morning and evening rewires your mind for success",
-      "Sharing creates accountability and inspires others"
+      "The burnout cycle breaks when you take the first step with intention",
+      "A personal declaration rewires your mind from 'stuck' to 'building momentum'",
+      "Sharing creates accountability and kills procrastination"
     ],
     keyInsightsRo: [
-      "Ceea ce îți spui ție însuți devine destinul tău",
-      "O declarație personală citită dimineața și seara îți reprogramează mintea pentru succes",
-      "Distribuirea creează responsabilitate și inspiră pe alții"
+      "Ciclul burnout-ului se sparge când faci primul pas cu intenție",
+      "O declarație personală îți reprogramează mintea de la 'blocat' la 'construiesc momentum'",
+      "Distribuirea creează responsabilitate și ucide procrastinarea"
     ],
     actionPathsEn: [
       { label: "Open Day 1 Exercises", path: "/challenge/1" },
@@ -108,44 +108,48 @@ Să începem această călătorie cu putere, pasiune și angajament de neoprit.`
     day: 2,
     titleEn: "BODY + SPIRIT + RELATIONSHIPS",
     titleRo: "CORP + SPIRIT + RELAȚII",
-    scriptEn: `Welcome to Day Two of your transformation journey.
+    scriptEn: `Welcome to Day Two — rebuilding the foundation that burnout destroyed.
 
-Today, we're focusing on the foundation that powers everything in your life—your body and your spirit.
+Today, we're focusing on the three pillars that collapse first when you're burned out — your body, your spirit, and your relationships.
 
-Too many entrepreneurs pour all their energy into business and neglect these essentials, and that imbalance steals both results and joy.
+Too many entrepreneurs pour all energy into business and neglect these essentials. That imbalance is exactly what creates the burnout-procrastination cycle.
 
-Your body is the vehicle that carries you through every challenge and opportunity. Without caring for it, your mind can't perform at its best.
+Your body is the vehicle that carries you through every challenge. Without caring for it, your mind can't perform — and exhaustion wins.
 
-Your spirit—your inner peace and focus—is the source of your resilience in times of stress and uncertainty.
+Your spirit — your inner peace and focus — is the source of resilience. Without it, every setback feels like a wall.
 
-Today, you'll set clear goals for 2026, the next 90 days, the next 30 days, and daily routines that keep you strong, centered, and unstoppable.
+Your relationships are your support system. When they suffer, isolation deepens the burnout.
 
-Take a moment now to share in the comment section your declaration and your key commitments for your body and spirit.
+Today, you'll set clear recovery goals for 2026, the next 90 days, the next 30 days, and daily routines that rebuild your energy, peace, and connections.
 
-Your words don't just empower you—they impact and inspire others in this community.
+Take a moment now to share in the comment section your key commitments for body, spirit, and relationships.
 
-Remember, this foundation fuels everything—from your business success to the quality of your relationships.
+Your words don't just empower you — they show others that recovery is possible.
 
-Building it is not optional. It's essential.`,
-    scriptRo: `Bine ai venit în Ziua a Doua a călătoriei tale de transformare.
+Remember, this foundation is what prevents burnout from returning.
 
-Astăzi ne concentrăm pe fundația care alimentează totul în viața ta—corpul și spiritul tău.
+Rebuilding it is not optional. It's the cure.`,
+    scriptRo: `Bine ai venit în Ziua a Doua — reconstruim fundația pe care burnout-ul a distrus-o.
 
-Prea mulți antreprenori își toarnă toată energia în business și neglijează aceste esențiale, iar acest dezechilibru fură atât rezultatele cât și bucuria.
+Astăzi ne concentrăm pe cei trei piloni care se prăbușesc primii când ești în burnout — corpul, spiritul și relațiile tale.
 
-Corpul tău este vehiculul care te poartă prin fiecare provocare și oportunitate. Fără să ai grijă de el, mintea ta nu poate performa la cel mai înalt nivel.
+Prea mulți antreprenori își toarnă toată energia în business și neglijează aceste esențiale. Exact acest dezechilibru creează ciclul burnout-procrastinare.
 
-Spiritul tău—pacea interioară și focusul—este sursa rezilienței tale în momente de stres și incertitudine.
+Corpul tău este vehiculul care te poartă prin fiecare provocare. Fără să ai grijă de el, mintea nu poate performa — și epuizarea câștigă.
 
-Astăzi vei seta obiective clare pentru 2026, următoarele 90 de zile, următoarele 30 de zile și rutine zilnice care te țin puternic, centrat și de neoprit.
+Spiritul tău — pacea interioară și focusul — este sursa rezilienței. Fără el, fiecare obstacol pare un zid.
 
-Ia un moment acum să distribui în secțiunea de comentarii declarația ta și angajamentele cheie pentru corp și spirit.
+Relațiile tale sunt sistemul tău de suport. Când suferă, izolarea adâncește burnout-ul.
 
-Cuvintele tale nu doar te împuternicesc—ele impactează și inspiră pe alții din această comunitate.
+Astăzi vei seta obiective clare de recuperare pentru 2026, următoarele 90 de zile, următoarele 30 de zile și rutine zilnice care îți reconstruiesc energia, pacea și conexiunile.
 
-Adu-ți aminte, această fundație alimentează totul—de la succesul în business la calitatea relațiilor tale.
+Ia un moment acum să distribui în secțiunea de comentarii angajamentele cheie pentru corp, spirit și relații.
 
-A o construi nu e opțional. E esențial.`,
+Cuvintele tale nu doar te împuternicesc — arată altora că recuperarea e posibilă.
+
+Adu-ți aminte, această fundație e cea care previne revenirea burnout-ului.
+
+A o reconstrui nu e opțional. E leacul.`,
     focusAreas: ['body', 'being', 'balance'],
     exercisesEn: [
       "Body Objectives: 2026 → 90 Days → 30 Days - Set health and fitness goals on all 3 levels",
@@ -160,14 +164,14 @@ A o construi nu e opțional. E esențial.`,
       "Postează în Comentarii - Scrie 2-3 obiective cheie"
     ],
     keyInsightsEn: [
-      "Body is the vehicle that carries you through challenges",
-      "Spirit is the source of resilience in stress",
-      "This foundation fuels everything - business and relationships"
+      "Burnout collapses body, spirit, and relationships first",
+      "Rebuilding this foundation prevents burnout from returning",
+      "Recovery goals across all 3 pillars break the exhaustion cycle"
     ],
     keyInsightsRo: [
-      "Corpul e vehiculul care te poartă prin provocări",
-      "Spiritul e sursa rezilienței în stres",
-      "Această fundație alimentează totul - business și relații"
+      "Burnout-ul prăbușește corpul, spiritul și relațiile primele",
+      "Reconstruirea acestei fundații previne revenirea burnout-ului",
+      "Obiectivele de recuperare în toți 3 piloni sparg ciclul epuizării"
     ],
     actionPathsEn: [
       { label: "Set Body Goals", path: "/game-objectives?category=body" },
@@ -184,60 +188,52 @@ A o construi nu e opțional. E esențial.`,
     day: 3,
     titleEn: "BUSINESS + DOMINO DOOR",
     titleRo: "BUSINESS + DOMINO DOOR",
-    scriptEn: `Welcome to Day Three of your transformation journey.
+    scriptEn: `Welcome to Day Three — the day you go from planning to executing.
 
-Today, we're diving into two of the most powerful areas that shape your life—your business and your relationships.
+Today, we're building the engine that turns clarity into momentum — your business system and the Domino Door.
 
-True success isn't just about numbers or achievements; it's about connection, contribution, and alignment.
+If burnout taught you anything, it's that working harder without a system leads nowhere. Today we fix that.
 
-Your business and your relationships are deeply intertwined.
+Your business and your relationships are deeply intertwined. When your relationships are strong, you show up with more power and focus. When your business is aligned, it brings peace into everything else.
 
-When your relationships are strong, you show up with more power, clarity, and focus in business.
+Today, you'll set clear goals and milestones for 2026, the next 90 days, the next 30 days, and your weekly actions in business.
 
-And when your business is aligned and stable, it brings peace and presence into your relationships.
-
-Today, you'll set clear goals and milestones for 2026, the next 90 days, the next 30 days, and your weekly actions in both business and relationships.
-
-The Domino Door concept helps you identify the vital tasks that, when done consistently, trigger a cascade of progress across all areas.
+The Domino Door concept helps you identify the vital tasks that, when done consistently, trigger a cascade of progress — without burning out.
 
 Our AI wizard will guide you step-by-step to craft your most important weekly milestone and the four key tasks that will move everything forward.
 
 It will also ask why each task matters, connecting your actions to your deeper purpose.
 
-This is not a one-time exercise. It's a weekly ritual you'll do every Sunday—planning your week—and the next Sunday you'll review and recalibrate.
+This is not a one-time exercise. It's a weekly ritual — plan Sunday, review next Sunday, recalibrate.
 
-Share your key business and relationship goals in the comment section below.
+Share your key business goals in the comment section below.
 
-Public commitment creates ownership—and ownership creates results.
+Public commitment creates ownership — and ownership creates momentum.
 
-This is how you build a life where every area fuels the others.`,
-    scriptRo: `Bine ai venit în Ziua a Treia a călătoriei tale de transformare.
+This is how you build sustainable results without the burnout.`,
+    scriptRo: `Bine ai venit în Ziua a Treia — ziua în care treci de la planificare la execuție.
 
-Astăzi ne scufundăm în două dintre cele mai puternice arii care îți modelează viața—business-ul și relațiile tale.
+Astăzi construim motorul care transformă claritatea în momentum — sistemul tău de business și Domino Door.
 
-Succesul adevărat nu e doar despre cifre sau realizări; e despre conexiune, contribuție și aliniere.
+Dacă burnout-ul te-a învățat ceva, e că munca mai dură fără un sistem nu duce nicăieri. Azi reparăm asta.
 
-Business-ul și relațiile tale sunt profund interconectate.
+Business-ul și relațiile tale sunt profund interconectate. Când relațiile sunt puternice, te prezinți cu mai multă putere și focus. Când business-ul e aliniat, aduce pace în tot restul.
 
-Când relațiile tale sunt puternice, te prezinți cu mai multă putere, claritate și focus în business.
+Astăzi vei seta obiective clare și milestone-uri pentru 2026, următoarele 90 de zile, următoarele 30 de zile și acțiunile săptămânale în business.
 
-Și când business-ul tău e aliniat și stabil, aduce pace și prezență în relațiile tale.
-
-Astăzi vei seta obiective clare și milestone-uri pentru 2026, următoarele 90 de zile, următoarele 30 de zile și acțiunile săptămânale atât în business cât și în relații.
-
-Conceptul Domino Door te ajută să identifici task-urile vitale care, făcute consistent, declanșează o cascadă de progres în toate ariile.
+Conceptul Domino Door te ajută să identifici task-urile vitale care, făcute consistent, declanșează o cascadă de progres — fără să te epuizezi.
 
 Wizard-ul nostru AI te va ghida pas cu pas să creezi cel mai important milestone săptămânal și cele patru task-uri cheie care vor mișca totul înainte.
 
 Va întreba și de ce contează fiecare task, conectându-ți acțiunile la scopul tău mai profund.
 
-Nu e un exercițiu de o singură dată. E un ritual săptămânal pe care îl vei face în fiecare duminică—planificându-ți săptămâna—și duminica următoare vei revizui și recalibra.
+Nu e un exercițiu de o singură dată. E un ritual săptămânal — planifică duminică, revizuiește duminica următoare, recalibrează.
 
-Distribuie obiectivele tale cheie de business și relații în secțiunea de comentarii de mai jos.
+Distribuie obiectivele tale cheie de business în secțiunea de comentarii de mai jos.
 
-Angajamentul public creează ownership—și ownership-ul creează rezultate.
+Angajamentul public creează ownership — și ownership-ul creează momentum.
 
-Așa construiești o viață în care fiecare arie o alimentează pe cealaltă.`,
+Așa construiești rezultate sustenabile fără burnout.`,
     focusAreas: ['business'],
     exercisesEn: [
       "Complete Business Flow (ONE GO) - AI Wizard: Annual → 90 Days → Monthly → Weekly Door with 4 keys",
@@ -250,14 +246,14 @@ Așa construiești o viață în care fiecare arie o alimentează pe cealaltă.`
       "Distribuie Domino Door-ul în comentarii"
     ],
     keyInsightsEn: [
-      "Domino Door identifies vital tasks that trigger cascade of progress",
-      "Weekly ritual: plan Sunday, review next Sunday",
-      "Public commitment creates ownership, ownership creates results"
+      "Working harder without a system leads to burnout, not results",
+      "Domino Door triggers a cascade of progress without exhaustion",
+      "Public commitment creates ownership, ownership creates momentum"
     ],
     keyInsightsRo: [
-      "Domino Door identifică task-urile vitale care declanșează cascada de progres",
-      "Ritual săptămânal: planifică duminică, revizuiește duminica următoare",
-      "Angajamentul public creează ownership, ownership-ul creează rezultate"
+      "Munca mai dură fără un sistem duce la burnout, nu la rezultate",
+      "Domino Door declanșează o cascadă de progres fără epuizare",
+      "Angajamentul public creează ownership, ownership-ul creează momentum"
     ],
     actionPathsEn: [
       { label: "Start AI Wizard", path: "/game-objectives?category=business&wizard=full" },
@@ -272,44 +268,36 @@ Așa construiești o viață în care fiecare arie o alimentează pe cealaltă.`
     day: 4,
     titleEn: "WARRIOR ROUTINE + VISION AI + MEDITATION",
     titleRo: "WARRIOR ROUTINE + VISION AI + MEDITAȚIE",
-    scriptEn: `Welcome to Day Five—the moment where your vision moves from idea to unstoppable momentum.
+    scriptEn: `Welcome to Day Four — the moment where your vision moves from idea to unstoppable momentum.
 
-You've created a personalized vision for each core area—body, being, balance, and business—that you'll now see daily as a reminder of who you are and who you're becoming.
+You've created a personalized vision for each core area — body, being, balance, and business — that you'll now see daily as a reminder of who you are and who you're becoming.
 
 Today, everything comes together inside your Warrior Routine.
 
-Imagine starting each day with one click—one simple decision—to activate your personalized routine.
+Imagine starting each day with one click — one simple decision — to activate your personalized anti-burnout routine.
 
-This isn't a checklist.
-
-It's your daily declaration of identity.
+This isn't a checklist. It's your daily momentum engine.
 
 I want you to share in the comments one daily action from your Warrior Routine that, when done consistently, will move you closest to your vision.
 
-No more overwhelm.
+No more overwhelm. No more guessing. No more burnout spirals.
 
-No more guessing.
+From this day forward, you create momentum through execution — not exhaustion.`,
+    scriptRo: `Bine ai venit în Ziua a Patra — momentul în care viziunea ta trece de la idee la momentum de neoprit.
 
-From this day forward, you create momentum through execution.`,
-    scriptRo: `Bine ai venit în Ziua a Cincea—momentul în care viziunea ta trece de la idee la momentum de neoprit.
-
-Ai creat o viziune personalizată pentru fiecare arie principală—corp, spirit, echilibru și business—pe care o vei vedea zilnic ca reminder despre cine ești și cine devii.
+Ai creat o viziune personalizată pentru fiecare arie principală — corp, spirit, echilibru și business — pe care o vei vedea zilnic ca reminder despre cine ești și cine devii.
 
 Astăzi, totul se unește în Warrior Routine.
 
-Imaginează-ți că începi fiecare zi cu un click—o simplă decizie—pentru a-ți activa rutina personalizată.
+Imaginează-ți că începi fiecare zi cu un click — o simplă decizie — pentru a-ți activa rutina personalizată anti-burnout.
 
-Nu e o listă de bifat.
-
-E declarația ta zilnică de identitate.
+Nu e o listă de bifat. E motorul tău zilnic de momentum.
 
 Vreau să distribui în comentarii o acțiune zilnică din Warrior Routine care, făcută consistent, te va mișca cel mai aproape de viziunea ta.
 
-Fără supraîncărcare.
+Fără supraîncărcare. Fără ghicit. Fără spirale de burnout.
 
-Fără ghicit.
-
-De azi înainte, creezi momentum prin execuție.`,
+De azi înainte, creezi momentum prin execuție — nu prin epuizare.`,
     focusAreas: ['body', 'being', 'balance', 'business'],
     exercisesEn: [
       "Vision AI (4 Quadrants) - Generate AI images for Body, Spirit, Relationships, Business",
@@ -326,14 +314,14 @@ De azi înainte, creezi momentum prin execuție.`,
       "Distribuie Momentul AHA în comentarii"
     ],
     keyInsightsEn: [
-      "One click to activate personalized routine",
-      "It's your daily declaration of identity",
-      "Create momentum through execution, not planning"
+      "Your Warrior Routine is your daily anti-burnout engine",
+      "One click replaces overwhelm with structured momentum",
+      "Create momentum through execution, not exhaustion"
     ],
     keyInsightsRo: [
-      "Un click pentru a activa rutina personalizată",
-      "E declarația ta zilnică de identitate",
-      "Creezi momentum prin execuție, nu prin planificare"
+      "Warrior Routine e motorul tău zilnic anti-burnout",
+      "Un click înlocuiește supraîncărcarea cu momentum structurat",
+      "Creezi momentum prin execuție, nu prin epuizare"
     ],
     actionPathsEn: [
       { label: "Open Vision Board", path: "/vision-board" },
@@ -348,40 +336,36 @@ De azi înainte, creezi momentum prin execuție.`,
     day: 5,
     titleEn: "ACCOUNTABILITY COACH + MIND COACH",
     titleRo: "ACCOUNTABILITY COACH + MIND COACH",
-    scriptEn: `Welcome to Day Six—the day where accountability and mindset come together.
+    scriptEn: `Welcome to Day Five — the day where accountability and mindset come together to break the procrastination loop.
 
-Your Accountability Coach knows your journey.
+Your Accountability Coach knows your journey. If you haven't started your Warrior Routine or created your Domino Door, it will guide you back on track.
 
-If you haven't started your Warrior Routine or created your Domino Door, it will guide you back on track.
-
-But execution alone isn't enough—because sometimes you feel stuck, angry, anxious, or doubtful.
+But execution alone isn't enough — because burnout isn't just physical. Sometimes you feel stuck, angry, anxious, or doubtful. That's the mental side of the cycle.
 
 That's where the Mind Coach Stacks come in.
 
-These stacks help you unpack what you're feeling, understand the story behind it, take ownership of how you got here, and consciously choose a new story that puts you back into power.
+These stacks help you unpack what you're feeling, understand the story behind it, take ownership of how you got here, and consciously choose a new story that puts you back into momentum.
 
 Today, I want you to share your biggest breakthrough from using the Mind Coach or Accountability Coach.
 
-What shifted for you?
+What shifted for you? What procrastination pattern did you break?
 
-Ownership is what turns plans into results.`,
-    scriptRo: `Bine ai venit în Ziua a Șasea—ziua în care accountability și mindset-ul se unesc.
+Ownership is what turns burnout into momentum.`,
+    scriptRo: `Bine ai venit în Ziua a Cincea — ziua în care accountability și mindset-ul se unesc pentru a sparge bucla procrastinării.
 
-Accountability Coach-ul tău îți cunoaște călătoria.
+Accountability Coach-ul tău îți cunoaște călătoria. Dacă nu ai început Warrior Routine sau nu ai creat Domino Door-ul, te va ghida înapoi pe traseu.
 
-Dacă nu ai început Warrior Routine sau nu ai creat Domino Door-ul, te va ghida înapoi pe traseu.
-
-Dar execuția singură nu e suficientă—pentru că uneori te simți blocat, supărat, anxios sau îndoielnic.
+Dar execuția singură nu e suficientă — pentru că burnout-ul nu e doar fizic. Uneori te simți blocat, supărat, anxios sau îndoielnic. Asta e latura mentală a ciclului.
 
 Aici intervin Stack-urile Mind Coach.
 
-Aceste stack-uri te ajută să despachetezi ce simți, să înțelegi povestea din spate, să îți asumi responsabilitatea pentru cum ai ajuns aici și să alegi conștient o nouă poveste care te readuce în putere.
+Aceste stack-uri te ajută să despachetezi ce simți, să înțelegi povestea din spate, să îți asumi responsabilitatea pentru cum ai ajuns aici și să alegi conștient o nouă poveste care te readuce în momentum.
 
 Astăzi, vreau să distribui cel mai mare breakthrough de la folosirea Mind Coach sau Accountability Coach.
 
-Ce s-a schimbat pentru tine?
+Ce s-a schimbat pentru tine? Ce tipar de procrastinare ai spart?
 
-Ownership-ul e ceea ce transformă planurile în rezultate.`,
+Ownership-ul e ceea ce transformă burnout-ul în momentum.`,
     focusAreas: ['body', 'being', 'balance', 'business'],
     exercisesEn: [
       "Accountability Coach - Check status: what's done, what's missing, what's next",
@@ -394,14 +378,14 @@ Ownership-ul e ceea ce transformă planurile în rezultate.`,
       "Distribuie Breakthrough-ul - Postează ce poveste ai lăsat în urmă / ce s-a schimbat"
     ],
     keyInsightsEn: [
-      "Accountability Coach knows your journey and guides you back on track",
-      "Mind Coach transforms stuck/angry/anxious into power",
-      "Ownership turns plans into results"
+      "Accountability Coach keeps you on track when procrastination creeps in",
+      "Mind Coach transforms burnout emotions into momentum",
+      "Ownership is what turns burnout into momentum"
     ],
     keyInsightsRo: [
-      "Accountability Coach îți cunoaște călătoria și te ghidează înapoi pe traseu",
-      "Mind Coach transformă blocarea/furia/anxietatea în putere",
-      "Ownership-ul transformă planurile în rezultate"
+      "Accountability Coach te ține pe traseu când procrastinarea apare",
+      "Mind Coach transformă emoțiile de burnout în momentum",
+      "Ownership-ul e ceea ce transformă burnout-ul în momentum"
     ],
     actionPathsEn: [
       { label: "Open Accountability Coach", path: "/accountability-coach" },
@@ -416,11 +400,11 @@ Ownership-ul e ceea ce transformă planurile în rezultate.`,
     day: 6,
     titleEn: "IDEA LIST (STRATEGIC FILTER)",
     titleRo: "IDEA LIST (FILTRU STRATEGIC)",
-    scriptEn: `Welcome to Day Six—Impulse Control and Strategic Filtering.
+    scriptEn: `Welcome to Day Six — Impulse Control and Strategic Filtering.
 
-This section is NOT for execution. It's for getting ideas out of your head without destroying the focus set on Day 3.
+This section is NOT for execution. It's for getting ideas out of your head without destroying the momentum you built on Day 3.
 
-Too often, we get distracted by shiny new ideas that seem urgent but aren't actually important.
+Too often, burnout survivors swing from paralysis to hyperactivity — chasing every new idea feels like progress, but it's just another form of the cycle.
 
 Today you'll learn to classify ideas using the Eisenhower Matrix:
 - Important + Urgent: Do it now
@@ -431,16 +415,16 @@ Today you'll learn to classify ideas using the Eisenhower Matrix:
 The Idea List (Parking Lot) is your strategic container. When a new idea pops up:
 1. Capture it immediately
 2. Classify it with Eisenhower
-3. Move on without breaking your focus
+3. Move on without breaking your momentum
 
-This prevents shiny object syndrome and protects your Domino Door priorities.
+This prevents shiny object syndrome — one of the biggest threats to your recovery from burnout.
 
 Share in comments: What idea have you been chasing that should actually go in the "Delete" category?`,
-    scriptRo: `Bine ai venit în Ziua a Șasea—Controlul Impulsului și Filtrarea Strategică.
+    scriptRo: `Bine ai venit în Ziua a Șasea — Controlul Impulsului și Filtrarea Strategică.
 
-Această secțiune NU e pentru execuție. E pentru a scoate ideile din cap fără să distrugi focusul setat în Ziua 3.
+Această secțiune NU e pentru execuție. E pentru a scoate ideile din cap fără să distrugi momentum-ul construit în Ziua 3.
 
-De prea multe ori, suntem distrași de idei noi strălucitoare care par urgente dar nu sunt de fapt importante.
+De prea multe ori, supraviețuitorii burnout-ului oscilează de la paralizie la hiperactivitate — a urmări fiecare idee nouă pare progres, dar e doar o altă formă a ciclului.
 
 Astăzi vei învăța să clasifici ideile folosind Matricea Eisenhower:
 - Important + Urgent: Fă-l acum
@@ -451,9 +435,9 @@ Astăzi vei învăța să clasifici ideile folosind Matricea Eisenhower:
 Lista de Idei (Parking Lot) e containerul tău strategic. Când apare o idee nouă:
 1. Captureaz-o imediat
 2. Clasific-o cu Eisenhower
-3. Continuă fără să îți rupi focusul
+3. Continuă fără să îți rupi momentum-ul
 
-Asta previne sindromul obiectului strălucitor și protejează prioritățile Domino Door.
+Asta previne sindromul obiectului strălucitor — una din cele mai mari amenințări la recuperarea din burnout.
 
 Distribuie în comentarii: Ce idee ai urmărit care ar trebui de fapt să meargă în categoria "Șterge"?`,
     focusAreas: ['business'],
@@ -468,14 +452,14 @@ Distribuie în comentarii: Ce idee ai urmărit care ar trebui de fapt să mearg�
       "Protejează Domino Door - Nu lăsa ideile noi să te deraieze de la prioritățile săptămânale"
     ],
     keyInsightsEn: [
-      "Idea List is for capture, not execution",
-      "Eisenhower Matrix: Important+Urgent, Important+NotUrgent, NotImportant+Urgent, Delete",
-      "Shiny object syndrome kills focus"
+      "Idea List captures impulses without destroying momentum",
+      "Eisenhower Matrix prevents shiny object syndrome",
+      "Chasing every idea is a hidden form of the burnout cycle"
     ],
     keyInsightsRo: [
-      "Lista de Idei e pentru capturare, nu execuție",
-      "Matricea Eisenhower: Important+Urgent, Important+NeUrgent, NeImportant+Urgent, Șterge",
-      "Sindromul obiectului strălucitor ucide focusul"
+      "Lista de Idei capturează impulsuri fără să distrugă momentum-ul",
+      "Matricea Eisenhower previne sindromul obiectului strălucitor",
+      "A urmări fiecare idee e o formă ascunsă a ciclului de burnout"
     ],
     actionPathsEn: [
       { label: "Open Idea List", path: "/ideas" },
@@ -490,67 +474,71 @@ Distribuie în comentarii: Ce idee ai urmărit care ar trebui de fapt să mearg�
     day: 7,
     titleEn: "MEMBERSHIP & CONTINUITY",
     titleRo: "MEMBERSHIP ȘI CONTINUITATE",
-    scriptEn: `Welcome to Day Seven—the day where everything you've built becomes your new standard.
+    scriptEn: `Welcome to Day Seven — the day where the momentum you've built becomes permanent.
 
-You've created your vision.
+You've broken the burnout cycle.
 
-You've built your routines.
+You've rebuilt your foundation — body, spirit, relationships.
 
-You've learned how to unblock your mind and stay accountable.
+You've created a business execution system that doesn't require burning out.
 
-Now it's time to choose how deeply you want to commit to this new way of living.
+You've learned to transform procrastination and anxiety into action.
+
+Now it's time to choose: do you go back to the old cycle, or do you lock in this new way of living?
 
 The Basic membership gives you access to your vision and foundational tools.
 
-The Pro membership unlocks full AI personalization and gives you the ability to earn through sharing this platform.
+The Pro membership unlocks full AI personalization — your Accountability Coach, Mind Coach, and the ability to earn through sharing this platform.
 
-And the Elite membership is for leaders and coaches—where you work with me, Alin Florin Radu, in weekly coaching, get access to the Warrior Launch Accelerator, and build your own mission and community inside the platform.
+And the Elite membership is for leaders and coaches — where you work with me, Alin Florin Radu, in weekly coaching, get access to the Warrior Launch Accelerator, and build your own mission and community.
 
 This is not about software.
 
-This is about choosing who you become next.
+This is about choosing momentum over burnout. Permanently.
 
-Choose your path—and let's rise together.`,
-    scriptRo: `Bine ai venit în Ziua a Șaptea—ziua în care tot ce ai construit devine noul tău standard.
+Choose your path — and let's build something unstoppable together.`,
+    scriptRo: `Bine ai venit în Ziua a Șaptea — ziua în care momentum-ul pe care l-ai construit devine permanent.
 
-Ți-ai creat viziunea.
+Ai spart ciclul burnout-ului.
 
-Ți-ai construit rutinele.
+Ți-ai reconstruit fundația — corp, spirit, relații.
 
-Ai învățat cum să îți deblochezi mintea și să rămâi responsabil.
+Ai creat un sistem de execuție de business care nu necesită epuizare.
 
-Acum e timpul să alegi cât de profund vrei să te angajezi la acest nou mod de viață.
+Ai învățat să transformi procrastinarea și anxietatea în acțiune.
+
+Acum e timpul să alegi: te întorci la ciclul vechi, sau blochezi acest nou mod de viață?
 
 Membership-ul Basic îți oferă acces la viziune și instrumente fundamentale.
 
-Membership-ul Pro deblochează personalizarea completă AI și îți oferă abilitatea de a câștiga prin distribuirea acestei platforme.
+Membership-ul Pro deblochează personalizarea completă AI — Accountability Coach, Mind Coach și abilitatea de a câștiga prin distribuirea platformei.
 
-Iar membership-ul Elite e pentru lideri și coach-i—unde lucrezi cu mine, Alin Florin Radu, în coaching săptămânal, ai acces la Warrior Launch Accelerator și îți construiești propria misiune și comunitate în platformă.
+Iar membership-ul Elite e pentru lideri și coach-i — unde lucrezi cu mine, Alin Florin Radu, în coaching săptămânal, ai acces la Warrior Launch Accelerator și îți construiești propria misiune și comunitate.
 
 Nu e vorba despre software.
 
-E vorba despre a alege cine devii în continuare.
+E vorba despre a alege momentum-ul în loc de burnout. Permanent.
 
-Alege-ți calea—și să ne ridicăm împreună.`,
+Alege-ți calea — și hai să construim ceva de neoprit împreună.`,
     focusAreas: ['body', 'being', 'balance', 'business'],
     exercisesEn: [
-      "Review Your 7-Day Journey - Celebrate what you've accomplished",
+      "Review Your Anti-Burnout Journey - Celebrate the momentum you've built",
       "Choose Your Membership Path - Basic, Pro, or Elite",
-      "Final Friend Invite - Share with 3 more people who need transformation"
+      "Final Friend Invite - Share with 3 more people who need to escape burnout"
     ],
     exercisesRo: [
-      "Revizuiește Călătoria de 7 Zile - Celebrează ce ai realizat",
+      "Revizuiește Călătoria Anti-Burnout - Celebrează momentum-ul construit",
       "Alege Calea Membership-ului - Basic, Pro sau Elite",
-      "Invitație Finală Prieteni - Distribuie cu încă 3 persoane care au nevoie de transformare"
+      "Invitație Finală Prieteni - Distribuie cu încă 3 persoane care trebuie să iasă din burnout"
     ],
     keyInsightsEn: [
-      "Everything you've built becomes your new standard",
-      "Choose who you become next",
+      "The momentum you've built becomes permanent with the right system",
+      "Choose momentum over burnout — permanently",
       "Elite: weekly coaching with Alin + Warrior Launch Accelerator"
     ],
     keyInsightsRo: [
-      "Tot ce ai construit devine noul tău standard",
-      "Alege cine devii în continuare",
+      "Momentum-ul construit devine permanent cu sistemul potrivit",
+      "Alege momentum-ul în loc de burnout — permanent",
       "Elite: coaching săptămânal cu Alin + Warrior Launch Accelerator"
     ],
     actionPathsEn: [

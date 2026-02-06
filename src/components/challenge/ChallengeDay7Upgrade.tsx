@@ -86,34 +86,32 @@ export function ChallengeDay7Upgrade({ completedDays = 7 }: ChallengeDay7Upgrade
   };
 
   // Referral message for Day 7
-  const referralMessageRo = `Tocmai am terminat acest challenge.
+  const referralMessageRo = `Tocmai am terminat acest challenge anti-burnout.
 
-În primele zile, am obținut mai multă claritate decât în ani.
+În 7 zile am spart ciclul procrastinării și am construit momentum real.
 
 Acum am:
-– O viziune clară
-– Un plan anual
-– Obiective pe 90 de zile
-– Milestone-ul primei luni
+– Claritate totală asupra direcției
+– Un plan anti-burnout pe 4 arii
 – Sistem de execuție săptămânală
-– Control asupra ideilor mele
+– Rutină zilnică care nu epuizează
+– Control asupra impulsurilor și ideilor
 
 Și am o invitație exclusivă gratuită pentru tine.
 
 Alătură-te aici 👇
 ${referralLink}`;
 
-  const referralMessageEn = `I've just completed this challenge.
+  const referralMessageEn = `I've just completed this anti-burnout challenge.
 
-In the first days, I achieved more clarity than in years.
+In 7 days I broke the procrastination cycle and built real momentum.
 
 I now have:
-– A clear vision
-– A yearly plan
-– 90-day targets
-– First month milestone
+– Total clarity on my direction
+– An anti-burnout plan across 4 life areas
 – Weekly execution system
-– Control over my ideas
+– Daily routine that doesn't exhaust
+– Control over impulses and ideas
 
 And I have a free exclusive invite for you.
 
@@ -147,19 +145,19 @@ ${referralLink}`;
   ];
 
   const whatYouLose = language === 'ro' ? [
-    'Toate obiectivele și planurile create',
-    'Accesul la Warrior Routine configurată',
-    'Sistemul Door de planificare',
-    'Progresul din Stacks',
+    'Momentum-ul și claritatea construite în 7 zile',
+    'Accesul la Warrior Routine anti-burnout',
+    'Sistemul Door de execuție săptămânală',
+    'Progresul din Stacks de coaching',
     'Jurnalul și rapoartele de progres',
-    'Posibilitatea de upgrade la AI Coaching'
+    'Risc de revenire la ciclul burnout-ului'
   ] : [
-    'All goals and plans you created',
-    'Access to your configured Warrior Routine',
-    'The Door planning system',
-    'Progress from Stacks',
+    'The momentum and clarity built in 7 days',
+    'Access to your anti-burnout Warrior Routine',
+    'The Door weekly execution system',
+    'Progress from coaching Stacks',
     'Journal and progress reports',
-    'Upgrade path to AI Coaching'
+    'Risk of falling back into the burnout cycle'
   ];
 
   const whatYouGet = language === 'ro' ? [
@@ -196,12 +194,12 @@ ${referralLink}`;
             </div>
             <div>
               <h3 className="text-xl font-bold text-foreground">
-                🎉 {language === 'ro' ? 'Felicitări! Ai Completat Challenge-ul!' : 'Congratulations! You Completed the Challenge!'}
+                🎉 {language === 'ro' ? 'Felicitări! Ai Spart Ciclul Burnout-ului!' : 'Congratulations! You Broke the Burnout Cycle!'}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {language === 'ro' 
-                  ? `Ai finalizat ${completedDays} zile de transformare`
-                  : `You completed ${completedDays} days of transformation`
+                  ? `Ai construit momentum real în ${completedDays} zile`
+                  : `You built real momentum in ${completedDays} days`
                 }
               </p>
             </div>
@@ -381,13 +379,13 @@ ${referralLink}`;
               <div>
                 <h3 className="text-lg font-bold text-foreground">
                   {language === 'ro' 
-                    ? '🎁 Invită Prieteni - Final Push' 
-                    : '🎁 Invite Friends - Final Push'}
+                    ? '🎁 Distribuie Momentum-ul' 
+                    : '🎁 Share the Momentum'}
                 </h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   {language === 'ro'
-                    ? 'Ai terminat challenge-ul! Trimite o invitație exclusivă prietenilor care vor aceeași transformare.'
-                    : 'You finished the challenge! Send an exclusive invite to friends who want the same transformation.'}
+                    ? 'Ai spart ciclul burnout-ului! Trimite o invitație exclusivă prietenilor care au nevoie de același momentum.'
+                    : 'You broke the burnout cycle! Send an exclusive invite to friends who need the same momentum.'}
                 </p>
               </div>
 
