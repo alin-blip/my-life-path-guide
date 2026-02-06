@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles, Send, Mic, MicOff, Loader2, User, Bot } from 'lucide-react';
 import { useChallengeCoach } from '@/hooks/useChallengeCoach';
 import { useAuth } from '@/context/AuthContext';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { cn } from '@/lib/utils';
 
 interface ChallengeInlineChatProps {
@@ -84,13 +85,28 @@ export const ChallengeInlineChat: React.FC<ChallengeInlineChatProps> = ({
 }) => {
   const [activeMode, setActiveMode] = useState<'text' | 'voice'>('text');
   const [inputValue, setInputValue] = useState('');
-  const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
   const { messages, isLoading, sendMessage, initializeChat } = useChallengeCoach({
     currentDay,
+  });
+
+  const voiceLang = language === 'en' ? 'en-US' : 'ro-RO';
+
+  const {
+    isMicOn,
+    isUserSpeaking,
+    toggleMic,
+  } = useVoiceInput({
+    onTranscript: (text) => {
+      if (text.trim()) {
+        sendMessage(text.trim());
+      }
+    },
+    voiceLanguage: voiceLang,
+    enabled: !!user,
   });
 
   const l = labels[language];
@@ -152,10 +168,7 @@ export const ChallengeInlineChat: React.FC<ChallengeInlineChatProps> = ({
     }
   };
 
-  const toggleVoice = () => {
-    setIsListening(!isListening);
-    // Voice input would be implemented here with Web Speech API
-  };
+  // Voice toggle now handled by useVoiceInput hook's toggleMic
 
   return (
     <div className="flex flex-col h-[400px]">
@@ -226,22 +239,23 @@ export const ChallengeInlineChat: React.FC<ChallengeInlineChatProps> = ({
         ) : (
           <div className="flex justify-center gap-4">
             <Button
-              onClick={toggleVoice}
+              onClick={toggleMic}
               size="lg"
-              variant={isListening ? 'destructive' : 'default'}
+              variant={isMicOn ? 'destructive' : 'default'}
               className={cn(
                 'h-14 w-14 rounded-full',
-                !isListening && 'bg-amber-500 hover:bg-amber-600'
+                !isMicOn && 'bg-amber-500 hover:bg-amber-600',
+                isUserSpeaking && 'animate-pulse'
               )}
             >
-              {isListening ? (
+              {isMicOn ? (
                 <MicOff className="h-6 w-6" />
               ) : (
                 <Mic className="h-6 w-6" />
               )}
             </Button>
             <p className="text-xs text-muted-foreground self-center">
-              {isListening ? l.listeningMessage : l.speakMessage}
+              {isMicOn ? l.listeningMessage : l.speakMessage}
             </p>
           </div>
         )}
