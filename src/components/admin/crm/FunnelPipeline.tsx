@@ -83,12 +83,17 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
     }
   }, [toast]);
 
-  // Auto-sync on mount and every 5 minutes
+  // Load contacts immediately on mount
+  useEffect(() => {
+    loadContacts();
+  }, [loadContacts]);
+
+  // Auto-sync in background every 5 minutes (non-blocking)
   useEffect(() => {
     const autoSync = async () => {
       try {
         setSyncing(true);
-        const { data, error } = await supabase.functions.invoke('sync-crm-contacts');
+        const { error } = await supabase.functions.invoke('sync-crm-contacts');
         if (!error) {
           setLastSync(new Date());
           await loadContacts(false);
@@ -100,9 +105,14 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
       }
     };
 
-    autoSync();
+    // Initial sync after a short delay (non-blocking)
+    const initialTimeout = setTimeout(autoSync, 2000);
     const interval = setInterval(autoSync, 5 * 60 * 1000); // Every 5 minutes
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
   }, [loadContacts]);
 
   const syncContacts = async () => {
