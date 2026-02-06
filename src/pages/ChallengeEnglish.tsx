@@ -17,9 +17,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { ChallengeAudioPlayer } from '@/components/challenge/english/ChallengeAudioPlayer';
-import { ChallengeScriptCard } from '@/components/challenge/english/ChallengeScriptCard';
-import { ChallengeInlineChat } from '@/components/challenge/english/ChallengeInlineChat';
+import { ChallengeAudioPlayer } from '@/components/challenge/ChallengeAudioPlayer';
+import { ChallengeScriptCard } from '@/components/challenge/ChallengeScriptCard';
+import { ChallengeInlineChat } from '@/components/challenge/ChallengeInlineChat';
 import { ChallengeInviteFriends } from '@/components/challenge/ChallengeInviteFriends';
 import { ChallengeComments } from '@/components/challenge/ChallengeComments';
 import { getChallengeIntroScript } from '@/data/challengeScripts';
@@ -95,10 +95,10 @@ const ChallengeEnglish: React.FC = () => {
       {/* Audio + Script + Chat - Unified Card */}
       <section className="px-4 pb-8">
         <Card className="max-w-3xl mx-auto overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
-          <ChallengeAudioPlayer script={script} />
+          <ChallengeAudioPlayer script={script} language="en" />
           <ChallengeScriptCard script={script} maxHeight="300px" />
           <div className="border-t border-border/50">
-            <ChallengeInlineChat currentDay={0} />
+            <ChallengeInlineChat currentDay={0} language="en" />
           </div>
         </Card>
       </section>

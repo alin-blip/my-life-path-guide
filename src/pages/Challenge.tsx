@@ -13,6 +13,12 @@ import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { EarlyBirdCountdown } from '@/components/membership/EarlyBirdCountdown';
 import { ChallengeCoachWidget } from '@/components/challenge/ChallengeCoachWidget';
 import { InstallAppPrompt } from '@/components/pwa/InstallAppPrompt';
+import { ChallengeAudioPlayer } from '@/components/challenge/ChallengeAudioPlayer';
+import { ChallengeScriptCard } from '@/components/challenge/ChallengeScriptCard';
+import { ChallengeInlineChat } from '@/components/challenge/ChallengeInlineChat';
+import { getDayScriptRo } from '@/data/challengeScriptsRo';
+import { getDayScript } from '@/data/challengeScripts';
+
 interface ChallengeDay {
   day: number;
   titleEn: string;
@@ -264,6 +270,24 @@ const ChallengePage = () => {
           <p className="text-xs text-muted-foreground text-center">
             {!isAuthenticated ? language === 'en' ? 'Login to track your progress' : 'Autentifică-te pentru a-ți urmări progresul' : progressPercentage === 100 ? language === 'en' ? '🎉 Challenge Complete! You broke the burnout cycle!' : '🎉 Challenge Complet! Ai spart ciclul burnout-ului!' : language === 'en' ? `Day ${currentDay} of 7 - Momentum is building!` : `Ziua ${currentDay} din 7 - Momentum-ul crește!`}
           </p>
+        </Card>
+
+        {/* Audio + Script + Chat - Unified Card */}
+        <Card className="mb-8 overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
+          <ChallengeAudioPlayer 
+            script={language === 'en' ? getDayScript(0) : getDayScriptRo(0)} 
+            language={language === 'en' ? 'en' : 'ro'} 
+          />
+          <ChallengeScriptCard 
+            script={language === 'en' ? getDayScript(0) : getDayScriptRo(0)} 
+            maxHeight="300px" 
+          />
+          <div className="border-t border-border/50">
+            <ChallengeInlineChat 
+              currentDay={0} 
+              language={language === 'en' ? 'en' : 'ro'} 
+            />
+          </div>
         </Card>
 
         {/* Challenge Days Grid */}

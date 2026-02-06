@@ -28,6 +28,11 @@ import {
   Day1InviteFriendsStep
 } from '@/components/challenge/day1';
 import { ChallengeInviteFriends } from '@/components/challenge/ChallengeInviteFriends';
+import { ChallengeAudioPlayer } from '@/components/challenge/ChallengeAudioPlayer';
+import { ChallengeScriptCard } from '@/components/challenge/ChallengeScriptCard';
+import { ChallengeInlineChat } from '@/components/challenge/ChallengeInlineChat';
+import { getDayScriptRo } from '@/data/challengeScriptsRo';
+import { getDayScript } from '@/data/challengeScripts';
 import { useDay1Responses } from '@/hooks/useDay1Responses';
 import { supabase } from '@/integrations/supabase/client';
 import { trackChallengeDayStarted } from '@/lib/facebook-pixel';
@@ -677,8 +682,23 @@ const ChallengeDayPage = () => {
             </p>
           </div>
           
-          {/* Video Placeholder */}
-          <Day1VideoPlaceholder />
+          {/* Audio + Script + Chat - Unified Card */}
+          <Card className="mb-6 overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
+            <ChallengeAudioPlayer 
+              script={language === 'en' ? getDayScript(1) : getDayScriptRo(1)} 
+              language={language === 'en' ? 'en' : 'ro'} 
+            />
+            <ChallengeScriptCard 
+              script={language === 'en' ? getDayScript(1) : getDayScriptRo(1)} 
+              maxHeight="250px" 
+            />
+            <div className="border-t border-border/50">
+              <ChallengeInlineChat 
+                currentDay={1} 
+                language={language === 'en' ? 'en' : 'ro'} 
+              />
+            </div>
+          </Card>
           
           {/* Steps Summary */}
           <Day1StepsSummary currentStep={hasExistingDeclaration ? 5 : day1Step} />
@@ -922,6 +942,24 @@ const ChallengeDayPage = () => {
           </p>
         </div>
 
+
+        {/* Audio + Script + Chat - Unified Card */}
+        <Card className="mb-6 overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
+          <ChallengeAudioPlayer 
+            script={language === 'en' ? getDayScript(dayNumber) : getDayScriptRo(dayNumber)} 
+            language={language === 'en' ? 'en' : 'ro'} 
+          />
+          <ChallengeScriptCard 
+            script={language === 'en' ? getDayScript(dayNumber) : getDayScriptRo(dayNumber)} 
+            maxHeight="250px" 
+          />
+          <div className="border-t border-border/50">
+            <ChallengeInlineChat 
+              currentDay={dayNumber} 
+              language={language === 'en' ? 'en' : 'ro'} 
+            />
+          </div>
+        </Card>
 
         {/* Steps Section */}
         <Card className="p-6 mb-6 bg-card border-primary/20">
