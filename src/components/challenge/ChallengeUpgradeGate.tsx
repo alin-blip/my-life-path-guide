@@ -166,8 +166,8 @@ export const ChallengeUpgradeGate: React.FC<ChallengeUpgradeGateProps> = ({
             </h2>
             <p className="text-muted-foreground">
               {isRo 
-                ? 'Continuă transformarea ta cu acces complet la Challenge' 
-                : 'Continue your transformation with full Challenge access'}
+                ? 'Continuă momentum-ul cu acces complet la Challenge' 
+                : 'Continue your momentum with full Challenge access'}
             </p>
           </div>
 

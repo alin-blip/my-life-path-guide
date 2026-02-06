@@ -104,7 +104,7 @@ export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
           <div className="flex items-center gap-2 p-3 rounded-lg bg-background/50 border">
             <Flame className="h-5 w-5 text-orange-500" />
             <span className="text-sm text-foreground">
-              {isRo ? '7 zile de transformare' : '7 days of transformation'}
+              {isRo ? '7 zile să spargi ciclul burnout-ului' : '7 days to break the burnout cycle'}
             </span>
           </div>
           <div className="flex items-center gap-2 p-3 rounded-lg bg-background/50 border">
@@ -144,8 +144,8 @@ export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
               </Label>
               <p className="text-sm text-muted-foreground mt-1">
                 {isRo 
-                  ? 'Voi dedica timp în fiecare zi pentru a-mi îmbunătăți toate cele 4 arii: Corp, Spirit, Relații și Business. Înțeleg că consistența este cheia transformării.' 
-                  : 'I will dedicate time each day to improve all 4 areas: Body, Spirit, Relationships and Business. I understand that consistency is the key to transformation.'}
+                  ? 'Voi dedica timp în fiecare zi pentru a-mi îmbunătăți toate cele 4 arii: Corp, Spirit, Relații și Business. Înțeleg că consistența este cheia construirii unui momentum durabil.' 
+                  : 'I will dedicate time each day to improve all 4 areas: Body, Spirit, Relationships and Business. I understand that consistency is the key to building lasting momentum.'}
               </p>
             </div>
           </div>
