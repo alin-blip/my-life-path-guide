@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Volume2, Loader2, RotateCcw } from 'lucide-react';
 import { getPlainTextScript } from '@/data/challengeScripts';
+import { VoiceSelector, DEFAULT_VOICE_ID } from '@/components/stack/VoiceSelector';
 
 interface ChallengeAudioPlayerProps {
   script: string;
@@ -39,6 +40,7 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({
   const [duration, setDuration] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedVoice, setSelectedVoice] = useState(DEFAULT_VOICE_ID);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -67,7 +69,7 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({
           },
           body: JSON.stringify({
             text: truncatedText,
-            voiceId: 'EXAVITQu4vr4xnSDxMaL',
+            voiceId: selectedVoice,
           }),
         }
       );
@@ -180,10 +182,32 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({
         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
           <Volume2 className="h-4 w-4 text-primary" />
         </div>
-        <div>
+        <div className="flex-1">
           <p className="text-sm font-medium">{l.title}</p>
           <p className="text-xs text-muted-foreground">{l.subtitle}</p>
         </div>
+        <VoiceSelector
+          currentVoice={selectedVoice}
+          onVoiceChange={(voiceId) => {
+            setSelectedVoice(voiceId);
+            // Reset audio so it regenerates with new voice
+            if (audioRef.current) {
+              audioRef.current.pause();
+              audioRef.current = null;
+            }
+            if (audioUrl) {
+              URL.revokeObjectURL(audioUrl);
+              setAudioUrl(null);
+            }
+            setIsPlaying(false);
+            setProgress(0);
+            setCurrentTime(0);
+            setDuration(0);
+            setIsGenerating(false);
+          }}
+          disabled={isLoading || isGenerating}
+          compact
+        />
       </div>
 
       <div className="flex items-center gap-4">
