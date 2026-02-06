@@ -182,7 +182,7 @@ const ChallengePage = () => {
             </h1>
           </div>
           <p className="text-base text-primary-foreground">
-            {language === 'en' ? '7 Days to Transform Every Area of Your Life' : '7 Zile pentru a Transforma Fiecare Arie a Vieții Tale'}
+            {language === 'en' ? 'From stuck & burnout to clarity & momentum' : 'De la blocaj & burnout la claritate & momentum'}
           </p>
           
           {/* 4 Areas Legend */}
@@ -238,7 +238,7 @@ const ChallengePage = () => {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-center sm:text-left">
                 <p className="font-medium text-foreground">
-                  {language === 'en' ? '🔐 Save Your Progress' : '🔐 Salvează-ți Progresul'}
+                  {language === 'en' ? "🔥 Don't lose momentum — Save your progress" : '🔥 Nu pierde momentum-ul — Salvează progresul'}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {language === 'en' ? 'Create a free account to track your challenge progress' : 'Creează un cont gratuit pentru a-ți urmări progresul'}
@@ -262,7 +262,7 @@ const ChallengePage = () => {
           </div>
           <Progress value={progressPercentage} className="h-3 mb-2" />
           <p className="text-xs text-muted-foreground text-center">
-            {!isAuthenticated ? language === 'en' ? 'Login to track your progress' : 'Autentifică-te pentru a-ți urmări progresul' : progressPercentage === 100 ? language === 'en' ? '🎉 Challenge Complete! You are a Have It All Achiever!' : '🎉 Challenge Complet! Ești un Realizator Have It All!' : language === 'en' ? `Day ${currentDay} of 7 - Keep going!` : `Ziua ${currentDay} din 7 - Continuă!`}
+            {!isAuthenticated ? language === 'en' ? 'Login to track your progress' : 'Autentifică-te pentru a-ți urmări progresul' : progressPercentage === 100 ? language === 'en' ? '🎉 Challenge Complete! You are a Have It All Achiever!' : '🎉 Challenge Complet! Ești un Realizator Have It All!' : language === 'en' ? `Day ${currentDay} of 7 - Momentum is building!` : `Ziua ${currentDay} din 7 - Momentum-ul crește!`}
           </p>
         </Card>
 
@@ -288,10 +288,10 @@ const ChallengePage = () => {
                       </div>
                       <div className="flex-1 text-center md:text-left">
                         <h3 className="text-lg font-bold text-foreground mb-1">
-                          🔥 {language === 'en' ? 'Unlock Days 3-7' : 'Deblochează Zilele 3-7'}
+                          🔥 {language === 'en' ? 'Continue the Momentum — Days 3-7' : 'Continuă Momentum-ul — Zilele 3-7'}
                         </h3>
                         <p className="text-sm text-muted-foreground mb-2">
-                          {language === 'en' ? 'Continue your transformation with 5-day FREE trial + Early Bird 50% OFF' : 'Continuă transformarea cu 5 zile TRIAL gratuit + Early Bird 50% REDUCERE'}
+                          {language === 'en' ? 'Keep building momentum with 5-day FREE trial + Early Bird 50% OFF' : 'Continuă momentum-ul cu 5 zile TRIAL gratuit + Early Bird 50% REDUCERE'}
                         </p>
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
                           <Badge className="bg-green-500/10 text-green-600 border-green-500/30">
@@ -375,10 +375,10 @@ const ChallengePage = () => {
         <Card className="mt-8 p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30">
           <div className="text-center">
             <h3 className="text-xl font-bold mb-2 text-foreground">
-              {language === 'en' ? '🦅 Start Your FREE Challenge: 2 Days + 5-Day Trial' : '🦅 Începe Challenge-ul GRATUIT: 2 Zile + 5 Zile Trial'}
+              {language === 'en' ? '🔥 Break free from burnout: 2 Days Free + 5-Day Trial' : '🔥 Ieși din burnout: 2 Zile Gratuit + 5 Zile Trial'}
             </h3>
             <p className="text-muted-foreground mb-4">
-              {language === 'en' ? '2 days FREE to start, then unlock days 3-7 with a 5-day trial!' : '2 zile GRATUIT pentru început, apoi deblochează zilele 3-7 cu 5 zile trial!'}
+              {language === 'en' ? '2 days FREE to start building momentum, then unlock days 3-7 with a 5-day trial!' : '2 zile GRATUIT pentru a construi momentum, apoi deblochează zilele 3-7 cu 5 zile trial!'}
             </p>
             <Button size="lg" className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600" onClick={() => handleStartDay(challengeDays[0])}>
               {language === 'en' ? 'Begin Challenge' : 'Începe Provocarea'}

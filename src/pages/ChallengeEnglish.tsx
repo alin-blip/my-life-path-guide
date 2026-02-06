@@ -60,9 +60,9 @@ const ChallengeEnglish: React.FC = () => {
     if (!free) return;
     
     if (user) {
-      navigate(`/challenge/${day}`);
+      navigate(`/challenge-en/${day}`);
     } else {
-      navigate(`/auth?redirect=/challenge/${day}`);
+      navigate(`/auth?redirect=/challenge-en/${day}`);
     }
   };
 
@@ -83,11 +83,11 @@ const ChallengeEnglish: React.FC = () => {
           </Badge>
 
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">
-            Have It All Lifestyle Challenge
+            Break Free from Burnout in 7 Days
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground mb-8">
-            7 Days to Transform Every Area of Your Life
+            From procrastination and exhaustion to clarity, energy and unstoppable momentum
           </p>
         </div>
       </section>
@@ -108,7 +108,7 @@ const ChallengeEnglish: React.FC = () => {
         <div className="max-w-3xl mx-auto">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <Target className="h-5 w-5 text-amber-500" />
-            Your 7-Day Transformation Map
+            Your 7-Step Anti-Burnout Plan
           </h2>
 
           <div className="grid gap-3">
@@ -173,7 +173,7 @@ const ChallengeEnglish: React.FC = () => {
             className="w-full h-14 text-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90 shadow-lg shadow-amber-500/20"
           >
             <Rocket className="h-5 w-5 mr-2" />
-            Start Day 1 Now — Free Access
+            Escape Burnout Now — Free Access
             <ArrowRight className="h-5 w-5 ml-2" />
           </Button>
           <p className="text-center text-xs text-muted-foreground mt-2">
