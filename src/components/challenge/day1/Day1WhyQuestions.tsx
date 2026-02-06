@@ -27,17 +27,17 @@ interface Day1WhyQuestionsProps {
 const QUESTIONS = [
   {
     key: 'question_1',
-    questionRo: 'De ce vrei să ai TOTUL în viață?',
-    questionEn: 'Why do you want to HAVE IT ALL in life?',
-    hintRo: 'Ce te motivează să fii mai bun în toate ariile: Corp, Spirit, Relații, Business?',
-    hintEn: 'What motivates you to be better in all areas: Body, Spirit, Relationships, Business?'
+    questionRo: 'Ce te-a adus în burnout? De ce vrei să ieși?',
+    questionEn: 'What drove you to burnout? Why do you want to break free?',
+    hintRo: 'Care e costul real dacă continui așa? Ce e în joc?',
+    hintEn: 'What\'s the real cost of continuing like this? What\'s at stake?'
   },
   {
     key: 'question_2',
-    questionRo: 'Ce te-a adus aici, în acest moment?',
-    questionEn: 'What brought you here, to this moment?',
-    hintRo: 'Ce situație sau realizare te-a făcut să cauți o schimbare profundă?',
-    hintEn: 'What situation or realization made you seek a profound change?'
+    questionRo: 'Care e aria #1 care îți consumă energia acum?',
+    questionEn: 'What\'s the #1 area draining your energy right now?',
+    hintRo: 'Corp, Spirit, Relații sau Business — unde e cel mai mare decalaj?',
+    hintEn: 'Body, Spirit, Relationships, or Business — where is the biggest gap?'
   },
   {
     key: 'question_3',
@@ -105,12 +105,12 @@ export const Day1WhyQuestions: React.FC<Day1WhyQuestionsProps> = ({
           <Flame className="h-8 w-8 text-white" />
         </div>
         <h2 className="text-2xl font-bold text-foreground mb-2">
-          {isRo ? 'PASUL 1: MARELE DE CE' : 'STEP 1: THE BIG WHY'}
+          {isRo ? 'PASUL 1: DE CE EȘTI BLOCAT?' : 'STEP 1: WHY ARE YOU STUCK?'}
         </h2>
         <p className="text-muted-foreground">
           {isRo 
-            ? 'Răspunde la aceste 5 întrebări pentru a-ți descoperi motivația profundă' 
-            : 'Answer these 5 questions to discover your deep motivation'}
+            ? 'Răspunde la aceste 5 întrebări pentru a descoperi rădăcina burnout-ului tău' 
+            : 'Answer these 5 questions to uncover the root of your burnout'}
         </p>
       </div>
       

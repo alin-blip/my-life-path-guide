@@ -80,10 +80,10 @@ const challengeContent: ChallengeDayContent[] = [
     day: 1,
     titleEn: "🔥 VISION + DECLARATION",
     titleRo: "🔥 VIZIUNE + DECLARAȚIE",
-    principleEn: "Day 1: Vision + Declaration (Napoleon Hill)",
-    principleRo: "Ziua 1: Viziune + Declarație (Napoleon Hill)",
-    descriptionEn: "Set your direction: how does your life look in 1 year across all 4 zones. Write your Personal Declaration (in present tense). Read it morning and evening. Join the community and invite 1-3 friends.",
-    descriptionRo: "Setează direcția: cum arată viața ta peste 1 an în cele 4 zone. Scrie Declarația Personală (la prezent). Citește-o dimineața și seara. Alătură-te comunității și invită 1-3 prieteni.",
+    principleEn: "Day 1: Break the Fog — Set Your Direction",
+    principleRo: "Ziua 1: Sparge Ceața — Setează Direcția",
+    descriptionEn: "Stop drifting. Map where you are today, discover WHY you're stuck, and write your anti-burnout declaration. This is where clarity replaces confusion.",
+    descriptionRo: "Oprește deriva. Evaluează unde ești azi, descoperă DE CE ești blocat și scrie declarația ta anti-burnout. Aici claritatea înlocuiește confuzia.",
     videoPlaceholder: "🎬 Video: Vision + Declaration - Napoleon Hill Style",
     icon: Flame,
     color: "from-purple-500 to-indigo-500",
@@ -122,10 +122,10 @@ const challengeContent: ChallengeDayContent[] = [
     day: 2,
     titleEn: "💪✨💕 BODY + SPIRIT + RELATIONSHIPS",
     titleRo: "💪✨💕 CORP + SPIRIT + RELAȚII",
-    principleEn: "Day 2: Build Your Foundation - Energy + Peace + Connection",
-    principleRo: "Ziua 2: Construiește Fundația - Energie + Pace + Conexiune",
-    descriptionEn: "Set objectives for Body, Spirit, AND Relationships on 3 levels: 2026, 90 days, 30 days. These 3 areas are the foundation for everything else.",
-    descriptionRo: "Setează obiective pentru Corp, Spirit și Relații pe 3 nivele: 2026, 90 zile, 30 zile. Aceste 3 arii sunt fundația pentru tot restul.",
+    principleEn: "Day 2: Rebuild Energy — Body, Spirit & Relationships",
+    principleRo: "Ziua 2: Reconstruiește Energia — Corp, Spirit & Relații",
+    descriptionEn: "Burnout drained your energy across 3 areas. Today you rebuild: set concrete goals for Body, Spirit, and Relationships. These 3 areas are the anti-burnout foundation.",
+    descriptionRo: "Burnout-ul ți-a epuizat energia în 3 arii. Azi reconstruiești: setează obiective concrete pentru Corp, Spirit și Relații. Aceste 3 arii sunt fundația anti-burnout.",
     videoPlaceholder: "🎬 Video: Body + Spirit + Relationships Foundation",
     icon: Target,
     color: "from-green-500 to-purple-500",
@@ -160,10 +160,10 @@ const challengeContent: ChallengeDayContent[] = [
     day: 3,
     titleEn: "💰🎯 BUSINESS + DOMINO DOOR",
     titleRo: "💰🎯 BUSINESS + DOMINO DOOR",
-    principleEn: "Day 3: Business Vision + Weekly Execution System",
-    principleRo: "Ziua 3: Viziune Business + Sistem de Execuție Săptămânală",
-    descriptionEn: "The AI Wizard guides you through a complete flow: Business vision (1 year) → 90-day targets → First month milestone → Weekly Domino Door (1 milestone + 4 keys + WHY for each). This is where the magic happens.",
-    descriptionRo: "Wizard-ul AI te ghidează printr-un flow complet: Viziune Business (1 an) → Ținte pe 90 zile → Milestone prima lună → Domino Door săptămânal (1 milestone + 4 chei + WHY pentru fiecare). Aici se întâmplă magia.",
+    principleEn: "Day 3: Stop Planning, Start Executing — The Domino System",
+    principleRo: "Ziua 3: Nu Mai Planifica, Execută — Sistemul Domino",
+    descriptionEn: "The #1 burnout trigger: endless planning without executing. Today, the AI Wizard builds your execution machine: Vision to 90-day targets to Weekly Domino Door. No more procrastination loops.",
+    descriptionRo: "Cauza #1 a burnout-ului: planificare fără execuție. Azi, Wizard-ul AI îți construiește mașina de execuție: de la Viziune la ținte pe 90 zile la Domino Door săptămânal. Fără cicluri de procrastinare.",
     videoPlaceholder: "🎬 Video: Business + Domino Door - ONE GO",
     icon: Target,
     color: "from-blue-500 to-amber-500",
@@ -198,10 +198,10 @@ const challengeContent: ChallengeDayContent[] = [
     day: 4,
     titleEn: "⚡ WARRIOR ROUTINE + VISION AI + MEDITATION",
     titleRo: "⚡ WARRIOR ROUTINE + VISION AI + MEDITAȚIE",
-    principleEn: "Day 4: Automate Your Daily Execution",
-    principleRo: "Ziua 4: Automatizează Execuția Zilnică",
-    descriptionEn: "Generate AI images for all 4 life areas. Create your personalized meditation based on YOUR objectives from Days 2-3. Configure Warrior Routine for daily execution. Start living your transformation.",
-    descriptionRo: "Generează imagini AI pentru toate cele 4 arii. Creează meditația personalizată bazată pe obiectivele TALE din Zilele 2-3. Configurează Warrior Routine pentru execuție zilnică. Începe să trăiești transformarea.",
+    principleEn: "Day 4: Build Your Anti-Burnout Routine",
+    principleRo: "Ziua 4: Construiește Rutina Ta Anti-Burnout",
+    descriptionEn: "A routine that energizes instead of exhausting. Generate AI vision images, create your personalized anti-burnout meditation, and configure a daily flow that builds momentum without draining you.",
+    descriptionRo: "O rutină care te energizează în loc să te epuizeze. Generează imagini AI de viziune, creează meditația ta anti-burnout personalizată și configurează un flux zilnic care construiește momentum fără să te consume.",
     videoPlaceholder: "🎬 Video: Vision AI + Personalized Meditation + Warrior Routine",
     icon: Sparkles,
     color: "from-cyan-500 to-purple-500",
@@ -240,10 +240,10 @@ const challengeContent: ChallengeDayContent[] = [
     day: 5,
     titleEn: "🧠 ACCOUNTABILITY + MIND COACH",
     titleRo: "🧠 ACCOUNTABILITY + MIND COACH",
-    principleEn: "Day 5: Transform Emotions into Power",
-    principleRo: "Ziua 5: Transformă Emoțiile în Putere",
-    descriptionEn: "Accountability Coach knows everything: tells you what's done and what's missing. Mind Coach transforms fear, anger, anxiety, procrastination → power. This isn't about suppressing emotions. It's about transforming them into fuel.",
-    descriptionRo: "Accountability Coach știe tot: îți spune ce e făcut și ce lipsește. Mind Coach transformă frica, furia, anxietatea, procrastinarea → putere. Nu e vorba să suprim emoțiile. E vorba să le transformi în combustibil.",
+    principleEn: "Day 5: Break Emotional Resistance — From Stuck to Clarity",
+    principleRo: "Ziua 5: Sparge Rezistența Emoțională — De la Blocat la Claritate",
+    descriptionEn: "Procrastination isn't laziness — it's emotional resistance. Accountability Coach shows what's done and what's missing. Mind Coach transforms fear, anger, anxiety into momentum. This is where you break the inner burnout cycle.",
+    descriptionRo: "Procrastinarea nu e lene — e rezistență emoțională. Accountability Coach arată ce e făcut și ce lipsește. Mind Coach transformă frica, furia, anxietatea în momentum. Aici spargi ciclul interior al burnout-ului.",
     videoPlaceholder: "🎬 Video: Accountability Coach + Mind Coach Transformation",
     icon: Brain,
     color: "from-red-500 to-pink-500",
@@ -278,10 +278,10 @@ const challengeContent: ChallengeDayContent[] = [
     day: 6,
     titleEn: "💡 IDEA LIST (STRATEGIC FILTER)",
     titleRo: "💡 IDEA LIST (FILTRU STRATEGIC)",
-    principleEn: "Day 6: Impulse Control - Don't Let Ideas Destroy Execution",
-    principleRo: "Ziua 6: Controlul Impulsului - Nu Lăsa Ideile să Distrugă Execuția",
-    descriptionEn: "This section is NOT for execution. It's for getting ideas out of your head without destroying the focus set on Day 3. Classify ideas with Eisenhower Matrix: Important+Urgent, Important+Not Urgent, Not Important+Urgent, Not Important+Not Urgent.",
-    descriptionRo: "Această secțiune NU este pentru execuție. Este pentru a scoate ideile din cap fără să distrugă focusul setat în Ziua 3. Clasifică ideile cu Matricea Eisenhower: Important+Urgent, Important+NU Urgent, NU Important+Urgent, NU Important+NU Urgent.",
+    principleEn: "Day 6: Protect Your Focus — Strategic Impulse Control",
+    principleRo: "Ziua 6: Protejează-ți Focusul — Control Strategic al Impulsurilor",
+    descriptionEn: "The biggest threat to momentum: shiny new ideas. This section teaches you to park ideas without losing focus. Classify with Eisenhower Matrix. Protect the execution system built on Day 3.",
+    descriptionRo: "Cea mai mare amenințare pentru momentum: ideile noi strălucitoare. Această secțiune te învață să parchezi ideile fără să pierzi focusul. Clasifică cu Matricea Eisenhower. Protejează sistemul de execuție construit în Ziua 3.",
     videoPlaceholder: "🎬 Video: Idea List - Strategic Filter",
     icon: Target,
     color: "from-amber-500 to-yellow-500",
@@ -312,10 +312,10 @@ const challengeContent: ChallengeDayContent[] = [
     day: 7,
     titleEn: "🏆 MEMBERSHIP + CONTINUITY",
     titleRo: "🏆 MEMBERSHIP + CONTINUITATE",
-    principleEn: "Day 7: Full System Integration + Membership",
-    principleRo: "Ziua 7: Integrare Completă a Sistemului + Membership",
-    descriptionEn: "Recap what you've achieved: clear vision, yearly plan, 90-day targets, first month milestone, weekly execution system, control over ideas. Decision: how do you continue?",
-    descriptionRo: "Recapitulare ce ai realizat: viziune clară, plan anual, ținte 90 zile, milestone prima lună, sistem execuție săptămânală, control asupra ideilor. Decizie: cum continui?",
+    principleEn: "Day 7: From Burnout to Momentum — Make It Permanent",
+    principleRo: "Ziua 7: De la Burnout la Momentum — Fă-l Permanent",
+    descriptionEn: "You broke the burnout cycle. You built clarity, energy, execution, and control. Now the question: do you let momentum fade, or do you make it permanent?",
+    descriptionRo: "Ai spart ciclul burnout-ului. Ai construit claritate, energie, execuție și control. Acum întrebarea: lași momentum-ul să se stingă, sau îl faci permanent?",
     videoPlaceholder: "",
     icon: Trophy,
     color: "from-amber-500 to-yellow-600",
@@ -657,15 +657,15 @@ const ChallengeDayPage = () => {
                   {language === 'en' ? 'Day 1' : 'Ziua 1'}
                 </Badge>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                  {language === 'en' ? '🔥 THE FOUNDATION' : '🔥 FUNDAȚIA TRANSFORMĂRII'}
+                  {language === 'en' ? '🔥 BREAK THE FOG' : '🔥 SPARGE CEAȚA'}
                 </h1>
               </div>
             </div>
             
             <p className="text-muted-foreground mb-4">
               {language === 'en' 
-                ? 'Discover your BIG WHY and create your vision declaration in Napoleon Hill style.' 
-                : 'Descoperă-ți MARELE DE CE și creează declarația ta de viziune în stilul Napoleon Hill.'}
+                ? 'Map your reality, discover WHY you\'re stuck, and write your anti-burnout declaration.' 
+                : 'Evaluează-ți realitatea, descoperă DE CE ești blocat și scrie declarația ta anti-burnout.'}
             </p>
             
             <Progress value={day1Progress} className="h-2" />
@@ -1076,8 +1076,8 @@ const ChallengeDayPage = () => {
               </h3>
               <p className="text-muted-foreground mb-4">
                 {language === 'en' 
-                  ? 'Great work! You\'re building your Have It All lifestyle!' 
-                  : 'Excelent! Îți construiești stilul de viață Have It All!'}
+                  ? 'Great work! You\'re building momentum!' 
+                  : 'Excelent! Construiești momentum!'}
               </p>
               {dayNumber < 7 && (
                 <Button onClick={() => navigate(`/challenge/${dayNumber + 1}`)}>

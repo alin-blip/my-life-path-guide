@@ -86,8 +86,8 @@ export const ChallengeDay6Ideas: React.FC = () => {
               </h3>
               <p className="text-sm text-muted-foreground mt-2">
                 {language === 'ro'
-                  ? 'Această secțiune NU este pentru execuție. Este pentru a scoate ideile din cap fără să distrugă focusul setat în Ziua 3.'
-                  : 'This section is NOT for execution. It\'s for getting ideas out of your head without destroying the focus set on Day 3.'}
+                  ? 'Această secțiune NU este pentru execuție. Este pentru a parca ideile în siguranță ca să nu distrugă momentum-ul construit în Ziua 3.'
+                  : 'This section is NOT for execution. It\'s for parking ideas safely so they don\'t destroy the momentum you built on Day 3.'}
               </p>
             </div>
           </div>
@@ -106,8 +106,8 @@ export const ChallengeDay6Ideas: React.FC = () => {
         <div className="space-y-3 text-sm text-muted-foreground">
           <p>
             {language === 'ro'
-              ? '🧠 Creierul tău generează constant idei noi. Fără un sistem de "parcare", aceste idei te vor distrage de la execuția strategică.'
-              : '🧠 Your brain constantly generates new ideas. Without a "parking" system, these ideas will distract you from strategic execution.'}
+              ? '🧠 Creierul tău generează constant idei noi. Fără un sistem de "parcare", aceste idei vor distruge momentum-ul pe care l-ai construit.'
+              : '🧠 Your brain constantly generates new ideas. Without a "parking" system, these ideas will destroy the momentum you\'ve been building.'}
           </p>
           <p>
             {language === 'ro'

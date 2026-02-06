@@ -109,8 +109,8 @@ export const ChallengeWalkthrough = () => {
         </h2>
         <p className="text-sm text-muted-foreground">
           {language === 'en' 
-            ? 'Learn how to use each module to achieve your goals' 
-            : 'Învață cum să folosești fiecare modul pentru a-ți atinge obiectivele'}
+            ? 'Learn how to use each module to maintain momentum' 
+            : 'Învață cum să folosești fiecare modul pentru a-ți menține momentum-ul'}
         </p>
       </div>
 
