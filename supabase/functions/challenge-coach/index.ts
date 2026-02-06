@@ -235,6 +235,49 @@ SPECIAL INSTRUCTIONS:
 - For technical platform questions, guide to the correct feature`;
 };
 
+// Save conversation messages to database using service role
+async function saveConversationMessages(
+  userId: string,
+  dayNumber: number,
+  sessionId: string | null,
+  userMessage: string,
+  assistantMessage: string
+) {
+  try {
+    const serviceClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const messages = [
+      {
+        user_id: userId,
+        day_number: dayNumber,
+        role: 'user',
+        content: userMessage,
+        session_id: sessionId,
+      },
+      {
+        user_id: userId,
+        day_number: dayNumber,
+        role: 'assistant',
+        content: assistantMessage,
+        session_id: sessionId,
+      },
+    ];
+
+    const { error } = await serviceClient
+      .from('challenge_coach_conversations')
+      .insert(messages);
+
+    if (error) {
+      console.error('Error saving conversation:', error);
+    }
+  } catch (err) {
+    console.error('Failed to save conversation:', err);
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -263,7 +306,7 @@ serve(async (req) => {
       });
     }
 
-    const { messages, language = 'ro', currentDay = 1 } = await req.json();
+    const { messages, language = 'ro', currentDay = 1, sessionId = null } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -298,25 +341,28 @@ serve(async (req) => {
     
     if (progress && progress.length > 0) {
       const completedDays = progress.filter(p => p.completed).length;
-      userContext += `\n📊 CHALLENGE PROGRESS: ${completedDays}/7 days completed\n`;
+      userContext += `\nCHALLENGE PROGRESS: ${completedDays}/7 days completed\n`;
       progress.forEach(p => {
-        const status = p.completed ? '✅' : p.video_watched ? '🎬' : '⏳';
+        const status = p.completed ? 'DONE' : p.video_watched ? 'WATCHING' : 'PENDING';
         userContext += `Day ${p.day_number}: ${status}\n`;
       });
     }
 
     if (missions && missions.length > 0) {
-      userContext += '\n🎯 USER OBJECTIVES:\n';
+      userContext += '\nUSER OBJECTIVES:\n';
       missions.slice(0, 5).forEach(m => {
         userContext += `- ${m.category?.toUpperCase()}: ${m.title}\n`;
       });
     }
 
     if (weeklyPlan?.domino_title) {
-      userContext += `\n🎲 WEEKLY FOCUS: ${weeklyPlan.domino_title}\n`;
+      userContext += `\nWEEKLY FOCUS: ${weeklyPlan.domino_title}\n`;
     }
 
     const systemPrompt = getSystemPrompt(language, currentDay, userContext);
+
+    // Get the last user message for saving
+    const lastUserMessage = messages.length > 0 ? messages[messages.length - 1]?.content : '';
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -350,7 +396,64 @@ serve(async (req) => {
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
-    return new Response(response.body, {
+    // We need to read the stream, collect the full response, save it, then forward
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('No response body');
+    }
+
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    let fullAssistantResponse = '';
+
+    const stream = new ReadableStream({
+      async pull(controller) {
+        try {
+          const { done, value } = await reader.read();
+          if (done) {
+            controller.close();
+            // Save conversation after stream completes
+            if (lastUserMessage && fullAssistantResponse) {
+              saveConversationMessages(
+                user.id,
+                currentDay,
+                sessionId,
+                lastUserMessage,
+                fullAssistantResponse
+              );
+            }
+            return;
+          }
+
+          // Forward the chunk to the client
+          controller.enqueue(value);
+
+          // Parse and collect assistant content
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const jsonStr = line.slice(6).trim();
+              if (jsonStr === '[DONE]') continue;
+              try {
+                const parsed = JSON.parse(jsonStr);
+                const delta = parsed.choices?.[0]?.delta?.content;
+                if (delta) {
+                  fullAssistantResponse += delta;
+                }
+              } catch {
+                // Ignore partial JSON parse errors
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Stream error:', err);
+          controller.error(err);
+        }
+      },
+    });
+
+    return new Response(stream, {
       headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
     });
   } catch (error) {

@@ -5,7 +5,8 @@ import { CRMAnalytics } from './CRMAnalytics';
 import { ContactProfile360 } from './ContactProfile360';
 import { FunnelVisualDashboard } from './FunnelVisualDashboard';
 import { ChallengeDropOffStats } from './ChallengeDropOffStats';
-import { BarChart3, Users, Target, TrendingUp, Zap, AlertTriangle } from 'lucide-react';
+import { CRMConversationsDashboard } from './CRMConversationsDashboard';
+import { BarChart3, Users, Target, TrendingUp, Zap, AlertTriangle, MessageSquare } from 'lucide-react';
 
 export const CRMDashboard: React.FC = () => {
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
@@ -34,7 +35,7 @@ export const CRMDashboard: React.FC = () => {
       </div>
 
       <Tabs defaultValue="pipeline" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
           <TabsTrigger value="pipeline" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Pipeline
@@ -42,6 +43,10 @@ export const CRMDashboard: React.FC = () => {
           <TabsTrigger value="funnel" className="flex items-center gap-2">
             <Zap className="h-4 w-4" />
             Funnel Vizual
+          </TabsTrigger>
+          <TabsTrigger value="conversations" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Conversații AI
           </TabsTrigger>
           <TabsTrigger value="challenge" className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
@@ -59,6 +64,10 @@ export const CRMDashboard: React.FC = () => {
 
         <TabsContent value="funnel">
           <FunnelVisualDashboard />
+        </TabsContent>
+
+        <TabsContent value="conversations">
+          <CRMConversationsDashboard />
         </TabsContent>
 
         <TabsContent value="challenge">
