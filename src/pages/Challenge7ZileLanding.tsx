@@ -149,8 +149,8 @@ const Challenge7ZileLanding = () => {
       icon: Dumbbell, 
       labelEn: 'Body', 
       labelRo: 'Corp',
-      descEn: 'Physical health & energy',
-      descRo: 'Sănătate fizică și energie',
+      descEn: 'Stop chronic fatigue & reclaim your energy',
+      descRo: 'Oprește oboseala cronică și recapătă energia',
       color: 'from-green-500 to-emerald-500',
       bgColor: 'bg-green-500/10'
     },
@@ -158,8 +158,8 @@ const Challenge7ZileLanding = () => {
       icon: Brain, 
       labelEn: 'Being', 
       labelRo: 'Spirit',
-      descEn: 'Purpose & inner peace',
-      descRo: 'Scop și pace interioară',
+      descEn: 'Regain inner peace & mental clarity',
+      descRo: 'Recapătă pacea interioară și claritatea mentală',
       color: 'from-purple-500 to-violet-500',
       bgColor: 'bg-purple-500/10'
     },
@@ -167,8 +167,8 @@ const Challenge7ZileLanding = () => {
       icon: Heart, 
       labelEn: 'Balance', 
       labelRo: 'Relații',
-      descEn: 'Love & connection',
-      descRo: 'Dragoste și conexiune',
+      descEn: 'Rebuild neglected connections',
+      descRo: 'Reconstruiește conexiunile neglijate',
       color: 'from-pink-500 to-rose-500',
       bgColor: 'bg-pink-500/10'
     },
@@ -176,8 +176,8 @@ const Challenge7ZileLanding = () => {
       icon: Target, 
       labelEn: 'Business', 
       labelRo: 'Business',
-      descEn: 'Financial & career success',
-      descRo: 'Succes financiar și profesional',
+      descEn: 'From overwhelm to focused execution',
+      descRo: 'De la haos la execuție focusată',
       color: 'from-blue-500 to-cyan-500',
       bgColor: 'bg-blue-500/10'
     }
@@ -186,28 +186,28 @@ const Challenge7ZileLanding = () => {
   const benefits = [
     { 
       icon: Target, 
-      textEn: 'Clear annual objectives for 2026', 
-      textRo: 'Obiective anuale clare pentru 2026' 
+      textEn: 'Break the procrastination cycle', 
+      textRo: 'Oprești ciclul procrastinării' 
     },
     { 
-      icon: Calendar, 
-      textEn: 'Structured 90-day action plan', 
-      textRo: 'Plan de acțiune structurat pe 90 de zile' 
+      icon: Rocket, 
+      textEn: 'Strategic burnout recovery plan', 
+      textRo: 'Ieși din burnout strategic' 
     },
     { 
       icon: Sparkles, 
-      textEn: 'Personalized AI meditations', 
-      textRo: 'Meditații personalizate cu AI' 
+      textEn: 'Reclaim your energy & focus', 
+      textRo: 'Recapătă energia și focusul' 
     },
     { 
       icon: Star, 
-      textEn: 'Champion morning routine', 
-      textRo: 'Rutină matinală de campion' 
+      textEn: 'Build daily momentum', 
+      textRo: 'Construiești momentum zilnic' 
     },
     { 
       icon: Users, 
-      textEn: 'Community of high performers', 
-      textRo: 'Comunitate de performeri' 
+      textEn: 'Community that holds you accountable', 
+      textRo: 'Comunitate care te ține responsabil' 
     },
     { 
       icon: Gift, 
@@ -220,8 +220,8 @@ const Challenge7ZileLanding = () => {
     {
       q: language === 'en' ? "How much time does it take per day?" : "Cât timp durează pe zi?",
       a: language === 'en' 
-        ? "Just 15 minutes per day. Each module is designed to be short but impactful. You can do more if you want, but 15 minutes is enough for progress." 
-        : "Doar 15 minute pe zi. Fiecare modul este conceput pentru a fi scurt dar impactant. Poți face mai mult dacă vrei, dar 15 minute sunt suficiente pentru progres."
+        ? "Just 15 minutes per day. Each module is designed to be short but impactful. Exactly what you need when you're in burnout — small steps, big impact." 
+        : "Doar 15 minute pe zi. Fiecare modul este conceput pentru a fi scurt dar impactant. Exact ce ai nevoie când ești în burnout — pași mici, impact mare."
     },
     {
       q: language === 'en' ? "Is this really 100% free?" : "Este cu adevărat 100% gratuit?",
@@ -261,10 +261,10 @@ const Challenge7ZileLanding = () => {
   return (
     <>
       <Helmet>
-        <title>{language === 'en' ? 'Transform Your Life in 7 Days | Free Challenge' : 'Transformă-ți Viața în 7 Zile | Challenge Gratuit'}</title>
+        <title>{language === 'en' ? 'Break Free from Burnout in 7 Days | Free Challenge' : 'Ieși din Burnout în 7 Zile | Challenge Gratuit'}</title>
         <meta name="description" content={language === 'en' 
-          ? 'Join the free 7-day Have It All challenge. Master Body, Being, Balance & Business in just one week.'
-          : 'Alătură-te challenge-ului gratuit de 7 zile Have It All. Stăpânește Corpul, Spiritul, Relațiile și Business-ul într-o săptămână.'
+          ? 'Stop procrastination, break free from burnout and build real momentum in 7 days. Free challenge.'
+          : 'Oprești procrastinarea, ieși din burnout și construiești momentum real în 7 zile. Challenge gratuit.'
         } />
       </Helmet>
 
@@ -285,14 +285,14 @@ const Challenge7ZileLanding = () => {
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-red-500">
               {language === 'en' 
-                ? 'Start Your FREE Challenge Now' 
-                : 'Începe Challenge-ul GRATUIT Acum'}
+                ? 'Break Free from Burnout in 7 Days' 
+                : 'Ieși din Burnout în 7 Zile'}
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               {language === 'en'
-                ? 'Transform your life in 7 days — ZERO COST, ZERO OBLIGATIONS'
-                : 'Transformă-ți viața în 7 zile — ZERO COST, ZERO OBLIGAȚII'}
+                ? 'From procrastination and chronic exhaustion to momentum and real results'
+                : 'De la procrastinare și oboseală cronică la momentum și rezultate reale'}
             </p>
 
             <motion.div 
@@ -358,12 +358,12 @@ const Challenge7ZileLanding = () => {
         <section className="py-16 px-4 bg-muted/30">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
-              {language === 'en' ? 'The 4 Pillars of Success' : 'Cei 4 Piloni ai Succesului'}
+              {language === 'en' ? 'Why Are You Stuck? Imbalance in 4 Areas' : 'De Ce Ești Blocat? Lipsa Echilibrului în 4 Arii'}
             </h2>
             <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
               {language === 'en'
-                ? 'True success means thriving in ALL areas of life, not just one.'
-                : 'Succesul adevărat înseamnă să prosperi în TOATE ariile vieții, nu doar una.'}
+                ? "Burnout happens when one area is neglected. That's exactly what we fix."
+                : 'Burnout-ul vine când una din arii e neglijată. Fix asta reparăm.'}
             </p>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -391,12 +391,12 @@ const Challenge7ZileLanding = () => {
         <section className="py-16 px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
-              {language === 'en' ? 'Your 7-Day Journey' : 'Călătoria ta de 7 Zile'}
+              {language === 'en' ? 'Your 7-Step Anti-Burnout Plan' : 'Planul Tău Anti-Burnout în 7 Pași'}
             </h2>
             <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
               {language === 'en'
-                ? 'Days 1-2 are FREE. From Day 3, activate your trial to continue the transformation.'
-                : 'Zilele 1-2 sunt GRATUITE. Din Ziua 3, activează trial-ul pentru a continua transformarea.'}
+                ? 'Each day pulls you further from the fog and closer to clarity.'
+                : 'Fiecare zi te scoate mai mult din ceață și te mută spre claritate.'}
             </p>
             
             <div className="space-y-3">
@@ -528,13 +528,13 @@ const Challenge7ZileLanding = () => {
             <Rocket className="h-16 w-16 text-primary mx-auto mb-6" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
               {language === 'en' 
-                ? 'Ready to Transform Your Life?' 
-                : 'Gata să-ți Transformi Viața?'}
+                ? 'Ready for Momentum?' 
+                : 'Gata de Momentum?'}
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
               {language === 'en'
-                ? 'Join thousands who are already living the Have It All lifestyle.'
-                : 'Alătură-te miilor care trăiesc deja stilul de viață Have It All.'}
+                ? 'Break the burnout cycle. The first 2 steps are free.'
+                : 'Oprește ciclul burnout-ului. Primii 2 pași sunt gratuit.'}
             </p>
             
             <Button 

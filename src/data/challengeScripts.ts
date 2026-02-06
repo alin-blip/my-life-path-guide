@@ -3,23 +3,21 @@
 
 export const getChallengeIntroScript = (): string => `# Welcome to the Have It All Lifestyle Challenge
 
-**7 Days to Transform Every Area of Your Life**
+**7 Days to Break Free from Burnout and Build Unstoppable Momentum**
 
 I want you to think about something powerful right now...
 
-## What's the ONE Story Keeping You Stuck?
+## Are You Stuck in a Burnout Loop?
 
-Maybe you're telling yourself:
-- "I don't know where to start."
-- "I'm afraid I'll fail."
-- "It's too much; I can't handle it."
-- "I just don't feel motivated."
+Maybe you recognize yourself in one of these:
+- "I keep planning but never executing."
+- "I'm exhausted but can't stop."
+- "I know what to do but I just can't start."
+- "I feel burned out but guilty for resting."
 
-Here's the truth: **These stories aren't facts. They're patterns.**
+Here's the truth: **This is the burnout-procrastination cycle. And today, you break it.**
 
-And today, you break them.
-
-## Your 7-Day Transformation Map
+## Your 7-Step Anti-Burnout Plan
 
 | Day | Focus | What You'll Achieve |
 |-----|-------|---------------------|
@@ -33,7 +31,7 @@ And today, you break them.
 
 ## Why This Challenge Works
 
-This isn't just another program where you watch videos passively.
+This challenge breaks the burnout-procrastination cycle by rebuilding balance across all 4 areas of your life.
 
 **You will engage. You will answer. You will transform.**
 
