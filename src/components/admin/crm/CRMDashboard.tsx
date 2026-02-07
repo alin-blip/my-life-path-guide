@@ -7,7 +7,8 @@ import { FunnelVisualDashboard } from './FunnelVisualDashboard';
 import { ChallengeDropOffStats } from './ChallengeDropOffStats';
 import { CRMConversationsDashboard } from './CRMConversationsDashboard';
 import { ChallengeAdminChat } from './ChallengeAdminChat';
-import { BarChart3, Users, Target, TrendingUp, Zap, AlertTriangle, MessageSquare, MessagesSquare } from 'lucide-react';
+import { AdminErrorMonitor } from './AdminErrorMonitor';
+import { BarChart3, Users, Target, Zap, AlertTriangle, MessageSquare, MessagesSquare, ShieldAlert } from 'lucide-react';
 
 export const CRMDashboard: React.FC = () => {
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
@@ -36,7 +37,7 @@ export const CRMDashboard: React.FC = () => {
       </div>
 
       <Tabs defaultValue="pipeline" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
           <TabsTrigger value="pipeline" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Pipeline
@@ -56,6 +57,10 @@ export const CRMDashboard: React.FC = () => {
           <TabsTrigger value="challenge" className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
             Challenge Stats
+          </TabsTrigger>
+          <TabsTrigger value="errors" className="flex items-center gap-2">
+            <ShieldAlert className="h-4 w-4" />
+            Erori
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
@@ -81,6 +86,10 @@ export const CRMDashboard: React.FC = () => {
 
         <TabsContent value="challenge">
           <ChallengeDropOffStats />
+        </TabsContent>
+
+        <TabsContent value="errors">
+          <AdminErrorMonitor />
         </TabsContent>
 
         <TabsContent value="analytics">

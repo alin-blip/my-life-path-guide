@@ -2319,26 +2319,41 @@ export type Database = {
       error_logs: {
         Row: {
           component_name: string | null
+          component_stack: string | null
           created_at: string | null
           error_message: string
           id: string
+          resolved: boolean | null
+          resolved_at: string | null
           stack_trace: string | null
+          url: string | null
+          user_agent: string | null
           user_id: string | null
         }
         Insert: {
           component_name?: string | null
+          component_stack?: string | null
           created_at?: string | null
           error_message: string
           id?: string
+          resolved?: boolean | null
+          resolved_at?: string | null
           stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
           user_id?: string | null
         }
         Update: {
           component_name?: string | null
+          component_stack?: string | null
           created_at?: string | null
           error_message?: string
           id?: string
+          resolved?: boolean | null
+          resolved_at?: string | null
           stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
           user_id?: string | null
         }
         Relationships: []

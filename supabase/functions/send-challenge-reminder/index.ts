@@ -17,38 +17,76 @@ async function sendEmail(to: string, subject: string, html: string) {
       html,
     }),
   });
-  
   if (!response.ok) {
     const error = await response.text();
     throw new Error(`Resend API error: ${error}`);
   }
-  
   return response.json();
 }
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 interface ChallengeDay {
   day: number;
-  titleEn: string;
   titleRo: string;
-  descEn: string;
   descRo: string;
 }
 
 const challengeDays: ChallengeDay[] = [
-  { day: 1, titleEn: "Platform Tour", titleRo: "Tour Platformă", descEn: "Discover all the tools at your disposal", descRo: "Descoperă toate instrumentele disponibile" },
-  { day: 2, titleEn: "Body + Being", titleRo: "Corp + Spirit", descEn: "Set objectives for health & inner peace", descRo: "Obiective pentru sănătate și spirit" },
-  { day: 3, titleEn: "Balance + Business", titleRo: "Relații + Business", descEn: "Set objectives for relationships & career", descRo: "Obiective pentru relații și carieră" },
-  { day: 4, titleEn: "Champion Routine", titleRo: "Rutina Campionului", descEn: "Configure your winning morning routine", descRo: "Configurează rutina matinală câștigătoare" },
-  { day: 5, titleEn: "AI Vision", titleRo: "Viziune AI", descEn: "Generate images & personalized meditation", descRo: "Generează imagini și meditație personalizată" },
-  { day: 6, titleEn: "Accountability", titleRo: "Accountability", descEn: "Set up your notification system", descRo: "Configurează sistemul de notificări" },
-  { day: 7, titleEn: "Putting It All Together", titleRo: "Punem Totul Împreună", descEn: "Complete recap + Premium upgrade", descRo: "Recapitulare completă + Upgrade Premium" },
+  { day: 1, titleRo: "Viziune si Claritate", descRo: "Descoperă toate instrumentele disponibile" },
+  { day: 2, titleRo: "Corp si Spirit", descRo: "Obiective pentru sănătate și spirit" },
+  { day: 3, titleRo: "Relatii si Business", descRo: "Obiective pentru relații și carieră" },
+  { day: 4, titleRo: "Rutina Zilnica", descRo: "Configurează rutina matinală" },
+  { day: 5, titleRo: "AI si Viziune", descRo: "Generează imagini și meditație personalizată" },
+  { day: 6, titleRo: "Accountability", descRo: "Configurează sistemul de notificări" },
+  { day: 7, titleRo: "Integrare Completa", descRo: "Recapitulare completă" },
 ];
+
+function generateReminderEmail(name: string | null, currentDay: ChallengeDay): string {
+  const displayName = name?.split(' ')[0] || '';
+  const greeting = displayName ? `Salut ${displayName},` : 'Salut,';
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="background-color: #18181b; padding: 24px 32px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600;">WarriorOS</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 32px;">
+              <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">${greeting}</p>
+              <h2 style="color: #1a1a1a; font-size: 20px; margin: 0 0 12px 0;">Ziua ${currentDay.day}: ${currentDay.titleRo}</h2>
+              <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">${currentDay.descRo}</p>
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="https://warriorsos.com/challenge/${currentDay.day}" 
+                   style="display: inline-block; background-color: #18181b; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">
+                  Incepe Ziua ${currentDay.day}
+                </a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center;">
+              <p style="color: #9ca3af; margin: 0; font-size: 12px;">WarriorOS</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -60,127 +98,45 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get all challenge participants who haven't completed all 7 days
     const { data: participants, error: participantsError } = await supabase
       .from('email_leads')
       .select('*')
       .eq('lead_magnet', 'challenge_7_zile')
       .eq('subscribed', true);
 
-    if (participantsError) {
-      throw participantsError;
-    }
+    if (participantsError) throw participantsError;
 
     const results = [];
-    const baseUrl = "https://warriorsos.com";
 
     for (const participant of participants || []) {
-      // Calculate which day they should be on based on signup date
       const signupDate = new Date(participant.created_at);
       const now = new Date();
       const daysSinceSignup = Math.floor((now.getTime() - signupDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
       
-      // Only send reminders for days 1-7
       if (daysSinceSignup > 7) continue;
       
       const currentDay = challengeDays[daysSinceSignup - 1];
       if (!currentDay) continue;
 
-      // Determine language (default to Romanian)
-      const language = (participant.metadata as any)?.language || 'ro';
-      const isEnglish = language === 'en';
-
-      const emailHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="margin: 0; padding: 0; background-color: #0f0f0f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-            <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; border: 1px solid #333;">
-              
-              <div style="text-align: center; margin-bottom: 30px;">
-                <h1 style="color: #f59e0b; font-size: 28px; margin: 0;">
-                  🔥 ${isEnglish ? `Day ${currentDay.day}` : `Ziua ${currentDay.day}`}
-                </h1>
-                <h2 style="color: #fff; font-size: 24px; margin: 10px 0;">
-                  ${isEnglish ? currentDay.titleEn : currentDay.titleRo}
-                </h2>
-              </div>
-              
-              <p style="color: #9ca3af; font-size: 16px; line-height: 1.6; text-align: center; margin-bottom: 30px;">
-                ${participant.name ? `${isEnglish ? 'Hey' : 'Salut'} ${participant.name}! ` : ''}
-                ${isEnglish ? currentDay.descEn : currentDay.descRo}
-              </p>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${baseUrl}/challenge/${currentDay.day}" 
-                   style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #000; padding: 16px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 18px;">
-                  ${isEnglish ? 'Start Day' : 'Începe Ziua'} ${currentDay.day} →
-                </a>
-              </div>
-              
-              <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; text-align: center;">
-                <p style="color: #6b7280; font-size: 14px; margin: 0;">
-                  ${isEnglish 
-                    ? 'You received this email because you joined the 7-Day Challenge.' 
-                    : 'Ai primit acest email pentru că te-ai înscris la Challenge-ul de 7 Zile.'}
-                </p>
-              </div>
-              
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
-
       try {
-        const subject = isEnglish 
-          ? `🔥 Day ${currentDay.day}: ${currentDay.titleEn}` 
-          : `🔥 Ziua ${currentDay.day}: ${currentDay.titleRo}`;
-        
+        const subject = `Ziua ${currentDay.day}: ${currentDay.titleRo}`;
+        const emailHtml = generateReminderEmail(participant.name, currentDay);
         const emailResponse = await sendEmail(participant.email, subject, emailHtml);
 
-        results.push({
-          email: participant.email,
-          day: currentDay.day,
-          success: true,
-          messageId: emailResponse?.id
-        });
+        results.push({ email: participant.email, day: currentDay.day, success: true, messageId: emailResponse?.id });
       } catch (emailError) {
         console.error(`Error sending to ${participant.email}:`, emailError);
-        results.push({
-          email: participant.email,
-          day: currentDay.day,
-          success: false,
-          error: String(emailError)
-        });
+        results.push({ email: participant.email, day: currentDay.day, success: false, error: String(emailError) });
       }
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        sent: results.filter(r => r.success).length,
-        failed: results.filter(r => !r.success).length,
-        results 
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      JSON.stringify({ success: true, sent: results.filter(r => r.success).length, failed: results.filter(r => !r.success).length, results }),
+      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error: any) {
     console.error("Error in send-challenge-reminder:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
   }
 };
 
