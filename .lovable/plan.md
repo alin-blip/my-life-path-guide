@@ -1,141 +1,204 @@
 
-# Redesign Email-uri Profesionale + Notificare Admin Erori
+# Audit Complet Challenge + Voice + Coach + Wizards
 
-## 1. Problema Curenta cu Email-urile
+## Rezultatele Auditului
 
-Toate email-urile (welcome, daily, recovery, upgrade, reactivation, promo) folosesc:
-- Fundal negru (#0a0a0a) cu gradienți portocaliu/roșu -- arata ca un joc video, nu ca o platforma de business
-- Subiecte pline de emoji-uri (🔥🏆💪⚡🧠💡🚨📉) -- pare spam/AI
-- Secțiune "Invita 1-3 Prieteni" in FIECARE email -- agresiv
-- Branding inconsistent: "WarriorOS" / "MyLifePathGuide" / "Warriors Membership"
-- Recovery emails sunt basic si urate comparativ cu cele de welcome
+### 1. VOICE INPUT -- Bug Critic Identificat
 
-**10 edge functions afectate:**
-- send-challenge-welcome
-- send-challenge-daily
-- send-challenge-recovery
-- send-challenge-reactivation
-- send-challenge-upgrade
-- send-challenge-day7-upgrade
-- send-challenge-reminder
-- send-challenge-promo-sequence
-- send-goal-plan-email
-- send-life-score-results
+**Problema principala**: `useVoiceInput.tsx` -- cand browser-ul opreste automat recunoasterea vocala dupa o pauza de cateva secunde (comportament normal al Web Speech API), hook-ul NU reporneste ascultarea. In `onend` handler (linia 153), se reseteaza toate state-urile la `false` si se curata ref-ul:
+
+```text
+recognition.onend = () => {
+  browserSTTRef.current = null;  // Cleared!
+  setIsConnected(false);         // Disconnected!
+  setIsMicOn(false);             // Mic off!
+  setIsUserSpeaking(false);
+}
+```
+
+Asta inseamna ca dupa 5-10 secunde de tacere, microfonul se opreste complet si utilizatorul trebuie sa apese din nou butonul.
+
+**Fix**: Adaugare logica de auto-restart in `onend` -- daca utilizatorul nu a oprit intentionat (isStoppingIntentionallyRef este false), restarteaza automat recunoasterea. Exact ca in pattern-ul recomandat de stack overflow:
+
+```text
+recognition.onend = () => {
+  if (isStoppingIntentionallyRef.current) {
+    // User stopped intentionally - clean up
+    browserSTTRef.current = null;
+    setIsConnected(false);
+    setIsMicOn(false);
+    ...
+  } else if (browserSTTRef.current) {
+    // Auto-restart after silence timeout
+    try {
+      recognition.start();
+    } catch(e) { /* cleanup */ }
+  }
+};
+```
+
+**Locatii afectate de acest bug**:
+- ChallengeInlineChat (Voice tab) -- pe /challenge si pe /challenge/:day
+- ChallengeCoachWidget (Voice/Call mode) -- floating widget
+- GoalWizardModal (Voice input in wizards)
+- Toate stack-urile AI (EnhancedAiLiveCoaching, AngerStack, etc.)
+
+### 2. CHALLENGE COACH -- Audit Contextual
+
+**Status: Functional dar cu imbunatatiri necesare**
+
+Edge function-ul `challenge-coach/index.ts` deja:
+- Contine curriculum complet 7 zile (RO + EN) -- liniile 10-170
+- Primeste `currentDay` de la frontend si il include in system prompt
+- Fetch-uie progresul utilizatorului din `challenge_progress`
+- Fetch-uie misiunile din `missions` table
+- Fetch-uie planul saptamanal din `weekly_planning`
+- Salveaza conversatiile in `challenge_coach_conversations`
+
+**Probleme gasite**:
+
+a) **Day 1 responses nu sunt incluse**: Coach-ul nu stie raspunsurile de la Ziua 1 (vision declaration, why answers) stocate in `challenge_day1_responses`. Un utilizator in Ziua 3 care intreaba "ce declaratie am scris?" nu va primi raspuns corect.
+
+b) **Challenge exercise responses lipsesc**: Tabelul `challenge_responses` nu este interogat, deci coach-ul nu stie ce exercitii specifice a completat utilizatorul.
+
+c) **No-speech error handling**: `onerror` din useVoiceInput trateaza `no-speech` ca error normal dar tot opreste STT-ul cand este urmat de `onend`.
+
+### 3. GOAL WIZARD (Obiective Anuale/90 zile) -- Audit
+
+**Status: Functional**
+
+- Edge function `goal-wizard-ai` exista si raspunde corect (testat)
+- Salveaza cascadat: Annual -> Quarterly -> Monthly -> Weekly tasks  
+- Overwrite protection cu dubla confirmare
+- Voice input functional in wizard (foloseste propriul SpeechRecognition, nu hook-ul comun)
+- TTS in wizard are un bug: apeleaza `supabase.functions.invoke('text-to-speech')` care returneaza binary audio, dar `invoke()` parseaza ca JSON. Va esua la redare. (Acelasi bug documentat in memoria despre "binary streaming architecture")
+
+### 4. AUDIO PLAYER -- Audit
+
+**Status: Functional cu limitari**
+
+- `ChallengeAudioPlayer` apeleaza `text-to-speech-demo` (public, fara auth) -- functioneaza
+- Limita de 2000 caractere per request
+- VoiceSelector integrat corect
+- Race condition prevention cu `isGenerating` flag
+
+### 5. CHALLENGE COACH WIDGET (ChallengeCoachWidget.tsx) -- Audit Voice Mode
+
+**Probleme gasite**:
+a) **Call mode voice send timing bug**: `handleVoiceSend` (linia 158) citeste `voiceTranscript` din state, dar cand `onMicStop` se declanseaza, transcript-ul poate fi deja trimis partial. Stale closure issue.
+b) **speakResponse infinite loop risk**: `useEffect` pe linia 175 care monitorizeaza `messages` poate declanşa `speakResponse` de mai multe ori pentru acelasi mesaj daca AI-ul face streaming.
 
 ---
 
-## 2. Noul Stil Email -- Profesional pentru Antreprenori
+## Plan de Implementare
 
-Design nou:
-- Fundal alb/light (#ffffff body, #f7f7f8 wrapper)
-- Font clean, fara gradient-uri agresive
-- Logo WarriorOS text simplu in header (nu emoticoane)
-- Subiecte scurte si directe fara emoji-uri (scrisa ca un antreprenor)
-- Un singur CTA clar per email
-- Footer minimal cu dezabonare
-- Secțiunea "Invita Prieteni" eliminata din toate email-urile zilnice (pastrata doar in welcome)
-- Branding unitar: "WarriorOS" peste tot
+### Pas 1: Fix Voice Input -- Auto-Restart (useVoiceInput.tsx)
 
-Exemplu subiect inainte: `🔥 Ziua 1: Viziunea ta pentru 2026 incepe acum`
-Exemplu subiect dupa: `Ziua 1: Viziunea ta pentru 2026`
+Modificari in `src/hooks/useVoiceInput.tsx`:
+- In `onend` handler: verifica daca oprirea a fost intentionala
+- Daca NU a fost intentionala si browserSTTRef exista, restarteaza `recognition.start()`
+- Daca a fost intentionala (isStoppingIntentionallyRef = true), curata state-urile ca acum
+- Adauga un counter de retry (max 3 restarturi consecutive fara speech) pentru a preveni bucle infinite
 
-Exemplu subiect recovery inainte: `🚨 ULTIMA NOTIFICARE: Challenge-ul te asteapta`
-Exemplu subiect recovery dupa: `Nu pierde progresul de pana acum`
+### Pas 2: Fix GoalWizardModal TTS (GoalWizardModal.tsx)
 
----
+Modificari in `src/components/goal-wizard/GoalWizardModal.tsx`:
+- In `playTTS`: inlocuieste `supabase.functions.invoke('text-to-speech')` cu `fetch()` direct + `response.blob()` + `URL.createObjectURL()` (pattern-ul corect pentru binary audio)
 
-## 3. Email One-Time: "Platforma reparata"
+### Pas 3: Imbunatatire Context Coach (challenge-coach/index.ts)
 
-Se creaza o noua edge function `send-platform-update` care:
-- Trimite un singur email la cele 59 de adrese unice de challenge subscribers
-- Template simplu si profesional
-- Subiect: `Update platforma -- problema rezolvata`
-- Continut:
-  - "Am identificat si corectat o problema tehnica in modulul de creare obiective."
-  - "Totul functioneaza acum corect."
-  - "Daca ai intampinat dificultati, te invitam sa reincerci."
-  - CTA: "Continua Challenge-ul"
-- Se trimite o singura data (cu deduplicare pe email)
-- Se apeleaza manual din admin
+Modificari in `supabase/functions/challenge-coach/index.ts`:
+- Fetch Day 1 responses: `challenge_day1_responses` (vision declaration, why answers, napoleon hill declaration)
+- Fetch exercise responses: `challenge_responses` (ziua curenta si anterioare)
+- Adauga aceste informatii in `userContext` string-ul injectat in system prompt
+- Adauga instructiuni explicite: "NU inventa sau presupune informatii despre utilizator. Daca nu ai date, intreaba."
 
----
+### Pas 4: Fix ChallengeCoachWidget Voice Mode
 
-## 4. Fix ErrorBoundary + Capturare Erori Client
+Modificari in `src/components/challenge/ChallengeCoachWidget.tsx`:
+- Fix `handleVoiceSend`: foloseste ref in loc de state pentru transcript
+- Fix `speakResponse` effect: adauga tracking al ultimului mesaj vorbit (lastSpokenMessageId) pentru a preveni repetitia
+- Opreste microfonul cand AI vorbeste si restarteaza dupa
 
-**Problema actuala:** ErrorBoundary.tsx scrie in coloane care nu exista in tabel:
-- Cod scrie: `error_stack`, `component_stack`, `url`, `user_agent`, `timestamp`
-- Tabel are: `stack_trace`, `component_name`
+### Pas 5: Testare End-to-End
 
-**Fix:**
-- Se adauga coloane lipsa in `error_logs`: `url`, `user_agent`, `component_stack`
-- Se repara ErrorBoundary sa scrie in coloanele corecte
-- Se adauga un handler global `window.onerror` si `unhandledrejection` pentru a captura si erorile care nu sunt React (fetch errors, promise rejections)
-
----
-
-## 5. Notificari Admin pentru Erori
-
-Se creaza o componenta `AdminErrorMonitor` vizibila in panoul admin (tab Overview) care:
-- Arata un badge rosu pe tab-ul Overview cand exista erori noi (ultimele 24h)
-- Lista ultimelor erori cu: data, user email (daca e disponibil), URL, mesaj
-- Buton "Rezolvat" care marcheaza eroarea ca vazuta
-- Se adauga un indicator in header-ul admin daca sunt erori nerezolvate
-- Query realtime pe `error_logs` pentru a vedea erori noi instant
+Verificari automate:
+- Test edge function `challenge-coach` cu contextul complet al utilizatorului
+- Test edge function `goal-wizard-ai` cu flow complet
+- Verificare vizuala pe ruta `/challenge/1`, `/challenge/3`, `/challenge-en/2`
 
 ---
 
 ## Detalii Tehnice
 
-### Migrare baza de date
-Se adauga coloane noi in `error_logs`:
-```sql
-ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS url text;
-ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS user_agent text;
-ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS component_stack text;
-ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS resolved boolean DEFAULT false;
-ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS resolved_at timestamptz;
+### useVoiceInput.tsx -- onend handler refactored
+
+Logica noua:
+1. Cand `onend` se declanseaza, verifica `isStoppingIntentionallyRef`
+2. Daca false si `browserSTTRef.current !== null` -- auto-restart cu mic delay (100ms)
+3. Incrementeaza un `consecutiveRestartsRef` counter
+4. Daca counter > 3 fara niciun speech event, opreste complet (previne bucle)
+5. Reseteaza counter-ul la 0 cand se primeste orice `onresult`
+
+### GoalWizardModal.tsx -- TTS fix
+
+Inlocuire apel:
+```text
+// Inainte (broken - invoke parseaza ca JSON)
+const response = await supabase.functions.invoke('text-to-speech', { body: { text } });
+
+// Dupa (corect - fetch direct pentru binary audio)
+const response = await fetch(`${SUPABASE_URL}/functions/v1/text-to-speech-demo`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+  body: JSON.stringify({ text }),
+});
+const blob = await response.blob();
+const audioUrl = URL.createObjectURL(blob);
+const audio = new Audio(audioUrl);
 ```
 
-Se adauga RLS policy: adminii pot citi si actualiza toate error_logs.
-Se activeaza realtime pe `error_logs`.
+Se foloseste `text-to-speech-demo` (public, fara auth) in loc de `text-to-speech` (care necesita auth).
 
-### Edge functions modificate (stil nou)
-Toate cele 10 edge functions primesc template-ul nou profesional:
-- Background alb, text negru, CTA albastru/brand color
-- Fara emoji in subiecte
-- Fara "Invite Friends" (exceptie: welcome email)
-- Footer simplu cu "WarriorOS" si link dezabonare
+### challenge-coach/index.ts -- Context enrichment
 
-### Edge function noua: `send-platform-update`
-- Primeste de la admin comanda de a trimite
-- Citeste toate adresele unice din `email_leads` cu `lead_magnet LIKE 'challenge%'` si `subscribed = true`
-- Trimite emailul de update, cu rate limiting (1/secunda pentru Resend)
-- Logheaza in `email_sequence_log` cu `sequence_type = 'platform_update'`
+Adaugare query-uri noi dupa query-urile existente de missions/weekly_planning:
 
-### Componenta `AdminErrorMonitor.tsx`
-- Query `error_logs` ORDER BY created_at DESC LIMIT 50
-- Realtime subscription pe INSERT
-- Card cu lista de erori
-- Buton mark as resolved
-- Badge cu count erori nerezolvate
+```text
+// Fetch day 1 specific responses
+const { data: day1Responses } = await supabaseClient
+  .from('challenge_day1_responses')
+  .select('vision_declaration, why_answers, napoleon_declaration')
+  .eq('user_id', user.id)
+  .maybeSingle();
 
-### Fix `ErrorBoundary.tsx`
-- Corectare coloane: `error_message`, `stack_trace`, `component_name`, `url`, `user_agent`, `component_stack`
-- Adaugare handler global in `App.tsx` sau `main.tsx` pentru `window.addEventListener('error')` si `unhandledrejection`
+// Fetch challenge exercise responses  
+const { data: exerciseResponses } = await supabaseClient
+  .from('challenge_responses')
+  .select('day_number, exercise_key, response_text')
+  .eq('user_id', user.id)
+  .order('day_number');
+```
 
-### Componenta `GlobalErrorCapture.tsx`
-- Hook care capteaza erori non-React (fetch 500, promise rejections)
-- Scrie in `error_logs` automat
-- Se monteaza in root App
+Aceste date se adauga la userContext string:
+```text
+if (day1Responses?.vision_declaration) {
+  userContext += `\nVISION DECLARATION: ${day1Responses.vision_declaration}\n`;
+}
+```
+
+### ChallengeCoachWidget.tsx -- Voice mode fixes
+
+- Transcript ref: `const voiceTranscriptRef = useRef('')` sincronizat cu state
+- lastSpokenMsgIndex ref: prevent duplicate speakResponse calls  
+- Stop mic during AI speech, restart after in call mode
 
 ---
 
-## Ordine de Implementare
+## Ordine Executie
 
-1. Migrare DB: coloane noi in `error_logs` + RLS + realtime
-2. Fix `ErrorBoundary.tsx` (coloane corecte)
-3. Creare `GlobalErrorCapture.tsx` (capturare erori globale)
-4. Creare `AdminErrorMonitor.tsx` + integrare in admin Overview
-5. Creare edge function `send-platform-update` cu template profesional
-6. Redesign template-uri email in toate cele 10 edge functions
-7. Trigger trimitere email "platforma reparata" din admin
+1. Fix `useVoiceInput.tsx` (auto-restart) -- impacteaza TOATE componentele voice
+2. Fix `GoalWizardModal.tsx` TTS (binary audio fetch)
+3. Fix `ChallengeCoachWidget.tsx` (voice mode bugs)
+4. Update `challenge-coach/index.ts` (context enrichment) + deploy
+5. Testare end-to-end pe challenge routes
