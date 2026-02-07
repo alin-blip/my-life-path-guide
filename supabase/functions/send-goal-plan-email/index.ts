@@ -31,31 +31,30 @@ interface GoalPlanData {
   language?: 'en' | 'ro';
 }
 
-const getCategoryEmoji = (category: string): string => {
-  switch (category) {
-    case 'business': return '💼';
-    case 'body': return '🏋️';
-    case 'being': return '🧠';
-    case 'balance': return '❤️';
-    default: return '🎯';
-  }
+const getCategoryLabel = (category: string, isRo: boolean): string => {
+  const labels: Record<string, { en: string; ro: string }> = {
+    business: { en: 'Business', ro: 'Business' },
+    body: { en: 'Body & Health', ro: 'Corp & Sanatate' },
+    being: { en: 'Spirit & Mindset', ro: 'Spirit & Mindset' },
+    balance: { en: 'Relationships', ro: 'Relatii' },
+  };
+  return labels[category]?.[isRo ? 'ro' : 'en'] || category;
 };
 
 const generateEmailHtml = (data: GoalPlanData): string => {
   const isRo = data.language === 'ro';
-  const emoji = getCategoryEmoji(data.category);
   
   const weeklyKeysHtml = data.weeklyKeys.map((key, idx) => `
-    <div style="margin-bottom: 16px; padding: 16px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #8b5cf6;">
-      <h4 style="margin: 0 0 8px 0; color: #1a1a1a; font-size: 16px;">
+    <div style="margin-bottom: 12px; padding: 14px 16px; background-color: #f9fafb; border-radius: 8px; border-left: 3px solid #111827;">
+      <p style="margin: 0 0 6px 0; color: #111827; font-size: 15px; font-weight: 600;">
         ${isRo ? `Cheie ${idx + 1}` : `Key ${idx + 1}`}: ${key.title}
-      </h4>
-      <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">${key.objective}</p>
+      </p>
+      <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">${key.objective}</p>
       ${key.steps && key.steps.length > 0 ? `
-        <ul style="margin: 0; padding-left: 20px;">
+        <ul style="margin: 0; padding-left: 18px;">
           ${key.steps.map(step => `
-            <li style="color: #444; font-size: 14px; margin-bottom: 4px;">
-              ${step.text} <span style="color: #888; font-size: 12px;">(${step.day})</span>
+            <li style="color: #4b5563; font-size: 13px; margin-bottom: 4px;">
+              ${step.text} <span style="color: #9ca3af; font-size: 12px;">(${step.day})</span>
             </li>
           `).join('')}
         </ul>
@@ -69,94 +68,102 @@ const generateEmailHtml = (data: GoalPlanData): string => {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${isRo ? 'Planul Tău' : 'Your Plan'} - ${data.categoryLabel}</title>
+  <title>${isRo ? 'Planul Tau' : 'Your Plan'} - ${data.categoryLabel}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <div style="max-width: 600px; margin: 0 auto; background: white;">
-    <!-- Header -->
-    <div style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); padding: 40px 30px; text-align: center;">
-      <h1 style="margin: 0; color: white; font-size: 28px; font-weight: bold;">
-        ${emoji} ${isRo ? 'Planul Tău pentru' : 'Your Plan for'} ${data.categoryLabel}
-      </h1>
-      <p style="margin: 16px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">
-        ${isRo ? 'Felicitări pentru că ai creat un plan!' : 'Congratulations on creating a plan!'}
-      </p>
-    </div>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f7f7f8;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f7f7f8;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
 
-    <!-- Content -->
-    <div style="padding: 30px;">
-      ${data.name ? `
-        <p style="color: #666; font-size: 16px; margin-bottom: 24px;">
-          ${isRo ? `Salut ${data.name}!` : `Hi ${data.name}!`}
-        </p>
-      ` : ''}
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">WarriorOS</p>
+              <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #111827;">
+                ${isRo ? 'Planul Tau pentru' : 'Your Plan for'} ${data.categoryLabel}
+              </h1>
+            </td>
+          </tr>
 
-      <!-- Annual Vision -->
-      <div style="margin-bottom: 24px;">
-        <h2 style="color: #1a1a1a; font-size: 20px; margin: 0 0 12px 0; display: flex; align-items: center;">
-          🎯 ${isRo ? 'Viziunea Anuală' : 'Annual Vision'}
-        </h2>
-        <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 20px; border-radius: 12px;">
-          <p style="margin: 0; color: #92400e; font-size: 16px; line-height: 1.6;">${data.annualVision}</p>
-        </div>
-      </div>
+          <!-- Content -->
+          <tr>
+            <td style="padding: 28px 32px 32px 32px;">
+              ${data.name ? `
+                <p style="color: #374151; font-size: 16px; margin: 0 0 20px 0;">
+                  ${isRo ? `Salut ${data.name},` : `Hi ${data.name},`}
+                </p>
+              ` : ''}
 
-      <!-- Quarterly Milestone -->
-      <div style="margin-bottom: 24px;">
-        <h2 style="color: #1a1a1a; font-size: 20px; margin: 0 0 12px 0;">
-          📅 ${isRo ? 'Milestone Trimestrial' : 'Quarterly Milestone'}
-        </h2>
-        <div style="background: #ede9fe; padding: 20px; border-radius: 12px;">
-          <p style="margin: 0; color: #5b21b6; font-size: 16px; line-height: 1.6;">${data.quarterlyMilestone}</p>
-        </div>
-      </div>
+              ${isRo ? `<p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">Felicitari pentru ca ai creat un plan. Mai jos gasesti un rezumat complet.</p>` : `<p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0;">Congratulations on creating a plan. Below is your complete summary.</p>`}
 
-      <!-- Monthly Focus -->
-      <div style="margin-bottom: 24px;">
-        <h2 style="color: #1a1a1a; font-size: 20px; margin: 0 0 12px 0;">
-          🔥 ${isRo ? 'Focus Luna Aceasta' : 'This Month\'s Focus'}
-        </h2>
-        <div style="background: #dbeafe; padding: 20px; border-radius: 12px;">
-          <p style="margin: 0; color: #1e40af; font-size: 16px; line-height: 1.6;">${data.monthlyFocus}</p>
-        </div>
-      </div>
+              <!-- Annual Vision -->
+              <div style="margin-bottom: 20px;">
+                <p style="color: #111827; font-size: 14px; font-weight: 600; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.3px;">
+                  ${isRo ? 'Viziunea Anuala' : 'Annual Vision'}
+                </p>
+                <div style="background-color: #fffbeb; padding: 14px 16px; border-radius: 8px; border-left: 3px solid #f59e0b;">
+                  <p style="margin: 0; color: #92400e; font-size: 15px; line-height: 1.6;">${data.annualVision}</p>
+                </div>
+              </div>
 
-      <!-- Weekly Keys -->
-      <div style="margin-bottom: 24px;">
-        <h2 style="color: #1a1a1a; font-size: 20px; margin: 0 0 16px 0;">
-          🔑 ${isRo ? 'Cheile Săptămânale' : 'Weekly Keys'}
-        </h2>
-        ${weeklyKeysHtml}
-      </div>
+              <!-- Quarterly Milestone -->
+              <div style="margin-bottom: 20px;">
+                <p style="color: #111827; font-size: 14px; font-weight: 600; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.3px;">
+                  ${isRo ? 'Milestone Trimestrial' : 'Quarterly Milestone'}
+                </p>
+                <div style="background-color: #f0f9ff; padding: 14px 16px; border-radius: 8px; border-left: 3px solid #3b82f6;">
+                  <p style="margin: 0; color: #1e40af; font-size: 15px; line-height: 1.6;">${data.quarterlyMilestone}</p>
+                </div>
+              </div>
 
-      <!-- CTA -->
-      <div style="text-align: center; margin-top: 32px; padding: 24px; background: #f8f9fa; border-radius: 12px;">
-        <p style="color: #666; margin: 0 0 16px 0; font-size: 14px;">
-          ${isRo 
-            ? 'Continuă să îți urmărești progresul în WarriorOS!' 
-            : 'Continue tracking your progress in WarriorOS!'}
-        </p>
-        <a href="https://my-life-path-guide.lovable.app/door" 
-           style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 16px;">
-          ${isRo ? 'Deschide The Door' : 'Open The Door'}
-        </a>
-      </div>
-    </div>
+              <!-- Monthly Focus -->
+              <div style="margin-bottom: 20px;">
+                <p style="color: #111827; font-size: 14px; font-weight: 600; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.3px;">
+                  ${isRo ? 'Focus Luna Aceasta' : "This Month's Focus"}
+                </p>
+                <div style="background-color: #f0fdf4; padding: 14px 16px; border-radius: 8px; border-left: 3px solid #22c55e;">
+                  <p style="margin: 0; color: #166534; font-size: 15px; line-height: 1.6;">${data.monthlyFocus}</p>
+                </div>
+              </div>
 
-    <!-- Footer -->
-    <div style="padding: 24px; background: #1a1a1a; text-align: center;">
-      <p style="margin: 0; color: #888; font-size: 12px;">
-        © 2025 WarriorOS. ${isRo ? 'Toate drepturile rezervate.' : 'All rights reserved.'}
-      </p>
-    </div>
-  </div>
+              <!-- Weekly Keys -->
+              <div style="margin-bottom: 24px;">
+                <p style="color: #111827; font-size: 14px; font-weight: 600; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.3px;">
+                  ${isRo ? 'Cheile Saptamanale' : 'Weekly Keys'}
+                </p>
+                ${weeklyKeysHtml}
+              </div>
+
+              <!-- CTA -->
+              <div style="text-align: center; margin-top: 28px;">
+                <a href="https://warriorsos.com/door?utm_source=email&utm_medium=plan&utm_campaign=goal_plan" 
+                   style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-size: 15px; font-weight: 600;">
+                  ${isRo ? 'Deschide The Door' : 'Open The Door'}
+                </a>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="color: #9ca3af; margin: 0; font-size: 12px;">
+                WarriorOS
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
   `;
 };
 
 serve(async (req: Request) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -174,8 +181,8 @@ serve(async (req: Request) => {
 
     const isRo = data.language === 'ro';
     const subject = isRo 
-      ? `🎯 Planul tău pentru ${data.categoryLabel} - WarriorOS`
-      : `🎯 Your ${data.categoryLabel} Plan - WarriorOS`;
+      ? `Planul tau pentru ${data.categoryLabel} — WarriorOS`
+      : `Your ${data.categoryLabel} Plan — WarriorOS`;
 
     const emailHtml = generateEmailHtml(data);
 

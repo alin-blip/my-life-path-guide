@@ -26,159 +26,83 @@ const getUpgradeContent = (stepNumber: number, name: string, language: 'en' | 'r
   const firstName = name?.split(' ')[0] || 'Warrior';
 
   const steps: Record<number, { en: EmailContent; ro: EmailContent }> = {
-    1: { // Immediately after Day 2
+    1: {
       en: {
-        subject: `🎉 Congratulations on Day 2! Now comes the good part...`,
-        headline: "You completed 2 days! You're in the top 30% of those who start.",
-        body: `Days 3-7 are where the REAL magic happens:
-
-🎯 Day 3: Business Plan + Domino Door (the execution system)
-⚡ Day 4: AI Vision Board + Personalized Meditation
-🧠 Day 5: Accountability Coach that knows EVERYTHING you need to do
-💡 Day 6: Control over ideas that distract you
-🏆 Day 7: Complete integration
-
-Early Bird Trial: 7 free days - activate now`,
+        subject: `Congratulations on Day 2 — here's what comes next`,
+        headline: "You completed 2 days. You're in the top 30% of those who start.",
+        body: `Days 3-7 are where the real progress happens:\n\n• Day 3: Business Plan + Domino Door (the execution system)\n• Day 4: AI Vision Board + Personalized Meditation\n• Day 5: Accountability Coach that tracks everything\n• Day 6: Control over distracting ideas\n• Day 7: Complete integration\n\nEarly Bird Trial: 7 free days — activate now.`,
         ctaText: "Activate Free Trial",
         isUrgent: false
       },
       ro: {
-        subject: `🎉 Felicitări pentru Ziua 2! Acum vine partea bună...`,
-        headline: "Ai completat 2 zile! Ești în top 30% dintre cei care încep.",
-        body: `Zilele 3-7 sunt unde se întâmplă magia ADEVĂRATĂ:
-
-🎯 Ziua 3: Business Plan + Domino Door (sistemul de execuție)
-⚡ Ziua 4: Vision Board AI + Meditație personalizată
-🧠 Ziua 5: Accountability Coach care știe TOT ce ai de făcut
-💡 Ziua 6: Control asupra ideilor care te distrag
-🏆 Ziua 7: Integrare completă
-
-Early Bird Trial: 7 zile gratuite - activează acum`,
-        ctaText: "Activează Trial Gratuit",
+        subject: `Felicitari pentru Ziua 2 — ce urmeaza`,
+        headline: "Ai completat 2 zile. Esti in top 30% dintre cei care incep.",
+        body: `Zilele 3-7 sunt unde se intampla progresul real:\n\n• Ziua 3: Business Plan + Domino Door (sistemul de executie)\n• Ziua 4: Vision Board AI + Meditatie personalizata\n• Ziua 5: Accountability Coach care urmareste tot\n• Ziua 6: Control asupra ideilor care te distrag\n• Ziua 7: Integrare completa\n\nEarly Bird Trial: 7 zile gratuite — activeaza acum.`,
+        ctaText: "Activeaza Trial Gratuit",
         isUrgent: false
       }
     },
-    2: { // 24h after Day 2
+    2: {
       en: {
-        subject: `📉 Days 1-2 are just the foundation. Without 3-7 you lose everything.`,
-        headline: "You have the vision. You have the objectives. But without a SYSTEM, everything stays on paper.",
-        body: `What you lose without upgrade:
-
-❌ Without Domino Door = no weekly execution
-❌ Without AI Coach = no one holds you accountable
-❌ Without Mind Coach = fears block you
-❌ Without Idea Control = new ideas distract you
-
-Don't let the vision die.`,
-        ctaText: "Don't Let the Vision Die",
+        subject: `Days 1-2 are the foundation. Without 3-7, nothing sticks.`,
+        headline: "You have the vision. You have the objectives. But without a system, everything stays on paper.",
+        body: `What you miss without the full system:\n\n• No Domino Door = no weekly execution\n• No AI Coach = no accountability\n• No Mind Coach = fears block you\n• No Idea Control = new ideas distract you\n\nDon't let the vision stay on paper.`,
+        ctaText: "Complete the System",
         isUrgent: false
       },
       ro: {
-        subject: `📉 Zilele 1-2 sunt doar fundația. Fără 3-7 pierzi totul.`,
-        headline: "Ai viziunea. Ai obiectivele. Dar fără SISTEM, totul rămâne pe hârtie.",
-        body: `Ce pierzi fără upgrade:
-
-❌ Fără Domino Door = fără execuție săptămânală
-❌ Fără AI Coach = nimeni nu te ține responsabil
-❌ Fără Mind Coach = fricile te blochează
-❌ Fără Idea Control = ideile noi te distrag
-
-Nu lăsa viziunea să moară.`,
-        ctaText: "Nu Lăsa Viziunea să Moară",
+        subject: `Zilele 1-2 sunt fundatia. Fara 3-7 nu se intampla nimic.`,
+        headline: "Ai viziunea. Ai obiectivele. Dar fara sistem, totul ramane pe hartie.",
+        body: `Ce pierzi fara sistemul complet:\n\n• Fara Domino Door = fara executie saptamanala\n• Fara AI Coach = nimeni nu te tine responsabil\n• Fara Mind Coach = fricile te blocheaza\n• Fara Idea Control = ideile noi te distrag\n\nNu lasa viziunea sa ramana pe hartie.`,
+        ctaText: "Completeaza Sistemul",
         isUrgent: false
       }
     },
-    3: { // 48h after Day 2
+    3: {
       en: {
-        subject: `⚡ Others are already on Day 5. You?`,
+        subject: `Others are already on Day 5`,
         headline: "Warriors who activated the trial immediately are already on Day 5.",
-        body: `They have:
-✅ The weekly execution system configured
-✅ The personalized daily routine
-✅ The AI Coach active and guiding them
-
-The trial is FREE for 7 days. Zero risk.`,
-        ctaText: "Catch Up with Them",
+        body: `They have:\n• The weekly execution system configured\n• The personalized daily routine\n• The AI Coach active and guiding them\n\nThe trial is free for 7 days. Zero risk.`,
+        ctaText: "Start Your Trial",
         isUrgent: false
       },
       ro: {
-        subject: `⚡ Alții sunt deja la Ziua 5. Tu?`,
+        subject: `Altii sunt deja la Ziua 5`,
         headline: "Warriorii care au activat trial-ul imediat sunt deja la Ziua 5.",
-        body: `Ei au:
-✅ Sistemul de execuție săptămânală configurat
-✅ Rutina zilnică personalizată
-✅ AI Coach-ul activ și ghidându-i
-
-Trial-ul e GRATUIT 7 zile. Zero risc.`,
-        ctaText: "Ajunge-i din Urmă",
+        body: `Ei au:\n• Sistemul de executie saptamanala configurat\n• Rutina zilnica personalizata\n• AI Coach-ul activ si ghidandu-i\n\nTrial-ul e gratuit 7 zile. Zero risc.`,
+        ctaText: "Incepe Trial-ul",
         isUrgent: false
       }
     },
-    4: { // 72h after Day 2
+    4: {
       en: {
-        subject: `🎁 Last chance: 50% off first year`,
-        headline: "Because you completed Days 1-2, I'm offering you something special.",
-        body: `50% discount on the annual subscription - just for you.
-
-Valid for 48 hours only.
-
-This includes:
-• All 7 days unlocked
-• Domino Door weekly planning
-• AI Accountability Coach
-• Mind Coach for transforming fears
-• Vision Board AI
-• Personalized Meditation
-• Priority support`,
+        subject: `Special offer: 50% off first year`,
+        headline: "Because you completed Days 1-2, here's something special.",
+        body: `50% discount on the annual subscription — just for you.\n\nValid for 48 hours.\n\nThis includes:\n• All 7 days unlocked\n• Domino Door weekly planning\n• AI Accountability Coach\n• Mind Coach for transforming fears\n• Vision Board AI\n• Personalized Meditation\n• Priority support`,
         ctaText: "Activate the Offer",
         isUrgent: true
       },
       ro: {
-        subject: `🎁 Ultima șansă: 50% off primul an`,
-        headline: "Pentru că ai completat Zilele 1-2, îți ofer ceva special.",
-        body: `50% reducere la abonamentul anual - doar pentru tine.
-
-Valabil doar 48 de ore.
-
-Include:
-• Toate cele 7 zile deblocate
-• Domino Door planificare săptămânală
-• AI Accountability Coach
-• Mind Coach pentru transformarea fricilor
-• Vision Board AI
-• Meditație Personalizată
-• Suport prioritar`,
-        ctaText: "Activează Oferta",
+        subject: `Oferta speciala: 50% reducere primul an`,
+        headline: "Pentru ca ai completat Zilele 1-2, iti ofer ceva special.",
+        body: `50% reducere la abonamentul anual — doar pentru tine.\n\nValabil 48 de ore.\n\nInclude:\n• Toate cele 7 zile deblocate\n• Domino Door planificare saptamanala\n• AI Accountability Coach\n• Mind Coach pentru transformarea fricilor\n• Vision Board AI\n• Meditatie Personalizata\n• Suport prioritar`,
+        ctaText: "Activeaza Oferta",
         isUrgent: true
       }
     },
-    5: { // 5 days after Day 2 - final
+    5: {
       en: {
-        subject: `🚨 Today is the last day for the offer`,
-        headline: "You have two options: activate the free trial OR lose all progress.",
-        body: `What you've accomplished:
-✅ 2026 Vision - DONE
-✅ Body/Spirit/Relationships Objectives - DONE
-
-What's waiting for you in Days 3-7:
-⏳ The system that makes it all happen
-
-This is the last email about this offer.`,
-        ctaText: "I WANT TO CONTINUE",
+        subject: `Last day for the offer`,
+        headline: "You have two options: activate the free trial or lose the progress.",
+        body: `What you've accomplished:\n• 2026 Vision — done\n• Body/Spirit/Relationships Objectives — done\n\nWhat's waiting for you in Days 3-7:\n• The system that makes it all happen\n\nThis is the last email about this offer.`,
+        ctaText: "I Want to Continue",
         isUrgent: true
       },
       ro: {
-        subject: `🚨 Azi e ultima zi pentru ofertă`,
-        headline: "Ai două opțiuni: activezi trial-ul gratuit SAU pierzi tot progresul.",
-        body: `Ce ai realizat:
-✅ Viziune 2026 - DONE
-✅ Obiective Corp/Spirit/Relații - DONE
-
-Ce te așteaptă în Zilele 3-7:
-⏳ Sistemul care face totul să se întâmple
-
-Acesta e ultimul email despre această ofertă.`,
-        ctaText: "VREAU SĂ CONTINUI",
+        subject: `Ultima zi pentru oferta`,
+        headline: "Ai doua optiuni: activezi trial-ul gratuit sau pierzi progresul.",
+        body: `Ce ai realizat:\n• Viziune 2026 — done\n• Obiective Corp/Spirit/Relatii — done\n\nCe te asteapta in Zilele 3-7:\n• Sistemul care face totul sa se intample\n\nAcesta e ultimul email despre aceasta oferta.`,
+        ctaText: "Vreau sa Continui",
         isUrgent: true
       }
     }
@@ -191,42 +115,26 @@ const generateTrackingId = (stepNumber: number) => {
   return `challenge-upgrade-s${stepNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 };
 
-// Calculate which step user should receive based on Day 2 completion date
 const getStepForUser = (day2CompletedAt: Date): number | null => {
   const now = new Date();
   const hoursSinceDay2 = (now.getTime() - day2CompletedAt.getTime()) / (1000 * 60 * 60);
   
-  if (hoursSinceDay2 < 2) return 1; // Immediately (within 2 hours)
+  if (hoursSinceDay2 < 2) return 1;
   if (hoursSinceDay2 >= 24 && hoursSinceDay2 < 48) return 2;
   if (hoursSinceDay2 >= 48 && hoursSinceDay2 < 72) return 3;
-  if (hoursSinceDay2 >= 72 && hoursSinceDay2 < 120) return 4; // 72-120h = 3-5 days
-  if (hoursSinceDay2 >= 120 && hoursSinceDay2 < 168) return 5; // 120-168h = 5-7 days
+  if (hoursSinceDay2 >= 72 && hoursSinceDay2 < 120) return 4;
+  if (hoursSinceDay2 >= 120 && hoursSinceDay2 < 168) return 5;
   
-  return null; // Too old
+  return null;
 };
 
 const getEmailTemplate = (
   content: EmailContent,
-  referralLink: string,
   trackingPixelUrl: string,
   unsubscribeUrl: string,
   language: 'en' | 'ro'
 ) => {
   const isRo = language === 'ro';
-  
-  const headerBg = content.isUrgent 
-    ? 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)'
-    : 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)';
-
-  const inviteMessage = isRo
-    ? `Am terminat primele 2 zile din challenge și e incredibil! Ai viziunea, obiectivele, și acum lucrez la sistemul de execuție.
-
-Alătură-te aici 👇
-${referralLink}`
-    : `I finished the first 2 days of the challenge and it's incredible! I have the vision, objectives, and now I'm working on the execution system.
-
-Join me here 👇
-${referralLink}`;
 
   const html = `
 <!DOCTYPE html>
@@ -236,16 +144,17 @@ ${referralLink}`;
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${content.subject}</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a;">
+<body style="margin: 0; padding: 0; background-color: #f7f7f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f7f7f8;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #18181b; border-radius: 16px; overflow: hidden; border: 1px solid ${content.isUrgent ? '#ef444433' : '#f59e0b33'};">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
           
           <!-- Header -->
           <tr>
-            <td style="background: ${headerBg}; padding: 32px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700; line-height: 1.4;">
+            <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">WarriorOS</p>
+              <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #111827; line-height: 1.4;">
                 ${content.headline}
               </h1>
             </td>
@@ -253,39 +162,26 @@ ${referralLink}`;
 
           <!-- Main Content -->
           <tr>
-            <td style="padding: 32px;">
+            <td style="padding: 28px 32px 32px 32px;">
               
-              <div style="color: #a1a1aa; font-size: 16px; line-height: 1.8; margin: 0 0 24px 0; white-space: pre-line;">
+              <div style="color: #4b5563; font-size: 15px; line-height: 1.8; margin: 0 0 24px 0; white-space: pre-line;">
 ${content.body}
               </div>
 
-              <!-- Primary CTA -->
-              <div style="text-align: center; margin: 32px 0;">
-                <a href="https://warriorsos.com/pricing?utm_source=email&utm_medium=upgrade&utm_campaign=day2complete" 
-                   style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 8px; font-size: 18px; font-weight: 700;">
-                  ${content.ctaText} →
-                </a>
-              </div>
-
               ${content.isUrgent ? `
-              <div style="background-color: #450a0a; border: 1px solid #dc2626; border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 24px;">
-                <p style="color: #fca5a5; margin: 0; font-size: 14px; font-weight: 600;">
-                  ⏰ ${isRo ? 'Ofertă valabilă doar 48 ore' : 'Offer valid for 48 hours only'}
+              <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 14px 16px; text-align: center; margin-bottom: 24px;">
+                <p style="color: #991b1b; margin: 0; font-size: 14px; font-weight: 600;">
+                  ${isRo ? 'Oferta valabila doar 48 ore' : 'Offer valid for 48 hours only'}
                 </p>
               </div>
               ` : ''}
 
-              <!-- Invite Friends Section -->
-              <div style="background: linear-gradient(135deg, #78350f 0%, #451a03 100%); border-radius: 12px; padding: 24px; margin-top: 32px; border: 1px solid #f59e0b33;">
-                <h3 style="color: #fbbf24; margin: 0 0 12px 0; font-size: 18px;">
-                  🎁 ${isRo ? 'Invită 1-3 Prieteni' : 'Invite 1-3 Friends'}
-                </h3>
-                <p style="color: #fcd34d; margin: 0 0 16px 0; font-size: 14px;">
-                  ${isRo ? 'Trimite-le acest mesaj:' : 'Send them this message:'}
-                </p>
-                <div style="background-color: #0a0a0a; border-radius: 8px; padding: 16px; font-family: monospace; font-size: 13px; color: #d4d4d8; white-space: pre-wrap; line-height: 1.6;">
-${inviteMessage}
-                </div>
+              <!-- Primary CTA -->
+              <div style="text-align: center; margin: 28px 0 0 0;">
+                <a href="https://warriorsos.com/pricing?utm_source=email&utm_medium=upgrade&utm_campaign=day2complete" 
+                   style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-size: 15px; font-weight: 600;">
+                  ${content.ctaText}
+                </a>
               </div>
 
             </td>
@@ -293,11 +189,11 @@ ${inviteMessage}
 
           <!-- Footer -->
           <tr>
-            <td style="background-color: #0a0a0a; padding: 24px; text-align: center; border-top: 1px solid #27272a;">
-              <p style="color: #71717a; margin: 0 0 8px 0; font-size: 12px;">
-                WarriorOS • Have It All Lifestyle Challenge
+            <td style="background-color: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="color: #9ca3af; margin: 0 0 6px 0; font-size: 12px;">
+                WarriorOS
               </p>
-              <a href="${unsubscribeUrl}" style="color: #52525b; font-size: 11px; text-decoration: underline;">
+              <a href="${unsubscribeUrl}" style="color: #9ca3af; font-size: 11px; text-decoration: underline;">
                 ${isRo ? 'Dezabonare' : 'Unsubscribe'}
               </a>
             </td>
@@ -323,7 +219,6 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Find users who completed Day 2 but are not subscribers
     const { data: progress, error: progressError } = await supabase
       .from('challenge_progress')
       .select('user_id, completed_at')
@@ -340,29 +235,25 @@ const handler = async (req: Request): Promise<Response> => {
       try {
         if (!p.completed_at) continue;
 
-        // Check if user is a subscriber
         const { data: subscriber } = await supabase
           .from('subscribers')
           .select('subscribed')
           .eq('user_id', p.user_id)
           .maybeSingle();
 
-        if (subscriber?.subscribed) continue; // Already subscribed
+        if (subscriber?.subscribed) continue;
 
-        // Calculate which step to send
         const day2CompletedAt = new Date(p.completed_at);
         const stepNumber = getStepForUser(day2CompletedAt);
         
-        if (!stepNumber) continue; // Not in a valid window
+        if (!stepNumber) continue;
 
-        // Get user info
         const { data: userData, error: userError } = await supabase.auth.admin.getUserById(p.user_id);
         if (userError || !userData?.user?.email) continue;
 
         const email = userData.user.email;
         const name = userData.user.user_metadata?.full_name || userData.user.user_metadata?.name || '';
 
-        // Check if unsubscribed
         const { data: emailLead } = await supabase
           .from('email_leads')
           .select('subscribed')
@@ -371,7 +262,6 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (emailLead && !emailLead.subscribed) continue;
 
-        // Check if we already sent this step
         const { data: existingLog } = await supabase
           .from('email_sequence_log')
           .select('id')
@@ -386,13 +276,11 @@ const handler = async (req: Request): Promise<Response> => {
         const content = getUpgradeContent(stepNumber, name, language);
         
         const trackingId = generateTrackingId(stepNumber);
-        const referralLink = `https://warriorsos.com/challenge-landing?ref=${p.user_id}`;
         const trackingPixelUrl = `${SUPABASE_URL}/functions/v1/track-email-open?t=${trackingId}`;
         const unsubscribeUrl = `${SUPABASE_URL}/functions/v1/unsubscribe-email?id=${trackingId}`;
 
-        const { subject, html } = getEmailTemplate(content, referralLink, trackingPixelUrl, unsubscribeUrl, language);
+        const { subject, html } = getEmailTemplate(content, trackingPixelUrl, unsubscribeUrl, language);
 
-        // Send email
         const emailResponse = await resend.emails.send({
           from: "WarriorOS <noreply@warriorsos.com>",
           to: [email],
@@ -400,7 +288,6 @@ const handler = async (req: Request): Promise<Response> => {
           html,
         });
 
-        // Log the email
         await supabase.from('email_sequence_log').insert({
           email,
           sequence_type: 'challenge_upgrade',

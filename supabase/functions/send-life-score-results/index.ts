@@ -27,8 +27,6 @@ interface LifeScoreResultsRequest {
 interface CategoryInfo {
   name: string;
   nameRo: string;
-  emoji: string;
-  color: string;
   tips: string[];
   tipsRo: string[];
 }
@@ -36,82 +34,72 @@ interface CategoryInfo {
 const categoryInfo: Record<string, CategoryInfo> = {
   body: { 
     name: 'Body & Health', 
-    nameRo: 'Corp & Sănătate', 
-    emoji: '💪', 
-    color: '#ef4444',
+    nameRo: 'Corp & Sanatate',
     tips: [
       'Start each morning with 10 minutes of stretching',
       'Drink 2L of water daily for optimal energy',
       'Add a 20-minute walk after meals'
     ],
     tipsRo: [
-      'Începe fiecare dimineață cu 10 minute de stretching',
-      'Bea 2L de apă zilnic pentru energie optimă',
-      'Adaugă o plimbare de 20 minute după masă'
+      'Incepe fiecare dimineata cu 10 minute de stretching',
+      'Bea 2L de apa zilnic pentru energie optima',
+      'Adauga o plimbare de 20 minute dupa masa'
     ]
   },
   being: { 
     name: 'Spirit & Mindset', 
-    nameRo: 'Spirit & Mindset', 
-    emoji: '🧘', 
-    color: '#8b5cf6',
+    nameRo: 'Spirit & Mindset',
     tips: [
       'Practice 5 minutes of guided meditation daily',
       'Evening journaling: 3 things you\'re grateful for',
       'Reduce social media time by 30 minutes'
     ],
     tipsRo: [
-      'Practică 5 minute de meditație ghidată zilnic',
-      'Journaling seara: 3 lucruri pentru care ești recunoscător',
+      'Practica 5 minute de meditatie ghidata zilnic',
+      'Journaling seara: 3 lucruri pentru care esti recunoscator',
       'Reduce timpul pe social media cu 30 minute'
     ]
   },
   balance: { 
     name: 'Relationships', 
-    nameRo: 'Relații', 
-    emoji: '❤️', 
-    color: '#3b82f6',
+    nameRo: 'Relatii',
     tips: [
       'Schedule a weekly date night',
       'Call someone you care about each week',
       'Put your phone away during dinner'
     ],
     tipsRo: [
-      'Programează un date night săptămânal',
-      'Sună pe cineva drag în fiecare săptămână',
-      'Pune telefonul deoparte la cină'
+      'Programeaza un date night saptamanal',
+      'Suna pe cineva drag in fiecare saptamana',
+      'Pune telefonul deoparte la cina'
     ]
   },
   business: { 
     name: 'Career & Business', 
-    nameRo: 'Carieră & Business', 
-    emoji: '🚀', 
-    color: '#22c55e',
+    nameRo: 'Cariera & Business',
     tips: [
       'Define TOP 3 priorities every morning',
       'Block 2 hours of deep work without interruptions',
       'Review weekly objectives on Sunday evening'
     ],
     tipsRo: [
-      'Definește TOP 3 priorități în fiecare dimineață',
-      'Blochează 2 ore de deep work fără întreruperi',
-      'Revizuiește obiectivele săptămânale duminică seara'
+      'Defineste TOP 3 prioritati in fiecare dimineata',
+      'Blocheaza 2 ore de deep work fara intreruperi',
+      'Revizuieste obiectivele saptamanale duminica seara'
     ]
   },
   overall: { 
     name: 'Life Harmony', 
-    nameRo: 'Armonia Vieții', 
-    emoji: '⭐', 
-    color: '#f59e0b',
+    nameRo: 'Armonia Vietii',
     tips: [
       'Create a consistent morning ritual',
       'Measure your progress weekly',
       'Celebrate every small victory'
     ],
     tipsRo: [
-      'Creează un ritual matinal consistent',
-      'Măsoară-ți progresul săptămânal',
-      'Celebrează fiecare victorie mică'
+      'Creeaza un ritual matinal consistent',
+      'Masoara-ti progresul saptamanal',
+      'Celebreaza fiecare victorie mica'
     ]
   },
 };
@@ -121,38 +109,30 @@ function getLifeScoreLevel(score: number, maxScore: number = 20, isRo: boolean =
   
   if (percentage >= 80) {
     return {
-      level: isRo ? 'Înfloritoare' : 'Thriving',
-      color: '#22c55e',
-      emoji: '🏆',
+      level: isRo ? 'Infloritoare' : 'Thriving',
       description: isRo 
-        ? 'Excelent! Viața ta este în echilibru și înflorire.'
+        ? 'Excelent! Viata ta este in echilibru si inflorire.'
         : 'Excellent! Your life is balanced and thriving.'
     };
   } else if (percentage >= 60) {
     return {
-      level: isRo ? 'În Creștere' : 'Growing',
-      color: '#3b82f6',
-      emoji: '📈',
+      level: isRo ? 'In Crestere' : 'Growing',
       description: isRo
-        ? 'Bun! Ai o fundație solidă cu spațiu de îmbunătățire.'
+        ? 'Bun! Ai o fundatie solida cu spatiu de imbunatatire.'
         : 'Good! You have a solid foundation with room for improvement.'
     };
   } else if (percentage >= 40) {
     return {
-      level: isRo ? 'În Dezvoltare' : 'Developing',
-      color: '#f59e0b',
-      emoji: '🌱',
+      level: isRo ? 'In Dezvoltare' : 'Developing',
       description: isRo
-        ? 'Ești pe drum! Focusează-te pe zonele cheie pentru progres.'
+        ? 'Esti pe drum! Focuseaza-te pe zonele cheie pentru progres.'
         : 'You\'re on your way! Focus on key areas for progress.'
     };
   } else {
     return {
-      level: isRo ? 'Necesită Atenție' : 'Needs Attention',
-      color: '#ef4444',
-      emoji: '⚡',
+      level: isRo ? 'Necesita Atentie' : 'Needs Attention',
       description: isRo
-        ? 'E momentul schimbării! Hai să construim împreună.'
+        ? 'E momentul schimbarii! Hai sa construim impreuna.'
         : 'Time for change! Let\'s build together.'
     };
   }
@@ -197,7 +177,6 @@ const handler = async (req: Request): Promise<Response> => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const isRo = language === 'ro';
 
-    // Calculate total score
     const totalScore = scores.body + scores.being + scores.balance + scores.business + scores.overall;
     const maxScore = 20;
     const percentage = Math.round((totalScore / maxScore) * 100);
@@ -205,7 +184,7 @@ const handler = async (req: Request): Promise<Response> => {
     const weakestCategory = getWeakestCategory(scores);
     const weakestInfo = categoryInfo[weakestCategory];
 
-    // Get or create lead for tracking
+    // Get or create lead
     const { data: existingLead } = await supabase
       .from('email_leads')
       .select('id')
@@ -222,7 +201,6 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // Log email sequence
     await supabase.from('email_sequence_log').upsert({
       email,
       sequence_type: 'life_score',
@@ -232,32 +210,30 @@ const handler = async (req: Request): Promise<Response> => {
       onConflict: 'email,sequence_type,day_number'
     });
 
-    // Create tracking ID
     const trackingId = crypto.randomUUID();
     const trackingPixel = `https://exsbnfmaadjyfblperas.supabase.co/functions/v1/track-email-open?t=${trackingId}`;
     const unsubscribeUrl = `https://warriorsos.com/unsubscribe?email=${encodeURIComponent(email)}&sequence=life_score`;
     const dashboardUrl = `https://warriorsos.com/dashboard?utm_source=email&utm_medium=results&utm_campaign=life_score`;
 
-    // Build category cards HTML
+    // Build category rows
     const categoryCardsHtml = Object.entries(scores).map(([category, score]) => {
       const info = categoryInfo[category];
       const catPercentage = Math.round((score / 4) * 100);
-      const filledBars = Math.round(catPercentage / 10);
-      const progressBar = '█'.repeat(filledBars) + '░'.repeat(10 - filledBars);
+      const barWidth = Math.max(catPercentage, 5);
       
       return `
         <tr>
-          <td style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td width="40" style="font-size: 24px;">${info.emoji}</td>
-                <td style="color: #fff; font-weight: 600;">${isRo ? info.nameRo : info.name}</td>
-                <td width="60" style="text-align: right; color: ${info.color}; font-weight: 700;">${score}/4</td>
+                <td style="color: #111827; font-weight: 600; font-size: 14px;">${isRo ? info.nameRo : info.name}</td>
+                <td width="60" style="text-align: right; color: #111827; font-weight: 700; font-size: 14px;">${score}/4</td>
               </tr>
               <tr>
-                <td colspan="3" style="padding-top: 5px;">
-                  <span style="font-family: monospace; color: ${info.color}; font-size: 12px;">${progressBar}</span>
-                  <span style="color: #888; font-size: 12px; margin-left: 10px;">${catPercentage}%</span>
+                <td colspan="2" style="padding-top: 6px;">
+                  <div style="background-color: #e5e7eb; border-radius: 4px; height: 6px; overflow: hidden;">
+                    <div style="background-color: #111827; height: 100%; width: ${barWidth}%; border-radius: 4px;"></div>
+                  </div>
                 </td>
               </tr>
             </table>
@@ -266,12 +242,10 @@ const handler = async (req: Request): Promise<Response> => {
       `;
     }).join('');
 
-    // Build tips HTML for weakest category
+    // Build tips
     const tips = isRo ? weakestInfo.tipsRo : weakestInfo.tips;
     const tipsHtml = tips.map(tip => `
-      <div style="color: #ddd; font-size: 14px; padding: 8px 0 8px 20px; border-left: 2px solid ${weakestInfo.color}; margin-bottom: 8px;">
-        ✓ ${tip}
-      </div>
+      <li style="color: #4b5563; font-size: 14px; margin-bottom: 6px;">${tip}</li>
     `).join('');
 
     const emailHtml = `<!DOCTYPE html>
@@ -281,107 +255,97 @@ const handler = async (req: Request): Promise<Response> => {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${isRo ? 'Rezultatele Tale Life Score' : 'Your Life Score Results'}</title>
 </head>
-<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0a0f; color: #ffffff; margin: 0; padding: 0;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f7f7f8; color: #111827; margin: 0; padding: 0;">
 
-<!-- Tracking Pixel -->
 <img src="${trackingPixel}" width="1" height="1" style="display:none;" alt="" />
 
-<div style="max-width: 640px; margin: 0 auto; background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f7f7f8;">
+  <tr>
+    <td align="center" style="padding: 40px 20px;">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
 
-<!-- Header -->
-<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
-  <div style="font-size: 48px; margin-bottom: 10px;">⚡</div>
-  <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 2px;">
-    LIFE SCORE 2026
-  </h1>
-  <p style="margin: 15px 0 0 0; font-size: 16px; color: rgba(255,255,255,0.9);">
-    ${isRo ? `Rezultatele tale, ${name}!` : `Your results, ${name}!`}
-  </p>
-</div>
+        <!-- Header -->
+        <tr>
+          <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #e5e7eb;">
+            <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">WarriorOS</p>
+            <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #111827;">
+              Life Score 2026
+            </h1>
+            <p style="margin: 8px 0 0 0; font-size: 15px; color: #6b7280;">
+              ${isRo ? `Rezultatele tale, ${name}.` : `Your results, ${name}.`}
+            </p>
+          </td>
+        </tr>
 
-<!-- Main Score -->
-<div style="padding: 40px 30px; text-align: center; background: rgba(102,126,234,0.1);">
-  <div style="display: inline-block; width: 140px; height: 140px; border-radius: 50%; background: linear-gradient(135deg, ${levelInfo.color}33 0%, ${levelInfo.color}11 100%); border: 4px solid ${levelInfo.color}; position: relative;">
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-      <div style="font-size: 42px; font-weight: 800; color: #fff;">${totalScore}</div>
-      <div style="font-size: 14px; color: #888;">/20</div>
-    </div>
-  </div>
-  
-  <div style="margin-top: 20px;">
-    <span style="font-size: 32px; margin-right: 10px;">${levelInfo.emoji}</span>
-    <span style="font-size: 24px; font-weight: 700; color: ${levelInfo.color}; text-transform: uppercase;">${levelInfo.level}</span>
-  </div>
-  
-  <p style="margin: 15px 0 0 0; color: #aaa; font-size: 15px;">
-    ${levelInfo.description}
-  </p>
-  
-  <div style="margin-top: 15px; display: inline-block; padding: 8px 20px; background: ${levelInfo.color}22; border-radius: 20px; border: 1px solid ${levelInfo.color}44;">
-    <span style="color: ${levelInfo.color}; font-weight: 600;">${percentage}%</span>
-    <span style="color: #888; margin-left: 5px;">${isRo ? 'din potențial' : 'of potential'}</span>
-  </div>
-</div>
+        <!-- Main Score -->
+        <tr>
+          <td style="padding: 28px 32px; text-align: center;">
+            <p style="margin: 0 0 4px 0; font-size: 48px; font-weight: 800; color: #111827;">${totalScore}<span style="font-size: 20px; color: #9ca3af;">/20</span></p>
+            <p style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #111827; text-transform: uppercase;">${levelInfo.level}</p>
+            <p style="margin: 0; color: #6b7280; font-size: 14px;">${levelInfo.description}</p>
+            <div style="margin-top: 12px; display: inline-block; padding: 6px 16px; background-color: #f3f4f6; border-radius: 20px;">
+              <span style="color: #111827; font-weight: 600; font-size: 14px;">${percentage}%</span>
+              <span style="color: #6b7280; font-size: 13px; margin-left: 4px;">${isRo ? 'din potential' : 'of potential'}</span>
+            </div>
+          </td>
+        </tr>
 
-<!-- Category Breakdown -->
-<div style="padding: 30px;">
-  <h2 style="text-align: center; font-size: 18px; color: #fff; margin: 0 0 25px 0; text-transform: uppercase; letter-spacing: 1px;">
-    ${isRo ? '📊 Detalii pe Categorii' : '📊 Category Breakdown'}
-  </h2>
-  
-  <table width="100%" cellpadding="0" cellspacing="0">
-    ${categoryCardsHtml}
-  </table>
-</div>
+        <!-- Category Breakdown -->
+        <tr>
+          <td style="padding: 0 32px 24px 32px;">
+            <p style="color: #111827; font-size: 14px; font-weight: 600; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.3px;">
+              ${isRo ? 'Detalii pe Categorii' : 'Category Breakdown'}
+            </p>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              ${categoryCardsHtml}
+            </table>
+          </td>
+        </tr>
 
-<!-- Focus Area -->
-<div style="padding: 30px; background: linear-gradient(135deg, ${weakestInfo.color}22 0%, ${weakestInfo.color}11 100%); border-top: 2px solid ${weakestInfo.color}44;">
-  <div style="text-align: center; margin-bottom: 20px;">
-    <span style="font-size: 40px;">${weakestInfo.emoji}</span>
-    <h2 style="margin: 10px 0 5px 0; font-size: 20px; color: #fff;">
-      ${isRo ? '🎯 ZONA DE FOCUS' : '🎯 FOCUS AREA'}
-    </h2>
-    <p style="margin: 0; color: ${weakestInfo.color}; font-weight: 600; text-transform: uppercase;">
-      ${isRo ? weakestInfo.nameRo : weakestInfo.name}
-    </p>
-    <p style="margin: 10px 0 0 0; color: #888; font-size: 13px;">
-      ${isRo 
-        ? 'Aceasta este categoria care necesită cea mai multă atenție. Iată 3 acțiuni concrete:'
-        : 'This is the category that needs the most attention. Here are 3 concrete actions:'}
-    </p>
-  </div>
-  
-  ${tipsHtml}
-</div>
+        <!-- Focus Area -->
+        <tr>
+          <td style="padding: 24px 32px; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
+            <p style="color: #111827; font-size: 14px; font-weight: 600; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.3px;">
+              ${isRo ? 'Zona de Focus' : 'Focus Area'}
+            </p>
+            <p style="color: #6b7280; font-size: 15px; font-weight: 600; margin: 0 0 12px 0;">
+              ${isRo ? weakestInfo.nameRo : weakestInfo.name}
+            </p>
+            <p style="color: #6b7280; font-size: 13px; margin: 0 0 12px 0;">
+              ${isRo 
+                ? 'Aceasta este categoria care necesita cea mai multa atentie. 3 actiuni concrete:'
+                : 'This category needs the most attention. 3 concrete actions:'}
+            </p>
+            <ul style="margin: 0; padding-left: 18px;">
+              ${tipsHtml}
+            </ul>
+          </td>
+        </tr>
 
-<!-- CTA Section -->
-<div style="padding: 50px 30px; text-align: center; background: linear-gradient(180deg, transparent 0%, rgba(102,126,234,0.15) 100%);">
-  <div style="font-size: 40px; margin-bottom: 15px;">🚀</div>
-  <h2 style="margin: 0 0 15px 0; font-size: 22px; color: #fff;">
-    ${isRo ? 'Transformă Scorurile în Acțiune' : 'Transform Scores into Action'}
-  </h2>
-  <p style="margin: 0 0 30px 0; color: #aaa; font-size: 15px; line-height: 1.6;">
-    ${isRo 
-      ? 'Dashboard-ul tău personalizat te așteaptă cu planuri, trackere și ghidaj AI.'
-      : 'Your personalized dashboard awaits with plans, trackers, and AI guidance.'}
-  </p>
-  
-  <a href="${dashboardUrl}" style="display: inline-block; padding: 18px 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(102,126,234,0.4);">
-    ${isRo ? 'Accesează Dashboard →' : 'Access Dashboard →'}
-  </a>
-</div>
+        <!-- CTA -->
+        <tr>
+          <td style="padding: 28px 32px; text-align: center;">
+            <p style="margin: 0 0 16px 0; color: #4b5563; font-size: 15px;">
+              ${isRo ? 'Transforma scorurile in actiune.' : 'Transform scores into action.'}
+            </p>
+            <a href="${dashboardUrl}" style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-size: 15px; font-weight: 600;">
+              ${isRo ? 'Acceseaza Dashboard' : 'Access Dashboard'}
+            </a>
+          </td>
+        </tr>
 
-<!-- Footer -->
-<div style="padding: 30px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
-  <p style="margin: 0 0 15px 0; color: #666; font-size: 12px;">
-    © 2025 WarriorSOS. ${isRo ? 'Toate drepturile rezervate.' : 'All rights reserved.'}
-  </p>
-  <p style="margin: 0; font-size: 11px;">
-    <a href="${unsubscribeUrl}" style="color: #555; text-decoration: none;">${isRo ? 'Dezabonare' : 'Unsubscribe'}</a>
-  </p>
-</div>
+        <!-- Footer -->
+        <tr>
+          <td style="background-color: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+            <p style="color: #9ca3af; margin: 0 0 6px 0; font-size: 12px;">WarriorOS</p>
+            <a href="${unsubscribeUrl}" style="color: #9ca3af; font-size: 11px; text-decoration: underline;">${isRo ? 'Dezabonare' : 'Unsubscribe'}</a>
+          </td>
+        </tr>
 
-</div>
+      </table>
+    </td>
+  </tr>
+</table>
 </body>
 </html>`;
 
@@ -392,11 +356,11 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'WarriorSOS <alin@warriorsos.com>',
+        from: 'WarriorOS <noreply@warriorsos.com>',
         to: [email],
         subject: isRo 
-          ? `${levelInfo.emoji} ${name}, scorul tău Life Score 2026: ${totalScore}/20`
-          : `${levelInfo.emoji} ${name}, your Life Score 2026: ${totalScore}/20`,
+          ? `${name}, scorul tau Life Score 2026: ${totalScore}/20`
+          : `${name}, your Life Score 2026: ${totalScore}/20`,
         html: emailHtml,
       }),
     });

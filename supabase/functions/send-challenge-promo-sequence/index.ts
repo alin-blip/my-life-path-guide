@@ -10,7 +10,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform",
 };
 
-// Target lead magnets (non-challenge)
 const TARGET_LEAD_MAGNETS = [
   'vision_2026_quiz',
   'vision_board',
@@ -40,355 +39,177 @@ function getEmailContent(emailNumber: number, name: string | null, trackingId: s
   const utmParams = `utm_source=email&utm_campaign=challenge_promo&utm_content=email_${emailNumber}`;
   const ctaUrl = `${CHALLENGE_URL}?${utmParams}`;
 
-  const emailStyles = `
-    <style>
-      body { margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-      .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
-      .card { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; border: 1px solid #333; }
-      .header { text-align: center; margin-bottom: 30px; }
-      .title { color: #f59e0b; font-size: 28px; margin: 0; }
-      .subtitle { color: #fff; font-size: 22px; margin: 10px 0; }
-      .content { color: #d1d5db; font-size: 16px; line-height: 1.7; }
-      .highlight { color: #f59e0b; font-weight: bold; }
-      .cta-container { text-align: center; margin: 35px 0; }
-      .cta-button { display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: #000 !important; padding: 16px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 18px; }
-      .day-item { background: rgba(245, 158, 11, 0.1); border-left: 3px solid #f59e0b; padding: 12px 16px; margin: 10px 0; border-radius: 0 8px 8px 0; }
-      .day-title { color: #f59e0b; font-weight: bold; margin: 0; }
-      .day-desc { color: #9ca3af; margin: 5px 0 0 0; font-size: 14px; }
-      .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; text-align: center; }
-      .footer-text { color: #6b7280; font-size: 12px; }
-      .unsubscribe { color: #6b7280; font-size: 12px; text-decoration: underline; }
-    </style>
-  `;
+  const wrapEmail = (title: string, bodyContent: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #f7f7f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f7f7f8;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+          
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">WarriorOS</p>
+              <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #111827; line-height: 1.4;">
+                ${title}
+              </h1>
+            </td>
+          </tr>
 
-  const footer = `
-    <div class="footer">
-      <p class="footer-text">WarriorOS • Have It All Lifestyle Challenge</p>
-      <p class="footer-text">
-        <a href="${unsubscribeUrl}" class="unsubscribe">Dezabonare</a>
-      </p>
-    </div>
-    <img src="${trackingPixelUrl}" width="1" height="1" style="display:none;" alt="" />
-  `;
+          <!-- Content -->
+          <tr>
+            <td style="padding: 28px 32px 32px 32px;">
+              ${bodyContent}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="color: #9ca3af; margin: 0 0 6px 0; font-size: 12px;">WarriorOS</p>
+              <a href="${unsubscribeUrl}" style="color: #9ca3af; font-size: 11px; text-decoration: underline;">Dezabonare</a>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+  <img src="${trackingPixelUrl}" width="1" height="1" style="display:none;" alt="" />
+</body>
+</html>`;
+
+  const ctaButton = (text: string) => `
+    <div style="text-align: center; margin: 28px 0 0 0;">
+      <a href="${ctaUrl}" style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-size: 15px; font-weight: 600;">
+        ${text}
+      </a>
+    </div>`;
+
+  const dayItem = (title: string, desc: string) => `
+    <div style="padding: 10px 14px; margin: 8px 0; background-color: #f9fafb; border-left: 3px solid #111827; border-radius: 0 6px 6px 0;">
+      <p style="margin: 0; color: #111827; font-weight: 600; font-size: 14px;">${title}</p>
+      <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 13px;">${desc}</p>
+    </div>`;
 
   switch (emailNumber) {
     case 1:
       return {
-        subject: '🎁 Am ceva special pentru tine — Challenge GRATUIT de 7 Zile',
-        html: `
-          <!DOCTYPE html>
-          <html>
-          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-          <body>
-            <div class="container">
-              <div class="card">
-                <div class="header">
-                  <h1 class="title">🎁 Challenge GRATUIT</h1>
-                  <h2 class="subtitle">Have It All Lifestyle — 7 Zile</h2>
-                </div>
-                
-                <div class="content">
-                  <p>Salut ${displayName}! 👋</p>
-                  
-                  <p>Ai făcut deja primul pas testând unul dintre instrumentele noastre. Dar știi ce diferențiază oamenii care <span class="highlight">obțin rezultate</span> de cei care doar visează?</p>
-                  
-                  <p><strong>Un SISTEM.</strong></p>
-                  
-                  <p>De aceea am creat <span class="highlight">Challenge-ul Have It All Lifestyle</span> — un program de 7 zile 100% GRATUIT care îți oferă exact asta.</p>
-                  
-                  <p><strong>Ce vei primi în aceste 7 zile:</strong></p>
-                  
-                  <div class="day-item">
-                    <p class="day-title">📋 Ziua 1: Declarația Ta</p>
-                    <p class="day-desc">Viziune clară stil Napoleon Hill — ce vrei cu adevărat</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">💪 Ziua 2-3: Corp + Spirit & Relații + Business</p>
-                    <p class="day-desc">Obiective concrete pentru toate cele 4 arii ale vieții</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">🌅 Ziua 4: Rutina Campionului</p>
-                    <p class="day-desc">Morning Stack automatizat care te pune în mișcare</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">🎨 Ziua 5: Viziune AI</p>
-                    <p class="day-desc">Vision Board generat + Meditație personalizată</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">🔔 Ziua 6: Accountability</p>
-                    <p class="day-desc">Sistemul care te ține responsabil zilnic</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">🚀 Ziua 7: Integrare Completă</p>
-                    <p class="day-desc">Ciclul virtuos activat — totul funcționează împreună</p>
-                  </div>
-                </div>
-                
-                <div class="cta-container">
-                  <a href="${ctaUrl}" class="cta-button">Începe Ziua 1 Acum →</a>
-                </div>
-                
-                <p style="color: #9ca3af; text-align: center; font-size: 14px;">Este 100% gratuit. Fără card. Fără obligații.</p>
-                
-                ${footer}
-              </div>
-            </div>
-          </body>
-          </html>
-        `
+        subject: 'Am ceva special pentru tine — Challenge gratuit de 7 zile',
+        html: wrapEmail('Challenge gratuit: Have It All Lifestyle', `
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">Salut ${displayName},</p>
+          <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">Ai facut deja primul pas testand unul dintre instrumentele noastre. Dar stii ce diferentiaza oamenii care obtin rezultate de cei care doar viseaza?</p>
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;"><strong>Un sistem.</strong></p>
+          <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">De aceea am creat Challenge-ul Have It All Lifestyle — un program de 7 zile 100% gratuit.</p>
+          <p style="color: #374151; font-size: 14px; font-weight: 600; margin: 0 0 12px 0;">Ce vei primi:</p>
+          ${dayItem('Ziua 1: Declaratia Ta', 'Viziune clara stil Napoleon Hill')}
+          ${dayItem('Ziua 2-3: Corp + Spirit & Business', 'Obiective concrete pentru 4 arii ale vietii')}
+          ${dayItem('Ziua 4: Rutina Campionului', 'Morning Stack automatizat')}
+          ${dayItem('Ziua 5: Viziune AI', 'Vision Board + Meditatie personalizata')}
+          ${dayItem('Ziua 6: Accountability', 'Sistemul care te tine responsabil')}
+          ${dayItem('Ziua 7: Integrare', 'Totul functioneaza impreuna')}
+          ${ctaButton('Incepe Ziua 1')}
+          <p style="color: #9ca3af; text-align: center; font-size: 13px; margin: 16px 0 0 0;">100% gratuit. Fara card. Fara obligatii.</p>
+        `)
       };
 
     case 2:
       return {
-        subject: '❌ De ce 92% dintre oameni eșuează (și cum să fii în cei 8%)',
-        html: `
-          <!DOCTYPE html>
-          <html>
-          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-          <body>
-            <div class="container">
-              <div class="card">
-                <div class="header">
-                  <h1 class="title">❌ Adevărul Dur</h1>
-                  <h2 class="subtitle">De ce 92% eșuează</h2>
-                </div>
-                
-                <div class="content">
-                  <p>Salut ${displayName},</p>
-                  
-                  <p>Știi care e cea mai mare minciună pe care ți-o spui?</p>
-                  
-                  <p><em>"Voi începe luni."</em></p>
-                  <p><em>"Când voi avea mai mult timp..."</em></p>
-                  <p><em>"Când voi fi mai motivat..."</em></p>
-                  
-                  <p>Realitatea? <span class="highlight">92% dintre oameni nu își ating niciodată obiectivele.</span></p>
-                  
-                  <p>Nu pentru că nu sunt destul de inteligenți sau motivați. Ci pentru că le lipsește un <strong>SISTEM</strong>.</p>
-                  
-                  <p>Gândește-te: câte obiective ai avut anul trecut? Câte ai atins cu adevărat?</p>
-                  
-                  <p>Challenge-ul nostru de 7 zile îți oferă exact sistemul care te pune în cei <span class="highlight">8% care reușesc</span>:</p>
-                  
-                  <ul style="color: #d1d5db; line-height: 2;">
-                    <li>✅ Viziune clară (nu vagi "vreau să fiu mai bun")</li>
-                    <li>✅ Obiective SMART pentru toate ariile vieții</li>
-                    <li>✅ Rutină matinală care te pune automat în acțiune</li>
-                    <li>✅ AI Coach care te ghidează personal</li>
-                    <li>✅ Sistem de accountability care nu te lasă să renunți</li>
-                  </ul>
-                </div>
-                
-                <div class="cta-container">
-                  <a href="${ctaUrl}" class="cta-button">Fii în cei 8% →</a>
-                </div>
-                
-                ${footer}
-              </div>
-            </div>
-          </body>
-          </html>
-        `
+        subject: 'De ce 92% dintre oameni esueaza (si cum sa fii in cei 8%)',
+        html: wrapEmail('De ce 92% esueaza', `
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">Salut ${displayName},</p>
+          <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">Stii care e cea mai mare minciuna pe care ti-o spui?</p>
+          <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 4px 0; font-style: italic;">"Voi incepe luni."</p>
+          <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 4px 0; font-style: italic;">"Cand voi avea mai mult timp..."</p>
+          <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0; font-style: italic;">"Cand voi fi mai motivat..."</p>
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;"><strong>92% dintre oameni nu isi ating niciodata obiectivele.</strong> Nu pentru ca nu sunt destul de inteligenti. Ci pentru ca le lipseste un sistem.</p>
+          <p style="color: #374151; font-size: 14px; font-weight: 600; margin: 0 0 12px 0;">Challenge-ul iti ofera:</p>
+          <ul style="color: #4b5563; margin: 0 0 16px 0; padding-left: 18px; line-height: 1.8; font-size: 14px;">
+            <li>Viziune clara (nu vagi "vreau sa fiu mai bun")</li>
+            <li>Obiective SMART pentru toate ariile vietii</li>
+            <li>Rutina matinala care te pune automat in actiune</li>
+            <li>AI Coach care te ghideaza personal</li>
+            <li>Sistem de accountability care nu te lasa sa renunti</li>
+          </ul>
+          ${ctaButton('Fii in cei 8%')}
+        `)
       };
 
     case 3:
       return {
-        subject: '🔥 Ce se întâmplă în fiecare zi din Challenge',
-        html: `
-          <!DOCTYPE html>
-          <html>
-          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-          <body>
-            <div class="container">
-              <div class="card">
-                <div class="header">
-                  <h1 class="title">🔥 7 Zile de Transformare</h1>
-                  <h2 class="subtitle">Pas cu pas, zi cu zi</h2>
-                </div>
-                
-                <div class="content">
-                  <p>Salut ${displayName},</p>
-                  
-                  <p><strong>7 zile. 4 arii ale vieții. 1 transformare completă.</strong></p>
-                  
-                  <p>Lasă-mă să îți arăt exact ce se întâmplă în fiecare zi:</p>
-                  
-                  <div class="day-item">
-                    <p class="day-title">🎯 ZIUA 1: Declarația Ta de Viziune</p>
-                    <p class="day-desc">Scrii declarația ta personală stil Napoleon Hill. Nu "vreau să fiu bogat" — ci exact CE vrei, CÂND vrei și CE ești dispus să dai în schimb.</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">💪 ZIUA 2: Corp + Spirit</p>
-                    <p class="day-desc">Obiective concrete pentru sănătate, energie și pace interioară. Sistemul îți generează un plan personalizat.</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">❤️ ZIUA 3: Relații + Business</p>
-                    <p class="day-desc">Obiective pentru relațiile care contează și pentru creșterea în carieră/business.</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">🌅 ZIUA 4: Rutina Campionului</p>
-                    <p class="day-desc">Configurezi Morning Stack-ul tău: meditație, vizualizare, exerciții, toate automatizate.</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">🎨 ZIUA 5: Viziune AI</p>
-                    <p class="day-desc">AI-ul generează imagini personalizate pentru vision board + o meditație ghidată bazată pe obiectivele TALE.</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">🔔 ZIUA 6: Accountability</p>
-                    <p class="day-desc">Configurezi sistemul de notificări și tracking care te ține responsabil zilnic.</p>
-                  </div>
-                  
-                  <div class="day-item">
-                    <p class="day-title">🚀 ZIUA 7: Integrare</p>
-                    <p class="day-desc">Pui totul împreună. Ciclul virtuos e activat. Știi EXACT ce să faci în fiecare zi.</p>
-                  </div>
-                  
-                  <p style="margin-top: 25px;"><span class="highlight">După 7 zile, nu te vei mai întreba "ce ar trebui să fac azi?"</span></p>
-                  <p>Vei ști EXACT. Și vei avea sistemul care te pune în acțiune automat.</p>
-                </div>
-                
-                <div class="cta-container">
-                  <a href="${ctaUrl}" class="cta-button">Începe Transformarea →</a>
-                </div>
-                
-                ${footer}
-              </div>
-            </div>
-          </body>
-          </html>
-        `
+        subject: 'Ce se intampla in fiecare zi din Challenge',
+        html: wrapEmail('7 zile de transformare — pas cu pas', `
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">Salut ${displayName},</p>
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;"><strong>7 zile. 4 arii ale vietii. 1 transformare completa.</strong></p>
+          ${dayItem('Ziua 1: Declaratia de Viziune', 'Scrii declaratia personala stil Napoleon Hill — exact CE vrei, CAND vrei si CE esti dispus sa dai.')}
+          ${dayItem('Ziua 2: Corp + Spirit', 'Obiective concrete pentru sanatate, energie si pace interioara.')}
+          ${dayItem('Ziua 3: Relatii + Business', 'Obiective pentru relatiile care conteaza si cresterea in business.')}
+          ${dayItem('Ziua 4: Rutina Campionului', 'Configurezi Morning Stack-ul: meditatie, vizualizare, exercitii — automatizate.')}
+          ${dayItem('Ziua 5: Viziune AI', 'AI-ul genereaza imagini pentru vision board + meditatie ghidata bazata pe obiectivele tale.')}
+          ${dayItem('Ziua 6: Accountability', 'Configurezi sistemul de tracking care te tine responsabil zilnic.')}
+          ${dayItem('Ziua 7: Integrare', 'Pui totul impreuna. Stii exact ce sa faci in fiecare zi.')}
+          ${ctaButton('Incepe Transformarea')}
+        `)
       };
 
     case 4:
       return {
-        subject: '⏰ Locurile pentru Challenge sunt limitate',
-        html: `
-          <!DOCTYPE html>
-          <html>
-          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-          <body>
-            <div class="container">
-              <div class="card">
-                <div class="header">
-                  <h1 class="title">⏰ Timp Limitat</h1>
-                  <h2 class="subtitle">Locurile se ocupă rapid</h2>
-                </div>
-                
-                <div class="content">
-                  <p>Salut ${displayName},</p>
-                  
-                  <p>Vreau să fiu sincer cu tine...</p>
-                  
-                  <p>Challenge-ul gratuit de 7 zile e o <span class="highlight">investiție uriașă</span> din partea noastră:</p>
-                  
-                  <ul style="color: #d1d5db; line-height: 2;">
-                    <li>🤖 AI personalizat care generează conținut pentru TINE</li>
-                    <li>🎨 Imagini și meditații create special pentru obiectivele tale</li>
-                    <li>📊 Sistem de tracking și accountability</li>
-                    <li>💬 Ghidare pas cu pas în fiecare zi</li>
-                  </ul>
-                  
-                  <p>Toate acestea — <strong>100% gratuit</strong>.</p>
-                  
-                  <p>Dar nu putem susține asta pentru totdeauna. <span class="highlight">Următorul val de participanți va fi cu plată.</span></p>
-                  
-                  <p style="background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; padding: 15px; border-radius: 0 8px 8px 0;">
-                    <strong style="color: #ef4444;">Ce pierzi fără un sistem:</strong><br/>
-                    • Te trezești dimineața întrebându-te "ce ar trebui să fac?"<br/>
-                    • Obiectivele tale rămân vise nerealizate<br/>
-                    • Motivația vine și pleacă fără rezultate concrete<br/>
-                    • Timpul trece, iar tu ești în același loc
-                  </p>
-                  
-                  <p>Nu lăsa asta să se întâmple.</p>
-                </div>
-                
-                <div class="cta-container">
-                  <a href="${ctaUrl}" class="cta-button">Asigură-ți Locul ACUM →</a>
-                </div>
-                
-                ${footer}
-              </div>
-            </div>
-          </body>
-          </html>
-        `
+        subject: 'Challenge-ul gratuit nu va fi disponibil mult timp',
+        html: wrapEmail('Timp limitat', `
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">Salut ${displayName},</p>
+          <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">Challenge-ul gratuit de 7 zile e o investitie din partea noastra:</p>
+          <ul style="color: #4b5563; margin: 0 0 16px 0; padding-left: 18px; line-height: 1.8; font-size: 14px;">
+            <li>AI personalizat care genereaza continut pentru tine</li>
+            <li>Imagini si meditatii create special pentru obiectivele tale</li>
+            <li>Sistem de tracking si accountability</li>
+            <li>Ghidare pas cu pas in fiecare zi</li>
+          </ul>
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">Toate acestea — <strong>100% gratuit</strong>. Dar nu putem sustine asta pentru totdeauna.</p>
+          <div style="background-color: #fef2f2; border-left: 3px solid #ef4444; padding: 14px 16px; border-radius: 0 8px 8px 0; margin-bottom: 16px;">
+            <p style="color: #991b1b; margin: 0; font-size: 14px; font-weight: 600;">Ce pierzi fara un sistem:</p>
+            <ul style="color: #7f1d1d; margin: 8px 0 0 0; padding-left: 16px; font-size: 13px; line-height: 1.6;">
+              <li>Te trezesti dimineata intrebandu-te "ce ar trebui sa fac?"</li>
+              <li>Obiectivele raman vise nerealizate</li>
+              <li>Motivatia vine si pleaca fara rezultate</li>
+            </ul>
+          </div>
+          ${ctaButton('Asigura-ti Locul')}
+        `)
       };
 
     case 5:
       return {
-        subject: `👋 Ultima șansă, ${displayName}`,
-        html: `
-          <!DOCTYPE html>
-          <html>
-          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-          <body>
-            <div class="container">
-              <div class="card">
-                <div class="header">
-                  <h1 class="title">👋 Ultimul Mesaj</h1>
-                  <h2 class="subtitle">Decizia e a ta</h2>
-                </div>
-                
-                <div class="content">
-                  <p>${displayName},</p>
-                  
-                  <p>Nu vreau să mă gândesc că ai ratat asta.</p>
-                  
-                  <p>În ultimele zile ți-am arătat:</p>
-                  
-                  <ul style="color: #d1d5db; line-height: 2;">
-                    <li>✅ De ce 92% dintre oameni eșuează (și cum să fii în cei 8%)</li>
-                    <li>✅ Exact ce se întâmplă în fiecare zi din Challenge</li>
-                    <li>✅ De ce acest program e gratuit ACUM, dar nu pentru mult timp</li>
-                  </ul>
-                  
-                  <p><span class="highlight">În 7 zile vei avea:</span></p>
-                  
-                  <ul style="color: #d1d5db; line-height: 2;">
-                    <li>🎯 Viziune clară pentru viața ta</li>
-                    <li>📋 Obiective concrete pentru Corp, Spirit, Relații, Business</li>
-                    <li>🌅 Rutină matinală automatizată</li>
-                    <li>🤖 AI Coach personal</li>
-                    <li>🔔 Sistem de accountability care funcționează</li>
-                  </ul>
-                  
-                  <p style="background: rgba(245, 158, 11, 0.1); padding: 20px; border-radius: 8px; text-align: center;">
-                    <strong style="color: #f59e0b; font-size: 18px;">Am făcut acest challenge gratuit pentru că ȘTIU că funcționează.</strong><br/>
-                    <span style="color: #9ca3af;">L-am testat pe mine. L-am testat pe sute de Warriors.</span>
-                  </p>
-                  
-                  <p>Acum e rândul tău.</p>
-                  
-                  <p>Sau poți continua să te trezești mâine întrebându-te "ce ar trebui să fac?"</p>
-                  
-                  <p><strong>Alegerea e a ta.</strong></p>
-                </div>
-                
-                <div class="cta-container">
-                  <a href="${ctaUrl}" class="cta-button">Ultimele 24 ore → Începe ACUM</a>
-                </div>
-                
-                <p style="color: #6b7280; text-align: center; font-size: 14px; margin-top: 20px;">
-                  Acesta e ultimul email din această serie. Sper să ne vedem în Challenge. 🔥
-                </p>
-                
-                ${footer}
-              </div>
-            </div>
-          </body>
-          </html>
-        `
+        subject: `Ultima sansa, ${displayName}`,
+        html: wrapEmail('Ultimul mesaj — decizia e a ta', `
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">${displayName},</p>
+          <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">In ultimele zile ti-am aratat:</p>
+          <ul style="color: #4b5563; margin: 0 0 16px 0; padding-left: 18px; line-height: 1.8; font-size: 14px;">
+            <li>De ce 92% esueaza si cum sa fii in cei 8%</li>
+            <li>Exact ce se intampla in fiecare zi din Challenge</li>
+            <li>De ce acest program e gratuit acum, dar nu pentru mult timp</li>
+          </ul>
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 12px 0;"><strong>In 7 zile vei avea:</strong></p>
+          <ul style="color: #4b5563; margin: 0 0 16px 0; padding-left: 18px; line-height: 1.8; font-size: 14px;">
+            <li>Viziune clara pentru viata ta</li>
+            <li>Obiective concrete pentru Corp, Spirit, Relatii, Business</li>
+            <li>Rutina matinala automatizata</li>
+            <li>AI Coach personal</li>
+            <li>Sistem de accountability care functioneaza</li>
+          </ul>
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 16px 20px; text-align: center; margin-bottom: 16px;">
+            <p style="color: #111827; font-size: 15px; font-weight: 600; margin: 0 0 4px 0;">Am facut acest challenge gratuit pentru ca stiu ca functioneaza.</p>
+            <p style="color: #6b7280; font-size: 13px; margin: 0;">L-am testat pe mine. L-am testat pe sute de Warriors.</p>
+          </div>
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 0 0;">Acum e randul tau. <strong>Alegerea e a ta.</strong></p>
+          ${ctaButton('Incepe Acum')}
+          <p style="color: #9ca3af; text-align: center; font-size: 13px; margin: 16px 0 0 0;">Acesta e ultimul email din aceasta serie.</p>
+        `)
       };
 
     default:
@@ -431,7 +252,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Parse request body
     let body: { email?: string; emailNumber?: number } = {};
     try {
       body = await req.json();
@@ -441,7 +261,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const results: any[] = [];
 
-    // MANUAL MODE: Send specific email to specific address
+    // MANUAL MODE
     if (body.email && body.emailNumber) {
       console.log(`Manual mode: Sending email ${body.emailNumber} to ${body.email}`);
       
@@ -451,7 +271,6 @@ const handler = async (req: Request): Promise<Response> => {
       try {
         const emailResponse = await sendEmail(body.email, emailContent.subject, emailContent.html);
         
-        // Log the email
         await supabase.from('email_sequence_log').insert({
           email: body.email,
           sequence_type: SEQUENCE_TYPE,
@@ -484,10 +303,9 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // AUTOMATIC MODE: Process all eligible leads
+    // AUTOMATIC MODE
     console.log("Automatic mode: Processing all eligible leads");
 
-    // Get all eligible leads
     const { data: leads, error: leadsError } = await supabase
       .from('email_leads')
       .select('*')
@@ -500,7 +318,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Found ${leads?.length || 0} eligible leads`);
 
-    // Get all existing sequence logs for these leads
     const { data: existingLogs, error: logsError } = await supabase
       .from('email_sequence_log')
       .select('*')
@@ -510,7 +327,6 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Error fetching logs: ${logsError.message}`);
     }
 
-    // Create a map of email -> latest log
     const logsByEmail = new Map<string, any[]>();
     for (const log of existingLogs || []) {
       if (!logsByEmail.has(log.email)) {
@@ -524,20 +340,17 @@ const handler = async (req: Request): Promise<Response> => {
     for (const lead of leads || []) {
       const leadLogs = logsByEmail.get(lead.email) || [];
       
-      // Sort logs by day_number descending to get the latest
       leadLogs.sort((a, b) => b.day_number - a.day_number);
       
       const latestLog = leadLogs[0];
       let nextEmailNumber = 1;
 
       if (latestLog) {
-        // Check if they've completed the sequence
         if (latestLog.day_number >= 5) {
           console.log(`${lead.email}: Sequence complete, skipping`);
           continue;
         }
 
-        // Check if 24 hours have passed since last email
         const lastSentAt = new Date(latestLog.sent_at);
         const hoursSinceLastEmail = (now.getTime() - lastSentAt.getTime()) / (1000 * 60 * 60);
         
@@ -555,12 +368,10 @@ const handler = async (req: Request): Promise<Response> => {
       const emailContent = getEmailContent(nextEmailNumber, lead.name, trackingId);
 
       try {
-        // Rate limit: Resend allows max 2 requests/second, add 1000ms delay for safety
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         const emailResponse = await sendEmail(lead.email, emailContent.subject, emailContent.html);
 
-        // Log the email
         await supabase.from('email_sequence_log').insert({
           email: lead.email,
           sequence_type: SEQUENCE_TYPE,
