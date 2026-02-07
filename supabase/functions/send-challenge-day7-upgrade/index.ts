@@ -30,7 +30,6 @@ serve(async (req) => {
 
     const resend = new Resend(resendKey);
 
-    // Check for manual mode (single email)
     let body: any = {};
     try {
       body = await req.json();
@@ -41,7 +40,6 @@ serve(async (req) => {
     if (body.email) {
       log("Manual mode", { email: body.email });
       
-      // Get user info
       const { data: subscriber } = await supabase
         .from("subscribers")
         .select("email, early_bird_expires_at")
@@ -58,8 +56,8 @@ serve(async (req) => {
         from: "WarriorOS <noreply@warriorsos.com>",
         to: [body.email],
         subject: earlyBirdActive 
-          ? "🎉 Felicitări! Ai Terminat Challenge-ul - Ofertă Specială Early Bird"
-          : "🎉 Felicitări! Ai Terminat Challenge-ul de 7 Zile",
+          ? "Felicitari! Ai terminat Challenge-ul — Oferta Early Bird"
+          : "Felicitari! Ai terminat Challenge-ul de 7 Zile",
         html,
       });
 
@@ -70,14 +68,13 @@ serve(async (req) => {
       });
     }
 
-    // Batch mode: Find users who completed Day 7 in the last 24-48 hours and are NOT subscribed
+    // Batch mode
     log("Batch mode - finding Day 7 completers");
 
     const now = new Date();
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
 
-    // Get users who completed Day 7 recently
     const { data: day7Completers, error: progressError } = await supabase
       .from("challenge_progress")
       .select("user_id, completed_at")
@@ -101,7 +98,6 @@ serve(async (req) => {
 
     const userIds = day7Completers.map(c => c.user_id);
 
-    // Get subscriber info for these users (exclude already subscribed)
     const { data: subscribers, error: subError } = await supabase
       .from("subscribers")
       .select("email, user_id, subscribed, early_bird_expires_at")
@@ -136,8 +132,8 @@ serve(async (req) => {
           from: "WarriorOS <noreply@warriorsos.com>",
           to: [sub.email],
           subject: earlyBirdActive 
-            ? "🎉 Felicitări! Ai Terminat Challenge-ul - Ofertă Specială Early Bird"
-            : "🎉 Felicitări! Ai Terminat Challenge-ul de 7 Zile",
+            ? "Felicitari! Ai terminat Challenge-ul — Oferta Early Bird"
+            : "Felicitari! Ai terminat Challenge-ul de 7 Zile",
           html,
         });
 
@@ -170,13 +166,13 @@ function generateDay7UpgradeEmail(email: string, earlyBirdActive: boolean): stri
   const appUrl = "https://warriorsos.com";
   
   const earlyBirdSection = earlyBirdActive ? `
-    <div style="background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); border-radius: 16px; padding: 24px; margin: 24px 0; text-align: center;">
-      <p style="color: white; font-size: 14px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">🎁 OFERTĂ EARLY BIRD ACTIVĂ</p>
-      <p style="color: white; font-size: 28px; font-weight: bold; margin: 0;">
-        <span style="text-decoration: line-through; opacity: 0.7;">€97</span> 
-        <span style="font-size: 36px;">€49</span>/lună
+    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
+      <p style="color: #166534; font-size: 13px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Oferta Early Bird Activa</p>
+      <p style="color: #111827; font-size: 24px; font-weight: bold; margin: 0;">
+        <span style="text-decoration: line-through; color: #9ca3af;">€97</span> 
+        <span style="font-size: 32px;">€49</span>/luna
       </p>
-      <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 8px 0 0 0;">Prețul se blochează ACUM - nu mai crește niciodată!</p>
+      <p style="color: #4b5563; font-size: 13px; margin: 8px 0 0 0;">Pretul se blocheaza acum.</p>
     </div>
   ` : '';
 
@@ -187,127 +183,101 @@ function generateDay7UpgradeEmail(email: string, earlyBirdActive: boolean): stri
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-    
-    <!-- Header -->
-    <div style="text-align: center; margin-bottom: 32px;">
-      <h1 style="color: #f59e0b; font-size: 32px; margin: 0;">🎉 FELICITĂRI!</h1>
-      <p style="color: #a3a3a3; font-size: 16px; margin-top: 8px;">Ai Terminat Challenge-ul de 7 Zile</p>
-    </div>
+<body style="margin: 0; padding: 0; background-color: #f7f7f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f7f7f8;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+          
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">WarriorOS</p>
+              <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #111827;">
+                Felicitari! Ai terminat Challenge-ul.
+              </h1>
+            </td>
+          </tr>
 
-    <!-- Main Content -->
-    <div style="background: linear-gradient(135deg, #1a1a1a 0%, #262626 100%); border-radius: 16px; padding: 32px; border: 1px solid #333;">
-      
-      <p style="color: #e5e5e5; font-size: 18px; line-height: 1.6; margin: 0 0 20px 0;">
-        Ai făcut ceva ce puțini reușesc: <strong style="color: #f59e0b;">ai terminat un program complet de transformare</strong>.
-      </p>
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 28px 32px 32px 32px;">
+              
+              <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                Ai facut ceva ce putini reusesc: <strong>ai terminat un program complet de transformare</strong>.
+              </p>
 
-      <p style="color: #a3a3a3; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-        În aceste 7 zile ai descoperit:
-      </p>
+              <p style="color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">
+                In aceste 7 zile ai descoperit:
+              </p>
 
-      <ul style="color: #e5e5e5; font-size: 16px; line-height: 1.8; padding-left: 20px; margin: 0 0 24px 0;">
-        <li>Viziunea ta pentru 2026 și cum să o transformi în realitate</li>
-        <li>Cum să îți echilibrezi corpul, spiritul și relațiile</li>
-        <li>Strategia Domino Door pentru obiective de business</li>
-        <li>Warrior Routine - rutina campionilor</li>
-        <li>AI Coaching pentru accountability și mindset</li>
-        <li>Cum să transformi ideile în acțiuni concrete</li>
-      </ul>
+              <ul style="color: #374151; font-size: 15px; line-height: 1.8; padding-left: 20px; margin: 0 0 24px 0;">
+                <li>Viziunea ta pentru 2026 si cum sa o transformi in realitate</li>
+                <li>Cum sa iti echilibrezi corpul, spiritul si relatiile</li>
+                <li>Strategia Domino Door pentru obiective de business</li>
+                <li>Warrior Routine — rutina campionilor</li>
+                <li>AI Coaching pentru accountability si mindset</li>
+                <li>Cum sa transformi ideile in actiuni concrete</li>
+              </ul>
 
-      ${earlyBirdSection}
+              ${earlyBirdSection}
 
-      <!-- Membership Tiers -->
-      <h2 style="color: #f59e0b; font-size: 20px; margin: 32px 0 16px 0; text-align: center;">
-        Continuă Transformarea cu Membership
-      </h2>
+              <!-- Membership -->
+              <h2 style="color: #111827; font-size: 18px; margin: 28px 0 16px 0;">
+                Continua cu Membership
+              </h2>
 
-      <!-- Basic Tier -->
-      <div style="background: #1f1f1f; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid #333;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <h3 style="color: #e5e5e5; font-size: 18px; margin: 0;">BASIC</h3>
-          <span style="color: #f59e0b; font-size: 20px; font-weight: bold;">${earlyBirdActive ? '€49' : '€97'}/lună</span>
-        </div>
-        <ul style="color: #a3a3a3; font-size: 14px; line-height: 1.6; padding-left: 16px; margin: 0;">
-          <li>Harta Realității & Warrior Routine</li>
-          <li>Door - planificare săptămânală</li>
-          <li>Stacks pentru reset rapid</li>
-          <li>Jurnal de reflecție</li>
-        </ul>
-      </div>
+              <!-- Basic -->
+              <div style="background-color: #f9fafb; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; border: 1px solid #e5e7eb;">
+                <div style="margin-bottom: 8px;">
+                  <strong style="color: #111827; font-size: 16px;">Basic</strong>
+                  <span style="color: #6b7280; font-size: 14px; float: right;">${earlyBirdActive ? '€49' : '€97'}/luna</span>
+                </div>
+                <p style="color: #6b7280; font-size: 13px; line-height: 1.6; margin: 0;">Harta Realitatii, Warrior Routine, Door, Stacks, Jurnal</p>
+              </div>
 
-      <!-- Pro Tier -->
-      <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 2px solid #3b82f6;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <div>
-            <h3 style="color: #3b82f6; font-size: 18px; margin: 0;">PRO</h3>
-            <span style="background: #3b82f6; color: white; font-size: 10px; padding: 2px 8px; border-radius: 4px;">RECOMANDAT</span>
-          </div>
-          <span style="color: #3b82f6; font-size: 20px; font-weight: bold;">€97/lună</span>
-        </div>
-        <ul style="color: #a3a3a3; font-size: 14px; line-height: 1.6; padding-left: 16px; margin: 0;">
-          <li>Tot din Basic +</li>
-          <li><strong style="color: #e5e5e5;">AI Accountability & Mind Coach</strong></li>
-          <li>Breakthrough Tools & Cursuri</li>
-          <li>Sesiuni Q&A lunare</li>
-          <li>50% comision referral (prima lună)</li>
-        </ul>
-      </div>
+              <!-- Pro -->
+              <div style="background-color: #f0f9ff; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; border: 1px solid #bae6fd;">
+                <div style="margin-bottom: 8px;">
+                  <strong style="color: #111827; font-size: 16px;">Pro</strong>
+                  <span style="background-color: #dbeafe; color: #1e40af; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-left: 8px;">Recomandat</span>
+                  <span style="color: #6b7280; font-size: 14px; float: right;">€97/luna</span>
+                </div>
+                <p style="color: #6b7280; font-size: 13px; line-height: 1.6; margin: 0;">Tot din Basic + AI Accountability & Mind Coach, Breakthrough Tools, Cursuri, Q&A lunar</p>
+              </div>
 
-      <!-- Elite Tier -->
-      <div style="background: linear-gradient(135deg, #2d1f1f 0%, #3d2929 100%); border-radius: 12px; padding: 20px; border: 2px solid #f59e0b;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <div>
-            <h3 style="color: #f59e0b; font-size: 18px; margin: 0;">ELITE</h3>
-            <span style="background: #f59e0b; color: black; font-size: 10px; padding: 2px 8px; border-radius: 4px;">TRANSFORMARE TOTALĂ</span>
-          </div>
-          <div style="text-align: right;">
-            <span style="color: #a3a3a3; text-decoration: line-through; font-size: 14px;">€970</span>
-            <span style="color: #f59e0b; font-size: 20px; font-weight: bold; display: block;">€297/lună</span>
-          </div>
-        </div>
-        <ul style="color: #a3a3a3; font-size: 14px; line-height: 1.6; padding-left: 16px; margin: 0;">
-          <li>Tot din Pro +</li>
-          <li><strong style="color: #e5e5e5;">Warrior Launch Accelerator (€2.497 valoare)</strong></li>
-          <li>Coaching LIVE săptămânal (90 min)</li>
-          <li>Elite Brotherhood</li>
-          <li><strong style="color: #f59e0b;">50% comision LIFETIME</strong></li>
-        </ul>
-      </div>
+              <!-- Elite -->
+              <div style="background-color: #fffbeb; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; border: 1px solid #fde68a;">
+                <div style="margin-bottom: 8px;">
+                  <strong style="color: #111827; font-size: 16px;">Elite</strong>
+                  <span style="color: #6b7280; font-size: 14px; float: right;">€297/luna</span>
+                </div>
+                <p style="color: #6b7280; font-size: 13px; line-height: 1.6; margin: 0;">Tot din Pro + Warrior Launch Accelerator, Coaching LIVE saptamanal, Elite Brotherhood</p>
+              </div>
 
-      <!-- CTA -->
-      <div style="text-align: center; margin-top: 32px;">
-        <a href="${appUrl}/pricing" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: white; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: bold; font-size: 16px;">
-          Alege Planul Tău →
-        </a>
-      </div>
+              <!-- CTA -->
+              <div style="text-align: center; margin: 28px 0 0 0;">
+                <a href="${appUrl}/pricing?utm_source=email&utm_medium=day7upgrade&utm_campaign=challenge_complete" style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-size: 15px; font-weight: 600;">
+                  Alege Planul Tau
+                </a>
+              </div>
 
-      <!-- What You Lose Section -->
-      <div style="background: #1a1a1a; border-radius: 12px; padding: 20px; margin-top: 24px; border-left: 4px solid #ef4444;">
-        <h4 style="color: #ef4444; font-size: 14px; margin: 0 0 12px 0;">⚠️ Fără Membership pierzi acces la:</h4>
-        <ul style="color: #a3a3a3; font-size: 14px; line-height: 1.6; padding-left: 16px; margin: 0;">
-          <li>AI Coaching care te ține responsabil</li>
-          <li>Warrior Routine automatizată</li>
-          <li>Door pentru planificare săptămânală</li>
-          <li>Stacks pentru gestionarea emoțiilor</li>
-          <li>Comunitatea de Warriors</li>
-        </ul>
-      </div>
+            </td>
+          </tr>
 
-    </div>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="color: #9ca3af; margin: 0 0 6px 0; font-size: 12px;">
+                WarriorOS
+              </p>
+            </td>
+          </tr>
 
-    <!-- Footer -->
-    <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid #333;">
-      <p style="color: #525252; font-size: 12px; margin: 0;">
-        Warriors Membership | MyLifePathGuide
-      </p>
-      <p style="color: #525252; font-size: 11px; margin-top: 8px;">
-        Ai primit acest email pentru că ai completat Challenge-ul de 7 Zile.
-      </p>
-    </div>
-
-  </div>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
   `;
