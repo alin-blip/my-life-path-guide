@@ -1,125 +1,107 @@
 
+# Plan: Chat General Challenge + Fix Wizard AI + Admin Vizibilitate Completa
 
-# Salvare si Vizualizare Conversatii AI Coach in CRM
+## Probleme Identificate
 
-## Problema identificata
+### 1. Wizard Obiective AI - NU functioneaza (URGENT)
+Edge function-ul `goal-wizard-ai` **nu este deployed**. Cand un client incearca sa seteze obiective, primeste eroare 404 ("Requested function was not found"). Aceasta este o problema critica de funnel - clientii nu pot finaliza setup-ul obiectivelor.
 
-Challenge AI Coach-ul functioneaza, dar conversatiile (ce intreaba clientii, ce raspunsuri primesc) **nu se salveaza nicaieri**. Mesajele sunt doar in memoria browser-ului si se pierd la refresh. Din CRM nu poti vedea ce intreaba clientii.
+### 2. Lipseste Chat General in Challenge
+In momentul de fata, in fiecare zi a challenge-ului exista:
+- **AI Coach** (chat privat cu coach-ul AI - doar user-ul vede)
+- **Comments** (sistem de comentarii pe `warriors_way_comments`)
+
+Comments-ul functioneaza ca un forum, dar nu exista un **chat general live** unde toti participantii sa comunice in timp real, iar adminul sa poata modera (sterge mesaje, raspunde).
+
+### 3. Admin nu are vizibilitate completa pe challenge
+Tabul "Challenge" din CRM ContactProfile arata doar:
+- Progresul pe zile (1-7)
+- Timeline activitati
+
+Nu arata:
+- Ce comentarii a lasat user-ul in comunitate
+- Ce a raspuns la exercitiile zilnice (declaratii, viziuni)
+- Raspunsurile la intrebarile wizard-ului
+
+---
 
 ## Ce se implementeaza
 
-### 1. Tabel nou: `challenge_coach_conversations`
+### Pas 1: Deploy `goal-wizard-ai` (Fix Urgent)
+- Deploy edge function-ul care lipseste
+- Aceasta rezolva eroarea "da eroare" raportata de client
 
-Un tabel care stocheaza fiecare mesaj din chat-ul AI Coach:
+### Pas 2: Chat General Challenge cu Moderare Admin
+Se va adauga un **Chat de Grup** vizibil pe fiecare zi a challenge-ului, langa/sub AI Coach, unde:
+- Toti participantii pot scrie si vedea mesajele tuturor
+- Adminul poate **sterge** orice mesaj
+- Adminul poate **raspunde** direct din chat
 
-```text
-id              | uuid (PK)
-user_id         | uuid (ref auth.users)
-day_number      | integer (ziua 0-7)
-role            | text ('user' sau 'assistant')
-content         | text (mesajul)
-session_id      | text (grupeaza mesajele din aceeasi conversatie)
-created_at      | timestamp
-```
+Implementare tehnica:
+- Se reutilizeaza tabelul existent `warriors_way_comments` cu `module_id = "challenge-general-chat"` (sau per zi: `challenge-chat-day-1`)
+- Se adauga politica RLS noua: **Adminii pot sterge orice comentariu** (acum doar user-ul isi poate sterge propriile mesaje)
+- Se creeaza componenta `ChallengeLiveChat.tsx` - UI de chat live (nu forum) cu:
+  - Mesaje in ordinea cronologica (cele mai noi jos)
+  - Auto-scroll la mesaje noi
+  - Buton de delete vizibil pentru admin pe fiecare mesaj
+  - Badge "Admin" pe mesajele admin-ului
+  - Realtime subscription pentru mesaje noi instant
+- Se integreaza in paginile `ChallengeDay.tsx` si `ChallengeDayEnglish.tsx`
 
-RLS: Adminii pot citi totul, utilizatorii doar propriile conversatii.
+### Pas 3: Admin - Vizibilitate Completa per User in Challenge
+Se va imbunatati tab-ul "Challenge" din `ContactProfile360` cu:
+- **Comentariile user-ului**: Ce a scris in chat-ul general/comunitate (din `warriors_way_comments`)
+- **Raspunsuri exercitii**: Declaratii Day 1, viziuni, raspunsuri la intrebari (din `challenge_responses` / `day1_responses`)
+- **Conversatii AI Coach**: Deja exista in tab-ul "AI Chat" - ramane
 
-### 2. Edge Function `challenge-coach` - salvare mesaje
+### Pas 4: Pagina Admin dedicata Challenge
+Se adauga un tab nou "Chat Moderare" in CRM Dashboard care afiseaza:
+- Toate mesajele din chat-ul general challenge (toate zilele)
+- Posibilitate de stergere si raspuns direct din admin
+- Filtru pe zi
 
-Dupa ce primeste raspunsul de la AI, Edge Function-ul salveaza atat mesajul utilizatorului cat si raspunsul AI-ului in tabelul nou. Se face server-side (nu client) pentru a garanta ca totul se inregistreaza.
+---
 
-### 3. Tab nou "Conversatii AI" in ContactProfile360
+## Detalii Tehnice
 
-In profilul fiecarui contact din CRM, se adauga un tab "AI Chat" care afiseaza:
-- Lista conversatiilor grupate pe sesiune/zi
-- Fiecare mesaj user + assistant, cu timestamp
-- Filtru rapid pe zi (Day 1-7 + Overview)
+### Deploy `goal-wizard-ai`
+- Doar deploy - edge function-ul exista deja in cod (`supabase/functions/goal-wizard-ai/index.ts`)
+- Functia foloseste `LOVABLE_API_KEY` cu modelul `google/gemini-2.5-flash`
 
-### 4. Dashboard global "Conversatii" in CRM
+### Tabel - Nu e nevoie de tabel nou
+Se reutilizeaza `warriors_way_comments` cu `module_id` dedicat (ex: `challenge-live-chat-day-1`)
 
-Un tab nou in CRM Dashboard care arata:
-- Ultimele conversatii din toate zilele
-- Ce intrebari pun clientii cel mai des
-- Conversatii recente cu preview
-
-## Detalii tehnice
-
-### Tabel SQL
-
+### RLS Policy noua pe `warriors_way_comments`
 ```sql
-CREATE TABLE public.challenge_coach_conversations (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL,
-  day_number integer NOT NULL DEFAULT 0,
-  role text NOT NULL CHECK (role IN ('user', 'assistant')),
-  content text NOT NULL,
-  session_id text,
-  created_at timestamptz DEFAULT now()
-);
-
--- Index pentru cautare rapida
-CREATE INDEX idx_challenge_coach_conv_user ON challenge_coach_conversations(user_id);
-CREATE INDEX idx_challenge_coach_conv_session ON challenge_coach_conversations(session_id);
-CREATE INDEX idx_challenge_coach_conv_day ON challenge_coach_conversations(day_number);
-
--- RLS
-ALTER TABLE challenge_coach_conversations ENABLE ROW LEVEL SECURITY;
-
--- Utilizatorii pot citi/insera propriile mesaje
-CREATE POLICY "Users can read own conversations"
-  ON challenge_coach_conversations FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own messages"
-  ON challenge_coach_conversations FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
--- Admin poate citi toate
-CREATE POLICY "Admins can read all conversations"
-  ON challenge_coach_conversations FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND (auth.users.raw_user_meta_data->>'role')::text = 'admin'
-    )
-  );
+-- Adminii pot sterge orice comentariu
+CREATE POLICY "Admins can delete any comment"
+  ON warriors_way_comments FOR DELETE
+  USING (public.has_role(auth.uid(), 'admin'));
 ```
 
-### Edge Function `challenge-coach` - modificari
+### Componenta `ChallengeLiveChat.tsx`
+- Afiseaza mesaje in ordine cronologica ascendenta (chat-style)
+- Realtime subscription pe `warriors_way_comments` filtrat pe `module_id`
+- Input de mesaj la baza
+- Admin badge + buton delete pe fiecare mesaj
 
-- Dupa streaming complet, salveaza mesajul user-ului si raspunsul AI in `challenge_coach_conversations`
-- Foloseste un `session_id` primit de la client (deja exista in `sessionStorage`)
-- Salvarea se face cu service role key (server-side) pentru a nu depinde de RLS
+### Modificari pagini Challenge
+- `ChallengeDay.tsx` si `ChallengeDayEnglish.tsx`: Se adauga `ChallengeLiveChat` ca tab sau sectiune separata alaturi de Comments si AI Coach
+- Se adauga un Tabs component: "AI Coach" | "Chat General" | "Comunitate"
 
-### Componenta `ChallengeConversationsTab.tsx`
+### Admin ChallengeProgressTab extins
+- Query `warriors_way_comments` filtrat pe `user_id` si `module_id LIKE 'challenge%'` pentru a vedea toate comentariile user-ului
+- Query `day1_responses` / `challenge_responses` pentru a vedea raspunsurile la exercitii
 
-- Afiseaza conversatiile unui contact specific, grupate pe zi/sesiune
-- Chat bubbles similare cu cele din `ChallengeInlineChat`
-- Filtru per zi (dropdown)
+### CRM Dashboard - Tab "Chat Moderare"
+- Componenta `ChallengeAdminChat.tsx`
+- Lista mesaje din toate zilele cu filtru
+- Delete + Reply direct din admin
 
-### Tab in `ContactProfile360.tsx`
-
-- Adauga un nou `TabsTrigger` "AI Chat" cu iconita `MessageSquare`
-- Afiseaza `ChallengeConversationsTab` cu `userId` din contact
-
-### Componenta `CRMConversationsDashboard.tsx`
-
-- Tab nou in `CRMDashboard` - "Conversatii"
-- Lista ultimele conversatii din toate zilele, cu email contact, ziua, si preview primul mesaj
-- Click pe o conversatie deschide detaliile complete
-
-### Hook `useChallengeCoach.ts` - trimite session_id
-
-- Adauga `session_id` din `sessionStorage` in request-ul catre Edge Function
-- Fara alte schimbari la client
-
-## Ordine implementare
-
-1. Creare tabel `challenge_coach_conversations`
-2. Actualizare Edge Function `challenge-coach` sa salveze mesajele
-3. Componenta `ChallengeConversationsTab` (per contact)
-4. Adaugare tab "AI Chat" in `ContactProfile360`
-5. Componenta `CRMConversationsDashboard` (global)
-6. Adaugare tab "Conversatii" in `CRMDashboard`
-
+## Ordine de Implementare
+1. Deploy `goal-wizard-ai` (fix imediat)
+2. RLS policy noua pentru admin delete
+3. Componenta `ChallengeLiveChat.tsx` (chat general)
+4. Integrare in paginile Challenge
+5. Extindere `ChallengeProgressTab` cu comentarii + raspunsuri
+6. Tab moderare chat in CRM Dashboard
