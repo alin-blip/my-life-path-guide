@@ -1,107 +1,141 @@
 
-# Plan: Chat General Challenge + Fix Wizard AI + Admin Vizibilitate Completa
+# Redesign Email-uri Profesionale + Notificare Admin Erori
 
-## Probleme Identificate
+## 1. Problema Curenta cu Email-urile
 
-### 1. Wizard Obiective AI - NU functioneaza (URGENT)
-Edge function-ul `goal-wizard-ai` **nu este deployed**. Cand un client incearca sa seteze obiective, primeste eroare 404 ("Requested function was not found"). Aceasta este o problema critica de funnel - clientii nu pot finaliza setup-ul obiectivelor.
+Toate email-urile (welcome, daily, recovery, upgrade, reactivation, promo) folosesc:
+- Fundal negru (#0a0a0a) cu gradienți portocaliu/roșu -- arata ca un joc video, nu ca o platforma de business
+- Subiecte pline de emoji-uri (🔥🏆💪⚡🧠💡🚨📉) -- pare spam/AI
+- Secțiune "Invita 1-3 Prieteni" in FIECARE email -- agresiv
+- Branding inconsistent: "WarriorOS" / "MyLifePathGuide" / "Warriors Membership"
+- Recovery emails sunt basic si urate comparativ cu cele de welcome
 
-### 2. Lipseste Chat General in Challenge
-In momentul de fata, in fiecare zi a challenge-ului exista:
-- **AI Coach** (chat privat cu coach-ul AI - doar user-ul vede)
-- **Comments** (sistem de comentarii pe `warriors_way_comments`)
-
-Comments-ul functioneaza ca un forum, dar nu exista un **chat general live** unde toti participantii sa comunice in timp real, iar adminul sa poata modera (sterge mesaje, raspunde).
-
-### 3. Admin nu are vizibilitate completa pe challenge
-Tabul "Challenge" din CRM ContactProfile arata doar:
-- Progresul pe zile (1-7)
-- Timeline activitati
-
-Nu arata:
-- Ce comentarii a lasat user-ul in comunitate
-- Ce a raspuns la exercitiile zilnice (declaratii, viziuni)
-- Raspunsurile la intrebarile wizard-ului
+**10 edge functions afectate:**
+- send-challenge-welcome
+- send-challenge-daily
+- send-challenge-recovery
+- send-challenge-reactivation
+- send-challenge-upgrade
+- send-challenge-day7-upgrade
+- send-challenge-reminder
+- send-challenge-promo-sequence
+- send-goal-plan-email
+- send-life-score-results
 
 ---
 
-## Ce se implementeaza
+## 2. Noul Stil Email -- Profesional pentru Antreprenori
 
-### Pas 1: Deploy `goal-wizard-ai` (Fix Urgent)
-- Deploy edge function-ul care lipseste
-- Aceasta rezolva eroarea "da eroare" raportata de client
+Design nou:
+- Fundal alb/light (#ffffff body, #f7f7f8 wrapper)
+- Font clean, fara gradient-uri agresive
+- Logo WarriorOS text simplu in header (nu emoticoane)
+- Subiecte scurte si directe fara emoji-uri (scrisa ca un antreprenor)
+- Un singur CTA clar per email
+- Footer minimal cu dezabonare
+- Secțiunea "Invita Prieteni" eliminata din toate email-urile zilnice (pastrata doar in welcome)
+- Branding unitar: "WarriorOS" peste tot
 
-### Pas 2: Chat General Challenge cu Moderare Admin
-Se va adauga un **Chat de Grup** vizibil pe fiecare zi a challenge-ului, langa/sub AI Coach, unde:
-- Toti participantii pot scrie si vedea mesajele tuturor
-- Adminul poate **sterge** orice mesaj
-- Adminul poate **raspunde** direct din chat
+Exemplu subiect inainte: `🔥 Ziua 1: Viziunea ta pentru 2026 incepe acum`
+Exemplu subiect dupa: `Ziua 1: Viziunea ta pentru 2026`
 
-Implementare tehnica:
-- Se reutilizeaza tabelul existent `warriors_way_comments` cu `module_id = "challenge-general-chat"` (sau per zi: `challenge-chat-day-1`)
-- Se adauga politica RLS noua: **Adminii pot sterge orice comentariu** (acum doar user-ul isi poate sterge propriile mesaje)
-- Se creeaza componenta `ChallengeLiveChat.tsx` - UI de chat live (nu forum) cu:
-  - Mesaje in ordinea cronologica (cele mai noi jos)
-  - Auto-scroll la mesaje noi
-  - Buton de delete vizibil pentru admin pe fiecare mesaj
-  - Badge "Admin" pe mesajele admin-ului
-  - Realtime subscription pentru mesaje noi instant
-- Se integreaza in paginile `ChallengeDay.tsx` si `ChallengeDayEnglish.tsx`
+Exemplu subiect recovery inainte: `🚨 ULTIMA NOTIFICARE: Challenge-ul te asteapta`
+Exemplu subiect recovery dupa: `Nu pierde progresul de pana acum`
 
-### Pas 3: Admin - Vizibilitate Completa per User in Challenge
-Se va imbunatati tab-ul "Challenge" din `ContactProfile360` cu:
-- **Comentariile user-ului**: Ce a scris in chat-ul general/comunitate (din `warriors_way_comments`)
-- **Raspunsuri exercitii**: Declaratii Day 1, viziuni, raspunsuri la intrebari (din `challenge_responses` / `day1_responses`)
-- **Conversatii AI Coach**: Deja exista in tab-ul "AI Chat" - ramane
+---
 
-### Pas 4: Pagina Admin dedicata Challenge
-Se adauga un tab nou "Chat Moderare" in CRM Dashboard care afiseaza:
-- Toate mesajele din chat-ul general challenge (toate zilele)
-- Posibilitate de stergere si raspuns direct din admin
-- Filtru pe zi
+## 3. Email One-Time: "Platforma reparata"
+
+Se creaza o noua edge function `send-platform-update` care:
+- Trimite un singur email la cele 59 de adrese unice de challenge subscribers
+- Template simplu si profesional
+- Subiect: `Update platforma -- problema rezolvata`
+- Continut:
+  - "Am identificat si corectat o problema tehnica in modulul de creare obiective."
+  - "Totul functioneaza acum corect."
+  - "Daca ai intampinat dificultati, te invitam sa reincerci."
+  - CTA: "Continua Challenge-ul"
+- Se trimite o singura data (cu deduplicare pe email)
+- Se apeleaza manual din admin
+
+---
+
+## 4. Fix ErrorBoundary + Capturare Erori Client
+
+**Problema actuala:** ErrorBoundary.tsx scrie in coloane care nu exista in tabel:
+- Cod scrie: `error_stack`, `component_stack`, `url`, `user_agent`, `timestamp`
+- Tabel are: `stack_trace`, `component_name`
+
+**Fix:**
+- Se adauga coloane lipsa in `error_logs`: `url`, `user_agent`, `component_stack`
+- Se repara ErrorBoundary sa scrie in coloanele corecte
+- Se adauga un handler global `window.onerror` si `unhandledrejection` pentru a captura si erorile care nu sunt React (fetch errors, promise rejections)
+
+---
+
+## 5. Notificari Admin pentru Erori
+
+Se creaza o componenta `AdminErrorMonitor` vizibila in panoul admin (tab Overview) care:
+- Arata un badge rosu pe tab-ul Overview cand exista erori noi (ultimele 24h)
+- Lista ultimelor erori cu: data, user email (daca e disponibil), URL, mesaj
+- Buton "Rezolvat" care marcheaza eroarea ca vazuta
+- Se adauga un indicator in header-ul admin daca sunt erori nerezolvate
+- Query realtime pe `error_logs` pentru a vedea erori noi instant
 
 ---
 
 ## Detalii Tehnice
 
-### Deploy `goal-wizard-ai`
-- Doar deploy - edge function-ul exista deja in cod (`supabase/functions/goal-wizard-ai/index.ts`)
-- Functia foloseste `LOVABLE_API_KEY` cu modelul `google/gemini-2.5-flash`
-
-### Tabel - Nu e nevoie de tabel nou
-Se reutilizeaza `warriors_way_comments` cu `module_id` dedicat (ex: `challenge-live-chat-day-1`)
-
-### RLS Policy noua pe `warriors_way_comments`
+### Migrare baza de date
+Se adauga coloane noi in `error_logs`:
 ```sql
--- Adminii pot sterge orice comentariu
-CREATE POLICY "Admins can delete any comment"
-  ON warriors_way_comments FOR DELETE
-  USING (public.has_role(auth.uid(), 'admin'));
+ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS url text;
+ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS user_agent text;
+ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS component_stack text;
+ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS resolved boolean DEFAULT false;
+ALTER TABLE error_logs ADD COLUMN IF NOT EXISTS resolved_at timestamptz;
 ```
 
-### Componenta `ChallengeLiveChat.tsx`
-- Afiseaza mesaje in ordine cronologica ascendenta (chat-style)
-- Realtime subscription pe `warriors_way_comments` filtrat pe `module_id`
-- Input de mesaj la baza
-- Admin badge + buton delete pe fiecare mesaj
+Se adauga RLS policy: adminii pot citi si actualiza toate error_logs.
+Se activeaza realtime pe `error_logs`.
 
-### Modificari pagini Challenge
-- `ChallengeDay.tsx` si `ChallengeDayEnglish.tsx`: Se adauga `ChallengeLiveChat` ca tab sau sectiune separata alaturi de Comments si AI Coach
-- Se adauga un Tabs component: "AI Coach" | "Chat General" | "Comunitate"
+### Edge functions modificate (stil nou)
+Toate cele 10 edge functions primesc template-ul nou profesional:
+- Background alb, text negru, CTA albastru/brand color
+- Fara emoji in subiecte
+- Fara "Invite Friends" (exceptie: welcome email)
+- Footer simplu cu "WarriorOS" si link dezabonare
 
-### Admin ChallengeProgressTab extins
-- Query `warriors_way_comments` filtrat pe `user_id` si `module_id LIKE 'challenge%'` pentru a vedea toate comentariile user-ului
-- Query `day1_responses` / `challenge_responses` pentru a vedea raspunsurile la exercitii
+### Edge function noua: `send-platform-update`
+- Primeste de la admin comanda de a trimite
+- Citeste toate adresele unice din `email_leads` cu `lead_magnet LIKE 'challenge%'` si `subscribed = true`
+- Trimite emailul de update, cu rate limiting (1/secunda pentru Resend)
+- Logheaza in `email_sequence_log` cu `sequence_type = 'platform_update'`
 
-### CRM Dashboard - Tab "Chat Moderare"
-- Componenta `ChallengeAdminChat.tsx`
-- Lista mesaje din toate zilele cu filtru
-- Delete + Reply direct din admin
+### Componenta `AdminErrorMonitor.tsx`
+- Query `error_logs` ORDER BY created_at DESC LIMIT 50
+- Realtime subscription pe INSERT
+- Card cu lista de erori
+- Buton mark as resolved
+- Badge cu count erori nerezolvate
+
+### Fix `ErrorBoundary.tsx`
+- Corectare coloane: `error_message`, `stack_trace`, `component_name`, `url`, `user_agent`, `component_stack`
+- Adaugare handler global in `App.tsx` sau `main.tsx` pentru `window.addEventListener('error')` si `unhandledrejection`
+
+### Componenta `GlobalErrorCapture.tsx`
+- Hook care capteaza erori non-React (fetch 500, promise rejections)
+- Scrie in `error_logs` automat
+- Se monteaza in root App
+
+---
 
 ## Ordine de Implementare
-1. Deploy `goal-wizard-ai` (fix imediat)
-2. RLS policy noua pentru admin delete
-3. Componenta `ChallengeLiveChat.tsx` (chat general)
-4. Integrare in paginile Challenge
-5. Extindere `ChallengeProgressTab` cu comentarii + raspunsuri
-6. Tab moderare chat in CRM Dashboard
+
+1. Migrare DB: coloane noi in `error_logs` + RLS + realtime
+2. Fix `ErrorBoundary.tsx` (coloane corecte)
+3. Creare `GlobalErrorCapture.tsx` (capturare erori globale)
+4. Creare `AdminErrorMonitor.tsx` + integrare in admin Overview
+5. Creare edge function `send-platform-update` cu template profesional
+6. Redesign template-uri email in toate cele 10 edge functions
+7. Trigger trimitere email "platforma reparata" din admin
