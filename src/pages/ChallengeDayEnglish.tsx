@@ -37,6 +37,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { trackChallengeDayStarted } from '@/lib/facebook-pixel';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
+import { ChallengeLiveChat } from '@/components/challenge/ChallengeLiveChat';
 
 interface Exercise {
   id: string;
@@ -629,6 +630,11 @@ const ChallengeDayEnglish: React.FC = () => {
             </>
           )}
           
+          {/* Live Chat */}
+          <div className="mt-8">
+            <ChallengeLiveChat dayNumber={1} language="en" />
+          </div>
+
           {/* Comments */}
           <div className="mt-8">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -781,6 +787,11 @@ const ChallengeDayEnglish: React.FC = () => {
         {/* Invite Friends */}
         <ChallengeInviteFriends dayNumber={dayNumber} />
         
+        {/* Live Chat */}
+        <div className="mt-8">
+          <ChallengeLiveChat dayNumber={dayNumber} language="en" />
+        </div>
+
         {/* Comments */}
         <div className="mt-8">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">

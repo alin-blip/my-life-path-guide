@@ -10,6 +10,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
+import { ChallengeUserDetails } from './ChallengeUserDetails';
 
 interface ChallengeProgressTabProps {
   contactId: string;
@@ -265,6 +266,10 @@ export const ChallengeProgressTab: React.FC<ChallengeProgressTabProps> = ({
           )}
         </CardContent>
       </Card>
+      {/* User Details: Comments + Day 1 Responses */}
+      {userId && (
+        <ChallengeUserDetails userId={userId} />
+      )}
     </div>
   );
 };
