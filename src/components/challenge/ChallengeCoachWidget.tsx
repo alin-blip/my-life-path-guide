@@ -22,7 +22,9 @@ export const ChallengeCoachWidget: React.FC<ChallengeCoachWidgetProps> = ({
   const [isCallActive, setIsCallActive] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
+  const voiceTranscriptRef = useRef('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastSpokenMessageIdRef = useRef<string | null>(null);
   const { language } = useLanguage();
   
   const {
@@ -47,12 +49,16 @@ export const ChallengeCoachWidget: React.FC<ChallengeCoachWidgetProps> = ({
     enabled: activeMode === 'voice',
     voiceLanguage: language === 'ro' ? 'ro-RO' : 'en-US',
     onTranscript: (text) => {
-      setVoiceTranscript(prev => prev ? `${prev} ${text}` : text);
+      setVoiceTranscript(prev => {
+        const newTranscript = prev ? `${prev} ${text}` : text;
+        voiceTranscriptRef.current = newTranscript;
+        return newTranscript;
+      });
     },
     onMicStop: () => {
-      // When mic stops in call mode, send the accumulated transcript
-      if (isCallActive && voiceTranscript.trim()) {
-        handleVoiceSend();
+      // When mic stops in call mode, send the accumulated transcript using ref (avoid stale closure)
+      if (isCallActive && voiceTranscriptRef.current.trim()) {
+        handleVoiceSendFromRef();
       }
     },
   });
@@ -154,28 +160,41 @@ export const ChallengeCoachWidget: React.FC<ChallengeCoachWidgetProps> = ({
     }
   }, [isSpeaking, isCallActive, startVoice]);
 
-  // Handle sending voice transcript
+  // Handle sending voice transcript from ref (for onMicStop callback - avoids stale closure)
+  const handleVoiceSendFromRef = useCallback(async () => {
+    const transcript = voiceTranscriptRef.current.trim();
+    if (!transcript) return;
+    
+    // Clear both state and ref
+    setVoiceTranscript('');
+    voiceTranscriptRef.current = '';
+    
+    // Send message
+    await sendMessage(transcript);
+  }, [sendMessage]);
+
+  // Handle sending voice transcript (for manual button press)
   const handleVoiceSend = useCallback(async () => {
     if (!voiceTranscript.trim()) return;
     
     const transcript = voiceTranscript.trim();
     setVoiceTranscript('');
+    voiceTranscriptRef.current = '';
     
-    // Send message and get response
+    // Send message
     await sendMessage(transcript);
-    
-    // Get the last AI message and speak it
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === 'assistant' && activeMode === 'voice') {
-      speakResponse(lastMessage.content);
-    }
-  }, [voiceTranscript, sendMessage, messages, activeMode, speakResponse]);
+  }, [voiceTranscript, sendMessage]);
 
-  // Watch for new AI messages to speak
+  // Watch for new AI messages to speak (with duplicate prevention)
   useEffect(() => {
-    if (activeMode === 'voice' && messages.length > 0) {
+    if (activeMode === 'voice' && messages.length > 0 && !isLoading) {
       const lastMessage = messages[messages.length - 1];
-      if (lastMessage?.role === 'assistant' && !isLoading) {
+      const messageKey = `${messages.length}-${lastMessage?.content?.substring(0, 50)}`;
+      
+      // Only speak if it's an assistant message we haven't spoken yet
+      if (lastMessage?.role === 'assistant' && 
+          messageKey !== lastSpokenMessageIdRef.current) {
+        lastSpokenMessageIdRef.current = messageKey;
         speakResponse(lastMessage.content);
       }
     }

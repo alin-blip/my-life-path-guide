@@ -336,6 +336,20 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
+    // Fetch Day 1 specific responses (vision declaration, why answers)
+    const { data: day1Responses } = await supabaseClient
+      .from('challenge_day1_responses')
+      .select('vision_declaration, why_answers, napoleon_declaration')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    // Fetch challenge exercise responses (all completed exercises)
+    const { data: exerciseResponses } = await supabaseClient
+      .from('challenge_responses')
+      .select('day_number, exercise_key, response_text')
+      .eq('user_id', user.id)
+      .order('day_number', { ascending: true });
+
     // Build user context
     let userContext = '';
     
@@ -345,6 +359,30 @@ serve(async (req) => {
       progress.forEach(p => {
         const status = p.completed ? 'DONE' : p.video_watched ? 'WATCHING' : 'PENDING';
         userContext += `Day ${p.day_number}: ${status}\n`;
+      });
+    }
+
+    // Add Day 1 vision and declaration data
+    if (day1Responses) {
+      if (day1Responses.vision_declaration) {
+        userContext += `\nVISION DECLARATION (Day 1):\n${day1Responses.vision_declaration}\n`;
+      }
+      if (day1Responses.napoleon_declaration) {
+        userContext += `\nNAPOLEON HILL DECLARATION:\n${day1Responses.napoleon_declaration}\n`;
+      }
+      if (day1Responses.why_answers && Array.isArray(day1Responses.why_answers)) {
+        userContext += `\nWHY ANSWERS (5 Why's):\n`;
+        (day1Responses.why_answers as string[]).forEach((answer: string, i: number) => {
+          userContext += `${i + 1}. ${answer}\n`;
+        });
+      }
+    }
+
+    // Add exercise responses by day
+    if (exerciseResponses && exerciseResponses.length > 0) {
+      userContext += `\nCOMPLETED EXERCISES:\n`;
+      exerciseResponses.forEach((ex: { day_number: number; exercise_key: string; response_text: string }) => {
+        userContext += `- Day ${ex.day_number} (${ex.exercise_key}): ${ex.response_text?.substring(0, 200) || 'completed'}${ex.response_text?.length > 200 ? '...' : ''}\n`;
       });
     }
 
@@ -358,6 +396,9 @@ serve(async (req) => {
     if (weeklyPlan?.domino_title) {
       userContext += `\nWEEKLY FOCUS: ${weeklyPlan.domino_title}\n`;
     }
+
+    // Add instruction to not hallucinate
+    userContext += `\nIMPORTANT: NU INVENTA informații despre utilizator. Dacă nu ai date specifice, întreabă-l direct.`;
 
     const systemPrompt = getSystemPrompt(language, currentDay, userContext);
 
