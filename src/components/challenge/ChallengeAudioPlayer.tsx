@@ -215,10 +215,10 @@ export const ChallengeAudioPlayer: React.FC<ChallengeAudioPlayerProps> = ({
           onClick={togglePlay}
           size="icon"
           variant="outline"
-          disabled={isLoading}
+          disabled={isLoading || isGenerating}
           className="h-12 w-12 rounded-full border-2 flex-shrink-0"
         >
-          {isLoading ? (
+          {isLoading || isGenerating ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : isPlaying ? (
             <Pause className="h-5 w-5" />
