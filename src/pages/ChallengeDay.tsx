@@ -38,6 +38,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { trackChallengeDayStarted } from '@/lib/facebook-pixel';
 import { useToast } from '@/hooks/use-toast';
 import { ChallengeCoachWidget } from '@/components/challenge/ChallengeCoachWidget';
+import { ChallengeLiveChat } from '@/components/challenge/ChallengeLiveChat';
 interface Exercise {
   id: string;
   title: string;
@@ -862,6 +863,11 @@ const ChallengeDayPage = () => {
             </>
           )}
 
+          {/* Live Chat Section */}
+          <div className="mt-6">
+            <ChallengeLiveChat dayNumber={1} language={language === 'en' ? 'en' : 'ro'} />
+          </div>
+
           {/* Comments Section - ALWAYS visible */}
           <div className="mt-6">
             <ChallengeComments ref={commentsRef} dayNumber={1} />
@@ -1098,6 +1104,11 @@ const ChallengeDayPage = () => {
             <ChallengeInviteFriends dayNumber={dayNumber} />
           </div>
         )}
+
+        {/* Live Chat Section */}
+        <div className="mb-6">
+          <ChallengeLiveChat dayNumber={dayNumber} language={language === 'en' ? 'en' : 'ro'} />
+        </div>
 
         {/* Challenge Comments Section */}
         <div className="mb-6">
