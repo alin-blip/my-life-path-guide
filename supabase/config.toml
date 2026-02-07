@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.admin-ai-assistant]
 verify_jwt = false
 
+[functions.admin-users]
+verify_jwt = false
+
 [functions.platform-assistant]
 verify_jwt = false
 
@@ -93,6 +96,9 @@ verify_jwt = false
 [functions.send-life-score-results]
 verify_jwt = false
 
+[functions.send-life-score-plan]
+verify_jwt = false
+
 [functions.mind-coach]
 verify_jwt = false
 
@@ -120,10 +126,16 @@ verify_jwt = false
 [functions.send-challenge-daily]
 verify_jwt = false
 
+[functions.send-challenge-recovery]
+verify_jwt = false
+
 [functions.send-challenge-reactivation]
 verify_jwt = false
 
 [functions.send-challenge-upgrade]
+verify_jwt = false
+
+[functions.send-challenge-day7-upgrade]
 verify_jwt = false
 
 [functions.send-challenge-promo-sequence]
