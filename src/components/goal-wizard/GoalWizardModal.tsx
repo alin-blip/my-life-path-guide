@@ -164,20 +164,41 @@ export const GoalWizardModal: React.FC<GoalWizardModalProps> = ({
     
     try {
       setIsPlayingAudio(true);
-      const response = await supabase.functions.invoke('text-to-speech', {
-        body: { text, voice: voiceLanguage === 'ro-RO' ? 'nova' : 'alloy' }
-      });
       
-      if (response.error) throw response.error;
+      // Use fetch directly for binary audio response (text-to-speech-demo is public)
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech-demo`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ 
+            text: text.substring(0, 2000), // Respect 2000 char limit
+            voiceId: voiceLanguage === 'ro-RO' ? 'EXAVITQu4vr4xnSDxMaL' : 'JBFqnCBsd6RMkjVDRZzb'
+          }),
+        }
+      );
       
-      const audioContent = response.data?.audioContent;
-      if (audioContent) {
-        const audio = new Audio(`data:audio/mp3;base64,${audioContent}`);
-        audioRef.current = audio;
-        audio.onended = () => setIsPlayingAudio(false);
-        audio.onerror = () => setIsPlayingAudio(false);
-        await audio.play();
+      if (!response.ok) {
+        throw new Error('TTS request failed');
       }
+      
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      audio.onended = () => {
+        setIsPlayingAudio(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+      audio.onerror = () => {
+        setIsPlayingAudio(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+      await audio.play();
     } catch (error) {
       console.error('TTS error:', error);
       setIsPlayingAudio(false);

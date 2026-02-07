@@ -35,6 +35,8 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
   const lastFinalTranscriptRef = useRef<string>('');
   const lastInterimTranscriptRef = useRef<string>('');
   const isStoppingIntentionallyRef = useRef(false);
+  const consecutiveRestartsRef = useRef(0);
+  const MAX_CONSECUTIVE_RESTARTS = 3;
 
   // Simplified Browser STT - direct implementation
   
@@ -85,6 +87,9 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     };
 
     recognition.onresult = (event: any) => {
+      // Reset restart counter on any speech activity
+      consecutiveRestartsRef.current = 0;
+      
       let finalTranscript = '';
       let interimTranscript = '';
       
@@ -152,21 +157,50 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
 
     recognition.onend = () => {
       logger.log('🔚 Browser STT ended');
-      // Check if we should call the callback BEFORE clearing the ref
-      const shouldCallCallback = browserSTTRef.current !== null;
       
-      // Now it's safe to clear the ref
-      browserSTTRef.current = null;
-      
-      // Clean up state
-      setIsConnected(false);
-      setIsMicOn(false);
-      setIsUserSpeaking(false);
-      
-      // Call onMicStop callback when mic was stopped intentionally
-      if (shouldCallCallback && onMicStop) {
-        logger.log('📞 Calling onMicStop callback');
-        onMicStop();
+      // Check if this was an intentional stop
+      if (isStoppingIntentionallyRef.current) {
+        // User stopped intentionally - clean up everything
+        logger.log('✋ Intentional stop - cleaning up');
+        browserSTTRef.current = null;
+        setIsConnected(false);
+        setIsMicOn(false);
+        setIsUserSpeaking(false);
+        
+        // Call onMicStop callback
+        if (onMicStop) {
+          logger.log('📞 Calling onMicStop callback');
+          onMicStop();
+        }
+      } else if (browserSTTRef.current && consecutiveRestartsRef.current < MAX_CONSECUTIVE_RESTARTS) {
+        // Auto-restart after browser timeout (silence or other non-intentional end)
+        logger.log(`🔄 Auto-restarting STT (attempt ${consecutiveRestartsRef.current + 1}/${MAX_CONSECUTIVE_RESTARTS})`);
+        consecutiveRestartsRef.current += 1;
+        
+        // Small delay before restart to avoid rapid cycling
+        setTimeout(() => {
+          if (browserSTTRef.current && !isStoppingIntentionallyRef.current) {
+            try {
+              browserSTTRef.current.start();
+              logger.log('✅ STT restarted successfully');
+            } catch (error) {
+              logger.warn('Failed to restart STT:', error);
+              // If restart fails, clean up
+              browserSTTRef.current = null;
+              setIsConnected(false);
+              setIsMicOn(false);
+              setIsUserSpeaking(false);
+            }
+          }
+        }, 100);
+      } else {
+        // Max restarts reached or no recognition ref - clean up
+        logger.log('🛑 Max restarts reached or no ref - stopping');
+        browserSTTRef.current = null;
+        setIsConnected(false);
+        setIsMicOn(false);
+        setIsUserSpeaking(false);
+        consecutiveRestartsRef.current = 0;
       }
     };
 
