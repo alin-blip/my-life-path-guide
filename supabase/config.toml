@@ -128,3 +128,6 @@ verify_jwt = false
 
 [functions.send-challenge-promo-sequence]
 verify_jwt = false
+
+[functions.send-platform-update]
+verify_jwt = false
