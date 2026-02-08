@@ -1,18 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
-import { ProgramGrid } from '@/components/programs/ProgramGrid';
+import { SkoolNavBar, SkoolTab } from '@/components/programs/SkoolNavBar';
+import { ClassroomTab } from '@/components/programs/ClassroomTab';
+import { CommunityTab } from '@/components/programs/CommunityTab';
+import { CalendarTab } from '@/components/programs/CalendarTab';
+import { MembersTab } from '@/components/programs/MembersTab';
+import { LeaderboardsTab } from '@/components/programs/LeaderboardsTab';
 import { ProgramCardProps } from '@/components/programs/ProgramCard';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
-import { useLanguage } from '@/context/LanguageContext';
-import { BookOpen, Sparkles } from 'lucide-react';
 
 const Programs: React.FC = () => {
-  const { language } = useLanguage();
-  const isRo = language === 'ro';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = (searchParams.get('tab') as SkoolTab) || 'classroom';
+  const [activeTab, setActiveTab] = useState<SkoolTab>(initialTab);
   const { completedDaysCount } = useChallengeProgress();
-  
-  // Calculate challenge progress percentage
+
   const challengeProgress = (completedDaysCount / 7) * 100;
+
+  const handleTabChange = (tab: SkoolTab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
 
   const programs: ProgramCardProps[] = [
     {
@@ -43,41 +52,31 @@ const Programs: React.FC = () => {
     },
   ];
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'community':
+        return <CommunityTab />;
+      case 'classroom':
+        return <ClassroomTab programs={programs} />;
+      case 'calendar':
+        return <CalendarTab />;
+      case 'members':
+        return <MembersTab />;
+      case 'leaderboards':
+        return <LeaderboardsTab />;
+      default:
+        return <ClassroomTab programs={programs} />;
+    }
+  };
+
   return (
     <Layout>
+      {/* Skool Navigation Bar */}
+      <SkoolNavBar activeTab={activeTab} onTabChange={handleTabChange} />
+
+      {/* Tab Content */}
       <div className="container max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30">
-              <BookOpen className="h-6 w-6 text-orange-500" />
-            </div>
-            <h1 className="text-3xl font-bold text-foreground">
-              {isRo ? 'Programe' : 'Programs'}
-            </h1>
-          </div>
-          <p className="text-muted-foreground max-w-2xl">
-            {isRo 
-              ? 'Accesează toate programele și cursurile. Începe cu Challenge-ul gratuit de 7 zile și continuă cu Warrior Launch Accelerator pentru transformare completă.' 
-              : 'Access all programs and courses. Start with the free 7-Day Challenge and continue with Warrior Launch Accelerator for complete transformation.'}
-          </p>
-        </div>
-
-        {/* Programs Grid */}
-        <ProgramGrid programs={programs} />
-
-        {/* Coming Soon Section */}
-        <div className="mt-12 p-6 rounded-2xl border border-dashed border-border/60 bg-muted/30 text-center">
-          <Sparkles className="h-8 w-8 text-muted-foreground/60 mx-auto mb-3" />
-          <h3 className="font-semibold text-foreground mb-1">
-            {isRo ? 'Mai multe programe în curând' : 'More programs coming soon'}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {isRo 
-              ? 'Suntem în lucru la noi cursuri și programe pentru tine.' 
-              : 'We\'re working on new courses and programs for you.'}
-          </p>
-        </div>
+        {renderTabContent()}
       </div>
     </Layout>
   );

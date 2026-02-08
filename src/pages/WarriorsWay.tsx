@@ -1,24 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
-  GraduationCap, 
-  Play, 
-  Lock, 
-  CheckCircle2, 
-  Clock,
-  BookOpen,
-  Sparkles,
-  ChevronRight,
-  Star,
-  MessageSquare,
-  Crown,
-  Rocket,
-  ArrowRight
+  GraduationCap, Play, Lock, CheckCircle2, Clock, ChevronRight, ChevronDown,
+  Crown, Rocket, ArrowRight, ArrowLeft, Menu, X, MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -30,6 +18,8 @@ import { WarriorTrainerPreview } from '@/components/warriors-way/WarriorTrainerP
 import { WarriorTrainerSalesLetter } from '@/components/warriors-way/WarriorTrainerSalesLetter';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 interface CourseModule {
   id: string;
@@ -48,8 +38,8 @@ interface CourseSection {
   modules: CourseModule[];
 }
 
-// Course structure - INTRO has 7 modules now
-const COURSE_SECTIONS = [
+// Course structure
+const COURSE_SECTIONS: CourseSection[] = [
   {
     id: 'intro',
     title: 'Călătoria unui Războinic',
@@ -107,7 +97,7 @@ const COURSE_SECTIONS = [
   {
     id: 'stack',
     title: 'Stack-ul',
-    description: 'Procesul de reîncadrare a poveștilor și transformare prin oprire, supunere, luptă și lovitură',
+    description: 'Procesul de reîncadrare a poveștilor și transformare',
     isFree: false,
     modules: [
       { id: 'stack-16', title: 'Reîncadrarea Poveștilor', duration: '16 min', order: 23, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=s69B0sdFecgBrRrOpxkpkgafSNSXAyhSm5pd1JNIflYDyBWCR&videoRatio=1.777778&type=v&skinColor=%232758EB' },
@@ -121,7 +111,7 @@ const COURSE_SECTIONS = [
   {
     id: 'core4',
     title: 'Core 4',
-    description: 'Stăpânirea și puterea în cele 4 domenii fundamentale: Corp, Ființă, Echilibru și Afacere',
+    description: 'Stăpânirea și puterea în cele 4 domenii fundamentale',
     isFree: false,
     modules: [
       { id: 'core4-22', title: 'Stăpânirea și Puterea', duration: '18 min', order: 29, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=4IRSFt32AW9mfmGVMiANew4S2N0peGzCIgtbiTkUCNavJ31AX&videoRatio=1.777778&type=v&skinColor=%232758EB' },
@@ -135,7 +125,7 @@ const COURSE_SECTIONS = [
   {
     id: 'door',
     title: 'The Warriors Door',
-    description: 'Ușa producției zilnice: Potențial, Plan, Producție și Profit - sistemul pentru focalizare și rezultate',
+    description: 'Ușa producției zilnice: Potențial, Plan, Producție și Profit',
     isFree: false,
     modules: [
       { id: 'door-28', title: 'Ușa: Perspectivă și Producție', duration: '18 min', order: 35, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=CLbfjprXBp0bR1PMgQRnsdTTHF5jgjLm1t4aFM0-AKkZ12Aka&videoRatio=1.777778&type=v&skinColor=%232758EB' },
@@ -150,7 +140,7 @@ const COURSE_SECTIONS = [
   {
     id: 'way',
     title: 'The Warriors Way',
-    description: 'Construiește-ți viața în jurul Căii Războinicului: de la hărți la jocul zilnic și Cortul Generalului',
+    description: 'Construiește-ți viața în jurul Căii Războinicului',
     isFree: false,
     modules: [
       { id: 'way-35', title: 'Construiește-ți Viața în Jurul Căii', duration: '18 min', order: 42, videoUrl: 'https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=LsEoqFUcFXjWwxUDmTU7VoRPHRgTMBciv0JKfnFNMAbWElipb&videoRatio=1.777778&type=v&skinColor=%232758EB' },
@@ -164,7 +154,7 @@ const COURSE_SECTIONS = [
   {
     id: 'trainer',
     title: 'Warrior Trainer',
-    description: 'Devino antrenorul propriei tale vieți și transformă viețile altora - Investiție: 5.000 EUR',
+    description: 'Devino antrenorul propriei tale vieți - Investiție: 5.000 EUR',
     isFree: false,
     isUpgrade: true,
     modules: [
@@ -175,6 +165,7 @@ const COURSE_SECTIONS = [
 
 const WarriorsWay: React.FC = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [showAiMentor, setShowAiMentor] = useState(false);
@@ -182,54 +173,41 @@ const WarriorsWay: React.FC = () => {
   const [hasPurchased, setHasPurchased] = useState(false);
   const [showTrainerPreview, setShowTrainerPreview] = useState(false);
   const [showTrainerSalesLetter, setShowTrainerSalesLetter] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['intro']);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { progress, isModuleCompleted, markModuleComplete, overallProgress } = useWarriorsCourse();
 
-  // Check if user is admin
   useEffect(() => {
     const checkAdminRole = async () => {
-      if (!user) {
-        setIsAdmin(false);
-        return;
-      }
-      
+      if (!user) { setIsAdmin(false); return; }
       const { data } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
         .eq('role', 'admin')
         .maybeSingle();
-      
       setIsAdmin(!!data);
     };
-    
     checkAdminRole();
   }, [user]);
 
-  // Check if user has purchased the course
   useEffect(() => {
     const checkPurchase = async () => {
-      if (!user) {
-        setHasPurchased(false);
-        return;
-      }
-
+      if (!user) { setHasPurchased(false); return; }
       const { data } = await supabase
         .from('course_purchases')
         .select('id')
         .eq('user_id', user.id)
         .eq('product_id', 'warrior-accelerator')
         .maybeSingle();
-
       setHasPurchased(!!data);
     };
-
     checkPurchase();
   }, [user]);
 
-  const totalModules = (COURSE_SECTIONS as CourseSection[]).reduce((acc, section) => acc + section.modules.length, 0);
+  const totalModules = COURSE_SECTIONS.reduce((acc, section) => acc + section.modules.length, 0);
   const completedModules = progress.filter(p => p.completed).length;
 
-  // Unlock all modules if admin or purchased
   const isModuleUnlocked = (moduleId: string): boolean => {
     if (isAdmin) return true;
     if (hasPurchased) return true;
@@ -237,46 +215,41 @@ const WarriorsWay: React.FC = () => {
   };
 
   const handleModuleClick = (moduleId: string, section: CourseSection) => {
-    // Check if this is the Trainer upgrade section
     if (section.isUpgrade) {
       setShowTrainerPreview(true);
       return;
     }
-
-    // Admin has full access
-    if (isAdmin) {
-      setSelectedModule(moduleId);
-      return;
-    }
-    
-    // Only first module is free
-    if (!isModuleUnlocked(moduleId)) {
+    if (!isAdmin && !isModuleUnlocked(moduleId)) {
       setShowPremiumGate(true);
       return;
     }
-    
     setSelectedModule(moduleId);
+    if (isMobile) setSidebarOpen(false);
   };
 
   const handleCloseVideo = () => {
     setSelectedModule(null);
   };
 
-  // Show Trainer Sales Letter (full sales page)
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev =>
+      prev.includes(sectionId)
+        ? prev.filter(id => id !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
+
   if (showTrainerSalesLetter) {
     return (
       <Layout>
         <WarriorTrainerSalesLetter 
           onBack={() => setShowTrainerSalesLetter(false)}
-          onEnroll={() => {
-            // Handle enrollment logic here
-          }} 
+          onEnroll={() => {}}
         />
       </Layout>
     );
   }
 
-  // Show Trainer Preview (video + comments + CTA button)
   if (showTrainerPreview) {
     return (
       <Layout>
@@ -291,247 +264,298 @@ const WarriorsWay: React.FC = () => {
     );
   }
 
+  // Sidebar content (reused in both desktop sidebar and mobile sheet)
+  const sidebarContent = (
+    <div className="flex flex-col h-full">
+      {/* Progress header */}
+      <div className="p-4 border-b border-border/60">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
+            <GraduationCap className="h-5 w-5 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="font-bold text-sm truncate">Warrior Launch Accelerator</h2>
+            <p className="text-xs text-muted-foreground">{completedModules}/{totalModules} module</p>
+          </div>
+        </div>
+        <Progress value={overallProgress} className="h-2" />
+        <p className="text-xs text-muted-foreground mt-1 text-right">{overallProgress}%</p>
+      </div>
+
+      {/* Sections list */}
+      <div className="flex-1 overflow-y-auto">
+        {COURSE_SECTIONS.map((section, sectionIndex) => {
+          const sectionCompleted = section.modules.filter(m => isModuleCompleted(m.id)).length;
+          const isExpanded = expandedSections.includes(section.id);
+
+          return (
+            <div key={section.id} className="border-b border-border/30">
+              {/* Section header */}
+              <button
+                onClick={() => toggleSection(section.id)}
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
+              >
+                <div className={cn(
+                  'flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold shrink-0',
+                  sectionCompleted === section.modules.length
+                    ? 'bg-emerald-500/20 text-emerald-500'
+                    : section.isFree
+                      ? 'bg-amber-500/20 text-amber-500'
+                      : 'bg-muted text-muted-foreground'
+                )}>
+                  {sectionCompleted === section.modules.length ? (
+                    <CheckCircle2 className="h-4 w-4" />
+                  ) : (
+                    sectionIndex + 1
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-medium truncate">{section.title}</span>
+                    {section.isFree && (
+                      <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-500 text-[10px] px-1.5 py-0">
+                        FREE
+                      </Badge>
+                    )}
+                    {section.isUpgrade && (
+                      <Badge variant="secondary" className="bg-amber-500/20 text-amber-400 text-[10px] px-1.5 py-0">
+                        <Crown className="h-2.5 w-2.5 mr-0.5" />
+                        UP
+                      </Badge>
+                    )}
+                    {!section.isFree && !section.isUpgrade && (
+                      <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{sectionCompleted}/{section.modules.length}</p>
+                </div>
+                <ChevronDown className={cn(
+                  'h-4 w-4 text-muted-foreground transition-transform shrink-0',
+                  isExpanded && 'rotate-180'
+                )} />
+              </button>
+
+              {/* Module list */}
+              {isExpanded && (
+                <div className="pb-2">
+                  {section.modules.map((module) => {
+                    const isCompleted = isModuleCompleted(module.id);
+                    const isLocked = !isModuleUnlocked(module.id);
+                    const isSelected = selectedModule === module.id;
+
+                    return (
+                      <button
+                        key={module.id}
+                        onClick={() => handleModuleClick(module.id, section)}
+                        className={cn(
+                          'w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all text-sm',
+                          isSelected
+                            ? 'bg-primary/10 border-l-2 border-primary'
+                            : 'hover:bg-muted/50 border-l-2 border-transparent',
+                          isLocked && 'opacity-60'
+                        )}
+                      >
+                        <div className={cn(
+                          'flex items-center justify-center w-6 h-6 rounded-full text-xs shrink-0',
+                          isCompleted
+                            ? 'bg-emerald-500 text-white'
+                            : isLocked
+                              ? 'bg-muted-foreground/20 text-muted-foreground'
+                              : isSelected
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground'
+                        )}>
+                          {isCompleted ? (
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                          ) : isLocked ? (
+                            <Lock className="h-3 w-3" />
+                          ) : (
+                            <Play className="h-3 w-3" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={cn(
+                            'text-xs font-medium truncate',
+                            isCompleted && 'text-emerald-500',
+                            isSelected && !isCompleted && 'text-primary'
+                          )}>
+                            {module.order}. {module.title}
+                          </p>
+                          <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                            <Clock className="h-2.5 w-2.5" />
+                            {module.duration}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // Find current module data for content area
+  const allModules = COURSE_SECTIONS.flatMap(s => s.modules);
+  const currentModule = selectedModule ? allModules.find(m => m.id === selectedModule) : null;
+  const currentIndex = selectedModule ? allModules.findIndex(m => m.id === selectedModule) : -1;
+  const previousModule = currentIndex > 0 ? allModules[currentIndex - 1] : null;
+  const nextModule = currentIndex < allModules.length - 1 ? allModules[currentIndex + 1] : null;
+  const nextSection = nextModule ? COURSE_SECTIONS.find(s => s.modules.some(m => m.id === nextModule.id)) : null;
+  const canGoNext = nextSection?.isFree || isAdmin || hasPurchased;
+
   return (
     <Layout>
-      <div className="container mx-auto py-8 px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600">
-              <GraduationCap className="h-8 w-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold">Warrior Launch Accelerator</h1>
-              <p className="text-muted-foreground">Transformă-ți viața prin Calea Războinicului</p>
-            </div>
-          </div>
+      <div className="flex h-[calc(100vh-4rem)]">
+        {/* Desktop Sidebar */}
+        {!isMobile && (
+          <aside className="w-80 border-r border-border/60 bg-card/50 overflow-hidden shrink-0">
+            {sidebarContent}
+          </aside>
+        )}
 
-          {/* CTA Banner to Sales Page */}
-          <Card className="mb-6 bg-gradient-to-r from-primary/10 via-amber-500/10 to-orange-500/10 border-primary/20">
-            <CardContent className="py-6">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <Rocket className="h-8 w-8 text-primary" />
-                  <div>
-                    <h3 className="font-bold text-lg">Deblochează Toate Cele 47+ Lecții</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Acces complet la curs + platforma WarriorOS - 970 EUR
-                    </p>
-                  </div>
-                </div>
-                <Link to="/warrior-launch-accelerator">
-                  <Button className="bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90">
-                    <Rocket className="h-4 w-4 mr-2" />
-                    Obține Acces Complet
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </Link>
+        {/* Mobile Sidebar Sheet */}
+        {isMobile && (
+          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+            <SheetContent side="left" className="w-[320px] p-0">
+              <SheetHeader className="sr-only">
+                <SheetTitle>Lecții</SheetTitle>
+              </SheetHeader>
+              {sidebarContent}
+            </SheetContent>
+          </Sheet>
+        )}
+
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto">
+          {/* Mobile header with menu button */}
+          {isMobile && (
+            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/60 p-3 flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+                <Menu className="h-5 w-5" />
+              </Button>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">
+                  {currentModule ? `${currentModule.order}. ${currentModule.title}` : 'Warrior Launch Accelerator'}
+                </p>
+                <p className="text-xs text-muted-foreground">{completedModules}/{totalModules} module</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          )}
 
-          {/* Progress Overview */}
-          <Card className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border-amber-500/20">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Progresul tău</p>
-                  <p className="text-2xl font-bold">{completedModules} / {totalModules} module</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-3xl font-bold text-amber-500">{overallProgress}%</p>
-                  <p className="text-sm text-muted-foreground">completat</p>
-                </div>
-              </div>
-              <Progress value={overallProgress} className="h-3" />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Course Sections */}
-        <div className="space-y-4">
-          <Accordion type="multiple" defaultValue={['intro']} className="space-y-4">
-            {COURSE_SECTIONS.map((section, sectionIndex) => {
-              const sectionCompletedCount = section.modules.filter(m => 
-                isModuleCompleted(m.id)
-              ).length;
-              const sectionProgress = (sectionCompletedCount / section.modules.length) * 100;
-
-              return (
-                <AccordionItem 
-                  key={section.id} 
-                  value={section.id}
-                  className="border rounded-xl overflow-hidden bg-card"
-                >
-                  <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/50">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className={cn(
-                        "flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg",
-                        sectionProgress === 100 
-                          ? "bg-green-500/20 text-green-500" 
-                          : section.isFree 
-                            ? "bg-amber-500/20 text-amber-500"
-                            : "bg-muted text-muted-foreground"
-                      )}>
-                        {sectionProgress === 100 ? (
-                          <CheckCircle2 className="h-5 w-5" />
-                        ) : (
-                          sectionIndex + 1
-                        )}
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">{section.title}</h3>
-                          {section.isFree && (
-                            <Badge variant="secondary" className="bg-green-500/20 text-green-500">
-                              GRATUIT
-                            </Badge>
-                          )}
-                          {(section as CourseSection).isUpgrade && (
-                            <Badge variant="secondary" className="bg-gradient-to-r from-amber-500/20 to-orange-600/20 text-amber-400 border-amber-500/30">
-                              <Crown className="h-3 w-3 mr-1" />
-                              UPGRADE
-                            </Badge>
-                          )}
-                          {!section.isFree && !(section as CourseSection).isUpgrade && (
-                            <Badge variant="secondary" className="bg-amber-500/20 text-amber-500">
-                              <Lock className="h-3 w-3 mr-1" />
-                              PREMIUM
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{section.description}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Progress value={sectionProgress} className="h-1.5 w-24" />
-                          <span className="text-xs text-muted-foreground">
-                            {sectionCompletedCount}/{section.modules.length}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-6 pb-4">
-                    <div className="space-y-2 mt-2">
-                      {section.modules.map((module, moduleIndex) => {
-                        const isCompleted = isModuleCompleted(module.id);
-                        const isLocked = !isModuleUnlocked(module.id);
-
-                        return (
-                          <button
-                            key={module.id}
-                            onClick={() => handleModuleClick(module.id, section as CourseSection)}
-                            className={cn(
-                              "w-full flex items-center gap-4 p-4 rounded-lg transition-all text-left",
-                              isCompleted 
-                                ? "bg-green-500/10 border border-green-500/20" 
-                                : isLocked
-                                  ? "bg-muted/30 hover:bg-muted/50 border border-transparent"
-                                  : "bg-muted/50 hover:bg-muted border border-transparent hover:border-primary/20"
-                            )}
-                          >
-                            <div className={cn(
-                              "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium",
-                              isCompleted 
-                                ? "bg-green-500 text-white" 
-                                : isLocked
-                                  ? "bg-muted-foreground/20 text-muted-foreground"
-                                  : "bg-primary/20 text-primary"
-                            )}>
-                              {isCompleted ? (
-                                <CheckCircle2 className="h-4 w-4" />
-                              ) : isLocked ? (
-                                <Lock className="h-3.5 w-3.5" />
-                              ) : (
-                                <Play className="h-3.5 w-3.5" />
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <p className={cn(
-                                "font-medium",
-                                isCompleted && "text-green-500",
-                                isLocked && "text-muted-foreground"
-                              )}>
-                                {module.order}. {module.title}
-                              </p>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <Clock className="h-3 w-3" />
-                                {module.duration}
-                                {!isLocked && moduleIndex === 0 && section.id === 'intro' && (
-                                  <Badge variant="secondary" className="ml-2 bg-green-500/20 text-green-500 text-[10px]">
-                                    GRATUIT
-                                  </Badge>
-                                )}
-                                {isLocked && section.id === 'intro' && moduleIndex > 0 && (
-                                  <Badge variant="secondary" className="ml-2 bg-amber-500/20 text-amber-500 text-[10px]">
-                                    PREMIUM
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                            <ChevronRight className={cn(
-                              "h-5 w-5",
-                              isLocked ? "text-muted-foreground/50" : "text-muted-foreground"
-                            )} />
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              );
-            })}
-          </Accordion>
-        </div>
-
-        {/* Video Player Modal */}
-        {selectedModule && (() => {
-          // Find the module data for the selected module
-          const allModules = COURSE_SECTIONS.flatMap(s => s.modules);
-          const currentModule = allModules.find(m => m.id === selectedModule);
-          const currentIndex = allModules.findIndex(m => m.id === selectedModule);
-          const previousModule = currentIndex > 0 ? allModules[currentIndex - 1] : null;
-          const nextModule = currentIndex < allModules.length - 1 ? allModules[currentIndex + 1] : null;
-          
-          // Check if next module is accessible (free section)
-          const nextSection = COURSE_SECTIONS.find(s => s.modules.some(m => m.id === nextModule?.id));
-          const canGoNext = nextSection?.isFree;
-          
-          return (
+          {selectedModule && currentModule ? (
+            /* Video Player + Lesson Content */
             <WarriorVideoPlayer
               moduleId={selectedModule}
-              moduleTitle={currentModule?.title}
-              moduleOrder={currentModule?.order}
-              videoUrl={(currentModule as any)?.videoUrl}
+              moduleTitle={currentModule.title}
+              moduleOrder={currentModule.order}
+              videoUrl={currentModule.videoUrl}
               onClose={handleCloseVideo}
               onComplete={async () => { await markModuleComplete(selectedModule); }}
               hasPrevious={!!previousModule}
-              hasNext={!!nextModule && canGoNext}
+              hasNext={!!nextModule && !!canGoNext}
               onPrevious={() => previousModule && setSelectedModule(previousModule.id)}
               onNext={() => nextModule && canGoNext && setSelectedModule(nextModule.id)}
             />
-          );
-        })()}
+          ) : (
+            /* Welcome / CTA screen when no module selected */
+            <div className="p-6 md:p-10 max-w-3xl mx-auto space-y-6">
+              <div className="flex items-center gap-3 mb-2">
+                <Link to="/programs" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <ArrowLeft className="h-5 w-5" />
+                </Link>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold">Warrior Launch Accelerator</h1>
+                  <p className="text-muted-foreground">Transformă-ți viața prin Calea Războinicului</p>
+                </div>
+              </div>
 
-        {/* Premium Gate Modal */}
-        {showPremiumGate && (
-          <PremiumGate onClose={() => setShowPremiumGate(false)} />
-        )}
+              {/* CTA Banner */}
+              {!hasPurchased && !isAdmin && (
+                <Card className="bg-gradient-to-r from-primary/10 via-amber-500/10 to-orange-500/10 border-primary/20">
+                  <CardContent className="py-6">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <Rocket className="h-8 w-8 text-primary shrink-0" />
+                        <div>
+                          <h3 className="font-bold text-lg">Deblochează Toate Cele 47+ Lecții</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Acces complet la curs + platforma WarriorOS - 970 EUR
+                          </p>
+                        </div>
+                      </div>
+                      <Link to="/warrior-launch-accelerator">
+                        <Button className="bg-gradient-to-r from-primary to-amber-500 hover:from-primary/90 hover:to-amber-500/90">
+                          <Rocket className="h-4 w-4 mr-2" />
+                          Obține Acces Complet
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-        {/* AI Mentor */}
-        <WarriorAiMentorButton onClick={() => setShowAiMentor(true)} />
-        <WarriorAiMentor 
-          isOpen={showAiMentor} 
-          onClose={() => setShowAiMentor(false)}
-          onNavigateToModule={(moduleId) => {
-            const section = COURSE_SECTIONS.find(s => s.modules.some(m => m.id === moduleId));
-            if (section?.isFree) {
-              setSelectedModule(moduleId);
-            } else {
-              setShowPremiumGate(true);
-            }
-          }}
-        />
+              {/* Progress Card */}
+              <Card className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border-amber-500/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Progresul tău</p>
+                      <p className="text-2xl font-bold">{completedModules} / {totalModules} module</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-3xl font-bold text-amber-500">{overallProgress}%</p>
+                      <p className="text-sm text-muted-foreground">completat</p>
+                    </div>
+                  </div>
+                  <Progress value={overallProgress} className="h-3" />
+                </CardContent>
+              </Card>
+
+              {/* Prompt to select a lesson */}
+              <div className="text-center py-8">
+                <Play className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  {isMobile ? 'Deschide meniul pentru a alege o lecție' : 'Selectează o lecție din sidebar'}
+                </h3>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  Alege un modul din lista din stânga pentru a începe sau continua cursul.
+                </p>
+                {isMobile && (
+                  <Button variant="outline" className="mt-4 gap-2" onClick={() => setSidebarOpen(true)}>
+                    <Menu className="h-4 w-4" />
+                    Deschide Lista de Lecții
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </main>
       </div>
+
+      {/* Premium Gate Modal */}
+      {showPremiumGate && (
+        <PremiumGate onClose={() => setShowPremiumGate(false)} />
+      )}
+
+      {/* AI Mentor */}
+      <WarriorAiMentorButton onClick={() => setShowAiMentor(true)} />
+      <WarriorAiMentor 
+        isOpen={showAiMentor} 
+        onClose={() => setShowAiMentor(false)}
+        onNavigateToModule={(moduleId) => {
+          const section = COURSE_SECTIONS.find(s => s.modules.some(m => m.id === moduleId));
+          if (section?.isFree || isAdmin || hasPurchased) {
+            setSelectedModule(moduleId);
+          } else {
+            setShowPremiumGate(true);
+          }
+        }}
+      />
     </Layout>
   );
 };
