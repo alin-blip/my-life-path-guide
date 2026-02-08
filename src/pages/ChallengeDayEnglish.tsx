@@ -16,7 +16,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { ChallengeAnswersHistory } from '@/components/challenge/ChallengeAnswersHistory';
 import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Complete';
-import { ChallengeComments, ChallengeCommentsRef } from '@/components/challenge/ChallengeComments';
+import { LessonCommunityPost } from '@/components/programs/LessonCommunityPost';
 import { ChallengeUpgradeGate } from '@/components/challenge/ChallengeUpgradeGate';
 import { 
   Day1WhyQuestions, 
@@ -276,7 +276,7 @@ const ChallengeDayEnglish: React.FC = () => {
   const [day1Step, setDay1Step] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [userCommentCount, setUserCommentCount] = useState(0);
-  const commentsRef = useRef<ChallengeCommentsRef>(null);
+  const commentsRef = useRef<any>(null);
   
   const content = challengeContent[dayNumber - 1];
   const script = getDayScript(dayNumber);
@@ -635,15 +635,9 @@ const ChallengeDayEnglish: React.FC = () => {
             <ChallengeLiveChat dayNumber={1} language="en" />
           </div>
 
-          {/* Comments */}
+          {/* Lesson Community Posts */}
           <div className="mt-8">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-amber-500" />
-              Community
-            </h2>
-            <Card className="p-4">
-              <ChallengeComments ref={commentsRef} dayNumber={1} />
-            </Card>
+            <LessonCommunityPost dayNumber={1} dayTitle="Vision + Declaration" />
           </div>
         </div>
       </Layout>
@@ -792,15 +786,9 @@ const ChallengeDayEnglish: React.FC = () => {
           <ChallengeLiveChat dayNumber={dayNumber} language="en" />
         </div>
 
-        {/* Comments */}
+        {/* Lesson Community Posts */}
         <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-amber-500" />
-            Community
-          </h2>
-          <Card className="p-4">
-            <ChallengeComments ref={commentsRef} dayNumber={dayNumber} />
-          </Card>
+          <LessonCommunityPost dayNumber={dayNumber} dayTitle={content.title} />
         </div>
         
         {/* Complete Day Button */}
