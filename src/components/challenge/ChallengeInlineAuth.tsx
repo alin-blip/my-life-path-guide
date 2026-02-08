@@ -192,7 +192,7 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
       await saveLeadBeforeAuth();
 
       if (mode === 'signup') {
-        const { error } = await supabase.auth.signUp({
+        const { error, data: signUpData } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -225,9 +225,32 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
           }
         });
 
+        // FIX: Wait for session to be confirmed before redirect
+        // Auto-confirm is enabled, so session should be available immediately or within a few seconds
+        let sessionConfirmed = false;
+        
+        // Check if session exists immediately (auto-confirm case)
+        const { data: immediateSession } = await supabase.auth.getSession();
+        if (immediateSession?.session) {
+          sessionConfirmed = true;
+        } else {
+          // Polling for session (max 3 seconds, 6 attempts x 500ms)
+          for (let attempt = 0; attempt < 6 && !sessionConfirmed; attempt++) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const { data: polledSession } = await supabase.auth.getSession();
+            if (polledSession?.session) {
+              sessionConfirmed = true;
+              break;
+            }
+          }
+        }
+
+        // FIX: Show correct message (no "check email" when auto-confirm is active)
         toast({
           title: '🎉 ' + (language === 'en' ? 'Account created!' : 'Cont creat!'),
-          description: t.signupSuccess,
+          description: language === 'en' 
+            ? 'Redirecting to your challenge...' 
+            : 'Te redirecționăm către challenge...',
         });
 
         onSuccess?.();

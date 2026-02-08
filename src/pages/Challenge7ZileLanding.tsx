@@ -58,7 +58,14 @@ const Challenge7ZileLanding = () => {
     fetchMetrics();
   }, []);
 
-  const handleAuthSuccess = () => {
+  const handleAuthSuccess = async () => {
+    // FIX: Verify session exists before redirect to ensure Challenge.tsx sees authenticated user
+    const { data: sessionCheck } = await supabase.auth.getSession();
+    if (!sessionCheck?.session) {
+      // Give AuthContext a moment to propagate the session
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
     setIsSubscribed(true);
     toast({
       title: language === 'en' ? '🎉 Account ready!' : '🎉 Cont pregătit!',

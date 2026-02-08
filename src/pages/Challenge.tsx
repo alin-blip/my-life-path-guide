@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
@@ -18,6 +18,7 @@ import { ChallengeScriptCard } from '@/components/challenge/ChallengeScriptCard'
 import { ChallengeInlineChat } from '@/components/challenge/ChallengeInlineChat';
 import { getDayScriptRo } from '@/data/challengeScriptsRo';
 import { getDayScript } from '@/data/challengeScripts';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChallengeDay {
   day: number;
@@ -124,6 +125,22 @@ const ChallengePage = () => {
     hasPremiumAccess,
     trackChallengeStarted
   } = useChallengeProgress();
+
+  // FIX: Fallback session check for fresh signups from challenge landing
+  // If we have a Supabase session but AuthContext shows unauthenticated, force refresh
+  const [sessionCheckDone, setSessionCheckDone] = useState(false);
+  useEffect(() => {
+    if (!sessionCheckDone && !loading) {
+      supabase.auth.getSession().then(({ data }) => {
+        if (data?.session && !isAuthenticated) {
+          // Session exists but context doesn't see it - reload to sync
+          console.log('[Challenge] Session mismatch detected, reloading to sync auth state');
+          window.location.reload();
+        }
+        setSessionCheckDone(true);
+      });
+    }
+  }, [loading, isAuthenticated, sessionCheckDone]);
 
   // Automatically track challenge started when authenticated user enters
   useEffect(() => {
