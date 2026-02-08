@@ -4,6 +4,7 @@ import { SkoolWritePost } from './SkoolWritePost';
 import { SkoolCategoryFilter } from './SkoolCategoryFilter';
 import { SkoolPostCard } from './SkoolPostCard';
 import { SkoolGroupSidebar } from './SkoolGroupSidebar';
+import { CommunityWelcomeBanner } from './CommunityWelcomeBanner';
 import { useLanguage } from '@/context/LanguageContext';
 
 export const CommunityTab: React.FC = () => {
@@ -23,6 +24,7 @@ export const CommunityTab: React.FC = () => {
     <div className="flex gap-6">
       {/* Main Feed */}
       <div className="flex-1 min-w-0 max-w-2xl space-y-4">
+        <CommunityWelcomeBanner />
         <SkoolWritePost onPost={createPost} />
         <SkoolCategoryFilter active={activeCategory} onChange={setActiveCategory} />
 
