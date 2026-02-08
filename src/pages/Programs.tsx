@@ -13,9 +13,17 @@ import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 
 const Programs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = (searchParams.get('tab') as SkoolTab) || 'classroom';
-  const [activeTab, setActiveTab] = useState<SkoolTab>(initialTab);
+  const tabFromUrl = (searchParams.get('tab') as SkoolTab) || 'community';
+  const [activeTab, setActiveTab] = useState<SkoolTab>(tabFromUrl);
   const { completedDaysCount } = useChallengeProgress();
+
+  // Sync activeTab when URL search params change (e.g. from GlobalTopBar)
+  React.useEffect(() => {
+    const urlTab = (searchParams.get('tab') as SkoolTab) || 'community';
+    if (urlTab !== activeTab) {
+      setActiveTab(urlTab);
+    }
+  }, [searchParams]);
 
   const challengeProgress = (completedDaysCount / 7) * 100;
 
