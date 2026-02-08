@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Sun, Moon, Menu } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { LanguageSelector } from '@/components/LanguageSelector';
-import { UserAccountDropdown } from '@/components/UserAccountDropdown';
-import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { useTheme } from '@/context/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SkoolNavBar, SkoolTab } from './SkoolNavBar';
+import { GlobalTopBar } from '@/components/global/GlobalTopBar';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 interface ProgramsLayoutProps {
@@ -29,9 +26,7 @@ export const ProgramsLayout: React.FC<ProgramsLayoutProps> = ({
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user } = useAuth();
   const { language } = useLanguage();
-  const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const currentTab = activeTab || (searchParams.get('tab') as SkoolTab) || 'classroom';
@@ -46,44 +41,8 @@ export const ProgramsLayout: React.FC<ProgramsLayoutProps> = ({
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Minimal Header */}
-      <header className="border-b border-border/60 bg-card/80 backdrop-blur-sm sticky top-0 z-20">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="flex items-center justify-between h-14">
-            {/* Left: Back to Warrior OS */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/dashboard')}
-              className="gap-2 text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Warrior OS</span>
-              <span className="sm:hidden">WOS</span>
-            </Button>
-
-            {/* Right: Controls */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleTheme}
-                className="h-8 w-8 rounded-lg"
-              >
-                {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-              </Button>
-              <LanguageSelector />
-              {user ? (
-                <UserAccountDropdown />
-              ) : (
-                <Button asChild variant="default" size="sm">
-                  <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Global Top Bar */}
+      <GlobalTopBar />
 
       {/* Skool Navigation Bar */}
       {showNavBar && (

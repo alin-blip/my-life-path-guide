@@ -1,17 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SideMenu } from './SideMenu';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Menu, X, Sun, Moon } from 'lucide-react';
-import { LanguageSelector } from './LanguageSelector';
-import { useLanguage } from '@/context/LanguageContext';
-import { Button } from './ui/button';
+import { useLocation } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
 import { ReferralTracker } from './ReferralTracker';
 import { ReferralClientOnboarding } from './coach/ReferralClientOnboarding';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
 import { useTourContext } from '@/context/TourContext';
-import { UserAccountDropdown } from './UserAccountDropdown';
+import { GlobalTopBar } from './global/GlobalTopBar';
 
 import { GoalRemindersNotification } from './door/GoalRemindersNotification';
 import { AccountabilityCoachWidget } from './accountability/AccountabilityCoachWidget';
@@ -26,12 +22,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const isAuthPage = location.pathname === '/' || location.pathname === '/auth';
   const isChallengeRoute = location.pathname.startsWith('/challenge');
-  const { user, signOut } = useAuth();
-  const { language } = useLanguage();
-  const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
   const { registerMobileMenuControl } = useTourContext();
   
   // Activity tracker - tracks page views and sessions automatically
@@ -62,35 +55,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     } else {
       setIsMenuCollapsed(!isMenuCollapsed);
     }
-  };
-
-  // Format date - short numeric for mobile, full for desktop
-  const formatDate = (short = false) => {
-    const date = new Date();
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const shortYear = year.toString().slice(-2);
-
-    if (short) {
-      return `${day}/${month}/${shortYear}`;
-    }
-
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const dayNum = date.getDate();
-    const monthName = months[date.getMonth()];
-
-    // Add ordinal suffix
-    let suffix = 'th';
-    if (dayNum === 1 || dayNum === 21 || dayNum === 31) suffix = 'st';
-    if (dayNum === 2 || dayNum === 22) suffix = 'nd';
-    if (dayNum === 3 || dayNum === 23) suffix = 'rd';
-    return `${monthName} ${dayNum}${suffix} ${year}`;
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
   };
 
   return (
@@ -142,63 +106,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         flex-1 transition-all duration-300 ease-in-out w-full overflow-x-hidden overflow-y-auto
         ${isMobile ? 'ml-0' : isMenuCollapsed ? 'ml-[70px]' : 'ml-[260px]'}
       `}>
+        {/* Global Top Bar */}
+        <GlobalTopBar />
+        
         <div className={`${isMobile ? 'px-3 py-4 pt-16' : 'p-8'} overflow-x-hidden min-h-full`}>
-          {/* Header - Desktop */}
-          {!isMobile && (
-            <div className="flex justify-between items-center mb-8">
-              <div className="glass-card px-4 py-2 rounded-xl">
-                <span className="text-sm font-medium text-muted-foreground">{formatDate()}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Button 
-                  variant="glass" 
-                  size="icon" 
-                  onClick={toggleTheme}
-                  className="rounded-xl"
-                >
-                  {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                </Button>
-                <LanguageSelector />
-                {user ? (
-                  <UserAccountDropdown />
-                ) : (
-                  <Button asChild variant="default" size="sm">
-                    <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {/* Mobile Header - Simplified */}
-          {isMobile && (
-            <div className="flex justify-between items-center mb-4">
-              <div className="glass-card px-2 py-1 rounded-lg">
-                <span className="text-xs font-medium text-muted-foreground">{formatDate(true)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="glass" 
-                  size="icon" 
-                  onClick={toggleTheme}
-                  className="h-8 w-8 rounded-lg"
-                >
-                  {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                </Button>
-                {!user ? (
-                  <Button asChild variant="default" size="sm">
-                    <Link to="/auth">{language === 'en' ? 'Log in' : 'Autentificare'}</Link>
-                  </Button>
-                ) : (
-                  <Button variant="outline" size="sm" onClick={handleSignOut}>
-                    {language === 'en' ? 'Log out' : 'Delogare'}
-                  </Button>
-                )}
-                <LanguageSelector />
-              </div>
-            </div>
-          )}
-          
           <main className="animate-fade-in">{children}</main>
         </div>
       </div>

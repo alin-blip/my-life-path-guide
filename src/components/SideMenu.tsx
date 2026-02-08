@@ -377,29 +377,6 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       {/* Footer */}
       <div className="p-3 border-t border-border/30 space-y-1">
         {user && (
-          <>
-            <Link to="/profile" onClick={onItemClick} className={`sidebar-item ${currentPath === '/profile' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
-              <User className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-              {!isCollapsed && <span className="text-sm font-medium">{language === 'ro' ? 'Profil' : 'Profile'}</span>}
-            </Link>
-            <button 
-              onClick={handleManageSubscription} 
-              className={`sidebar-item w-full ${isCollapsed ? 'justify-center' : ''}`}
-            >
-              <CreditCard className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-              {!isCollapsed && <span className="text-sm font-medium">{subscribed ? (language === 'ro' ? 'Abonament' : 'Subscription') : (language === 'ro' ? 'Upgrade' : 'Upgrade')}</span>}
-            </button>
-          </>
-        )}
-        <Link to="/settings" onClick={onItemClick} className={`sidebar-item ${currentPath === '/settings' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
-          <Settings className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-          {!isCollapsed && <span className="text-sm font-medium">{language === 'ro' ? 'Setări' : 'Settings'}</span>}
-        </Link>
-        <Link to="/support" onClick={onItemClick} className={`sidebar-item ${currentPath === '/support' ? 'active' : ''} ${isCollapsed ? 'justify-center' : ''}`}>
-          <HelpCircle className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-          {!isCollapsed && <span className="text-sm font-medium">{language === 'ro' ? 'Suport' : 'Support'}</span>}
-        </Link>
-        {user && (
           <button 
             onClick={handleSignOut} 
             className={`sidebar-item w-full text-destructive hover:text-destructive ${isCollapsed ? 'justify-center' : ''}`}
