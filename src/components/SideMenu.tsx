@@ -209,19 +209,16 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 10. BROTHERHOOD (includes Community features)
+    // 10. LEADERBOARD & ACHIEVEMENTS (standalone)
     {
-      title: 'Brotherhood',
-      icon: Users,
-      path: '/brotherhood',
-      subItems: [
-        { title: 'Feed', icon: Flame, path: '/brotherhood?tab=feed' },
-        { title: 'Chat', icon: Heart, path: '/brotherhood?tab=chat' },
-        { title: 'Tribes', icon: Users, path: '/brotherhood?tab=tribes' },
-        { title: language === 'ro' ? 'Membri' : 'Members', icon: Users, path: '/brotherhood?tab=members' },
-        { title: language === 'ro' ? 'Clasament' : 'Leaderboard', icon: Trophy, path: '/leaderboard' },
-        { title: language === 'ro' ? 'Achievements' : 'Achievements', icon: Sparkles, path: '/achievements' },
-      ]
+      title: language === 'ro' ? 'Clasament' : 'Leaderboard',
+      icon: Trophy,
+      path: '/leaderboard',
+    },
+    {
+      title: 'Achievements',
+      icon: Sparkles,
+      path: '/achievements',
     },
 
     // COACH DASHBOARD - Visible to all logged-in users

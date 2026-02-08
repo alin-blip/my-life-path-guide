@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -21,21 +24,28 @@ interface NewMessageDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectMember: (memberId: string) => void;
+  onSelectMultiple?: (memberIds: string[]) => void;
 }
 
 export const NewMessageDialog: React.FC<NewMessageDialogProps> = ({
   open,
   onOpenChange,
   onSelectMember,
+  onSelectMultiple,
 }) => {
   const { user } = useAuth();
   const { language } = useLanguage();
   const [search, setSearch] = useState('');
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setSelectedIds([]);
+      setSearch('');
+      return;
+    }
     const fetchMembers = async () => {
       setLoading(true);
       let query = supabase
@@ -56,6 +66,28 @@ export const NewMessageDialog: React.FC<NewMessageDialogProps> = ({
     fetchMembers();
   }, [open, search, user]);
 
+  const toggleMember = (userId: string) => {
+    setSelectedIds(prev =>
+      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+    );
+  };
+
+  const removeMember = (userId: string) => {
+    setSelectedIds(prev => prev.filter(id => id !== userId));
+  };
+
+  const handleSend = () => {
+    if (selectedIds.length === 1) {
+      onSelectMember(selectedIds[0]);
+      onOpenChange(false);
+    } else if (selectedIds.length > 1 && onSelectMultiple) {
+      onSelectMultiple(selectedIds);
+      onOpenChange(false);
+    }
+  };
+
+  const selectedMembers = members.filter(m => selectedIds.includes(m.user_id));
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -64,6 +96,24 @@ export const NewMessageDialog: React.FC<NewMessageDialogProps> = ({
             {language === 'ro' ? 'Mesaj nou' : 'New Message'}
           </DialogTitle>
         </DialogHeader>
+
+        {/* Selected members chips */}
+        {selectedIds.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {selectedMembers.map(m => (
+              <Badge key={m.user_id} variant="secondary" className="gap-1 pr-1">
+                <span>{m.avatar_emoji || '📚'}</span>
+                <span className="text-xs">{m.display_name}</span>
+                <button
+                  onClick={() => removeMember(m.user_id)}
+                  className="ml-0.5 rounded-full hover:bg-muted p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -85,23 +135,33 @@ export const NewMessageDialog: React.FC<NewMessageDialogProps> = ({
               {language === 'ro' ? 'Niciun membru găsit' : 'No members found'}
             </p>
           ) : (
-            members.map((member) => (
-              <button
-                key={member.user_id}
-                onClick={() => {
-                  onSelectMember(member.user_id);
-                  onOpenChange(false);
-                }}
-                className="w-full flex items-center gap-3 p-3 hover:bg-accent/40 transition-colors text-left"
-              >
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-lg">
-                  {member.avatar_emoji || '📚'}
-                </div>
-                <span className="text-sm font-medium">{member.display_name}</span>
-              </button>
-            ))
+            members.map((member) => {
+              const isSelected = selectedIds.includes(member.user_id);
+              return (
+                <button
+                  key={member.user_id}
+                  onClick={() => toggleMember(member.user_id)}
+                  className="w-full flex items-center gap-3 p-3 hover:bg-accent/40 transition-colors text-left"
+                >
+                  <Checkbox checked={isSelected} className="pointer-events-none" />
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-lg">
+                    {member.avatar_emoji || '📚'}
+                  </div>
+                  <span className="text-sm font-medium">{member.display_name}</span>
+                </button>
+              );
+            })
           )}
         </div>
+
+        {/* Send button */}
+        {selectedIds.length > 0 && (
+          <Button onClick={handleSend} className="w-full">
+            {language === 'ro'
+              ? `Trimite mesaj la ${selectedIds.length} ${selectedIds.length === 1 ? 'persoană' : 'persoane'}`
+              : `Message ${selectedIds.length} ${selectedIds.length === 1 ? 'person' : 'people'}`}
+          </Button>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "@/context/AuthContext";
@@ -372,11 +372,7 @@ const App = () => (
                         <GameObjectives />
                       </ProtectedRoute>
                     } />
-                    <Route path="/brotherhood" element={
-                      <ProtectedRoute>
-                        <Brotherhood />
-                      </ProtectedRoute>
-                    } />
+                    <Route path="/brotherhood" element={<Navigate to="/programs?tab=community" replace />} />
                     <Route path="/vibe-canvas" element={
                       <ProtectedRoute>
                         <VibeCanvasPage />

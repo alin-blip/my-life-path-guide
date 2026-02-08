@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -9,24 +10,30 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Send } from 'lucide-react';
+import { Send, Bell, Mail } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface SkoolWritePostProps {
-  onPost: (content: string) => Promise<any>;
+  onPost: (content: string, options?: { notifyAll?: boolean; sendEmail?: boolean }) => Promise<any>;
 }
 
 export const SkoolWritePost: React.FC<SkoolWritePostProps> = ({ onPost }) => {
   const { language } = useLanguage();
+  const { isAdmin } = useAdminAuth();
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState('');
   const [posting, setPosting] = useState(false);
+  const [notifyAll, setNotifyAll] = useState(true);
+  const [sendEmail, setSendEmail] = useState(false);
 
   const handlePost = async () => {
     if (!content.trim()) return;
     setPosting(true);
-    await onPost(content.trim());
+    await onPost(content.trim(), { notifyAll, sendEmail });
     setContent('');
+    setNotifyAll(true);
+    setSendEmail(false);
     setOpen(false);
     setPosting(false);
   };
@@ -71,6 +78,34 @@ export const SkoolWritePost: React.FC<SkoolWritePostProps> = ({ onPost }) => {
               className="min-h-[140px] resize-none"
               autoFocus
             />
+
+            {/* Notification options */}
+            <div className="space-y-3 rounded-lg border border-border/60 p-3">
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <Checkbox
+                  checked={notifyAll}
+                  onCheckedChange={(checked) => setNotifyAll(checked === true)}
+                />
+                <Bell className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">
+                  {language === 'ro' ? 'Notifică toți membrii' : 'Notify all members'}
+                </span>
+              </label>
+
+              {isAdmin && (
+                <label className="flex items-center gap-2.5 cursor-pointer">
+                  <Checkbox
+                    checked={sendEmail}
+                    onCheckedChange={(checked) => setSendEmail(checked === true)}
+                  />
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    {language === 'ro' ? 'Trimite și pe email' : 'Also send email'}
+                  </span>
+                </label>
+              )}
+            </div>
+
             <div className="flex justify-end">
               <Button
                 onClick={handlePost}

@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { MessageCircle, Bell, Users, GraduationCap } from 'lucide-react';
+import { MessageCircle, Users, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserAccountDropdown } from '@/components/UserAccountDropdown';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useDirectMessages } from '@/hooks/useDirectMessages';
+import { NotificationsDropdown } from './NotificationsDropdown';
 import { cn } from '@/lib/utils';
 
 export const GlobalTopBar: React.FC = () => {
@@ -93,15 +94,8 @@ export const GlobalTopBar: React.FC = () => {
             )}
           </Button>
 
-          {/* Notifications (placeholder) */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative h-9 w-9"
-            onClick={() => navigate('/programs?tab=community')}
-          >
-            <Bell className="h-4.5 w-4.5" />
-          </Button>
+          {/* Notifications */}
+          <NotificationsDropdown />
 
           {/* Profile */}
           {user ? (

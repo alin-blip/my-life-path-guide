@@ -19,6 +19,7 @@ const Messages: React.FC = () => {
     fetchConversations,
     fetchMessages,
     sendMessage,
+    sendBulkMessage,
   } = useDirectMessages();
 
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
@@ -53,10 +54,26 @@ const Messages: React.FC = () => {
     fetchMessages(memberId);
   }, [fetchMessages]);
 
+  const handleSelectMultiple = useCallback(async (memberIds: string[]) => {
+    // Select the first member for viewing, the actual bulk send happens when typing
+    if (memberIds.length > 0) {
+      handleSelectNewMember(memberIds[0]);
+    }
+    // Store all selected IDs for bulk messaging
+    setBulkRecipients(memberIds);
+  }, []);
+
+  const [bulkRecipients, setBulkRecipients] = useState<string[]>([]);
+
   const handleSend = useCallback(async (content: string) => {
     if (!selectedPartnerId) return;
-    await sendMessage(selectedPartnerId, content);
-  }, [selectedPartnerId, sendMessage]);
+    if (bulkRecipients.length > 1) {
+      await sendBulkMessage(bulkRecipients, content);
+      setBulkRecipients([]);
+    } else {
+      await sendMessage(selectedPartnerId, content);
+    }
+  }, [selectedPartnerId, sendMessage, sendBulkMessage, bulkRecipients]);
 
   const showList = !isMobile || !selectedPartnerId;
   const showThread = !isMobile || !!selectedPartnerId;
@@ -120,6 +137,7 @@ const Messages: React.FC = () => {
         open={newMessageOpen}
         onOpenChange={setNewMessageOpen}
         onSelectMember={handleSelectNewMember}
+        onSelectMultiple={handleSelectMultiple}
       />
     </div>
   );

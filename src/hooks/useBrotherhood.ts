@@ -292,7 +292,13 @@ export const useBrotherhood = () => {
     content: string,
     tribeId?: string,
     mediaUrls?: string[],
-    options?: { category?: string; source_context?: string; source_label?: string }
+    options?: {
+      category?: string;
+      source_context?: string;
+      source_label?: string;
+      notifyAll?: boolean;
+      sendEmail?: boolean;
+    }
   ) => {
     if (!user) return null;
 
@@ -316,6 +322,49 @@ export const useBrotherhood = () => {
     if (error) {
       toast({ title: 'Error creating post', description: error.message, variant: 'destructive' });
       return null;
+    }
+
+    // Notify all members via in-app notifications
+    if (options?.notifyAll) {
+      try {
+        // Get all community members except author
+        const { data: allMembers } = await supabase
+          .from('leaderboard_profiles')
+          .select('user_id')
+          .neq('user_id', user.id)
+          .limit(1000);
+
+        if (allMembers && allMembers.length > 0) {
+          const preview = content.length > 80 ? content.substring(0, 80) + '...' : content;
+          const notifications = allMembers.map(m => ({
+            sender_id: user.id,
+            recipient_id: m.user_id,
+            title: '📢 Postare nouă în comunitate',
+            message: preview,
+            notification_type: 'community_post',
+            tribe_id: tribeId || null,
+          }));
+
+          // Insert in batches of 100
+          for (let i = 0; i < notifications.length; i += 100) {
+            const batch = notifications.slice(i, i + 100);
+            await supabase.from('push_notifications').insert(batch);
+          }
+        }
+      } catch (err) {
+        console.error('Error sending notifications:', err);
+      }
+    }
+
+    // Send email notification via edge function
+    if (options?.sendEmail) {
+      try {
+        await supabase.functions.invoke('notify-community-post', {
+          body: { postId: data.id, content, authorId: user.id },
+        });
+      } catch (err) {
+        console.error('Error sending email notifications:', err);
+      }
     }
 
     toast({ title: 'Posted!', description: 'Your message is live.' });
