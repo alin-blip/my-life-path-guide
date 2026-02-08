@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Layout } from '@/components/Layout';
-import { SkoolNavBar, SkoolTab } from '@/components/programs/SkoolNavBar';
+import { ProgramsLayout } from '@/components/programs/ProgramsLayout';
+import { SkoolTab } from '@/components/programs/SkoolNavBar';
 import { ClassroomTab } from '@/components/programs/ClassroomTab';
 import { CommunityTab } from '@/components/programs/CommunityTab';
 import { CalendarTab } from '@/components/programs/CalendarTab';
@@ -70,15 +70,12 @@ const Programs: React.FC = () => {
   };
 
   return (
-    <Layout>
-      {/* Skool Navigation Bar */}
-      <SkoolNavBar activeTab={activeTab} onTabChange={handleTabChange} />
-
+    <ProgramsLayout activeTab={activeTab} onTabChange={handleTabChange}>
       {/* Tab Content */}
       <div className="container max-w-6xl mx-auto px-4 py-8">
         {renderTabContent()}
       </div>
-    </Layout>
+    </ProgramsLayout>
   );
 };
 

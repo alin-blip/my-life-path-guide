@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Layout } from '@/components/Layout';
+import { ProgramsLayout } from '@/components/programs/ProgramsLayout';
+import { ChallengeSidebar } from '@/components/programs/ChallengeSidebar';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { Card } from '@/components/ui/card';
@@ -153,7 +154,7 @@ const ChallengePage = () => {
     navigate(day.actionPath);
   };
   if (loading) {
-    return <Layout>
+    return <ProgramsLayout activeTab="classroom" showNavBar={false} sidebar={<ChallengeSidebar />}>
         <div className="w-full max-w-4xl mx-auto px-4 py-8">
           <div className="text-center mb-8">
             <Skeleton className="h-10 w-64 mx-auto mb-2" />
@@ -164,14 +165,14 @@ const ChallengePage = () => {
             {[1, 2, 3, 4, 5, 6, 7].map(i => <Skeleton key={i} className="h-24 w-full" />)}
           </div>
         </div>
-      </Layout>;
+      </ProgramsLayout>;
   }
 
   // Hero video URL
   const heroVideoUrl = "https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=EmSYV-az3RPM1F2dgE82gFhgBtO6C9nQVNVAE4IeNa7M1V0a6&videoRatio=1.777778&type=v&skinColor=%232758EB";
   return <>
       <ChallengeCoachWidget currentDay={currentDay} />
-      <Layout>
+      <ProgramsLayout activeTab="classroom" showNavBar={false} sidebar={<ChallengeSidebar />}>
         <div className="w-full max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -392,7 +393,7 @@ const ChallengePage = () => {
           </div>
         </Card>
         </div>
-      </Layout>
+      </ProgramsLayout>
     </>;
 };
 export default ChallengePage;

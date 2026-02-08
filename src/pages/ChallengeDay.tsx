@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Layout } from '@/components/Layout';
+import { ProgramsLayout } from '@/components/programs/ProgramsLayout';
+import { ChallengeSidebar } from '@/components/programs/ChallengeSidebar';
 import { useLanguage } from '@/context/LanguageContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -382,12 +383,12 @@ const ChallengeDayPage = () => {
   
   if (!content) {
     return (
-      <Layout>
+      <ProgramsLayout activeTab="classroom" showNavBar={false} sidebar={<ChallengeSidebar currentDay={dayNumber} />}>
         <div className="text-center py-20">
           <h1 className="text-2xl font-bold text-foreground mb-4">Day not found</h1>
           <Button onClick={() => navigate('/challenge')}>Back to Challenge</Button>
         </div>
-      </Layout>
+      </ProgramsLayout>
     );
   }
 
@@ -421,7 +422,7 @@ const ChallengeDayPage = () => {
   // Show upgrade modal for premium days
   if (showUpgradeModal && !hasPremiumAccess) {
     return (
-      <Layout>
+      <ProgramsLayout activeTab="classroom" showNavBar={false} sidebar={<ChallengeSidebar currentDay={dayNumber} />}>
         <div className="w-full max-w-4xl mx-auto px-4 py-8">
           <Button 
             variant="ghost" 
@@ -433,13 +434,13 @@ const ChallengeDayPage = () => {
           </Button>
           <ChallengeUpgradeGate onClose={() => navigate('/challenge')} />
         </div>
-      </Layout>
+      </ProgramsLayout>
     );
   }
 
   if (!isUnlocked && !loading) {
     return (
-      <Layout>
+      <ProgramsLayout activeTab="classroom" showNavBar={false} sidebar={<ChallengeSidebar currentDay={dayNumber} />}>
         <div className="text-center py-20">
           <h1 className="text-2xl font-bold text-foreground mb-4">
             {language === 'en' ? 'Day Locked' : 'Zi Blocată'}
@@ -453,7 +454,7 @@ const ChallengeDayPage = () => {
             {language === 'en' ? 'Back to Challenge' : 'Înapoi la Provocare'}
           </Button>
         </div>
-      </Layout>
+      </ProgramsLayout>
     );
   }
 
@@ -617,7 +618,7 @@ const ChallengeDayPage = () => {
     return (
       <>
         <ChallengeCoachWidget currentDay={dayNumber} />
-        <Layout>
+        <ProgramsLayout activeTab="classroom" showNavBar={false} sidebar={<ChallengeSidebar currentDay={1} />}>
           <div className="w-full max-w-3xl mx-auto px-4 py-8">
           {/* Login Banner */}
           {!isAuthenticated && (
@@ -873,7 +874,7 @@ const ChallengeDayPage = () => {
             <ChallengeComments ref={commentsRef} dayNumber={1} />
           </div>
           </div>
-        </Layout>
+        </ProgramsLayout>
       </>
     );
   }
@@ -881,7 +882,7 @@ const ChallengeDayPage = () => {
   return (
     <>
       <ChallengeCoachWidget currentDay={dayNumber} />
-      <Layout>
+      <ProgramsLayout activeTab="classroom" showNavBar={false} sidebar={<ChallengeSidebar currentDay={dayNumber} />}>
         <div className="w-full max-w-4xl mx-auto px-4 py-8">
         {/* Login Banner for Unauthenticated Users */}
         {!isAuthenticated && (
@@ -1158,7 +1159,7 @@ const ChallengeDayPage = () => {
           )}
         </Card>
       </div>
-    </Layout>
+    </ProgramsLayout>
     </>
   );
 };
