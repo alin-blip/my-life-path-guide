@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout } from '@/components/Layout';
+import { ProgramsLayout } from '@/components/programs/ProgramsLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,7 @@ import { WarriorTrainerSalesLetter } from '@/components/warriors-way/WarriorTrai
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+
 
 interface CourseModule {
   id: string;
@@ -241,18 +241,18 @@ const WarriorsWay: React.FC = () => {
 
   if (showTrainerSalesLetter) {
     return (
-      <Layout>
+      <ProgramsLayout activeTab="classroom" showNavBar={false}>
         <WarriorTrainerSalesLetter 
           onBack={() => setShowTrainerSalesLetter(false)}
           onEnroll={() => {}}
         />
-      </Layout>
+      </ProgramsLayout>
     );
   }
 
   if (showTrainerPreview) {
     return (
-      <Layout>
+      <ProgramsLayout activeTab="classroom" showNavBar={false}>
         <WarriorTrainerPreview 
           onBack={() => setShowTrainerPreview(false)}
           onOpenSalesLetter={() => {
@@ -260,7 +260,7 @@ const WarriorsWay: React.FC = () => {
             setShowTrainerSalesLetter(true);
           }}
         />
-      </Layout>
+      </ProgramsLayout>
     );
   }
 
@@ -408,44 +408,10 @@ const WarriorsWay: React.FC = () => {
   const canGoNext = nextSection?.isFree || isAdmin || hasPurchased;
 
   return (
-    <Layout>
-      <div className="flex h-[calc(100vh-4rem)]">
-        {/* Desktop Sidebar */}
-        {!isMobile && (
-          <aside className="w-80 border-r border-border/60 bg-card/50 overflow-hidden shrink-0">
-            {sidebarContent}
-          </aside>
-        )}
-
-        {/* Mobile Sidebar Sheet */}
-        {isMobile && (
-          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetContent side="left" className="w-[320px] p-0">
-              <SheetHeader className="sr-only">
-                <SheetTitle>Lecții</SheetTitle>
-              </SheetHeader>
-              {sidebarContent}
-            </SheetContent>
-          </Sheet>
-        )}
-
+    <ProgramsLayout activeTab="classroom" showNavBar={false} sidebar={sidebarContent}>
+      <div className="flex flex-col h-full">
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto">
-          {/* Mobile header with menu button */}
-          {isMobile && (
-            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/60 p-3 flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
-                <Menu className="h-5 w-5" />
-              </Button>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {currentModule ? `${currentModule.order}. ${currentModule.title}` : 'Warrior Launch Accelerator'}
-                </p>
-                <p className="text-xs text-muted-foreground">{completedModules}/{totalModules} module</p>
-              </div>
-            </div>
-          )}
-
           {selectedModule && currentModule ? (
             /* Video Player + Lesson Content */
             <WarriorVideoPlayer
@@ -556,7 +522,7 @@ const WarriorsWay: React.FC = () => {
           }
         }}
       />
-    </Layout>
+    </ProgramsLayout>
   );
 };
 

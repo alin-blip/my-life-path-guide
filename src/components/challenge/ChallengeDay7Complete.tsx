@@ -1,5 +1,6 @@
 import React from 'react';
-import { Layout } from '@/components/Layout';
+import { ProgramsLayout } from '@/components/programs/ProgramsLayout';
+import { ChallengeSidebar } from '@/components/programs/ChallengeSidebar';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -14,7 +15,7 @@ export const ChallengeDay7Complete = () => {
   const navigate = useNavigate();
 
   return (
-    <Layout>
+    <ProgramsLayout activeTab="classroom" showNavBar={false} sidebar={<ChallengeSidebar currentDay={7} />}>
       <div className="w-full max-w-4xl mx-auto px-4 py-8 space-y-8">
         {/* Back Button */}
         <Button 
@@ -50,7 +51,7 @@ export const ChallengeDay7Complete = () => {
         {/* Section 4: Upgrade Forced Section */}
         <ChallengeDay7Upgrade completedDays={7} />
       </div>
-    </Layout>
+    </ProgramsLayout>
   );
 };
 
