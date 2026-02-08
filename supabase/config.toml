@@ -143,3 +143,6 @@ verify_jwt = false
 
 [functions.send-platform-update]
 verify_jwt = false
+
+[functions.notify-community-post]
+verify_jwt = false

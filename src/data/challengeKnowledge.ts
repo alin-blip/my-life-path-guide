@@ -97,11 +97,11 @@ Să construim momentum — începând acum.`,
     ],
     actionPathsEn: [
       { label: "Open Day 1 Exercises", path: "/challenge/1" },
-      { label: "Join Community", path: "/brotherhood?tab=tribes" }
+      { label: "Join Community", path: "/programs?tab=groups" }
     ],
     actionPathsRo: [
       { label: "Deschide Exercițiile Zilei 1", path: "/challenge/1" },
-      { label: "Intră în Comunitate", path: "/brotherhood?tab=tribes" }
+      { label: "Intră în Comunitate", path: "/programs?tab=groups" }
     ]
   },
   {

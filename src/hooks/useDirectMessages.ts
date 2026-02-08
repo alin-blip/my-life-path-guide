@@ -152,6 +152,25 @@ export const useDirectMessages = () => {
     return data;
   }, [user]);
 
+  const sendBulkMessage = useCallback(async (receiverIds: string[], content: string) => {
+    if (!user || !content.trim() || receiverIds.length === 0) return [];
+    const inserts = receiverIds.map(receiverId => ({
+      sender_id: user.id,
+      receiver_id: receiverId,
+      content: content.trim(),
+    }));
+    const { data, error } = await supabase
+      .from('direct_messages')
+      .insert(inserts)
+      .select();
+
+    if (error) {
+      console.error('Error sending bulk messages:', error);
+      return [];
+    }
+    return data || [];
+  }, [user]);
+
   // Realtime subscription
   useEffect(() => {
     if (!user) return;
@@ -193,6 +212,7 @@ export const useDirectMessages = () => {
     fetchConversations,
     fetchMessages,
     sendMessage,
+    sendBulkMessage,
     fetchUnreadCount,
   };
 };
