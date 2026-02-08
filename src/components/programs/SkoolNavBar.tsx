@@ -1,9 +1,9 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
-import { Users, BookOpen, Calendar, UserCircle, Trophy } from 'lucide-react';
+import { Users, BookOpen, Calendar, UserCircle, Trophy, Users2 } from 'lucide-react';
 
-export type SkoolTab = 'community' | 'classroom' | 'calendar' | 'members' | 'leaderboards';
+export type SkoolTab = 'community' | 'classroom' | 'groups' | 'calendar' | 'members' | 'leaderboards';
 
 interface SkoolNavBarProps {
   activeTab: SkoolTab;
@@ -13,6 +13,7 @@ interface SkoolNavBarProps {
 const tabs: { id: SkoolTab; labelEn: string; labelRo: string; icon: React.ElementType }[] = [
   { id: 'community', labelEn: 'Community', labelRo: 'Comunitate', icon: Users },
   { id: 'classroom', labelEn: 'Classroom', labelRo: 'Cursuri', icon: BookOpen },
+  { id: 'groups', labelEn: 'Groups', labelRo: 'Grupuri', icon: Users2 },
   { id: 'calendar', labelEn: 'Calendar', labelRo: 'Calendar', icon: Calendar },
   { id: 'members', labelEn: 'Members', labelRo: 'Membri', icon: UserCircle },
   { id: 'leaderboards', labelEn: 'Leaderboards', labelRo: 'Clasament', icon: Trophy },
