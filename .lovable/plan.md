@@ -1,92 +1,88 @@
 
-# Fix: AI Coach pierde contextul cheilor 1 si 2 in Domino Door
+# Imbunatatire extractie context chei - detalii complete cu pasi, zile si HIT/DO
 
-## Problema identificata
+## Problema curenta
 
-Cand planifici cele 4 chei in Domino Door, conversatia devine foarte lunga (80-120+ mesaje). Dar sistemul trimite doar **ultimele 40 mesaje** catre AI (limita setata in cod). Asta inseamna ca dupa ce termini Cheia 3 si 4, mesajele despre Cheia 1 si 2 de la inceput sunt taiate complet -- AI-ul nu le mai vede si intreaba din nou.
+Sistemul de context injection exista dar extrage prea putin. Rezumatul injectat arata doar "3 pasi" fara sa specifice CE pasi, in CE zi si daca sunt HIT sau DO. AI-ul nu poate reconstrui planul complet din acest rezumat minimal.
 
-## Solutia
+## Solutia: extractie detaliata a pasilor
 
-### 1. Tracker de chei completate pe frontend (DoorPlanningModal.tsx)
+In loc sa crestem limita la 150 mesaje (costisitor, lent, risc de limita API), imbunatatim extractia din conversatie pentru a capta toate detaliile fiecarei chei.
 
-- Adaugam un state `completedKeys` care tine evidenta cheilor finalizate
-- Cand AI-ul raspunde cu "Cheia [N] completa!", parsam mesajul si extragem datele structurate (titlu, pasi, responsabil, deadline)
-- Aceste date se pastreaza in state-ul componentei, independent de istoricul conversatiei
+## Ce se schimba
 
-### 2. Injectare context sumar la fiecare request (DoorPlanningModal.tsx)
+### 1. Structura CompletedKeyInfo extinsa (doorPlanningContext.ts)
 
-- Inainte de a trimite mesajele catre AI, cream un mesaj de tip "system" cu un rezumat al cheilor deja completate
-- Acest mesaj se adauga la inceputul array-ului de mesaje, DUPA system prompt
-- Exemplu de context injectat:
+Adaugam campuri noi pentru a stoca detaliile complete:
 
 ```text
-CONTEXT DEJA DEFINIT (NU intreba din nou pentru aceste chei):
-- Cheia 1: "Titlul cheii 1" - 3 pasi programati, responsabil: Alin Radu, deadline: Miercuri
-- Cheia 2: "Titlul cheii 2" - 2 pasi programati, responsabil: Alin Radu, deadline: Miercuri
-Cheile deja completate: 2 din 4. Mai trebuie definite cheile: 3, 4.
+CompletedKeyInfo {
+  keyNumber: number;
+  title: string;
+  steps: Array<{
+    text: string;      // "Optimizare platforma B2C"
+    day: string;       // "Luni"
+    type: string;      // "HIT" sau "DO"
+  }>;
+  responsible: string;
+  deadline: string;
+  objective: string;    // Ce vrei sa faci
+  whyImportant: string; // De ce
+  positiveResult: string;
+  negativeResult: string;
+}
 ```
 
-### 3. Cresterea limitei de mesaje (DoorPlanningModal.tsx)
+### 2. Extractie inteligenta din conversatie (doorPlanningContext.ts)
 
-- `MAX_MESSAGES_TO_SEND` se creste de la 40 la 60 pentru a acoperi mai mult context
-- Nu putem pune prea mult (limita backend 100) dar 60 ajuta semnificativ
+Parsarea devine mai completa:
+- Extrage fiecare pas individual cu ziua si tipul HIT/DO din pattern-uri precum "Pasul 1: Optimizare platforma (Luni, HIT)"
+- Extrage obiectivul, motivatia, rezultatul pozitiv si negativ cautand intrebarile AI + raspunsurile utilizatorului
+- Foloseste ultimele 40 de mesaje din conversatie (zona relevanta pentru cheia curenta)
 
-### 4. Actualizare system prompt (door-ai-planning/index.ts)
+### 3. Rezumat complet injectat (doorPlanningContext.ts)
 
-- Adaugam in NEW_WEEK_SYSTEM_PROMPT si WIZARD_SYSTEM_PROMPT instructiuni clare:
-  - "Daca primesti un mesaj de context cu chei deja completate, NU intreba din nou pentru acele chei"
-  - "Treci direct la urmatoarea cheie nedefinita"
+Noul format al contextului injectat:
+
+```text
+[CONTEXT AUTOMAT] Cheile deja completate (NU intreba din nou):
+--- Cheia 1: "Lansare platforma afiliere" ---
+Obiectiv: Reconfigurarea platformei vechi
+Pasi:
+  1. Optimizare platforma B2C si B2B - Luni (HIT)
+  2. Optimizare pagina lead magnet - Miercuri (HIT)
+  3. Optimizare UX inregistrare studenti - Joi (HIT)
+Responsabil: Alin Radu | Deadline: Vineri
+
+--- Cheia 2: "Marketing afiliat B2B si B2C" ---
+...
+
+Cheile completate: 1, 2 (2 din 4). Mai trebuie: 3, 4.
+```
+
+### 4. MAX_MESSAGES_TO_SEND ramane 60
+
+Cu extractia detaliata, 60 mesaje sunt suficiente. Contextul complet al cheilor anterioare vine din rezumatul injectat, nu din mesajele vechi.
 
 ## Detalii tehnice
 
-### DoorPlanningModal.tsx -- Modificari
+### Fisiere modificate
 
-**Nou state pentru tracking chei:**
-```text
-const [completedKeys, setCompletedKeys] = useState<Array<{
-  keyNumber: number;
-  title: string;
-  stepsCount: number;
-  responsible: string;
-  deadline: string;
-}>>([]);
-```
+**src/utils/doorPlanningContext.ts** - refactorizare completa:
+- `CompletedKeyInfo` extins cu `steps[]`, `objective`, `whyImportant`, `positiveResult`, `negativeResult`
+- `detectCompletedKey()` - extractie imbunatatita: cauta pattern-uri AI de confirmare pas ("Am notat. Pasul 1, Luni, HIT") si perechi intrebare-raspuns pentru obiectiv/motivatie
+- `buildCompletedKeysContext()` - genereaza rezumat detaliat cu fiecare pas enumerat individual
+- Functii helper noi: `extractStepsDetailed()` care parseaza pasii cu ziua si tipul lor
 
-**Detectie automata a cheilor completate:**
-- Dupa fiecare raspuns AI, verificam daca mesajul contine pattern-ul "Cheia [N] completa" sau "Cheia [N] completă"
-- Parsam din contextul conversatiei recente titlul, pasii, responsabilul si deadline-ul
-- Adaugam in `completedKeys`
+**src/components/door/DoorPlanningModal.tsx** - actualizare minora:
+- Adaptat tipul `completedKeys` la noua interfata (steps devine array de obiecte in loc de stepsCount)
+- localStorage persistence actualizata pentru noua structura
 
-**Injectare context la trimitere:**
-- In `streamChat()`, inainte de a trimite `safeMessages`, construim un mesaj de context cu cheile completate
-- Acest mesaj se adauga ca prim mesaj (role: 'user') cu prefixul `[CONTEXT AUTOMAT]`
-- Limita crescuta: `MAX_MESSAGES_TO_SEND = 60`
-
-### door-ai-planning/index.ts -- Modificari
-
-**NEW_WEEK_SYSTEM_PROMPT** -- adaugam la sfarsit:
-```text
-REGULA IMPORTANTA CONTEXT:
-- Daca primul mesaj contine "[CONTEXT AUTOMAT]" cu chei deja completate, NU intreba din nou pentru acele chei
-- Treci direct la urmatoarea cheie care nu a fost definita
-- Foloseste informatiile din context pentru a sti cate chei mai trebuie
-```
-
-Aceeasi regula se adauga si in WIZARD_SYSTEM_PROMPT si REVIEW_SYSTEM_PROMPT.
-
-### Persistenta in draft
-
-- `completedKeys` se salveaza si in draft (atat localStorage cat si database) pentru a nu pierde datele la refresh
-- La reload, se restaureaza din draft impreuna cu mesajele
-
-## Fisiere modificate
-
-1. `src/components/door/DoorPlanningModal.tsx` -- tracking chei, injectare context, crestere limita mesaje
-2. `supabase/functions/door-ai-planning/index.ts` -- instructiuni noi in system prompts
+**supabase/functions/door-ai-planning/index.ts** - fara modificari (system prompt-ul deja instruieste AI-ul sa respecte contextul injectat)
 
 ## Rezultat asteptat
 
-- Utilizatorul defineste Cheia 1 si 2 la inceput
-- Cand ajunge la Cheia 3, chiar daca mesajele vechi sunt taiate, AI-ul primeste un rezumat compact cu cheile 1 si 2
-- AI-ul nu mai intreaba din nou despre chei deja definite
-- Daca utilizatorul cere "arata-mi ce avem pana acum", AI-ul poate raspunde corect
+- Utilizatorul defineste Cheia 1 cu 3 pasi detaliati
+- Cand trece la Cheia 2+, AI-ul primeste rezumatul COMPLET al Cheii 1 (cu fiecare pas, ziua, HIT/DO)
+- La intrebarea "arata-mi ce avem", AI-ul poate raspunde cu toate detaliile
+- Nu mai e nevoie de 150 mesaje - contextul vine din extractie, nu din istoricul brut
