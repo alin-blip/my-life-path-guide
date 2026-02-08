@@ -16,6 +16,30 @@ import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 
+// Render message text with clickable URLs
+const renderMessageWithLinks = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, i) => {
+    if (urlRegex.test(part)) {
+      // Reset lastIndex since we reuse the regex
+      urlRegex.lastIndex = 0;
+      return (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline hover:text-primary/80 transition-colors"
+        >
+          {part}
+        </a>
+      );
+    }
+    return <React.Fragment key={i}>{part}</React.Fragment>;
+  });
+};
+
 export const CommunityWelcomeBanner: React.FC = () => {
   const { user } = useAuth();
   const { language } = useLanguage();
@@ -116,9 +140,9 @@ export const CommunityWelcomeBanner: React.FC = () => {
           )}
         </div>
 
-        <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
-          {welcomeMessage}
-        </p>
+        <div className="text-sm text-foreground leading-relaxed whitespace-pre-line">
+          {renderMessageWithLinks(welcomeMessage)}
+        </div>
 
         {timeAgo && (
           <p className="text-xs text-muted-foreground mt-3">

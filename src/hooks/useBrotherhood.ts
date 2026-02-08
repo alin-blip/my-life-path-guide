@@ -125,6 +125,7 @@ export const useBrotherhood = () => {
     let query = supabase
       .from('wall_posts')
       .select('*')
+      .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(50);
 
