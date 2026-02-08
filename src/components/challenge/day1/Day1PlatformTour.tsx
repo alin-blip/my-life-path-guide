@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
 import { 
   LayoutDashboard, BookOpen, Crown, Palette, Brain, Dumbbell, 
-  ArrowRight, Sparkles 
+  ArrowRight, Sparkles, GraduationCap 
 } from 'lucide-react';
 
 interface Day1PlatformTourProps {
@@ -12,6 +12,15 @@ interface Day1PlatformTourProps {
 }
 
 const PLATFORM_MODULES = [
+  {
+    id: 'programs',
+    titleRo: 'Programe',
+    titleEn: 'Programs',
+    descriptionRo: 'Challenge-ul de 7 zile și Acceleratorul - cursuri structurate pas cu pas.',
+    descriptionEn: '7-day Challenge and Accelerator - step-by-step structured courses.',
+    icon: GraduationCap,
+    gradient: 'from-orange-500 to-red-500'
+  },
   {
     id: 'dashboard',
     titleRo: 'Tabloul de Bord',

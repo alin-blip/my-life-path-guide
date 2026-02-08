@@ -14,8 +14,7 @@ import {
   Trophy,
   CheckCircle2,
   Loader2,
-  Flame,
-  GraduationCap,
+  BookOpen,
   MessageCircle,
   ListTodo
 } from 'lucide-react';
@@ -575,35 +574,19 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
     position: 'bottom'
   },
   {
-    id: 'challenge-info',
-    targetSelector: 'a[href="/challenge"]',
+    id: 'programs-info',
+    targetSelector: 'a[href="/programs"]',
     route: '/dashboard',
     requiresSidebar: true,
     title: { 
-      en: '🔥 Have It All Lifestyle Challenge', 
-      ro: '🔥 Challenge Have It All Lifestyle' 
+      en: '📚 Programs - Courses & Challenges', 
+      ro: '📚 Programe - Cursuri & Challenge-uri' 
     },
     description: { 
-      en: 'Your 7-day foundation: Step-by-step plan, execution guide, and Vision Board creation. Complete all 7 days to unlock the full system!',
-      ro: 'Fundația ta de 7 zile: Plan pas cu pas, ghid de execuție și creare Vision Board. Completează toate cele 7 zile pentru a debloca sistemul complet!'
+      en: 'Access all programs: 7-Day Challenge (free) and Warrior Launch Accelerator (premium). Each program guides you step by step towards transformation.',
+      ro: 'Accesează toate programele: Challenge-ul de 7 zile (gratuit) și Warrior Launch Accelerator (premium). Fiecare program te ghidează pas cu pas către transformare.'
     },
-    icon: <Flame className="h-8 w-8 text-orange-500" />,
-    position: 'right'
-  },
-  {
-    id: 'accelerator-info',
-    targetSelector: 'a[href="/warriors-way"]',
-    route: '/dashboard',
-    requiresSidebar: true,
-    title: { 
-      en: '🎓 Warrior Launch Accelerator', 
-      ro: '🎓 Warrior Launch Accelerator' 
-    },
-    description: { 
-      en: 'Premium €497 coaching program with 47+ video lessons on business launch, marketing, and personal transformation.',
-      ro: 'Program premium €497 de coaching cu 47+ lecții video despre lansare business, marketing și transformare personală.'
-    },
-    icon: <GraduationCap className="h-8 w-8 text-primary" />,
+    icon: <BookOpen className="h-8 w-8 text-orange-500" />,
     position: 'right'
   },
   {

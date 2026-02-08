@@ -94,6 +94,7 @@ const ChallengeDayEnglish = lazy(() => import("./pages/ChallengeDayEnglish"));
 const MindCoach = lazy(() => import("./pages/MindCoach"));
 const MindCoachLanding = lazy(() => import("./pages/MindCoachLanding"));
 const Tools = lazy(() => import("./pages/Tools"));
+const Programs = lazy(() => import("./pages/Programs"));
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
@@ -401,6 +402,11 @@ const App = () => (
                     <Route path="/tools" element={
                       <ProtectedRoute>
                         <Tools />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/programs" element={
+                      <ProtectedRoute>
+                        <Programs />
                       </ProtectedRoute>
                     } />
                         <Route path="*" element={<NotFound />} />

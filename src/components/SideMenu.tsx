@@ -146,20 +146,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   };
 
   const menuItems: MenuItem[] = [
-    // 1. HAVE IT ALL LIFESTYLE CHALLENGE - FIRST
+    // 1. PROGRAMS - All courses and challenges in one place
     { 
-      title: 'Have It All Challenge', 
-      icon: Flame, 
-      path: '/challenge',
+      title: language === 'ro' ? 'Programe' : 'Programs', 
+      icon: BookOpen, 
+      path: '/programs',
       badge: completedDays > 0 ? `${completedDays}/7` : undefined
-    },
-
-    // 2. WARRIOR LAUNCH ACCELERATOR - SECOND
-    {
-      title: "Warrior Launch Accelerator",
-      icon: GraduationCap,
-      path: '/warriors-way',
-      badge: 'NEW'
     },
 
     // SEPARATOR
