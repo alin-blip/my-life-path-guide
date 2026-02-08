@@ -1,274 +1,150 @@
 
-# Sistem Complet de Comunitati Skool-Style + Chat Functional + Welcome Message
+
+# Postari Unificate: Challenge Lessons + Community Feed (Skool-Style)
 
 ## Rezumat
 
-Trei functionalitati mari:
+In Skool, cand postezi un comentariu intr-o lectie, acea postare apare automat si in feed-ul Community, cu un badge care arata din ce curs si lectie provine. Utilizatorii pot comenta fie din lectie, fie din Community. Implementam exact acest comportament.
 
-1. **Chat-ul Community functioneaza** - Da, postarea de mesaje merge prin `SkoolWritePost`. Dar lipseste: un **mesaj de intampinare** (welcome message) care sa apara automat tuturor celor care intra pe pagina Community, plus posibilitatea ta (admin) de a seta acest mesaj.
+## Ce se schimba
 
-2. **Welcome Message setat de admin** - Adaugam un post "pinned" automat sau un banner de bun venit in Community, pe care adminul il poate edita.
-
-3. **Membri pot crea propriile comunitati (Groups)** - Exact ca in Skool, unde membrii pot crea grupuri cu propriile feed-uri, membri, chat. Accesul la creare depinde de tier: ELITE poate crea nelimitat, PRO poate crea 1-2 grupuri.
-
----
-
-## Ce exista deja
-
-- Tabela `tribes` cu: name, description, avatar_url, cover_image_url, is_public, member_count, created_by
-- Tabela `tribe_members` cu: tribe_id, user_id, role (owner/admin/moderator/member)
-- Tabela `wall_posts` cu: tribe_id, content, media_urls, likes_count, comments_count, is_pinned
-- Tabela `brotherhood_messages` pentru chat in timp real pe tribe
-- Hook `useBrotherhood()` cu: createTribe, joinTribe, leaveTribe, createPost, toggleLike, sendMessage
-- `subscriptionTier` disponibil in `AuthContext` (valori: trial, Free, basic, pro, elite)
-- Componenta `BrotherhoodTribes` cu UI de creare tribe (dar nu are restrictii pe tier)
-
-## Ce lipseste
-
-- **Welcome message** configurabil de admin pentru Community
-- **Pagina individuala de grup/tribe** (ca in Skool - fiecare grup are propriul feed, members, about)
-- **Restrictie creare pe tier** (doar PRO si ELITE pot crea grupuri)
-- **Discover Groups** - listare tuturor grupurilor publice disponibile
-- **Tab "Groups"** in SkoolNavBar sau ca sectiune in Community
-
----
-
-## Plan de Implementare
-
-### Pasul 1: Welcome Message in Community
-
-**Tabel nou: `community_settings`**
-```sql
-CREATE TABLE community_settings (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  setting_key TEXT UNIQUE NOT NULL,
-  setting_value TEXT,
-  updated_by UUID REFERENCES auth.users(id),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-```
-- Adminul seteaza `welcome_message` prin UI
-- Se afiseaza ca un card special "pinned" in partea de sus a feed-ului Community
-- Doar utilizatorii cu rol `admin` pot edita acest mesaj
-
-**Componenta noua: `CommunityWelcomeBanner.tsx`**
-- Card stilizat cu mesajul de bun venit
-- Buton "Edit" vizibil doar pentru admini
-- Dialog de editare cu textarea
-
-### Pasul 2: Restrictie creare grupuri pe tier
-
-**Modificari in `BrotherhoodTribes.tsx` si/sau noul `SkoolGroupsSection.tsx`:**
-- Verificam `subscriptionTier` din `AuthContext`
-- Daca `elite` → poate crea grupuri nelimitat
-- Daca `pro` → poate crea maxim 2 grupuri
-- Daca `basic` sau inferior → butonul "Create Group" este dezactivat cu mesaj de upgrade
-- Afisam un tooltip sau badge "PRO" / "ELITE" langa butonul de creare
-
-### Pasul 3: Pagina individuala de Group (Skool-style)
-
-**Ruta noua: `/groups/:groupId`**
-
-Fiecare grup (tribe) are propria pagina cu:
-- **Header:** Cover image + avatar + nume + descriere + numar membri + buton Join/Leave
-- **Tabs interne:** Feed | Chat | Members | About
-- **Feed:** Postari specifice grupului (filtrate pe `tribe_id`)
-- **Chat:** Mesaje in timp real (refolosim `BrotherhoodChat` adaptat)
-- **Members:** Lista membrilor grupului
-- **About:** Descriere, reguli, owner info
-
-**Componente noi:**
-| Fisier | Descriere |
-|--------|-----------|
-| `src/pages/GroupPage.tsx` | Pagina principala a unui grup |
-| `src/components/groups/GroupHeader.tsx` | Header cu cover, avatar, info, join/leave |
-| `src/components/groups/GroupFeed.tsx` | Feed de postari filtrat pe tribe_id |
-| `src/components/groups/GroupChat.tsx` | Chat in timp real adaptat pentru grup |
-| `src/components/groups/GroupMembers.tsx` | Lista membrilor cu roluri |
-| `src/components/groups/GroupAbout.tsx` | Informatii despre grup |
-
-### Pasul 4: Sectiune "Groups" in Community sau SkoolNavBar
-
-Doua optiuni (implementam prima):
-
-**Optiunea A:** Adaugam un tab "Groups" in SkoolNavBar
-- SkoolNavBar devine: Community | Classroom | Groups | Calendar | Members | Leaderboards
-- Tab-ul Groups afiseaza: My Groups + Discover Groups + Create Group button
-
-**Fisiere noi:**
-| Fisier | Descriere |
-|--------|-----------|
-| `src/components/programs/GroupsTab.tsx` | Tab principal cu My Groups + Discover + Create |
-| `src/components/programs/SkoolGroupCard.tsx` | Card individual pentru un grup (cover, nume, membri, join) |
-| `src/components/programs/CreateGroupDialog.tsx` | Dialog de creare grup cu validare tier |
-
-### Pasul 5: Actualizare rute
-
-**Fisier: `src/App.tsx`**
-- Adaugam ruta `/groups/:groupId` catre `GroupPage.tsx`
-
----
-
-## Structura Vizuala
-
-### Groups Tab (in Programs)
-```text
-┌──────────────────────────────────────────────────────────────────┐
-│  Community | Classroom | Groups | Calendar | Members | Leaders  │
-├──────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  [+ Create Group] ← doar PRO/ELITE                              │
-│                                                                  │
-│  ── My Groups ──────────────────────────────────────────────     │
-│  ┌─────────────────┐  ┌─────────────────┐                       │
-│  │ [Cover Image]   │  │ [Cover Image]   │                       │
-│  │ Morning Warriors │  │ Business RO     │                       │
-│  │ 24 members      │  │ 156 members     │                       │
-│  │ [Open]          │  │ [Open]          │                       │
-│  └─────────────────┘  └─────────────────┘                       │
-│                                                                  │
-│  ── Discover Groups ────────────────────────────────────────     │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐    │
-│  │ [Cover Image]   │  │ [Cover Image]   │  │ [Cover]      │    │
-│  │ Fitness Warriors │  │ Mindset Masters │  │ Book Club    │    │
-│  │ 89 members      │  │ 45 members      │  │ 12 members   │    │
-│  │ [Join]          │  │ [Join]          │  │ [Join]       │    │
-│  └─────────────────┘  └─────────────────┘  └──────────────┘    │
-└──────────────────────────────────────────────────────────────────┘
-```
-
-### Group Page (individual)
-```text
-┌──────────────────────────────────────────────────────────────────┐
-│  [← Back]                                         [Settings]    │
-├──────────────────────────────────────────────────────────────────┤
-│  [Cover Image ─────────────────────────────────────────────]     │
-│  [Avatar] Morning Warriors                                       │
-│  Comunitate pentru antreprenorii matinali    156 Members         │
-│  [Leave Group]                                                   │
-├──────────────────────────────────────────────────────────────────┤
-│  Feed  │  Chat  │  Members  │  About                            │
-├──────────────────────────────────────────────────────────────────┤
-│  [Write something...]            │  [Group Info Sidebar]         │
-│                                  │  Owner: John Doe              │
-│  [Post 1...]                     │  Created: Jan 2026            │
-│  [Post 2...]                     │  156 Members, 3 Online        │
-│  [Post 3...]                     │                               │
-└──────────────────────────────────────────────────────────────────┘
-```
-
-### Community Welcome Banner
-```text
-┌──────────────────────────────────────────────────────────────────┐
-│  📌 Welcome Message                                    [Edit ✏️] │
-│                                                                  │
-│  "Bine ai venit in comunitatea Warrior OS! Aici ne ajutam       │
-│   reciproc sa crestem. Reguli: 1) Fii respectuos 2) Share wins  │
-│   3) Ask for help when needed."                                  │
-│                                                                  │
-│  — Admin · Last updated 2d ago                                   │
-└──────────────────────────────────────────────────────────────────┘
-```
-
----
+In loc sa folosim doua sisteme separate (warriors_way_comments pentru lectii si wall_posts pentru Community), unificam totul pe `wall_posts`. Fiecare postare din Challenge va fi un wall_post cu context (curs + zi) care apare automat in Community feed.
 
 ## Detalii Tehnice
 
-### Migrare SQL
+### Pasul 1: Migrare DB - Adaugam coloane de context pe wall_posts
+
+Adaugam 3 coloane noi pe `wall_posts` pentru a lega postarea de un curs/lectie:
 
 ```sql
--- Community settings table for welcome message
-CREATE TABLE public.community_settings (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  setting_key TEXT UNIQUE NOT NULL,
-  setting_value TEXT,
-  updated_by UUID,
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-
-ALTER TABLE public.community_settings ENABLE ROW LEVEL SECURITY;
-
--- Everyone can read settings
-CREATE POLICY "Anyone can read community settings"
-  ON public.community_settings FOR SELECT
-  USING (true);
-
--- Only admins can update
-CREATE POLICY "Admins can manage community settings"
-  ON public.community_settings FOR ALL
-  USING (public.has_role(auth.uid(), 'admin'));
-
--- Insert default welcome message
-INSERT INTO public.community_settings (setting_key, setting_value)
-VALUES ('welcome_message', 'Bine ai venit in comunitatea Warrior OS! 🎯 Aici ne ajutam reciproc sa crestem.');
+ALTER TABLE public.wall_posts
+  ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'general',
+  ADD COLUMN IF NOT EXISTS source_context TEXT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS source_label TEXT DEFAULT NULL;
 ```
 
-### Verificare Tier pentru Creare Grup
+- `category`: tipul postarii ('general', 'challenge', 'course', 'wins', etc.) - folosit si pentru filtrele din Community
+- `source_context`: identificator tehnic (ex: 'challenge-day-1', 'challenge-day-3') - pentru filtrare in lectie
+- `source_label`: label vizibil (ex: 'Challenge - Day 1: Vision + Declaration') - afisat in Community ca badge
 
-```typescript
-// In CreateGroupDialog.tsx
-const { subscriptionTier } = useAuth();
+### Pasul 2: Componenta noua - LessonCommunityPost.tsx
 
-const canCreateGroup = () => {
-  if (subscriptionTier === 'elite') return true;
-  if (subscriptionTier === 'pro') {
-    // Check how many groups user already owns
-    const ownedGroups = myTribes.filter(t => t.created_by === user?.id);
-    return ownedGroups.length < 2;
-  }
-  return false;
-};
+O componenta care se plaseaza in fiecare zi de Challenge (inlocuieste/completeaza ChallengeComments). Aceasta:
+
+- Afiseaza un "Write something..." input (stilul Skool) cu context pre-setat
+- Cand utilizatorul posteaza, creeaza un `wall_post` cu `source_context = 'challenge-day-X'` si `source_label = 'Challenge - Day X: Titlu'`
+- Sub input, afiseaza postari filtrate pentru acea zi (`source_context = 'challenge-day-X'`), cu like-uri si comentarii
+- Fiecare postare are buton de comentarii (folosind `wall_post_comments`)
+
+Structura vizuala:
+```text
+┌──────────────────────────────────────────────────────┐
+│  [Avatar] Write something...                         │
+│                                                      │
+│  ┌────────────────────────────────────────────────┐  │
+│  │  📚 Challenge - Day 1: Vision + Declaration    │  │
+│  │  [Avatar] Andrei · 2h ago                      │  │
+│  │  Am terminat Reality Check-ul si am un scor... │  │
+│  │  ❤️ 12  💬 5                                    │  │
+│  │                                                │  │
+│  │  └─ Reply: Elena - Super! Eu am avut 6.2...   │  │
+│  └────────────────────────────────────────────────┘  │
+│                                                      │
+│  ┌────────────────────────────────────────────────┐  │
+│  │  📚 Challenge - Day 1: Vision + Declaration    │  │
+│  │  [Avatar] Marius · 5h ago                      │  │
+│  │  Declaratia mea: "In 90 de zile voi..."       │  │
+│  │  ❤️ 8  💬 3                                     │  │
+│  └────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────┘
 ```
 
-### GroupPage.tsx - Ruta noua
+### Pasul 3: Actualizare SkoolPostCard - Afisare badge context
 
-Foloseste `ProgramsLayout` fara SkoolNavBar (showNavBar=false), cu propriile taburi interne (Feed/Chat/Members/About).
-
-### SkoolNavBar - Actualizare
-
-Adaugam tab-ul "Groups" intre Classroom si Calendar:
-```typescript
-const tabs = [
-  { id: 'community', ... },
-  { id: 'classroom', ... },
-  { id: 'groups', labelEn: 'Groups', labelRo: 'Grupuri', icon: Users2 },
-  { id: 'calendar', ... },
-  { id: 'members', ... },
-  { id: 'leaderboards', ... },
-];
+In Community feed, postarea care vine dintr-o lectie va avea un badge suplimentar:
+```text
+📚 Challenge - Day 1: Vision + Declaration
 ```
+Deasupra titlului postarii, exact ca in Skool unde vezi din ce modul provine postarea.
+
+### Pasul 4: Hook nou - useWallPostComments.ts
+
+Un hook dedicat pentru comentariile la wall_posts (tabel `wall_post_comments`):
+- `fetchComments(postId)` - preia comentariile pentru o postare
+- `addComment(postId, content, parentId?)` - adauga comentariu/reply
+- `deleteComment(commentId)` - sterge comentariu propriu
+- Suport pentru reply-uri (nested)
+
+### Pasul 5: Dialog/Sheet pentru comentarii la postari
+
+Cand user-ul apasa pe butonul de comentarii (💬) dintr-un SkoolPostCard sau din LessonCommunityPost, se deschide un panel/dialog cu:
+- Postarea originala sus
+- Lista de comentarii cu reply-uri
+- Input de comentariu jos
+
+### Pasul 6: Integrare in Challenge Day pages
+
+In `ChallengeDay.tsx` si `ChallengeDayEnglish.tsx`:
+- Pastram `ChallengeLiveChat` (chat-ul instant, separat)
+- Inlocuim `ChallengeComments` cu noul `LessonCommunityPost`
+- Postarea facuta aici apare automat in Community feed (aceeasi tabela `wall_posts`)
+
+### Pasul 7: Filtrare in CommunityTab
+
+Actualizarea `SkoolCategoryFilter` pentru a folosi `category` din `wall_posts`:
+- "All" - toate posturile
+- "General" - doar cele fara source_context
+- "Challenge" - doar cele cu category='challenge'
+- "Wins" - cele cu category='wins'
+
+Actualizarea `useBrotherhood.ts` pentru a accepta parametru de filtru pe `category`.
 
 ---
 
-## Fisiere de creat (total: 9)
+## Fisiere de creat (5)
 
 | Fisier | Descriere |
 |--------|-----------|
-| `src/components/programs/CommunityWelcomeBanner.tsx` | Banner welcome message editabil de admin |
-| `src/components/programs/GroupsTab.tsx` | Tab principal cu My Groups + Discover |
-| `src/components/programs/SkoolGroupCard.tsx` | Card individual grup |
-| `src/components/programs/CreateGroupDialog.tsx` | Dialog creare grup cu validare tier |
-| `src/pages/GroupPage.tsx` | Pagina individuala grup cu tabs |
-| `src/components/groups/GroupHeader.tsx` | Header grup cu cover + info |
-| `src/components/groups/GroupFeed.tsx` | Feed postari pe tribe_id |
-| `src/components/groups/GroupChat.tsx` | Chat realtime pe tribe |
-| `src/components/groups/GroupMembers.tsx` | Lista membri grup |
+| `src/components/programs/LessonCommunityPost.tsx` | Componenta de postare + feed din lectie |
+| `src/hooks/useWallPostComments.ts` | Hook pentru comentarii la wall_posts |
+| `src/components/programs/PostCommentsDialog.tsx` | Dialog cu comentarii pentru o postare |
+| `src/components/programs/PostCommentCard.tsx` | Card individual de comentariu cu reply |
+| `src/components/programs/LessonPostCard.tsx` | Card postare in context de lectie (cu likes, comments) |
 
-## Fisiere de modificat (total: 4)
+## Fisiere de modificat (5)
 
 | Fisier | Modificare |
 |--------|------------|
-| `src/components/programs/SkoolNavBar.tsx` | Adaugare tab "Groups" |
-| `src/components/programs/CommunityTab.tsx` | Adaugare CommunityWelcomeBanner sus |
-| `src/pages/Programs.tsx` | Adaugare case "groups" in renderTabContent |
-| `src/App.tsx` | Adaugare ruta `/groups/:groupId` |
+| `src/components/programs/SkoolPostCard.tsx` | Adaugare badge `source_label` + click pe comments deschide dialog |
+| `src/hooks/useBrotherhood.ts` | Adaugare suport `category` filter + extindere `createPost` cu source context |
+| `src/components/programs/SkoolCategoryFilter.tsx` | Filtrare reala pe `category` |
+| `src/pages/ChallengeDay.tsx` | Inlocuire `ChallengeComments` cu `LessonCommunityPost` |
+| `src/pages/ChallengeDayEnglish.tsx` | Inlocuire `ChallengeComments` cu `LessonCommunityPost` |
 
----
+## Fluxul Complet
+
+```text
+Utilizator in Challenge Day 1:
+  1. Vede "Write something..." card
+  2. Scrie postarea ("Am terminat Reality Check...")
+  3. Postarea se salveaza in wall_posts cu:
+     - category: 'challenge'
+     - source_context: 'challenge-day-1'
+     - source_label: 'Challenge - Day 1: Vision + Declaration'
+  4. Postarea apare instant in lectie (filtrat pe source_context)
+  5. Postarea apare si in Community feed (cu badge-ul de context)
+
+Utilizator in Community:
+  1. Vede postarea cu badge "📚 Challenge - Day 1: Vision + Declaration"
+  2. Poate da like, poate comenta
+  3. Comentariul apare si in lectie (aceeasi postare, aceleasi comentarii)
+```
 
 ## Compatibilitate
 
-- Tabelele `tribes`, `tribe_members`, `wall_posts`, `brotherhood_messages` sunt refolosite complet
-- Hook-ul `useBrotherhood()` acopera deja toate operatiile CRUD necesare
-- `subscriptionTier` din `AuthContext` permite verificarea tier-ului fara query-uri suplimentare
-- Functia `has_role()` din DB permite verificarea rolului admin pentru welcome message
-- Realtime pe `wall_posts` si `brotherhood_messages` deja configurat
+- `wall_posts` existente (fara `source_context`) raman ca postari "general" - nu se pierde nimic
+- `ChallengeComments` (warriors_way_comments) ramane functional pentru backward compatibility, dar nu mai este folosit in paginile de Challenge
+- `ChallengeLiveChat` ramane separat - este chat-ul instant, nu postari de comunitate
+- Toate postarea au likes si comments prin sistemul existent (`wall_post_likes`, `wall_post_comments`)
+- Realtime deja activat pe `wall_posts`
+
