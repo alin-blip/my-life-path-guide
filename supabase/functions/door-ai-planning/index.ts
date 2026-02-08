@@ -102,7 +102,13 @@ REGULI GENERALE
 - Fii concis și prietenos
 - Nu sări peste nicio cheie în review
 - Confirmă răspunsurile înainte de a trece mai departe
-- Cheile transferate păstrează detaliile originale (nu cere din nou informații pentru ele)`;
+- Cheile transferate păstrează detaliile originale (nu cere din nou informații pentru ele)
+
+REGULA IMPORTANTĂ CONTEXT:
+- Dacă primul mesaj de la utilizator conține "[CONTEXT AUTOMAT]" cu chei deja completate, NU întreba din nou pentru acele chei
+- Treci direct la următoarea cheie care nu a fost definită
+- Folosește informațiile din context pentru a ști câte chei mai trebuie definite
+- Când utilizatorul cere "arată-mi ce avem", include și cheile din contextul automat`;
 
 const NEW_WEEK_SYSTEM_PROMPT = `Ești un coach de planificare săptămânală. Ghidezi utilizatorul prin 4 CHEI, una câte una.
 
@@ -124,7 +130,13 @@ REGULI STRICTE:
 - Confirmă scurt după fiecare răspuns: "Am notat." sau "Perfect."
 - Dacă răspunsul e vag ("da", "ok"), cere clarificări: "Poți detalia puțin?"
 - După 4 chei complete, folosește tool-ul "save_planning"
-- Fii empatic dar concis. Fără explicații lungi.`;
+- Fii empatic dar concis. Fără explicații lungi.
+
+REGULA IMPORTANTĂ CONTEXT:
+- Dacă primul mesaj de la utilizator conține "[CONTEXT AUTOMAT]" cu chei deja completate, NU întreba din nou pentru acele chei
+- Treci direct la următoarea cheie care nu a fost definită
+- Folosește informațiile din context pentru a ști câte chei mai trebuie definite
+- Când utilizatorul cere "arată-mi ce avem", include și cheile din contextul automat`;
 
 const WIZARD_SYSTEM_PROMPT = `Ești un coach de planificare săptămânală. Utilizatorul a venit din Goal Wizard cu un obiectiv masiv deja definit.
 
@@ -160,7 +172,13 @@ REGULI STRICTE:
 - O întrebare = un mesaj
 - După 4 chei complete, folosește tool-ul "save_planning"
 - Fii concis și empatic
-- Păstrează contextul obiectivului masiv în fiecare răspuns`;
+- Păstrează contextul obiectivului masiv în fiecare răspuns
+
+REGULA IMPORTANTĂ CONTEXT:
+- Dacă primul mesaj de la utilizator conține "[CONTEXT AUTOMAT]" cu chei deja completate, NU întreba din nou pentru acele chei
+- Treci direct la următoarea cheie care nu a fost definită
+- Folosește informațiile din context pentru a ști câte chei mai trebuie definite
+- Când utilizatorul cere "arată-mi ce avem", include și cheile din contextul automat`;
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.80.0';
 
