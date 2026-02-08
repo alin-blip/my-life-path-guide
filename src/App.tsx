@@ -96,6 +96,7 @@ const MindCoachLanding = lazy(() => import("./pages/MindCoachLanding"));
 const Tools = lazy(() => import("./pages/Tools"));
 const Programs = lazy(() => import("./pages/Programs"));
 const GroupPage = lazy(() => import("./pages/GroupPage"));
+const Messages = lazy(() => import("./pages/Messages"));
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
@@ -413,6 +414,11 @@ const App = () => (
                     <Route path="/groups/:groupId" element={
                       <ProtectedRoute>
                         <GroupPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/messages" element={
+                      <ProtectedRoute>
+                        <Messages />
                       </ProtectedRoute>
                     } />
                         <Route path="*" element={<NotFound />} />

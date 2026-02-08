@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Settings, CreditCard, LogOut, Crown, Sparkles } from 'lucide-react';
+import { User, Settings, CreditCard, LogOut, Crown, Sparkles, HelpCircle, Sun, Moon, Globe } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useTheme } from '@/context/ThemeContext';
 import { supabase } from '@/integrations/supabase/client';
 import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 import { useToast } from '@/hooks/use-toast';
@@ -18,7 +19,8 @@ import { Button } from '@/components/ui/button';
 
 export const UserAccountDropdown: React.FC = () => {
   const { user, subscribed, subscriptionTier, signOut } = useAuth();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -144,7 +146,7 @@ export const UserAccountDropdown: React.FC = () => {
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer">
           <Settings className="mr-2 h-4 w-4" />
-          <span>Setări</span>
+          <span>{language === 'ro' ? 'Setări' : 'Settings'}</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={handleManageSubscription} 
@@ -152,7 +154,23 @@ export const UserAccountDropdown: React.FC = () => {
           disabled={isLoading}
         >
           <CreditCard className="mr-2 h-4 w-4" />
-          <span>{subscribed ? 'Gestionează abonamentul' : 'Alege un plan'}</span>
+          <span>{subscribed ? (language === 'ro' ? 'Gestionează abonamentul' : 'Manage subscription') : (language === 'ro' ? 'Alege un plan' : 'Choose a plan')}</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/support')} className="cursor-pointer">
+          <HelpCircle className="mr-2 h-4 w-4" />
+          <span>{language === 'ro' ? 'Suport' : 'Support'}</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer">
+          {theme === 'light' ? <Moon className="mr-2 h-4 w-4" /> : <Sun className="mr-2 h-4 w-4" />}
+          <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => setLanguage(language === 'ro' ? 'en' : 'ro')} 
+          className="cursor-pointer"
+        >
+          <Globe className="mr-2 h-4 w-4" />
+          <span>{language === 'ro' ? 'English' : 'Română'}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
