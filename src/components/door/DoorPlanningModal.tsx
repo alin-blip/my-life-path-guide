@@ -23,6 +23,7 @@ import { ReviewProgressStats } from './ReviewProgressStats';
 import { DomainCategory, DOMAINS } from './DomainSelector';
 import { awardXP } from '@/services/xpService';
 import { CompletedKeyInfo, detectCompletedKey, buildCompletedKeysContext } from '@/utils/doorPlanningContext';
+import { CompletedKeysIndicator } from './CompletedKeysIndicator';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -832,6 +833,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
               </div>
                {messages.length > 0 && (
                 <div className="flex items-center gap-3">
+                  <CompletedKeysIndicator completedKeys={completedKeys} />
                   <div className="flex items-center gap-2">
                     {isSaving ? (
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
