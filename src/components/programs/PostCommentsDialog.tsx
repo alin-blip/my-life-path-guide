@@ -16,6 +16,9 @@ import { Heart, Send, BookOpen } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useLanguage } from '@/context/LanguageContext';
+import { EmojiPicker } from './EmojiPicker';
+import { MediaUploadButton, MediaPreview } from './MediaUploadButton';
+import { VideoRecorder } from './VideoRecorder';
 
 interface PostCommentsDialogProps {
   post: WallPost & { source_label?: string | null; category?: string | null };
@@ -34,17 +37,33 @@ export const PostCommentsDialog: React.FC<PostCommentsDialogProps> = ({
   const { comments, loading, addComment, deleteComment } = useWallPostComments(open ? post.id : null);
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
 
   const timeAgo = formatDistanceToNow(new Date(post.created_at), {
     addSuffix: true,
     locale: language === 'ro' ? ro : undefined,
   });
 
+  const handleEmojiSelect = (emoji: string) => {
+    setNewComment((prev) => prev + emoji);
+  };
+
+  const handleMediaUploaded = (url: string) => {
+    setMediaUrls((prev) => [...prev, url]);
+  };
+
+  const removeMedia = (index: number) => {
+    setMediaUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() && mediaUrls.length === 0) return;
     setSubmitting(true);
-    const success = await addComment(newComment.trim());
-    if (success) setNewComment('');
+    const success = await addComment(newComment.trim(), undefined, mediaUrls.length > 0 ? mediaUrls : undefined);
+    if (success) {
+      setNewComment('');
+      setMediaUrls([]);
+    }
     setSubmitting(false);
   };
 
@@ -123,18 +142,30 @@ export const PostCommentsDialog: React.FC<PostCommentsDialogProps> = ({
 
         {/* Comment Input */}
         <div className="p-4 border-t border-border shrink-0">
-          <div className="flex gap-2">
-            <Textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder={language === 'ro' ? 'Scrie un comentariu...' : 'Write a comment...'}
-              className="min-h-[60px] resize-none text-sm"
-              onEnterSubmit={handleSubmit}
-            />
+          {/* Media preview */}
+          {mediaUrls.length > 0 && (
+            <MediaPreview urls={mediaUrls} onRemove={removeMedia} removable />
+          )}
+
+          <div className="flex gap-2 mt-1">
+            <div className="flex-1">
+              <Textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder={language === 'ro' ? 'Scrie un comentariu...' : 'Write a comment...'}
+                className="min-h-[60px] resize-none text-sm"
+                onEnterSubmit={handleSubmit}
+              />
+              <div className="flex items-center gap-1 mt-1">
+                <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+                <MediaUploadButton onMediaUploaded={handleMediaUploaded} />
+                <VideoRecorder onVideoRecorded={handleMediaUploaded} />
+              </div>
+            </div>
             <Button
               size="sm"
               onClick={handleSubmit}
-              disabled={!newComment.trim() || submitting}
+              disabled={(!newComment.trim() && mediaUrls.length === 0) || submitting}
               className="shrink-0 self-end"
             >
               <Send className="h-4 w-4" />

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Users, Wifi, BookOpen, Trophy } from 'lucide-react';
+import { Users, Wifi, BookOpen, Trophy, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 export const SkoolGroupSidebar: React.FC = () => {
   const { language } = useLanguage();
+  const { isAdmin } = useAdminAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [memberCount, setMemberCount] = useState(0);
@@ -46,6 +48,15 @@ export const SkoolGroupSidebar: React.FC = () => {
       icon: BookOpen,
       onClick: () => navigateToTab('classroom'),
     },
+    ...(isAdmin
+      ? [
+          {
+            label: language === 'ro' ? 'Setări' : 'Settings',
+            icon: Settings,
+            onClick: () => navigateToTab('settings'),
+          },
+        ]
+      : []),
   ];
 
   return (

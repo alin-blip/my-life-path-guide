@@ -8,6 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
+import { InlineMediaDisplay } from './MediaUploadButton';
 
 interface PostCommentCardProps {
   comment: WallPostCommentWithAuthor;
@@ -64,6 +65,9 @@ export const PostCommentCard: React.FC<PostCommentCardProps> = ({
           </div>
 
           <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">{comment.content}</p>
+
+          {/* Media attachments */}
+          <InlineMediaDisplay urls={comment.media_urls || null} />
 
           <div className="flex items-center gap-3 mt-2">
             {!isNested && (

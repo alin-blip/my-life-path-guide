@@ -30,7 +30,7 @@ export const CommunityTab: React.FC = () => {
       {/* Main Feed */}
       <div className="flex-1 min-w-0 max-w-2xl space-y-4">
         <CommunityWelcomeBanner />
-        <SkoolWritePost onPost={(content, options) => createPost(content, undefined, undefined, options)} />
+        <SkoolWritePost onPost={(content, options) => createPost(content, undefined, options?.mediaUrls, options)} />
         <SkoolCategoryFilter active={activeCategory} onChange={setActiveCategory} />
 
         {posts.length === 0 ? (

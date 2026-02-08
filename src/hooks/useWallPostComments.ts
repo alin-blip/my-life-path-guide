@@ -9,6 +9,7 @@ export interface WallPostCommentWithAuthor {
   user_id: string;
   content: string;
   parent_comment_id: string | null;
+  media_urls: string[] | null;
   created_at: string;
   author: {
     display_name: string;
@@ -48,6 +49,7 @@ export const useWallPostComments = (postId: string | null) => {
 
       const commentsWithAuthors: WallPostCommentWithAuthor[] = data.map(c => ({
         ...c,
+        media_urls: (c as any).media_urls || null,
         author: profiles?.find(p => p.user_id === c.user_id) || { display_name: 'Warrior', avatar_emoji: '⚔️' },
       }));
 
@@ -67,17 +69,23 @@ export const useWallPostComments = (postId: string | null) => {
     setLoading(false);
   }, [postId]);
 
-  const addComment = async (content: string, parentCommentId?: string): Promise<boolean> => {
+  const addComment = async (content: string, parentCommentId?: string, mediaUrls?: string[]): Promise<boolean> => {
     if (!user || !postId) return false;
+
+    const insertData: any = {
+      post_id: postId,
+      user_id: user.id,
+      content,
+      parent_comment_id: parentCommentId || null,
+    };
+
+    if (mediaUrls && mediaUrls.length > 0) {
+      insertData.media_urls = mediaUrls;
+    }
 
     const { error } = await supabase
       .from('wall_post_comments')
-      .insert({
-        post_id: postId,
-        user_id: user.id,
-        content,
-        parent_comment_id: parentCommentId || null,
-      });
+      .insert(insertData);
 
     if (error) {
       toast({ title: 'Error posting comment', description: error.message, variant: 'destructive' });

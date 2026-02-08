@@ -13,9 +13,12 @@ import {
 import { Send, Bell, Mail } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { EmojiPicker } from './EmojiPicker';
+import { MediaUploadButton, MediaPreview } from './MediaUploadButton';
+import { VideoRecorder } from './VideoRecorder';
 
 interface SkoolWritePostProps {
-  onPost: (content: string, options?: { notifyAll?: boolean; sendEmail?: boolean }) => Promise<any>;
+  onPost: (content: string, options?: { notifyAll?: boolean; sendEmail?: boolean; mediaUrls?: string[] }) => Promise<any>;
 }
 
 export const SkoolWritePost: React.FC<SkoolWritePostProps> = ({ onPost }) => {
@@ -26,14 +29,28 @@ export const SkoolWritePost: React.FC<SkoolWritePostProps> = ({ onPost }) => {
   const [posting, setPosting] = useState(false);
   const [notifyAll, setNotifyAll] = useState(true);
   const [sendEmail, setSendEmail] = useState(false);
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+
+  const handleEmojiSelect = (emoji: string) => {
+    setContent((prev) => prev + emoji);
+  };
+
+  const handleMediaUploaded = (url: string) => {
+    setMediaUrls((prev) => [...prev, url]);
+  };
+
+  const removeMedia = (index: number) => {
+    setMediaUrls((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handlePost = async () => {
-    if (!content.trim()) return;
+    if (!content.trim() && mediaUrls.length === 0) return;
     setPosting(true);
-    await onPost(content.trim(), { notifyAll, sendEmail });
+    await onPost(content.trim(), { notifyAll, sendEmail, mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined });
     setContent('');
     setNotifyAll(true);
     setSendEmail(false);
+    setMediaUrls([]);
     setOpen(false);
     setPosting(false);
   };
@@ -79,6 +96,18 @@ export const SkoolWritePost: React.FC<SkoolWritePostProps> = ({ onPost }) => {
               autoFocus
             />
 
+            {/* Media preview */}
+            {mediaUrls.length > 0 && (
+              <MediaPreview urls={mediaUrls} onRemove={removeMedia} removable />
+            )}
+
+            {/* Media buttons row */}
+            <div className="flex items-center gap-1 border-t border-border/60 pt-2">
+              <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+              <MediaUploadButton onMediaUploaded={handleMediaUploaded} />
+              <VideoRecorder onVideoRecorded={handleMediaUploaded} />
+            </div>
+
             {/* Notification options */}
             <div className="space-y-3 rounded-lg border border-border/60 p-3">
               <label className="flex items-center gap-2.5 cursor-pointer">
@@ -109,7 +138,7 @@ export const SkoolWritePost: React.FC<SkoolWritePostProps> = ({ onPost }) => {
             <div className="flex justify-end">
               <Button
                 onClick={handlePost}
-                disabled={!content.trim() || posting}
+                disabled={(!content.trim() && mediaUrls.length === 0) || posting}
                 className="gap-2"
               >
                 <Send className="h-4 w-4" />

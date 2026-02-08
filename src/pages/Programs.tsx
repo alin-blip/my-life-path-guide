@@ -8,6 +8,7 @@ import { CalendarTab } from '@/components/programs/CalendarTab';
 import { MembersTab } from '@/components/programs/MembersTab';
 import { LeaderboardsTab } from '@/components/programs/LeaderboardsTab';
 import { GroupsTab } from '@/components/programs/GroupsTab';
+import { CommunitySettingsTab } from '@/components/programs/CommunitySettingsTab';
 import { ProgramCardProps } from '@/components/programs/ProgramCard';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 
@@ -75,6 +76,8 @@ const Programs: React.FC = () => {
         return <MembersTab />;
       case 'leaderboards':
         return <LeaderboardsTab />;
+      case 'settings':
+        return <CommunitySettingsTab />;
       default:
         return <ClassroomTab programs={programs} />;
     }
