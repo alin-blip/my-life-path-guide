@@ -38,6 +38,9 @@ export interface WallPost {
   is_pinned: boolean;
   created_at: string;
   updated_at: string;
+  category?: string | null;
+  source_context?: string | null;
+  source_label?: string | null;
   author?: {
     display_name: string;
     avatar_emoji: string | null;
@@ -118,7 +121,7 @@ export const useBrotherhood = () => {
   };
 
   // Fetch wall posts
-  const fetchPosts = async (tribeId?: string) => {
+  const fetchPosts = async (tribeId?: string, categoryFilter?: string) => {
     let query = supabase
       .from('wall_posts')
       .select('*')
@@ -127,6 +130,11 @@ export const useBrotherhood = () => {
 
     if (tribeId) {
       query = query.eq('tribe_id', tribeId);
+    }
+
+    // Apply category filter
+    if (categoryFilter && categoryFilter !== 'all') {
+      query = (query as any).eq('category', categoryFilter);
     }
 
     const { data, error } = await query;
@@ -280,17 +288,28 @@ export const useBrotherhood = () => {
   };
 
   // Create a wall post
-  const createPost = async (content: string, tribeId?: string, mediaUrls?: string[]) => {
+  const createPost = async (
+    content: string,
+    tribeId?: string,
+    mediaUrls?: string[],
+    options?: { category?: string; source_context?: string; source_label?: string }
+  ) => {
     if (!user) return null;
+
+    const insertData: any = {
+      user_id: user.id,
+      content,
+      tribe_id: tribeId || null,
+      media_urls: mediaUrls || null,
+    };
+
+    if (options?.category) insertData.category = options.category;
+    if (options?.source_context) insertData.source_context = options.source_context;
+    if (options?.source_label) insertData.source_label = options.source_label;
 
     const { data, error } = await supabase
       .from('wall_posts')
-      .insert({
-        user_id: user.id,
-        content,
-        tribe_id: tribeId || null,
-        media_urls: mediaUrls || null
-      })
+      .insert(insertData)
       .select()
       .single();
 

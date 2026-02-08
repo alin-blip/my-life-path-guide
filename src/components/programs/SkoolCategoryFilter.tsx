@@ -4,9 +4,10 @@ import { cn } from '@/lib/utils';
 
 const categories = [
   { id: 'all', label: 'All', labelRo: 'Toate', icon: null },
-  { id: 'general', label: 'General Discussion', labelRo: 'Discuție Generală', icon: '💬' },
+  { id: 'general', label: 'General', labelRo: 'General', icon: '💬' },
+  { id: 'challenge', label: 'Challenge', labelRo: 'Challenge', icon: '📚' },
   { id: 'wins', label: 'Wins & Victories', labelRo: 'Victorii', icon: '🏆' },
-  { id: 'support', label: 'Support Needed', labelRo: 'Ajutor', icon: '🆘' },
+  { id: 'support', label: 'Support', labelRo: 'Ajutor', icon: '🆘' },
 ];
 
 interface SkoolCategoryFilterProps {

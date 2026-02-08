@@ -16,7 +16,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { ChallengeAnswersHistory } from '@/components/challenge/ChallengeAnswersHistory';
 import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Complete';
-import { ChallengeComments, ChallengeCommentsRef } from '@/components/challenge/ChallengeComments';
+import { LessonCommunityPost } from '@/components/programs/LessonCommunityPost';
 import { ChallengeUpgradeGate } from '@/components/challenge/ChallengeUpgradeGate';
 import { 
   Day1WhyQuestions, 
@@ -362,8 +362,8 @@ const ChallengeDayPage = () => {
   const [declarationSaved, setDeclarationSaved] = useState(false);
   const [userCommentCount, setUserCommentCount] = useState(0);
   
-  // Ref for comments to post declaration
-  const commentsRef = useRef<ChallengeCommentsRef>(null);
+  // Ref removed - now using LessonCommunityPost
+  const commentsRef = useRef<any>(null);
   
   // Day 1 responses hook
   const { 
@@ -869,9 +869,9 @@ const ChallengeDayPage = () => {
             <ChallengeLiveChat dayNumber={1} language={language === 'en' ? 'en' : 'ro'} />
           </div>
 
-          {/* Comments Section - ALWAYS visible */}
+          {/* Lesson Community Posts - replaces ChallengeComments */}
           <div className="mt-6">
-            <ChallengeComments ref={commentsRef} dayNumber={1} />
+            <LessonCommunityPost dayNumber={1} dayTitle={language === 'en' ? 'Vision + Declaration' : 'Viziune + Declarație'} />
           </div>
           </div>
         </ProgramsLayout>
@@ -1111,9 +1111,9 @@ const ChallengeDayPage = () => {
           <ChallengeLiveChat dayNumber={dayNumber} language={language === 'en' ? 'en' : 'ro'} />
         </div>
 
-        {/* Challenge Comments Section */}
+        {/* Lesson Community Posts */}
         <div className="mb-6">
-          <ChallengeComments dayNumber={dayNumber} />
+          <LessonCommunityPost dayNumber={dayNumber} dayTitle={title} />
         </div>
 
         {/* Complete Day Button */}

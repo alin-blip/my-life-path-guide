@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useBrotherhood } from '@/hooks/useBrotherhood';
 import { SkoolWritePost } from './SkoolWritePost';
 import { SkoolCategoryFilter } from './SkoolCategoryFilter';
@@ -9,8 +9,13 @@ import { useLanguage } from '@/context/LanguageContext';
 
 export const CommunityTab: React.FC = () => {
   const { language } = useLanguage();
-  const { posts, loading, createPost, toggleLike } = useBrotherhood();
+  const { posts, loading, createPost, toggleLike, fetchPosts } = useBrotherhood();
   const [activeCategory, setActiveCategory] = useState('all');
+
+  // Re-fetch posts when category changes
+  useEffect(() => {
+    fetchPosts(undefined, activeCategory);
+  }, [activeCategory]);
 
   if (loading) {
     return (
