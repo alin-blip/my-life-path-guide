@@ -1,88 +1,78 @@
 
-# Imbunatatire extractie context chei - detalii complete cu pasi, zile si HIT/DO
+# Indicator vizual pentru cheile completate in DoorPlanningModal
 
-## Problema curenta
+## Ce adaugam
 
-Sistemul de context injection exista dar extrage prea putin. Rezumatul injectat arata doar "3 pasi" fara sa specifice CE pasi, in CE zi si daca sunt HIT sau DO. AI-ul nu poate reconstrui planul complet din acest rezumat minimal.
+Un indicator compact in header-ul modalului care arata progresul cheilor (ex: "2/4 chei definite") si permite click pentru a vedea un rezumat rapid al cheilor completate pana acum.
 
-## Solutia: extractie detaliata a pasilor
+## Componente noi
 
-In loc sa crestem limita la 150 mesaje (costisitor, lent, risc de limita API), imbunatatim extractia din conversatie pentru a capta toate detaliile fiecarei chei.
+### 1. CompletedKeysIndicator (componentă nouă)
 
-## Ce se schimba
+Cream `src/components/door/CompletedKeysIndicator.tsx` -- o componentă mică care:
+- Afișează "0/4 chei", "1/4 chei", "2/4 chei" etc. cu iconițe CheckCircle colorate
+- La click, deschide un Popover cu rezumatul detaliat al fiecărei chei completate
+- Fiecare cheie din rezumat arată: titlu, pașii cu ziua și tipul (HIT/DO), responsabil, deadline
+- Cheile nedefinite apar gri cu "Nedefinită încă"
+- Folosește culori: verde pentru completate, gri pentru cele rămase
 
-### 1. Structura CompletedKeyInfo extinsa (doorPlanningContext.ts)
+### 2. Integrare in DoorPlanningModal.tsx
 
-Adaugam campuri noi pentru a stoca detaliile complete:
+- Adăugăm `CompletedKeysIndicator` în header-ul dialogului, lângă butonul "Șterge draft"
+- Componenta primește `completedKeys` din state-ul existent (deja implementat)
+- Nu modificăm logica existentă, doar adăugăm UI
 
-```text
-CompletedKeyInfo {
-  keyNumber: number;
-  title: string;
-  steps: Array<{
-    text: string;      // "Optimizare platforma B2C"
-    day: string;       // "Luni"
-    type: string;      // "HIT" sau "DO"
-  }>;
-  responsible: string;
-  deadline: string;
-  objective: string;    // Ce vrei sa faci
-  whyImportant: string; // De ce
-  positiveResult: string;
-  negativeResult: string;
-}
-```
-
-### 2. Extractie inteligenta din conversatie (doorPlanningContext.ts)
-
-Parsarea devine mai completa:
-- Extrage fiecare pas individual cu ziua si tipul HIT/DO din pattern-uri precum "Pasul 1: Optimizare platforma (Luni, HIT)"
-- Extrage obiectivul, motivatia, rezultatul pozitiv si negativ cautand intrebarile AI + raspunsurile utilizatorului
-- Foloseste ultimele 40 de mesaje din conversatie (zona relevanta pentru cheia curenta)
-
-### 3. Rezumat complet injectat (doorPlanningContext.ts)
-
-Noul format al contextului injectat:
+## Design vizual
 
 ```text
-[CONTEXT AUTOMAT] Cheile deja completate (NU intreba din nou):
---- Cheia 1: "Lansare platforma afiliere" ---
-Obiectiv: Reconfigurarea platformei vechi
-Pasi:
-  1. Optimizare platforma B2C si B2B - Luni (HIT)
-  2. Optimizare pagina lead magnet - Miercuri (HIT)
-  3. Optimizare UX inregistrare studenti - Joi (HIT)
-Responsabil: Alin Radu | Deadline: Vineri
-
---- Cheia 2: "Marketing afiliat B2B si B2C" ---
-...
-
-Cheile completate: 1, 2 (2 din 4). Mai trebuie: 3, 4.
+┌──────────────────────────────────────────────────┐
+│ ✨ Domino Door Planning  [🔑 2/4 chei] [Draft]  │
+│─────────────────────────────────────────────────-│
+│                                                  │
+│  ... conversatia ...                             │
+│                                                  │
+└──────────────────────────────────────────────────┘
 ```
 
-### 4. MAX_MESSAGES_TO_SEND ramane 60
+La click pe "2/4 chei", apare un popover:
 
-Cu extractia detaliata, 60 mesaje sunt suficiente. Contextul complet al cheilor anterioare vine din rezumatul injectat, nu din mesajele vechi.
+```text
+┌─────────────────────────────────────┐
+│  Rezumat Chei Definite              │
+│                                     │
+│  ✅ Cheia 1: "Lansare platforma"    │
+│     1. Optimizare B2C - Luni (HIT)  │
+│     2. Lead magnet - Miercuri (HIT) │
+│     Responsabil: Alin | DL: Vineri  │
+│                                     │
+│  ✅ Cheia 2: "Marketing afiliat"    │
+│     1. Campanie FB - Marți (DO)     │
+│     Responsabil: Alin | DL: Joi     │
+│                                     │
+│  ⬚ Cheia 3: Nedefinita inca         │
+│  ⬚ Cheia 4: Nedefinita inca         │
+└─────────────────────────────────────┘
+```
 
 ## Detalii tehnice
 
-### Fisiere modificate
+### Fișier nou: src/components/door/CompletedKeysIndicator.tsx
 
-**src/utils/doorPlanningContext.ts** - refactorizare completa:
-- `CompletedKeyInfo` extins cu `steps[]`, `objective`, `whyImportant`, `positiveResult`, `negativeResult`
-- `detectCompletedKey()` - extractie imbunatatita: cauta pattern-uri AI de confirmare pas ("Am notat. Pasul 1, Luni, HIT") si perechi intrebare-raspuns pentru obiectiv/motivatie
-- `buildCompletedKeysContext()` - genereaza rezumat detaliat cu fiecare pas enumerat individual
-- Functii helper noi: `extractStepsDetailed()` care parseaza pasii cu ziua si tipul lor
+- Import Popover, PopoverTrigger, PopoverContent din shadcn
+- Import CheckCircle, Circle din lucide-react
+- Primeste props: `completedKeys: CompletedKeyInfo[]`
+- Badge cu numarul de chei completate (verde cand > 0, gri cand 0)
+- Popover cu ScrollArea pentru rezumatul detaliat
+- Fiecare cheie completata arata steps cu day si type
 
-**src/components/door/DoorPlanningModal.tsx** - actualizare minora:
-- Adaptat tipul `completedKeys` la noua interfata (steps devine array de obiecte in loc de stepsCount)
-- localStorage persistence actualizata pentru noua structura
+### Modificare: src/components/door/DoorPlanningModal.tsx
 
-**supabase/functions/door-ai-planning/index.ts** - fara modificari (system prompt-ul deja instruieste AI-ul sa respecte contextul injectat)
+- Import CompletedKeysIndicator
+- Plasare in DialogHeader, intre titlu si butoanele de cloud/draft (linia ~833)
+- Se afiseaza doar cand `planningStep === 'planning'` si `messages.length > 0`
 
-## Rezultat asteptat
+### Fara alte dependente noi
 
-- Utilizatorul defineste Cheia 1 cu 3 pasi detaliati
-- Cand trece la Cheia 2+, AI-ul primeste rezumatul COMPLET al Cheii 1 (cu fiecare pas, ziua, HIT/DO)
-- La intrebarea "arata-mi ce avem", AI-ul poate raspunde cu toate detaliile
-- Nu mai e nevoie de 150 mesaje - contextul vine din extractie, nu din istoricul brut
+- Folosim componente shadcn existente (Popover, ScrollArea, Badge)
+- Folosim tipul CompletedKeyInfo deja definit in doorPlanningContext.ts
+- Nu modificam logica de detectie sau salvare -- doar citim state-ul existent
