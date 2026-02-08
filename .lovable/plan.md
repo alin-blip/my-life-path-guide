@@ -1,78 +1,106 @@
 
-# Indicator vizual pentru cheile completate in DoorPlanningModal
+# Plan: Reparare flux autentificare Challenge-7-Zile
 
-## Ce adaugam
+## Problema identificată
 
-Un indicator compact in header-ul modalului care arata progresul cheilor (ex: "2/4 chei definite") si permite click pentru a vedea un rezumat rapid al cheilor completate pana acum.
+Din investigație am descoperit că 71 de utilizatori au conturi create și confirmate din landing-ul challenge-7-zile, dar ZERO au început efectiv challenge-ul (challenge_progress gol, challenge_started_at null în CRM).
 
-## Componente noi
+Problema principală: după signup cu email/parolă, codul apelează `onSuccess()` care face redirect la `/challenge`, DAR:
+1. Sesiunea Supabase nu este încă setată în AuthContext
+2. Utilizatorul ajunge pe `/challenge` fără sesiune activă
+3. Pagina Challenge îl vede ca "neautentificat" și nu înregistrează progresul
 
-### 1. CompletedKeysIndicator (componentă nouă)
+## Cauze tehnice
 
-Cream `src/components/door/CompletedKeysIndicator.tsx` -- o componentă mică care:
-- Afișează "0/4 chei", "1/4 chei", "2/4 chei" etc. cu iconițe CheckCircle colorate
-- La click, deschide un Popover cu rezumatul detaliat al fiecărei chei completate
-- Fiecare cheie din rezumat arată: titlu, pașii cu ziua și tipul (HIT/DO), responsabil, deadline
-- Cheile nedefinite apar gri cu "Nedefinită încă"
-- Folosește culori: verde pentru completate, gri pentru cele rămase
+1. **Timing sesiune**: `supabase.auth.signUp()` cu auto-confirm creează sesiunea, dar AuthContext nu o preia instant deoarece `onAuthStateChange` rulează asincron
 
-### 2. Integrare in DoorPlanningModal.tsx
+2. **Mesaj toast incorect**: Afișează "Verifică email-ul" deși auto-confirm e activ - confuzie pentru utilizator
 
-- Adăugăm `CompletedKeysIndicator` în header-ul dialogului, lângă butonul "Șterge draft"
-- Componenta primește `completedKeys` din state-ul existent (deja implementat)
-- Nu modificăm logica existentă, doar adăugăm UI
+3. **Redirect prematur**: `handleAuthSuccess()` este apelat imediat după signup, înainte ca sesiunea să fie propagată în context
 
-## Design vizual
+## Soluția propusă
 
-```text
-┌──────────────────────────────────────────────────┐
-│ ✨ Domino Door Planning  [🔑 2/4 chei] [Draft]  │
-│─────────────────────────────────────────────────-│
-│                                                  │
-│  ... conversatia ...                             │
-│                                                  │
-└──────────────────────────────────────────────────┘
+### 1. Așteaptă sesiunea înainte de redirect (ChallengeInlineAuth.tsx)
+
+După signup reușit, în loc să apelăm instant `onSuccess()`, așteptăm ca sesiunea să fie confirmată:
+
+```typescript
+// După signup reușit
+const { data: sessionData } = await supabase.auth.getSession();
+if (sessionData?.session) {
+  // Sesiunea există, putem continua
+  onSuccess?.();
+} else {
+  // Polling scurt pentru sesiune (max 3 secunde)
+  let attempts = 0;
+  const checkSession = setInterval(async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data?.session || attempts >= 6) {
+      clearInterval(checkSession);
+      onSuccess?.();
+    }
+    attempts++;
+  }, 500);
+}
 ```
 
-La click pe "2/4 chei", apare un popover:
+### 2. Corectează mesajul toast pentru auto-confirm
 
-```text
-┌─────────────────────────────────────┐
-│  Rezumat Chei Definite              │
-│                                     │
-│  ✅ Cheia 1: "Lansare platforma"    │
-│     1. Optimizare B2C - Luni (HIT)  │
-│     2. Lead magnet - Miercuri (HIT) │
-│     Responsabil: Alin | DL: Vineri  │
-│                                     │
-│  ✅ Cheia 2: "Marketing afiliat"    │
-│     1. Campanie FB - Marți (DO)     │
-│     Responsabil: Alin | DL: Joi     │
-│                                     │
-│  ⬚ Cheia 3: Nedefinita inca         │
-│  ⬚ Cheia 4: Nedefinita inca         │
-└─────────────────────────────────────┘
+Schimbă mesajul de succes să nu menționeze "verifică email-ul" când auto-confirm e activ:
+
+```typescript
+toast({
+  title: '🎉 ' + (language === 'en' ? 'Account created!' : 'Cont creat!'),
+  description: language === 'en' 
+    ? 'Redirecting to your challenge...' 
+    : 'Te redirecționăm către challenge...',
+});
 ```
 
-## Detalii tehnice
+### 3. Fallback în Challenge7ZileLanding.tsx
 
-### Fișier nou: src/components/door/CompletedKeysIndicator.tsx
+În `handleAuthSuccess`, adaugă verificare suplimentară:
 
-- Import Popover, PopoverTrigger, PopoverContent din shadcn
-- Import CheckCircle, Circle din lucide-react
-- Primeste props: `completedKeys: CompletedKeyInfo[]`
-- Badge cu numarul de chei completate (verde cand > 0, gri cand 0)
-- Popover cu ScrollArea pentru rezumatul detaliat
-- Fiecare cheie completata arata steps cu day si type
+```typescript
+const handleAuthSuccess = async () => {
+  // Verifică că sesiunea există înainte de redirect
+  const { data } = await supabase.auth.getSession();
+  if (!data?.session) {
+    // Așteaptă puțin pentru propagare
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  
+  setIsSubscribed(true);
+  toast({ ... });
+  setTimeout(() => navigate('/challenge'), 1500);
+};
+```
 
-### Modificare: src/components/door/DoorPlanningModal.tsx
+### 4. Robustețe în Challenge.tsx
 
-- Import CompletedKeysIndicator
-- Plasare in DialogHeader, intre titlu si butoanele de cloud/draft (linia ~833)
-- Se afiseaza doar cand `planningStep === 'planning'` si `messages.length > 0`
+Adaugă un useEffect care re-verifică autentificarea la mount:
 
-### Fara alte dependente noi
+```typescript
+useEffect(() => {
+  // Force refresh session on mount to catch fresh signups
+  supabase.auth.getSession().then(({ data }) => {
+    if (data?.session && !isAuthenticated) {
+      // Trigger refresh in AuthContext
+      window.location.reload();
+    }
+  });
+}, []);
+```
 
-- Folosim componente shadcn existente (Popover, ScrollArea, Badge)
-- Folosim tipul CompletedKeyInfo deja definit in doorPlanningContext.ts
-- Nu modificam logica de detectie sau salvare -- doar citim state-ul existent
+## Fișiere de modificat
+
+1. **src/components/challenge/ChallengeInlineAuth.tsx** - Așteaptă sesiunea + mesaj toast corect
+2. **src/pages/Challenge7ZileLanding.tsx** - Verificare sesiune în handleAuthSuccess  
+3. **src/pages/Challenge.tsx** - Fallback refresh pentru sesiuni noi
+
+## Rezultat așteptat
+
+- Utilizatorii care fac signup sunt redirectați DUPĂ ce sesiunea e confirmată
+- Challenge.tsx îi recunoaște ca autentificați și înregistrează challenge_started
+- challenge_progress se populează corect
+- CRM-ul primește challenge_started_at
