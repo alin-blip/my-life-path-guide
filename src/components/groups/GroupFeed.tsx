@@ -140,7 +140,7 @@ export const GroupFeed: React.FC<GroupFeedProps> = ({ tribeId, isMember }) => {
         </div>
       ) : (
         posts.map((post) => (
-          <SkoolPostCard key={post.id} post={post} onLike={handleToggleLike} />
+          <SkoolPostCard key={post.id} post={post} onLike={handleToggleLike} onRefresh={fetchPosts} />
         ))
       )}
     </div>

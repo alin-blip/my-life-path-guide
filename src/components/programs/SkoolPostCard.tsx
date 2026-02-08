@@ -2,20 +2,80 @@ import React, { useState } from 'react';
 import { WallPost } from '@/hooks/useBrotherhood';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Pin, BookOpen } from 'lucide-react';
+import { Heart, MessageCircle, Pin, BookOpen, MoreVertical } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useLanguage } from '@/context/LanguageContext';
 import { PostCommentsDialog } from './PostCommentsDialog';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface SkoolPostCardProps {
   post: WallPost & { source_label?: string | null; category?: string | null };
   onLike: (postId: string) => void;
+  onRefresh?: () => void;
 }
 
-export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike }) => {
+export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRefresh }) => {
   const { language } = useLanguage();
   const [showComments, setShowComments] = useState(false);
+  const { isAdmin } = useAdminAuth();
+  const { toast } = useToast();
+  const [pinLoading, setPinLoading] = useState(false);
+
+  const handleTogglePin = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (pinLoading) return;
+    setPinLoading(true);
+
+    try {
+      if (!post.is_pinned) {
+        // Check current pinned count
+        const { count } = await supabase
+          .from('wall_posts')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_pinned', true);
+
+        if ((count || 0) >= 3) {
+          toast({
+            title: language === 'ro' ? 'Limită atinsă' : 'Limit reached',
+            description: language === 'ro' 
+              ? 'Poți avea maximum 3 postări fixate.' 
+              : 'You can have a maximum of 3 pinned posts.',
+            variant: 'destructive',
+          });
+          setPinLoading(false);
+          return;
+        }
+      }
+
+      const { error } = await supabase
+        .from('wall_posts')
+        .update({ is_pinned: !post.is_pinned })
+        .eq('id', post.id);
+
+      if (error) throw error;
+
+      toast({
+        title: post.is_pinned
+          ? (language === 'ro' ? 'Postare defixată' : 'Post unpinned')
+          : (language === 'ro' ? 'Postare fixată' : 'Post pinned'),
+      });
+
+      onRefresh?.();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setPinLoading(false);
+    }
+  };
 
   // Split content into title (first line) and preview (rest)
   const lines = post.content.split('\n').filter(l => l.trim());
@@ -77,6 +137,27 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike }) =>
               <Pin className="h-3 w-3" />
               Pinned
             </div>
+          )}
+
+          {isAdmin && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleTogglePin} disabled={pinLoading}>
+                  <Pin className="h-4 w-4 mr-2" />
+                  {post.is_pinned
+                    ? (language === 'ro' ? 'Defixează' : 'Unpin')
+                    : (language === 'ro' ? 'Fixează' : 'Pin')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
 

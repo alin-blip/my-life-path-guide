@@ -43,7 +43,7 @@ export const CommunityTab: React.FC = () => {
           </div>
         ) : (
           posts.map((post) => (
-            <SkoolPostCard key={post.id} post={post} onLike={toggleLike} />
+            <SkoolPostCard key={post.id} post={post} onLike={toggleLike} onRefresh={() => fetchPosts(undefined, activeCategory)} />
           ))
         )}
       </div>
