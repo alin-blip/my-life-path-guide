@@ -22,6 +22,7 @@ import { VoiceLanguageToggle } from '@/components/stack/VoiceLanguageToggle';
 import { ReviewProgressStats } from './ReviewProgressStats';
 import { DomainCategory, DOMAINS } from './DomainSelector';
 import { awardXP } from '@/services/xpService';
+import { CompletedKeyInfo, detectCompletedKey, buildCompletedKeysContext } from '@/utils/doorPlanningContext';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -134,6 +135,11 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     failedKeys: 0,
     reviewComplete: false
   });
+
+  // Track completed keys for context injection (prevents AI from re-asking)
+  const [completedKeys, setCompletedKeys] = useState<CompletedKeyInfo[]>([]);
+  const completedKeysRef = useRef<CompletedKeyInfo[]>([]);
+
   const chatViewportRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const saveTimerRef = useRef<NodeJS.Timeout>();
@@ -141,12 +147,16 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
   // Keep history bounded to avoid backend 100-message limit
   const MAX_MESSAGES_IN_STATE = 100;
-  const MAX_MESSAGES_TO_SEND = 40;
+  const MAX_MESSAGES_TO_SEND = 60;
   const messagesRef = useRef<Message[]>([]);
 
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
+
+  useEffect(() => {
+    completedKeysRef.current = completedKeys;
+  }, [completedKeys]);
 
   // Voice input integration
   const [inputMode, setInputMode] = useState<'text' | 'voice'>(() => {
@@ -230,6 +240,8 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       setDraftLoaded(false);
       setInputMode('text');
       setLastCloudSave(null);
+      setCompletedKeys([]);
+      completedKeysRef.current = [];
     }
   }, [isOpen]);
 
@@ -241,6 +253,19 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           setMessages(draft.messages);
           setQuestionsAnswered(draft.questionsAnswered);
           setIsSkippingReview(draft.isSkippingReview);
+        }
+        // Restore completed keys from localStorage
+        try {
+          const ckKey = `doorCompletedKeys_${currentWeekKey}_${selectedDomain || 'business'}`;
+          const savedKeys = localStorage.getItem(ckKey);
+          if (savedKeys) {
+            const parsed: CompletedKeyInfo[] = JSON.parse(savedKeys);
+            setCompletedKeys(parsed);
+            completedKeysRef.current = parsed;
+            console.log('🔑 Restored completed keys:', parsed.length);
+          }
+        } catch (e) {
+          console.error('Error restoring completed keys:', e);
         }
         setDraftLoaded(true);
       });
@@ -542,9 +567,15 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
   }) => {
     if (!selectedDomain) return;
     
-    const safeMessages = Array.isArray(chatMessages)
+    const safeMessages: Message[] = Array.isArray(chatMessages)
       ? chatMessages.slice(-MAX_MESSAGES_TO_SEND)
       : [];
+
+    // Inject completed keys context at the beginning so AI remembers them
+    const contextMsg = buildCompletedKeysContext(completedKeysRef.current);
+    if (contextMsg) {
+      safeMessages.unshift({ role: 'user', content: contextMsg });
+    }
 
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     if (sessionError) throw sessionError;
@@ -742,6 +773,25 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
         } catch (e) {
           // Ignore parse errors for incomplete JSON chunks
         }
+      }
+    }
+
+    // Detect if a key was completed in this AI response
+    if (currentAssistantMessage) {
+      const recentMsgs = messagesRef.current.slice(-30);
+      const newKey = detectCompletedKey(currentAssistantMessage, recentMsgs);
+      if (newKey && !completedKeysRef.current.some(k => k.keyNumber === newKey.keyNumber)) {
+        const updated = [...completedKeysRef.current, newKey];
+        setCompletedKeys(updated);
+        completedKeysRef.current = updated;
+        // Persist to localStorage
+        try {
+          const ckKey = `doorCompletedKeys_${currentWeekKey}_${selectedDomain || 'business'}`;
+          localStorage.setItem(ckKey, JSON.stringify(updated));
+        } catch (e) {
+          console.error('Error persisting completed keys:', e);
+        }
+        console.log(`🔑 Cheia ${newKey.keyNumber} completată detectată:`, newKey);
       }
     }
   };
