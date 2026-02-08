@@ -4506,6 +4506,7 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          media_urls: string[] | null
           parent_comment_id: string | null
           post_id: string
           updated_at: string | null
@@ -4515,6 +4516,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          media_urls?: string[] | null
           parent_comment_id?: string | null
           post_id: string
           updated_at?: string | null
@@ -4524,6 +4526,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          media_urls?: string[] | null
           parent_comment_id?: string | null
           post_id?: string
           updated_at?: string | null

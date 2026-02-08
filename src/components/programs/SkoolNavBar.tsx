@@ -1,27 +1,32 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
-import { Users, BookOpen, Calendar, UserCircle, Trophy, Users2 } from 'lucide-react';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { Users, BookOpen, Calendar, UserCircle, Trophy, Users2, Settings } from 'lucide-react';
 
-export type SkoolTab = 'community' | 'classroom' | 'groups' | 'calendar' | 'members' | 'leaderboards';
+export type SkoolTab = 'community' | 'classroom' | 'groups' | 'calendar' | 'members' | 'leaderboards' | 'settings';
 
 interface SkoolNavBarProps {
   activeTab: SkoolTab;
   onTabChange: (tab: SkoolTab) => void;
 }
 
-const tabs: { id: SkoolTab; labelEn: string; labelRo: string; icon: React.ElementType }[] = [
+const baseTabs: { id: SkoolTab; labelEn: string; labelRo: string; icon: React.ElementType; adminOnly?: boolean }[] = [
   { id: 'community', labelEn: 'Community', labelRo: 'Comunitate', icon: Users },
   { id: 'classroom', labelEn: 'Classroom', labelRo: 'Cursuri', icon: BookOpen },
   { id: 'groups', labelEn: 'Groups', labelRo: 'Grupuri', icon: Users2 },
   { id: 'calendar', labelEn: 'Calendar', labelRo: 'Calendar', icon: Calendar },
   { id: 'members', labelEn: 'Members', labelRo: 'Membri', icon: UserCircle },
   { id: 'leaderboards', labelEn: 'Leaderboards', labelRo: 'Clasament', icon: Trophy },
+  { id: 'settings', labelEn: 'Settings', labelRo: 'Setări', icon: Settings, adminOnly: true },
 ];
 
 export const SkoolNavBar: React.FC<SkoolNavBarProps> = ({ activeTab, onTabChange }) => {
   const { language } = useLanguage();
+  const { isAdmin } = useAdminAuth();
   const isRo = language === 'ro';
+
+  const tabs = baseTabs.filter((tab) => !tab.adminOnly || isAdmin);
 
   return (
     <div className="border-b border-border/60 bg-card/50 backdrop-blur-sm sticky top-0 z-10">

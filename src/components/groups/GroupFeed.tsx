@@ -83,12 +83,13 @@ export const GroupFeed: React.FC<GroupFeedProps> = ({ tribeId, isMember }) => {
     return () => { supabase.removeChannel(channel); };
   }, [tribeId, user]);
 
-  const handleCreatePost = async (content: string) => {
+  const handleCreatePost = async (content: string, options?: { mediaUrls?: string[] }) => {
     if (!user) return;
     const { error } = await supabase.from('wall_posts').insert({
       user_id: user.id,
       content,
       tribe_id: tribeId,
+      media_urls: options?.mediaUrls || null,
     });
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
