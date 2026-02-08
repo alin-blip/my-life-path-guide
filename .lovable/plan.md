@@ -1,194 +1,274 @@
 
-# Redesign Community Tab in Stil Skool.com
+# Sistem Complet de Comunitati Skool-Style + Chat Functional + Welcome Message
 
 ## Rezumat
 
-Transformam tab-ul "Community" din pagina Programs pentru a arata exact ca in screenshot-ul Skool: input simplu "Write something" sus, filtre pe categorii, postari in stil card cu avatar, titlu bold, preview text, thumbnail, likes/comments cu avatare, si un sidebar dreapta cu informatii despre grup.
+Trei functionalitati mari:
 
-## Ce se modifica
+1. **Chat-ul Community functioneaza** - Da, postarea de mesaje merge prin `SkoolWritePost`. Dar lipseste: un **mesaj de intampinare** (welcome message) care sa apara automat tuturor celor care intra pe pagina Community, plus posibilitatea ta (admin) de a seta acest mesaj.
 
-### 1. Redesign CommunityTab.tsx (complet)
+2. **Welcome Message setat de admin** - Adaugam un post "pinned" automat sau un banner de bun venit in Community, pe care adminul il poate edita.
 
-Layout-ul devine cu 2 coloane pe desktop:
-- **Stanga (principal):** Input "Write something" + filtre categorii + lista postari
-- **Dreapta (sidebar):** Card info grup (imagine, nume, descriere, statistici, membri)
-
-```text
-Desktop:
-┌───────────────────────────────┬────────────────────┐
-│  [Avatar] Write something...  │  [Group Image]     │
-│                               │  Warrior OS        │
-│  [All] [General] [Resources]  │  Comunitatea...    │
-│                               │  Links...          │
-│  ┌──────────────────────────┐ │  252 Members  3 On │
-│  │ Avatar Name ⭐           │ │  [Avatare]         │
-│  │ 1d · General Discussion  │ │                    │
-│  │ ● Titlu Post Bold...     │ │                    │
-│  │ Preview text truncat...  │ │                    │
-│  │ 👍 238  💬 147  [avat..]  │ │                    │
-│  └──────────────────────────┘ │                    │
-│                               │                    │
-│  ┌──────────────────────────┐ │                    │
-│  │ Avatar Name              │ │                    │
-│  │ 4d · Resources           │ │                    │
-│  │ ● Alt post...            │ │                    │
-│  └──────────────────────────┘ │                    │
-└───────────────────────────────┴────────────────────┘
-```
-
-Pe mobil, sidebar-ul info grup se ascunde complet - doar feed-ul este vizibil.
-
-### 2. Stil Post Card (Skool-style)
-
-Fiecare post va arata ca in Skool:
-- **Header:** Avatar (cu level badge), Nume + emoji badges, timp relativ + categorie tag
-- **Pinned label** dreapta sus (daca `is_pinned = true`)
-- **Titlu:** Text bold (primele ~60 caractere din content pe prima linie)
-- **Preview:** Urmatoarele 2 linii de text, truncate
-- **Thumbnail:** Daca exista `media_urls`, prima imagine apare ca thumbnail mic in dreapta postului
-- **Footer:** Like icon + count, Comment icon + count, avatar-uri mici ale ultimilor commentatori, "New comment Xm ago" link
-
-### 3. Input "Write something" simplificat
-
-In loc de textarea mare cu buton, un input card simplu:
-- Avatar utilizator + input placeholder "Write something..."
-- Click deschide un dialog/modal cu textarea completa pentru a scrie postarea
-- Identic cu Skool UX
-
-### 4. Filtre categorii (chip-uri)
-
-Banda de chip-uri/pills orizontale:
-- **All** (default, activ)
-- **General Discussion** 💬
-- **Wins & Victories** 🏆
-- **Questions & Support** 🆘
-- **More...**
-- Filtreaza postarea pe baza unui camp viitor (deocamdata filtrare client-side pe content keywords, sau toate postarea apar sub "All")
-
-### 5. Sidebar Info Grup (dreapta)
-
-Card cu:
-- Imagine cover/logo grupului
-- Nume: "Warrior OS Community"
-- Descriere scurta: "Comunitatea antreprenorilor..."
-- Link-uri rapide: "Start Here", "Classroom", "Leaderboards"
-- Statistici: X Members, Y Online, Z Admins
-- Avatare mici ale membrilor recenti
+3. **Membri pot crea propriile comunitati (Groups)** - Exact ca in Skool, unde membrii pot crea grupuri cu propriile feed-uri, membri, chat. Accesul la creare depinde de tier: ELITE poate crea nelimitat, PRO poate crea 1-2 grupuri.
 
 ---
 
-## Fisiere de creat
+## Ce exista deja
 
+- Tabela `tribes` cu: name, description, avatar_url, cover_image_url, is_public, member_count, created_by
+- Tabela `tribe_members` cu: tribe_id, user_id, role (owner/admin/moderator/member)
+- Tabela `wall_posts` cu: tribe_id, content, media_urls, likes_count, comments_count, is_pinned
+- Tabela `brotherhood_messages` pentru chat in timp real pe tribe
+- Hook `useBrotherhood()` cu: createTribe, joinTribe, leaveTribe, createPost, toggleLike, sendMessage
+- `subscriptionTier` disponibil in `AuthContext` (valori: trial, Free, basic, pro, elite)
+- Componenta `BrotherhoodTribes` cu UI de creare tribe (dar nu are restrictii pe tier)
+
+## Ce lipseste
+
+- **Welcome message** configurabil de admin pentru Community
+- **Pagina individuala de grup/tribe** (ca in Skool - fiecare grup are propriul feed, members, about)
+- **Restrictie creare pe tier** (doar PRO si ELITE pot crea grupuri)
+- **Discover Groups** - listare tuturor grupurilor publice disponibile
+- **Tab "Groups"** in SkoolNavBar sau ca sectiune in Community
+
+---
+
+## Plan de Implementare
+
+### Pasul 1: Welcome Message in Community
+
+**Tabel nou: `community_settings`**
+```sql
+CREATE TABLE community_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  setting_key TEXT UNIQUE NOT NULL,
+  setting_value TEXT,
+  updated_by UUID REFERENCES auth.users(id),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+```
+- Adminul seteaza `welcome_message` prin UI
+- Se afiseaza ca un card special "pinned" in partea de sus a feed-ului Community
+- Doar utilizatorii cu rol `admin` pot edita acest mesaj
+
+**Componenta noua: `CommunityWelcomeBanner.tsx`**
+- Card stilizat cu mesajul de bun venit
+- Buton "Edit" vizibil doar pentru admini
+- Dialog de editare cu textarea
+
+### Pasul 2: Restrictie creare grupuri pe tier
+
+**Modificari in `BrotherhoodTribes.tsx` si/sau noul `SkoolGroupsSection.tsx`:**
+- Verificam `subscriptionTier` din `AuthContext`
+- Daca `elite` → poate crea grupuri nelimitat
+- Daca `pro` → poate crea maxim 2 grupuri
+- Daca `basic` sau inferior → butonul "Create Group" este dezactivat cu mesaj de upgrade
+- Afisam un tooltip sau badge "PRO" / "ELITE" langa butonul de creare
+
+### Pasul 3: Pagina individuala de Group (Skool-style)
+
+**Ruta noua: `/groups/:groupId`**
+
+Fiecare grup (tribe) are propria pagina cu:
+- **Header:** Cover image + avatar + nume + descriere + numar membri + buton Join/Leave
+- **Tabs interne:** Feed | Chat | Members | About
+- **Feed:** Postari specifice grupului (filtrate pe `tribe_id`)
+- **Chat:** Mesaje in timp real (refolosim `BrotherhoodChat` adaptat)
+- **Members:** Lista membrilor grupului
+- **About:** Descriere, reguli, owner info
+
+**Componente noi:**
 | Fisier | Descriere |
 |--------|-----------|
-| `src/components/programs/SkoolPostCard.tsx` | Card individual post in stil Skool |
-| `src/components/programs/SkoolCategoryFilter.tsx` | Banda de filtre categorii |
-| `src/components/programs/SkoolGroupSidebar.tsx` | Sidebar info grup |
-| `src/components/programs/SkoolWritePost.tsx` | Input simplificat "Write something" + dialog |
+| `src/pages/GroupPage.tsx` | Pagina principala a unui grup |
+| `src/components/groups/GroupHeader.tsx` | Header cu cover, avatar, info, join/leave |
+| `src/components/groups/GroupFeed.tsx` | Feed de postari filtrat pe tribe_id |
+| `src/components/groups/GroupChat.tsx` | Chat in timp real adaptat pentru grup |
+| `src/components/groups/GroupMembers.tsx` | Lista membrilor cu roluri |
+| `src/components/groups/GroupAbout.tsx` | Informatii despre grup |
 
-## Fisiere de modificat
+### Pasul 4: Sectiune "Groups" in Community sau SkoolNavBar
 
-| Fisier | Modificare |
-|--------|------------|
-| `src/components/programs/CommunityTab.tsx` | Restructurare completa cu noul layout Skool |
+Doua optiuni (implementam prima):
+
+**Optiunea A:** Adaugam un tab "Groups" in SkoolNavBar
+- SkoolNavBar devine: Community | Classroom | Groups | Calendar | Members | Leaderboards
+- Tab-ul Groups afiseaza: My Groups + Discover Groups + Create Group button
+
+**Fisiere noi:**
+| Fisier | Descriere |
+|--------|-----------|
+| `src/components/programs/GroupsTab.tsx` | Tab principal cu My Groups + Discover + Create |
+| `src/components/programs/SkoolGroupCard.tsx` | Card individual pentru un grup (cover, nume, membri, join) |
+| `src/components/programs/CreateGroupDialog.tsx` | Dialog de creare grup cu validare tier |
+
+### Pasul 5: Actualizare rute
+
+**Fisier: `src/App.tsx`**
+- Adaugam ruta `/groups/:groupId` catre `GroupPage.tsx`
+
+---
+
+## Structura Vizuala
+
+### Groups Tab (in Programs)
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│  Community | Classroom | Groups | Calendar | Members | Leaders  │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  [+ Create Group] ← doar PRO/ELITE                              │
+│                                                                  │
+│  ── My Groups ──────────────────────────────────────────────     │
+│  ┌─────────────────┐  ┌─────────────────┐                       │
+│  │ [Cover Image]   │  │ [Cover Image]   │                       │
+│  │ Morning Warriors │  │ Business RO     │                       │
+│  │ 24 members      │  │ 156 members     │                       │
+│  │ [Open]          │  │ [Open]          │                       │
+│  └─────────────────┘  └─────────────────┘                       │
+│                                                                  │
+│  ── Discover Groups ────────────────────────────────────────     │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐    │
+│  │ [Cover Image]   │  │ [Cover Image]   │  │ [Cover]      │    │
+│  │ Fitness Warriors │  │ Mindset Masters │  │ Book Club    │    │
+│  │ 89 members      │  │ 45 members      │  │ 12 members   │    │
+│  │ [Join]          │  │ [Join]          │  │ [Join]       │    │
+│  └─────────────────┘  └─────────────────┘  └──────────────┘    │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Group Page (individual)
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│  [← Back]                                         [Settings]    │
+├──────────────────────────────────────────────────────────────────┤
+│  [Cover Image ─────────────────────────────────────────────]     │
+│  [Avatar] Morning Warriors                                       │
+│  Comunitate pentru antreprenorii matinali    156 Members         │
+│  [Leave Group]                                                   │
+├──────────────────────────────────────────────────────────────────┤
+│  Feed  │  Chat  │  Members  │  About                            │
+├──────────────────────────────────────────────────────────────────┤
+│  [Write something...]            │  [Group Info Sidebar]         │
+│                                  │  Owner: John Doe              │
+│  [Post 1...]                     │  Created: Jan 2026            │
+│  [Post 2...]                     │  156 Members, 3 Online        │
+│  [Post 3...]                     │                               │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Community Welcome Banner
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│  📌 Welcome Message                                    [Edit ✏️] │
+│                                                                  │
+│  "Bine ai venit in comunitatea Warrior OS! Aici ne ajutam       │
+│   reciproc sa crestem. Reguli: 1) Fii respectuos 2) Share wins  │
+│   3) Ask for help when needed."                                  │
+│                                                                  │
+│  — Admin · Last updated 2d ago                                   │
+└──────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## Detalii Tehnice
 
-### SkoolPostCard.tsx
+### Migrare SQL
 
-Props:
-```typescript
-interface SkoolPostCardProps {
-  post: WallPost;
-  onLike: (postId: string) => void;
-  onComment: (postId: string) => void;
-}
+```sql
+-- Community settings table for welcome message
+CREATE TABLE public.community_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  setting_key TEXT UNIQUE NOT NULL,
+  setting_value TEXT,
+  updated_by UUID,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE public.community_settings ENABLE ROW LEVEL SECURITY;
+
+-- Everyone can read settings
+CREATE POLICY "Anyone can read community settings"
+  ON public.community_settings FOR SELECT
+  USING (true);
+
+-- Only admins can update
+CREATE POLICY "Admins can manage community settings"
+  ON public.community_settings FOR ALL
+  USING (public.has_role(auth.uid(), 'admin'));
+
+-- Insert default welcome message
+INSERT INTO public.community_settings (setting_key, setting_value)
+VALUES ('welcome_message', 'Bine ai venit in comunitatea Warrior OS! 🎯 Aici ne ajutam reciproc sa crestem.');
 ```
 
-Structura vizuala:
-- Container card cu border subtil, hover shadow
-- Row 1: Avatar (cu badge nivel), Nume + badges, "· Xd · Category" | "Pinned" label dreapta
-- Row 2: Titlu bold (prima linie din content)
-- Row 3: Preview text (restul contentului, truncat la 2 linii)
-- Row 4 (optional): Thumbnail din media_urls[0], aliniat dreapta
-- Row 5: Like/comment counts, avatar-uri mici commentatori, "New comment Xm ago"
-
-### SkoolWritePost.tsx
-
-- Card simplu cu avatar + input readonly "Write something..."
-- Click deschide Dialog cu:
-  - Textarea pentru continut complet
-  - Buton de post
-- Dupa post, dialog se inchide si se face refetch
-
-### SkoolCategoryFilter.tsx
-
-- Array de categorii hardcodate:
-  ```typescript
-  const categories = [
-    { id: 'all', label: 'All', labelRo: 'Toate', icon: null },
-    { id: 'general', label: 'General Discussion', labelRo: 'Discuție Generală', icon: '💬' },
-    { id: 'wins', label: 'Wins & Victories', labelRo: 'Victorii', icon: '🏆' },
-    { id: 'support', label: 'Support Needed', labelRo: 'Ajutor', icon: '🆘' },
-  ];
-  ```
-- Chip-uri pill cu `border-radius: full`, activ = background dark
-- Deocamdata filtreaza doar vizual (All arata totul)
-
-### SkoolGroupSidebar.tsx
-
-- Card cu imagine placeholder gradient
-- Titlu "Warrior OS Community"
-- Descriere
-- Link-uri rapide folosind `useNavigate`
-- Stats: numar total membri din `leaderboard_profiles`, "Online" count hardcodat sau estimat
-
-### CommunityTab.tsx - Restructurare
+### Verificare Tier pentru Creare Grup
 
 ```typescript
-export const CommunityTab = () => {
-  const { posts, loading, createPost, toggleLike } = useBrotherhood();
-  const [activeCategory, setActiveCategory] = useState('all');
+// In CreateGroupDialog.tsx
+const { subscriptionTier } = useAuth();
 
-  return (
-    <div className="flex gap-6">
-      {/* Main Feed */}
-      <div className="flex-1 max-w-2xl space-y-4">
-        <SkoolWritePost onPost={createPost} />
-        <SkoolCategoryFilter active={activeCategory} onChange={setActiveCategory} />
-        {posts.map(post => (
-          <SkoolPostCard 
-            key={post.id} 
-            post={post} 
-            onLike={toggleLike}
-          />
-        ))}
-      </div>
-
-      {/* Group Info Sidebar - hidden on mobile */}
-      <div className="hidden lg:block w-80 shrink-0">
-        <SkoolGroupSidebar />
-      </div>
-    </div>
-  );
+const canCreateGroup = () => {
+  if (subscriptionTier === 'elite') return true;
+  if (subscriptionTier === 'pro') {
+    // Check how many groups user already owns
+    const ownedGroups = myTribes.filter(t => t.created_by === user?.id);
+    return ownedGroups.length < 2;
+  }
+  return false;
 };
 ```
+
+### GroupPage.tsx - Ruta noua
+
+Foloseste `ProgramsLayout` fara SkoolNavBar (showNavBar=false), cu propriile taburi interne (Feed/Chat/Members/About).
+
+### SkoolNavBar - Actualizare
+
+Adaugam tab-ul "Groups" intre Classroom si Calendar:
+```typescript
+const tabs = [
+  { id: 'community', ... },
+  { id: 'classroom', ... },
+  { id: 'groups', labelEn: 'Groups', labelRo: 'Grupuri', icon: Users2 },
+  { id: 'calendar', ... },
+  { id: 'members', ... },
+  { id: 'leaderboards', ... },
+];
+```
+
+---
+
+## Fisiere de creat (total: 9)
+
+| Fisier | Descriere |
+|--------|-----------|
+| `src/components/programs/CommunityWelcomeBanner.tsx` | Banner welcome message editabil de admin |
+| `src/components/programs/GroupsTab.tsx` | Tab principal cu My Groups + Discover |
+| `src/components/programs/SkoolGroupCard.tsx` | Card individual grup |
+| `src/components/programs/CreateGroupDialog.tsx` | Dialog creare grup cu validare tier |
+| `src/pages/GroupPage.tsx` | Pagina individuala grup cu tabs |
+| `src/components/groups/GroupHeader.tsx` | Header grup cu cover + info |
+| `src/components/groups/GroupFeed.tsx` | Feed postari pe tribe_id |
+| `src/components/groups/GroupChat.tsx` | Chat realtime pe tribe |
+| `src/components/groups/GroupMembers.tsx` | Lista membri grup |
+
+## Fisiere de modificat (total: 4)
+
+| Fisier | Modificare |
+|--------|------------|
+| `src/components/programs/SkoolNavBar.tsx` | Adaugare tab "Groups" |
+| `src/components/programs/CommunityTab.tsx` | Adaugare CommunityWelcomeBanner sus |
+| `src/pages/Programs.tsx` | Adaugare case "groups" in renderTabContent |
+| `src/App.tsx` | Adaugare ruta `/groups/:groupId` |
 
 ---
 
 ## Compatibilitate
 
-- Folosim acelasi hook `useBrotherhood()` cu `WallPost` type - NU schimbam logica de backend
-- Postarea existenta `is_pinned` se respecta si se afiseaza cu label "Pinned"
-- `media_urls` se afiseaza ca thumbnail in dreapta postului
-- Likes/comments functioneaza identic prin `toggleLike`
-- Datele din `leaderboard_profiles` se folosesc pentru sidebar stats
-
-## Mobile
-
-- Pe mobil: sidebar-ul info grup dispare (`hidden lg:block`)
-- Feed-ul ocupa 100% latime
-- Postarea ramane full-width
-- Filtrele au scroll orizontal daca sunt prea multe
+- Tabelele `tribes`, `tribe_members`, `wall_posts`, `brotherhood_messages` sunt refolosite complet
+- Hook-ul `useBrotherhood()` acopera deja toate operatiile CRUD necesare
+- `subscriptionTier` din `AuthContext` permite verificarea tier-ului fara query-uri suplimentare
+- Functia `has_role()` din DB permite verificarea rolului admin pentru welcome message
+- Realtime pe `wall_posts` si `brotherhood_messages` deja configurat
