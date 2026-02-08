@@ -1,150 +1,311 @@
 
+# Global Skool-Style Top Bar + Messaging + Auto-Enroll Users
 
-# Postari Unificate: Challenge Lessons + Community Feed (Skool-Style)
+## Overview
 
-## Rezumat
+Three major changes to make the platform behave like Skool:
 
-In Skool, cand postezi un comentariu intr-o lectie, acea postare apare automat si in feed-ul Community, cu un badge care arata din ce curs si lectie provine. Utilizatorii pot comenta fie din lectie, fie din Community. Implementam exact acest comportament.
-
-## Ce se schimba
-
-In loc sa folosim doua sisteme separate (warriors_way_comments pentru lectii si wall_posts pentru Community), unificam totul pe `wall_posts`. Fiecare postare din Challenge va fi un wall_post cu context (curs + zi) care apare automat in Community feed.
-
-## Detalii Tehnice
-
-### Pasul 1: Migrare DB - Adaugam coloane de context pe wall_posts
-
-Adaugam 3 coloane noi pe `wall_posts` pentru a lega postarea de un curs/lectie:
-
-```sql
-ALTER TABLE public.wall_posts
-  ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'general',
-  ADD COLUMN IF NOT EXISTS source_context TEXT DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS source_label TEXT DEFAULT NULL;
-```
-
-- `category`: tipul postarii ('general', 'challenge', 'course', 'wins', etc.) - folosit si pentru filtrele din Community
-- `source_context`: identificator tehnic (ex: 'challenge-day-1', 'challenge-day-3') - pentru filtrare in lectie
-- `source_label`: label vizibil (ex: 'Challenge - Day 1: Vision + Declaration') - afisat in Community ca badge
-
-### Pasul 2: Componenta noua - LessonCommunityPost.tsx
-
-O componenta care se plaseaza in fiecare zi de Challenge (inlocuieste/completeaza ChallengeComments). Aceasta:
-
-- Afiseaza un "Write something..." input (stilul Skool) cu context pre-setat
-- Cand utilizatorul posteaza, creeaza un `wall_post` cu `source_context = 'challenge-day-X'` si `source_label = 'Challenge - Day X: Titlu'`
-- Sub input, afiseaza postari filtrate pentru acea zi (`source_context = 'challenge-day-X'`), cu like-uri si comentarii
-- Fiecare postare are buton de comentarii (folosind `wall_post_comments`)
-
-Structura vizuala:
-```text
-┌──────────────────────────────────────────────────────┐
-│  [Avatar] Write something...                         │
-│                                                      │
-│  ┌────────────────────────────────────────────────┐  │
-│  │  📚 Challenge - Day 1: Vision + Declaration    │  │
-│  │  [Avatar] Andrei · 2h ago                      │  │
-│  │  Am terminat Reality Check-ul si am un scor... │  │
-│  │  ❤️ 12  💬 5                                    │  │
-│  │                                                │  │
-│  │  └─ Reply: Elena - Super! Eu am avut 6.2...   │  │
-│  └────────────────────────────────────────────────┘  │
-│                                                      │
-│  ┌────────────────────────────────────────────────┐  │
-│  │  📚 Challenge - Day 1: Vision + Declaration    │  │
-│  │  [Avatar] Marius · 5h ago                      │  │
-│  │  Declaratia mea: "In 90 de zile voi..."       │  │
-│  │  ❤️ 8  💬 3                                     │  │
-│  └────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────┘
-```
-
-### Pasul 3: Actualizare SkoolPostCard - Afisare badge context
-
-In Community feed, postarea care vine dintr-o lectie va avea un badge suplimentar:
-```text
-📚 Challenge - Day 1: Vision + Declaration
-```
-Deasupra titlului postarii, exact ca in Skool unde vezi din ce modul provine postarea.
-
-### Pasul 4: Hook nou - useWallPostComments.ts
-
-Un hook dedicat pentru comentariile la wall_posts (tabel `wall_post_comments`):
-- `fetchComments(postId)` - preia comentariile pentru o postare
-- `addComment(postId, content, parentId?)` - adauga comentariu/reply
-- `deleteComment(commentId)` - sterge comentariu propriu
-- Suport pentru reply-uri (nested)
-
-### Pasul 5: Dialog/Sheet pentru comentarii la postari
-
-Cand user-ul apasa pe butonul de comentarii (💬) dintr-un SkoolPostCard sau din LessonCommunityPost, se deschide un panel/dialog cu:
-- Postarea originala sus
-- Lista de comentarii cu reply-uri
-- Input de comentariu jos
-
-### Pasul 6: Integrare in Challenge Day pages
-
-In `ChallengeDay.tsx` si `ChallengeDayEnglish.tsx`:
-- Pastram `ChallengeLiveChat` (chat-ul instant, separat)
-- Inlocuim `ChallengeComments` cu noul `LessonCommunityPost`
-- Postarea facuta aici apare automat in Community feed (aceeasi tabela `wall_posts`)
-
-### Pasul 7: Filtrare in CommunityTab
-
-Actualizarea `SkoolCategoryFilter` pentru a folosi `category` din `wall_posts`:
-- "All" - toate posturile
-- "General" - doar cele fara source_context
-- "Challenge" - doar cele cu category='challenge'
-- "Wins" - cele cu category='wins'
-
-Actualizarea `useBrotherhood.ts` pentru a accepta parametru de filtru pe `category`.
+1. **Auto-enroll all 273 existing users** into the community (create `leaderboard_profiles` + add them to the main "Warrior Tribe")
+2. **Create a Direct Messaging system** (private 1-on-1 messages between members)
+3. **Redesign the global top navigation** to match Skool: replace the current date/language/theme bar with a persistent top bar showing Logo, nav tabs (Community | Courses), Messages icon, Notifications icon, and Profile dropdown (which absorbs Profile, Settings, Subscription, Support)
 
 ---
 
-## Fisiere de creat (5)
+## What exists now
 
-| Fisier | Descriere |
-|--------|-----------|
-| `src/components/programs/LessonCommunityPost.tsx` | Componenta de postare + feed din lectie |
-| `src/hooks/useWallPostComments.ts` | Hook pentru comentarii la wall_posts |
-| `src/components/programs/PostCommentsDialog.tsx` | Dialog cu comentarii pentru o postare |
-| `src/components/programs/PostCommentCard.tsx` | Card individual de comentariu cu reply |
-| `src/components/programs/LessonPostCard.tsx` | Card postare in context de lectie (cu likes, comments) |
+- **273 registered users** but 0 `leaderboard_profiles` and only 1 `tribe_member` entry
+- Current `Layout.tsx` header shows: date, theme toggle, language selector, user avatar
+- `SideMenu.tsx` footer has: Profile, Subscription, Settings, Support, Log out
+- `UserAccountDropdown.tsx` has: Profile, Settings, Subscription, Log out
+- `brotherhood_messages` table exists but is for group chat (has `tribe_id`), not private DMs
+- No existing notifications bell or messages inbox component
 
-## Fisiere de modificat (5)
+---
 
-| Fisier | Modificare |
-|--------|------------|
-| `src/components/programs/SkoolPostCard.tsx` | Adaugare badge `source_label` + click pe comments deschide dialog |
-| `src/hooks/useBrotherhood.ts` | Adaugare suport `category` filter + extindere `createPost` cu source context |
-| `src/components/programs/SkoolCategoryFilter.tsx` | Filtrare reala pe `category` |
-| `src/pages/ChallengeDay.tsx` | Inlocuire `ChallengeComments` cu `LessonCommunityPost` |
-| `src/pages/ChallengeDayEnglish.tsx` | Inlocuire `ChallengeComments` cu `LessonCommunityPost` |
+## Step 1: Database Migration
 
-## Fluxul Complet
+### 1a. Auto-populate leaderboard_profiles for all existing users
 
-```text
-Utilizator in Challenge Day 1:
-  1. Vede "Write something..." card
-  2. Scrie postarea ("Am terminat Reality Check...")
-  3. Postarea se salveaza in wall_posts cu:
-     - category: 'challenge'
-     - source_context: 'challenge-day-1'
-     - source_label: 'Challenge - Day 1: Vision + Declaration'
-  4. Postarea apare instant in lectie (filtrat pe source_context)
-  5. Postarea apare si in Community feed (cu badge-ul de context)
+A one-time migration that creates `leaderboard_profiles` for all `auth.users` who don't have one yet, and adds all users to the "Warrior Tribe" as members.
 
-Utilizator in Community:
-  1. Vede postarea cu badge "📚 Challenge - Day 1: Vision + Declaration"
-  2. Poate da like, poate comenta
-  3. Comentariul apare si in lectie (aceeasi postare, aceleasi comentarii)
+```sql
+-- Create leaderboard_profiles for all users who don't have one
+INSERT INTO public.leaderboard_profiles (user_id, display_name, is_visible)
+SELECT 
+  id,
+  COALESCE(raw_user_meta_data->>'display_name', split_part(email, '@', 1)),
+  true
+FROM auth.users
+WHERE id NOT IN (SELECT user_id FROM public.leaderboard_profiles)
+ON CONFLICT (user_id) DO NOTHING;
+
+-- Add all users as members of Warrior Tribe
+INSERT INTO public.tribe_members (tribe_id, user_id, role)
+SELECT 
+  '07825fb0-4d6c-4716-b2f3-27a1708cf680',
+  id,
+  'member'
+FROM auth.users
+WHERE id NOT IN (
+  SELECT user_id FROM public.tribe_members 
+  WHERE tribe_id = '07825fb0-4d6c-4716-b2f3-27a1708cf680'
+)
+ON CONFLICT DO NOTHING;
+
+-- Update member_count on the tribe
+UPDATE public.tribes 
+SET member_count = (
+  SELECT COUNT(*) FROM public.tribe_members 
+  WHERE tribe_id = '07825fb0-4d6c-4716-b2f3-27a1708cf680'
+)
+WHERE id = '07825fb0-4d6c-4716-b2f3-27a1708cf680';
 ```
 
-## Compatibilitate
+### 1b. Auto-enroll trigger for new users
 
-- `wall_posts` existente (fara `source_context`) raman ca postari "general" - nu se pierde nimic
-- `ChallengeComments` (warriors_way_comments) ramane functional pentru backward compatibility, dar nu mai este folosit in paginile de Challenge
-- `ChallengeLiveChat` ramane separat - este chat-ul instant, nu postari de comunitate
-- Toate postarea au likes si comments prin sistemul existent (`wall_post_likes`, `wall_post_comments`)
-- Realtime deja activat pe `wall_posts`
+Create a database trigger so that every new user who signs up automatically gets a `leaderboard_profile` and is added to the main tribe.
 
+```sql
+CREATE OR REPLACE FUNCTION public.handle_new_user_community()
+RETURNS trigger AS $$
+BEGIN
+  -- Create leaderboard profile
+  INSERT INTO public.leaderboard_profiles (user_id, display_name, is_visible)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1)),
+    true
+  )
+  ON CONFLICT (user_id) DO NOTHING;
+
+  -- Add to main tribe
+  INSERT INTO public.tribe_members (tribe_id, user_id, role)
+  VALUES ('07825fb0-4d6c-4716-b2f3-27a1708cf680', NEW.id, 'member')
+  ON CONFLICT DO NOTHING;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created_community
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user_community();
+```
+
+### 1c. Direct Messages table
+
+Create a new `direct_messages` table for private 1-on-1 messaging (separate from `brotherhood_messages` which is for group chat).
+
+```sql
+CREATE TABLE public.direct_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sender_id UUID NOT NULL,
+  receiver_id UUID NOT NULL,
+  content TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE public.direct_messages ENABLE ROW LEVEL SECURITY;
+
+-- Users can read messages they sent or received
+CREATE POLICY "Users can read own messages"
+  ON public.direct_messages FOR SELECT
+  USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
+
+-- Users can send messages
+CREATE POLICY "Users can send messages"
+  ON public.direct_messages FOR INSERT
+  WITH CHECK (auth.uid() = sender_id);
+
+-- Users can mark messages as read
+CREATE POLICY "Users can update own received messages"
+  ON public.direct_messages FOR UPDATE
+  USING (auth.uid() = receiver_id);
+
+-- Enable realtime for instant messaging
+ALTER PUBLICATION supabase_realtime ADD TABLE public.direct_messages;
+
+-- Conversations view helper index
+CREATE INDEX idx_dm_participants ON public.direct_messages(sender_id, receiver_id, created_at DESC);
+CREATE INDEX idx_dm_receiver_unread ON public.direct_messages(receiver_id, is_read) WHERE is_read = false;
+```
+
+---
+
+## Step 2: Global Top Bar Component
+
+### New component: `GlobalTopBar.tsx`
+
+Replaces the current date/theme/language bar in `Layout.tsx`. Visible on all authenticated pages (Dashboard, Door, Tools, etc.).
+
+Visual structure (matching Skool):
+```text
+┌────────────────────────────────────────────────────────────────────┐
+│  [Logo] WarriorOS   Community | Cursuri    [💬 12] [🔔 99+] [👤]  │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+- **Left**: WarriorOS logo (links to /dashboard)
+- **Center**: Two nav tabs - "Community" (goes to /programs?tab=community) and "Courses" (goes to /programs?tab=classroom)
+- **Right**: 
+  - Messages icon with unread count badge (opens /messages or a slide-out panel)
+  - Notifications bell with count badge (future - placeholder for now)
+  - Profile avatar dropdown (absorbs: Profile, Settings, Subscription, Support, Log out)
+
+### Changes to `Layout.tsx`
+
+- Remove the current desktop/mobile header (date, theme, language, user dropdown)
+- Add `GlobalTopBar` as a sticky header above the content
+- Keep the SideMenu but remove Profile/Subscription/Settings/Support from its footer (they move to profile dropdown)
+- The SideMenu footer will only have: Log out
+
+### Changes to `ProgramsLayout.tsx`
+
+- Replace the minimal header with the same `GlobalTopBar` (or inherit it)
+- The SkoolNavBar tabs (Community | Classroom | Groups | Calendar | Members | Leaderboards) remain as sub-navigation below
+
+### Enhanced `UserAccountDropdown.tsx`
+
+Absorbs all items from SideMenu footer:
+- Profile
+- Settings
+- Subscription / Upgrade
+- Support
+- Theme toggle (light/dark)
+- Language selector
+- Log out
+
+---
+
+## Step 3: Messages System
+
+### New files
+
+| File | Description |
+|------|-------------|
+| `src/components/global/GlobalTopBar.tsx` | The persistent Skool-style top bar |
+| `src/components/messages/MessagesPage.tsx` | Full messages inbox page |
+| `src/components/messages/ConversationList.tsx` | List of conversations with last message preview |
+| `src/components/messages/ConversationThread.tsx` | Individual conversation thread |
+| `src/components/messages/NewMessageDialog.tsx` | Dialog to start a new conversation (search members) |
+| `src/hooks/useDirectMessages.ts` | Hook for fetching/sending DMs with realtime |
+| `src/pages/Messages.tsx` | Messages page route |
+
+### Messages flow
+
+1. User clicks the chat icon (💬) in GlobalTopBar
+2. Navigates to `/messages` showing list of conversations
+3. Each conversation shows: avatar, name, last message preview, timestamp, unread badge
+4. Click a conversation to open the thread
+5. Real-time updates via Supabase realtime on `direct_messages`
+6. "New Message" button lets user search members and start a conversation
+
+---
+
+## Step 4: Update Navigation
+
+### SideMenu changes
+
+Remove from footer section:
+- Profile link
+- Subscription/Upgrade button
+- Settings link
+- Support link
+
+These all move into the profile dropdown in GlobalTopBar.
+
+### Route additions
+
+Add to `App.tsx`:
+- `/messages` route pointing to `MessagesPage`
+
+---
+
+## Files to create (7)
+
+| File | Description |
+|------|-------------|
+| `src/components/global/GlobalTopBar.tsx` | Persistent Skool-style header with nav + icons |
+| `src/pages/Messages.tsx` | Messages page wrapper |
+| `src/components/messages/ConversationList.tsx` | List of conversations |
+| `src/components/messages/ConversationThread.tsx` | Chat thread for a conversation |
+| `src/components/messages/NewMessageDialog.tsx` | Start new conversation dialog |
+| `src/hooks/useDirectMessages.ts` | Hook for DM operations + realtime |
+| `src/components/messages/MessageBubble.tsx` | Individual message bubble component |
+
+## Files to modify (5)
+
+| File | Change |
+|------|--------|
+| `src/components/Layout.tsx` | Replace header with GlobalTopBar, remove footer items from SideMenu usage |
+| `src/components/SideMenu.tsx` | Remove Profile/Settings/Subscription/Support from footer |
+| `src/components/UserAccountDropdown.tsx` | Expand to include Settings, Support, Theme toggle, Language |
+| `src/components/programs/ProgramsLayout.tsx` | Use GlobalTopBar instead of minimal header |
+| `src/App.tsx` | Add /messages route |
+
+---
+
+## Visual Result
+
+### All authenticated pages (Dashboard, Door, Tools, etc.)
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  [Logo] WarriorOS    Comunitate | Cursuri    💬(3)  🔔(5)  [AL]│
+├─────────────────────────────────────────────────────────────────┤
+│ [Side] │                                                        │
+│ [Menu] │  Dashboard / Door / Any page content                   │
+│        │                                                        │
+└────────┴────────────────────────────────────────────────────────┘
+```
+
+### Profile dropdown (click [AL]):
+```text
+┌──────────────────────────┐
+│  user@email.com          │
+│  Abonament: Pro          │
+├──────────────────────────┤
+│  👤 Profilul meu         │
+│  ⚙️ Setări               │
+│  💳 Gestionează Abonament│
+│  ❓ Suport               │
+├──────────────────────────┤
+│  🌙 Dark Mode   [toggle] │
+│  🌐 RO / EN     [toggle] │
+├──────────────────────────┤
+│  🚪 Log out              │
+└──────────────────────────┘
+```
+
+### Messages Page (/messages)
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  [Logo] WarriorOS    Comunitate | Cursuri    💬(3)  🔔(5)  [AL]│
+├─────────────────────────────────────────────────────────────────┤
+│ [Side] │  Messages                          [+ New Message]    │
+│ [Menu] │                                                        │
+│        │  ┌─────────────────┬──────────────────────────────────┐│
+│        │  │ Conversations   │  [Avatar] Maria P.               ││
+│        │  │                 │                                   ││
+│        │  │ [●] Maria P.   │  Hey, ai terminat Challenge?     ││
+│        │  │ Hey, ai term... │  ────────────────────────────     ││
+│        │  │                 │  Da! A fost super, tu?           ││
+│        │  │ [ ] Andrei C.  │  ────────────────────────────     ││
+│        │  │ Buna, vreau... │                                   ││
+│        │  │                 │  [Type a message...] [Send]      ││
+│        │  └─────────────────┴──────────────────────────────────┘│
+└────────┴────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Compatibility
+
+- `brotherhood_messages` stays for group/tribe chat (unchanged)
+- `direct_messages` is the new table for private 1-on-1 messaging
+- The trigger ensures all future users are auto-enrolled into the community
+- The migration backfills all 273 existing users
+- SideMenu keeps all operational tools (Programs, Dashboard, Door, Stacks, Brotherhood, Tools)
+- Profile dropdown centralizes all account management
