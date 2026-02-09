@@ -26,7 +26,7 @@ export const PersonalPowerLesson: React.FC<PersonalPowerLessonProps> = ({
         text={dayData.lessonContent}
         size="lg"
         variant="outline"
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10"
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-black font-semibold border-0"
         label={language === 'ro' ? '🎧 Ascultă lecția citită de AI' : '🎧 Listen to the lesson read by AI'}
       />
 
