@@ -1,12 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { PersonalPowerDay } from '@/data/personalPowerContent';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Bot, Send, User, Sparkles } from 'lucide-react';
+import { Bot, Send, User, Sparkles, Phone } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { useMindCoachVoice } from '@/hooks/useMindCoachVoice';
+import { SpeakButton } from '@/components/mind-coach/SpeakButton';
+import { CallModeOverlay } from '@/components/mind-coach/CallModeOverlay';
+import { AISpeakingIndicator } from '@/components/stack/AISpeakingIndicator';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -34,18 +38,20 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastAssistantRef = useRef<string>('');
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = async (userInput: string) => {
+  const sendMessage = useCallback(async (userInput: string) => {
     if (!userInput.trim() || isLoading) return;
 
     const userMsg: Message = { role: 'user', content: userInput };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
+    lastAssistantRef.current = '';
 
     let assistantSoFar = '';
 
@@ -137,6 +143,14 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
           } catch { /* ignore */ }
         }
       }
+
+      // Store final assistant text for TTS in call mode
+      lastAssistantRef.current = assistantSoFar;
+
+      // If in call mode, speak the response
+      if (voice.isInCall && assistantSoFar) {
+        voice.speakAIResponse(assistantSoFar);
+      }
     } catch (err) {
       console.error('Coach error:', err);
       setMessages(prev => [
@@ -146,7 +160,13 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isLoading, messages, dayData.day, exerciseResponses, language]);
+
+  // Voice hook
+  const voice = useMindCoachVoice({
+    onUserMessage: (text) => sendMessage(text),
+    language: language as 'ro' | 'en',
+  });
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -181,6 +201,14 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
           ))}
         </ul>
       </div>
+
+      {/* AI Speaking indicator (outside call mode) */}
+      {!voice.isInCall && (
+        <AISpeakingIndicator
+          isAISpeaking={voice.isAISpeaking}
+          message={language === 'ro' ? 'AI vorbește, te rog așteaptă...' : 'AI is speaking, please wait...'}
+        />
+      )}
 
       {/* Chat messages */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
@@ -240,25 +268,76 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <div className="border-t border-border p-3 flex gap-2">
-          <Textarea
-            placeholder={language === 'ro' ? 'Scrie un mesaj...' : 'Type a message...'}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="min-h-[44px] max-h-[100px] resize-none"
-            rows={1}
-          />
-          <Button
-            onClick={() => sendMessage(input)}
-            disabled={!input.trim() || isLoading}
-            size="icon"
-            className="shrink-0"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
+        {/* Call mode overlay */}
+        {voice.isInCall && (
+          <div className="border-t border-border p-3">
+            <CallModeOverlay
+              isActive={voice.isInCall}
+              isAISpeaking={voice.isAISpeaking}
+              isListening={voice.isListening}
+              isProcessing={voice.isProcessing}
+              isTTSLoading={voice.isTTSLoading}
+              currentTranscript={voice.currentTranscript}
+              silenceTimer={voice.silenceTimer}
+              audioLevel={voice.audioLevel}
+              onSkipAI={voice.skipAISpeaking}
+              onManualSend={voice.manualSendInCall}
+              onEndCall={voice.endCall}
+              language={language as 'ro' | 'en'}
+            />
+          </div>
+        )}
+
+        {/* Input area (hidden during call) */}
+        {!voice.isInCall && (
+          <div className="border-t border-border p-3 space-y-2">
+            <div className="flex gap-2">
+              <Textarea
+                placeholder={language === 'ro' ? 'Scrie un mesaj...' : 'Type a message...'}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="min-h-[44px] max-h-[100px] resize-none"
+                rows={1}
+              />
+              <Button
+                onClick={() => sendMessage(input)}
+                disabled={!input.trim() || isLoading}
+                size="icon"
+                className="shrink-0"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Voice buttons */}
+            <div className="flex items-center gap-2">
+              <SpeakButton
+                isRecording={voice.isSpeaking}
+                isProcessing={isLoading}
+                disabled={isLoading}
+                onMouseDown={voice.handleSpeakStart}
+                onMouseUp={voice.handleSpeakStop}
+                onTouchStart={voice.handleSpeakStart}
+                onTouchEnd={voice.handleSpeakStop}
+                language={language as 'ro' | 'en'}
+                className="flex-1"
+              />
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => voice.startCall()}
+                disabled={isLoading}
+                className="flex items-center gap-2"
+              >
+                <Phone className="h-5 w-5" />
+                <span className="hidden sm:inline">
+                  {language === 'ro' ? 'Apel' : 'Call'}
+                </span>
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Mark complete */}
