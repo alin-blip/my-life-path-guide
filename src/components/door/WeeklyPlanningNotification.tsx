@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, Calendar, Target } from 'lucide-react';
 import { format, getISOWeek, getYear } from 'date-fns';
 import { useLanguage } from '@/context/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WeeklyPlanningNotificationProps {
   onStartPlanning?: () => void;
@@ -21,7 +22,7 @@ export const WeeklyPlanningNotification: React.FC<WeeklyPlanningNotificationProp
     checkAndShowNotification();
   }, []);
 
-  const checkAndShowNotification = () => {
+  const checkAndShowNotification = async () => {
     const today = new Date();
     const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
     
@@ -35,15 +36,34 @@ export const WeeklyPlanningNotification: React.FC<WeeklyPlanningNotificationProp
     const lastShownWeek = localStorage.getItem('weekly-planning-notification-shown');
     
     if (lastShownWeek === currentWeekKey) {
-      // Already shown this week
       return;
     }
 
     // Check if it's morning (before 12:00 PM)
     const hours = today.getHours();
     if (hours < 6 || hours > 12) {
-      // Not morning time, don't show
       return;
+    }
+
+    // Check if user already has a weekly plan for this week
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: existingPlan } = await supabase
+          .from('weekly_planning')
+          .select('id, domino_title')
+          .eq('user_id', user.id)
+          .eq('week_key', currentWeekKey)
+          .maybeSingle();
+
+        if (existingPlan?.domino_title) {
+          // User already has a domino set up for this week, don't show
+          localStorage.setItem('weekly-planning-notification-shown', currentWeekKey);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Error checking weekly plan:', err);
     }
 
     // Show notification
