@@ -3312,6 +3312,48 @@ export type Database = {
           },
         ]
       }
+      personal_power_progress: {
+        Row: {
+          breakthrough_completed: boolean
+          breakthrough_text: string | null
+          coaching_completed: boolean
+          created_at: string
+          day_number: number
+          exercise_completed: boolean
+          exercise_responses: Json | null
+          id: string
+          lesson_completed: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          breakthrough_completed?: boolean
+          breakthrough_text?: string | null
+          coaching_completed?: boolean
+          created_at?: string
+          day_number: number
+          exercise_completed?: boolean
+          exercise_responses?: Json | null
+          id?: string
+          lesson_completed?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          breakthrough_completed?: boolean
+          breakthrough_text?: string | null
+          coaching_completed?: boolean
+          created_at?: string
+          day_number?: number
+          exercise_completed?: boolean
+          exercise_responses?: Json | null
+          id?: string
+          lesson_completed?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       public_rate_limits: {
         Row: {
           created_at: string | null

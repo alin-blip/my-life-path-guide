@@ -156,6 +156,25 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
                     ? (language === 'ro' ? 'Defixează' : 'Unpin')
                     : (language === 'ro' ? 'Fixează' : 'Pin')}
                 </DropdownMenuItem>
+                {post.category === 'breakthrough' ? (
+                  <DropdownMenuItem onClick={async (e) => {
+                    e.stopPropagation();
+                    await supabase.from('wall_posts').update({ category: 'general' }).eq('id', post.id);
+                    toast({ title: language === 'ro' ? 'Mutat la General' : 'Moved to General' });
+                    onRefresh?.();
+                  }}>
+                    💬 {language === 'ro' ? 'Mută la General' : 'Move to General'}
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem onClick={async (e) => {
+                    e.stopPropagation();
+                    await supabase.from('wall_posts').update({ category: 'breakthrough' }).eq('id', post.id);
+                    toast({ title: language === 'ro' ? 'Mutat la Breakthrough' : 'Moved to Breakthrough' });
+                    onRefresh?.();
+                  }}>
+                    💡 {language === 'ro' ? 'Mută la Breakthrough' : 'Move to Breakthrough'}
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
