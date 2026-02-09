@@ -41,6 +41,7 @@ const PersonalPowerDayPage: React.FC = () => {
   });
 
   const [completedDays, setCompletedDays] = useState<number[]>([]);
+  const [activeTab, setActiveTab] = useState('lesson');
 
   // Fetch progress
   useEffect(() => {
@@ -137,7 +138,7 @@ const PersonalPowerDayPage: React.FC = () => {
             </div>
 
             {/* Tabs */}
-            <Tabs defaultValue="lesson" className="space-y-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
               <TabsList className="w-full flex overflow-x-auto">
                 <TabsTrigger value="lesson" className="flex-1 gap-1 text-xs sm:text-sm">
                   <BookOpen className="h-4 w-4" />
@@ -165,7 +166,7 @@ const PersonalPowerDayPage: React.FC = () => {
                 <PersonalPowerLesson
                   dayData={dayData}
                   completed={progress.lesson_completed}
-                  onComplete={() => updateProgress({ lesson_completed: true })}
+                  onComplete={() => { updateProgress({ lesson_completed: true }); setActiveTab('exercise'); }}
                 />
               </TabsContent>
 
@@ -175,7 +176,7 @@ const PersonalPowerDayPage: React.FC = () => {
                   exerciseResponses={progress.exercise_responses}
                   completed={progress.exercise_completed}
                   onSave={(responses) => updateProgress({ exercise_responses: responses })}
-                  onComplete={() => updateProgress({ exercise_completed: true })}
+                  onComplete={() => { updateProgress({ exercise_completed: true }); setActiveTab('coach'); }}
                 />
               </TabsContent>
 
@@ -184,7 +185,7 @@ const PersonalPowerDayPage: React.FC = () => {
                   dayData={dayData}
                   exerciseResponses={progress.exercise_responses}
                   completed={progress.coaching_completed}
-                  onComplete={() => updateProgress({ coaching_completed: true })}
+                  onComplete={() => { updateProgress({ coaching_completed: true }); setActiveTab('breakthrough'); }}
                 />
               </TabsContent>
 

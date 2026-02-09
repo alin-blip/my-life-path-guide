@@ -39,10 +39,21 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastAssistantRef = useRef<string>('');
+  const voiceRef = useRef<any>(null);
+  const autoStartedRef = useRef(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Voice hook - declared BEFORE sendMessage to avoid circular reference
+  const voice = useMindCoachVoice({
+    onUserMessage: (text) => sendMessageRef.current(text),
+    language: language as 'ro' | 'en',
+  });
+  voiceRef.current = voice;
+
+  const sendMessageRef = useRef<(text: string) => void>(() => {});
 
   const sendMessage = useCallback(async (userInput: string) => {
     if (!userInput.trim() || isLoading) return;
@@ -148,8 +159,8 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
       lastAssistantRef.current = assistantSoFar;
 
       // If in call mode, speak the response
-      if (voice.isInCall && assistantSoFar) {
-        voice.speakAIResponse(assistantSoFar);
+      if (voiceRef.current?.isInCall && assistantSoFar) {
+        voiceRef.current.speakAIResponse(assistantSoFar);
       }
     } catch (err) {
       console.error('Coach error:', err);
@@ -162,11 +173,22 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
     }
   }, [isLoading, messages, dayData.day, exerciseResponses, language]);
 
-  // Voice hook
-  const voice = useMindCoachVoice({
-    onUserMessage: (text) => sendMessage(text),
-    language: language as 'ro' | 'en',
-  });
+  // Keep sendMessageRef in sync
+  useEffect(() => {
+    sendMessageRef.current = sendMessage;
+  }, [sendMessage]);
+
+  // Auto-start coaching conversation
+  useEffect(() => {
+    if (!autoStartedRef.current && messages.length === 0 && !isLoading) {
+      autoStartedRef.current = true;
+      const autoMsg = language === 'ro'
+        ? 'Am terminat lecția și exercițiile de azi. Vreau să discutăm despre ce am învățat și să mă ajuți să aplic în practică.'
+        : 'I\'ve finished today\'s lesson and exercises. I want to discuss what I learned and get help applying it.';
+      // Small delay to ensure component is fully mounted
+      setTimeout(() => sendMessageRef.current(autoMsg), 500);
+    }
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -213,11 +235,11 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
       {/* Chat messages */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="max-h-[400px] overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && (
+          {messages.length === 0 && !isLoading && (
             <div className="text-center py-8 text-muted-foreground text-sm">
               {language === 'ro'
-                ? 'Spune-mi cum te pot ajuta cu lecția de azi. Întreabă-mă orice despre exerciții sau conținut!'
-                : 'Tell me how I can help with today\'s lesson. Ask me anything about the exercises or content!'}
+                ? 'Se încarcă sesiunea de coaching...'
+                : 'Loading coaching session...'}
             </div>
           )}
           {messages.map((msg, i) => (
