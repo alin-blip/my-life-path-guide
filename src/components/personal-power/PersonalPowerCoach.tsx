@@ -37,6 +37,7 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [mode, setMode] = useState<'choose' | 'text' | 'call'>('choose');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastAssistantRef = useRef<string>('');
   const voiceRef = useRef<any>(null);
@@ -178,17 +179,24 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
     sendMessageRef.current = sendMessage;
   }, [sendMessage]);
 
-  // Auto-start coaching conversation
+  // Auto-start coaching conversation when mode is chosen
   useEffect(() => {
-    if (!autoStartedRef.current && messages.length === 0 && !isLoading) {
-      autoStartedRef.current = true;
-      const autoMsg = language === 'ro'
-        ? 'Am terminat lecția și exercițiile de azi. Vreau să discutăm despre ce am învățat și să mă ajuți să aplic în practică.'
-        : 'I\'ve finished today\'s lesson and exercises. I want to discuss what I learned and get help applying it.';
-      // Small delay to ensure component is fully mounted
+    if (mode === 'choose' || autoStartedRef.current || messages.length > 0 || isLoading) return;
+    autoStartedRef.current = true;
+    const autoMsg = language === 'ro'
+      ? 'Am terminat lecția și exercițiile de azi. Vreau să discutăm despre ce am învățat și să mă ajuți să aplic în practică.'
+      : 'I\'ve finished today\'s lesson and exercises. I want to discuss what I learned and get help applying it.';
+    
+    if (mode === 'call') {
+      // Start call and send initial message
+      setTimeout(() => {
+        sendMessageRef.current(autoMsg);
+        voice.startCall();
+      }, 500);
+    } else {
       setTimeout(() => sendMessageRef.current(autoMsg), 500);
     }
-  }, []);
+  }, [mode]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -197,13 +205,58 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
     }
   };
 
+  if (mode === 'choose') {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-bold text-foreground">AI Coach</h3>
+          <Badge variant="secondary" className="text-xs">
+            {language === 'ro' ? `Ziua ${dayData.day}` : `Day ${dayData.day}`}
+          </Badge>
+        </div>
+
+        <div className="bg-muted/50 border border-border rounded-xl p-4">
+          <p className="text-sm font-medium text-foreground mb-2">
+            {language === 'ro' ? 'Ce vom lucra împreună:' : 'What we\'ll work through together:'}
+          </p>
+          <ul className="space-y-1">
+            {dayData.aiCoachingPoints.map((point, i) => (
+              <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            onClick={() => setMode('text')}
+            variant="outline"
+            className="h-24 flex flex-col gap-2"
+          >
+            <Send className="h-6 w-6" />
+            <span className="font-medium">{language === 'ro' ? 'Începe Text' : 'Start Text'}</span>
+          </Button>
+          <Button
+            onClick={() => setMode('call')}
+            variant="outline"
+            className="h-24 flex flex-col gap-2 border-primary/50"
+          >
+            <Phone className="h-6 w-6 text-primary" />
+            <span className="font-medium">{language === 'ro' ? 'Începe Call' : 'Start Call'}</span>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-bold text-foreground">
-          {language === 'ro' ? 'AI Coach' : 'AI Coach'}
-        </h3>
+        <h3 className="text-lg font-bold text-foreground">AI Coach</h3>
         <Badge variant="secondary" className="text-xs">
           {language === 'ro' ? `Ziua ${dayData.day}` : `Day ${dayData.day}`}
         </Badge>
