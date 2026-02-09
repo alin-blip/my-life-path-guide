@@ -362,10 +362,10 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
         )}
       </div>
 
-      {/* Mark complete */}
+      {/* Mark complete & go to Breakthrough */}
       {!completed && messages.length >= 4 && (
-        <Button onClick={onComplete} variant="outline" className="w-full gap-2">
-          {language === 'ro' ? '✅ Am terminat sesiunea de coaching' : '✅ I\'ve finished the coaching session'}
+        <Button onClick={onComplete} className="w-full gap-2">
+          🚀 {language === 'ro' ? 'Am terminat — Mergi la Breakthrough' : 'Done — Go to Breakthrough'}
         </Button>
       )}
     </div>

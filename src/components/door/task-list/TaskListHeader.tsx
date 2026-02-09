@@ -41,7 +41,7 @@ export const TaskListHeader: React.FC<TaskListHeaderProps> = ({
             }`}
             onClick={() => setActiveList('hit')}
           >
-            {t('todoList')} {hitStats}
+            HIT {hitStats}
           </Button>
           <Button
             variant="ghost"
@@ -50,7 +50,7 @@ export const TaskListHeader: React.FC<TaskListHeaderProps> = ({
             }`}
             onClick={() => setActiveList('do')}
           >
-            {t('doList')} {doStats}
+            DO {doStats}
           </Button>
         </div>
       </div>
