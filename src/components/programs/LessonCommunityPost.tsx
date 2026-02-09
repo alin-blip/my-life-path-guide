@@ -22,6 +22,8 @@ interface LessonCommunityPostProps {
   dayNumber: number;
   dayTitle: string;
   courseName?: string;
+  sourcePrefix?: string;
+  postCategory?: string;
 }
 
 type PostWithSource = WallPost & { source_label?: string | null; category?: string | null };
@@ -30,6 +32,8 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
   dayNumber,
   dayTitle,
   courseName = 'Challenge',
+  sourcePrefix,
+  postCategory,
 }) => {
   const { user } = useAuth();
   const { language } = useLanguage();
@@ -40,7 +44,8 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
   const [content, setContent] = useState('');
   const [posting, setPosting] = useState(false);
 
-  const sourceContext = `challenge-day-${dayNumber}`;
+  const prefix = sourcePrefix || 'challenge';
+  const sourceContext = `${prefix}-day-${dayNumber}`;
   const sourceLabel = `${courseName} - Day ${dayNumber}: ${dayTitle}`;
 
   const fetchPosts = useCallback(async () => {
@@ -121,7 +126,7 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
       .insert({
         user_id: user.id,
         content: content.trim(),
-        category: 'challenge',
+        category: postCategory || 'challenge',
         source_context: sourceContext,
         source_label: sourceLabel,
       } as any);
