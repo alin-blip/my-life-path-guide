@@ -49,6 +49,18 @@ const Programs: React.FC = () => {
       totalLessons: 7,
     },
     {
+      id: 'personal-power-plus',
+      title: 'Personal Power Plus',
+      titleRo: 'Personal Power Plus',
+      description: '30-day program to create an extraordinary quality of life. Transform how you think, feel, and act.',
+      descriptionRo: 'Program de 30 de zile pentru a crea o calitate extraordinară a vieții. Transformă modul în care gândești, simți și acționezi.',
+      thumbnail: '/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png',
+      path: '/personal-power',
+      isFree: true,
+      badge: 'NEW',
+      totalLessons: 30,
+    },
+    {
       id: 'warrior-accelerator',
       title: 'Warrior Launch Accelerator',
       titleRo: 'Warrior Launch Accelerator',
