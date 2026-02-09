@@ -143,7 +143,7 @@ export const TaskList: React.FC<TaskListProps> = ({
           </div>
         </div>
       )}
-      {/* Task Type Tabs - Simplified */}
+      {/* Task Type Tabs - HIT / DO */}
       <div className="flex mb-3 bg-muted/50 p-1 rounded-lg">
         <button
           className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
@@ -153,7 +153,7 @@ export const TaskList: React.FC<TaskListProps> = ({
           }`}
           onClick={() => setActiveList('hit')}
         >
-          To Do ({hitStats})
+          HIT ({hitStats})
         </button>
         <button
           className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
@@ -163,7 +163,7 @@ export const TaskList: React.FC<TaskListProps> = ({
           }`}
           onClick={() => setActiveList('do')}
         >
-          Done ({doStats})
+          DO ({doStats})
         </button>
       </div>
       

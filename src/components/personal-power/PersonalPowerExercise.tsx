@@ -46,10 +46,37 @@ export const PersonalPowerExercise: React.FC<PersonalPowerExerciseProps> = ({
     setAddingTasks(true);
     try {
       const weekKey = getActiveWeekKey();
-      for (const task of dayData.doListTasks) {
+      
+      // Collect user's actual responses from exercise fields instead of prompt texts
+      const userResponses: string[] = [];
+      for (const step of dayData.assignmentSteps) {
+        if (step.type === 'list' && step.listCount) {
+          for (let i = 0; i < step.listCount; i++) {
+            const val = responses[`step-${step.step}-${i}`]?.trim();
+            if (val) userResponses.push(val);
+          }
+        } else {
+          const val = responses[`step-${step.step}`]?.trim();
+          if (val) userResponses.push(val);
+        }
+      }
+
+      if (userResponses.length === 0) {
+        toast({
+          title: language === 'ro' ? 'Completează exercițiile' : 'Complete the exercises',
+          description: language === 'ro'
+            ? 'Scrie răspunsurile tale mai întâi, apoi adaugă-le în Do List'
+            : 'Write your responses first, then add them to Do List',
+          variant: 'destructive',
+        });
+        setAddingTasks(false);
+        return;
+      }
+
+      for (const taskText of userResponses) {
         await doorUserTasksService.addIdeaToWeek(weekKey, {
           id: uuidv4(),
-          text: task,
+          text: taskText,
           category: 'do',
           priority: 'none',
         });
@@ -57,8 +84,8 @@ export const PersonalPowerExercise: React.FC<PersonalPowerExerciseProps> = ({
       toast({
         title: language === 'ro' ? 'Sarcini adăugate!' : 'Tasks added!',
         description: language === 'ro'
-          ? `${dayData.doListTasks.length} sarcini adăugate în Do List`
-          : `${dayData.doListTasks.length} tasks added to Do List`,
+          ? `${userResponses.length} sarcini adăugate în Do List`
+          : `${userResponses.length} tasks added to Do List`,
       });
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -127,13 +154,13 @@ export const PersonalPowerExercise: React.FC<PersonalPowerExerciseProps> = ({
       {/* Add to Do List */}
       <div className="bg-accent/30 border border-accent rounded-xl p-4">
         <p className="text-sm font-medium text-foreground mb-3">
-          {language === 'ro' ? '📋 Adaugă sarcinile zilei în Do List:' : '📋 Add today\'s tasks to Do List:'}
+          {language === 'ro' ? '📋 Adaugă răspunsurile tale în Do List:' : '📋 Add your responses to Do List:'}
         </p>
-        <div className="space-y-1 mb-3">
-          {dayData.doListTasks.map((task, i) => (
-            <p key={i} className="text-sm text-muted-foreground">• {task}</p>
-          ))}
-        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          {language === 'ro' 
+            ? 'Răspunsurile pe care le-ai scris mai sus vor fi adăugate ca sarcini în Do List.'
+            : 'Your responses from above will be added as tasks to the Do List.'}
+        </p>
         <Button
           onClick={handleAddToDoList}
           disabled={addingTasks}
