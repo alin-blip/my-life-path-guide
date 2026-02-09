@@ -1,92 +1,207 @@
 
 
-# Welcome Message Upgrade + Pinned Posts (up to 3) + Admin Pin/Unpin
+# Personal Power Plus -- Program de 30 de Zile (Plan Actualizat)
 
-## What changes
+## Rezumat
 
-### 1. Updated Welcome Message Content
-Update the `welcome_message` in the database to the new, warmer Romanian text with:
-- A welcoming introduction with emoji
-- A call-to-action link to the Challenge (Day 1): `/challenge-7-zile`  
-- A prompt inviting users to introduce themselves (who they are, where they're from, why they're here) with a link to the community
-- Community rules (3 rules)
+Crearea unui curs complet de 30 de zile bazat pe PDF-ul "Personal Power Plus", integrat in platforma Warrior OS. Fiecare zi va avea: continut text complet (fara prescurtari), audio TTS, exercitii interactive, AI Coach, **sectiune de Breakthrough** si **integrare completa cu Community**.
 
-The `CommunityWelcomeBanner` component will be updated to render links inside the message as clickable (detect URLs and render them as `<a>` tags or use a simple markdown-like link parser).
+**Important**: Continutul ramane EXACT asa cum este in carte. Nu se scurteaza, nu se inventeaza. Se inlocuieste doar referinta directa la Tony Robbins cu formulari de tipul "mentorul nostru", "din experienta de coaching", "asa cum am invatat de la Tony Robbins, acest plan..."
 
-### 2. Support for 3 Pinned Posts (not just 1)
-Currently pinned posts show a "Pinned" badge but:
-- There's no way for admins to pin/unpin posts from the UI
-- The `useBrotherhood.fetchPosts` doesn't sort pinned posts first (only `GroupFeed` does)
-
-Changes:
-- **`useBrotherhood.ts`**: Add `.order('is_pinned', { ascending: false })` before the `created_at` ordering so pinned posts always appear at the top
-- **`SkoolPostCard.tsx`**: Add an admin-only "Pin/Unpin" button (via a dropdown menu on the post card) that toggles `is_pinned` on the `wall_posts` table
-- The pin action will check if there are already 3 pinned posts and show an error if trying to pin a 4th
-
-### 3. Admin Pin/Unpin Feature on Post Cards
-Add a 3-dot menu (or pin icon button) visible only to admins on each `SkoolPostCard`:
-- **Pin post** (if not pinned, and fewer than 3 posts are already pinned)
-- **Unpin post** (if pinned)
-- Uses direct Supabase update: `UPDATE wall_posts SET is_pinned = true/false WHERE id = ?`
+**Faza 1**: Zilele 1-5 (aceasta implementare)
 
 ---
 
-## Technical Details
+## Structura fiecarei zile (5 sectiuni)
 
-### Database Migration
-Update the `welcome_message` value in `community_settings`:
+Fiecare zi din curs are urmatoarele tab-uri/sectiuni:
 
-```sql
-UPDATE community_settings 
-SET setting_value = 'Bine ai venit in comunitatea Warrior OS! 🎯
+1. **Lectia** (Citeste / Asculta)
+   - Textul complet din carte, formatat frumos
+   - Buton TTS care citeste textul cu voce AI
+   - Citatele si definitiile evidentiate vizual
 
-Suntem bucurosi ca esti aici! Aceasta este locul unde antreprenorii care vor TOTUL — sanatate, claritate, relatii si libertate financiara — se sprijina reciproc sa creasca.
+2. **Planul de Executie** (Exercitii)
+   - Exercitiile din carte, prezentate ca formulare interactive
+   - Sarcinile rezultate se adauga automat in **Do List** (nu Hit List)
 
-👉 Incepe provocarea de 7 zile: https://warriorsos.com/challenge-7-zile
-Porneste direct din Ziua 1 si descopera cum sa ai totul fara sa sacrifici nimic.
+3. **AI Coach** (Chat)
+   - Chat inline care ghideaza utilizatorul prin exercitii
+   - Adauga automat sarcini relevante in Do List prin tool calling
 
-🙋 Prezinta-te comunitatii! Spune-ne cine esti, de unde esti si ce te-a adus aici:
-https://warriorsos.com/programs?tab=community
+4. **Breakthrough** (NOU)
+   - Sectiune dedicata unde utilizatorul isi scrie breakthrough-ul zilei
+   - Cand posteaza un breakthrough, acesta apare automat in Community cu categoria **"breakthrough"** (nu "general")
+   - Badge vizual pe postare: "Personal Power Plus - Day X: [titlu]"
+   - Adminul poate muta postarea din "breakthrough" in "general" din meniul de 3 puncte al postarii
 
-📋 Regulile noastre:
-1) Fii respectuos
-2) Impartaseste victoriile
-3) Cere ajutor cand ai nevoie
+5. **Discutii lectie** (Community Post)
+   - Reutilizeaza componenta `LessonCommunityPost` existenta (deja folosita in Challenge)
+   - Postari legate de lectie cu `source_context = 'personal-power-day-X'`
+   - Apar si in feed-ul Community cu badge-ul lectiei
 
-Hai sa crestem impreuna! 💪',
-updated_at = now()
-WHERE setting_key = 'welcome_message';
+---
+
+## Integrare Community -- Ce se schimba
+
+### A. Categorie noua: "Breakthrough"
+Se adauga o noua categorie in filtrul de pe Community:
+- **`SkoolCategoryFilter.tsx`**: Se adauga `{ id: 'breakthrough', label: 'Breakthrough', labelRo: 'Breakthrough', icon: '💡' }`
+- Postari cu `category = 'breakthrough'` apar cand selectezi acest filtru
+- Postari de breakthrough au badge-ul sursei (ex: "Personal Power Plus - Day 3: Neuro-asocieri")
+
+### B. Admin: Muta postare intre categorii
+In meniul de 3 puncte (admin-only) de pe `SkoolPostCard`, se adauga optiunea:
+- **"Muta la General"** -- daca postarea e pe "breakthrough", o schimba pe "general"
+- **"Muta la Breakthrough"** -- daca postarea e pe "general", o schimba pe "breakthrough"
+- Foloseste `UPDATE wall_posts SET category = 'general'/'breakthrough' WHERE id = ?`
+
+### C. Prima lectie = Prezinta-te
+Ziua 1 a cursului include un CTA (call-to-action) care trimite utilizatorul sa se prezinte in Community -- **aceeasi postare de bun venit** unde sunt trimisi toti utilizatorii noi, indiferent de curs.
+- Link catre `/programs?tab=community` cu mesajul: "Spune-ne cine esti, de unde esti si ce te-a adus aici"
+- Nu este o postare separata, ci un link/buton catre Community wall-ul principal
+
+### D. Postare de promovare in Community
+Cand cursul este lansat, se creaza o postare pinned in Community care promoveaza programul:
+- Titlu: "Personal Power Plus -- Transforma-ti viata in 30 de zile"
+- Link catre `/personal-power`
+- Categoria: "general"
+- Poate fi fixata (pinned) de admin
+
+---
+
+## Detalii tehnice
+
+### 1. Fisier de date: `src/data/personalPowerContent.ts`
+
+Contine pentru fiecare zi (1-5 initial):
+- `day`: numarul zilei
+- `title` / `titleEn`: titlul zilei
+- `quote`: citatul zilei
+- `lessonContent`: textul COMPLET al lectiei (exact din carte)
+- `definitions`: definitii cheie evidentiate
+- `assignmentSteps`: pasii exercitiului cu `prompt` si `type` (text/list/scale)
+- `aiCoachingPrompt`: prompt-ul specific pentru AI Coach
+- `doListTasks`: sarcini predefinite ce se adauga in Do List
+- `breakthroughPrompt`: intrebarea/prompt-ul pentru sectiunea Breakthrough
+
+### 2. Componente noi
+
+| Componenta | Descriere |
+|-----------|-----------|
+| `src/pages/PersonalPowerDay.tsx` | Pagina zilei cu tabs: Lectie / Exercitii / AI Coach / Breakthrough / Discutii |
+| `src/pages/PersonalPowerOverview.tsx` | Pagina overview cu lista zile si progres total |
+| `src/components/personal-power/PersonalPowerLesson.tsx` | Afisare text lectie + buton TTS |
+| `src/components/personal-power/PersonalPowerExercise.tsx` | Formulare interactive pentru exercitii |
+| `src/components/personal-power/PersonalPowerCoach.tsx` | Chat AI inline |
+| `src/components/personal-power/PersonalPowerSidebar.tsx` | Sidebar navigatie zile (similar Challenge) |
+| `src/components/personal-power/PersonalPowerBreakthrough.tsx` | Sectiune breakthrough cu postare automata in Community |
+
+### 3. Edge function: `supabase/functions/personal-power-coach/index.ts`
+
+- Primeste: ziua curenta, mesajele conversatiei, contextul exercitiului
+- System prompt specific pe zi cu continutul exact din carte
+- Tool calling: `add_to_do_list` (adauga sarcini in Do List)
+- Foloseste Lovable AI (google/gemini-3-flash-preview)
+- Stream SSE
+
+### 4. Tabel nou: `personal_power_progress`
+
+```text
+personal_power_progress
+  - id (uuid, PK)
+  - user_id (uuid, NOT NULL)
+  - day_number (integer, 1-30)
+  - lesson_completed (boolean, default false)
+  - exercise_completed (boolean, default false)
+  - coaching_completed (boolean, default false)
+  - breakthrough_completed (boolean, default false)
+  - exercise_responses (jsonb)
+  - breakthrough_text (text)
+  - created_at (timestamptz)
+  - updated_at (timestamptz)
+  - UNIQUE(user_id, day_number)
 ```
 
-### Files Modified
+Politici RLS: SELECT/INSERT/UPDATE doar pentru `user_id = auth.uid()`
 
-| File | Change |
-|------|--------|
-| `src/components/programs/CommunityWelcomeBanner.tsx` | Parse URLs in welcome message and render them as clickable links (styled as primary color underlined text) |
-| `src/components/programs/SkoolPostCard.tsx` | Add admin-only dropdown menu with Pin/Unpin action; check 3-pin limit before pinning |
-| `src/hooks/useBrotherhood.ts` | Add `.order('is_pinned', { ascending: false })` to `fetchPosts` query so pinned posts appear first |
+### 5. Modificari la fisiere existente
 
-### CommunityWelcomeBanner URL Rendering
-The component currently renders the message as plain text via `whitespace-pre-line`. It will be updated to:
-- Split the message text and detect URLs (using a regex like `https?://[^\s]+`)
-- Render detected URLs as clickable `<a>` tags with `target="_blank"` and styled with `text-primary underline`
-- Keep the rest as plain text, preserving line breaks
+| Fisier | Modificare |
+|--------|-----------|
+| `src/components/programs/SkoolCategoryFilter.tsx` | Adaugare categorie "breakthrough" cu icon "💡" |
+| `src/components/programs/SkoolPostCard.tsx` | Adaugare optiune admin "Muta la General" / "Muta la Breakthrough" in dropdown |
+| `src/App.tsx` | Adaugare rute `/personal-power` si `/personal-power/:day` |
 
-### SkoolPostCard Pin/Unpin
-- Import `MoreVertical` (or `EllipsisVertical`) icon from lucide
-- Add a dropdown menu (using Radix `DropdownMenu`) with a "Pin" or "Unpin" option
-- Only show this menu if user is admin (use `useAdminAuth` hook)
-- On pin: check current pinned count via a quick query (`SELECT count(*) FROM wall_posts WHERE is_pinned = true`), if >= 3 show toast error
-- On pin/unpin: update the post's `is_pinned` field and refresh the feed
+### 6. Integrare Do List
 
-### useBrotherhood fetchPosts ordering
-Add pinned-first sorting:
-```typescript
-let query = supabase
-  .from('wall_posts')
-  .select('*')
-  .order('is_pinned', { ascending: false })
-  .order('created_at', { ascending: false })
-  .limit(50);
+Cand exercitiul sau AI-ul genereaza sarcini:
+- Se adauga in tabelul `door_user_tasks` cu `list_type = 'do'` folosind serviciul `doorUserTasksService`
+- Sarcinile specifice fiecarei zile sunt predefinite in datele cursului
+
+### 7. Breakthrough -> Community Flow
+
+Cand utilizatorul posteaza un breakthrough:
+1. Se salveaza `breakthrough_text` in `personal_power_progress`
+2. Se marcheaza `breakthrough_completed = true`
+3. Se creaza automat o postare in `wall_posts` cu:
+   - `category = 'breakthrough'`
+   - `source_context = 'personal-power-day-X'`
+   - `source_label = 'Personal Power Plus - Day X: [titlu]'`
+4. Postarea apare in Community sub filtrul "Breakthrough"
+
+### 8. Rute noi
+
+```text
+/personal-power        -> Pagina overview curs (lista zile, progres total)
+/personal-power/:day   -> Pagina zilei specifice (1-30)
 ```
+
+---
+
+## Continutul Zilelor 1-5 (extras EXACT din PDF)
+
+### Ziua 1: Cheia Puterii Personale
+- **Lectie**: Definitia puterii personale, Formula Succesului (4 pasi), Modele de urmat
+- **Exercitiu**: 2 decizii amanate + 3 actiuni imediate pentru fiecare
+- **AI Coach**: Clarifica deciziile, identifica ce te-a oprit
+- **Breakthrough**: "Care este cel mai important lucru pe care l-ai realizat astazi despre tine?"
+- **CTA**: Link catre Community -- "Prezinta-te: cine esti, de unde esti, ce te-a adus aici"
+
+### Ziua 2: Fortele care iti Controleaza Viata
+- **Lectie**: Durere vs. placere ca forte motrice
+- **Exercitiu**: 4 actiuni noi + durerea/placerea asociata + costul ne-actiunii
+- **AI Coach**: Identifica un comportament de schimbat
+- **Breakthrough**: "Ce pattern de evitare a durerii ai descoperit la tine?"
+
+### Ziua 3: Preluarea Controlului - Primul Pas
+- **Lectie**: Neuro-asocierile, NAC, Cele 4 parti ale destinului
+- **Exercitiu**: 3 neuro-asocieri pozitive + 3 negative
+- **AI Coach**: Identifica pattern-urile, intelege cum s-au format
+- **Breakthrough**: "Ce neuro-asociere negativa esti pregatit sa schimbi?"
+
+### Ziua 4: Stiinta Conditionarii Succesului
+- **Lectie**: Cele 3 fundamente NAC (leverage, intrerupere pattern, conditionare)
+- **Exercitiu**: 10 motive pentru schimbare, 4-5 metode de intrerupere pattern
+- **AI Coach**: Ghideaza prin cele 3 etape NAC pas cu pas
+- **Breakthrough**: "Ce metoda de intrerupere a pattern-ului a functionat cel mai bine?"
+
+### Ziua 5: Ce isi Doreste Toata Lumea si Cum Poti Obtine
+- **Lectie**: Stari emotionale, fiziologie si stare
+- **Exercitiu**: Experiment cu partener, biomarkeri, snapping in stare pasionala
+- **AI Coach**: Descopera biomarkerii personali
+- **Breakthrough**: "Cum te-a facut sa te simti schimbarea de fiziologie?"
+
+---
+
+## Ordinea implementarii
+
+1. Migrare SQL -- tabel `personal_power_progress`
+2. Fisier date -- `personalPowerContent.ts` cu continut COMPLET zilele 1-5
+3. Componente personal-power (Lesson, Exercise, Coach, Breakthrough, Sidebar)
+4. Pagini (Overview + Day)
+5. Edge function `personal-power-coach`
+6. Modificari Community (categorie breakthrough, admin move category)
+7. Rute in `App.tsx`
+8. Adaugare card curs in sectiunea Programs
 
