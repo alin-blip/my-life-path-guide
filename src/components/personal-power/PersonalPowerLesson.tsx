@@ -4,6 +4,7 @@ import { PersonalPowerDay } from '@/data/personalPowerContent';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Quote } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { TextToSpeechButton } from '@/components/ui/TextToSpeechButton';
 
 interface PersonalPowerLessonProps {
   dayData: PersonalPowerDay;
@@ -20,6 +21,14 @@ export const PersonalPowerLesson: React.FC<PersonalPowerLessonProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* TTS Button */}
+      <div className="flex items-center gap-2 bg-muted/50 border border-border rounded-lg px-4 py-2">
+        <TextToSpeechButton text={dayData.lessonContent} size="sm" variant="ghost" />
+        <span className="text-sm text-muted-foreground">
+          {language === 'ro' ? 'Ascultă lecția citită de AI' : 'Listen to the lesson read by AI'}
+        </span>
+      </div>
+
       {/* Quote */}
       <div className="bg-primary/5 border border-primary/20 rounded-xl p-5">
         <div className="flex items-start gap-3">
