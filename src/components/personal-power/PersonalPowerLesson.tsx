@@ -22,12 +22,13 @@ export const PersonalPowerLesson: React.FC<PersonalPowerLessonProps> = ({
   return (
     <div className="space-y-6">
       {/* TTS Button */}
-      <div className="flex items-center gap-2 bg-muted/50 border border-border rounded-lg px-4 py-2">
-        <TextToSpeechButton text={dayData.lessonContent} size="sm" variant="ghost" />
-        <span className="text-sm text-muted-foreground">
-          {language === 'ro' ? 'Ascultă lecția citită de AI' : 'Listen to the lesson read by AI'}
-        </span>
-      </div>
+      <TextToSpeechButton
+        text={dayData.lessonContent}
+        size="lg"
+        variant="outline"
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10"
+        label={language === 'ro' ? '🎧 Ascultă lecția citită de AI' : '🎧 Listen to the lesson read by AI'}
+      />
 
       {/* Quote */}
       <div className="bg-primary/5 border border-primary/20 rounded-xl p-5">
