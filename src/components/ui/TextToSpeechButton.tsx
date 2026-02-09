@@ -9,6 +9,7 @@ interface TextToSpeechButtonProps {
   variant?: 'default' | 'ghost' | 'outline';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
+  label?: string;
 }
 
 export const TextToSpeechButton: React.FC<TextToSpeechButtonProps> = ({
@@ -16,6 +17,7 @@ export const TextToSpeechButton: React.FC<TextToSpeechButtonProps> = ({
   variant = 'ghost',
   size = 'sm',
   className = '',
+  label,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -123,6 +125,7 @@ export const TextToSpeechButton: React.FC<TextToSpeechButtonProps> = ({
       ) : (
         <Volume2 className="h-4 w-4" />
       )}
+      {label && <span className="text-sm font-medium">{label}</span>}
     </Button>
   );
 };
