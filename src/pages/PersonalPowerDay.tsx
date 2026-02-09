@@ -43,6 +43,19 @@ const PersonalPowerDayPage: React.FC = () => {
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState('lesson');
 
+  // Reset progress and tab when day changes
+  useEffect(() => {
+    setProgress({
+      lesson_completed: false,
+      exercise_completed: false,
+      coaching_completed: false,
+      breakthrough_completed: false,
+      exercise_responses: {},
+      breakthrough_text: '',
+    });
+    setActiveTab('lesson');
+  }, [dayNumber]);
+
   // Fetch progress
   useEffect(() => {
     if (!user) return;
