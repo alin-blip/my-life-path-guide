@@ -68,6 +68,11 @@ export const PersonalPowerExercise: React.FC<PersonalPowerExerciseProps> = ({
   };
 
   const allFilled = dayData.assignmentSteps.every(step => {
+    if (step.type === 'list' && step.listCount) {
+      return Array.from({ length: step.listCount }, (_, i) =>
+        responses[`step-${step.step}-${i}`]?.trim().length > 0
+      ).every(Boolean);
+    }
     const key = `step-${step.step}`;
     return responses[key]?.trim().length > 0;
   });
