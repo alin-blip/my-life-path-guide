@@ -95,6 +95,8 @@ const MindCoach = lazy(() => import("./pages/MindCoach"));
 const MindCoachLanding = lazy(() => import("./pages/MindCoachLanding"));
 const Tools = lazy(() => import("./pages/Tools"));
 const Programs = lazy(() => import("./pages/Programs"));
+const PersonalPowerOverview = lazy(() => import("./pages/PersonalPowerOverview"));
+const PersonalPowerDayPage = lazy(() => import("./pages/PersonalPowerDay"));
 const GroupPage = lazy(() => import("./pages/GroupPage"));
 const Messages = lazy(() => import("./pages/Messages"));
 const LoadingFallback = () => (
@@ -405,6 +407,16 @@ const App = () => (
                     <Route path="/programs" element={
                       <ProtectedRoute>
                         <Programs />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/personal-power" element={
+                      <ProtectedRoute>
+                        <PersonalPowerOverview />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/personal-power/:day" element={
+                      <ProtectedRoute>
+                        <PersonalPowerDayPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/groups/:groupId" element={

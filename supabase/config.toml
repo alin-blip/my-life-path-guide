@@ -146,3 +146,6 @@ verify_jwt = false
 
 [functions.notify-community-post]
 verify_jwt = false
+
+[functions.personal-power-coach]
+verify_jwt = false

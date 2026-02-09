@@ -8,6 +8,7 @@ const categories = [
   { id: 'challenge', label: 'Challenge', labelRo: 'Challenge', icon: '📚' },
   { id: 'wins', label: 'Wins & Victories', labelRo: 'Victorii', icon: '🏆' },
   { id: 'support', label: 'Support', labelRo: 'Ajutor', icon: '🆘' },
+  { id: 'breakthrough', label: 'Breakthrough', labelRo: 'Breakthrough', icon: '💡' },
 ];
 
 interface SkoolCategoryFilterProps {
