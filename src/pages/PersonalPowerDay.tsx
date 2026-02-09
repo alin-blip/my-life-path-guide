@@ -202,6 +202,8 @@ const PersonalPowerDayPage: React.FC = () => {
                   dayNumber={dayNumber}
                   dayTitle={language === 'ro' ? dayData.title : dayData.titleEn}
                   courseName="Personal Power Plus"
+                  sourcePrefix="personal-power"
+                  postCategory="general"
                 />
               </TabsContent>
             </Tabs>
