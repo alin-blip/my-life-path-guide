@@ -22,6 +22,7 @@ export interface PersonalPowerDay {
 }
 
 import { personalPowerDays6to10 } from './personalPowerDays6to10';
+import { personalPowerDays11to15 } from './personalPowerDays11to15';
 
 const personalPowerDays1to5: PersonalPowerDay[] = [
   {
@@ -509,6 +510,7 @@ IMPORTANT: Respond in Romanian. Be energetic, experiential, and guide them to mo
 export const personalPowerDays: PersonalPowerDay[] = [
   ...personalPowerDays1to5,
   ...personalPowerDays6to10,
+  ...personalPowerDays11to15,
 ];
 
 export const getPersonalPowerDay = (dayNumber: number): PersonalPowerDay | undefined => {
