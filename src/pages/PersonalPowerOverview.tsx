@@ -87,7 +87,7 @@ const PersonalPowerOverview: React.FC = () => {
           {Array.from({ length: totalDays }, (_, i) => {
             const dayNum = i + 1;
             const dayData = personalPowerDays.find(d => d.day === dayNum);
-            const isImplemented = dayNum <= implementedDays;
+            const isImplemented = !!dayData;
             const prog = progressData[dayNum];
             const isComplete = prog?.lesson_completed && prog?.exercise_completed;
             const isStarted = prog && (prog.lesson_completed || prog.exercise_completed);
