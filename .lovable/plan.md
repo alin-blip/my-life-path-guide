@@ -1,89 +1,90 @@
 
 
-# Implementare Personal Power Plus: Zilele 6-10
+# Implementare Personal Power Plus: Zilele 11-15
 
-## Ce avem din PDF (pagini 1-50)
-Am extras integral conținutul pentru Zilele 6-10. Pentru Zilele 11-30 PDF-ul nu a fost parsat (limita de 50 pagini), deci le vom implementa intr-un pas urmator cand vei putea retrimite restul continutului.
+## Nota despre build
+Build-ul actual este **succesat** (5201 modules transformed, fara erori). Output-ul este doar trunchiat din cauza dimensiunii mari.
 
-## Zilele de implementat acum
+## Zilele de implementat
 
-### Ziua 6 -- Strengthen Your Foundation (Integration Day)
-- **Titlu RO**: Intareste-ti Fundatia
-- **Citat**: "Identitatea ta este modelata de ceea ce faci in mod repetat. Nu primesti ceea ce vrei -- primesti ceea ce practici." -- Tony Robbins
-- **Lectie**: Recapitularea Zilelor 1-5, practica trigger-elor de stare (fiziologie), observarea starilor pe parcursul zilei
-- **Exercitii**: 
-  1. Review Days 1-5 -- ce nu ai completat? ce merita mai multa atentie?
-  2. Practica trigger-ele de stare de cel putin 2 ori azi (text/paragraph)
-  3. Observa-ti starile pe parcursul zilei -- "Cand eu ___, starea mea ___"
-- **AI Coaching**: Verifica care exercitii din Zilele 1-5 sunt complete, practica trigger-ele fiziologice, intareste momentumul
-- **Breakthrough**: Ce ai descoperit revizuind prima saptamana? Ce instrument functioneaza cel mai bine pentru tine?
-
-### Ziua 7 -- Lock It In: Building Momentum (Integration Day)
-- **Titlu RO**: Fixeaza-l: Construieste Momentum
-- **Citat**: "Nu ceea ce facem o data la un timp ne modeleaza viata. Ci ceea ce facem constant." -- Tony Robbins
-- **Lectie**: Completarea primei saptamani, evaluarea consistentei, reangajarea
+### Ziua 11 -- The Power of "Why"
+- **Titlu RO**: Puterea lui "De Ce"
+- **Citat**: "Cred in elementele de baza: atentia la si perfectiunea detaliilor minuscule care pot fi ignorate in mod obisnuit. Pot parea triviale, poate chiar ridicole pentru cei care nu inteleg, dar nu sunt. Sunt fundamentale pentru progresul tau in baschet, afaceri si viata." -- Coach John Wooden
+- **Lectie**: Angajamentul fata de fundamentale, evitarea legii familiaritatii, de ce functioneaza obiectivele (crearea destinului), "scopul e mai puternic decat rezultatul", cine devii in proces, crearea unui "de ce" suficient de mare
 - **Exercitii**:
-  1. Pe o scara de la 1-10, cat de consistent ai folosit instrumentele? (scale)
-  2. La ce te angajezi sa lucrezi mai constant? (paragraph)
-  3. Cum vrei sa te prezinti saptamana aceasta? In ce stare emotionala? (paragraph)
-- **AI Coaching**: Evalueaza consistenta, identifica 1-2 practici de mentinut, clarifica focusul pentru saptamana 2
-- **Breakthrough**: Ce lectie din prima saptamana a avut cel mai mare impact? De ce?
+  1. Listeaza zonele specifice ale vietii tale care nu sunt asa cum le vrei (paragraph)
+  2. Ce ar trebui sa crezi pentru a urma consecvent transformarea vietii tale? (paragraph)
+  3. Listeaza setul de credinte pe care ar trebui sa le ai pentru a-ti atinge obiectivele ultime (paragraph)
+  4. De ce trebuie sa schimbi aceste situatii ACUM si de ce stii ca poti? (paragraph)
+- **AI Coaching**: Identifica zonele de nemultumire, descopera credintele necesare, conecteaza la motive puternice (durere + placere), descopera cine vor deveni in proces
+- **Breakthrough**: Ce motive ai descoperit care sunt atat de puternice incat schimbarea devine inevitabila?
 
-### Ziua 8 -- The Power of Focus
-- **Titlu RO**: Puterea Focusului
-- **Citat**: "Intrebarile sunt laserul constiintei umane. Ele ne concentreaza focusul si determina ce simtim si ce facem." -- Tony Robbins
-- **Definitii**: Focus (Focusul determina starea emotionala)
-- **Lectie**: Focusul ca al doilea vehicul de gestionare a starii (dupa fiziologie), procesul de "stergere", 2 moduri de control al focusului (ce imagini si cum), intrebarile determina gandurile, Morning Power Questions, Evening Power Questions
+### Ziua 12 -- Creating Your Future: The Goal-Setting Workshop
+- **Titlu RO**: Creaza-ti Viitorul: Atelierul de Obiective
+- **Citat**: "Stabilirea obiectivelor este primul pas in a transforma invizibilul in vizibil." -- Tony Robbins
+- **Lectie**: Cele 4 categorii de obiective (dezvoltare personala, lucruri, financiare, altele), timeline-uri, top 3 din fiecare, actiune imediata, Testul Balasoiului
 - **Exercitii**:
-  1. Dezvolta 5 intrebari pe care sa ti le pui in fiecare dimineata (list x5)
-  2. In fiecare dimineata pune-ti cele 5 intrebari si gaseste cel putin 2 raspunsuri (paragraph)
-- **AI Coaching**: Dezvolta Morning Power Questions personale, fa-le profund personale, practica raspunsurile cu intensitate emotionala, creeaza angajament zilnic
-- **Breakthrough**: Ce Morning Power Questions ai creat? Cum te-au facut sa te simti?
+  1. Obiective de dezvoltare personala -- top 3 cu timeline si de ce (paragraph)
+  2. Obiective materiale -- top 3 cu timeline si de ce (paragraph)
+  3. Obiective financiare -- top 3 cu timeline si de ce (paragraph)
+  4. Alte obiective (sanatate, relatii, misiune, contributie, spiritualitate) -- top 3 (paragraph)
+  5. Pentru fiecare obiectiv de top, scrie o actiune pe care o poti face IMEDIAT (paragraph)
+- **AI Coaching**: Revizuieste obiectivele, selecteaza top 3 pe un an, consolideaza motivul, identifica actiuni imediate
+- **Breakthrough**: Care sunt cele mai importante 3 obiective pe care le-ai stabilit? Ce actiune ai luat deja?
 
-### Ziua 9 -- Values and Beliefs: The Source of Success or Failure
-- **Titlu RO**: Valori si Credinte: Sursa Succesului sau a Esecului
-- **Citat**: "Trebuie sa fim clari in privinta a ceea ce este cel mai important in vietile noastre si sa decidem sa traim dupa aceste valori, indiferent de ce." -- Tony Robbins
-- **Definitii**: Valori, Credinte, Valori Moving-Toward, Valori Moving-Away-From, Credinte Globale, Reguli
-- **Lectie**: Valorile ca stari emotionale ierarhizate, Moving-Toward vs Moving-Away-From, Ends vs Means values, Puterea credintelor, 2 tipuri de credinte (globale si reguli)
-- **Exercitii** (6 pasi, primii 2 azi, restul pe parcursul saptamanii):
-  1. Determina valorile Moving-Toward: "Ce este cel mai important pentru mine?" (list x10)
-  2. Rescrie valorile in ordinea importantei (list x12)
-  3. Determina valorile Moving-Away-From (list x10)
-  4. Rescrie valorile Moving-Away-From in ordinea importantei (list x12)
-  5. Determina regulile pentru valorile Moving-Toward (paragraph)
-  6. Ai descoperit reguli care limiteaza calitatea vietii tale? Care esti dispus sa le schimbi? (paragraph)
-- **AI Coaching**: Identifica si ierarhizeaza valorile, descopera regulile, vezi care reguli te imputernicesc si care te limiteaza
-- **Breakthrough**: Ce ai descoperit despre ierarhia ta de valori? Exista conflicte?
-
-### Ziua 10 -- How to Take Complete Control of Your Life
-- **Titlu RO**: Cum sa Preiei Controlul Complet al Vietii Tale
-- **Citat**: "Trecutul nu este egal cu viitorul." -- Tony Robbins
-- **Definitii**: Dickens Pattern
-- **Lectie**: Cum sa schimbi o credinta (5 pasi), 2 credinte de baza de adoptat, Dickens Pattern
+### Ziua 13 Bonus -- Your Driving Force: The 6 Human Needs (Part 1)
+- **Titlu RO**: Forta Ta Motrice: Cele 6 Nevoi Umane (Partea 1)
+- **Citat**: "Cu totii avem dorinte diferite, dar suntem cu totii condusi de exact aceleasi nevoi." -- Tony Robbins
+- **Definitii**: Cele 4 Clase de Experienta, Cele 6 Nevoi Umane (Certitudine, Varietate, Semnificatie, Conexiune/Iubire, Crestere, Contributie)
+- **Lectie**: Cele 4 clase de experienta (I-IV), cele 6 nevoi fundamentale, vehiculele pentru satisfacerea nevoilor, analiza unei activitati iubite
 - **Exercitii**:
-  1. Identifica o credinta limitanta pe care vrei sa o schimbi (text)
-  2. Conecteaza durere la credinta actuala -- ce te-a costat? (paragraph)
-  3. Identifica noua credinta imputernicatoare (text)
-  4. Conecteaza placere masiva la noua credinta (paragraph)
-  5. Conditioneaza noua credinta -- vizualizeaza cum va fi viata ta (paragraph)
-- **AI Coaching**: Ghideaza prin Dickens Pattern, ajuta sa vada costul credintei limitante in trecut/prezent/viitor, instaleaza noua credinta
-- **Breakthrough**: Ce credinta limitanta ai decis sa schimbi? Cu ce ai inlocuit-o?
+  1. Ce este ceva ce iubesti sa faci? Descrie activitatea (text)
+  2. Evalueaza pe o scala de 0-10 cat de mult satisface aceasta activitate fiecare din cele 6 nevoi (paragraph)
+  3. Cum anume satisface sau nu satisface fiecare nevoie? (paragraph)
+- **AI Coaching**: Identifica activitatea iubita, analizeaza cele 6 nevoi, descopera pattern-ul (activitatile iubite satisfac 4-6 nevoi la nivele inalte)
+- **Breakthrough**: Ce ai descoperit despre de ce iubesti ceea ce iubesti? Care nevoi sunt cele mai puternice pentru tine?
+
+### Ziua 14 Bonus -- Your Driving Force: The 6 Human Needs (Part 2)
+- **Titlu RO**: Forta Ta Motrice: Cele 6 Nevoi Umane (Partea 2)
+- **Citat**: "Poti satisface primele patru nevoi in moduri distructive si totusi sa te simti putin implinit. Doar suficient incat sa nu fii fericit, dar nici destul de nemultumit incat sa te schimbi." -- Tony Robbins
+- **Lectie**: Analiza unei activitati neplacute, transformarea din Clasa II in Clasa I, schimbarea perceptiei sau procedurii
+- **Exercitii**:
+  1. Ce este ceva ce urasti sa faci dar stii ca ar trebui? (text)
+  2. Evalueaza pe o scala de 0-10 cat satisface fiecare din cele 6 nevoi (paragraph)
+  3. Transforma aceasta experienta de Clasa II in Clasa I: ce ai putea alege sa crezi pentru a satisface fiecare nevoie la nivel maxim? (paragraph)
+- **AI Coaching**: Identifica activitatea evitata, analizeaza deficitul de nevoi, redesigneaza prin schimbarea perceptiei/procedurii
+- **Breakthrough**: Ce activitate neplacuta ai reusit sa o transformi? Cum ai schimbat perceptia?
+
+### Ziua 15 -- Success Conditioning: The Power of Rituals
+- **Titlu RO**: Conditionarea Succesului: Puterea Ritualurilor
+- **Citat**: "Seamana un gand, culegi o actiune; Seamana o actiune, culegi un obicei; Seamana un obicei, culegi un caracter; Seamana un caracter, culegi un destin." -- Samuel Smiles
+- **Definitii**: Ritual, Procrastinarea ca ritual
+- **Lectie**: Obiceiurile emotionale, "retetele" pentru emotii, ritualul procrastinarii si cum sa-l depasesti (5 pasi), dezvoltarea de ritualuri noi
+- **Exercitii**:
+  1. 5 emotii negative pe care le experimentezi regulat (list x5)
+  2. Ritualurile/retetele tale pentru fiecare emotie negativa (paragraph)
+  3. 5 emotii pozitive pe care le experimentezi regulat (list x5)
+  4. Ritualurile tale pentru emotiile pozitive (paragraph)
+  5. Dezvolta un pattern interrupt pentru fiecare emotie negativa (paragraph)
+  6. Ce faci ca sa intri in ritualul procrastinarii si cum poti iesi din el? (paragraph)
+- **AI Coaching**: Identifica pattern-uri emotionale negative, descopera "retetele" lor, gaseste pattern interrupts, transforma procrastinarea
+- **Breakthrough**: Ce ritual emotional ai identificat si cum planifici sa-l schimbi?
 
 ## Implementare tehnica
 
-### Fisier nou: `src/data/personalPowerDays6to10.ts`
-- Exporta un array `personalPowerDays6to10` cu cele 5 zile
-- Fiecare zi urmeaza exact structura `PersonalPowerDay` interface
-- Continut tradus in romana fidel dupa PDF, cu referinte la "mentorul nostru" in loc de referinte directe
+### Fisier nou: `src/data/personalPowerDays11to15.ts`
+- Exporta un array `personalPowerDays11to15` cu cele 5 zile
+- Fiecare zi urmeaza exact structura `PersonalPowerDay` interface (day, title, titleEn, quote, quoteAuthor, definitions, lessonContent, assignmentSteps, aiCoachingPrompt, aiCoachingPoints, aiCoachingReminder, doListTasks, breakthroughPrompt, breakthroughPromptEn)
+- Continut tradus in romana fidel dupa PDF, cu referinte la "mentorul nostru"
 
 ### Fisier modificat: `src/data/personalPowerContent.ts`
-- Import `personalPowerDays6to10`
-- Concateneaza in array-ul `personalPowerDays`: `[...zilele existente, ...personalPowerDays6to10]`
-- `implementedDays` se calculeaza automat din `personalPowerDays.length`
+- Import `personalPowerDays11to15` din `./personalPowerDays11to15`
+- Concateneaza in array-ul `personalPowerDays`: `[...personalPowerDays1to5, ...personalPowerDays6to10, ...personalPowerDays11to15]`
+- `implementedDays` se calculeaza automat (va deveni 15)
 
-### Fara alte modificari
-Toate componentele existente (PersonalPowerLesson, PersonalPowerExercise, PersonalPowerCoach, PersonalPowerBreakthrough, PersonalPowerSidebar, PersonalPowerOverview) functioneaza automat cu zilele noi.
+### Edge function `personal-power-coach`
+- Adaugam prompt-uri specifice pentru zilele 11-15 in obiectul `dayPrompts` (zilele 11-15)
 
-## Pasul urmator
-Dupa implementarea Zilelor 6-10, vei retrimite continutul PDF pentru paginile 51+ (Zilele 11-30) si le implementam in acelasi stil.
+### Fara alte modificari de componente
+Toate componentele existente functioneaza automat cu zilele noi.
 
