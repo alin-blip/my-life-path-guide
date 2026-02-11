@@ -1,65 +1,89 @@
 
-# Fix navigare automata + buton exercitii + AI Coach initiere conversatie
 
-## Probleme identificate
+# Implementare Personal Power Plus: Zilele 6-10
 
-### 1. Butonul "Am completat exercitiile" nu functioneaza
-**Cauza**: Logica `allFilled` verifica `step-1`, `step-2`, etc., dar pentru exercitii de tip `list`, raspunsurile se salveaza cu chei `step-1-0`, `step-1-1`, etc. Astfel, `allFilled` nu gaseste niciodata valori si butonul ramane dezactivat.
+## Ce avem din PDF (pagini 1-50)
+Am extras integral conținutul pentru Zilele 6-10. Pentru Zilele 11-30 PDF-ul nu a fost parsat (limita de 50 pagini), deci le vom implementa intr-un pas urmator cand vei putea retrimite restul continutului.
 
-**Fix**: Se modifica `allFilled` in `PersonalPowerExercise.tsx` sa verifice si cheile de tip lista (`step-{n}-{i}`).
+## Zilele de implementat acum
 
-### 2. Navigare automata intre pasi
-Acum tab-urile sunt controlate manual (`defaultValue="lesson"`). Se transforma in controlled tabs cu `activeTab` state, si:
-- Cand completezi lectia -> se trece automat la tab "exercise"
-- Cand completezi exercitiile -> se trece automat la tab "coach"
-- Cand completezi coaching-ul -> se trece automat la tab "breakthrough"
+### Ziua 6 -- Strengthen Your Foundation (Integration Day)
+- **Titlu RO**: Intareste-ti Fundatia
+- **Citat**: "Identitatea ta este modelata de ceea ce faci in mod repetat. Nu primesti ceea ce vrei -- primesti ceea ce practici." -- Tony Robbins
+- **Lectie**: Recapitularea Zilelor 1-5, practica trigger-elor de stare (fiziologie), observarea starilor pe parcursul zilei
+- **Exercitii**: 
+  1. Review Days 1-5 -- ce nu ai completat? ce merita mai multa atentie?
+  2. Practica trigger-ele de stare de cel putin 2 ori azi (text/paragraph)
+  3. Observa-ti starile pe parcursul zilei -- "Cand eu ___, starea mea ___"
+- **AI Coaching**: Verifica care exercitii din Zilele 1-5 sunt complete, practica trigger-ele fiziologice, intareste momentumul
+- **Breakthrough**: Ce ai descoperit revizuind prima saptamana? Ce instrument functioneaza cel mai bine pentru tine?
 
-**Fix**: In `PersonalPowerDayPage.tsx`, se adauga state `activeTab` si callback-uri care schimba tab-ul dupa completare.
+### Ziua 7 -- Lock It In: Building Momentum (Integration Day)
+- **Titlu RO**: Fixeaza-l: Construieste Momentum
+- **Citat**: "Nu ceea ce facem o data la un timp ne modeleaza viata. Ci ceea ce facem constant." -- Tony Robbins
+- **Lectie**: Completarea primei saptamani, evaluarea consistentei, reangajarea
+- **Exercitii**:
+  1. Pe o scara de la 1-10, cat de consistent ai folosit instrumentele? (scale)
+  2. La ce te angajezi sa lucrezi mai constant? (paragraph)
+  3. Cum vrei sa te prezinti saptamana aceasta? In ce stare emotionala? (paragraph)
+- **AI Coaching**: Evalueaza consistenta, identifica 1-2 practici de mentinut, clarifica focusul pentru saptamana 2
+- **Breakthrough**: Ce lectie din prima saptamana a avut cel mai mare impact? De ce?
 
-### 3. AI Coach sa initieze conversatia automat
-Cand utilizatorul ajunge la tab-ul Coach, AI-ul trebuie sa inceapa conversatia singur (fara sa astepte input). Se trimite automat un mesaj initial cand componenta se monteaza si nu exista mesaje.
+### Ziua 8 -- The Power of Focus
+- **Titlu RO**: Puterea Focusului
+- **Citat**: "Intrebarile sunt laserul constiintei umane. Ele ne concentreaza focusul si determina ce simtim si ce facem." -- Tony Robbins
+- **Definitii**: Focus (Focusul determina starea emotionala)
+- **Lectie**: Focusul ca al doilea vehicul de gestionare a starii (dupa fiziologie), procesul de "stergere", 2 moduri de control al focusului (ce imagini si cum), intrebarile determina gandurile, Morning Power Questions, Evening Power Questions
+- **Exercitii**:
+  1. Dezvolta 5 intrebari pe care sa ti le pui in fiecare dimineata (list x5)
+  2. In fiecare dimineata pune-ti cele 5 intrebari si gaseste cel putin 2 raspunsuri (paragraph)
+- **AI Coaching**: Dezvolta Morning Power Questions personale, fa-le profund personale, practica raspunsurile cu intensitate emotionala, creeaza angajament zilnic
+- **Breakthrough**: Ce Morning Power Questions ai creat? Cum te-au facut sa te simti?
 
-**Fix**: In `PersonalPowerCoach.tsx`, se adauga `useEffect` care trimite un mesaj de start automat (ex: "Am terminat lectia si exercitiile. Vreau sa discutam despre ce am invatat si sa ma ajuti sa merg mai departe.").
+### Ziua 9 -- Values and Beliefs: The Source of Success or Failure
+- **Titlu RO**: Valori si Credinte: Sursa Succesului sau a Esecului
+- **Citat**: "Trebuie sa fim clari in privinta a ceea ce este cel mai important in vietile noastre si sa decidem sa traim dupa aceste valori, indiferent de ce." -- Tony Robbins
+- **Definitii**: Valori, Credinte, Valori Moving-Toward, Valori Moving-Away-From, Credinte Globale, Reguli
+- **Lectie**: Valorile ca stari emotionale ierarhizate, Moving-Toward vs Moving-Away-From, Ends vs Means values, Puterea credintelor, 2 tipuri de credinte (globale si reguli)
+- **Exercitii** (6 pasi, primii 2 azi, restul pe parcursul saptamanii):
+  1. Determina valorile Moving-Toward: "Ce este cel mai important pentru mine?" (list x10)
+  2. Rescrie valorile in ordinea importantei (list x12)
+  3. Determina valorile Moving-Away-From (list x10)
+  4. Rescrie valorile Moving-Away-From in ordinea importantei (list x12)
+  5. Determina regulile pentru valorile Moving-Toward (paragraph)
+  6. Ai descoperit reguli care limiteaza calitatea vietii tale? Care esti dispus sa le schimbi? (paragraph)
+- **AI Coaching**: Identifica si ierarhizeaza valorile, descopera regulile, vezi care reguli te imputernicesc si care te limiteaza
+- **Breakthrough**: Ce ai descoperit despre ierarhia ta de valori? Exista conflicte?
 
-### 4. Audio AI Coach nu functioneaza
-Din screenshot, se vede ca Call mode se activeaza dar audio nu merge. Problema este ca `voice` este folosit inainte de a fi definit (linia 151 refera `voice.isInCall` dar hook-ul e definit la linia 166).
+### Ziua 10 -- How to Take Complete Control of Your Life
+- **Titlu RO**: Cum sa Preiei Controlul Complet al Vietii Tale
+- **Citat**: "Trecutul nu este egal cu viitorul." -- Tony Robbins
+- **Definitii**: Dickens Pattern
+- **Lectie**: Cum sa schimbi o credinta (5 pasi), 2 credinte de baza de adoptat, Dickens Pattern
+- **Exercitii**:
+  1. Identifica o credinta limitanta pe care vrei sa o schimbi (text)
+  2. Conecteaza durere la credinta actuala -- ce te-a costat? (paragraph)
+  3. Identifica noua credinta imputernicatoare (text)
+  4. Conecteaza placere masiva la noua credinta (paragraph)
+  5. Conditioneaza noua credinta -- vizualizeaza cum va fi viata ta (paragraph)
+- **AI Coaching**: Ghideaza prin Dickens Pattern, ajuta sa vada costul credintei limitante in trecut/prezent/viitor, instaleaza noua credinta
+- **Breakthrough**: Ce credinta limitanta ai decis sa schimbi? Cu ce ai inlocuit-o?
 
-**Fix**: Se muta declaratia hook-ului `useMindCoachVoice` inainte de `sendMessage` sau se restructureaza sa nu existe dependinta circulara.
+## Implementare tehnica
 
----
+### Fisier nou: `src/data/personalPowerDays6to10.ts`
+- Exporta un array `personalPowerDays6to10` cu cele 5 zile
+- Fiecare zi urmeaza exact structura `PersonalPowerDay` interface
+- Continut tradus in romana fidel dupa PDF, cu referinte la "mentorul nostru" in loc de referinte directe
 
-## Detalii tehnice
+### Fisier modificat: `src/data/personalPowerContent.ts`
+- Import `personalPowerDays6to10`
+- Concateneaza in array-ul `personalPowerDays`: `[...zilele existente, ...personalPowerDays6to10]`
+- `implementedDays` se calculeaza automat din `personalPowerDays.length`
 
-### Fisier 1: `src/pages/PersonalPowerDay.tsx`
-- Se adauga `const [activeTab, setActiveTab] = useState('lesson')`
-- Se inlocuieste `<Tabs defaultValue="lesson">` cu `<Tabs value={activeTab} onValueChange={setActiveTab}>`
-- Callback-urile de completare se modifica:
-  - Lectie completata: `updateProgress({ lesson_completed: true })` + `setActiveTab('exercise')`
-  - Exercitii completate: `updateProgress({ exercise_completed: true })` + `setActiveTab('coach')`
-  - Coaching completat: `updateProgress({ coaching_completed: true })` + `setActiveTab('breakthrough')`
+### Fara alte modificari
+Toate componentele existente (PersonalPowerLesson, PersonalPowerExercise, PersonalPowerCoach, PersonalPowerBreakthrough, PersonalPowerSidebar, PersonalPowerOverview) functioneaza automat cu zilele noi.
 
-### Fisier 2: `src/components/personal-power/PersonalPowerExercise.tsx`
-- Se repara `allFilled` pentru a gestiona si step-uri de tip `list`:
-  ```
-  const allFilled = dayData.assignmentSteps.every(step => {
-    if (step.type === 'list' && step.listCount) {
-      return Array.from({ length: step.listCount }, (_, i) => 
-        responses[`step-${step.step}-${i}`]?.trim().length > 0
-      ).every(Boolean);
-    }
-    const key = `step-${step.step}`;
-    return responses[key]?.trim().length > 0;
-  });
-  ```
+## Pasul urmator
+Dupa implementarea Zilelor 6-10, vei retrimite continutul PDF pentru paginile 51+ (Zilele 11-30) si le implementam in acelasi stil.
 
-### Fisier 3: `src/components/personal-power/PersonalPowerCoach.tsx`
-- Se muta `useMindCoachVoice` hook inainte de `sendMessage` (se rezolva referinta circulara folosind un ref pentru voice)
-- Se adauga `useEffect` care la montare trimite automat primul mesaj catre AI:
-  ```
-  useEffect(() => {
-    if (messages.length === 0 && !isLoading) {
-      sendMessage("Am terminat lecția și exercițiile. Vreau să discutăm.");
-    }
-  }, []);
-  ```
-  Aceasta va face AI-ul sa inceapa conversatia cu textul pe care l-ai descris (felicitari, clarificarea deciziilor, etc.) -- deoarece system prompt-ul din edge function contine deja instructiunile de coaching pentru fiecare zi.
