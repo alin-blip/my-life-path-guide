@@ -52,7 +52,7 @@ serve(async (req) => {
           message: "Session expired, please sign in again"
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 401,
+          status: 200,
         });
       }
       throw new Error(`Auth error: ${msg}`);
