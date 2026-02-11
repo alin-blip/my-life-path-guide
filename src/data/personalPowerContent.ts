@@ -21,7 +21,9 @@ export interface PersonalPowerDay {
   breakthroughPromptEn: string;
 }
 
-export const personalPowerDays: PersonalPowerDay[] = [
+import { personalPowerDays6to10 } from './personalPowerDays6to10';
+
+const personalPowerDays1to5: PersonalPowerDay[] = [
   {
     day: 1,
     title: 'Cheia Puterii Personale',
@@ -502,6 +504,11 @@ IMPORTANT: Respond in Romanian. Be energetic, experiential, and guide them to mo
     breakthroughPrompt: 'Cum te-a făcut să te simți schimbarea de fiziologie? Ce ai descoperit despre biomarkerii tăi?',
     breakthroughPromptEn: 'How did changing your physiology make you feel? What did you discover about your biomarkers?',
   },
+];
+
+export const personalPowerDays: PersonalPowerDay[] = [
+  ...personalPowerDays1to5,
+  ...personalPowerDays6to10,
 ];
 
 export const getPersonalPowerDay = (dayNumber: number): PersonalPowerDay | undefined => {
