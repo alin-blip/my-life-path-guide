@@ -1,79 +1,124 @@
 
 
-# Plan: Imbunatatire Engagement - Postari Seed pentru Lectii si Comunitate
+# Redesign: Postari stil Facebook/Skool - Un singur card cu comentarii inline
 
-## Obiectiv
+## Problema actuala
 
-Popularea discutiilor din Personal Power Plus (Zilele 1-20, 26-30) cu postari seed de la cele 6 persoane fictive existente (Andrei, Elena, Marius, Ana, Cristian, Oana), similar cu ce exista deja pentru Challenge. Postarea seed apare atat in lectia respectiva cat si pe wall-ul global al comunitatii.
+- `LessonWelcomePost` este un card separat (doar instructiuni, fara comentarii)
+- Postari utilizatori (`LessonPostCard`) sunt carduri separate
+- Comentariile se deschid intr-un Sheet/Dialog lateral - nu sunt vizibile direct
+- Experienta este fragmentata: card instructiuni + card postare + dialog comentarii = 3 elemente separate
 
-## Situatia actuala
+## Solutia: Card unificat stil Facebook
 
-- **Challenge** (7 zile): are cate 2 postari seed per zi = 14 postari totale de la persoane fictive
-- **Personal Power** (25 zile implementate): are doar 2 postari reale (breakthrough-uri), zero postari seed
-- **Comunitate**: categorii existente - General, Challenge, Wins, Support, Breakthrough
+Fiecare postare (inclusiv welcome post) va fi un **singur card** care contine:
+1. Continut postare (header + text + media)
+2. Butoane Like / Comment
+3. Lista de comentarii direct sub postare (vizibile, nu in dialog)
+4. Input de comentariu la baza cardului
 
-## Ce se va implementa
+Similar cu Facebook unde vezi postarea, like-urile, comentariile existente si campul de "Write a comment..." - totul intr-un singur bloc vizual.
 
-### 1. Fisier nou de date: `src/data/personalPowerSeedPosts.ts`
+## Componente afectate
 
-Postari seed pentru fiecare zi implementata din Personal Power (zilele 1-20 si 26-30 = 25 zile). Fiecare zi va avea 2 postari de la persoane diferite, rotite intre cele 6 persona existente.
+### 1. Componenta noua: `LessonPostCardInline.tsx`
 
-Exemplu format:
+Inlocuieste `LessonPostCard` + `PostCommentsDialog` cu un singur card care include:
+
 ```
-Ziua 1 - "Cheia Puterii Personale"
-- Andrei: "Puterea personala = abilitatea de a actiona. Simplu si puternic. Am realizat ca tot ce lipsea era decizia. Ce decizie ati luat azi?"
-- Elena: "Citatul cu 'Cere mai mult de la tine' m-a lovit. Azi am decis: nu mai astept conditii perfecte. Scor energie: 7/10"
++------------------------------------------+
+| [Avatar] Andrei Popescu       2h ago     |
+|                                          |
+| Continutul postarii...                   |
+| [imagine daca exista]                    |
+|                                          |
+| [Heart 3]  [Comment 2]                  |
+|------------------------------------------|
+| [Avatar] Elena: "Super insight!"    1h  |
+|    [Reply] [Delete]                      |
+| [Avatar] Marius: "La fel si eu!" 30m    |
+|    [Reply] [Delete]                      |
+|------------------------------------------|
+| [Avatar] Scrie un comentariu...   [Send] |
++------------------------------------------+
 ```
 
-Total: ~50 postari seed (25 zile x 2 postari).
+- Comentariile se incarca automat (hook `useWallPostComments`)
+- Input de comentariu permanent vizibil la baza cardului
+- Butonul "Comment" face scroll/focus pe input
+- Replies nested sub comentarii (ca acum)
 
-### 2. Migrare baza de date: Insert seed posts
+### 2. Refactorizare `LessonWelcomePost.tsx` --> `LessonWelcomePostCard.tsx`
 
-Script SQL care insereaza cele ~50 postari in tabelul `wall_posts` cu:
-- `user_id` = UUID-urile persoanelor fictive existente
-- `source_context` = `personal-power-day-X`
-- `source_label` = `Personal Power Plus - Day X: [titlu]`
-- `category` = `general` (pentru vizibilitate pe wall-ul comunitatii)
-- `created_at` = date distribuite natural (cu cateva ore diferenta)
+Welcome post-ul devine un card complet de tip Facebook:
 
-### 3. Categorie noua in filtru: "Courses" / "Cursuri"
-
-Adaugare in `SkoolCategoryFilter.tsx` a unei categorii noi care grupeaza postari din toate cursurile:
 ```
-{ id: 'courses', label: 'Courses', labelRo: 'Cursuri', icon: '📖' }
++------------------------------------------+
+| [Pin icon] Instructiuni lectie           |
+| [Admin Avatar] Admin          fixat      |
+|                                          |
+| Titlu: Ziua 1: Viziune + Declaratie!     |
+| * Completeaza Harta Realitatii           |
+| * Raspunde la 5 intrebari de viziune     |
+| * Scrie Declaratia Anti-Burnout          |
+|                                          |
+| Posteaza declaratia ta mai jos!          |
+|                                          |
+| [Heart 5]  [Comment 3]                  |
+|------------------------------------------|
+| [Avatar] Andrei: "Am terminat..."   2h  |
+| [Avatar] Elena: "Super exercitiu!" 1h   |
+|------------------------------------------|
+| [Avatar] Scrie un comentariu...   [Send] |
++------------------------------------------+
 ```
 
-Postarea din Personal Power va folosi `category: 'courses'` in loc de `'general'` pentru a le putea filtra separat.
+Welcome post-ul va avea un `post_id` asociat in baza de date (o postare reala de tip "pinned") pentru a putea avea comentarii. Se va crea o postare seed pentru fiecare zi.
 
-### 4. Welcome Post generic pentru Personal Power
+### 3. Migrare SQL: Welcome posts in baza de date
 
-`LessonWelcomePost.tsx` va afisa un mesaj motivational generic cu:
-- Titlul lectiei si numarul zilei
-- CTA: "Share your insights and breakthroughs below!"
-- Stil vizual consistent (amber/orange)
+Pentru ca welcome post-ul sa aiba comentarii, trebuie sa existe ca o inregistrare reala in `wall_posts`:
 
-Aceasta parte este deja implementata din planul anterior.
+- INSERT cate o postare pinned per zi de Challenge (7 zile) cu continutul instructiunilor
+- INSERT cate o postare pinned per zi de Personal Power (25 zile)
+- `user_id` = admin user ID
+- `is_pinned` = true
+- `source_context` = `challenge-day-X` / `personal-power-day-X`
+- Continutul = textul de instructiuni (task-uri + CTA)
 
-## Detalii tehnice
+Apoi se insereaza **comentarii seed** de la cele 6 persoane fictive la aceste welcome posts, creand impresia ca oamenii au interactionat deja.
+
+### 4. Simplificare `LessonCommunityPost.tsx`
+
+Componenta container se simplifica:
+- Elimina `LessonWelcomePost` ca element separat
+- Welcome post vine din baza de date ca prima postare (pinned, sortata prima)
+- Toate postarea (inclusiv welcome) se randeaza cu `LessonPostCardInline`
+- Write trigger ramane ca un card "Scrie ceva..." deasupra feed-ului
+- Dialog de scriere ramane neschimbat
+
+### 5. Actualizare `LessonPostCard.tsx`
+
+Se inlocuieste cu noul `LessonPostCardInline` care afiseaza comentariile inline in loc de a deschide un Sheet.
+
+## Fisiere
 
 ### Fisiere noi
-- `src/data/personalPowerSeedPosts.ts` - array cu postari seed per zi
+- `src/components/programs/LessonPostCardInline.tsx` - card unificat post + comentarii inline
 
 ### Fisiere modificate
-- `src/components/programs/SkoolCategoryFilter.tsx` - categorie noua "Courses"
-- `src/pages/PersonalPowerDay.tsx` - `postCategory` schimbat de la `'general'` la `'courses'`
+- `src/components/programs/LessonCommunityPost.tsx` - foloseste noul card, elimina welcome post separat, sorteaza pinned first
+- `src/components/programs/LessonWelcomePost.tsx` - eliminat (continutul migrat in baza de date)
 
 ### Migrare SQL
-- INSERT in `wall_posts` pentru ~50 postari seed
-- Foloseste user_id-urile fictive existente (a1b2c3d4-1111... pana la a1b2c3d4-6666...)
+- INSERT welcome posts (32 postari: 7 Challenge + 25 Personal Power) in `wall_posts` cu `is_pinned = true`
+- INSERT ~60 comentarii seed la welcome posts de la cele 6 persoane fictive
 
-### Personaje si stilul lor
-1. **Andrei Popescu** (a1b2c3d4-1111) - antreprenor analitic, focusat pe date si metrici
-2. **Elena Mihai** (a1b2c3d4-2222) - empatic, self-care, echilibru
-3. **Marius Ionescu** (a1b2c3d4-3333) - pragmatic, orientat pe rezultate, concis
-4. **Ana Vasilescu** (a1b2c3d4-4444) - creativa, storytelling, emotionala
-5. **Cristian Stancu** (a1b2c3d4-5555) - strategic, business-focused
-6. **Oana Dinu** (a1b2c3d4-6666) - artista, vizuala, expresiva
+## Rezultat final
 
-Postarea fiecarui personaj va reflecta stilul sau si va face referire la continutul specific al lectiei respective (exercitii, citate, concepte cheie).
+- Fiecare lectie are un welcome post fixat cu instructiuni + comentarii vizibile direct
+- Postari utilizatori cu comentarii inline (stil Facebook)
+- Zero dialoguri/sheet-uri pentru comentarii in paginile de lectie
+- Experienta fluida: scroll down = vezi totul
+- Dovada sociala: comentarii seed vizibile imediat, nu ascunse in dialog
 
