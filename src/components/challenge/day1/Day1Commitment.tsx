@@ -4,15 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/context/LanguageContext';
-import { Trophy, CheckCircle2, Flame, Star, MessageCircle, ArrowDown } from 'lucide-react';
+import { Trophy, CheckCircle2, Flame, Star, ExternalLink } from 'lucide-react';
+import { FACEBOOK_GROUP_URL } from '@/config/socialLinks';
 
 interface Day1CommitmentProps {
   isCommitted: boolean;
   onCommitmentChange: (committed: boolean) => void;
   onComplete: () => void;
   isLoading?: boolean;
-  commentCount?: number;
-  requiredComments?: number;
 }
 
 export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
@@ -20,68 +19,14 @@ export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
   onCommitmentChange,
   onComplete,
   isLoading = false,
-  commentCount = 0,
-  requiredComments = 3
 }) => {
   const { language } = useLanguage();
   const isRo = language === 'ro';
   
-  const hasEnoughComments = commentCount >= requiredComments;
   const canComplete = isCommitted;
   
   return (
     <div className="space-y-6">
-      {/* Engagement Tracker */}
-      <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/30">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500">
-            <MessageCircle className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-foreground">
-              {isRo ? '💬 CONECTEAZĂ-TE CU COMUNITATEA' : '💬 CONNECT WITH THE COMMUNITY'}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {isRo 
-                ? 'Comentează la postările altor Warriors pentru accountability!' 
-                : 'Comment on other Warriors posts for accountability!'}
-            </p>
-          </div>
-        </div>
-        
-        {/* Progress Indicator */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex gap-2">
-            {Array.from({ length: requiredComments }).map((_, i) => (
-              <div 
-                key={i}
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  i < commentCount 
-                    ? 'bg-green-500 text-white' 
-                    : 'bg-muted text-muted-foreground'
-                }`}
-              >
-                {i < commentCount ? <CheckCircle2 className="h-5 w-5" /> : (i + 1)}
-              </div>
-            ))}
-          </div>
-          <span className={`text-sm font-medium ${hasEnoughComments ? 'text-green-500' : 'text-muted-foreground'}`}>
-            {commentCount}/{requiredComments} {isRo ? 'comentarii' : 'comments'}
-          </span>
-        </div>
-        
-        {!hasEnoughComments && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
-            <ArrowDown className="h-5 w-5 text-amber-500 animate-bounce" />
-            <span className="text-sm text-amber-600">
-              {isRo 
-                ? 'Scroll mai jos la comentarii pentru a-i încuraja pe ceilalți Warriors' 
-                : 'Scroll down to comments to encourage fellow Warriors'}
-            </span>
-          </div>
-        )}
-      </Card>
-
       {/* Commitment Card */}
       <Card className="p-6 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
         {/* Header */}
@@ -175,6 +120,31 @@ export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
             </>
           )}
         </Button>
+      </Card>
+
+      {/* Facebook Group CTA */}
+      <Card className="p-5 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-blue-500/30">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-xl font-bold shrink-0">
+            f
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-foreground">
+              {isRo ? 'Alătură-te Grupului Facebook' : 'Join Our Facebook Group'}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {isRo ? 'Conectează-te cu alți Warriors pentru suport și accountability' : 'Connect with fellow Warriors for support & accountability'}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => window.open(FACEBOOK_GROUP_URL, '_blank')}
+            className="shrink-0 border-blue-500/50 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10"
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            {isRo ? 'Intră în Grup' : 'Join Group'}
+          </Button>
+        </div>
       </Card>
     </div>
   );

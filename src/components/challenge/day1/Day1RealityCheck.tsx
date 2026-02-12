@@ -91,7 +91,7 @@ const DIMENSION_CONFIG = {
 
 interface Day1RealityCheckProps {
   onComplete: (scores: WarriorPowerScores) => void;
-  onPostScore: (message: string) => Promise<void>;
+  onPostScore?: (message: string) => Promise<void>;
   existingScores?: Partial<WarriorPowerScores>;
 }
 
@@ -248,7 +248,7 @@ ${isRo ? 'Aceasta este realitatea mea de astăzi. În 7 zile, voi progresa!' : '
   };
 
   const handlePostToComments = async () => {
-    if (!finalScores) return;
+    if (!finalScores || !onPostScore) return;
     const message = formatScoreMessage(finalScores);
     await onPostScore(message);
     setScorePosted(true);

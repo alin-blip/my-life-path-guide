@@ -12,7 +12,6 @@ interface SkoolNavBarProps {
 }
 
 const baseTabs: { id: SkoolTab; labelEn: string; labelRo: string; icon: React.ElementType; adminOnly?: boolean }[] = [
-  { id: 'community', labelEn: 'Community', labelRo: 'Comunitate', icon: Users },
   { id: 'classroom', labelEn: 'Classroom', labelRo: 'Cursuri', icon: BookOpen },
   { id: 'groups', labelEn: 'Groups', labelRo: 'Grupuri', icon: Users2 },
   { id: 'calendar', labelEn: 'Calendar', labelRo: 'Calendar', icon: Calendar },
