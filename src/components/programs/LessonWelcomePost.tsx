@@ -128,17 +128,30 @@ const dayContents: Record<number, DayContent> = {
 
 interface LessonWelcomePostProps {
   dayNumber: number;
+  sourcePrefix?: string;
+  dayTitle?: string;
+  courseName?: string;
 }
 
-export const LessonWelcomePost: React.FC<LessonWelcomePostProps> = ({ dayNumber }) => {
+export const LessonWelcomePost: React.FC<LessonWelcomePostProps> = ({ dayNumber, sourcePrefix, dayTitle, courseName }) => {
   const { language } = useLanguage();
-  const content = dayContents[dayNumber];
 
-  if (!content) return null;
+  const isChallenge = !sourcePrefix || sourcePrefix === 'challenge';
+  const content = isChallenge ? dayContents[dayNumber] : null;
 
-  const title = language === 'ro' ? content.titleRo : content.titleEn;
-  const tasks = language === 'ro' ? content.tasksRo : content.tasksEn;
-  const cta = language === 'ro' ? content.ctaRo : content.ctaEn;
+  if (isChallenge && !content) return null;
+
+  const title = isChallenge && content
+    ? (language === 'ro' ? content.titleRo : content.titleEn)
+    : (language === 'ro' ? `🔥 Ziua ${dayNumber}: ${dayTitle || ''}` : `🔥 Day ${dayNumber}: ${dayTitle || ''}`);
+  const tasks = isChallenge && content
+    ? (language === 'ro' ? content.tasksRo : content.tasksEn)
+    : null;
+  const cta = isChallenge && content
+    ? (language === 'ro' ? content.ctaRo : content.ctaEn)
+    : (language === 'ro'
+      ? '👇 Împărtășește insight-urile și breakthrough-urile tale mai jos!'
+      : '👇 Share your insights and breakthroughs below!');
 
   return (
     <div className="bg-card border border-amber-500/20 rounded-xl p-4 relative">
@@ -149,14 +162,16 @@ export const LessonWelcomePost: React.FC<LessonWelcomePostProps> = ({ dayNumber 
 
       <h4 className="font-bold text-base mb-3">{title}</h4>
 
-      <ul className="space-y-2 mb-4">
-        {tasks.map((task, i) => (
-          <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-            <CheckCircle2 className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
-            <span>{task}</span>
-          </li>
-        ))}
-      </ul>
+      {tasks && tasks.length > 0 && (
+        <ul className="space-y-2 mb-4">
+          {tasks.map((task, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+              <CheckCircle2 className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+              <span>{task}</span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
         {cta}
