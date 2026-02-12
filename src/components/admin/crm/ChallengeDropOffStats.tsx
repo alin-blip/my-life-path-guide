@@ -79,7 +79,12 @@ export const ChallengeDropOffStats: React.FC = () => {
 
       // Deduplicate leads by email (lowercase)
       const uniqueEmails = new Set(challengeLeads?.map(l => l.email.toLowerCase()));
-      const uniqueParticipants = uniqueEmails.size;
+      
+      // Count unique users from challenge_progress
+      const uniqueProgressUsers = new Set(progress?.map(p => p.user_id)).size;
+      
+      // Total participants = max of both sources (users may overlap)
+      const uniqueParticipants = Math.max(uniqueProgressUsers, uniqueEmails.size);
 
       // Get recovery emails sent
       const { data: recoveryEmails, error: recoveryError } = await supabase
