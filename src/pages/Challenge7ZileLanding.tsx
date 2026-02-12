@@ -282,21 +282,21 @@ const Challenge7ZileLanding = () => {
         </div>
 
         {/* Hero Section */}
-        <section className="relative pt-16 pb-16 px-4 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
-          <div className="max-w-4xl mx-auto text-center relative">
-            <Badge className="mb-4 bg-green-500/10 text-green-600 border-green-500/30 px-4 py-1.5">
+        <section className="relative pt-20 pb-20 px-4 md:px-8 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-muted/30 to-transparent" />
+          <div className="max-w-6xl mx-auto text-center relative">
+            <Badge className="mb-6 bg-green-500/10 text-green-600 border-green-500/30 px-4 py-1.5">
               <Gift className="h-4 w-4 mr-1.5 inline" />
               {language === 'en' ? '🎁 100% FREE - INSTANT ACCOUNT' : '🎁 100% GRATUIT - CONT INSTANT'}
             </Badge>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-red-500">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 text-foreground leading-tight">
               {language === 'en' 
                 ? 'From Burnout & Blockage to Clarity, Results & Momentum in Body, Spirit, Relationships & Business in 7 Days' 
                 : 'De la Blocaj și Epuizare la Claritate, Rezultate și Momentum în Corp, Spiritualitate, Relații și Business în 7 Zile'}
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
               {language === 'en'
                 ? "The world's first operating system for an abundant and balanced life. Built in Romania."
                 : 'Primul sistem de operare pentru o viață abundentă și echilibrată din lume. Construit în România.'}
