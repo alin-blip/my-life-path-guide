@@ -343,13 +343,36 @@ const Challenge7ZileLanding = () => {
               </div>
             </motion.div>
 
+            {/* CTA Button below video */}
+            {!isSubscribed && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-8 flex justify-center"
+              >
+                <Button
+                  size="lg"
+                  onClick={() => document.getElementById('challenge-auth')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="text-lg py-7 px-8 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg shadow-amber-500/20"
+                >
+                  <Rocket className="h-5 w-5 mr-2" />
+                  {language === 'en' 
+                    ? "I'm ready to eliminate blockages and burnout" 
+                    : 'Sunt pregătit să elimin blocajele și epuizarea'}
+                </Button>
+              </motion.div>
+            )}
+
             {/* Inline Auth Widget */}
             {!isSubscribed ? (
-              <ChallengeInlineAuth
-                language={language}
-                utmParams={{ source: utmSource, medium: utmMedium, campaign: utmCampaign }}
-                onSuccess={handleAuthSuccess}
-              />
+              <div id="challenge-auth">
+                <ChallengeInlineAuth
+                  language={language}
+                  utmParams={{ source: utmSource, medium: utmMedium, campaign: utmCampaign }}
+                  onSuccess={handleAuthSuccess}
+                />
+              </div>
             ) : (
               <Card className="max-w-md mx-auto p-6 bg-green-500/10 border-green-500/30 mt-8">
                 <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
