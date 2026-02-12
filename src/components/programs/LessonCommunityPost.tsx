@@ -15,8 +15,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Send, BookOpen, MessageCircle } from 'lucide-react';
-import { LessonPostCard } from './LessonPostCard';
-import { LessonWelcomePost } from './LessonWelcomePost';
+import { LessonPostCardInline } from './LessonPostCardInline';
 import { WallPost } from '@/hooks/useBrotherhood';
 
 interface LessonCommunityPostProps {
@@ -53,10 +52,10 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
     const query = supabase
       .from('wall_posts')
       .select('*')
+      .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(30);
 
-    // Filter by source_context (new column, use rpc-safe approach)
     const { data, error } = await (query as any).eq('source_context', sourceContext);
 
     if (error) {
@@ -100,7 +99,6 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
     fetchPosts();
   }, [fetchPosts]);
 
-  // Realtime subscription
   useEffect(() => {
     const channel = supabase
       .channel(`lesson_posts_${sourceContext}`)
@@ -234,10 +232,7 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Pinned welcome post */}
-      <LessonWelcomePost dayNumber={dayNumber} sourcePrefix={prefix} dayTitle={dayTitle} courseName={courseName} />
-
-      {/* Posts feed */}
+      {/* Posts feed - all rendered as inline cards (pinned first) */}
       {loading ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
@@ -253,7 +248,7 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
       ) : (
         <div className="space-y-3">
           {posts.map((post) => (
-            <LessonPostCard key={post.id} post={post} onLike={toggleLike} />
+            <LessonPostCardInline key={post.id} post={post} onLike={toggleLike} />
           ))}
         </div>
       )}
