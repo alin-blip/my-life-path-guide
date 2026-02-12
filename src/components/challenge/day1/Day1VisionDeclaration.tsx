@@ -35,8 +35,10 @@ const AREAS = [
     icon: Dumbbell,
     color: 'text-green-500',
     bgColor: 'bg-green-500/10 border-green-500/20',
-    placeholderRo: 'Ex: Voi avea 75kg, voi alerga 10km ușor, voi avea energie toată ziua...',
-    placeholderEn: 'Ex: I will weigh 75kg, run 10km easily, have energy all day...'
+    placeholderRo: 'Am un corp sănătos și plin de energie. Cântăresc greutatea ideală, fac sport de 4 ori pe săptămână, dorm 7-8 ore și am energie toată ziua. Mă trezesc dimineața motivat și pregătit de acțiune.',
+    placeholderEn: 'I have a healthy, energized body. I weigh my ideal weight, exercise 4 times a week, sleep 7-8 hours and have energy all day. I wake up every morning motivated and ready for action.',
+    templateRo: 'Am un corp sănătos și plin de energie. Cântăresc ___ kg, fac sport de 4 ori pe săptămână, dorm 7-8 ore și am energie toată ziua.',
+    templateEn: 'I have a healthy, energized body. I weigh ___ kg, exercise 4 times a week, sleep 7-8 hours and have energy all day.'
   },
   {
     key: 'vision_spirit',
@@ -45,8 +47,10 @@ const AREAS = [
     icon: Sparkles,
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10 border-purple-500/20',
-    placeholderRo: 'Ex: Voi medita 20 min zilnic, voi fi calm și prezent, voi avea pace interioară...',
-    placeholderEn: 'Ex: I will meditate 20 min daily, be calm and present, have inner peace...'
+    placeholderRo: 'Am pace interioară și claritate mentală. Meditez 20 minute zilnic, citesc 30 minute pe zi și am o mentalitate de creștere. Sunt calm, prezent și recunoscător pentru fiecare zi.',
+    placeholderEn: 'I have inner peace and mental clarity. I meditate 20 minutes daily, read 30 minutes per day and have a growth mindset. I am calm, present and grateful for each day.',
+    templateRo: 'Am pace interioară și claritate mentală. Meditez zilnic, citesc constant și am o mentalitate de creștere.',
+    templateEn: 'I have inner peace and mental clarity. I meditate daily, read consistently and have a growth mindset.'
   },
   {
     key: 'vision_relationships',
@@ -55,8 +59,10 @@ const AREAS = [
     icon: Heart,
     color: 'text-pink-500',
     bgColor: 'bg-pink-500/10 border-pink-500/20',
-    placeholderRo: 'Ex: Voi petrece timp de calitate cu familia, voi avea o relație puternică...',
-    placeholderEn: 'Ex: I will spend quality time with family, have a strong relationship...'
+    placeholderRo: 'Am relații puternice și pline de dragoste. Petrec timp de calitate cu familia în fiecare zi, am prieteni care mă inspiră și mă susțin. Comunic deschis și cu empatie.',
+    placeholderEn: 'I have strong, loving relationships. I spend quality time with family every day, have friends who inspire and support me. I communicate openly and with empathy.',
+    templateRo: 'Am relații puternice și pline de dragoste. Petrec timp de calitate cu familia și am prieteni care mă inspiră.',
+    templateEn: 'I have strong, loving relationships. I spend quality time with family and have friends who inspire me.'
   },
   {
     key: 'vision_business',
@@ -65,8 +71,10 @@ const AREAS = [
     icon: Briefcase,
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10 border-blue-500/20',
-    placeholderRo: 'Ex: Voi câștiga 10.000€/lună, voi avea afacerea mea, voi fi promovat...',
-    placeholderEn: 'Ex: I will earn 10,000€/month, have my own business, get promoted...'
+    placeholderRo: 'Am un business profitabil care crește constant. Câștig ___€/lună, am sisteme care funcționează fără mine și ajut sute de oameni. Lucrez focalizat 4-6 ore pe zi pe lucrurile care contează.',
+    placeholderEn: 'I have a profitable, growing business. I earn ___€/month, have systems that run without me and help hundreds of people. I work focused 4-6 hours per day on what matters.',
+    templateRo: 'Am un business profitabil care crește constant. Câștig ___€/lună și am sisteme care funcționează.',
+    templateEn: 'I have a profitable, growing business. I earn ___€/month and have systems that run efficiently.'
   },
   {
     key: 'what_i_will_give',
@@ -75,8 +83,10 @@ const AREAS = [
     icon: HandHeart,
     color: 'text-amber-500',
     bgColor: 'bg-amber-500/10 border-amber-500/20',
-    placeholderRo: 'Ex: Voi oferi 8 ore de muncă focalizată zilnic, voi servi 100 de clienți cu excelență...',
-    placeholderEn: 'Ex: I will offer 8 hours of focused work daily, serve 100 clients with excellence...'
+    placeholderRo: 'Voi oferi 6 ore de muncă focalizată zilnic, voi servi clienții cu excelență, voi fi prezent 100% pentru familie și voi investi constant în dezvoltarea mea personală.',
+    placeholderEn: 'I will offer 6 hours of focused work daily, serve clients with excellence, be 100% present for family and consistently invest in my personal development.',
+    templateRo: 'Voi oferi muncă focalizată zilnic, voi servi cu excelență și voi investi constant în dezvoltarea mea.',
+    templateEn: 'I will offer focused work daily, serve with excellence and consistently invest in my development.'
   }
 ];
 

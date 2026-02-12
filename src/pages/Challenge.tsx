@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { ProgramsLayout } from '@/components/programs/ProgramsLayout';
 import { ChallengeSidebar } from '@/components/programs/ChallengeSidebar';
 import { useLanguage } from '@/context/LanguageContext';
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Flame, Target, Sparkles, Play, Lock, CheckCircle2, ArrowRight, Rocket, Dumbbell, Brain, Trophy, Crown, Users } from 'lucide-react';
+import { Flame, Target, Sparkles, Play, Lock, CheckCircle2, ArrowRight, Rocket, Dumbbell, Brain, Trophy, Crown, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { EarlyBirdCountdown } from '@/components/membership/EarlyBirdCountdown';
@@ -189,17 +190,7 @@ const ChallengePage = () => {
           </p>
           
           
-          {/* Hero Video */}
-          <div className="mt-6 max-w-2xl mx-auto">
-            <div className="relative w-full rounded-xl overflow-hidden" style={{
-              paddingBottom: '56.25%',
-              boxShadow: '0 0 30px 4px rgba(59, 130, 246, 0.5), 0 0 60px 8px rgba(59, 130, 246, 0.3)'
-            }}>
-              <iframe src={heroVideoUrl} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute top-0 left-0 w-full h-full" />
-            </div>
-          </div>
         </div>
-
 
         {/* Install App Prompt */}
         <InstallAppPrompt />
@@ -258,24 +249,6 @@ const ChallengePage = () => {
           <p className="text-xs text-muted-foreground text-center">
             {!isAuthenticated ? language === 'en' ? 'Login to track your progress' : 'Autentifică-te pentru a-ți urmări progresul' : progressPercentage === 100 ? language === 'en' ? 'Challenge Complete! You broke the burnout cycle!' : 'Challenge Complet! Ai spart ciclul burnout-ului!' : language === 'en' ? `Day ${currentDay} of 7 - Momentum is building!` : `Ziua ${currentDay} din 7 - Momentum-ul crește!`}
           </p>
-        </Card>
-
-        {/* Audio + Script + Chat - Unified Card */}
-        <Card className="mb-8 overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
-          <ChallengeAudioPlayer 
-            script={language === 'en' ? getDayScript(0) : getDayScriptRo(0)} 
-            language={language === 'en' ? 'en' : 'ro'} 
-          />
-          <ChallengeScriptCard 
-            script={language === 'en' ? getDayScript(0) : getDayScriptRo(0)} 
-            maxHeight="300px" 
-          />
-          <div className="border-t border-border/50">
-            <ChallengeInlineChat 
-              currentDay={0} 
-              language={language === 'en' ? 'en' : 'ro'} 
-            />
-          </div>
         </Card>
 
         {/* Challenge Days Grid */}
@@ -379,7 +352,62 @@ const ChallengePage = () => {
           })}
         </div>
 
-        {/* Embedded Community Section */}
+        {/* Hero Video - Collapsible */}
+        <Collapsible defaultOpen className="mt-8">
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 rounded-lg bg-card border border-primary/20 hover:border-primary/40 transition-all group">
+            <div className="flex items-center gap-2">
+              <Play className="h-5 w-5 text-primary" />
+              <span className="font-bold text-foreground">
+                {language === 'ro' ? '🎬 Video Introducere' : '🎬 Intro Video'}
+              </span>
+            </div>
+            <ChevronDown className="h-5 w-5 text-muted-foreground group-data-[state=open]:hidden" />
+            <ChevronUp className="h-5 w-5 text-muted-foreground group-data-[state=closed]:hidden" />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="mt-2 max-w-2xl mx-auto">
+              <div className="relative w-full rounded-xl overflow-hidden" style={{
+                paddingBottom: '56.25%',
+                boxShadow: '0 0 30px 4px rgba(59, 130, 246, 0.5), 0 0 60px 8px rgba(59, 130, 246, 0.3)'
+              }}>
+                <iframe src={heroVideoUrl} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="absolute top-0 left-0 w-full h-full" />
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Audio + Script + Chat - Collapsible */}
+        <Collapsible className="mt-4">
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 rounded-lg bg-card border border-amber-500/20 hover:border-amber-500/40 transition-all group">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-amber-500" />
+              <span className="font-bold text-foreground">
+                {language === 'ro' ? '🎧 Audio + Script + AI Coach' : '🎧 Audio + Script + AI Coach'}
+              </span>
+            </div>
+            <ChevronDown className="h-5 w-5 text-muted-foreground group-data-[state=open]:hidden" />
+            <ChevronUp className="h-5 w-5 text-muted-foreground group-data-[state=closed]:hidden" />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <Card className="mt-2 overflow-hidden border-amber-500/20 shadow-lg shadow-amber-500/5">
+              <ChallengeAudioPlayer 
+                script={language === 'en' ? getDayScript(0) : getDayScriptRo(0)} 
+                language={language === 'en' ? 'en' : 'ro'} 
+              />
+              <ChallengeScriptCard 
+                script={language === 'en' ? getDayScript(0) : getDayScriptRo(0)} 
+                maxHeight="300px" 
+              />
+              <div className="border-t border-border/50">
+                <ChallengeInlineChat 
+                  currentDay={0} 
+                  language={language === 'en' ? 'en' : 'ro'} 
+                />
+              </div>
+            </Card>
+          </CollapsibleContent>
+        </Collapsible>
+
         {isAuthenticated && (
           <div className="mt-8 space-y-4">
             <div className="flex items-center gap-2">

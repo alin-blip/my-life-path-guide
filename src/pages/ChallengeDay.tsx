@@ -29,6 +29,7 @@ import {
   Day1InviteFriendsStep
 } from '@/components/challenge/day1';
 import { ChallengeInviteFriends } from '@/components/challenge/ChallengeInviteFriends';
+import { Day1InviteFriends } from '@/components/challenge/day1/Day1InviteFriends';
 import { ChallengeAudioPlayer } from '@/components/challenge/ChallengeAudioPlayer';
 import { ChallengeScriptCard } from '@/components/challenge/ChallengeScriptCard';
 import { ChallengeInlineChat } from '@/components/challenge/ChallengeInlineChat';
@@ -577,7 +578,8 @@ const ChallengeDayPage = () => {
       day1Responses.vision_declaration.length > 50
     );
     
-    const day1Progress = hasExistingDeclaration ? 100 : ((day1Step + 1) / 4) * 100;
+    const totalDay1Steps = 4; // Reality Check, WHY, Vision, Commitment
+    const day1Progress = hasExistingDeclaration ? 100 : ((day1Step + 1) / totalDay1Steps) * 100;
     
     const handleDay1Complete = async () => {
       if (!isAuthenticated) {
@@ -843,23 +845,22 @@ const ChallengeDayPage = () => {
                 />
               )}
               
-              {/* Step 3: Commitment + Engagement */}
+              {/* Step 3: Commitment + Engagement + Invite Friends (optional) */}
               {day1Step === 3 && (
-                <Day1Commitment
-                  isCommitted={day1Responses.commitment_confirmed || false}
-                  onCommitmentChange={(committed) => updateDay1Responses({ commitment_confirmed: committed })}
-                  onComplete={() => setDay1Step(4)}
-                  isLoading={day1Saving}
-                  commentCount={userCommentCount}
-                  requiredComments={3}
-                />
-              )}
-              
-              {/* Step 4: Invite Friends (NEW STEP) */}
-              {day1Step === 4 && (
-                <Day1InviteFriendsStep
-                  onComplete={handleDay1Complete}
-                />
+                <>
+                  <Day1Commitment
+                    isCommitted={day1Responses.commitment_confirmed || false}
+                    onCommitmentChange={(committed) => updateDay1Responses({ commitment_confirmed: committed })}
+                    onComplete={handleDay1Complete}
+                    isLoading={day1Saving}
+                    commentCount={userCommentCount}
+                    requiredComments={3}
+                  />
+                  {/* Optional: Invite Friends */}
+                  <div className="mt-6">
+                    <Day1InviteFriends />
+                  </div>
+                </>
               )}
               
               {/* Step Navigation */}

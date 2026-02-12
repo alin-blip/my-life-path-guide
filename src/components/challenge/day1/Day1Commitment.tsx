@@ -27,7 +27,7 @@ export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
   const isRo = language === 'ro';
   
   const hasEnoughComments = commentCount >= requiredComments;
-  const canComplete = isCommitted && hasEnoughComments;
+  const canComplete = isCommitted;
   
   return (
     <div className="space-y-6">
@@ -162,13 +162,6 @@ export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
             <>
               <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
               {isRo ? 'Se salvează...' : 'Saving...'}
-            </>
-          ) : !hasEnoughComments ? (
-            <>
-              <MessageCircle className="h-5 w-5 mr-2" />
-              {isRo 
-                ? `Mai sunt necesare ${requiredComments - commentCount} comentarii` 
-                : `${requiredComments - commentCount} more comments needed`}
             </>
           ) : !isCommitted ? (
             <>
