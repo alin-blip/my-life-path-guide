@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Send, BookOpen, MessageCircle } from 'lucide-react';
 import { LessonPostCard } from './LessonPostCard';
+import { LessonWelcomePost } from './LessonWelcomePost';
 import { WallPost } from '@/hooks/useBrotherhood';
 
 interface LessonCommunityPostProps {
@@ -232,6 +233,9 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Pinned welcome post */}
+      <LessonWelcomePost dayNumber={dayNumber} />
 
       {/* Posts feed */}
       {loading ? (
