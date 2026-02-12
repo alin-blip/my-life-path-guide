@@ -292,8 +292,8 @@ const Challenge7ZileLanding = () => {
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 text-foreground leading-tight">
               {language === 'en' 
-                ? 'From Burnout & Blockage to Clarity, Results & Momentum in Body, Spirit, Relationships & Business in 7 Days' 
-                : 'De la Blocaj și Epuizare la Claritate, Rezultate și Momentum în Corp, Spiritualitate, Relații și Business în 7 Zile'}
+                ? 'From burnout & blockage to clarity, results & momentum in body, spirit, relationships & business in 7 days' 
+                : 'De la blocaj și epuizare la claritate, rezultate și momentum în corp, spiritualitate, relații și business în 7 zile'}
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
