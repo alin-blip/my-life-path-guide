@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 const categories = [
   { id: 'all', label: 'All', labelRo: 'Toate', icon: null },
   { id: 'general', label: 'General', labelRo: 'General', icon: '💬' },
+  { id: 'courses', label: 'Courses', labelRo: 'Cursuri', icon: '📖' },
   { id: 'challenge', label: 'Challenge', labelRo: 'Challenge', icon: '📚' },
   { id: 'wins', label: 'Wins & Victories', labelRo: 'Victorii', icon: '🏆' },
   { id: 'support', label: 'Support', labelRo: 'Ajutor', icon: '🆘' },
