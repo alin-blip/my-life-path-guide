@@ -37,24 +37,23 @@ export const useChallengeStats = () => {
         }
         setStats(statsArray);
 
-        // Get unique participants count
-        const { count, error: countError } = await supabase
+        // Get unique participants: distinct user_ids from progress
+        const { data: userData, error: userError } = await supabase
           .from('challenge_progress')
-          .select('user_id', { count: 'exact', head: true });
+          .select('user_id');
 
-        if (!countError && count !== null) {
-          setTotalParticipants(count);
-        }
+        const uniqueUserIds = new Set(userData?.map(r => r.user_id));
 
         // Get email leads count as additional participants
-        const { count: leadsCount } = await supabase
+        const { data: leadsData } = await supabase
           .from('email_leads')
-          .select('*', { count: 'exact', head: true })
+          .select('email')
           .eq('lead_magnet', 'challenge_7_zile');
 
-        if (leadsCount) {
-          setTotalParticipants(prev => prev + leadsCount);
-        }
+        const uniqueLeadEmails = new Set(leadsData?.map(l => l.email.toLowerCase()));
+
+        // Use max of both sources (overlap possible)
+        setTotalParticipants(Math.max(uniqueUserIds.size, uniqueLeadEmails.size));
       } catch (error) {
         console.error('Error fetching challenge stats:', error);
       } finally {
