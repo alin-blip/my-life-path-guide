@@ -43,8 +43,16 @@ const PersonalPowerDayPage: React.FC = () => {
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState('lesson');
 
-  // Reset progress and tab when day changes
+  // Reset tab when day changes, and fetch fresh progress
   useEffect(() => {
+    setActiveTab('lesson');
+  }, [dayNumber]);
+
+  // Fetch progress
+  useEffect(() => {
+    if (!user) return;
+
+    // Reset to defaults first so stale data from previous day doesn't persist
     setProgress({
       lesson_completed: false,
       exercise_completed: false,
@@ -53,12 +61,6 @@ const PersonalPowerDayPage: React.FC = () => {
       exercise_responses: {},
       breakthrough_text: '',
     });
-    setActiveTab('lesson');
-  }, [dayNumber]);
-
-  // Fetch progress
-  useEffect(() => {
-    if (!user) return;
 
     const fetchProgress = async () => {
       const { data } = await supabase
