@@ -180,12 +180,16 @@ const ChallengePage = () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Rocket className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-red-500">
-              {language === 'en' ? 'Have It All Lifestyle Challenge' : 'Provocarea Have It All Lifestyle'}
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground leading-tight">
+              {language === 'en' 
+                ? 'From burnout & blockage to clarity, results & momentum in body, spirit, relationships & business in 7 days' 
+                : 'De la blocaj și epuizare la claritate, rezultate și momentum în corp, spiritualitate, relații și business în 7 zile'}
             </h1>
           </div>
-          <p className="text-base text-primary-foreground">
-            {language === 'en' ? 'From stuck & burnout to clarity & momentum' : 'De la blocaj & burnout la claritate & momentum'}
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+            {language === 'en'
+              ? "The world's first operating system for an abundant and balanced life. Built in Romania."
+              : 'Primul sistem de operare pentru o viață abundentă și echilibrată din lume. Construit în România.'}
           </p>
           
           
