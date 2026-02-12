@@ -292,14 +292,14 @@ const Challenge7ZileLanding = () => {
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-red-500">
               {language === 'en' 
-                ? 'Break Free from Burnout in 7 Days' 
-                : 'Ieși din Burnout în 7 Zile'}
+                ? 'From Burnout & Blockage to Clarity, Results & Momentum in Body, Spirit, Relationships & Business in 7 Days' 
+                : 'De la Blocaj și Epuizare la Claritate, Rezultate și Momentum în Corp, Spiritualitate, Relații și Business în 7 Zile'}
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               {language === 'en'
-                ? 'From procrastination and chronic exhaustion to momentum and real results'
-                : 'De la procrastinare și oboseală cronică la momentum și rezultate reale'}
+                ? "The world's first operating system for an abundant and balanced life. Built in Romania."
+                : 'Primul sistem de operare pentru o viață abundentă și echilibrată din lume. Construit în România.'}
             </p>
 
             <motion.div 
