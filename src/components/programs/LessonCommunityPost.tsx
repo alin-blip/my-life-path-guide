@@ -166,14 +166,14 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-5 rounded-2xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 border border-amber-500/30">
       {/* Section header */}
       <div className="flex items-center gap-2">
-        <MessageCircle className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-bold text-foreground">
+        <MessageCircle className="h-5 w-5 text-amber-500" />
+        <h3 className="text-lg font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
           {language === 'ro' ? 'Discuții lecție' : 'Lesson Discussion'}
         </h3>
-        <Badge variant="secondary" className="gap-1 text-xs">
+        <Badge variant="secondary" className="gap-1 text-xs bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
           <BookOpen className="h-3 w-3" />
           {posts.length} {language === 'ro' ? 'postări' : 'posts'}
         </Badge>
@@ -182,7 +182,7 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
       {/* Write trigger */}
       <div
         onClick={() => setOpen(true)}
-        className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:shadow-md transition-shadow"
+        className="bg-card border border-amber-500/20 rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:shadow-md hover:shadow-amber-500/10 transition-shadow"
       >
         <Avatar className="w-10 h-10 shrink-0">
           <AvatarFallback className="bg-primary/10">⚔️</AvatarFallback>
