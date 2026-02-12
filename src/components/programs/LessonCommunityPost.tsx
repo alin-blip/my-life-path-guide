@@ -235,7 +235,7 @@ export const LessonCommunityPost: React.FC<LessonCommunityPostProps> = ({
       </Dialog>
 
       {/* Pinned welcome post */}
-      <LessonWelcomePost dayNumber={dayNumber} />
+      <LessonWelcomePost dayNumber={dayNumber} sourcePrefix={prefix} dayTitle={dayTitle} courseName={courseName} />
 
       {/* Posts feed */}
       {loading ? (
