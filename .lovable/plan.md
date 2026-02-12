@@ -1,75 +1,65 @@
 
+# Restaurare Sectiune Comunitate cu Stil Amber/Orange + Fix Postare Declaratie
 
-# Fix Link-uri Comunitate + Adaugare Postari Seed in Challenge
+## Problema
 
-## Probleme Identificate
+1. **Butonul "Distribuie declaratia" nu functioneaza** -- `handlePostDeclaration` foloseste `commentsRef.current` care este `null` (componenta `ChallengeComments` a fost inlocuita cu `LessonCommunityPost`, dar ref-ul nu a fost actualizat). Declaratiile nu ajung nicaieri.
 
-### 1. Link-uri gresite spre Comunitate
-- In exercitiile din Ziua 1, link-ul "Join Community" / "Alatura-te Comunitatii" trimite la `/brotherhood?tab=tribes` -- dar ruta `/brotherhood` face redirect la `/programs?tab=community` si **pierde parametrii** (tab=tribes dispare)
-- Link-ul corect ar trebui sa fie `/programs?tab=community`
+2. **Sectiunea de comunitate din lectii arata neutra** -- utilizatorul vrea stilul anterior cu gradient amber/portocaliu care se evidentia vizual.
 
-### 2. Zero postari seed in challenge
-- Tabela `wall_posts` nu contine **nicio postare** cu `source_context` de tip `challenge-day-X`
-- Componenta `LessonCommunityPost` **exista** pe fiecare zi (Ziua 1: linia 874, Zilele 2-7: linia 1116), dar afiseaza "Nicio postare inca" pentru ca nu exista date
-- Trebuie inserate postari fictive (seed) cu nume de utilizatori reali care sa apara atat in lectia respectiva cat si pe wall-ul comunitatii
-
-### 3. Link-ul din Welcome Message
-- Mesajul de bun venit din baza de date contine `https://warriorsos.com/programs?tab=community` -- acesta este URL-ul corect al domeniului custom, deci **functioneaza** pe productie. Daca nu merge, e posibil sa fie o problema de DNS/domeniu, nu de cod.
+3. **Postarea declaratiei trebuie sa apara si pe wall-ul comunitatii** -- cand un user da click pe "Distribuie declaratia", postarea trebuie sa ajunga in `wall_posts` (cu `source_context: challenge-day-1`), nu in `warriors_way_comments`.
 
 ---
 
 ## Solutie
 
-### Pas 1: Fix link exercitiu Ziua 1 (ChallengeDay.tsx)
+### 1. Fix `handlePostDeclaration` si `handlePostRealityScore` (ChallengeDay.tsx)
 
-Modificam in `challengeContent[0]` (Ziua 1):
-- Linia 117: `link: "/brotherhood?tab=tribes"` -> `link: "/programs?tab=community"`  
-- Linia 124: `link: "/brotherhood?tab=tribes"` -> `link: "/programs?tab=community"`
+Inlocuim logica bazata pe `commentsRef` cu insert direct in `wall_posts`:
 
-### Pas 2: Insert postari seed in `wall_posts`
+```typescript
+const handlePostDeclaration = async (declaration: string) => {
+  if (!user) return;
+  const { error } = await supabase.from('wall_posts').insert({
+    user_id: user.id,
+    content: declaration,
+    category: 'challenge',
+    source_context: 'challenge-day-1',
+    source_label: `Challenge - Day 1: ${language === 'en' ? 'Vision + Declaration' : 'Viziune + Declarație'}`,
+  });
+  if (!error) {
+    toast({ title: '🎉', description: '...' });
+  }
+};
+```
 
-Inseram postari fictive pentru fiecare zi a challenge-ului (Days 1-7) folosind aceleasi 6 persona-uri care exista deja in comentariile seed (Andrei Popescu, Elena Mihai, Marius Ionescu, Ana Vasilescu, Cristian Stancu, Oana Dinu).
+Acelasi fix pentru `handlePostRealityScore`.
 
-Fiecare postare va avea:
-- `user_id`: un UUID fictiv consistent per persona
-- `content`: text relevant pentru task-ul zilei (ex: Ziua 1 = declaratie/viziune, Ziua 2 = obiective corp/spirit/relatii, etc.)
-- `source_context`: `challenge-day-1`, `challenge-day-2`, ..., `challenge-day-7`
-- `source_label`: `Challenge - Day X: [Titlu]`
-- `category`: `challenge`
-- `likes_count`: valori randomizate (2-8)
-- `comments_count`: 0-2
+Eliminam `commentsRef` (nu mai este folosit).
 
-Total: ~14-21 postari seed (2-3 per zi x 7 zile)
+### 2. Stil amber/portocaliu pentru `LessonCommunityPost`
 
-Exemplu Ziua 1:
-- **Andrei Popescu**: "Tocmai am terminat Harta Realitatii. Scor: Corp 5/10, Spirit 4/10, Relatii 7/10, Business 6/10. Declaratia mea: Sunt un antreprenor care are totul..."
-- **Elena Mihai**: "Am realizat ca burnout-ul meu vine din faptul ca am sacrificat relatiile pentru business. Declaratia mea anti-burnout..."
-- **Marius Ionescu**: "Pragmatic vorbind, scorul meu la Business e 8/10 dar Corp doar 3/10. Asta e problema..."
+Modificam componenta `LessonCommunityPost` pentru a adauga stilul gradient amber:
+- Header-ul sectiunii: gradient text amber/orange
+- Wrapper-ul "Scrie ceva...": border amber/20, bg amber/5
+- Chenarul general: border amber/30 cu bg gradient subtil
 
-Exemplu Ziua 3:
-- **Cristian Stancu**: "Domino Door-ul meu: Milestone - Lansare produs beta. Cheie 1: Finalizare MVP..."
-- **Ana Vasilescu**: "Am configurat AI Wizard-ul si am descoperit ca obiectivul meu real de business e diferit de ce credeam..."
+### 3. Acelasi fix in `ChallengeDayEnglish.tsx`
 
-### Pas 3: Creare profil leaderboard pentru personas (daca nu exista)
-
-Pentru ca postarile sa apara cu nume si avatar, trebuie sa existe intrari in `leaderboard_profiles` pentru fiecare persona fictiva. Inseram 6 profile cu:
-- `display_name`: Andrei Popescu, Elena Mihai, etc.
-- `avatar_emoji`: emoji-uri specifice fiecaruia
-- `user_id`: UUID-uri fictive consistente
+Aplicam aceleasi modificari si in versiunea engleza (daca are acelasi pattern cu commentsRef).
 
 ---
 
-## Detalii Tehnice
+## Fisiere modificate
 
-### Fisiere modificate
-1. **`src/pages/ChallengeDay.tsx`** -- fix 2 link-uri (liniile 117, 124): `/brotherhood?tab=tribes` -> `/programs?tab=community`
+1. **`src/pages/ChallengeDay.tsx`**
+   - Eliminare `commentsRef`
+   - Rescrierea `handlePostDeclaration` si `handlePostRealityScore` sa insereze in `wall_posts`
+   - Import `supabase` (daca nu e deja importat)
 
-### Migratii SQL
-1. **Insert `leaderboard_profiles`** pentru 6 personas seed (daca nu exista deja)
-2. **Insert `wall_posts`** -- ~18 postari seed (2-3 per zi x 7 zile) cu `source_context` corect si `category = 'challenge'`
+2. **`src/pages/ChallengeDayEnglish.tsx`**
+   - Acelasi fix pentru `handlePostDeclaration`
 
-### Ce NU se modifica
-- Componentele `LessonCommunityPost` si `CommunityWelcomeBanner` functioneaza corect
-- Structura paginii ChallengeDay ramane neschimbata
-- Mesajul de welcome din baza de date ramane la fel
-
+3. **`src/components/programs/LessonCommunityPost.tsx`**
+   - Adaugare stil amber/portocaliu pe header, write trigger si containerul principal
+   - Chenarul sectiunii devine vizibil cu gradient `from-amber-500/5 to-orange-500/5` si `border-amber-500/30`
