@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Flame, Target, Sparkles, Play, Lock, CheckCircle2, ArrowRight, Rocket, Dumbbell, Brain, Trophy, Crown } from 'lucide-react';
+import { Flame, Target, Sparkles, Play, Lock, CheckCircle2, ArrowRight, Rocket, Dumbbell, Brain, Trophy, Crown, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { EarlyBirdCountdown } from '@/components/membership/EarlyBirdCountdown';
@@ -17,6 +17,8 @@ import { InstallAppPrompt } from '@/components/pwa/InstallAppPrompt';
 import { ChallengeAudioPlayer } from '@/components/challenge/ChallengeAudioPlayer';
 import { ChallengeScriptCard } from '@/components/challenge/ChallengeScriptCard';
 import { ChallengeInlineChat } from '@/components/challenge/ChallengeInlineChat';
+import { CommunityWelcomeBanner } from '@/components/programs/CommunityWelcomeBanner';
+import { LessonCommunityPost } from '@/components/programs/LessonCommunityPost';
 import { getDayScriptRo } from '@/data/challengeScriptsRo';
 import { getDayScript } from '@/data/challengeScripts';
 import { supabase } from '@/integrations/supabase/client';
@@ -376,6 +378,26 @@ const ChallengePage = () => {
               </div>;
           })}
         </div>
+
+        {/* Embedded Community Section */}
+        {isAuthenticated && (
+          <div className="mt-8 space-y-4">
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-bold text-foreground">
+                {language === 'ro' ? 'Comunitate' : 'Community'}
+              </h3>
+            </div>
+            <CommunityWelcomeBanner />
+            <LessonCommunityPost
+              dayNumber={0}
+              dayTitle="Welcome / Introducere"
+              courseName="Challenge"
+              sourcePrefix="challenge"
+              postCategory="challenge"
+            />
+          </div>
+        )}
 
         {/* CTA for Trial */}
         <Card className="mt-8 p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30">
