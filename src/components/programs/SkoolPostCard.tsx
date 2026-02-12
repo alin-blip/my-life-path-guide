@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { WallPost } from '@/hooks/useBrotherhood';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Pin, BookOpen, MoreVertical } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Heart, MessageCircle, Pin, BookOpen, MoreVertical, Send } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useLanguage } from '@/context/LanguageContext';
-import { PostCommentsDialog } from './PostCommentsDialog';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useWallPostComments } from '@/hooks/useWallPostComments';
+import { PostCommentCard } from './PostCommentCard';
+import { EmojiPicker } from './EmojiPicker';
+import { MediaUploadButton, MediaPreview } from './MediaUploadButton';
+import { VideoRecorder } from './VideoRecorder';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,10 +31,16 @@ interface SkoolPostCardProps {
 
 export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRefresh }) => {
   const { language } = useLanguage();
-  const [showComments, setShowComments] = useState(false);
   const { isAdmin } = useAdminAuth();
   const { toast } = useToast();
   const [pinLoading, setPinLoading] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
+
+  const { comments, loading: commentsLoading, addComment, deleteComment } = useWallPostComments(post.id);
 
   const handleTogglePin = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -37,7 +49,6 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
 
     try {
       if (!post.is_pinned) {
-        // Check current pinned count
         const { count } = await supabase
           .from('wall_posts')
           .select('*', { count: 'exact', head: true })
@@ -77,7 +88,41 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
     }
   };
 
-  // Split content into title (first line) and preview (rest)
+  const handleToggleComments = () => {
+    setShowComments(prev => !prev);
+    if (!showComments) {
+      setTimeout(() => commentInputRef.current?.focus(), 100);
+    }
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setNewComment(prev => prev + emoji);
+  };
+
+  const handleMediaUploaded = (url: string) => {
+    setMediaUrls(prev => [...prev, url]);
+  };
+
+  const removeMedia = (index: number) => {
+    setMediaUrls(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmitComment = async () => {
+    if (!newComment.trim() && mediaUrls.length === 0) return;
+    setSubmitting(true);
+    const success = await addComment(newComment.trim(), undefined, mediaUrls.length > 0 ? mediaUrls : undefined);
+    if (success) {
+      setNewComment('');
+      setMediaUrls([]);
+    }
+    setSubmitting(false);
+  };
+
+  const handleReply = async (content: string, parentId: string) => {
+    return addComment(content, parentId);
+  };
+
+  // Content display
   const lines = post.content.split('\n').filter(l => l.trim());
   const title = lines[0]?.substring(0, 80) || '';
   const preview = lines.slice(1).join(' ').substring(0, 160);
@@ -93,9 +138,9 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
     : null;
 
   return (
-    <>
-      <div className="bg-card border border-border rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer">
-        {/* Source badge (from lesson) */}
+    <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="p-4">
+        {/* Source badge */}
         {post.source_label && (
           <Badge variant="secondary" className="mb-2 gap-1 text-xs">
             <BookOpen className="h-3 w-3" />
@@ -201,7 +246,7 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
           )}
         </div>
 
-        {/* Footer */}
+        {/* Footer - Like & Comment buttons */}
         <div className="flex items-center gap-5 mt-3 pt-3 border-t border-border/50">
           <button
             onClick={(e) => {
@@ -220,7 +265,7 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setShowComments(true);
+              handleToggleComments();
             }}
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
@@ -230,12 +275,66 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
         </div>
       </div>
 
-      <PostCommentsDialog
-        post={post}
-        open={showComments}
-        onOpenChange={setShowComments}
-        onLike={onLike}
-      />
-    </>
+      {/* Inline Comments Section */}
+      {showComments && (
+        <div className="border-t border-border">
+          {/* Comments list */}
+          <div className="px-4">
+            {commentsLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+              </div>
+            ) : comments.length === 0 ? (
+              <p className="text-center text-xs text-muted-foreground py-4">
+                {language === 'ro' ? 'Niciun comentariu încă. Fii primul!' : 'No comments yet. Be the first!'}
+              </p>
+            ) : (
+              <div className="divide-y divide-border/30">
+                {comments.map((comment) => (
+                  <PostCommentCard
+                    key={comment.id}
+                    comment={comment}
+                    onReply={handleReply}
+                    onDelete={deleteComment}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Comment input */}
+          <div className="px-4 py-3 border-t border-border/50 bg-muted/30">
+            {mediaUrls.length > 0 && (
+              <MediaPreview urls={mediaUrls} onRemove={removeMedia} removable />
+            )}
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Textarea
+                  ref={commentInputRef}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder={language === 'ro' ? 'Scrie un comentariu...' : 'Write a comment...'}
+                  className="min-h-[50px] resize-none text-sm"
+                  onEnterSubmit={handleSubmitComment}
+                />
+                <div className="flex items-center gap-1 mt-1">
+                  <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+                  <MediaUploadButton onMediaUploaded={handleMediaUploaded} />
+                  <VideoRecorder onVideoRecorded={handleMediaUploaded} />
+                </div>
+              </div>
+              <Button
+                size="sm"
+                onClick={handleSubmitComment}
+                disabled={(!newComment.trim() && mediaUrls.length === 0) || submitting}
+                className="shrink-0 self-end"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
