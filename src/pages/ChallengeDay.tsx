@@ -114,14 +114,14 @@ const challengeContent: ChallengeDayContent[] = [
       { id: "ex1", title: "Discover Your WHY", description: "Answer the 5 fundamental questions about your desires and purpose", area: "being" },
       { id: "ex2", title: "Vision 2026 (All 4 Areas)", description: "Define your vision for Body, Spirit, Relationships, and Business", area: "being" },
       { id: "ex3", title: "Write Declaration", description: "Create your Napoleon Hill style declaration", area: "being" },
-      { id: "ex4", title: "Join Community", description: "Enter the Warrior tribe and introduce yourself", area: "balance", link: "/brotherhood?tab=tribes", linkLabel: "Join Community" },
+      { id: "ex4", title: "Join Community", description: "Enter the Warrior tribe and introduce yourself", area: "balance", link: "/programs?tab=community", linkLabel: "Join Community" },
       { id: "ex5", title: "Invite 1-3 Friends", description: "Share your exclusive invite link with friends who want to transform", area: "balance" }
     ],
     exercisesRo: [
       { id: "ex1", title: "Descoperă DE CE-ul Tău", description: "Răspunde la cele 5 întrebări fundamentale despre dorințele și scopul tău", area: "being" },
       { id: "ex2", title: "Viziune 2026 (Toate 4 Ariile)", description: "Definește viziunea pentru Corp, Spirit, Relații și Business", area: "being" },
       { id: "ex3", title: "Scrie Declarația", description: "Creează declarația ta în stilul Napoleon Hill", area: "being" },
-      { id: "ex4", title: "Alătură-te Comunității", description: "Intră în tribul Warrior și prezintă-te", area: "balance", link: "/brotherhood?tab=tribes", linkLabel: "Intră în Comunitate" },
+      { id: "ex4", title: "Alătură-te Comunității", description: "Intră în tribul Warrior și prezintă-te", area: "balance", link: "/programs?tab=community", linkLabel: "Intră în Comunitate" },
       { id: "ex5", title: "Invită 1-3 Prieteni", description: "Trimite link-ul tău exclusiv prietenilor care vor să se transforme", area: "balance" }
     ]
   },
