@@ -4,6 +4,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
@@ -29,6 +30,7 @@ const Challenge7ZileLanding = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [realMetrics, setRealMetrics] = useState({ users: 0, completionRate: 0 });
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   const utmSource = searchParams.get('utm_source') || '';
   const utmMedium = searchParams.get('utm_medium') || '';
@@ -344,7 +346,7 @@ const Challenge7ZileLanding = () => {
             </motion.div>
 
             {/* CTA Button below video */}
-            {!isSubscribed && (
+            {!isSubscribed ? (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -353,7 +355,7 @@ const Challenge7ZileLanding = () => {
               >
                 <Button
                   size="lg"
-                  onClick={() => document.getElementById('challenge-auth')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => setShowAuthDialog(true)}
                   className="text-lg py-7 px-8 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg shadow-amber-500/20"
                 >
                   <Rocket className="h-5 w-5 mr-2" />
@@ -362,17 +364,6 @@ const Challenge7ZileLanding = () => {
                     : 'Sunt pregătit să elimin blocajele și epuizarea'}
                 </Button>
               </motion.div>
-            )}
-
-            {/* Inline Auth Widget */}
-            {!isSubscribed ? (
-              <div id="challenge-auth">
-                <ChallengeInlineAuth
-                  language={language}
-                  utmParams={{ source: utmSource, medium: utmMedium, campaign: utmCampaign }}
-                  onSuccess={handleAuthSuccess}
-                />
-              </div>
             ) : (
               <Card className="max-w-md mx-auto p-6 bg-green-500/10 border-green-500/30 mt-8">
                 <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
@@ -381,6 +372,22 @@ const Challenge7ZileLanding = () => {
                 </p>
               </Card>
             )}
+
+            {/* Auth Dialog */}
+            <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-center">
+                    {language === 'en' ? 'Create your account' : 'Creează-ți contul'}
+                  </DialogTitle>
+                </DialogHeader>
+                <ChallengeInlineAuth
+                  language={language}
+                  utmParams={{ source: utmSource, medium: utmMedium, campaign: utmCampaign }}
+                  onSuccess={handleAuthSuccess}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </section>
 
