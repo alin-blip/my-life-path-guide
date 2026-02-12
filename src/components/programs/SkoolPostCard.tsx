@@ -4,11 +4,12 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Heart, MessageCircle, Pin, BookOpen, MoreVertical, Send } from 'lucide-react';
+import { Heart, MessageCircle, Pin, BookOpen, MoreVertical, Send, Share2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWallPostComments } from '@/hooks/useWallPostComments';
@@ -32,12 +33,13 @@ interface SkoolPostCardProps {
 export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRefresh }) => {
   const { language } = useLanguage();
   const { isAdmin } = useAdminAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [pinLoading, setPinLoading] = useState(false);
-  const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [expanded, setExpanded] = useState(false);
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
   const { comments, loading: commentsLoading, addComment, deleteComment } = useWallPostComments(post.id);
@@ -88,13 +90,6 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
     }
   };
 
-  const handleToggleComments = () => {
-    setShowComments(prev => !prev);
-    if (!showComments) {
-      setTimeout(() => commentInputRef.current?.focus(), 100);
-    }
-  };
-
   const handleEmojiSelect = (emoji: string) => {
     setNewComment(prev => prev + emoji);
   };
@@ -122,11 +117,14 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
     return addComment(content, parentId);
   };
 
-  // Content display
-  const lines = post.content.split('\n').filter(l => l.trim());
-  const title = lines[0]?.substring(0, 80) || '';
-  const preview = lines.slice(1).join(' ').substring(0, 160);
   const hasMedia = post.media_urls && post.media_urls.length > 0;
+
+  // Show full content with "See more" after ~4 lines
+  const contentLines = post.content.split('\n');
+  const isLongContent = contentLines.length > 4 || post.content.length > 300;
+  const displayContent = expanded || !isLongContent
+    ? post.content
+    : contentLines.slice(0, 4).join('\n').substring(0, 300);
 
   const timeAgo = formatDistanceToNow(new Date(post.created_at), {
     addSuffix: false,
@@ -137,9 +135,16 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
     ? post.category.charAt(0).toUpperCase() + post.category.slice(1)
     : null;
 
+  const [showAllComments, setShowAllComments] = useState(false);
+
+  // Show first 2 comments always, rest behind "View more"
+  const visibleComments = comments.slice(0, 2);
+  const hiddenCommentsCount = Math.max(0, comments.length - 2);
+  const displayedComments = showAllComments ? comments : visibleComments;
+
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
-      <div className="p-4">
+      <div className="p-4 pb-2">
         {/* Source badge */}
         {post.source_label && (
           <Badge variant="secondary" className="mb-2 gap-1 text-xs">
@@ -149,40 +154,32 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
         )}
 
         {/* Header Row */}
-        <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative shrink-0">
-              <Avatar className="w-10 h-10">
-                <AvatarFallback className="bg-primary/10 text-base">
-                  {post.author?.avatar_emoji || '⚔️'}
-                </AvatarFallback>
-              </Avatar>
-              <span className="absolute -bottom-1 -right-1 bg-muted text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-card text-muted-foreground">
-                3
-              </span>
-            </div>
+            <Avatar className="w-10 h-10 shrink-0">
+              <AvatarFallback className="bg-primary/10 text-base">
+                {post.author?.avatar_emoji || '⚔️'}
+              </AvatarFallback>
+            </Avatar>
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-semibold text-sm text-foreground truncate">
-                  {post.author?.display_name || 'Warrior'}
-                </span>
-              </div>
+              <span className="font-semibold text-sm text-foreground">
+                {post.author?.display_name || 'Warrior'}
+              </span>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <span>{timeAgo}</span>
                 <span>·</span>
-                <span className="text-primary/70">
-                  {categoryLabel ? `📚 ${categoryLabel}` : '💬 General'}
-                </span>
+                <span>{categoryLabel ? `📚 ${categoryLabel}` : '💬 General'}</span>
+                {post.is_pinned && (
+                  <>
+                    <span>·</span>
+                    <span className="flex items-center gap-0.5 text-accent-foreground font-medium">
+                      <Pin className="h-3 w-3" /> Pinned
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
-
-          {post.is_pinned && (
-            <div className="flex items-center gap-1 text-xs text-accent-foreground font-medium shrink-0 bg-accent px-2 py-1 rounded-full">
-              <Pin className="h-3 w-3" />
-              Pinned
-            </div>
-          )}
 
           {isAdmin && (
             <DropdownMenu>
@@ -225,116 +222,154 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
           )}
         </div>
 
-        {/* Content Area */}
-        <div className="flex gap-3">
-          <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-sm text-foreground leading-snug mb-1 line-clamp-2">
-              {title}
-            </h3>
-            {preview && (
-              <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                {preview}
-              </p>
-            )}
-          </div>
-          {hasMedia && (
-            <img
-              src={post.media_urls![0]}
-              alt=""
-              className="w-20 h-20 rounded-lg object-cover shrink-0"
-            />
+        {/* Content - Full text, no truncation */}
+        <div className="mb-3">
+          <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+            {displayContent}
+            {isLongContent && !expanded && '...'}
+          </p>
+          {isLongContent && !expanded && (
+            <button
+              onClick={() => setExpanded(true)}
+              className="text-sm font-semibold text-muted-foreground hover:text-foreground mt-1"
+            >
+              {language === 'ro' ? 'Vezi mai mult' : 'See more'}
+            </button>
           )}
         </div>
 
-        {/* Footer - Like & Comment buttons */}
-        <div className="flex items-center gap-5 mt-3 pt-3 border-t border-border/50">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onLike(post.id);
-            }}
-            className={`flex items-center gap-1.5 text-sm transition-colors ${
-              post.is_liked
-                ? 'text-red-500'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <Heart className={`h-4 w-4 ${post.is_liked ? 'fill-current' : ''}`} />
-            <span className="font-medium">{post.likes_count}</span>
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleComments();
-            }}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <MessageCircle className="h-4 w-4" />
-            <span className="font-medium">{post.comments_count}</span>
-          </button>
-        </div>
+        {/* Media - Full width */}
+        {hasMedia && (
+          <div className="mb-3 -mx-4">
+            {post.media_urls!.map((url, i) => (
+              <img
+                key={i}
+                src={url}
+                alt=""
+                className="w-full object-cover"
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Like count text */}
+        {post.likes_count > 0 && (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground pb-2">
+            <Heart className="h-3.5 w-3.5 text-destructive fill-destructive" />
+            <span>
+              {post.likes_count} {post.likes_count === 1
+                ? (language === 'ro' ? 'apreciere' : 'like')
+                : (language === 'ro' ? 'aprecieri' : 'likes')}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Inline Comments Section */}
-      {showComments && (
-        <div className="border-t border-border">
-          {/* Comments list */}
-          <div className="px-4">
-            {commentsLoading ? (
-              <div className="flex items-center justify-center py-6">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
-              </div>
-            ) : comments.length === 0 ? (
-              <p className="text-center text-xs text-muted-foreground py-4">
-                {language === 'ro' ? 'Niciun comentariu încă. Fii primul!' : 'No comments yet. Be the first!'}
-              </p>
-            ) : (
-              <div className="divide-y divide-border/30">
-                {comments.map((comment) => (
-                  <PostCommentCard
-                    key={comment.id}
-                    comment={comment}
-                    onReply={handleReply}
-                    onDelete={deleteComment}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+      {/* Action buttons - FB style text buttons */}
+      <div className="border-t border-border mx-4" />
+      <div className="flex items-center px-2 py-1">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onLike(post.id);
+          }}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors ${
+            post.is_liked
+              ? 'text-red-500'
+              : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+          }`}
+        >
+          <Heart className={`h-4 w-4 ${post.is_liked ? 'fill-current' : ''}`} />
+          {language === 'ro' ? 'Apreciază' : 'Like'}
+        </button>
+        <button
+          onClick={() => commentInputRef.current?.focus()}
+          className="flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+        >
+          <MessageCircle className="h-4 w-4" />
+          {language === 'ro' ? 'Comentează' : 'Comment'}
+        </button>
+        <button
+          className="flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+        >
+          <Share2 className="h-4 w-4" />
+          Share
+        </button>
+      </div>
 
-          {/* Comment input */}
-          <div className="px-4 py-3 border-t border-border/50 bg-muted/30">
+      {/* Comments section - always visible */}
+      <div className="border-t border-border bg-muted/20">
+        {/* View more comments link */}
+        {hiddenCommentsCount > 0 && !showAllComments && (
+          <button
+            onClick={() => setShowAllComments(true)}
+            className="w-full px-4 py-2 text-left text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {language === 'ro'
+              ? `Vezi încă ${hiddenCommentsCount} comentarii`
+              : `View ${hiddenCommentsCount} more comments`}
+          </button>
+        )}
+
+        {/* Comments list */}
+        {commentsLoading ? (
+          <div className="flex items-center justify-center py-4">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+          </div>
+        ) : displayedComments.length > 0 ? (
+          <div className="px-4 pb-1">
+            {displayedComments.map((comment) => (
+              <PostCommentCard
+                key={comment.id}
+                comment={comment}
+                onReply={handleReply}
+                onDelete={deleteComment}
+              />
+            ))}
+          </div>
+        ) : null}
+
+        {/* Always-visible comment input */}
+        <div className="px-4 py-3 flex items-start gap-2">
+          <Avatar className="w-8 h-8 shrink-0 mt-0.5">
+            <AvatarFallback className="bg-primary/10 text-sm">
+              ⚔️
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
             {mediaUrls.length > 0 && (
               <MediaPreview urls={mediaUrls} onRemove={removeMedia} removable />
             )}
-            <div className="flex gap-2">
-              <div className="flex-1">
+            <div className="flex items-end gap-2">
+              <div className="flex-1 relative">
                 <Textarea
                   ref={commentInputRef}
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder={language === 'ro' ? 'Scrie un comentariu...' : 'Write a comment...'}
-                  className="min-h-[50px] resize-none text-sm"
+                  className="min-h-[36px] max-h-[120px] resize-none text-sm rounded-2xl bg-muted/50 border-0 py-2 px-3 focus-visible:ring-1"
                   onEnterSubmit={handleSubmitComment}
                 />
-                <div className="flex items-center gap-1 mt-1">
+                <div className="absolute right-2 bottom-1 flex items-center gap-0.5">
                   <EmojiPicker onEmojiSelect={handleEmojiSelect} />
                   <MediaUploadButton onMediaUploaded={handleMediaUploaded} />
-                  <VideoRecorder onVideoRecorded={handleMediaUploaded} />
                 </div>
               </div>
-              <Button
-                size="sm"
-                onClick={handleSubmitComment}
-                disabled={(!newComment.trim() && mediaUrls.length === 0) || submitting}
-                className="shrink-0 self-end"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+              {(newComment.trim() || mediaUrls.length > 0) && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={handleSubmitComment}
+                  disabled={(!newComment.trim() && mediaUrls.length === 0) || submitting}
+                  className="h-8 w-8 shrink-0 text-primary"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

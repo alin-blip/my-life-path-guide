@@ -8,9 +8,8 @@ import { GroupHeader } from '@/components/groups/GroupHeader';
 import { GroupFeed } from '@/components/groups/GroupFeed';
 import { GroupChat } from '@/components/groups/GroupChat';
 import { GroupMembers } from '@/components/groups/GroupMembers';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Newspaper, Users, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Users, Globe, Lock, Calendar } from 'lucide-react';
 
 const GroupPage: React.FC = () => {
   const { groupId } = useParams<{ groupId: string }>();
@@ -22,6 +21,7 @@ const GroupPage: React.FC = () => {
   const [isMember, setIsMember] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('feed');
 
   const fetchTribe = async () => {
     if (!groupId) return;
@@ -39,7 +39,6 @@ const GroupPage: React.FC = () => {
     setTribe(data);
     setIsOwner(data.created_by === user?.id);
 
-    // Check membership
     if (user) {
       const { data: membership } = await supabase
         .from('tribe_members')
@@ -103,42 +102,63 @@ const GroupPage: React.FC = () => {
         isOwner={isOwner}
         onJoin={handleJoin}
         onLeave={handleLeave}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
 
-      <div className="container max-w-4xl mx-auto px-4 py-6">
-        <Tabs defaultValue="feed">
-          <TabsList className="mb-6">
-            <TabsTrigger value="feed" className="gap-1.5">
-              <Newspaper className="h-4 w-4" />
-              Feed
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="gap-1.5">
-              <MessageSquare className="h-4 w-4" />
-              Chat
-            </TabsTrigger>
-            <TabsTrigger value="members" className="gap-1.5">
-              <Users className="h-4 w-4" />
-              {language === 'ro' ? 'Membri' : 'Members'}
-            </TabsTrigger>
-            <TabsTrigger value="about" className="gap-1.5">
-              <Info className="h-4 w-4" />
-              About
-            </TabsTrigger>
-          </TabsList>
+      <div className="container max-w-5xl mx-auto px-4 py-6">
+        {activeTab === 'feed' && (
+          <div className="flex gap-6">
+            {/* Main Feed */}
+            <div className="flex-1 min-w-0">
+              <GroupFeed tribeId={tribe.id} isMember={isMember} />
+            </div>
+            {/* Sidebar */}
+            <div className="hidden lg:block w-80 shrink-0">
+              <div className="sticky top-4 space-y-4">
+                {/* About card */}
+                <div className="bg-card border border-border rounded-xl p-4">
+                  <h3 className="font-bold text-sm text-foreground mb-2">
+                    {language === 'ro' ? 'Despre' : 'About'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {tribe.description || (language === 'ro' ? 'Nicio descriere.' : 'No description.')}
+                  </p>
+                  <div className="mt-3 space-y-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      {tribe.is_public ? <Globe className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                      <span>{tribe.is_public ? 'Public' : (language === 'ro' ? 'Privat' : 'Private')}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-3.5 w-3.5" />
+                      <span>{tribe.member_count} {language === 'ro' ? 'membri' : 'members'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>
+                        {language === 'ro' ? 'Creat pe' : 'Created'}{' '}
+                        {new Date(tribe.created_at).toLocaleDateString(language === 'ro' ? 'ro-RO' : 'en-US', {
+                          year: 'numeric', month: 'short', day: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-          <TabsContent value="feed">
-            <GroupFeed tribeId={tribe.id} isMember={isMember} />
-          </TabsContent>
+        {activeTab === 'chat' && (
+          <GroupChat tribeId={tribe.id} isMember={isMember} />
+        )}
 
-          <TabsContent value="chat">
-            <GroupChat tribeId={tribe.id} isMember={isMember} />
-          </TabsContent>
+        {activeTab === 'members' && (
+          <GroupMembers tribeId={tribe.id} />
+        )}
 
-          <TabsContent value="members">
-            <GroupMembers tribeId={tribe.id} />
-          </TabsContent>
-
-          <TabsContent value="about">
+        {activeTab === 'about' && (
+          <div className="max-w-2xl">
             <div className="bg-card border border-border rounded-xl p-6 space-y-4">
               <h2 className="text-lg font-bold text-foreground">{tribe.name}</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -147,14 +167,12 @@ const GroupPage: React.FC = () => {
               <div className="text-xs text-muted-foreground">
                 {language === 'ro' ? 'Creat pe' : 'Created on'}{' '}
                 {new Date(tribe.created_at).toLocaleDateString(language === 'ro' ? 'ro-RO' : 'en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
+                  year: 'numeric', month: 'long', day: 'numeric',
                 })}
               </div>
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </div>
     </div>
   );

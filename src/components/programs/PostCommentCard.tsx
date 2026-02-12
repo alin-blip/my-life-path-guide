@@ -3,7 +3,7 @@ import { WallPostCommentWithAuthor } from '@/hooks/useWallPostComments';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Trash2, Reply, Send } from 'lucide-react';
+import { Trash2, Send } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useLanguage } from '@/context/LanguageContext';
@@ -30,7 +30,7 @@ export const PostCommentCard: React.FC<PostCommentCardProps> = ({
   const [submitting, setSubmitting] = useState(false);
 
   const timeAgo = formatDistanceToNow(new Date(comment.created_at), {
-    addSuffix: true,
+    addSuffix: false,
     locale: language === 'ro' ? ro : undefined,
   });
 
@@ -48,64 +48,64 @@ export const PostCommentCard: React.FC<PostCommentCardProps> = ({
   const isOwn = user?.id === comment.user_id;
 
   return (
-    <div className={`${isNested ? 'ml-8 border-l-2 border-border/50 pl-4' : ''}`}>
-      <div className="flex items-start gap-3 py-3">
-        <Avatar className="w-8 h-8 shrink-0">
+    <div className={`${isNested ? 'ml-10' : ''}`}>
+      <div className="flex items-start gap-2 py-1.5">
+        <Avatar className="w-8 h-8 shrink-0 mt-0.5">
           <AvatarFallback className="bg-primary/10 text-sm">
             {comment.author?.avatar_emoji || '⚔️'}
           </AvatarFallback>
         </Avatar>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-sm text-foreground">
+          {/* FB-style comment bubble */}
+          <div className="bg-muted/60 rounded-2xl px-3 py-2 inline-block max-w-full">
+            <span className="font-semibold text-xs text-foreground block">
               {comment.author?.display_name || 'Warrior'}
             </span>
-            <span className="text-xs text-muted-foreground">{timeAgo}</span>
+            <p className="text-sm text-foreground whitespace-pre-wrap">{comment.content}</p>
           </div>
-
-          <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">{comment.content}</p>
 
           {/* Media attachments */}
           <InlineMediaDisplay urls={comment.media_urls || null} />
 
-          <div className="flex items-center gap-3 mt-2">
+          {/* Actions below bubble */}
+          <div className="flex items-center gap-3 mt-0.5 ml-3">
+            <span className="text-[11px] text-muted-foreground">{timeAgo}</span>
             {!isNested && (
               <button
                 onClick={() => setShowReply(!showReply)}
-                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                className="text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
               >
-                <Reply className="h-3 w-3" />
                 {language === 'ro' ? 'Răspunde' : 'Reply'}
               </button>
             )}
             {isOwn && (
               <button
                 onClick={() => onDelete(comment.id)}
-                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
+                className="text-[11px] text-muted-foreground hover:text-destructive transition-colors"
               >
                 <Trash2 className="h-3 w-3" />
-                {language === 'ro' ? 'Șterge' : 'Delete'}
               </button>
             )}
           </div>
 
           {showReply && (
-            <div className="mt-3 flex gap-2">
+            <div className="mt-2 flex gap-2 ml-1">
               <Textarea
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 placeholder={language === 'ro' ? 'Scrie un răspuns...' : 'Write a reply...'}
-                className="min-h-[60px] resize-none text-sm"
+                className="min-h-[36px] resize-none text-sm rounded-2xl bg-muted/50 border-0 py-2 px-3"
                 onEnterSubmit={handleReply}
               />
               <Button
                 size="sm"
+                variant="ghost"
                 onClick={handleReply}
                 disabled={!replyContent.trim() || submitting}
-                className="shrink-0 self-end"
+                className="shrink-0 self-end text-primary"
               >
-                <Send className="h-3 w-3" />
+                <Send className="h-3.5 w-3.5" />
               </Button>
             </div>
           )}
