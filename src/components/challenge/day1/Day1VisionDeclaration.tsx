@@ -5,8 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/context/LanguageContext';
-import { ScrollText, ArrowRight, Crown, Calendar, Dumbbell, Sparkles, Heart, Briefcase, HandHeart, MessageCircle } from 'lucide-react';
+import { ScrollText, ArrowRight, Crown, Calendar, Dumbbell, Sparkles, Heart, Briefcase, HandHeart, ExternalLink } from 'lucide-react';
 import { addYears, format } from 'date-fns';
+import { FACEBOOK_GROUP_URL } from '@/config/socialLinks';
 
 interface VisionData {
   vision_body?: string;
@@ -23,7 +24,6 @@ interface Day1VisionDeclarationProps {
   onVisionChange: (data: VisionData) => void;
   onComplete: (finalData: VisionData) => void;
   userName?: string;
-  onPostToComments?: (declaration: string) => Promise<void>;
   declarationSaved?: boolean;
 }
 
@@ -95,11 +95,8 @@ export const Day1VisionDeclaration: React.FC<Day1VisionDeclarationProps> = ({
   onVisionChange,
   onComplete,
   userName = '',
-  onPostToComments,
   declarationSaved = false
 }) => {
-  const [isPosting, setIsPosting] = React.useState(false);
-  const [posted, setPosted] = React.useState(false);
   const { language } = useLanguage();
   const isRo = language === 'ro';
   
@@ -268,8 +265,6 @@ Mental Signature: ${userName || '[Your Name]'}`;
             target_date: normalizedTargetDate,
             vision_declaration: declaration,
           };
-
-          // Update both the declaration and notify parent with complete data
           onVisionChange(normalizedData);
           onComplete(normalizedData);
         }}
@@ -280,34 +275,16 @@ Mental Signature: ${userName || '[Your Name]'}`;
         <ArrowRight className="h-4 w-4 ml-2" />
       </Button>
       
-      {/* Share to Comments Button - appears after saving */}
-      {declarationSaved && visionData.vision_declaration && onPostToComments && !posted && (
+      {/* Share on Facebook - appears after saving */}
+      {declarationSaved && visionData.vision_declaration && (
         <Button
           variant="outline"
-          onClick={async () => {
-            if (!visionData.vision_declaration) return;
-            setIsPosting(true);
-            try {
-              await onPostToComments(visionData.vision_declaration);
-              setPosted(true);
-            } finally {
-              setIsPosting(false);
-            }
-          }}
-          disabled={isPosting}
-          className="w-full mt-3 border-amber-500/50 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10"
+          onClick={() => window.open(FACEBOOK_GROUP_URL, '_blank')}
+          className="w-full mt-3 border-blue-500/50 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10"
         >
-          <MessageCircle className="h-4 w-4 mr-2" />
-          {isPosting 
-            ? (isRo ? 'Se postează...' : 'Posting...')
-            : (isRo ? 'Distribuie declarația în comunitate' : 'Share declaration to community')}
+          <ExternalLink className="h-4 w-4 mr-2" />
+          {isRo ? 'Distribuie declarația în Grupul Facebook' : 'Share declaration in Facebook Group'}
         </Button>
-      )}
-      
-      {posted && (
-        <p className="text-center text-sm text-green-600 mt-2">
-          {isRo ? '✓ Declarația ta a fost distribuită în comunitate!' : '✓ Your declaration has been shared!'}
-        </p>
       )}
     </Card>
   );

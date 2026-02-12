@@ -16,7 +16,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { ChallengeAnswersHistory } from '@/components/challenge/ChallengeAnswersHistory';
 import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Complete';
-import { LessonCommunityPost } from '@/components/programs/LessonCommunityPost';
+import { FACEBOOK_GROUP_URL } from '@/config/socialLinks';
 import { ChallengeUpgradeGate } from '@/components/challenge/ChallengeUpgradeGate';
 import { 
   Day1WhyQuestions, 
@@ -40,7 +40,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { trackChallengeDayStarted } from '@/lib/facebook-pixel';
 import { useToast } from '@/hooks/use-toast';
 import { ChallengeCoachWidget } from '@/components/challenge/ChallengeCoachWidget';
-import { ChallengeLiveChat } from '@/components/challenge/ChallengeLiveChat';
 interface Exercise {
   id: string;
   title: string;
@@ -100,30 +99,22 @@ const challengeContent: ChallengeDayContent[] = [
     stepsEn: [
       "Set your vision for all 4 life zones (1 year)",
       "Write your Personal Declaration at present tense",
-      "Commit to reading it every morning and evening",
-      "Join the Warrior community and introduce yourself",
-      "Invite 1-3 friends with your exclusive link"
+      "Commit to reading it every morning and evening"
     ],
     stepsRo: [
       "Setează viziunea pentru toate cele 4 zone ale vieții (1 an)",
       "Scrie Declarația Personală la timpul prezent",
-      "Angajează-te să o citești în fiecare dimineață și seară",
-      "Alătură-te comunității Warrior și prezintă-te",
-      "Invită 1-3 prieteni cu link-ul tău exclusiv"
+      "Angajează-te să o citești în fiecare dimineață și seară"
     ],
     exercisesEn: [
       { id: "ex1", title: "Discover Your WHY", description: "Answer the 5 fundamental questions about your desires and purpose", area: "being" },
       { id: "ex2", title: "Vision 2026 (All 4 Areas)", description: "Define your vision for Body, Spirit, Relationships, and Business", area: "being" },
-      { id: "ex3", title: "Write Declaration", description: "Create your Napoleon Hill style declaration", area: "being" },
-      { id: "ex4", title: "Join Community", description: "Enter the Warrior tribe and introduce yourself", area: "balance", link: "/programs?tab=community", linkLabel: "Join Community" },
-      { id: "ex5", title: "Invite 1-3 Friends", description: "Share your exclusive invite link with friends who want to transform", area: "balance" }
+      { id: "ex3", title: "Write Declaration", description: "Create your Napoleon Hill style declaration", area: "being" }
     ],
     exercisesRo: [
       { id: "ex1", title: "Descoperă DE CE-ul Tău", description: "Răspunde la cele 5 întrebări fundamentale despre dorințele și scopul tău", area: "being" },
       { id: "ex2", title: "Viziune 2026 (Toate 4 Ariile)", description: "Definește viziunea pentru Corp, Spirit, Relații și Business", area: "being" },
-      { id: "ex3", title: "Scrie Declarația", description: "Creează declarația ta în stilul Napoleon Hill", area: "being" },
-      { id: "ex4", title: "Alătură-te Comunității", description: "Intră în tribul Warrior și prezintă-te", area: "balance", link: "/programs?tab=community", linkLabel: "Intră în Comunitate" },
-      { id: "ex5", title: "Invită 1-3 Prieteni", description: "Trimite link-ul tău exclusiv prietenilor care vor să se transforme", area: "balance" }
+      { id: "ex3", title: "Scrie Declarația", description: "Creează declarația ta în stilul Napoleon Hill", area: "being" }
     ]
   },
   {
@@ -361,7 +352,6 @@ const ChallengeDayPage = () => {
   const [day1Step, setDay1Step] = useState(0); // 0: Why, 1: Reality, 2: Vision, 3: Commitment
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [declarationSaved, setDeclarationSaved] = useState(false);
-  const [userCommentCount, setUserCommentCount] = useState(0);
   
   // commentsRef removed - posting directly to wall_posts
   
@@ -529,46 +519,6 @@ const ChallengeDayPage = () => {
     fetchUserName();
   }, []);
 
-  // Fetch user comment count for engagement tracking
-  useEffect(() => {
-    const fetchCommentCount = async () => {
-      if (!isAuthenticated) return;
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      
-      // Count comments where parent_id is not null (replies to others, not own posts)
-      const { count, error } = await supabase
-        .from('warriors_way_comments')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('module_id', 'challenge-day-1')
-        .not('parent_id', 'is', null);
-      
-      if (!error && count !== null) {
-        setUserCommentCount(count);
-      }
-    };
-    
-    fetchCommentCount();
-    
-    // Set up realtime listener for comment updates
-    const channel = supabase
-      .channel('day1-comments')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'warriors_way_comments',
-        filter: `module_id=eq.challenge-day-1`
-      }, () => {
-        fetchCommentCount();
-      })
-      .subscribe();
-    
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [isAuthenticated]);
 
   // Special render for Day 1 - Simplified 4-step flow
   if (dayNumber === 1) {
@@ -598,37 +548,6 @@ const ChallengeDayPage = () => {
       }
     };
 
-    const handlePostDeclaration = async (declaration: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { error } = await supabase.from('wall_posts').insert({
-        user_id: user.id,
-        content: declaration,
-        category: 'challenge',
-        source_context: `challenge-day-${dayNumber}`,
-        source_label: `Challenge - Day ${dayNumber}: ${language === 'en' ? 'Vision + Declaration' : 'Viziune + Declarație'}`,
-      } as any);
-      if (!error) {
-        toast({
-          title: language === 'en' ? '🎉 Shared!' : '🎉 Distribuit!',
-          description: language === 'en' 
-            ? 'Your declaration has been shared with the community!' 
-            : 'Declarația ta a fost distribuită în comunitate!',
-        });
-      }
-    };
-
-    const handlePostRealityScore = async (message: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      await supabase.from('wall_posts').insert({
-        user_id: user.id,
-        content: message,
-        category: 'challenge',
-        source_context: `challenge-day-${dayNumber}`,
-        source_label: `Challenge - Day ${dayNumber}: ${language === 'en' ? 'Vision + Declaration' : 'Viziune + Declarație'}`,
-      } as any);
-    };
 
     return (
       <>
@@ -725,7 +644,6 @@ const ChallengeDayPage = () => {
             <>
               <Day1DeclarationReview
                 declaration={day1Responses.vision_declaration || ''}
-                onPostToComments={handlePostDeclaration}
                 onEdit={() => setDay1Step(2)}
               />
               
@@ -790,7 +708,6 @@ const ChallengeDayPage = () => {
                     // Scores are saved inside the component
                     setDay1Step(1);
                   }}
-                  onPostScore={handlePostRealityScore}
                 />
               )}
               
@@ -841,7 +758,6 @@ const ChallengeDayPage = () => {
                   }}
                   userName={userName}
                   declarationSaved={declarationSaved}
-                  onPostToComments={handlePostDeclaration}
                 />
               )}
               
@@ -853,8 +769,6 @@ const ChallengeDayPage = () => {
                     onCommitmentChange={(committed) => updateDay1Responses({ commitment_confirmed: committed })}
                     onComplete={handleDay1Complete}
                     isLoading={day1Saving}
-                    commentCount={userCommentCount}
-                    requiredComments={3}
                   />
                   {/* Optional: Invite Friends */}
                   <div className="mt-6">
@@ -878,15 +792,6 @@ const ChallengeDayPage = () => {
             </>
           )}
 
-          {/* Live Chat Section */}
-          <div className="mt-6">
-            <ChallengeLiveChat dayNumber={1} language={language === 'en' ? 'en' : 'ro'} />
-          </div>
-
-          {/* Lesson Community Posts - replaces ChallengeComments */}
-          <div className="mt-6">
-            <LessonCommunityPost dayNumber={1} dayTitle={language === 'en' ? 'Vision + Declaration' : 'Viziune + Declarație'} />
-          </div>
           </div>
         </ProgramsLayout>
       </>
@@ -1120,15 +1025,6 @@ const ChallengeDayPage = () => {
           </div>
         )}
 
-        {/* Live Chat Section */}
-        <div className="mb-6">
-          <ChallengeLiveChat dayNumber={dayNumber} language={language === 'en' ? 'en' : 'ro'} />
-        </div>
-
-        {/* Lesson Community Posts */}
-        <div className="mb-6">
-          <LessonCommunityPost dayNumber={dayNumber} dayTitle={title} />
-        </div>
 
         {/* Complete Day Button */}
         <Card className={`p-6 ${isCompleted ? 'bg-green-500/10 border-green-500/30' : 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30'}`}>

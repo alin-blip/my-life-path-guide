@@ -18,8 +18,7 @@ import { InstallAppPrompt } from '@/components/pwa/InstallAppPrompt';
 import { ChallengeAudioPlayer } from '@/components/challenge/ChallengeAudioPlayer';
 import { ChallengeScriptCard } from '@/components/challenge/ChallengeScriptCard';
 import { ChallengeInlineChat } from '@/components/challenge/ChallengeInlineChat';
-import { CommunityWelcomeBanner } from '@/components/programs/CommunityWelcomeBanner';
-import { LessonCommunityPost } from '@/components/programs/LessonCommunityPost';
+import { FACEBOOK_GROUP_URL } from '@/config/socialLinks';
 import { getDayScriptRo } from '@/data/challengeScriptsRo';
 import { getDayScript } from '@/data/challengeScripts';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,8 +38,8 @@ const challengeDays: ChallengeDay[] = [{
   day: 1,
   titleEn: "VISION + DECLARATION",
   titleRo: "VIZIUNE + DECLARAȚIE",
-  subtitleEn: "Map reality + Set direction + Join community",
-  subtitleRo: "Evaluează realitatea + Setează direcția + Comunitate",
+  subtitleEn: "Map reality + Set direction",
+  subtitleRo: "Evaluează realitatea + Setează direcția",
   icon: Flame,
   color: "from-purple-500 to-indigo-500",
   actionPath: "/challenge/1",
@@ -408,24 +407,31 @@ const ChallengePage = () => {
           </CollapsibleContent>
         </Collapsible>
 
-        {isAuthenticated && (
-          <div className="mt-8 space-y-4">
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-bold text-foreground">
-                {language === 'ro' ? 'Comunitate' : 'Community'}
-              </h3>
+        {/* Facebook Group CTA */}
+        <Card className="mt-8 p-6 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-blue-500/30">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl">
+                f
+              </div>
+              <div>
+                <h3 className="font-bold text-foreground">
+                  {language === 'en' ? 'Join Our Facebook Community' : 'Alătură-te Comunității pe Facebook'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'en' ? 'Connect with fellow Warriors for support & accountability' : 'Conectează-te cu alți Warriors pentru suport & accountability'}
+                </p>
+              </div>
             </div>
-            <CommunityWelcomeBanner />
-            <LessonCommunityPost
-              dayNumber={0}
-              dayTitle="Welcome / Introducere"
-              courseName="Challenge"
-              sourcePrefix="challenge"
-              postCategory="challenge"
-            />
+            <Button 
+              onClick={() => window.open(FACEBOOK_GROUP_URL, '_blank')}
+              className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
+            >
+              {language === 'en' ? 'Join Group' : 'Intră în Grup'}
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
           </div>
-        )}
+        </Card>
 
         {/* CTA for Trial */}
         <Card className="mt-8 p-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30">

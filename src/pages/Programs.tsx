@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { ProgramsLayout } from '@/components/programs/ProgramsLayout';
 import { SkoolTab } from '@/components/programs/SkoolNavBar';
 import { ClassroomTab } from '@/components/programs/ClassroomTab';
-import { CommunityTab } from '@/components/programs/CommunityTab';
 import { CalendarTab } from '@/components/programs/CalendarTab';
 import { MembersTab } from '@/components/programs/MembersTab';
 import { LeaderboardsTab } from '@/components/programs/LeaderboardsTab';
@@ -14,7 +13,7 @@ import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 
 const Programs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tabFromUrl = (searchParams.get('tab') as SkoolTab) || 'community';
+  const tabFromUrl = (searchParams.get('tab') as SkoolTab) || 'classroom';
   const [activeTab, setActiveTab] = useState<SkoolTab>(tabFromUrl);
   const { completedDaysCount } = useChallengeProgress();
 
@@ -76,8 +75,6 @@ const Programs: React.FC = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'community':
-        return <CommunityTab />;
       case 'classroom':
         return <ClassroomTab programs={programs} />;
       case 'groups':
