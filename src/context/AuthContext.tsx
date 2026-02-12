@@ -55,23 +55,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           initialAuthComplete.current = true;
         }
 
-        // CENTRALIZED FB PIXEL LEAD TRACKING
-        // Track Lead event on SIGNED_IN (new account creation or first login)
+        // CHALLENGE OAUTH LEAD CAPTURE
+        // Track Lead + save lead only when user comes from challenge via OAuth
         if (event === 'SIGNED_IN' && session?.user) {
-          const leadTrackedKey = `fb_lead_tracked_${session.user.id}`;
-          const alreadyTracked = localStorage.getItem(leadTrackedKey);
-          if (!alreadyTracked) {
-            trackLead();
-            localStorage.setItem(leadTrackedKey, 'true');
-            if (import.meta.env.DEV) {
-              console.log('[FB Pixel] Lead event tracked for user:', session.user.id);
-            }
-          }
-          
-          // CHALLENGE OAUTH LEAD CAPTURE
-          // Save lead + link CRM profile when user comes from challenge via OAuth
           const fromChallenge = window.location.pathname.includes('/challenge');
           if (fromChallenge && session.user.email) {
+            // Track Meta Pixel Lead for challenge OAuth signups
+            trackLead();
             const challengeLeadKey = `challenge_lead_saved_${session.user.id}`;
             if (!localStorage.getItem(challengeLeadKey)) {
               // Insert into email_leads
