@@ -276,7 +276,7 @@ const ChallengeDayEnglish: React.FC = () => {
   const [day1Step, setDay1Step] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [userCommentCount, setUserCommentCount] = useState(0);
-  const commentsRef = useRef<any>(null);
+  // commentsRef removed - posting directly to wall_posts
   
   const content = challengeContent[dayNumber - 1];
   const script = getDayScript(dayNumber);
@@ -400,9 +400,15 @@ const ChallengeDayEnglish: React.FC = () => {
   }, {} as Record<string, Exercise[]>);
   
   const handlePostDeclaration = async (declaration: string) => {
-    if (!commentsRef.current) return;
-    const success = await commentsRef.current.postComment(declaration);
-    if (success) {
+    if (!user) return;
+    const { error } = await supabase.from('wall_posts').insert({
+      user_id: user.id,
+      content: declaration,
+      category: 'challenge',
+      source_context: `challenge-day-${dayNumber}`,
+      source_label: `Challenge - Day ${dayNumber}: Vision + Declaration`,
+    } as any);
+    if (!error) {
       toast({
         title: '🎉 Shared!',
         description: 'Your declaration has been shared with the community!',
@@ -411,8 +417,14 @@ const ChallengeDayEnglish: React.FC = () => {
   };
   
   const handlePostRealityScore = async (message: string) => {
-    if (!commentsRef.current) return;
-    await commentsRef.current.postComment(message);
+    if (!user) return;
+    await supabase.from('wall_posts').insert({
+      user_id: user.id,
+      content: message,
+      category: 'challenge',
+      source_context: `challenge-day-${dayNumber}`,
+      source_label: `Challenge - Day ${dayNumber}: Vision + Declaration`,
+    } as any);
   };
   
   // Day 1 Special Flow

@@ -362,8 +362,7 @@ const ChallengeDayPage = () => {
   const [declarationSaved, setDeclarationSaved] = useState(false);
   const [userCommentCount, setUserCommentCount] = useState(0);
   
-  // Ref removed - now using LessonCommunityPost
-  const commentsRef = useRef<any>(null);
+  // commentsRef removed - posting directly to wall_posts
   
   // Day 1 responses hook
   const { 
@@ -598,9 +597,16 @@ const ChallengeDayPage = () => {
     };
 
     const handlePostDeclaration = async (declaration: string) => {
-      if (!commentsRef.current) return;
-      const success = await commentsRef.current.postComment(declaration);
-      if (success) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { error } = await supabase.from('wall_posts').insert({
+        user_id: user.id,
+        content: declaration,
+        category: 'challenge',
+        source_context: `challenge-day-${dayNumber}`,
+        source_label: `Challenge - Day ${dayNumber}: ${language === 'en' ? 'Vision + Declaration' : 'Viziune + Declarație'}`,
+      } as any);
+      if (!error) {
         toast({
           title: language === 'en' ? '🎉 Shared!' : '🎉 Distribuit!',
           description: language === 'en' 
@@ -611,8 +617,15 @@ const ChallengeDayPage = () => {
     };
 
     const handlePostRealityScore = async (message: string) => {
-      if (!commentsRef.current) return;
-      await commentsRef.current.postComment(message);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      await supabase.from('wall_posts').insert({
+        user_id: user.id,
+        content: message,
+        category: 'challenge',
+        source_context: `challenge-day-${dayNumber}`,
+        source_label: `Challenge - Day ${dayNumber}: ${language === 'en' ? 'Vision + Declaration' : 'Viziune + Declarație'}`,
+      } as any);
     };
 
     return (
