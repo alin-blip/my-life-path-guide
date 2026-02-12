@@ -1,65 +1,76 @@
 
-# Restaurare Sectiune Comunitate cu Stil Amber/Orange + Fix Postare Declaratie
 
-## Problema
+# Postari Seed Complete + Instructiuni Pinned per Zi
 
-1. **Butonul "Distribuie declaratia" nu functioneaza** -- `handlePostDeclaration` foloseste `commentsRef.current` care este `null` (componenta `ChallengeComments` a fost inlocuita cu `LessonCommunityPost`, dar ref-ul nu a fost actualizat). Declaratiile nu ajung nicaieri.
+## Probleme Curente
 
-2. **Sectiunea de comunitate din lectii arata neutra** -- utilizatorul vrea stilul anterior cu gradient amber/portocaliu care se evidentia vizual.
-
-3. **Postarea declaratiei trebuie sa apara si pe wall-ul comunitatii** -- cand un user da click pe "Distribuie declaratia", postarea trebuie sa ajunga in `wall_posts` (cu `source_context: challenge-day-1`), nu in `warriors_way_comments`.
+1. **Postarile seed sunt trunchiate pe wall** -- textul e prea lung si se taie cu "Show more". Trebuie rescrise mai scurt si cu impact.
+2. **Nu exista o "postare de bun venit" per zi** -- ca in Skool, fiecare lectie ar trebui sa aiba un mesaj fixat (pinned) care explica CE trebuie sa faci in acea zi, ca un ghid vizual.
+3. **Engagement-ul nu e clar** -- userii nu stiu exact ce sa posteze.
 
 ---
 
 ## Solutie
 
-### 1. Fix `handlePostDeclaration` si `handlePostRealityScore` (ChallengeDay.tsx)
+### 1. Componenta noua: `LessonWelcomePost`
 
-Inlocuim logica bazata pe `commentsRef` cu insert direct in `wall_posts`:
+O componenta pinned (cu Pin icon, ca `CommunityWelcomeBanner`) care apare prima in sectiunea de comunitate a fiecarei zile. Afiseaza:
 
-```typescript
-const handlePostDeclaration = async (declaration: string) => {
-  if (!user) return;
-  const { error } = await supabase.from('wall_posts').insert({
-    user_id: user.id,
-    content: declaration,
-    category: 'challenge',
-    source_context: 'challenge-day-1',
-    source_label: `Challenge - Day 1: ${language === 'en' ? 'Vision + Declaration' : 'Viziune + Declarație'}`,
-  });
-  if (!error) {
-    toast({ title: '🎉', description: '...' });
-  }
-};
-```
+- Titlu: "Bine ai venit in Ziua X!"
+- Lista de task-uri specifice zilei (din `challengeContent`)
+- Call-to-action clar: "Posteaza declaratia ta / obiectivele tale / Domino Door-ul / etc."
+- Stil amber/orange consistent cu tema
 
-Acelasi fix pentru `handlePostRealityScore`.
+Aceasta componenta va fi integrata in `LessonCommunityPost` -- apare FIX DEASUPRA postarilor, ca un banner pinned.
 
-Eliminam `commentsRef` (nu mai este folosit).
+Continutul per zi:
 
-### 2. Stil amber/portocaliu pentru `LessonCommunityPost`
+**Ziua 1**: "Bine ai venit in Ziua 1: Viziune + Declaratie! Treci prin Harta Realitatii, raspunde la cele 5 intrebari, scrie-ti Declaratia Anti-Burnout si posteaz-o aici. Momentul tau AHA conteaza!"
 
-Modificam componenta `LessonCommunityPost` pentru a adauga stilul gradient amber:
-- Header-ul sectiunii: gradient text amber/orange
-- Wrapper-ul "Scrie ceva...": border amber/20, bg amber/5
-- Chenarul general: border amber/30 cu bg gradient subtil
+**Ziua 2**: "Ziua 2: Corp + Spirit + Relatii. Seteaza obiective concrete pe 3 nivele (1 an, 90 zile, 30 zile) pentru fiecare arie. Posteaza 2-3 obiective cheie aici."
 
-### 3. Acelasi fix in `ChallengeDayEnglish.tsx`
+**Ziua 3**: "Ziua 3: Business + Domino Door. Deschide AI Wizard-ul, seteaza viziunea, targetele si Domino Door-ul. Posteaza milestone-ul tau aici."
 
-Aplicam aceleasi modificari si in versiunea engleza (daca are acelasi pattern cu commentsRef).
+**Ziua 4**: "Ziua 4: Warrior Routine. Genereaza imagini AI, creeaza meditatia personalizata, configureaza rutina. Posteaza momentul AHA."
+
+**Ziua 5**: "Ziua 5: Accountability + Mind Coach. Verifica ce e facut, transforma emotiile blocante. Posteaza breakthrough-ul."
+
+**Ziua 6**: "Ziua 6: Idea List. Parcheaza ideile, clasifica-le strategic. Protejeaza focusul."
+
+**Ziua 7**: "Ziua 7: Integrare. Ai spart ciclul burnout-ului. Posteaza datele tale finale si planul de continuitate."
+
+### 2. Actualizare postari seed in baza de date
+
+Stergem cele 18 postari existente (trunchiate) si le inlocuim cu versiuni mai scurte, clare si cu impact:
+
+- Max 2-3 propozitii per postare
+- Contin rezultate concrete (scoruri, obiective)
+- Se termina cu intrebare de engagement ("Voi ce ati descoperit?", "Cine mai e cu mine?")
+
+Exemple noi:
+
+**Ziua 1 - Andrei**: "Harta Realitatii: Corp 5/10, Spirit 4/10, Relatii 7/10, Business 6/10. Declaratia mea: 'Business de 7 cifre fara sa sacrific sanatatea.' Voi ce scoruri aveti? 💪"
+
+**Ziua 1 - Elena**: "Am sacrificat relatiile pentru business. Acum aleg sa fiu prezenta. Declaratia mea: 'Echilibru in toate cele 4 zone.' 🌸"
+
+**Ziua 2 - Ana**: "Obiective setate! Corp: alergare 5K in 3 luni. Spirit: meditatie zilnica. Relatii: o seara/saptamana pt familie. Cine a terminat? ⚡"
+
+**Ziua 3 - Cristian**: "Domino Door setat: Lansare MVP in 60 zile. 4 chei definite. AI Wizard-ul a fost revelator! 📊"
+
+### 3. Integrare in `LessonCommunityPost`
+
+Adaugam `LessonWelcomePost` ca prim element in feed-ul de postari, inainte de postarile utilizatorilor. Va primi `dayNumber` si va afisa continutul corespunzator.
 
 ---
 
-## Fisiere modificate
+## Detalii Tehnice
 
-1. **`src/pages/ChallengeDay.tsx`**
-   - Eliminare `commentsRef`
-   - Rescrierea `handlePostDeclaration` si `handlePostRealityScore` sa insereze in `wall_posts`
-   - Import `supabase` (daca nu e deja importat)
+### Fisiere noi
+1. **`src/components/programs/LessonWelcomePost.tsx`** -- componenta pinned cu instructiuni per zi, stil amber/orange, cu Pin icon
 
-2. **`src/pages/ChallengeDayEnglish.tsx`**
-   - Acelasi fix pentru `handlePostDeclaration`
+### Fisiere modificate
+1. **`src/components/programs/LessonCommunityPost.tsx`** -- import si randare `LessonWelcomePost` deasupra feed-ului de postari
 
-3. **`src/components/programs/LessonCommunityPost.tsx`**
-   - Adaugare stil amber/portocaliu pe header, write trigger si containerul principal
-   - Chenarul sectiunii devine vizibil cu gradient `from-amber-500/5 to-orange-500/5` si `border-amber-500/30`
+### Operatii baza de date
+1. **DELETE** postarile seed existente (cele 18 cu source_context challenge-day-*)
+2. **INSERT** postari seed noi, mai scurte si cu engagement clar (~14 postari, 2 per zi)
