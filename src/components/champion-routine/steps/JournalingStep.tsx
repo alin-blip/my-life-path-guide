@@ -24,7 +24,7 @@ interface JournalingStepProps {
 
 export function JournalingStep({ completed, onComplete, onNext }: JournalingStepProps) {
   const [showJournal, setShowJournal] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("list");
+  const [activeTab, setActiveTab] = useState<string>("new");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedEntry, setSelectedEntry] = useState<JournalEntryType | null>(null);
 
