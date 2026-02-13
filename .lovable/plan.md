@@ -1,82 +1,75 @@
 
+# Respiratie cu Muzica si Ritm Personalizat
 
-# Simplificare Challenge - Eliminare Comunitate Interna + Redirectionare catre Facebook Group
+## Ce se va face
 
-## Obiectiv
-Eliminam toate componentele de comunitate interna din Challenge si din platforma, inlocuindu-le cu link-uri directe catre un grup Facebook. Challenge-ul ramane intact: Reality Check, WHY, Declaration, Commitment.
+### 1. Stocare melodii (Backend)
+- Creare bucket storage `breathing-music` pentru upload-uri audio
+- Creare tabel `breathing_music` cu: `id`, `user_id`, `title`, `file_url`, `duration_seconds`, `created_at`
+- RLS policies: fiecare user vede si gestioneaza doar melodiile lui
 
-## Ce se elimina
+### 2. Ritm respiratie personalizat cu faze multiple
+- In loc de tehnici fixe (box, 4-7-8), utilizatorul poate seta fiecare faza individual:
+  - **Inspira** (secunde) 
+  - **Tine** (secunde, 0 = fara pauza)
+  - **Expira** (secunde)
+  - **Pauza dupa expirare** (secunde, 0 = fara pauza) -- faza noua!
+- Exemple presetate: 4/4/4/4, 4/7/8/0, 7/8/8/8 etc.
+- Ritmul se salveaza in config
 
-### Din Challenge Overview (`src/pages/Challenge.tsx`)
-- Import-urile `CommunityWelcomeBanner` si `LessonCommunityPost`
-- Sectiunea "Comunitate" din pagina overview (liniile 411-427) care afisa banner + feed Day 0
-- Textele cu "Join community" din subtitlu-ul Day 1
+### 3. Upload si selectare melodie
+- In configurarea pasului de respiratie (BreathingStepConfig), sectiune noua: "Melodie de fundal"
+- Buton upload fisier audio (mp3, wav, m4a, max 20MB)
+- Lista melodiilor uploadate cu optiune de stergere
+- Selectare melodie activa
 
-### Din Challenge Day (`src/pages/ChallengeDay.tsx`)
-- Import-ul `LessonCommunityPost`
-- Functia `handlePostDeclaration` care posta in `wall_posts`
-- Prop-ul `onPostToComments` de pe `Day1VisionDeclaration` si `Day1DeclarationReview`
-- Sectiunile `LessonCommunityPost` din Day 1 (linia 886-889) si din zilele 2-7 (liniile 1128-1131)
-- Import-ul `ChallengeLiveChat` si sectiunile de live chat (liniile 882-884, 1123-1126)
-- Exercitiile "Join Community" si "Invite Friends" din lista de exercitii Day 1
+### 4. Mod durata: Cicluri vs Durata melodie
+- Selector: "Durata exercitiului"
+  - **Numar de cicluri** (ca acum, slider 3-30)
+  - **Cat dureaza melodia** (exercitiul se opreste cand se termina melodia)
+- Cand e selectat "durata melodie", ciclurile se calculeaza automat bazat pe durata melodiei impartita la durata unui ciclu complet
 
-### Din Commitment (`src/components/challenge/day1/Day1Commitment.tsx`)
-- Eliminam orice referinta la comment count / community engagement
-- Pastram doar checkbox-ul de commitment
+### 5. Player audio in BreathingStep
+- Cand incepe exercitiul, melodia porneste automat pe fundal
+- Cand se face pauza, melodia se pune pe pauza
+- Cand se termina exercitiul, melodia se opreste
+- Volum controlabil
 
-### Din Vision Declaration (`src/components/challenge/day1/Day1VisionDeclaration.tsx`)
-- Eliminam prop-ul `onPostToComments` si butonul "Share to Community"
-- Adaugam un buton "Share pe Facebook" care deschide link-ul grupului FB intr-un tab nou
+## Detalii tehnice
 
-### Din Programs/NavBar (`src/components/programs/SkoolNavBar.tsx`)
-- Eliminam tab-ul "Community" din navigatie
-- Default tab devine "Classroom"
-
-### Din Programs page (`src/pages/Programs.tsx`)
-- Eliminam import-ul `CommunityTab`
-- Eliminam case-ul 'community' din switch
-- Default tab devine 'classroom'
-
-## Ce se adauga
-
-### Link Facebook Group
-- In `Day1Commitment.tsx`: Adaugam un buton/link "Alatura-te Grupului Facebook" cu icon Facebook
-- In pagina Challenge overview: Adaugam un card simplu "Comunitatea noastra pe Facebook" cu link direct
-- In `Day1VisionDeclaration.tsx`: Butonul "Share" deschide Facebook Group in loc sa posteze intern
-
-### Constanta Facebook Group URL
-- Cream un fisier `src/config/socialLinks.ts` cu URL-ul grupului Facebook ca sa fie usor de schimbat
-
-## Fisiere modificate
-
-| Fisier | Ce se schimba |
-|--------|---------------|
-| `src/pages/Challenge.tsx` | Elimina community section, adauga link FB |
-| `src/pages/ChallengeDay.tsx` | Elimina LessonCommunityPost, handlePostDeclaration, live chat, exercitii community |
-| `src/components/challenge/day1/Day1Commitment.tsx` | Elimina comment tracking, adauga buton FB |
-| `src/components/challenge/day1/Day1VisionDeclaration.tsx` | Inlocuieste "Share to Community" cu "Share pe FB" |
-| `src/pages/Programs.tsx` | Elimina tab community, default classroom |
-| `src/components/programs/SkoolNavBar.tsx` | Elimina tab community |
-
-### Fisier nou
-| Fisier | Ce contine |
-|--------|------------|
-| `src/config/socialLinks.ts` | `FACEBOOK_GROUP_URL` constant |
-
-## Ce NU se sterge (raman in codebase dar nu se mai folosesc activ)
-- Componentele `SkoolPostCard`, `PostCommentCard`, `CommunityTab`, `GroupFeed` etc. raman in codebase - nu le stergem acum pentru ca nu afecteaza nimic si pot fi utile mai tarziu
-- Tabelele `wall_posts`, `wall_post_likes`, `wall_post_comments` raman in baza de date
-
-## Flow Final Day 1
-
+### Tabel nou: `breathing_music`
 ```text
-Pas 0: Reality Check (8 slidere) - 3 min
-Pas 1: WHY Questions (5 intrebari) - 5 min  
-Pas 2: Vision Declaration - 3 min
-  -> Buton optional "Distribuie in Grupul Facebook"
-Pas 3: Commitment (checkbox) - 10 sec
-  -> Buton optional "Intra in Grupul Facebook"
-  -> Buton optional "Invita prieteni"
-DONE -> Navigate to Day 2
+id          UUID PRIMARY KEY
+user_id     UUID NOT NULL (references auth.users)
+title       TEXT NOT NULL
+file_path   TEXT NOT NULL (storage path)
+duration_seconds  INTEGER
+created_at  TIMESTAMPTZ DEFAULT now()
 ```
 
+### BreathingStepConfig actualizat
+```text
+technique: 'box' | '478' | 'wim_hof' | 'custom'
+cycles: number
+inhaleDuration: number      -- NOU
+holdDuration: number        -- NOU  
+exhaleDuration: number      -- NOU
+holdAfterExhale: number     -- NOU (pauza dupa expirare)
+durationMode: 'cycles' | 'music'  -- NOU
+selectedMusicId: string     -- NOU
+showGuide: boolean
+```
+
+### Fisiere modificate
+- `src/hooks/useStepConfig.ts` -- actualizare tip BreathingStepConfig
+- `src/components/champion-routine/config/BreathingStepConfig.tsx` -- adaugare sectiuni ritm custom, upload muzica, mod durata
+- `src/components/champion-routine/steps/BreathingStep.tsx` -- player audio, 4 faze (inhale/hold/exhale/hold2), mod durata muzica
+- Hook nou: `src/hooks/useBreathingMusic.ts` -- CRUD melodii + upload storage
+
+### Flux utilizator
+1. Deschide configurarea respiratiei
+2. Alege ritm preset (box, 4-7-8) sau seteaza manual fiecare faza
+3. Uploadeaza una sau mai multe melodii
+4. Alege daca durata e dupa cicluri sau dupa melodie
+5. Salveaza
+6. In exercitiu: melodia porneste cu respiratia, cercul se animeaza pe ritmul ales
