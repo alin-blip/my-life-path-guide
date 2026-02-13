@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/context/LanguageContext';
 import { ScrollText, ArrowRight, Crown, Calendar, Dumbbell, Sparkles, Heart, Briefcase, HandHeart, ExternalLink } from 'lucide-react';
 import { addYears, format } from 'date-fns';
-import { FACEBOOK_GROUP_URL } from '@/config/socialLinks';
+import { COMMUNITY_URL } from '@/config/socialLinks';
 
 interface VisionData {
   vision_body?: string;
@@ -275,15 +275,15 @@ Mental Signature: ${userName || '[Your Name]'}`;
         <ArrowRight className="h-4 w-4 ml-2" />
       </Button>
       
-      {/* Share on Facebook - appears after saving */}
+      {/* Share on Skool - appears after saving */}
       {declarationSaved && visionData.vision_declaration && (
         <Button
           variant="outline"
-          onClick={() => window.open(FACEBOOK_GROUP_URL, '_blank')}
+          onClick={() => window.open(COMMUNITY_URL, '_blank')}
           className="w-full mt-3 border-blue-500/50 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10"
         >
           <ExternalLink className="h-4 w-4 mr-2" />
-          {isRo ? 'Distribuie declarația în Grupul Facebook' : 'Share declaration in Facebook Group'}
+          {isRo ? 'Distribuie declarația în Comunitatea Skool' : 'Share declaration in Skool Community'}
         </Button>
       )}
     </Card>

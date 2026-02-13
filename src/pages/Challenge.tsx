@@ -18,7 +18,7 @@ import { InstallAppPrompt } from '@/components/pwa/InstallAppPrompt';
 import { ChallengeAudioPlayer } from '@/components/challenge/ChallengeAudioPlayer';
 import { ChallengeScriptCard } from '@/components/challenge/ChallengeScriptCard';
 import { ChallengeInlineChat } from '@/components/challenge/ChallengeInlineChat';
-import { FACEBOOK_GROUP_URL } from '@/config/socialLinks';
+import { COMMUNITY_URL } from '@/config/socialLinks';
 import { getDayScriptRo } from '@/data/challengeScriptsRo';
 import { getDayScript } from '@/data/challengeScripts';
 import { supabase } from '@/integrations/supabase/client';
@@ -219,16 +219,16 @@ const ChallengePage = () => {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Facebook Community */}
+        {/* Skool Community */}
         <Card className="mb-6 p-5 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-blue-500/30">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl">
-                f
+              <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-xl font-bold">
+                S
               </div>
               <div>
                 <h3 className="font-bold text-foreground">
-                  {language === 'en' ? 'Join our Facebook community' : 'Alătură-te comunității pe Facebook'}
+                  {language === 'en' ? 'Join our Skool community' : 'Alătură-te comunității pe Skool'}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {language === 'en' ? 'Connect with fellow warriors for support & accountability' : 'Conectează-te cu alți warriors pentru suport & accountability'}
@@ -236,10 +236,10 @@ const ChallengePage = () => {
               </div>
             </div>
             <Button 
-              onClick={() => window.open(FACEBOOK_GROUP_URL, '_blank')}
+              onClick={() => window.open(COMMUNITY_URL, '_blank')}
               className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
             >
-              {language === 'en' ? 'Join group' : 'Intră în grup'}
+              {language === 'en' ? 'Join community' : 'Intră în comunitate'}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>

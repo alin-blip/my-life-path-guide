@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/context/LanguageContext';
 import { Trophy, CheckCircle2, Flame, Star, ExternalLink } from 'lucide-react';
-import { FACEBOOK_GROUP_URL } from '@/config/socialLinks';
+import { COMMUNITY_URL } from '@/config/socialLinks';
 
 interface Day1CommitmentProps {
   isCommitted: boolean;
@@ -126,11 +126,11 @@ export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
       <Card className="p-5 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-blue-500/30">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-xl font-bold shrink-0">
-            f
+            S
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-foreground">
-              {isRo ? 'Alătură-te Grupului Facebook' : 'Join Our Facebook Group'}
+              {isRo ? 'Alătură-te Comunității Skool' : 'Join Our Skool Community'}
             </h3>
             <p className="text-sm text-muted-foreground">
               {isRo ? 'Conectează-te cu alți Warriors pentru suport și accountability' : 'Connect with fellow Warriors for support & accountability'}
@@ -138,11 +138,11 @@ export const Day1Commitment: React.FC<Day1CommitmentProps> = ({
           </div>
           <Button
             variant="outline"
-            onClick={() => window.open(FACEBOOK_GROUP_URL, '_blank')}
+            onClick={() => window.open(COMMUNITY_URL, '_blank')}
             className="shrink-0 border-blue-500/50 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
-            {isRo ? 'Intră în Grup' : 'Join Group'}
+            {isRo ? 'Intră în Comunitate' : 'Join Community'}
           </Button>
         </div>
       </Card>

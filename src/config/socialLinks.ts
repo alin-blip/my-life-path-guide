@@ -1,2 +1,5 @@
-// Facebook Group URL - change this when your group is ready
-export const FACEBOOK_GROUP_URL = 'https://www.facebook.com/groups/warriorsos';
+// Skool Community URL
+export const COMMUNITY_URL = 'https://www.skool.com/warriorsos';
+
+// Keep backward compatibility
+export const FACEBOOK_GROUP_URL = COMMUNITY_URL;
