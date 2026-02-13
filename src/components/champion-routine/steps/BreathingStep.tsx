@@ -320,9 +320,19 @@ export function BreathingStep({ completed, onComplete, onNext }: BreathingStepPr
             )}
           </div>
         ) : (
-          <Button onClick={onNext} size="lg" className="w-full gap-2">
-            Continuă <ArrowRight className="h-5 w-5" />
-          </Button>
+          <div className="space-y-3">
+            <Button onClick={onNext} size="lg" className="w-full gap-2">
+              Continuă <ArrowRight className="h-5 w-5" />
+            </Button>
+            <Button 
+              onClick={() => onComplete(false)} 
+              size="sm" 
+              variant="ghost" 
+              className="w-full text-xs text-muted-foreground"
+            >
+              🔄 Reset test (temporar)
+            </Button>
+          </div>
         )}
       </Card>
     </div>
