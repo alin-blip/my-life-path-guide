@@ -1,30 +1,35 @@
 
-# Jurnal complet in Rutina Razboinicului
+# Inlocuire Facebook cu Skool in Challenge
 
-## Ce se schimba
+## Rezumat
+Toate referintele la grupul Facebook din challenge vor fi inlocuite cu link-ul Skool: `https://www.skool.com/warriorsos`. Se modifica URL-ul centralizat, textele si iconitele aferente.
 
-Pasul de Jurnaling din rutina va fi inlocuit cu experienta completa de jurnal (lista + intrare noua + detalii), exact ca pe pagina `/journal` din Tools -- in loc de sesiunea de introspecție cu IntrospectionStack.
+## Fisiere afectate
 
-## Ce se modifica
+### 1. `src/config/socialLinks.ts`
+- Redenumire constanta din `FACEBOOK_GROUP_URL` in `COMMUNITY_URL` (sau pastram numele si schimbam doar valoarea)
+- URL nou: `https://www.skool.com/warriorsos`
+- Actualizare comentariu
 
-### Fisier: `src/components/champion-routine/steps/JournalingStep.tsx`
+### 2. `src/components/challenge/day1/Day1Commitment.tsx`
+- Textele "Alaturat-te Grupului Facebook" / "Join Our Facebook Group" devin "Alaturat-te Comunitatii Skool" / "Join Our Skool Community"
+- Iconita `f` (Facebook) inlocuita cu iconita `S` sau Users
+- Culorile cardului raman similare (gradient albastru-indigo)
 
-Componenta actuala foloseste `IntrospectionStack` pentru o sesiune ghidata. Voi inlocui complet continutul cu:
+### 3. `src/components/challenge/day1/Day1VisionDeclaration.tsx`
+- Textul "Distribuie declaratia in Grupul Facebook" devine "Distribuie declaratia in Comunitatea Skool"
+- EN: "Share declaration in Facebook Group" devine "Share declaration in Skool Community"
 
-1. **Ecran start** -- buton "Deschide Jurnalul" (pastrez stilul vizual cu card orange)
-2. **Dupa click** -- se afiseaza interfata completa de jurnal cu tabs:
-   - Tab "Istoric" -- reutilizez componenta `JournalList` existenta
-   - Tab "Intrare noua" -- reutilizez componenta `JournalEntry` existenta
-   - Tab "Detalii" -- reutilizez componenta `JournalDetail` (apare cand selectezi o intrare)
-3. **Buton "Finalizeaza"** -- marcheaza pasul ca completat (fix ca acum, dar dupa ce utilizatorul a interactionat cu jurnalul)
+### 4. `src/pages/Challenge.tsx`
+- Sectiunea "Facebook Community" -- textele "Alaturat-te comunitatii pe Facebook" / "Join our Facebook community" devin referinte la Skool
+- Butonul pastreaza functionalitatea de `window.open` cu noul URL
 
-### Logica
+### 5. `src/pages/ChallengeDay.tsx` si `src/pages/ChallengeDayEnglish.tsx`
+- Import-ul `FACEBOOK_GROUP_URL` se actualizeaza la noul nume (daca se redenumeste constanta)
 
-- Starea interna gestioneaza: `activeTab` (list/new/detail), `selectedEntry`, `refreshTrigger` -- identic cu pagina Journal.tsx
-- Componentele `JournalList`, `JournalEntry`, `JournalDetail` sunt reutilizate direct, fara modificari
-- Butonul "Finalizeaza Jurnaling" ramane fix in josul ecranului pentru a marca pasul ca terminat
-- Ecranul de "completat" ramane la fel (cu check verde si butonul "Continua")
+## Detalii tehnice
 
-### Rezultat
-
-Utilizatorul va vedea in rutina exact aceeasi experienta ca in Tools > Jurnal: poate citi intrari vechi, crea intrari noi, si vedea detalii -- totul inline in pasul de jurnaling.
+- Constanta centralizata in `socialLinks.ts` face ca schimbarea URL-ului sa se propage automat in toate fisierele
+- Redenumesc constanta din `FACEBOOK_GROUP_URL` in `COMMUNITY_URL` pentru a fi agnostica fata de platforma
+- Toate referintele la "Facebook" din texte devin "Skool"
+- Iconita rotunda albastra cu "f" devine o iconita cu "S" pentru Skool
