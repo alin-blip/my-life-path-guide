@@ -374,6 +374,33 @@ export type Database = {
         }
         Relationships: []
       }
+      breathing_music: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          file_path: string
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          file_path: string
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          file_path?: string
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       brotherhood_messages: {
         Row: {
           content: string

@@ -45,6 +45,12 @@ export interface BreathingStepConfig {
   technique?: 'box' | '478' | 'wim_hof' | 'custom';
   cycles?: number;
   phaseDuration?: number;
+  inhaleDuration?: number;
+  holdDuration?: number;
+  exhaleDuration?: number;
+  holdAfterExhale?: number;
+  durationMode?: 'cycles' | 'music';
+  selectedMusicId?: string;
   showGuide?: boolean;
 }
 
