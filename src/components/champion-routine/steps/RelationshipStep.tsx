@@ -40,13 +40,16 @@ export function RelationshipStep({
   const [localActions, setLocalActions] = useState<RelationshipAction[]>([]);
 
   useEffect(() => {
-    // Initialize local actions from props or create empty ones for each person
-    const initialActions = people.map(person => {
-      const existing = actions.find(a => a.person_id === person.id);
-      return existing || { person_id: person.id, action: '', completed: false };
-    });
-    setLocalActions(initialActions);
-  }, [people, actions]);
+    // Initialize local actions from props only once when people change
+    if (people.length > 0 && localActions.length === 0) {
+      const initialActions = people.map(person => {
+        const existing = actions.find(a => a.person_id === person.id);
+        return existing || { person_id: person.id, action: '', completed: false };
+      });
+      setLocalActions(initialActions);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [people]);
 
   const currentPerson = people[currentPersonIndex];
   const currentAction = localActions.find(a => a.person_id === currentPerson?.id);
