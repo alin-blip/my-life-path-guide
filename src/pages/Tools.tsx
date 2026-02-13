@@ -12,7 +12,8 @@ import {
   Timer, 
   Heart,
   ArrowRight,
-  Wand2
+  Wand2,
+  Headphones
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -71,6 +72,7 @@ const existingTools: ExistingTool[] = [
   { name: 'Journal', path: '/journal', icon: PenTool, emoji: '📝' },
   { name: 'Time Tracker', path: '/time-tracker', icon: Timer, emoji: '⏱️' },
   { name: 'Emotional Tracker', path: '/emotional-tracker', icon: Heart, emoji: '💖' },
+  { name: 'Empowerment Meditation', path: '/empowerment-meditation', icon: Headphones, emoji: '🧘' },
 ];
 
 const colorClasses: Record<string, { bg: string; border: string; text: string; gradient: string }> = {
