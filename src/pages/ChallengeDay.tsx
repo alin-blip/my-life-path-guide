@@ -16,7 +16,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 import { ChallengeAnswersHistory } from '@/components/challenge/ChallengeAnswersHistory';
 import { ChallengeDay7Complete } from '@/components/challenge/ChallengeDay7Complete';
-import { FACEBOOK_GROUP_URL } from '@/config/socialLinks';
+import { COMMUNITY_URL } from '@/config/socialLinks';
 import { ChallengeUpgradeGate } from '@/components/challenge/ChallengeUpgradeGate';
 import { 
   Day1WhyQuestions, 
