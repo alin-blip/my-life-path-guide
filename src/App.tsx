@@ -99,6 +99,7 @@ const PersonalPowerOverview = lazy(() => import("./pages/PersonalPowerOverview")
 const PersonalPowerDayPage = lazy(() => import("./pages/PersonalPowerDay"));
 const GroupPage = lazy(() => import("./pages/GroupPage"));
 const Messages = lazy(() => import("./pages/Messages"));
+const B2BLanding = lazy(() => import("./pages/B2BLanding"));
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
@@ -429,8 +430,9 @@ const App = () => (
                         <Messages />
                       </ProtectedRoute>
                     } />
+                    <Route path="/b2b" element={<B2BLanding />} />
                         <Route path="*" element={<NotFound />} />
-                      </Routes>
+                       </Routes>
                       </Suspense>
                       </ProgressProvider>
                       </DoorProvider>
