@@ -1237,6 +1237,63 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_routine_templates: {
+        Row: {
+          active_steps: Json | null
+          coach_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_default: boolean
+          name: string
+          routine_steps_order: Json | null
+          step_configs: Json | null
+          tribe_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active_steps?: Json | null
+          coach_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name: string
+          routine_steps_order?: Json | null
+          step_configs?: Json | null
+          tribe_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active_steps?: Json | null
+          coach_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          routine_steps_order?: Json | null
+          step_configs?: Json | null
+          tribe_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_routine_templates_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coach_routine_templates_tribe_id_fkey"
+            columns: ["tribe_id"]
+            isOneToOne: false
+            referencedRelation: "tribes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commissions: {
         Row: {
           amount: number
