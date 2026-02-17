@@ -5470,42 +5470,66 @@ export type Database = {
       }
       workout_programs: {
         Row: {
+          coach_id: string | null
           created_at: string | null
           created_by_admin: boolean | null
           description: string | null
           id: string
           is_active: boolean | null
+          is_coach_template: boolean
           is_public: boolean | null
           is_template: boolean | null
           name: string
+          tribe_id: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          coach_id?: string | null
           created_at?: string | null
           created_by_admin?: boolean | null
           description?: string | null
           id?: string
           is_active?: boolean | null
+          is_coach_template?: boolean
           is_public?: boolean | null
           is_template?: boolean | null
           name: string
+          tribe_id?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          coach_id?: string | null
           created_at?: string | null
           created_by_admin?: boolean | null
           description?: string | null
           id?: string
           is_active?: boolean | null
+          is_coach_template?: boolean
           is_public?: boolean | null
           is_template?: boolean | null
           name?: string
+          tribe_id?: string | null
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "workout_programs_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_programs_tribe_id_fkey"
+            columns: ["tribe_id"]
+            isOneToOne: false
+            referencedRelation: "tribes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workout_sessions: {
         Row: {
