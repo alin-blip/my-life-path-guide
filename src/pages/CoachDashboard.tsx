@@ -14,6 +14,7 @@ import { CoachClientProgress } from '@/components/coach/CoachClientProgress';
 import { CoachTribeManager } from '@/components/coach/CoachTribeManager';
 import { CoachContentManager } from '@/components/coach/CoachContentManager';
 import { CoachRoutineTemplates } from '@/components/coach/CoachRoutineTemplates';
+import { CoachWorkoutPrograms } from '@/components/coach/CoachWorkoutPrograms';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
@@ -28,6 +29,7 @@ import {
   Brain,
   Zap,
   LayoutList,
+  Dumbbell,
 } from 'lucide-react';
 
 const content = {
@@ -42,6 +44,7 @@ const content = {
     tabMessages: 'Intervenții',
     tabTribe: 'Brotherhood',
     tabRoutines: 'Rutine',
+    tabWorkouts: 'Antrenamente',
     tabContent: 'Resurse',
     tabEarnings: 'Venituri',
     
@@ -68,6 +71,7 @@ const content = {
     tabMessages: 'Interventions',
     tabTribe: 'Brotherhood',
     tabRoutines: 'Routines',
+    tabWorkouts: 'Workouts',
     tabContent: 'Resources',
     tabEarnings: 'Earnings',
     
@@ -223,7 +227,7 @@ const CoachDashboard: React.FC = () => {
       </div>
 
       <Tabs defaultValue="clients" className="mt-8">
-        <TabsList className="grid w-full max-w-5xl grid-cols-7 h-auto">
+        <TabsList className="grid w-full max-w-5xl grid-cols-8 h-auto">
           <TabsTrigger value="clients" className="gap-2 py-3">
             <Target className="h-4 w-4" />
             <span className="hidden sm:inline">{t.tabClients}</span>
@@ -243,6 +247,10 @@ const CoachDashboard: React.FC = () => {
           <TabsTrigger value="routines" className="gap-2 py-3">
             <LayoutList className="h-4 w-4" />
             <span className="hidden sm:inline">{t.tabRoutines}</span>
+          </TabsTrigger>
+          <TabsTrigger value="workouts" className="gap-2 py-3">
+            <Dumbbell className="h-4 w-4" />
+            <span className="hidden sm:inline">{t.tabWorkouts}</span>
           </TabsTrigger>
           <TabsTrigger value="content" className="gap-2 py-3">
             <Package className="h-4 w-4" />
@@ -279,6 +287,12 @@ const CoachDashboard: React.FC = () => {
         <TabsContent value="routines" className="mt-6">
           {coachProfile && user && (
             <CoachRoutineTemplates coachProfileId={coachProfile.id} userId={user.id} />
+          )}
+        </TabsContent>
+
+        <TabsContent value="workouts" className="mt-6">
+          {coachProfile && user && (
+            <CoachWorkoutPrograms coachProfileId={coachProfile.id} userId={user.id} />
           )}
         </TabsContent>
 
