@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCoachDashboard } from '@/hooks/useCoachDashboard';
+import { useCoachTribe } from '@/hooks/useCoachTribe';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -16,6 +17,8 @@ import { CoachContentManager } from '@/components/coach/CoachContentManager';
 import { CoachRoutineTemplates } from '@/components/coach/CoachRoutineTemplates';
 import { CoachWorkoutPrograms } from '@/components/coach/CoachWorkoutPrograms';
 import { CoachMealPlans } from '@/components/coach/CoachMealPlans';
+import { CoachMemberManager } from '@/components/coach/CoachMemberManager';
+import { CoachTribeFeed } from '@/components/coach/CoachTribeFeed';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
@@ -32,6 +35,8 @@ import {
   LayoutList,
   Dumbbell,
   UtensilsCrossed,
+  Rss,
+  Settings,
 } from 'lucide-react';
 
 const content = {
@@ -50,6 +55,8 @@ const content = {
     tabMeals: 'Mese',
     tabContent: 'Resurse',
     tabEarnings: 'Venituri',
+    tabFeed: 'Feed',
+    tabMembers: 'Membri',
     
     // Toast messages
     stripeConnected: 'Stripe Conectat!',
@@ -78,6 +85,8 @@ const content = {
     tabMeals: 'Meals',
     tabContent: 'Resources',
     tabEarnings: 'Earnings',
+    tabFeed: 'Feed',
+    tabMembers: 'Members',
     
     // Toast messages
     stripeConnected: 'Stripe Connected!',
@@ -114,6 +123,8 @@ const CoachDashboard: React.FC = () => {
     copyReferralLink,
   } = useCoachDashboard();
 
+  const { coachTribe } = useCoachTribe(coachProfile?.id, user?.id);
+
   useEffect(() => {
     const onboardingStatus = searchParams.get('onboarding');
     
@@ -144,9 +155,8 @@ const CoachDashboard: React.FC = () => {
     return <CoachOnboarding onCreateProfile={createCoachProfile} />;
   }
 
-  // Calculate clients needing attention (inactive 3+ days would need real data)
   const clientsNeedingAttention = Math.max(0, stats.totalReferrals - stats.activeClients);
-  const estimatedMonthlyRevenue = stats.activeClients * 25; // Rough estimate at €50/mo * 50%
+  const estimatedMonthlyRevenue = stats.activeClients * 25;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -231,7 +241,7 @@ const CoachDashboard: React.FC = () => {
       </div>
 
       <Tabs defaultValue="clients" className="mt-8">
-        <TabsList className="grid w-full max-w-5xl grid-cols-9 h-auto">
+        <TabsList className="flex flex-wrap w-full max-w-6xl h-auto gap-1">
           <TabsTrigger value="clients" className="gap-2 py-3">
             <Target className="h-4 w-4" />
             <span className="hidden sm:inline">{t.tabClients}</span>
@@ -247,6 +257,14 @@ const CoachDashboard: React.FC = () => {
           <TabsTrigger value="tribe" className="gap-2 py-3">
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">{t.tabTribe}</span>
+          </TabsTrigger>
+          <TabsTrigger value="feed" className="gap-2 py-3">
+            <Rss className="h-4 w-4" />
+            <span className="hidden sm:inline">{t.tabFeed}</span>
+          </TabsTrigger>
+          <TabsTrigger value="members" className="gap-2 py-3">
+            <Settings className="h-4 w-4" />
+            <span className="hidden sm:inline">{t.tabMembers}</span>
           </TabsTrigger>
           <TabsTrigger value="routines" className="gap-2 py-3">
             <LayoutList className="h-4 w-4" />
@@ -289,6 +307,37 @@ const CoachDashboard: React.FC = () => {
               userId={user.id}
               coachName={coachProfile.display_name}
             />
+          )}
+        </TabsContent>
+
+        <TabsContent value="feed" className="mt-6">
+          {coachTribe && user && (
+            <CoachTribeFeed
+              tribeId={coachTribe.id}
+              userId={user.id}
+              isOwner={true}
+            />
+          )}
+          {!coachTribe && (
+            <p className="text-center text-muted-foreground py-8">
+              {language === 'ro' ? 'Creează mai întâi un grup din tab-ul Brotherhood.' : 'Create a group first from the Brotherhood tab.'}
+            </p>
+          )}
+        </TabsContent>
+
+        <TabsContent value="members" className="mt-6">
+          {coachTribe && coachProfile && user && (
+            <CoachMemberManager
+              coachProfileId={coachProfile.id}
+              userId={user.id}
+              tribeId={coachTribe.id}
+              tribeName={coachTribe.name}
+            />
+          )}
+          {!coachTribe && (
+            <p className="text-center text-muted-foreground py-8">
+              {language === 'ro' ? 'Creează mai întâi un grup din tab-ul Brotherhood.' : 'Create a group first from the Brotherhood tab.'}
+            </p>
           )}
         </TabsContent>
 
