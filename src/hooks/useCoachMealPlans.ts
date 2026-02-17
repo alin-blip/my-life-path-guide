@@ -172,7 +172,6 @@ export function useCoachMealPlans(coachId: string | undefined) {
       return;
     }
 
-    // Get tribe members
     const { data: members, error: membersError } = await supabase
       .from('tribe_members')
       .select('user_id')
@@ -183,7 +182,6 @@ export function useCoachMealPlans(coachId: string | undefined) {
       return;
     }
 
-    // Update each member's nutrition settings in champion_routine_settings
     let successCount = 0;
     for (const member of members) {
       const updatePayload: any = {
@@ -193,12 +191,10 @@ export function useCoachMealPlans(coachId: string | undefined) {
         carbs_target: plan.carbs_target,
         fats_target: plan.fats_target,
       };
-
       const { error } = await supabase
         .from('champion_routine_settings')
         .update(updatePayload)
         .eq('user_id', member.user_id);
-
       if (!error) successCount++;
     }
 
@@ -206,6 +202,33 @@ export function useCoachMealPlans(coachId: string | undefined) {
       title: 'Applied!',
       description: `Nutrition targets sent to ${successCount}/${members.length} members.`,
     });
+  }, [fetchPlanDetails, toast]);
+
+  const applyPlanToMember = useCallback(async (planId: string, userId: string) => {
+    const plan = await fetchPlanDetails(planId);
+    if (!plan) {
+      toast({ title: 'Error', description: 'Could not load meal plan.', variant: 'destructive' });
+      return;
+    }
+
+    const updatePayload: any = {
+      nutrition_configured: true,
+      calorie_target: plan.calorie_target,
+      protein_target: plan.protein_target,
+      carbs_target: plan.carbs_target,
+      fats_target: plan.fats_target,
+    };
+
+    const { error } = await supabase
+      .from('champion_routine_settings')
+      .update(updatePayload)
+      .eq('user_id', userId);
+
+    if (error) {
+      toast({ title: 'Error', description: 'Could not apply nutrition targets.', variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Applied!', description: 'Nutrition targets sent to member.' });
   }, [fetchPlanDetails, toast]);
 
   return {
@@ -217,6 +240,7 @@ export function useCoachMealPlans(coachId: string | undefined) {
     fetchPlanDetails,
     updateDayMeals,
     applyPlanToTribe,
+    applyPlanToMember,
     refreshPlans: fetchPlans,
   };
 }
