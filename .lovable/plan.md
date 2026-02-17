@@ -1,121 +1,161 @@
 
 
-# Pagina /b2b - Landing Page pentru Coachi si Consultanti + Audit Platforma
+# Ce trebuie construit pentru a livra promisiunile din /b2b
 
-## Rezumat
+## Situatia curenta
 
-Cream o pagina publica `/b2b` care atrage coachi si consultanti sa foloseasca platforma ca "sistem de operare" pentru clientii lor. In paralel, facem un audit la ce exista vs ce lipseste din functionalitati.
+Din auditul facut, platforma are deja o baza solida pentru coachi. Iata ce exista si ce lipseste:
 
----
+### EXISTA deja (functional):
+- Coach Profiles cu Stripe Connect, referral code, comision 50%
+- Coach Dashboard cu statistici, clienti, earnings
+- Tribes (comunitate privata per coach) cu `coach_id` si `is_coach_tribe`
+- Wall Posts in tribes (posturi, likes, comentarii)
+- Content Manager (cursuri, ebook-uri, resurse cu pret)
+- Referral System complet (link unic, tracking, comisioane automate)
+- Coach Inbox (mesaje coach-client)
+- Workout Programs (tabele: `workout_programs`, `workout_program_days`, `workout_day_exercises`)
+- Champion Routine Settings (configurare rutina cu pasi, ordine, nutritie, meditatie)
+- Coach Onboarding
 
-## AUDIT: Ce exista deja vs Ce lipseste
-
-### Ce EXISTA (functional):
-- **Coach Profiles** -- profil cu Stripe Connect, referral code, comision 50%
-- **Coach Dashboard** -- statistici, clienti, earnings, mesaje
-- **Tribe Manager** -- comunitate privata per coach (creare + gestionare membri)
-- **Content Manager** -- coach poate crea resurse/cursuri/ebooks cu pret
-- **Referral System** -- link unic, tracking referrals, comisioane automate via Stripe
-- **Client Progress** -- coach vede progresul clientilor
-- **Coach Inbox** -- mesaje intre coach si clienti
-- **Stripe Connect** -- onboarding Express, payouts automate
-- **CoachOnboarding** -- pagina de inregistrare cu value stack (deja foarte bine facuta)
-
-### Ce LIPSESTE (de construit):
-
-| Feature | Prioritate | Complexitate |
-|---------|-----------|-------------|
-| 1. **Personalizare Rutina per Grup** -- coach sa creeze rutina custom (pasi, ordine, durata) pentru grupul lui | MARE | Medie |
-| 2. **Programe de Antrenament** -- coach sa creeze programe de fitness cu exercitii pe zile | MARE | Mare |
-| 3. **Plan de Mese** -- coach sa creeze planuri nutritionale pentru clienti | MEDIE | Mare |
-| 4. **Pagina /b2b** -- landing page public pentru atragerea coachilor | MARE | Mica |
-| 5. **Admin Community (tip Skool)** -- posturi, discutii, anunturi in Tribe | MEDIE | Mare |
-| 6. **Onboarding Flow mai clar** -- coach sa inteleaga pasii: Profil -> Stripe -> Link -> Primul Client | MICA | Mica |
-| 7. **Analytics avansate** -- retention rate clienti, revenue forecast, MRR per coach | MICA | Medie |
+### CE LIPSESTE (pentru a livra ce promitem pe /b2b):
 
 ---
 
-## PLAN: Pagina /b2b Landing Page
+## Prioritatea 1: Rutina Personalizata per Grup (Coach -> Clienti)
 
-### Structura paginii (public, fara autentificare)
+**Problema:** Acum fiecare user isi configureaza rutina individual. Coach-ul nu poate seta o rutina standard pentru grupul lui.
 
-**Sectiune 1 -- Hero**
-- Headline: "Transforma-ti Practica de Coaching intr-un Business Scalabil"
-- Subheadline: "Platforma all-in-one care face clientii tai sa EXECUTE -- nu doar sa asculte"
-- CTA principal: "Aplica ca Partner Coach" (scroll la formular sau redirect /auth)
-- Social proof: "X coachi activi | Y clienti in executie"
+**Ce trebuie construit:**
 
-**Sectiune 2 -- Problema vs Solutie**
-- Reutilizam structura din CoachOnboarding.tsx (fail vs win points)
-- Adaptam pentru audienta B2B (focus pe scalabilitate si revenue)
+1. **Tabela noua: `coach_routine_templates`**
+   - `id`, `coach_id` (FK coach_profiles), `tribe_id` (optional, FK tribes)
+   - `name`, `description`
+   - `routine_steps_order` (JSONB - aceeasi structura ca `champion_routine_settings`)
+   - `active_steps` (JSONB)
+   - `step_configs` (JSONB - configuratii detaliate per pas)
+   - `is_default` (boolean - rutina default pentru clientii noi)
+   - `created_at`, `updated_at`
 
-**Sectiune 3 -- Ce Primeste Coach-ul (Value Stack)**
-- 50% comision recurent FOREVER
-- Dashboard cu progresul clientilor in timp real
-- AI Coach 24/7 care lucreaza pentru clientii tai
-- Comunitate privata (Tribe) cu brand propriu
-- Cursuri si content -- monetizare suplimentara
-- Rutina personalizata per grup (coming soon badge)
+2. **UI in Coach Dashboard:**
+   - Tab nou "Rutine" / "Routines"
+   - Editor vizual de rutina (refolosim componenta existenta de configurare rutina)
+   - Selectare grup/tribe caruia i se aplica
+   - Buton "Aplica la toti membrii"
 
-**Sectiune 4 -- Cum Functioneaza (3 pasi)**
-1. Creeaza profil de coach (30 secunde)
-2. Conecteaza Stripe si primeste link-ul unic
-3. Trimite link-ul clientilor -- ei se inscriu, tu castigi
+3. **Logica de aplicare:**
+   - Cand un client se inscrie prin referral, mosteneste rutina default a coach-ului
+   - Coach-ul poate forta update la toti membrii dintr-un tribe
 
-**Sectiune 5 -- Instrumente pentru Clienti**
-- Lista completa a tool-urilor: Stacks, Door, Obiective, Harta Realitatii, etc.
-- Capturi de ecran / mockup-uri
-
-**Sectiune 6 -- Testimoniale / Social Proof**
-- Placeholder pentru testimoniale de la coachi
-
-**Sectiune 7 -- Calculator Revenue**
-- Input: cati clienti ai?
-- Output: la 97 EUR/luna x 50% = venit lunar estimat
-
-**Sectiune 8 -- CTA Final + Formular**
-- Buton "Incepe Acum" -> redirect la /coach (unde se face onboarding)
-- Sau formular de aplicare (email + nisa)
-
-**Sectiune 9 -- FAQ pentru Coachi**
-- Cat castig? Cum se face plata? Ce primesc clientii? etc.
-
-### Design
-- Stil n8n (consistent cu landing page-ul existent)
-- Dark theme cu accente primary
-- Animatii framer-motion
-- Responsive complet
+**Complexitate:** Medie (2-3 mesaje)
 
 ---
 
-## Fisiere noi si modificate
+## Prioritatea 2: Programe de Antrenament create de Coach
 
-### Fisiere NOI:
-1. `src/pages/B2BLanding.tsx` -- pagina principala /b2b
-2. `src/components/b2b/B2BHero.tsx` -- hero section
-3. `src/components/b2b/B2BValueStack.tsx` -- ce primeste coachul
-4. `src/components/b2b/B2BHowItWorks.tsx` -- cei 3 pasi
-5. `src/components/b2b/B2BRevenueCalculator.tsx` -- calculator interactiv
-6. `src/components/b2b/B2BToolsShowcase.tsx` -- instrumente pentru clienti
-7. `src/components/b2b/B2BFAQ.tsx` -- intrebari frecvente
-8. `src/components/b2b/B2BCta.tsx` -- sectiunea finala cu CTA
+**Problema:** Tabelele `workout_programs` exista, dar nu au legatura cu coach-ul. Un coach nu poate crea programe si le atribui clientilor.
 
-### Fisiere MODIFICATE:
-1. `src/App.tsx` -- adaugare ruta `/b2b` (publica, fara ProtectedRoute)
-2. `src/components/landing/` -- optional, link catre /b2b din footer sau nav
+**Ce trebuie construit:**
 
-### NU se modifica baza de date
-- Infrastructura de coach profiles, referrals, commissions exista deja complet
-- Pagina /b2b este pur frontend, nu necesita tabele noi
+1. **Modificare tabela `workout_programs`:**
+   - Adaugare coloana `coach_id` (UUID, FK coach_profiles, nullable)
+   - Adaugare coloana `tribe_id` (UUID, FK tribes, nullable)
+   - Flag `is_coach_template` pentru a distinge de programele personale
+
+2. **UI in Coach Dashboard:**
+   - Tab "Programe Antrenament" / "Workout Programs"
+   - Builder de program: zile, exercitii, seturi, repetari
+   - Atribuire la tribe sau la client individual
+   - Refolosim componentele existente din `useWorkoutProgram.ts`
+
+3. **Logica:**
+   - Clientii din tribe-ul coach-ului vad programul atribuit
+   - Clientul poate accepta programul (se copiaza in `workout_programs` cu `user_id` propriu)
+
+**Complexitate:** Medie (2-3 mesaje)
+
+---
+
+## Prioritatea 3: Plan de Mese (Meal Plans)
+
+**Problema:** Exista nutritie in rutina (`nutrition_configured`, macro targets), dar nu exista un sistem de meal planning per se.
+
+**Ce trebuie construit:**
+
+1. **Tabele noi:**
+   - `meal_plans` (id, coach_id, tribe_id, name, description, calorie_target, created_at)
+   - `meal_plan_days` (id, meal_plan_id, day_of_week, meals JSONB)
+   - Structura meals: `[{type: 'breakfast', name: '...', calories: 400, protein: 30, ...}]`
+
+2. **UI in Coach Dashboard:**
+   - Tab "Planuri de Mese" / "Meal Plans"
+   - Builder de plan saptamanal cu mese per zi
+   - Macro calculator integrat (refolosim ce exista in routine settings)
+
+3. **UI pentru client:**
+   - Sectiune "Planul Meu de Masa" in rutina zilnica
+   - Check-off per masa
+
+**Complexitate:** Mare (3-4 mesaje)
+
+---
+
+## Prioritatea 4: Tribe ca Skool (Comunitate Admin)
+
+**Problema:** Tribes exista cu wall_posts, dar nu are functionalitati de admin avansat (categorii, anunturi pinned, discutii organizate).
+
+**Ce exista deja:**
+- `wall_posts` cu `is_pinned`, `category`, likes, comments
+- `tribe_members` cu roluri (owner, member)
+- Functii `is_tribe_owner()`, `is_tribe_member()`
+
+**Ce lipseste:**
+1. **UI de admin pentru coach:**
+   - Panou de moderare (pin/unpin, delete posturi)
+   - Categorii de posturi (Anunturi, Discutii, Resurse, Intrebari)
+   - Sectiune "Despre" editabila
+   - Gestionare membri (invite, remove, ban)
+
+2. **UI imbunatatit pentru membri:**
+   - Feed filtrat pe categorii
+   - Notificari la posturi noi
+   - Profil de membru in context tribe
+
+**Complexitate:** Mare (4-5 mesaje)
+
+---
+
+## Prioritatea 5: Onboarding Flow imbunatatit
+
+**Ce lipseste:**
+- Un wizard pas-cu-pas clar: Profil -> Stripe Connect -> Link Referral -> Primul Client
+- Progress bar vizual
+- Checklist de completare
+
+**Complexitate:** Mica (1 mesaj)
+
+---
+
+## Ordinea recomandata de implementare
+
+| Pas | Feature | Mesaje estimate |
+|-----|---------|----------------|
+| 1 | Rutina Personalizata per Grup | 2-3 |
+| 2 | Programe Antrenament Coach | 2-3 |
+| 3 | Tribe Admin (Skool-like) | 4-5 |
+| 4 | Plan de Mese | 3-4 |
+| 5 | Onboarding Flow | 1 |
+
+**Total estimat: 12-16 mesaje**
 
 ---
 
 ## Detalii tehnice
 
-- Pagina /b2b este **publica** (nu necesita autentificare)
-- Reutilizam componente din landing page existente (stiluri n8n, animatii)
-- CTA-ul redirecteaza la `/coach` unde CoachOnboarding se ocupa de creare profil
-- Calculator revenue: componenta client-side cu state React, fara backend
-- Bilingual RO/EN folosind `useLanguage()` existent
-- Toate componentele folosesc Tailwind + framer-motion pentru consistenta
+- Toate tabelele noi vor avea RLS policies bazate pe `coach_id` si `tribe_id`
+- Coach-ul poate edita doar resursele proprii
+- Clientii din tribe pot doar citi (nu edita) template-urile coach-ului
+- Se refolosesc hook-urile existente (`useWorkoutProgram`, `useCoachDashboard`) extinse cu functionalitati noi
+- UI-ul se adauga ca tab-uri noi in Coach Dashboard existent
+- Toate componentele bilingue RO/EN cu `useLanguage()`
 
