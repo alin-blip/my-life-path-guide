@@ -142,7 +142,7 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
   // Form state
   const [formName, setFormName] = useState('');
   const [formDesc, setFormDesc] = useState('');
-  const [formTribeId, setFormTribeId] = useState<string>('');
+  const [formTribeId, setFormTribeId] = useState<string>('none');
   const [formIsDefault, setFormIsDefault] = useState(false);
   const [formActiveSteps, setFormActiveSteps] = useState<Record<string, boolean>>({});
   const [formStepsOrder, setFormStepsOrder] = useState<string[]>(DEFAULT_STEPS.map(s => s.id));
@@ -164,7 +164,7 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
       setEditingTemplate(template);
       setFormName(template.name);
       setFormDesc(template.description || '');
-      setFormTribeId(template.tribe_id || '');
+      setFormTribeId(template.tribe_id || 'none');
       setFormIsDefault(template.is_default);
       setFormActiveSteps((template.active_steps as Record<string, boolean>) || {});
       setFormStepsOrder(
@@ -174,7 +174,7 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
       setEditingTemplate(null);
       setFormName('');
       setFormDesc('');
-      setFormTribeId('');
+      setFormTribeId('none');
       setFormIsDefault(false);
       setFormActiveSteps(
         Object.fromEntries(DEFAULT_STEPS.map(s => [s.id, true]))
@@ -190,7 +190,7 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
     const payload = {
       name: formName.trim(),
       description: formDesc.trim() || undefined,
-      tribe_id: formTribeId || null,
+      tribe_id: formTribeId === 'none' ? null : formTribeId,
       is_default: formIsDefault,
       active_steps: formActiveSteps,
       routine_steps_order: formStepsOrder,
@@ -363,7 +363,7 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
                   <SelectValue placeholder={t.noTribe} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t.noTribe}</SelectItem>
+                  <SelectItem value="none">{t.noTribe}</SelectItem>
                   {tribes.map(tribe => (
                     <SelectItem key={tribe.id} value={tribe.id}>
                       {tribe.name} ({tribe.member_count} {t.members})
