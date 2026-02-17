@@ -2991,6 +2991,98 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_plan_days: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          id: string
+          meal_plan_id: string
+          meals: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          id?: string
+          meal_plan_id: string
+          meals?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          id?: string
+          meal_plan_id?: string
+          meals?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_plan_days_meal_plan_id_fkey"
+            columns: ["meal_plan_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_plans: {
+        Row: {
+          calorie_target: number | null
+          carbs_target: number | null
+          coach_id: string
+          created_at: string
+          description: string | null
+          fats_target: number | null
+          id: string
+          name: string
+          protein_target: number | null
+          tribe_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          calorie_target?: number | null
+          carbs_target?: number | null
+          coach_id: string
+          created_at?: string
+          description?: string | null
+          fats_target?: number | null
+          id?: string
+          name: string
+          protein_target?: number | null
+          tribe_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calorie_target?: number | null
+          carbs_target?: number | null
+          coach_id?: string
+          created_at?: string
+          description?: string | null
+          fats_target?: number | null
+          id?: string
+          name?: string
+          protein_target?: number | null
+          tribe_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_plans_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_plans_tribe_id_fkey"
+            columns: ["tribe_id"]
+            isOneToOne: false
+            referencedRelation: "tribes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       migration_status: {
         Row: {
           backup_data: Json | null
