@@ -125,11 +125,9 @@ export function useCoachRoutineTemplates(coachId: string | undefined) {
   }, [toast, fetchTemplates]);
 
   const applyTemplateToTribe = useCallback(async (templateId: string, tribeId: string) => {
-    // Get template
     const template = templates.find(t => t.id === templateId);
     if (!template) return;
 
-    // Get tribe members
     const { data: members, error: membersError } = await supabase
       .from('tribe_members')
       .select('user_id')
@@ -140,7 +138,6 @@ export function useCoachRoutineTemplates(coachId: string | undefined) {
       return;
     }
 
-    // Apply routine to each member's champion_routine_settings
     let successCount = 0;
     for (const member of members) {
       const updatePayload: any = {
@@ -148,12 +145,10 @@ export function useCoachRoutineTemplates(coachId: string | undefined) {
         active_steps: template.active_steps,
         step_configs: template.step_configs,
       };
-
       const { error } = await supabase
         .from('champion_routine_settings')
         .update(updatePayload)
         .eq('user_id', member.user_id);
-
       if (!error) successCount++;
     }
 
@@ -163,6 +158,28 @@ export function useCoachRoutineTemplates(coachId: string | undefined) {
     });
   }, [templates, toast]);
 
+  const applyTemplateToMember = useCallback(async (templateId: string, userId: string) => {
+    const template = templates.find(t => t.id === templateId);
+    if (!template) return;
+
+    const updatePayload: any = {
+      routine_steps_order: template.routine_steps_order,
+      active_steps: template.active_steps,
+      step_configs: template.step_configs,
+    };
+
+    const { error } = await supabase
+      .from('champion_routine_settings')
+      .update(updatePayload)
+      .eq('user_id', userId);
+
+    if (error) {
+      toast({ title: 'Error', description: 'Could not apply routine.', variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Applied!', description: 'Routine applied to member.' });
+  }, [templates, toast]);
+
   return {
     templates,
     loading,
@@ -170,6 +187,7 @@ export function useCoachRoutineTemplates(coachId: string | undefined) {
     updateTemplate,
     deleteTemplate,
     applyTemplateToTribe,
+    applyTemplateToMember,
     refreshTemplates: fetchTemplates,
   };
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCoachMealPlans, MealPlan, MealPlanDay, Meal } from '@/hooks/useCoachMealPlans';
 import { useLanguage } from '@/context/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import { CoachApplyDialog } from './CoachApplyDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +41,10 @@ export const CoachMealPlans: React.FC<Props> = ({ coachProfileId, userId }) => {
     fetchPlanDetails,
     updateDayMeals,
     applyPlanToTribe,
+    applyPlanToMember,
   } = useCoachMealPlans(coachProfileId);
+
+  const [applyTarget, setApplyTarget] = useState<MealPlan | null>(null);
 
   const [tribes, setTribes] = useState<any[]>([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -426,11 +430,11 @@ export const CoachMealPlans: React.FC<Props> = ({ coachProfileId, userId }) => {
                     </p>
                   )}
                   <div className="flex gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
-                    {plan.tribe_id && (
+                    {(plan.tribe_id || tribes.length > 0) && (
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => applyPlanToTribe(plan.id, plan.tribe_id!)}
+                        onClick={() => setApplyTarget(plan)}
                       >
                         <Send className="h-3 w-3 mr-1" />
                         {language === 'ro' ? 'Trimite' : 'Send'}
@@ -451,6 +455,15 @@ export const CoachMealPlans: React.FC<Props> = ({ coachProfileId, userId }) => {
           })}
         </div>
       )}
+      {/* Apply Dialog */}
+      <CoachApplyDialog
+        open={!!applyTarget}
+        onOpenChange={(open) => { if (!open) setApplyTarget(null); }}
+        tribes={tribes}
+        defaultTribeId={applyTarget?.tribe_id}
+        onApplyToTribe={async (tribeId) => { if (applyTarget) await applyPlanToTribe(applyTarget.id, tribeId); }}
+        onApplyToMember={async (userId) => { if (applyTarget) await applyPlanToMember(applyTarget.id, userId); }}
+      />
     </div>
   );
 };

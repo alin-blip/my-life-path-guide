@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCoachWorkoutPrograms, CoachWorkoutProgram, CoachWorkoutDay } from '@/hooks/useCoachWorkoutPrograms';
 import { useLanguage } from '@/context/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import { CoachApplyDialog } from './CoachApplyDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -88,8 +89,11 @@ export const CoachWorkoutPrograms: React.FC<Props> = ({ coachProfileId, userId }
     deleteExercise,
     updateDay,
     applyProgramToTribe,
+    applyProgramToMember,
     refreshPrograms,
   } = useCoachWorkoutPrograms(coachProfileId);
+
+  const [applyTarget, setApplyTarget] = useState<CoachWorkoutProgram | null>(null);
 
   const [tribes, setTribes] = useState<{ id: string; name: string; member_count: number }[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -169,9 +173,14 @@ export const CoachWorkoutPrograms: React.FC<Props> = ({ coachProfileId, userId }
     if (updated) setEditingProgram(updated);
   };
 
-  const handleApply = async (programId: string, tribeId: string) => {
-    if (!window.confirm(t.applyConfirm)) return;
-    await applyProgramToTribe(programId, tribeId);
+  const handleApplyToTribe = async (tribeId: string) => {
+    if (!applyTarget) return;
+    await applyProgramToTribe(applyTarget.id, tribeId);
+  };
+
+  const handleApplyToMember = async (userId: string) => {
+    if (!applyTarget) return;
+    await applyProgramToMember(applyTarget.id, userId);
   };
 
   const getDayLabel = (dayOfWeek: number) => {
@@ -244,11 +253,11 @@ export const CoachWorkoutPrograms: React.FC<Props> = ({ coachProfileId, userId }
                     <Button variant="outline" size="sm" onClick={() => handleOpenEdit(program.id)}>
                       {t.edit}
                     </Button>
-                    {program.tribe_id && (
+                    {(program.tribe_id || tribes.length > 0) && (
                       <Button
                         variant="default"
                         size="sm"
-                        onClick={() => handleApply(program.id, program.tribe_id!)}
+                        onClick={() => setApplyTarget(program)}
                         className="gap-1"
                       >
                         <Users className="h-4 w-4" />
@@ -410,6 +419,15 @@ export const CoachWorkoutPrograms: React.FC<Props> = ({ coachProfileId, userId }
           )}
         </DialogContent>
       </Dialog>
+      {/* Apply Dialog */}
+      <CoachApplyDialog
+        open={!!applyTarget}
+        onOpenChange={(open) => { if (!open) setApplyTarget(null); }}
+        tribes={tribes}
+        defaultTribeId={applyTarget?.tribe_id}
+        onApplyToTribe={handleApplyToTribe}
+        onApplyToMember={handleApplyToMember}
+      />
     </div>
   );
 };

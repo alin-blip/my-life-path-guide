@@ -215,14 +215,12 @@ export function useCoachWorkoutPrograms(coachId: string | undefined) {
   }, [toast]);
 
   const applyProgramToTribe = useCallback(async (programId: string, tribeId: string) => {
-    // Get full program details
     const program = await fetchProgramDetails(programId);
     if (!program || !program.days) {
       toast({ title: 'Error', description: 'Could not load program.', variant: 'destructive' });
       return;
     }
 
-    // Get tribe members
     const { data: members, error: membersError } = await supabase
       .from('tribe_members')
       .select('user_id')
@@ -236,14 +234,12 @@ export function useCoachWorkoutPrograms(coachId: string | undefined) {
     let successCount = 0;
     for (const member of members) {
       try {
-        // Deactivate existing programs
         await supabase
           .from('workout_programs')
           .update({ is_active: false } as any)
           .eq('user_id', member.user_id)
           .eq('is_coach_template', false);
 
-        // Create a copy for the member
         const { data: newProg, error: progErr } = await supabase
           .from('workout_programs')
           .insert({
@@ -258,7 +254,6 @@ export function useCoachWorkoutPrograms(coachId: string | undefined) {
 
         if (progErr || !newProg) continue;
 
-        // Copy days and exercises
         for (const day of program.days) {
           const { data: newDay } = await supabase
             .from('workout_program_days')
@@ -298,6 +293,72 @@ export function useCoachWorkoutPrograms(coachId: string | undefined) {
     });
   }, [fetchProgramDetails, toast]);
 
+  const applyProgramToMember = useCallback(async (programId: string, userId: string) => {
+    const program = await fetchProgramDetails(programId);
+    if (!program || !program.days) {
+      toast({ title: 'Error', description: 'Could not load program.', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      await supabase
+        .from('workout_programs')
+        .update({ is_active: false } as any)
+        .eq('user_id', userId)
+        .eq('is_coach_template', false);
+
+      const { data: newProg, error: progErr } = await supabase
+        .from('workout_programs')
+        .insert({
+          user_id: userId,
+          name: program.name,
+          description: program.description,
+          is_active: true,
+          is_coach_template: false,
+        } as any)
+        .select()
+        .single();
+
+      if (progErr || !newProg) {
+        toast({ title: 'Error', description: 'Could not create program copy.', variant: 'destructive' });
+        return;
+      }
+
+      for (const day of program.days) {
+        const { data: newDay } = await supabase
+          .from('workout_program_days')
+          .insert({
+            program_id: (newProg as any).id,
+            day_of_week: day.day_of_week,
+            name: day.name,
+            is_rest_day: day.is_rest_day,
+            order_index: day.order_index,
+          })
+          .select()
+          .single();
+
+        if (newDay && day.exercises?.length) {
+          await supabase.from('workout_day_exercises').insert(
+            day.exercises.map((ex: any) => ({
+              day_id: (newDay as any).id,
+              exercise_name: ex.exercise_name,
+              target_sets: ex.target_sets,
+              target_reps: ex.target_reps,
+              target_weight_kg: ex.target_weight_kg,
+              notes: ex.notes,
+              order_index: ex.order_index,
+            }))
+          );
+        }
+      }
+
+      toast({ title: 'Applied!', description: 'Program applied to member.' });
+    } catch (e) {
+      console.error('Error applying program to member:', e);
+      toast({ title: 'Error', description: 'Could not apply program.', variant: 'destructive' });
+    }
+  }, [fetchProgramDetails, toast]);
+
   return {
     programs,
     loading,
@@ -309,6 +370,7 @@ export function useCoachWorkoutPrograms(coachId: string | undefined) {
     deleteExercise,
     updateDay,
     applyProgramToTribe,
+    applyProgramToMember,
     refreshPrograms: fetchPrograms,
   };
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCoachRoutineTemplates, CoachRoutineTemplate } from '@/hooks/useCoachRoutineTemplates';
 import { useLanguage } from '@/context/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import { CoachApplyDialog } from './CoachApplyDialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -130,6 +131,7 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
     updateTemplate,
     deleteTemplate,
     applyTemplateToTribe,
+    applyTemplateToMember,
   } = useCoachRoutineTemplates(coachProfileId);
 
   const [tribes, setTribes] = useState<{ id: string; name: string; member_count: number }[]>([]);
@@ -204,12 +206,14 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
     setShowEditor(false);
   };
 
-  const handleApply = async () => {
-    if (!applyTarget?.tribe_id) return;
-    setApplying(true);
-    await applyTemplateToTribe(applyTarget.id, applyTarget.tribe_id);
-    setApplying(false);
-    setApplyTarget(null);
+  const handleApplyToTribe = async (tribeId: string) => {
+    if (!applyTarget) return;
+    await applyTemplateToTribe(applyTarget.id, tribeId);
+  };
+
+  const handleApplyToMember = async (userId: string) => {
+    if (!applyTarget) return;
+    await applyTemplateToMember(applyTarget.id, userId);
   };
 
   const handleDelete = async () => {
@@ -304,7 +308,7 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
                       <Edit className="h-3.5 w-3.5" />
                       {t.edit}
                     </Button>
-                    {template.tribe_id && (
+                    {(template.tribe_id || tribes.length > 0) && (
                       <Button size="sm" variant="outline" onClick={() => setApplyTarget(template)} className="gap-1">
                         <Send className="h-3.5 w-3.5" />
                         {t.applyToTribe}
@@ -414,22 +418,15 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
         </DialogContent>
       </Dialog>
 
-      {/* Apply Confirmation */}
-      <AlertDialog open={!!applyTarget} onOpenChange={() => setApplyTarget(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.applyConfirm}</AlertDialogTitle>
-            <AlertDialogDescription>{t.applyConfirmDesc}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleApply} disabled={applying}>
-              {applying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              {t.apply}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Apply Dialog */}
+      <CoachApplyDialog
+        open={!!applyTarget}
+        onOpenChange={(open) => { if (!open) setApplyTarget(null); }}
+        tribes={tribes}
+        defaultTribeId={applyTarget?.tribe_id}
+        onApplyToTribe={handleApplyToTribe}
+        onApplyToMember={handleApplyToMember}
+      />
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
