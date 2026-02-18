@@ -19,6 +19,7 @@ import { CoachWorkoutPrograms } from '@/components/coach/CoachWorkoutPrograms';
 import { CoachMealPlans } from '@/components/coach/CoachMealPlans';
 import { CoachMemberManager } from '@/components/coach/CoachMemberManager';
 import { CoachTribeFeed } from '@/components/coach/CoachTribeFeed';
+import { CoachTribeLessons } from '@/components/coach/CoachTribeLessons';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
@@ -37,6 +38,7 @@ import {
   UtensilsCrossed,
   Rss,
   Settings,
+  BookOpen,
 } from 'lucide-react';
 
 const content = {
@@ -57,6 +59,7 @@ const content = {
     tabEarnings: 'Venituri',
     tabFeed: 'Feed',
     tabMembers: 'Membri',
+    tabLessons: 'Lecții',
     
     // Toast messages
     stripeConnected: 'Stripe Conectat!',
@@ -87,6 +90,7 @@ const content = {
     tabEarnings: 'Earnings',
     tabFeed: 'Feed',
     tabMembers: 'Members',
+    tabLessons: 'Lessons',
     
     // Toast messages
     stripeConnected: 'Stripe Connected!',
@@ -266,6 +270,10 @@ const CoachDashboard: React.FC = () => {
             <Settings className="h-4 w-4" />
             <span className="hidden sm:inline">{t.tabMembers}</span>
           </TabsTrigger>
+          <TabsTrigger value="lessons" className="gap-2 py-3">
+            <BookOpen className="h-4 w-4" />
+            <span className="hidden sm:inline">{t.tabLessons}</span>
+          </TabsTrigger>
           <TabsTrigger value="routines" className="gap-2 py-3">
             <LayoutList className="h-4 w-4" />
             <span className="hidden sm:inline">{t.tabRoutines}</span>
@@ -332,6 +340,20 @@ const CoachDashboard: React.FC = () => {
               userId={user.id}
               tribeId={coachTribe.id}
               tribeName={coachTribe.name}
+            />
+          )}
+          {!coachTribe && (
+            <p className="text-center text-muted-foreground py-8">
+              {language === 'ro' ? 'Creează mai întâi un grup din tab-ul Brotherhood.' : 'Create a group first from the Brotherhood tab.'}
+            </p>
+          )}
+        </TabsContent>
+
+        <TabsContent value="lessons" className="mt-6">
+          {coachTribe && coachProfile && (
+            <CoachTribeLessons
+              tribeId={coachTribe.id}
+              coachId={coachProfile.id}
             />
           )}
           {!coachTribe && (

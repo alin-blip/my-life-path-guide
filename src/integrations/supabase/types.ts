@@ -4073,6 +4073,106 @@ export type Database = {
         }
         Relationships: []
       }
+      tribe_course_modules: {
+        Row: {
+          content_text: string | null
+          content_type: string
+          course_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_free: boolean
+          pdf_url: string | null
+          position: number
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          content_text?: string | null
+          content_type?: string
+          course_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_free?: boolean
+          pdf_url?: string | null
+          position?: number
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          content_text?: string | null
+          content_type?: string
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_free?: boolean
+          pdf_url?: string | null
+          position?: number
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tribe_course_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "tribe_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tribe_courses: {
+        Row: {
+          coach_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean
+          position: number
+          thumbnail_url: string | null
+          title: string
+          tribe_id: string
+          updated_at: string
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          position?: number
+          thumbnail_url?: string | null
+          title: string
+          tribe_id: string
+          updated_at?: string
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          position?: number
+          thumbnail_url?: string | null
+          title?: string
+          tribe_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tribe_courses_tribe_id_fkey"
+            columns: ["tribe_id"]
+            isOneToOne: false
+            referencedRelation: "tribes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tribe_invites: {
         Row: {
           created_at: string
@@ -4186,6 +4286,41 @@ export type Database = {
             columns: ["tribe_id"]
             isOneToOne: false
             referencedRelation: "tribes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tribe_module_progress: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          module_id: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          module_id: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          module_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tribe_module_progress_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "tribe_course_modules"
             referencedColumns: ["id"]
           },
         ]
