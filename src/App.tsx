@@ -97,6 +97,8 @@ const Tools = lazy(() => import("./pages/Tools"));
 const Programs = lazy(() => import("./pages/Programs"));
 const PersonalPowerOverview = lazy(() => import("./pages/PersonalPowerOverview"));
 const PersonalPowerDayPage = lazy(() => import("./pages/PersonalPowerDay"));
+const UltimateYouOverview = lazy(() => import("./pages/UltimateYouOverview"));
+const UltimateYouDayPage = lazy(() => import("./pages/UltimateYouDay"));
 const GroupPage = lazy(() => import("./pages/GroupPage"));
 const Messages = lazy(() => import("./pages/Messages"));
 const B2BLanding = lazy(() => import("./pages/B2BLanding"));
@@ -418,6 +420,16 @@ const App = () => (
                     <Route path="/personal-power/:day" element={
                       <ProtectedRoute>
                         <PersonalPowerDayPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/ultimate-you" element={
+                      <ProtectedRoute>
+                        <UltimateYouOverview />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/ultimate-you/:day" element={
+                      <ProtectedRoute>
+                        <UltimateYouDayPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/groups/:groupId" element={
