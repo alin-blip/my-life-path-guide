@@ -4073,6 +4073,47 @@ export type Database = {
         }
         Relationships: []
       }
+      tribe_badges: {
+        Row: {
+          badge_type: string
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          points_required: number | null
+          tribe_id: string
+        }
+        Insert: {
+          badge_type?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          points_required?: number | null
+          tribe_id: string
+        }
+        Update: {
+          badge_type?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          points_required?: number | null
+          tribe_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tribe_badges_tribe_id_fkey"
+            columns: ["tribe_id"]
+            isOneToOne: false
+            referencedRelation: "tribes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tribe_course_modules: {
         Row: {
           content_text: string | null
@@ -4419,6 +4460,44 @@ export type Database = {
           },
         ]
       }
+      tribe_points: {
+        Row: {
+          created_at: string | null
+          id: string
+          points: number
+          reason: string
+          source_type: string
+          tribe_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          points?: number
+          reason: string
+          source_type?: string
+          tribe_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          points?: number
+          reason?: string
+          source_type?: string
+          tribe_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tribe_points_tribe_id_fkey"
+            columns: ["tribe_id"]
+            isOneToOne: false
+            referencedRelation: "tribes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tribe_post_comments: {
         Row: {
           content: string
@@ -4523,6 +4602,35 @@ export type Database = {
             columns: ["tribe_id"]
             isOneToOne: false
             referencedRelation: "tribes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tribe_user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tribe_user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "tribe_badges"
             referencedColumns: ["id"]
           },
         ]
