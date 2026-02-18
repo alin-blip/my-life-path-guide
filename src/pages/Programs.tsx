@@ -60,6 +60,18 @@ const Programs: React.FC = () => {
       totalLessons: 30,
     },
     {
+      id: 'the-ultimate-you',
+      title: 'The Ultimate YOU',
+      titleRo: 'The Ultimate YOU',
+      description: '18-day program to discover your ultimate potential. Transform decisions, emotions and actions for an extraordinary life.',
+      descriptionRo: 'Program de 18 zile pentru a-ți descoperi potențialul maxim. Transformă deciziile, emoțiile și acțiunile pentru o viață extraordinară.',
+      thumbnail: '/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png',
+      path: '/ultimate-you',
+      isFree: true,
+      badge: 'NEW',
+      totalLessons: 18,
+    },
+    {
       id: 'warrior-accelerator',
       title: 'Warrior Launch Accelerator',
       titleRo: 'Warrior Launch Accelerator',
