@@ -1,53 +1,90 @@
 
-# Eliminare Coach-i Nefolosiți (Therapist, Performance, Relationship, Sales)
+# Pasul 2: Fix ProtectedRoute + Curatenie + HeroInlineChat
 
-## Rezumat
+## 1. ProtectedRoute - Adaugare rute lipsa in BASIC_ROUTES
 
-Se elimina 4 coach-i AI neesentiali si componentele asociate lor. Se pastreaza doar Accountability Coach si Mind Coach.
+Toate rutele protejate din App.tsx care NU sunt in `BASIC_ROUTES` si ar trebui sa fie accesibile pentru utilizatorii BASIC:
 
-## Ce se sterge
+| Ruta lipsa | Ce face |
+|---|---|
+| `/stack` | Stack System (sesiuni transformare) |
+| `/stack-library` | Biblioteca de stack-uri |
+| `/stack/view` | Vizualizare stack individual |
+| `/master-plan` | Master Plan System |
+| `/core` | Core values |
+| `/daily-four` | Daily Four routine |
+| `/library` | Biblioteca de resurse |
+| `/notes` | Note personale |
+| `/business` | Business dashboard |
+| `/voice-analysis` | Analiza vocala |
+| `/daily-timeline` | Timeline zilnic |
+| `/empowerment-meditation` | Meditatie empowerment |
+| `/biz4-report` | Raport Business 4 |
+| `/champion-routine-history` | Istoric rutina campion |
+| `/workout` | Antrenamente |
+| `/workout-history` | Istoric antrenamente |
+| `/relationships` | Relatii |
+| `/widget-dashboard` | Dashboard widget-uri |
+| `/leaderboard` | Clasament |
+| `/achievements` | Realizari |
+| `/emotional-tracker` | Tracker emotional |
+| `/time-tracker` | Tracker timp |
+| `/accountability-coach` | Coach responsabilitate |
+| `/quick-quiz` | Quiz rapid |
+| `/coach` | Coach Dashboard |
+| `/programs` | Pagina programe |
+| `/personal-power` | Personal Power curs |
+| `/ultimate-you` | Ultimate You curs |
+| `/groups` | Pagini grupuri |
+| `/messages` | Mesaje |
+| `/mind-coach` | Mind Coach AI |
+| `/support` | Suport |
+| `/dashboard/settings` | Setari dashboard |
+| `/warrior-accelerator-thank-you` | Thank you page |
+| `/vision-2026/dashboard` | Vision dashboard |
 
-### Pagini (3 fisiere)
-- `src/pages/TherapistCoach.tsx`
-- `src/pages/PerformanceCoach.tsx`
-- `src/pages/RelationshipCoach.tsx`
+**Total: ~35 rute lipsa care trebuie adaugate**
 
-### Componente AI Chat (3 fisiere)
-- `src/components/ai/TherapistCoachChat.tsx`
-- `src/components/ai/PerformanceCoachChat.tsx`
-- `src/components/ai/RelationshipCoachChat.tsx`
+### Fisier modificat
+`src/components/ProtectedRoute.tsx` - adaugare rute in `BASIC_ROUTES`
 
-### Dashboard (1 fisier)
-- `src/components/dashboard/DualCoachCard.tsx` - nu este importat NICAIERI, complet nefolosit
+---
 
-### Landing / Sales Coach (2 fisiere)
-- `src/components/landing/SalesCoachWidget.tsx`
-- `src/hooks/useSalesCoach.ts`
+## 2. Curatenie HeroInlineChat (cod mort dupa eliminarea SalesCoach)
 
-### Edge Functions (4 directoare)
-- `supabase/functions/therapist-coach/`
-- `supabase/functions/performance-coach/`
-- `supabase/functions/relationship-coach/`
-- `supabase/functions/sales-coach/`
+Dupa eliminarea SalesCoachWidget, componentele `HeroInlineChat` si `NewHeroSection` inca au props `onAskQuestion` si `onOpenChat` care nu mai fac nimic (sunt apelate cu `undefined`). Butoanele din HeroInlineChat apar pe landing page dar nu au niciun efect la click.
 
-**Total: 9 fisiere frontend + 4 edge functions = 13 stergeri**
+### Optiuni:
+- **Eliminam complet HeroInlineChat** din hero section (nu mai are functionalitate)
+- **Sau** il transformam sa redirectioneze la `/auth` in loc sa deschida chat-ul
 
-## Ce se modifica
+### Fisiere modificate:
+- `src/components/landing/NewHeroSection.tsx` - eliminare props si HeroInlineChat
+- `src/components/landing/HeroInlineChat.tsx` - stergere fisier (optional)
 
-### `src/App.tsx`
-- Stergere 3 import-uri lazy: `RelationshipCoach`, `TherapistCoach`, `PerformanceCoachPage`
-- Stergere 3 Route-uri: `/relationship-coach`, `/therapist-coach`, `/performance-coach`
+---
 
-### `src/pages/Index.tsx`
-- Stergere import `SalesCoachWidget`
-- Stergere render `<SalesCoachWidget />` din landing page
-- Stergere state-ul `pendingSalesMessage` si handler-ul asociat (daca exista)
+## 3. Stergere fisiere temporare nefolosite
 
-### `src/utils/navigationRoutes.ts`
-- Stergere rutele `/relationship-coach`, `/therapist-coach`, `/performance-coach` (daca exista - nu sunt in fisierul curent dar trebuie verificat)
+| Fisier | Motiv |
+|---|---|
+| `src/components/stack/TemporaryDatabaseFix.tsx` | Nu este importat nicaieri |
+| `src/services/napoleonHillDraftService.ts` | Re-export legacy |
+| `src/services/napoleonHillBackupService.ts` | Re-export legacy |
+| `src/services/napoleonHillProjectService.ts` | Re-export legacy |
 
-## Ce NU se modifica
-- Accountability Coach (widget persistent) - ramane intact
-- Mind Coach (Challenge + landing page) - ramane intact
-- Napoleon Hill Coach (widget dashboard) - ramane intact
-- Toate celelalte edge functions raman neatinse
+Inainte de stergerea fisierelor Napoleon Hill, se verifica daca sunt importate undeva.
+
+---
+
+## Rezumat tehnic
+
+| Actiune | Fisier |
+|---|---|
+| Adaugare ~35 rute | `src/components/ProtectedRoute.tsx` |
+| Eliminare HeroInlineChat | `src/components/landing/NewHeroSection.tsx` |
+| Stergere HeroInlineChat | `src/components/landing/HeroInlineChat.tsx` |
+| Stergere temp fix | `src/components/stack/TemporaryDatabaseFix.tsx` |
+| Stergere legacy re-exports | 3 fisiere napoleonHill*.ts |
+
+Nu sunt necesare migrari de baza de date.
