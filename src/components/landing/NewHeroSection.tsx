@@ -6,15 +6,7 @@ import { ArrowRight, CheckCircle2, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LandingEarlyBirdTimer } from "./LandingEarlyBirdTimer";
-import { HeroInlineChat } from "./HeroInlineChat";
-interface NewHeroSectionProps {
-  onAskQuestion?: (question: string) => void;
-  onOpenChat?: () => void;
-}
-export const NewHeroSection = ({
-  onAskQuestion,
-  onOpenChat
-}: NewHeroSectionProps) => {
+export const NewHeroSection = () => {
   const navigate = useNavigate();
   const {
     language
@@ -68,12 +60,6 @@ export const NewHeroSection = ({
       : 'The operating system for a balanced, abundant and fulfilling life',
     cta: language === 'ro' ? 'Începe Transformarea Gratuit' : 'Start Your Transformation Free',
     guarantees: language === 'ro' ? ['Garanție 90 zile', 'Anulezi oricând', 'Fără card la trial'] : ['90-day guarantee', 'Cancel anytime', 'No card for trial']
-  };
-  const handleAskQuestion = (question: string) => {
-    onAskQuestion?.(question);
-  };
-  const handleOpenChat = () => {
-    onOpenChat?.();
   };
   return <section className="relative min-h-screen flex items-center pt-8 pb-12 md:pt-16 md:pb-24 overflow-x-hidden n8n-hero-gradient">
       {/* Animated Background */}
@@ -197,18 +183,8 @@ export const NewHeroSection = ({
             </Button>
           </motion.div>
 
-          {/* Inline Chat Component */}
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          delay: 0.6
-        }} className="mt-8">
-            <HeroInlineChat onAskQuestion={handleAskQuestion} onOpenChat={handleOpenChat} />
-          </motion.div>
+
+
 
 
           {/* Real Metrics */}
