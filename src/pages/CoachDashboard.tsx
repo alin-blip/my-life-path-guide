@@ -20,6 +20,7 @@ import { CoachMealPlans } from '@/components/coach/CoachMealPlans';
 import { CoachMemberManager } from '@/components/coach/CoachMemberManager';
 import { CoachTribeFeed } from '@/components/coach/CoachTribeFeed';
 import { CoachTribeLessons } from '@/components/coach/CoachTribeLessons';
+import { CoachTribeCalendar } from '@/components/coach/CoachTribeCalendar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
@@ -39,6 +40,7 @@ import {
   Rss,
   Settings,
   BookOpen,
+  CalendarDays,
 } from 'lucide-react';
 
 const content = {
@@ -60,6 +62,7 @@ const content = {
     tabFeed: 'Feed',
     tabMembers: 'Membri',
     tabLessons: 'Lecții',
+    tabCalendar: 'Calendar',
     
     // Toast messages
     stripeConnected: 'Stripe Conectat!',
@@ -91,6 +94,7 @@ const content = {
     tabFeed: 'Feed',
     tabMembers: 'Members',
     tabLessons: 'Lessons',
+    tabCalendar: 'Calendar',
     
     // Toast messages
     stripeConnected: 'Stripe Connected!',
@@ -274,6 +278,10 @@ const CoachDashboard: React.FC = () => {
             <BookOpen className="h-4 w-4" />
             <span className="hidden sm:inline">{t.tabLessons}</span>
           </TabsTrigger>
+          <TabsTrigger value="calendar" className="gap-2 py-3">
+            <CalendarDays className="h-4 w-4" />
+            <span className="hidden sm:inline">{t.tabCalendar}</span>
+          </TabsTrigger>
           <TabsTrigger value="routines" className="gap-2 py-3">
             <LayoutList className="h-4 w-4" />
             <span className="hidden sm:inline">{t.tabRoutines}</span>
@@ -354,6 +362,21 @@ const CoachDashboard: React.FC = () => {
             <CoachTribeLessons
               tribeId={coachTribe.id}
               coachId={coachProfile.id}
+            />
+          )}
+          {!coachTribe && (
+            <p className="text-center text-muted-foreground py-8">
+              {language === 'ro' ? 'Creează mai întâi un grup din tab-ul Brotherhood.' : 'Create a group first from the Brotherhood tab.'}
+            </p>
+          )}
+        </TabsContent>
+
+        <TabsContent value="calendar" className="mt-6">
+          {coachTribe && user && (
+            <CoachTribeCalendar
+              tribeId={coachTribe.id}
+              userId={user.id}
+              isOwner={true}
             />
           )}
           {!coachTribe && (

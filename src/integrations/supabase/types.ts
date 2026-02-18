@@ -4173,6 +4173,100 @@ export type Database = {
           },
         ]
       }
+      tribe_event_rsvps: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tribe_event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "tribe_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tribe_events: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          end_at: string | null
+          event_type: string
+          id: string
+          is_recurring: boolean | null
+          location: string | null
+          max_attendees: number | null
+          meeting_url: string | null
+          recurrence_rule: string | null
+          start_at: string
+          title: string
+          tribe_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          end_at?: string | null
+          event_type?: string
+          id?: string
+          is_recurring?: boolean | null
+          location?: string | null
+          max_attendees?: number | null
+          meeting_url?: string | null
+          recurrence_rule?: string | null
+          start_at: string
+          title: string
+          tribe_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          end_at?: string | null
+          event_type?: string
+          id?: string
+          is_recurring?: boolean | null
+          location?: string | null
+          max_attendees?: number | null
+          meeting_url?: string | null
+          recurrence_rule?: string | null
+          start_at?: string
+          title?: string
+          tribe_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tribe_events_tribe_id_fkey"
+            columns: ["tribe_id"]
+            isOneToOne: false
+            referencedRelation: "tribes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tribe_invites: {
         Row: {
           created_at: string
