@@ -4691,6 +4691,51 @@ export type Database = {
           },
         ]
       }
+      ultimate_you_progress: {
+        Row: {
+          breakthrough_completed: boolean | null
+          breakthrough_text: string | null
+          coaching_completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          day_number: number
+          exercise_completed: boolean | null
+          exercise_responses: Json | null
+          id: string
+          lesson_completed: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          breakthrough_completed?: boolean | null
+          breakthrough_text?: string | null
+          coaching_completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          day_number: number
+          exercise_completed?: boolean | null
+          exercise_responses?: Json | null
+          id?: string
+          lesson_completed?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          breakthrough_completed?: boolean | null
+          breakthrough_text?: string | null
+          coaching_completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          day_number?: number
+          exercise_completed?: boolean | null
+          exercise_responses?: Json | null
+          id?: string
+          lesson_completed?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_description: string | null
