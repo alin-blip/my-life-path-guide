@@ -1,44 +1,77 @@
 
+# Unificare Comunitate - Audit si Plan
 
-# Introducere pentru The Ultimate YOU
+## Situatia curenta
 
-## Ce se va implementa
+Exista 3 sisteme separate care fac partial acelasi lucru:
 
-O sectiune de introducere pe pagina de overview (`UltimateYouOverview.tsx`) care va aparea INAINTE de lista celor 18 zile. Aceasta va contine:
+1. **Brotherhood** (`/brotherhood`) - redirectioneaza catre `/programs?tab=community`, contine Feed global, Chat, Tribes, Members
+2. **Community Tab** (`/programs?tab=community`) - feed global cu postari, categorii, sidebar
+3. **Group Page** (`/groups/:id`) - pagina individuala per grup cu Feed, Chat, Members, About
 
-1. **Text introductiv** complet in format Markdown — explicand ce este cursul, ce va invata utilizatorul, structura celor 18 zile, si ce sa astepte
-2. **Buton "Asculta cu AI"** — folosind componenta `TextToSpeechButton` existenta pentru a citi introducerea cu voce
+### Ce exista deja functional
+- Postari cu like-uri, comentarii, media upload
+- Chat realtime per grup
+- Creare/join/leave grupuri (publice/private)
+- Roluri de membri (owner, admin, moderator, member)
+- **Componente coach** pentru cursuri, calendar si gamificare (exista in cod dar NU sunt integrate in pagina grupului)
 
-## Continut introductiv (bilingv RO/EN)
+### Ce lipseste
 
-Textul va acoperi:
-- Ce este The Ultimate YOU (program transformational de 18 zile)
-- Cele 3 module: Personal Power (Zilele 1-7), Get the Edge (Zilele 8-13), Inner Strength (Zilele 14-18)
-- Ce vei invata: decizii, emotii, obiective, relatii, energie, finante, scop
-- Cum functioneaza: lectie + exercitii + AI Coach + breakthrough + comunitate
-- Indemn de actiune: "Incepe cu Ziua 1"
+**A. Cursuri/Lectii in grupuri** - componentele `CoachTribeLessons` exista dar nu apar in GroupPage. Tabelele `tribe_courses` si `tribe_course_modules` exista in baza de date.
 
-## Detalii tehnice
+**B. Calendar/Evenimente in grupuri** - `CoachTribeCalendar` exista dar nu e integrat. Tabelul `tribe_events` exista.
 
-### Fisiere modificate
+**C. Gamificare in grupuri** - `CoachTribeGamification` exista dar nu e integrat. Tabelele `tribe_badges`, `tribe_points`, `tribe_user_badges` exista.
 
-**`src/pages/UltimateYouOverview.tsx`** — adaugare sectiune intro cu:
-- Card expandabil/collapsibil cu introducerea completa
-- `TextToSpeechButton` importat din `@/components/ui/TextToSpeechButton`
-- Textul stocat ca constanta string in pagina (RO si EN)
-- Render cu `ReactMarkdown` folosind aceleasi componente de styling ca `UltimateYouLesson`
-- Sectiunea apare intre header si progress bar
+**D. Setari grup** - nu exista posibilitatea de a edita descrierea, cover image, toggle public/privat din interfata grupului.
 
-### Componente reutilizate
-- `TextToSpeechButton` — deja existent, functioneaza cu edge function-ul `text-to-speech`
-- `ReactMarkdown` — deja instalat si folosit in `UltimateYouLesson`
+**E. Moderare** - nu exista optiuni de pin/delete postari, promovare/retrogradare roluri, ban membri.
 
-### Structura vizuala
-- Card cu background subtil (`bg-card border`)
-- Buton verde "Asculta introducerea" in partea de sus
-- Text Markdown formatat cu heading-uri, bullet points, bold
-- Buton "Incepe Ziua 1" la final care navigheaza la `/ultimate-you/1`
+**F. Navigare unificata** - nu exista un punct unic de acces "Comunitate" in platforma.
 
-### Build errors existente
-Voi verifica si repara orice build errors existente in acelasi timp (din mesajele anterioare de implementare).
+---
 
+## Plan de implementare
+
+### Etapa 1: Integrare cursuri, calendar si gamificare in GroupPage
+
+Adaugam tab-urile "Classroom", "Calendar" si "Leaderboard" in `GroupHeader.tsx` si le randam in `GroupPage.tsx`, reutilizand componentele existente din `src/components/coach/`:
+- `CoachTribeLessons` - pentru cursuri si module
+- `CoachTribeCalendar` - pentru evenimente
+- `CoachTribeGamification` - pentru puncte, badge-uri, clasament
+
+Aceste tab-uri vor fi vizibile tuturor membrilor, dar actiunile de creare/editare vor fi restrictionate la owner si admin.
+
+### Etapa 2: Setari si moderare grup
+
+Adaugam un tab "Settings" vizibil doar owner-ului/admin-ului care permite:
+- Editare nume, descriere, cover image
+- Toggle public/privat
+- Managementul rolurilor membrilor (promovare la admin/mod, kick)
+
+Adaugam actiuni de moderare pe postari (pin, delete) pentru owner/admin/mod.
+
+### Etapa 3: Unificare navigare
+
+- Redenumim totul la "Comunitate" / "Community"
+- Eliminam duplicarile: pagina Brotherhood veche ramane redirect
+- Adaugam "Community" ca tab vizibil in SkoolNavBar (deja exista ca tip dar nu e afisat)
+- Feed-ul comunitar principal devine agregat din toate grupurile utilizatorului
+
+### Detalii tehnice
+
+**Fisiere modificate:**
+- `src/components/groups/GroupHeader.tsx` - adaugam tab-uri: Classroom, Calendar, Leaderboard, Settings
+- `src/pages/GroupPage.tsx` - randam componentele coach existente pe noile tab-uri
+- `src/components/groups/GroupSettings.tsx` - componenta noua pentru setari grup
+- `src/components/groups/GroupModActions.tsx` - componenta noua pentru actiuni moderare pe postari
+
+**Componente reutilizate (fara modificari):**
+- `CoachTribeLessons` - cursuri si module
+- `CoachTribeCalendar` - evenimente
+- `CoachTribeGamification` - puncte si badge-uri
+
+**Baza de date:** Nu necesita migrari - tabelele `tribe_courses`, `tribe_course_modules`, `tribe_events`, `tribe_badges`, `tribe_points`, `tribe_user_badges` exista deja cu RLS configurat.
+
+Vrei sa incepem cu Etapa 1 (integrarea cursurilor, calendarului si gamificarii)?
