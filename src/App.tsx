@@ -66,9 +66,6 @@ const WorkoutHistory = lazy(() => import("./pages/WorkoutHistory"));
 const WidgetDashboard = lazy(() => import("./pages/WidgetDashboard"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const Achievements = lazy(() => import("./pages/Achievements"));
-const RelationshipCoach = lazy(() => import("./pages/RelationshipCoach"));
-const TherapistCoach = lazy(() => import("./pages/TherapistCoach"));
-const PerformanceCoachPage = lazy(() => import("./pages/PerformanceCoach"));
 const EmotionalTracker = lazy(() => import("./pages/EmotionalTracker"));
 const TimeTracker = lazy(() => import("./pages/TimeTracker"));
 const AccountabilityCoach = lazy(() => import("./pages/AccountabilityCoach"));
@@ -325,21 +322,6 @@ const App = () => (
                     <Route path="/achievements" element={
                       <ProtectedRoute>
                         <Achievements />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/relationship-coach" element={
-                      <ProtectedRoute>
-                        <RelationshipCoach />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/therapist-coach" element={
-                      <ProtectedRoute>
-                        <TherapistCoach />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/performance-coach" element={
-                      <ProtectedRoute>
-                        <PerformanceCoachPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/emotional-tracker" element={
