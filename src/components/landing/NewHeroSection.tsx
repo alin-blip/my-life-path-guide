@@ -59,8 +59,8 @@ export const NewHeroSection = ({
   const heroContent = {
     badge: 'Pentru High Performance',
     headline: {
-      result: language === 'ro' ? 'Obține de 3-10x mai multe rezultate' : 'Get 3-10x more results',
-      timeframe: language === 'ro' ? 'în Business, relații, corp și spiritualitate' : 'in Business, relationships, body and spirituality',
+      result: language === 'ro' ? 'Obține de 3-10x mai multe rezultate în Business,' : 'Get 3-10x more results in Business,',
+      timeframe: language === 'ro' ? 'relații, corp și spiritualitate' : 'relationships, body and spirituality',
       connector: language === 'ro' ? 'simultan lucrând mai puțin, în 40 de zile' : 'simultaneously while working less, in 40 days',
     },
     subheadline: language === 'ro' 
