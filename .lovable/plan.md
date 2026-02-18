@@ -1,62 +1,63 @@
 
 
-# Personalizare Individuala per Membru (Rutina + Antrenament + Mese)
+# Audit Fix: RLS Gamification + State Sync
 
-## Problema
+## Probleme identificate
 
-Acum toate cele 3 module (Rutine, Antrenamente, Mese) permit doar "Aplica la tot grupul". Coach-ul nu poate selecta un membru specific din grup pentru a-i trimite un plan personalizat.
+### 1. RLS Gamification - rolul `owner` lipseste
+Politicile RLS pentru `tribe_points`, `tribe_badges` si `tribe_user_badges` verifica doar `role = 'admin'`, dar coach-ul care creeaza tribul primeste rolul `owner`. Rezultat: coach-ul NU poate acorda puncte sau badge-uri in propriul trib.
 
-## Solutia
+### 2. State Sync - `requires_approval` nu se incarca din DB
+In `CoachMemberManager.tsx`, starea `requiresApproval` porneste ca `false` si nu se sincronizeaza cu valoarea reala din baza de date la montare.
 
-Adaugam in toate cele 3 componente un **dialog de selectie** care permite:
-- **Aplica la tot grupul** (cum functioneaza acum)
-- **Aplica la un membru specific** (NOU) -- coach-ul alege grupul, apoi membrul
+---
 
-## Ce se modifica
+## Plan de implementare
 
-### 1. Hook-uri -- adaugam functii `applyToMember`
+### Pas 1: Migrare SQL - Fix RLS policies
+Creare migrare care inlocuieste toate politicile de INSERT/UPDATE/DELETE pentru cele 3 tabele de gamificare, schimband conditia:
+- De la: `tm.role = 'admin'`
+- La: `tm.role IN ('admin', 'owner')`
 
-**`useCoachRoutineTemplates.ts`**
-- Functie noua `applyTemplateToMember(templateId, userId)` -- actualizeaza `champion_routine_settings` doar pentru un singur user
+Afecteaza 5 politici:
+- `tribe_points`: INSERT (coach awards points)
+- `tribe_badges`: INSERT, UPDATE, DELETE (coach manages badges)
+- `tribe_user_badges`: INSERT (coach awards badges to members)
 
-**`useCoachWorkoutPrograms.ts`**
-- Functie noua `applyProgramToMember(programId, userId)` -- creaza copia programului doar pentru un singur user
+### Pas 2: Fix state sync in CoachMemberManager.tsx
+Adaugare `useEffect` care citeste `requires_approval` din tabela `tribes` la montare si seteaza starea initiala corect. Se va folosi `supabase.from('tribes').select('requires_approval').eq('id', tribeId).single()`.
 
-**`useCoachMealPlans.ts`**
-- Functie noua `applyPlanToMember(planId, userId)` -- actualizeaza nutrition targets doar pentru un singur user
+---
 
-### 2. Componente UI -- dialog de aplicare cu selectie membru
+## Detalii tehnice
 
-In fiecare componenta (`CoachRoutineTemplates`, `CoachWorkoutPrograms`, `CoachMealPlans`), cand coach-ul apasa "Aplica" / "Trimite":
+### Migrare SQL
+```sql
+-- Drop and recreate affected policies with owner role included
+DROP POLICY IF EXISTS "Coach can award points" ON public.tribe_points;
+CREATE POLICY "Coach can award points" ON public.tribe_points
+  FOR INSERT TO authenticated
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM public.tribe_members tm
+    WHERE tm.tribe_id = tribe_points.tribe_id 
+      AND tm.user_id = auth.uid() 
+      AND tm.role IN ('admin', 'owner')
+  ));
 
-- Se deschide un **dialog de aplicare** cu doua optiuni:
-  - Radio 1: "Tot grupul" (comportament actual)
-  - Radio 2: "Un membru specific" -- apare un dropdown cu membrii grupului
-- Membrii se incarca din `tribe_members` JOIN `leaderboard_profiles` (pentru display_name)
-- Dupa selectie, se apeleaza fie `applyToTribe` fie `applyToMember`
-
-### 3. Fetch membrii grupului
-
-Se adauga un query comun in fiecare componenta:
-```text
-SELECT tm.user_id, lp.display_name
-FROM tribe_members tm
-LEFT JOIN leaderboard_profiles lp ON lp.user_id = tm.user_id
-WHERE tm.tribe_id = ?
-ORDER BY lp.display_name
+-- Same pattern for tribe_badges (INSERT, UPDATE, DELETE)
+-- Same pattern for tribe_user_badges (INSERT)
 ```
 
-## Fisiere modificate
-
-| Fisier | Ce se schimba |
-|--------|--------------|
-| `src/hooks/useCoachRoutineTemplates.ts` | + `applyTemplateToMember()` |
-| `src/hooks/useCoachWorkoutPrograms.ts` | + `applyProgramToMember()` |
-| `src/hooks/useCoachMealPlans.ts` | + `applyPlanToMember()` |
-| `src/components/coach/CoachRoutineTemplates.tsx` | Dialog aplicare cu selectie grup/membru |
-| `src/components/coach/CoachWorkoutPrograms.tsx` | Dialog aplicare cu selectie grup/membru |
-| `src/components/coach/CoachMealPlans.tsx` | Dialog aplicare cu selectie grup/membru |
-
-## Nu se modifica baza de date
-Tabelele existente suporta deja aplicarea individuala -- logica e aceeasi, doar ca se ruleaza pentru un singur `user_id` in loc de toti membrii.
+### CoachMemberManager.tsx
+Adaugare useEffect dupa linia 123:
+```typescript
+useEffect(() => {
+  if (!tribeId) return;
+  supabase.from('tribes').select('requires_approval')
+    .eq('id', tribeId).single()
+    .then(({ data }) => {
+      if (data) setRequiresApproval(!!data.requires_approval);
+    });
+}, [tribeId]);
+```
 
