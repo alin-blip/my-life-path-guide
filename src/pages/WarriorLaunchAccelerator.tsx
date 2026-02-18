@@ -111,8 +111,8 @@ const WarriorLaunchAccelerator = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Warrior Launch Accelerator - Sistemul Complet de Transformare în 90 de Zile</title>
-        <meta name="description" content="Warrior Launch Accelerator: 47+ lecții video premium + platforma completă WarriorOS. Transformă-ți viața în Corp, Ființă, Echilibru și Afacere. Preț: 497 EUR." />
+        <title>Warrior Certified Coach - Sistemul Complet de Transformare în 90 de Zile</title>
+        <meta name="description" content="Warrior Certified Coach: 47+ lecții video premium + platforma completă WarriorOS. Transformă-ți viața în Corp, Ființă, Echilibru și Afacere." />
       </Helmet>
 
       {/* Hero Section */}
@@ -126,8 +126,8 @@ const WarriorLaunchAccelerator = () => {
               Acces Complet la WarriorOS
             </Badge>
             
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-amber-500 to-primary bg-clip-text text-transparent">
-              Warrior Launch Accelerator
+             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-amber-500 to-primary bg-clip-text text-transparent">
+              Warrior Certified Coach
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
@@ -343,7 +343,7 @@ const WarriorLaunchAccelerator = () => {
             <Card className="overflow-hidden border-2 border-primary shadow-2xl">
               <div className="bg-gradient-to-r from-primary to-amber-500 p-6 text-center">
                 <h3 className="text-2xl font-bold text-primary-foreground">
-                  Warrior Launch Accelerator
+                   Warrior Certified Coach
                 </h3>
                 <p className="text-primary-foreground/80">
                   Acces Complet pe Viață

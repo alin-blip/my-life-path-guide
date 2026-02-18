@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCoachTribeLessons, TribeCourse, TribeCourseModule } from '@/hooks/useCoachTribeLessons';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +22,16 @@ import {
   File,
   Loader2,
   GripVertical,
+  ExternalLink,
+  Crown,
 } from 'lucide-react';
+
+const PLATFORM_COURSES = [
+  { slug: 'personal-power', title: 'Personal Power Plus', price: 97, priceLabel: '97 EUR', path: '/personal-power', isFree: false },
+  { slug: 'ultimate-you', title: 'The Ultimate YOU', price: 97, priceLabel: '97 EUR', path: '/ultimate-you', isFree: false },
+  { slug: 'warrior-certified-coach', title: 'Warrior Certified Coach', price: 1999, priceLabel: '1.999 EUR', path: '/warrior-launch-accelerator', isFree: false },
+  { slug: 'challenge', title: 'Have It All Lifestyle Challenge', price: 0, priceLabel: 'GRATUIT', path: '/challenge', isFree: true },
+];
 
 interface Props {
   tribeId: string;
@@ -91,6 +101,7 @@ const t = {
 
 export const CoachTribeLessons: React.FC<Props> = ({ tribeId, coachId }) => {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const txt = t[language] || t.ro;
 
   const {
@@ -241,10 +252,48 @@ export const CoachTribeLessons: React.FC<Props> = ({ tribeId, coachId }) => {
 
   // Course list view
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Platform Courses Section */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Crown className="h-5 w-5 text-amber-500" />
+          <h3 className="font-semibold text-lg">{language === 'ro' ? 'Cursuri Platformă' : 'Platform Courses'}</h3>
+          <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/30 text-[10px]">
+            {language === 'ro' ? 'Comision 50%' : '50% Commission'}
+          </Badge>
+        </div>
+
+        {PLATFORM_COURSES.map(course => (
+          <Card key={course.slug}
+            className="cursor-pointer hover:border-amber-500/50 transition-colors border-amber-500/20 bg-amber-500/5"
+            onClick={() => navigate(`${course.path}?ref=${coachId}`)}>
+            <CardContent className="pt-4 flex items-center justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-medium truncate">{course.title}</p>
+                  <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-600 shrink-0">
+                    Platformă
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className={`text-sm font-semibold ${course.isFree ? 'text-green-600' : 'text-foreground'}`}>
+                  {course.priceLabel}
+                </span>
+                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Separator */}
+      <div className="border-t border-border" />
+
+      {/* Coach Custom Courses */}
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-primary" /> {txt.title}
+          <BookOpen className="h-5 w-5 text-primary" /> {language === 'ro' ? 'Cursurile Tale' : 'Your Courses'}
         </h3>
         <Button size="sm" onClick={() => setShowNewCourse(true)}>
           <Plus className="h-4 w-4 mr-1" /> {txt.newCourse}
