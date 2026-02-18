@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 import { useCoachTribeAdmin } from '@/hooks/useCoachTribeAdmin';
 import { useCoachTribe } from '@/hooks/useCoachTribe';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -127,6 +128,16 @@ export const CoachMemberManager: React.FC<Props> = ({ coachProfileId, userId, tr
     fetchInvites();
     fetchJoinRequests();
   }, [fetchInvites, fetchJoinRequests]);
+
+  // Sync requires_approval from DB on mount
+  useEffect(() => {
+    if (!tribeId) return;
+    supabase.from('tribes').select('requires_approval')
+      .eq('id', tribeId).maybeSingle()
+      .then(({ data }) => {
+        if (data) setRequiresApproval(!!data.requires_approval);
+      });
+  }, [tribeId]);
 
   const handleCreateInvite = async () => {
     await createInvite();
