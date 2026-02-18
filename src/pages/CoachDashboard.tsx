@@ -21,6 +21,7 @@ import { CoachMemberManager } from '@/components/coach/CoachMemberManager';
 import { CoachTribeFeed } from '@/components/coach/CoachTribeFeed';
 import { CoachTribeLessons } from '@/components/coach/CoachTribeLessons';
 import { CoachTribeCalendar } from '@/components/coach/CoachTribeCalendar';
+import { CoachTribeGamification } from '@/components/coach/CoachTribeGamification';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
@@ -41,6 +42,7 @@ import {
   Settings,
   BookOpen,
   CalendarDays,
+  Trophy,
 } from 'lucide-react';
 
 const content = {
@@ -63,6 +65,7 @@ const content = {
     tabMembers: 'Membri',
     tabLessons: 'Lecții',
     tabCalendar: 'Calendar',
+    tabGamification: 'Puncte',
     
     // Toast messages
     stripeConnected: 'Stripe Conectat!',
@@ -95,6 +98,7 @@ const content = {
     tabMembers: 'Members',
     tabLessons: 'Lessons',
     tabCalendar: 'Calendar',
+    tabGamification: 'Points',
     
     // Toast messages
     stripeConnected: 'Stripe Connected!',
@@ -131,7 +135,7 @@ const CoachDashboard: React.FC = () => {
     copyReferralLink,
   } = useCoachDashboard();
 
-  const { coachTribe } = useCoachTribe(coachProfile?.id, user?.id);
+  const { coachTribe, members: tribeMembers } = useCoachTribe(coachProfile?.id, user?.id);
 
   useEffect(() => {
     const onboardingStatus = searchParams.get('onboarding');
@@ -282,6 +286,10 @@ const CoachDashboard: React.FC = () => {
             <CalendarDays className="h-4 w-4" />
             <span className="hidden sm:inline">{t.tabCalendar}</span>
           </TabsTrigger>
+          <TabsTrigger value="gamification" className="gap-2 py-3">
+            <Trophy className="h-4 w-4" />
+            <span className="hidden sm:inline">{t.tabGamification}</span>
+          </TabsTrigger>
           <TabsTrigger value="routines" className="gap-2 py-3">
             <LayoutList className="h-4 w-4" />
             <span className="hidden sm:inline">{t.tabRoutines}</span>
@@ -377,6 +385,22 @@ const CoachDashboard: React.FC = () => {
               tribeId={coachTribe.id}
               userId={user.id}
               isOwner={true}
+            />
+          )}
+          {!coachTribe && (
+            <p className="text-center text-muted-foreground py-8">
+              {language === 'ro' ? 'Creează mai întâi un grup din tab-ul Brotherhood.' : 'Create a group first from the Brotherhood tab.'}
+            </p>
+          )}
+        </TabsContent>
+
+        <TabsContent value="gamification" className="mt-6">
+          {coachTribe && user && (
+            <CoachTribeGamification
+              tribeId={coachTribe.id}
+              userId={user.id}
+              isOwner={true}
+              members={tribeMembers.map(m => ({ user_id: m.user_id, profiles: { display_name: m.display_name } }))}
             />
           )}
           {!coachTribe && (
