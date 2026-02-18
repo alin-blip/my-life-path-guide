@@ -59,14 +59,14 @@ export const NewHeroSection = ({
   const heroContent = {
     badge: 'Pentru High Performance',
     headline: {
-      result: language === 'ro' ? 'Fii de 2-10X mai productiv' : 'Get 2-10x more done',
-      timeframe: language === 'ro' ? 'în maxim 40 de zile' : 'in just 40 days',
-      connector: language === 'ro' ? 'în timp ce-ți reconstruiești' : 'while you rebuild your',
-      transformation: language === 'ro' ? 'relațiile, corpul și sufletul' : 'marriage, body and soul'
+      result: language === 'ro' ? 'Obține de 3-10x mai multe rezultate' : 'Get 3-10x more results',
+      timeframe: language === 'ro' ? 'în Business, relații, corp și spiritualitate' : 'in Business, relationships, body and spirituality',
+      connector: language === 'ro' ? 'simultan lucrând mai puțin în 40 de zile' : 'simultaneously while working less in 40 days',
+      transformation: ''
     },
     subheadline: language === 'ro' 
-      ? 'Sistemul Dovedit alimentat de AI pentru productivitate, impact, fericire și sens' 
-      : 'The Proven System powered by AI for productivity, impact, happiness and meaning',
+      ? 'Sistemul de operare pentru o viață echilibrată, abundentă și împlinită' 
+      : 'The operating system for a balanced, abundant and fulfilling life',
     cta: language === 'ro' ? 'Începe Transformarea Gratuit' : 'Start Your Transformation Free',
     guarantees: language === 'ro' ? ['Garanție 90 zile', 'Anulezi oricând', 'Fără card la trial'] : ['90-day guarantee', 'Cancel anytime', 'No card for trial']
   };
@@ -148,8 +148,7 @@ export const NewHeroSection = ({
               <span className="text-muted-foreground text-xl sm:text-3xl md:text-4xl">
                 {heroContent.headline.connector}
               </span>
-              <br />
-              <span className="text-foreground">{heroContent.headline.transformation}</span>
+              {heroContent.headline.transformation && <><br /><span className="text-foreground">{heroContent.headline.transformation}</span></>}
             </h1>
           </motion.div>
 
