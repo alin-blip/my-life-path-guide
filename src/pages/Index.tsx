@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
@@ -13,12 +13,9 @@ import { TestimonialCarousel } from "@/components/landing/TestimonialCarousel";
 import { PricingComparison } from "@/components/landing/PricingComparison";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { NewFooter } from "@/components/landing/NewFooter";
-import { SalesCoachWidget } from "@/components/landing/SalesCoachWidget";
 
 const Index = () => {
   const { t } = useLanguage();
-  const [pendingSalesMessage, setPendingSalesMessage] = useState<string | null>(null);
-  const [isSalesCoachOpen, setIsSalesCoachOpen] = useState(false);
 
   // Force light theme on index page
   useEffect(() => {
@@ -35,19 +32,6 @@ const Index = () => {
       }
     };
   }, []);
-
-  const handleAskQuestion = (question: string) => {
-    setPendingSalesMessage(question);
-    setIsSalesCoachOpen(true);
-  };
-
-  const handleOpenChat = () => {
-    setIsSalesCoachOpen(true);
-  };
-
-  const handleMessageProcessed = () => {
-    setPendingSalesMessage(null);
-  };
 
   return (
     <div className="light min-h-screen bg-background relative overflow-y-auto">
@@ -66,10 +50,7 @@ const Index = () => {
       <StickyHeader />
 
       {/* Hero Section */}
-      <NewHeroSection 
-        onAskQuestion={handleAskQuestion}
-        onOpenChat={handleOpenChat}
-      />
+      <NewHeroSection />
 
       {/* Feature Showcase - Tot ce ai nevoie pentru transformare */}
       <FeatureShowcase />
@@ -91,17 +72,8 @@ const Index = () => {
 
       {/* Footer */}
       <NewFooter />
-
-      {/* Sales Coach Widget */}
-      <SalesCoachWidget 
-        pendingMessage={pendingSalesMessage}
-        onMessageProcessed={handleMessageProcessed}
-        isOpen={isSalesCoachOpen}
-        onOpenChange={setIsSalesCoachOpen}
-      />
     </div>
   );
 };
 
 export default Index;
-
