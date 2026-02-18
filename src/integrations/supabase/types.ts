@@ -3530,6 +3530,39 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_course_referrals: {
+        Row: {
+          coach_id: string
+          commission_cents: number
+          course_slug: string
+          created_at: string
+          id: string
+          status: string
+          stripe_payment_id: string | null
+          user_id: string
+        }
+        Insert: {
+          coach_id: string
+          commission_cents?: number
+          course_slug: string
+          created_at?: string
+          id?: string
+          status?: string
+          stripe_payment_id?: string | null
+          user_id: string
+        }
+        Update: {
+          coach_id?: string
+          commission_cents?: number
+          course_slug?: string
+          created_at?: string
+          id?: string
+          status?: string
+          stripe_payment_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       public_rate_limits: {
         Row: {
           created_at: string | null
