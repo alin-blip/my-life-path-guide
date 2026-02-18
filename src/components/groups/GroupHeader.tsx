@@ -2,7 +2,7 @@ import React from 'react';
 import { Tribe } from '@/hooks/useBrotherhood';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Users, Globe, Lock, ArrowLeft, MessageSquare, Newspaper, Info } from 'lucide-react';
+import { Users, Globe, Lock, ArrowLeft, MessageSquare, Newspaper, Info, BookOpen, CalendarDays, Trophy, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -31,8 +31,12 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
   const tabs = [
     { id: 'feed', label: 'Feed', icon: Newspaper },
     { id: 'chat', label: 'Chat', icon: MessageSquare },
+    { id: 'classroom', label: language === 'ro' ? 'Cursuri' : 'Classroom', icon: BookOpen },
+    { id: 'calendar', label: language === 'ro' ? 'Calendar' : 'Calendar', icon: CalendarDays },
+    { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
     { id: 'members', label: language === 'ro' ? 'Membri' : 'Members', icon: Users },
     { id: 'about', label: 'About', icon: Info },
+    ...((isOwner) ? [{ id: 'settings', label: language === 'ro' ? 'Setări' : 'Settings', icon: Settings }] : []),
   ];
 
   return (

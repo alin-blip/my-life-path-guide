@@ -8,6 +8,9 @@ import { GroupHeader } from '@/components/groups/GroupHeader';
 import { GroupFeed } from '@/components/groups/GroupFeed';
 import { GroupChat } from '@/components/groups/GroupChat';
 import { GroupMembers } from '@/components/groups/GroupMembers';
+import { CoachTribeLessons } from '@/components/coach/CoachTribeLessons';
+import { CoachTribeCalendar } from '@/components/coach/CoachTribeCalendar';
+import { CoachTribeGamification } from '@/components/coach/CoachTribeGamification';
 import { useToast } from '@/hooks/use-toast';
 import { Users, Globe, Lock, Calendar } from 'lucide-react';
 
@@ -22,6 +25,7 @@ const GroupPage: React.FC = () => {
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('feed');
+  const [members, setMembers] = useState<Array<{ user_id: string; profiles?: { display_name?: string } | null }>>([]);
 
   const fetchTribe = async () => {
     if (!groupId) return;
@@ -48,6 +52,26 @@ const GroupPage: React.FC = () => {
         .maybeSingle();
       setIsMember(!!membership);
     }
+
+    // Fetch members for gamification
+    const { data: memberData } = await supabase
+      .from('tribe_members')
+      .select('user_id, role')
+      .eq('tribe_id', groupId);
+    if (memberData) {
+      // Fetch display names
+      const userIds = memberData.map(m => m.user_id);
+      const { data: profiles } = await supabase
+        .from('leaderboard_profiles')
+        .select('user_id, display_name')
+        .in('user_id', userIds);
+      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+      setMembers(memberData.map(m => ({
+        user_id: m.user_id,
+        profiles: profileMap.get(m.user_id) ? { display_name: profileMap.get(m.user_id)?.display_name } : null,
+      })));
+    }
+
     setLoading(false);
   };
 
@@ -151,6 +175,18 @@ const GroupPage: React.FC = () => {
 
         {activeTab === 'chat' && (
           <GroupChat tribeId={tribe.id} isMember={isMember} />
+        )}
+
+        {activeTab === 'classroom' && (
+          <CoachTribeLessons tribeId={tribe.id} coachId={tribe.created_by} />
+        )}
+
+        {activeTab === 'calendar' && user && (
+          <CoachTribeCalendar tribeId={tribe.id} userId={user.id} isOwner={isOwner} />
+        )}
+
+        {activeTab === 'leaderboard' && user && (
+          <CoachTribeGamification tribeId={tribe.id} userId={user.id} isOwner={isOwner} members={members} />
         )}
 
         {activeTab === 'members' && (
