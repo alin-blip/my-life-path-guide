@@ -1,77 +1,67 @@
 
-# Unificare Comunitate - Audit si Plan
 
-## Situatia curenta
+# Cursuri Platforma in Classroom + Comision 50%
 
-Exista 3 sisteme separate care fac partial acelasi lucru:
+## Rezumat
 
-1. **Brotherhood** (`/brotherhood`) - redirectioneaza catre `/programs?tab=community`, contine Feed global, Chat, Tribes, Members
-2. **Community Tab** (`/programs?tab=community`) - feed global cu postari, categorii, sidebar
-3. **Group Page** (`/groups/:id`) - pagina individuala per grup cu Feed, Chat, Members, About
+In tab-ul "Classroom" al fiecarui grup, vor aparea automat 4 cursuri platforme INAINTE de cursurile custom ale coach-ului. Coach-ii primesc 50% comision din vanzarile generate prin comunitatea lor.
 
-### Ce exista deja functional
-- Postari cu like-uri, comentarii, media upload
-- Chat realtime per grup
-- Creare/join/leave grupuri (publice/private)
-- Roluri de membri (owner, admin, moderator, member)
-- **Componente coach** pentru cursuri, calendar si gamificare (exista in cod dar NU sunt integrate in pagina grupului)
+## Cursuri platforme
 
-### Ce lipseste
+| Curs | Pret | Ruta |
+|------|------|------|
+| Personal Power Plus | 97 EUR | `/personal-power` |
+| The Ultimate YOU | 97 EUR | `/ultimate-you` |
+| Warrior Certified Coach | 1.999 EUR (sau abonament ELITE) | `/warrior-launch-accelerator` |
+| Have It All Lifestyle Challenge | GRATUIT | `/challenge` |
 
-**A. Cursuri/Lectii in grupuri** - componentele `CoachTribeLessons` exista dar nu apar in GroupPage. Tabelele `tribe_courses` si `tribe_course_modules` exista in baza de date.
+## Ce se modifica
 
-**B. Calendar/Evenimente in grupuri** - `CoachTribeCalendar` exista dar nu e integrat. Tabelul `tribe_events` exista.
+### 1. `src/components/coach/CoachTribeLessons.tsx`
+- Adaugare array `PLATFORM_COURSES` cu cele 4 cursuri hardcoded
+- Randare lor in sectiunea "Cursuri Platforma" cu badge "Platforma" si pret
+- Click navigheaza la ruta cursului cu `?ref=COACH_ID` pentru tracking comision
+- Coach-ii NU pot sterge/edita aceste cursuri
+- Cursurile custom ale coach-ului apar sub ele cu separare vizuala clara
 
-**C. Gamificare in grupuri** - `CoachTribeGamification` exista dar nu e integrat. Tabelele `tribe_badges`, `tribe_points`, `tribe_user_badges` exista.
+### 2. `src/pages/WarriorLaunchAccelerator.tsx`
+- Redenumire titlu vizual din "Warrior Launch Accelerator" in "Warrior Certified Coach"
+- Actualizare meta tags
 
-**D. Setari grup** - nu exista posibilitatea de a edita descrierea, cover image, toggle public/privat din interfata grupului.
+### 3. Tabela noua: `platform_course_referrals` (migrare DB)
+- `id` (uuid PK)
+- `coach_id` (uuid) - coach-ul care a recomandat
+- `user_id` (uuid) - clientul care a cumparat
+- `course_slug` (text) - 'personal-power', 'ultimate-you', 'warrior-certified-coach', 'challenge'
+- `commission_cents` (integer) - 50% din pret in centi
+- `status` (text) - 'pending', 'paid'
+- `stripe_payment_id` (text, nullable)
+- `created_at` (timestamptz)
+- RLS: coach-ul vede doar referral-urile proprii
 
-**E. Moderare** - nu exista optiuni de pin/delete postari, promovare/retrogradare roluri, ban membri.
+### 4. Structura vizuala in Classroom
 
-**F. Navigare unificata** - nu exista un punct unic de acces "Comunitate" in platforma.
+```text
++---------------------------------------------+
+| Cursuri Platforma                    [Badge] |
++---------------------------------------------+
+| Personal Power Plus           97 EUR    ->   |
+| The Ultimate YOU              97 EUR    ->   |
+| Warrior Certified Coach    1.999 EUR    ->   |
+| Have It All Challenge       GRATUIT     ->   |
++---------------------------------------------+
+|                                             |
+| Cursurile Tale              [+ Curs Nou]    |
++---------------------------------------------+
+| ... cursuri custom coach ...                |
++---------------------------------------------+
+```
 
----
+## Detalii tehnice
 
-## Plan de implementare
+- Link-urile cursurilor platforma includ `?ref=COACH_ID` pentru tracking-ul comisionului de 50%
+- Ruta `/warrior-launch-accelerator` ramane neschimbata (doar titlul vizual se schimba)
+- Comisionul de 50% se aplica la TOATE cursurile platforma (inclusiv Warrior Certified Coach la 1.999 EUR)
+- Tabela `platform_course_referrals` va fi folosita de webhook-ul Stripe existent pentru a inregistra comisioanele
+- Challenge-ul gratuit nu genereaza comision (pret 0)
 
-### Etapa 1: Integrare cursuri, calendar si gamificare in GroupPage
-
-Adaugam tab-urile "Classroom", "Calendar" si "Leaderboard" in `GroupHeader.tsx` si le randam in `GroupPage.tsx`, reutilizand componentele existente din `src/components/coach/`:
-- `CoachTribeLessons` - pentru cursuri si module
-- `CoachTribeCalendar` - pentru evenimente
-- `CoachTribeGamification` - pentru puncte, badge-uri, clasament
-
-Aceste tab-uri vor fi vizibile tuturor membrilor, dar actiunile de creare/editare vor fi restrictionate la owner si admin.
-
-### Etapa 2: Setari si moderare grup
-
-Adaugam un tab "Settings" vizibil doar owner-ului/admin-ului care permite:
-- Editare nume, descriere, cover image
-- Toggle public/privat
-- Managementul rolurilor membrilor (promovare la admin/mod, kick)
-
-Adaugam actiuni de moderare pe postari (pin, delete) pentru owner/admin/mod.
-
-### Etapa 3: Unificare navigare
-
-- Redenumim totul la "Comunitate" / "Community"
-- Eliminam duplicarile: pagina Brotherhood veche ramane redirect
-- Adaugam "Community" ca tab vizibil in SkoolNavBar (deja exista ca tip dar nu e afisat)
-- Feed-ul comunitar principal devine agregat din toate grupurile utilizatorului
-
-### Detalii tehnice
-
-**Fisiere modificate:**
-- `src/components/groups/GroupHeader.tsx` - adaugam tab-uri: Classroom, Calendar, Leaderboard, Settings
-- `src/pages/GroupPage.tsx` - randam componentele coach existente pe noile tab-uri
-- `src/components/groups/GroupSettings.tsx` - componenta noua pentru setari grup
-- `src/components/groups/GroupModActions.tsx` - componenta noua pentru actiuni moderare pe postari
-
-**Componente reutilizate (fara modificari):**
-- `CoachTribeLessons` - cursuri si module
-- `CoachTribeCalendar` - evenimente
-- `CoachTribeGamification` - puncte si badge-uri
-
-**Baza de date:** Nu necesita migrari - tabelele `tribe_courses`, `tribe_course_modules`, `tribe_events`, `tribe_badges`, `tribe_points`, `tribe_user_badges` exista deja cu RLS configurat.
-
-Vrei sa incepem cu Etapa 1 (integrarea cursurilor, calendarului si gamificarii)?
