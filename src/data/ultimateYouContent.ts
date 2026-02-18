@@ -22,6 +22,10 @@ export interface UltimateYouDay {
 }
 
 import { ultimateYouDays6to7 } from './ultimateYouDays6to7';
+import { ultimateYouDays8to10 } from './ultimateYouDays8to10';
+import { ultimateYouDays11to13 } from './ultimateYouDays11to13';
+import { ultimateYouDays14to16 } from './ultimateYouDays14to16';
+import { ultimateYouDays17to18 } from './ultimateYouDays17to18';
 
 const ultimateYouDays1to5: UltimateYouDay[] = [
   {
@@ -591,11 +595,15 @@ IMPORTANT: Respond in Romanian. Be direct, empathetic, and transformative. Use "
 export const ultimateYouDays: UltimateYouDay[] = [
   ...ultimateYouDays1to5,
   ...ultimateYouDays6to7,
+  ...ultimateYouDays8to10,
+  ...ultimateYouDays11to13,
+  ...ultimateYouDays14to16,
+  ...ultimateYouDays17to18,
 ];
 
 export const getUltimateYouDay = (dayNumber: number): UltimateYouDay | undefined => {
   return ultimateYouDays.find(d => d.day === dayNumber);
 };
 
-export const totalUltimateYouDays = 17;
+export const totalUltimateYouDays = 18;
 export const implementedUltimateYouDays = ultimateYouDays.length;
