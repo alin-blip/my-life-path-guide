@@ -61,8 +61,7 @@ export const NewHeroSection = ({
     headline: {
       result: language === 'ro' ? 'Obține de 3-10x mai multe rezultate' : 'Get 3-10x more results',
       timeframe: language === 'ro' ? 'în Business, relații, corp și spiritualitate' : 'in Business, relationships, body and spirituality',
-      connector: language === 'ro' ? 'simultan lucrând mai puțin în 40 de zile' : 'simultaneously while working less in 40 days',
-      transformation: ''
+      connector: language === 'ro' ? 'simultan lucrând mai puțin, în 40 de zile' : 'simultaneously while working less, in 40 days',
     },
     subheadline: language === 'ro' 
       ? 'Sistemul de operare pentru o viață echilibrată, abundentă și împlinită' 
@@ -148,7 +147,7 @@ export const NewHeroSection = ({
               <span className="text-muted-foreground text-xl sm:text-3xl md:text-4xl">
                 {heroContent.headline.connector}
               </span>
-              {heroContent.headline.transformation && <><br /><span className="text-foreground">{heroContent.headline.transformation}</span></>}
+              
             </h1>
           </motion.div>
 
