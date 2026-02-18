@@ -1,67 +1,53 @@
 
-
-# Cursuri Platforma in Classroom + Comision 50%
+# Eliminare Coach-i Nefolosiți (Therapist, Performance, Relationship, Sales)
 
 ## Rezumat
 
-In tab-ul "Classroom" al fiecarui grup, vor aparea automat 4 cursuri platforme INAINTE de cursurile custom ale coach-ului. Coach-ii primesc 50% comision din vanzarile generate prin comunitatea lor.
+Se elimina 4 coach-i AI neesentiali si componentele asociate lor. Se pastreaza doar Accountability Coach si Mind Coach.
 
-## Cursuri platforme
+## Ce se sterge
 
-| Curs | Pret | Ruta |
-|------|------|------|
-| Personal Power Plus | 97 EUR | `/personal-power` |
-| The Ultimate YOU | 97 EUR | `/ultimate-you` |
-| Warrior Certified Coach | 1.999 EUR (sau abonament ELITE) | `/warrior-launch-accelerator` |
-| Have It All Lifestyle Challenge | GRATUIT | `/challenge` |
+### Pagini (3 fisiere)
+- `src/pages/TherapistCoach.tsx`
+- `src/pages/PerformanceCoach.tsx`
+- `src/pages/RelationshipCoach.tsx`
+
+### Componente AI Chat (3 fisiere)
+- `src/components/ai/TherapistCoachChat.tsx`
+- `src/components/ai/PerformanceCoachChat.tsx`
+- `src/components/ai/RelationshipCoachChat.tsx`
+
+### Dashboard (1 fisier)
+- `src/components/dashboard/DualCoachCard.tsx` - nu este importat NICAIERI, complet nefolosit
+
+### Landing / Sales Coach (2 fisiere)
+- `src/components/landing/SalesCoachWidget.tsx`
+- `src/hooks/useSalesCoach.ts`
+
+### Edge Functions (4 directoare)
+- `supabase/functions/therapist-coach/`
+- `supabase/functions/performance-coach/`
+- `supabase/functions/relationship-coach/`
+- `supabase/functions/sales-coach/`
+
+**Total: 9 fisiere frontend + 4 edge functions = 13 stergeri**
 
 ## Ce se modifica
 
-### 1. `src/components/coach/CoachTribeLessons.tsx`
-- Adaugare array `PLATFORM_COURSES` cu cele 4 cursuri hardcoded
-- Randare lor in sectiunea "Cursuri Platforma" cu badge "Platforma" si pret
-- Click navigheaza la ruta cursului cu `?ref=COACH_ID` pentru tracking comision
-- Coach-ii NU pot sterge/edita aceste cursuri
-- Cursurile custom ale coach-ului apar sub ele cu separare vizuala clara
+### `src/App.tsx`
+- Stergere 3 import-uri lazy: `RelationshipCoach`, `TherapistCoach`, `PerformanceCoachPage`
+- Stergere 3 Route-uri: `/relationship-coach`, `/therapist-coach`, `/performance-coach`
 
-### 2. `src/pages/WarriorLaunchAccelerator.tsx`
-- Redenumire titlu vizual din "Warrior Launch Accelerator" in "Warrior Certified Coach"
-- Actualizare meta tags
+### `src/pages/Index.tsx`
+- Stergere import `SalesCoachWidget`
+- Stergere render `<SalesCoachWidget />` din landing page
+- Stergere state-ul `pendingSalesMessage` si handler-ul asociat (daca exista)
 
-### 3. Tabela noua: `platform_course_referrals` (migrare DB)
-- `id` (uuid PK)
-- `coach_id` (uuid) - coach-ul care a recomandat
-- `user_id` (uuid) - clientul care a cumparat
-- `course_slug` (text) - 'personal-power', 'ultimate-you', 'warrior-certified-coach', 'challenge'
-- `commission_cents` (integer) - 50% din pret in centi
-- `status` (text) - 'pending', 'paid'
-- `stripe_payment_id` (text, nullable)
-- `created_at` (timestamptz)
-- RLS: coach-ul vede doar referral-urile proprii
+### `src/utils/navigationRoutes.ts`
+- Stergere rutele `/relationship-coach`, `/therapist-coach`, `/performance-coach` (daca exista - nu sunt in fisierul curent dar trebuie verificat)
 
-### 4. Structura vizuala in Classroom
-
-```text
-+---------------------------------------------+
-| Cursuri Platforma                    [Badge] |
-+---------------------------------------------+
-| Personal Power Plus           97 EUR    ->   |
-| The Ultimate YOU              97 EUR    ->   |
-| Warrior Certified Coach    1.999 EUR    ->   |
-| Have It All Challenge       GRATUIT     ->   |
-+---------------------------------------------+
-|                                             |
-| Cursurile Tale              [+ Curs Nou]    |
-+---------------------------------------------+
-| ... cursuri custom coach ...                |
-+---------------------------------------------+
-```
-
-## Detalii tehnice
-
-- Link-urile cursurilor platforma includ `?ref=COACH_ID` pentru tracking-ul comisionului de 50%
-- Ruta `/warrior-launch-accelerator` ramane neschimbata (doar titlul vizual se schimba)
-- Comisionul de 50% se aplica la TOATE cursurile platforma (inclusiv Warrior Certified Coach la 1.999 EUR)
-- Tabela `platform_course_referrals` va fi folosita de webhook-ul Stripe existent pentru a inregistra comisioanele
-- Challenge-ul gratuit nu genereaza comision (pret 0)
-
+## Ce NU se modifica
+- Accountability Coach (widget persistent) - ramane intact
+- Mind Coach (Challenge + landing page) - ramane intact
+- Napoleon Hill Coach (widget dashboard) - ramane intact
+- Toate celelalte edge functions raman neatinse
