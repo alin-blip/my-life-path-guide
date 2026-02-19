@@ -136,7 +136,7 @@ export const ChallengePremiumOffer = () => {
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid md:grid-cols-3 gap-4 mb-6">
+      <div className="grid md:grid-cols-3 gap-4 mb-6 pt-4">
         {CHALLENGE_PLANS.map((plan) => {
           const Icon = plan.icon;
           const benefits = isRo ? plan.benefitsRo : plan.benefitsEn;
@@ -145,7 +145,7 @@ export const ChallengePremiumOffer = () => {
             <div
               key={plan.id}
               className={cn(
-                "relative rounded-xl p-5 border-2 transition-all overflow-hidden",
+                "relative rounded-xl p-5 border-2 transition-all",
                 plan.borderColor,
                 plan.featured && "ring-2 ring-amber-500/50 scale-[1.03] shadow-lg shadow-amber-500/10 bg-gradient-to-br from-amber-500/10 to-orange-500/5",
                 !plan.featured && "bg-card"
