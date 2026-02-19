@@ -246,13 +246,6 @@ export const ChallengePremiumOffer = () => {
           <Shield className="h-4 w-4 text-green-500" />
           <span>{isRo ? 'Garanție 100% satisfacție. Anulezi oricând.' : '100% satisfaction guarantee. Cancel anytime.'}</span>
         </div>
-        <Button
-          variant="ghost"
-          className="text-muted-foreground hover:text-foreground"
-          onClick={() => navigate('/dashboard')}
-        >
-          {isRo ? 'Continuă doar cu Habit Tracking →' : 'Continue with Habit Tracking only →'}
-        </Button>
       </div>
     </Card>
   );
