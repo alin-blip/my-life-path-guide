@@ -102,6 +102,24 @@ serve(async (req) => {
         productName = "WarriorOS Pro - Cod Warrior88 Aplicat";
         tier = "pro";
         break;
+
+      case "pro-challenge-trial":
+        // Pro Challenge Trial - 7 zile gratuit, apoi 49 EUR/luna
+        unitAmount = 4900; // 49 EUR
+        currency = "eur";
+        productName = "WarriorOS Pro (7-Day Free Trial)";
+        tier = "pro";
+        trialDays = 7;
+        break;
+
+      case "warrior-accelerator-earlybird":
+        // Warrior Certified Coach Early Bird - 999 EUR one-time
+        unitAmount = 99900; // 999 EUR
+        currency = "eur";
+        paymentMode = "payment";
+        productName = "Warrior Certified Coach - Early Bird";
+        tier = "accelerator";
+        break;
       
       // === ANNUAL PLANS - 60% DISCOUNT LOCKED ===
       case "basic-annual":
@@ -190,9 +208,13 @@ serve(async (req) => {
     let successUrl: string;
     let cancelUrl: string;
 
-    if (plan === "warrior-accelerator") {
+    if (plan === "warrior-accelerator" || plan === "warrior-accelerator-earlybird") {
       successUrl = `${origin}/warrior-accelerator-thank-you?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
       cancelUrl = `${origin}/warrior-launch-accelerator?canceled=true`;
+    } else if (plan === "pro-challenge-trial" || plan === "pro-challenge-3mo") {
+      // Challenge plans redirect to upsell page
+      successUrl = `${origin}/challenge-upsell?checkout=success&plan=${plan}`;
+      cancelUrl = `${origin}/challenge-7-zile?canceled=true`;
     } else if (source === 'warrior-power') {
       // From Warrior Power flow -> redirect to Challenge page
       successUrl = `${origin}/challenge?checkout=success&plan=${plan}&source=warrior-power`;
