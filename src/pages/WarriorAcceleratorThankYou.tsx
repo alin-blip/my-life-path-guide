@@ -58,14 +58,14 @@ const WarriorAcceleratorThankYou = () => {
             user_id: user.id,
             product_id: 'warrior-accelerator',
             stripe_session_id: sessionId,
-            amount_paid: 97000,
+            amount_paid: 199900,
             currency: 'eur'
           });
 
         if (!error) {
           setPurchaseRecorded(true);
-          // Track Facebook Pixel Purchase event - €970 for Warrior Accelerator
-          trackPurchase(970, 'EUR');
+          // Track Facebook Pixel Purchase event - €1,999 for Warrior Certified Coach
+          trackPurchase(1999, 'EUR');
         }
       } catch (err) {
         console.error('Error recording purchase:', err);
@@ -80,8 +80,8 @@ const WarriorAcceleratorThankYou = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background">
       <Helmet>
-        <title>Mulțumim pentru Achiziție - Warrior Launch Accelerator</title>
-        <meta name="description" content="Bine ai venit în Warrior Launch Accelerator! Ai acces complet la toate lecțiile și platforma WarriorOS." />
+        <title>Mulțumim pentru Achiziție - Warrior Certified Coach</title>
+        <meta name="description" content="Bine ai venit în Warrior Certified Coach! Ai acces complet la toate lecțiile și platforma WarriorOS." />
       </Helmet>
 
       <div className="container mx-auto px-4 py-16">
@@ -113,7 +113,7 @@ const WarriorAcceleratorThankYou = () => {
           </h1>
 
           <p className="text-xl text-muted-foreground mb-8">
-            Felicitări! Acum ai acces complet la <strong>Warrior Launch Accelerator</strong> și toate cele 47+ lecții video premium.
+            Felicitări! Acum ai acces complet la <strong>Warrior Certified Coach</strong> și toate cele 47+ lecții video premium.
           </p>
 
           {/* Email Confirmation */}

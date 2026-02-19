@@ -128,7 +128,7 @@ export const plans: Plan[] = [
     resultRo: "Transformarea completă Warrior + Oportunitate de Business. Devino Coach și câștigă 50% lifetime.",
     benefitsEn: [
       "✓ Everything in Pro plan",
-      "Warrior Launch Accelerator (€2,497 value)",
+      "Warrior Certified Coach (€1,999 value)",
       "Weekly LIVE group coaching with Alin Radu (90 min - Hot Seats)",
       "Elite Brotherhood - exclusive community",
       "47+ premium video lessons - Execution Done With You",
@@ -140,7 +140,7 @@ export const plans: Plan[] = [
     ],
     benefitsRo: [
       "✓ Tot ce include planul Pro",
-      "Warrior Launch Accelerator (€2.497 valoare)",
+      "Warrior Certified Coach (€1.999 valoare)",
       "Coaching de grup LIVE săptămânal cu Alin Radu (90 min - Hot Seats)",
       "Elite Brotherhood - comunitate exclusivă",
       "47+ lecții video premium - Execution Done With You",
@@ -266,13 +266,13 @@ export const plans: Plan[] = [
 // Warrior Accelerator - standalone upsell product
 export const warriorAccelerator = {
   id: "warrior-accelerator",
-  nameEn: "Warrior Launch Accelerator",
-  nameRo: "Warrior Launch Accelerator",
-  priceEn: "€497",
-  priceRo: "2490 LEI",
-  priceValue: 49700,
-  originalPriceEn: "€970",
-  originalPriceRo: "4850 LEI",
+  nameEn: "Warrior Certified Coach",
+  nameRo: "Warrior Certified Coach",
+  priceEn: "€1,999",
+  priceRo: "9990 LEI",
+  priceValue: 199900,
+  originalPriceEn: "€3,500",
+  originalPriceRo: "17500 LEI",
   isOneTime: true,
   descriptionEn: "47+ premium video lessons + complete 90-day transformation framework",
   descriptionRo: "47+ lecții video premium + framework complet de transformare în 90 de zile",

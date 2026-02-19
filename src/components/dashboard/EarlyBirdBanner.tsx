@@ -77,7 +77,7 @@ export function EarlyBirdBanner() {
       }
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: 'basic' },
+        body: { plan: 'basic', source: 'early-bird' },
       });
 
       if (error) throw error;

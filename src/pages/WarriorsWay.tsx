@@ -274,7 +274,7 @@ const WarriorsWay: React.FC = () => {
             <GraduationCap className="h-5 w-5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="font-bold text-sm truncate">Warrior Launch Accelerator</h2>
+            <h2 className="font-bold text-sm truncate">Warrior Certified Coach</h2>
             <p className="text-xs text-muted-foreground">{completedModules}/{totalModules} module</p>
           </div>
         </div>
@@ -434,7 +434,7 @@ const WarriorsWay: React.FC = () => {
                   <ArrowLeft className="h-5 w-5" />
                 </Link>
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold">Warrior Launch Accelerator</h1>
+                  <h1 className="text-2xl md:text-3xl font-bold">Warrior Certified Coach</h1>
                   <p className="text-muted-foreground">Transformă-ți viața prin Calea Războinicului</p>
                 </div>
               </div>
