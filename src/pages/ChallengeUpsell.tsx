@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ const ChallengeUpsell = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const voomlyLoaded = useRef(false);
 
   const isCheckoutSuccess = searchParams.get('checkout') === 'success';
 
@@ -28,6 +29,19 @@ const ChallengeUpsell = () => {
     }
     trackEvent('ViewContent', { content_name: 'challenge_upsell' });
   }, [isCheckoutSuccess, navigate]);
+
+  // Load Voomly embed script
+  useEffect(() => {
+    if (voomlyLoaded.current) return;
+    voomlyLoaded.current = true;
+    const script = document.createElement('script');
+    script.src = 'https://embed.voomly.softwarepublishingapp.com/embed/embed-build.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      try { document.body.removeChild(script); } catch {}
+    };
+  }, []);
 
   const handleCheckout = async (planId: string, value: number) => {
     const preOpened = preOpenWindow();
@@ -87,6 +101,19 @@ const ChallengeUpsell = () => {
             <span className="text-amber-500 font-semibold"> exclusivă </span>
             disponibilă doar ACUM:
           </p>
+        </div>
+
+        {/* Voomly Video */}
+        <div className="max-w-3xl mx-auto mb-8">
+          <div 
+            className="voomly-embed" 
+            data-id="G5IbvhsenY2gmA1ZIhmdw6vEGFgnMDiWaW8qLjJNHd1D2xIpf" 
+            data-ratio="1.777778" 
+            data-type="v" 
+            data-skin-color="#2758EB" 
+            data-shadow="" 
+            style={{ width: '100%', aspectRatio: '1.77778 / 1', background: 'linear-gradient(45deg, rgb(142, 150, 164) 0%, rgb(201, 208, 222) 100%)', borderRadius: '10px' }}
+          />
         </div>
 
         {/* Upsell Cards */}

@@ -269,6 +269,32 @@ serve(async (req) => {
       appliedCouponId = "Warrior88";
     }
 
+    // For Elite upgrade from upsell: cancel existing subscription(s) at period end
+    if (source === 'challenge-upsell' && tier === 'elite' && customerId) {
+      try {
+        const existingSubs = await stripe.subscriptions.list({ 
+          customer: customerId, 
+          status: 'active',
+          limit: 10 
+        });
+        // Also check trialing subs
+        const trialingSubs = await stripe.subscriptions.list({ 
+          customer: customerId, 
+          status: 'trialing',
+          limit: 10 
+        });
+        const allSubs = [...existingSubs.data, ...trialingSubs.data];
+        
+        for (const sub of allSubs) {
+          console.log(`Canceling existing subscription ${sub.id} for Elite upgrade`);
+          await stripe.subscriptions.cancel(sub.id);
+        }
+      } catch (cancelErr) {
+        console.error("Error canceling existing subs for Elite upgrade:", cancelErr);
+        // Continue with checkout even if cancel fails
+      }
+    }
+
     const sessionConfig: any = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
