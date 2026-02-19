@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Heart, MessageCircle, Pin, BookOpen, MoreVertical, Send, Share2 } from 'lucide-react';
+import { Heart, MessageCircle, Pin, BookOpen, MoreVertical, Send, Share2, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { useLanguage } from '@/context/LanguageContext';
@@ -21,8 +21,19 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface SkoolPostCardProps {
   post: WallPost & { source_label?: string | null; category?: string | null };
@@ -36,6 +47,8 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
   const { user } = useAuth();
   const { toast } = useToast();
   const [pinLoading, setPinLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
@@ -89,6 +102,23 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
       setPinLoading(false);
     }
   };
+
+  const handleDeletePost = async () => {
+    setDeleteLoading(true);
+    try {
+      const { error } = await supabase.from('wall_posts').delete().eq('id', post.id);
+      if (error) throw error;
+      toast({ title: language === 'ro' ? 'Postare ștearsă' : 'Post deleted' });
+      onRefresh?.();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  const canDelete = isAdmin || user?.id === post.user_id;
 
   const handleEmojiSelect = (emoji: string) => {
     setNewComment(prev => prev + emoji);
@@ -181,7 +211,7 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
             </div>
           </div>
 
-          {isAdmin && (
+          {(isAdmin || canDelete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -192,30 +222,49 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleTogglePin} disabled={pinLoading}>
-                  <Pin className="h-4 w-4 mr-2" />
-                  {post.is_pinned
-                    ? (language === 'ro' ? 'Defixează' : 'Unpin')
-                    : (language === 'ro' ? 'Fixează' : 'Pin')}
-                </DropdownMenuItem>
-                {post.category === 'breakthrough' ? (
-                  <DropdownMenuItem onClick={async (e) => {
-                    e.stopPropagation();
-                    await supabase.from('wall_posts').update({ category: 'general' }).eq('id', post.id);
-                    toast({ title: language === 'ro' ? 'Mutat la General' : 'Moved to General' });
-                    onRefresh?.();
-                  }}>
-                    💬 {language === 'ro' ? 'Mută la General' : 'Move to General'}
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem onClick={async (e) => {
-                    e.stopPropagation();
-                    await supabase.from('wall_posts').update({ category: 'breakthrough' }).eq('id', post.id);
-                    toast({ title: language === 'ro' ? 'Mutat la Breakthrough' : 'Moved to Breakthrough' });
-                    onRefresh?.();
-                  }}>
-                    💡 {language === 'ro' ? 'Mută la Breakthrough' : 'Move to Breakthrough'}
-                  </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem onClick={handleTogglePin} disabled={pinLoading}>
+                      <Pin className="h-4 w-4 mr-2" />
+                      {post.is_pinned
+                        ? (language === 'ro' ? 'Defixează' : 'Unpin')
+                        : (language === 'ro' ? 'Fixează' : 'Pin')}
+                    </DropdownMenuItem>
+                    {post.category === 'breakthrough' ? (
+                      <DropdownMenuItem onClick={async (e) => {
+                        e.stopPropagation();
+                        await supabase.from('wall_posts').update({ category: 'general' }).eq('id', post.id);
+                        toast({ title: language === 'ro' ? 'Mutat la General' : 'Moved to General' });
+                        onRefresh?.();
+                      }}>
+                        💬 {language === 'ro' ? 'Mută la General' : 'Move to General'}
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem onClick={async (e) => {
+                        e.stopPropagation();
+                        await supabase.from('wall_posts').update({ category: 'breakthrough' }).eq('id', post.id);
+                        toast({ title: language === 'ro' ? 'Mutat la Breakthrough' : 'Moved to Breakthrough' });
+                        onRefresh?.();
+                      }}>
+                        💡 {language === 'ro' ? 'Mută la Breakthrough' : 'Move to Breakthrough'}
+                      </DropdownMenuItem>
+                    )}
+                  </>
+                )}
+                {canDelete && (
+                  <>
+                    {isAdmin && <DropdownMenuSeparator />}
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDeleteConfirm(true);
+                      }}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      {language === 'ro' ? 'Șterge postarea' : 'Delete post'}
+                    </DropdownMenuItem>
+                  </>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -370,6 +419,36 @@ export const SkoolPostCard: React.FC<SkoolPostCardProps> = ({ post, onLike, onRe
           </div>
         </div>
       </div>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {language === 'ro' ? 'Șterge postarea?' : 'Delete post?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'ro'
+                ? 'Această acțiune este permanentă și nu poate fi anulată.'
+                : 'This action is permanent and cannot be undone.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteLoading}>
+              {language === 'ro' ? 'Anulează' : 'Cancel'}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeletePost}
+              disabled={deleteLoading}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteLoading
+                ? (language === 'ro' ? 'Se șterge...' : 'Deleting...')
+                : (language === 'ro' ? 'Șterge' : 'Delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
