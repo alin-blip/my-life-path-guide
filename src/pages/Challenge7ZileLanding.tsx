@@ -4,21 +4,21 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { 
-  Rocket, ArrowRight, CheckCircle2, Dumbbell, Brain, 
+  Rocket, ArrowRight, Dumbbell, Brain, 
   Heart, Crown, Users, Sparkles, Gift,
-  Star, Target, Calendar, Map, Bell, Trophy, ChevronDown
+  Star, Target, Map, Bell, Trophy, ChevronDown
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { useChallengeStats } from '@/hooks/useChallengeStats';
 import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeCard';
 import { SocialProofBar } from '@/components/landing/SocialProofBar';
 import { LandingEarlyBirdTimer } from '@/components/landing/LandingEarlyBirdTimer';
-import { ChallengeInlineAuth } from '@/components/challenge/ChallengeInlineAuth';
+
 import { ChallengePremiumOffer } from '@/components/challenge/ChallengePremiumOffer';
 
 const Challenge7ZileLanding = () => {
@@ -28,14 +28,8 @@ const Challenge7ZileLanding = () => {
   const { toast } = useToast();
   const { totalParticipants, getCompletionsForDay, loading: statsLoading } = useChallengeStats();
   
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [realMetrics, setRealMetrics] = useState({ users: 0, completionRate: 0 });
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-
-  const utmSource = searchParams.get('utm_source') || '';
-  const utmMedium = searchParams.get('utm_medium') || '';
-  const utmCampaign = searchParams.get('utm_campaign') || '';
 
   // Fetch real metrics from database
   useEffect(() => {
@@ -61,25 +55,6 @@ const Challenge7ZileLanding = () => {
     fetchMetrics();
   }, []);
 
-  const handleAuthSuccess = async () => {
-    // FIX: Verify session exists before redirect to ensure Challenge.tsx sees authenticated user
-    const { data: sessionCheck } = await supabase.auth.getSession();
-    if (!sessionCheck?.session) {
-      // Give AuthContext a moment to propagate the session
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-    
-    setIsSubscribed(true);
-    toast({
-      title: language === 'en' ? '🎉 Account ready!' : '🎉 Cont pregătit!',
-      description: language === 'en' 
-        ? 'Redirecting to your challenge...' 
-        : 'Te redirecționăm către challenge...',
-    });
-    setTimeout(() => {
-      navigate('/challenge');
-    }, 1500);
-  };
 
   const challengeDays = [
     {
@@ -346,49 +321,16 @@ const Challenge7ZileLanding = () => {
               </div>
             </motion.div>
 
-            {/* CTA Button below video */}
-            {!isSubscribed ? (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="mt-8 flex justify-center"
-              >
-                <Button
-                  size="lg"
-                  onClick={() => setShowAuthDialog(true)}
-                  className="text-lg py-7 px-8 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg shadow-amber-500/20"
-                >
-                  <Rocket className="h-5 w-5 mr-2" />
-                  {language === 'en' 
-                    ? "I'm ready to eliminate blockages and burnout" 
-                    : 'Sunt pregătit să elimin blocajele și epuizarea'}
-                </Button>
-              </motion.div>
-            ) : (
-              <Card className="max-w-md mx-auto p-6 bg-green-500/10 border-green-500/30 mt-8">
-                <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
-                <p className="text-lg font-medium text-green-500 text-center">
-                  {language === 'en' ? 'Account ready! Redirecting...' : 'Cont pregătit! Se redirecționează...'}
-                </p>
-              </Card>
-            )}
-
-            {/* Auth Dialog */}
-            <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-center">
-                    {language === 'en' ? 'Create your account' : 'Creează-ți contul'}
-                  </DialogTitle>
-                </DialogHeader>
-                <ChallengeInlineAuth
-                  language={language}
-                  utmParams={{ source: utmSource, medium: utmMedium, campaign: utmCampaign }}
-                  onSuccess={handleAuthSuccess}
-                />
-              </DialogContent>
-            </Dialog>
+            {/* Premium Plans - immediately after video */}
+            <motion.div
+              id="plans-section"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mt-10"
+            >
+              <ChallengePremiumOffer />
+            </motion.div>
           </div>
         </section>
 
@@ -507,33 +449,6 @@ const Challenge7ZileLanding = () => {
           </div>
         </section>
 
-        {/* Inline Auth Section */}
-        <section className="py-16 px-4">
-          <div className="max-w-md mx-auto">
-            <h2 className="text-2xl font-bold text-center mb-2 text-foreground">
-              {language === 'en' ? 'Create Your Free Account' : 'Creează-ți Contul Gratuit'}
-            </h2>
-            <p className="text-center text-muted-foreground mb-6">
-              {language === 'en' 
-                ? 'Start the challenge immediately — no credit card needed' 
-                : 'Începe challenge-ul imediat — fără card bancar'}
-            </p>
-            <Card className="p-6 border-primary/20">
-              <ChallengeInlineAuth
-                language={language}
-                utmParams={{ source: utmSource, medium: utmMedium, campaign: utmCampaign }}
-                onSuccess={handleAuthSuccess}
-              />
-            </Card>
-          </div>
-        </section>
-
-        {/* Premium Plans Section */}
-        <section className="py-16 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <ChallengePremiumOffer />
-          </div>
-        </section>
 
         {/* FAQ Section */}
         <section className="py-16 px-4 bg-muted/30">
@@ -606,23 +521,13 @@ const Challenge7ZileLanding = () => {
             <Button 
               size="lg"
               onClick={() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(() => {
-                  const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement | null;
-                  emailInput?.focus();
-                }, 500);
+                document.getElementById('plans-section')?.scrollIntoView({ behavior: 'smooth' });
               }}
               className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg px-8 py-6"
             >
-              {language === 'en' ? 'Create Free Account Now' : 'Creează Cont Gratuit Acum'}
+              {language === 'en' ? 'Choose Your Plan' : 'Alege Abonamentul'}
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
-            
-            <p className="text-sm text-muted-foreground mt-4">
-              {language === 'en' 
-                ? '✨ 100% FREE • No credit card required • Start immediately'
-                : '✨ 100% GRATUIT • Fără card bancar • Începe imediat'}
-            </p>
           </div>
         </section>
 
