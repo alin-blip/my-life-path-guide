@@ -610,6 +610,7 @@ export type Database = {
           commitment_level: string
           created_at: string
           id: string
+          occupation: string | null
           posted_to_community: boolean
           user_id: string
           win_30_days: string
@@ -619,6 +620,7 @@ export type Database = {
           commitment_level?: string
           created_at?: string
           id?: string
+          occupation?: string | null
           posted_to_community?: boolean
           user_id: string
           win_30_days: string
@@ -628,6 +630,7 @@ export type Database = {
           commitment_level?: string
           created_at?: string
           id?: string
+          occupation?: string | null
           posted_to_community?: boolean
           user_id?: string
           win_30_days?: string
