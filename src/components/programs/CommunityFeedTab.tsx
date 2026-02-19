@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Users, Shield, MessageSquare } from 'lucide-react';
+import { CommunityWelcomeBanner } from '@/components/programs/CommunityWelcomeBanner';
 import { useNavigate } from 'react-router-dom';
 
 const MAIN_TRIBE_ID = '07825fb0-4d6c-4716-b2f3-27a1708cf680';
@@ -49,7 +50,8 @@ export const CommunityFeedTab: React.FC = () => {
   return (
     <div className="flex gap-6">
       {/* Main Feed */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 space-y-4">
+        <CommunityWelcomeBanner />
         <GroupFeed tribeId={MAIN_TRIBE_ID} isMember={isMember} />
       </div>
 
