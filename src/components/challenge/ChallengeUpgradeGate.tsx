@@ -4,8 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Lock, Crown, Sparkles, Shield, Star, 
-  Zap, Gift, Clock, Check, Loader2
+  Lock, Crown, Sparkles, Shield, 
+  Zap, Gift, Check, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +14,10 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { trackCheckoutInitiated } from '@/lib/facebook-pixel';
+import { plans } from '@/data/pricing';
+
+const basicPlan = plans.find(p => p.id === 'basic')!;
+const proPlan = plans.find(p => p.id === 'pro')!;
 
 interface ChallengeUpgradeGateProps {
   className?: string;
@@ -25,67 +29,66 @@ const UPGRADE_PLANS = [
   {
     id: 'basic',
     planId: 'basic',
-    name: 'Basic',
-    price: '49',
-    displayPrice: '€49',
-    subtitle: '/ lună',
-    currency: '€',
-    cta: 'Activează Acum',
-    ctaEn: 'Activate Now',
+    icon: Gift,
     gradient: 'from-blue-500 to-cyan-500',
     borderColor: 'border-blue-500/50',
     textColor: 'text-blue-500',
-    icon: Gift,
     featured: false,
-    benefits: [
-      'Acces complet platformă',
-      'Champion Routine',
-      'Door planning',
-    ],
+    price: '€49',
+    originalPrice: '€97',
+    discountBadge: '-50%',
+    subtitle: '/ lună',
+    subtitleEn: '/ month',
+    trialRo: '7 zile trial gratuit',
+    trialEn: '7-day free trial',
+    cta: 'Începe 7 Zile Trial',
+    ctaEn: 'Start 7-Day Free Trial',
+    priceValue: 49,
+    benefitsRo: basicPlan.benefitsRo,
+    benefitsEn: basicPlan.benefitsEn,
   },
   {
-    id: 'pro-trial',
-    planId: 'pro-challenge-trial',
-    name: 'Pro Trial',
-    price: '0',
-    displayPrice: '€0',
-    subtitle: 'acum, apoi €49/lună',
-    currency: '€',
-    cta: 'Începe 7 Zile Gratuit',
-    ctaEn: 'Start 7-Day Free Trial',
-    gradient: 'from-green-500 to-emerald-500',
-    borderColor: 'border-green-500/50',
-    textColor: 'text-green-500',
+    id: 'pro',
+    planId: 'pro',
     icon: Zap,
+    gradient: 'from-purple-500 to-indigo-500',
+    borderColor: 'border-purple-500/50',
+    textColor: 'text-purple-500',
     featured: false,
-    benefits: [
-      '7 zile trial GRATUIT',
-      'Tot ce include Basic',
-      'AI Coaching inclus',
-    ],
+    price: '€97',
+    originalPrice: '€197',
+    discountBadge: '-50% Early Bird',
+    subtitle: '/ lună',
+    subtitleEn: '/ month',
+    trialRo: null,
+    trialEn: null,
+    cta: 'Activează Pro - Early Bird',
+    ctaEn: 'Activate Pro - Early Bird',
+    priceValue: 97,
+    benefitsRo: proPlan.benefitsRo,
+    benefitsEn: proPlan.benefitsEn,
   },
   {
     id: 'pro-3mo',
     planId: 'pro-challenge-3mo',
-    name: 'Pro 3 Luni',
-    price: '29',
-    displayPrice: '€29',
-    subtitle: '/ lună (apoi €97/lună)',
-    currency: '€',
-    cta: 'Plătește 29 EUR - Ofertă Limitată',
-    ctaEn: 'Pay €29 - Limited Offer',
+    icon: Crown,
     gradient: 'from-amber-500 to-orange-500',
     borderColor: 'border-amber-500',
     textColor: 'text-amber-500',
-    icon: Crown,
     featured: true,
-    badge: 'Ofertă Limitată - Doar Aici',
-    benefits: [
-      'Primele 3 luni doar €29/lună',
-      'Tot ce include Pro',
-      'Cod Warrior88 aplicat automat',
-      'Coaching LIVE săptămânal',
-    ],
+    price: '€29',
+    originalPrice: '€97',
+    discountBadge: '-70%',
+    subtitle: '/ lună (apoi €99/lună)',
+    subtitleEn: '/ month (then €99/mo)',
+    trialRo: null,
+    trialEn: null,
+    cta: 'Plătește €29 - Ofertă Limitată',
+    ctaEn: 'Pay €29 - Limited Offer',
+    priceValue: 29,
+    benefitsRo: proPlan.benefitsRo,
+    benefitsEn: proPlan.benefitsEn,
+    hasWarrior88: true,
   },
 ];
 
@@ -191,31 +194,11 @@ export const ChallengeUpgradeGate: React.FC<ChallengeUpgradeGateProps> = ({
             </div>
           )}
 
-          {/* Benefits Preview */}
-          <div className="mb-6 p-4 rounded-lg bg-muted/30">
-            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-amber-500" />
-              {isRo ? 'Ce primești cu upgrade:' : 'What you get:'}
-            </h3>
-            <ul className="space-y-2 text-sm">
-              {[
-                isRo ? 'Acces la Zilele 3-7 din Challenge' : 'Access to Days 3-7',
-                isRo ? 'AI Vision Board & Meditație' : 'AI Vision Board & Meditation',
-                isRo ? 'Accountability & Integrare completă' : 'Full Integration',
-              ].map((b, i) => (
-                <li key={i} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* Plans Grid */}
           <div className="grid md:grid-cols-3 gap-3 mb-6">
             {UPGRADE_PLANS.map((plan) => {
               const IconComponent = plan.icon;
-              const priceValue = plan.id === 'pro-trial' ? 0 : plan.id === 'pro-3mo' ? 29 : 49;
+              const benefits = isRo ? plan.benefitsRo : plan.benefitsEn;
               return (
                 <Card
                   key={plan.id}
@@ -225,36 +208,72 @@ export const ChallengeUpgradeGate: React.FC<ChallengeUpgradeGateProps> = ({
                     plan.featured && "ring-2 ring-amber-500/50 scale-[1.03] shadow-lg shadow-amber-500/10"
                   )}
                 >
-                  {plan.badge && (
-                    <Badge className="absolute top-2 right-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px]">
-                      ⭐ {plan.badge}
-                    </Badge>
+                  {/* Warrior88 Sticker */}
+                  {'hasWarrior88' in plan && plan.hasWarrior88 && (
+                    <div className="absolute -right-2 top-4 z-10 rotate-[-12deg]">
+                      <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1.5 rounded-lg shadow-lg shadow-amber-500/30">
+                        <div className="text-[10px] font-bold leading-tight text-center">Warrior88</div>
+                        <div className="text-[9px] font-semibold leading-tight text-center opacity-90">APLICAT ✓</div>
+                      </div>
+                    </div>
                   )}
 
-                  <CardContent className="p-4">
+                  {/* Discount Badge */}
+                  <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] z-10">
+                    {plan.discountBadge}
+                  </Badge>
+
+                  <CardContent className="p-4 pt-5">
                     <div className="flex items-center gap-2 mb-2">
                       <IconComponent className={cn("h-5 w-5", plan.textColor)} />
-                      <h3 className="font-bold text-foreground">{plan.name}</h3>
+                      <h3 className="font-bold text-foreground">
+                        {plan.id === 'basic' ? 'Basic' : plan.id === 'pro' ? 'Pro' : (isRo ? 'Pro 3 Luni' : 'Pro 3 Months')}
+                      </h3>
                     </div>
 
-                    <div className="mb-3">
-                      <span className={cn("text-2xl font-black", plan.textColor)}>
-                        {plan.displayPrice}
+                    {plan.trialRo && (
+                      <span className="text-[10px] text-green-500 font-semibold">
+                        ✓ {isRo ? plan.trialRo : plan.trialEn}
                       </span>
-                      <span className="text-muted-foreground text-xs ml-1">{plan.subtitle}</span>
+                    )}
+
+                    <div className="mb-3">
+                      <span className="text-xs text-muted-foreground line-through mr-1">{plan.originalPrice}</span>
+                      <span className={cn("text-2xl font-black", plan.textColor)}>
+                        {plan.price}
+                      </span>
+                      <span className="text-muted-foreground text-xs ml-1">
+                        {isRo ? plan.subtitle : plan.subtitleEn}
+                      </span>
                     </div>
 
                     <ul className="space-y-1 mb-4">
-                      {plan.benefits.map((benefit, idx) => (
+                      {benefits.map((benefit, idx) => (
                         <li key={idx} className="flex items-start gap-1.5 text-xs">
-                          <Check className="h-3 w-3 mt-0.5 text-green-500 flex-shrink-0" />
+                          <Check className={cn("h-3 w-3 mt-0.5 flex-shrink-0", plan.featured ? 'text-amber-500' : 'text-green-500')} />
                           <span className="text-muted-foreground">{benefit}</span>
                         </li>
                       ))}
+                      {plan.id === 'pro-3mo' && (
+                        <>
+                          <li className="flex items-start gap-1.5 text-xs">
+                            <Check className="h-3 w-3 mt-0.5 flex-shrink-0 text-amber-500" />
+                            <span className="text-muted-foreground font-semibold">
+                              {isRo ? 'Primele 3 luni doar €29/lună' : 'First 3 months only €29/mo'}
+                            </span>
+                          </li>
+                          <li className="flex items-start gap-1.5 text-xs">
+                            <Check className="h-3 w-3 mt-0.5 flex-shrink-0 text-amber-500" />
+                            <span className="text-muted-foreground">
+                              {isRo ? 'După 3 luni: €99/lună' : 'After 3 months: €99/mo'}
+                            </span>
+                          </li>
+                        </>
+                      )}
                     </ul>
 
                     <Button
-                      onClick={() => handleCheckout(plan.planId, priceValue)}
+                      onClick={() => handleCheckout(plan.planId, plan.priceValue)}
                       disabled={isLoading !== null}
                       size="sm"
                       className={cn(
