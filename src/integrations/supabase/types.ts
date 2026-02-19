@@ -604,6 +604,36 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_intake: {
+        Row: {
+          biggest_block: string
+          commitment_level: string
+          created_at: string
+          id: string
+          posted_to_community: boolean
+          user_id: string
+          win_30_days: string
+        }
+        Insert: {
+          biggest_block: string
+          commitment_level?: string
+          created_at?: string
+          id?: string
+          posted_to_community?: boolean
+          user_id: string
+          win_30_days: string
+        }
+        Update: {
+          biggest_block?: string
+          commitment_level?: string
+          created_at?: string
+          id?: string
+          posted_to_community?: boolean
+          user_id?: string
+          win_30_days?: string
+        }
+        Relationships: []
+      }
       challenge_progress: {
         Row: {
           actions_completed: Json | null
