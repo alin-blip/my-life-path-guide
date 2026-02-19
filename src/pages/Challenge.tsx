@@ -18,6 +18,7 @@ import { InstallAppPrompt } from '@/components/pwa/InstallAppPrompt';
 import { ChallengeAudioPlayer } from '@/components/challenge/ChallengeAudioPlayer';
 import { ChallengeScriptCard } from '@/components/challenge/ChallengeScriptCard';
 import { ChallengeInlineChat } from '@/components/challenge/ChallengeInlineChat';
+import { ChallengeIntakeModal } from '@/components/challenge/ChallengeIntakeModal';
 import { COMMUNITY_URL } from '@/config/socialLinks';
 import { getDayScriptRo } from '@/data/challengeScriptsRo';
 import { getDayScript } from '@/data/challengeScripts';
@@ -111,6 +112,7 @@ const ChallengePage = () => {
     language
   } = useLanguage();
   const {
+    user,
     earlyBirdExpiresAt,
     isEarlyBirdActive,
     subscribed
@@ -129,14 +131,29 @@ const ChallengePage = () => {
     trackChallengeStarted
   } = useChallengeProgress();
 
+  // Intake modal state
+  const [showIntake, setShowIntake] = useState(false);
+  useEffect(() => {
+    if (!isAuthenticated || loading) return;
+    const done = localStorage.getItem('challenge_intake_done');
+    if (done) return;
+    supabase
+      .from('challenge_intake')
+      .select('id')
+      .eq('user_id', user?.id ?? '')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) setShowIntake(true);
+        else localStorage.setItem('challenge_intake_done', 'true');
+      });
+  }, [isAuthenticated, loading, user?.id]);
+
   // FIX: Fallback session check for fresh signups from challenge landing
-  // If we have a Supabase session but AuthContext shows unauthenticated, force refresh
   const [sessionCheckDone, setSessionCheckDone] = useState(false);
   useEffect(() => {
     if (!sessionCheckDone && !loading) {
       supabase.auth.getSession().then(({ data }) => {
         if (data?.session && !isAuthenticated) {
-          // Session exists but context doesn't see it - reload to sync
           console.log('[Challenge] Session mismatch detected, reloading to sync auth state');
           window.location.reload();
         }
@@ -173,6 +190,7 @@ const ChallengePage = () => {
   // Hero video URL
   const heroVideoUrl = "https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=EmSYV-az3RPM1F2dgE82gFhgBtO6C9nQVNVAE4IeNa7M1V0a6&videoRatio=1.777778&type=v&skinColor=%232758EB";
   return <>
+      <ChallengeIntakeModal open={showIntake} onComplete={() => setShowIntake(false)} />
       <ChallengeCoachWidget currentDay={currentDay} />
       <ProgramsLayout activeTab="classroom" showNavBar={false} sidebar={<ChallengeSidebar />}>
         <div className="w-full max-w-4xl mx-auto px-4 py-8">
