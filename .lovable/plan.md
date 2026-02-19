@@ -1,77 +1,100 @@
 
-# Unificare Cursuri, Programe si Napoleon Hill
+# Reparare Mesaje Directe + Mesaj Automat de Welcome pentru Coach-i
 
-## Problema
+## Problema 1: Mesajele directe nu functioneaza
 
-Exista doua locuri separate pentru continut educational:
-1. **`/programs?tab=classroom`** - 4 cursuri (Challenge, Personal Power, Ultimate YOU, Warrior Accelerator)
-2. **`/learn`** - Napoleon Hill (Carte zilnica, Master Plan, AI Coaching, Progres)
+Tabelul `direct_messages` exista si are RLS corect configurat, dar este gol (0 mesaje). Infrastructura de cod (hook, componente) este completa. Trebuie verificat si reparat fluxul end-to-end.
 
-Utilizatorul trebuie sa navigheze in doua locuri diferite. SideMenu are "Programe" SI "Cursuri" ca intrari separate.
+Potentiale probleme identificate:
+- In `Messages.tsx`, `handleSelectMultiple` apeleaza `handleSelectNewMember` dar acesta nu este in dependency array-ul `useCallback`
+- `sendMessage` returneaza data dar `handleSend` nu face `fetchMessages` dupa trimitere - se bazeaza doar pe realtime, care poate avea delay
+- Dupa trimitere, conversatia nu se actualizeaza in lista (depinde de realtime subscription care asculta doar pe INSERT)
+
+## Problema 2: Mesaj automat de Welcome
+
+Cand un membru nou se alatura unui grup (tribe), coach-ul/admin-ul vrea sa trimita automat un mesaj direct de bun venit. Exista deja UI pentru setarea `welcome_message` in `CommunitySettingsTab.tsx`, dar:
+- Nu exista logica de trimitere automata
+- Coach-ii nu au setari de welcome message per grup (exista doar la nivel de comunitate principala in `community_settings`)
 
 ## Solutia
 
-Mutam continutul Napoleon Hill (Learn) IN tab-ul "Classroom" din `/programs`, ca o sectiune separata. Eliminam pagina `/learn` ca destinatie independenta si redirectionam catre `/programs?tab=classroom`.
+### 1. Fix Mesaje Directe - `useDirectMessages.ts`
 
-### Structura noua a tab-ului Classroom
+- Dupa `sendMessage`, adaugam mesajul local in state (optimistic update) pentru feedback instant
+- Dupa `sendBulkMessage`, refresh conversations
+- Fix `handleSelectMultiple` dependency in `Messages.tsx`
 
-```text
-/programs?tab=classroom
-  |
-  +-- SECTIUNEA 1: Cursuri & Programe
-  |   - Have It All Lifestyle Challenge
-  |   - Personal Power Plus
-  |   - The Ultimate YOU
-  |   - Warrior Launch Accelerator
-  |   + Admin courses (localStorage)
-  |
-  +-- SECTIUNEA 2: Success Principles (Napoleon Hill)
-  |   - Carte Zilnica (DailyBookPage)
-  |   - Master Plan (Proiecte + Journey)
-  |   - AI Coaching (link-uri catre stacks)
-  |   - Progres (Analytics + Leaderboard)
-  |
-  +-- Coming Soon
+### 2. Welcome Message per Tribe - Migrare DB
+
+Adaugam coloana `welcome_message` pe tabelul `tribes`:
+
+```sql
+ALTER TABLE public.tribes ADD COLUMN IF NOT EXISTS welcome_message text;
 ```
 
-### Navigare simplificata
+Aceasta permite fiecarui coach sa configureze un mesaj de bun venit specific grupului sau.
 
-```text
-GlobalTopBar:  [Comunitate]  [Cursuri]
-SideMenu:      Programe (un singur link, nu doua)
+### 3. Trimitere automata Welcome DM - Trigger DB
+
+Cream un trigger pe `tribe_members` care, la INSERT (cand un membru se alatura), trimite automat un mesaj direct din partea owner-ului grupului cu textul din `tribes.welcome_message`:
+
+```sql
+CREATE OR REPLACE FUNCTION public.send_tribe_welcome_dm()
+RETURNS trigger AS $$
+DECLARE
+  _welcome_msg text;
+  _owner_id uuid;
+BEGIN
+  SELECT t.welcome_message, t.created_by
+  INTO _welcome_msg, _owner_id
+  FROM public.tribes t
+  WHERE t.id = NEW.tribe_id;
+
+  IF _welcome_msg IS NOT NULL AND _welcome_msg != '' AND _owner_id != NEW.user_id THEN
+    INSERT INTO public.direct_messages (sender_id, receiver_id, content)
+    VALUES (_owner_id, NEW.user_id, _welcome_msg);
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = 'public';
+
+CREATE TRIGGER on_tribe_member_joined_welcome
+  AFTER INSERT ON public.tribe_members
+  FOR EACH ROW
+  EXECUTE FUNCTION public.send_tribe_welcome_dm();
 ```
+
+### 4. UI pentru Welcome Message in GroupPage Settings
+
+In pagina grupului (`GroupPage.tsx`), adaugam un camp in tab-ul Settings (vizibil pentru owner/admin) care permite editarea `welcome_message`.
+
+### 5. Welcome Message pentru Comunitatea Principala
+
+Conectam setarea `welcome_message` din `community_settings` cu acelasi mecanism - trigger-ul verifica si `community_settings` pentru grupul principal (ID hardcodat).
 
 ## Fisiere modificate
 
-| Fisier | Ce se schimba |
+| Fisier | Modificare |
 |---|---|
-| `src/components/programs/ClassroomTab.tsx` | Adaugare sectiune "Success Principles" sub lista de cursuri - include Tabs cu Book / Master Plan / AI Coaching / Progress, refolosind componentele din Learn.tsx |
-| `src/pages/Programs.tsx` | Fara modificari majore (ClassroomTab primeste deja programs ca prop) |
-| `src/components/SideMenu.tsx` | Eliminare intrarea separata "Cursuri" (`/learn`). Pastram doar "Programe" (`/programs`) |
-| `src/App.tsx` | Adaugare redirect: `/learn` -> `/programs?tab=classroom` (pastreaza backward compatibility) |
-| `src/pages/Learn.tsx` | Ramane ca fisier dar nu mai este ruta principala (redirect) |
+| Migrare SQL | Adaugare coloana `welcome_message` pe `tribes` + trigger `send_tribe_welcome_dm` |
+| `src/hooks/useDirectMessages.ts` | Optimistic update dupa sendMessage, fix realtime handler |
+| `src/pages/Messages.tsx` | Fix dependency array `handleSelectMultiple`, refresh dupa send |
+| `src/pages/GroupPage.tsx` | Adaugare camp "Welcome Message" in settings tab pentru owner |
 
 ## Detalii tehnice
 
-### ClassroomTab.tsx - Sectiunea Napoleon Hill
+### useDirectMessages.ts - Optimistic Update
 
-Sub grila de cursuri existenta, adaugam o sectiune noua cu un `Tabs` component intern:
+Dupa `sendMessage` cu succes, adaugam mesajul returnat direct in `messages` state si refacem `fetchConversations` pentru lista. Nu mai depindem exclusiv de realtime pentru feedback instant.
 
-- **Carte** - randeaza `DailyBookPage`
-- **Master Plan** - randeaza proiecte, journey, dashboard, knowledge (exact ca in Learn.tsx)
-- **AI Coaching** - link-uri catre `/stack?type=napoleon-hill`
-- **Progres** - `AnalyticsDashboard` + `Leaderboard`
+### Trigger SECURITY DEFINER
 
-### SideMenu.tsx
+Trigger-ul foloseste `SECURITY DEFINER` pentru a insera mesaje direct (ocolind RLS care cere `auth.uid() = sender_id`), deoarece operatia se executa in context de server, nu in contextul utilizatorului.
 
-Eliminam intrarea "Cursuri" (linia 158-162) care duce la `/learn`. Pastram doar "Programe" care duce la `/programs`.
+### Flux complet
 
-### App.tsx
-
-Adaugam: `<Route path="/learn" element={<Navigate to="/programs?tab=classroom" replace />} />`
-
-Aceasta asigura ca orice link vechi catre `/learn` functioneaza in continuare.
-
-## Nu sunt necesare migrari de baza de date
-
-Toate componentele si datele sunt deja existente - doar le reorganizam vizual.
+1. Coach seteaza "Welcome Message" in Settings-ul grupului
+2. Noul membru se alatura grupului (INSERT in `tribe_members`)
+3. Trigger-ul trimite automat un DM din partea coach-ului
+4. Membrul vede mesajul in pagina Messages
