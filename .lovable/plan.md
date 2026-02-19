@@ -1,79 +1,73 @@
 
 
-# Implementare Completa: Funnel Challenge + Upsell
+# Corectare Planuri Challenge 7 Zile
 
-## Ce lipseste acum
+## Cele 3 Planuri (corecte de data asta)
 
-Dupa ultima implementare (cuponul Warrior88), mai trebuie facute urmatoarele:
+| # | Plan | Pret | Trial | Original | CTA | Plan ID |
+|---|------|------|-------|----------|-----|---------|
+| 1 | Basic | €49/luna | 7 zile trial gratuit | ~~€97~~ | "Incepe 7 Zile Trial" | `basic` |
+| 2 | Pro | €97/luna | FARA trial (plata directa) | ~~€197~~ | "Activeaza Pro - Early Bird" | `pro` |
+| 3 | Pro 3 Luni (FEATURED) | €29/luna (apoi €99/luna dupa 3 luni) | FARA trial | ~~€97~~ | "Plateste €29 - Oferta Limitata" | `pro-challenge-3mo` |
 
-## 1. Edge Function - Noi Plan IDs
+## Beneficii (preluate din pricing.ts)
 
-**`supabase/functions/create-checkout/index.ts`** - adaugam 2 case-uri noi:
+### Basic (toate 5 beneficiile):
+- Harta Realitatii - Evaluarea vietii tale
+- Warrior Routine completa (4 domenii)
+- Door - Sistem de planificare saptamanala
+- Stacks (Furie, Claritate, Focus) pentru reset rapid
+- Jurnal de progres si rapoarte saptamanale
 
-| Plan ID | Pret | Detalii |
-|---------|------|---------|
-| `pro-challenge-trial` | 7 zile trial gratuit, apoi 49 EUR/luna | `unitAmount=4900`, `trialDays=7`, `tier="pro"` |
-| `warrior-accelerator-earlybird` | 999 EUR one-time | `unitAmount=99900`, `paymentMode="payment"` |
+### Pro (toate 11 beneficiile):
+- Tot ce include planul Basic
+- AI Accountability Coach - tracking zilnic
+- AI Mind Coach - transforma emotiile in putere
+- Comunitate VIP cu membri Pro Warriors
+- Sesiune Q&A exclusiva lunara
+- Sprint de 90 de zile cu KPIs
+- Napoleon Hill Software Implementation
+- Breakthrough Tools and Applied Courses
+- Support VIP dedicat
+- Acces prioritar la functionalitati noi
+- PROGRAM REFERRAL - Castiga 50% comision
 
-**Redirect URLs:**
-- `pro-challenge-trial` si `pro-challenge-3mo` -> `success_url = /challenge-upsell?checkout=success&plan={plan}`
-- `warrior-accelerator-earlybird` -> `success_url = /warrior-accelerator-thank-you?checkout=success`
+### Pro 3 Luni (beneficii Pro + extras):
+- Aceleasi beneficii ca Pro (toate 11)
+- Primele 3 luni doar €29/luna
+- Dupa 3 luni: €99/luna
+- Sticker "Warrior88 APLICAT" in colt
 
-## 2. Noua Pagina: `/challenge-upsell`
+## Modificari Vizuale
 
-**`src/pages/ChallengeUpsell.tsx`** - pagina intermediara post-checkout:
+### Sticker Warrior88 (doar pe planul 3)
+- Pozitionat absolute in coltul dreapta-sus al cardului
+- Background gradient amber-to-orange
+- Text "Warrior88" + "APLICAT" alb, bold
+- Rotatie -12deg pentru efect de sticker
+- Box shadow pentru adancime
 
-- Se afiseaza DOAR dupa checkout reusit (verificare `?checkout=success` in URL)
-- Prezinta 2 optiuni:
-  - **Warrior Certified Coach** la **999 EUR** (redus de la 1.999 EUR) - one-time payment
-  - **Abonament Elite** la 297 EUR/luna cu 5 zile trial
-- **Buton "Nu mersi, vreau sa intru pe platforma"** -> redirect la `/challenge`
-- Tracking Facebook Pixel: `trackEvent('ViewContent', { content_name: 'challenge_upsell' })`
+### Preturi taiate
+- Basic: ~~€97~~ -> €49
+- Pro: ~~€197~~ -> €97
+- Pro 3 Luni: ~~€97~~ -> €29
 
-## 3. Ruta Noua in App.tsx
+### Badge-uri discount
+- Basic: badge "-50%"
+- Pro: badge "-50% Early Bird"
+- Pro 3 Luni: badge "-70%"
 
-Adaugam `/challenge-upsell` -> `ChallengeUpsell` (protected route)
+## Fisiere Modificate
 
-## 4. Restructurare `ChallengeUpgradeGate.tsx`
+| Fisier | Ce se modifica |
+|--------|---------------|
+| `src/components/challenge/ChallengePremiumOffer.tsx` | Inlocuiesc PLANS array cu cele 3 planuri corecte, beneficii complete din pricing.ts, pret original taiat, sticker Warrior88 pe planul 3 |
+| `src/components/challenge/ChallengeUpgradeGate.tsx` | Aceeasi restructurare - UPGRADE_PLANS cu datele corecte |
 
-Inlocuim cele 3 planuri (Basic/Pro/Elite) cu:
+## Detalii Tehnice
 
-| Plan | Pret | CTA | Stil |
-|------|------|-----|------|
-| Basic | 49 EUR/luna | "Activeaza Acum" | Card simplu, albastru |
-| Pro (7 zile trial) | 0 EUR acum, apoi 49 EUR/luna | "Incepe 7 Zile Gratuit" | Card normal, verde |
-| Pro 3 Luni - FEATURED | 29 EUR acum (apoi 97 EUR/luna dupa 3 luni) | "Plateste 29 EUR - Oferta Limitata" | Card mare, gradient amber, badge "Oferta Limitata - Doar Aici", ring, scale |
-
-## 5. Restructurare `ChallengePremiumOffer.tsx`
-
-Aceeasi restructurare ca la ChallengeUpgradeGate - afiseaza noile 3 planuri cu acelasi layout.
-
-## 6. Update redirect in Edge Function
-
-Pentru planurile challenge (`pro-challenge-trial`, `pro-challenge-3mo`), `success_url` va pointa catre `/challenge-upsell` in loc de `/challenge`.
-
-## 7. Facebook Pixel Tracking
-
-- `trackCheckoutInitiated` cu planul specific la click pe CTA
-- `trackEvent('ViewContent')` pe pagina upsell
-- `trackPurchase` daca alege Accelerator/Elite de pe upsell
-
-## Fisiere Modificate/Create
-
-| Fisier | Actiune |
-|--------|---------|
-| `supabase/functions/create-checkout/index.ts` | Modific - adaug `pro-challenge-trial`, `warrior-accelerator-earlybird`, update redirect URLs |
-| `src/pages/ChallengeUpsell.tsx` | Creez - pagina upsell post-checkout |
-| `src/App.tsx` | Modific - adaug ruta `/challenge-upsell` |
-| `src/components/challenge/ChallengeUpgradeGate.tsx` | Modific - restructurez cu noile 3 planuri |
-| `src/components/challenge/ChallengePremiumOffer.tsx` | Modific - restructurez cu noile 3 planuri |
-
-## Ordine de Executie
-
-1. Modific edge function (noi plan IDs + redirect la upsell)
-2. Deploy edge function
-3. Creez pagina ChallengeUpsell
-4. Adaug ruta in App.tsx
-5. Restructurez ChallengeUpgradeGate cu noile 3 planuri
-6. Restructurez ChallengePremiumOffer cu noile 3 planuri
-
+- Importam `plans` din `src/data/pricing.ts` pentru a prelua beneficiile Basic si Pro
+- Planul Pro 3 Luni foloseste beneficiile Pro + pret custom (29 EUR) + subtitle "apoi €99/luna dupa 3 luni"
+- Basic are `trialDays: 7` (nu 5 ca in pricing.ts general)
+- Pro NU are trial - plata directa la €97
+- Pro 3 Luni NU are trial - plata directa €29
