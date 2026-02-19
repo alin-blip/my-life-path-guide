@@ -18,6 +18,7 @@ const FREE_TIER_ROUTES = [
   '/habits',
   '/challenge',
   '/challenge-7-zile',
+  '/challenge-upsell',
   '/settings',
   '/profile',
   '/fact-maps', // Reality Map - accessible for lead magnet users
