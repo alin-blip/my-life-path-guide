@@ -1,234 +1,214 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from '@/integrations/supabase/client';
+import { Crown, TrendingUp, Users, CreditCard } from 'lucide-react';
 
-// Interface for revenue data
-interface RevenueData {
-  id: string;
-  course: string;
-  author: string;
-  sales: number;
-  totalRevenue: number;
-  platformShare: number;
-  authorShare: number;
-  period: string;
+interface SubscriptionStats {
+  activeSubscriptions: number;
+  trialUsers: number;
+  totalMRR: number;
+  tierBreakdown: { tier: string; count: number; mrr: number }[];
+  monthlyGrowth: { month: string; customers: number; mrr: number }[];
 }
 
-// Mock data for revenue
-const mockRevenueData: RevenueData[] = [
-  {
-    id: '1',
-    course: 'Mindfulness pentru antreprenori ocupați',
-    author: 'Maria Popescu',
-    sales: 24,
-    totalRevenue: 3576,
-    platformShare: 1788,
-    authorShare: 1788,
-    period: 'Octombrie 2023'
-  },
-  {
-    id: '2',
-    course: 'Fitness pentru birou: 10 minute zilnic',
-    author: 'Alexandru Ionescu',
-    sales: 43,
-    totalRevenue: 4257,
-    platformShare: 2128.5,
-    authorShare: 2128.5,
-    period: 'Octombrie 2023'
-  },
-  {
-    id: '3',
-    course: 'Comunicare eficientă cu echipa',
-    author: 'Elena Mihai',
-    sales: 12,
-    totalRevenue: 2388,
-    platformShare: 1194,
-    authorShare: 1194,
-    period: 'Octombrie 2023'
-  },
-  {
-    id: '4',
-    course: 'Mindfulness pentru antreprenori ocupați',
-    author: 'Maria Popescu',
-    sales: 18,
-    totalRevenue: 2682,
-    platformShare: 1341,
-    authorShare: 1341,
-    period: 'Septembrie 2023'
-  },
-  {
-    id: '5',
-    course: 'Fitness pentru birou: 10 minute zilnic',
-    author: 'Alexandru Ionescu',
-    sales: 32,
-    totalRevenue: 3168,
-    platformShare: 1584,
-    authorShare: 1584,
-    period: 'Septembrie 2023'
-  }
-];
-
-// Chart data for monthly revenue
-const monthlyRevenueData = [
-  { name: 'Ian', total: 1800, platform: 900, authors: 900 },
-  { name: 'Feb', total: 2200, platform: 1100, authors: 1100 },
-  { name: 'Mar', total: 2800, platform: 1400, authors: 1400 },
-  { name: 'Apr', total: 3500, platform: 1750, authors: 1750 },
-  { name: 'Mai', total: 4200, platform: 2100, authors: 2100 },
-  { name: 'Iun', total: 4800, platform: 2400, authors: 2400 },
-  { name: 'Iul', total: 5500, platform: 2750, authors: 2750 },
-  { name: 'Aug', total: 6700, platform: 3350, authors: 3350 },
-  { name: 'Sep', total: 7900, platform: 3950, authors: 3950 },
-  { name: 'Oct', total: 10221, platform: 5110.5, authors: 5110.5 },
-  { name: 'Nov', total: 0, platform: 0, authors: 0 },
-  { name: 'Dec', total: 0, platform: 0, authors: 0 }
-];
-
 export const RevenueDashboard: React.FC = () => {
-  const [period, setPeriod] = useState('current');
-  
-  // Filter revenue data based on selected period
-  const filteredRevenueData = mockRevenueData.filter(item => 
-    period === 'current' ? item.period === 'Octombrie 2023' : true
-  );
-  
-  // Calculate totals
-  const totalSales = filteredRevenueData.reduce((acc, item) => acc + item.sales, 0);
-  const totalRevenue = filteredRevenueData.reduce((acc, item) => acc + item.totalRevenue, 0);
-  const totalPlatformShare = filteredRevenueData.reduce((acc, item) => acc + item.platformShare, 0);
-  const totalAuthorShare = filteredRevenueData.reduce((acc, item) => acc + item.authorShare, 0);
-  
+  const [stats, setStats] = useState<SubscriptionStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadRevenueData();
+  }, []);
+
+  const loadRevenueData = async () => {
+    try {
+      setLoading(true);
+
+      // Get real subscription data from subscribers table
+      const { data: subscribers, error } = await supabase
+        .from('subscribers')
+        .select('email, subscribed, subscription_tier, subscription_status, created_at');
+
+      if (error) throw error;
+
+      const subs = subscribers || [];
+      const active = subs.filter(s => s.subscribed && s.subscription_status !== 'trialing');
+      const trials = subs.filter(s => s.subscription_status === 'trialing');
+
+      // Tier breakdown
+      const tierMap = new Map<string, { count: number; mrr: number }>();
+      active.forEach(s => {
+        const tier = s.subscription_tier || 'Unknown';
+        const existing = tierMap.get(tier) || { count: 0, mrr: 0 };
+        const price = tier === 'Elite' ? 297 : (tier === 'Pro' ? 99 : 0);
+        tierMap.set(tier, { count: existing.count + 1, mrr: existing.mrr + price });
+      });
+
+      const tierBreakdown = Array.from(tierMap.entries()).map(([tier, data]) => ({
+        tier, count: data.count, mrr: data.mrr
+      }));
+
+      const totalMRR = tierBreakdown.reduce((sum, t) => sum + t.mrr, 0);
+
+      // Monthly customer growth from crm_contact_profiles
+      const { data: contacts } = await supabase
+        .from('crm_contact_profiles')
+        .select('created_at, funnel_stage, subscription_status')
+        .in('funnel_stage', ['customer', 'trial']);
+
+      const monthlyGrowth: { month: string; customers: number; mrr: number }[] = [];
+      const now = new Date();
+      for (let i = 5; i >= 0; i--) {
+        const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+        const monthLabel = monthDate.toLocaleDateString('ro-RO', { month: 'short', year: '2-digit' });
+        
+        const customersUpTo = (contacts || []).filter(c => 
+          c.created_at && new Date(c.created_at) <= monthEnd && c.funnel_stage === 'customer'
+        ).length;
+
+        monthlyGrowth.push({
+          month: monthLabel,
+          customers: customersUpTo,
+          mrr: customersUpTo * (totalMRR / Math.max(active.length, 1)) // Estimated MRR per customer
+        });
+      }
+
+      setStats({
+        activeSubscriptions: active.length,
+        trialUsers: trials.length,
+        totalMRR,
+        tierBreakdown,
+        monthlyGrowth
+      });
+    } catch (error) {
+      console.error('Error loading revenue data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => (
+            <Card key={i}><CardContent className="pt-4"><Skeleton className="h-20 w-full" /></CardContent></Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return <p className="text-center text-muted-foreground py-8">Nu am putut încărca datele</p>;
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-white">Revenue Dashboard</h3>
-        <Tabs defaultValue="current" onValueChange={setPeriod} className="bg-gray-800 rounded-lg p-1">
-          <TabsList className="bg-gray-700">
-            <TabsTrigger value="current" className="data-[state=active]:bg-gray-600 data-[state=active]:text-white">
-              Luna curentă
-            </TabsTrigger>
-            <TabsTrigger value="all" className="data-[state=active]:bg-gray-600 data-[state=active]:text-white">
-              Toate datele
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+      <h3 className="text-lg font-medium">Revenue Dashboard (Date Reale)</h3>
       
-      {/* Summary Cards */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gray-800 border-gray-700">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Vânzări totale</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <CreditCard className="h-4 w-4" /> MRR
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalSales}</div>
-            <p className="text-xs text-gray-500">cursuri vândute</p>
+            <div className="text-2xl font-bold">€{stats.totalMRR}</div>
+            <p className="text-xs text-muted-foreground">Monthly Recurring Revenue</p>
           </CardContent>
         </Card>
         
-        <Card className="bg-gray-800 border-gray-700">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Venituri totale</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Crown className="h-4 w-4" /> Abonați Activi
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalRevenue} LEI</div>
-            <p className="text-xs text-gray-500">din toate cursurile</p>
+            <div className="text-2xl font-bold">{stats.activeSubscriptions}</div>
+            <p className="text-xs text-muted-foreground">subscripții active</p>
           </CardContent>
         </Card>
         
-        <Card className="bg-gray-800 border-gray-700">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Partea platformei</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" /> În Trial
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalPlatformShare} LEI</div>
-            <p className="text-xs text-gray-500">50% din veniturile totale</p>
+            <div className="text-2xl font-bold text-orange-500">{stats.trialUsers}</div>
+            <p className="text-xs text-muted-foreground">useri în perioadă de trial</p>
           </CardContent>
         </Card>
         
-        <Card className="bg-gray-800 border-gray-700">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Partea autorilor</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Users className="h-4 w-4" /> ARPU
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalAuthorShare} LEI</div>
-            <p className="text-xs text-gray-500">50% din veniturile totale</p>
+            <div className="text-2xl font-bold">
+              €{stats.activeSubscriptions > 0 ? Math.round(stats.totalMRR / stats.activeSubscriptions) : 0}
+            </div>
+            <p className="text-xs text-muted-foreground">Average Revenue Per User</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Tier Breakdown */}
+      {stats.tierBreakdown.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribuție pe Planuri</CardTitle>
+            <CardDescription>Abonați activi pe fiecare plan</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats.tierBreakdown.map(tier => (
+                <div key={tier.tier} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-3">
+                    <Crown className={`h-5 w-5 ${tier.tier === 'Elite' ? 'text-yellow-500' : 'text-blue-500'}`} />
+                    <div>
+                      <p className="font-medium">{tier.tier}</p>
+                      <p className="text-sm text-muted-foreground">{tier.count} abonați</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold">€{tier.mrr}/lună</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
-      {/* Monthly Revenue Chart */}
-      <Card className="bg-gray-800 border-gray-700">
+      {/* Monthly Growth Chart */}
+      <Card>
         <CardHeader>
-          <CardTitle className="text-white">Venituri lunare</CardTitle>
-          <CardDescription className="text-gray-400">Evoluția veniturilor totale pe parcursul anului</CardDescription>
+          <CardTitle>Creștere Lunară</CardTitle>
+          <CardDescription>Evoluția numărului de clienți</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyRevenueData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="name" stroke="#9CA3AF" />
-                <YAxis stroke="#9CA3AF" />
-                <Tooltip 
-                  formatter={(value: number) => [`${value} LEI`, '']}
-                  labelFormatter={(label) => `Luna: ${label}`}
-                  contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#fff' }}
-                />
+              <BarChart data={stats.monthlyGrowth}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
                 <Legend />
-                <Bar dataKey="total" name="Venituri totale" fill="#8884d8" />
-                <Bar dataKey="platform" name="Partea platformei" fill="#82ca9d" />
-                <Bar dataKey="authors" name="Partea autorilor" fill="#ffc658" />
+                <Bar dataKey="customers" name="Clienți" fill="hsl(var(--primary))" />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </CardContent>
-      </Card>
-      
-      {/* Revenue Details Table */}
-      <Card className="bg-gray-800 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white">Detalii venituri pe cursuri</CardTitle>
-          <CardDescription className="text-gray-400">
-            Venituri detaliate pentru fiecare curs
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-gray-900">
-              <TableRow>
-                <TableHead className="text-gray-300">Curs</TableHead>
-                <TableHead className="text-gray-300">Autor</TableHead>
-                <TableHead className="text-gray-300 text-right">Vânzări</TableHead>
-                <TableHead className="text-gray-300 text-right">Venituri totale</TableHead>
-                <TableHead className="text-gray-300 text-right">Partea platformei</TableHead>
-                <TableHead className="text-gray-300 text-right">Partea autorului</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredRevenueData.map((item) => (
-                <TableRow key={item.id} className="border-gray-700 hover:bg-gray-700">
-                  <TableCell className="font-medium text-white">{item.course}</TableCell>
-                  <TableCell className="text-gray-300">{item.author}</TableCell>
-                  <TableCell className="text-gray-300 text-right">{item.sales}</TableCell>
-                  <TableCell className="text-gray-300 text-right">{item.totalRevenue} LEI</TableCell>
-                  <TableCell className="text-gray-300 text-right">{item.platformShare} LEI</TableCell>
-                  <TableCell className="text-gray-300 text-right">{item.authorShare} LEI</TableCell>
-                </TableRow>
-              ))}
-              
-              {filteredRevenueData.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-400">
-                    Nu există date pentru perioada selectată
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
         </CardContent>
       </Card>
     </div>

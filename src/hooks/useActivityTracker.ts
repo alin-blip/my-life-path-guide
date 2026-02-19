@@ -34,60 +34,14 @@ export const useActivityTracker = () => {
     return 'desktop';
   }, []);
 
-  // Track activity
+  // Track activity - simplified: insert directly with user_id, skip contact lookup
   const trackActivity = useCallback(async (data: ActivityData) => {
     if (!user?.id) return;
 
     try {
-      // First, find or create the contact profile (check by user_id OR email)
-      const { data: contact, error: contactError } = await supabase
-        .from('crm_contact_profiles')
-        .select('id, user_id')
-        .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-        .single();
-
-      if (contactError && contactError.code !== 'PGRST116') {
-        console.error('Error finding contact:', contactError);
-        return;
-      }
-
-      let contactId = contact?.id;
-
-      // If no contact exists, create one
-      if (!contactId && user.email) {
-        const { data: newContact, error: createError } = await supabase
-          .from('crm_contact_profiles')
-          .insert({
-            email: user.email,
-            user_id: user.id,
-            funnel_stage: 'engaged',
-            lead_source: 'app_usage',
-            lead_score: 25,
-            account_created_at: new Date().toISOString()
-          })
-          .select('id')
-          .single();
-
-        if (createError) {
-          console.error('Error creating contact:', createError);
-          return;
-        }
-        contactId = newContact?.id;
-      } else if (contact && !contact.user_id) {
-        // Link existing contact to auth user if user_id is NULL
-        await supabase
-          .from('crm_contact_profiles')
-          .update({ user_id: user.id })
-          .eq('id', contact.id);
-      }
-
-      if (!contactId) return;
-
-      // Track the activity
-      const { error: trackError } = await supabase
+      const { error } = await supabase
         .from('crm_activity_timeline')
         .insert([{
-          contact_id: contactId,
           user_id: user.id,
           activity_type: data.activity_type,
           activity_title: data.activity_title,
@@ -97,20 +51,11 @@ export const useActivityTracker = () => {
           device_type: getDeviceType()
         }]);
 
-      if (trackError) {
-        console.error('Error tracking activity:', trackError);
+      if (error) {
+        console.warn('Activity tracking failed:', error.message);
       }
-
-      // Update last activity on contact profile
-      await supabase
-        .from('crm_contact_profiles')
-        .update({ 
-          last_activity_at: new Date().toISOString()
-        })
-        .eq('id', contactId);
-
     } catch (error) {
-      console.error('Activity tracking error:', error);
+      // Silent fail - tracking should never break the app
     }
   }, [user, location.pathname, getDeviceType]);
 
@@ -167,10 +112,8 @@ function getPageTitle(path: string): string {
     '/settings': 'Settings'
   };
   
-  // Check for exact match
   if (titles[path]) return titles[path];
   
-  // Check for partial matches
   for (const [key, value] of Object.entries(titles)) {
     if (path.startsWith(key) && key !== '/') return value;
   }
@@ -178,7 +121,7 @@ function getPageTitle(path: string): string {
   return path;
 }
 
-// Export individual tracking functions for specific use cases
+// Export tracking helper functions
 export const trackStackSession = (trackEvent: ReturnType<typeof useActivityTracker>['trackEvent']) => 
   (coachType: string, duration: number) => {
     trackEvent('stack_session', `Stack: ${coachType}`, { coachType, duration });

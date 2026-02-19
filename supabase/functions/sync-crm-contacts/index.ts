@@ -14,7 +14,6 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     console.log("Starting CRM contact sync...");
@@ -23,78 +22,54 @@ serve(async (req) => {
     const { data: emailLeads, error: leadsError } = await supabase
       .from("email_leads")
       .select("*");
-
-    if (leadsError) {
-      console.error("Error fetching email_leads:", leadsError);
-      throw leadsError;
-    }
-
+    if (leadsError) throw leadsError;
     console.log(`Found ${emailLeads?.length || 0} email leads`);
 
-    // 2. Get all auth users with their emails
+    // 2. Get all auth users
     const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-    
-    if (authError) {
-      console.error("Error fetching auth users:", authError);
-    }
-
+    if (authError) console.error("Error fetching auth users:", authError);
     const userEmailMap = new Map(
-      authUsers?.users?.map(u => [u.email?.toLowerCase(), u.id]) || []
+      authUsers?.users?.map(u => [u.email?.toLowerCase(), { id: u.id, created_at: u.created_at }]) || []
     );
-
     console.log(`Found ${userEmailMap.size} auth users`);
 
     // 3. Get existing CRM contacts
-    const { data: existingContacts, error: contactsError } = await supabase
+    const { data: existingContacts } = await supabase
       .from("crm_contact_profiles")
       .select("email");
-
-    if (contactsError) {
-      console.error("Error fetching existing contacts:", contactsError);
-    }
-
     const existingEmails = new Set(
       existingContacts?.map(c => c.email.toLowerCase()) || []
     );
 
-    // 4. Get warrior power results for lead scoring
+    // 4. Get engagement data
     const { data: warriorPowerResults } = await supabase
       .from("warrior_power_results")
       .select("user_id, total_score, created_at");
-
     const warriorPowerMap = new Map(
       warriorPowerResults?.map(w => [w.user_id, w]) || []
     );
 
-    // 5. Get challenge progress for engagement
     const { data: challengeProgress } = await supabase
       .from("challenge_progress")
       .select("user_id, day_number, completed");
-
     const challengeMap = new Map<string, number>();
     challengeProgress?.forEach(cp => {
       if (cp.completed) {
-        const current = challengeMap.get(cp.user_id) || 0;
-        challengeMap.set(cp.user_id, current + 1);
+        challengeMap.set(cp.user_id, (challengeMap.get(cp.user_id) || 0) + 1);
       }
     });
 
-    // 6. Get stack sessions count
     const { data: stackSessions } = await supabase
       .from("stack_sessions")
       .select("user_id, id");
-
     const stackSessionsMap = new Map<string, number>();
     stackSessions?.forEach(ss => {
-      const current = stackSessionsMap.get(ss.user_id) || 0;
-      stackSessionsMap.set(ss.user_id, current + 1);
+      stackSessionsMap.set(ss.user_id, (stackSessionsMap.get(ss.user_id) || 0) + 1);
     });
 
-    // 7. Get purchases for customer identification
     const { data: purchases } = await supabase
       .from("course_purchases")
       .select("user_id, amount_paid, purchased_at");
-
     const purchaseMap = new Map<string, { count: number; total: number; first: string }>();
     purchases?.forEach(p => {
       const existing = purchaseMap.get(p.user_id);
@@ -102,289 +77,114 @@ serve(async (req) => {
         existing.count++;
         existing.total += p.amount_paid || 0;
       } else {
-        purchaseMap.set(p.user_id, {
-          count: 1,
-          total: p.amount_paid || 0,
-          first: p.purchased_at
-        });
+        purchaseMap.set(p.user_id, { count: 1, total: p.amount_paid || 0, first: p.purchased_at });
       }
     });
 
-    // 8. Get Stripe subscribers for customer identification
-    const { data: subscribers, error: subscribersError } = await supabase
+    // 5. Get Stripe subscribers
+    const { data: subscribers } = await supabase
       .from("subscribers")
       .select("email, subscribed, subscription_tier, subscription_status, created_at, subscription_end");
-
-    if (subscribersError) {
-      console.error("Error fetching subscribers:", subscribersError);
-    }
-
     const subscriberMap = new Map(
       subscribers?.filter(s => s.subscribed).map(s => [
-        s.email.toLowerCase(), 
-        { 
+        s.email.toLowerCase(),
+        {
           tier: s.subscription_tier,
-          status: s.subscription_status, // "trialing" or "active"
+          status: s.subscription_status,
           since: s.created_at,
-          subscriptionEnd: s.subscription_end,
-          tierValue: s.subscription_tier === 'Elite' ? 1990 : (s.subscription_tier === 'Pro' ? 990 : 0)
+          tierValue: s.subscription_tier === 'Elite' ? 29700 : (s.subscription_tier === 'Pro' ? 9900 : 0)
         }
       ]) || []
     );
-
     console.log(`Found ${subscriberMap.size} active subscribers`);
 
-    // 9. Get daily tracking for streak/engagement
+    // 6. Get daily tracking for streaks
     const { data: dailyTracking } = await supabase
       .from("daily_tracking")
       .select("user_id, date, door_tasks_completed")
       .order("date", { ascending: false });
-
     const streakMap = new Map<string, { streak: number; doorRate: number }>();
-    
-    // Group by user
     const userTracking = new Map<string, typeof dailyTracking>();
     dailyTracking?.forEach(dt => {
       const existing = userTracking.get(dt.user_id) || [];
       existing.push(dt);
       userTracking.set(dt.user_id, existing);
     });
-
-    // Calculate streaks
     userTracking.forEach((tracking, userId) => {
       if (!tracking || tracking.length === 0) {
         streakMap.set(userId, { streak: 0, doorRate: 0 });
         return;
       }
-      
       let streak = 0;
-      let totalDoorTasks = 0;
-      const sortedTracking = [...tracking].sort((a, b) => 
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-      
-      // Simple streak calculation
-      for (const t of sortedTracking) {
-        if (t.door_tasks_completed && t.door_tasks_completed > 0) {
-          streak++;
-          totalDoorTasks += t.door_tasks_completed;
-        } else {
-          break;
-        }
+      const sorted = [...tracking].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      for (const t of sorted) {
+        if (t.door_tasks_completed && t.door_tasks_completed > 0) streak++;
+        else break;
       }
-      
-      const doorRate = tracking.length > 0 
+      const doorRate = tracking.length > 0
         ? (tracking.filter(t => t.door_tasks_completed && t.door_tasks_completed > 0).length / tracking.length) * 100
         : 0;
-      
       streakMap.set(userId, { streak, doorRate });
     });
 
     let syncedCount = 0;
     let updatedCount = 0;
 
-    // 10. Process each email lead
-    for (const lead of emailLeads || []) {
-      const emailLower = lead.email.toLowerCase();
-      const userId = userEmailMap.get(emailLower);
-      const subscription = subscriberMap.get(emailLower);
-      
-      // Calculate lead score
-      let leadScore = 10; // Base score for being a lead
-      let funnelStage = 'lead'; // Default to lead
-      
-      if (userId) {
-        const warrior = warriorPowerMap.get(userId);
-        const challengeDays = challengeMap.get(userId) || 0;
-        const stackCount = stackSessionsMap.get(userId) || 0;
-        const purchaseData = purchaseMap.get(userId);
-        const streakData = streakMap.get(userId);
-        
-        // Add points for various activities
-        if (warrior) leadScore += 20;
-        leadScore += challengeDays * 10;
-        leadScore += stackCount * 5;
-        if (streakData && streakData.streak >= 7) leadScore += 25;
-        if (purchaseData) leadScore += 100;
-        
-        // Determine funnel stage - priority: customer > trial > engaged > lead
-        if (subscription) {
-          if (subscription.status === 'trialing') {
-            funnelStage = 'trial';
-            leadScore += 75;
-          } else {
-            funnelStage = 'customer';
-            leadScore += 100;
-          }
-        } else if (purchaseData) {
-          funnelStage = 'customer';
-          leadScore += 100;
-        } else if (challengeDays > 0 || stackCount > 0 || (streakData && streakData.streak > 0)) {
-          // ONLY if has REAL activity
-          funnelStage = 'engaged';
-        }
-        // Otherwise stays 'lead' - just account created, no activity
-        
-        // Cap at 100
-        leadScore = Math.min(leadScore, 100);
-        
-        // Calculate total lifetime value (subscription + purchases)
-        const subscriptionValue = subscription?.tierValue || 0;
-        const purchaseValue = purchaseData?.total || 0;
-        const totalLifetimeValue = subscriptionValue + purchaseValue;
-        
-        const contactData = {
-          email: lead.email,
-          user_id: userId,
-          name: lead.name,
-          phone: lead.phone,
-          gender: lead.gender,
-          funnel_stage: funnelStage,
-          lead_source: lead.lead_magnet || lead.source,
-          lead_score: leadScore,
-          lead_captured_at: lead.created_at,
-          account_created_at: userId ? new Date().toISOString() : null,
-          first_purchase_at: purchaseData?.first || (subscription ? subscription.since : null),
-          lifetime_value: totalLifetimeValue,
-          total_purchases: (purchaseData?.count || 0) + (subscription ? 1 : 0),
-          total_stack_sessions: stackCount,
-          warrior_power_score: warrior?.total_score || null,
-          current_streak: streakData?.streak || 0,
-          door_completion_rate: streakData?.doorRate || 0,
-          subscription_tier: subscription?.tier || null,
-          subscription_status: subscription?.status || null,
-          updated_at: new Date().toISOString()
-        };
-        
-        if (existingEmails.has(emailLower)) {
-          // Update existing contact
-          const { error: updateError } = await supabase
-            .from("crm_contact_profiles")
-            .update(contactData)
-            .eq("email", lead.email);
-          
-          if (updateError) {
-            console.error(`Error updating contact ${lead.email}:`, updateError);
-          } else {
-            updatedCount++;
-          }
-        } else {
-          // Insert new contact
-          const { error: insertError } = await supabase
-            .from("crm_contact_profiles")
-            .insert(contactData);
-          
-          if (insertError) {
-            console.error(`Error inserting contact ${lead.email}:`, insertError);
-          } else {
-            syncedCount++;
-          }
-        }
-      } else {
-        // Lead without account - check if they have a subscription
-        const contactData = {
-          email: lead.email,
-          name: lead.name,
-          phone: lead.phone,
-          gender: lead.gender,
-          funnel_stage: subscription ? 'customer' : 'lead',
-          lead_source: lead.lead_magnet || lead.source,
-          lead_score: subscription ? 100 : 10,
-          lead_captured_at: lead.created_at,
-          lifetime_value: subscription?.tierValue || 0,
-          total_purchases: subscription ? 1 : 0,
-          subscription_tier: subscription?.tier || null,
-          subscription_status: subscription?.status || null,
-          updated_at: new Date().toISOString()
-        };
-        
-        if (existingEmails.has(emailLower)) {
-          // Update existing contact
-          const { error: updateError } = await supabase
-            .from("crm_contact_profiles")
-            .update(contactData)
-            .eq("email", lead.email);
-          
-          if (updateError) {
-            console.error(`Error updating lead ${lead.email}:`, updateError);
-          } else {
-            updatedCount++;
-          }
-        } else {
-          const { error: insertError } = await supabase
-            .from("crm_contact_profiles")
-            .insert(contactData);
-          
-          if (insertError) {
-            console.error(`Error inserting lead ${lead.email}:`, insertError);
-          } else {
-            syncedCount++;
-          }
-        }
+    // Helper: determine funnel stage
+    // Simplified: Lead (no account) → Engaged (has account) → Trial → Customer
+    const determineFunnelStage = (
+      hasAccount: boolean,
+      subscription: { status: string } | undefined,
+      hasPurchase: boolean
+    ): string => {
+      if (subscription) {
+        if (subscription.status === 'trialing') return 'trial';
+        return 'customer';
       }
-    }
+      if (hasPurchase) return 'customer';
+      if (hasAccount) return 'engaged'; // Account created = engaged
+      return 'lead';
+    };
 
-    // 11. Also sync users who might not be in email_leads
-    for (const user of authUsers?.users || []) {
-      if (!user.email) continue;
-      
-      const emailLower = user.email.toLowerCase();
-      
-      // Check if this email was already processed from leads
-      const alreadyProcessed = emailLeads?.some(l => l.email.toLowerCase() === emailLower);
-      if (alreadyProcessed) continue;
-      
-      const userId = user.id;
-      const subscription = subscriberMap.get(emailLower);
-      const warrior = warriorPowerMap.get(userId);
-      const challengeDays = challengeMap.get(userId) || 0;
-      const stackCount = stackSessionsMap.get(userId) || 0;
-      const purchaseData = purchaseMap.get(userId);
-      const streakData = streakMap.get(userId);
-      
-      let leadScore = 25; // Has account
-      let funnelStage = 'lead'; // Start with lead, not engaged!
-      
-      // Add activity points
+    // Helper: build contact data
+    const buildContactData = (
+      email: string,
+      userId: string | undefined,
+      lead: any | null,
+      subscription: any | undefined
+    ) => {
+      let leadScore = userId ? 25 : 10;
+      const warrior = userId ? warriorPowerMap.get(userId) : undefined;
+      const challengeDays = userId ? (challengeMap.get(userId) || 0) : 0;
+      const stackCount = userId ? (stackSessionsMap.get(userId) || 0) : 0;
+      const purchaseData = userId ? purchaseMap.get(userId) : undefined;
+      const streakData = userId ? streakMap.get(userId) : undefined;
+
       if (warrior) leadScore += 20;
       leadScore += challengeDays * 10;
       leadScore += stackCount * 5;
       if (streakData && streakData.streak >= 7) leadScore += 25;
-      
-      // Determine funnel stage - priority: customer > trial > engaged > lead
-      if (subscription) {
-        if (subscription.status === 'trialing') {
-          funnelStage = 'trial';
-          leadScore += 75;
-        } else {
-          funnelStage = 'customer';
-          leadScore += 100;
-        }
-      } else if (purchaseData) {
-        funnelStage = 'customer';
-        leadScore += 100;
-      } else if (challengeDays > 0 || stackCount > 0 || (streakData && streakData.streak > 0)) {
-        // ONLY if has REAL activity
-        funnelStage = 'engaged';
-      }
-      // Otherwise stays 'lead' - just account created, no activity
-      
+      if (purchaseData) leadScore += 100;
+      if (subscription) leadScore += subscription.status === 'trialing' ? 75 : 100;
       leadScore = Math.min(leadScore, 100);
-      
-      // Calculate total lifetime value
-      const subscriptionValue = subscription?.tierValue || 0;
-      const purchaseValue = purchaseData?.total || 0;
-      const totalLifetimeValue = subscriptionValue + purchaseValue;
-      
-      const contactData = {
-        email: user.email,
-        user_id: userId,
+
+      const funnelStage = determineFunnelStage(!!userId, subscription, !!purchaseData);
+
+      const authUser = userId ? userEmailMap.get(email.toLowerCase()) : undefined;
+
+      return {
+        email,
+        user_id: userId || null,
+        name: lead?.name || null,
+        phone: lead?.phone || null,
+        gender: lead?.gender || null,
         funnel_stage: funnelStage,
-        lead_source: 'direct_signup',
+        lead_source: lead?.lead_magnet || lead?.source || (userId ? 'direct_signup' : 'unknown'),
         lead_score: leadScore,
-        account_created_at: user.created_at,
+        lead_captured_at: lead?.created_at || null,
+        account_created_at: authUser?.created_at || null,
         first_purchase_at: purchaseData?.first || (subscription ? subscription.since : null),
-        lifetime_value: totalLifetimeValue,
+        lifetime_value: (subscription?.tierValue || 0) + (purchaseData?.total || 0),
         total_purchases: (purchaseData?.count || 0) + (subscription ? 1 : 0),
         total_stack_sessions: stackCount,
         warrior_power_score: warrior?.total_score || null,
@@ -394,90 +194,69 @@ serve(async (req) => {
         subscription_status: subscription?.status || null,
         updated_at: new Date().toISOString()
       };
-      
+    };
+
+    // Process email leads
+    const processedEmails = new Set<string>();
+    for (const lead of emailLeads || []) {
+      const emailLower = lead.email.toLowerCase();
+      processedEmails.add(emailLower);
+      const authUser = userEmailMap.get(emailLower);
+      const subscription = subscriberMap.get(emailLower);
+      const contactData = buildContactData(lead.email, authUser?.id, lead, subscription);
+
       if (existingEmails.has(emailLower)) {
-        // Update existing contact
-        const { error: updateError } = await supabase
-          .from("crm_contact_profiles")
-          .update(contactData)
-          .eq("email", user.email);
-        
-        if (updateError) {
-          console.error(`Error updating user ${user.email}:`, updateError);
-        } else {
-          updatedCount++;
-        }
+        const { error } = await supabase.from("crm_contact_profiles").update(contactData).eq("email", lead.email);
+        if (!error) updatedCount++;
       } else {
-        const { error: insertError } = await supabase
-          .from("crm_contact_profiles")
-          .insert(contactData);
-        
-        if (insertError) {
-          console.error(`Error inserting user ${user.email}:`, insertError);
-        } else {
-          syncedCount++;
-        }
+        const { error } = await supabase.from("crm_contact_profiles").insert(contactData);
+        if (!error) syncedCount++;
       }
     }
 
-    // 12. Sync any subscribers not yet in CRM (edge case)
+    // Process auth users not in leads
+    for (const user of authUsers?.users || []) {
+      if (!user.email) continue;
+      const emailLower = user.email.toLowerCase();
+      if (processedEmails.has(emailLower)) continue;
+      processedEmails.add(emailLower);
+
+      const subscription = subscriberMap.get(emailLower);
+      const contactData = buildContactData(user.email, user.id, null, subscription);
+
+      if (existingEmails.has(emailLower)) {
+        const { error } = await supabase.from("crm_contact_profiles").update(contactData).eq("email", user.email);
+        if (!error) updatedCount++;
+      } else {
+        const { error } = await supabase.from("crm_contact_profiles").insert(contactData);
+        if (!error) syncedCount++;
+      }
+    }
+
+    // Process subscribers not yet in CRM
     for (const [email, subscription] of subscriberMap) {
-      if (existingEmails.has(email)) continue;
-      
-      // Check if already processed
-      const alreadyProcessed = emailLeads?.some(l => l.email.toLowerCase() === email) ||
-        authUsers?.users?.some(u => u.email?.toLowerCase() === email);
-      if (alreadyProcessed) continue;
-      
-      const contactData = {
-        email: email,
-        funnel_stage: subscription.status === 'trialing' ? 'trial' : 'customer',
-        lead_source: 'stripe_subscription',
-        lead_score: subscription.status === 'trialing' ? 75 : 100,
-        lifetime_value: subscription.status === 'trialing' ? 0 : subscription.tierValue,
-        total_purchases: subscription.status === 'trialing' ? 0 : 1,
-        first_purchase_at: subscription.since,
-        subscription_tier: subscription.tier,
-        subscription_status: subscription.status,
-        updated_at: new Date().toISOString()
-      };
-      
-      const { error: insertError } = await supabase
-        .from("crm_contact_profiles")
-        .insert(contactData);
-      
-      if (insertError) {
-        console.error(`Error inserting subscriber ${email}:`, insertError);
+      if (processedEmails.has(email)) continue;
+      const contactData = buildContactData(email, undefined, null, subscription);
+      if (existingEmails.has(email)) {
+        const { error } = await supabase.from("crm_contact_profiles").update(contactData).eq("email", email);
+        if (!error) updatedCount++;
       } else {
-        syncedCount++;
+        const { error } = await supabase.from("crm_contact_profiles").insert(contactData);
+        if (!error) syncedCount++;
       }
     }
 
-    console.log(`Sync complete: ${syncedCount} new contacts, ${updatedCount} updated`);
+    console.log(`Sync complete: ${syncedCount} new, ${updatedCount} updated`);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        synced: syncedCount, 
-        updated: updatedCount,
-        total: (emailLeads?.length || 0) + (authUsers?.users?.length || 0),
-        subscribers: subscriberMap.size
-      }),
-      { 
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200 
-      }
+      JSON.stringify({ success: true, synced: syncedCount, updated: updatedCount, subscribers: subscriberMap.size }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
-
   } catch (error) {
     console.error("Error in sync-crm-contacts:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { 
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500 
-      }
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
 });
