@@ -19,6 +19,7 @@ import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeC
 import { SocialProofBar } from '@/components/landing/SocialProofBar';
 import { LandingEarlyBirdTimer } from '@/components/landing/LandingEarlyBirdTimer';
 import { ChallengeInlineAuth } from '@/components/challenge/ChallengeInlineAuth';
+import { ChallengePremiumOffer } from '@/components/challenge/ChallengePremiumOffer';
 
 const Challenge7ZileLanding = () => {
   const { language } = useLanguage();
@@ -503,6 +504,34 @@ const Challenge7ZileLanding = () => {
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        {/* Inline Auth Section */}
+        <section className="py-16 px-4">
+          <div className="max-w-md mx-auto">
+            <h2 className="text-2xl font-bold text-center mb-2 text-foreground">
+              {language === 'en' ? 'Create Your Free Account' : 'Creează-ți Contul Gratuit'}
+            </h2>
+            <p className="text-center text-muted-foreground mb-6">
+              {language === 'en' 
+                ? 'Start the challenge immediately — no credit card needed' 
+                : 'Începe challenge-ul imediat — fără card bancar'}
+            </p>
+            <Card className="p-6 border-primary/20">
+              <ChallengeInlineAuth
+                language={language}
+                utmParams={{ source: utmSource, medium: utmMedium, campaign: utmCampaign }}
+                onSuccess={handleAuthSuccess}
+              />
+            </Card>
+          </div>
+        </section>
+
+        {/* Premium Plans Section */}
+        <section className="py-16 px-4 bg-muted/30">
+          <div className="max-w-4xl mx-auto">
+            <ChallengePremiumOffer />
           </div>
         </section>
 
