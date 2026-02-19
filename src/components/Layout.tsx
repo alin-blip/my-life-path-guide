@@ -9,9 +9,11 @@ import { useAuth } from '@/context/AuthContext';
 import { useTourContext } from '@/context/TourContext';
 import { GlobalTopBar } from './global/GlobalTopBar';
 
-import { GoalRemindersNotification } from './door/GoalRemindersNotification';
-import { AccountabilityCoachWidget } from './accountability/AccountabilityCoachWidget';
 import { useActivityTracker } from '@/hooks/useActivityTracker';
+import { lazy, Suspense } from 'react';
+
+const GoalRemindersNotification = lazy(() => import('./door/GoalRemindersNotification').then(m => ({ default: m.GoalRemindersNotification })));
+const AccountabilityCoachWidget = lazy(() => import('./accountability/AccountabilityCoachWidget').then(m => ({ default: m.AccountabilityCoachWidget })));
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -114,11 +116,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </div>
       
-      {/* Goal Reminders Notification */}
-      <GoalRemindersNotification />
+      {/* Goal Reminders Notification - lazy loaded */}
+      <Suspense fallback={null}>
+        <GoalRemindersNotification />
+      </Suspense>
       
-      {/* Accountability Coach Widget - Hidden on Challenge routes */}
-      {!isChallengeRoute && <AccountabilityCoachWidget />}
+      {/* Accountability Coach Widget - Hidden on Challenge routes, lazy loaded */}
+      {!isChallengeRoute && (
+        <Suspense fallback={null}>
+          <AccountabilityCoachWidget />
+        </Suspense>
+      )}
       
     </div>
   );
