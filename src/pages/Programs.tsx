@@ -8,12 +8,13 @@ import { MembersTab } from '@/components/programs/MembersTab';
 import { LeaderboardsTab } from '@/components/programs/LeaderboardsTab';
 import { GroupsTab } from '@/components/programs/GroupsTab';
 import { CommunitySettingsTab } from '@/components/programs/CommunitySettingsTab';
+import { CommunityFeedTab } from '@/components/programs/CommunityFeedTab';
 import { ProgramCardProps } from '@/components/programs/ProgramCard';
 import { useChallengeProgress } from '@/hooks/useChallengeProgress';
 
 const Programs: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tabFromUrl = (searchParams.get('tab') as SkoolTab) || 'classroom';
+  const tabFromUrl = (searchParams.get('tab') as SkoolTab) || 'community';
   const [activeTab, setActiveTab] = useState<SkoolTab>(tabFromUrl);
   const { completedDaysCount } = useChallengeProgress();
 
@@ -87,6 +88,8 @@ const Programs: React.FC = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'community':
+        return <CommunityFeedTab />;
       case 'classroom':
         return <ClassroomTab programs={programs} />;
       case 'groups':
@@ -100,7 +103,7 @@ const Programs: React.FC = () => {
       case 'settings':
         return <CommunitySettingsTab />;
       default:
-        return <ClassroomTab programs={programs} />;
+        return <CommunityFeedTab />;
     }
   };
 
