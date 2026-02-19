@@ -13,6 +13,8 @@ import {
   Heart, Crown, Users, Sparkles, Gift,
   Star, Target, Map, Bell, Trophy, ChevronDown
 } from 'lucide-react';
+import { trackCheckoutInitiated } from '@/lib/facebook-pixel';
+import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 import { Helmet } from 'react-helmet-async';
 import { useChallengeStats } from '@/hooks/useChallengeStats';
 import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeCard';
@@ -30,6 +32,7 @@ const Challenge7ZileLanding = () => {
   
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [realMetrics, setRealMetrics] = useState({ users: 0, completionRate: 0 });
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   // Fetch real metrics from database
   useEffect(() => {
@@ -53,6 +56,49 @@ const Challenge7ZileLanding = () => {
       }
     };
     fetchMetrics();
+  }, []);
+
+  // Auto-trigger checkout if user just came back from auth with a pending plan
+  useEffect(() => {
+    const resumePendingCheckout = async () => {
+      const pending = localStorage.getItem('pending_challenge_plan');
+      if (!pending) return;
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // User is authenticated and has a pending plan
+      localStorage.removeItem('pending_challenge_plan');
+      const { planId, value } = JSON.parse(pending);
+
+      setCheckoutLoading(true);
+      trackCheckoutInitiated(planId, value);
+
+      try {
+        const preOpened = preOpenWindow();
+        const { data, error } = await supabase.functions.invoke('create-checkout', {
+          body: { plan: planId, source: 'challenge-7-zile' }
+        });
+
+        if (error) { if (preOpened) preOpened.close(); throw error; }
+        if (data?.url) {
+          redirectExternal(data.url, preOpened);
+        } else {
+          if (preOpened) preOpened.close();
+        }
+      } catch (error) {
+        console.error('Auto-checkout error:', error);
+        toast({
+          title: language === 'ro' ? 'Eroare la checkout' : 'Checkout error',
+          description: language === 'ro' ? 'Te rugăm să încerci din nou.' : 'Please try again.',
+          variant: 'destructive'
+        });
+      } finally {
+        setCheckoutLoading(false);
+      }
+    };
+
+    resumePendingCheckout();
   }, []);
 
 
@@ -242,6 +288,19 @@ const Challenge7ZileLanding = () => {
       label: language === 'en' ? "Average Rating" : "Rating Mediu" 
     }
   ];
+
+  if (checkoutLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
+          <p className="text-lg text-muted-foreground">
+            {language === 'ro' ? 'Se pregătește checkout-ul...' : 'Preparing checkout...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
