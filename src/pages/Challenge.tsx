@@ -237,31 +237,6 @@ const ChallengePage = () => {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Skool Community */}
-        <Card className="mb-6 p-5 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-blue-500/30">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-xl font-bold">
-                S
-              </div>
-              <div>
-                <h3 className="font-bold text-foreground">
-                  {language === 'en' ? 'Join our Skool community' : 'Alătură-te comunității pe Skool'}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {language === 'en' ? 'Connect with fellow warriors for support & accountability' : 'Conectează-te cu alți warriors pentru suport & accountability'}
-                </p>
-              </div>
-            </div>
-            <Button 
-              onClick={() => window.open(COMMUNITY_URL, '_blank')}
-              className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
-            >
-              {language === 'en' ? 'Join community' : 'Intră în comunitate'}
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-        </Card>
 
         {/* Install App Prompt */}
         <InstallAppPrompt />
