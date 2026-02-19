@@ -4314,9 +4314,11 @@ export type Database = {
       }
       tribe_events: {
         Row: {
+          cover_image_url: string | null
           created_at: string | null
           created_by: string
           description: string | null
+          duration_minutes: number | null
           end_at: string | null
           event_type: string
           id: string
@@ -4325,15 +4327,19 @@ export type Database = {
           max_attendees: number | null
           meeting_url: string | null
           recurrence_rule: string | null
+          remind_before: boolean | null
           start_at: string
+          timezone: string | null
           title: string
           tribe_id: string
           updated_at: string | null
         }
         Insert: {
+          cover_image_url?: string | null
           created_at?: string | null
           created_by: string
           description?: string | null
+          duration_minutes?: number | null
           end_at?: string | null
           event_type?: string
           id?: string
@@ -4342,15 +4348,19 @@ export type Database = {
           max_attendees?: number | null
           meeting_url?: string | null
           recurrence_rule?: string | null
+          remind_before?: boolean | null
           start_at: string
+          timezone?: string | null
           title: string
           tribe_id: string
           updated_at?: string | null
         }
         Update: {
+          cover_image_url?: string | null
           created_at?: string | null
           created_by?: string
           description?: string | null
+          duration_minutes?: number | null
           end_at?: string | null
           event_type?: string
           id?: string
@@ -4359,7 +4369,9 @@ export type Database = {
           max_attendees?: number | null
           meeting_url?: string | null
           recurrence_rule?: string | null
+          remind_before?: boolean | null
           start_at?: string
+          timezone?: string | null
           title?: string
           tribe_id?: string
           updated_at?: string | null
