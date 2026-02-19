@@ -1,52 +1,40 @@
 
-# Adaugare Introducere Personala in Challenge Intake Modal
+# Fix: Postarea din Challenge Intake sa apara in feed-ul comunitatii
 
-## Ce adaugam
+## Problema
 
-Doua campuri noi inainte de cele 3 intrebari existente, pentru ca comunitatea sa stie cine esti:
+Intake-ul a fost completat si salvat corect in `challenge_intake`. Postarea automata a fost de asemenea creata, DAR in tabelul gresit: `tribe_posts`. Feed-ul comunitatii principale (`CommunityFeedTab` -> `GroupFeed`) citeste din tabelul `wall_posts`, nu din `tribe_posts`.
 
-1. **Numele tau** (Input text) - pre-populat din `leaderboard_profiles.display_name` daca exista
-2. **Cu ce te ocupi?** (Input text) - domeniu/profesie/pasiune
+## Solutia
 
-## Schimbari
+O singura modificare in `ChallengeIntakeModal.tsx`: la linia 107, schimbam INSERT-ul din `tribe_posts` in `wall_posts`.
 
-### 1. Migrare DB - Coloana noua pe `challenge_intake`
+## Modificare
 
-Adaugam coloana `occupation` (text, nullable) pe tabelul existent:
-
-```sql
-ALTER TABLE public.challenge_intake ADD COLUMN IF NOT EXISTS occupation text;
-```
-
-Nu adaugam `display_name` ca coloana separata - il actualizam direct pe `leaderboard_profiles` daca user-ul il modifica.
-
-### 2. ChallengeIntakeModal.tsx - Campuri noi
-
-- Adaugam 2 campuri noi la inceputul formularului (inainte de cele 3 intrebari existente):
-  - **Numele tau** - Input text, pre-populat din `leaderboard_profiles.display_name`
-  - **Cu ce te ocupi?** - Input text (ex: "Antreprenor in e-commerce", "Coach de fitness")
-- La submit:
-  - Update `leaderboard_profiles.display_name` daca user-ul l-a modificat
-  - Salvam `occupation` in `challenge_intake`
-- Postarea automata in comunitate include si noile informatii:
-
-```
-Salut, sunt [Nume]! [Ocupatie]
-Tocmai am inceput Have It All Challenge!
-
-Cel mai mare blocaj al meu: [raspuns]
-Victoria mea in 30 de zile: [raspuns]
-Commitment: [Da/Voi incerca/Explorez]
-
-Cine ma tine de raspundere?
-```
-
-- Descrierea modalului se actualizeaza: "Prezinta-te comunitatii si seteaza-ti directia" (5 intrebari rapide)
-- Numerotarea se actualizeaza (1-5 in loc de 1-3)
-
-### 3. Fisiere modificate
-
-| Fisier | Modificare |
+| Fisier | Ce se schimba |
 |---|---|
-| Migrare SQL | `ALTER TABLE challenge_intake ADD COLUMN occupation text` |
-| `src/components/challenge/ChallengeIntakeModal.tsx` | Adaugare campuri Nume + Ocupatie, update logica submit si post comunitate |
+| `src/components/challenge/ChallengeIntakeModal.tsx` | Linia 107: `tribe_posts` -> `wall_posts`, si adaugam campul `tribe_id` care exista pe `wall_posts` |
+
+### Cod curent (linia 107-111):
+```typescript
+await supabase.from('tribe_posts').insert({
+  tribe_id: MAIN_TRIBE_ID,
+  user_id: user.id,
+  content: postContent,
+});
+```
+
+### Cod nou:
+```typescript
+await supabase.from('wall_posts').insert({
+  tribe_id: MAIN_TRIBE_ID,
+  user_id: user.id,
+  content: postContent,
+});
+```
+
+### Cleanup
+
+Stergem si postarea orfana existenta din `tribe_posts` (cea creata la testul tau) printr-o migrare SQL rapida.
+
+Aceasta e singura schimbare necesara - o linie de cod.
