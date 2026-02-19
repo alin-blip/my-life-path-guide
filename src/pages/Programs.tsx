@@ -56,8 +56,8 @@ const Programs: React.FC = () => {
       descriptionRo: 'Program de 30 de zile pentru a crea o calitate extraordinară a vieții. Transformă modul în care gândești, simți și acționezi.',
       thumbnail: '/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png',
       path: '/personal-power',
-      isFree: true,
-      badge: 'NEW',
+      badge: 'PRO',
+      requiredTier: 'pro',
       totalLessons: 30,
     },
     {
@@ -68,8 +68,8 @@ const Programs: React.FC = () => {
       descriptionRo: 'Program de 18 zile pentru a-ți descoperi potențialul maxim. Transformă deciziile, emoțiile și acțiunile pentru o viață extraordinară.',
       thumbnail: '/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png',
       path: '/ultimate-you',
-      isFree: true,
-      badge: 'NEW',
+      badge: 'PRO',
+      requiredTier: 'pro',
       totalLessons: 18,
     },
     {
@@ -82,6 +82,7 @@ const Programs: React.FC = () => {
       path: '/warriors-way',
       isPremium: true,
       badge: 'PREMIUM',
+      requiredTier: 'elite',
       price: '€497',
     },
   ];

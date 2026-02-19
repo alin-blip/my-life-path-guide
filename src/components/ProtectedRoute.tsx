@@ -25,6 +25,9 @@ const FREE_TIER_ROUTES = [
   '/game', // Redirect route to game-objectives
   '/vibe-canvas', // Creative canvas - accessible for all users
   '/warriors-way', // Warrior Accelerator - viewable by all, but content locked (only first video free)
+  '/programs', // Programs page - viewable by all, but courses locked by tier
+  '/messages', // Messages - accessible for all users
+  '/groups', // Groups/Community - accessible for all users
 ];
 
 // Routes available for BASIC tier (full platform without LIVE coaching)
