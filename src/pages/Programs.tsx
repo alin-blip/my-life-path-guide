@@ -74,8 +74,8 @@ const Programs: React.FC = () => {
     },
     {
       id: 'warrior-accelerator',
-      title: 'Warrior Launch Accelerator',
-      titleRo: 'Warrior Launch Accelerator',
+      title: 'Warrior Certified Coach',
+      titleRo: 'Warrior Certified Coach',
       description: '47+ video lessons on business launch, marketing, and personal transformation. Premium coaching program.',
       descriptionRo: '47+ lecții video despre lansare business, marketing și transformare personală. Program premium de coaching.',
       thumbnail: '/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png',
@@ -83,7 +83,7 @@ const Programs: React.FC = () => {
       isPremium: true,
       badge: 'PREMIUM',
       requiredTier: 'elite',
-      price: '€497',
+      price: '€1,999',
     },
   ];
 

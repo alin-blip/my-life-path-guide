@@ -49,7 +49,7 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({ onClose }) => {
             </Button>
           </div>
           <DialogDescription className="pt-2">
-            Warrior Launch Accelerator este disponibil în planul Elite sau ca achiziție separată.
+            Warrior Certified Coach este disponibil în planul Elite sau ca achiziție separată.
           </DialogDescription>
         </DialogHeader>
 
@@ -65,7 +65,7 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({ onClose }) => {
             </div>
             
             <div className="flex items-baseline gap-2 mb-3">
-              <span className="text-2xl font-bold text-amber-500">€497</span>
+              <span className="text-2xl font-bold text-amber-500">€297</span>
               <span className="text-muted-foreground">/ lună</span>
             </div>
 
@@ -100,12 +100,12 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({ onClose }) => {
             </div>
             
             <div className="flex items-baseline gap-2 mb-3">
-              <span className="text-2xl font-bold">€970</span>
+              <span className="text-2xl font-bold">€1,999</span>
               <span className="text-muted-foreground">o singură dată</span>
             </div>
 
             <p className="text-sm text-muted-foreground mb-4">
-              Warrior Launch Accelerator - 47+ lecții video, acces pe viață + toate update-urile viitoare.
+              Warrior Certified Coach - 47+ lecții video, acces pe viață + toate update-urile viitoare.
             </p>
 
             <Button 

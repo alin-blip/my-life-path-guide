@@ -36,6 +36,9 @@ serve(async (req) => {
     // Get requested plan
     const { plan, source } = await req.json();
     if (!plan) throw new Error("Missing plan in request body");
+    
+    // Early Bird source = no trial (direct payment)
+    const isEarlyBird = source === 'early-bird';
 
     // Ensure Stripe customer exists and get their currency
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -69,11 +72,10 @@ serve(async (req) => {
     switch (plan) {
       // === NEW 3-TIER HORMOZI STRUCTURE - ALL WITH 5-DAY TRIAL ===
       case "basic":
-        // Basic plan - €49/month Early Bird (normally €97) - 5-DAY TRIAL
-        unitAmount = currency === "ron" ? 24900 : 4900; // 249 RON or €49
-        productName = "WarriorOS Basic (5-Day Trial)";
+        unitAmount = currency === "ron" ? 24900 : 4900;
+        productName = isEarlyBird ? "WarriorOS Basic (Early Bird)" : "WarriorOS Basic (5-Day Trial)";
         tier = "basic";
-        trialDays = 5;
+        trialDays = isEarlyBird ? undefined : 5;
         break;
         
       case "pro":
@@ -117,11 +119,10 @@ serve(async (req) => {
       
       // === ONE-TIME PURCHASES ===
       case "warrior-accelerator":
-        // Standalone purchase: €497 one-time (reduced from €970)
-        unitAmount = 49700; // 497 EUR în cenți
+        unitAmount = 199900; // 1.999 EUR în cenți
         currency = "eur";
         paymentMode = "payment";
-        productName = "Warrior Launch Accelerator";
+        productName = "Warrior Certified Coach";
         tier = "accelerator";
         break;
       

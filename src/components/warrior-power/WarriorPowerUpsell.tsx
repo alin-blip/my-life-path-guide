@@ -83,7 +83,7 @@ const UPSELL_PLANS = [
     totalValue: '€2,570',
     benefits: [
       '✓ Tot din Pro +',
-      'Warrior Launch Accelerator (€497)',
+      'Warrior Certified Coach (€1,999 valoare)',
       '47+ lecții video premium',
       'Coaching 1-on-1 lunar (30 min)',
       '🎓 COACH DASHBOARD: Creează-ți propria platformă',

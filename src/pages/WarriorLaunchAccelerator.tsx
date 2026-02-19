@@ -186,7 +186,7 @@ const WarriorLaunchAccelerator = () => {
               ) : (
                 <Rocket className="w-6 h-6 mr-3" />
               )}
-              Obține Acces Acum - 497 EUR
+              Obține Acces Acum - 1.999 EUR
             </Button>
             <p className="text-sm text-muted-foreground mt-4">
               <Shield className="w-4 h-4 inline mr-1" />
@@ -220,7 +220,7 @@ const WarriorLaunchAccelerator = () => {
                   Nu trebuie să alegi. Poți avea TOTUL.
                 </p>
                 <p className="mt-2">
-                  Warrior Launch Accelerator îți oferă sistemul complet pentru a excela 
+                  Warrior Certified Coach îți oferă sistemul complet pentru a excela 
                   simultan în toate cele 4 arii de viață.
                 </p>
               </div>
@@ -352,7 +352,7 @@ const WarriorLaunchAccelerator = () => {
               
               <CardContent className="p-8 text-center">
                 <div className="mb-6">
-                  <span className="text-5xl font-bold">497</span>
+                  <span className="text-5xl font-bold">1.999</span>
                   <span className="text-2xl text-muted-foreground ml-2">EUR</span>
                 </div>
                 
@@ -405,7 +405,7 @@ const WarriorLaunchAccelerator = () => {
             ) : (
               <Rocket className="w-6 h-6 mr-3" />
             )}
-            Începe Transformarea - 497 EUR
+            Începe Transformarea - 1.999 EUR
           </Button>
         </div>
       </section>

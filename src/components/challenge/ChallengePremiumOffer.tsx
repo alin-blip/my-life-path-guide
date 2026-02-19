@@ -86,7 +86,7 @@ const pricingPlans: PricingPlan[] = [
     id: 'elite',
     nameEn: 'Elite',
     nameRo: 'Elite',
-    price: '497',
+    price: '297',
     currency: '€',
     periodEn: '/ month',
     periodRo: '/ lună',
@@ -279,7 +279,7 @@ export const ChallengePremiumOffer = () => {
             🚀 {language === 'en' ? 'Fast-Track Your Results' : 'Accelerează-ți Rezultatele'}
           </Badge>
           <h3 className="text-xl font-bold text-foreground mb-2">
-            {language === 'en' ? 'Warrior Launch Accelerator' : 'Warrior Launch Accelerator'}
+            {language === 'en' ? 'Warrior Certified Coach' : 'Warrior Certified Coach'}
           </h3>
           <p className="text-muted-foreground text-sm max-w-md mx-auto">
             {language === 'en' 
