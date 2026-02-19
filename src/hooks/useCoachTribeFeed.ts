@@ -7,7 +7,7 @@ export interface TribePost {
   tribe_id: string;
   user_id: string;
   content: string;
-  media_url: string | null;
+  media_urls: string[] | null;
   is_pinned: boolean;
   likes_count: number;
   comments_count: number;
@@ -37,7 +37,7 @@ export function useCoachTribeFeed(tribeId?: string, userId?: string) {
     setLoading(true);
     try {
       const { data: postsData } = await supabase
-        .from('tribe_posts')
+        .from('wall_posts')
         .select('*')
         .eq('tribe_id', tribeId)
         .order('is_pinned', { ascending: false })
@@ -56,7 +56,7 @@ export function useCoachTribeFeed(tribeId?: string, userId?: string) {
       // Check which posts I liked
       const postIds = postsData.map(p => p.id);
       const { data: myLikes } = await supabase
-        .from('tribe_post_likes')
+        .from('wall_post_likes')
         .select('post_id')
         .eq('user_id', userId)
         .in('post_id', postIds);
@@ -75,7 +75,7 @@ export function useCoachTribeFeed(tribeId?: string, userId?: string) {
 
   const createPost = useCallback(async (content: string) => {
     if (!tribeId || !userId) return;
-    const { error } = await supabase.from('tribe_posts').insert({
+    const { error } = await supabase.from('wall_posts').insert({
       tribe_id: tribeId,
       user_id: userId,
       content,
@@ -88,21 +88,21 @@ export function useCoachTribeFeed(tribeId?: string, userId?: string) {
   }, [tribeId, userId, fetchPosts, toast]);
 
   const deletePost = useCallback(async (postId: string) => {
-    await supabase.from('tribe_posts').delete().eq('id', postId);
+    await supabase.from('wall_posts').delete().eq('id', postId);
     setPosts(prev => prev.filter(p => p.id !== postId));
   }, []);
 
   const togglePin = useCallback(async (postId: string, pinned: boolean) => {
-    await supabase.from('tribe_posts').update({ is_pinned: !pinned }).eq('id', postId);
+    await supabase.from('wall_posts').update({ is_pinned: !pinned }).eq('id', postId);
     await fetchPosts();
   }, [fetchPosts]);
 
   const toggleLike = useCallback(async (postId: string, liked: boolean) => {
     if (!userId) return;
     if (liked) {
-      await supabase.from('tribe_post_likes').delete().eq('post_id', postId).eq('user_id', userId);
+      await supabase.from('wall_post_likes').delete().eq('post_id', postId).eq('user_id', userId);
     } else {
-      await supabase.from('tribe_post_likes').insert({ post_id: postId, user_id: userId });
+      await supabase.from('wall_post_likes').insert({ post_id: postId, user_id: userId });
     }
     // Optimistic update
     setPosts(prev => prev.map(p => p.id === postId ? {
@@ -114,7 +114,7 @@ export function useCoachTribeFeed(tribeId?: string, userId?: string) {
 
   const fetchComments = useCallback(async (postId: string): Promise<TribePostComment[]> => {
     const { data } = await supabase
-      .from('tribe_post_comments')
+      .from('wall_post_comments')
       .select('*')
       .eq('post_id', postId)
       .order('created_at', { ascending: true });
@@ -137,7 +137,7 @@ export function useCoachTribeFeed(tribeId?: string, userId?: string) {
 
   const addComment = useCallback(async (postId: string, content: string) => {
     if (!userId) return;
-    await supabase.from('tribe_post_comments').insert({
+    await supabase.from('wall_post_comments').insert({
       post_id: postId,
       user_id: userId,
       content,
@@ -153,11 +153,11 @@ export function useCoachTribeFeed(tribeId?: string, userId?: string) {
   useEffect(() => {
     if (!tribeId) return;
     const channel = supabase
-      .channel(`tribe-posts-${tribeId}`)
+      .channel(`tribe-feed-${tribeId}`)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
-        table: 'tribe_posts',
+        table: 'wall_posts',
         filter: `tribe_id=eq.${tribeId}`,
       }, () => {
         fetchPosts();
