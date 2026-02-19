@@ -1,40 +1,32 @@
 
 
-# Fix: Pagina `/challenge-upsell` da 404 dupa plata Stripe
+# Fix: Elite pe upsell fara trial - plata directa €297/luna
 
-## Problema identificata
+## Problema
 
-Sunt doua probleme:
+Pe pagina `/challenge-upsell`, planul Elite are trial de 5 zile (mostenit din configurarea generala). Utilizatorul doreste plata directa, fara trial, pentru Elite-ul din upsell.
 
-1. **Pagina nu este publicata** - Codul exista in proiect, dar site-ul publicat pe `warriorsos.com` nu a fost actualizat. Trebuie sa dai click pe "Update" in dialogul de publish dupa ce facem fix-urile.
+## Modificari
 
-2. **`/challenge-upsell` nu este in listele de rute permise din `ProtectedRoute`** - Dupa ce utilizatorul plateste pe Stripe si este redirectat inapoi, subscriptia lui poate sa nu fie inca sincronizata. `ProtectedRoute` il vede ca "free" si il trimite la `/pricing`, nu la upsell. Ruta `/challenge-upsell` trebuie adaugata in `FREE_TIER_ROUTES` (sau cel putin in `BASIC_ROUTES`) pentru ca oricine tocmai a platit sa poata accesa pagina.
+### 1. Edge function: `supabase/functions/create-checkout/index.ts`
 
-## Solutia
+Dupa ce se determina planul "elite" (linia 89-95), se adauga o conditie: daca `source === 'challenge-upsell'`, se seteaza `trialDays = undefined` pentru a forta plata directa fara trial.
 
-### 1. `src/components/ProtectedRoute.tsx`
-- Adaug `/challenge-upsell` in `FREE_TIER_ROUTES` (linia 16-31), pentru ca utilizatorul tocmai a platit si trebuie sa vada pagina de upsell indiferent de tier-ul curent (care poate fi inca "free" pentru cateva secunde pana se sincronizeaza webhook-ul Stripe).
+Se va adauga dupa linia 206 (dupa logul de debug, inainte de success URL):
 
-### 2. Publicare
-- Dupa implementare, trebuie dat click pe **"Update"** in dialogul de Publish pentru ca modificarile frontend sa ajunga pe `warriorsos.com`.
-
-## Detalii tehnice
-
-Singura modificare necesara este adaugarea rutei in lista:
-
-```text
-FREE_TIER_ROUTES = [
-  '/dashboard',
-  '/habits',
-  '/challenge',
-  '/challenge-7-zile',
-  '/challenge-upsell',   // <-- ADAUGAT
-  '/settings',
-  ...
-]
+```typescript
+// No trial for Elite from upsell - direct payment
+if (plan === 'elite' && source === 'challenge-upsell') {
+  trialDays = undefined;
+}
 ```
 
-Aceasta asigura ca:
-- Utilizatorul autentificat (chiar si free) poate vedea pagina de upsell
-- Pagina de upsell isi face propriul check (`isCheckoutSuccess`) si redirecteaza la `/challenge` daca nu vine de la checkout
+Se va schimba si `productName` in acest caz la `"WarriorOS Elite"` (fara "(5-Day Trial)").
+
+### 2. UI: `src/pages/ChallengeUpsell.tsx`
+
+Pe cardul Elite (liniile 198-211):
+- Se sterge `'5 zile trial gratuit'` din lista de beneficii
+- Se sterge textul `"5 zile trial gratuit inclus"` de sub pret (linia 219)
+- Butonul se schimba din `"Începe Elite - 5 Zile Gratuit"` in `"Începe Elite - €297/lună"` (linia 230)
 
