@@ -1,0 +1,1 @@
+ALTER TABLE public.challenge_intake ADD COLUMN IF NOT EXISTS occupation text;
