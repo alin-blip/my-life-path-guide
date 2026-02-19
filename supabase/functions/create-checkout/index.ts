@@ -88,11 +88,19 @@ serve(async (req) => {
         
       case "elite":
         // Elite plan - €297/month Early Bird (normally €500) - 5-DAY TRIAL
-        // Includes: Pro + Warrior Accelerator + Monthly 1-on-1 coaching
-        unitAmount = currency === "ron" ? 149000 : 29700; // 1490 RON or €297
+        unitAmount = currency === "ron" ? 149000 : 29700;
         productName = "WarriorOS Elite (5-Day Trial)";
         tier = "elite";
         trialDays = 5;
+        break;
+
+      // === CHALLENGE-SPECIFIC PLANS ===
+      case "pro-challenge-3mo":
+        // Pro Challenge 3mo - 97 EUR/luna cu cupon Warrior88 (-68 EUR = 29 EUR primele 3 luni)
+        unitAmount = 9700; // 97 EUR - pretul real, cuponul reduce la 29 EUR
+        currency = "eur";
+        productName = "WarriorOS Pro - Cod Warrior88 Aplicat";
+        tier = "pro";
         break;
       
       // === ANNUAL PLANS - 60% DISCOUNT LOCKED ===
@@ -218,6 +226,27 @@ serve(async (req) => {
           quantity: 1,
         }];
 
+    // For pro-challenge-3mo, ensure Warrior88 coupon exists and auto-apply it
+    let appliedCouponId: string | undefined;
+    if (plan === "pro-challenge-3mo") {
+      try {
+        await stripe.coupons.retrieve("Warrior88");
+        console.log("Coupon Warrior88 already exists");
+      } catch {
+        // Coupon doesn't exist, create it
+        await stripe.coupons.create({
+          id: "Warrior88",
+          amount_off: 6800, // 68 EUR off (97 - 68 = 29 EUR)
+          currency: "eur",
+          duration: "repeating",
+          duration_in_months: 3,
+          name: "Cod Warrior88",
+        });
+        console.log("Coupon Warrior88 created");
+      }
+      appliedCouponId = "Warrior88";
+    }
+
     const sessionConfig: any = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -233,8 +262,14 @@ serve(async (req) => {
       },
       success_url: successUrl,
       cancel_url: cancelUrl,
-      allow_promotion_codes: true,
     };
+
+    // Auto-apply coupon OR allow manual promo codes (Stripe doesn't allow both)
+    if (appliedCouponId) {
+      sessionConfig.discounts = [{ coupon: appliedCouponId }];
+    } else {
+      sessionConfig.allow_promotion_codes = true;
+    }
 
     // Add subscription data only for subscriptions
     if (paymentMode === "subscription" && trialDays) {
