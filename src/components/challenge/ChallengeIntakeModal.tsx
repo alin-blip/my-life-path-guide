@@ -104,7 +104,7 @@ export const ChallengeIntakeModal: React.FC<ChallengeIntakeModalProps> = ({
         ? `${nameIntro}\n🔥 Tocmai am început Have It All Challenge!\n\n💡 Cel mai mare blocaj al meu: ${biggestBlock.trim()}\n\n🎯 Victoria mea în 30 de zile: ${win30Days.trim()}\n\n💪 Commitment: ${commitmentText}\n\nCine mă ține de răspundere? 🙌`
         : `${nameIntro}\n🔥 I just started the Have It All Challenge!\n\n💡 My biggest block: ${biggestBlock.trim()}\n\n🎯 My 30-day win: ${win30Days.trim()}\n\n💪 Commitment: ${commitmentText}\n\nWho's holding me accountable? 🙌`;
 
-      await supabase.from('tribe_posts').insert({
+      await supabase.from('wall_posts').insert({
         tribe_id: MAIN_TRIBE_ID,
         user_id: user.id,
         content: postContent,
