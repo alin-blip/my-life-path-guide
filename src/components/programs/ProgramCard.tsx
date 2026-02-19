@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { useLanguage } from '@/context/LanguageContext';
-import { Lock, Play, Star, Flame, Crown } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Lock, Play, Star, Flame, Crown, Shield } from 'lucide-react';
 
 export interface ProgramCardProps {
   id: string;
@@ -17,12 +18,13 @@ export interface ProgramCardProps {
   path: string;
   isFree?: boolean;
   isPremium?: boolean;
-  badge?: 'FREE' | 'PREMIUM' | 'NEW' | 'LIVE';
+  badge?: 'FREE' | 'PREMIUM' | 'NEW' | 'LIVE' | 'PRO';
   progress?: number; // 0-100
   totalLessons?: number;
   completedLessons?: number;
   isLocked?: boolean;
   price?: string;
+  requiredTier?: 'free' | 'basic' | 'pro' | 'elite';
 }
 
 export const ProgramCard: React.FC<ProgramCardProps> = ({
@@ -41,15 +43,36 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({
   completedLessons,
   isLocked,
   price,
+  requiredTier,
 }) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { subscriptionTier } = useAuth();
   const isRo = language === 'ro';
 
   const displayTitle = isRo && titleRo ? titleRo : title;
   const displayDescription = isRo && descriptionRo ? descriptionRo : description;
 
+  const getTierLevel = (tier: string | null | undefined): number => {
+    if (!tier) return 0;
+    const t = tier.toLowerCase();
+    if (t.includes('elite')) return 4;
+    if (t.includes('pro')) return 3;
+    if (t.includes('basic') || t.includes('trial')) return 2;
+    if (t.includes('free')) return 1;
+    return 2; // default to basic for any active subscription
+  };
+
+  const requiredLevel = requiredTier ? getTierLevel(requiredTier) : 0;
+  const userLevel = getTierLevel(subscriptionTier);
+  const isTierLocked = requiredTier ? userLevel < requiredLevel : false;
+
   const handleClick = () => {
+    if (isTierLocked) {
+      const reason = requiredTier === 'elite' ? 'elite_required' : 'pro_required';
+      navigate('/pricing', { state: { reason } });
+      return;
+    }
     navigate(path);
   };
 
@@ -59,6 +82,8 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({
         return 'bg-emerald-500/90 text-white border-emerald-400';
       case 'PREMIUM':
         return 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-amber-400';
+      case 'PRO':
+        return 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400';
       case 'NEW':
         return 'bg-primary text-primary-foreground border-primary';
       case 'LIVE':
@@ -74,6 +99,8 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({
         return <Flame className="h-3 w-3" />;
       case 'PREMIUM':
         return <Crown className="h-3 w-3" />;
+      case 'PRO':
+        return <Shield className="h-3 w-3" />;
       case 'NEW':
         return <Star className="h-3 w-3" />;
       case 'LIVE':
@@ -102,9 +129,9 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({
           
           {/* Play button overlay */}
           <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center shadow-lg">
-              {isLocked ? (
-                <Lock className="h-6 w-6 text-primary-foreground" />
+            <div className={`w-14 h-14 rounded-full ${isTierLocked ? 'bg-black/70' : 'bg-primary/90'} flex items-center justify-center shadow-lg`}>
+              {isLocked || isTierLocked ? (
+                <Lock className="h-6 w-6 text-white" />
               ) : (
                 <Play className="h-6 w-6 text-primary-foreground ml-1" />
               )}
