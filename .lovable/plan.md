@@ -1,76 +1,79 @@
 
 
-# Auto-Aplicare Cupon Warrior88 la Stripe Checkout
+# Implementare Completa: Funnel Challenge + Upsell
 
-## Ce se schimba
+## Ce lipseste acum
 
-Pentru planul `pro-challenge-3mo` (29 EUR primele 3 luni, apoi 97 EUR/luna), cuponul **Warrior88** se aplica automat in Stripe Checkout - utilizatorul vede direct pretul redus fara sa introduca manual vreun cod.
+Dupa ultima implementare (cuponul Warrior88), mai trebuie facute urmatoarele:
 
-## Cum functioneaza in Stripe
+## 1. Edge Function - Noi Plan IDs
 
-In loc de `allow_promotion_codes: true` (care asteapta ca userul sa tasteze un cod), vom folosi parametrul `discounts` care pre-aplica cuponul automat:
+**`supabase/functions/create-checkout/index.ts`** - adaugam 2 case-uri noi:
 
-```text
-Stripe Checkout va arata:
-  WarriorOS Pro          97,00 EUR/luna
-  Cod Warrior88          -68,00 EUR  (primele 3 luni)
-  -------------------------------------------
-  Total azi:             29,00 EUR/luna
-  
-  Dupa 3 luni: 97,00 EUR/luna
-```
+| Plan ID | Pret | Detalii |
+|---------|------|---------|
+| `pro-challenge-trial` | 7 zile trial gratuit, apoi 49 EUR/luna | `unitAmount=4900`, `trialDays=7`, `tier="pro"` |
+| `warrior-accelerator-earlybird` | 999 EUR one-time | `unitAmount=99900`, `paymentMode="payment"` |
 
-## Modificari Tehnice
+**Redirect URLs:**
+- `pro-challenge-trial` si `pro-challenge-3mo` -> `success_url = /challenge-upsell?checkout=success&plan={plan}`
+- `warrior-accelerator-earlybird` -> `success_url = /warrior-accelerator-thank-you?checkout=success`
 
-### 1. Edge Function `create-checkout/index.ts`
+## 2. Noua Pagina: `/challenge-upsell`
 
-**Noul case `pro-challenge-3mo`:**
-- `unitAmount = 9700` (97 EUR - pretul REAL al subscriptiei)
-- Cream/gasim cuponul "Warrior88" programatic in Stripe:
-  - `id: "Warrior88"`
-  - `amount_off: 6800` (68 EUR reducere, ramane 29 EUR)
-  - `currency: "eur"`
-  - `duration: "repeating"`
-  - `duration_in_months: 3`
-- `productName = "WarriorOS Pro - Cod Warrior88 Aplicat"`
-- In sessionConfig: inlocuim `allow_promotion_codes` cu `discounts: [{ coupon: "Warrior88" }]`
-- Stripe afiseaza automat reducerea si pretul final de 29 EUR
+**`src/pages/ChallengeUpsell.tsx`** - pagina intermediara post-checkout:
 
-**Logica creare cupon (in edge function):**
-```text
-1. Incearca stripe.coupons.retrieve("Warrior88")
-2. Daca nu exista (404), il creeaza cu parametrii de mai sus
-3. Il aplica la sesiunea de checkout
-```
+- Se afiseaza DOAR dupa checkout reusit (verificare `?checkout=success` in URL)
+- Prezinta 2 optiuni:
+  - **Warrior Certified Coach** la **999 EUR** (redus de la 1.999 EUR) - one-time payment
+  - **Abonament Elite** la 297 EUR/luna cu 5 zile trial
+- **Buton "Nu mersi, vreau sa intru pe platforma"** -> redirect la `/challenge`
+- Tracking Facebook Pixel: `trackEvent('ViewContent', { content_name: 'challenge_upsell' })`
 
-Aceasta abordare inseamna ca cuponul se creeaza o singura data si se refoloseste.
+## 3. Ruta Noua in App.tsx
 
-### 2. Configurare `sessionConfig` pentru acest plan
+Adaugam `/challenge-upsell` -> `ChallengeUpsell` (protected route)
 
-Pentru `pro-challenge-3mo`:
-- Se seteaza `discounts: [{ coupon: "Warrior88" }]`
-- Se STERGE `allow_promotion_codes: true` (nu pot coexista in Stripe)
-- Restul planurilor pastreaza `allow_promotion_codes: true` ca inainte
+## 4. Restructurare `ChallengeUpgradeGate.tsx`
 
-### 3. Ce vede utilizatorul pe Stripe Checkout
+Inlocuim cele 3 planuri (Basic/Pro/Elite) cu:
 
-- Headline-ul produsului: **"WarriorOS Pro - Cod Warrior88 Aplicat"**
-- Pretul original: 97 EUR/luna (taiat)
-- Reducere: -68 EUR (Warrior88)
-- Pret de plata: **29 EUR/luna** pentru primele 3 luni
-- Nota Stripe: "Dupa 3 luni, pretul revine la 97 EUR/luna"
+| Plan | Pret | CTA | Stil |
+|------|------|-----|------|
+| Basic | 49 EUR/luna | "Activeaza Acum" | Card simplu, albastru |
+| Pro (7 zile trial) | 0 EUR acum, apoi 49 EUR/luna | "Incepe 7 Zile Gratuit" | Card normal, verde |
+| Pro 3 Luni - FEATURED | 29 EUR acum (apoi 97 EUR/luna dupa 3 luni) | "Plateste 29 EUR - Oferta Limitata" | Card mare, gradient amber, badge "Oferta Limitata - Doar Aici", ring, scale |
 
-## Fisiere Modificate
+## 5. Restructurare `ChallengePremiumOffer.tsx`
 
-| Fisier | Ce se modifica |
-|--------|---------------|
-| `supabase/functions/create-checkout/index.ts` | Adaug case `pro-challenge-3mo` cu creare/retrieve cupon Warrior88 + `discounts` in sesiune |
+Aceeasi restructurare ca la ChallengeUpgradeGate - afiseaza noile 3 planuri cu acelasi layout.
+
+## 6. Update redirect in Edge Function
+
+Pentru planurile challenge (`pro-challenge-trial`, `pro-challenge-3mo`), `success_url` va pointa catre `/challenge-upsell` in loc de `/challenge`.
+
+## 7. Facebook Pixel Tracking
+
+- `trackCheckoutInitiated` cu planul specific la click pe CTA
+- `trackEvent('ViewContent')` pe pagina upsell
+- `trackPurchase` daca alege Accelerator/Elite de pe upsell
+
+## Fisiere Modificate/Create
+
+| Fisier | Actiune |
+|--------|---------|
+| `supabase/functions/create-checkout/index.ts` | Modific - adaug `pro-challenge-trial`, `warrior-accelerator-earlybird`, update redirect URLs |
+| `src/pages/ChallengeUpsell.tsx` | Creez - pagina upsell post-checkout |
+| `src/App.tsx` | Modific - adaug ruta `/challenge-upsell` |
+| `src/components/challenge/ChallengeUpgradeGate.tsx` | Modific - restructurez cu noile 3 planuri |
+| `src/components/challenge/ChallengePremiumOffer.tsx` | Modific - restructurez cu noile 3 planuri |
 
 ## Ordine de Executie
 
-1. Adaug case-ul `pro-challenge-3mo` in edge function
-2. Adaug logica de creare/retrieve cupon Warrior88
-3. Setez `discounts` in loc de `allow_promotion_codes` pentru acest plan specific
-4. Deploy edge function
-5. Testare checkout - verificam ca pretul de 29 EUR apare direct
+1. Modific edge function (noi plan IDs + redirect la upsell)
+2. Deploy edge function
+3. Creez pagina ChallengeUpsell
+4. Adaug ruta in App.tsx
+5. Restructurez ChallengeUpgradeGate cu noile 3 planuri
+6. Restructurez ChallengePremiumOffer cu noile 3 planuri
 
