@@ -12,7 +12,10 @@ import { CoachTribeLessons } from '@/components/coach/CoachTribeLessons';
 import { CoachTribeCalendar } from '@/components/coach/CoachTribeCalendar';
 import { CoachTribeGamification } from '@/components/coach/CoachTribeGamification';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Globe, Lock, Calendar } from 'lucide-react';
+import { Users, Globe, Lock, Calendar, MessageSquare } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 const GroupPage: React.FC = () => {
   const { groupId } = useParams<{ groupId: string }>();
@@ -194,7 +197,7 @@ const GroupPage: React.FC = () => {
         )}
 
         {activeTab === 'about' && (
-          <div className="max-w-2xl">
+          <div className="max-w-2xl space-y-6">
             <div className="bg-card border border-border rounded-xl p-6 space-y-4">
               <h2 className="text-lg font-bold text-foreground">{tribe.name}</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -207,9 +210,78 @@ const GroupPage: React.FC = () => {
                 })}
               </div>
             </div>
+
+            {/* Welcome Message - Owner only */}
+            {isOwner && (
+              <WelcomeMessageSettings
+                tribeId={tribe.id}
+                initialMessage={tribe.welcome_message || ''}
+                language={language}
+              />
+            )}
           </div>
         )}
       </div>
+    </div>
+  );
+};
+
+// Welcome Message Settings component for tribe owners
+const WelcomeMessageSettings: React.FC<{
+  tribeId: string;
+  initialMessage: string;
+  language: string;
+}> = ({ tribeId, initialMessage, language }) => {
+  const [message, setMessage] = useState(initialMessage);
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
+
+  const handleSave = async () => {
+    setSaving(true);
+    const { error } = await supabase
+      .from('tribes')
+      .update({ welcome_message: message.trim() || null })
+      .eq('id', tribeId);
+    setSaving(false);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({
+        title: language === 'ro' ? 'Salvat!' : 'Saved!',
+        description: language === 'ro' ? 'Mesajul de bun venit a fost actualizat.' : 'Welcome message updated.',
+      });
+    }
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+      <div className="flex items-center gap-2">
+        <MessageSquare className="h-5 w-5 text-primary" />
+        <h3 className="font-bold text-sm text-foreground">
+          {language === 'ro' ? 'Mesaj automat de bun venit' : 'Auto Welcome Message'}
+        </h3>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {language === 'ro'
+          ? 'Acest mesaj va fi trimis automat ca DM fiecărui membru nou care se alătură grupului.'
+          : 'This message will be automatically sent as a DM to every new member who joins the group.'}
+      </p>
+      <div className="space-y-2">
+        <Label htmlFor="welcome-msg">
+          {language === 'ro' ? 'Mesaj' : 'Message'}
+        </Label>
+        <Input
+          id="welcome-msg"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder={language === 'ro' ? 'Ex: Bine ai venit! Scrie-mi dacă ai nevoie de ajutor.' : 'E.g. Welcome! Let me know if you need anything.'}
+        />
+      </div>
+      <Button size="sm" onClick={handleSave} disabled={saving}>
+        {saving
+          ? (language === 'ro' ? 'Se salvează...' : 'Saving...')
+          : (language === 'ro' ? 'Salvează' : 'Save')}
+      </Button>
     </div>
   );
 };

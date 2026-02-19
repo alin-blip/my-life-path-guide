@@ -4683,6 +4683,7 @@ export type Database = {
           name: string
           requires_approval: boolean | null
           updated_at: string | null
+          welcome_message: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -4698,6 +4699,7 @@ export type Database = {
           name: string
           requires_approval?: boolean | null
           updated_at?: string | null
+          welcome_message?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -4713,6 +4715,7 @@ export type Database = {
           name?: string
           requires_approval?: boolean | null
           updated_at?: string | null
+          welcome_message?: string | null
         }
         Relationships: [
           {

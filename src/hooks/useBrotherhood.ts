@@ -13,6 +13,7 @@ export interface Tribe {
   is_public: boolean;
   member_count: number;
   created_at: string;
+  welcome_message?: string | null;
 }
 
 export interface TribeMember {
