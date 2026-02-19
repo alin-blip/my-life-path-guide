@@ -1,87 +1,77 @@
 
-# Implementare Comunitate Interna tip Skool pentru Warriors OS
+# Unificare Cursuri, Programe si Napoleon Hill
 
-## Situatia actuala
+## Problema
 
-Platforma are deja o infrastructura solida de grupuri ("Tribes") cu:
-- **Feed social** cu postari, comentarii, like-uri (GroupFeed)
-- **Chat** in timp real (GroupChat)
-- **Classroom** cu lectii si module (CoachTribeLessons)
-- **Calendar** cu evenimente (CoachTribeCalendar)
-- **Leaderboard** cu gamificare (CoachTribeGamification)
-- **Members** management (GroupMembers)
-- **Grup principal** "Warrior Tribe" (366 membri, auto-join la signup)
+Exista doua locuri separate pentru continut educational:
+1. **`/programs?tab=classroom`** - 4 cursuri (Challenge, Personal Power, Ultimate YOU, Warrior Accelerator)
+2. **`/learn`** - Napoleon Hill (Carte zilnica, Master Plan, AI Coaching, Progres)
 
-Problema: Tab-ul "Comunitate" din GlobalTopBar duce la `/programs?tab=community` care **nu are content** - cade pe `default` si afiseaza ClassroomTab.
+Utilizatorul trebuie sa navigheze in doua locuri diferite. SideMenu are "Programe" SI "Cursuri" ca intrari separate.
 
-## Solutia propusa
+## Solutia
 
-Transformam tab-ul "Comunitate" din navigarea principala intr-un **hub de comunitate real**, folosind grupul principal "Warrior Tribe" (ID: `07825fb0-4d6c-4716-b2f3-27a1708cf680`) ca sursa de date. Exact ca in Skool - primul lucru pe care il vede utilizatorul este **feed-ul comunitatii**.
+Mutam continutul Napoleon Hill (Learn) IN tab-ul "Classroom" din `/programs`, ca o sectiune separata. Eliminam pagina `/learn` ca destinatie independenta si redirectionam catre `/programs?tab=classroom`.
 
-### Structura de navigare (identica cu Skool)
+### Structura noua a tab-ului Classroom
 
 ```text
-GlobalTopBar:
-  [Comunitate]  -->  /programs?tab=community  (Feed-ul principal - DEFAULT)
-  [Cursuri]     -->  /programs?tab=classroom  (Lista cursuri)
-
-SkoolNavBar (sub-navigare):
-  Community | Classroom | Groups | Calendar | Members | Leaderboards | Settings(admin)
+/programs?tab=classroom
+  |
+  +-- SECTIUNEA 1: Cursuri & Programe
+  |   - Have It All Lifestyle Challenge
+  |   - Personal Power Plus
+  |   - The Ultimate YOU
+  |   - Warrior Launch Accelerator
+  |   + Admin courses (localStorage)
+  |
+  +-- SECTIUNEA 2: Success Principles (Napoleon Hill)
+  |   - Carte Zilnica (DailyBookPage)
+  |   - Master Plan (Proiecte + Journey)
+  |   - AI Coaching (link-uri catre stacks)
+  |   - Progres (Analytics + Leaderboard)
+  |
+  +-- Coming Soon
 ```
 
-## Ce se modifica
+### Navigare simplificata
 
-### 1. SkoolNavBar - Adaugare tab "Community" ca PRIMUL tab
+```text
+GlobalTopBar:  [Comunitate]  [Cursuri]
+SideMenu:      Programe (un singur link, nu doua)
+```
 
-Se adauga `{ id: 'community', labelEn: 'Community', labelRo: 'Comunitate', icon: Users }` la inceputul listei de tab-uri. Aceasta este prima pagina pe care o vad utilizatorii - exact ca in Skool.
+## Fisiere modificate
 
-### 2. Componenta noua: CommunityFeedTab
-
-O componenta care afiseaza feed-ul grupului principal WarriorOS cu:
-- **Zona de scriere post** (SkoolWritePost) - pentru membri
-- **Feed de postari** cu like-uri, comentarii (SkoolPostCard)
-- **Sidebar** cu informatii despre comunitate (numar membri, descriere, reguli)
-
-Refoloseste `GroupFeed` existent cu `tribeId` hardcodat la grupul principal.
-
-### 3. Programs.tsx - Adaugare case 'community' + fix default
-
-- Adaugare `case 'community': return <CommunityFeedTab />`
-- Fix linia 22: default de la `'community'` la `'community'` (acum cu content real)
-
-### 4. GlobalTopBar - Corectare logica isActive
-
-Fixarea detectiei tab-ului activ pentru ca "Comunitate" sa fie highlighted corect cand e selectat.
-
-### 5. Groups tab ramane separat
-
-Tab-ul "Groups" continua sa afiseze lista tuturor grupurilor (inclusiv ale coach-ilor). Click pe un grup duce la `/groups/:groupId` cu experienta completa existenta (feed, chat, classroom, calendar, leaderboard).
-
-## Arhitectura pentru Coach-i
-
-Sistemul functioneaza la 2 niveluri:
-
-| Nivel | Cine | Ce vede |
-|-------|-------|---------|
-| **Comunitatea Platformei** | Toti utilizatorii | Feed-ul din tab-ul "Community" - grupul principal "Warrior Tribe" |
-| **Grupul Coach-ului** | Clientii coach-ului | Grup separat in "Groups" cu feed, cursuri, calendar, leaderboard proprii |
-
-Coach-ii isi creeaza propriul grup din tab-ul "Groups", invita clientii, si au control total (feed, lectii, calendar, gamificare) - infrastructura deja existenta.
-
-## Fisiere implicate
-
-| Fisier | Modificare |
+| Fisier | Ce se schimba |
 |---|---|
-| `src/components/programs/CommunityFeedTab.tsx` | **NOU** - feed comunitate principala cu sidebar |
-| `src/components/programs/SkoolNavBar.tsx` | Adaugare tab "Community" ca primul din lista |
-| `src/pages/Programs.tsx` | Adaugare `case 'community'`, fix default tab |
-| `src/components/global/GlobalTopBar.tsx` | Fix logica `isActive` |
+| `src/components/programs/ClassroomTab.tsx` | Adaugare sectiune "Success Principles" sub lista de cursuri - include Tabs cu Book / Master Plan / AI Coaching / Progress, refolosind componentele din Learn.tsx |
+| `src/pages/Programs.tsx` | Fara modificari majore (ClassroomTab primeste deja programs ca prop) |
+| `src/components/SideMenu.tsx` | Eliminare intrarea separata "Cursuri" (`/learn`). Pastram doar "Programe" (`/programs`) |
+| `src/App.tsx` | Adaugare redirect: `/learn` -> `/programs?tab=classroom` (pastreaza backward compatibility) |
+| `src/pages/Learn.tsx` | Ramane ca fisier dar nu mai este ruta principala (redirect) |
 
-## Fara migrari de baza de date
+## Detalii tehnice
 
-Toata infrastructura exista deja:
-- Tabelul `tribes` cu grupul principal (366 membri)
-- `tribe_members` cu auto-join la signup
-- `wall_posts` cu `tribe_id` pentru filtrare
-- Componente `GroupFeed`, `SkoolPostCard`, `SkoolWritePost` functionale
-- Realtime updates deja configurate
+### ClassroomTab.tsx - Sectiunea Napoleon Hill
+
+Sub grila de cursuri existenta, adaugam o sectiune noua cu un `Tabs` component intern:
+
+- **Carte** - randeaza `DailyBookPage`
+- **Master Plan** - randeaza proiecte, journey, dashboard, knowledge (exact ca in Learn.tsx)
+- **AI Coaching** - link-uri catre `/stack?type=napoleon-hill`
+- **Progres** - `AnalyticsDashboard` + `Leaderboard`
+
+### SideMenu.tsx
+
+Eliminam intrarea "Cursuri" (linia 158-162) care duce la `/learn`. Pastram doar "Programe" care duce la `/programs`.
+
+### App.tsx
+
+Adaugam: `<Route path="/learn" element={<Navigate to="/programs?tab=classroom" replace />} />`
+
+Aceasta asigura ca orice link vechi catre `/learn` functioneaza in continuare.
+
+## Nu sunt necesare migrari de baza de date
+
+Toate componentele si datele sunt deja existente - doar le reorganizam vizual.
