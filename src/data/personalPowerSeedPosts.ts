@@ -8,7 +8,7 @@ export interface SeedPost {
 }
 
 // Persona UUIDs
-const ANDREI = 'a1b2c3d4-1111-4000-8000-000000000001';
+const ALIN = 'a1b2c3d4-1111-4000-8000-000000000001';
 const ELENA = 'a1b2c3d4-2222-4000-8000-000000000002';
 const MARIUS = 'a1b2c3d4-3333-4000-8000-000000000003';
 const ANA = 'a1b2c3d4-4444-4000-8000-000000000004';
@@ -17,7 +17,7 @@ const OANA = 'a1b2c3d4-6666-4000-8000-000000000006';
 
 export const personalPowerSeedPosts: SeedPost[] = [
   // Day 1 - Cheia Puterii Personale / The Key to Personal Power
-  { dayNumber: 1, userId: ANDREI, content: 'Puterea personală = abilitatea de a acționa. Simplu și puternic. Am realizat că tot ce lipsea era decizia. Formula Supremă a Succesului e exact ce aveam nevoie — decide, acționează, observă, ajustează. Ce decizie ați luat azi? 💪' },
+  { dayNumber: 1, userId: ALIN, content: 'Puterea personală = abilitatea de a acționa. Simplu și puternic. Am realizat că tot ce lipsea era decizia. Formula Supremă a Succesului e exact ce aveam nevoie — decide, acționează, observă, ajustează. Ce decizie ați luat azi? 💪' },
   { dayNumber: 1, userId: ELENA, content: 'Citatul cu "Cere mai mult de la tine decât ar putea aștepta oricine altcineva" m-a lovit. Azi am decis: nu mai aștept condiții perfecte. Am scris toate cele 5 răspunsuri la întrebări și am simțit ceva deblocându-se. Scor energie: 7/10 🌸' },
 
   // Day 2 - Forțele care îți Controlează Viața
@@ -29,7 +29,7 @@ export const personalPowerSeedPosts: SeedPost[] = [
   { dayNumber: 3, userId: OANA, content: 'Am desenat o hartă vizuală a neuro-asocierilor mele — cele pozitive în culori calde, cele negative în rece. Vizualizarea m-a ajutat enorm să înțeleg pattern-urile. Recomand tuturor să facă exercițiul vizual! 🎨' },
 
   // Day 4 - Știința Condiționării Succesului
-  { dayNumber: 4, userId: ANDREI, content: 'Cele 3 Fundamentale ale NAC: Get Leverage, Interrupt the Pattern, Condition a New Association. Am scris 10 motive puternice pentru schimbare și 5 metode de întrerupere a pattern-urilor. Tracking-ul zilnic arată deja progres. 📊' },
+  { dayNumber: 4, userId: ALIN, content: 'Cele 3 Fundamentale ale NAC: Get Leverage, Interrupt the Pattern, Condition a New Association. Am scris 10 motive puternice pentru schimbare și 5 metode de întrerupere a pattern-urilor. Tracking-ul zilnic arată deja progres. 📊' },
   { dayNumber: 4, userId: ELENA, content: 'Pattern interrupts funcționează! Am folosit metoda fizică — de fiecare dată când vine gândul negativ, schimb poziția corpului, respir adânc și zâmbesc. Sună simplu dar efectul e incredibil. Cine a mai testat? 💚' },
 
   // Day 5 - Ce își Dorește Toată Lumea și Cum Poți Obține
@@ -41,7 +41,7 @@ export const personalPowerSeedPosts: SeedPost[] = [
   { dayNumber: 6, userId: OANA, content: 'Am creat un jurnal vizual cu toate conceptele din prima săptămână — Formula Succesului, Pain/Pleasure, NAC, State Management. Totul se leagă frumos. Recomand să vă faceți un rezumat vizual! 🖼️' },
 
   // Day 7 - Integration Day 2
-  { dayNumber: 7, userId: ANDREI, content: 'Evaluare săptămâna 1: Consistență 6/7 zile, state triggers practicate zilnic, 3 pattern interrupts reușite. KPI-uri clare pentru săptămâna 2. Cine face tracking? Datele nu mint. 📈' },
+  { dayNumber: 7, userId: ALIN, content: 'Evaluare săptămâna 1: Consistență 6/7 zile, state triggers practicate zilnic, 3 pattern interrupts reușite. KPI-uri clare pentru săptămâna 2. Cine face tracking? Datele nu mint. 📈' },
   { dayNumber: 7, userId: ELENA, content: 'Reflecție de final de săptămână: m-am angajat să fiu mai blândă cu mine dar și mai decisivă. Intenția pentru Săptămâna 2: curaj. "Nu trebuie să fii perfect, trebuie să fii în mișcare." Mergeți înainte! 🌟' },
 
   // Day 8 - Transformational Vocabulary
@@ -53,7 +53,7 @@ export const personalPowerSeedPosts: SeedPost[] = [
   { dayNumber: 9, userId: OANA, content: 'Puterea întrebărilor m-a inspirat să creez un set de "Beautiful Questions" pe care le pun dimineața. "Ce e frumos în viața mea azi?" "Cum pot aduce mai multă bucurie?" Energia se schimbă instant. 🌈' },
 
   // Day 10 - The Power of Metaphors
-  { dayNumber: 10, userId: ANDREI, content: 'Metaforele pe care le folosim ne definesc realitatea. "Viața e o luptă" vs "Viața e o aventură" — am analizat metaforele mele principale și am schimbat 3 care mă limitau. Date interesante: productivitatea a crescut cu 20%. 📊' },
+  { dayNumber: 10, userId: ALIN, content: 'Metaforele pe care le folosim ne definesc realitatea. "Viața e o luptă" vs "Viața e o aventură" — am analizat metaforele mele principale și am schimbat 3 care mă limitau. Date interesante: productivitatea a crescut cu 20%. 📊' },
   { dayNumber: 10, userId: ELENA, content: 'Am descoperit că metafora mea pentru relații era "un câmp de mine" — no wonder că eram mereu în gardă! Am schimbat-o în "o grădină care are nevoie de îngrijire". Simt diferența fizic. Ce metafore folosiți voi? 🌻' },
 
   // Day 11 - Puterea lui „De Ce"
@@ -65,7 +65,7 @@ export const personalPowerSeedPosts: SeedPost[] = [
   { dayNumber: 12, userId: OANA, content: 'Am creat un vision board digital cu obiectivele mele! Fiecare obiectiv are o imagine asociată. Vizualizarea face totul mai real. Am 12 obiective majore și le privesc în fiecare dimineață. Funcționează! 🖼️' },
 
   // Day 13 - Cele 6 Nevoi Umane (Partea 1)
-  { dayNumber: 13, userId: ANDREI, content: 'Cele 6 Nevoi Umane + 4 Clase de Experiență = framework incredibil. Am analizat activitățile mele favorite și toate satisfac minim 4 nevoi. Cele pe care le evit? Maximum 1-2 nevoi. Data-driven decision making! 📈' },
+  { dayNumber: 13, userId: ALIN, content: 'Cele 6 Nevoi Umane + 4 Clase de Experiență = framework incredibil. Am analizat activitățile mele favorite și toate satisfac minim 4 nevoi. Cele pe care le evit? Maximum 1-2 nevoi. Data-driven decision making! 📈' },
   { dayNumber: 13, userId: ELENA, content: 'Am descoperit că nevoia mea principală e Connection/Love, dar o satisfac uneori în moduri nesănătoase. Exercițiul cu cele 4 clase m-a ajutat să înțeleg de ce unele activități mă epuizează. Revelator! 💕' },
 
   // Day 14 - Cele 6 Nevoi Umane (Partea 2)
@@ -77,7 +77,7 @@ export const personalPowerSeedPosts: SeedPost[] = [
   { dayNumber: 15, userId: OANA, content: 'Am creat un ritual artistic de dimineață: 5 min drawing + afirmații + muzică energizantă. E rețeta mea de creativitate. Identificarea pattern-urilor emoționale a fost ca și cum aș fi descoperit codul sursă al comportamentului meu. 🎭' },
 
   // Day 16 - Ancorarea pentru Succes
-  { dayNumber: 16, userId: ANDREI, content: 'Anchoring — NLP la cel mai practic nivel. Am creat 3 ancore: una pentru focus (atingere pe încheietură), una pentru energie (pumn strâns), una pentru calm (respirație + atingere piept). Le practic de 10 ori pe zi. Measure & improve. 🎯' },
+  { dayNumber: 16, userId: ALIN, content: 'Anchoring — NLP la cel mai practic nivel. Am creat 3 ancore: una pentru focus (atingere pe încheietură), una pentru energie (pumn strâns), una pentru calm (respirație + atingere piept). Le practic de 10 ori pe zi. Measure & improve. 🎯' },
   { dayNumber: 16, userId: ELENA, content: 'Ancorarea funcționează! Am asociat un gest simplu cu starea de pace interioară. De fiecare dată când simt anxietate, activez ancora. E ca un buton de reset. Corpul memorează mai bine decât mintea. 🧘‍♀️' },
 
   // Day 17 - Cum să te Condiționezi pentru Bogăție
@@ -89,7 +89,7 @@ export const personalPowerSeedPosts: SeedPost[] = [
   { dayNumber: 18, userId: OANA, content: 'Am vizualizat relația mea cu banii ca un tablou — era întunecat și tensionat. L-am repictat mental în culori calde, cu abundență. Exercițiul de eliminare a auto-sabotajului a fost profund. Cine a mai avut revelații? 🎨' },
 
   // Day 19 - Depășirea Fricii de Eșec
-  { dayNumber: 19, userId: ANDREI, content: '"Frica dispare când îi schimbi sensul." Am listat cele mai mari eșecuri din business și ce am învățat din fiecare. Concluzie: fiecare "eșec" a fost de fapt un pivot necesar. 0 regrete, 100% lecții. 📊' },
+  { dayNumber: 19, userId: ALIN, content: '"Frica dispare când îi schimbi sensul." Am listat cele mai mari eșecuri din business și ce am învățat din fiecare. Concluzie: fiecare "eșec" a fost de fapt un pivot necesar. 0 regrete, 100% lecții. 📊' },
   { dayNumber: 19, userId: ELENA, content: 'Frica de eșec m-a ținut în zona de confort ani de zile. Azi am făcut exercițiul și am realizat că "eșecul" meu cel mai mare m-a dus la cea mai frumoasă perioadă din viață. Reframing is everything! 🦋' },
 
   // Day 20 - Depășirea Fricii de Succes
@@ -101,7 +101,7 @@ export const personalPowerSeedPosts: SeedPost[] = [
   { dayNumber: 26, userId: OANA, content: 'Am creat un colaj cu toate insight-urile din program — e o capodoperă vizuală a transformării mele. De la ziua 1 până acum, diferența e enormă. Programul ăsta m-a schimbat la nivel profund. 🎨' },
 
   // Day 27 - Calea spre Maestrie — Obiective Imbatabile
-  { dayNumber: 27, userId: ANDREI, content: 'Obiective imbatabile — am revizuit și rafinat toate obiectivele de la Ziua 12. Acum sunt SMART + emotional connected. Am eliminat 15 obiective slabe și le-am înlocuit cu 7 puternice. Quality over quantity. 🎯' },
+  { dayNumber: 27, userId: ALIN, content: 'Obiective imbatabile — am revizuit și rafinat toate obiectivele de la Ziua 12. Acum sunt SMART + emotional connected. Am eliminat 15 obiective slabe și le-am înlocuit cu 7 puternice. Quality over quantity. 🎯' },
   { dayNumber: 27, userId: ELENA, content: 'Am revizuit obiectivele și am adăugat componenta emoțională lipsă. Nu mai e doar "vreau X", ci "vreau X pentru că mă face să simt Y". Diferența e enormă în motivație. Mergeți înainte! 🌟' },
 
   // Day 28 - Calea spre Maestrie — Stăpânește-ți Instrumentele
@@ -113,7 +113,7 @@ export const personalPowerSeedPosts: SeedPost[] = [
   { dayNumber: 29, userId: OANA, content: 'Practica zilnică e arta transformată în obicei. Am creat un ritual vizual: dimineața pictez starea pe care o vreau, seara reflectez prin desen. 30 de zile de artă + dezvoltare personală = magie! ✨' },
 
   // Day 30 - Calea spre Maestrie — Angajamentul CANI
-  { dayNumber: 30, userId: ANDREI, content: 'CANI — Constant And Never-ending Improvement. Am setat KPI-uri pentru următoarele 90 de zile. Programul se termină dar journey-ul continuă. Măsurăm, ajustăm, creștem. Mulțumesc tuturor! 🏆' },
+  { dayNumber: 30, userId: ALIN, content: 'CANI — Constant And Never-ending Improvement. Am setat KPI-uri pentru următoarele 90 de zile. Programul se termină dar journey-ul continuă. Măsurăm, ajustăm, creștem. Mulțumesc tuturor! 🏆' },
   { dayNumber: 30, userId: ELENA, content: 'Ultima zi, dar nu e un sfârșit — e un nou început. CANI = angajamentul de a deveni mai bun în fiecare zi. Am scris o scrisoare pentru mine din viitor. Mulțumesc acestei comunități pentru energie și suport! 💚' },
 ];
 
