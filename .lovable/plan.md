@@ -1,72 +1,68 @@
 
+# Optimizare Performanta si Bundle Size
 
-# #5 — Unificarea Feed-urilor: wall_posts + tribe_posts
+## Problema curenta
+Build-ul principal este foarte mare (~5000+ module). Desi lazy loading este deja implementat pentru ~80 de pagini, exista cateva probleme majore:
 
-## Problema actuala
-Exista doua tabele separate cu functionalitate aproape identica:
-- `wall_posts` (98 postari) — folosit de feed-ul principal si de grupuri
-- `tribe_posts` (2 postari) — folosit doar de coach-ul din tribe
+- **Dashboard.tsx** (905 linii) este incarcat eager - aduce multe dependente in bundle-ul principal
+- **Index.tsx** incarca eager ~8 componente landing mari
+- **Recharts** (folosit in 9+ fisiere) nu este izolat - se poate scurge in bundle principal
+- **Fabric.js** (librarie canvas grea) nu are chunk splitting dedicat
+- **Framer Motion** este importat in multe componente fara dynamic import
+- Lipsesc configurari de chunk splitting in `vite.config.ts`
 
-Aceasta duplicare creeaza fragmente de cod redundant, doua seturi de RLS policies, doua seturi de triggers pentru notificari, si inconsistente (ex: `wall_posts` are `media_urls` array, `tribe_posts` are `media_url` singular).
+## Plan de implementare
 
-## Ce vom implementa
+### Pas 1: Chunk splitting manual in Vite config
+Adaugam `build.rollupOptions.output.manualChunks` in `vite.config.ts` pentru a separa librariile grele in chunk-uri dedicate:
+- `vendor-react` - react, react-dom, react-router-dom
+- `vendor-ui` - radix-ui, shadcn components
+- `vendor-charts` - recharts
+- `vendor-canvas` - fabric
+- `vendor-motion` - framer-motion
+- `vendor-query` - tanstack/react-query
+- `vendor-supabase` - supabase-js
+- `vendor-date` - date-fns
 
-### 1. Migratie date
-Mutam cele 2 postari din `tribe_posts` in `wall_posts`, pastrand `tribe_id`, `user_id`, `content`, timestamps si counters.
+### Pas 2: Lazy load Index landing components
+Transformam componentele landing din Index.tsx in dynamic imports:
+- `StickyHeader`, `NewHeroSection` raman eager (above the fold)
+- `FeatureShowcase`, `InteractiveTimeline`, `TestimonialCarousel`, `PricingComparison`, `FAQSection`, `NewFooter` devin lazy
 
-### 2. Refactorizare `useCoachTribeFeed.ts`
-Schimbam toate query-urile de la `tribe_posts` la `wall_posts`:
-- `tribe_post_likes` -> `wall_post_likes`
-- `tribe_post_comments` -> `wall_post_comments`
-- Adaptat interfata `TribePost` la structura `wall_posts`
+### Pas 3: Lazy load Dashboard sub-componente grele
+In `Dashboard.tsx`, componentele care nu sunt vizibile imediat vor fi lazy loaded:
+- `LearnDashboard`, `WeeklyProgress`, `MonthlyObjectives` etc.
+- Celebrarile (`TransformedWarrior`, `MediaMaster`, etc.)
 
-### 3. Actualizare `CoachTribeFeed.tsx`
-Adaptat componenta la noua structura de date (ex: `media_url` -> `media_urls`).
-
-### 4. Cleanup (optional, dupa validare)
-Tabelele `tribe_posts`, `tribe_post_likes`, `tribe_post_comments` pot fi pastrate temporar ca backup si sterse ulterior.
-
----
+### Pas 4: Lazy load Layout sub-componente
+In `Layout.tsx`:
+- `AccountabilityCoachWidget` - lazy load (widget flotant, nu e critic la start)
+- `GoalRemindersNotification` - lazy load
 
 ## Detalii tehnice
 
-### Migratie SQL
+### Vite Config - Manual Chunks
 ```text
--- Muta postari din tribe_posts in wall_posts
-INSERT INTO wall_posts (id, user_id, tribe_id, content, media_urls, is_pinned, likes_count, comments_count, created_at, updated_at)
-SELECT id, user_id, tribe_id, content, 
-  CASE WHEN media_url IS NOT NULL THEN ARRAY[media_url] ELSE NULL END,
-  is_pinned, likes_count, comments_count, created_at, updated_at
-FROM tribe_posts
-ON CONFLICT (id) DO NOTHING;
-
--- Muta likes
-INSERT INTO wall_post_likes (post_id, user_id, created_at)
-SELECT post_id, user_id, created_at FROM tribe_post_likes
-ON CONFLICT DO NOTHING;
-
--- Muta comentarii  
-INSERT INTO wall_post_comments (post_id, user_id, content, created_at)
-SELECT post_id, user_id, content, created_at FROM tribe_post_comments
-ON CONFLICT DO NOTHING;
+manualChunks: {
+  'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+  'vendor-ui': [...radix packages],
+  'vendor-charts': ['recharts'],
+  'vendor-canvas': ['fabric'],
+  'vendor-motion': ['framer-motion'],
+  'vendor-query': ['@tanstack/react-query'],
+  'vendor-supabase': ['@supabase/supabase-js'],
+  'vendor-date': ['date-fns'],
+}
 ```
 
-### Fisier: `src/hooks/useCoachTribeFeed.ts`
-- Toate referintele `tribe_posts` -> `wall_posts`
-- `tribe_post_likes` -> `wall_post_likes`
-- `tribe_post_comments` -> `wall_post_comments`
-- `media_url: string | null` -> `media_urls: string[] | null`
-- Canalul realtime asculta pe `wall_posts` filtrat pe `tribe_id`
-
-### Fisier: `src/components/coach/CoachTribeFeed.tsx`
-- Adaptat afisarea media de la `media_url` singular la `media_urls` array
-- Pastrata aceeasi experienta vizuala
-
 ### Fisiere modificate
-1. Migratie SQL — transfer date + cleanup optional
-2. `src/hooks/useCoachTribeFeed.ts` — redirectare queries la `wall_posts`
-3. `src/components/coach/CoachTribeFeed.tsx` — adaptare structura date
+1. `vite.config.ts` - adaugare manualChunks
+2. `src/pages/Index.tsx` - lazy load componente below-the-fold
+3. `src/components/Dashboard.tsx` - lazy load sub-componente grele
+4. `src/components/Layout.tsx` - lazy load widget-uri non-critice
 
-### Risc
-Minim — doar 2 postari in `tribe_posts`. Tabelele vechi raman ca backup pana la confirmarea ca totul functioneaza.
-
+### Impact estimat
+- Bundle-ul principal va fi redus semnificativ (estimare: -40-60%)
+- Incarcarea initiala va fi mult mai rapida
+- Librariile grele (recharts ~200KB, fabric ~300KB, framer-motion ~100KB) vor fi incarcate doar cand sunt necesare
+- Experienta utilizatorului pe prima incarcare va fi imbunatatita considerabil
