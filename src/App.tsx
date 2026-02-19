@@ -153,17 +153,13 @@ const App = () => (
                         <StackViewer />
                       </ProtectedRoute>
                     } />
-                    <Route path="/master-plan" element={<Navigate to="/learn?tab=master-plan" replace />} />
+                    <Route path="/master-plan" element={<Navigate to="/programs?tab=classroom" replace />} />
                     <Route path="/challenge-7-zile" element={<Challenge7ZileLanding />} />
                     <Route path="/challenge-en" element={<ChallengeEnglish />} />
                     <Route path="/challenge-en/:day" element={<ChallengeDayEnglish />} />
                     <Route path="/challenge" element={<Challenge />} />
                     <Route path="/challenge/:day" element={<ChallengeDay />} />
-                    <Route path="/learn" element={
-                      <ProtectedRoute>
-                        <LearnPage />
-                      </ProtectedRoute>
-                    } />
+                    <Route path="/learn" element={<Navigate to="/programs?tab=classroom" replace />} />
                     <Route path="/door" element={
                       <ProtectedRoute>
                         <Door />
