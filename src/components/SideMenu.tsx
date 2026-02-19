@@ -154,12 +154,6 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       badge: completedDays > 0 ? `${completedDays}/7` : undefined
     },
 
-    // CURSURI - Learn hub with Success Principles
-    {
-      title: language === 'ro' ? 'Cursuri' : 'Courses',
-      icon: GraduationCap,
-      path: '/learn',
-    },
 
     // SEPARATOR
     { isSeparator: true, title: '', icon: Home, path: '' },
@@ -212,7 +206,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: 'Mind Coach', icon: Brain, path: '/mind-coach', badge: 'NEW' },
         { title: 'Emotion Coach (Anger)', icon: Flame, path: '/stack?type=anger' },
         { title: 'Business Coach', icon: Target, path: '/stack?type=hormozi-coaching' },
-        { title: 'Success Principles', icon: BookOpen, path: '/learn?tab=master-plan' },
+        { title: 'Success Principles', icon: BookOpen, path: '/programs?tab=classroom' },
       ]
     },
 
