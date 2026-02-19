@@ -1,29 +1,44 @@
 
-# Inlocuire "Andrei Popescu" cu "Alin F. Radu"
 
-## Ce trebuie schimbat
+# #4 — Moderare Comunitate: Stergere Postari + Permisiuni
 
-### 1. Baza de date - profilul leaderboard
-Profilul fictiv "Andrei Popescu" (`user_id: a1b2c3d4-1111-4000-8000-000000000001`) din tabelul `leaderboard_profiles` trebuie redenumit in "Alin F. Radu".
+## Problema actuala
+Meniul admin din `SkoolPostCard` permite **Pin** si **Schimbare categorie**, dar nu exista optiunea de **Stergere postare**. Nici utilizatorii nu pot sterge propriile postari. Acest lucru inseamna ca spam-ul sau continutul inadecvat nu poate fi eliminat din feed.
 
-**Comanda SQL:**
-```sql
-UPDATE leaderboard_profiles 
-SET display_name = 'Alin F. Radu' 
-WHERE user_id = 'a1b2c3d4-1111-4000-8000-000000000001';
-```
+## Ce vom implementa
 
-Acest update va face ca toate cele 44 de postari existente asociate acestui user sa afiseze automat "Alin F. Radu" in loc de "Andrei Popescu", atat in Community cat si in Warrior Tribe.
+### 1. Stergere postare din SkoolPostCard
+Adaugam doua optiuni noi in dropdown-ul existent:
+- **Admin**: Buton "Sterge postare" (cu confirmare) - vizibil pentru admini
+- **Autor**: Buton "Sterge" - vizibil doar pentru autorul postarii
 
-### 2. Fisierul seed data
-In `src/data/personalPowerSeedPosts.ts`, variabila `ANDREI` va fi redenumita in `ALIN` pentru consistenta cu noul nume.
+### 2. Dialog de confirmare
+Inainte de stergere, se afiseaza un `AlertDialog` cu mesaj de confirmare pentru a preveni stergerile accidentale.
 
-**Linia 11:**
-- Inainte: `const ANDREI = 'a1b2c3d4-1111-4000-8000-000000000001';`
-- Dupa: `const ALIN = 'a1b2c3d4-1111-4000-8000-000000000001';`
+### 3. RLS Policy - Stergere
+Verificam si adaugam (daca lipseste) o politica RLS pe `wall_posts` care permite:
+- Adminilor sa stearga orice postare
+- Utilizatorilor sa isi stearga doar propriile postari
 
-Toate referintele catre `ANDREI` din acest fisier (folosite la `userId` in postarile seed) vor fi inlocuite cu `ALIN`.
+---
 
-### Rezultat
-- Toate postarile din feed-ul Community si din grupul Warrior Tribe care aratau "Andrei Popescu" vor arata "Alin F. Radu"
-- Nicio alta modificare nu e necesara - numele se incarca din `leaderboard_profiles` la runtime
+## Detalii tehnice
+
+### Fisier: `src/components/programs/SkoolPostCard.tsx`
+- Import `AlertDialog` din radix
+- Import `Trash2` icon
+- Adaugam state `deleteLoading` si `showDeleteConfirm`
+- Functie `handleDeletePost` care face `supabase.from('wall_posts').delete().eq('id', post.id)` apoi apeleaza `onRefresh()`
+- In dropdown menu:
+  - Daca `isAdmin` sau `user?.id === post.user_id`: afisam optiunea "Sterge"
+- `AlertDialog` cu confirmare
+
+### Baza de date (migratie SQL)
+- Verificam si adaugam policy RLS `DELETE` pe `wall_posts` pentru:
+  - `auth.uid() = user_id` (proprietarul)
+  - `public.has_role(auth.uid(), 'admin')` (admin)
+
+### Fisiere modificate
+1. `src/components/programs/SkoolPostCard.tsx` — adaugare buton stergere + dialog confirmare
+2. Migratie SQL — RLS policy DELETE pe `wall_posts`
+
