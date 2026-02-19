@@ -21,7 +21,7 @@ export const GlobalTopBar: React.FC = () => {
   const isActive = (path: string) => {
     if (path === '/programs?tab=community') {
       return location.pathname === '/programs' && 
-        (location.search.includes('tab=community') || !location.search.includes('tab='));
+        (!location.search.includes('tab=') || location.search.includes('tab=community'));
     }
     if (path === '/programs?tab=classroom') {
       return location.pathname === '/programs' && location.search.includes('tab=classroom');
