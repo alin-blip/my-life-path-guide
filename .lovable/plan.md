@@ -1,90 +1,87 @@
 
-# Pasul 2: Fix ProtectedRoute + Curatenie + HeroInlineChat
+# Implementare Comunitate Interna tip Skool pentru Warriors OS
 
-## 1. ProtectedRoute - Adaugare rute lipsa in BASIC_ROUTES
+## Situatia actuala
 
-Toate rutele protejate din App.tsx care NU sunt in `BASIC_ROUTES` si ar trebui sa fie accesibile pentru utilizatorii BASIC:
+Platforma are deja o infrastructura solida de grupuri ("Tribes") cu:
+- **Feed social** cu postari, comentarii, like-uri (GroupFeed)
+- **Chat** in timp real (GroupChat)
+- **Classroom** cu lectii si module (CoachTribeLessons)
+- **Calendar** cu evenimente (CoachTribeCalendar)
+- **Leaderboard** cu gamificare (CoachTribeGamification)
+- **Members** management (GroupMembers)
+- **Grup principal** "Warrior Tribe" (366 membri, auto-join la signup)
 
-| Ruta lipsa | Ce face |
+Problema: Tab-ul "Comunitate" din GlobalTopBar duce la `/programs?tab=community` care **nu are content** - cade pe `default` si afiseaza ClassroomTab.
+
+## Solutia propusa
+
+Transformam tab-ul "Comunitate" din navigarea principala intr-un **hub de comunitate real**, folosind grupul principal "Warrior Tribe" (ID: `07825fb0-4d6c-4716-b2f3-27a1708cf680`) ca sursa de date. Exact ca in Skool - primul lucru pe care il vede utilizatorul este **feed-ul comunitatii**.
+
+### Structura de navigare (identica cu Skool)
+
+```text
+GlobalTopBar:
+  [Comunitate]  -->  /programs?tab=community  (Feed-ul principal - DEFAULT)
+  [Cursuri]     -->  /programs?tab=classroom  (Lista cursuri)
+
+SkoolNavBar (sub-navigare):
+  Community | Classroom | Groups | Calendar | Members | Leaderboards | Settings(admin)
+```
+
+## Ce se modifica
+
+### 1. SkoolNavBar - Adaugare tab "Community" ca PRIMUL tab
+
+Se adauga `{ id: 'community', labelEn: 'Community', labelRo: 'Comunitate', icon: Users }` la inceputul listei de tab-uri. Aceasta este prima pagina pe care o vad utilizatorii - exact ca in Skool.
+
+### 2. Componenta noua: CommunityFeedTab
+
+O componenta care afiseaza feed-ul grupului principal WarriorOS cu:
+- **Zona de scriere post** (SkoolWritePost) - pentru membri
+- **Feed de postari** cu like-uri, comentarii (SkoolPostCard)
+- **Sidebar** cu informatii despre comunitate (numar membri, descriere, reguli)
+
+Refoloseste `GroupFeed` existent cu `tribeId` hardcodat la grupul principal.
+
+### 3. Programs.tsx - Adaugare case 'community' + fix default
+
+- Adaugare `case 'community': return <CommunityFeedTab />`
+- Fix linia 22: default de la `'community'` la `'community'` (acum cu content real)
+
+### 4. GlobalTopBar - Corectare logica isActive
+
+Fixarea detectiei tab-ului activ pentru ca "Comunitate" sa fie highlighted corect cand e selectat.
+
+### 5. Groups tab ramane separat
+
+Tab-ul "Groups" continua sa afiseze lista tuturor grupurilor (inclusiv ale coach-ilor). Click pe un grup duce la `/groups/:groupId` cu experienta completa existenta (feed, chat, classroom, calendar, leaderboard).
+
+## Arhitectura pentru Coach-i
+
+Sistemul functioneaza la 2 niveluri:
+
+| Nivel | Cine | Ce vede |
+|-------|-------|---------|
+| **Comunitatea Platformei** | Toti utilizatorii | Feed-ul din tab-ul "Community" - grupul principal "Warrior Tribe" |
+| **Grupul Coach-ului** | Clientii coach-ului | Grup separat in "Groups" cu feed, cursuri, calendar, leaderboard proprii |
+
+Coach-ii isi creeaza propriul grup din tab-ul "Groups", invita clientii, si au control total (feed, lectii, calendar, gamificare) - infrastructura deja existenta.
+
+## Fisiere implicate
+
+| Fisier | Modificare |
 |---|---|
-| `/stack` | Stack System (sesiuni transformare) |
-| `/stack-library` | Biblioteca de stack-uri |
-| `/stack/view` | Vizualizare stack individual |
-| `/master-plan` | Master Plan System |
-| `/core` | Core values |
-| `/daily-four` | Daily Four routine |
-| `/library` | Biblioteca de resurse |
-| `/notes` | Note personale |
-| `/business` | Business dashboard |
-| `/voice-analysis` | Analiza vocala |
-| `/daily-timeline` | Timeline zilnic |
-| `/empowerment-meditation` | Meditatie empowerment |
-| `/biz4-report` | Raport Business 4 |
-| `/champion-routine-history` | Istoric rutina campion |
-| `/workout` | Antrenamente |
-| `/workout-history` | Istoric antrenamente |
-| `/relationships` | Relatii |
-| `/widget-dashboard` | Dashboard widget-uri |
-| `/leaderboard` | Clasament |
-| `/achievements` | Realizari |
-| `/emotional-tracker` | Tracker emotional |
-| `/time-tracker` | Tracker timp |
-| `/accountability-coach` | Coach responsabilitate |
-| `/quick-quiz` | Quiz rapid |
-| `/coach` | Coach Dashboard |
-| `/programs` | Pagina programe |
-| `/personal-power` | Personal Power curs |
-| `/ultimate-you` | Ultimate You curs |
-| `/groups` | Pagini grupuri |
-| `/messages` | Mesaje |
-| `/mind-coach` | Mind Coach AI |
-| `/support` | Suport |
-| `/dashboard/settings` | Setari dashboard |
-| `/warrior-accelerator-thank-you` | Thank you page |
-| `/vision-2026/dashboard` | Vision dashboard |
+| `src/components/programs/CommunityFeedTab.tsx` | **NOU** - feed comunitate principala cu sidebar |
+| `src/components/programs/SkoolNavBar.tsx` | Adaugare tab "Community" ca primul din lista |
+| `src/pages/Programs.tsx` | Adaugare `case 'community'`, fix default tab |
+| `src/components/global/GlobalTopBar.tsx` | Fix logica `isActive` |
 
-**Total: ~35 rute lipsa care trebuie adaugate**
+## Fara migrari de baza de date
 
-### Fisier modificat
-`src/components/ProtectedRoute.tsx` - adaugare rute in `BASIC_ROUTES`
-
----
-
-## 2. Curatenie HeroInlineChat (cod mort dupa eliminarea SalesCoach)
-
-Dupa eliminarea SalesCoachWidget, componentele `HeroInlineChat` si `NewHeroSection` inca au props `onAskQuestion` si `onOpenChat` care nu mai fac nimic (sunt apelate cu `undefined`). Butoanele din HeroInlineChat apar pe landing page dar nu au niciun efect la click.
-
-### Optiuni:
-- **Eliminam complet HeroInlineChat** din hero section (nu mai are functionalitate)
-- **Sau** il transformam sa redirectioneze la `/auth` in loc sa deschida chat-ul
-
-### Fisiere modificate:
-- `src/components/landing/NewHeroSection.tsx` - eliminare props si HeroInlineChat
-- `src/components/landing/HeroInlineChat.tsx` - stergere fisier (optional)
-
----
-
-## 3. Stergere fisiere temporare nefolosite
-
-| Fisier | Motiv |
-|---|---|
-| `src/components/stack/TemporaryDatabaseFix.tsx` | Nu este importat nicaieri |
-| `src/services/napoleonHillDraftService.ts` | Re-export legacy |
-| `src/services/napoleonHillBackupService.ts` | Re-export legacy |
-| `src/services/napoleonHillProjectService.ts` | Re-export legacy |
-
-Inainte de stergerea fisierelor Napoleon Hill, se verifica daca sunt importate undeva.
-
----
-
-## Rezumat tehnic
-
-| Actiune | Fisier |
-|---|---|
-| Adaugare ~35 rute | `src/components/ProtectedRoute.tsx` |
-| Eliminare HeroInlineChat | `src/components/landing/NewHeroSection.tsx` |
-| Stergere HeroInlineChat | `src/components/landing/HeroInlineChat.tsx` |
-| Stergere temp fix | `src/components/stack/TemporaryDatabaseFix.tsx` |
-| Stergere legacy re-exports | 3 fisiere napoleonHill*.ts |
-
-Nu sunt necesare migrari de baza de date.
+Toata infrastructura exista deja:
+- Tabelul `tribes` cu grupul principal (366 membri)
+- `tribe_members` cu auto-join la signup
+- `wall_posts` cu `tribe_id` pentru filtrare
+- Componente `GroupFeed`, `SkoolPostCard`, `SkoolWritePost` functionale
+- Realtime updates deja configurate
