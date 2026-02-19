@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
-  Users, TrendingUp, Crown, Target, Mail, Zap,
-  ArrowUp, ArrowDown, Clock, Calendar
+  Users, TrendingUp, Crown, Target, Zap, Clock, Calendar
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -15,6 +14,7 @@ interface AnalyticsData {
   totalContacts: number;
   leads: number;
   engaged: number;
+  trials: number;
   customers: number;
   totalLTV: number;
   avgLeadScore: number;
@@ -39,15 +39,14 @@ export const CRMAnalytics: React.FC = () => {
       const { data: contacts, error } = await supabase
         .from('crm_contact_profiles')
         .select('*');
-
       if (error) throw error;
 
       const contactList = contacts || [];
       
-      // Calculate stats
       const leads = contactList.filter(c => c.funnel_stage === 'lead');
       const engaged = contactList.filter(c => c.funnel_stage === 'engaged');
-      const customers = contactList.filter(c => c.funnel_stage === 'customer');
+      const trials = contactList.filter(c => c.funnel_stage === 'trial' || c.subscription_status === 'trialing');
+      const customers = contactList.filter(c => c.funnel_stage === 'customer' && c.subscription_status !== 'trialing');
       
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -61,30 +60,49 @@ export const CRMAnalytics: React.FC = () => {
         const source = c.lead_source || 'unknown';
         sourceMap[source] = (sourceMap[source] || 0) + 1;
       });
-      const sourceDistribution = Object.entries(sourceMap).map(([name, value]) => ({
-        name: name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-        value
-      }));
+      const sourceDistribution = Object.entries(sourceMap)
+        .map(([name, value]) => ({
+          name: name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          value
+        }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 6);
 
-      // Conversion funnel
       const conversionFunnel = [
         { stage: 'Leads', count: leads.length },
         { stage: 'Engaged', count: engaged.length },
+        { stage: 'Trial', count: trials.length },
         { stage: 'Customers', count: customers.length }
       ];
 
-      // Weekly growth (mock data for now - would need historical tracking)
-      const weeklyGrowth = [
-        { week: 'Săpt 1', leads: Math.floor(leads.length * 0.6), engaged: Math.floor(engaged.length * 0.4), customers: Math.floor(customers.length * 0.2) },
-        { week: 'Săpt 2', leads: Math.floor(leads.length * 0.7), engaged: Math.floor(engaged.length * 0.5), customers: Math.floor(customers.length * 0.4) },
-        { week: 'Săpt 3', leads: Math.floor(leads.length * 0.85), engaged: Math.floor(engaged.length * 0.7), customers: Math.floor(customers.length * 0.6) },
-        { week: 'Săpt 4', leads: leads.length, engaged: engaged.length, customers: customers.length }
-      ];
+      // Real weekly growth from created_at dates
+      const weeklyGrowth: { week: string; leads: number; engaged: number; customers: number }[] = [];
+      const now = new Date();
+      for (let i = 7; i >= 0; i--) {
+        const weekStart = new Date(now);
+        weekStart.setDate(weekStart.getDate() - (i * 7));
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+        
+        const weekLabel = `${weekStart.getDate()}/${weekStart.getMonth() + 1}`;
+        
+        const contactsUpToWeek = contactList.filter(c => 
+          c.created_at && new Date(c.created_at) <= weekEnd
+        );
+        
+        weeklyGrowth.push({
+          week: weekLabel,
+          leads: contactsUpToWeek.filter(c => c.funnel_stage === 'lead').length,
+          engaged: contactsUpToWeek.filter(c => c.funnel_stage === 'engaged').length,
+          customers: contactsUpToWeek.filter(c => c.funnel_stage === 'customer').length
+        });
+      }
 
       setData({
         totalContacts: contactList.length,
         leads: leads.length,
         engaged: engaged.length,
+        trials: trials.length,
         customers: customers.length,
         totalLTV: contactList.reduce((sum, c) => sum + (c.lifetime_value || 0), 0),
         avgLeadScore: contactList.length > 0 
@@ -109,35 +127,15 @@ export const CRMAnalytics: React.FC = () => {
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map(i => (
-            <Card key={i}>
-              <CardContent className="pt-4">
-                <Skeleton className="h-20 w-full" />
-              </CardContent>
-            </Card>
+            <Card key={i}><CardContent className="pt-4"><Skeleton className="h-20 w-full" /></CardContent></Card>
           ))}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardContent className="pt-4">
-              <Skeleton className="h-64 w-full" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4">
-              <Skeleton className="h-64 w-full" />
-            </CardContent>
-          </Card>
         </div>
       </div>
     );
   }
 
   if (!data) {
-    return (
-      <p className="text-center text-muted-foreground py-8">
-        Nu am putut încărca datele
-      </p>
-    );
+    return <p className="text-center text-muted-foreground py-8">Nu am putut încărca datele</p>;
   }
 
   const getConversionRate = (from: number, to: number) => {
@@ -148,82 +146,56 @@ export const CRMAnalytics: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Contacte</p>
-                <p className="text-3xl font-bold">{data.totalContacts}</p>
-                <p className="text-xs text-muted-foreground flex items-center mt-1">
-                  <Users className="h-3 w-3 mr-1" />
-                  {data.activeThisWeek} activi săptămâna asta
-                </p>
-              </div>
-              <Users className="h-10 w-10 text-primary opacity-20" />
-            </div>
+            <p className="text-sm text-muted-foreground">Total Contacte</p>
+            <p className="text-3xl font-bold">{data.totalContacts}</p>
+            <p className="text-xs text-muted-foreground flex items-center mt-1">
+              <Users className="h-3 w-3 mr-1" />{data.activeThisWeek} activi săptămâna asta
+            </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Lead → Engaged</p>
-                <p className="text-3xl font-bold text-green-500">
-                  {getConversionRate(data.leads + data.engaged + data.customers, data.engaged + data.customers)}%
-                </p>
-                <p className="text-xs text-muted-foreground flex items-center mt-1">
-                  <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-                  {data.engaged + data.customers} convertiti
-                </p>
-              </div>
-              <TrendingUp className="h-10 w-10 text-green-500 opacity-20" />
-            </div>
+            <p className="text-sm text-muted-foreground">Lead → Engaged</p>
+            <p className="text-3xl font-bold text-green-500">
+              {getConversionRate(data.leads + data.engaged + data.trials + data.customers, data.engaged + data.trials + data.customers)}%
+            </p>
+            <p className="text-xs text-muted-foreground">{data.engaged} engaged</p>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Engaged → Customer</p>
-                <p className="text-3xl font-bold text-yellow-500">
-                  {getConversionRate(data.engaged + data.customers, data.customers)}%
-                </p>
-                <p className="text-xs text-muted-foreground flex items-center mt-1">
-                  <Crown className="h-3 w-3 mr-1 text-yellow-500" />
-                  {data.customers} clienți
-                </p>
-              </div>
-              <Crown className="h-10 w-10 text-yellow-500 opacity-20" />
-            </div>
+            <p className="text-sm text-muted-foreground">Trials Activi</p>
+            <p className="text-3xl font-bold text-orange-500">{data.trials}</p>
+            <p className="text-xs text-muted-foreground">în perioadă de trial</p>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total LTV</p>
-                <p className="text-3xl font-bold">{data.totalLTV}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  RON din achiziții
-                </p>
-              </div>
-              <Zap className="h-10 w-10 text-purple-500 opacity-20" />
-            </div>
+            <p className="text-sm text-muted-foreground">Customers</p>
+            <p className="text-3xl font-bold text-yellow-500">{data.customers}</p>
+            <p className="text-xs text-muted-foreground flex items-center mt-1">
+              <Crown className="h-3 w-3 mr-1" />abonați activi
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <p className="text-sm text-muted-foreground">Total LTV</p>
+            <p className="text-3xl font-bold">{(data.totalLTV / 100).toFixed(0)} EUR</p>
+            <p className="text-xs text-muted-foreground">din achiziții</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Funnel Chart */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Funnel Conversion</CardTitle>
-            <CardDescription>Distribuția contactelor pe etape</CardDescription>
+            <CardDescription>Lead → Engaged → Trial → Customer</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -238,7 +210,6 @@ export const CRMAnalytics: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Source Distribution */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Lead Sources</CardTitle>
@@ -249,15 +220,12 @@ export const CRMAnalytics: React.FC = () => {
               <PieChart>
                 <Pie
                   data={data.sourceDistribution}
-                  cx="50%"
-                  cy="50%"
+                  cx="50%" cy="50%"
                   labelLine={false}
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
+                  outerRadius={80} fill="#8884d8" dataKey="value"
                 >
-                  {data.sourceDistribution.map((entry, index) => (
+                  {data.sourceDistribution.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -268,11 +236,11 @@ export const CRMAnalytics: React.FC = () => {
         </Card>
       </div>
 
-      {/* Growth Chart */}
+      {/* Growth Chart - REAL DATA */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Creștere Săptămânală</CardTitle>
-          <CardDescription>Evoluția contactelor în ultimele 4 săptămâni</CardDescription>
+          <CardTitle className="text-lg">Creștere Săptămânală (Date Reale)</CardTitle>
+          <CardDescription>Evoluția contactelor - bazat pe date reale din created_at</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -282,27 +250,9 @@ export const CRMAnalytics: React.FC = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="leads" 
-                stroke="#3b82f6" 
-                strokeWidth={2}
-                name="Leads"
-              />
-              <Line 
-                type="monotone" 
-                dataKey="engaged" 
-                stroke="#22c55e" 
-                strokeWidth={2}
-                name="Engaged"
-              />
-              <Line 
-                type="monotone" 
-                dataKey="customers" 
-                stroke="#eab308" 
-                strokeWidth={2}
-                name="Customers"
-              />
+              <Line type="monotone" dataKey="leads" stroke="#3b82f6" strokeWidth={2} name="Leads" />
+              <Line type="monotone" dataKey="engaged" stroke="#22c55e" strokeWidth={2} name="Engaged" />
+              <Line type="monotone" dataKey="customers" stroke="#eab308" strokeWidth={2} name="Customers" />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -319,7 +269,6 @@ export const CRMAnalytics: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-4">
             <div className="text-center">
@@ -329,13 +278,12 @@ export const CRMAnalytics: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-4">
             <div className="text-center">
               <Calendar className="h-8 w-8 mx-auto text-purple-500 mb-2" />
               <p className="text-2xl font-bold">
-                {data.customers > 0 ? Math.round(data.totalLTV / data.customers) : 0} RON
+                {data.customers > 0 ? ((data.totalLTV / 100) / data.customers).toFixed(0) : 0} EUR
               </p>
               <p className="text-sm text-muted-foreground">LTV Mediu / Customer</p>
             </div>
