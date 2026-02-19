@@ -202,7 +202,6 @@ const ChallengeUpsell = () => {
                   'Coaching LIVE săptămânal cu Alin Radu',
                   'Elite Brotherhood exclusiv',
                   'Coach Dashboard + 50% comision lifetime',
-                  '5 zile trial gratuit',
                 ].map((b, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
                     <Check className="h-4 w-4 text-purple-500 flex-shrink-0 mt-0.5" />
@@ -216,7 +215,7 @@ const ChallengeUpsell = () => {
                   <span className="text-4xl font-black text-purple-500">€297</span>
                   <span className="text-muted-foreground text-sm">/ lună</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">5 zile trial gratuit inclus</p>
+                <p className="text-xs text-muted-foreground mt-1">Plată directă, fără trial</p>
               </div>
 
               <Button
@@ -227,7 +226,7 @@ const ChallengeUpsell = () => {
                 {loadingPlan === 'elite' ? (
                   <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Se procesează...</>
                 ) : (
-                  <><Crown className="w-5 h-5 mr-2" /> Începe Elite - 5 Zile Gratuit <ArrowRight className="w-5 h-5 ml-2" /></>
+                  <><Crown className="w-5 h-5 mr-2" /> Începe Elite - €297/lună <ArrowRight className="w-5 h-5 ml-2" /></>
                 )}
               </Button>
             </CardContent>

@@ -193,6 +193,12 @@ serve(async (req) => {
 
     const origin = originHeader ?? derivedOrigin ?? "https://my-life-path-guide.lovable.app";
 
+    // No trial for Elite from upsell - direct payment
+    if (plan === 'elite' && source === 'challenge-upsell') {
+      trialDays = undefined;
+      productName = "WarriorOS Elite";
+    }
+
     console.log("create-checkout origin:", {
       originHeader,
       derivedOrigin,
