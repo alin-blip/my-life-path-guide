@@ -149,8 +149,13 @@ export const useDirectMessages = () => {
       console.error('Error sending message:', error);
       return null;
     }
+    // Optimistic update: add message to state immediately
+    if (data) {
+      setMessages(prev => [...prev, data as DirectMessage]);
+      fetchConversations();
+    }
     return data;
-  }, [user]);
+  }, [user, fetchConversations]);
 
   const sendBulkMessage = useCallback(async (receiverIds: string[], content: string) => {
     if (!user || !content.trim() || receiverIds.length === 0) return [];
@@ -168,8 +173,10 @@ export const useDirectMessages = () => {
       console.error('Error sending bulk messages:', error);
       return [];
     }
+    // Refresh conversations after bulk send
+    fetchConversations();
     return data || [];
-  }, [user]);
+  }, [user, fetchConversations]);
 
   // Realtime subscription
   useEffect(() => {
@@ -187,7 +194,11 @@ export const useDirectMessages = () => {
         (payload) => {
           const newMsg = payload.new as DirectMessage;
           if (newMsg.sender_id === user.id || newMsg.receiver_id === user.id) {
-            setMessages(prev => [...prev, newMsg]);
+            // Deduplicate: only add if not already in state (from optimistic update)
+            setMessages(prev => {
+              if (prev.some(m => m.id === newMsg.id)) return prev;
+              return [...prev, newMsg];
+            });
             fetchConversations();
             fetchUnreadCount();
           }

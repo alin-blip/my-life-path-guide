@@ -61,7 +61,7 @@ const Messages: React.FC = () => {
     }
     // Store all selected IDs for bulk messaging
     setBulkRecipients(memberIds);
-  }, []);
+  }, [handleSelectNewMember]);
 
   const [bulkRecipients, setBulkRecipients] = useState<string[]>([]);
 
