@@ -97,8 +97,11 @@ export const ChallengePremiumOffer = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         if (preOpened) preOpened.close();
-        toast.error(isRo ? 'Te rugăm să te autentifici' : 'Please sign in first');
-        navigate('/auth');
+        // Save pending plan to localStorage so it resumes after auth
+        localStorage.setItem('pending_challenge_plan', JSON.stringify({ planId, value }));
+        toast.info(isRo ? 'Creează-ți contul pentru a continua' : 'Create your account to continue');
+        navigate('/auth', { state: { from: { pathname: '/challenge-7-zile' } } });
+        setLoading(null);
         return;
       }
 
