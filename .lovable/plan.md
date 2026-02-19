@@ -1,31 +1,40 @@
 
 
-# Adaugare programe in descrierea PRO
+# Fix: Pagina `/challenge-upsell` da 404 dupa plata Stripe
 
-## 1. localStorage - confirmare
+## Problema identificata
 
-localStorage este solutia corecta pentru persistenta planului selectat. Este o valoare temporara (cateva secunde/minute), functioneaza pe acelasi browser/device, si se sterge imediat dupa checkout. Nu necesita baza de date.
+Sunt doua probleme:
 
-**Nu se modifica nimic la acest flux.**
+1. **Pagina nu este publicata** - Codul exista in proiect, dar site-ul publicat pe `warriorsos.com` nu a fost actualizat. Trebuie sa dai click pe "Update" in dialogul de publish dupa ce facem fix-urile.
 
-## 2. Adaugare programe The Ultimate YOU si Personal Power in PRO
+2. **`/challenge-upsell` nu este in listele de rute permise din `ProtectedRoute`** - Dupa ce utilizatorul plateste pe Stripe si este redirectat inapoi, subscriptia lui poate sa nu fie inca sincronizata. `ProtectedRoute` il vede ca "free" si il trimite la `/pricing`, nu la upsell. Ruta `/challenge-upsell` trebuie adaugata in `FREE_TIER_ROUTES` (sau cel putin in `BASIC_ROUTES`) pentru ca oricine tocmai a platit sa poata accesa pagina.
 
-### Ce se modifica
+## Solutia
 
-**Fisier: `src/data/pricing.ts`**
+### 1. `src/components/ProtectedRoute.tsx`
+- Adaug `/challenge-upsell` in `FREE_TIER_ROUTES` (linia 16-31), pentru ca utilizatorul tocmai a platit si trebuie sa vada pagina de upsell indiferent de tier-ul curent (care poate fi inca "free" pentru cateva secunde pana se sincronizeaza webhook-ul Stripe).
 
-Se adauga doua linii noi in lista de beneficii a planului PRO (id: "pro"):
+### 2. Publicare
+- Dupa implementare, trebuie dat click pe **"Update"** in dialogul de Publish pentru ca modificarile frontend sa ajunga pe `warriorsos.com`.
 
-- In `benefitsRo` (linia ~93-104): se adauga:
-  - `"Programul The Ultimate YOU (valoare €97 - GRATUIT)"`
-  - `"Programul Personal Power (valoare €97 - GRATUIT)"`
+## Detalii tehnice
 
-- In `benefitsEn` (linia ~80-92): se adauga:
-  - `"The Ultimate YOU Program (€97 value - FREE)"`
-  - `"Personal Power Program (€97 value - FREE)"`
+Singura modificare necesara este adaugarea rutei in lista:
 
-Se vor insera dupa "Breakthrough Tools and Applied Courses" si inainte de "VIP dedicated support", pentru a fi vizibile in zona de programe/cursuri.
+```text
+FREE_TIER_ROUTES = [
+  '/dashboard',
+  '/habits',
+  '/challenge',
+  '/challenge-7-zile',
+  '/challenge-upsell',   // <-- ADAUGAT
+  '/settings',
+  ...
+]
+```
 
-### Rezultat
+Aceasta asigura ca:
+- Utilizatorul autentificat (chiar si free) poate vedea pagina de upsell
+- Pagina de upsell isi face propriul check (`isCheckoutSuccess`) si redirecteaza la `/challenge` daca nu vine de la checkout
 
-Cardurile PRO de pe `/challenge-7-zile` si din orice alta pagina de pricing vor afisa automat aceste doua programe ca beneficii incluse gratuit, deoarece `ChallengePremiumOffer.tsx` foloseste `proPlan.benefitsRo` si `proPlan.benefitsEn` direct din `pricing.ts`.
