@@ -1,5 +1,5 @@
 // Dashboard component with Vision Board integration
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Activity, Book, BookOpen, CheckCircle2, Circle, ListTodo, Dumbbell, Heart, Brain, Briefcase, PenLine, MessageSquare, Send, Handshake, ArrowRight, RefreshCw, Compass, DollarSign, Users, Clock, Award, AlertTriangle, Check, Sparkles, Calendar as CalendarIcon, History } from 'lucide-react';
@@ -8,10 +8,6 @@ import { useDoor } from '@/context/DoorContext';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trackPurchase } from '@/lib/facebook-pixel';
-import { LearnDashboard } from './LearnDashboard';
-import { WeeklyProgress } from './WeeklyProgress';
-import { MonthlyObjectives } from './MonthlyObjectives';
-import { WeeklyObjectives } from './WeeklyObjectives';
 import { useProgress } from '@/context/ProgressContext';
 import { Progress } from './ui/progress';
 import { useToast } from '@/hooks/use-toast';
@@ -24,45 +20,46 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 
-// Import directly (avoid barrel export cycles)
-import { TransformedWarrior, WarriorBadge } from '@/components/celebrations/TransformedWarrior';
-import { MediaMaster, MediaBadge } from '@/components/celebrations/MediaMaster';
-import { WarriorPowerCard } from '@/components/celebrations/WarriorPowerCard';
-import { MediaMasterCard } from '@/components/celebrations/MediaMasterCard';
-import { LevelUpCelebration } from '@/components/xp/LevelUpCelebration';
+// Eager - always visible
 import { XPPopupContainer } from '@/components/xp/XPPopup';
 import { useXPSystem } from '@/hooks/useXPSystem';
 import { XPAwardEvent } from '@/services/xpService';
 import { useStreakTracking } from '@/hooks/useStreakTracking';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { BADGES, BadgeStats } from '@/components/challenge/badges/badgeDefinitions';
-// StreakMilestoneCelebration removed
-import { BadgeUnlockCelebration } from '@/components/gamification/BadgeUnlockCelebration';
-import { RewardsShowcase } from '@/components/gamification/RewardsShowcase';
-import { ExplainerModal } from '@/components/dashboard/ExplainerModal';
-
-import { MorningRoutine } from '@/components/habits/MorningRoutine';
 import { ObjectivesCard } from '@/components/dashboard/ObjectivesCard';
-import { EveningRoutineCard } from '@/components/dashboard/EveningRoutineCard';
-import { DailyHabitsSection } from '@/components/habits/DailyHabitsSection';
-import { SundayPlanningModal } from '@/components/dashboard/SundayPlanningModal';
-
-// Onboarding components
-import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
-// FoundationNotifications removed - consolidated into AccountabilityCoachWidget
-import { SpotlightTour, DASHBOARD_TOUR_STEPS } from '@/components/onboarding/SpotlightTour';
-import { useOnboardingTour } from '@/hooks/useOnboardingTour';
-import { WeeklyPlanningNotification } from '@/components/door/WeeklyPlanningNotification';
-import { useFoundationStatus } from '@/hooks/useFoundationStatus';
-import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { WidgetGrid, WidgetSelector, DailyCommandCenterWidget } from '@/components/dashboard/widgets';
-import { ChampionRoutineWidget } from '@/components/dashboard/widgets/ChampionRoutineWidget';
+import { DailyCommandCenterWidget } from '@/components/dashboard/widgets';
 import { VisionDeclarationWidget } from '@/components/dashboard/widgets/VisionDeclarationWidget';
-
 import { EmpowermentMeditationCard } from '@/components/dashboard/EmpowermentMeditationCard';
 import { AcceleratorBanner } from '@/components/dashboard/AcceleratorBanner';
 import { EarlyBirdBanner } from '@/components/dashboard/EarlyBirdBanner';
+import { useFoundationStatus } from '@/hooks/useFoundationStatus';
+import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useOnboardingTour } from '@/hooks/useOnboardingTour';
+
+// Lazy loaded - celebrations & heavy sub-components
+const TransformedWarrior = lazy(() => import('@/components/celebrations/TransformedWarrior').then(m => ({ default: m.TransformedWarrior })));
+const MediaMaster = lazy(() => import('@/components/celebrations/MediaMaster').then(m => ({ default: m.MediaMaster })));
+const LevelUpCelebration = lazy(() => import('@/components/xp/LevelUpCelebration').then(m => ({ default: m.LevelUpCelebration })));
+const BadgeUnlockCelebration = lazy(() => import('@/components/gamification/BadgeUnlockCelebration').then(m => ({ default: m.BadgeUnlockCelebration })));
+const LearnDashboard = lazy(() => import('./LearnDashboard').then(m => ({ default: m.LearnDashboard })));
+const WeeklyProgress = lazy(() => import('./WeeklyProgress').then(m => ({ default: m.WeeklyProgress })));
+const MonthlyObjectives = lazy(() => import('./MonthlyObjectives').then(m => ({ default: m.MonthlyObjectives })));
+const WeeklyObjectives = lazy(() => import('./WeeklyObjectives').then(m => ({ default: m.WeeklyObjectives })));
+const EveningRoutineCard = lazy(() => import('@/components/dashboard/EveningRoutineCard').then(m => ({ default: m.EveningRoutineCard })));
+const SundayPlanningModal = lazy(() => import('@/components/dashboard/SundayPlanningModal').then(m => ({ default: m.SundayPlanningModal })));
+const OnboardingWizard = lazy(() => import('@/components/onboarding/OnboardingWizard').then(m => ({ default: m.OnboardingWizard })));
+const SpotlightTour = lazy(() => import('@/components/onboarding/SpotlightTour').then(m => ({ default: m.SpotlightTour })));
+const WeeklyPlanningNotification = lazy(() => import('@/components/door/WeeklyPlanningNotification').then(m => ({ default: m.WeeklyPlanningNotification })));
+const ExplainerModal = lazy(() => import('@/components/dashboard/ExplainerModal').then(m => ({ default: m.ExplainerModal })));
+const WidgetGrid = lazy(() => import('@/components/dashboard/widgets').then(m => ({ default: m.WidgetGrid })));
+const WidgetSelector = lazy(() => import('@/components/dashboard/widgets').then(m => ({ default: m.WidgetSelector })));
+const MorningRoutine = lazy(() => import('@/components/habits/MorningRoutine').then(m => ({ default: m.MorningRoutine })));
+const DailyHabitsSection = lazy(() => import('@/components/habits/DailyHabitsSection').then(m => ({ default: m.DailyHabitsSection })));
+const RewardsShowcase = lazy(() => import('@/components/gamification/RewardsShowcase').then(m => ({ default: m.RewardsShowcase })));
+
+import { DASHBOARD_TOUR_STEPS } from '@/components/onboarding/SpotlightTour';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -769,13 +766,13 @@ export const Dashboard: React.FC = () => {
   }, [selectedDay]);
   return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4">
       {/* Celebration Overlays */}
-      <TransformedWarrior isVisible={showWarriorOverlay} onClose={() => setShowWarriorOverlay(false)} />
-      <MediaMaster isVisible={showMediaOverlay} onClose={() => setShowMediaOverlay(false)} />
-      <LevelUpCelebration isOpen={showLevelUp} onClose={dismissLevelUp} newLevel={newLevel} />
+      <Suspense fallback={null}>
+        <TransformedWarrior isVisible={showWarriorOverlay} onClose={() => setShowWarriorOverlay(false)} />
+        <MediaMaster isVisible={showMediaOverlay} onClose={() => setShowMediaOverlay(false)} />
+        <LevelUpCelebration isOpen={showLevelUp} onClose={dismissLevelUp} newLevel={newLevel} />
+        <BadgeUnlockCelebration isOpen={showBadgeUnlock} onClose={() => setShowBadgeUnlock(false)} badge={unlockedBadge} />
+      </Suspense>
       <XPPopupContainer recentGain={recentXPGain} />
-      
-      {/* Badge Unlock Celebration */}
-      <BadgeUnlockCelebration isOpen={showBadgeUnlock} onClose={() => setShowBadgeUnlock(false)} badge={unlockedBadge} />
 
       {showConfetti && <div className="fixed inset-0 pointer-events-none z-50">
           <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
@@ -830,26 +827,28 @@ export const Dashboard: React.FC = () => {
       
       {/* Custom Widgets Section */}
       {getEnabledWidgets().filter(w => w.id !== 'champion-routine').length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">
-              {language === 'ro' ? 'Widget-urile Mele' : 'My Widgets'}
-            </h3>
-            <WidgetSelector widgets={widgets.filter(w => w.id !== 'champion-routine')} onToggle={toggleWidget} />
+        <Suspense fallback={<div className="h-32 animate-pulse bg-muted rounded-lg" />}>
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">
+                {language === 'ro' ? 'Widget-urile Mele' : 'My Widgets'}
+              </h3>
+              <WidgetSelector widgets={widgets.filter(w => w.id !== 'champion-routine')} onToggle={toggleWidget} />
+            </div>
+            <WidgetGrid
+              widgets={widgets.filter(w => w.id !== 'champion-routine')}
+              customWidgets={getActiveCustomWidgets()}
+              onReorder={reorderWidgets}
+              onRemove={(id) => toggleWidget(id, false)}
+              onResize={resizeWidget}
+              onRemoveCustomWidget={(id) => toggleCustomWidgetOnDashboard(id, false)}
+              streakData={{
+                currentStreak: streakData?.currentStreak || 0,
+                longestStreak: streakData?.longestStreak || 0
+              }}
+            />
           </div>
-          <WidgetGrid
-            widgets={widgets.filter(w => w.id !== 'champion-routine')}
-            customWidgets={getActiveCustomWidgets()}
-            onReorder={reorderWidgets}
-            onRemove={(id) => toggleWidget(id, false)}
-            onResize={resizeWidget}
-            onRemoveCustomWidget={(id) => toggleCustomWidgetOnDashboard(id, false)}
-            streakData={{
-              currentStreak: streakData?.currentStreak || 0,
-              longestStreak: streakData?.longestStreak || 0
-            }}
-          />
-        </div>
+        </Suspense>
       )}
       
       {/* Add Widgets Button when no widgets enabled */}
@@ -869,37 +868,31 @@ export const Dashboard: React.FC = () => {
       )}
       
       
-      {/* Evening Routine Card */}
+      {/* Evening Routine Card - lazy */}
       <div className="mb-6">
-        <EveningRoutineCard />
+        <Suspense fallback={<div className="h-32 animate-pulse bg-muted rounded-lg" />}>
+          <EveningRoutineCard />
+        </Suspense>
       </div>
       
-      {/* Sunday Planning Modal */}
-      <SundayPlanningModal 
-        isOpen={showSundayPlanning} 
-        onClose={() => setShowSundayPlanning(false)} 
-      />
-      
-      {/* Weekly Planning Notification (Monday) */}
-      <WeeklyPlanningNotification />
-      
-      {/* Onboarding Wizard */}
-      <OnboardingWizard 
-        isOpen={showOnboardingWizard} 
-        onClose={() => setShowOnboardingWizard(false)} 
-      />
-      
-      {/* Spotlight Tour for new users - works on both desktop and mobile */}
-      <SpotlightTour
-        steps={DASHBOARD_TOUR_STEPS}
-        isOpen={isTourOpen}
-        onComplete={completeTour}
-        onSkip={skipTour}
-      />
-      
-      {/* Foundation Notifications removed - consolidated into AccountabilityCoachWidget */}
-      
-      {/* Explainer Modal */}
-      <ExplainerModal open={explainerModalType !== null} onOpenChange={open => !open && setExplainerModalType(null)} type={explainerModalType || 'core4'} />
+      {/* Lazy loaded modals & notifications */}
+      <Suspense fallback={null}>
+        <SundayPlanningModal 
+          isOpen={showSundayPlanning} 
+          onClose={() => setShowSundayPlanning(false)} 
+        />
+        <WeeklyPlanningNotification />
+        <OnboardingWizard 
+          isOpen={showOnboardingWizard} 
+          onClose={() => setShowOnboardingWizard(false)} 
+        />
+        <SpotlightTour
+          steps={DASHBOARD_TOUR_STEPS}
+          isOpen={isTourOpen}
+          onComplete={completeTour}
+          onSkip={skipTour}
+        />
+        <ExplainerModal open={explainerModalType !== null} onOpenChange={open => !open && setExplainerModalType(null)} type={explainerModalType || 'core4'} />
+      </Suspense>
     </div>;
 };

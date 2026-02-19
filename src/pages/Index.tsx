@@ -1,18 +1,20 @@
 import { Helmet } from "react-helmet-async";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
-// New n8n-inspired components
+// Above the fold - eager loaded
 import { StickyHeader } from "@/components/landing/StickyHeader";
 import { NewHeroSection } from "@/components/landing/NewHeroSection";
-import { LogoCloud } from "@/components/landing/LogoCloud";
-import { FeatureShowcase } from "@/components/landing/FeatureShowcase";
-import { InteractiveTimeline } from "@/components/landing/InteractiveTimeline";
-import { TestimonialCarousel } from "@/components/landing/TestimonialCarousel";
-import { PricingComparison } from "@/components/landing/PricingComparison";
-import { FAQSection } from "@/components/landing/FAQSection";
-import { NewFooter } from "@/components/landing/NewFooter";
+
+// Below the fold - lazy loaded
+const FeatureShowcase = lazy(() => import("@/components/landing/FeatureShowcase").then(m => ({ default: m.FeatureShowcase })));
+const LogoCloud = lazy(() => import("@/components/landing/LogoCloud").then(m => ({ default: m.LogoCloud })));
+const InteractiveTimeline = lazy(() => import("@/components/landing/InteractiveTimeline").then(m => ({ default: m.InteractiveTimeline })));
+const TestimonialCarousel = lazy(() => import("@/components/landing/TestimonialCarousel").then(m => ({ default: m.TestimonialCarousel })));
+const PricingComparison = lazy(() => import("@/components/landing/PricingComparison").then(m => ({ default: m.PricingComparison })));
+const FAQSection = lazy(() => import("@/components/landing/FAQSection").then(m => ({ default: m.FAQSection })));
+const NewFooter = lazy(() => import("@/components/landing/NewFooter").then(m => ({ default: m.NewFooter })));
 
 const Index = () => {
   const { t } = useLanguage();
@@ -52,26 +54,16 @@ const Index = () => {
       {/* Hero Section */}
       <NewHeroSection />
 
-      {/* Feature Showcase - Tot ce ai nevoie pentru transformare */}
-      <FeatureShowcase />
-
-      {/* Logo Cloud / Stats */}
-      <LogoCloud />
-
-      {/* How It Works Timeline */}
-      <InteractiveTimeline />
-
-      {/* Testimonials Carousel */}
-      <TestimonialCarousel />
-
-      {/* Pricing Comparison */}
-      <PricingComparison />
-
-      {/* FAQ Section */}
-      <FAQSection />
-
-      {/* Footer */}
-      <NewFooter />
+      {/* Below the fold - lazy loaded */}
+      <Suspense fallback={<div className="min-h-[200px]" />}>
+        <FeatureShowcase />
+        <LogoCloud />
+        <InteractiveTimeline />
+        <TestimonialCarousel />
+        <PricingComparison />
+        <FAQSection />
+        <NewFooter />
+      </Suspense>
     </div>
   );
 };
