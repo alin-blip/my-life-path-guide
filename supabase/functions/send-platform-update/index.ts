@@ -18,7 +18,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "WarriorOS <noreply@warriorsos.com>",
+      from: "CEO Mind OS <noreply@ceomindos.com>",
       to: [to],
       subject,
       html,
@@ -53,7 +53,7 @@ function generatePlatformUpdateEmail(name: string | null): string {
           <tr>
             <td style="background-color: #18181b; padding: 24px 32px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 0.5px;">
-                WarriorOS
+                 CEO Mind OS
               </h1>
             </td>
           </tr>
@@ -75,7 +75,7 @@ function generatePlatformUpdateEmail(name: string | null): string {
 
               <!-- CTA -->
               <div style="text-align: center; margin: 32px 0;">
-                <a href="https://warriorsos.com/challenge?utm_source=email&utm_medium=platform_update&utm_campaign=fix_notification" 
+                <a href="https://ceomindos.com/challenge?utm_source=email&utm_medium=platform_update&utm_campaign=fix_notification" 
                    style="display: inline-block; background-color: #18181b; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">
                   Continua Challenge-ul
                 </a>
@@ -91,7 +91,7 @@ function generatePlatformUpdateEmail(name: string | null): string {
           <tr>
             <td style="padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center;">
               <p style="color: #9ca3af; margin: 0; font-size: 12px;">
-                WarriorOS &bull; warriorsos.com
+                CEO Mind OS &bull; ceomindos.com
               </p>
             </td>
           </tr>

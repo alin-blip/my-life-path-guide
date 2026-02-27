@@ -11,7 +11,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       Authorization: `Bearer ${RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: "MyLifePathGuide <noreply@my-life-path-guide.lovable.app>",
+      from: "CEO Mind OS <noreply@ceomindos.com>",
       to: [to],
       subject,
       html,

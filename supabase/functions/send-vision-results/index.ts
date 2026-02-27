@@ -105,10 +105,10 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const trackingPixel = `https://exsbnfmaadjyfblperas.supabase.co/functions/v1/track-email-open?t=${trackingId}`;
-    const unsubscribeUrl = `https://warriorsos.com/unsubscribe?email=${encodeURIComponent(email)}&sequence=vision_board`;
-    const dashboardUrl = `https://warriorsos.com/door?tab=annual&utm_source=email&utm_medium=sequence&utm_campaign=vision_board&utm_content=day1`;
-    const trialUrl = `https://warriorsos.com/auth?redirect=/door&plan=trial&utm_source=email&utm_medium=sequence&utm_campaign=vision_board&utm_content=day1`;
+     const trackingPixel = `https://exsbnfmaadjyfblperas.supabase.co/functions/v1/track-email-open?t=${trackingId}`;
+     const unsubscribeUrl = `https://ceomindos.com/unsubscribe?email=${encodeURIComponent(email)}&sequence=vision_board`;
+     const dashboardUrl = `https://ceomindos.com/door?tab=annual&utm_source=email&utm_medium=sequence&utm_campaign=vision_board&utm_content=day1`;
+     const trialUrl = `https://ceomindos.com/auth?redirect=/door&plan=trial&utm_source=email&utm_medium=sequence&utm_campaign=vision_board&utm_content=day1`;
 
     // Build vision cards HTML
     const visionCardsHtml = Object.entries(visions)
@@ -222,7 +222,7 @@ const handler = async (req: Request): Promise<Response> => {
 <!-- Footer -->
 <div style="padding: 30px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
   <p style="margin: 0 0 15px 0; color: #666; font-size: 12px;">
-    © 2025 Vision Board 2026. Toate drepturile rezervate.
+    © 2025 CEO Mind OS. Toate drepturile rezervate.
   </p>
   <p style="margin: 0; font-size: 11px;">
     <a href="${unsubscribeUrl}" style="color: #555; text-decoration: none;">Dezabonare</a>
@@ -240,7 +240,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Vision Board <alin@eduforyou.co.uk>',
+        from: 'CEO Mind OS <noreply@ceomindos.com>',
         to: [email],
         subject: `🎯 ${name}, Vision Board-ul Tău 2026 Este Gata!`,
         html: emailHtml,

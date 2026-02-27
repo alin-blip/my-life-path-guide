@@ -231,8 +231,8 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const trackingPixel = `https://exsbnfmaadjyfblperas.supabase.co/functions/v1/track-email-open?t=${trackingId}`;
-    const unsubscribeUrl = `https://warriorsos.com/unsubscribe?email=${encodeURIComponent(email)}&sequence=warrior_power`;
-    const loginUrl = `https://warriorsos.com/auth?redirect=/fact-maps&utm_source=email&utm_medium=sequence&utm_campaign=warrior_power&utm_content=day1`;
+    const unsubscribeUrl = `https://ceomindos.com/unsubscribe?email=${encodeURIComponent(email)}&sequence=warrior_power`;
+    const loginUrl = `https://ceomindos.com/auth?redirect=/fact-maps&utm_source=email&utm_medium=sequence&utm_campaign=warrior_power&utm_content=day1`;
 
     const emailHtml = `<!DOCTYPE html>
 <html>
@@ -363,8 +363,8 @@ const handler = async (req: Request): Promise<Response> => {
 
 <!-- Footer -->
 <div style="padding: 30px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
-  <p style="margin: 0 0 15px 0; color: #666; font-size: 12px;">
-    © 2025 Warrior Power. Toate drepturile rezervate.
+     <p style="margin: 0 0 15px 0; color: #666; font-size: 12px;">
+       © 2025 CEO Mind OS. Toate drepturile rezervate.
   </p>
   <p style="margin: 0; font-size: 11px;">
     <a href="${unsubscribeUrl}" style="color: #555; text-decoration: none;">Dezabonare</a>
@@ -382,7 +382,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'WarriorSOS <alin@warriorsos.com>',
+        from: 'CEO Mind OS <noreply@ceomindos.com>',
         to: [email],
         subject: `${name}, Rezultatele Tale Warrior Power - Scor: ${totalScore}/96 (${percentage}%)`,
         html: emailHtml,

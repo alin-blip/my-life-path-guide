@@ -10,7 +10,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const BASE_URL = "https://warriorsos.com";
+const BASE_URL = "https://ceomindos.com";
 
 interface EmailLead {
   id: string;
@@ -61,7 +61,7 @@ function getEmailTemplate(dayNumber: number, name: string, trackingId: string): 
     <p style="color: #888; font-size: 14px;">Mâine: Vei descoperi cum AI Coach-ul te poate ajuta să-ți atingi obiectivele mai rapid.</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 WarriorSOS. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -104,7 +104,7 @@ ${trackingPixel}
     <p style="color: #888; font-size: 14px;">Mâine: Rutina de Dimineață care te transformă în campion.</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 WarriorSOS. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -147,7 +147,7 @@ ${trackingPixel}
     <p style="color: #888; font-size: 14px;">Mâine: Sistemul Door pentru planificare săptămânală eficientă.</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 WarriorSOS. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -190,7 +190,7 @@ ${trackingPixel}
     <p style="color: #888; font-size: 14px;">Mâine: Core 4 - Cele 4 activități zilnice pentru succes garantat.</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 WarriorSOS. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -238,7 +238,7 @@ ${trackingPixel}
     <p style="color: #888; font-size: 14px;">Mâine: Oferta specială finală - alege planul potrivit pentru tine!</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 WarriorSOS. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -298,7 +298,7 @@ ${trackingPixel}
     <p style="text-align: center; color: #888; font-size: 14px;">Planul tău de Life Score este gata și te așteaptă în platformă!</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 WarriorSOS. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -382,7 +382,7 @@ const handler = async (req: Request): Promise<Response> => {
           "Authorization": `Bearer ${RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: "WarriorSOS <alin@eduforyou.co.uk>",
+          from: "CEO Mind OS <noreply@ceomindos.com>",
           to: [lead.email],
           subject: template.subject,
           html: template.html,

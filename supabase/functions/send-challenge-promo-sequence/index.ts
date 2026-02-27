@@ -20,7 +20,7 @@ const TARGET_LEAD_MAGNETS = [
 ];
 
 const SEQUENCE_TYPE = 'challenge_promo';
-const CHALLENGE_URL = 'https://warriorsos.com/challenge-7-zile';
+const CHALLENGE_URL = 'https://ceomindos.com/challenge-7-zile';
 const FUNCTIONS_URL = SUPABASE_URL?.replace('.supabase.co', '.functions.supabase.co');
 
 interface EmailContent {
@@ -55,7 +55,7 @@ function getEmailContent(emailNumber: number, name: string | null, trackingId: s
           <!-- Header -->
           <tr>
             <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #e5e7eb;">
-              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">WarriorOS</p>
+              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">CEO Mind OS</p>
               <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #111827; line-height: 1.4;">
                 ${title}
               </h1>
@@ -72,7 +72,7 @@ function getEmailContent(emailNumber: number, name: string | null, trackingId: s
           <!-- Footer -->
           <tr>
             <td style="background-color: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="color: #9ca3af; margin: 0 0 6px 0; font-size: 12px;">WarriorOS</p>
+              <p style="color: #9ca3af; margin: 0 0 6px 0; font-size: 12px;">CEO Mind OS</p>
               <a href="${unsubscribeUrl}" style="color: #9ca3af; font-size: 11px; text-decoration: underline;">Dezabonare</a>
             </td>
           </tr>
@@ -225,7 +225,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<any
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "WarriorOS <noreply@warriorsos.com>",
+      from: "CEO Mind OS <noreply@ceomindos.com>",
       to: [to],
       subject,
       html,

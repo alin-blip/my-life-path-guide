@@ -11,7 +11,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "WarriorOS <noreply@warriorsos.com>",
+      from: "CEO Mind OS <noreply@ceomindos.com>",
       to: [to],
       subject,
       html,
@@ -59,7 +59,7 @@ function generateReminderEmail(name: string | null, currentDay: ChallengeDay): s
         <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
           <tr>
             <td style="background-color: #18181b; padding: 24px 32px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600;">WarriorOS</h1>
+              <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600;">CEO Mind OS</h1>
             </td>
           </tr>
           <tr>
@@ -68,7 +68,7 @@ function generateReminderEmail(name: string | null, currentDay: ChallengeDay): s
               <h2 style="color: #1a1a1a; font-size: 20px; margin: 0 0 12px 0;">Ziua ${currentDay.day}: ${currentDay.titleRo}</h2>
               <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">${currentDay.descRo}</p>
               <div style="text-align: center; margin: 32px 0;">
-                <a href="https://warriorsos.com/challenge/${currentDay.day}" 
+                <a href="https://ceomindos.com/challenge/${currentDay.day}" 
                    style="display: inline-block; background-color: #18181b; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">
                   Incepe Ziua ${currentDay.day}
                 </a>
@@ -77,7 +77,7 @@ function generateReminderEmail(name: string | null, currentDay: ChallengeDay): s
           </tr>
           <tr>
             <td style="padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center;">
-              <p style="color: #9ca3af; margin: 0; font-size: 12px;">WarriorOS</p>
+              <p style="color: #9ca3af; margin: 0; font-size: 12px;">CEO Mind OS</p>
             </td>
           </tr>
         </table>

@@ -53,7 +53,7 @@ serve(async (req) => {
       const html = generateDay7UpgradeEmail(body.email, earlyBirdActive);
       
       const emailResult = await resend.emails.send({
-        from: "WarriorOS <noreply@warriorsos.com>",
+        from: "CEO Mind OS <noreply@ceomindos.com>",
         to: [body.email],
         subject: earlyBirdActive 
           ? "Felicitari! Ai terminat Challenge-ul — Oferta Early Bird"
@@ -129,7 +129,7 @@ serve(async (req) => {
         const html = generateDay7UpgradeEmail(sub.email, earlyBirdActive);
 
         await resend.emails.send({
-          from: "WarriorOS <noreply@warriorsos.com>",
+          from: "CEO Mind OS <noreply@ceomindos.com>",
           to: [sub.email],
           subject: earlyBirdActive 
             ? "Felicitari! Ai terminat Challenge-ul — Oferta Early Bird"
@@ -163,7 +163,7 @@ serve(async (req) => {
 });
 
 function generateDay7UpgradeEmail(email: string, earlyBirdActive: boolean): string {
-  const appUrl = "https://warriorsos.com";
+  const appUrl = "https://ceomindos.com";
   
   const earlyBirdSection = earlyBirdActive ? `
     <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
@@ -192,7 +192,7 @@ function generateDay7UpgradeEmail(email: string, earlyBirdActive: boolean): stri
           <!-- Header -->
           <tr>
             <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #e5e7eb;">
-              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">WarriorOS</p>
+              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">CEO Mind OS</p>
               <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #111827;">
                 Felicitari! Ai terminat Challenge-ul.
               </h1>
@@ -269,7 +269,7 @@ function generateDay7UpgradeEmail(email: string, earlyBirdActive: boolean): stri
           <tr>
             <td style="background-color: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
               <p style="color: #9ca3af; margin: 0 0 6px 0; font-size: 12px;">
-                WarriorOS
+                CEO Mind OS
               </p>
             </td>
           </tr>

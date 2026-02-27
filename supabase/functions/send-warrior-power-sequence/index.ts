@@ -10,7 +10,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const BASE_URL = "https://warriorsos.com";
+const BASE_URL = "https://ceomindos.com";
 
 interface EmailLead {
   id: string;
@@ -102,7 +102,7 @@ function getEmailTemplate(dayNumber: number, name: string, scores: WarriorPowerR
     <p style="color: #888; font-size: 14px;">Mâine: Vom analiza cea mai slabă dimensiune a ta și cum să o îmbunătățești.</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 Warrior Power. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -145,7 +145,7 @@ ${trackingPixel}
     <p style="color: #888; font-size: 14px;">Mâine: Rutina Campionilor de Dimineață - template-ul exact pentru succes.</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 Warrior Power. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -188,7 +188,7 @@ ${trackingPixel}
     <p style="color: #888; font-size: 14px;">Mâine: Cum să folosești AI-ul pentru transformare accelerată.</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 Warrior Power. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -232,7 +232,7 @@ ${trackingPixel}
     <p style="color: #888; font-size: 14px;">Mâine: Comunitatea Brotherhood - puterea grupului.</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 Warrior Power. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -275,7 +275,7 @@ ${trackingPixel}
     <p style="color: #888; font-size: 14px;">Mâine: Email-ul final cu oferta specială și recapitulare completă.</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 Warrior Power. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>
@@ -330,7 +330,7 @@ ${trackingPixel}
     <p style="text-align: center; color: #888; font-size: 14px;">Oferta expiră în 48 de ore.</p>
   </div>
   <div style="padding: 20px 30px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
-    <p style="margin: 0;">© 2025 Warrior Power. Toate drepturile rezervate.</p>
+    <p style="margin: 0;">© 2025 CEO Mind OS. Toate drepturile rezervate.</p>
     <p style="margin: 5px 0 0 0;"><a href="${unsubscribeUrl}" style="color: #888;">Dezabonare</a></p>
   </div>
 </div>

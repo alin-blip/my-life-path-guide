@@ -212,8 +212,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     const trackingId = crypto.randomUUID();
     const trackingPixel = `https://exsbnfmaadjyfblperas.supabase.co/functions/v1/track-email-open?t=${trackingId}`;
-    const unsubscribeUrl = `https://warriorsos.com/unsubscribe?email=${encodeURIComponent(email)}&sequence=life_score`;
-    const dashboardUrl = `https://warriorsos.com/dashboard?utm_source=email&utm_medium=results&utm_campaign=life_score`;
+     const unsubscribeUrl = `https://ceomindos.com/unsubscribe?email=${encodeURIComponent(email)}&sequence=life_score`;
+     const dashboardUrl = `https://ceomindos.com/dashboard?utm_source=email&utm_medium=results&utm_campaign=life_score`;
 
     // Build category rows
     const categoryCardsHtml = Object.entries(scores).map(([category, score]) => {
@@ -267,7 +267,7 @@ const handler = async (req: Request): Promise<Response> => {
         <!-- Header -->
         <tr>
           <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #e5e7eb;">
-            <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">WarriorOS</p>
+            <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">CEO Mind OS</p>
             <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #111827;">
               Life Score 2026
             </h1>
@@ -337,7 +337,7 @@ const handler = async (req: Request): Promise<Response> => {
         <!-- Footer -->
         <tr>
           <td style="background-color: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
-            <p style="color: #9ca3af; margin: 0 0 6px 0; font-size: 12px;">WarriorOS</p>
+            <p style="color: #9ca3af; margin: 0 0 6px 0; font-size: 12px;">CEO Mind OS</p>
             <a href="${unsubscribeUrl}" style="color: #9ca3af; font-size: 11px; text-decoration: underline;">${isRo ? 'Dezabonare' : 'Unsubscribe'}</a>
           </td>
         </tr>
@@ -356,7 +356,7 @@ const handler = async (req: Request): Promise<Response> => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'WarriorOS <noreply@warriorsos.com>',
+        from: 'CEO Mind OS <noreply@ceomindos.com>',
         to: [email],
         subject: isRo 
           ? `${name}, scorul tau Life Score 2026: ${totalScore}/20`

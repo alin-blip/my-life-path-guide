@@ -192,7 +192,7 @@ async function sendReminderEmailInternal(params: ReminderRequest): Promise<void>
       Authorization: `Bearer ${RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: "WarriorSOS <noreply@warriorsos.com>",
+      from: "CEO Mind OS <noreply@ceomindos.com>",
       to: [email],
       subject: isUrgent 
         ? `🚨 ULTIMA ORĂ: Prețul Early Bird expiră în ${timeText}!`
@@ -301,7 +301,7 @@ function generateEmailHtml(isUrgent: boolean, timeText: string, urgencyEmoji: st
 
       <!-- CTA Button -->
       <div style="text-align: center;">
-        <a href="https://warriorsos.com/pricing" 
+        <a href="https://ceomindos.com/pricing" 
            style="display: inline-block; background: linear-gradient(90deg, #f59e0b, #ea580c); color: white; padding: 16px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
           ${isUrgent ? '🔥 Asigură-ți Prețul ACUM' : '⚡ Blochează Prețul Early Bird'}
         </a>
@@ -325,10 +325,10 @@ function generateEmailHtml(isUrgent: boolean, timeText: string, urgencyEmoji: st
     <!-- Footer -->
     <div style="text-align: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
       <p style="color: #64748b; font-size: 12px; margin: 0;">
-        © 2026 WarriorSOS. Toate drepturile rezervate.
+        © 2026 CEO Mind OS. Toate drepturile rezervate.
       </p>
       <p style="color: #64748b; font-size: 11px; margin: 10px 0 0 0;">
-        Primești acest email pentru că ai un cont WarriorSOS cu Early Bird activ.
+        Primești acest email pentru că ai un cont CEO Mind OS cu Early Bird activ.
       </p>
     </div>
   </div>
