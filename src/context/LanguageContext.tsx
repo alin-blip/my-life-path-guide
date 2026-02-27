@@ -265,8 +265,8 @@ const translations: Translations = {
     "doYouWantToAddToHotList": "Do you want to add this to hot list?",
     "isThereAnythingElseToAddToHotList": "Is there anything else you want to add to hot list?",
     
-    // Landing Page - Jump to Freedom
-    "jumpToFreedom": "Jump to Freedom",
+    // Landing Page - CEO Mind OS
+    "jumpToFreedom": "CEO Mind OS",
     "haveItAll": "Have It All",
     "startNowSeeResults": "Start Now. See Results in 48 Hours.",
     "freeTrial7Days": "Free 7-day trial (card required). Zero risk. Cancel anytime during trial with no charge.",
@@ -294,11 +294,11 @@ const translations: Translations = {
     "productivityIncrease": "Productivity",
     "startMyTransformationToday": "Start My Transformation Today",
     "averageSetupTime": "Average setup time: 15 minutes",
-    "aboutJumpToFreedom": "About Jump to Freedom",
+    "aboutJumpToFreedom": "About CEO Mind OS",
     "ourMissionValues": "Our Mission & Values",
-    "aboutDescription": "Learn about Jump to Freedom's mission to help you achieve holistic success across Body, Being, Balance, and Business through proven systems and daily habits.",
+    "aboutDescription": "Learn about CEO Mind OS's mission to help you achieve holistic success across Body, Being, Balance, and Business through proven systems and daily habits.",
     "missionToHelpYou": "We're on a mission to help you break free from the trap of imbalance and build a life where you truly have it all - health, peace, love, and prosperity.",
-    "storyBehind": "The Story Behind Jump to Freedom",
+    "storyBehind": "The Story Behind CEO Mind OS",
     "purposeDriven": "Purpose-Driven",
     "purposeDrivenDesc": "Every feature is designed to help you live with intention and achieve meaningful goals across all areas of life.",
     "holisticGrowth": "Holistic Growth",
@@ -319,7 +319,7 @@ const translations: Translations = {
     "visionStatement": "A world where success is measured not by achievements in isolation, but by the harmony and fulfillment across all dimensions of life.",
     "ourCoreValues": "Our Core Values",
     "coreValuesPrinciples": "These principles guide everything we build and every decision we make.",
-    "readyToJump": "Ready to Jump to Freedom?",
+    "readyToJump": "Ready to Start CEO Mind OS?",
     "joinThousands": "Join thousands of people who have transformed their lives by mastering all four pillars. Start your 7-day free trial today.",
     "startFreeTrial": "Start Free Trial",
     "learnMore": "Learn More",
@@ -537,7 +537,7 @@ const translations: Translations = {
     "podcastDesc": "Record your weekly episode",
     "webinarDesc": "Host your weekly webinar/live",
     
-    // Menu items - LifeOS Rebrand
+    // Menu items - CEO Mind OS Rebrand
     "aiCoaches": "AI Coaches",
     "lifeVision": "Life Vision",
     "ninetyDayChallenge": "90-Day Challenge",
@@ -589,10 +589,10 @@ const translations: Translations = {
     "clearWeek": "Clear Week",
     "deleteHistory": "Delete History",
     
-    // Landing Page Hero - LifeOS Rebrand
+    // Landing Page Hero - CEO Mind OS Rebrand
     "landingHeroTitle": "<span>Success Without Sacrifice.</span>",
-    "landingHeroTitlePart2": "The AI-Powered Life Operating System",
-    "landingHeroDesc": "<span>LifeOS</span> helps entrepreneurs grow their business <span>WITHOUT</span> losing their health, relationships, or peace of mind — transform from overwhelmed to fulfilled",
+    "landingHeroTitlePart2": "The AI-Powered Founder Operating System",
+    "landingHeroDesc": "<span>CEO Mind OS</span> helps entrepreneurs grow their business <span>WITHOUT</span> losing their health, relationships, or peace of mind — transform from overwhelmed to fulfilled",
     "landingHeroTrusted": "Trusted by <span>65,000+ achievers in 40+ countries</span> • AI guidance across <span>Body, Being, Balance & Business</span> • First results in <span>48 hours</span>",
     "landingStartTrial": "Start 3-Day Trial",
     "landingSeePricing": "See Pricing & ROI",
@@ -617,9 +617,9 @@ const translations: Translations = {
     "landingPitDeserve": "I feel like I don't deserve more",
     "landingPitDeserveConsequence": "→ Perpetual self-sabotage, never reaching your potential",
     "landingPitChecked": "You checked {count} of 5 — You're in The Pit.",
-    "landingPitGoodNews": "The good news? <span>There's a way out.</span> Jump to Freedom teaches you how to escape The Pit and build real balance across Body, Being, Balance & Business.",
+    "landingPitGoodNews": "The good news? <span>There's a way out.</span> CEO Mind OS teaches you how to escape The Pit and build real balance across Body, Being, Balance & Business.",
     "landingPitCloseToEdge": "You're close to the edge of The Pit. Now is the time to build a system that <span>protects you and puts you on the path to growth.</span>",
-    "landingPitExcellent": "Excellent that you don't resonate with these symptoms! Still, Jump to Freedom teaches you <span>how to PROTECT</span> what you've built and <span>SCALE</span> without sacrificing anything.",
+    "landingPitExcellent": "Excellent that you don't resonate with these symptoms! Still, CEO Mind OS teaches you <span>how to PROTECT</span> what you've built and <span>SCALE</span> without sacrificing anything.",
     
     // Landing Page - Unique Mechanism
     "landing5Pillars": "The 5 Pillars of Freedom",
@@ -656,10 +656,10 @@ const translations: Translations = {
     "landingAverageSetupTime": "Average setup time: 15 minutes",
     
     // Landing Page - For Whom Section
-    "landingForWhomTitle": "Is Jump to Freedom Right for You?",
+    "landingForWhomTitle": "Is CEO Mind OS Right for You?",
     "landingForWhomSubtitle": "Be honest with yourself: if you see yourself in the left column, this is for you. If you're in the right column, it's <span>not yet</span> the right time.",
-    "landingIsForYou": "Jump to Freedom IS for you if:",
-    "landingNotForYou": "Jump to Freedom is NOT for you if:",
+    "landingIsForYou": "CEO Mind OS IS for you if:",
+    "landingNotForYou": "CEO Mind OS is NOT for you if:",
     "landingIdeal1": "You want to HAVE IT ALL — not just money, but health, relationships, and inner peace",
     "landingIdeal2": "You're willing to confront the truth about your current life",
     "landingIdeal3": "You want a structured system, not weekend motivation",
@@ -671,15 +671,15 @@ const translations: Translations = {
     "landingNot4": "You believe you already know everything and don't need a system",
     "landingNot5": "You're not willing to tell the truth about where you are now",
     "landingIdealSummary": "<span>In short:</span> You want a healthy body, strong relationships, spiritual clarity AND a profitable business — and you're ready to follow a complete system.",
-    "landingNotSummary": "<span>In short:</span> If you only want money without balance or you're looking for shortcuts, Jump to Freedom is not for you. Come back when you're ready for complete transformation.",
+    "landingNotSummary": "<span>In short:</span> If you only want money without balance or you're looking for shortcuts, CEO Mind OS is not for you. Come back when you're ready for complete transformation.",
     "landingForWhomFooter": "If you see yourself in the green column, start your free trial. If you're in red, save this page and come back when you're ready.",
-    "landingForWhomFooterHighlight": "Jump to Freedom only works for those who are truly ready to transform.",
+    "landingForWhomFooterHighlight": "CEO Mind OS only works for those who are truly ready to transform.",
     
     // Landing Page - Founder Section
-    "landingFounderTitle": "Why I Created Jump to Freedom",
+    "landingFounderTitle": "Why I Created CEO Mind OS",
     "landingFounderSubtitle": "The story behind the system that transforms stuck entrepreneurs into balanced leaders",
     "landingFounderName": "[Founder Name]",
-    "landingFounderRole": "Founder, Jump to Freedom",
+    "landingFounderRole": "Founder, CEO Mind OS",
     "landingFounderYears": "<span>7 years.</span> It took me 7 years to discover, test, and prove the path to true freedom.",
     "landingFounderStory1": "In 2016, I had \"everything\": €1M+ revenue, team of 15, beautiful offices. But the reality? <span>Complete burnout, 230 lbs, chronic anxiety, a wife I saw 2 hours a week</span>.",
     "landingFounderStory2": "I ended up in the hospital after an anxiety attack. Doctors told me: <span>\"If you don't change something radically, you don't have much time left.\"</span> I was 32 years old and ready to die.",
@@ -692,7 +692,7 @@ const translations: Translations = {
     "landingFounderResult4": "From toxic relationship to passionate marriage",
     "landingFounderResult5": "Father and husband guided by faith",
     "landingFounderConclusion1": "<span>Success without balance is just another form of poverty.</span> You can have millions in the bank and still be in The Pit — disconnected, desensitized, destroyed inside. I was there. <span>I don't want other men to end up where I was.</span>",
-    "landingFounderConclusion2": "I systematized everything I learned in those 7 years and transformed it into Jump to Freedom. Not because I want to sell something — because <span>I had no one to show me the way when I was in The Pit</span>. And I know that pain. <span>You now have the chance I never had.</span>",
+    "landingFounderConclusion2": "I systematized everything I learned in those 7 years and transformed it into CEO Mind OS. Not because I want to sell something — because <span>I had no one to show me the way when I was in The Pit</span>. And I know that pain. <span>You now have the chance I never had.</span>",
     "landingFounderStats": "Now the system is used by 65,000+ men in 40+ countries. Built on timeless principles, adapted for modern life.",
     
     // Landing Page - Final CTA
@@ -715,8 +715,8 @@ const translations: Translations = {
     "clickToChange": "Click to change",
     
     // Index.tsx Meta tags
-    "indexMetaTitle": "WarriorOS — Success Without Sacrifice: AI-Powered Life System for Warriors",
-    "indexMetaDescription": "WarriorOS is the AI-powered Warrior Operating System that helps entrepreneurs grow their business WITHOUT losing their health, relationships, or peace of mind. Transform all 4 life areas simultaneously.",
+    "indexMetaTitle": "CEO Mind OS — Success Without Sacrifice: AI-Powered Founder Operating System",
+    "indexMetaDescription": "CEO Mind OS is the AI-powered Founder Operating System that helps entrepreneurs grow their business WITHOUT losing their health, relationships, or peace of mind. Transform all 4 life areas simultaneously.",
     
     // HeroSection.tsx
     "heroSuccess": "Success",
@@ -733,7 +733,7 @@ const translations: Translations = {
     "hero4LifeAreas": "4 Life Areas Integrated",
     "hero90DayGuarantee": "90-Day Guarantee",
     "heroCancelAnytime": "Cancel Anytime",
-    "heroVideoCaption": "Watch: How WarriorOS transforms entrepreneurs in 90 days",
+    "heroVideoCaption": "Watch: How CEO Mind OS transforms entrepreneurs in 90 days",
     "heroUsedBy": "Used by entrepreneurs in E-commerce, SaaS, Consulting, Real Estate",
     
     // ChampionRoutine STEP_LABELS
@@ -774,9 +774,9 @@ const translations: Translations = {
   },
   ro: {
     // Brand
-    "appName": "LifeOS",
-    "appTagline": "Succes Fără Sacrificiu",
-    "appDescription": "Sistemul de operare pentru viață, alimentat de AI, pentru antreprenori care vor totul",
+    "appName": "CEO Mind OS",
+    "appTagline": "The Founder Operating System",
+    "appDescription": "Sistemul de operare pentru fondatori, alimentat de AI, pentru antreprenori care vor totul",
     
     // Auth page
     "becomeTheWarrior": "Devino Războinicul",
@@ -1025,8 +1025,8 @@ const translations: Translations = {
     "doYouWantToAddToHotList": "Vrei să adaugi asta la lista fierbinte?",
     "isThereAnythingElseToAddToHotList": "Mai este ceva ce vrei să adaugi la lista fierbinte?",
     
-    // Landing Page - Jump to Freedom
-    "jumpToFreedom": "Salt către Libertate",
+    // Landing Page - CEO Mind OS
+    "jumpToFreedom": "CEO Mind OS",
     "haveItAll": "Ai Tot ce Vrei",
     "startNowSeeResults": "Începe Acum. Vezi Rezultate în 48 de Ore.",
     "freeTrial7Days": "Trial gratuit 7 zile (card necesar). Zero risc. Anulezi oricând în perioada de probă fără taxare.",
@@ -1054,11 +1054,11 @@ const translations: Translations = {
     "productivityIncrease": "Productivitate",
     "startMyTransformationToday": "Începe-mi Transformarea Astăzi",
     "averageSetupTime": "Timp mediu de setup: 15 minute",
-    "aboutJumpToFreedom": "Despre Jump to Freedom",
+    "aboutJumpToFreedom": "Despre CEO Mind OS",
     "ourMissionValues": "Misiunea și Valorile Noastre",
-    "aboutDescription": "Află despre misiunea Jump to Freedom de a te ajuta să atingi succesul holistic în Corp, Ființă, Echilibru și Afaceri prin sisteme dovedite și obiceiuri zilnice.",
+    "aboutDescription": "Află despre misiunea CEO Mind OS de a te ajuta să atingi succesul holistic în Corp, Ființă, Echilibru și Afaceri prin sisteme dovedite și obiceiuri zilnice.",
     "missionToHelpYou": "Suntem pe o misiune de a te ajuta să te eliberezi din capcana dezechilibrului și să construiești o viață în care ai cu adevărat totul - sănătate, pace, iubire și prosperitate.",
-    "storyBehind": "Povestea din Spatele Jump to Freedom",
+    "storyBehind": "Povestea din Spatele CEO Mind OS",
     "purposeDriven": "Orientat spre Scop",
     "purposeDrivenDesc": "Fiecare funcționalitate este concepută pentru a te ajuta să trăiești cu intenție și să atingi obiective semnificative în toate ariile vieții.",
     "holisticGrowth": "Creștere Holistică",
@@ -1079,7 +1079,7 @@ const translations: Translations = {
     "visionStatement": "O lume în care succesul este măsurat nu prin realizări izolate, ci prin armonie și împlinire în toate dimensiunile vieții.",
     "ourCoreValues": "Valorile Noastre de Bază",
     "coreValuesPrinciples": "Aceste principii ghidează tot ce construim și fiecare decizie pe care o luăm.",
-    "readyToJump": "Ești Gata să Sari către Libertate?",
+    "readyToJump": "Ești Gata să Începi cu CEO Mind OS?",
     "joinThousands": "Alătură-te miilor de oameni care și-au transformat viețile prin stăpânirea tuturor celor patru piloni. Începe trial-ul gratuit de 7 zile astăzi.",
     "startFreeTrial": "Începe Trial Gratuit",
     "learnMore": "Află Mai Multe",
@@ -1297,7 +1297,7 @@ const translations: Translations = {
     "podcastDesc": "Înregistrează episodul săptămânal",
     "webinarDesc": "Ține webinarul/live-ul săptămânal",
     
-    // Menu items - LifeOS Rebrand
+    // Menu items - CEO Mind OS Rebrand
     "aiCoaches": "Antrenori AI",
     "lifeVision": "Viziunea Vieții",
     "ninetyDayChallenge": "Provocarea de 90 Zile",
@@ -1356,8 +1356,8 @@ const translations: Translations = {
     "clickToChange": "Click pentru a schimba",
     
     // Index.tsx Meta tags
-    "indexMetaTitle": "WarriorOS — Succes Fără Sacrificiu: Sistem de Viață cu AI pentru Războinici",
-    "indexMetaDescription": "WarriorOS este sistemul de operare Războinic alimentat de AI care ajută antreprenorii să-și crească afacerea FĂRĂ să-și piardă sănătatea, relațiile sau pacea sufletească. Transformă toate cele 4 arii ale vieții simultan.",
+    "indexMetaTitle": "CEO Mind OS — Succes Fără Sacrificiu: Sistemul de Operare pentru Fondatori, cu AI",
+    "indexMetaDescription": "CEO Mind OS este sistemul de operare pentru fondatori, alimentat de AI, care ajută antreprenorii să-și crească afacerea FĂRĂ să-și piardă sănătatea, relațiile sau pacea sufletească. Transformă toate cele 4 arii ale vieții simultan.",
     
     // HeroSection.tsx
     "heroSuccess": "Succes",
@@ -1374,7 +1374,7 @@ const translations: Translations = {
     "hero4LifeAreas": "4 Arii de Viață Integrate",
     "hero90DayGuarantee": "Garanție 90 Zile",
     "heroCancelAnytime": "Anulezi Oricând",
-    "heroVideoCaption": "Vezi: Cum WarriorOS transformă antreprenorii în 90 de zile",
+    "heroVideoCaption": "Vezi: Cum CEO Mind OS transformă antreprenorii în 90 de zile",
     "heroUsedBy": "Folosit de antreprenori din E-commerce, SaaS, Consulting, Imobiliare",
     
     // ChampionRoutine STEP_LABELS
@@ -1413,10 +1413,10 @@ const translations: Translations = {
     "footerLogin": "Autentificare",
     "footerAllRightsReserved": "Toate drepturile rezervate.",
     
-    // Landing Page Hero - LifeOS Rebrand
+    // Landing Page Hero - CEO Mind OS Rebrand
     "landingHeroTitle": "<span>Succes Fără Sacrificiu.</span>",
-    "landingHeroTitlePart2": "Sistemul de Operare pentru Viață, cu AI",
-    "landingHeroDesc": "<span>LifeOS</span> ajută antreprenorii să își crească afacerea <span>FĂRĂ</span> să își piardă sănătatea, relațiile sau pacea sufletească — transformă-te din copleșit în împlinit",
+    "landingHeroTitlePart2": "Sistemul de Operare pentru Fondatori, cu AI",
+    "landingHeroDesc": "<span>CEO Mind OS</span> ajută antreprenorii să își crească afacerea <span>FĂRĂ</span> să își piardă sănătatea, relațiile sau pacea sufletească — transformă-te din copleșit în împlinit",
     "landingHeroTrusted": "De încredere pentru <span>65.000+ oameni de succes din 40+ țări</span> • Ghidare AI pentru <span>Corp, Ființă, Echilibru & Afaceri</span> • Primele rezultate în <span>48 de ore</span>",
     "landingStartTrial": "Începe Trial de 3 Zile",
     "landingSeePricing": "Vezi Pricing & ROI",
@@ -1441,9 +1441,9 @@ const translations: Translations = {
     "landingPitDeserve": "Simt că nu merit mai mult",
     "landingPitDeserveConsequence": "→ Auto-sabotaj perpetuu, nu îți atingi niciodată potențialul",
     "landingPitChecked": "Ai bifat {count} din 5 — Ești în Groapă.",
-    "landingPitGoodNews": "Vestea bună? <span>Există o cale de ieșire.</span> Jump to Freedom te învață cum să scapi din Groapă și să construiești echilibru real în Corp, Ființă, Echilibru & Afaceri.",
+    "landingPitGoodNews": "Vestea bună? <span>Există o cale de ieșire.</span> CEO Mind OS te învață cum să scapi din Groapă și să construiești echilibru real în Corp, Ființă, Echilibru & Afaceri.",
     "landingPitCloseToEdge": "Ești aproape de marginea Gropii. Acum e timpul să construiești un sistem care <span>te protejează și te pune pe calea creșterii.</span>",
-    "landingPitExcellent": "Excelent că nu rezonezi cu aceste simptome! Totuși, Jump to Freedom te învață <span>cum să PROTEJEZI</span> ce ai construit și <span>să SCALEZI</span> fără să sacrifici nimic.",
+    "landingPitExcellent": "Excelent că nu rezonezi cu aceste simptome! Totuși, CEO Mind OS te învață <span>cum să PROTEJEZI</span> ce ai construit și <span>să SCALEZI</span> fără să sacrifici nimic.",
     
     // Landing Page - Unique Mechanism
     "landing5Pillars": "Cele 5 Piloni ai Libertății",
@@ -1480,10 +1480,10 @@ const translations: Translations = {
     "landingAverageSetupTime": "Timp mediu de configurare: 15 minute",
     
     // Landing Page - For Whom Section
-    "landingForWhomTitle": "Este Jump to Freedom Potrivit pentru Tine?",
+    "landingForWhomTitle": "Este CEO Mind OS Potrivit pentru Tine?",
     "landingForWhomSubtitle": "Fii sincer cu tine: dacă te vezi în coloana din stânga, asta e pentru tine. Dacă ești în coloana din dreapta, <span>nu e încă</span> momentul potrivit.",
-    "landingIsForYou": "Jump to Freedom ESTE pentru tine dacă:",
-    "landingNotForYou": "Jump to Freedom NU este pentru tine dacă:",
+    "landingIsForYou": "CEO Mind OS ESTE pentru tine dacă:",
+    "landingNotForYou": "CEO Mind OS NU este pentru tine dacă:",
     "landingIdeal1": "Vrei să ai TOTUL — nu doar bani, ci sănătate, relații și pace interioară",
     "landingIdeal2": "Ești dispus să confrunți adevărul despre viața ta actuală",
     "landingIdeal3": "Vrei un sistem structurat, nu motivație de weekend",
@@ -1495,15 +1495,15 @@ const translations: Translations = {
     "landingNot4": "Crezi că știi deja totul și nu ai nevoie de un sistem",
     "landingNot5": "Nu ești dispus să spui adevărul despre unde ești acum",
     "landingIdealSummary": "<span>Pe scurt:</span> Vrei un corp sănătos, relații puternice, claritate spirituală ȘI o afacere profitabilă — și ești gata să urmezi un sistem complet.",
-    "landingNotSummary": "<span>Pe scurt:</span> Dacă vrei doar bani fără echilibru sau cauți scurtături, Jump to Freedom nu e pentru tine. Revino când ești gata pentru transformare completă.",
+    "landingNotSummary": "<span>Pe scurt:</span> Dacă vrei doar bani fără echilibru sau cauți scurtături, CEO Mind OS nu e pentru tine. Revino când ești gata pentru transformare completă.",
     "landingForWhomFooter": "Dacă te vezi în coloana verde, începe trial-ul gratuit. Dacă ești în roșu, salvează această pagină și revino când ești pregătit.",
-    "landingForWhomFooterHighlight": "Jump to Freedom funcționează doar pentru cei care sunt cu adevărat gata să se transforme.",
+    "landingForWhomFooterHighlight": "CEO Mind OS funcționează doar pentru cei care sunt cu adevărat gata să se transforme.",
     
     // Landing Page - Founder Section
-    "landingFounderTitle": "De Ce Am Creat Jump to Freedom",
+    "landingFounderTitle": "De Ce Am Creat CEO Mind OS",
     "landingFounderSubtitle": "Povestea din spatele sistemului care transformă antreprenorii blocați în lideri echilibrați",
     "landingFounderName": "[Nume Fondator]",
-    "landingFounderRole": "Fondator, Jump to Freedom",
+    "landingFounderRole": "Fondator, CEO Mind OS",
     "landingFounderYears": "<span>7 ani.</span> Mi-au trebuit 7 ani să descopăr, testez și dovedesc calea către libertatea adevărată.",
     "landingFounderStory1": "În 2016, aveam \"totul\": venituri de €1M+, echipă de 15, birouri frumoase. Dar realitatea? <span>Burnout complet, 105 kg, anxietate cronică, o soție pe care o vedeam 2 ore pe săptămână</span>.",
     "landingFounderStory2": "Am ajuns la spital după un atac de anxietate. Doctorii mi-au spus: <span>\"Dacă nu schimbi ceva radical, nu mai ai mult timp.\"</span> Aveam 32 de ani și eram gata să mor.",
@@ -1516,7 +1516,7 @@ const translations: Translations = {
     "landingFounderResult4": "De la relație toxică la căsătorie pasională",
     "landingFounderResult5": "Tată și soț ghidat de credință",
     "landingFounderConclusion1": "<span>Succesul fără echilibru e doar o altă formă de sărăcie.</span> Poți avea milioane în bancă și tot să fii în Groapă — deconectat, desensibilizat, distrus în interior. Eu am fost acolo. <span>Nu vreau ca alți bărbați să ajungă unde am fost eu.</span>",
-    "landingFounderConclusion2": "Am sistematizat tot ce am învățat în acei 7 ani și l-am transformat în Jump to Freedom. Nu pentru că vreau să vând ceva — pentru că <span>nu am avut pe nimeni să-mi arate calea când eram în Groapă</span>. Și cunosc acea durere. <span>Tu ai acum șansa pe care eu nu am avut-o niciodată.</span>",
+    "landingFounderConclusion2": "Am sistematizat tot ce am învățat în acei 7 ani și l-am transformat în CEO Mind OS. Nu pentru că vreau să vând ceva — pentru că <span>nu am avut pe nimeni să-mi arate calea când eram în Groapă</span>. Și cunosc acea durere. <span>Tu ai acum șansa pe care eu nu am avut-o niciodată.</span>",
     "landingFounderStats": "Acum sistemul este folosit de 65.000+ bărbați în 40+ țări. Construit pe principii atemporale, adaptat pentru viața modernă.",
     
     // Landing Page - Final CTA

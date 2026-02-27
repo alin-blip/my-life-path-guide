@@ -173,8 +173,8 @@ export default function ChallengeLanding() {
   const content = {
     meta: {
       title: isRo 
-        ? "Have It All Lifestyle Challenge - 7 Zile de Transformare | WarriorOS" 
-        : "Have It All Lifestyle Challenge - 7 Days of Transformation | WarriorOS",
+        ? "Have It All Lifestyle Challenge - 7 Zile de Transformare | CEO Mind OS" 
+        : "Have It All Lifestyle Challenge - 7 Days of Transformation | CEO Mind OS",
       description: isRo
         ? "Transformă-ți viața în 7 zile. Corp, Spirit, Relații și Business - toate în echilibru perfect. Începe gratuit!"
         : "Transform your life in 7 days. Body, Mind, Relationships and Business - all in perfect balance. Start free!"

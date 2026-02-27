@@ -81,7 +81,7 @@ const Core4LeadMagnet = () => {
   return (
     <>
       <Helmet>
-        <title>CORE 4 Framework - Free PDF Download | LifeOS</title>
+        <title>CORE 4 Framework - Free PDF Download | CEO Mind OS</title>
         <meta name="description" content="Download the free CORE 4 Framework PDF and learn how to master your day with 4 simple daily actions." />
       </Helmet>
 

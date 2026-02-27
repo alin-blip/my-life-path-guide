@@ -65,7 +65,7 @@ export const Core4Section = () => {
         </h2>
         <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
           True wealth means abundance in ALL areas — not sacrificing one for another. 
-          <span className="font-semibold text-slate-800"> Jump to Freedom</span> builds all four simultaneously.
+          <span className="font-semibold text-slate-800"> CEO Mind OS</span> builds all four simultaneously.
         </p>
       </div>
 
@@ -182,7 +182,7 @@ export const Core4Section = () => {
               </p>
               <p className="text-sm md:text-lg font-bold text-slate-900">
                 You don't choose between areas — you build them simultaneously. 
-                <span className="text-primary"> That's the Jump to Freedom difference.</span>
+                <span className="text-primary"> That's the CEO Mind OS difference.</span>
               </p>
             </Card>
           </div>
@@ -191,7 +191,7 @@ export const Core4Section = () => {
 
       <Card className="bg-gradient-to-r from-emerald-50 via-violet-50 to-blue-50 border-2 border-primary/40 p-5 md:p-8 max-w-4xl mx-auto mt-6 md:mt-8 shadow-lg">
         <p className="text-base md:text-lg text-slate-900 font-bold text-center mb-2 md:mb-3">
-          🦅 The Jump to Freedom Philosophy: SIMULTANEOUS Progress in All 4 Pillars
+          🦅 The CEO Mind OS Philosophy: SIMULTANEOUS Progress in All 4 Pillars
         </p>
         <p className="text-sm md:text-base text-slate-600 text-center leading-relaxed">
           <span className="text-slate-900 font-semibold">Don't sacrifice body for money.</span> Don't sacrifice family for success. 

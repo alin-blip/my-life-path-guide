@@ -44,7 +44,7 @@ const QuickQuiz = () => {
     subtitle: language === 'ro' 
       ? 'Răspunde la 3 întrebări pentru a primi planul tău personalizat'
       : 'Answer 3 questions to get your personalized plan',
-    metaTitle: language === 'ro' ? 'Evaluare Rapidă | WarriorOS' : 'Quick Assessment | WarriorOS',
+    metaTitle: language === 'ro' ? 'Evaluare Rapidă | CEO Mind OS' : 'Quick Assessment | CEO Mind OS',
     metaDesc: language === 'ro' 
       ? 'Descoperă-ți scorul Warrior și primește un plan personalizat în 60 de secunde.'
       : 'Discover your Warrior score and get a personalized plan in 60 seconds.',

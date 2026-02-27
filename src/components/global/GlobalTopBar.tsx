@@ -53,7 +53,7 @@ export const GlobalTopBar: React.FC = () => {
             className="h-7 w-auto"
           />
           {!isMobile && (
-            <span className="font-display font-bold text-lg gradient-text">WarriorOS</span>
+            <span className="font-display font-bold text-lg gradient-text">CEO Mind OS</span>
           )}
         </Link>
 

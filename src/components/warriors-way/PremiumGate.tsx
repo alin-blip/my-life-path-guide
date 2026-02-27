@@ -11,7 +11,7 @@ interface PremiumGateProps {
 
 const ELITE_BENEFITS = [
   'Acces la toate cele 47+ lecții video premium',
-  'Platformă completă WarriorOS Pro',
+  'Platformă completă CEO Mind OS Pro',
   'Champion Routine - Morning routine AI-guided',
   'The Door - Sistemul de planificare săptămânală',
   '4 Coachi AI pentru Corp, Mindset, Relații, Business',
