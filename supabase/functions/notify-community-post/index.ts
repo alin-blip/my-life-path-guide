@@ -68,19 +68,19 @@ serve(async (req: Request) => {
       const batch = emails.slice(i, i + 50);
       try {
         await resend.emails.send({
-          from: 'WarriorOS Community <noreply@warrioros.com>',
+          from: 'CEO Mind OS <noreply@ceomindos.com>',
           to: batch,
           subject: '📢 Postare nouă în comunitate',
           html: `
             <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h2 style="color: #f59e0b;">⚔️ WarriorOS Community</h2>
+              <h2 style="color: #f59e0b;">🚀 CEO Mind OS Community</h2>
               <p style="font-size: 16px; line-height: 1.6; color: #374151;">${preview}</p>
               <a href="https://my-life-path-guide.lovable.app/programs?tab=community" 
                  style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: linear-gradient(135deg, #f59e0b, #ea580c); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
                 Vezi postarea →
               </a>
               <p style="margin-top: 24px; font-size: 12px; color: #9ca3af;">
-                Primești acest email deoarece ești membru al comunității WarriorOS.
+                Primești acest email deoarece ești membru al comunității CEO Mind OS.
               </p>
             </div>
           `,

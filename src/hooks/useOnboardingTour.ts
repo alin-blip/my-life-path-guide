@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTourContext } from '@/context/TourContext';
 
-const TOUR_STORAGE_KEY = 'warrioros-onboarding-tour-completed';
-const TOUR_SKIPPED_KEY = 'warrioros-onboarding-tour-skipped';
+const TOUR_STORAGE_KEY = 'ceomindos-onboarding-tour-completed';
+const TOUR_SKIPPED_KEY = 'ceomindos-onboarding-tour-skipped';
 
 interface UseOnboardingTourReturn {
   isTourOpen: boolean;

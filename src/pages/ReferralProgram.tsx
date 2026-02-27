@@ -170,7 +170,7 @@ const ReferralProgram = () => {
   return (
     <>
       <Helmet>
-        <title>{t.title} | WarriorOS</title>
+        <title>{t.title} | CEO Mind OS</title>
         <meta name="description" content={t.heroDescription} />
       </Helmet>
 

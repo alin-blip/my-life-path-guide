@@ -11,8 +11,8 @@ export const TestimonialCarousel = () => {
       handle: "@alexandru_m",
       avatar: "🧔",
       quote: language === 'ro'
-        ? "Am trecut de la 70h/săptămână la 45h cu rezultate mai bune. WarriorOS m-a ajutat să înțeleg că productivitatea nu înseamnă ore, ci claritate."
-        : "I went from 70h/week to 45h with better results. WarriorOS helped me understand that productivity is not about hours, but clarity.",
+        ? "Am trecut de la 70h/săptămână la 45h cu rezultate mai bune. CEO Mind OS m-a ajutat să înțeleg că productivitatea nu înseamnă ore, ci claritate."
+        : "I went from 70h/week to 45h with better results. CEO Mind OS helped me understand that productivity is not about hours, but clarity.",
       rating: 5,
     },
     {

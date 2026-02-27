@@ -4,7 +4,7 @@ import { Clock, Flame, Zap } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 const EARLY_BIRD_DURATION_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
-const STORAGE_KEY = 'warrioros_early_bird_start';
+const STORAGE_KEY = 'ceomindos_early_bird_start';
 
 interface TimeLeft {
   days: number;

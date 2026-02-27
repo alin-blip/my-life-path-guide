@@ -63,7 +63,7 @@ const LifeScore = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950">
         <Helmet>
-          <title>{language === 'en' ? 'Life Score 60s Quiz | LifeOS' : 'Quiz Life Score 60s | LifeOS'}</title>
+          <title>{language === 'en' ? 'Life Score 60s Quiz | CEO Mind OS' : 'Quiz Life Score 60s | CEO Mind OS'}</title>
         </Helmet>
         
         <div className="absolute top-4 right-4 z-10">
@@ -80,7 +80,7 @@ const LifeScore = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 overflow-hidden">
       <Helmet>
-        <title>{language === 'en' ? 'Life Score 60s - Quick Life Assessment | LifeOS' : 'Life Score 60s - Evaluare Rapidă | LifeOS'}</title>
+        <title>{language === 'en' ? 'Life Score 60s - Quick Life Assessment | CEO Mind OS' : 'Life Score 60s - Evaluare Rapidă | CEO Mind OS'}</title>
         <meta 
           name="description" 
           content={language === 'en' 
