@@ -115,7 +115,7 @@ export const AIChat: React.FC = () => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2">
           <Bot className="w-5 h-5 text-primary" />
-          Chat cu AI-ul RoWarrior
+          Chat cu AI-ul CEO Mind OS
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col">
@@ -125,7 +125,7 @@ export const AIChat: React.FC = () => {
               <div className="text-center space-y-2">
                 <Bot className="w-12 h-12 mx-auto opacity-50" />
                 <p>Salut! Sunt AI-ul tău pentru content creation.</p>
-                <p className="text-sm">Întreabă-mă orice despre platforma RoWarrior!</p>
+                <p className="text-sm">Întreabă-mă orice despre platforma CEO Mind OS!</p>
               </div>
             </div>
           ) : (

@@ -89,11 +89,11 @@ export const InteractiveROI = () => {
               />
               <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <div className="bg-red-50 border border-red-200 p-3 rounded">
-                  <p className="font-semibold text-red-600 mb-1">❌ Fără RoWarrior:</p>
+                  <p className="font-semibold text-red-600 mb-1">❌ Fără CEO Mind OS:</p>
                   <p className="text-slate-600">{area.without}</p>
                 </div>
                 <div className="bg-blue-50 border border-primary/30 p-3 rounded">
-                  <p className="font-semibold text-primary mb-1">✅ Cu RoWarrior:</p>
+                  <p className="font-semibold text-primary mb-1">✅ Cu CEO Mind OS:</p>
                   <p className="text-slate-600">{area.with}</p>
                 </div>
               </div>

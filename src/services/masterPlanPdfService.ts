@@ -253,7 +253,7 @@ export const masterPlanPdfService = {
     yPosition += 15;
 
     // Footer with date
-    const footer = `Generat la ${new Date().toLocaleDateString('ro-RO')} • RoWarrior Napoleon Hill System`;
+    const footer = `Generat la ${new Date().toLocaleDateString('ro-RO')} • CEO Mind OS Napoleon Hill System`;
     pdf.setFontSize(9);
     pdf.setTextColor(150, 150, 150);
     pdf.text(footer, pageWidth / 2, pageHeight - 10, { align: 'center' });

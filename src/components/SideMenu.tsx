@@ -344,12 +344,12 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         <Link to="/" className="flex items-center justify-center md:justify-start gap-3">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
-            alt="WarriorOS logo"
+            alt="CEO Mind OS logo"
             loading="lazy"
             className={`${isCollapsed ? 'h-7 w-auto' : 'h-10 w-auto'} drop-shadow`}
           />
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-xl gradient-text">WarriorOS</h1>
+            <h1 className="font-display font-bold text-xl gradient-text">CEO Mind OS</h1>
           )}
         </Link>
       </div>

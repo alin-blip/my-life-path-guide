@@ -942,7 +942,7 @@ Răspunde în română cu un ton cald și profesionist.`;
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Sesiune ${stackTitle} - RoWarrior`,
+          title: `Sesiune ${stackTitle} - CEO Mind OS`,
           text: shareText,
           url: window.location.href
         });

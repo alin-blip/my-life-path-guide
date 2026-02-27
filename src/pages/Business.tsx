@@ -8,7 +8,7 @@ import { Briefcase, Target, BarChart3, BookOpen, TrendingUp } from "lucide-react
 
 const Business: React.FC = () => {
   useEffect(() => {
-    document.title = "RoWarrior – Secțiunea Business";
+    document.title = "CEO Mind OS – Secțiunea Business";
   }, []);
 
   return (
@@ -43,7 +43,7 @@ const Business: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-4">Feedback strategic brutal despre RoWarrior din perspectiva lui Alex Hormozi.</p>
+              <p className="text-muted-foreground mb-4">Feedback strategic brutal despre CEO Mind OS din perspectiva lui Alex Hormozi.</p>
               <Link to="/business/hormozi-analysis">
                 <Button variant="outline">Generează Analiza</Button>
               </Link>

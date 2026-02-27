@@ -19,7 +19,7 @@ export const AdminAIStudio: React.FC = () => {
         </div>
         <div>
           <h2 className="text-2xl font-bold">AI Content Studio</h2>
-          <p className="text-muted-foreground">Creează conținut pentru RoWarrior cu ajutorul AI</p>
+          <p className="text-muted-foreground">Creează conținut pentru CEO Mind OS cu ajutorul AI</p>
         </div>
       </div>
 

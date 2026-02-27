@@ -132,7 +132,7 @@ serve(async (req) => {
     // ========== BUILD SYSTEM PROMPT WITH CONTEXT ==========
     
     const defaultSystemPrompt = language === 'ro' 
-      ? `Tu ești Accountability Coach-ul personal al utilizatorului în platforma LifeOS.
+      ? `Tu ești Accountability Coach-ul personal al utilizatorului în platforma CEO Mind OS.
 
 ROLUL TĂU:
 1. Reamintești ce are de făcut - obiective, task-uri, rutina
@@ -154,7 +154,7 @@ REGULI:
 - Când nu știi ceva, întreabă
 - FOLOSEȘTE CONTEXTUL de mai jos pentru a da sfaturi personalizate
 ${userContext}`
-      : `You are the user's personal Accountability Coach in the LifeOS platform.
+      : `You are the user's personal Accountability Coach in the CEO Mind OS platform.
 
 YOUR ROLE:
 1. Remind what needs to be done - objectives, tasks, routine

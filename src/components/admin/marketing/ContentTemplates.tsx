@@ -198,8 +198,8 @@ In this video, I break down the exact system I use to manage my entire life - bu
 - CORE 4 Framework PDF: {{lead_magnet_link}}
 
 📱 Connect with me:
-- Instagram: @lifeos
-- Twitter: @lifeos
+- Instagram: @ceomindos
+- Twitter: @ceomindos
 
 #productivity #entrepreneur #lifehacks #personaldevelopment`,
     variables: ['video_title', 'timestamps', 'product_name', 'link', 'lead_magnet_link'],

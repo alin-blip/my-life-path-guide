@@ -42,14 +42,14 @@ const Pricing: React.FC = () => {
 
   const texts = {
     pageTitle: language === 'en' 
-      ? "WarriorOS Memberships — Free, Basic & Pro" 
-      : "Membership WarriorOS — Gratuit, Basic & Pro",
+      ? "CEO Mind OS Memberships — Free, Basic & Pro" 
+      : "Membership CEO Mind OS — Gratuit, Basic & Pro",
     metaDescription: language === 'en'
-      ? "WarriorOS memberships: Free 3-day trial, Basic (€49) with full platform, Pro (€97) with 7-day trial & Live Coaching."
-      : "Membership WarriorOS: Trial gratuit 3 zile, Basic (€49) cu platformă completă, Pro (€97) cu trial 7 zile & Coaching LIVE.",
+      ? "CEO Mind OS memberships: Free 3-day trial, Basic (€49) with full platform, Pro (€97) with 7-day trial & Live Coaching."
+      : "Membership CEO Mind OS: Trial gratuit 3 zile, Basic (€49) cu platformă completă, Pro (€97) cu trial 7 zile & Coaching LIVE.",
     heroTitle: language === 'en'
-      ? "Choose Your Warrior Path"
-      : "Alege Drumul Tău de Războinic",
+      ? "Choose Your Path"
+      : "Alege Drumul Tău",
     heroSubtitle: language === 'en'
       ? "3 simple plans. Clear value. Transform your life in all 4 dimensions."
       : "3 planuri simple. Valoare clară. Transformă-ți viața în toate cele 4 dimensiuni.",
