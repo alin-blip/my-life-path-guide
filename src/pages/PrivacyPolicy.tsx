@@ -13,7 +13,7 @@ const PrivacyPolicy = () => {
       id: 'overview',
       title: '1. Overview',
       icon: Shield,
-      content: `Jump to Freedom ("we", "us", "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use our platform.
+      content: `CEO Mind OS ("we", "us", "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use our platform.
 
 This policy applies to all users of our services and complies with the General Data Protection Regulation (GDPR) and other applicable data protection laws.`
     },
@@ -126,7 +126,7 @@ When you delete your account, we will delete or anonymize your personal data wit
 **Right to Object** - Object to certain types of processing
 **Right to Withdraw Consent** - Withdraw consent at any time
 
-To exercise these rights, contact us at support@jumptofreedom.ro`
+To exercise these rights, contact us at support@ceomindos.com`
     },
     {
       id: 'cookies',
@@ -162,7 +162,7 @@ Voice recordings can be downloaded individually from the platform.`
       icon: Mail,
       content: `For privacy-related inquiries or to exercise your rights:
 
-**Email:** support@jumptofreedom.ro
+**Email:** support@ceomindos.com
 **Support Page:** /support
 
 We will respond to all privacy requests within 30 days as required by GDPR.
@@ -174,7 +174,7 @@ If you believe we have not adequately addressed your privacy concerns, you have 
       id: 'overview',
       title: '1. Prezentare Generală',
       icon: Shield,
-      content: `Jump to Freedom ("noi", "nouă", "nostru/noastră") se angajează să vă protejeze confidențialitatea. Această Politică de Confidențialitate explică cum colectăm, folosim, stocăm și protejăm informațiile dvs. personale când utilizați platforma noastră.
+      content: `CEO Mind OS ("noi", "nouă", "nostru/noastră") se angajează să vă protejeze confidențialitatea. Această Politică de Confidențialitate explică cum colectăm, folosim, stocăm și protejăm informațiile dvs. personale când utilizați platforma noastră.
 
 Această politică se aplică tuturor utilizatorilor serviciilor noastre și respectă Regulamentul General privind Protecția Datelor (GDPR) și alte legi aplicabile privind protecția datelor.`
     },
@@ -287,7 +287,7 @@ Când îți ștergi contul, vom șterge sau anonimiza datele tale personale în 
 **Dreptul de Opoziție** - Opune-te anumitor tipuri de procesare
 **Dreptul de Retragere a Consimțământului** - Retrage consimțământul în orice moment
 
-Pentru a exercita aceste drepturi, contactează-ne la support@jumptofreedom.ro`
+Pentru a exercita aceste drepturi, contactează-ne la support@ceomindos.com`
     },
     {
       id: 'cookies',
@@ -323,7 +323,7 @@ Poți gestiona cookie-urile prin setările browserului. Notă că dezactivarea c
       icon: Mail,
       content: `Pentru întrebări legate de confidențialitate sau pentru a-ți exercita drepturile:
 
-**Email:** support@jumptofreedom.ro
+**Email:** support@ceomindos.com
 **Pagina de Suport:** /support
 
 Vom răspunde la toate solicitările de confidențialitate în termen de 30 de zile, conform cerințelor GDPR.
@@ -335,8 +335,8 @@ Dacă crezi că nu am abordat adecvat preocupările tale de confidențialitate, 
   return (
     <>
       <Helmet>
-        <title>{language === 'en' ? 'Privacy Policy | Jump to Freedom' : 'Politica de Confidențialitate | Jump to Freedom'}</title>
-        <meta name="description" content={language === 'en' ? 'Privacy Policy for Jump to Freedom - how we collect, use, and protect your personal data' : 'Politica de Confidențialitate pentru Jump to Freedom - cum colectăm, folosim și protejăm datele tale personale'} />
+        <title>{language === 'en' ? 'Privacy Policy | CEO Mind OS' : 'Politica de Confidențialitate | CEO Mind OS'}</title>
+        <meta name="description" content={language === 'en' ? 'Privacy Policy for CEO Mind OS - how we collect, use, and protect your personal data' : 'Politica de Confidențialitate pentru CEO Mind OS - cum colectăm, folosim și protejăm datele tale personale'} />
       </Helmet>
 
       <div className="min-h-screen bg-background">

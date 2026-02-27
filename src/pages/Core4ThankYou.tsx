@@ -30,7 +30,7 @@ const Core4ThankYou = () => {
   return (
     <>
       <Helmet>
-        <title>Thank You! Download Your CORE 4 PDF | LifeOS</title>
+        <title>Thank You! Download Your CORE 4 PDF | CEO Mind OS</title>
         <meta name="description" content="Your CORE 4 Framework PDF is ready for download. Start transforming your daily productivity today." />
       </Helmet>
 
@@ -110,7 +110,7 @@ const Core4ThankYou = () => {
                   Ready to Go Deeper?
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  LifeOS is the complete operating system for your life — featuring the CORE 4 
+                  CEO Mind OS is the complete operating system for founders — featuring the CORE 4 
                   Framework plus 10+ other tools to master your health, wealth, relationships, and self.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">

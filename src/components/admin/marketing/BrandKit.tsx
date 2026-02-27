@@ -37,7 +37,7 @@ export const BrandKit = () => {
   const { toast } = useToast();
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const [uvp, setUvp] = useState(
-    "LifeOS is the first Life Operating System that integrates business growth with personal well-being through AI-powered coaching, giving entrepreneurs the structure to achieve success without sacrifice."
+    "CEO Mind OS is the first Founder Operating System that integrates business growth with personal well-being through AI-powered coaching, giving entrepreneurs the structure to achieve success without sacrifice."
   );
 
   const copyToClipboard = (text: string, label: string) => {

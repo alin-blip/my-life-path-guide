@@ -507,8 +507,8 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
   {
     id: 'welcome',
     title: { 
-      en: 'Welcome to WarriorOS! 🎉', 
-      ro: 'Bun venit în WarriorOS! 🎉' 
+      en: 'Welcome to CEO Mind OS! 🎉', 
+      ro: 'Bun venit în CEO Mind OS! 🎉' 
     },
     description: { 
       en: 'This quick tour will show you the most important features to transform your life in all 4 dimensions: Body, Being, Balance & Business.',

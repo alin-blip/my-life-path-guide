@@ -71,7 +71,7 @@ export default function MindCoachLanding() {
   return (
     <>
       <Helmet>
-        <title>Mind Coach AI - {headlines[lang]} | WarriorOS</title>
+        <title>Mind Coach AI - {headlines[lang]} | CEO Mind OS</title>
         <meta name="description" content={headlines.subtitle[lang]} />
       </Helmet>
 
@@ -208,7 +208,7 @@ export default function MindCoachLanding() {
               onClick={() => navigate('/')}
               className="border-border/50 hover:border-primary/50"
             >
-              Află mai multe despre WarriorOS
+              Află mai multe despre CEO Mind OS
             </Button>
           </div>
         </section>

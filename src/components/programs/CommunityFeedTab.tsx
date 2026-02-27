@@ -59,12 +59,12 @@ export const CommunityFeedTab: React.FC = () => {
       <aside className="hidden lg:block w-72 shrink-0 space-y-4">
         {/* Community Info Card */}
         <div className="bg-card border border-border rounded-xl p-5 space-y-4">
-          <h3 className="font-bold text-foreground">{tribeInfo?.name || 'WarriorOS Community'}</h3>
+          <h3 className="font-bold text-foreground">{tribeInfo?.name || 'CEO Mind OS Community'}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {tribeInfo?.description ||
               (isRo
-                ? 'Comunitatea oficială WarriorOS. Conectează-te cu alți warriors, împărtășește progresul și crește împreună.'
-                : 'The official WarriorOS community. Connect with fellow warriors, share progress and grow together.')}
+                ? 'Comunitatea oficială CEO Mind OS. Conectează-te cu alți fondatori, împărtășește progresul și crește împreună.'
+                : 'The official CEO Mind OS community. Connect with fellow founders, share progress and grow together.')}
           </p>
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

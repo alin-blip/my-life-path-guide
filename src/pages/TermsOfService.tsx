@@ -13,7 +13,7 @@ const TermsOfService = () => {
       id: 'acceptance',
       title: '1. Acceptance of Terms',
       icon: FileText,
-      content: `By accessing or using Jump to Freedom ("the Platform"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
+      content: `By accessing or using CEO Mind OS ("the Platform"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
 
 You must be at least 18 years old to use this Platform. By using the Platform, you represent and warrant that you are at least 18 years of age.`
     },
@@ -21,7 +21,7 @@ You must be at least 18 years old to use this Platform. By using the Platform, y
       id: 'services',
       title: '2. Description of Services',
       icon: Shield,
-      content: `Jump to Freedom is a personal development and productivity platform that provides:
+      content: `CEO Mind OS is a personal development and productivity platform that provides:
 • Goal setting and tracking tools
 • Morning routine and habit tracking
 • AI-powered coaching and insights
@@ -110,7 +110,7 @@ Upon termination, you may request export of your data within 30 days. After this
       title: '10. Contact Information',
       icon: Mail,
       content: `For questions about these Terms of Service, please contact us at:
-• Email: support@jumptofreedom.ro
+• Email: support@ceomindos.com
 • Support Page: /support
 
 We aim to respond to all inquiries within 48 hours.`
@@ -120,7 +120,7 @@ We aim to respond to all inquiries within 48 hours.`
       id: 'acceptance',
       title: '1. Acceptarea Termenilor',
       icon: FileText,
-      content: `Prin accesarea sau utilizarea Jump to Freedom ("Platforma"), ești de acord să respecți acești Termeni și Condiții. Dacă nu ești de acord cu acești termeni, te rugăm să nu folosești serviciile noastre.
+      content: `Prin accesarea sau utilizarea CEO Mind OS ("Platforma"), ești de acord să respecți acești Termeni și Condiții. Dacă nu ești de acord cu acești termeni, te rugăm să nu folosești serviciile noastre.
 
 Trebuie să ai cel puțin 18 ani pentru a utiliza această Platformă. Prin utilizarea Platformei, declari și garantezi că ai cel puțin 18 ani.`
     },
@@ -128,7 +128,7 @@ Trebuie să ai cel puțin 18 ani pentru a utiliza această Platformă. Prin util
       id: 'services',
       title: '2. Descrierea Serviciilor',
       icon: Shield,
-      content: `Jump to Freedom este o platformă de dezvoltare personală și productivitate care oferă:
+      content: `CEO Mind OS este o platformă de dezvoltare personală și productivitate care oferă:
 • Instrumente de stabilire și urmărire a obiectivelor
 • Rutină de dimineață și urmărire a obiceiurilor
 • Coaching și insight-uri bazate pe AI
@@ -217,7 +217,7 @@ La încetare, poți solicita exportul datelor tale în termen de 30 de zile. Dup
       title: '10. Informații de Contact',
       icon: Mail,
       content: `Pentru întrebări despre acești Termeni și Condiții, te rugăm să ne contactezi la:
-• Email: support@jumptofreedom.ro
+• Email: support@ceomindos.com
 • Pagina de Suport: /support
 
 Ne propunem să răspundem la toate solicitările în termen de 48 de ore.`
@@ -227,8 +227,8 @@ Ne propunem să răspundem la toate solicitările în termen de 48 de ore.`
   return (
     <>
       <Helmet>
-        <title>{language === 'en' ? 'Terms of Service | Jump to Freedom' : 'Termeni și Condiții | Jump to Freedom'}</title>
-        <meta name="description" content={language === 'en' ? 'Terms of Service for Jump to Freedom personal development platform' : 'Termeni și Condiții pentru platforma de dezvoltare personală Jump to Freedom'} />
+        <title>{language === 'en' ? 'Terms of Service | CEO Mind OS' : 'Termeni și Condiții | CEO Mind OS'}</title>
+        <meta name="description" content={language === 'en' ? 'Terms of Service for CEO Mind OS personal development platform' : 'Termeni și Condiții pentru platforma de dezvoltare personală CEO Mind OS'} />
       </Helmet>
 
       <div className="min-h-screen bg-background">

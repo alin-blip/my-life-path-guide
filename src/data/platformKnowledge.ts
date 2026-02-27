@@ -45,8 +45,8 @@ export const PAGES: PageInfo[] = [
     path: '/challenge',
     name: 'Have It All Lifestyle Challenge',
     nameRo: 'Challenge Have It All Lifestyle',
-    description: 'Your 7-day transformation journey with daily exercises, step-by-step execution plans, and Vision Board creation. This is the foundation for the entire WarriorOS system.',
-    descriptionRo: 'Călătoria ta de transformare de 7 zile cu exerciții zilnice, planuri de execuție pas cu pas și crearea Vision Board-ului. Aceasta este fundația pentru întregul sistem WarriorOS.',
+    description: 'Your 7-day transformation journey with daily exercises, step-by-step execution plans, and Vision Board creation. This is the foundation for the entire CEO Mind OS system.',
+    descriptionRo: 'Călătoria ta de transformare de 7 zile cu exerciții zilnice, planuri de execuție pas cu pas și crearea Vision Board-ului. Aceasta este fundația pentru întregul sistem CEO Mind OS.',
     features: [
       'Day-by-day structured content with videos',
       'Step-by-step execution guide for each day',

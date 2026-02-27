@@ -11,7 +11,7 @@ interface QuoteDisplayProps {
   appName?: string;
 }
 
-export const QuoteDisplay: React.FC<QuoteDisplayProps> = ({ appName = "WARRIOR" }) => {
+export const QuoteDisplay: React.FC<QuoteDisplayProps> = ({ appName = "CEO MIND OS" }) => {
   // For backward compatibility, we're using the EnhancedQuoteDisplay now
   return <EnhancedQuoteDisplay appName={appName} />;
 };

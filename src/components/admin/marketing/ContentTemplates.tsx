@@ -23,9 +23,9 @@ interface Template {
 
 // Brand Kit data for AI context
 const BRAND_KIT = {
-  productName: 'LifeOS',
-  tagline: 'Success Without Sacrifice',
-  uvp: "LifeOS is the first Life Operating System that integrates business growth with personal well-being through AI-powered coaching, giving entrepreneurs the structure to achieve success without sacrifice.",
+  productName: 'CEO Mind OS',
+  tagline: 'The Founder Operating System',
+  uvp: "CEO Mind OS is the first Founder Operating System that integrates business growth with personal well-being through AI-powered coaching, giving entrepreneurs the structure to achieve success without sacrifice.",
   secondaryTaglines: [
     'The Operating System for Your Entire Life',
     'Design Your Life. Execute Your Vision.',

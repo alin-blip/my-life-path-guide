@@ -22,7 +22,7 @@ interface QuoteInteractionStats {
 
 export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({ 
   quote, 
-  appName = "JUMP TO FREEDOM", 
+  appName = "CEO MIND OS", 
   onClose
 }) => {
   const { toast } = useToast();

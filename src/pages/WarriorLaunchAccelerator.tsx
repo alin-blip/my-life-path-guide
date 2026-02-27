@@ -112,7 +112,7 @@ const WarriorLaunchAccelerator = () => {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>Warrior Certified Coach - Sistemul Complet de Transformare în 90 de Zile</title>
-        <meta name="description" content="Warrior Certified Coach: 47+ lecții video premium + platforma completă WarriorOS. Transformă-ți viața în Corp, Ființă, Echilibru și Afacere." />
+        <meta name="description" content="Warrior Certified Coach: 47+ lecții video premium + platforma completă CEO Mind OS. Transformă-ți viața în Corp, Ființă, Echilibru și Afacere." />
       </Helmet>
 
       {/* Hero Section */}
@@ -123,7 +123,7 @@ const WarriorLaunchAccelerator = () => {
           <div className="max-w-4xl mx-auto text-center mb-8">
             <Badge variant="secondary" className="mb-4 text-sm px-4 py-2">
               <Rocket className="w-4 h-4 mr-2" />
-              Acces Complet la WarriorOS
+              Acces Complet la CEO Mind OS
             </Badge>
             
              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-amber-500 to-primary bg-clip-text text-transparent">
@@ -287,7 +287,7 @@ const WarriorLaunchAccelerator = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Platforma Completă WarriorOS
+              Platforma Completă CEO Mind OS
             </h2>
             <p className="text-xl text-muted-foreground">
               Tot ce ai nevoie pentru transformare
@@ -316,7 +316,7 @@ const WarriorLaunchAccelerator = () => {
           <div className="max-w-2xl mx-auto space-y-4">
             {[
               'Acces complet la toate cele 47+ lecții video',
-              'Platforma WarriorOS cu toate funcționalitățile',
+              'Platforma CEO Mind OS cu toate funcționalitățile',
               'Rutina Campionului - Morning routine AI-guided',
               'The Door - Sistemul de planificare săptămânală',
               '4 Coachi AI pentru Corp, Mindset, Relații și Business',
@@ -426,7 +426,7 @@ const WarriorLaunchAccelerator = () => {
               Suport
             </Link>
           </div>
-          <p>© {new Date().getFullYear()} WarriorOS. Toate drepturile rezervate.</p>
+          <p>© {new Date().getFullYear()} CEO Mind OS. Toate drepturile rezervate.</p>
         </div>
       </footer>
     </div>

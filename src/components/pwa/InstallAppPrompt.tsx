@@ -113,7 +113,7 @@ export const InstallAppPrompt: React.FC = () => {
           </div>
           <div>
             <h3 className="font-semibold text-foreground">
-              {isRo ? '📲 Instalează WarriorOS' : '📲 Install WarriorOS'}
+              {isRo ? '📲 Instalează CEO Mind OS' : '📲 Install CEO Mind OS'}
             </h3>
             <p className="text-sm text-muted-foreground">
               {isRo 

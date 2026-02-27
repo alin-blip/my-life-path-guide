@@ -63,8 +63,8 @@ const About = () => {
   return (
     <>
       <Helmet>
-        <title>About Jump to Freedom - Our Mission & Values</title>
-        <meta name="description" content="Learn about Jump to Freedom's mission to help you achieve holistic success across Body, Being, Balance, and Business through proven systems and daily habits." />
+        <title>About CEO Mind OS - Our Mission & Values</title>
+        <meta name="description" content="Learn about CEO Mind OS's mission to help founders achieve holistic success across Body, Being, Balance, and Business through proven systems and daily habits." />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -74,7 +74,7 @@ const About = () => {
           <div className="max-w-6xl mx-auto px-4 relative">
             <div className="text-center mb-12">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6">
-                About <span className="text-primary">Jump to Freedom</span>
+                About <span className="text-primary">CEO Mind OS</span>
               </h1>
               <p className="text-xl text-slate-600 max-w-3xl mx-auto">
                 We're on a mission to help you break free from the trap of imbalance and 
@@ -88,7 +88,7 @@ const About = () => {
         <section className="py-16 md:py-20 bg-white">
           <div className="max-w-4xl mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8 text-center">
-              The Story Behind Jump to Freedom
+              The Story Behind CEO Mind OS
             </h2>
             
             <div className="prose prose-lg max-w-none text-slate-600">
@@ -109,8 +109,8 @@ const About = () => {
               </p>
 
               <p className="text-lg leading-relaxed mb-6">
-                That's why I created Jump to Freedom. It's not another productivity app or fitness tracker. 
-                It's a complete life operating system built on four pillars: <strong>Body, Being, Balance, and Business</strong>.
+                That's why I created CEO Mind OS. It's not another productivity app or fitness tracker. 
+                It's a complete founder operating system built on four pillars: <strong>Body, Being, Balance, and Business</strong>.
               </p>
 
               <p className="text-lg leading-relaxed">
@@ -225,7 +225,7 @@ const About = () => {
         <section className="py-16 md:py-20 bg-gradient-to-br from-primary to-primary/80">
           <div className="max-w-4xl mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Ready to Jump to Freedom?
+              Ready to Start with CEO Mind OS?
             </h2>
             <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
               Join thousands of people who have transformed their lives by mastering all four pillars. 

@@ -28,7 +28,7 @@ export const HeroSection = () => {
         <nav className="flex items-center justify-between mb-8 md:mb-12">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
-            alt="WarriorOS logo"
+            alt="CEO Mind OS logo"
             loading="eager"
             className="h-10 md:h-14 w-auto"
           />
@@ -127,7 +127,7 @@ export const HeroSection = () => {
               {videoPlaying ? (
                 <iframe
                   src="https://www.youtube.com/embed/sfuey_WNODs?rel=0&modestbranding=1&autoplay=1"
-                  title="WarriorOS - Success Without Sacrifice"
+                  title="CEO Mind OS - The Founder Operating System"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="w-full h-full"
@@ -135,7 +135,7 @@ export const HeroSection = () => {
               ) : (
                 <img 
                   src="https://img.youtube.com/vi/sfuey_WNODs/maxresdefault.jpg"
-                  alt="WarriorOS Video Preview"
+                  alt="CEO Mind OS Video Preview"
                   className="w-full h-full object-cover"
                 />
               )}
