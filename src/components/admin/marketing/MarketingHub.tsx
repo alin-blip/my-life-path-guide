@@ -12,7 +12,7 @@ export const MarketingHub = () => {
       <div>
         <h2 className="text-2xl font-bold text-foreground">Marketing Command Center</h2>
         <p className="text-muted-foreground">
-          Centralizează toate resursele și strategia de marketing pentru LifeOS
+          Centralizează toate resursele și strategia de marketing pentru CEO Mind OS
         </p>
       </div>
 

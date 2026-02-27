@@ -449,7 +449,7 @@ const WarriorsWay: React.FC = () => {
                         <div>
                           <h3 className="font-bold text-lg">Deblochează Toate Cele 47+ Lecții</h3>
                           <p className="text-sm text-muted-foreground">
-                            Acces complet la curs + platforma WarriorOS - 970 EUR
+                            Acces complet la curs + platforma CEO Mind OS - 970 EUR
                           </p>
                         </div>
                       </div>

@@ -139,7 +139,7 @@ const Vision2026Plan: React.FC = () => {
   return (
     <div className="light min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <Helmet>
-        <title>{lang === 'en' ? 'Your 2026 Action Plan | LifeOS' : 'Planul Tău de Acțiune 2026 | LifeOS'}</title>
+        <title>{lang === 'en' ? 'Your 2026 Action Plan | CEO Mind OS' : 'Planul Tău de Acțiune 2026 | CEO Mind OS'}</title>
         <meta name="description" content={lang === 'en' ? 'Your personalized action plan for 2026' : 'Planul tău personalizat de acțiune pentru 2026'} />
       </Helmet>
 
@@ -299,7 +299,7 @@ const Vision2026Plan: React.FC = () => {
             className="w-full sm:w-auto animate-pulse hover:animate-none"
           >
             <Rocket className="w-4 h-4 mr-2" />
-            {lang === 'en' ? 'Implement in LifeOS - 7 Days Free' : 'Implementează în LifeOS - 7 Zile Gratuit'}
+            {lang === 'en' ? 'Implement in CEO Mind OS - 7 Days Free' : 'Implementează în CEO Mind OS - 7 Zile Gratuit'}
           </Button>
           <p className="text-white/60 text-xs mt-3">
             {lang === 'en' 

@@ -151,12 +151,12 @@ export const LeanCanvas = () => {
         .from('marketing_assets')
         .select('id')
         .eq('asset_type', 'lean_canvas')
-        .eq('title', 'LifeOS Lean Canvas')
+        .eq('title', 'CEO Mind OS Lean Canvas')
         .single();
 
       const payload = {
         asset_type: 'lean_canvas' as const,
-        title: 'LifeOS Lean Canvas',
+        title: 'CEO Mind OS Lean Canvas',
         content: { sections: canvas } as unknown as import('@/integrations/supabase/types').Json,
         category: 'strategy',
       };
@@ -199,7 +199,7 @@ export const LeanCanvas = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">LifeOS Lean Canvas</h3>
+          <h3 className="text-lg font-semibold">CEO Mind OS Lean Canvas</h3>
           <p className="text-sm text-muted-foreground">
             Click any section to edit. All changes are saved to database.
           </p>

@@ -32,7 +32,7 @@ const SAMPLE_CAMPAIGNS: Campaign[] = [
   {
     id: '2',
     title: 'YouTube Content Series',
-    description: '"Life Operating System" 5-part video series explaining the CORE 4 framework',
+    description: '"Founder Operating System" 5-part video series explaining the CORE 4 framework',
     status: 'active',
     startDate: new Date(),
     endDate: addDays(new Date(), 30),
@@ -42,7 +42,7 @@ const SAMPLE_CAMPAIGNS: Campaign[] = [
   {
     id: '3',
     title: 'Webinar: Success Without Sacrifice',
-    description: 'Live webinar presenting the LifeOS methodology with live demo',
+    description: 'Live webinar presenting the CEO Mind OS methodology with live demo',
     status: 'draft',
     startDate: addDays(new Date(), 7),
     endDate: addDays(new Date(), 7),

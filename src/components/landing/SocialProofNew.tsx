@@ -31,8 +31,8 @@ export const SocialProofNew = () => {
       role: language === 'en' ? 'Agency Owner' : 'Proprietar Agenție',
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
       quote: language === 'en'
-        ? "I was on the edge of burnout. After 60 days with WarriorOS, I lost 8kg, sleep 7 hours/night, and actually enjoy weekends with my kids."
-        : "Eram la limita burnout-ului. După 60 de zile cu WarriorOS, am slăbit 8kg, dorm 7 ore/noapte și chiar mă bucur de weekenduri cu copiii.",
+        ? "I was on the edge of burnout. After 60 days with CEO Mind OS, I lost 8kg, sleep 7 hours/night, and actually enjoy weekends with my kids."
+        : "Eram la limita burnout-ului. După 60 de zile cu CEO Mind OS, am slăbit 8kg, dorm 7 ore/noapte și chiar mă bucur de weekenduri cu copiii.",
       result: "-8kg, +2h sleep/night",
     },
   ];

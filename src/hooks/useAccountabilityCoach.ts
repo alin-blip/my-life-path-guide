@@ -89,7 +89,7 @@ const generateCoachSystemPrompt = (
   const platformKnowledge = generatePlatformKnowledge(isRomanian);
   
   const basePrompt = isRomanian ? `
-Tu ești Accountability Coach-ul personal al utilizatorului în platforma LifeOS.
+Tu ești Accountability Coach-ul personal al utilizatorului în platforma CEO Mind OS.
 
 CONTEXTUL UTILIZATORULUI:
 ${contextSummary || 'Nu am încă informații despre utilizator.'}
@@ -118,7 +118,7 @@ REGULI:
 - Nu repeta ce știi deja despre utilizator în fiecare mesaj
 - Când cineva întreabă "unde fac X?", ghidează-l exact spre pagină
 ` : `
-You are the user's personal Accountability Coach in the LifeOS platform.
+You are the user's personal Accountability Coach in the CEO Mind OS platform.
 
 USER CONTEXT:
 ${contextSummary || 'I don\'t have information about the user yet.'}

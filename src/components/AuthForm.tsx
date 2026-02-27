@@ -420,12 +420,12 @@ export const AuthForm: React.FC = () => {
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">
           {mode === AuthMode.LOGIN && (language === 'en' ? "WELCOME BACK ACHIEVER" : "BINE AI REVENIT")}
-          {mode === AuthMode.REGISTER && (language === 'en' ? "JOIN JUMP TO FREEDOM" : "ALĂTURĂ-TE JUMP TO FREEDOM")}
+          {mode === AuthMode.REGISTER && (language === 'en' ? "JOIN CEO MIND OS" : "ALĂTURĂ-TE CEO MIND OS")}
           {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "RESET PASSWORD" : "RESETEAZĂ PAROLA")}
         </h1>
         <p className="text-muted-foreground">
-          {mode === AuthMode.LOGIN && (language === 'en' ? "Sign in to continue your freedom journey" : "Autentifică-te pentru a continua călătoria spre libertate")}
-          {mode === AuthMode.REGISTER && (language === 'en' ? "Create your account to Have It All" : "Creează-ți contul pentru a avea totul")}
+          {mode === AuthMode.LOGIN && (language === 'en' ? "Sign in to continue your journey" : "Autentifică-te pentru a continua")}
+          {mode === AuthMode.REGISTER && (language === 'en' ? "Create your account to unlock your potential" : "Creează-ți contul pentru a-ți debloca potențialul")}
           {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "Enter your email to reset your password" : "Introdu email-ul pentru a reseta parola")}
         </p>
       </div>

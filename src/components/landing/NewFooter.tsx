@@ -98,10 +98,10 @@ export const NewFooter = () => {
           <div className="col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="text-xl font-bold text-white">W</span>
+                <span className="text-xl font-bold text-white">C</span>
               </div>
               <span className="text-xl font-bold text-foreground">
-                Warrior<span className="text-primary">OS</span>
+                CEO Mind<span className="text-primary"> OS</span>
               </span>
             </Link>
             <p className="text-muted-foreground text-sm mb-6 max-w-xs">
@@ -154,7 +154,7 @@ export const NewFooter = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} WarriorOS. {language === 'ro' ? 'Toate drepturile rezervate.' : 'All rights reserved.'}
+              © {new Date().getFullYear()} CEO Mind OS. {language === 'ro' ? 'Toate drepturile rezervate.' : 'All rights reserved.'}
             </p>
             
             {/* Social Links */}

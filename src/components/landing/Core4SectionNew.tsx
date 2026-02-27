@@ -82,8 +82,8 @@ export const Core4SectionNew = () => {
         </h2>
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
           {language === 'en' 
-            ? "You don't choose between areas — you build them simultaneously. That's the WarriorOS difference."
-            : 'Nu alegi între arii — le construiești simultan. Asta e diferența WarriorOS.'
+            ? "You don't choose between areas — you build them simultaneously. That's the CEO Mind OS difference."
+            : 'Nu alegi între arii — le construiești simultan. Asta e diferența CEO Mind OS.'
           }
         </p>
       </div>
@@ -134,8 +134,8 @@ export const Core4SectionNew = () => {
             </p>
             <p className="text-lg font-bold text-primary">
               {language === 'en' 
-                ? "You build them simultaneously. That's the WarriorOS philosophy."
-                : 'Le construiești simultan. Asta e filozofia WarriorOS.'
+                ? "You build them simultaneously. That's the CEO Mind OS philosophy."
+                : 'Le construiești simultan. Asta e filozofia CEO Mind OS.'
               }
             </p>
           </div>

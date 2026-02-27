@@ -79,7 +79,7 @@ export const ProofSection = () => {
           </CardHeader>
           <CardContent>
             <p className="text-slate-700 mb-4 italic">
-              "In 90 days: lost 12kg, reconnected with my wife, found spiritual clarity, and added +€15k/month profit. Jump to Freedom showed me I don't have to sacrifice anything for business success."
+              "In 90 days: lost 12kg, reconnected with my wife, found spiritual clarity, and added +€15k/month profit. CEO Mind OS showed me I don't have to sacrifice anything for business success."
             </p>
             <div className="border-t border-slate-200 pt-3">
               <p className="text-slate-900 font-semibold">John P.</p>
@@ -99,7 +99,7 @@ export const ProofSection = () => {
           </CardHeader>
           <CardContent>
             <p className="text-slate-700 mb-4 italic">
-              "I was completely exhausted. Jump to Freedom helped me rebuild my body, reconnect spiritually, repair my marriage, and grow business by +22% in Q1. Now I HAVE IT ALL."
+              "I was completely exhausted. CEO Mind OS helped me rebuild my body, reconnect spiritually, repair my marriage, and grow business by +22% in Q1. Now I HAVE IT ALL."
             </p>
             <div className="border-t border-slate-200 pt-3">
               <p className="text-slate-900 font-semibold">Michael S.</p>
