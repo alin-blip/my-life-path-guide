@@ -52,7 +52,7 @@ const getEmailTemplate = (
           
           <tr>
             <td style="background-color: #18181b; padding: 24px 32px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 0.5px;">WarriorOS</h1>
+              <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 0.5px;">CEO Mind OS</h1>
             </td>
           </tr>
 
@@ -79,7 +79,7 @@ const getEmailTemplate = (
               </table>
 
               <div style="text-align: center; margin: 32px 0;">
-                <a href="https://warriorsos.com/challenge?utm_source=email&utm_medium=welcome&utm_campaign=challenge" 
+                <a href="https://ceomindos.com/challenge?utm_source=email&utm_medium=welcome&utm_campaign=challenge" 
                    style="display: inline-block; background-color: #18181b; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">
                   ${isRo ? 'Incepe Ziua 1' : 'Start Day 1'}
                 </a>
@@ -100,7 +100,7 @@ const getEmailTemplate = (
 
           <tr>
             <td style="padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center;">
-              <p style="color: #9ca3af; margin: 0 0 8px 0; font-size: 12px;">WarriorOS</p>
+              <p style="color: #9ca3af; margin: 0 0 8px 0; font-size: 12px;">CEO Mind OS</p>
               <a href="${unsubscribeUrl}" style="color: #9ca3af; font-size: 11px; text-decoration: underline;">${isRo ? 'Dezabonare' : 'Unsubscribe'}</a>
             </td>
           </tr>
@@ -144,14 +144,14 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const trackingId = generateTrackingId();
-    const referralLink = `https://warriorsos.com/challenge-landing?ref=${userId}`;
+    const referralLink = `https://ceomindos.com/challenge-landing?ref=${userId}`;
     const trackingPixelUrl = `${SUPABASE_URL}/functions/v1/track-email-open?t=${trackingId}`;
     const unsubscribeUrl = `${SUPABASE_URL}/functions/v1/unsubscribe-email?id=${trackingId}`;
 
     const { subject, html } = getEmailTemplate(name || '', referralLink, trackingPixelUrl, unsubscribeUrl, language);
 
-    const emailResponse = await resend.emails.send({
-      from: "WarriorOS <noreply@warriorsos.com>",
+     const emailResponse = await resend.emails.send({
+       from: "CEO Mind OS <noreply@ceomindos.com>",
       to: [email],
       subject,
       html,

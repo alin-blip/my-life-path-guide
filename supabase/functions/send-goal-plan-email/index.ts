@@ -79,7 +79,7 @@ const generateEmailHtml = (data: GoalPlanData): string => {
           <!-- Header -->
           <tr>
             <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #e5e7eb;">
-              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">WarriorOS</p>
+              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">CEO Mind OS</p>
               <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #111827;">
                 ${isRo ? 'Planul Tau pentru' : 'Your Plan for'} ${data.categoryLabel}
               </h1>
@@ -137,7 +137,7 @@ const generateEmailHtml = (data: GoalPlanData): string => {
 
               <!-- CTA -->
               <div style="text-align: center; margin-top: 28px;">
-                <a href="https://warriorsos.com/door?utm_source=email&utm_medium=plan&utm_campaign=goal_plan" 
+                <a href="https://ceomindos.com/door?utm_source=email&utm_medium=plan&utm_campaign=goal_plan" 
                    style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-size: 15px; font-weight: 600;">
                   ${isRo ? 'Deschide The Door' : 'Open The Door'}
                 </a>
@@ -149,7 +149,7 @@ const generateEmailHtml = (data: GoalPlanData): string => {
           <tr>
             <td style="background-color: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
               <p style="color: #9ca3af; margin: 0; font-size: 12px;">
-                WarriorOS
+                 CEO Mind OS
               </p>
             </td>
           </tr>
@@ -181,8 +181,8 @@ serve(async (req: Request) => {
 
     const isRo = data.language === 'ro';
     const subject = isRo 
-      ? `Planul tau pentru ${data.categoryLabel} — WarriorOS`
-      : `Your ${data.categoryLabel} Plan — WarriorOS`;
+      ? `Planul tau pentru ${data.categoryLabel} — CEO Mind OS`
+      : `Your ${data.categoryLabel} Plan — CEO Mind OS`;
 
     const emailHtml = generateEmailHtml(data);
 
@@ -193,7 +193,7 @@ serve(async (req: Request) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'WarriorOS <noreply@warriorsos.com>',
+        from: 'CEO Mind OS <noreply@ceomindos.com>',
         to: [data.email],
         subject,
         html: emailHtml,

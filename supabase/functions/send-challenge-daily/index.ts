@@ -216,7 +216,7 @@ const getEmailTemplate = (
           <!-- Header -->
           <tr>
             <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #e5e7eb;">
-              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">WarriorOS</p>
+              <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">CEO Mind OS</p>
               <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #111827;">
                 ${content.title}
               </h1>
@@ -259,7 +259,7 @@ const getEmailTemplate = (
 
               <!-- Primary CTA -->
               <div style="text-align: center; margin: 28px 0 0 0;">
-                <a href="https://warriorsos.com/challenge/${dayNumber}?utm_source=email&utm_medium=daily&utm_campaign=day${dayNumber}" 
+                <a href="https://ceomindos.com/challenge/${dayNumber}?utm_source=email&utm_medium=daily&utm_campaign=day${dayNumber}" 
                    style="display: inline-block; background-color: #111827; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-size: 15px; font-weight: 600;">
                   ${isRo ? `Continua Ziua ${dayNumber}` : `Continue Day ${dayNumber}`}
                 </a>
@@ -272,7 +272,7 @@ const getEmailTemplate = (
           <tr>
             <td style="background-color: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
               <p style="color: #9ca3af; margin: 0 0 6px 0; font-size: 12px;">
-                WarriorOS
+                 CEO Mind OS
               </p>
               <a href="${unsubscribeUrl}" style="color: #9ca3af; font-size: 11px; text-decoration: underline;">
                 ${isRo ? 'Dezabonare' : 'Unsubscribe'}
@@ -337,7 +337,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
 
       const emailResponse = await resend.emails.send({
-        from: "WarriorOS <noreply@warriorsos.com>",
+        from: "CEO Mind OS <noreply@ceomindos.com>",
         to: [email],
         subject,
         html,
@@ -419,7 +419,7 @@ const handler = async (req: Request): Promise<Response> => {
         const { subject, html } = getEmailTemplate(name, nextDay, content, trackingPixelUrl, unsubscribeUrl, language);
 
         const emailResponse = await resend.emails.send({
-          from: "WarriorOS <noreply@warriorsos.com>",
+          from: "CEO Mind OS <noreply@ceomindos.com>",
           to: [email],
           subject,
           html,

@@ -7,7 +7,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
-    body: JSON.stringify({ from: "WarriorOS <noreply@warriorsos.com>", to: [to], subject, html }),
+    body: JSON.stringify({ from: "CEO Mind OS <noreply@ceomindos.com>", to: [to], subject, html }),
   });
   if (!res.ok) throw new Error(`Failed to send email: ${await res.text()}`);
   return res.json();
@@ -47,16 +47,16 @@ function generateRecoveryEmail(name: string, day: number): { subject: string; ht
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5;">
     <tr><td align="center" style="padding: 40px 20px;">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <tr><td style="background-color: #18181b; padding: 24px 32px; text-align: center;"><h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600;">WarriorOS</h1></td></tr>
+        <tr><td style="background-color: #18181b; padding: 24px 32px; text-align: center;"><h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 600;">CEO Mind OS</h1></td></tr>
         <tr><td style="padding: 32px;">
           <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">Salut ${displayName},</p>
           <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">${descriptions[day] || ''}</p>
           <div style="text-align: center; margin: 32px 0;">
-            <a href="https://warriorsos.com/challenge/${day}" style="display: inline-block; background-color: #18181b; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Continua Ziua ${day}</a>
+            <a href="https://ceomindos.com/challenge/${day}" style="display: inline-block; background-color: #18181b; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Continua Ziua ${day}</a>
           </div>
           <p style="color: #9ca3af; font-size: 14px; margin: 24px 0 0 0;">Cu incredere in tine,<br>Echipa WarriorOS</p>
         </td></tr>
-        <tr><td style="padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center;"><p style="color: #9ca3af; margin: 0; font-size: 12px;">WarriorOS</p></td></tr>
+        <tr><td style="padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center;"><p style="color: #9ca3af; margin: 0; font-size: 12px;">CEO Mind OS</p></td></tr>
       </table>
     </td></tr>
   </table>
