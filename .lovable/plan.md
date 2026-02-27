@@ -1,93 +1,96 @@
 
 
-# Plan: Rebranding complet la CEO Mind OS (fara modificari de pret)
+# Plan: Finalizare Rebranding CEO Mind OS + Audit Complet
 
-## Pas 0: Revert preturile anuale la valorile originale
+## Ce s-a facut deja
+LanguageContext, GlobalTopBar, AuthForm, TermsOfService, PrivacyPolicy, About, HeroSection, NewFooter, ProofSection, Core4SectionNew, pricing.ts, ~15 alte componente frontend si ~18 edge functions au fost rebranduite.
 
-Fisierul `src/data/pricing.ts` a fost modificat gresit in sesiunea anterioara. Revenire la preturile originale care corespund cu Stripe (`create-checkout`):
+## Ce mai lipseste
 
-| Tier | Pret lunar | Pret anual (original) | Discount real |
-|------|-----------|----------------------|---------------|
-| Basic | €49/luna | €399/an | ~32% |
-| Pro | €97/luna | €970/an | ~17% |
-| Elite | €297/luna | €2,970/an | ~17% |
+### 1. Frontend - Fisiere cu referinte vechi ramase (8 fisiere)
 
-Se revin: `priceEn`, `priceRo`, `priceValue`, `originalPriceEn`, `originalPriceRo`, `valueEn`, `valueRo`, `highlightEn`, `highlightRo` la valorile originale din Stripe.
+**StickyHeader.tsx** (pagina Index - logo header):
+- Linia 52: `"W"` icon si `Warrior<span>OS</span>` -> `CEO Mind<span>OS</span>` sau logo text corespunzator
 
----
+**FAQSection.tsx** (pagina Index):
+- 3 referinte "WarriorOS" in raspunsuri FAQ (liniile 22, 46, 78)
 
-## Pas 1: Rebranding frontend (44 fisiere in `src/`)
+**SideMenu.tsx** (meniul lateral in-app):
+- Linia 347: alt text `"WarriorOS logo"`
+- Linia 352: text afisat `"WarriorOS"` -> `"CEO Mind OS"`
 
-Inlocuiesc toate aparitiile celor 3 branduri vechi cu **CEO Mind OS**:
+**Pricing.tsx** (pagina /pricing):
+- Liniile 45-49: meta title/description cu "WarriorOS Memberships"
+- Linia 51: "Choose Your Warrior Path" -> "Choose Your Path"
 
-**Fisiere principale (identitate + legal):**
-- `src/context/LanguageContext.tsx` — deja facut (CEO Mind OS + "The Founder Operating System")
-- `src/components/global/GlobalTopBar.tsx` — deja facut (alt text)
-- `src/components/AuthForm.tsx` — "JOIN JUMP TO FREEDOM" -> "JOIN CEO MIND OS"
-- `src/pages/TermsOfService.tsx` — "Jump to Freedom" -> "CEO Mind OS", email contact
-- `src/pages/PrivacyPolicy.tsx` — "Jump to Freedom" -> "CEO Mind OS", email contact
-- `src/pages/About.tsx` — referinte brand
+**WarriorAcceleratorThankYou.tsx**:
+- Linia 84: meta description "platforma WarriorOS"
+- Linia 157: "Exploreaza Platforma WarriorOS"
+- Linia 193: email `support@warrioros.com` -> `support@ceomindos.com`
 
-**Landing pages si marketing:**
-- `src/components/landing/HeroSection.tsx` — alt text, iframe title
-- `src/components/landing/NewFooter.tsx` — copyright "WarriorOS" -> "CEO Mind OS"
-- `src/components/landing/ProofSection.tsx` — testimoniale "Jump to Freedom"
-- `src/components/landing/Core4SectionNew.tsx` — "WarriorOS difference"
-- `src/pages/ChallengeLanding.tsx` — meta title "WarriorOS"
-- `src/pages/WarriorLaunchAccelerator.tsx` — "WarriorOS" in multiple locuri
-- `src/pages/Core4LeadMagnet.tsx` — "LifeOS" in meta
-- `src/pages/Core4ThankYou.tsx` — "LifeOS" in meta si text
+**InteractiveROI.tsx**:
+- Liniile 92, 96: "Fara RoWarrior" / "Cu RoWarrior" -> "Fara CEO Mind OS" / "Cu CEO Mind OS"
 
-**Admin marketing tools:**
-- `src/components/admin/marketing/BrandKit.tsx` — UVP cu "LifeOS"
-- `src/components/admin/marketing/LeanCanvas.tsx` — "LifeOS Lean Canvas"
-- `src/components/admin/marketing/ContentTemplates.tsx` — productName "LifeOS"
-- `src/components/admin/marketing/CampaignPlanner.tsx` — campanii cu "Life Operating System"
-- `src/components/admin/marketing/MarketingHub.tsx` — "LifeOS"
+**ContentTemplates.tsx** (admin):
+- Liniile 201-202: social handles `@lifeos` -> `@ceomindos`
 
-**Hooks si data:**
-- `src/hooks/useAccountabilityCoach.ts` — prompt "LifeOS" -> "CEO Mind OS"
-- `src/data/platformKnowledge.ts` — "WarriorOS system"
-- `src/components/EnhancedQuoteDisplay.tsx` — appName "JUMP TO FREEDOM"
-- `src/config/socialLinks.ts` — URL skool "warriorsos"
-- `src/components/programs/CommunityFeedTab.tsx` — "WarriorOS Community"
+**FeatureShowcase.tsx** (pagina Index):
+- Linia 74: title "Warrior Launch Accelerator" (feature name - poate ramane sau se schimba)
 
-**Plus ~20 alte fisiere** cu referinte minore (toate celelalte gasite in cautare).
+### 2. Landing page components - referinte "Warrior" ca feature names (5 fisiere)
 
----
+Acestea sunt NUMELE de feature-uri, nu brand-ul principal. Propun sa le pastram ca atare ("Rutina Razboinicului", "Warrior Routine") deoarece sunt denumiri de produs intern, NU referinte la brand. Daca vrei sa le schimbi si pe acestea, spune-mi cum sa le numesc.
 
-## Pas 2: Rebranding Edge Functions (20 fisiere in `supabase/functions/`)
+Fisiere afectate:
+- `FeaturesShowcase.tsx` - "Warrior Routine"
+- `HowItWorks.tsx` - "Warrior Routine"
+- `BentoFeatures.tsx` - "warriors" in descriere comunitate
+- `FeatureShowcase.tsx` - "Rutina Razboinicului", "Warrior Launch Accelerator"
+- `SocialProofNew.tsx` - "Warrior Routine" in testimonial
 
-- `create-checkout` — product names "WarriorOS Basic/Pro/Elite" -> "CEO Mind OS ..."
-- `send-challenge-reminder` — from "WarriorOS", noreply@warriorsos.com, URL-uri warriorsos.com
-- `send-challenge-reactivation` — acelasi pattern
-- `send-challenge-daily` — email branding
-- `send-challenge-recovery` — email branding
-- `send-challenge-promo-sequence` — email branding
-- `send-life-score-plan` — email branding
-- `send-goal-plan-email` — email branding
-- `send-power-results` — email branding
-- `send-vision-results` — email branding
-- `notify-community-post` — email branding
-- Alte edge functions cu referinte brand
+### 3. Edge Functions ramase (2 fisiere)
 
-**Nota:** Email-urile vor folosi `CEO Mind OS <noreply@ceomindos.com>` (sau domeniul pe care il confirmi). URL-urile se actualizeaza cand ai domeniul final.
+**accountability-coach/index.ts**:
+- Liniile 135, 157: system prompt `"platforma LifeOS"` -> `"platforma CEO Mind OS"`
 
----
+**send-challenge-recovery/index.ts**:
+- Linia 57: `"Echipa WarriorOS"` -> `"Echipa CEO Mind OS"`
 
-## Pas 3: Tracking (din planul anterior, ramas neimplementat)
+### 4. Tracking - Neimplementat
 
-- Apeleaza `trackLogin` in `AuthContext.tsx` la SIGNED_IN
-- Adauga event `checkout_initiated` la redirect Stripe
-- Adauga event `purchase_completed` la return din Stripe
+`trackLogin` exista in `useActivityTracker.ts` dar NU este apelat nicaieri la SIGNED_IN. `trackCheckoutInitiated` este deja implementat in 5 locuri. `trackPurchase` nu este apelat la return din Stripe.
+
+Implementare:
+- In `AuthContext.tsx`: import si apel `trackLogin` la evenimentul SIGNED_IN (necesita un mecanism simplu deoarece `useActivityTracker` e un hook React dar AuthContext nu-l poate folosi direct - va trebui o solutie cu event dispatch sau direct DB insert)
+- In pagina de success Stripe: apel `trackPurchase` (de verificat daca exista o pagina de return)
+
+### 5. Pagina Index - Audit
+
+Pagina `Index.tsx` in sine este curata - foloseste `t('indexMetaTitle')` din LanguageContext (deja rebranduit). Componentele sub-pagina care mai au probleme sunt:
+- **StickyHeader** - logo text "WarriorOS" (CRITIC - e vizibil pe landing)
+- **FAQSection** - 3 referinte "WarriorOS" in text
+
+Celelalte componente din Index (NewHeroSection, FeatureShowcase, PricingComparison, InteractiveTimeline, TestimonialCarousel, NewFooter) sunt fie deja rebranduite, fie folosesc LanguageContext.
 
 ---
 
-## Detalii tehnice
+## Rezumat actiuni
 
-**Fisiere totale de modificat:** ~64 (44 frontend + 20 edge functions)
-**Fisiere deja modificate:** 3 (LanguageContext, GlobalTopBar, pricing.ts - partial de revert)
-**Abordare:** Find-and-replace sistematic per fisier, pastrand contextul si logica existenta.
+| Prioritate | Fisier | Ce se schimba |
+|-----------|--------|---------------|
+| CRITIC | StickyHeader.tsx | Logo "WarriorOS" -> "CEO Mind OS" |
+| CRITIC | SideMenu.tsx | Logo "WarriorOS" -> "CEO Mind OS" |
+| CRITIC | FAQSection.tsx | 3x "WarriorOS" -> "CEO Mind OS" |
+| CRITIC | Pricing.tsx | Meta + heading "WarriorOS" |
+| MEDIU | WarriorAcceleratorThankYou.tsx | 3 referinte + email |
+| MEDIU | InteractiveROI.tsx | "RoWarrior" -> "CEO Mind OS" |
+| MEDIU | ContentTemplates.tsx | Social handles |
+| MEDIU | accountability-coach/index.ts | System prompt |
+| MEDIU | send-challenge-recovery/index.ts | Semnatura email |
+| LOW | platformKnowledge.ts | Comentarii cod (3 comments "LifeOS Rebrand") |
+| DECIZIE | 5 fisiere landing | Feature names "Warrior Routine" etc - pastram sau schimbam? |
+| TODO | AuthContext.tsx | Implementare trackLogin |
+| TODO | Stripe return page | Implementare trackPurchase |
 
-**Intrebare pentru tine:** Ce domeniu de email vrei sa folosesti in edge functions? (ex: `noreply@ceomindos.com` sau alt domeniu?)
+**Total: ~11 fisiere de editat + 2 implementari tracking**
 
