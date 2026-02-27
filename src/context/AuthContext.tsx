@@ -58,6 +58,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // CHALLENGE OAUTH LEAD CAPTURE
         // Track Lead + save lead only when user comes from challenge via OAuth
         if (event === 'SIGNED_IN' && session?.user) {
+          // Track login activity in CRM
+          const sessionId = sessionStorage.getItem('crm_session_id') || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          supabase.from('crm_activity_timeline').insert([{
+            user_id: session.user.id,
+            activity_type: 'login',
+            activity_title: 'User Login',
+            page_path: window.location.pathname,
+            session_id: sessionId,
+            device_type: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop'
+          }]).then(() => {});
+
+          // CHALLENGE OAUTH LEAD CAPTURE
           const fromChallenge = window.location.pathname.includes('/challenge');
           if (fromChallenge && session.user.email) {
             // Track Meta Pixel Lead for challenge OAuth signups

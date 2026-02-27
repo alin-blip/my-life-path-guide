@@ -19,8 +19,8 @@ export const FAQSection = () => {
     {
       question: language === 'ro' ? 'Funcționează pentru toate tipurile de business?' : 'Does it work for all business types?',
       answer: language === 'ro'
-        ? 'Da! WarriorOS este proiectat pentru antreprenori din orice industrie. Sistemul se adaptează la obiectivele și provocările tale specifice, indiferent dacă ai un startup tech, o agenție, e-commerce sau orice alt tip de business.'
-        : 'Yes! WarriorOS is designed for entrepreneurs in any industry. The system adapts to your specific goals and challenges, whether you have a tech startup, agency, e-commerce or any other type of business.',
+        ? 'Da! CEO Mind OS este proiectat pentru antreprenori din orice industrie. Sistemul se adaptează la obiectivele și provocările tale specifice, indiferent dacă ai un startup tech, o agenție, e-commerce sau orice alt tip de business.'
+        : 'Yes! CEO Mind OS is designed for entrepreneurs in any industry. The system adapts to your specific goals and challenges, whether you have a tech startup, agency, e-commerce or any other type of business.',
     },
     {
       question: language === 'ro' ? 'Cât timp trebuie să investesc zilnic?' : 'How much time do I need to invest daily?',
@@ -43,8 +43,8 @@ export const FAQSection = () => {
     {
       question: language === 'ro' ? 'Pot să folosesc pe telefon?' : 'Can I use it on my phone?',
       answer: language === 'ro'
-        ? 'Absolut! WarriorOS este optimizat pentru toate dispozitivele - desktop, tablet și mobil. Poți accesa rutinele, AI Coach-ul și tracking-ul de oriunde, oricând.'
-        : 'Absolutely! WarriorOS is optimized for all devices - desktop, tablet and mobile. You can access routines, AI Coach and tracking from anywhere, anytime.',
+        ? 'Absolut! CEO Mind OS este optimizat pentru toate dispozitivele - desktop, tablet și mobil. Poți accesa rutinele, AI Coach-ul și tracking-ul de oriunde, oricând.'
+        : 'Absolutely! CEO Mind OS is optimized for all devices - desktop, tablet and mobile. You can access routines, AI Coach and tracking from anywhere, anytime.',
     },
   ];
 
@@ -75,8 +75,8 @@ export const FAQSection = () => {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {language === 'ro'
-              ? 'Găsește răspunsuri la cele mai comune întrebări despre WarriorOS.'
-              : 'Find answers to the most common questions about WarriorOS.'}
+              ? 'Găsește răspunsuri la cele mai comune întrebări despre CEO Mind OS.'
+              : 'Find answers to the most common questions about CEO Mind OS.'}
           </p>
         </motion.div>
 

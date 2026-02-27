@@ -66,6 +66,15 @@ const WarriorAcceleratorThankYou = () => {
           setPurchaseRecorded(true);
           // Track Facebook Pixel Purchase event - €1,999 for Warrior Certified Coach
           trackPurchase(1999, 'EUR');
+          // Track CRM activity
+          supabase.from('crm_activity_timeline').insert([{
+            user_id: user.id,
+            activity_type: 'purchase',
+            activity_title: 'Purchase: warrior-accelerator',
+            activity_data: { productId: 'warrior-accelerator', amount: 1999, currency: 'EUR' } as any,
+            page_path: window.location.pathname,
+            device_type: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop'
+          }]).then(() => {});
         }
       } catch (err) {
         console.error('Error recording purchase:', err);
@@ -81,7 +90,7 @@ const WarriorAcceleratorThankYou = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background">
       <Helmet>
         <title>Mulțumim pentru Achiziție - Warrior Certified Coach</title>
-        <meta name="description" content="Bine ai venit în Warrior Certified Coach! Ai acces complet la toate lecțiile și platforma WarriorOS." />
+        <meta name="description" content="Bine ai venit în Warrior Certified Coach! Ai acces complet la toate lecțiile și platforma CEO Mind OS." />
       </Helmet>
 
       <div className="container mx-auto px-4 py-16">
@@ -154,7 +163,7 @@ const WarriorAcceleratorThankYou = () => {
                     <Zap className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">Explorează Platforma WarriorOS</h3>
+                    <h3 className="font-semibold">Explorează Platforma CEO Mind OS</h3>
                     <p className="text-sm text-muted-foreground">
                       Rutina Campionului, The Door, Coachi AI și toate instrumentele sunt la dispoziția ta.
                     </p>
@@ -190,7 +199,7 @@ const WarriorAcceleratorThankYou = () => {
           </Button>
 
           <p className="text-sm text-muted-foreground mt-6">
-            Dacă ai întrebări, contactează-ne la <a href="mailto:support@warrioros.com" className="text-primary hover:underline">support@warrioros.com</a>
+            Dacă ai întrebări, contactează-ne la <a href="mailto:support@ceomindos.com" className="text-primary hover:underline">support@ceomindos.com</a>
           </p>
         </motion.div>
       </div>

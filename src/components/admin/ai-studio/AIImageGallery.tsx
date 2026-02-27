@@ -84,7 +84,7 @@ export const AIImageGallery: React.FC = () => {
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.download = `rowarrior-${image.id.slice(0, 8)}.png`;
+      link.download = `ceomindos-${image.id.slice(0, 8)}.png`;
       link.href = url;
       link.click();
       window.URL.revokeObjectURL(url);
@@ -92,7 +92,7 @@ export const AIImageGallery: React.FC = () => {
     } catch {
       // Fallback for base64 images
       const link = document.createElement('a');
-      link.download = `rowarrior-${image.id.slice(0, 8)}.png`;
+      link.download = `ceomindos-${image.id.slice(0, 8)}.png`;
       link.href = image.image_url;
       link.click();
     }

@@ -102,7 +102,7 @@ export const AIImageGenerator: React.FC = () => {
       ctx.drawImage(img, 0, 0);
       
       // Add logo text watermark in corner
-      const logoText = 'RoWarrior';
+      const logoText = 'CEO Mind OS';
       const padding = 20;
       
       ctx.font = 'bold 32px Arial';
@@ -142,7 +142,7 @@ export const AIImageGenerator: React.FC = () => {
     if (!generatedImage) return;
     
     const link = document.createElement('a');
-    link.download = `rowarrior-${Date.now()}.png`;
+    link.download = `ceomindos-${Date.now()}.png`;
     link.href = generatedImage;
     link.click();
     
@@ -242,7 +242,7 @@ export const AIImageGenerator: React.FC = () => {
                 onCheckedChange={setAddLogo}
               />
               <Label htmlFor="add-logo" className="text-sm">
-                Adaugă logo RoWarrior
+                Adaugă logo CEO Mind OS
               </Label>
             </div>
           </div>

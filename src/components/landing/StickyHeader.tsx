@@ -49,10 +49,10 @@ export const StickyHeader = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
-                <span className="text-xl font-bold text-white">W</span>
+                <span className="text-xl font-bold text-white">C</span>
               </div>
               <span className="text-xl font-bold text-foreground hidden sm:block">
-                Warrior<span className="text-primary">OS</span>
+                CEO Mind <span className="text-primary">OS</span>
               </span>
             </Link>
 

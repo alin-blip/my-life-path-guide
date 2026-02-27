@@ -54,7 +54,7 @@ function generateRecoveryEmail(name: string, day: number): { subject: string; ht
           <div style="text-align: center; margin: 32px 0;">
             <a href="https://ceomindos.com/challenge/${day}" style="display: inline-block; background-color: #18181b; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600;">Continua Ziua ${day}</a>
           </div>
-          <p style="color: #9ca3af; font-size: 14px; margin: 24px 0 0 0;">Cu incredere in tine,<br>Echipa WarriorOS</p>
+          <p style="color: #9ca3af; font-size: 14px; margin: 24px 0 0 0;">Cu incredere in tine,<br>Echipa CEO Mind OS</p>
         </td></tr>
         <tr><td style="padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center;"><p style="color: #9ca3af; margin: 0; font-size: 12px;">CEO Mind OS</p></td></tr>
       </table>
