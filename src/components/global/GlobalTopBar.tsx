@@ -49,7 +49,7 @@ export const GlobalTopBar: React.FC = () => {
         <Link to="/dashboard" className="flex items-center gap-2 shrink-0">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
-            alt="WarriorOS"
+            alt="CEO Mind OS"
             className="h-7 w-auto"
           />
           {!isMobile && (

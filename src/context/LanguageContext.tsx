@@ -14,9 +14,9 @@ type Translations = {
 const translations: Translations = {
   en: {
     // Brand
-    "appName": "LifeOS",
-    "appTagline": "Success Without Sacrifice",
-    "appDescription": "The AI-powered Life Operating System for entrepreneurs who want it all",
+    "appName": "CEO Mind OS",
+    "appTagline": "The Founder Operating System",
+    "appDescription": "The AI-powered Operating System for founders who refuse to choose between success and life",
     
     // Auth page
     "becomeTheWarrior": "Become the Warrior",
