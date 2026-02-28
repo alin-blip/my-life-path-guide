@@ -62,13 +62,13 @@ export const NewFooter = () => {
           >
             <h2 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
               {language === 'ro' 
-                ? 'Gata să îți transformi viața?' 
-                : 'Ready to transform your life?'}
+                ? 'Ești gata să operezi viața și business-ul cu claritate, control și certitudine?' 
+                : 'Ready to operate your life and business with clarity, control and certainty?'}
             </h2>
             <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
               {language === 'ro'
-                ? 'Alătură-te celor 500+ antreprenori care și-au găsit echilibrul între succes și împlinire personală.'
-                : 'Join 500+ entrepreneurs who found balance between success and personal fulfillment.'}
+                ? 'Instalează singurul sistem care integrează transformarea personală cu execuția profesională.'
+                : 'Install the only system that integrates personal transformation with professional execution.'}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
@@ -77,7 +77,7 @@ export const NewFooter = () => {
                 className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white px-8"
               >
                 <Rocket className="w-5 h-5 mr-2" />
-                {language === 'ro' ? 'Începe Trial Gratuit' : 'Start Free Trial'}
+                {language === 'ro' ? 'Instalează CEO Mind OS' : 'Install CEO Mind OS'}
               </Button>
               <Button
                 size="lg"

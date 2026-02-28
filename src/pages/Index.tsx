@@ -8,9 +8,12 @@ import { StickyHeader } from "@/components/landing/StickyHeader";
 import { NewHeroSection } from "@/components/landing/NewHeroSection";
 
 // Below the fold - lazy loaded
-const FeatureShowcase = lazy(() => import("@/components/landing/FeatureShowcase").then(m => ({ default: m.FeatureShowcase })));
 const LogoCloud = lazy(() => import("@/components/landing/LogoCloud").then(m => ({ default: m.LogoCloud })));
-const InteractiveTimeline = lazy(() => import("@/components/landing/InteractiveTimeline").then(m => ({ default: m.InteractiveTimeline })));
+const ProblemSectionNew = lazy(() => import("@/components/landing/ProblemSectionNew").then(m => ({ default: m.ProblemSectionNew })));
+const MethodologySection = lazy(() => import("@/components/landing/MethodologySection").then(m => ({ default: m.MethodologySection })));
+const FounderSectionNew = lazy(() => import("@/components/landing/FounderSectionNew").then(m => ({ default: m.FounderSectionNew })));
+const TargetAudienceSection = lazy(() => import("@/components/landing/TargetAudienceSection").then(m => ({ default: m.TargetAudienceSection })));
+const ComparisonSection = lazy(() => import("@/components/landing/ComparisonSection").then(m => ({ default: m.ComparisonSection })));
 const TestimonialCarousel = lazy(() => import("@/components/landing/TestimonialCarousel").then(m => ({ default: m.TestimonialCarousel })));
 const PricingComparison = lazy(() => import("@/components/landing/PricingComparison").then(m => ({ default: m.PricingComparison })));
 const FAQSection = lazy(() => import("@/components/landing/FAQSection").then(m => ({ default: m.FAQSection })));
@@ -43,22 +46,21 @@ const Index = () => {
         <link rel="canonical" href={`${window.location.origin}/`} />
       </Helmet>
 
-      {/* Language Selector - above sticky header */}
+      {/* Language Selector */}
       <div className="fixed top-4 right-20 md:top-6 md:right-24 z-[60]">
         <LanguageSelector />
       </div>
 
-      {/* Sticky Header */}
       <StickyHeader />
-
-      {/* Hero Section */}
       <NewHeroSection />
 
-      {/* Below the fold - lazy loaded */}
       <Suspense fallback={<div className="min-h-[200px]" />}>
-        <FeatureShowcase />
         <LogoCloud />
-        <InteractiveTimeline />
+        <ProblemSectionNew />
+        <MethodologySection />
+        <FounderSectionNew />
+        <TargetAudienceSection />
+        <ComparisonSection />
         <TestimonialCarousel />
         <PricingComparison />
         <FAQSection />

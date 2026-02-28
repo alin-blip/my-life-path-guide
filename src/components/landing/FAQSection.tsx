@@ -1,63 +1,54 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
-import { ChevronDown, Search, HelpCircle } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { ChevronDown, HelpCircle } from "lucide-react";
 
 export const FAQSection = () => {
   const { language } = useLanguage();
-  const [searchQuery, setSearchQuery] = useState("");
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const faqs = [
     {
-      question: language === 'ro' ? 'Cât durează să văd primele rezultate?' : 'How long until I see first results?',
+      question: language === 'ro' ? 'Ce este CEO Mind OS exact?' : 'What is CEO Mind OS exactly?',
       answer: language === 'ro'
-        ? 'Majoritatea utilizatorilor raportează claritate și energie crescută în primele 48 de ore. Rezultatele semnificative apar de obicei în primele 2-3 săptămâni de utilizare constantă.'
-        : 'Most users report clarity and increased energy within the first 48 hours. Significant results typically appear in the first 2-3 weeks of consistent use.',
+        ? 'CEO Mind OS este primul sistem de operare pentru fondatori. Nu e un curs, nu e coaching, nu e o aplicație de productivitate. E un sistem complet cu 4 piloni (Warrior Routine, The Door, The Stack, AI Coaches) care lucrează împreună pentru a-ți face upgrade la nivel de identitate — de la operator la CEO suveran.'
+        : "CEO Mind OS is the first operating system for founders. It's not a course, not coaching, not a productivity app. It's a complete system with 4 pillars (Warrior Routine, The Door, The Stack, AI Coaches) working together to upgrade you at identity level — from operator to sovereign CEO.",
     },
     {
-      question: language === 'ro' ? 'Funcționează pentru toate tipurile de business?' : 'Does it work for all business types?',
+      question: language === 'ro' ? 'Este un curs online sau o aplicație?' : 'Is it an online course or an app?',
       answer: language === 'ro'
-        ? 'Da! CEO Mind OS este proiectat pentru antreprenori din orice industrie. Sistemul se adaptează la obiectivele și provocările tale specifice, indiferent dacă ai un startup tech, o agenție, e-commerce sau orice alt tip de business.'
-        : 'Yes! CEO Mind OS is designed for entrepreneurs in any industry. The system adapts to your specific goals and challenges, whether you have a tech startup, agency, e-commerce or any other type of business.',
+        ? 'Niciuna dintre ele în mod tradițional. CEO Mind OS este o platformă interactivă care combină rutine zilnice de execuție, planificare săptămânală, protocoale de transformare emoțională și coaching AI — totul într-un singur loc. E un sistem viu care se adaptează la tine.'
+        : "Neither in the traditional sense. CEO Mind OS is an interactive platform that combines daily execution routines, weekly planning, emotional transformation protocols and AI coaching — all in one place. It's a living system that adapts to you.",
     },
     {
-      question: language === 'ro' ? 'Cât timp trebuie să investesc zilnic?' : 'How much time do I need to invest daily?',
+      question: language === 'ro' ? 'Cât timp durează să văd rezultate?' : 'How long until I see results?',
       answer: language === 'ro'
-        ? 'Rutina minimă durează doar 15-20 de minute dimineața și 10 minute seara. Poți extinde sau personaliza în funcție de disponibilitatea ta. Sistemul este flexibil și se adaptează la stilul tău de viață.'
-        : 'The minimum routine takes only 15-20 minutes in the morning and 10 minutes in the evening. You can extend or customize based on your availability. The system is flexible and adapts to your lifestyle.',
+        ? 'Majoritatea utilizatorilor raportează claritate și energie crescută în primele 48 de ore. Rezultatele semnificative apar de obicei în primele 2-3 săptămâni de utilizare constantă. Challenge-ul gratuit de 7 zile este conceput să îți arate valoarea sistemului rapid.'
+        : 'Most users report clarity and increased energy within the first 48 hours. Significant results typically appear in the first 2-3 weeks of consistent use. The free 7-day challenge is designed to show you the system\'s value quickly.',
     },
     {
-      question: language === 'ro' ? 'Ce se întâmplă dacă nu sunt mulțumit?' : 'What happens if I\'m not satisfied?',
+      question: language === 'ro' ? 'Pot anula oricând?' : 'Can I cancel anytime?',
       answer: language === 'ro'
-        ? 'Oferim garanție completă de 7 zile. Dacă nu vezi valoare în primele 7 zile, îți returnăm 100% din sumă, fără întrebări. Credem în sistem și vrem să te asigurăm că nu ai nimic de pierdut.'
-        : 'We offer a full 7-day guarantee. If you don\'t see value in the first 7 days, we refund 100% of the amount, no questions asked. We believe in the system and want to ensure you have nothing to lose.',
+        ? 'Da, absolut. Poți anula abonamentul oricând, fără penalități și fără întrebări. În plus, oferim garanție completă de 90 de zile. Dacă nu vezi valoare, îți returnăm 100% din sumă.'
+        : 'Yes, absolutely. You can cancel your subscription anytime, no penalties and no questions asked. Plus, we offer a full 90-day guarantee. If you don\'t see value, we refund 100% of the amount.',
     },
     {
-      question: language === 'ro' ? 'Cum funcționează AI Coach-ul?' : 'How does the AI Coach work?',
+      question: language === 'ro' ? 'Ce include Challenge-ul gratuit de 7 zile?' : 'What does the free 7-day Challenge include?',
       answer: language === 'ro'
-        ? 'AI Coach-ul este antrenat pe principii dovedite de productivitate, mindset și wellness. Îți oferă ghidare personalizată 24/7, răspunde la întrebări, te ajută să depășești blocajele și îți sugerează acțiuni specifice bazate pe progresul tău.'
-        : 'The AI Coach is trained on proven productivity, mindset and wellness principles. It provides personalized 24/7 guidance, answers questions, helps you overcome blocks and suggests specific actions based on your progress.',
+        ? 'Challenge-ul gratuit îți oferă acces la Warrior Routine (rutina zilnică de execuție), primele protocoale Stack pentru transformare emoțională, și ghidare pas cu pas pentru fiecare zi. E conceput să îți demonstreze puterea sistemului înainte de orice investiție.'
+        : 'The free challenge gives you access to the Warrior Routine (daily execution routine), first Stack protocols for emotional transformation, and step-by-step guidance for each day. It\'s designed to demonstrate the system\'s power before any investment.',
     },
     {
-      question: language === 'ro' ? 'Pot să folosesc pe telefon?' : 'Can I use it on my phone?',
+      question: language === 'ro' ? 'Funcționează pentru orice tip de business?' : 'Does it work for any type of business?',
       answer: language === 'ro'
-        ? 'Absolut! CEO Mind OS este optimizat pentru toate dispozitivele - desktop, tablet și mobil. Poți accesa rutinele, AI Coach-ul și tracking-ul de oriunde, oricând.'
-        : 'Absolutely! CEO Mind OS is optimized for all devices - desktop, tablet and mobile. You can access routines, AI Coach and tracking from anywhere, anytime.',
+        ? 'CEO Mind OS este conceput pentru fondatori, freelanceri și coach-i care vor să scaleze fără să sacrifice sănătatea, relațiile sau pacea interioară. Funcționează indiferent de industrie.'
+        : 'CEO Mind OS is designed for founders, freelancers and coaches who want to scale without sacrificing health, relationships or inner peace. It works regardless of industry.',
     },
   ];
 
-  const filteredFaqs = faqs.filter(
-    faq =>
-      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
-    <section className="py-16 md:py-24">
+    <section id="faq" className="py-16 md:py-24">
       <div className="container mx-auto px-4">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -69,34 +60,12 @@ export const FAQSection = () => {
             FAQ
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            {language === 'ro' 
-              ? 'Întrebări frecvente' 
-              : 'Frequently asked questions'}
+            {language === 'ro' ? 'Întrebări frecvente' : 'Frequently asked questions'}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {language === 'ro'
-              ? 'Găsește răspunsuri la cele mai comune întrebări despre CEO Mind OS.'
-              : 'Find answers to the most common questions about CEO Mind OS.'}
-          </p>
         </motion.div>
 
-        {/* Search */}
-        <div className="max-w-xl mx-auto mb-8">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder={language === 'ro' ? 'Caută întrebări...' : 'Search questions...'}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 py-6 text-lg rounded-xl"
-            />
-          </div>
-        </div>
-
-        {/* FAQ List */}
         <div className="max-w-3xl mx-auto space-y-4">
-          {filteredFaqs.map((faq, idx) => (
+          {faqs.map((faq, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 10 }}
@@ -133,18 +102,6 @@ export const FAQSection = () => {
             </motion.div>
           ))}
         </div>
-
-        {/* Contact CTA */}
-        {filteredFaqs.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground mb-2">
-              {language === 'ro' ? 'Nu am găsit ce cauți?' : 'Couldn\'t find what you\'re looking for?'}
-            </p>
-            <a href="/support" className="text-primary hover:underline">
-              {language === 'ro' ? 'Contactează-ne →' : 'Contact us →'}
-            </a>
-          </div>
-        )}
       </div>
     </section>
   );

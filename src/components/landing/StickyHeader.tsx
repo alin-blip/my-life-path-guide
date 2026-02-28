@@ -21,10 +21,10 @@ export const StickyHeader = () => {
   }, []);
 
   const navItems = [
-    { label: language === 'ro' ? 'Funcționalități' : 'Features', href: '#features' },
-    { label: language === 'ro' ? 'Cum funcționează' : 'How it works', href: '#how-it-works' },
-    { label: language === 'ro' ? 'Testimoniale' : 'Testimonials', href: '#testimonials' },
+    { label: language === 'ro' ? 'Metodologia' : 'Methodology', href: '#methodology' },
+    { label: language === 'ro' ? 'Pentru cine' : 'Who it\'s for', href: '#target' },
     { label: language === 'ro' ? 'Prețuri' : 'Pricing', href: '#pricing' },
+    { label: 'FAQ', href: '#faq' },
   ];
 
   const scrollToSection = (href: string) => {
