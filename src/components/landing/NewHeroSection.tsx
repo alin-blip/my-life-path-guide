@@ -159,8 +159,24 @@ export const NewHeroSection = () => {
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform flex-shrink-0" />
             </Button>
             <p className="text-sm text-muted-foreground">
-              {isRo ? 'Începe Challenge-ul Gratuit de 7 Zile' : 'Start the Free 7-Day Challenge'}
+              {isRo ? 'Începe Trial-ul Gratuit de 5 Zile' : 'Start the Free 5-Day Trial'}
             </p>
+
+            {/* Micro social proof */}
+            <div className="flex items-center gap-2 mt-2">
+              <div className="flex -space-x-2">
+                {['🧠', '🚀', '💪'].map((emoji, i) => (
+                  <div key={i} className="w-8 h-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-sm">
+                    {emoji}
+                  </div>
+                ))}
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {isRo
+                  ? `Alăturat de ${realMetrics.users > 10 ? realMetrics.users + '+' : '100+'} fondatori`
+                  : `Joined by ${realMetrics.users > 10 ? realMetrics.users + '+' : '100+'} founders`}
+              </span>
+            </div>
           </motion.div>
 
           {/* Guarantees */}

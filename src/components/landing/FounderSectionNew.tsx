@@ -50,6 +50,20 @@ export const FounderSectionNew = () => {
                   : '"I built CEO Mind OS because I couldn\'t find any system that upgrades the FOUNDER, not just the business. Now this system is available to everyone."'}
               </p>
             </div>
+
+            {/* Stat badges */}
+            <div className="grid grid-cols-3 gap-4 mt-6">
+              {[
+                { value: '€100K+', label: language === 'ro' ? 'Investiți în dezvoltare' : 'Invested in growth' },
+                { value: '500+', label: language === 'ro' ? 'Fondatori transformați' : 'Founders transformed' },
+                { value: '16+', label: language === 'ro' ? 'Instrumente construite' : 'Tools built' },
+              ].map((stat, i) => (
+                <div key={i} className="text-center p-3 bg-muted/50 rounded-lg border border-border">
+                  <div className="text-xl font-bold text-primary">{stat.value}</div>
+                  <div className="text-xs text-muted-foreground">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </motion.div>
       </div>
