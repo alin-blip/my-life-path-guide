@@ -31,6 +31,7 @@ export const PricingComparison = () => {
       cta: isRo ? 'Începe 5 Zile Trial' : 'Start 5-Day Trial',
       popular: false,
       tier: 'basic' as const,
+      valueStack: isRo ? '~2.500 LEI/lună valoare' : '~2,500 LEI/mo value',
     },
     {
       id: isAnnual ? 'pro-annual' : 'pro',
@@ -42,6 +43,7 @@ export const PricingComparison = () => {
       cta: isRo ? 'Începe 5 Zile Trial' : 'Start 5-Day Trial',
       popular: true,
       tier: 'pro' as const,
+      valueStack: isRo ? '~5.000 LEI/lună valoare' : '~5,000 LEI/mo value',
     },
     {
       id: isAnnual ? 'elite-annual' : 'elite',
@@ -53,6 +55,7 @@ export const PricingComparison = () => {
       cta: isRo ? 'Începe 5 Zile Trial' : 'Start 5-Day Trial',
       popular: false,
       tier: 'elite' as const,
+      valueStack: isRo ? '~15.000 LEI/lună valoare' : '~15,000 LEI/mo value',
     },
   ];
 
@@ -127,10 +130,20 @@ export const PricingComparison = () => {
               </div>
 
               <div className="text-center mb-8">
+                {plan.valueStack && (
+                  <div className="text-sm text-muted-foreground mb-1">
+                    <span className="line-through">{plan.valueStack}</span>
+                  </div>
+                )}
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-4xl md:text-5xl font-bold text-foreground">{plan.price}</span>
                   <span className="text-muted-foreground">{plan.period}</span>
                 </div>
+                {plan.valueStack && (
+                  <p className="text-xs text-green-600 font-semibold mt-1">
+                    {isRo ? 'Economisești peste 80%' : 'You save over 80%'}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-3 mb-8">

@@ -15,6 +15,8 @@ const FounderSectionNew = lazy(() => import("@/components/landing/FounderSection
 const TargetAudienceSection = lazy(() => import("@/components/landing/TargetAudienceSection").then(m => ({ default: m.TargetAudienceSection })));
 const ComparisonSection = lazy(() => import("@/components/landing/ComparisonSection").then(m => ({ default: m.ComparisonSection })));
 const TestimonialCarousel = lazy(() => import("@/components/landing/TestimonialCarousel").then(m => ({ default: m.TestimonialCarousel })));
+const InlineCTA = lazy(() => import("@/components/landing/InlineCTA").then(m => ({ default: m.InlineCTA })));
+const GuaranteeSection = lazy(() => import("@/components/landing/GuaranteeSection").then(m => ({ default: m.GuaranteeSection })));
 const PricingComparison = lazy(() => import("@/components/landing/PricingComparison").then(m => ({ default: m.PricingComparison })));
 const FAQSection = lazy(() => import("@/components/landing/FAQSection").then(m => ({ default: m.FAQSection })));
 const NewFooter = lazy(() => import("@/components/landing/NewFooter").then(m => ({ default: m.NewFooter })));
@@ -57,10 +59,13 @@ const Index = () => {
       <Suspense fallback={<div className="min-h-[200px]" />}>
         <LogoCloud />
         <ProblemSectionNew />
+        <InlineCTA headlineRo="Ai recunoscut problema? Instalează soluția." headlineEn="Recognized the problem? Install the solution." />
         <MethodologySection />
         <FounderSectionNew />
         <TargetAudienceSection />
         <ComparisonSection />
+        <InlineCTA headlineRo="Alege partea cu rezultate." headlineEn="Choose the side with results." />
+        <GuaranteeSection />
         <TestimonialCarousel />
         <PricingComparison />
         <FAQSection />
