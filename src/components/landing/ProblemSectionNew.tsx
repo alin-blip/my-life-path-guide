@@ -1,113 +1,105 @@
-import { Card } from "@/components/ui/card";
-import { AlertTriangle, Clock, Heart, Brain } from "lucide-react";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { UserX, Heart, Zap, Brain, Lock } from "lucide-react";
+
+const problems = [
+  {
+    icon: UserX,
+    titleRo: "Capcana Identității",
+    titleEn: "The Identity Trap",
+    descRo: "Ești blocat în rolul de executant. Nu ai făcut saltul de la operator la CEO.",
+    descEn: "You're stuck in the executor role. You haven't made the leap from operator to CEO.",
+    color: "text-red-500",
+    bg: "bg-red-500/10 border-red-500/20",
+  },
+  {
+    icon: Heart,
+    titleRo: "Mitul Sacrificiului",
+    titleEn: "The Sacrifice Myth",
+    descRo: "Crezi că trebuie să sacrifici sănătatea, familia sau pacea interioară pentru succes.",
+    descEn: "You believe you must sacrifice health, family or inner peace for success.",
+    color: "text-orange-500",
+    bg: "bg-orange-500/10 border-orange-500/20",
+  },
+  {
+    icon: Zap,
+    titleRo: "Prăpastia Execuției",
+    titleEn: "The Execution Gap",
+    descRo: "Știi ce trebuie să faci, dar nu reușești să transformi cunoștințele în acțiune zilnică.",
+    descEn: "You know what to do, but can't turn knowledge into daily action.",
+    color: "text-amber-500",
+    bg: "bg-amber-500/10 border-amber-500/20",
+  },
+  {
+    icon: Brain,
+    titleRo: "Deficitul Emoțional",
+    titleEn: "The Emotional Deficit",
+    descRo: "Emoțiile te controlează. Stresul, frica și furia îți sabotează deciziile.",
+    descEn: "Emotions control you. Stress, fear and anger sabotage your decisions.",
+    color: "text-purple-500",
+    bg: "bg-purple-500/10 border-purple-500/20",
+  },
+  {
+    icon: Lock,
+    titleRo: "Bariera Accesibilității",
+    titleEn: "The Accessibility Barrier",
+    descRo: "Sistemele de transformare de elită costă €10K+. Fondatorii obișnuiți nu au acces.",
+    descEn: "Elite transformation systems cost €10K+. Regular founders don't have access.",
+    color: "text-blue-500",
+    bg: "bg-blue-500/10 border-blue-500/20",
+  },
+];
 
 export const ProblemSectionNew = () => {
-  const { elementRef, isVisible } = useScrollAnimation();
   const { language } = useLanguage();
 
-  const problems = [
-    {
-      icon: Clock,
-      title: language === 'en' ? 'Working 60+ hours/week' : 'Lucrezi 60+ ore/săptămână',
-      description: language === 'en' 
-        ? 'Business grows, but you have no time for yourself, family, or health.'
-        : 'Business-ul crește, dar nu ai timp pentru tine, familie sau sănătate.',
-      color: 'text-red-500',
-      bgColor: 'bg-red-50',
-    },
-    {
-      icon: Heart,
-      title: language === 'en' ? 'Relationships suffer' : 'Relațiile suferă',
-      description: language === 'en'
-        ? 'Your partner feels neglected. Kids grow up without you. Friends disappear.'
-        : 'Partenerul se simte neglijat. Copiii cresc fără tine. Prietenii dispar.',
-      color: 'text-rose-500',
-      bgColor: 'bg-rose-50',
-    },
-    {
-      icon: Brain,
-      title: language === 'en' ? 'Burnout approaching' : 'Burnout-ul se apropie',
-      description: language === 'en'
-        ? 'Exhausted mornings. Sleepless nights. Anxiety about the future.'
-        : 'Dimineți epuizate. Nopți fără somn. Anxietate despre viitor.',
-      color: 'text-orange-500',
-      bgColor: 'bg-orange-50',
-    },
-    {
-      icon: AlertTriangle,
-      title: language === 'en' ? 'Health on second plan' : 'Sănătatea pe planul 2',
-      description: language === 'en'
-        ? 'Skipped workouts. Fast food. "I\'ll take care of myself when I have time."'
-        : 'Antrenamente sárite. Fast food. "Mă ocup de mine când am timp."',
-      color: 'text-amber-500',
-      bgColor: 'bg-amber-50',
-    },
-  ];
-
   return (
-    <section 
-      ref={elementRef}
-      className={`py-16 md:py-24 transition-all duration-700 ${
-        isVisible ? 'opacity-100 animate-fade-in-up' : 'opacity-0'
-      }`}
-    >
-      <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-          {language === 'en' ? 'Do You Recognize This Pattern?' : 'Recunoști Acest Pattern?'}
-        </h2>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-          {language === 'en' 
-            ? 'Most entrepreneurs sacrifice one area of life for another. The result? Imbalance and eventual collapse.'
-            : 'Majoritatea antreprenorilor sacrifică o arie a vieții pentru alta. Rezultatul? Dezechilibru și colaps eventual.'
-          }
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
-        {problems.map((problem, index) => {
-          const Icon = problem.icon;
-          return (
-            <Card 
-              key={index}
-              className={`${problem.bgColor} border-2 border-transparent hover:border-primary/20 p-6 transition-all duration-300 hover:shadow-lg`}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-lg ${problem.bgColor}`}>
-                  <Icon className={`h-6 w-6 ${problem.color}`} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-foreground mb-2">{problem.title}</h3>
-                  <p className="text-muted-foreground">{problem.description}</p>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Burnout Cycle Visual */}
-      <div className="mt-12 max-w-2xl mx-auto">
-        <Card className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 p-6 md:p-8">
-          <div className="text-center">
-            <p className="text-lg font-bold text-foreground mb-2">
-              {language === 'en' ? '🔄 The Burnout Cycle' : '🔄 Ciclul Burnout-ului'}
-            </p>
-            <p className="text-muted-foreground mb-4">
-              {language === 'en' 
-                ? 'Work more → Less time for health → Less energy → Need to work harder → Repeat'
-                : 'Muncești mai mult → Mai puțin timp pentru sănătate → Mai puțină energie → Trebuie să muncești mai mult → Repetă'
-              }
-            </p>
-            <p className="text-primary font-bold">
-              {language === 'en' 
-                ? 'There IS a way to break this cycle. ↓'
-                : 'EXISTĂ o cale să rupi acest ciclu. ↓'
-              }
-            </p>
+    <section id="problem" className="py-16 md:py-24">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-medium mb-4">
+            {language === 'ro' ? 'PROBLEMA' : 'THE PROBLEM'}
           </div>
-        </Card>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            {language === 'ro'
+              ? <>Nu îți lipsesc informații.<br />Îți lipsește un <span className="n8n-gradient-text">sistem de operare</span>.</>
+              : <>You don't lack information.<br />You lack an <span className="n8n-gradient-text">operating system</span>.</>}
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            {language === 'ro'
+              ? 'Cele 5 probleme critice care țin antreprenorii blocați, faliți sau epuizați:'
+              : 'The 5 critical problems keeping entrepreneurs stuck, broke or burned out:'}
+          </p>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {problems.map((p, idx) => {
+            const Icon = p.icon;
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.08 }}
+                className={`rounded-2xl border p-6 ${p.bg} hover:scale-[1.02] transition-transform duration-300`}
+              >
+                <Icon className={`w-8 h-8 ${p.color} mb-4`} />
+                <h3 className="text-lg font-bold text-foreground mb-2">
+                  {language === 'ro' ? p.titleRo : p.titleEn}
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  {language === 'ro' ? p.descRo : p.descEn}
+                </p>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
