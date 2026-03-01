@@ -74,6 +74,18 @@ export const BlogArticle = ({ post }: BlogArticleProps) => {
               {post.readingTime}
             </span>
           </div>
+
+          {/* Video Embed */}
+          {post.videoEmbedId && (
+            <div className="mt-8 rounded-xl overflow-hidden" style={{ aspectRatio: '16/9', background: 'linear-gradient(45deg, rgb(142, 150, 164) 0%, rgb(201, 208, 222) 100%)' }}>
+              <iframe
+                src={`https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=${post.videoEmbedId}&videoRatio=1.777778&type=v&skinColor=%232758EB`}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          )}
         </div>
       </header>
 
