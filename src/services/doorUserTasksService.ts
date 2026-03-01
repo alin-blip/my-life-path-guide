@@ -320,7 +320,7 @@ export const doorUserTasksService = {
 
     const { data: existing } = idea.category === 'hot'
       ? await dupQuery.is('week_key', null).limit(1)
-      : await dupQuery.eq('week_key', weekKey).limit(1);
+      : await dupQuery.eq('week_key', weekKey).eq('day_of_week', effectiveDay).limit(1);
 
     if (existing && existing.length > 0) {
       console.log('⚠️ Duplicate task detected, skipping insert:', idea.text);
