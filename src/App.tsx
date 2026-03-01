@@ -101,6 +101,8 @@ const GroupPage = lazy(() => import("./pages/GroupPage"));
 const Messages = lazy(() => import("./pages/Messages"));
 const B2BLanding = lazy(() => import("./pages/B2BLanding"));
 const ChallengeUpsell = lazy(() => import("./pages/ChallengeUpsell"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
@@ -424,6 +426,8 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/b2b" element={<B2BLanding />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:slug" element={<BlogPost />} />
                         <Route path="*" element={<NotFound />} />
                        </Routes>
                       </Suspense>
