@@ -669,6 +669,9 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           
           console.log(`📋 Total ${stepsAdded} steps added to daily tasks`);
           
+          // Dispatch event to refresh in-memory state so saveWeekLists won't use stale data
+          window.dispatchEvent(new CustomEvent('doorDataUpdated', { detail: { source: 'planning-complete' } }));
+          
           // Clear draft
           localStorage.removeItem(draftKey);
           await weeklyPlanningDraftService.deleteDraft(currentWeekKey, selectedDomain);

@@ -261,18 +261,10 @@ export const doorUserTasksService = {
       });
     }
 
-    // Delete only tasks that are no longer in the lists
-    const idsToDelete = (existingTasks ?? [])
-      .filter(task => !currentIds.has(String(task.id)))
-      .map(task => task.id);
-
-    if (idsToDelete.length > 0) {
-      await supabase
-        .from('user_tasks')
-        .delete()
-        .eq('user_id', userId)
-        .in('id', idsToDelete);
-    }
+    // NOTE: We intentionally do NOT delete tasks that are missing from the in-memory lists.
+    // This prevents a race condition where tasks added by addIdeaToWeek (directly to DB)
+    // get deleted because the in-memory state hasn't been refreshed yet.
+    // Explicit task removal (e.g., moveTaskBackToHotList) handles its own deletion.
 
     if (upsertRows.length === 0) {
       return { count: 0 };
