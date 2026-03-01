@@ -18,6 +18,7 @@ export interface BlogPost {
   readingTime: string;
   thumbnail?: string;
   videoUrl?: string;
+  videoEmbedId?: string;
   sections: BlogPostSection[];
   metaDescription: string;
   metaKeywords: string[];
@@ -26,6 +27,7 @@ export interface BlogPost {
 export const blogPosts: BlogPost[] = [
   {
     slug: 'rutina-razboinicului-ceo-mind-os',
+    videoEmbedId: '4htQEgU0LNNG1iItSTVY0nrSKDhvaHDexzsxCEYsEMKzVzl8f',
     titleRo: 'Rutina Războinicului: Cum să-ți Începi Ziua ca un CEO cu Rezultate',
     titleEn: 'The Warrior Routine: How to Start Your Day as a CEO with Results',
     excerpt: 'Descoperă sistemul complet pe care antreprenorii de succes îl folosesc pentru a-și transforma dimineața, a elimina procrastinarea și a opera la capacitate maximă în toate ariile vieții.',
