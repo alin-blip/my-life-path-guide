@@ -647,10 +647,17 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           for (const keyPoint of planningData.keyPoints || []) {
             for (const step of keyPoint.steps || []) {
               const stepText = typeof step === 'string' ? step : step.text;
-              const stepDay = typeof step === 'object' ? step.day : null;
-              const stepListType = typeof step === 'object' ? step.listType : 'do';
+              let stepDay = typeof step === 'object' ? step.day : null;
+              const stepListType = typeof step === 'object' ? step.listType : 'hit';
               
-              if (stepText && stepDay) {
+              // Fallback: assign round-robin weekday if step was a plain string or missing day
+              if (stepText && !stepDay) {
+                const fallbackDays: DayOfWeek[] = ['M', 'T', 'W', 'Th', 'F'];
+                stepDay = fallbackDays[stepsAdded % fallbackDays.length];
+                console.warn(`⚠️ Step "${stepText}" had no day, assigned fallback: ${stepDay}`);
+              }
+              
+              if (stepText) {
                 try {
                   await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
                     id: uuidv4(),
