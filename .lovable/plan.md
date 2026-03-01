@@ -1,82 +1,56 @@
 
-# Plan: Optimizari Hormozi-Style pentru Landing Page
 
-## 1. Fix Inconsistenta Trial (Hero = 7 zile, Pricing = 5 zile)
+# Plan: Fix Domino Door Task Disappearance Bug
 
-**NewHeroSection.tsx**: Schimba "Challenge-ul Gratuit de 7 Zile" -> "Trial-ul Gratuit de 5 Zile" (pentru a fi consistent cu pricing-ul de 5 zile).
+## Root Cause
 
-## 2. Value Stack in PricingComparison
+There is a **race condition** between two save mechanisms:
 
-Adauga anchoring de valoare deasupra pretului fiecarui plan:
+1. **`addIdeaToWeek`** - inserts tasks directly to the database (used by AI planning, Stack, manual add)
+2. **`saveWeekLists`** - takes the in-memory `hitList`/`doList`, upserts them, and **deletes any DB task NOT in the in-memory lists**
 
-- **Basic**: Valoare totala ~2.500 LEI/luna -> Tu platesti doar 249 LEI
-- **Pro**: Valoare totala ~5.000 LEI/luna -> Tu platesti doar 490 LEI  
-- **Elite**: Valoare totala ~15.000 LEI/luna -> Tu platesti doar 1.490 LEI
+When a user adds tasks (via planning or manual), they go to the DB but the in-memory React state hasn't been updated. The next save operation (triggered by toggling a checkbox, moving a task, or auto-save) runs `saveWeekLists` with stale in-memory data, which **deletes the newly added tasks**.
 
-Se afiseaza ca text strikethrough deasupra pretului real (pattern clasic Hormozi).
+The realtime subscription then reloads, but by then the tasks are already deleted.
 
-## 3. CTA-uri intermediare (2 noi componente inline)
+## Fix Strategy
 
-Creez o componenta reutilizabila `InlineCTA.tsx` si o inserez in Index.tsx in 2 locuri:
+### Fix 1: Make `saveWeekLists` only delete tasks it originally knew about
 
-- **Dupa ProblemSectionNew** - "Ai recunoscut problema? Instaleaza solutia." + buton CTA
-- **Dupa ComparisonSection** - "Alege partea cu rezultate." + buton CTA
+In `doorUserTasksService.ts`, the delete logic currently removes any DB task not in `currentIds`. Change it to only delete tasks that were in the **original `existingTasks` snapshot AND are no longer in the new lists** - but skip deleting tasks that were added **after** the initial load (i.e., tasks with IDs not known to the caller).
 
-Componenta e simpla: un banner cu text + buton care duce la `/auth`.
+Concretely: instead of blindly deleting all DB tasks not in the current in-memory list, only delete tasks whose IDs were passed in the previous state. This prevents deleting tasks added by other code paths.
 
-## 4. Guarantee Section dedicata
+### Fix 2: Refresh in-memory state after `addIdeaToWeek`
 
-Creez `GuaranteeSection.tsx` - o sectiune mica plasata intre ComparisonSection si TestimonialCarousel:
+After `addIdeaToWeek` successfully inserts, trigger a reload of the hitList/doList state to sync in-memory with DB. This ensures the next `saveWeekLists` call has the complete picture.
 
-- Headline: "Garantie 100% - 90 de Zile"
-- Text: "Daca in 90 de zile nu vezi rezultate masurabile, iti dam banii inapoi. Fara intrebari."
-- Icon: Shield mare
-- Design: border verde, bg-green/5
+In `DoorPlanningModal.tsx` (line ~670), after all steps are added, dispatch the `doorDataUpdated` event so `useDoorStorage` reloads the lists.
 
-## 5. Founder Section - Adauga metrici concrete
+### Fix 3: Guard against realtime-triggered saves
 
-In **FounderSectionNew.tsx**, adaug o linie cu rezultate concrete:
-- "€100K+ investiti in dezvoltare personala"
-- "500+ fondatori transformati" (sau numarul real)
-- "16+ instrumente construite"
-
-Se afiseaza ca 3 stat badges sub textul principal.
-
-## 6. Social proof langa CTA-urile principale
-
-In **NewHeroSection.tsx**, adaug un micro-social-proof sub butonul CTA:
-- Avatar stack (3 cercuri) + "Alaturat de 100+ fondatori" (sau numarul real din DB)
+In `useDoorLists.tsx`, when the realtime subscription triggers a reload (lines 32-48), set a flag to prevent the `useDoorStorageSave` from immediately saving the stale state back.
 
 ---
 
-## Rezumat fisiere
+## Technical Changes
 
-| Fisier | Modificare |
-|--------|-----------|
-| NewHeroSection.tsx | Fix "7 zile" -> "5 zile", adauga micro social proof sub CTA |
-| PricingComparison.tsx | Adauga value stack anchoring deasupra pretului |
-| FounderSectionNew.tsx | Adauga 3 stat badges cu metrici concrete |
-| InlineCTA.tsx (NOU) | Componenta reutilizabila de CTA intermediar |
-| GuaranteeSection.tsx (NOU) | Sectiune dedicata garantiei de 90 zile |
-| Index.tsx | Insereaza InlineCTA (x2) si GuaranteeSection in ordinea corecta |
+### File 1: `src/services/doorUserTasksService.ts` (saveWeekLists)
+- Change the delete logic (lines 264-275): instead of deleting all DB tasks not in `currentIds`, only delete tasks that existed in the `existingTasks` fetch but are missing from the new lists. This prevents deleting tasks that were added by `addIdeaToWeek` between the initial load and this save.
 
-**Ordinea noua in Index.tsx:**
-```text
-StickyHeader
-NewHeroSection
-LogoCloud
-ProblemSectionNew
-InlineCTA #1 ("Ai recunoscut problema?")
-MethodologySection
-FounderSectionNew (cu stats)
-TargetAudienceSection
-ComparisonSection
-InlineCTA #2 ("Alege partea cu rezultate")
-GuaranteeSection (NOU)
-TestimonialCarousel
-PricingComparison (cu value stack)
-FAQSection
-NewFooter
+### File 2: `src/components/door/DoorPlanningModal.tsx` (after steps saved)
+- After the loop that adds steps to daily tasks (line ~670), dispatch a `doorDataUpdated` event to force a state reload:
+```typescript
+window.dispatchEvent(new CustomEvent('doorDataUpdated', { detail: { source: 'planning-complete' } }));
 ```
 
-**Total: 4 fisiere modificate + 2 fisiere noi**
+### File 3: `src/hooks/useDoorLists.tsx` (refreshLists)
+- Add a public `refreshLists` function that reloads from DB and updates in-memory state
+- Ensure this is called after any `addIdeaToWeek` operations
+
+---
+
+## What this fixes
+- Tasks added via AI planning no longer disappear when another action triggers a save
+- Tasks moved between lists persist correctly
+- Manual task additions are preserved across save cycles
