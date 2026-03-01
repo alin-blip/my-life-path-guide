@@ -258,84 +258,47 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
   };
 
   const moveTaskBackToHotList = async (taskId: string, listType: 'hit' | 'do') => {
+    const taskToMove = listType === 'hit' 
+      ? hitList.find(item => item.id === taskId)
+      : doList.find(item => item.id === taskId);
+    
+    if (!taskToMove) return;
+
+    const newHotItem: HotListItem = {
+      id: `task-to-hot-${Date.now()}`,
+      text: taskToMove.text,
+      selected: false,
+      priority: taskToMove.priority || 'none'
+    };
+    
+    const updatedHotList = [...hotList, newHotItem];
+    
     if (listType === 'hit') {
-      const taskToMove = hitList.find(item => item.id === taskId);
-      
-      if (taskToMove) {
-        const newHotItem: HotListItem = {
-          id: `task-to-hot-${Date.now()}`,
-          text: taskToMove.text,
-          selected: false,
-          priority: taskToMove.priority || 'none'
-        };
-        
-        const updatedHotList = [...hotList, newHotItem];
-        const updatedHitList = hitList.filter(item => item.id !== taskId);
-        
-        setHotList(updatedHotList);
-        setHitList(updatedHitList);
-        
-        // Immediate save to Supabase
-        try {
-          await doorUserTasksService.saveGlobalHotList(updatedHotList);
-          await doorUserTasksService.saveWeekLists(currentWeekKey, {
-            hitList: updatedHitList,
-            doList
-          });
-          onDataChange?.();
-          
-          toast({
-            title: "Task Moved",
-            description: "Task has been moved back to the Hot List",
-          });
-        } catch (error) {
-          console.error('Error moving task:', error);
-          toast({
-            title: '⚠️ Eroare salvare',
-            description: 'Nu s-a putut salva mișcarea task-ului',
-            variant: 'destructive',
-          });
-        }
-      }
+      setHitList(prev => prev.filter(item => item.id !== taskId));
     } else {
-      const taskToMove = doList.find(item => item.id === taskId);
+      setDoList(prev => prev.filter(item => item.id !== taskId));
+    }
+    setHotList(updatedHotList);
+    
+    try {
+      // Explicitly delete the moved task from DB
+      const { supabase } = await import('@/integrations/supabase/client');
+      await supabase.from('user_tasks').delete().eq('id', taskId);
       
-      if (taskToMove) {
-        const newHotItem: HotListItem = {
-          id: `task-to-hot-${Date.now()}`,
-          text: taskToMove.text,
-          selected: false,
-          priority: taskToMove.priority || 'none'
-        };
-        
-        const updatedHotList = [...hotList, newHotItem];
-        const updatedDoList = doList.filter(item => item.id !== taskId);
-        
-        setHotList(updatedHotList);
-        setDoList(updatedDoList);
-        
-        // Immediate save to Supabase
-        try {
-          await doorUserTasksService.saveGlobalHotList(updatedHotList);
-          await doorUserTasksService.saveWeekLists(currentWeekKey, {
-            hitList,
-            doList: updatedDoList
-          });
-          onDataChange?.();
-          
-          toast({
-            title: "Task Moved",
-            description: "Task has been moved back to the Hot List",
-          });
-        } catch (error) {
-          console.error('Error moving task:', error);
-          toast({
-            title: '⚠️ Eroare salvare',
-            description: 'Nu s-a putut salva mișcarea task-ului',
-            variant: 'destructive',
-          });
-        }
-      }
+      await doorUserTasksService.saveGlobalHotList(updatedHotList);
+      onDataChange?.();
+      
+      toast({
+        title: "Task Moved",
+        description: "Task has been moved back to the Hot List",
+      });
+    } catch (error) {
+      console.error('Error moving task:', error);
+      toast({
+        title: '⚠️ Eroare salvare',
+        description: 'Nu s-a putut salva mișcarea task-ului',
+        variant: 'destructive',
+      });
     }
   };
 
