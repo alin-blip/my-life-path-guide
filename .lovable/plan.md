@@ -1,56 +1,46 @@
 
 
-# Plan: Fix Domino Door Task Disappearance Bug
+# Plan: Fix Missing Tasks from AI Planning in Domino Door
 
-## Root Cause
+## Root Cause Identified
 
-There is a **race condition** between two save mechanisms:
+After analyzing the code flow and database data, there are **two bugs** causing tasks to not appear after AI planning:
 
-1. **`addIdeaToWeek`** - inserts tasks directly to the database (used by AI planning, Stack, manual add)
-2. **`saveWeekLists`** - takes the in-memory `hitList`/`doList`, upserts them, and **deletes any DB task NOT in the in-memory lists**
+### Bug 1: Steps returned as plain strings are silently dropped
 
-When a user adds tasks (via planning or manual), they go to the DB but the in-memory React state hasn't been updated. The next save operation (triggered by toggling a checkbox, moving a task, or auto-save) runs `saveWeekLists` with stale in-memory data, which **deletes the newly added tasks**.
+In `DoorPlanningModal.tsx` (line 649-653), when the AI returns a step as a plain string instead of an object `{text, day, listType}`, the day is set to `null`:
 
-The realtime subscription then reloads, but by then the tasks are already deleted.
-
-## Fix Strategy
-
-### Fix 1: Make `saveWeekLists` only delete tasks it originally knew about
-
-In `doorUserTasksService.ts`, the delete logic currently removes any DB task not in `currentIds`. Change it to only delete tasks that were in the **original `existingTasks` snapshot AND are no longer in the new lists** - but skip deleting tasks that were added **after** the initial load (i.e., tasks with IDs not known to the caller).
-
-Concretely: instead of blindly deleting all DB tasks not in the current in-memory list, only delete tasks whose IDs were passed in the previous state. This prevents deleting tasks added by other code paths.
-
-### Fix 2: Refresh in-memory state after `addIdeaToWeek`
-
-After `addIdeaToWeek` successfully inserts, trigger a reload of the hitList/doList state to sync in-memory with DB. This ensures the next `saveWeekLists` call has the complete picture.
-
-In `DoorPlanningModal.tsx` (line ~670), after all steps are added, dispatch the `doorDataUpdated` event so `useDoorStorage` reloads the lists.
-
-### Fix 3: Guard against realtime-triggered saves
-
-In `useDoorLists.tsx`, when the realtime subscription triggers a reload (lines 32-48), set a flag to prevent the `useDoorStorageSave` from immediately saving the stale state back.
-
----
-
-## Technical Changes
-
-### File 1: `src/services/doorUserTasksService.ts` (saveWeekLists)
-- Change the delete logic (lines 264-275): instead of deleting all DB tasks not in `currentIds`, only delete tasks that existed in the `existingTasks` fetch but are missing from the new lists. This prevents deleting tasks that were added by `addIdeaToWeek` between the initial load and this save.
-
-### File 2: `src/components/door/DoorPlanningModal.tsx` (after steps saved)
-- After the loop that adds steps to daily tasks (line ~670), dispatch a `doorDataUpdated` event to force a state reload:
-```typescript
-window.dispatchEvent(new CustomEvent('doorDataUpdated', { detail: { source: 'planning-complete' } }));
+```text
+stepText = typeof step === 'string' ? step : step.text;   // OK - gets text
+stepDay  = typeof step === 'object' ? step.day : null;     // BUG - null if string
 ```
 
-### File 3: `src/hooks/useDoorLists.tsx` (refreshLists)
-- Add a public `refreshLists` function that reloads from DB and updates in-memory state
-- Ensure this is called after any `addIdeaToWeek` operations
+Then line 653 checks `if (stepText && stepDay)` -- since `stepDay` is null, the task is **silently skipped**. No error, no log, no warning. The AI sometimes returns steps as plain strings despite the schema requiring objects.
 
----
+### Bug 2: Duplicate check ignores day_of_week
 
-## What this fixes
-- Tasks added via AI planning no longer disappear when another action triggers a save
-- Tasks moved between lists persist correctly
-- Manual task additions are preserved across save cycles
+In `doorUserTasksService.ts` (line 314-323), the duplicate detection checks `title + task_type + week_key` but **NOT day_of_week**. If the AI assigns the same task text to two different days (e.g., "Follow up emails" on Monday and Thursday), only the first is saved. The second is treated as a duplicate.
+
+## Fixes
+
+### Fix 1: `DoorPlanningModal.tsx` - Handle string steps with fallback day
+
+When a step is a plain string (no day/listType), assign it to the current day and default to `hit` list type instead of silently dropping it. Also add a console warning.
+
+### Fix 2: `doorUserTasksService.ts` - Include day_of_week in duplicate check
+
+Update the duplicate query in `addIdeaToWeek` to also check `day_of_week`, so the same task text on different days is allowed.
+
+## Technical Details
+
+**File 1: `src/components/door/DoorPlanningModal.tsx`** (lines 649-653)
+- When `step` is a string, set `stepDay` to the next available weekday (round-robin M-F) instead of null
+- Add console.warn for visibility
+- Remove the `if (stepText && stepDay)` guard - always attempt to add if stepText exists
+
+**File 2: `src/services/doorUserTasksService.ts`** (lines 314-323)
+- Add `.eq('day_of_week', effectiveDay)` to the duplicate query for non-hot tasks
+- This allows the same task text on different days
+
+**Total: 2 files modified, no new files.**
+
