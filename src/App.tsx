@@ -102,6 +102,7 @@ const Messages = lazy(() => import("./pages/Messages"));
 const B2BLanding = lazy(() => import("./pages/B2BLanding"));
 const ChallengeUpsell = lazy(() => import("./pages/ChallengeUpsell"));
 const Blog = lazy(() => import("./pages/Blog"));
+const BurnoutTest = lazy(() => import("./pages/BurnoutTest"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -338,6 +339,7 @@ const App = () => (
                     <Route path="/terms" element={<TermsOfService />} />
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/life-score" element={<LifeScore />} />
+                    <Route path="/burnout-test" element={<BurnoutTest />} />
                     <Route path="/warriors-way" element={
                       <ProtectedRoute>
                         <WarriorsWay />
