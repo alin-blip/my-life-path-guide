@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
-import { UserX, Heart, Zap, Brain, Lock } from "lucide-react";
+import { UserX, Flame, Heart, Zap, Brain, Lock } from "lucide-react";
 
 const problems = [
   {
@@ -11,6 +11,15 @@ const problems = [
     descEn: "You're stuck in the executor role. You haven't made the leap from operator to CEO.",
     color: "text-red-500",
     bg: "bg-red-500/10 border-red-500/20",
+  },
+  {
+    icon: Flame,
+    titleRo: "Capcana Burnout-ului",
+    titleEn: "The Burnout Trap",
+    descRo: "Lucrezi non-stop fără pauză. Corpul, mintea și relațiile suferă iar tu numești asta 'dedicare'.",
+    descEn: "You work nonstop without breaks. Your body, mind and relationships suffer while you call it 'dedication'.",
+    color: "text-rose-500",
+    bg: "bg-rose-500/10 border-rose-500/20",
   },
   {
     icon: Heart,
@@ -72,8 +81,8 @@ export const ProblemSectionNew = () => {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {language === 'ro'
-              ? 'Cele 5 probleme critice care țin antreprenorii blocați, faliți sau epuizați:'
-              : 'The 5 critical problems keeping entrepreneurs stuck, broke or burned out:'}
+              ? 'Cele 6 probleme critice care țin antreprenorii blocați, faliți sau epuizați:'
+              : 'The 6 critical problems keeping entrepreneurs stuck, broke or burned out:'}
           </p>
         </motion.div>
 

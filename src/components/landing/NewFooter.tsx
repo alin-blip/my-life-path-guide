@@ -24,6 +24,7 @@ export const NewFooter = () => {
       title: language === 'ro' ? 'Resurse' : 'Resources',
       links: [
         { label: language === 'ro' ? 'Blog' : 'Blog', href: '/blog' },
+        { label: language === 'ro' ? 'Test Burnout' : 'Burnout Test', href: '/burnout-test' },
         { label: language === 'ro' ? 'Ghiduri' : 'Guides', href: '/guides' },
         { label: language === 'ro' ? 'Suport' : 'Support', href: '/support' },
         { label: language === 'ro' ? 'Status' : 'Status', href: '/status' },
