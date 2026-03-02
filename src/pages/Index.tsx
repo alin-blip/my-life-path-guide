@@ -18,6 +18,7 @@ const TestimonialCarousel = lazy(() => import("@/components/landing/TestimonialC
 const InlineCTA = lazy(() => import("@/components/landing/InlineCTA").then(m => ({ default: m.InlineCTA })));
 const GuaranteeSection = lazy(() => import("@/components/landing/GuaranteeSection").then(m => ({ default: m.GuaranteeSection })));
 const PricingComparison = lazy(() => import("@/components/landing/PricingComparison").then(m => ({ default: m.PricingComparison })));
+const FeatureShowcase = lazy(() => import("@/components/landing/FeatureShowcase").then(m => ({ default: m.FeatureShowcase })));
 const FAQSection = lazy(() => import("@/components/landing/FAQSection").then(m => ({ default: m.FAQSection })));
 const NewFooter = lazy(() => import("@/components/landing/NewFooter").then(m => ({ default: m.NewFooter })));
 
@@ -60,6 +61,7 @@ const Index = () => {
         <LogoCloud />
         <ProblemSectionNew />
         <InlineCTA headlineRo="Ai recunoscut problema? Instalează soluția." headlineEn="Recognized the problem? Install the solution." />
+        <FeatureShowcase />
         <MethodologySection />
         <FounderSectionNew />
         <TargetAudienceSection />
