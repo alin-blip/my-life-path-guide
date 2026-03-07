@@ -132,6 +132,14 @@ serve(async (req) => {
         productName = "CEO Certified Coach";
         tier = "accelerator";
         break;
+
+      case "ebook-accelerator":
+        unitAmount = 9900;
+        currency = "ron";
+        paymentMode = "payment";
+        productName = "CEO Mind OS - Pachet Accelerator (Ebook)";
+        tier = "accelerator";
+        break;
       
       case "trial":
         unitAmount = 19700;
