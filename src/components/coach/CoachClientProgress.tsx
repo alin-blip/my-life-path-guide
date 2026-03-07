@@ -70,8 +70,8 @@ export const CoachClientProgress: React.FC<CoachClientProgressProps> = ({ coachP
       const xpData = xpResult.status === 'fulfilled' ? (xpResult.value.data ?? []) : [];
       const progressData = progressResult.status === 'fulfilled' ? (progressResult.value.data ?? []) : [];
 
-      const profileMap = new Map(profilesData.map(p => [p.user_id, p]));
-      const xpMap = new Map<string, number>(xpData.map(x => [x.user_id, x.total_xp ?? 0]));
+      const profileMap = new Map(profilesData.filter(p => p.user_id).map(p => [p.user_id, p]));
+      const xpMap = new Map<string, number>(xpData.filter(x => x.user_id).map(x => [x.user_id, x.total_xp ?? 0]));
       
       // Get latest progress per user
       const progressMap = new Map<string, { streak: number; rate: number; date: string }>();
