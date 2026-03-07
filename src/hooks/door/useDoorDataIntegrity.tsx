@@ -99,8 +99,9 @@ export function useDoorDataIntegrity() {
       
       logStorageAction('Backup created', { backupKey, timestamp: backupData.timestamp });
       return backupKey;
-    } catch (error: any) {
-      logStorageAction('Failed to create backup', { error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logStorageAction('Failed to create backup', { error: message });
       return null;
     }
   }, [logStorageAction]);
@@ -149,8 +150,9 @@ export function useDoorDataIntegrity() {
       });
       
       return true;
-    } catch (error: any) {
-      logStorageAction('Failed to restore from backup', { error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logStorageAction('Failed to restore from backup', { error: message });
       toast({
         title: "❌ Eroare restaurare",
         description: "Nu s-au putut restaura datele din backup",
@@ -193,8 +195,9 @@ export function useDoorDataIntegrity() {
       });
       
       logStorageAction('Data exported', { filename: link.download });
-    } catch (error: any) {
-      logStorageAction('Failed to export data', { error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logStorageAction('Failed to export data', { error: message });
       toast({
         title: "❌ Eroare export",
         description: "Nu s-au putut exporta datele",

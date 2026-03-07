@@ -65,8 +65,9 @@ export function DataMigrationModal() {
       } else {
         setError(result.error || 'Migration failed');
       }
-    } catch (error: any) {
-      setError(error.message || 'An error occurred during migration');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      setError(message || 'An error occurred during migration');
     } finally {
       setMigrating(false);
     }

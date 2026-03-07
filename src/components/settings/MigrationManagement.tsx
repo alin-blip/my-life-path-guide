@@ -64,10 +64,11 @@ export const MigrationManagement: React.FC = () => {
 
       if (error) throw error;
       setMigrations(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Error loading migration history',
-        description: error.message,
+        description: message,
         variant: 'destructive'
       });
     } finally {
@@ -91,10 +92,11 @@ export const MigrationManagement: React.FC = () => {
       } else {
         throw new Error(result.error || 'Rollback failed');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Rollback failed',
-        description: error.message,
+        description: message,
         variant: 'destructive'
       });
     } finally {
@@ -131,10 +133,11 @@ export const MigrationManagement: React.FC = () => {
         title: 'Backup exported',
         description: 'Your backup data has been downloaded',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Export failed',
-        description: error.message,
+        description: message,
         variant: 'destructive'
       });
     }
@@ -147,10 +150,11 @@ export const MigrationManagement: React.FC = () => {
         title: 'Local storage cleared',
         description: 'Migrated data has been removed from local storage',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Clear failed',
-        description: error.message,
+        description: message,
         variant: 'destructive'
       });
     } finally {
@@ -165,10 +169,11 @@ export const MigrationManagement: React.FC = () => {
 
       setRetriggerConfirmOpen(false);
       window.location.reload(); // Reload to trigger migration modal
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Retrigger failed',
-        description: error.message,
+        description: message,
         variant: 'destructive'
       });
     }

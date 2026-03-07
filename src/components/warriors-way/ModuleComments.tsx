@@ -120,6 +120,7 @@ export const ModuleComments = forwardRef<ModuleCommentsRef, ModuleCommentsProps>
       try {
         return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: ro });
       } catch {
+        // Invalid date format – return original string
         return 'recent';
       }
     };

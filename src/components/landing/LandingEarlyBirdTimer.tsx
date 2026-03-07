@@ -174,6 +174,7 @@ export function useVisitorEarlyBird() {
         setTimeLeft(tl);
         setIsActive(tl.total > 0);
       } catch {
+        // localStorage unavailable – use fallback
         setIsActive(true);
       }
     };

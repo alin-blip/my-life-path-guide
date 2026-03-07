@@ -1,1 +1,7 @@
-{\n  "compilerOptions": {\n    "strict": true,\n    "noImplicitAny": true,\n    "noUnusedLocals": true,\n    "noUnusedParameters": true,\n    "strictNullChecks": true\n  }\n}
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}

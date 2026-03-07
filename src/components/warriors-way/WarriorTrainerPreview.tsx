@@ -83,6 +83,7 @@ export const WarriorTrainerPreview: React.FC<WarriorTrainerPreviewProps> = ({
     try {
       return format(new Date(dateStr), 'd MMM yyyy', { locale: ro });
     } catch {
+      // Invalid date format – return original string
       return dateStr;
     }
   };

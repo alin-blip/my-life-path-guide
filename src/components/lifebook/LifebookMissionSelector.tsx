@@ -203,11 +203,12 @@ const LifebookMissionSelector: React.FC = () => {
             : 'You can edit the suggested objective as you prefer'
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error generating suggestion:', error);
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: language === 'ro' ? 'Eroare' : 'Error',
-        description: error.message || (language === 'ro' ? 'Nu s-a putut genera sugestia' : 'Could not generate suggestion'),
+        description: message || (language === 'ro' ? 'Nu s-a putut genera sugestia' : 'Could not generate suggestion'),
         variant: 'destructive'
       });
     } finally {

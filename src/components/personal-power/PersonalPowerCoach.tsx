@@ -124,6 +124,7 @@ export const PersonalPowerCoach: React.FC<PersonalPowerCoachProps> = ({
               });
             }
           } catch {
+            // Partial SSE chunk – keep accumulating in buffer
             textBuffer = line + '\n' + textBuffer;
             break;
           }

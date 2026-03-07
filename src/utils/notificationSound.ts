@@ -83,6 +83,7 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     const permission = await Notification.requestPermission();
     return permission === 'granted';
   } catch {
+    // Browser API unavailable – return safe default
     return false;
   }
 };

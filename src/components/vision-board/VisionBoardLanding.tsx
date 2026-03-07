@@ -156,8 +156,9 @@ export const VisionBoardLanding: React.FC<VisionBoardLandingProps> = ({
     
     try {
       await onSignupAndStart(email, password, name);
-    } catch (error: any) {
-      setFormError(error.message || 'Something went wrong');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      setFormError(message || 'Something went wrong');
     }
   };
 

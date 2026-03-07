@@ -145,6 +145,7 @@ export const IdeaAnalysisModal: React.FC<IdeaAnalysisModalProps> = ({
             });
           }
         } catch {
+          // Partial SSE chunk – keep accumulating in buffer
           textBuffer = line + '\n' + textBuffer;
           break;
         }

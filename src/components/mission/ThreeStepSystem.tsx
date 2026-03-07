@@ -54,6 +54,7 @@ function loadAnnualGoalAnswers(category: string, language: string) {
   try {
     return JSON.parse(localStorage.getItem(getAnnualGoalAnswersKey(category, language)) || '{}');
   } catch {
+    // JSON parse failed – return safe fallback
     return {};
   }
 }
@@ -68,6 +69,7 @@ function loadMonthlyMissionAnswers(category: string, language: string) {
   try {
     return JSON.parse(localStorage.getItem(getMonthlyMissionAnswersKey(category, language)) || '{}');
   } catch {
+    // JSON parse failed – return safe fallback
     return {};
   }
 }

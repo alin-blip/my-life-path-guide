@@ -135,7 +135,9 @@ export const AIDailyInsights: React.FC = () => {
                 const data = JSON.parse(line.slice(6));
                 const content = data.choices?.[0]?.delta?.content;
                 if (content) fullContent += content;
-              } catch (e) {}
+              } catch (e) {
+                // Ignore malformed SSE JSON chunks - they can occur with partial streaming data
+              }
             }
           }
         }

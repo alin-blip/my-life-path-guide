@@ -93,7 +93,9 @@ export const useVoiceConversation = (options: UseVoiceConversationOptions) => {
       mediaStreamRef.current = null;
     }
     if (audioContextRef.current) {
-      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current.close().catch((err) => {
+        if (import.meta.env.DEV) console.warn('AudioContext close failed:', err);
+      });
       audioContextRef.current = null;
     }
   }, [cleanupTimers]);

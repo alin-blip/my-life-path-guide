@@ -197,6 +197,7 @@ export function useMindCoachDemo(options: UseMindCoachDemoOptions = {}) {
               await processToolCalls(pendingToolCalls);
             }
           } catch {
+            // Partial SSE chunk – keep accumulating in buffer
             textBuffer = line + '\n' + textBuffer;
             break;
           }

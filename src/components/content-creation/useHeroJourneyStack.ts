@@ -76,14 +76,15 @@ export function useHeroJourneyStack(options: UseHeroJourneyStackOptions = {}) {
         toast.success(language === 'en' ? 'Script generated!' : 'Script generat cu succes!');
         return data.script;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error generating hero journey script:', error);
-      if (error.message?.includes('429')) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('429')) {
         toast.error(language === 'en' 
           ? 'Too many requests. Try again in a few seconds.' 
           : 'Prea multe cereri. Încearcă din nou în câteva secunde.'
         );
-      } else if (error.message?.includes('402')) {
+      } else if (message.includes('402')) {
         toast.error(language === 'en' 
           ? 'Insufficient credits. Add credits to workspace.' 
           : 'Credits insuficiente. Adaugă credite în workspace.'

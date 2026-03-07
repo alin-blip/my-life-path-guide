@@ -30,6 +30,7 @@ function loadFromLocalStorage(): Partial<UserPreferences> {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch {
+    // JSON parse failed – return safe fallback
     return {};
   }
 }

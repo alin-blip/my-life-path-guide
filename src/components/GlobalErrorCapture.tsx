@@ -15,7 +15,15 @@ export const GlobalErrorCapture = () => {
           user_agent: navigator.userAgent,
         });
       } catch (e) {
-        // Silently fail - don't create error loops
+        // Supabase unavailable – persist error to localStorage as a fallback
+        try {
+          const pending = JSON.parse(localStorage.getItem('_pendingErrorLogs') || '[]');
+          pending.push({ errorMessage, stackTrace, componentName, url: window.location.href, ts: Date.now() });
+          // Keep at most 20 entries to avoid unbounded growth
+          localStorage.setItem('_pendingErrorLogs', JSON.stringify(pending.slice(-20)));
+        } catch {
+          // localStorage also unavailable – nothing more we can do
+        }
       }
     };
 

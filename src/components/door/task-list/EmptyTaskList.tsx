@@ -93,7 +93,7 @@ export const EmptyTaskList: React.FC<EmptyTaskListProps> = ({
       setPriorities(['', '', '', '']);
       setShowInputs(false);
       await onTasksAdded?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding priorities:', error);
       toast({
         title: language === 'en' ? 'Error' : 'Eroare',

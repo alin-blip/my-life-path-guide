@@ -74,7 +74,7 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     // Load initial data if provided
     if (initialData) {
       try {
-        canvas.loadFromJSON(JSON.parse(initialData), () => {
+        canvas.loadFromJSON(JSON.parse(initialData)).then(() => {
           canvas.renderAll();
         });
       } catch (e) {
@@ -154,7 +154,7 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
 
     if (activeTool === 'pencil' || activeTool === 'highlighter') {
       fabricCanvas.isDrawingMode = true;
-      // Create PencilBrush explicitly for fabric.js v6
+      // Create PencilBrush explicitly for fabric.js v7
       const brush = new PencilBrush(fabricCanvas);
       
       // For highlighter, make the selected color semi-transparent
@@ -292,13 +292,13 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     if (!fabricCanvas) return;
 
     let shape: FabricObject;
-    const center = fabricCanvas.getCenter();
+    const center = fabricCanvas.getVpCenter();
 
     switch (shapeType) {
       case 'rectangle':
         shape = new Rect({
-          left: center.left - 50,
-          top: center.top - 35,
+          left: center.x - 50,
+          top: center.y - 35,
           width: 100,
           height: 70,
           fill: activeColor,
@@ -310,8 +310,8 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
         break;
       case 'circle':
         shape = new Circle({
-          left: center.left - 40,
-          top: center.top - 40,
+          left: center.x - 40,
+          top: center.y - 40,
           radius: 40,
           fill: activeColor,
           stroke: strokeColor,
@@ -320,8 +320,8 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
         break;
       case 'triangle':
         shape = new Triangle({
-          left: center.left - 40,
-          top: center.top - 35,
+          left: center.x - 40,
+          top: center.y - 35,
           width: 80,
           height: 70,
           fill: activeColor,
@@ -330,14 +330,14 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
         });
         break;
       case 'line':
-        shape = new Line([center.left - 50, center.top, center.left + 50, center.top], {
+        shape = new Line([center.x - 50, center.y, center.x + 50, center.y], {
           stroke: strokeColor,
           strokeWidth: strokeWidth,
         });
         break;
       case 'arrow':
         // Create arrow using path
-        const arrowPath = `M ${center.left - 50} ${center.top} L ${center.left + 30} ${center.top} L ${center.left + 20} ${center.top - 10} M ${center.left + 30} ${center.top} L ${center.left + 20} ${center.top + 10}`;
+        const arrowPath = `M ${center.x - 50} ${center.y} L ${center.x + 30} ${center.y} L ${center.x + 20} ${center.y - 10} M ${center.x + 30} ${center.y} L ${center.x + 20} ${center.y + 10}`;
         shape = new Path(arrowPath, {
           stroke: strokeColor,
           strokeWidth: strokeWidth,
@@ -353,8 +353,8 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
           const radius = i % 2 === 0 ? outerRadius : innerRadius;
           const angle = (Math.PI / 5) * i - Math.PI / 2;
           starPoints.push({
-            x: center.left + radius * Math.cos(angle),
-            y: center.top + radius * Math.sin(angle),
+            x: center.x + radius * Math.cos(angle),
+            y: center.y + radius * Math.sin(angle),
           });
         }
         const starPath = starPoints.map((p, i) => 
@@ -380,10 +380,10 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
   const addText = useCallback(() => {
     if (!fabricCanvas) return;
 
-    const center = fabricCanvas.getCenter();
+    const center = fabricCanvas.getVpCenter();
     const text = new IText('Tap to edit', {
-      left: center.left - 60,
-      top: center.top - 15,
+      left: center.x - 60,
+      top: center.y - 15,
       fill: activeColor, // Use selected color instead of hardcoded white
       fontFamily: 'Inter, sans-serif',
       fontSize: 24,
@@ -401,13 +401,13 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
   const addStickyNote = useCallback(() => {
     if (!fabricCanvas) return;
 
-    const center = fabricCanvas.getCenter();
+    const center = fabricCanvas.getVpCenter();
     const colors = ['#fff740', '#ff7eb9', '#7afcff', '#98fb98', '#ffa07a'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
     const rect = new Rect({
-      left: center.left - 75,
-      top: center.top - 75,
+      left: center.x - 75,
+      top: center.y - 75,
       width: 150,
       height: 150,
       fill: randomColor,
@@ -422,8 +422,8 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     });
 
     const text = new IText('Note...', {
-      left: center.left - 65,
-      top: center.top - 65,
+      left: center.x - 65,
+      top: center.y - 65,
       fill: '#1a1a1a',
       fontFamily: 'Inter, sans-serif',
       fontSize: 14,
@@ -456,7 +456,7 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     if (!fabricCanvas || historyIndex <= 0) return;
     
     const newIndex = historyIndex - 1;
-    fabricCanvas.loadFromJSON(JSON.parse(history[newIndex]), () => {
+    fabricCanvas.loadFromJSON(JSON.parse(history[newIndex])).then(() => {
       fabricCanvas.renderAll();
       setHistoryIndex(newIndex);
       setCanUndo(newIndex > 0);
@@ -468,7 +468,7 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     if (!fabricCanvas || historyIndex >= history.length - 1) return;
     
     const newIndex = historyIndex + 1;
-    fabricCanvas.loadFromJSON(JSON.parse(history[newIndex]), () => {
+    fabricCanvas.loadFromJSON(JSON.parse(history[newIndex])).then(() => {
       fabricCanvas.renderAll();
       setHistoryIndex(newIndex);
       setCanUndo(true);

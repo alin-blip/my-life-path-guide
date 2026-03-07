@@ -229,6 +229,7 @@ export const ObjectivesForm: React.FC<ObjectivesFormProps> = ({
               const parsedAnswers = JSON.parse(data[field]);
               setAnswers(parsedAnswers);
             } catch {
+              // JSON parse failed – return safe fallback
               setAnswers({ 0: data[field] });
             }
           }

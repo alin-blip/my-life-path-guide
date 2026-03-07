@@ -403,6 +403,7 @@ function loadFromLocalStorage(key: string): any {
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : {};
   } catch {
+    // JSON parse failed – return safe fallback
     return {};
   }
 }

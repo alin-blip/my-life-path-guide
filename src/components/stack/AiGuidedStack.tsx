@@ -1003,11 +1003,12 @@ Răspunde în română cu un ton cald și profesionist.`;
         description: "Acțiunea a fost salvată în Hit List!",
       });
       setMode('complete');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding to Hit List:', error);
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "Eroare",
-        description: error.message || "Nu am putut adăuga acțiunea",
+        description: message || "Nu am putut adăuga acțiunea",
         variant: "destructive",
       });
     } finally {

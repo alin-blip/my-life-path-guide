@@ -250,11 +250,12 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
           break;
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error in signup:', error);
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: language === 'en' ? 'Error' : 'Eroare',
-        description: error.message || (language === 'en' ? 'Something went wrong' : 'Ceva nu a mers bine'),
+        description: message || (language === 'en' ? 'Something went wrong' : 'Ceva nu a mers bine'),
         variant: 'destructive',
       });
     } finally {

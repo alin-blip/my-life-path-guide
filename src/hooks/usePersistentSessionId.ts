@@ -28,6 +28,7 @@ export function usePersistentSessionId(stackType: string) {
       localStorage.setItem(storageKey, id);
       setSessionId(id);
     } catch {
+      // localStorage write failed – non-critical
       setSessionId(`${stackType}-${uuidv4()}`);
     }
   };

@@ -117,9 +117,10 @@ export function useWeeklyPlanSave() {
         logStorageAction('⚠️ Failed to save weekly plan', { weekKey: currentWeekKey });
         return false;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving weekly plan:', error);
-      logStorageAction('❌ Error saving weekly plan', { error: error.message });
+      const message = error instanceof Error ? error.message : String(error);
+      logStorageAction('❌ Error saving weekly plan', { error: message });
       setSaveStatus('offline');
       // Data is still in localStorage draft, so not lost
       return false;

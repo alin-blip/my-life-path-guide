@@ -169,10 +169,11 @@ export const PushNotificationsCenter: React.FC = () => {
       setMessage('');
       setSelectedRecipient('');
       fetchData();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Error sending notification',
-        description: error.message,
+        description: message,
         variant: 'destructive'
       });
     }

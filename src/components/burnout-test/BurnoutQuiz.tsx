@@ -155,11 +155,12 @@ export const BurnoutQuiz: React.FC<BurnoutQuizProps> = ({ language }) => {
       });
 
       setStep('results');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Burnout signup error:', error);
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: language === 'en' ? 'Error' : 'Eroare',
-        description: error.message || (language === 'en' ? 'Something went wrong' : 'Ceva nu a mers bine'),
+        description: message || (language === 'en' ? 'Something went wrong' : 'Ceva nu a mers bine'),
         variant: 'destructive',
       });
     } finally {

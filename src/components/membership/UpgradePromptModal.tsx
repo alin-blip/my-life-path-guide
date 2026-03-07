@@ -75,7 +75,7 @@ export const UpgradePromptModal: React.FC<UpgradePromptModalProps> = ({
       } else {
         throw new Error('No checkout URL received');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Checkout error:', error);
       toast.error(language === 'en' ? 'Error starting checkout' : 'Eroare la pornirea checkout-ului');
     } finally {

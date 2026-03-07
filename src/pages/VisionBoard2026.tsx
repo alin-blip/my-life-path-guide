@@ -123,12 +123,13 @@ const VisionBoard2026 = () => {
       // Go to quiz
       setStep('quiz');
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Signup error:', error);
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         variant: 'destructive',
         title: language === 'en' ? 'Error' : 'Eroare',
-        description: error.message || (language === 'en' ? 'Could not create account' : 'Nu am putut crea contul')
+        description: message || (language === 'en' ? 'Could not create account' : 'Nu am putut crea contul')
       });
       throw error;
     } finally {

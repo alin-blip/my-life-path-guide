@@ -87,9 +87,10 @@ export async function checkPasswordBreached(password: string): Promise<HIBPResul
     // Password not found in breaches
     return { isBreached: false, breachCount: 0 };
     
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { message?: string; name?: string; status?: number };
     // Timeout or network error - fail open (allow registration)
-    if (error.name === 'AbortError') {
+    if (err.name === 'AbortError') {
       console.warn('HIBP API timeout');
       return { isBreached: false, breachCount: 0, error: 'TIMEOUT' };
     }

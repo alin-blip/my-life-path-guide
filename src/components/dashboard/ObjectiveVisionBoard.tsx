@@ -206,7 +206,7 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
           ? `Imagine ${categoryLabels[category].ro} generată!` 
           : `${categoryLabels[category].en} image generated!`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error generating vision:', error);
       toast.error(language === 'ro' 
         ? 'Eroare la generarea imaginii' 
