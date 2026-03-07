@@ -104,6 +104,10 @@ const ChallengeUpsell = lazy(() => import("./pages/ChallengeUpsell"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BurnoutTest = lazy(() => import("./pages/BurnoutTest"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const EbookLanding = lazy(() => import("./pages/EbookLanding"));
+const EbookThankYou = lazy(() => import("./pages/EbookThankYou"));
+const EbookUpsell = lazy(() => import("./pages/EbookUpsell"));
+const EbookPaymentSuccess = lazy(() => import("./pages/EbookPaymentSuccess"));
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
