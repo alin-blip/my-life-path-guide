@@ -1,59 +1,59 @@
 
 
-# Plan: Continuare Integrare WarriorOS - 3 Task-uri Rămase
+# Plan: Backend Security Hardening
 
-## Task 1: Adaugă articole noi de blog din outline-ul cărții
+## Probleme Identificate (Scanare Securitate)
 
-Adaug 5 articole noi in `src/data/blogPosts.ts`, fiecare extras din capitolele cheie ale cartii WARRIOR SYSTEM:
+Scanarea a identificat **5 probleme**, dintre care **2 critice (error)** si **3 avertismente (warn)**:
 
-| # | Slug | Titlu RO | Categorie |
-|---|------|----------|-----------|
-| 1 | `walking-dead-antreprenor` | Walking Dead: De Ce Majoritatea Antreprenorilor Trăiesc o Zi pe Repeat | Mindset |
-| 2 | `de-ce-sistemele-esueaza` | De Ce Sistemele Eșuează: Diferența Dintre Informație și Transformare | Training |
-| 3 | `viziune-napoleon-hill-ceo` | Viziunea După Napoleon Hill: Cum Să-ți Creezi Scopul Definit ca CEO | Mindset, Training |
-| 4 | `framework-4b-body-being-balance-business` | Framework-ul 4B: Corp, Minte, Echilibru și Business — Totul Într-un Sistem | Training |
-| 5 | `domino-door-planificare-strategica` | Domino Door: Planificarea Strategică Săptămânală Care Îți Triplează Rezultatele | Training, Business |
+### Critice (trebuie rezolvate imediat)
 
-Fiecare articol va avea:
-- 4-6 sectiuni cu continut detaliat (300-500 cuvinte total)
-- Meta description + keywords SEO
-- Autor: Alin Florin Radu
-- Reading time estimat
-- Categorii relevante (Training, Mindset, Business, Relationships)
+1. **Datele financiare ale coachilor sunt publice** — Tabelul `coach_profiles` expune `total_earnings`, `pending_payout`, `commission_rate`, `stripe_connect_id` oricui (inclusiv vizitatori neautentificati)
+2. **Orice utilizator logat poate vedea toate rolurile** — Politica RLS pe `user_roles` permite oricui autentificat sa vada toti adminii si rolurile lor
 
-**Fisiere modificate:** `src/data/blogPosts.ts`
+### Avertismente
+
+3. **Extensii in schema public** — risc minor de securitate
+4. **Protectia parolelor compromise dezactivata** — nu se verifica daca parola e intr-o baza de date de leak-uri
+5. **Comentariile personale de coaching sunt publice** — `warriors_way_comments` e citibil de oricine, inclusiv neautentificati
 
 ---
 
-## Task 2: Actualizează ProblemSection cu cele 6 Gaps
+## Solutii Propuse
 
-ProblemSection-ul actual are 5 probleme. Documentul WarriorOS defineste 6 Gaps. Adaug **Burnout Trap** (Capcana Burnout-ului) ca a 6-a problema, intre Identity Trap si Sacrifice Myth.
+### Fix 1: Coach Profiles — Restrictioneaza datele financiare
+- Sterge politica `Public can view verified coach profiles`
+- Creeaza 2 politici noi:
+  - **Publica**: doar coloanele sigure (display_name, bio, avatar_url, referral_code) — implementat prin view restrictionat
+  - **Privata**: coachii isi vad propriile date financiare (`auth.uid() = user_id`)
 
-**Noua problema:**
-- Icon: `Flame` (din lucide-react)
-- Titlu RO: "Capcana Burnout-ului"
-- Titlu EN: "The Burnout Trap"
-- Desc RO: "Lucrezi non-stop fara pauza. Corpul, mintea si relatiile sufera iar tu numesti asta 'dedicare'."
-- Desc EN: "You work nonstop without breaks. Your body, mind and relationships suffer while you call it 'dedication'."
-- Color: `text-rose-500`
+### Fix 2: User Roles — Opreste enumerarea
+- Sterge politica `Service role can check all roles` (care e de fapt pe `authenticated`)
+- Pastreaza doar `Users can view own roles` existenta
+- Functia `has_role()` (SECURITY DEFINER) nu e afectata — functioneaza independent de RLS
 
-Actualizez si subtitlul de la "Cele 5 probleme" la "Cele 6 probleme".
+### Fix 3: Warriors Way Comments — Restrictioneaza la autentificati
+- Modifica politica de la `public` la `authenticated`
 
-**Fisiere modificate:** `src/components/landing/ProblemSectionNew.tsx`
+### Fix 4: Leaked Password Protection
+- Activare prin configurarea auth
 
----
-
-## Task 3: Salvează documentul WarriorOS ca referinta
-
-Creez fisierul `src/docs/warrior-os-master-project.md` cu un rezumat structurat al documentului master (Brand DNA, 13 capitole carte, pricing tiers, funnel strategy, stack tehnic). Serveste ca referinta interna pentru dezvoltare viitoare.
-
-**Fisiere noi:** `src/docs/warrior-os-master-project.md`
+### Fix 5: CORS Headers Update
+- Actualizeaza CORS headers pe edge functions critice (`create-checkout`, `check-subscription`, `stripe-webhook`) sa includa headerele platform-specific cerute de Supabase client
 
 ---
 
-## Task 4: Adaugă link Burnout Test in footer
+## Fisiere Modificate
 
-Adaug link-ul catre `/burnout-test` in sectiunea "Resurse" din footer, alaturi de Blog.
+| Element | Actiune |
+|---------|---------|
+| Migrare SQL | 4 modificari RLS (coach_profiles, user_roles, warriors_way_comments) |
+| Auth config | Activare leaked password protection |
+| Edge functions | CORS headers update pe 3 functii critice |
 
-**Fisiere modificate:** `src/components/landing/NewFooter.tsx`
+## Impact
+
+- Zero downtime — doar politici RLS si configuratie
+- Nu afecteaza functionalitatile existente (coachii isi vad in continuare datele, adminii functioneaza prin `has_role()`)
+- Protejeaza datele financiare, rolurile admin si continutul personal
 
