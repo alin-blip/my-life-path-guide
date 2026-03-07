@@ -57,7 +57,7 @@ const EbookThankYou = () => {
       };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-[#10172d] text-white">
       <Helmet>
         <title>{t.seoTitle}</title>
         <meta name="description" content={t.desc} />
