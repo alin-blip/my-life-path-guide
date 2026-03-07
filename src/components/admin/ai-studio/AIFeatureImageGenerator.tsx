@@ -117,9 +117,10 @@ export const AIFeatureImageGenerator: React.FC = () => {
         setGeneratedImage(e.target?.result as string);
       };
       reader.readAsDataURL(file);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error uploading image:', error);
-      toast.error(error.message || 'Eroare la încărcarea imaginii');
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(message || 'Eroare la încărcarea imaginii');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -151,9 +152,10 @@ export const AIFeatureImageGenerator: React.FC = () => {
       } else {
         throw new Error('Nu s-a putut genera imaginea');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error generating image:', error);
-      toast.error(error.message || 'Eroare la generarea imaginii');
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(message || 'Eroare la generarea imaginii');
     } finally {
       setIsGenerating(false);
     }
@@ -185,9 +187,10 @@ export const AIFeatureImageGenerator: React.FC = () => {
 
       setSavedFeatures(prev => [...prev.filter(f => f !== selectedFeature), selectedFeature]);
       toast.success(`Imaginea pentru "${selectedConfig?.name}" a fost salvată!`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving image:', error);
-      toast.error(error.message || 'Eroare la salvarea imaginii');
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(message || 'Eroare la salvarea imaginii');
     } finally {
       setIsSaving(false);
     }

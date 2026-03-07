@@ -129,9 +129,10 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
           variant: 'destructive'
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('OAuth error:', error);
-      logSecurityEvent('OAuth error', { provider, error: error?.message }, 'medium');
+      const message = error instanceof Error ? error.message : String(error);
+      logSecurityEvent('OAuth error', { provider, error: message }, 'medium');
       toast({
         title: language === 'en' ? 'Error' : 'Eroare',
         description: t.error,
@@ -268,16 +269,17 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
 
         onSuccess?.();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Auth error:', error);
-      logSecurityEvent('Email auth failed', { mode, error: error.message }, 'medium');
+      const message = error instanceof Error ? error.message : String(error);
+      logSecurityEvent('Email auth failed', { mode, error: message }, 'medium');
       
       let errorMessage = t.error;
-      if (error.message?.includes('already registered')) {
+      if (message.includes('already registered')) {
         errorMessage = language === 'en' 
           ? 'This email is already registered. Try logging in.' 
           : 'Acest email este deja înregistrat. Încearcă să te conectezi.';
-      } else if (error.message?.includes('Invalid login')) {
+      } else if (message.includes('Invalid login')) {
         errorMessage = language === 'en'
           ? 'Invalid email or password.'
           : 'Email sau parolă incorectă.';

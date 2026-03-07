@@ -302,12 +302,13 @@ export const AuthForm: React.FC = () => {
         setMode(AuthMode.LOGIN);
         logSecurityEvent('Password reset requested', { email });
       }
-    } catch (error: any) {
-      logSecurityEvent('Authentication error', { email, error: error.message, mode });
+    } catch (error: unknown) {
+      const err = error as { message?: string; name?: string; status?: number };
+      logSecurityEvent('Authentication error', { email, error: err.message, mode });
       
-      const msg = String(error?.message ?? '');
-      const name = String(error?.name ?? '');
-      const status = (error as any)?.status;
+      const msg = String(err.message ?? '');
+      const name = String(err.name ?? '');
+      const status = err.status;
 
       const isTimeout = msg === 'AUTH_TIMEOUT';
       const isNetwork = isTimeout || msg.includes('Failed to fetch') || name === 'AuthRetryableFetchError' || status === 0;
@@ -371,13 +372,14 @@ export const AuthForm: React.FC = () => {
         });
         logSecurityEvent('Google sign-in error', { error: error.message });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: language === 'en' ? 'Google Sign-In Failed' : 'Autentificare Google eșuată',
-        description: error?.message || (language === 'en' ? 'An error occurred' : 'A apărut o eroare'),
+        description: message || (language === 'en' ? 'An error occurred' : 'A apărut o eroare'),
         variant: 'destructive',
       });
-      logSecurityEvent('Google sign-in error', { error: error?.message });
+      logSecurityEvent('Google sign-in error', { error: message });
     } finally {
       setIsLoading(false);
     }
@@ -398,13 +400,14 @@ export const AuthForm: React.FC = () => {
         });
         logSecurityEvent('Apple sign-in error', { error: error.message });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: language === 'en' ? 'Apple Sign-In Failed' : 'Autentificare Apple eșuată',
-        description: error?.message || (language === 'en' ? 'An error occurred' : 'A apărut o eroare'),
+        description: message || (language === 'en' ? 'An error occurred' : 'A apărut o eroare'),
         variant: 'destructive',
       });
-      logSecurityEvent('Apple sign-in error', { error: error?.message });
+      logSecurityEvent('Apple sign-in error', { error: message });
     } finally {
       setIsLoading(false);
     }

@@ -137,9 +137,10 @@ const Business2026LeadMagnet: React.FC = () => {
         }
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error:', error);
-      toast.error(error.message || 'A apărut o eroare. Te rog încearcă din nou.');
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(message || 'A apărut o eroare. Te rog încearcă din nou.');
     } finally {
       setIsLoading(false);
     }

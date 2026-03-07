@@ -74,8 +74,9 @@ export const weeklyPlanningService = {
 
       console.log('✅ Weekly plan saved successfully:', data);
       return true;
-    } catch (error: any) {
-      console.error('Exception in savePlan:', error?.message || error);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Exception in savePlan:', message);
       return false;
     }
   },

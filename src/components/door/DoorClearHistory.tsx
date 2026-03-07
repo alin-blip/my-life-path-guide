@@ -34,11 +34,12 @@ export const DoorClearHistory: React.FC<DoorClearHistoryProps> = ({
         detail: { type: 'historyCleared' } 
       }));
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error clearing history:', error);
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "⚠️ Eroare la ștergerea istoricului",
-        description: error.message || "A apărut o problemă la curățarea datelor.",
+        description: message || "A apărut o problemă la curățarea datelor.",
         variant: "destructive",
       });
     } finally {

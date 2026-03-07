@@ -81,10 +81,11 @@ export const MigrationModal: React.FC = () => {
       });
       setShowCleanupDialog(false);
       skipMigration();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: 'Cleanup failed',
-        description: error.message,
+        description: message,
         variant: 'destructive'
       });
     }

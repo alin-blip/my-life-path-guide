@@ -208,9 +208,10 @@ export function useEmpowermentMeditation() {
       toast.success('Meditația a fost generată cu succes!');
       return true;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error generating meditation:', error);
-      toast.error(error.message || 'Eroare la generarea meditației');
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(message || 'Eroare la generarea meditației');
       return false;
     } finally {
       setIsGenerating(false);

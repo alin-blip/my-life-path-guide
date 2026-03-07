@@ -161,9 +161,10 @@ class MigrationService {
           } else {
             throw new Error(result.error || 'Migration failed');
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : String(error);
           await this.updateMigrationStatus(userId, migrationType, 'failed', {
-            error: error.message
+            error: message
           });
 
           if (onProgress) {
@@ -172,18 +173,19 @@ class MigrationService {
               total: 0,
               migrated: 0,
               status: 'failed',
-              error: error.message
+              error: message
             });
           }
 
-          return { success: false, error: error.message };
+          return { success: false, error: message };
         }
       }
 
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Migration error:', error);
-      return { success: false, error: error.message };
+      const message = error instanceof Error ? error.message : String(error);
+      return { success: false, error: message };
     }
   }
 
@@ -194,8 +196,9 @@ class MigrationService {
     try {
       const count = await stackSessionsService.migrateLocalStorageToSupabase();
       return { success: true, count };
-    } catch (error: any) {
-      return { success: false, count: 0, error: error.message };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { success: false, count: 0, error: message };
     }
   }
 
@@ -206,8 +209,9 @@ class MigrationService {
     try {
       await userProgressService.migrateLocalStorageData();
       return { success: true, count: 1 };
-    } catch (error: any) {
-      return { success: false, count: 0, error: error.message };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { success: false, count: 0, error: message };
     }
   }
 
@@ -325,9 +329,10 @@ class MigrationService {
 
       console.log(`✅ Migrated ${count} door-related items`);
       return { success: true, count };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Door migration error:', error);
-      return { success: false, count: 0, error: error.message };
+      const message = error instanceof Error ? error.message : String(error);
+      return { success: false, count: 0, error: message };
     }
   }
 
@@ -404,9 +409,10 @@ class MigrationService {
 
       console.log(`✅ Migrated ${count} objectives`);
       return { success: true, count };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Objectives migration error:', error);
-      return { success: false, count: 0, error: error.message };
+      const message = error instanceof Error ? error.message : String(error);
+      return { success: false, count: 0, error: message };
     }
   }
 
@@ -498,9 +504,10 @@ class MigrationService {
 
       console.log(`✅ Migrated ${count} missions and fact maps`);
       return { success: true, count };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Missions migration error:', error);
-      return { success: false, count: 0, error: error.message };
+      const message = error instanceof Error ? error.message : String(error);
+      return { success: false, count: 0, error: message };
     }
   }
 
@@ -529,8 +536,9 @@ class MigrationService {
       }
 
       return { success: false, error: 'No backup data found' };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { success: false, error: message };
     }
   }
 

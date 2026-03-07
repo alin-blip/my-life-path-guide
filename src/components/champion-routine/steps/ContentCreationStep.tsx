@@ -90,11 +90,12 @@ export function ContentCreationStep({
         setPhase('script');
         toast.success('Script generat cu succes!');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error generating script:', error);
-      if (error.message?.includes('429')) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('429')) {
         toast.error('Prea multe cereri. Încearcă din nou în câteva secunde.');
-      } else if (error.message?.includes('402')) {
+      } else if (message.includes('402')) {
         toast.error('Credits insuficiente. Adaugă credite în workspace.');
       } else {
         toast.error('Nu am putut genera scriptul. Încearcă din nou.');

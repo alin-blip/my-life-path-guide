@@ -159,8 +159,9 @@ export function useDoorStorageLoad() {
         logStorageAction('No cloud data for week - using defaults', { weekKey: currentWeekKey });
         // Silent load - no toast notification for new week either
       }
-    } catch (error: any) {
-      logStorageAction('Error loading from Supabase', { error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logStorageAction('Error loading from Supabase', { error: message });
       console.error('Error in loadSavedState (Supabase):', error);
       toast({
         title: '⚠️ Eroare încărcare',

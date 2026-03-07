@@ -42,8 +42,9 @@ export function useDoorStorageSave() {
       // by useWeeklyPlanSave hook to avoid triggering heavy list operations
       // when only editing key points
 
-    } catch (error: any) {
-      logStorageAction('Error saving Door lists to Supabase', { error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logStorageAction('Error saving Door lists to Supabase', { error: message });
       console.error('Error saving Door lists:', error);
       toast({
         title: '⚠️ Eroare salvare',

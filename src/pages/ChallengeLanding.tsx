@@ -159,10 +159,11 @@ export default function ChallengeLanding() {
       if (data?.url) {
         redirectExternal(data.url);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: isRo ? "Eroare" : "Error",
-        description: error.message || (isRo ? "A apărut o eroare" : "Something went wrong"),
+        description: message || (isRo ? "A apărut o eroare" : "Something went wrong"),
         variant: "destructive"
       });
     } finally {

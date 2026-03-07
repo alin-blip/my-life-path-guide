@@ -320,11 +320,12 @@ const CoachingPage = () => {
         });
       }
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ General error adding to HOT list:", error);
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         title: "❌ Eroare generală",
-        description: `Nu s-a putut adăuga acțiunea: ${error.message || 'Eroare necunoscută'}`,
+        description: `Nu s-a putut adăuga acțiunea: ${message || 'Eroare necunoscută'}`,
         variant: "destructive",
       });
     }

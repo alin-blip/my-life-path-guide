@@ -59,7 +59,7 @@ const Core4LeadMagnet = () => {
       trackLead();
 
       navigate('/core4-thank-you');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting lead:', error);
       toast({
         title: "Something went wrong",
