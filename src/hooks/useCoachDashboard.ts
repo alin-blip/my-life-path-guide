@@ -248,7 +248,8 @@ export function useCoachDashboard() {
         title: 'Link copied!',
         description: 'Share this link with your clients.',
       });
-    } catch {
+    } catch (err) {
+      console.warn('Could not copy referral link to clipboard:', err);
       toast({
         title: 'Error',
         description: 'Could not copy link. Please try again.',
