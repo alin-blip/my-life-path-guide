@@ -1,5 +1,5 @@
 import React from 'react';
-import logoMain from '@/assets/ebook/logo_main.png';
+
 
 interface EbookNavProps {
   language: 'ro' | 'en';
