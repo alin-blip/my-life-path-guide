@@ -434,6 +434,14 @@ const App = () => (
                     <Route path="/b2b" element={<B2BLanding />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/blog/:slug" element={<BlogPost />} />
+                    <Route path="/ebook" element={<EbookLanding />} />
+                    <Route path="/ebook-en" element={<EbookLanding />} />
+                    <Route path="/ebook-multumesc" element={<EbookThankYou />} />
+                    <Route path="/ebook-thank-you" element={<EbookThankYou />} />
+                    <Route path="/ebook-upsell" element={<EbookUpsell />} />
+                    <Route path="/ebook-upsell-en" element={<EbookUpsell />} />
+                    <Route path="/ebook-plata-reusita" element={<EbookPaymentSuccess />} />
+                    <Route path="/ebook-payment-success" element={<EbookPaymentSuccess />} />
                         <Route path="*" element={<NotFound />} />
                        </Routes>
                       </Suspense>
