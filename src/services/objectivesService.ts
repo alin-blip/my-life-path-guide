@@ -68,6 +68,7 @@ export const objectivesService = {
     try {
       return JSON.parse(data.description);
     } catch {
+      // JSON parse failed – return safe fallback
       return null;
     }
   },

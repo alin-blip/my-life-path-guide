@@ -548,6 +548,7 @@ export const FactMapSimplified: React.FC<FactMapProps> = ({ category }) => {
     try {
       return JSON.parse(localStorage.getItem(annualGoalKeys.answers) || '{}');
     } catch {
+      // JSON parse failed – return safe fallback
       return {};
     }
   });
@@ -589,6 +590,7 @@ export const FactMapSimplified: React.FC<FactMapProps> = ({ category }) => {
     try {
       return JSON.parse(localStorage.getItem(ANNUAL_GOAL_KEY_BODY) || '{}');
     } catch {
+      // JSON parse failed – return safe fallback
       return {};
     }
   });

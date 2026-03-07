@@ -95,6 +95,7 @@ class DoorStorageManager {
         dataIntegrityChecks: 0
       };
     } catch {
+      // JSON parse failed – return safe fallback
       return {
         lastBackup: '',
         backupCount: 0,
@@ -433,6 +434,7 @@ class DoorStorageManager {
           try {
             allData[key] = JSON.parse(value);
           } catch {
+            // JSON parse failed – return safe fallback
             allData[key] = value;
           }
         }

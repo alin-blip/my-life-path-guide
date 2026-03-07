@@ -27,6 +27,7 @@ const getCompletions = (): Record<string, DailyMasterCompletion> => {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch {
+    // JSON parse failed – return safe fallback
     return {};
   }
 };

@@ -171,6 +171,7 @@ export const DominoVersionHistory: React.FC<DominoVersionHistoryProps> = ({
     try {
       return format(parseISO(dateStr), "d MMM yyyy, HH:mm", { locale: ro });
     } catch {
+      // Invalid date format – return original string
       return dateStr;
     }
   };

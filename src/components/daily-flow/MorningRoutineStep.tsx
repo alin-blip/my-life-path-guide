@@ -53,6 +53,7 @@ export const MorningRoutineStep = ({ onComplete }: MorningRoutineStepProps) => {
           .map(id => DEFAULT_ITEMS.find(item => item.id === id))
           .filter((item): item is RoutineItem => item !== undefined);
       } catch {
+        // JSON parse failed – return safe fallback
         return DEFAULT_ITEMS;
       }
     }

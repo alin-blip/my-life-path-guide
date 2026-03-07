@@ -499,6 +499,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
       const saved = localStorage.getItem(skippedStepsKey);
       return saved ? JSON.parse(saved) : [];
     } catch {
+      // JSON parse failed – return safe fallback
       return [];
     }
   }, [skippedStepsKey]);

@@ -54,6 +54,7 @@ export const ClassroomTab: React.FC<ClassroomTabProps> = ({ programs }) => {
       const saved = localStorage.getItem('adminCourses');
       return saved ? JSON.parse(saved) : [];
     } catch {
+      // JSON parse failed – return safe fallback
       return [];
     }
   });

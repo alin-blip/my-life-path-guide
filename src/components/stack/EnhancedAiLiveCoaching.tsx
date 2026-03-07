@@ -310,6 +310,7 @@ Răspunde în română și folosește un ton empatic, profesionist și încuraja
       try {
         list = JSON.parse(data.message);
       } catch {
+        // JSON parse failed – return safe fallback
         list = String(data.message)
           .split(/\n+/)
           .map((l: string) => l.replace(/^[-*]?\s*\d*\.?\s*/, ''))

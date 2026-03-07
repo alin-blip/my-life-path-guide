@@ -57,6 +57,7 @@ const getStoredVoiceId = () => {
   try {
     return localStorage.getItem(VOICE_STORAGE_KEY) || DEFAULT_VOICE_ID;
   } catch {
+    // localStorage unavailable – use fallback
     return DEFAULT_VOICE_ID;
   }
 };
