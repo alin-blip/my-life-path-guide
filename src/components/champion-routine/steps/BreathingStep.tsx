@@ -102,7 +102,9 @@ export function BreathingStep({ completed, onComplete, onNext }: BreathingStepPr
   useEffect(() => {
     if (!audioRef.current) return;
     if (isActive) {
-      audioRef.current.play().catch(() => {});
+      audioRef.current.play().catch((err) => {
+        if (import.meta.env.DEV) console.warn('Audio playback failed:', err);
+      });
     } else {
       audioRef.current.pause();
     }

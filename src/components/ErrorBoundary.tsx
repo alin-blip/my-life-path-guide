@@ -23,26 +23,24 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  async componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: any) {
     if (import.meta.env.DEV) {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
 
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      await supabase.from('error_logs').insert({
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      return supabase.from('error_logs').insert({
         user_id: session?.user?.id || null,
         error_message: error.message,
         stack_trace: error.stack || '',
-        component_name: errorInfo.componentStack?.split('\n')?.[1]?.trim() || 'Unknown',
+        component_name: errorInfo.componentStack?.split('\n')?.[1]?.trim() ?? 'Unknown',
         url: window.location.href,
         user_agent: navigator.userAgent,
         component_stack: errorInfo.componentStack || '',
       });
-    } catch (logError) {
+    }).catch((logError) => {
       console.error('Failed to log error:', logError);
-    }
+    });
   }
 
   handleReset = () => {
