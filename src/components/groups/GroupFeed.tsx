@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -10,9 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 interface GroupFeedProps {
   tribeId: string;
   isMember: boolean;
+  categoryFilter?: string;
 }
 
-export const GroupFeed: React.FC<GroupFeedProps> = ({ tribeId, isMember }) => {
+export const GroupFeed: React.FC<GroupFeedProps> = ({ tribeId, isMember, categoryFilter }) => {
   const { user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
@@ -20,13 +21,15 @@ export const GroupFeed: React.FC<GroupFeedProps> = ({ tribeId, isMember }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchPosts = async () => {
-    const { data, error } = await supabase
+    let query = supabase
       .from('wall_posts')
       .select('*')
       .eq('tribe_id', tribeId)
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(50);
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching group posts:', error);
@@ -83,13 +86,20 @@ export const GroupFeed: React.FC<GroupFeedProps> = ({ tribeId, isMember }) => {
     return () => { supabase.removeChannel(channel); };
   }, [tribeId, user]);
 
-  const handleCreatePost = async (content: string, options?: { mediaUrls?: string[] }) => {
+  // Client-side category filtering for responsiveness
+  const filteredPosts = useMemo(() => {
+    if (!categoryFilter) return posts;
+    return posts.filter(p => p.category === categoryFilter);
+  }, [posts, categoryFilter]);
+
+  const handleCreatePost = async (content: string, options?: { mediaUrls?: string[]; category?: string }) => {
     if (!user) return;
     const { error } = await supabase.from('wall_posts').insert({
       user_id: user.id,
       content,
       tribe_id: tribeId,
       media_urls: options?.mediaUrls || null,
+      category: options?.category || 'general',
     });
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
@@ -128,18 +138,22 @@ export const GroupFeed: React.FC<GroupFeedProps> = ({ tribeId, isMember }) => {
 
   return (
     <div className="space-y-4">
-      {isMember && <SkoolWritePost onPost={handleCreatePost} />}
+      {isMember && <SkoolWritePost onPost={handleCreatePost} showCategoryPicker />}
 
-      {posts.length === 0 ? (
+      {filteredPosts.length === 0 ? (
         <div className="bg-card border border-border rounded-xl p-12 text-center">
           <p className="text-muted-foreground">
-            {language === 'ro'
-              ? 'Nicio postare încă. Fii primul care postează!'
-              : 'No posts yet. Be the first to post!'}
+            {categoryFilter
+              ? (language === 'ro'
+                ? 'Nicio postare în această categorie. Fii primul!'
+                : 'No posts in this category. Be the first!')
+              : (language === 'ro'
+                ? 'Nicio postare încă. Fii primul care postează!'
+                : 'No posts yet. Be the first to post!')}
           </p>
         </div>
       ) : (
-        posts.map((post) => (
+        filteredPosts.map((post) => (
           <SkoolPostCard key={post.id} post={post} onLike={handleToggleLike} onRefresh={fetchPosts} />
         ))
       )}

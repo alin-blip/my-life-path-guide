@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
@@ -8,6 +8,7 @@ import { ConversationList } from '@/components/messages/ConversationList';
 import { ConversationThread } from '@/components/messages/ConversationThread';
 import { NewMessageDialog } from '@/components/messages/NewMessageDialog';
 import { supabase } from '@/integrations/supabase/client';
+import { useSearchParams } from 'react-router-dom';
 
 const Messages: React.FC = () => {
   const { language } = useLanguage();
@@ -27,9 +28,23 @@ const Messages: React.FC = () => {
   const [selectedPartnerEmoji, setSelectedPartnerEmoji] = useState('📚');
   const [newMessageOpen, setNewMessageOpen] = useState(false);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const partnerFromUrl = searchParams.get('partner');
+  const handledPartnerRef = useRef<string | null>(null);
+
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations]);
+
+  // Auto-open conversation from URL param (e.g., from Member Directory DM button)
+  useEffect(() => {
+    if (partnerFromUrl && partnerFromUrl !== handledPartnerRef.current) {
+      handledPartnerRef.current = partnerFromUrl;
+      handleSelectNewMember(partnerFromUrl);
+      // Clean up the URL param
+      setSearchParams({}, { replace: true });
+    }
+  }, [partnerFromUrl, handleSelectNewMember, setSearchParams]);
 
   const handleSelectConversation = useCallback((partnerId: string) => {
     setSelectedPartnerId(partnerId);
