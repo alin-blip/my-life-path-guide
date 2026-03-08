@@ -84,6 +84,9 @@ export const MembersTab: React.FC = () => {
     setMembers(
       profiles.map(p => ({
         ...p,
+        total_xp: 0,
+        current_level: 1,
+        current_streak: 0,
         tribes_count: tribeCountMap[p.user_id] || 0,
         posts_count: postCountMap[p.user_id] || 0,
       }))

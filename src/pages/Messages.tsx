@@ -37,11 +37,22 @@ const Messages: React.FC = () => {
   }, [fetchConversations]);
 
   // Auto-open conversation from URL param (e.g., from Member Directory DM button)
+  const handleSelectNewMember = useCallback(async (memberId: string) => {
+    setSelectedPartnerId(memberId);
+    const { data } = await supabase
+      .from('leaderboard_profiles')
+      .select('display_name, avatar_emoji')
+      .eq('user_id', memberId)
+      .single();
+    setSelectedPartnerName(data?.display_name || 'User');
+    setSelectedPartnerEmoji(data?.avatar_emoji || '📚');
+    fetchMessages(memberId);
+  }, [fetchMessages]);
+
   useEffect(() => {
     if (partnerFromUrl && partnerFromUrl !== handledPartnerRef.current) {
       handledPartnerRef.current = partnerFromUrl;
       handleSelectNewMember(partnerFromUrl);
-      // Clean up the URL param
       setSearchParams({}, { replace: true });
     }
   }, [partnerFromUrl, handleSelectNewMember, setSearchParams]);
@@ -56,18 +67,6 @@ const Messages: React.FC = () => {
     fetchMessages(partnerId);
   }, [conversations, fetchMessages]);
 
-  const handleSelectNewMember = useCallback(async (memberId: string) => {
-    setSelectedPartnerId(memberId);
-    // Fetch partner name
-    const { data } = await supabase
-      .from('leaderboard_profiles')
-      .select('display_name, avatar_emoji')
-      .eq('user_id', memberId)
-      .single();
-    setSelectedPartnerName(data?.display_name || 'User');
-    setSelectedPartnerEmoji(data?.avatar_emoji || '📚');
-    fetchMessages(memberId);
-  }, [fetchMessages]);
 
   const handleSelectMultiple = useCallback(async (memberIds: string[]) => {
     // Select the first member for viewing, the actual bulk send happens when typing

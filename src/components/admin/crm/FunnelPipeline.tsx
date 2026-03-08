@@ -218,7 +218,7 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
   ));
   const customers = sortContacts(filteredContacts.filter(c => 
     c.funnel_stage === 'customer' || 
-    (c.subscription_status === 'active' && c.subscription_status !== 'trialing') ||
+    (c.subscription_status === 'active') ||
     (c.total_purchases && c.total_purchases > 0)
   ));
 
