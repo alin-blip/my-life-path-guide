@@ -117,7 +117,7 @@ export const CMOCommandCenter: React.FC = () => {
       );
       const allCustomers = contacts.filter(c => 
         c.funnel_stage === 'customer' || 
-        (c.subscription_status === 'active' && c.subscription_status !== 'trialing') ||
+        (c.subscription_status === 'active') ||
         (c.total_purchases && c.total_purchases > 0)
       );
 
