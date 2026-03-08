@@ -67,18 +67,6 @@ const Messages: React.FC = () => {
     fetchMessages(partnerId);
   }, [conversations, fetchMessages]);
 
-  const handleSelectNewMember = useCallback(async (memberId: string) => {
-    setSelectedPartnerId(memberId);
-    // Fetch partner name
-    const { data } = await supabase
-      .from('leaderboard_profiles')
-      .select('display_name, avatar_emoji')
-      .eq('user_id', memberId)
-      .single();
-    setSelectedPartnerName(data?.display_name || 'User');
-    setSelectedPartnerEmoji(data?.avatar_emoji || '📚');
-    fetchMessages(memberId);
-  }, [fetchMessages]);
 
   const handleSelectMultiple = useCallback(async (memberIds: string[]) => {
     // Select the first member for viewing, the actual bulk send happens when typing
