@@ -1,1 +1,9 @@
-{\n  "compilerOptions": {\n    "strict": true,\n    "noImplicitAny": true,\n    "noUnusedLocals": true,\n    "noUnusedParameters": true,\n    "strictNullChecks": true\n  }\n}
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": true
+  }
+}
