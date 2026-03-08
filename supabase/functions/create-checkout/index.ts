@@ -140,6 +140,14 @@ serve(async (req) => {
         productName = "CEO Mind OS - Pachet Accelerator (Ebook)";
         tier = "accelerator";
         break;
+
+      case "ebook-accelerator-en":
+        unitAmount = 2900;
+        currency = "usd";
+        paymentMode = "payment";
+        productName = "CEO Mind OS - Accelerator Package (Ebook EN)";
+        tier = "accelerator";
+        break;
       
       case "trial":
         unitAmount = 19700;
@@ -199,6 +207,12 @@ serve(async (req) => {
     } else if (source === 'challenge-7-zile' || source === 'life-score') {
       successUrl = `${origin}/challenge?checkout=success&plan=${plan}&source=${source}`;
       cancelUrl = `${origin}/challenge-7-zile?canceled=true`;
+    } else if (plan === 'ebook-accelerator') {
+      successUrl = `${origin}/ebook-plata-reusita?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      cancelUrl = `${origin}/ebook-upsell?canceled=true`;
+    } else if (plan === 'ebook-accelerator-en') {
+      successUrl = `${origin}/ebook-payment-success?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      cancelUrl = `${origin}/ebook-upsell-en?canceled=true`;
     } else {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/pricing?canceled=true`;

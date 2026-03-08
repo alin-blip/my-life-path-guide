@@ -5,10 +5,12 @@ import { EbookHero } from '@/components/ebook/EbookHero';
 import { EbookContent } from '@/components/ebook/EbookContent';
 import { EbookTestimonials } from '@/components/ebook/EbookTestimonials';
 import { useLocation } from 'react-router-dom';
+import { useUtmCapture } from '@/hooks/useUtmCapture';
 
 const EbookLanding = () => {
   const location = useLocation();
   const language = location.pathname.includes('-en') ? 'en' : 'ro';
+  useUtmCapture();
 
   useEffect(() => {
     document.documentElement.classList.add('dark');

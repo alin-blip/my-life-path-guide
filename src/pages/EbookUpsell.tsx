@@ -44,7 +44,7 @@ const EbookUpsell = () => {
       }
     : {
         seoTitle: 'Accelerator Package — Exclusive Offer | CEO Mind OS',
-        seoDesc: 'Accelerate your transformation with Audiobook + 90-Day Challenge for only 99 LEI.',
+        seoDesc: 'Accelerate your transformation with Audiobook + 90-Day Challenge for only $29.',
         badge: 'EXCLUSIVE OFFER — ONLY ON THIS PAGE',
         h1: 'Congratulations! Your book is on its way.',
         sub: 'The book gives you knowledge. But knowledge without execution is useless.',
@@ -55,10 +55,10 @@ const EbookUpsell = () => {
         guaranteeDesc: 'If in 30 days you don\'t feel a real difference in your clarity, energy and productivity, I\'ll refund your money. No questions asked.',
         thankYou: '/ebook-thank-you',
         success: '/ebook-payment-success',
-        comp1: { label: 'Component 1', title: 'Complete Audiobook', desc: 'Listen to the book in the author\'s voice. Over 2 hours of content narrated by Alin F. Radu — in your car, at the gym, during lunch.', value: '149 lei' },
-        comp2: { label: 'Component 2', title: '90-Day Challenge', desc: 'Step-by-step implementation guide. 90 days of structured daily actions, completed templates, execution checklists.', value: '249 lei' },
-        comp3: { label: 'Bonus', title: 'Printable Templates', desc: 'Printable worksheets for The Door, The Stack and Daily Routine — ready to fill in.', value: '99 lei' },
-        comp4: { label: 'Bonus', title: 'Private Community', desc: '30-day access to the private accountability community — alongside other entrepreneurs implementing CEO Mind OS.', value: '97 lei' },
+        comp1: { label: 'Component 1', title: 'Complete Audiobook', desc: 'Listen to the book narrated professionally. 1 hour 20 minutes of content — in your car, at the gym, during lunch.', value: '$39' },
+        comp2: { label: 'Component 2', title: '90-Day Challenge', desc: 'Step-by-step implementation guide. 90 days of structured daily actions, completed templates, execution checklists.', value: '$59' },
+        comp3: { label: 'Bonus', title: 'Printable Templates', desc: 'Printable worksheets for The Door, The Stack and Daily Routine — ready to fill in.', value: '$29' },
+        comp4: { label: 'Bonus', title: 'Private Community', desc: '30-day access to the private accountability community — alongside other entrepreneurs implementing CEO Mind OS.', value: '$19' },
       };
 
   const components = [t.comp1, t.comp2, t.comp3, t.comp4];
@@ -77,7 +77,7 @@ const EbookUpsell = () => {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const response = await supabase.functions.invoke('create-checkout', {
-        body: { plan: 'ebook-accelerator' },
+        body: { plan: language === 'en' ? 'ebook-accelerator-en' : 'ebook-accelerator', source: `ebook_upsell_${language}` },
         headers: { Authorization: `Bearer ${sessionData.session?.access_token}` },
       });
 
@@ -108,7 +108,7 @@ const EbookUpsell = () => {
       </Helmet>
 
       <EbookNav language={language} />
-      <CountdownTimer />
+      <CountdownTimer language={language} />
 
       <section className="py-16 px-6 text-center max-w-4xl mx-auto">
         <span className="inline-block text-xs tracking-[0.15em] text-white/50 border border-white/10 rounded-full px-4 py-2 mb-8 uppercase">

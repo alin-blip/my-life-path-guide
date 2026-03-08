@@ -13,17 +13,17 @@ const items = {
     { name: 'Acces Comunitate Privată (30 zile)', value: '97 lei' },
   ],
   en: [
-    { name: 'Complete Audiobook (2+ hours, author\'s voice)', value: '149 lei' },
-    { name: '90-Day Challenge (implementation guide)', value: '249 lei' },
-    { name: 'Printable Templates & Worksheets', value: '99 lei' },
-    { name: 'Private Community Access (30 days)', value: '97 lei' },
+    { name: 'Complete Audiobook (1h 20min, professional narration)', value: '$39' },
+    { name: '90-Day Challenge (implementation guide)', value: '$59' },
+    { name: 'Printable Templates & Worksheets', value: '$29' },
+    { name: 'Private Community Access (30 days)', value: '$19' },
   ],
 };
 
 export const ValueStack: React.FC<ValueStackProps> = ({ language }) => {
   const t = language === 'ro'
     ? { title: 'Tot ce primești:', total: 'VALOARE TOTALĂ', price: 'Prețul tău astăzi:', save: 'Economisești 495 lei. Ofertă disponibilă DOAR acum, pe această pagină.' }
-    : { title: 'Everything you get:', total: 'TOTAL VALUE', price: 'Your price today:', save: 'You save 495 lei. Offer available ONLY now, on this page.' };
+    : { title: 'Everything you get:', total: 'TOTAL VALUE', price: 'Your price today:', save: 'You save $117. Offer available ONLY now, on this page.' };
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -43,14 +43,14 @@ export const ValueStack: React.FC<ValueStackProps> = ({ language }) => {
 
       <div className="flex items-center justify-between py-3 border-b-2 border-amber-400/50 mb-8">
         <span className="text-amber-400 font-bold uppercase tracking-wider text-sm">{t.total}</span>
-        <span className="text-white/50 line-through font-bold">594 lei</span>
+        <span className="text-white/50 line-through font-bold">{language === 'ro' ? '594 lei' : '$146'}</span>
       </div>
 
       <div className="text-center mb-4">
         <p className="text-white/60 text-sm mb-2">{t.price}</p>
         <div className="flex items-baseline justify-center gap-3">
-          <span className="text-white/40 line-through text-2xl">594 lei</span>
-          <span className="text-5xl font-bold text-amber-400">99 lei</span>
+          <span className="text-white/40 line-through text-2xl">{language === 'ro' ? '594 lei' : '$146'}</span>
+          <span className="text-5xl font-bold text-amber-400">{language === 'ro' ? '99 lei' : '$29'}</span>
         </div>
       </div>
 

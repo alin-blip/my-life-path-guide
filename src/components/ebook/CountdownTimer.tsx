@@ -3,7 +3,11 @@ import { Clock } from 'lucide-react';
 
 const TIMER_KEY = 'ebook_upsell_timer_start';
 
-export const CountdownTimer: React.FC = () => {
+interface CountdownTimerProps {
+  language?: 'ro' | 'en';
+}
+
+export const CountdownTimer: React.FC<CountdownTimerProps> = ({ language = 'ro' }) => {
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 59, seconds: 59 });
 
   useEffect(() => {
@@ -32,7 +36,7 @@ export const CountdownTimer: React.FC = () => {
   return (
     <div className="w-full bg-amber-500/10 border-y border-amber-500/20 py-3 flex items-center justify-center gap-3">
       <Clock className="w-4 h-4 text-amber-400" />
-      <span className="text-sm text-white/70 uppercase tracking-wider">Oferta expiră în:</span>
+      <span className="text-sm text-white/70 uppercase tracking-wider">{language === 'ro' ? 'Oferta expiră în:' : 'Offer expires in:'}</span>
       <div className="flex items-center gap-1 font-mono text-lg font-bold text-white">
         <span className="bg-white/10 rounded px-2 py-0.5">{pad(timeLeft.hours)}</span>
         <span className="text-amber-400">:</span>

@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { EbookNav } from '@/components/ebook/EbookNav';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Download, BookOpen, Activity, Users } from 'lucide-react';
+import { DOWNLOADS } from '@/lib/downloadLinks';
 
 const EbookThankYou = () => {
   const location = useLocation();
@@ -73,8 +74,9 @@ const EbookThankYou = () => {
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{t.title}</h1>
 
         <a
-          href="/ebook-burnout-peak-performance.pdf"
-          download
+          href={DOWNLOADS[language].ebookPdf}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-8 py-4 bg-amber-400 hover:bg-amber-500 text-black font-bold text-sm tracking-wider rounded-lg transition-colors mt-6 mb-4"
         >
           <Download className="w-5 h-5" />

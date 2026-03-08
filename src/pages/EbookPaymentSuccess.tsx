@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { EbookNav } from '@/components/ebook/EbookNav';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CheckCircle, BookOpen, Headphones, Target, Users } from 'lucide-react';
+import { CheckCircle, BookOpen, Headphones, Target, Users, Download } from 'lucide-react';
+import { DOWNLOADS } from '@/lib/downloadLinks';
 
 const EbookPaymentSuccess = () => {
   const location = useLocation();
@@ -66,9 +67,31 @@ const EbookPaymentSuccess = () => {
           ))}
         </div>
 
+        {/* Download Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+          <a
+            href={DOWNLOADS[language].ebookPdf}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-amber-400 hover:bg-amber-500 text-black font-bold text-sm tracking-wider rounded-lg transition-colors"
+          >
+            <Download className="w-5 h-5" />
+            {language === 'ro' ? 'Descarcă Cartea (PDF)' : 'Download Book (PDF)'}
+          </a>
+          <a
+            href={DOWNLOADS[language].audiobookMp3}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold text-sm tracking-wider rounded-lg transition-colors border border-white/20"
+          >
+            <Headphones className="w-5 h-5" />
+            {language === 'ro' ? 'Descarcă Audiobook (MP3)' : 'Download Audiobook (MP3)'}
+          </a>
+        </div>
+
         <button
           onClick={() => navigate('/challenge-7-zile')}
-          className="inline-flex items-center gap-2 px-8 py-4 bg-amber-400 hover:bg-amber-500 text-black font-bold text-sm tracking-wider rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-white/80 font-medium text-sm tracking-wider rounded-lg transition-colors border border-white/10"
         >
           {t.cta}
         </button>

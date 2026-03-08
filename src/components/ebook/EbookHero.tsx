@@ -3,6 +3,7 @@ import { ArrowRight, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { getUtmMetadata } from '@/hooks/useUtmCapture';
 import heroLanding from '@/assets/ebook/hero_landing.webp';
 
 interface EbookHeroProps {
@@ -47,18 +48,23 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
 
     setLoading(true);
     try {
+      const utmMeta = getUtmMetadata();
       const { error } = await supabase.from('email_leads').insert({
         email: email.trim().toLowerCase(),
         name: name.trim() || null,
         lead_magnet: 'ebook_burnout',
         source: `ebook_landing_${language}`,
         subscribed: true,
+        metadata: utmMeta,
       });
 
       if (error && !error.message.includes('duplicate')) {
         throw error;
       }
 
+      // Store lead info for upsell page
+      sessionStorage.setItem('ebook_lead_name', name.trim());
+      sessionStorage.setItem('ebook_lead_email', email.trim().toLowerCase());
       navigate(t.thankYou);
     } catch (err) {
       console.error('Lead capture error:', err);
