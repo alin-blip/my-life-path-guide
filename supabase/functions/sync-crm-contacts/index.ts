@@ -130,19 +130,23 @@ serve(async (req) => {
     let syncedCount = 0;
     let updatedCount = 0;
 
-    // Helper: determine funnel stage
-    // Simplified: Lead (no account) → Engaged (has account) → Trial → Customer
+    // CMO-grade funnel stage definitions:
+    // lead = email captured, no account, low engagement
+    // engaged (MQL) = has account OR engagement_score >= 30
+    // trial (SQL) = started trial (card on file)
+    // customer = paid subscription OR completed purchase
     const determineFunnelStage = (
       hasAccount: boolean,
       subscription: { status: string } | undefined,
-      hasPurchase: boolean
+      hasPurchase: boolean,
+      engagementScore: number = 0
     ): string => {
       if (subscription) {
         if (subscription.status === 'trialing') return 'trial';
         return 'customer';
       }
       if (hasPurchase) return 'customer';
-      if (hasAccount) return 'engaged'; // Account created = engaged
+      if (hasAccount || engagementScore >= 30) return 'engaged';
       return 'lead';
     };
 
@@ -160,6 +164,18 @@ serve(async (req) => {
       const purchaseData = userId ? purchaseMap.get(userId) : undefined;
       const streakData = userId ? streakMap.get(userId) : undefined;
 
+      // Calculate engagement score (0-100) based on platform activity
+      let engagementScore = 0;
+      if (userId) engagementScore += 10; // Has account
+      if (warrior) engagementScore += 15; // Completed warrior power assessment
+      engagementScore += Math.min(challengeDays * 2, 30); // Up to 30 for challenge days
+      engagementScore += Math.min(stackCount * 3, 15); // Up to 15 for stack sessions
+      if (streakData && streakData.streak >= 3) engagementScore += 10;
+      if (streakData && streakData.streak >= 7) engagementScore += 10;
+      if (streakData && streakData.doorRate > 50) engagementScore += 10;
+      engagementScore = Math.min(engagementScore, 100);
+
+      // Calculate lead score (0-100) — combines engagement + purchase intent
       if (warrior) leadScore += 20;
       leadScore += challengeDays * 10;
       leadScore += stackCount * 5;
@@ -168,7 +184,7 @@ serve(async (req) => {
       if (subscription) leadScore += subscription.status === 'trialing' ? 75 : 100;
       leadScore = Math.min(leadScore, 100);
 
-      const funnelStage = determineFunnelStage(!!userId, subscription, !!purchaseData);
+      const funnelStage = determineFunnelStage(!!userId, subscription, !!purchaseData, engagementScore);
 
       const authUser = userId ? userEmailMap.get(email.toLowerCase()) : undefined;
 
@@ -190,6 +206,7 @@ serve(async (req) => {
         warrior_power_score: warrior?.total_score || null,
         current_streak: streakData?.streak || 0,
         door_completion_rate: streakData?.doorRate || 0,
+        engagement_score: engagementScore,
         subscription_tier: subscription?.tier || null,
         subscription_status: subscription?.status || null,
         updated_at: new Date().toISOString()

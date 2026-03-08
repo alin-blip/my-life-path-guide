@@ -194,10 +194,33 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
     return sortContacts(result);
   }, [contacts, searchQuery, sourceFilter, stageFilter, sortContacts]);
 
-  const leads = sortContacts(filteredContacts.filter(c => c.funnel_stage === 'lead'));
-  const trials = sortContacts(filteredContacts.filter(c => c.subscription_status === 'trialing' || c.funnel_stage === 'trial'));
-  const engaged = sortContacts(filteredContacts.filter(c => c.funnel_stage === 'engaged' && c.subscription_status !== 'trialing'));
-  const customers = sortContacts(filteredContacts.filter(c => c.funnel_stage === 'customer' && c.subscription_status !== 'trialing'));
+  // CMO-grade funnel stages:
+  // Lead = captured email, no significant engagement yet
+  // MQL = engagement_score >= 30 OR completed quiz/lead magnet OR mql_at set
+  // SQL = started trial OR sql_at set OR subscription_status === 'trialing'
+  // Customer = paid subscription OR total_purchases > 0
+  const leads = sortContacts(filteredContacts.filter(c => 
+    c.funnel_stage === 'lead' && 
+    !(c.engagement_score >= 30) &&
+    c.subscription_status !== 'trialing' &&
+    !(c.total_purchases > 0)
+  ));
+  const mqls = sortContacts(filteredContacts.filter(c => 
+    (c.funnel_stage === 'engaged' || c.engagement_score >= 30) &&
+    c.subscription_status !== 'trialing' &&
+    !(c.total_purchases > 0) &&
+    c.funnel_stage !== 'customer'
+  ));
+  const sqls = sortContacts(filteredContacts.filter(c => 
+    (c.subscription_status === 'trialing' || c.funnel_stage === 'trial') &&
+    !(c.total_purchases > 0) &&
+    c.funnel_stage !== 'customer'
+  ));
+  const customers = sortContacts(filteredContacts.filter(c => 
+    c.funnel_stage === 'customer' || 
+    (c.subscription_status === 'active' && c.subscription_status !== 'trialing') ||
+    (c.total_purchases && c.total_purchases > 0)
+  ));
 
   const getConversionRate = (from: number, to: number) => {
     if (from === 0) return 0;
@@ -246,8 +269,19 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Lead → Engaged</p>
-                <p className="text-2xl font-bold">{getConversionRate(leads.length + engaged.length + customers.length, engaged.length + customers.length)}%</p>
+                <p className="text-sm text-muted-foreground">Lead → MQL</p>
+                <p className="text-2xl font-bold">{getConversionRate(contacts.length, mqls.length + sqls.length + customers.length)}%</p>
+              </div>
+              <Zap className="h-8 w-8 text-amber-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">MQL → SQL</p>
+                <p className="text-2xl font-bold">{getConversionRate(mqls.length + sqls.length + customers.length, sqls.length + customers.length)}%</p>
               </div>
               <TrendingUp className="h-8 w-8 text-green-500" />
             </div>
@@ -257,8 +291,8 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Engaged → Customer</p>
-                <p className="text-2xl font-bold">{getConversionRate(engaged.length + customers.length, customers.length)}%</p>
+                <p className="text-sm text-muted-foreground">SQL → Customer</p>
+                <p className="text-2xl font-bold">{getConversionRate(sqls.length + customers.length, customers.length)}%</p>
               </div>
               <Crown className="h-8 w-8 text-yellow-500" />
             </div>
@@ -412,12 +446,12 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Mail className="h-5 w-5 text-blue-500" />
-                Leads
+                Leads (Raw)
               </CardTitle>
               <Badge variant="secondary">{leads.length}</Badge>
             </div>
             <CardDescription>
-              Au completat un quiz sau formular
+              Email capturat, fără engagement semnificativ
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -441,29 +475,29 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
           </CardContent>
         </Card>
 
-        {/* Trial Column */}
-        <Card className="border-t-4 border-t-orange-500">
+        {/* MQL Column */}
+        <Card className="border-t-4 border-t-amber-500">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Clock className="h-5 w-5 text-orange-500" />
-                În Trial
+                <Zap className="h-5 w-5 text-amber-500" />
+                MQL (Engaged)
               </CardTitle>
-              <Badge variant="secondary">{trials.length}</Badge>
+              <Badge variant="secondary">{mqls.length}</Badge>
             </div>
             <CardDescription>
-              3 zile gratuite, card salvat
+              Engagement ≥ 30, quiz completat, activitate semnificativă
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[500px] pr-4">
               <div className="space-y-3">
-                {trials.length === 0 ? (
+                {mqls.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">
-                    Nimeni în trial
+                    Niciun MQL găsit
                   </p>
                 ) : (
-                  trials.map(contact => (
+                  mqls.map(contact => (
                     <ContactCard 
                       key={contact.id} 
                       contact={contact} 
@@ -476,29 +510,29 @@ export const FunnelPipeline: React.FC<FunnelPipelineProps> = ({ onSelectContact 
           </CardContent>
         </Card>
 
-        {/* Engaged Column */}
+        {/* SQL Column */}
         <Card className="border-t-4 border-t-green-500">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <UserCheck className="h-5 w-5 text-green-500" />
-                Engaged
+                <Clock className="h-5 w-5 text-green-500" />
+                SQL (Trial)
               </CardTitle>
-              <Badge variant="secondary">{engaged.length}</Badge>
+              <Badge variant="secondary">{sqls.length}</Badge>
             </div>
             <CardDescription>
-              Cont activ, folosesc platforma
+              Trial activ, card salvat, interes de cumpărare
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[500px] pr-4">
               <div className="space-y-3">
-                {engaged.length === 0 ? (
+                {sqls.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">
-                    Niciun utilizator engaged
+                    Niciun SQL găsit
                   </p>
                 ) : (
-                  engaged.map(contact => (
+                  sqls.map(contact => (
                     <ContactCard 
                       key={contact.id} 
                       contact={contact} 

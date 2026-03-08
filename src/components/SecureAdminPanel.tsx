@@ -7,6 +7,7 @@ import { CourseManager } from './admin/CourseManager';
 import { ApiConfig } from './admin/ApiConfig';
 import { Leaderboard } from './admin/Leaderboard';
 import { RevenueDashboard } from './admin/RevenueDashboard';
+import { CMOCommandCenter } from './admin/CMOCommandCenter';
 import { AdminAIStudio } from './admin/AdminAIStudio';
 import { MarketingHub } from './admin/marketing/MarketingHub';
 import { WarriorsWayManager } from './admin/WarriorsWayManager';
@@ -15,9 +16,10 @@ import { SplitTestDashboard } from './admin/SplitTestDashboard';
 import { CRMDashboard } from './admin/crm/CRMDashboard';
 import { LeadMagnetAnalytics } from './admin/LeadMagnetAnalytics';
 import { AdminCoaches } from './admin/AdminCoaches';
+import { EngagementDashboard } from './admin/EngagementDashboard';
 import { 
   Shield, BookOpen, Settings, LayoutDashboard, 
-  Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp, UserCheck
+  Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp, UserCheck, Activity
 } from 'lucide-react';
 
 export const SecureAdminPanel: React.FC = () => {
@@ -105,7 +107,13 @@ export const SecureAdminPanel: React.FC = () => {
             <span>📈 Leads</span>
           </TabsTrigger>
           
-          {/* Tab 4: Content */}
+          {/* Tab 4: Engagement */}
+          <TabsTrigger value="engagement" className="flex items-center gap-1.5 data-[state=active]:bg-background">
+            <Activity className="h-4 w-4" />
+            <span>🔥 Engagement</span>
+          </TabsTrigger>
+          
+          {/* Tab 5: Content */}
           <TabsTrigger value="content" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <BookOpen className="h-4 w-4" />
             <span>📚 Content</span>
@@ -136,79 +144,9 @@ export const SecureAdminPanel: React.FC = () => {
           </TabsTrigger>
         </TabsList>
         
-        {/* Tab 1: Overview Content */}
-        <TabsContent value="overview" className="space-y-6">
-          {/* Quick Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-green-500" />
-                  System Status
-                </CardTitle>
-                <CardDescription>
-                  Current system security status
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <span className="text-green-500 font-medium">✓ Secure</span>
-                </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  RLS policies active, admin authentication enabled
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-blue-500" />
-                  Admin Session
-                </CardTitle>
-                <CardDescription>
-                  Current admin session info
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm space-y-1">
-                  <p><strong>User:</strong> {user.email}</p>
-                  <p><strong>Role:</strong> Administrator</p>
-                  <p><strong>Session:</strong> Active</p>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-yellow-500" />
-                  Revenue Summary
-                </CardTitle>
-                <CardDescription>
-                  Quick financial overview
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  View detailed revenue data in the Marketing tab.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Leaderboard */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-yellow-500" />
-                Leaderboard
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Leaderboard />
-            </CardContent>
-          </Card>
+        {/* Tab 1: CMO Command Center */}
+        <TabsContent value="overview" className="pt-4">
+          <CMOCommandCenter />
         </TabsContent>
         
         {/* Tab 2: CRM Content */}
@@ -221,7 +159,12 @@ export const SecureAdminPanel: React.FC = () => {
           <LeadMagnetAnalytics />
         </TabsContent>
         
-        {/* Tab 4: Content Content */}
+        {/* Tab 4: Engagement Content */}
+        <TabsContent value="engagement" className="pt-4">
+          <EngagementDashboard />
+        </TabsContent>
+        
+        {/* Tab 5: Content Content */}
         <TabsContent value="content" className="space-y-6">
           <Tabs defaultValue="courses" className="w-full">
             <TabsList className="mb-4">
