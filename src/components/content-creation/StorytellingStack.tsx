@@ -35,10 +35,13 @@ export function StorytellingStack({
   
   const stack = useStorytellingStack({
     language,
-    onScriptGenerated: (script) => setLocalScript(script)
+    onScriptGenerated: (script) => {
+      setLocalScript(script);
+    }
   });
 
   const handleConfirmScript = () => {
+    stack.clearDraft();
     onComplete?.(localScript || stack.generatedScript);
   };
 
@@ -82,11 +85,12 @@ export function StorytellingStack({
           <Button 
             variant="outline"
             onClick={() => {
-              stack.setGeneratedScript('');
-              setLocalScript('');
+              // Re-generate from same answers instead of clearing everything
+              stack.generateScript();
             }}
+            disabled={stack.isGenerating}
           >
-            {labels.regenerate}
+            {stack.isGenerating ? '⏳ Regenerez...' : labels.regenerate}
           </Button>
           <Button 
             onClick={handleConfirmScript}
