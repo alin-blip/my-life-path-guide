@@ -35,7 +35,9 @@ export function StorytellingStack({
   
   const stack = useStorytellingStack({
     language,
-    onScriptGenerated: (script) => setLocalScript(script)
+    onScriptGenerated: (script) => {
+      setLocalScript(script);
+    }
   });
 
   const handleConfirmScript = () => {
