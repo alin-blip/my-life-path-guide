@@ -41,6 +41,7 @@ export function StorytellingStack({
   });
 
   const handleConfirmScript = () => {
+    stack.clearDraft();
     onComplete?.(localScript || stack.generatedScript);
   };
 
