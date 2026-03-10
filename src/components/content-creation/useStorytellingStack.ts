@@ -1,9 +1,19 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { getStorytellingQuestions, StorytellingQuestion } from './storytellingQuestions';
 
 export type ContentType = 'reel' | 'video' | 'post';
+
+const DRAFT_KEY = 'storytelling-draft';
+
+interface DraftData {
+  answers: Record<number, string>;
+  contentType: ContentType;
+  generatedScript: string;
+  currentStep: number;
+  timestamp: string;
+}
 
 interface UseStorytellingStackOptions {
   language?: 'en' | 'ro';
@@ -20,6 +30,52 @@ export function useStorytellingStack(options: UseStorytellingStackOptions = {}) 
   const [generatedScript, setGeneratedScript] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPreviousAnswers, setShowPreviousAnswers] = useState(false);
+  const initialLoadDone = useRef(false);
+
+  // Load draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const draft: DraftData = JSON.parse(saved);
+        const age = Date.now() - new Date(draft.timestamp).getTime();
+        // Restore if less than 4 hours old
+        if (age < 4 * 3600000) {
+          if (Object.keys(draft.answers).length > 0) {
+            setAnswers(draft.answers);
+            setContentType(draft.contentType || 'reel');
+            setCurrentStep(draft.currentStep || 1);
+            if (draft.generatedScript) {
+              setGeneratedScript(draft.generatedScript);
+            }
+            console.log('📥 Storytelling draft restored', { answersCount: Object.keys(draft.answers).length });
+          }
+        } else {
+          localStorage.removeItem(DRAFT_KEY);
+        }
+      }
+    } catch (e) {
+      console.error('Error loading storytelling draft:', e);
+    }
+    initialLoadDone.current = true;
+  }, []);
+
+  // Save draft on changes
+  useEffect(() => {
+    if (!initialLoadDone.current) return;
+    try {
+      const draft: DraftData = {
+        answers,
+        contentType,
+        generatedScript,
+        currentStep,
+        timestamp: new Date().toISOString(),
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } catch (e) {
+      console.error('Error saving storytelling draft:', e);
+    }
+  }, [answers, contentType, generatedScript, currentStep]);
 
   const currentQuestion = questions[currentStep - 1];
   const totalSteps = questions.length;
@@ -105,6 +161,11 @@ export function useStorytellingStack(options: UseStorytellingStackOptions = {}) 
     setAnswers({});
     setGeneratedScript('');
     setShowPreviousAnswers(false);
+    localStorage.removeItem(DRAFT_KEY);
+  }, []);
+
+  const clearDraft = useCallback(() => {
+    localStorage.removeItem(DRAFT_KEY);
   }, []);
 
   const getAnsweredQuestions = useCallback((): Array<StorytellingQuestion & { answer: string }> => {
@@ -141,6 +202,7 @@ export function useStorytellingStack(options: UseStorytellingStackOptions = {}) 
     goToStep,
     generateScript,
     reset,
+    clearDraft,
     getAnsweredQuestions
   };
 }
