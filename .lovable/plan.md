@@ -1,59 +1,46 @@
 
 
-# Plan: Continuare Integrare WarriorOS - 3 Task-uri Rămase
+# Plan: Fix Door Audit — Build Script, Drag-Drop, and Arrow Button
 
-## Task 1: Adaugă articole noi de blog din outline-ul cărții
+## Problems Found
 
-Adaug 5 articole noi in `src/data/blogPosts.ts`, fiecare extras din capitolele cheie ale cartii WARRIOR SYSTEM:
+### 1. Build fails: missing `build:dev` script
+`package.json` has `dev`, `build`, `preview`, `lint` but no `build:dev`.
 
-| # | Slug | Titlu RO | Categorie |
-|---|------|----------|-----------|
-| 1 | `walking-dead-antreprenor` | Walking Dead: De Ce Majoritatea Antreprenorilor Trăiesc o Zi pe Repeat | Mindset |
-| 2 | `de-ce-sistemele-esueaza` | De Ce Sistemele Eșuează: Diferența Dintre Informație și Transformare | Training |
-| 3 | `viziune-napoleon-hill-ceo` | Viziunea După Napoleon Hill: Cum Să-ți Creezi Scopul Definit ca CEO | Mindset, Training |
-| 4 | `framework-4b-body-being-balance-business` | Framework-ul 4B: Corp, Minte, Echilibru și Business — Totul Într-un Sistem | Training |
-| 5 | `domino-door-planificare-strategica` | Domino Door: Planificarea Strategică Săptămânală Care Îți Triplează Rezultatele | Training, Business |
+### 2. Drag-and-drop from Ideas to Domino Door doesn't work
+HotList uses `@hello-pangea/dnd` library for internal reordering. Each idea item sets native `onDragStart` with `application/json` data (type `idea-bank-item`). However, `DominoDoor.handleLocalDrop` only checks for `monthly-mission` type — it ignores `idea-bank-item`. The fallback `handleDropOnDomino` (from `useDoorDrag`) relies on `draggedItem` state being set, but HotList never calls `handleDragStartToDomino()` to set that state. So dropping an idea on Domino does nothing.
 
-Fiecare articol va avea:
-- 4-6 sectiuni cu continut detaliat (300-500 cuvinte total)
-- Meta description + keywords SEO
-- Autor: Alin Florin Radu
-- Reading time estimat
-- Categorii relevante (Training, Mindset, Business, Relationships)
-
-**Fisiere modificate:** `src/data/blogPosts.ts`
+### 3. Arrow button on tasks doesn't move to Ideas list
+`moveTaskBackToHotList` adds the task to the old `hotList` state array and saves via `doorUserTasksService.saveGlobalHotList()`. But the Ideas column (`HotList.tsx`) loads from `ideasBankService.fetchAllIdeas()` (the `ideas_bank` table), not the old `hotList` state. So the task disappears from tasks but never appears in Ideas.
 
 ---
 
-## Task 2: Actualizează ProblemSection cu cele 6 Gaps
+## Fix Plan
 
-ProblemSection-ul actual are 5 probleme. Documentul WarriorOS defineste 6 Gaps. Adaug **Burnout Trap** (Capcana Burnout-ului) ca a 6-a problema, intre Identity Trap si Sacrifice Myth.
+### Step 1: Add `build:dev` script to `package.json`
+Add `"build:dev": "vite build --mode development"` to scripts.
 
-**Noua problema:**
-- Icon: `Flame` (din lucide-react)
-- Titlu RO: "Capcana Burnout-ului"
-- Titlu EN: "The Burnout Trap"
-- Desc RO: "Lucrezi non-stop fara pauza. Corpul, mintea si relatiile sufera iar tu numesti asta 'dedicare'."
-- Desc EN: "You work nonstop without breaks. Your body, mind and relationships suffer while you call it 'dedication'."
-- Color: `text-rose-500`
+### Step 2: Fix drag-drop — Ideas to Domino Door
+In `DominoDoor.tsx` → `handleLocalDrop`, add handling for `idea-bank-item` type:
+- When an idea is dropped on Domino, set it as `selectedDomino` using `setSelectedDomino`
+- Archive the idea from ideas_bank after setting it
+- Show success toast
 
-Actualizez si subtitlul de la "Cele 5 probleme" la "Cele 6 probleme".
+### Step 3: Fix drag-drop — Ideas to TaskList
+The current `useDoorDrag.handleDrop` creates local state items but doesn't persist to DB. After adding to local state, it should also call `doorUserTasksService.addIdeaToWeek()` and `ideasBankService.archiveIdea()` to persist.
 
-**Fisiere modificate:** `src/components/landing/ProblemSectionNew.tsx`
-
----
-
-## Task 3: Salvează documentul WarriorOS ca referinta
-
-Creez fisierul `src/docs/warrior-os-master-project.md` cu un rezumat structurat al documentului master (Brand DNA, 13 capitole carte, pricing tiers, funnel strategy, stack tehnic). Serveste ca referinta interna pentru dezvoltare viitoare.
-
-**Fisiere noi:** `src/docs/warrior-os-master-project.md`
+### Step 4: Fix arrow button — Task back to Ideas
+Change `moveTaskBackToHotList` in `useDoorLists.tsx` to:
+- Instead of adding to old `hotList` state, call `ideasBankService.addIdea()` to insert into `ideas_bank` table
+- Remove from task list (current behavior is fine)
+- Delete from `user_tasks` DB (current behavior is fine)
+- The HotList component will pick up the new idea on next load/refresh
 
 ---
 
-## Task 4: Adaugă link Burnout Test in footer
-
-Adaug link-ul catre `/burnout-test` in sectiunea "Resurse" din footer, alaturi de Blog.
-
-**Fisiere modificate:** `src/components/landing/NewFooter.tsx`
+## Files to Modify
+1. `package.json` — add `build:dev` script
+2. `src/components/door/DominoDoor.tsx` — handle `idea-bank-item` drop type
+3. `src/hooks/useDoorDrag.tsx` — persist idea drops to DB
+4. `src/hooks/useDoorLists.tsx` — fix `moveTaskBackToHotList` to use `ideasBankService`
 
