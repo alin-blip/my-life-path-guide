@@ -133,7 +133,7 @@ export function useDoorDrag({
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     
     // FIRST: Check if it's an idea-bank-item being dropped (from HotList)
@@ -170,6 +170,34 @@ export function useDoorDrag({
           }
           
           console.log('✅ [DnD] Idea added to', activeList, 'list');
+          
+          // Persist: add task to DB and archive idea
+          try {
+            const { doorUserTasksService } = await import('@/services/doorUserTasksService');
+            const { ideasBankService } = await import('@/services/ideasBankService');
+            
+            // Get current week key from the URL or generate it
+            const now = new Date();
+            const { getISOWeek, getYear, startOfWeek: sow } = await import('date-fns');
+            const weekStart = sow(now, { weekStartsOn: 1 });
+            const weekNum = getISOWeek(weekStart);
+            const year = getYear(weekStart);
+            const weekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
+            
+            await doorUserTasksService.addIdeaToWeek(weekKey, {
+              id: `idea-to-${activeList}-${Date.now()}`,
+              text: data.text,
+              category: activeList,
+              priority: priority,
+              day: activeDay
+            });
+            
+            await ideasBankService.updateIdea(data.id, { status: 'archived' });
+            console.log('✅ [DnD] Idea persisted to DB and archived');
+          } catch (err) {
+            console.error('⚠️ [DnD] Error persisting idea drop:', err);
+          }
+          
           return; // Exit early - idea handled
         }
       } catch (parseError) {

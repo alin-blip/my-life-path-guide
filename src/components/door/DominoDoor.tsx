@@ -189,6 +189,47 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
     if (jsonData && setSelectedDomino && setDominoKeyPoints) {
       try {
         const data = JSON.parse(jsonData);
+        if (data.type === 'idea-bank-item') {
+          // Handle idea from Ideas Bank dropped on Domino
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          setSelectedDomino({
+            id: `idea-${data.id}`,
+            text: data.text,
+            selected: true,
+            priority: 'urgent-important'
+          });
+          
+          // Reset key points for manual/AI filling
+          setDominoKeyPoints([
+            { id: 'key1', text: '', completed: false },
+            { id: 'key2', text: '', completed: false },
+            { id: 'key3', text: '', completed: false },
+            { id: 'key4', text: '', completed: false }
+          ]);
+          setShowAIKeyPointsPrompt(true);
+          
+          // Archive the idea from ideas_bank
+          try {
+            const { ideasBankService } = await import('@/services/ideasBankService');
+            await ideasBankService.updateIdea(data.id, { status: 'archived' });
+          } catch (err) {
+            console.warn('[DominoDoor] Could not archive idea:', err);
+          }
+          
+          setIsProcessingDrop(false);
+          setShowDropSuccess(true);
+          setTimeout(() => setShowDropSuccess(false), 1000);
+          
+          toast({
+            title: '🎯 Domino setat din Idei!',
+            description: `"${data.text}" este acum focusul tău săptămânal. Generează key points cu AI!`
+          });
+          
+          console.debug('[DominoDoor] Idea bank item dropped as Domino', { id: data.id, text: data.text });
+          return;
+        }
+        
         if (data.type === 'monthly-mission') {
           // Brief delay for processing animation
           await new Promise(resolve => setTimeout(resolve, 200));

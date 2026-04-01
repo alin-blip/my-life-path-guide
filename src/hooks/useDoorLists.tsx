@@ -264,39 +264,33 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     
     if (!taskToMove) return;
 
-    const newHotItem: HotListItem = {
-      id: `task-to-hot-${Date.now()}`,
-      text: taskToMove.text,
-      selected: false,
-      priority: taskToMove.priority || 'none'
-    };
-    
-    const updatedHotList = [...hotList, newHotItem];
-    
+    // Remove from local task list
     if (listType === 'hit') {
       setHitList(prev => prev.filter(item => item.id !== taskId));
     } else {
       setDoList(prev => prev.filter(item => item.id !== taskId));
     }
-    setHotList(updatedHotList);
     
     try {
-      // Explicitly delete the moved task from DB
+      // Delete the task from user_tasks DB
       const { supabase } = await import('@/integrations/supabase/client');
       await supabase.from('user_tasks').delete().eq('id', taskId);
       
-      await doorUserTasksService.saveGlobalHotList(updatedHotList);
+      // Add to ideas_bank instead of old hotList
+      const { ideasBankService } = await import('@/services/ideasBankService');
+      await ideasBankService.addIdea(taskToMove.text, 'work', 1);
+      
       onDataChange?.();
       
       toast({
-        title: "Task Moved",
-        description: "Task has been moved back to the Hot List",
+        title: "📋 Mutat în Idei",
+        description: `"${taskToMove.text.substring(0, 30)}..." a fost mutat înapoi în Ideas Bank`,
       });
     } catch (error) {
-      console.error('Error moving task:', error);
+      console.error('Error moving task to ideas:', error);
       toast({
         title: '⚠️ Eroare salvare',
-        description: 'Nu s-a putut salva mișcarea task-ului',
+        description: 'Nu s-a putut muta task-ul în Ideas Bank',
         variant: 'destructive',
       });
     }
