@@ -1,6 +1,10 @@
 /// <reference types="vite/client" />
 
-declare namespace NodeJS {
-  type Timeout = ReturnType<typeof setTimeout>;
-  type Timer = ReturnType<typeof setInterval>;
+export {};
+
+declare global {
+  namespace NodeJS {
+    interface Timeout {}
+    interface Timer {}
+  }
 }
