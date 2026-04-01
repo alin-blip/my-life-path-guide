@@ -95,8 +95,8 @@ export function MeditationStep({ initialDuration, onComplete, onNext, onSkip }: 
   const [seconds, setSeconds] = useState(initialState.seconds);
   const [savedDuration, setSavedDuration] = useState(initialState.savedDuration);
   const [showSkipDialog, setShowSkipDialog] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Save to localStorage
   const saveToStorage = useCallback((currentSeconds: number, currentSaved: number, running: boolean) => {

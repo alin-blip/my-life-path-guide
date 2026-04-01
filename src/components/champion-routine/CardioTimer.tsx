@@ -57,8 +57,8 @@ export function CardioTimer({ activityType, onComplete, onBack }: CardioTimerPro
   const [distance, setDistance] = useState<string>(initialState.distance);
   const [notes, setNotes] = useState<string>(initialState.notes);
   const [isSaved, setIsSaved] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startTimeRef = useRef<Date | null>(initialState.startTime ? new Date(initialState.startTime) : null);
 
   // Save to localStorage

@@ -63,7 +63,7 @@ export const PrincipleChat: React.FC<PrincipleChatProps> = ({
   const [previewActions, setPreviewActions] = useState<any[]>([]);
   const [fullConversation, setFullConversation] = useState('');
   const chatAreaRef = useRef<HTMLDivElement>(null);
-  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const existingAnswer = project.principle_answers[principle];
   const existingSummary = project.principle_summaries[principle];

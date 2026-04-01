@@ -150,7 +150,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   
   // FIX: Add ref to track if data is loaded to prevent multiple syncData calls
   const dataLoaded = useRef(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentSaveDateRef = useRef<string>(selectedDate);
 
   // Update save date ref when selectedDate changes

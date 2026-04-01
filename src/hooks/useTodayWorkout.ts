@@ -79,7 +79,7 @@ export function useTodayWorkout() {
   const [exercises, setExercises] = useState<ExerciseProgress[]>(storedSession?.exercises || []);
   const [loading, setLoading] = useState(true);
   
-  const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Get workout for selected day
   const getWorkoutForDay = useCallback((dayOfWeek: number) => {
@@ -141,7 +141,7 @@ export function useTodayWorkout() {
 
   // Timer effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setTimeout>;
     if (isStarted && startTime) {
       interval = setInterval(() => {
         setElapsedTime(Math.floor((Date.now() - startTime.getTime()) / 1000));

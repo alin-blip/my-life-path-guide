@@ -14,7 +14,7 @@ export function PomodoroTimer({ onComplete, initialSessions = 0 }: PomodoroTimer
   const [isRunning, setIsRunning] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(POMODORO_DURATION);
   const [completedSessions, setCompletedSessions] = useState(initialSessions);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isRunning && secondsLeft > 0) {

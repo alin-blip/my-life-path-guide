@@ -26,7 +26,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
   const [timeLeft, setTimeLeft] = useState(TIMER_PRESETS.focus);
   const [isRunning, setIsRunning] = useState(false);
   const [pomodorosCompleted, setPomodorosCompleted] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const totalTime = TIMER_PRESETS[mode];
   const progress = ((totalTime - timeLeft) / totalTime) * 100;

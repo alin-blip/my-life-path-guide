@@ -143,7 +143,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
   const chatViewportRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const saveTimerRef = useRef<NodeJS.Timeout>();
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const { toast } = useToast();
 
   // Keep history bounded to avoid backend 100-message limit
