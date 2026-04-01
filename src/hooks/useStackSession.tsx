@@ -14,7 +14,7 @@ export function useStackSession({ stackType, sessionId, onSessionRestore, curren
   const { toast } = useToast();
   const [isAutoSaveEnabled, setIsAutoSaveEnabled] = useState(true);
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 

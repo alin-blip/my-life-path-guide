@@ -19,7 +19,7 @@ export const useAICallOptimization = ({
 }: UseAICallOptimizationProps = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeRequests, setActiveRequests] = useState<Set<string>>(new Set());
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const requestCacheRef = useRef<Map<string, { timestamp: number; response: any }>>(new Map());
   const { toast } = useToast();
 

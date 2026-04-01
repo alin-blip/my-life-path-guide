@@ -24,7 +24,7 @@ export function BreathingStep({ completed, onComplete, onNext }: BreathingStepPr
   const [secondsInPhase, setSecondsInPhase] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const [musicEnded, setMusicEnded] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 

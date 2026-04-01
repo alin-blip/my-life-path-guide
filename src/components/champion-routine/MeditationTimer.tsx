@@ -13,7 +13,7 @@ export function MeditationTimer({ onComplete, initialDuration = 0 }: MeditationT
   const { t } = useLanguage();
   const [isRunning, setIsRunning] = useState(false);
   const [seconds, setSeconds] = useState(initialDuration);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isRunning) {

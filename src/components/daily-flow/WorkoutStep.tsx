@@ -145,7 +145,7 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
     storedSession?.isWorkoutStarted && storedSession.exercises.length > 0
   );
   
-  const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Save to localStorage
   const saveToStorage = useCallback(() => {
@@ -175,7 +175,7 @@ export const WorkoutStep = ({ onComplete }: WorkoutStepProps) => {
 
   // Timer effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setTimeout>;
     if (isWorkoutStarted && startTime) {
       interval = setInterval(() => {
         setElapsedTime(Math.floor((Date.now() - startTime.getTime()) / 1000));

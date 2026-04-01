@@ -15,7 +15,7 @@ export const FocusStep = ({ onComplete }: FocusStepProps) => {
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setTimeout>;
     
     if (isRunning && timeLeft > 0) {
       interval = setInterval(() => {

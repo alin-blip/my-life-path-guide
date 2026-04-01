@@ -57,7 +57,7 @@ export function EmpowermentMeditationPlayer({
   );
   const [hasFinishedSpeaking, setHasFinishedSpeaking] = useState(false);
   
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startTimeRef = useRef<number>(0);
   const binauralStartedRef = useRef(false);
 

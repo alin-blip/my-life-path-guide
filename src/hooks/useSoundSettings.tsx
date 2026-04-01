@@ -25,7 +25,7 @@ export function useSoundSettings() {
     }
   });
   const [isLoading, setIsLoading] = useState(true);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load from cloud on mount
   useEffect(() => {

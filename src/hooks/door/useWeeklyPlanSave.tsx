@@ -20,7 +20,7 @@ export function useWeeklyPlanSave() {
   
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [lastCloudSaveTime, setLastCloudSaveTime] = useState<Date | null>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isSavingRef = useRef(false);
 
   // Debounced save to cloud (only weekly plan, NOT lists)

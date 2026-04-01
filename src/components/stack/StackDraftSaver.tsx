@@ -19,7 +19,7 @@ export const StackDraftSaver: React.FC<StackDraftSaverProps> = ({
   onDraftRestore
 }) => {
   const { toast } = useToast();
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const lastAnswerRef = useRef<string>('');
 
   const getDraftKey = () => `stack-draft-${stackType}-${sessionId}-${currentStep}`;

@@ -44,9 +44,9 @@ export const useVoiceConversationDemo = (options: UseVoiceConversationDemoOption
   });
 
   const recognitionRef = useRef<any>(null);
-  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const autoStartTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const accumulatedTranscriptRef = useRef<string>('');
   const interimTranscriptRef = useRef<string>('');
   const isListeningRef = useRef(false);

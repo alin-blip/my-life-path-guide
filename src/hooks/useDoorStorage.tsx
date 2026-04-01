@@ -43,7 +43,7 @@ export function useDoorStorage(props: UseDoorStorageProps) {
   
   // Track if we're currently reloading to prevent save during reload
   const isReloadingRef = useRef(false);
-  const weeklyPlanSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const weeklyPlanSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Track last emergency save to prevent reload loops
   const lastEmergencySaveRef = useRef<number>(0);
   // Track the category of the currently loaded plan

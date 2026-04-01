@@ -117,7 +117,7 @@ export function TodaysWorkoutDashboard({ onComplete }: TodaysWorkoutDashboardPro
 
   // Timer for manual mode
   React.useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setTimeout>;
     if (isManualStarted && manualStartTime) {
       interval = setInterval(() => {
         setManualElapsedTime(Math.floor((Date.now() - manualStartTime.getTime()) / 1000));
