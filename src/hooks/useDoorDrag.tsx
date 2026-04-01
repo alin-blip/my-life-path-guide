@@ -133,7 +133,7 @@ export function useDoorDrag({
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     
     // FIRST: Check if it's an idea-bank-item being dropped (from HotList)
