@@ -1,42 +1,117 @@
 
 
-# Audit Door: De ce nu se salvează task-urile
+# Audit General Platformă CEO Mind OS — Ready for Launch
 
-## Probleme identificate
-
-### 1. CRITIC: Auto-save pentru HIT/DO liste este complet stricat
-`useDoorStorageState.tsx` (linia 50-55) are un `useEffect` care setează un `setTimeout`, dar callback-ul doar face `return true` — **valoarea este ignorată complet**. Nimeni nu apelează `saveState()` automat. Aceasta înseamnă că dacă adaugi un task prin drag-drop sau alte mecanisme care nu apelează explicit `saveWeekLists`, modificările **nu se persistează niciodată** în baza de date.
-
-Singurele salvări care funcționează sunt cele explicit codate în `useDoorLists` (toggle completion, update priority, delete). Dar drag-drop din HotList sau KeyPoints în TaskList (handleDrop în `useDoorDrag.tsx`, liniile 209-279) **nu apelează `saveWeekLists`** — doar actualizează starea locală React.
-
-### 2. Realtime nu este activat pentru `user_tasks`
-`useDoorLists` setează o subscripție realtime pe `user_tasks`, dar tabela **nu este adăugată în publicația `supabase_realtime`**. Subscripția nu primește niciun eveniment.
-
-### 3. Build errors (NodeJS.Timeout) — stale
-Fișierele afectate au deja `ReturnType<typeof setTimeout>`. Erorile de build pot fi cauzate de cache. Voi face o re-scriere minimală pe un fișier canonic pentru a forța rebuild.
+## Status: Build ✅ PASS | TypeScript ✅ CLEAN | Security ⚠️ 2 warnings
 
 ---
 
-## Plan de rezolvare
+## PROBLEME CRITICE (Blocker Launch)
 
-### Step 1: Adaugă auto-save real pentru HIT/DO în `useDoorStorage.tsx`
-Adaugă un `useEffect` care, la schimbarea `hitList` sau `doList`, apelează `saveState` cu debounce de 1.5s (similar cu efectul existent pentru weekly plan). Aceasta este piesa lipsă — `useDoorStorageState` va fi simplificat doar la tracking refs.
+### 1. CRITIC: Duplicate masive în baza de date — 562 task-uri, multe duplicate x8
+Săptămâna `door-week-2026-04` are **341 de task-uri**, multe duplicate de 8 ori. Cauza: `saveGlobalHotList` face DELETE + INSERT la fiecare save, dar realtime subscription trigger-ează `loadData` → care setează starea → care trigger-ează auto-save → care re-inserează. Aceasta este o **buclă de feedback** între realtime și auto-save.
 
-### Step 2: Persistă drag-drop din HotList/KeyPoint în TaskList
-În `useDoorDrag.tsx`, la handleDrop (liniile 209-237), după ce se adaugă în starea locală, apelează și `doorUserTasksService.addIdeaToWeek()` pentru a persista în DB — similar cu blocul deja existent pentru `idea-bank-item` (liniile 175-199).
+**Fix**: 
+- Adaugă un flag `isRealtimeReloading` în `useDoorLists` care blochează auto-save-ul din `useDoorStorage` când datele vin din realtime
+- Rulează `removeDuplicateTasks()` o dată pentru a curăța datele existente
+- Adaugă un unique constraint la nivel de DB: `(user_id, title, task_type, week_key, day_of_week)`
 
-### Step 3: Activează realtime pentru `user_tasks`
-Creează o migrare SQL: `ALTER PUBLICATION supabase_realtime ADD TABLE public.user_tasks;`
+### 2. CRITIC: Password Reset nu funcționează
+`AuthForm.tsx` trimite email-ul de reset cu `redirectTo: /auth`, dar NU există logică de handling `type=recovery` și NU există pagina `/reset-password`. Utilizatorul primește link-ul, face click, este logat automat DAR nu poate schimba parola.
 
-### Step 4: Forțează rebuild pentru a elimina erorile NodeJS stale
-Adaugă `/// <reference lib="dom" />` în `tsconfig.json` sau fă un touch minimal pe fișierele afectate.
+**Fix**:
+- Adaugă handling `type=recovery` în `AuthForm.tsx` (sau creează pagina `/reset-password`)
+- Când URL-ul conține `type=recovery`, afișează formularul de "Parolă Nouă" cu `supabase.auth.updateUser({ password })`
+
+### 3. CRITIC: `TemporarySupabaseDisable.tsx` — fișier mort
+Fișierul există dar nu e importat nicăieri. Trebuie șters pentru a nu crea confuzie.
+
+---
+
+## PROBLEME MODERATE (Post-Launch OK, dar recomandat)
+
+### 4. Buclă Realtime ↔ Auto-Save
+Realtime subscription în `useDoorLists` apelează `loadData()` → setează stare → `useDoorStorage` detectează schimbare → apelează `saveState()` → DB se modifică → realtime notifică din nou. Ciclul este parțial prevenit de signature check, dar nu complet.
+
+**Fix**: Adaugă debounce + un `isFromRealtime` flag care suprimă auto-save pentru 2 secunde după un reload realtime.
+
+### 5. 14 TODO-uri cu "Implement proper database" în componente active
+`Dashboard.tsx`, `FactMapSimplified.tsx`, `GameContent.tsx`, `MonthlyObjectives.tsx`, `Stack.tsx` — toate au cod care ar trebui să folosească Supabase dar nu o face. Datele se pierd la refresh.
+
+**Fix**: Implementează persistența DB în aceste componente sau convertește la localStorage cu migrare viitoare.
+
+### 6. Leaked Password Protection dezactivat (Linter Warning)
+HIBP (Have I Been Pwned) check nu este activat. Utilizatorii pot folosi parole compromise.
+
+**Fix**: Activează din Cloud → Users → Auth Settings → Password HIBP Check.
+
+### 7. Bundle size mare — 3 chunk-uri > 500KB
+- `index.js`: 726KB  
+- `WidgetDashboard.js`: 700KB
+- `vendor-charts.js`: 432KB
+
+**Fix**: Code-split WidgetDashboard și chart libraries mai agresiv cu `manualChunks`.
+
+---
+
+## PROBLEME MINORE (Nice-to-have)
+
+### 8. `dangerouslySetInnerHTML` în BlogArticle și landing pages
+Utilizat cu conținut hardcodat (nu user input), risc scăzut. Dar `BlogArticle.tsx` procesează conținut care ar putea veni din DB.
+
+**Fix**: Adaugă `DOMPurify.sanitize()` pe conținutul din `BlogArticle.tsx`.
+
+### 9. `getSession` folosit în loc de `getUser` în 20+ locuri
+`getSession` nu verifică token-ul pe server — este mai puțin sigur. `ErrorBoundary`, `GlobalErrorCapture`, și multe componente îl folosesc.
+
+**Fix**: Migrează treptat la `getUser` pentru operații sensibile. `getSession` este OK pentru logging/non-critical.
+
+### 10. Extension în schema public (Linter Warning)
+O extensie Postgres este instalată în schema `public` în loc de o schemă dedicată.
+
+---
+
+## CE FUNCȚIONEAZĂ BINE ✅
+
+- **TypeScript**: 0 erori — build complet curat
+- **Build production**: Se compilează cu succes în ~27s
+- **Autentificare**: Flow complet cu tier-based access (Free/Basic/Pro/Elite)
+- **Admin roles**: Corect implementat prin `user_roles` table + `has_role()` security definer
+- **RLS**: Toate tabelele critice au politici active
+- **Error tracking**: `ErrorBoundary` + `GlobalErrorCapture` + `error_logs` table
+- **Security Provider**: XSS sanitization, input validation, security event logging
+- **Door auto-save**: Mecanism de debounce funcțional cu signature tracking
+- **Lazy loading**: 90+ pagini lazy-loaded cu Suspense fallback
+- **PWA**: Service worker configurat cu precaching
+
+---
+
+## PLAN DE IMPLEMENTARE (Prioritizat)
+
+### Pas 1: Curățare date + preveniție duplicare
+- Adaugă unique constraint DB pe `user_tasks`
+- Rulează cleanup pe duplicatele existente
+- Adaugă `isFromRealtime` flag pentru a preveni bucla
+
+### Pas 2: Fix Password Reset
+- Adaugă handling `type=recovery` în `AuthForm.tsx`
+- Schimbă `redirectTo` la `${origin}/auth?type=recovery`
+
+### Pas 3: Activează HIBP Password Check
+- Configurare din Auth Settings
+
+### Pas 4: Șterge `TemporarySupabaseDisable.tsx`
+- Fișier mort, creează confuzie
+
+### Pas 5 (opțional): Sanitizare blog + bundle optimization
 
 ---
 
 ## Fișiere de modificat
-1. `src/hooks/useDoorStorage.tsx` — adaugă auto-save effect pentru hitList/doList
-2. `src/hooks/door/useDoorStorageState.tsx` — simplifică (elimină efectul broken)
-3. `src/hooks/useDoorDrag.tsx` — persistă drag-drop HotList→TaskList în DB
-4. Migrare SQL — activează realtime pe `user_tasks`
-5. `tsconfig.json` sau fișiere timer — forțează rebuild curat
+1. **Migration SQL** — unique constraint + cleanup duplicates
+2. **`src/hooks/useDoorLists.tsx`** — flag anti-buclă realtime
+3. **`src/hooks/useDoorStorage.tsx`** — respectă flagul anti-buclă
+4. **`src/components/AuthForm.tsx`** — handle `type=recovery`, fix `redirectTo`
+5. **`src/components/TemporarySupabaseDisable.tsx`** — DELETE
+6. **Auth Settings** — activează HIBP check
 
