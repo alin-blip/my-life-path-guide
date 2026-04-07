@@ -65,7 +65,14 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
           },
           (payload) => {
             console.log('[Realtime] User task changed:', payload);
-            loadData();
+            // Set flag to suppress auto-save during realtime reload
+            (window as any).__doorRealtimeReloading = true;
+            loadData().finally(() => {
+              // Keep flag for 2s to let state settle before auto-save kicks in
+              setTimeout(() => {
+                (window as any).__doorRealtimeReloading = false;
+              }, 2000);
+            });
           }
         )
         .subscribe();

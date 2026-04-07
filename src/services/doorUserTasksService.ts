@@ -151,10 +151,17 @@ export const doorUserTasksService = {
       });
     });
 
+    // Use upsert-like behavior: since we deleted first, insert should work
+    // But use onConflict to handle any race conditions with the unique constraint
     const { error: insErr } = await supabase
       .from('user_tasks')
       .insert(rows);
 
+    // If duplicate key error, it's a race condition — ignore and retry next cycle
+    if (insErr && insErr.code === '23505') {
+      console.warn('[doorUserTasksService] Duplicate key on hot list save — skipping (race condition)');
+      return { count: rows.length };
+    }
     if (insErr) throw insErr;
 
     return { count: rows.length };

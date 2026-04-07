@@ -27,7 +27,8 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 enum AuthMode {
   LOGIN,
   REGISTER,
-  FORGOT_PASSWORD
+  FORGOT_PASSWORD,
+  RESET_PASSWORD
 }
 
 export const AuthForm: React.FC = () => {
@@ -55,12 +56,24 @@ export const AuthForm: React.FC = () => {
   // Check for vision plan flow
   const isVisionPlanFlow = searchParams.get('from') === 'vision-plan';
   const visionScores = searchParams.get('scores');
+  const recoveryType = searchParams.get('type');
+  
+  // New password state for recovery mode
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
   
   const from = location.state?.from?.pathname || '/dashboard';
   const MAX_RATE_LIMIT = 5;
   const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
 
   const [backendSlowdown, setBackendSlowdown] = useState(false);
+
+  // Detect recovery mode from URL
+  useEffect(() => {
+    if (recoveryType === 'recovery') {
+      setMode(AuthMode.RESET_PASSWORD);
+    }
+  }, [recoveryType]);
 
   // Check auth service connectivity on mount - two-step check
   useEffect(() => {
@@ -287,7 +300,7 @@ export const AuthForm: React.FC = () => {
       } else if (mode === AuthMode.FORGOT_PASSWORD) {
         const { error } = await withTimeout(
           supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/auth`,
+            redirectTo: `${window.location.origin}/auth?type=recovery`,
           }),
           AUTH_TIMEOUT_MS
         );
@@ -301,6 +314,38 @@ export const AuthForm: React.FC = () => {
         
         setMode(AuthMode.LOGIN);
         logSecurityEvent('Password reset requested', { email });
+      } else if (mode === AuthMode.RESET_PASSWORD) {
+        if (newPassword.length < 8) {
+          toast({
+            title: language === 'en' ? "Password too short" : "Parola prea scurtă",
+            description: language === 'en' ? "Password must be at least 8 characters long." : "Parola trebuie să aibă cel puțin 8 caractere.",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (newPassword !== confirmNewPassword) {
+          toast({
+            title: language === 'en' ? "Passwords don't match" : "Parolele nu se potrivesc",
+            description: language === 'en' ? "Please ensure both passwords match." : "Asigură-te că ambele parole se potrivesc.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const { error } = await withTimeout(
+          supabase.auth.updateUser({ password: newPassword }),
+          AUTH_TIMEOUT_MS
+        );
+
+        if (error) throw error;
+
+        toast({
+          title: language === 'en' ? "Password updated" : "Parolă actualizată",
+          description: language === 'en' ? "Your password has been changed successfully." : "Parola ta a fost schimbată cu succes.",
+        });
+        
+        logSecurityEvent('Password reset completed', { email });
+        navigate('/dashboard', { replace: true });
       }
     } catch (error: any) {
       logSecurityEvent('Authentication error', { email, error: error.message, mode });
@@ -422,11 +467,13 @@ export const AuthForm: React.FC = () => {
           {mode === AuthMode.LOGIN && (language === 'en' ? "WELCOME BACK ACHIEVER" : "BINE AI REVENIT")}
           {mode === AuthMode.REGISTER && (language === 'en' ? "JOIN CEO MIND OS" : "ALĂTURĂ-TE CEO MIND OS")}
           {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "RESET PASSWORD" : "RESETEAZĂ PAROLA")}
+          {mode === AuthMode.RESET_PASSWORD && (language === 'en' ? "NEW PASSWORD" : "PAROLĂ NOUĂ")}
         </h1>
         <p className="text-muted-foreground">
           {mode === AuthMode.LOGIN && (language === 'en' ? "Sign in to continue your journey" : "Autentifică-te pentru a continua")}
           {mode === AuthMode.REGISTER && (language === 'en' ? "Create your account to unlock your potential" : "Creează-ți contul pentru a-ți debloca potențialul")}
           {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "Enter your email to reset your password" : "Introdu email-ul pentru a reseta parola")}
+          {mode === AuthMode.RESET_PASSWORD && (language === 'en' ? "Choose a new password for your account" : "Alege o parolă nouă pentru contul tău")}
         </p>
       </div>
 
@@ -474,20 +521,75 @@ export const AuthForm: React.FC = () => {
           </button>
         )}
         
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-white">
-            {language === 'en' ? 'Email Address' : 'Adresa de Email'}
-          </label>
-          <SecureInput
-            id="email"
-            type="email"
-            value={email}
-            onSecureChange={setEmail}
-            placeholder={language === 'en' ? "Enter your email" : "Introdu email-ul"}
-            required
-            className="bg-muted border-muted text-white"
-          />
-        </div>
+        {mode !== AuthMode.RESET_PASSWORD && (
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium text-white">
+              {language === 'en' ? 'Email Address' : 'Adresa de Email'}
+            </label>
+            <SecureInput
+              id="email"
+              type="email"
+              value={email}
+              onSecureChange={setEmail}
+              placeholder={language === 'en' ? "Enter your email" : "Introdu email-ul"}
+              required
+              className="bg-muted border-muted text-white"
+            />
+          </div>
+        )}
+
+        {mode === AuthMode.RESET_PASSWORD && (
+          <>
+            <div className="space-y-2">
+              <label htmlFor="newPassword" className="text-sm font-medium text-white">
+                {language === 'en' ? 'New Password' : 'Parola Nouă'}
+              </label>
+              <div className="relative">
+                <SecureInput
+                  id="newPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  onSecureChange={setNewPassword}
+                  placeholder={language === 'en' ? "Enter new password" : "Introdu parola nouă"}
+                  required
+                  minLength={8}
+                  className="bg-muted border-muted text-white pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="confirmNewPassword" className="text-sm font-medium text-white">
+                {language === 'en' ? 'Confirm New Password' : 'Confirmă Parola Nouă'}
+              </label>
+              <div className="relative">
+                <SecureInput
+                  id="confirmNewPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmNewPassword}
+                  onSecureChange={setConfirmNewPassword}
+                  placeholder={language === 'en' ? "Confirm new password" : "Confirmă parola nouă"}
+                  required
+                  minLength={8}
+                  className="bg-muted border-muted text-white pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={toggleConfirmPasswordVisibility}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
 
         {(mode === AuthMode.LOGIN || mode === AuthMode.REGISTER) && (
           <div className="space-y-2">
@@ -585,6 +687,7 @@ export const AuthForm: React.FC = () => {
               {mode === AuthMode.LOGIN && (language === 'en' ? "SIGN IN" : "AUTENTIFICARE")}
               {mode === AuthMode.REGISTER && (language === 'en' ? "CREATE ACCOUNT" : "CREEAZĂ CONT")}
               {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "SEND RESET LINK" : "TRIMITE LINK RESETARE")}
+              {mode === AuthMode.RESET_PASSWORD && (language === 'en' ? "SET NEW PASSWORD" : "SETEAZĂ PAROLA NOUĂ")}
             </>
           )}
         </Button>
