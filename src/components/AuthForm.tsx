@@ -56,12 +56,24 @@ export const AuthForm: React.FC = () => {
   // Check for vision plan flow
   const isVisionPlanFlow = searchParams.get('from') === 'vision-plan';
   const visionScores = searchParams.get('scores');
+  const recoveryType = searchParams.get('type');
+  
+  // New password state for recovery mode
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
   
   const from = location.state?.from?.pathname || '/dashboard';
   const MAX_RATE_LIMIT = 5;
   const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
 
   const [backendSlowdown, setBackendSlowdown] = useState(false);
+
+  // Detect recovery mode from URL
+  useEffect(() => {
+    if (recoveryType === 'recovery') {
+      setMode(AuthMode.RESET_PASSWORD);
+    }
+  }, [recoveryType]);
 
   // Check auth service connectivity on mount - two-step check
   useEffect(() => {
