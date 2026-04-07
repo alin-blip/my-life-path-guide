@@ -27,7 +27,8 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 enum AuthMode {
   LOGIN,
   REGISTER,
-  FORGOT_PASSWORD
+  FORGOT_PASSWORD,
+  RESET_PASSWORD
 }
 
 export const AuthForm: React.FC = () => {

@@ -182,7 +182,7 @@ export function useDoorStorage(props: UseDoorStorageProps) {
   }, []);
 
   useEffect(() => {
-    if (initialLoadRef.current || isReloadingRef.current) return;
+    if (initialLoadRef.current || isReloadingRef.current || (window as any).__doorRealtimeReloading) return;
 
     const newHitSig = getListSignature(props.hitList);
     const newDoSig = getListSignature(props.doList);
