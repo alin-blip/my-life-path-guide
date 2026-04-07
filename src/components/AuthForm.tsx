@@ -300,7 +300,7 @@ export const AuthForm: React.FC = () => {
       } else if (mode === AuthMode.FORGOT_PASSWORD) {
         const { error } = await withTimeout(
           supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/auth`,
+            redirectTo: `${window.location.origin}/auth?type=recovery`,
           }),
           AUTH_TIMEOUT_MS
         );
@@ -314,6 +314,38 @@ export const AuthForm: React.FC = () => {
         
         setMode(AuthMode.LOGIN);
         logSecurityEvent('Password reset requested', { email });
+      } else if (mode === AuthMode.RESET_PASSWORD) {
+        if (newPassword.length < 8) {
+          toast({
+            title: language === 'en' ? "Password too short" : "Parola prea scurtă",
+            description: language === 'en' ? "Password must be at least 8 characters long." : "Parola trebuie să aibă cel puțin 8 caractere.",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (newPassword !== confirmNewPassword) {
+          toast({
+            title: language === 'en' ? "Passwords don't match" : "Parolele nu se potrivesc",
+            description: language === 'en' ? "Please ensure both passwords match." : "Asigură-te că ambele parole se potrivesc.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const { error } = await withTimeout(
+          supabase.auth.updateUser({ password: newPassword }),
+          AUTH_TIMEOUT_MS
+        );
+
+        if (error) throw error;
+
+        toast({
+          title: language === 'en' ? "Password updated" : "Parolă actualizată",
+          description: language === 'en' ? "Your password has been changed successfully." : "Parola ta a fost schimbată cu succes.",
+        });
+        
+        logSecurityEvent('Password reset completed', { email });
+        navigate('/dashboard', { replace: true });
       }
     } catch (error: any) {
       logSecurityEvent('Authentication error', { email, error: error.message, mode });
