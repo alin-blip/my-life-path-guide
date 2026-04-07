@@ -687,6 +687,7 @@ export const AuthForm: React.FC = () => {
               {mode === AuthMode.LOGIN && (language === 'en' ? "SIGN IN" : "AUTENTIFICARE")}
               {mode === AuthMode.REGISTER && (language === 'en' ? "CREATE ACCOUNT" : "CREEAZĂ CONT")}
               {mode === AuthMode.FORGOT_PASSWORD && (language === 'en' ? "SEND RESET LINK" : "TRIMITE LINK RESETARE")}
+              {mode === AuthMode.RESET_PASSWORD && (language === 'en' ? "SET NEW PASSWORD" : "SETEAZĂ PAROLA NOUĂ")}
             </>
           )}
         </Button>
