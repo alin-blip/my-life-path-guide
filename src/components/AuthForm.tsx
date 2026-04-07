@@ -521,20 +521,75 @@ export const AuthForm: React.FC = () => {
           </button>
         )}
         
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-white">
-            {language === 'en' ? 'Email Address' : 'Adresa de Email'}
-          </label>
-          <SecureInput
-            id="email"
-            type="email"
-            value={email}
-            onSecureChange={setEmail}
-            placeholder={language === 'en' ? "Enter your email" : "Introdu email-ul"}
-            required
-            className="bg-muted border-muted text-white"
-          />
-        </div>
+        {mode !== AuthMode.RESET_PASSWORD && (
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium text-white">
+              {language === 'en' ? 'Email Address' : 'Adresa de Email'}
+            </label>
+            <SecureInput
+              id="email"
+              type="email"
+              value={email}
+              onSecureChange={setEmail}
+              placeholder={language === 'en' ? "Enter your email" : "Introdu email-ul"}
+              required
+              className="bg-muted border-muted text-white"
+            />
+          </div>
+        )}
+
+        {mode === AuthMode.RESET_PASSWORD && (
+          <>
+            <div className="space-y-2">
+              <label htmlFor="newPassword" className="text-sm font-medium text-white">
+                {language === 'en' ? 'New Password' : 'Parola Nouă'}
+              </label>
+              <div className="relative">
+                <SecureInput
+                  id="newPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  onSecureChange={setNewPassword}
+                  placeholder={language === 'en' ? "Enter new password" : "Introdu parola nouă"}
+                  required
+                  minLength={8}
+                  className="bg-muted border-muted text-white pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="confirmNewPassword" className="text-sm font-medium text-white">
+                {language === 'en' ? 'Confirm New Password' : 'Confirmă Parola Nouă'}
+              </label>
+              <div className="relative">
+                <SecureInput
+                  id="confirmNewPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmNewPassword}
+                  onSecureChange={setConfirmNewPassword}
+                  placeholder={language === 'en' ? "Confirm new password" : "Confirmă parola nouă"}
+                  required
+                  minLength={8}
+                  className="bg-muted border-muted text-white pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={toggleConfirmPasswordVisibility}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
 
         {(mode === AuthMode.LOGIN || mode === AuthMode.REGISTER) && (
           <div className="space-y-2">
