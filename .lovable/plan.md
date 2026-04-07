@@ -1,46 +1,42 @@
 
 
-# Plan: Fix Door Audit — Build Script, Drag-Drop, and Arrow Button
+# Audit Door: De ce nu se salvează task-urile
 
-## Problems Found
+## Probleme identificate
 
-### 1. Build fails: missing `build:dev` script
-`package.json` has `dev`, `build`, `preview`, `lint` but no `build:dev`.
+### 1. CRITIC: Auto-save pentru HIT/DO liste este complet stricat
+`useDoorStorageState.tsx` (linia 50-55) are un `useEffect` care setează un `setTimeout`, dar callback-ul doar face `return true` — **valoarea este ignorată complet**. Nimeni nu apelează `saveState()` automat. Aceasta înseamnă că dacă adaugi un task prin drag-drop sau alte mecanisme care nu apelează explicit `saveWeekLists`, modificările **nu se persistează niciodată** în baza de date.
 
-### 2. Drag-and-drop from Ideas to Domino Door doesn't work
-HotList uses `@hello-pangea/dnd` library for internal reordering. Each idea item sets native `onDragStart` with `application/json` data (type `idea-bank-item`). However, `DominoDoor.handleLocalDrop` only checks for `monthly-mission` type — it ignores `idea-bank-item`. The fallback `handleDropOnDomino` (from `useDoorDrag`) relies on `draggedItem` state being set, but HotList never calls `handleDragStartToDomino()` to set that state. So dropping an idea on Domino does nothing.
+Singurele salvări care funcționează sunt cele explicit codate în `useDoorLists` (toggle completion, update priority, delete). Dar drag-drop din HotList sau KeyPoints în TaskList (handleDrop în `useDoorDrag.tsx`, liniile 209-279) **nu apelează `saveWeekLists`** — doar actualizează starea locală React.
 
-### 3. Arrow button on tasks doesn't move to Ideas list
-`moveTaskBackToHotList` adds the task to the old `hotList` state array and saves via `doorUserTasksService.saveGlobalHotList()`. But the Ideas column (`HotList.tsx`) loads from `ideasBankService.fetchAllIdeas()` (the `ideas_bank` table), not the old `hotList` state. So the task disappears from tasks but never appears in Ideas.
+### 2. Realtime nu este activat pentru `user_tasks`
+`useDoorLists` setează o subscripție realtime pe `user_tasks`, dar tabela **nu este adăugată în publicația `supabase_realtime`**. Subscripția nu primește niciun eveniment.
 
----
-
-## Fix Plan
-
-### Step 1: Add `build:dev` script to `package.json`
-Add `"build:dev": "vite build --mode development"` to scripts.
-
-### Step 2: Fix drag-drop — Ideas to Domino Door
-In `DominoDoor.tsx` → `handleLocalDrop`, add handling for `idea-bank-item` type:
-- When an idea is dropped on Domino, set it as `selectedDomino` using `setSelectedDomino`
-- Archive the idea from ideas_bank after setting it
-- Show success toast
-
-### Step 3: Fix drag-drop — Ideas to TaskList
-The current `useDoorDrag.handleDrop` creates local state items but doesn't persist to DB. After adding to local state, it should also call `doorUserTasksService.addIdeaToWeek()` and `ideasBankService.archiveIdea()` to persist.
-
-### Step 4: Fix arrow button — Task back to Ideas
-Change `moveTaskBackToHotList` in `useDoorLists.tsx` to:
-- Instead of adding to old `hotList` state, call `ideasBankService.addIdea()` to insert into `ideas_bank` table
-- Remove from task list (current behavior is fine)
-- Delete from `user_tasks` DB (current behavior is fine)
-- The HotList component will pick up the new idea on next load/refresh
+### 3. Build errors (NodeJS.Timeout) — stale
+Fișierele afectate au deja `ReturnType<typeof setTimeout>`. Erorile de build pot fi cauzate de cache. Voi face o re-scriere minimală pe un fișier canonic pentru a forța rebuild.
 
 ---
 
-## Files to Modify
-1. `package.json` — add `build:dev` script
-2. `src/components/door/DominoDoor.tsx` — handle `idea-bank-item` drop type
-3. `src/hooks/useDoorDrag.tsx` — persist idea drops to DB
-4. `src/hooks/useDoorLists.tsx` — fix `moveTaskBackToHotList` to use `ideasBankService`
+## Plan de rezolvare
+
+### Step 1: Adaugă auto-save real pentru HIT/DO în `useDoorStorage.tsx`
+Adaugă un `useEffect` care, la schimbarea `hitList` sau `doList`, apelează `saveState` cu debounce de 1.5s (similar cu efectul existent pentru weekly plan). Aceasta este piesa lipsă — `useDoorStorageState` va fi simplificat doar la tracking refs.
+
+### Step 2: Persistă drag-drop din HotList/KeyPoint în TaskList
+În `useDoorDrag.tsx`, la handleDrop (liniile 209-237), după ce se adaugă în starea locală, apelează și `doorUserTasksService.addIdeaToWeek()` pentru a persista în DB — similar cu blocul deja existent pentru `idea-bank-item` (liniile 175-199).
+
+### Step 3: Activează realtime pentru `user_tasks`
+Creează o migrare SQL: `ALTER PUBLICATION supabase_realtime ADD TABLE public.user_tasks;`
+
+### Step 4: Forțează rebuild pentru a elimina erorile NodeJS stale
+Adaugă `/// <reference lib="dom" />` în `tsconfig.json` sau fă un touch minimal pe fișierele afectate.
+
+---
+
+## Fișiere de modificat
+1. `src/hooks/useDoorStorage.tsx` — adaugă auto-save effect pentru hitList/doList
+2. `src/hooks/door/useDoorStorageState.tsx` — simplifică (elimină efectul broken)
+3. `src/hooks/useDoorDrag.tsx` — persistă drag-drop HotList→TaskList în DB
+4. Migrare SQL — activează realtime pe `user_tasks`
+5. `tsconfig.json` sau fișiere timer — forțează rebuild curat
 
