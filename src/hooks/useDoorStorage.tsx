@@ -172,6 +172,49 @@ export function useDoorStorage(props: UseDoorStorageProps) {
     return kps.map(kp => `${kp.id}:${kp.text || ''}:${kp.completed ? '1' : '0'}`).join('|');
   }, []);
 
+  // AUTO-SAVE for HIT/DO lists — debounced 1.5s
+  const hitDoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hitListSignatureRef = useRef<string>('');
+  const doListSignatureRef = useRef<string>('');
+
+  const getListSignature = useCallback((list: (HitListItem | DoListItem)[]) => {
+    return list.map(i => `${i.id}:${i.text}:${(i as any).completed ? '1' : '0'}:${(i as any).day || ''}`).join('|');
+  }, []);
+
+  useEffect(() => {
+    if (initialLoadRef.current || isReloadingRef.current) return;
+
+    const newHitSig = getListSignature(props.hitList);
+    const newDoSig = getListSignature(props.doList);
+
+    if (newHitSig === hitListSignatureRef.current && newDoSig === doListSignatureRef.current) return;
+
+    hitListSignatureRef.current = newHitSig;
+    doListSignatureRef.current = newDoSig;
+
+    if (hitDoSaveTimeoutRef.current) clearTimeout(hitDoSaveTimeoutRef.current);
+
+    hitDoSaveTimeoutRef.current = setTimeout(() => {
+      if (props.currentWeekKey) {
+        console.log('💾 Auto-saving HIT/DO lists to DB...');
+        saveState({
+          currentWeekKey: props.currentWeekKey,
+          hotList: props.hotList,
+          hitList: props.hitList,
+          doList: props.doList,
+          selectedDomino: props.selectedDomino,
+          dominoKeyPoints: props.dominoKeyPoints,
+          activeDay: props.activeDay,
+          activeList: props.activeList
+        });
+      }
+    }, 1500);
+
+    return () => {
+      if (hitDoSaveTimeoutRef.current) clearTimeout(hitDoSaveTimeoutRef.current);
+    };
+  }, [props.hitList, props.doList, props.currentWeekKey, getListSignature]);
+
   // SEPARATE EFFECT: Auto-save Weekly Plan only (domino + key points)
   // This does NOT trigger saveGlobalHotList or saveWeekLists
   useEffect(() => {

@@ -211,28 +211,51 @@ export function useDoorDrag({
       setHotList(prevList => prevList.filter(item => item.id !== draggedItem.id));
       
       // Add to hit list or do list based on active list
+      const newId = `hot-to-${activeList}-${Date.now()}`;
       if (activeList === 'hit') {
         const newHitItem: HitListItem = {
-          id: `hot-to-hit-${Date.now()}`,
+          id: newId,
           text: draggedItem.text,
-          day: activeDay, // Now correctly typed as DayOfWeek
+          day: activeDay,
           completed: false,
           priority: draggedItem.priority,
-          isKeyPoint: draggedItem.isKeyPoint || false // Preserve isKeyPoint property
+          isKeyPoint: draggedItem.isKeyPoint || false
         };
-        
         setHitList(prevList => [...prevList, newHitItem]);
       } else {
         const newDoItem: DoListItem = {
-          id: `hot-to-do-${Date.now()}`,
+          id: newId,
           text: draggedItem.text,
-          day: activeDay, // Now correctly typed as DayOfWeek
+          day: activeDay,
           completed: false,
           priority: draggedItem.priority
         };
-        
         setDoList(prevList => [...prevList, newDoItem]);
       }
+
+      // Persist to DB
+      (async () => {
+        try {
+          const { doorUserTasksService } = await import('@/services/doorUserTasksService');
+          const { getISOWeek, getYear, startOfWeek: sow } = await import('date-fns');
+          const now = new Date();
+          const weekStart = sow(now, { weekStartsOn: 1 });
+          const weekNum = getISOWeek(weekStart);
+          const year = getYear(weekStart);
+          const weekKey = `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
+
+          await doorUserTasksService.addIdeaToWeek(weekKey, {
+            id: newId,
+            text: draggedItem.text,
+            category: activeList,
+            priority: draggedItem.priority || 'none',
+            day: activeDay
+          });
+          console.log('✅ [DnD] HotList→TaskList persisted to DB');
+        } catch (err) {
+          console.error('⚠️ [DnD] Error persisting HotList→TaskList:', err);
+        }
+      })();
       
       setDraggedItem(null);
     } else if (draggedKeyPoint) {
