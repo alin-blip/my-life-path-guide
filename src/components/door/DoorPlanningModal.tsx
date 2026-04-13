@@ -586,22 +586,37 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
     const domainConfig = DOMAINS.find(d => d.id === selectedDomain);
 
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/door-ai-planning`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': `${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        'Authorization': `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({ 
-        mode, 
-        previousWeekData, 
-        messages: safeMessages,
-        category: selectedDomain,
-        categoryLabel: domainConfig?.labelRo || selectedDomain,
-        wizardContext: streamWizardContext,
-      }),
-    });
+    // AbortController with 90s timeout to prevent infinite loading
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90_000);
+
+    let response: Response;
+    try {
+      response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/door-ai-planning`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': `${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ 
+          mode, 
+          previousWeekData, 
+          messages: safeMessages,
+          category: selectedDomain,
+          categoryLabel: domainConfig?.labelRo || selectedDomain,
+          wizardContext: streamWizardContext,
+        }),
+        signal: controller.signal,
+      });
+    } catch (fetchErr: any) {
+      clearTimeout(timeoutId);
+      if (fetchErr.name === 'AbortError') {
+        throw new Error('Timeout: AI-ul nu a răspuns în 90 de secunde. Încearcă din nou.');
+      }
+      throw fetchErr;
+    }
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => '');
