@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
 // NOTE: We intentionally avoid Radix ScrollArea here because it has proven
 // unreliable in this modal (scroll getting stuck). A native overflow container
 // is more predictable across browsers/devices.
@@ -230,8 +229,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
     localStorage.setItem('doorPlanningInputMode', inputMode);
   }, [inputMode]);
 
-  const totalQuestions = previousWeekData ? 22 : 18;
-  const progress = (questionsAnswered / totalQuestions) * 100;
+  // Progress tracking removed - question count was inaccurate
 
   // Reset state when modal closes
   useEffect(() => {
@@ -803,7 +801,50 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           console.error('Error persisting completed keys:', e);
         }
         console.log(`🔑 Cheia ${newKey.keyNumber} completată detectată:`, newKey);
+
+        // AUTO-FINALIZE: If all 4 keys are complete and no tool call was made, trigger finalization
+        if (updated.length === 4 && toolCallName !== 'save_planning') {
+          console.log('🚀 All 4 keys complete - auto-triggering finalization...');
+          // Small delay to let UI update, then auto-send finalize request
+          setTimeout(() => {
+            autoFinalize(updated);
+          }, 1500);
+        }
       }
+    }
+  };
+
+  // Auto-finalize when all 4 keys are detected as complete
+  const autoFinalize = async (keys: CompletedKeyInfo[]) => {
+    if (!selectedDomain) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const finalizeMessage: Message = {
+        role: 'user',
+        content: `Toate cele 4 chei sunt completate. Te rog salvează planul acum folosind tool-ul save_planning. Nu mai pune întrebări.`
+      };
+      
+      const currentMsgs = [...messagesRef.current, finalizeMessage];
+      const cappedMessages = currentMsgs.slice(-MAX_MESSAGES_IN_STATE);
+      setMessages(cappedMessages);
+      
+      const messagesForAI = cappedMessages.slice(-MAX_MESSAGES_TO_SEND);
+      
+      await streamChat({
+        mode: 'new',
+        messages: messagesForAI,
+      });
+    } catch (error) {
+      console.error('Error during auto-finalize:', error);
+      toast({
+        title: 'Eroare la finalizare',
+        description: 'Nu s-a putut finaliza planul automat. Scrie "salvează" pentru a încerca din nou.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -932,13 +973,6 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
               </div>
 
               <div className="px-6 pb-6 border-t pt-4 space-y-3">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Progres: {questionsAnswered}/{totalQuestions} întrebări</span>
-                    <span>{Math.round(progress)}%</span>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                </div>
 
                 {previousWeekData && !isSkippingReview && questionsAnswered === 0 && (
                   <Button
