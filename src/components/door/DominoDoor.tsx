@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getWeekKeyForPlanning } from '@/utils/weekUtils';
 import { VoiceTextarea } from '@/components/ui/VoiceTextarea';
 import { Info, Check, Plus, KeyRound, Sparkles, Flame, Trophy, Rocket, RefreshCw, Loader2, ArrowDown, X, History } from 'lucide-react';
 import { DominoVersionHistory } from './DominoVersionHistory';
@@ -13,7 +14,7 @@ import { DoorExplanation } from './DoorExplanation';
 import { useToast } from '@/hooks/use-toast';
 import { KeyPointMetadataPopover } from './KeyPointMetadataPopover';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
-import { addWeeks, getISOWeek, getYear, startOfWeek } from 'date-fns';
+import { getISOWeek, getYear } from 'date-fns';
 import { useWeeklyHierarchy } from '@/hooks/useWeeklyHierarchy';
 import { HierarchyChain } from './HierarchyBadge';
 import { WeeklyPlanSaveStatus } from './WeeklyPlanSaveStatus';
@@ -76,14 +77,8 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
   const [showDropSuccess, setShowDropSuccess] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Auto-restore AI Planning if there's an unfinished draft (prevents "reset" on tab switches)
-  const planningWeekKey = React.useMemo(() => {
-    const today = new Date();
-    const nextWeek = addWeeks(startOfWeek(today, { weekStartsOn: 1 }), 1);
-    const weekNum = getISOWeek(nextWeek);
-    const year = getYear(nextWeek);
-    return `door-week-${year}-${String(weekNum).padStart(2, '0')}`;
-  }, []);
+  // Use centralized week key logic (same as DoorPlanningModal)
+  const planningWeekKey = React.useMemo(() => getWeekKeyForPlanning(), []);
 
   const planningDraftKey = `doorPlanningDraft_${planningWeekKey}`;
   const planningDismissedKey = `doorPlanningDismissed_${planningWeekKey}`;

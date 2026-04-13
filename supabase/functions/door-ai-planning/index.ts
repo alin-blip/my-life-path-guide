@@ -92,7 +92,7 @@ FAZA 3: PLANIFICARE SĂPTĂMÂNĂ NOUĂ
      * "Cine este responsabil?"
      * "Când este deadline-ul?"
 
-4. La final, când ai Domino title + 4 chei complete (transferate + noi), folosește tool-ul "save_planning".
+4. La final, când ai Domino title + 4 chei complete (transferate + noi), folosește OBLIGATORIU tool-ul "save_planning".
 
 ═══════════════════════════════════════════════════════════════════
 REGULI GENERALE
@@ -103,6 +103,7 @@ REGULI GENERALE
 - Nu sări peste nicio cheie în review
 - Confirmă răspunsurile înainte de a trece mai departe
 - Cheile transferate păstrează detaliile originale (nu cere din nou informații pentru ele)
+- CRITIC: Când ai toate cele 4 chei complete, TREBUIE să apelezi save_planning IMEDIAT, fără a cere confirmare suplimentară
 
 REGULA IMPORTANTĂ CONTEXT:
 - Dacă primul mesaj de la utilizator conține "[CONTEXT AUTOMAT]" cu chei deja completate, NU întreba din nou pentru acele chei
@@ -129,8 +130,9 @@ REGULI STRICTE:
 - O întrebare = un mesaj. "De ce? Și care e impactul?" = INTERZIS (2 întrebări)
 - Confirmă scurt după fiecare răspuns: "Am notat." sau "Perfect."
 - Dacă răspunsul e vag ("da", "ok"), cere clarificări: "Poți detalia puțin?"
-- După 4 chei complete, folosește tool-ul "save_planning"
+- CRITIC: După 4 chei complete, folosește OBLIGATORIU tool-ul "save_planning" IMEDIAT, fără a mai cere confirmare
 - Fii empatic dar concis. Fără explicații lungi.
+- Dacă utilizatorul cere "salvează" sau "finalizează", apelează IMEDIAT save_planning cu datele existente
 
 REGULA IMPORTANTĂ CONTEXT:
 - Dacă primul mesaj de la utilizator conține "[CONTEXT AUTOMAT]" cu chei deja completate, NU întreba din nou pentru acele chei
@@ -170,7 +172,7 @@ DUPĂ FIECARE CHEIE:
 
 REGULI STRICTE:
 - O întrebare = un mesaj
-- După 4 chei complete, folosește tool-ul "save_planning"
+- CRITIC: După 4 chei complete, folosește OBLIGATORIU tool-ul "save_planning" IMEDIAT
 - Fii concis și empatic
 - Păstrează contextul obiectivului masiv în fiecare răspuns
 
@@ -219,8 +221,6 @@ serve(async (req) => {
       mode,
       hasPreviousWeekData: !!previousWeekData,
       messagesCount: messages?.length,
-      messagesType: typeof messages,
-      isArray: Array.isArray(messages)
     });
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -230,19 +230,13 @@ serve(async (req) => {
 
     // Input validation
     if (!mode || !['review', 'new', 'wizard'].includes(mode)) {
-      console.error('❌ Invalid mode:', mode);
-      return new Response(JSON.stringify({ error: 'Invalid mode: must be "review", "new", or "wizard"' }), {
+      return new Response(JSON.stringify({ error: 'Invalid mode' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 100) {
-      console.error('❌ Invalid messages array:', {
-        isArray: Array.isArray(messages),
-        length: messages?.length,
-        messages: JSON.stringify(messages)
-      });
       return new Response(JSON.stringify({ error: 'Invalid messages array: must contain 1-100 messages' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -263,28 +257,7 @@ serve(async (req) => {
         });
       }
       if (!['user', 'assistant', 'system'].includes(msg.role)) {
-        return new Response(JSON.stringify({ error: 'Invalid message role: must be user, assistant, or system' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-    }
-
-    if (previousWeekData) {
-      if (typeof previousWeekData !== 'object') {
-        return new Response(JSON.stringify({ error: 'Invalid previousWeekData: must be an object' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (previousWeekData.dominoTitle && typeof previousWeekData.dominoTitle !== 'string') {
-        return new Response(JSON.stringify({ error: 'Invalid dominoTitle: must be a string' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (previousWeekData.keyPoints && !Array.isArray(previousWeekData.keyPoints)) {
-        return new Response(JSON.stringify({ error: 'Invalid keyPoints: must be an array' }), {
+        return new Response(JSON.stringify({ error: 'Invalid message role' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -295,7 +268,6 @@ serve(async (req) => {
     let systemPrompt: string;
     
     if (mode === 'wizard' && wizardContext) {
-      // Wizard mode - coming from Goal Wizard with pre-defined context
       systemPrompt = WIZARD_SYSTEM_PROMPT
         .replace(/\[DOMINO_TITLE\]/g, wizardContext.dominoTitle)
         .replace(/\[WEEK_GOAL\]/g, wizardContext.weekGoal)
@@ -306,6 +278,12 @@ serve(async (req) => {
     } else {
       systemPrompt = NEW_WEEK_SYSTEM_PROMPT;
     }
+
+    // Check if this is a finalization request (all 4 keys complete, force save)
+    const lastUserMsg = messages[messages.length - 1];
+    const isFinalizationRequest = lastUserMsg?.role === 'user' && 
+      (lastUserMsg.content.includes('Toate cele 4 chei sunt completate') || 
+       lastUserMsg.content.includes('salvează planul'));
 
     // Build messages array
     const aiMessages: Message[] = [
@@ -335,7 +313,7 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
         type: "function",
         function: {
           name: "save_planning",
-          description: "Salvează planificarea săptămânală completă când ai toate informațiile necesare (Domino title + 4 chei cu toate detaliile)",
+          description: "Salvează planificarea săptămânală completă când ai toate informațiile necesare (Domino title + 4 chei cu toate detaliile). TREBUIE apelat imediat ce toate 4 cheile sunt complete.",
           parameters: {
             type: "object",
             properties: {
@@ -396,15 +374,24 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
       }
     ];
 
-    console.log('Sending request to Lovable AI...');
+    console.log('Sending request to Lovable AI...', { isFinalizationRequest });
     
-    // Retry logic for transient failures
+    // Use faster model for interactive dialog, pro only for finalization
+    const model = isFinalizationRequest ? 'google/gemini-2.5-pro' : 'google/gemini-2.5-flash';
+    
+    // Force tool call on finalization
+    const toolChoice = isFinalizationRequest 
+      ? { type: "function", function: { name: "save_planning" } } 
+      : 'auto';
+    
+    // Retry logic - reduced to 2 attempts for speed
     let response: Response | null = null;
     let lastError: string = '';
+    const maxAttempts = isFinalizationRequest ? 3 : 2;
     
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        console.log(`Attempt ${attempt}/3...`);
+        console.log(`Attempt ${attempt}/${maxAttempts} using ${model}...`);
         response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -412,10 +399,10 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-pro',
+            model,
             messages: aiMessages,
             tools: tools,
-            tool_choice: 'auto',
+            tool_choice: toolChoice,
             stream: true,
           }),
         });
@@ -431,7 +418,7 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
           });
         }
         if (response.status === 402) {
-          return new Response(JSON.stringify({ error: 'Payment required, please add funds to your Lovable AI workspace.' }), {
+          return new Response(JSON.stringify({ error: 'Payment required' }), {
             status: 402,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
@@ -440,14 +427,13 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
         lastError = await response.text();
         console.error(`Attempt ${attempt} failed:`, response.status, lastError);
         
-        // Wait before retry (exponential backoff)
-        if (attempt < 3) {
+        if (attempt < maxAttempts) {
           await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
         }
       } catch (fetchError) {
         console.error(`Attempt ${attempt} network error:`, fetchError);
         lastError = fetchError instanceof Error ? fetchError.message : 'Network error';
-        if (attempt < 3) {
+        if (attempt < maxAttempts) {
           await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
         }
       }
