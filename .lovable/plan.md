@@ -1,117 +1,66 @@
 
+Obiectiv: repar Domino Door wizard ca să nu mai afișeze progres fals, să răspundă mai rapid și să salveze sigur planul final.
 
-# Audit General Platformă CEO Mind OS — Ready for Launch
+Ce am găsit
+- `DoorPlanningModal.tsx` afișează `questionsAnswered / totalQuestions`, unde `totalQuestions` este fix `18` sau `22`, dar flow-ul real pune mult mai multe întrebări pe pași/zile/HIT-DO. De aici `56/18` și `311%`.
+- Conversația ta s-a salvat doar ca draft, nu ca plan final: în logs apare `Draft saved to database` cu 100 mesaje, dar Door încarcă `hotCount: 0, hitCount: 0, doCount: 0` și „No cloud data for week”. Asta arată că draftul există, dar planul final și task-urile nu au fost persistate.
+- Cauza principală: planul final se salvează numai dacă AI-ul emite tool call-ul `save_planning`. În `DoorPlanningModal.tsx`, `processSavePlanning()` rulează doar dacă vine acel tool call. Dacă AI termină conversația fără el, utilizatorul vede totul în chat, dar nimic nu ajunge în Door.
+- „AI gândește...” poate dura mult pentru că flow-ul folosește modelul `google/gemini-2.5-pro`, trimite până la 60 mesaje/context, are retry de 3 încercări în edge function și nu are timeout/abort pe client.
 
-## Status: Build ✅ PASS | TypeScript ✅ CLEAN | Security ⚠️ 2 warnings
+Plan de implementare
+1. Curăț UI-ul wizardului
+- Scot complet blocul cu:
+  - `Progres: X/Y întrebări`
+  - procentul
+  - bara `Progress`
+- Păstrez doar input-ul, statusul de salvare și eventual un text scurt de stare.
+- Fișier: `src/components/door/DoorPlanningModal.tsx`
 
----
+2. Fac salvarea finală deterministă, nu opțională
+- Păstrez tool-ul `save_planning`, dar nu mă mai bazez exclusiv pe el spontan.
+- După ce este detectată `Cheia 4 completă`, lansez automat un pas de finalizare:
+  - fie un `finalize` mode nou în `door-ai-planning`,
+  - fie un al doilea request care forțează tool call-ul `save_planning`.
+- La finalizare, trimit contextul deja acumulat (`completedKeys` + conversația recentă) și cer strict payload-ul final de salvare.
+- Dacă tool call-ul nu vine sau nu se parsează, adaug fallback clar:
+  - draftul rămâne salvat,
+  - apare acțiune explicită de retry/finalizare.
+- Fișiere: `src/components/door/DoorPlanningModal.tsx`, `supabase/functions/door-ai-planning/index.ts`, posibil `src/utils/doorPlanningContext.ts`
 
-## PROBLEME CRITICE (Blocker Launch)
+3. Reduc latența
+- Schimb modelul conversațional din wizard pe o variantă mai rapidă pentru dialog interactiv.
+- Reduc contextul trimis, deoarece există deja `[CONTEXT AUTOMAT]` cu cheile completate.
+- Adaug `AbortController` / timeout pe client, ca să nu rămână infinit pe „AI gândește...”.
+- Îmbunătățesc starea finală: „Se salvează planul...” când intră în pasul de finalizare.
+- Fișiere: `src/components/door/DoorPlanningModal.tsx`, `supabase/functions/door-ai-planning/index.ts`
 
-### 1. CRITIC: Duplicate masive în baza de date — 562 task-uri, multe duplicate x8
-Săptămâna `door-week-2026-04` are **341 de task-uri**, multe duplicate de 8 ori. Cauza: `saveGlobalHotList` face DELETE + INSERT la fiecare save, dar realtime subscription trigger-ează `loadData` → care setează starea → care trigger-ează auto-save → care re-inserează. Aceasta este o **buclă de feedback** între realtime și auto-save.
+4. Întăresc fluxul după save
+- După save reușit:
+  - salvez în `weekly_planning`
+  - adaug pașii în task-uri
+  - emit refresh pentru Door
+  - actualizez imediat UI-ul local cu domino + cele 4 chei
+- Verific că draftul este șters doar după confirmarea save-ului final.
+- Fișiere: `src/components/door/DoorPlanningModal.tsx`, `src/services/weeklyPlanningService.ts` dacă apare nevoie
 
-**Fix**: 
-- Adaugă un flag `isRealtimeReloading` în `useDoorLists` care blochează auto-save-ul din `useDoorStorage` când datele vin din realtime
-- Rulează `removeDuplicateTasks()` o dată pentru a curăța datele existente
-- Adaugă un unique constraint la nivel de DB: `(user_id, title, task_type, week_key, day_of_week)`
+5. Fix secundar de consistență
+- Aliniez cheia de draft/restore dintre `DominoDoor` și `DoorPlanningModal`, ca să nu existe comportamente confuze la reluarea unui draft.
+- Fișier: `src/components/door/DominoDoor.tsx`
 
-### 2. CRITIC: Password Reset nu funcționează
-`AuthForm.tsx` trimite email-ul de reset cu `redirectTo: /auth`, dar NU există logică de handling `type=recovery` și NU există pagina `/reset-password`. Utilizatorul primește link-ul, face click, este logat automat DAR nu poate schimba parola.
+Detalii tehnice
+- Probleme confirmate în cod:
+  - `DoorPlanningModal.tsx`: progres bazat pe `totalQuestions = 18/22`
+  - `DoorPlanningModal.tsx`: save final doar prin `toolCallName === 'save_planning'`
+  - `door-ai-planning/index.ts`: model greu + `tool_choice: 'auto'` + retry de 3 încercări
+  - logs: draftul există, planul final nu există
+- Rezultatul după implementare:
+  - nu mai apare deloc numărul de întrebări și progresul
+  - userul nu mai trebuie să spună „ok” la final ca să se salveze
+  - dacă AI completează 4 chei, planul se finalizează și se salvează automat
+  - dacă AI se blochează sau durează prea mult, wizardul iese elegant cu retry/timeout
 
-**Fix**:
-- Adaugă handling `type=recovery` în `AuthForm.tsx` (sau creează pagina `/reset-password`)
-- Când URL-ul conține `type=recovery`, afișează formularul de "Parolă Nouă" cu `supabase.auth.updateUser({ password })`
-
-### 3. CRITIC: `TemporarySupabaseDisable.tsx` — fișier mort
-Fișierul există dar nu e importat nicăieri. Trebuie șters pentru a nu crea confuzie.
-
----
-
-## PROBLEME MODERATE (Post-Launch OK, dar recomandat)
-
-### 4. Buclă Realtime ↔ Auto-Save
-Realtime subscription în `useDoorLists` apelează `loadData()` → setează stare → `useDoorStorage` detectează schimbare → apelează `saveState()` → DB se modifică → realtime notifică din nou. Ciclul este parțial prevenit de signature check, dar nu complet.
-
-**Fix**: Adaugă debounce + un `isFromRealtime` flag care suprimă auto-save pentru 2 secunde după un reload realtime.
-
-### 5. 14 TODO-uri cu "Implement proper database" în componente active
-`Dashboard.tsx`, `FactMapSimplified.tsx`, `GameContent.tsx`, `MonthlyObjectives.tsx`, `Stack.tsx` — toate au cod care ar trebui să folosească Supabase dar nu o face. Datele se pierd la refresh.
-
-**Fix**: Implementează persistența DB în aceste componente sau convertește la localStorage cu migrare viitoare.
-
-### 6. Leaked Password Protection dezactivat (Linter Warning)
-HIBP (Have I Been Pwned) check nu este activat. Utilizatorii pot folosi parole compromise.
-
-**Fix**: Activează din Cloud → Users → Auth Settings → Password HIBP Check.
-
-### 7. Bundle size mare — 3 chunk-uri > 500KB
-- `index.js`: 726KB  
-- `WidgetDashboard.js`: 700KB
-- `vendor-charts.js`: 432KB
-
-**Fix**: Code-split WidgetDashboard și chart libraries mai agresiv cu `manualChunks`.
-
----
-
-## PROBLEME MINORE (Nice-to-have)
-
-### 8. `dangerouslySetInnerHTML` în BlogArticle și landing pages
-Utilizat cu conținut hardcodat (nu user input), risc scăzut. Dar `BlogArticle.tsx` procesează conținut care ar putea veni din DB.
-
-**Fix**: Adaugă `DOMPurify.sanitize()` pe conținutul din `BlogArticle.tsx`.
-
-### 9. `getSession` folosit în loc de `getUser` în 20+ locuri
-`getSession` nu verifică token-ul pe server — este mai puțin sigur. `ErrorBoundary`, `GlobalErrorCapture`, și multe componente îl folosesc.
-
-**Fix**: Migrează treptat la `getUser` pentru operații sensibile. `getSession` este OK pentru logging/non-critical.
-
-### 10. Extension în schema public (Linter Warning)
-O extensie Postgres este instalată în schema `public` în loc de o schemă dedicată.
-
----
-
-## CE FUNCȚIONEAZĂ BINE ✅
-
-- **TypeScript**: 0 erori — build complet curat
-- **Build production**: Se compilează cu succes în ~27s
-- **Autentificare**: Flow complet cu tier-based access (Free/Basic/Pro/Elite)
-- **Admin roles**: Corect implementat prin `user_roles` table + `has_role()` security definer
-- **RLS**: Toate tabelele critice au politici active
-- **Error tracking**: `ErrorBoundary` + `GlobalErrorCapture` + `error_logs` table
-- **Security Provider**: XSS sanitization, input validation, security event logging
-- **Door auto-save**: Mecanism de debounce funcțional cu signature tracking
-- **Lazy loading**: 90+ pagini lazy-loaded cu Suspense fallback
-- **PWA**: Service worker configurat cu precaching
-
----
-
-## PLAN DE IMPLEMENTARE (Prioritizat)
-
-### Pas 1: Curățare date + preveniție duplicare
-- Adaugă unique constraint DB pe `user_tasks`
-- Rulează cleanup pe duplicatele existente
-- Adaugă `isFromRealtime` flag pentru a preveni bucla
-
-### Pas 2: Fix Password Reset
-- Adaugă handling `type=recovery` în `AuthForm.tsx`
-- Schimbă `redirectTo` la `${origin}/auth?type=recovery`
-
-### Pas 3: Activează HIBP Password Check
-- Configurare din Auth Settings
-
-### Pas 4: Șterge `TemporarySupabaseDisable.tsx`
-- Fișier mort, creează confuzie
-
-### Pas 5 (opțional): Sanitizare blog + bundle optimization
-
----
-
-## Fișiere de modificat
-1. **Migration SQL** — unique constraint + cleanup duplicates
-2. **`src/hooks/useDoorLists.tsx`** — flag anti-buclă realtime
-3. **`src/hooks/useDoorStorage.tsx`** — respectă flagul anti-buclă
-4. **`src/components/AuthForm.tsx`** — handle `type=recovery`, fix `redirectTo`
-5. **`src/components/TemporarySupabaseDisable.tsx`** — DELETE
-6. **Auth Settings** — activează HIBP check
-
+Fișiere țintă
+1. `src/components/door/DoorPlanningModal.tsx`
+2. `supabase/functions/door-ai-planning/index.ts`
+3. `src/utils/doorPlanningContext.ts`
+4. `src/components/door/DominoDoor.tsx`
