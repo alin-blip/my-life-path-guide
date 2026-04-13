@@ -1085,6 +1085,18 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
 
               <div className="px-6 pb-6 border-t pt-4 space-y-3">
 
+                {/* Manual save button when 4 keys are detected */}
+                {completedKeys.length >= 4 && (
+                  <Button
+                    onClick={() => persistFromCompletedKeys(completedKeysRef.current)}
+                    disabled={isLoading}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Salvează planul ({completedKeys.length}/4 chei complete)
+                  </Button>
+                )}
+
                 {previousWeekData && !isSkippingReview && questionsAnswered === 0 && (
                   <Button
                     variant="ghost"
