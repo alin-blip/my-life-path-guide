@@ -148,43 +148,67 @@ Cheile completate: ${completedNumbers.join(', ')} (${completedKeys.length} din 4
  */
 function extractStepsDetailed(messages: MessageLike[], _keyNumber: number): StepDetail[] {
   const steps: StepDetail[] = [];
-  const days = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Sambata', 'Marti', 'Miercuri'];
+  const days = ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Sambata', 'Marti'];
   const dayPattern = days.join('|');
   
-  // Patterns that capture step text, day, and type
-  const stepPatterns = [
-    // "Pasul 1: Text - Luni (HIT)" or "Pasul 1: Text (Luni, HIT)"
-    new RegExp(`Pas(?:ul)?\\s*(\\d)\\s*[:\\-–]\\s*(.+?)\\s*[\\(\\-–]\\s*(${dayPattern})\\s*[,\\s]*\\s*(HIT|DO)\\s*\\)?`, 'gi'),
-    // "1. Text - Luni (HIT)"
-    new RegExp(`(\\d)\\.\\s*(.+?)\\s*[\\-–]\\s*(${dayPattern})\\s*[\\(,]\\s*(HIT|DO)\\s*\\)?`, 'gi'),
-    // "Text → Luni, HIT" with step number context
-    new RegExp(`(\\d)\\.?\\s*(.+?)\\s*→\\s*(${dayPattern})\\s*[,\\s]\\s*(HIT|DO)`, 'gi'),
-    // "Am notat. Pasul 1, Luni, HIT" or "Am notat: Pasul 1 - Text, Luni, HIT"
-    new RegExp(`(?:Am\\s+notat|Notat)[.:]?\\s*Pas(?:ul)?\\s*(\\d)\\s*[,\\-–:]\\s*(.+?)[,\\s]+(${dayPattern})\\s*[,\\s]+(HIT|DO)`, 'gi'),
-  ];
-
-  const seenSteps = new Set<number>();
-
-  for (const msg of messages) {
-    for (const pattern of stepPatterns) {
-      // Reset lastIndex for global regex
+  // Track step text from user messages and day/type from AI confirmations
+  let pendingStepText: string | null = null;
+  let pendingDay: string | null = null;
+  
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
+    
+    // Structured patterns: "Pasul 1: Text - Luni (HIT)"
+    const structuredPatterns = [
+      new RegExp(`Pas(?:ul)?\\s*\\d\\s*[:\\-–]\\s*(.+?)\\s*[\\(\\-–]\\s*(${dayPattern})\\s*[,\\s]*\\s*(HIT|DO)\\s*\\)?`, 'gi'),
+      new RegExp(`\\d\\.\\s*(.+?)\\s*[\\-–]\\s*(${dayPattern})\\s*[\\(,]\\s*(HIT|DO)\\s*\\)?`, 'gi'),
+      new RegExp(`\\d\\.?\\s*(.+?)\\s*→\\s*(${dayPattern})\\s*[,\\s]\\s*(HIT|DO)`, 'gi'),
+    ];
+    
+    for (const pattern of structuredPatterns) {
       pattern.lastIndex = 0;
       let match;
       while ((match = pattern.exec(msg.content)) !== null) {
-        const stepNum = parseInt(match[1]);
-        if (!seenSteps.has(stepNum) && stepNum >= 1 && stepNum <= 10) {
-          seenSteps.add(stepNum);
+        steps.push({
+          text: match[1].trim().replace(/[\(\)\-–→,]+$/, '').trim(),
+          day: normalizeDay(match[2]),
+          type: match[3].toUpperCase(),
+        });
+      }
+    }
+    
+    // Conversational pattern: AI asks day → user answers → AI asks HIT/DO → user answers → AI confirms
+    // Look for AI confirmations like "Am notat: Marți, HIT." or "Am notat: Miercuri, HIT."
+    if (msg.role === 'assistant') {
+      const confirmPattern = new RegExp(`Am notat[.:]?\\s*(${dayPattern})[,\\s]+(HIT|DO)`, 'gi');
+      confirmPattern.lastIndex = 0;
+      const confirmMatch = confirmPattern.exec(msg.content);
+      if (confirmMatch) {
+        // Find the step text: look backwards for the user's step description
+        // It's typically 4-6 messages back (step text → AI asks day → user day → AI asks HIT/DO → user HIT/DO → AI confirms)
+        let stepText = '';
+        for (let j = i - 1; j >= Math.max(0, i - 8); j--) {
+          if (messages[j].role === 'user') {
+            const content = messages[j].content.trim().toLowerCase();
+            // Skip short answers (day names, hit/do, da/nu)
+            if (content.length > 10 && !['hit', 'do', 'da', 'nu'].includes(content) &&
+                !new RegExp(`^(${dayPattern})$`, 'i').test(content)) {
+              stepText = messages[j].content.trim();
+              break;
+            }
+          }
+        }
+        if (stepText && !steps.some(s => s.text === stepText)) {
           steps.push({
-            text: match[2].trim().replace(/[\(\)\-–→,]+$/, '').trim(),
-            day: normalizeDay(match[3]),
-            type: match[4].toUpperCase(),
+            text: stepText,
+            day: normalizeDay(confirmMatch[1]),
+            type: confirmMatch[2].toUpperCase(),
           });
         }
       }
     }
   }
 
-  // Sort by step number implied by order
   return steps;
 }
 

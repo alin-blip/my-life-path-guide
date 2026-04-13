@@ -817,45 +817,141 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
         }
         console.log(`🔑 Cheia ${newKey.keyNumber} completată detectată:`, newKey);
 
-        // AUTO-FINALIZE: If all 4 keys are complete and no tool call was made, trigger finalization
+        // AUTO-FINALIZE: If all 4 keys are complete and no tool call was made, persist directly
         if (updated.length === 4 && toolCallName !== 'save_planning') {
-          console.log('🚀 All 4 keys complete - auto-triggering finalization...');
-          // Small delay to let UI update, then auto-send finalize request
+          console.log('🚀 All 4 keys complete - persisting directly from client data...');
           setTimeout(() => {
-            autoFinalize(updated);
+            persistFromCompletedKeys(updated);
           }, 1500);
         }
       }
     }
   };
 
-  // Auto-finalize when all 4 keys are detected as complete
-  const autoFinalize = async (keys: CompletedKeyInfo[]) => {
-    if (!selectedDomain) return;
+  // Map Romanian day names to DayOfWeek codes
+  const mapDayToCode = (day: string): DayOfWeek => {
+    const normalized = day.trim().toLowerCase();
+    const map: Record<string, DayOfWeek> = {
+      'luni': 'M', 'marti': 'T', 'marți': 'T', 'miercuri': 'W',
+      'joi': 'Th', 'vineri': 'F', 'sambata': 'Sa', 'sâmbătă': 'Sa',
+      'duminica': 'Su', 'duminică': 'Su',
+      'm': 'M', 't': 'T', 'w': 'W', 'th': 'Th', 'f': 'F', 'sa': 'Sa', 'su': 'Su',
+    };
+    return map[normalized] || 'M';
+  };
+
+  // Deterministic save: persist directly from completedKeys data without AI roundtrip
+  const persistFromCompletedKeys = async (keys: CompletedKeyInfo[]) => {
+    if (!selectedDomain || keys.length < 4) return;
     
     setIsLoading(true);
+    const domainConfig = DOMAINS.find(d => d.id === selectedDomain);
     
     try {
-      const finalizeMessage: Message = {
-        role: 'user',
-        content: `Toate cele 4 chei sunt completate. Te rog salvează planul acum folosind tool-ul save_planning. Nu mai pune întrebări.`
+      // Build PlanningResult from completedKeys
+      const planningData: PlanningResult = {
+        dominoTitle: keys.map(k => k.title).join(' + '),
+        weekGoal: keys.map(k => k.objective || k.title).join('; '),
+        keyPoints: keys.map(k => ({
+          id: k.keyNumber,
+          title: k.title,
+          objective: k.objective || k.title,
+          why: k.whyImportant || '',
+          positiveImpact: k.positiveResult || '',
+          negativeImpact: k.negativeResult || '',
+          steps: k.steps.length > 0
+            ? k.steps.map(s => ({
+                text: s.text,
+                day: mapDayToCode(s.day),
+                listType: s.type.toLowerCase() === 'do' ? 'do' : 'hit',
+              }))
+            : [{ text: k.title, day: 'M' as string, listType: 'hit' }],
+          responsible: k.responsible || 'Nespecificat',
+          deadline: k.deadline || 'Nespecificat',
+        })),
       };
-      
-      const currentMsgs = [...messagesRef.current, finalizeMessage];
-      const cappedMessages = currentMsgs.slice(-MAX_MESSAGES_IN_STATE);
-      setMessages(cappedMessages);
-      
-      const messagesForAI = cappedMessages.slice(-MAX_MESSAGES_TO_SEND);
-      
-      await streamChat({
-        mode: 'new',
-        messages: messagesForAI,
+
+      console.log('📝 Persisting planning from completedKeys:', planningData);
+
+      // Save to weekly_planning
+      const saveSuccess = await weeklyPlanningService.savePlan({
+        weekKey: currentWeekKey,
+        dominoTitle: planningData.dominoTitle,
+        weekGoal: planningData.weekGoal,
+        keyPoints: planningData.keyPoints,
+        category: selectedDomain,
       });
+
+      if (saveSuccess) {
+        console.log('✅ Planning saved successfully from completedKeys');
+
+        // Add steps to daily tasks
+        let stepsAdded = 0;
+        for (const keyPoint of planningData.keyPoints) {
+          for (const step of keyPoint.steps) {
+            const stepText = typeof step === 'string' ? step : step.text;
+            let stepDay = typeof step === 'object' ? step.day : null;
+            const stepListType = typeof step === 'object' ? step.listType : 'hit';
+
+            if (stepText && !stepDay) {
+              const fallbackDays: DayOfWeek[] = ['M', 'T', 'W', 'Th', 'F'];
+              stepDay = fallbackDays[stepsAdded % fallbackDays.length];
+            }
+
+            if (stepText) {
+              try {
+                await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
+                  id: uuidv4(),
+                  text: `[${domainConfig?.labelRo || selectedDomain}] ${stepText}`,
+                  category: stepListType as 'hit' | 'do',
+                  priority: 'important',
+                  day: stepDay as DayOfWeek,
+                });
+                stepsAdded++;
+              } catch (stepError) {
+                console.error('Error adding step to tasks:', stepError);
+              }
+            }
+          }
+        }
+
+        console.log(`📋 Total ${stepsAdded} steps added to daily tasks`);
+
+        // Refresh UI
+        window.dispatchEvent(new CustomEvent('doorDataUpdated', { detail: { source: 'planning-complete' } }));
+
+        // Clear draft
+        localStorage.removeItem(draftKey);
+        await weeklyPlanningDraftService.deleteDraft(currentWeekKey, selectedDomain);
+        
+        // Clear completed keys localStorage
+        const ckKey = `doorCompletedKeys_${currentWeekKey}_${selectedDomain || 'business'}`;
+        localStorage.removeItem(ckKey);
+
+        toast({
+          title: '✅ Plan salvat cu succes!',
+          description: stepsAdded > 0
+            ? `Planul ${domainConfig?.labelRo} și ${stepsAdded} pași au fost adăugați.`
+            : `Planul ${domainConfig?.labelRo} a fost salvat.`,
+        });
+
+        // Award XP and complete
+        awardXP('weekly_planning');
+        onPlanningComplete(planningData);
+        onClose();
+      } else {
+        console.error('❌ Failed to save planning from completedKeys');
+        toast({
+          title: 'Eroare la salvare',
+          description: 'Planul nu a putut fi salvat. Scrie "salvează" pentru a încerca din nou.',
+          variant: 'destructive',
+        });
+      }
     } catch (error) {
-      console.error('Error during auto-finalize:', error);
+      console.error('Error in persistFromCompletedKeys:', error);
       toast({
-        title: 'Eroare la finalizare',
-        description: 'Nu s-a putut finaliza planul automat. Scrie "salvează" pentru a încerca din nou.',
+        title: 'Eroare la salvare',
+        description: 'A apărut o eroare. Datele rămân în draft.',
         variant: 'destructive',
       });
     } finally {
@@ -988,6 +1084,18 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
               </div>
 
               <div className="px-6 pb-6 border-t pt-4 space-y-3">
+
+                {/* Manual save button when 4 keys are detected */}
+                {completedKeys.length >= 4 && (
+                  <Button
+                    onClick={() => persistFromCompletedKeys(completedKeysRef.current)}
+                    disabled={isLoading}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Salvează planul ({completedKeys.length}/4 chei complete)
+                  </Button>
+                )}
 
                 {previousWeekData && !isSkippingReview && questionsAnswered === 0 && (
                   <Button
