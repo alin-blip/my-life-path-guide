@@ -14,7 +14,7 @@ import { DoorExplanation } from './DoorExplanation';
 import { useToast } from '@/hooks/use-toast';
 import { KeyPointMetadataPopover } from './KeyPointMetadataPopover';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
-import { addWeeks, getISOWeek, getYear, startOfWeek } from 'date-fns';
+import { getISOWeek, getYear } from 'date-fns';
 import { useWeeklyHierarchy } from '@/hooks/useWeeklyHierarchy';
 import { HierarchyChain } from './HierarchyBadge';
 import { WeeklyPlanSaveStatus } from './WeeklyPlanSaveStatus';
