@@ -189,17 +189,21 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
   
   switch (stepId) {
     case 'emotionalCheck':
-      return !!(log as any).morning_emotion && ((log as any).stack_selection_completed === true || (log as any).emotional_transform_completed === true || !!(log as any).morning_emotion);
+      return !!log.morning_emotion && (log.stack_selection_completed === true || log.emotional_transform_completed === true || !!log.morning_emotion);
+    case 'bodyActivation':
+      return log.water_drunk === true && log.light_exposure === true;
     case 'gratitude':
       return (log.gratitude_items || []).some(i => i?.trim());
     case 'hydration':
       return log.water_drunk === true;
     case 'meditation':
-      return (log.meditation_duration_seconds || 0) >= 300; // 5 minutes
+      return (log.meditation_duration_seconds || 0) >= 300;
     case 'autosuggestion':
       return log.autosuggestion_completed === true;
     case 'visionDeclaration':
-      return (log as any).vision_declaration_read === true;
+      return log.vision_declaration_read === true;
+    case 'powerDeclaration':
+      return log.autosuggestion_completed === true && log.vision_declaration_read === true && log.visualization_completed === true;
     case 'exercise':
       return log.exercise_completed === true;
     case 'mealPlanning':
@@ -225,7 +229,7 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
     case 'lightExposure':
       return log.light_exposure === true;
     case 'completion':
-      return false; // Completion is never "completed" - it's the end screen
+      return false;
     default:
       return false;
   }
