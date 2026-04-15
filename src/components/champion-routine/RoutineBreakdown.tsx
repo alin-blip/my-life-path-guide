@@ -35,6 +35,7 @@ interface RoutineBreakdownProps {
 
 const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string }>> = {
   emotionalCheck: Heart,
+  bodyActivation: Droplets,
   lightExposure: Sun,
   hydration: Droplets,
   breathing: Wind,
@@ -43,6 +44,7 @@ const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string
   visualization: Eye,
   autosuggestion: MessageSquare,
   visionDeclaration: BookOpen,
+  powerDeclaration: Sparkles,
   journaling: PenLine,
   reading: BookOpen,
   exercise: Dumbbell,
@@ -62,11 +64,13 @@ const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
   emotionalCheck: 'Check-in Emoțional',
+  bodyActivation: 'Activare Corp',
   gratitude: 'Recunoștință',
   hydration: 'Hidratare',
   meditation: 'Meditație',
   autosuggestion: 'Autosugestie',
   visionDeclaration: 'Declarație Viziune',
+  powerDeclaration: 'Declarație de Putere',
   exercise: 'Exerciții',
   mealPlanning: 'Meal Planning',
   learn: 'Învață',
@@ -89,11 +93,13 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
   emotionalCheck: 'emotional',
+  bodyActivation: 'body',
   gratitude: 'being',
   hydration: 'being',
   meditation: 'being',
   autosuggestion: 'being',
   visionDeclaration: 'being',
+  powerDeclaration: 'being',
   breathing: 'being',
   visualization: 'being',
   reading: 'being',
