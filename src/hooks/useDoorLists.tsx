@@ -65,6 +65,11 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
           },
           (payload) => {
             console.log('[Realtime] User task changed:', payload);
+            // Skip reload if we just saved locally (prevents flicker)
+            if ((window as any).__doorLocalSaving) {
+              console.log('[Realtime] Skipping reload — local save in progress');
+              return;
+            }
             // Set flag to suppress auto-save during realtime reload
             (window as any).__doorRealtimeReloading = true;
             loadData().finally(() => {
@@ -223,6 +228,9 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     
     setHitList(updatedHitList);
     
+    // Suppress realtime reload during local save to prevent flicker
+    (window as any).__doorLocalSaving = true;
+    
     // Immediate save to Supabase
     try {
       await doorUserTasksService.saveWeekLists(currentWeekKey, {
@@ -237,6 +245,8 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
         description: 'Nu s-a putut salva modificarea în cloud',
         variant: 'destructive',
       });
+    } finally {
+      setTimeout(() => { (window as any).__doorLocalSaving = false; }, 2000);
     }
   };
 
@@ -246,6 +256,9 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
     );
     
     setDoList(updatedDoList);
+    
+    // Suppress realtime reload during local save to prevent flicker
+    (window as any).__doorLocalSaving = true;
     
     // Immediate save to Supabase
     try {
@@ -261,6 +274,8 @@ export function useDoorLists({ currentWeekKey, onDataChange }: UseDoorListsProps
         description: 'Nu s-a putut salva modificarea în cloud',
         variant: 'destructive',
       });
+    } finally {
+      setTimeout(() => { (window as any).__doorLocalSaving = false; }, 2000);
     }
   };
 
