@@ -95,7 +95,7 @@ export interface ChampionLog {
   exercise_completed: boolean;
   priorities: string[];
   relationship_actions: { person_id: string; action: string; completed: boolean }[];
-  // New fields for Execution Room
+  // Execution Room
   meals_logged: Meal[];
   total_calories: number;
   total_protein: number;
@@ -111,6 +111,11 @@ export interface ChampionLog {
   apply_notes: string | null;
   // Vision Declaration - Napoleon Hill
   vision_declaration_read: boolean;
+  // Emotional Check
+  morning_emotion: string | null;
+  morning_emotion_intensity: number | null;
+  stack_selection_completed: boolean;
+  emotional_transform_completed: boolean;
 }
 
 const DEFAULT_AUTOSUGGESTION = 'Every day, in every way, I am getting better and better.';
