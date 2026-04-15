@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowRight, Sparkles, Zap, ChevronRight, Heart, Brain, Flame, Wind, Volume2 } from 'lucide-react';
+import { Sparkles, Zap, ChevronRight, Heart, Brain, Flame, Wind, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo, MIND_COACH_EMOTIONS } from '@/components/mind-coach/ExtendedEmotionPicker';
@@ -159,19 +157,24 @@ export function EmotionalCheckUnifiedStep({
 
   const needsTransformation = emotion && (NEGATIVE_EMOTIONS.includes(emotion) || intensity < 4);
   const emotionInfo = emotion ? getEmotionInfo(emotion) : null;
-  const canProceed = emotion !== null;
 
   const handleBreathComplete = useCallback(() => {
     setPhase('emotion');
   }, []);
 
-  const handleEmotionComplete = () => {
-    if (needsTransformation) {
-      setPhase('mind-coach');
-    } else {
-      setPhase('power');
-    }
-  };
+  // After selecting emotion, go directly to next phase
+  const handleEmotionSelect = useCallback((selectedEmotion: MindCoachEmotion) => {
+    onEmotionChange(selectedEmotion);
+    const isNegative = NEGATIVE_EMOTIONS.includes(selectedEmotion);
+    // Small delay for visual feedback
+    setTimeout(() => {
+      if (isNegative) {
+        setPhase('mind-coach');
+      } else {
+        setPhase('power');
+      }
+    }, 400);
+  }, [onEmotionChange]);
 
   const handleIncantationConfirm = () => {
     setIncantationConfirmed(true);
@@ -454,168 +457,35 @@ export function EmotionalCheckUnifiedStep({
     >
       <PhaseIndicator current="emotion" />
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="emotion"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 20 }}
-        >
-          <Card className="border-0 bg-gradient-to-br from-background via-background to-amber-500/5 shadow-xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-orange-500/5" />
-            <CardHeader className="pb-4 relative">
-              <CardTitle className="flex items-center gap-3 text-xl">
-                <motion.div
-                  className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg"
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                >
-                  <span className="text-2xl filter drop-shadow">🌅</span>
-                </motion.div>
-                <div>
-                  <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent font-bold">
-                    Ce simți acum?
-                  </span>
-                  <p className="text-muted-foreground text-sm font-normal mt-0.5">
-                    Fii complet onest cu tine
-                  </p>
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 relative">
-              {/* Extended Emotion Picker */}
-              <ExtendedEmotionPicker
-                selectedEmotion={emotion}
-                onSelect={onEmotionChange}
-                language="ro"
-              />
-
-              {/* Intensity Slider */}
-              {emotion && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  className="space-y-3 pt-2"
-                >
-                  <div className="flex justify-between items-center">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Intensitate
-                    </label>
-                    <span className="text-lg font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
-                      {intensity}/10
-                    </span>
-                  </div>
-                  <Slider
-                    value={[intensity]}
-                    onValueChange={(values) => onIntensityChange(values[0])}
-                    min={1}
-                    max={10}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Slabă</span>
-                    <span>Moderată</span>
-                    <span>Foarte intensă</span>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Story input - Focus & Meaning */}
-              {emotion && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  className="space-y-2 pt-1"
-                >
-                  <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <Brain className="w-4 h-4" />
-                    Ce poveste îți spui acum?
-                  </label>
-                  <Textarea
-                    placeholder="Ce gânduri ai? Ce narativ rulează în mintea ta acum?..."
-                    value={story}
-                    onChange={(e) => setStory(e.target.value)}
-                    className="resize-none h-20 bg-background/50 border-border/50"
-                  />
-                  <p className="text-xs text-muted-foreground italic">
-                    Opțional — te ajută să observi pattern-urile mentale
-                  </p>
-                </motion.div>
-              )}
-
-              {/* Feedback */}
-              {emotion && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className={cn(
-                    "p-4 rounded-xl border-2 backdrop-blur-sm",
-                    needsTransformation
-                      ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30'
-                      : 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/30'
-                  )}
-                >
-                  {needsTransformation ? (
-                    <div className="flex items-start gap-3">
-                      <motion.div
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                      >
-                        <Zap className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                      </motion.div>
-                      <div>
-                        <p className="font-medium text-amber-600 dark:text-amber-400">
-                          Corpul tău e pregătit. Hai să transformăm mintea!
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Mind Coach-ul te va ghida prin transformare Tony Robbins.
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-start gap-3">
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ repeat: Infinity, duration: 1.5 }}
-                      >
-                        <Sparkles className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      </motion.div>
-                      <div>
-                        <p className="font-medium text-green-600 dark:text-green-400">
-                          Excelent! {emotionInfo?.emoji} Hai să ancorăm această putere!
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          O incantație te va pune la putere maximă.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Continue Button */}
-              <Button
-                onClick={handleEmotionComplete}
-                disabled={!canProceed}
-                className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/25"
-                size="lg"
-              >
-                {needsTransformation ? (
-                  <>
-                    <Flame className="h-4 w-4" />
-                    Începe Transformarea
-                  </>
-                ) : (
-                  <>
-                    <Zap className="h-4 w-4" />
-                    Activează Puterea
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </AnimatePresence>
+      <Card className="border-0 bg-gradient-to-br from-background via-background to-amber-500/5 shadow-xl overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-orange-500/5" />
+        <CardHeader className="pb-4 relative">
+          <CardTitle className="flex items-center gap-3 text-xl">
+            <motion.div
+              className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+            >
+              <span className="text-2xl filter drop-shadow">🌅</span>
+            </motion.div>
+            <div>
+              <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent font-bold">
+                Ce simți acum?
+              </span>
+              <p className="text-muted-foreground text-sm font-normal mt-0.5">
+                Selectează și mergem direct la transformare
+              </p>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="relative">
+          {/* Extended Emotion Picker — selecting auto-advances */}
+          <ExtendedEmotionPicker
+            selectedEmotion={emotion}
+            onSelect={handleEmotionSelect}
+            language="ro"
+          />
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }
