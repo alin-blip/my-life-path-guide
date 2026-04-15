@@ -190,6 +190,10 @@ export function useChampionRoutine() {
           apply_completed: logData.apply_completed || false,
           apply_notes: logData.apply_notes || null,
           vision_declaration_read: logData.vision_declaration_read || false,
+          morning_emotion: logData.morning_emotion || null,
+          morning_emotion_intensity: logData.morning_emotion_intensity || null,
+          stack_selection_completed: logData.stack_selection_completed || false,
+          emotional_transform_completed: logData.emotional_transform_completed || false,
         });
       } else {
         // Create new log for today
@@ -222,6 +226,10 @@ export function useChampionRoutine() {
             apply_completed: false,
             apply_notes: null,
             vision_declaration_read: false,
+            morning_emotion: null,
+            morning_emotion_intensity: null,
+            stack_selection_completed: false,
+            emotional_transform_completed: false,
           });
         }
       }
