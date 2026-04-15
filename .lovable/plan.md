@@ -1,85 +1,73 @@
 
 
-# Upgrade Mind Coach: Tony Robbins Empowerment Ritual
+# Simplificarea Rutinei Războinicului — De la 17 la 10 pași
 
-## What the user wants
+**Emotional Check rămâne neschimbat** — exact cum l-am construit cu cele 3 faze Tony Robbins.
 
-The current Mind Coach flow is too cognitive — it asks logical questions but doesn't produce real emotional transformation. The user wants the Tony Robbins "peak state" methodology:
+## Ce se schimbă
 
-1. **State change through body chemistry** — not just talking, but physically shifting state
-2. **Sensory anchoring** — close eyes, recall peak moment with all 5 senses (visual, auditory, kinesthetic, olfactory, emotional)
-3. **Power move** — a physical gesture to anchor the new state in the body
-4. **Visual guidance** — an animated body figure "on fire" (blue flames) showing the power move the user should mimic
+### 1. Combinare: Light Exposure + Hydration → **Body Activation** (un singur pas)
+- Nou fișier `BodyActivationStep.tsx` — checklist rapid cu 3 items: apă, lumină naturală, postură dreaptă
+- Toate 3 sunt checkboxuri pe un singur ecran (30 secunde, nu 2 ecrane separate)
+- Salvează `water_drunk` și `light_exposure` în log ca înainte
 
-This is based on Tony Robbins' Anchoring technique (Day 16 of Personal Power, already in the platform) and the Triad (Physiology → Focus → Meaning).
+### 2. Combinare: Autosuggestion + Vision Declaration + Visualization → **Power Declaration** (un singur pas)
+- Nou fișier `PowerDeclarationStep.tsx` — un singur ritual cu 3 sub-secțiuni:
+  - **Citește Declarația de Viziune** cu voce tare (păstrăm TTS-ul existent din VisionDeclaration)
+  - **Afirmația de Autosugestie** — citire 3x cu emoție (inline, nu pas separat)
+  - **Vizualizare** — 30 sec cu ochii închiși, buton "Am vizualizat"
+- Marchează `autosuggestion_completed`, `vision_declaration_read`, și `visualization_completed` în log
 
-## Current problem with AI speed
+### 3. Breathing se integrează ca intro în Meditation
+- `MeditationStep` va include un mini-breathing cycle (opțional) ca warmup înainte de meditație
+- Breathing-ul rămâne și ca pas separat (pentru cine îl vrea în setări), dar nu apare în DEFAULT_ROUTINE_STEPS
 
-The AI uses `google/gemini-2.5-pro` which is slower. We'll switch to `google/gemini-2.5-flash` for faster responses while keeping quality sufficient for coaching.
+### 4. Reading se mută din rutina default
+- Rămâne ca pas disponibil în setări, dar nu apare în DEFAULT_ROUTINE_STEPS
+- Cine îl are activ îl păstrează
 
-## Architecture
+### 5. Gratitude cu prompts rotative
+- Adaug 10+ prompts rotative care se schimbă zilnic: "Un moment din ultima săptămână când te-ai simțit mândru...", "O persoană care te-a ajutat fără să-i ceri..."
+- Adaug instrucțiune vizuală: "Nu SCRIE doar — SIMTE recunoștința în piept timp de 30 secunde"
 
-The fix has two parts:
+### 6. Journaling cu prompt zilnic
+- Adaug prompts zilnice rotative: "Ce aș face dacă ar fi imposibil să eșuez?", "Care e cea mai mare frică pe care o am azi?"
 
-### Part 1: Rewrite the Mind Coach system prompt (edge function)
+### 7. Curățare cod mort
+- Șterg `EmotionalCheckStep.tsx`, `EmotionalTransformStep.tsx`, `StackSelectionStep.tsx`, `DailyTasksStep.tsx`
+- Curăț dead code din step ordering (liniile 276-346 cu `stackSelection`/`emotionalTransform`)
+- Actualizez `ChampionLog` — adaug `morning_emotion`, `morning_emotion_intensity`, `stack_selection_completed`, `emotional_transform_completed` ca tipuri reale (eliminăm `as any`)
 
-**File: `supabase/functions/mind-coach/index.ts`**
+## Noul DEFAULT_ROUTINE_STEPS (10 pași)
 
-Change the coaching flow from "cognitive problem-solving" to Tony Robbins empowerment ritual:
-
+```text
+1. emotionalCheck      — Check-in Emoțional (Tony Robbins 3 faze)
+2. bodyActivation      — Apă + Lumină + Postură (30 sec)
+3. meditation          — Meditație (cu breathing intro opțional)
+4. powerDeclaration    — Viziune + Autosugestie + Vizualizare
+5. gratitude           — Recunoștință (cu prompts rotative)
+6. journaling          — Jurnaling (cu prompt zilnic)
+7. exercise            — Exerciții
+8. mealPlanning        — Alimentație
+9. learn               — Învață
+10. apply              — Aplică
+11. contentCreation    — Content
+12. relationships      — Relații
+13. completion         — Finalizare
 ```
-Phase 1: VALIDATE (1 message)
-  "Te aud. [Emoția] la [intensitate]/10 este real."
 
-Phase 2: BODY CHEMISTRY SHIFT (2-3 messages)
-  "Închide ochii. Amintește-ți CEL MAI PUTERNIC moment din viața ta
-   când te-ai simțit [starea opusă dorită]."
-  → Guide through 5 senses: "Ce vedeai? Ce auzeai? Ce simțeai pe piele?
-   Ce miros era? Ce emoție aveai?"
-  → "Acum MĂREȘTE acea imagine de 10x. Fă-o mai luminoasă,
-   mai tare, mai intensă!"
+## Fișiere de modificat
 
-Phase 3: POWER MOVE / ANCHOR (1-2 messages)
-  "Ridică-te. Strânge pumnul. Spune cu voce tare:
-   EU SUNT [PUTERE]! EU CREEZ [REZULTAT]!"
-  → "Repetă! Mai tare! Simte-o în tot corpul!"
+1. **Nou:** `src/components/champion-routine/steps/BodyActivationStep.tsx`
+2. **Nou:** `src/components/champion-routine/steps/PowerDeclarationStep.tsx`
+3. **Modificat:** `src/components/champion-routine/ChampionRoutineFlow.tsx` — noul DEFAULT_ROUTINE_STEPS, imports, renderStep, curățare dead code
+4. **Modificat:** `src/components/champion-routine/steps/GratitudeStep.tsx` — prompts rotative + "simte emoția"
+5. **Modificat:** `src/components/champion-routine/steps/JournalingStep.tsx` — prompt zilnic rotativ
+6. **Modificat:** `src/hooks/useChampionRoutine.ts` — actualizare ChampionLog type
+7. **Modificat:** `src/components/champion-routine/index.ts` — export-uri noi
+8. **Șters:** `EmotionalCheckStep.tsx`, `EmotionalTransformStep.tsx`, `StackSelectionStep.tsx`, `DailyTasksStep.tsx`
 
-Phase 4: ACTION (1 message)
-  "Din această stare de putere, care e UN singur lucru
-   pe care îl faci AZI?"
-  → add_to_hit_list + complete_transformation
-```
-
-Also switch model from `gemini-2.5-pro` to `gemini-2.5-flash` for speed.
-
-### Part 2: Add animated Power Body visual
-
-**New file: `src/components/mind-coach/PowerBodyAnimation.tsx`**
-
-An animated SVG/CSS figure with blue flames effect that appears during Phase 3. The figure shows:
-- A human silhouette in a power pose (fist raised)
-- Blue flames emanating from the body (CSS animation)
-- Pulsing energy effect
-- Text overlay: "STRÂNGE PUMNUL. SPUNE CU VOCE TARE!"
-
-This component will be rendered inside `MindCoachChat.tsx` when the AI enters Phase 3 (detected by keywords in the AI response like "ridică-te", "strânge pumnul", "spune cu voce tare").
-
-### Part 3: Update MindCoachChat.tsx
-
-- Detect power move phase in AI messages (keyword matching)
-- Show `PowerBodyAnimation` component inline in the chat when triggered
-- Keep existing emotion picker and intensity steps as-is
-
-## Files to modify
-
-1. `supabase/functions/mind-coach/index.ts` — Rewrite system prompt with anchoring ritual flow + switch to flash model
-2. `src/components/mind-coach/PowerBodyAnimation.tsx` — New animated power body component (blue flames SVG + CSS)
-3. `src/components/mind-coach/MindCoachChat.tsx` — Integrate PowerBodyAnimation detection and rendering
-
-## Result
-
-- AI responds faster (flash vs pro)
-- Every session follows the Tony Robbins anchoring ritual: validate → recall peak state with all senses → amplify → power move → action
-- Visual animated body in blue flames guides the user through the physical movement
-- Transformation feels embodied, not just intellectual
+## Backward compatibility
+- Pașii vechi (hydration, lightExposure, breathing, autosuggestion, visionDeclaration, visualization, reading) rămân disponibili în Settings pentru userii care i-au configurat manual
+- Doar DEFAULT_ROUTINE_STEPS se schimbă — userii existenți cu custom order nu sunt afectați
 
