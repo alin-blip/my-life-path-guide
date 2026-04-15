@@ -1,70 +1,85 @@
 
 
-# Upgrade Emotional Check Step — Tony Robbins Power Priming
+# Upgrade Mind Coach: Tony Robbins Empowerment Ritual
 
-## Problem
-The current first step is a clinical "pick emoji + slider" form. No physiological engagement, no state change, no transformation. Users in positive states just skip. Users in negative states go to Mind Coach but without any body preparation. Tony Robbins always starts with **physiology first** (breathing, movement, posture), then **focus** (what you focus on), then **meaning** (the story you tell yourself).
+## What the user wants
 
-## Solution: 3-Phase Power Entry
+The current Mind Coach flow is too cognitive — it asks logical questions but doesn't produce real emotional transformation. The user wants the Tony Robbins "peak state" methodology:
 
-Replace the current emotion → choice flow with a Tony Robbins "Triad" approach:
+1. **State change through body chemistry** — not just talking, but physically shifting state
+2. **Sensory anchoring** — close eyes, recall peak moment with all 5 senses (visual, auditory, kinesthetic, olfactory, emotional)
+3. **Power move** — a physical gesture to anchor the new state in the body
+4. **Visual guidance** — an animated body figure "on fire" (blue flames) showing the power move the user should mimic
 
-```text
-Phase 1: BODY CHECK (5 sec)
-  "Stai drept. Umerii înapoi. Respiră adânc."
-  → Animated breathing circle (inhale 4s, hold 4s, exhale 4s)
-  → One power breath cycle before proceeding
+This is based on Tony Robbins' Anchoring technique (Day 16 of Personal Power, already in the platform) and the Triad (Physiology → Focus → Meaning).
 
-Phase 2: EMOTIONAL SCAN (current picker, enhanced)
-  → Keep ExtendedEmotionPicker
-  → Keep intensity slider
-  → BUT add a "Ce poveste îți spui acum?" free-text input
-    (this primes self-awareness before Mind Coach)
+## Current problem with AI speed
 
-Phase 3: POWER DECISION
-  Negative/low → Mind Coach (as now)
-  Positive → "Incantation" moment:
-    → Show a power phrase based on their emotion
-    → "Spune cu voce tare: EU SUNT [PUTERE]. EU CREEZ [REZULTAT]."
-    → User confirms they said it → proceeds with amplified energy
-    → Option to go deeper with Mind Coach
+The AI uses `google/gemini-2.5-pro` which is slower. We'll switch to `google/gemini-2.5-flash` for faster responses while keeping quality sufficient for coaching.
+
+## Architecture
+
+The fix has two parts:
+
+### Part 1: Rewrite the Mind Coach system prompt (edge function)
+
+**File: `supabase/functions/mind-coach/index.ts`**
+
+Change the coaching flow from "cognitive problem-solving" to Tony Robbins empowerment ritual:
+
+```
+Phase 1: VALIDATE (1 message)
+  "Te aud. [Emoția] la [intensitate]/10 este real."
+
+Phase 2: BODY CHEMISTRY SHIFT (2-3 messages)
+  "Închide ochii. Amintește-ți CEL MAI PUTERNIC moment din viața ta
+   când te-ai simțit [starea opusă dorită]."
+  → Guide through 5 senses: "Ce vedeai? Ce auzeai? Ce simțeai pe piele?
+   Ce miros era? Ce emoție aveai?"
+  → "Acum MĂREȘTE acea imagine de 10x. Fă-o mai luminoasă,
+   mai tare, mai intensă!"
+
+Phase 3: POWER MOVE / ANCHOR (1-2 messages)
+  "Ridică-te. Strânge pumnul. Spune cu voce tare:
+   EU SUNT [PUTERE]! EU CREEZ [REZULTAT]!"
+  → "Repetă! Mai tare! Simte-o în tot corpul!"
+
+Phase 4: ACTION (1 message)
+  "Din această stare de putere, care e UN singur lucru
+   pe care îl faci AZI?"
+  → add_to_hit_list + complete_transformation
 ```
 
-## What changes
+Also switch model from `gemini-2.5-pro` to `gemini-2.5-flash` for speed.
 
-### 1. `EmotionalCheckUnifiedStep.tsx` — Major rewrite
-- Add `Phase: 'breathe' | 'emotion' | 'power'`
-- **Breathe phase**: animated breathing circle with 1 cycle (12 seconds), auto-advances
-- **Emotion phase**: current picker + intensity + new "story" text input
-- **Power phase** (positive): incantation card with power phrases mapped to emotions, "Am spus-o!" button
-- **Power phase** (negative): enhanced intro before Mind Coach — "Corpul tău e pregătit. Acum hai să transformăm mintea." then enters Mind Coach
+### Part 2: Add animated Power Body visual
 
-### 2. Power phrases mapping (inline, no DB needed)
-```
-happy → "EU SUNT RECUNOSCĂTOR. EU CREEZ ABUNDENȚĂ."
-calm → "EU SUNT PREZENT. EU CREEZ CLARITATE."
-excited → "EU SUNT ENERGIE PURĂ. EU CREEZ IMPACTUL PE CARE ÎL MERIT."
-motivated → "EU SUNT IMPARABIL. EU EXECUT CU PUTERE."
-natural → "EU SUNT ECHILIBRAT. EU CREEZ ARMONIE ÎN TOT CE FAC."
-```
+**New file: `src/components/mind-coach/PowerBodyAnimation.tsx`**
 
-### 3. Breathing animation component
-- Simple CSS animation with expanding/contracting circle
-- Text prompts: "Inspiră" → "Ține" → "Expiră"
-- Auto-advances after 1 cycle (or user can skip)
+An animated SVG/CSS figure with blue flames effect that appears during Phase 3. The figure shows:
+- A human silhouette in a power pose (fist raised)
+- Blue flames emanating from the body (CSS animation)
+- Pulsing energy effect
+- Text overlay: "STRÂNGE PUMNUL. SPUNE CU VOCE TARE!"
 
-### 4. Save the "story" input
-- Pass it to Mind Coach as additional context if user enters transformation
-- Store it in the emotional checkin data for pattern tracking
+This component will be rendered inside `MindCoachChat.tsx` when the AI enters Phase 3 (detected by keywords in the AI response like "ridică-te", "strânge pumnul", "spune cu voce tare").
+
+### Part 3: Update MindCoachChat.tsx
+
+- Detect power move phase in AI messages (keyword matching)
+- Show `PowerBodyAnimation` component inline in the chat when triggered
+- Keep existing emotion picker and intensity steps as-is
 
 ## Files to modify
-1. `src/components/champion-routine/steps/EmotionalCheckUnifiedStep.tsx` — add breathe + power phases
-2. No backend changes needed — Mind Coach system prompt already handles the context
+
+1. `supabase/functions/mind-coach/index.ts` — Rewrite system prompt with anchoring ritual flow + switch to flash model
+2. `src/components/mind-coach/PowerBodyAnimation.tsx` — New animated power body component (blue flames SVG + CSS)
+3. `src/components/mind-coach/MindCoachChat.tsx` — Integrate PowerBodyAnimation detection and rendering
 
 ## Result
-- Users start with a **physical state change** (breathing)
-- Self-awareness is primed with the "story" question
-- Positive users get an **incantation moment** instead of a bland "skip"
-- Negative users enter Mind Coach already physiologically prepared
-- The whole entry feels like a **ritual**, not a form
+
+- AI responds faster (flash vs pro)
+- Every session follows the Tony Robbins anchoring ritual: validate → recall peak state with all senses → amplify → power move → action
+- Visual animated body in blue flames guides the user through the physical movement
+- Transformation feels embodied, not just intellectual
 
