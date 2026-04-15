@@ -738,6 +738,8 @@ const translations: Translations = {
     
     // ChampionRoutine STEP_LABELS
     "stepEmotionalCheck": "Emotional Check-in",
+    "stepBodyActivation": "Body Activation",
+    "stepPowerDeclaration": "Power Declaration",
     "stepStackSelection": "Choose Stack",
     "stepEmotionalTransform": "Emotional Transform",
     "stepGratitude": "Gratitude",
@@ -1379,6 +1381,8 @@ const translations: Translations = {
     
     // ChampionRoutine STEP_LABELS
     "stepEmotionalCheck": "Check-in Emoțional",
+    "stepBodyActivation": "Activare Corp",
+    "stepPowerDeclaration": "Declarație de Putere",
     "stepStackSelection": "Alege Stack-ul",
     "stepEmotionalTransform": "Transformare Emoțională",
     "stepGratitude": "Recunoștință",

@@ -19,6 +19,7 @@ export { AutosuggestionStep } from './steps/AutosuggestionStep';
 export { ExerciseStep } from './steps/ExerciseStep';
 export { MealPlanningStep } from './steps/MealPlanningStep';
 export { ContentCreationStep } from './steps/ContentCreationStep';
-export { DailyTasksStep } from './steps/DailyTasksStep';
 export { RelationshipStep } from './steps/RelationshipStep';
 export { CompletionStep } from './steps/CompletionStep';
+export { BodyActivationStep } from './steps/BodyActivationStep';
+export { PowerDeclarationStep } from './steps/PowerDeclarationStep';

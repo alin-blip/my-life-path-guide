@@ -15,9 +15,9 @@ import { MindCoachEmotion } from '@/components/mind-coach/ExtendedEmotionPicker'
 
 // Step components
 import { GratitudeStep } from './steps/GratitudeStep';
-import { HydrationStep } from './steps/HydrationStep';
+import { BodyActivationStep } from './steps/BodyActivationStep';
 import { MeditationStep } from './steps/MeditationStep';
-import { AutosuggestionStep } from './steps/AutosuggestionStep';
+import { PowerDeclarationStep } from './steps/PowerDeclarationStep';
 import { ExerciseStep } from './steps/ExerciseStep';
 import { MealPlanningStep } from './steps/MealPlanningStep';
 import { ContentCreationStep } from './steps/ContentCreationStep';
@@ -29,9 +29,11 @@ import { BreathingStep } from './steps/BreathingStep';
 import { VisualizationStep } from './steps/VisualizationStep';
 import { ReadingStep } from './steps/ReadingStep';
 import { JournalingStep } from './steps/JournalingStep';
+import { HydrationStep } from './steps/HydrationStep';
 import { LightExposureStep } from './steps/LightExposureStep';
 import { LearnStep } from './steps/LearnStep';
 import { VisionDeclarationStep } from './steps/VisionDeclarationStep';
+import { AutosuggestionStep } from './steps/AutosuggestionStep';
 import { ApplyStep } from './steps/ApplyStep';
 import { EmotionalCheckUnifiedStep } from './steps/EmotionalCheckUnifiedStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
@@ -56,12 +58,14 @@ interface ChampionRoutineFlowProps {
 }
 
 export type RoutineStepId = 
-  | 'emotionalCheck'  // Unified: includes stack selection + transform
+  | 'emotionalCheck'
+  | 'bodyActivation'
   | 'gratitude' 
   | 'hydration' 
   | 'meditation' 
   | 'autosuggestion' 
   | 'visionDeclaration'
+  | 'powerDeclaration'
   | 'exercise' 
   | 'mealPlanning'
   | 'contentCreation'
@@ -82,47 +86,43 @@ export type RoutineStepId =
   | 'completion';
 
 // Core 4 - OBLIGATORII (nu pot fi eliminate) - aliniate cu Warrior Core 4
-// 2 taskuri per categorie: Body, Being, Balance, Business
 export const CORE4_REQUIRED_STEPS: RoutineStepId[] = [
-  'exercise',      // Body: Fitness (30 min exercițiu)
-  'mealPlanning',  // Body: Fuel (alimentație)
-  'meditation',    // Being: Meditation (autosugestie & credință)
-  'journaling',    // Being: Jurnal (programare subconștient)
-  'relationships', // Balance: Person 1 + Person 2 (Legea Servirii)
-  'learn',         // Business: Discover (cunoștințe specializate)
-  'apply',         // Business: Declare (planificare organizată)
+  'exercise',
+  'mealPlanning',
+  'meditation',
+  'journaling',
+  'relationships',
+  'learn',
+  'apply',
 ];
 
-// Default order for Execution Room (all available steps)
+// Default order — simplified Tony Robbins flow
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
-  'emotionalCheck',       // 0. Check-in Emoțional UNIFICAT (include stack + transform)
-  'lightExposure',        // 1. Being - Lumină naturală dimineața
-  'hydration',          // 2. Being - Hidratare
-  'breathing',          // 3. Being - Box Breathing
-  'meditation',         // 4. Being - Meditație (min 10 min) - CORE 4
-  'gratitude',          // 5. Being - Recunoștință
-  'visualization',      // 6. Being - Vizualizare
-  'autosuggestion',     // 7. Being - Autosugestie
-  'visionDeclaration',  // 8. Being - Citire Declarație Viziune (Napoleon Hill)
-  'journaling',         // 9. Being - Journaling - CORE 4
-  'reading',            // 10. Being - Citit 10 pagini
-  'exercise',           // 11. Body - Exerciții cu timer - CORE 4
-  'mealPlanning',       // 12. Body - Meal Planning - CORE 4
-  'learn',              // 13. Business - Învață ceva nou - CORE 4
-  'apply',              // 14. Business - Aplică/Predă - CORE 4
-  'contentCreation',    // 15. Business - Content + AI Script + Pomodoro
-  'relationships',      // 16. Balance - Relații - CORE 4
-  'completion',         // 17. Finalizare
+  'emotionalCheck',       // 1. Check-in Emoțional (Tony Robbins 3 faze)
+  'bodyActivation',       // 2. Apă + Lumină + Postură (30 sec)
+  'meditation',           // 3. Meditație (cu breathing intro opțional)
+  'powerDeclaration',     // 4. Viziune + Autosugestie + Vizualizare
+  'gratitude',            // 5. Recunoștință (cu prompts rotative)
+  'journaling',           // 6. Jurnaling (cu prompt zilnic)
+  'exercise',             // 7. Exerciții
+  'mealPlanning',         // 8. Alimentație
+  'learn',                // 9. Învață
+  'apply',                // 10. Aplică
+  'contentCreation',      // 11. Content
+  'relationships',        // 12. Relații
+  'completion',           // 13. Finalizare
 ];
 
 // Translation keys for step labels - now using useLanguage t() function
 const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
   emotionalCheck: 'stepEmotionalCheck',
+  bodyActivation: 'stepBodyActivation',
   gratitude: 'stepGratitude',
   hydration: 'stepHydration',
   meditation: 'stepMeditation',
   autosuggestion: 'stepAutosuggestion',
   visionDeclaration: 'stepVisionDeclaration',
+  powerDeclaration: 'stepPowerDeclaration',
   exercise: 'stepExercise',
   mealPlanning: 'stepMealPlanning',
   contentCreation: 'stepContentCreation',
@@ -145,11 +145,13 @@ const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
   emotionalCheck: 'emotional',
+  bodyActivation: 'body',
   gratitude: 'being',
   hydration: 'being',
   meditation: 'being',
   autosuggestion: 'being',
   visionDeclaration: 'being',
+  powerDeclaration: 'being',
   breathing: 'being',
   visualization: 'being',
   reading: 'being',
@@ -187,17 +189,21 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
   
   switch (stepId) {
     case 'emotionalCheck':
-      return !!(log as any).morning_emotion && ((log as any).stack_selection_completed === true || (log as any).emotional_transform_completed === true || !!(log as any).morning_emotion);
+      return !!log.morning_emotion && (log.stack_selection_completed === true || log.emotional_transform_completed === true || !!log.morning_emotion);
+    case 'bodyActivation':
+      return log.water_drunk === true && log.light_exposure === true;
     case 'gratitude':
       return (log.gratitude_items || []).some(i => i?.trim());
     case 'hydration':
       return log.water_drunk === true;
     case 'meditation':
-      return (log.meditation_duration_seconds || 0) >= 300; // 5 minutes
+      return (log.meditation_duration_seconds || 0) >= 300;
     case 'autosuggestion':
       return log.autosuggestion_completed === true;
     case 'visionDeclaration':
-      return (log as any).vision_declaration_read === true;
+      return log.vision_declaration_read === true;
+    case 'powerDeclaration':
+      return log.autosuggestion_completed === true && log.vision_declaration_read === true && log.visualization_completed === true;
     case 'exercise':
       return log.exercise_completed === true;
     case 'mealPlanning':
@@ -223,7 +229,7 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
     case 'lightExposure':
       return log.light_exposure === true;
     case 'completion':
-      return false; // Completion is never "completed" - it's the end screen
+      return false;
     default:
       return false;
   }
@@ -273,74 +279,31 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     });
 
     // Auto-include new steps for existing users
-    const requiredNewSteps = ['emotionalCheck', 'stackSelection', 'emotionalTransform', 'visionDeclaration'];
+    const requiredNewSteps = ['emotionalCheck', 'bodyActivation', 'powerDeclaration'];
     requiredNewSteps.forEach(stepId => {
       if (activeSteps.length > 0 && !activeSteps.includes(stepId)) {
         activeSteps = [...activeSteps];
         if (stepId === 'emotionalCheck') {
           activeSteps.unshift(stepId);
-        } else if (stepId === 'stackSelection') {
-          // Insert right after emotionalCheck
+        } else if (stepId === 'bodyActivation') {
           const checkIndex = activeSteps.indexOf('emotionalCheck');
-          if (checkIndex !== -1) {
-            activeSteps.splice(checkIndex + 1, 0, stepId);
-          } else {
-            activeSteps.unshift(stepId);
-          }
-        } else if (stepId === 'emotionalTransform') {
-          // Insert right after stackSelection
-          const stackIndex = activeSteps.indexOf('stackSelection');
-          if (stackIndex !== -1) {
-            activeSteps.splice(stackIndex + 1, 0, stepId);
-          } else {
-            const checkIndex = activeSteps.indexOf('emotionalCheck');
-            if (checkIndex !== -1) {
-              activeSteps.splice(checkIndex + 1, 0, stepId);
-            } else {
-              activeSteps.unshift(stepId);
-            }
-          }
+          activeSteps.splice(checkIndex !== -1 ? checkIndex + 1 : 0, 0, stepId);
         } else {
-          const autoIndex = activeSteps.indexOf('autosuggestion');
-          if (autoIndex !== -1) {
-            activeSteps.splice(autoIndex + 1, 0, stepId);
-          } else {
-            activeSteps.push(stepId);
-          }
+          // powerDeclaration — insert after meditation
+          const medIndex = activeSteps.indexOf('meditation');
+          activeSteps.splice(medIndex !== -1 ? medIndex + 1 : activeSteps.length, 0, stepId);
         }
       }
       if (stepsOrder.length > 0 && !stepsOrder.includes(stepId)) {
         stepsOrder = [...stepsOrder];
         if (stepId === 'emotionalCheck') {
           stepsOrder.unshift(stepId);
-        } else if (stepId === 'stackSelection') {
-          // Insert right after emotionalCheck
+        } else if (stepId === 'bodyActivation') {
           const checkIndex = stepsOrder.indexOf('emotionalCheck');
-          if (checkIndex !== -1) {
-            stepsOrder.splice(checkIndex + 1, 0, stepId);
-          } else {
-            stepsOrder.unshift(stepId);
-          }
-        } else if (stepId === 'emotionalTransform') {
-          // Insert right after stackSelection
-          const stackIndex = stepsOrder.indexOf('stackSelection');
-          if (stackIndex !== -1) {
-            stepsOrder.splice(stackIndex + 1, 0, stepId);
-          } else {
-            const checkIndex = stepsOrder.indexOf('emotionalCheck');
-            if (checkIndex !== -1) {
-              stepsOrder.splice(checkIndex + 1, 0, stepId);
-            } else {
-              stepsOrder.unshift(stepId);
-            }
-          }
+          stepsOrder.splice(checkIndex !== -1 ? checkIndex + 1 : 0, 0, stepId);
         } else {
-          const autoIndex = stepsOrder.indexOf('autosuggestion');
-          if (autoIndex !== -1) {
-            stepsOrder.splice(autoIndex + 1, 0, stepId);
-          } else {
-            stepsOrder.push(stepId);
-          }
+          const medIndex = stepsOrder.indexOf('meditation');
+          stepsOrder.splice(medIndex !== -1 ? medIndex + 1 : stepsOrder.length, 0, stepId);
         }
       }
     });
@@ -417,10 +380,10 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   
   // Emotional check state
   const [selectedEmotion, setSelectedEmotion] = useState<MindCoachEmotion | null>(
-    (todayLog as any)?.morning_emotion as MindCoachEmotion || null
+    todayLog?.morning_emotion as MindCoachEmotion || null
   );
   const [emotionIntensity, setEmotionIntensity] = useState<number>(
-    (todayLog as any)?.morning_emotion_intensity || 5
+    todayLog?.morning_emotion_intensity || 5
   );
   const [needsEmotionalTransform, setNeedsEmotionalTransform] = useState(false);
   
@@ -609,22 +572,32 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             intensity={emotionIntensity}
             onEmotionChange={(emotion) => {
               setSelectedEmotion(emotion);
-              updateLog('morning_emotion' as any, emotion);
+              updateLog('morning_emotion', emotion);
             }}
             onIntensityChange={(intensity) => {
               setEmotionIntensity(intensity);
-              updateLog('morning_emotion_intensity' as any, intensity);
+              updateLog('morning_emotion_intensity', intensity);
             }}
             onComplete={(data) => {
-              updateLog('morning_emotion' as any, data.emotion);
-              updateLog('morning_emotion_intensity' as any, data.intensity);
+              updateLog('morning_emotion', data.emotion);
+              updateLog('morning_emotion_intensity', data.intensity);
               if (data.stackCompleted) {
-                updateLog('stack_selection_completed' as any, true);
-                updateLog('emotional_transform_completed' as any, true);
+                updateLog('stack_selection_completed', true);
+                updateLog('emotional_transform_completed', true);
               }
               goToNextStep();
             }}
             onSkip={() => goToNextStep()}
+          />
+        );
+      case 'bodyActivation':
+        return (
+          <BodyActivationStep
+            waterCompleted={todayLog?.water_drunk || false}
+            lightCompleted={todayLog?.light_exposure || false}
+            onWaterComplete={(value) => updateLog('water_drunk', value)}
+            onLightComplete={(value) => updateLog('light_exposure', value)}
+            onNext={goToNextStep}
           />
         );
       case 'gratitude':
@@ -652,6 +625,21 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             onSkip={handleSkipRequest}
           />
         );
+      case 'powerDeclaration':
+        return (
+          <PowerDeclarationStep
+            autosuggestionText={autosuggestion}
+            autosuggestionCompleted={todayLog?.autosuggestion_completed || false}
+            visionDeclarationRead={todayLog?.vision_declaration_read || false}
+            visualizationCompleted={todayLog?.visualization_completed || false}
+            onAutosuggestionTextChange={updateAutosuggestion}
+            onAutosuggestionComplete={(value) => updateLog('autosuggestion_completed', value)}
+            onVisionComplete={(value) => updateLog('vision_declaration_read', value)}
+            onVisualizationComplete={(value) => updateLog('visualization_completed', value)}
+            onNext={goToNextStep}
+            onSkip={handleSkipRequest}
+          />
+        );
       case 'autosuggestion':
         return (
           <AutosuggestionStep
@@ -665,8 +653,8 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
       case 'visionDeclaration':
         return (
           <VisionDeclarationStep
-            completed={(todayLog as any)?.vision_declaration_read || false}
-            onComplete={(value) => updateLog('vision_declaration_read' as any, value)}
+            completed={todayLog?.vision_declaration_read || false}
+            onComplete={(value) => updateLog('vision_declaration_read', value)}
             onNext={goToNextStep}
             onSkip={handleSkipRequest}
           />
