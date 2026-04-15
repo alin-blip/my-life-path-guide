@@ -317,7 +317,6 @@ export function EmotionalCheckUnifiedStep({
             <MindCoachChat
               initialEmotion={emotion}
               initialIntensity={intensity}
-              initialStory={story || undefined}
               embedded={true}
               showNavigationButtons={true}
               onContinueRoutine={handleContinueRoutine}
