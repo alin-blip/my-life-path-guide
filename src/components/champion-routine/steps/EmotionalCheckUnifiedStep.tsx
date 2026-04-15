@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Textarea } from '@/components/ui/textarea';
+import { ArrowRight, Sparkles, Zap, ChevronRight, Heart, Brain, Flame, Wind, Volume2 } from 'lucide-react';
 import { ArrowRight, Sparkles, Zap, ChevronRight, Heart, Brain, Flame, Wind, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
