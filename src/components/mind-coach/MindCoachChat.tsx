@@ -10,11 +10,11 @@ import { PhaseIndicator } from './PhaseIndicator';
 import { BreakthroughCelebration } from './BreakthroughCelebration';
 import { ContinueMindsetDialog } from './ContinueMindsetDialog';
 import { MindCoachInputBar } from './MindCoachInputBar';
+import { PowerBodyAnimation } from './PowerBodyAnimation';
 import { useMindCoach } from '@/hooks/useMindCoach';
 import { useMindCoachVoice } from '@/hooks/useMindCoachVoice';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
-
 interface MindCoachChatProps {
   initialEmotion?: MindCoachEmotion;
   initialIntensity?: number;
@@ -355,32 +355,39 @@ export function MindCoachChat({
               )}
 
               {/* Chat messages */}
-              {messages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={cn(
-                    "flex animate-fade-in",
-                    msg.role === 'user' ? 'justify-end' : 'justify-start'
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "max-w-[85%] rounded-xl p-3 text-sm",
-                      msg.role === 'user'
-                        ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20'
-                        : 'bg-muted/80 border border-border/50'
-                    )}
-                  >
-                    {msg.role === 'assistant' ? (
-                      <div className="prose prose-sm dark:prose-invert max-w-none">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+              {messages.map((msg, idx) => {
+                const isPowerMove = msg.role === 'assistant' && msg.content.includes('[POWER_MOVE]');
+                const cleanContent = msg.content.replace('[POWER_MOVE]', '').trim();
+                
+                return (
+                  <React.Fragment key={idx}>
+                    {isPowerMove && <PowerBodyAnimation />}
+                    <div
+                      className={cn(
+                        "flex animate-fade-in",
+                        msg.role === 'user' ? 'justify-end' : 'justify-start'
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "max-w-[85%] rounded-xl p-3 text-sm",
+                          msg.role === 'user'
+                            ? 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20'
+                            : 'bg-muted/80 border border-border/50'
+                        )}
+                      >
+                        {msg.role === 'assistant' ? (
+                          <div className="prose prose-sm dark:prose-invert max-w-none">
+                            <ReactMarkdown>{cleanContent}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p>{msg.content}</p>
+                        )}
                       </div>
-                    ) : (
-                      <p>{msg.content}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
+                    </div>
+                  </React.Fragment>
+                );
+              })}
 
               {/* Loading indicator */}
               {isLoading && (
