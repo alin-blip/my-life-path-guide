@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { ArrowRight, Sparkles, Zap, ChevronRight, Heart, Brain, Flame, Wind, Volume2 } from 'lucide-react';
-import { ArrowRight, Sparkles, Zap, ChevronRight, Heart, Brain, Flame, Wind, Volume2 } from 'lucide-react';
+import { Sparkles, Zap, ChevronRight, Heart, Brain, Flame, Wind, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo, MIND_COACH_EMOTIONS } from '@/components/mind-coach/ExtendedEmotionPicker';
