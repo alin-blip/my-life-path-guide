@@ -380,10 +380,10 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   
   // Emotional check state
   const [selectedEmotion, setSelectedEmotion] = useState<MindCoachEmotion | null>(
-    (todayLog as any)?.morning_emotion as MindCoachEmotion || null
+    todayLog?.morning_emotion as MindCoachEmotion || null
   );
   const [emotionIntensity, setEmotionIntensity] = useState<number>(
-    (todayLog as any)?.morning_emotion_intensity || 5
+    todayLog?.morning_emotion_intensity || 5
   );
   const [needsEmotionalTransform, setNeedsEmotionalTransform] = useState(false);
   
