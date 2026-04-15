@@ -572,22 +572,32 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             intensity={emotionIntensity}
             onEmotionChange={(emotion) => {
               setSelectedEmotion(emotion);
-              updateLog('morning_emotion' as any, emotion);
+              updateLog('morning_emotion', emotion);
             }}
             onIntensityChange={(intensity) => {
               setEmotionIntensity(intensity);
-              updateLog('morning_emotion_intensity' as any, intensity);
+              updateLog('morning_emotion_intensity', intensity);
             }}
             onComplete={(data) => {
-              updateLog('morning_emotion' as any, data.emotion);
-              updateLog('morning_emotion_intensity' as any, data.intensity);
+              updateLog('morning_emotion', data.emotion);
+              updateLog('morning_emotion_intensity', data.intensity);
               if (data.stackCompleted) {
-                updateLog('stack_selection_completed' as any, true);
-                updateLog('emotional_transform_completed' as any, true);
+                updateLog('stack_selection_completed', true);
+                updateLog('emotional_transform_completed', true);
               }
               goToNextStep();
             }}
             onSkip={() => goToNextStep()}
+          />
+        );
+      case 'bodyActivation':
+        return (
+          <BodyActivationStep
+            waterCompleted={todayLog?.water_drunk || false}
+            lightCompleted={todayLog?.light_exposure || false}
+            onWaterComplete={(value) => updateLog('water_drunk', value)}
+            onLightComplete={(value) => updateLog('light_exposure', value)}
+            onNext={goToNextStep}
           />
         );
       case 'gratitude':
@@ -615,6 +625,21 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             onSkip={handleSkipRequest}
           />
         );
+      case 'powerDeclaration':
+        return (
+          <PowerDeclarationStep
+            autosuggestionText={autosuggestion}
+            autosuggestionCompleted={todayLog?.autosuggestion_completed || false}
+            visionDeclarationRead={todayLog?.vision_declaration_read || false}
+            visualizationCompleted={todayLog?.visualization_completed || false}
+            onAutosuggestionTextChange={updateAutosuggestion}
+            onAutosuggestionComplete={(value) => updateLog('autosuggestion_completed', value)}
+            onVisionComplete={(value) => updateLog('vision_declaration_read', value)}
+            onVisualizationComplete={(value) => updateLog('visualization_completed', value)}
+            onNext={goToNextStep}
+            onSkip={handleSkipRequest}
+          />
+        );
       case 'autosuggestion':
         return (
           <AutosuggestionStep
@@ -628,8 +653,8 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
       case 'visionDeclaration':
         return (
           <VisionDeclarationStep
-            completed={(todayLog as any)?.vision_declaration_read || false}
-            onComplete={(value) => updateLog('vision_declaration_read' as any, value)}
+            completed={todayLog?.vision_declaration_read || false}
+            onComplete={(value) => updateLog('vision_declaration_read', value)}
             onNext={goToNextStep}
             onSkip={handleSkipRequest}
           />
