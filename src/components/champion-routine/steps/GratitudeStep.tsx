@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,9 +11,55 @@ interface GratitudeStepProps {
   onNext: () => void;
 }
 
+const ROTATING_PROMPTS = [
+  [
+    'Un moment din ultima săptămână când te-ai simțit mândru...',
+    'O persoană care te-a ajutat fără să-i ceri...',
+    'O abilitate pe care o ai și care te face unic...',
+  ],
+  [
+    'Un lucru simplu care ți-a adus bucurie ieri...',
+    'O lecție valoroasă pe care ai învățat-o recent...',
+    'O oportunitate care ți s-a deschis în ultima vreme...',
+  ],
+  [
+    'Sănătatea ta — un lucru concret pentru care ești recunoscător...',
+    'O relație care îți dă energie și te inspiră...',
+    'Un obstacol pe care l-ai depășit și te-a făcut mai puternic...',
+  ],
+  [
+    'Un loc care te face să te simți în pace...',
+    'O amintire frumoasă care te face să zâmbești...',
+    'O resursă sau un privilegiu pe care alții nu-l au...',
+  ],
+  [
+    'Ceva ce ai realizat în ultimele 30 de zile...',
+    'O persoană care crede în tine mai mult decât crezi tu...',
+    'Un moment de liniște sau frumusețe de care te-ai bucurat recent...',
+  ],
+  [
+    'O decizie bună pe care ai luat-o recent...',
+    'Un lucru mic care face zilele tale mai bune...',
+    'O calitate a ta care te ajută să depășești greutățile...',
+  ],
+  [
+    'Familia sau prietenii — un moment special cu ei...',
+    'O carte, un film sau o idee care ți-a schimbat perspectiva...',
+    'Libertatea ta de a alege cum îți trăiești viața...',
+  ],
+];
+
 export function GratitudeStep({ items, onChange, onNext }: GratitudeStepProps) {
   const { t } = useLanguage();
   const [localItems, setLocalItems] = useState<string[]>(['', '', '']);
+
+  // Get today's prompts based on day of year
+  const todayPrompts = useMemo(() => {
+    const dayOfYear = Math.floor(
+      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+    );
+    return ROTATING_PROMPTS[dayOfYear % ROTATING_PROMPTS.length];
+  }, []);
 
   useEffect(() => {
     if (items && items.length > 0) {
@@ -45,7 +91,7 @@ export function GratitudeStep({ items, onChange, onNext }: GratitudeStepProps) {
           </p>
         </div>
 
-        {/* Three gratitude inputs */}
+        {/* Three gratitude inputs with rotating prompts */}
         <div className="space-y-4">
           {[0, 1, 2].map((index) => (
             <div key={index} className="relative">
@@ -53,7 +99,7 @@ export function GratitudeStep({ items, onChange, onNext }: GratitudeStepProps) {
                 {index + 1}
               </div>
               <Textarea
-                placeholder={`Lucrul ${index + 1} pentru care sunt recunoscător...`}
+                placeholder={todayPrompts[index]}
                 value={localItems[index]}
                 onChange={(e) => handleChange(index, e.target.value)}
                 className="pl-16 min-h-[80px] bg-background/50 border-pink-500/20 focus:border-pink-500/50 resize-none"
@@ -62,16 +108,17 @@ export function GratitudeStep({ items, onChange, onNext }: GratitudeStepProps) {
           ))}
         </div>
 
-        {/* Inspiration */}
-        <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/30 border border-muted">
-          <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-muted-foreground">
-            <p className="font-medium text-foreground mb-1">Exemple:</p>
-            <ul className="list-disc list-inside space-y-1">
-              <li>Sănătatea mea și a familiei</li>
-              <li>Oportunitatea de a crește în fiecare zi</li>
-              <li>Oamenii care mă susțin și mă iubesc</li>
-            </ul>
+        {/* Feel instruction */}
+        <div className="flex items-start gap-3 p-4 rounded-lg bg-gradient-to-r from-pink-500/10 to-rose-500/10 border border-pink-500/20">
+          <span className="text-2xl">❤️</span>
+          <div className="text-sm">
+            <p className="font-medium text-foreground mb-1">
+              Nu SCRIE doar — SIMTE recunoștința!
+            </p>
+            <p className="text-muted-foreground">
+              Închide ochii 30 de secunde după ce scrii. Simte recunoștința în piept. 
+              Lasă emoția să te inunde complet.
+            </p>
           </div>
         </div>
 
