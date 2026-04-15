@@ -58,12 +58,14 @@ interface ChampionRoutineFlowProps {
 }
 
 export type RoutineStepId = 
-  | 'emotionalCheck'  // Unified: includes stack selection + transform
+  | 'emotionalCheck'
+  | 'bodyActivation'
   | 'gratitude' 
   | 'hydration' 
   | 'meditation' 
   | 'autosuggestion' 
   | 'visionDeclaration'
+  | 'powerDeclaration'
   | 'exercise' 
   | 'mealPlanning'
   | 'contentCreation'
@@ -84,37 +86,31 @@ export type RoutineStepId =
   | 'completion';
 
 // Core 4 - OBLIGATORII (nu pot fi eliminate) - aliniate cu Warrior Core 4
-// 2 taskuri per categorie: Body, Being, Balance, Business
 export const CORE4_REQUIRED_STEPS: RoutineStepId[] = [
-  'exercise',      // Body: Fitness (30 min exercițiu)
-  'mealPlanning',  // Body: Fuel (alimentație)
-  'meditation',    // Being: Meditation (autosugestie & credință)
-  'journaling',    // Being: Jurnal (programare subconștient)
-  'relationships', // Balance: Person 1 + Person 2 (Legea Servirii)
-  'learn',         // Business: Discover (cunoștințe specializate)
-  'apply',         // Business: Declare (planificare organizată)
+  'exercise',
+  'mealPlanning',
+  'meditation',
+  'journaling',
+  'relationships',
+  'learn',
+  'apply',
 ];
 
-// Default order for Execution Room (all available steps)
+// Default order — simplified Tony Robbins flow
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
-  'emotionalCheck',       // 0. Check-in Emoțional UNIFICAT (include stack + transform)
-  'lightExposure',        // 1. Being - Lumină naturală dimineața
-  'hydration',          // 2. Being - Hidratare
-  'breathing',          // 3. Being - Box Breathing
-  'meditation',         // 4. Being - Meditație (min 10 min) - CORE 4
-  'gratitude',          // 5. Being - Recunoștință
-  'visualization',      // 6. Being - Vizualizare
-  'autosuggestion',     // 7. Being - Autosugestie
-  'visionDeclaration',  // 8. Being - Citire Declarație Viziune (Napoleon Hill)
-  'journaling',         // 9. Being - Journaling - CORE 4
-  'reading',            // 10. Being - Citit 10 pagini
-  'exercise',           // 11. Body - Exerciții cu timer - CORE 4
-  'mealPlanning',       // 12. Body - Meal Planning - CORE 4
-  'learn',              // 13. Business - Învață ceva nou - CORE 4
-  'apply',              // 14. Business - Aplică/Predă - CORE 4
-  'contentCreation',    // 15. Business - Content + AI Script + Pomodoro
-  'relationships',      // 16. Balance - Relații - CORE 4
-  'completion',         // 17. Finalizare
+  'emotionalCheck',       // 1. Check-in Emoțional (Tony Robbins 3 faze)
+  'bodyActivation',       // 2. Apă + Lumină + Postură (30 sec)
+  'meditation',           // 3. Meditație (cu breathing intro opțional)
+  'powerDeclaration',     // 4. Viziune + Autosugestie + Vizualizare
+  'gratitude',            // 5. Recunoștință (cu prompts rotative)
+  'journaling',           // 6. Jurnaling (cu prompt zilnic)
+  'exercise',             // 7. Exerciții
+  'mealPlanning',         // 8. Alimentație
+  'learn',                // 9. Învață
+  'apply',                // 10. Aplică
+  'contentCreation',      // 11. Content
+  'relationships',        // 12. Relații
+  'completion',           // 13. Finalizare
 ];
 
 // Translation keys for step labels - now using useLanguage t() function
