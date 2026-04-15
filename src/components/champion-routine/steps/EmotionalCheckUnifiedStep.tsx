@@ -159,19 +159,24 @@ export function EmotionalCheckUnifiedStep({
 
   const needsTransformation = emotion && (NEGATIVE_EMOTIONS.includes(emotion) || intensity < 4);
   const emotionInfo = emotion ? getEmotionInfo(emotion) : null;
-  const canProceed = emotion !== null;
 
   const handleBreathComplete = useCallback(() => {
     setPhase('emotion');
   }, []);
 
-  const handleEmotionComplete = () => {
-    if (needsTransformation) {
-      setPhase('mind-coach');
-    } else {
-      setPhase('power');
-    }
-  };
+  // After selecting emotion, go directly to next phase
+  const handleEmotionSelect = useCallback((selectedEmotion: MindCoachEmotion) => {
+    onEmotionChange(selectedEmotion);
+    const isNegative = NEGATIVE_EMOTIONS.includes(selectedEmotion);
+    // Small delay for visual feedback
+    setTimeout(() => {
+      if (isNegative) {
+        setPhase('mind-coach');
+      } else {
+        setPhase('power');
+      }
+    }, 400);
+  }, [onEmotionChange]);
 
   const handleIncantationConfirm = () => {
     setIncantationConfirmed(true);
