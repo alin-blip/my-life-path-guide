@@ -15,9 +15,9 @@ import { MindCoachEmotion } from '@/components/mind-coach/ExtendedEmotionPicker'
 
 // Step components
 import { GratitudeStep } from './steps/GratitudeStep';
-import { HydrationStep } from './steps/HydrationStep';
+import { BodyActivationStep } from './steps/BodyActivationStep';
 import { MeditationStep } from './steps/MeditationStep';
-import { AutosuggestionStep } from './steps/AutosuggestionStep';
+import { PowerDeclarationStep } from './steps/PowerDeclarationStep';
 import { ExerciseStep } from './steps/ExerciseStep';
 import { MealPlanningStep } from './steps/MealPlanningStep';
 import { ContentCreationStep } from './steps/ContentCreationStep';
@@ -29,9 +29,11 @@ import { BreathingStep } from './steps/BreathingStep';
 import { VisualizationStep } from './steps/VisualizationStep';
 import { ReadingStep } from './steps/ReadingStep';
 import { JournalingStep } from './steps/JournalingStep';
+import { HydrationStep } from './steps/HydrationStep';
 import { LightExposureStep } from './steps/LightExposureStep';
 import { LearnStep } from './steps/LearnStep';
 import { VisionDeclarationStep } from './steps/VisionDeclarationStep';
+import { AutosuggestionStep } from './steps/AutosuggestionStep';
 import { ApplyStep } from './steps/ApplyStep';
 import { EmotionalCheckUnifiedStep } from './steps/EmotionalCheckUnifiedStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
