@@ -116,11 +116,13 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
 // Translation keys for step labels - now using useLanguage t() function
 const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
   emotionalCheck: 'stepEmotionalCheck',
+  bodyActivation: 'stepBodyActivation',
   gratitude: 'stepGratitude',
   hydration: 'stepHydration',
   meditation: 'stepMeditation',
   autosuggestion: 'stepAutosuggestion',
   visionDeclaration: 'stepVisionDeclaration',
+  powerDeclaration: 'stepPowerDeclaration',
   exercise: 'stepExercise',
   mealPlanning: 'stepMealPlanning',
   contentCreation: 'stepContentCreation',
@@ -143,11 +145,13 @@ const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
   emotionalCheck: 'emotional',
+  bodyActivation: 'body',
   gratitude: 'being',
   hydration: 'being',
   meditation: 'being',
   autosuggestion: 'being',
   visionDeclaration: 'being',
+  powerDeclaration: 'being',
   breathing: 'being',
   visualization: 'being',
   reading: 'being',
