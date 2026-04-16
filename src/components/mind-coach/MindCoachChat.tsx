@@ -156,10 +156,12 @@ export function MindCoachChat({
     setShowContinuePrompt(false);
   }, []);
 
-  // Handle emotion selection
+  // Handle emotion selection — skip intensity, go direct to chat
   const handleEmotionSelect = (emotion: MindCoachEmotion) => {
     setSelectedEmotion(emotion);
-    setStep('intensity');
+    // Auto-start session with default intensity, skip intensity step
+    startSession(emotion, 5);
+    setStep('chat');
   };
 
   // Handle start chat
