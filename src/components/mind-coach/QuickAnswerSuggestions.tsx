@@ -10,90 +10,90 @@ interface QuickAnswerSuggestionsProps {
   isVisible: boolean;
 }
 
-// Quick answers mapped to each cluster
+// Tony-style diagnostic quick answers — pattern-focused, not storytelling
 const QUICK_ANSWERS: Record<CoachingCluster, { ro: string[]; en: string[] }> = {
   stuck_procrastination: {
     ro: [
-      "Nu știu de unde să încep",
-      "Mi-e frică să nu eșuez",
-      "E prea mult de făcut",
-      "Nu mă simt motivat"
+      "Mi-e frică de rezultat",
+      "Nu am claritate ce contează",
+      "Mă simt copleșit de volum",
+      "Aștept momentul perfect"
     ],
     en: [
-      "I don't know where to start",
-      "I'm afraid of failing",
-      "It's too overwhelming",
-      "I don't feel motivated"
+      "I'm afraid of the outcome",
+      "I lack clarity on what matters",
+      "The volume overwhelms me",
+      "I'm waiting for the perfect moment"
     ]
   },
   fear_doubt: {
     ro: [
-      "Dar dacă eșuez?",
-      "Nu sunt destul de bun",
-      "Nu știu ce fac",
-      "Mi-e teamă să încerc"
+      "Că nu sunt suficient de bun",
+      "Că voi fi judecat",
+      "Că voi pierde totul",
+      "Că mă înșel pe mine"
     ],
     en: [
-      "What if I fail?",
-      "I'm not good enough",
-      "I don't know what I'm doing",
-      "I'm afraid to try"
+      "That I'm not good enough",
+      "That I'll be judged",
+      "That I'll lose everything",
+      "That I'm fooling myself"
     ]
   },
   overwhelm_burnout: {
     ro: [
-      "Prea multe de făcut",
-      "Sunt epuizat",
-      "Nu mai am energie",
-      "Nu pot să mă concentrez"
+      "Nu e clar ce contează",
+      "Fac totul eu, nu deleg",
+      "Am pierdut energia complet",
+      "Nu pot spune NU"
     ],
     en: [
-      "Too much to do",
-      "I'm exhausted",
-      "I have no energy left",
-      "I can't focus"
+      "It's unclear what matters",
+      "I do everything, don't delegate",
+      "I've completely lost energy",
+      "I can't say NO"
     ]
   },
   frustration_uncertainty: {
     ro: [
-      "Ceva mă blochează",
-      "Nu știu ce pas să fac",
-      "Progresul e prea lent",
-      "Mă simt frustrat"
+      "Am muncit dar fără rezultat",
+      "Alții nu își fac treaba",
+      "Nu văd progresul",
+      "Mă simt neapreciat"
     ],
     en: [
-      "Something is blocking me",
-      "I don't know the next step",
-      "Progress is too slow",
-      "I feel frustrated"
+      "I worked but no results",
+      "Others aren't doing their part",
+      "I can't see progress",
+      "I feel unappreciated"
     ]
   },
   distraction_focus: {
     ro: [
-      "Mă distrag ușor",
-      "Fac prea multe odată",
-      "Nu am priorități clare",
-      "Pierd timpul"
+      "Evit ceva ce mă sperie",
+      "Nu am un obiectiv clar azi",
+      "Îmi lipsește urgența",
+      "Totul pare la fel de important"
     ],
     en: [
-      "I get distracted easily",
-      "I'm doing too many things",
-      "I lack clear priorities",
-      "I'm wasting time"
+      "I'm avoiding something scary",
+      "I have no clear goal today",
+      "I lack urgency",
+      "Everything seems equally important"
     ]
   },
   positive: {
     ro: [
-      "Mă simt energizat",
-      "Am reușit ceva important",
-      "Sunt recunoscător",
-      "Vreau să mențin asta"
+      "Am luat o decizie importantă",
+      "Am făcut ceva ce amânam",
+      "M-am conectat cu viziunea mea",
+      "Am energie naturală azi"
     ],
     en: [
-      "I feel energized",
-      "I achieved something",
-      "I'm grateful",
-      "I want to maintain this"
+      "I made an important decision",
+      "I did something I'd been avoiding",
+      "I connected with my vision",
+      "I have natural energy today"
     ]
   }
 };

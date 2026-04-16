@@ -319,30 +319,31 @@ export function getClusterForEmotion(emotion: string | null): CoachingCluster {
 // ============================================================
 
 export function getClusterOpeningMessage(cluster: CoachingCluster, language: 'ro' | 'en' = 'ro'): string {
+  // Tony-style: direct diagnostic questions, not storytelling invitations
   const openings: Record<CoachingCluster, { ro: string; en: string }> = {
     stuck_procrastination: {
-      ro: STUCK_PROCRASTINATION_FLOW.opening,
-      en: "I see you're feeling stuck right now. Tell me, what's the story you're telling yourself that's keeping you frozen?"
+      ro: "Te aud. Blocajul e real. Dar hai să mergem direct la sursă — ce eviți cu adevărat?",
+      en: "I hear you. The block is real. Let's go straight to the source — what are you truly avoiding?"
     },
     fear_doubt: {
-      ro: FEAR_DOUBT_FLOW.opening,
-      en: "I sense fear or doubt might be influencing you today. What's the biggest 'what if' running through your mind right now?"
+      ro: "Frica asta îți spune ceva. Ce crezi că s-ar întâmpla dacă ai merge all-in?",
+      en: "This fear is telling you something. What do you think would happen if you went all-in?"
     },
     overwhelm_burnout: {
-      ro: OVERWHELM_BURNOUT_FLOW.opening,
-      en: "I hear things feel overwhelming right now. What are the biggest sources of stress or overload in your life today?"
+      ro: "Simt presiunea. Dar hai să clarificăm — e prea mult, sau nu e clar ce contează cu adevărat?",
+      en: "I feel the pressure. But let's clarify — is it too much, or is it unclear what really matters?"
     },
     frustration_uncertainty: {
-      ro: FRUSTRATION_UNCERTAINTY_FLOW.opening,
-      en: "I sense frustration or uncertainty in your experience today. What's the biggest challenge or question on your mind?"
+      ro: "Frustrarea asta vine de undeva. Ce așteptare ți-a fost încălcată?",
+      en: "This frustration comes from somewhere. What expectation was broken?"
     },
     distraction_focus: {
-      ro: DISTRACTION_FOCUS_FLOW.opening,
-      en: "I notice maintaining focus is a challenge right now. What's pulling your attention away the most today?"
+      ro: "Distragerea e un simptom, nu cauza. De ce fugi de fapt?",
+      en: "Distraction is a symptom, not the cause. What are you actually running from?"
     },
     positive: {
-      ro: POSITIVE_AMPLIFICATION_FLOW.opening,
-      en: "How wonderful that you're feeling good! Let's anchor and amplify this state. What contributed to how you feel now?"
+      ro: "Excelent! Hai să ancorăm starea asta. Ce ai făcut diferit azi de a creat energia asta?",
+      en: "Excellent! Let's anchor this state. What did you do differently today that created this energy?"
     }
   };
   
