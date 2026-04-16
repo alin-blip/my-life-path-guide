@@ -1,73 +1,146 @@
 
+## Analiza problemei
 
-# Simplificarea Rutinei Războinicului — De la 17 la 10 pași
+Da — ai dreptate. Dacă doar „sărim” direct la empowerment fără să identificăm ce se întâmplă, riscăm să punem energie peste confuzie. Dar aici e cheia:
 
-**Emotional Check rămâne neschimbat** — exact cum l-am construit cu cele 3 faze Tony Robbins.
+**Tony nu stă în poveste.**
+El:
+1. identifică rapid problema reală,
+2. o separă de poveste,
+3. schimbă starea prin fiziologie,
+4. instalează un nou sens și o nouă acțiune.
 
-## Ce se schimbă
+### Ce am găsit în cod
+Problema nu mai e UI-ul inițial. Acum după selectarea emoției chiar se intră direct în chat.
+Problema reală este că **fricțiunea s-a mutat în primele mesaje din chat**:
 
-### 1. Combinare: Light Exposure + Hydration → **Body Activation** (un singur pas)
-- Nou fișier `BodyActivationStep.tsx` — checklist rapid cu 3 items: apă, lumină naturală, postură dreaptă
-- Toate 3 sunt checkboxuri pe un singur ecran (30 secunde, nu 2 ecrane separate)
-- Salvează `water_drunk` și `light_exposure` în log ca înainte
+- `src/components/champion-routine/steps/EmotionalCheckUnifiedStep.tsx` deja face jump direct în `MindCoachChat`
+- dar `supabase/functions/mind-coach/index.ts` obligă coach-ul să înceapă cu:
+  - validare
+  - „Spune-mi pe scurt ce s-a întâmplat?”
+  - apoi 1-2 schimburi înainte de transformare
+- iar `src/lib/mind-coach-clusters.ts` are opening-uri destul de generale, orientate spre poveste
 
-### 2. Combinare: Autosuggestion + Vision Declaration + Visualization → **Power Declaration** (un singur pas)
-- Nou fișier `PowerDeclarationStep.tsx` — un singur ritual cu 3 sub-secțiuni:
-  - **Citește Declarația de Viziune** cu voce tare (păstrăm TTS-ul existent din VisionDeclaration)
-  - **Afirmația de Autosugestie** — citire 3x cu emoție (inline, nu pas separat)
-  - **Vizualizare** — 30 sec cu ochii închiși, buton "Am vizualizat"
-- Marchează `autosuggestion_completed`, `vision_declaration_read`, și `visualization_completed` în log
+Rezultatul: **nu mai vezi slider/textarea, dar simți același proces lung**, doar mutat în conversație.
 
-### 3. Breathing se integrează ca intro în Meditation
-- `MeditationStep` va include un mini-breathing cycle (opțional) ca warmup înainte de meditație
-- Breathing-ul rămâne și ca pas separat (pentru cine îl vrea în setări), dar nu apare în DEFAULT_ROUTINE_STEPS
+## Ce ar spune Tony
 
-### 4. Reading se mută din rutina default
-- Rămâne ca pas disponibil în setări, dar nu apare în DEFAULT_ROUTINE_STEPS
-- Cine îl are activ îl păstrează
+Nu:
+- „Spune-mi toată povestea”
+- „Hai să analizăm mult”
+- „Stai în stres și descrie-l”
 
-### 5. Gratitude cu prompts rotative
-- Adaug 10+ prompts rotative care se schimbă zilnic: "Un moment din ultima săptămână când te-ai simțit mândru...", "O persoană care te-a ajutat fără să-i ceri..."
-- Adaug instrucțiune vizuală: "Nu SCRIE doar — SIMTE recunoștința în piept timp de 30 secunde"
+Ci:
+- „Ce te doare cu adevărat aici?”
+- „Ce sens îi dai?”
+- „Care e pattern-ul?”
+- „Bun. Acum schimbăm starea.”
 
-### 6. Journaling cu prompt zilnic
-- Adaug prompts zilnice rotative: "Ce aș face dacă ar fi imposibil să eșuez?", "Care e cea mai mare frică pe care o am azi?"
+Pe scurt: **nu eliminăm analiza, o comprimăm.**
+Tony ar face o **diagnoză rapidă de pattern**, nu o explorare lungă.
 
-### 7. Curățare cod mort
-- Șterg `EmotionalCheckStep.tsx`, `EmotionalTransformStep.tsx`, `StackSelectionStep.tsx`, `DailyTasksStep.tsx`
-- Curăț dead code din step ordering (liniile 276-346 cu `stackSelection`/`emotionalTransform`)
-- Actualizez `ChampionLog` — adaug `morning_emotion`, `morning_emotion_intensity`, `stack_selection_completed`, `emotional_transform_completed` ca tipuri reale (eliminăm `as any`)
-
-## Noul DEFAULT_ROUTINE_STEPS (10 pași)
+## Flow-ul corect Tony pentru acest pas
 
 ```text
-1. emotionalCheck      — Check-in Emoțional (Tony Robbins 3 faze)
-2. bodyActivation      — Apă + Lumină + Postură (30 sec)
-3. meditation          — Meditație (cu breathing intro opțional)
-4. powerDeclaration    — Viziune + Autosugestie + Vizualizare
-5. gratitude           — Recunoștință (cu prompts rotative)
-6. journaling          — Jurnaling (cu prompt zilnic)
-7. exercise            — Exerciții
-8. mealPlanning        — Alimentație
-9. learn               — Învață
-10. apply              — Aplică
-11. contentCreation    — Content
-12. relationships      — Relații
-13. completion         — Finalizare
+Selectezi emoția
+→ intri direct în chat
+→ 1 întrebare scurtă de diagnostic
+→ coach-ul numește pattern-ul / sensul toxic
+→ întrerupere de pattern + schimbare de fiziologie
+→ power move / ancoră
+→ acțiune concretă
 ```
+
+Exemplu pentru „stresat”:
+- „Când spui stres, ce te apasă de fapt acum?”
+  - [muncesc mult, dar nu apar rezultate]
+  - [am prea multe lucruri odată]
+  - [mi-e teamă că trag degeaba]
+  - [nu mai am claritate]
+- apoi:
+  - „Bun. Deci problema nu e doar volumul. Problema e sensul: începi să crezi că efortul tău nu produce. Asta îți taie puterea.”
+- apoi imediat:
+  - respirație
+  - postură
+  - power move
+  - nouă comandă internă
+  - acțiune
+
+## Plan de implementare
+
+### 1. Păstrăm intrarea directă în conversație
+Nu reintroducem formulare sau ecrane intermediare.
+
+### 2. Rescriem deschiderea Mind Coach-ului
+În `supabase/functions/mind-coach/index.ts` schimb promptul astfel încât:
+- analiza problemei să dureze **maxim 1-2 schimburi**
+- coach-ul să caute:
+  - trigger-ul
+  - sensul/interpretarea
+  - pattern-ul
+- după asta să forțeze trecerea la **physiology + interrupt**
+
+### 3. Înlocuim întrebarea generică „ce s-a întâmplat?”
+În `src/lib/mind-coach-clusters.ts` schimb opening-urile cu întrebări mai precise, Tony-style:
+- stres: „Ce te apasă de fapt aici?”
+- overwhelm: „E prea mult sau nu e clar ce contează?”
+- procrastinare: „Ce eviți cu adevărat?”
+- frică: „Ce crezi că s-ar întâmpla dacă ai merge all in?”
+- frustrare: „Ce așteptare ți-a fost încălcată?”
+
+### 4. Adăugăm răspunsuri rapide pentru diagnostic
+În `MindCoachChat` / quick answers:
+- după prima întrebare a coach-ului, afișăm 3-4 opțiuni scurte relevante clusterului
+- utilizatorul nu mai scrie paragrafe
+- obținem analiză reală, dar rapidă
+
+### 5. După un singur răspuns, coach-ul trebuie să numească pattern-ul
+Exemplu:
+- „Nu e doar lipsa rezultatelor. Sensul pe care îl dai este că «poate nu funcționează / poate nu sunt suficient». Aici pierzi puterea.”
+
+Asta este partea de analiză care rezolvă, nu storytelling-ul.
+
+### 6. Intrăm imediat în întrerupere de pattern + fiziologie
+Tot în promptul edge function:
+- leverage scurt
+- pattern interrupt
+- breathing/posture/voice
+- power move
+- noua asociere / identitate
+- acțiune pentru azi
+
+Asta aliniază flow-ul cu ce ai în cursuri:
+- **Ziua 4:** leverage + interrupt the pattern + condition a new association
+- **Ziua 5:** physiology first, biomarkers, state change through movement/breath/voice
 
 ## Fișiere de modificat
 
-1. **Nou:** `src/components/champion-routine/steps/BodyActivationStep.tsx`
-2. **Nou:** `src/components/champion-routine/steps/PowerDeclarationStep.tsx`
-3. **Modificat:** `src/components/champion-routine/ChampionRoutineFlow.tsx` — noul DEFAULT_ROUTINE_STEPS, imports, renderStep, curățare dead code
-4. **Modificat:** `src/components/champion-routine/steps/GratitudeStep.tsx` — prompts rotative + "simte emoția"
-5. **Modificat:** `src/components/champion-routine/steps/JournalingStep.tsx` — prompt zilnic rotativ
-6. **Modificat:** `src/hooks/useChampionRoutine.ts` — actualizare ChampionLog type
-7. **Modificat:** `src/components/champion-routine/index.ts` — export-uri noi
-8. **Șters:** `EmotionalCheckStep.tsx`, `EmotionalTransformStep.tsx`, `StackSelectionStep.tsx`, `DailyTasksStep.tsx`
+1. `supabase/functions/mind-coach/index.ts`
+   - prompt nou: diagnoză rapidă → interrupt → conditioning → action
 
-## Backward compatibility
-- Pașii vechi (hydration, lightExposure, breathing, autosuggestion, visionDeclaration, visualization, reading) rămân disponibili în Settings pentru userii care i-au configurat manual
-- Doar DEFAULT_ROUTINE_STEPS se schimbă — userii existenți cu custom order nu sunt afectați
+2. `src/lib/mind-coach-clusters.ts`
+   - opening-uri mai precise, orientate pe pattern și sens, nu pe poveste largă
 
+3. `src/components/mind-coach/MindCoachChat.tsx`
+   - afișare quick answers relevante de la primul mesaj
+   - normalizare flow embedded ca să pornească mai fluid direct în conversația utilă
+
+4. `src/components/mind-coach/QuickAnswerSuggestions.tsx`
+   - dacă e nevoie, extindere cu variante specifice pe cluster
+
+## Rezultatul dorit
+
+Nu mai avem:
+- analiză lungă
+- repetarea aceleiași probleme în mai multe mesaje
+- senzația de „tot aia e”
+
+Vom avea:
+- **problemă identificată rapid**
+- **pattern numit clar**
+- **stare schimbată imediat**
+- **nou sens + nouă acțiune**
+
+Pe românește:
+**nu mai ocolim problema, dar nici nu ne îngropăm în ea.**
+Asta este mult mai aproape de Tony.
