@@ -46,16 +46,34 @@ const PHASE_2_ANSWERS = {
   en: ["Yes, exactly", "Pretty much", "Not quite", "Partially"]
 };
 
-// PHASE 3 — Dickens leverage choice
-const PHASE_3_ANSWERS = {
-  ro: ["A doua — vreau să schimb", "Nu vreau să mai stau așa", "Trebuie să schimb azi", "Costul e prea mare"],
-  en: ["Second one — I want to change", "I can't stay like this", "I must change today", "The cost is too high"]
+// PHASE 2A — Dickens: ce PIERZI dacă rămâi 1 an
+const PHASE_2A_ANSWERS = {
+  ro: ["Sănătatea", "Banii", "Oamenii dragi", "Respectul de sine", "Ani din viață"],
+  en: ["Health", "Money", "Loved ones", "Self-respect", "Years of life"]
 };
 
-// PHASE 4 — Power Move confirmation
-const PHASE_4_ANSWERS = {
+// PHASE 2B — Dickens: ce CÂȘTIGI dacă schimbi azi
+const PHASE_2B_ANSWERS = {
+  ro: ["Cine devin", "Libertate", "Putere", "Bani", "Pace interioară"],
+  en: ["Who I become", "Freedom", "Power", "Money", "Inner peace"]
+};
+
+// PHASE 2C — Dickens: alegerea
+const PHASE_2C_ANSWERS = {
+  ro: ["A doua — vreau să schimb", "Nu pot rămâne așa", "Trebuie să schimb azi", "Costul e prea mare"],
+  en: ["Second — I want to change", "I can't stay like this", "I must change today", "The cost is too high"]
+};
+
+// PHASE 3 — Power Move confirmation
+const PHASE_3_ANSWERS = {
   ro: ["Gata, am făcut", "Simt diferența", "Sunt în starea nouă", "Mai puternic acum"],
   en: ["Done, completed it", "I feel the difference", "I'm in the new state", "Stronger now"]
+};
+
+// PHASE 4 — Power Question (action)
+const PHASE_4_ANSWERS = {
+  ro: ["Sun clientul azi", "Trimit propunerea", "Fac primul pas mic", "Termin sarcina amânată"],
+  en: ["Call the client today", "Send the proposal", "Take the first small step", "Finish the postponed task"]
 };
 
 // PHASE 5 — Add to HIT List confirmation
@@ -79,7 +97,9 @@ export function QuickAnswerSuggestions({
   if (phase === 1 && cluster) {
     answers = PHASE_1_ANSWERS[cluster]?.[language] || [];
   } else if (phase === 2) {
-    answers = PHASE_2_ANSWERS[language];
+    // Phase 2 in UI = sub-phases 2A/2B/2C cycle through messageCount
+    // Default to 2A (most common entry); MindCoachChat passes a more granular subPhase via cluster trick if needed
+    answers = PHASE_2A_ANSWERS[language];
   } else if (phase === 3) {
     answers = PHASE_3_ANSWERS[language];
   } else if (phase === 4) {
