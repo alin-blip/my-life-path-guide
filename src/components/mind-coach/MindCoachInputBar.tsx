@@ -119,6 +119,7 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
           <QuickAnswerSuggestions
             cluster={cluster || null}
             phase={phase}
+            messageCount={messageCount}
             language={language}
             onSelect={handleQuickAnswer}
             isVisible={showQuickAnswers && !value.trim() && !isLoading}
