@@ -10,90 +10,91 @@ interface QuickAnswerSuggestionsProps {
   isVisible: boolean;
 }
 
-// Tony-style diagnostic quick answers — pattern-focused, not storytelling
+// Ultimate YOU style — answers aligned to The 3 Decisions (Focus / Meaning / Action)
+// Each option reveals one of the 3 decisions so the AI can name the pattern instantly
 const QUICK_ANSWERS: Record<CoachingCluster, { ro: string[]; en: string[] }> = {
   stuck_procrastination: {
     ro: [
-      "Mi-e frică de rezultat",
-      "Nu am claritate ce contează",
-      "Mă simt copleșit de volum",
-      "Aștept momentul perfect"
+      "Mă focusez pe ce pot pierde",
+      "Cred că nu sunt pregătit",
+      "Aștept momentul perfect",
+      "Am amânat să nu eșuez"
     ],
     en: [
-      "I'm afraid of the outcome",
-      "I lack clarity on what matters",
-      "The volume overwhelms me",
-      "I'm waiting for the perfect moment"
+      "I focus on what I could lose",
+      "I believe I'm not ready",
+      "I'm waiting for the perfect moment",
+      "I procrastinate to avoid failure"
     ]
   },
   fear_doubt: {
     ro: [
-      "Că nu sunt suficient de bun",
-      "Că voi fi judecat",
-      "Că voi pierde totul",
-      "Că mă înșel pe mine"
+      "Cred că dacă pierd, nu valorez",
+      "Mă focusez pe ce-ar putea merge prost",
+      "Mi-e frică de judecata altora",
+      "Cred că nu merit succesul"
     ],
     en: [
-      "That I'm not good enough",
-      "That I'll be judged",
-      "That I'll lose everything",
-      "That I'm fooling myself"
+      "I believe if I fail, I'm worthless",
+      "I focus on what could go wrong",
+      "I fear others' judgment",
+      "I believe I don't deserve success"
     ]
   },
   overwhelm_burnout: {
     ro: [
-      "Nu e clar ce contează",
-      "Fac totul eu, nu deleg",
-      "Am pierdut energia complet",
+      "Mă focusez pe TOT deodată",
+      "Cred că trebuie să fac totul singur",
+      "Nu am claritate ce contează",
       "Nu pot spune NU"
     ],
     en: [
-      "It's unclear what matters",
-      "I do everything, don't delegate",
-      "I've completely lost energy",
+      "I focus on EVERYTHING at once",
+      "I believe I must do it all alone",
+      "I lack clarity on what matters",
       "I can't say NO"
     ]
   },
   frustration_uncertainty: {
     ro: [
-      "Am muncit dar fără rezultat",
-      "Alții nu își fac treaba",
-      "Nu văd progresul",
-      "Mă simt neapreciat"
+      "Cred că efortul meu nu produce",
+      "Mă focusez pe ce nu merge",
+      "Cred că nu sunt apreciat",
+      "Aveam altă așteptare"
     ],
     en: [
-      "I worked but no results",
-      "Others aren't doing their part",
-      "I can't see progress",
-      "I feel unappreciated"
+      "I believe my effort doesn't produce",
+      "I focus on what's not working",
+      "I believe I'm not appreciated",
+      "I had a different expectation"
     ]
   },
   distraction_focus: {
     ro: [
       "Evit ceva ce mă sperie",
-      "Nu am un obiectiv clar azi",
-      "Îmi lipsește urgența",
-      "Totul pare la fel de important"
+      "Nu am claritate ce contează azi",
+      "Mă focusez pe orice altceva",
+      "Nu vreau să simt presiunea"
     ],
     en: [
       "I'm avoiding something scary",
-      "I have no clear goal today",
-      "I lack urgency",
-      "Everything seems equally important"
+      "I lack clarity on what matters today",
+      "I focus on anything else",
+      "I don't want to feel the pressure"
     ]
   },
   positive: {
     ro: [
-      "Am luat o decizie importantă",
-      "Am făcut ceva ce amânam",
-      "M-am conectat cu viziunea mea",
-      "Am energie naturală azi"
+      "M-am focusat pe ce pot crea",
+      "Am dat sens nou unei provocări",
+      "Am acționat în ciuda fricii",
+      "M-am conectat cu viziunea mea"
     ],
     en: [
-      "I made an important decision",
-      "I did something I'd been avoiding",
-      "I connected with my vision",
-      "I have natural energy today"
+      "I focused on what I can create",
+      "I gave new meaning to a challenge",
+      "I acted despite fear",
+      "I connected with my vision"
     ]
   }
 };
