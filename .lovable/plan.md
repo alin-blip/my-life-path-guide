@@ -1,87 +1,82 @@
 
 
-# Integrare The Ultimate YOU în Mind Coach — De la „pep talk" la BREAKTHROUGH real
+## Diagnoza reală a problemei
 
-## Diagnoza problemei (Tony style)
+Am citit promptul și screenshot-ul. Sunt **2 probleme concrete**:
 
-Prompt-ul actual din `mind-coach/index.ts` îți face **doar 25% din muncă**:
-- ✅ Diagnoză rapidă (1 întrebare)
-- ✅ Power Move (fiziologie)
-- ❌ **Lipsește cea mai puternică parte**: NU folosește frameworks-urile concrete din The Ultimate YOU care produc shift de credință permanent
+### Problema 1: Modelul nu respectă "1 fază pe mesaj"
+`google/gemini-2.5-flash` este un model rapid dar prea "amabil" — ignoră instrucțiunile stricte de oprire și încearcă să dea valoare maximă într-un singur mesaj. Indiferent câte ❌ STOP punem în prompt, el tot combină.
 
-Coach-ul te întreabă "ce te doare?" → primește răspuns → spune "respiră, schimbă starea" → "fă o acțiune".
+**Soluție**: Trecem pe `google/gemini-2.5-pro` care respectă instrucțiunile mult mai bine, SAU mai bine — **forțăm controlul din cod, nu din prompt**.
 
-Dar **nu folosește instrumentele care chiar transformă pattern-ul**:
-- **Cele 3 Decizii** (Focus / Sens / Acțiune) — Ziua 1
-- **Durere vs Plăcere** ca pârghie — Ziua 2
-- **N.A.C. (Neuro-Associative Conditioning)** — 5 pași — Ziua 4
-- **Dickens Pattern** — vizualizare cost trecut/prezent/viitor — Ziua 10
-- **Power Questions** — întrebări care schimbă focus-ul instant — Ziua 8
-- **Resources vs Resourcefulness** — emoția e resursa supremă
+### Problema 2: Faza Dickens (Leverage) are 2 întrebări într-un mesaj
+Chiar și când respectă "1 fază pe mesaj", Faza 2 conține:
+- "Ce pierzi în 1 an?" 
+- "Ce câștigi în 1 an?"
+- "Care e acceptabilă?"
 
-Astea sunt instrumentele care creează BREAKTHROUGH. Fără ele e doar motivație. Cu ele e transformare.
+Userul vede 3 întrebări → se simte copleșit. Tony nu face asta — **el pune o întrebare, aștepți, pune a doua, aștepți**.
 
-## Soluție: 3 modificări concrete
+## Soluție: Control determinist din cod (nu lăsăm AI-ul să decidă)
 
-### 1. Rescriu prompt-ul Mind Coach cu framework-uri Ultimate YOU
-În `supabase/functions/mind-coach/index.ts` injectez în prompt:
+În loc să sperăm că AI-ul respectă fazele, **împărțim Dickens în 2 sub-faze controlate de cod**, identic cu ce am făcut cu PHASE_2/3/4 în quick answers.
 
-**FAZA 1 — Diagnoză rapidă cu Cele 3 Decizii**
-Coach-ul nu mai întreabă generic "ce te apasă?". Aplică instant cele 3 Decizii:
-- "Pe CE te focalizezi în situația asta?"
-- "Ce SENS îi dai?"
-- "Ce ACȚIUNI iei sau NU iei din cauza asta?"
+### Schimbare 1: Spargem Faza 2 (Dickens) în 2A + 2B
+- **Faza 2A** (mesaj separat): „Dacă mai stai 1 AN așa — ce PIERZI? (sănătate, bani, oameni, respect)" → STOP
+- **Faza 2B** (mesaj separat): „Acum invers — dacă schimbi AZI, ce CÂȘTIGI în 1 an?" → STOP  
+- **Faza 2C** (mesaj separat): „Care variantă e acceptabilă?" → STOP
 
-→ De la primul răspuns, coach-ul numește pattern-ul: "Focus-ul tău e pe ce poți pierde. Sensul e «nu sunt suficient». Acțiunea e amânarea. ASTA e bucla."
+### Schimbare 2: Trecem la `gemini-2.5-pro` pentru respectarea instrucțiunilor
+Mai lent cu ~1-2s, dar respectă regulile stricte. Pentru breakthrough merită.
 
-**FAZA 2 — Pârghie cu Durere/Plăcere (Ziua 2 + Dickens compact)**
-Înainte de Power Move, coach-ul forțează LEVERAGE:
-- "Dacă mai stai 1 an în pattern-ul ăsta, ce pierzi? (sănătate, bani, oameni, respect de sine)"
-- "Dacă schimbi azi, ce câștigi în 1 an?"
+### Schimbare 3: Adăugăm "MAX 3 PROPOZIȚII" hard limit
+Cap absolut pe lungime per mesaj. Dacă AI-ul vrea să spună mai mult — îl forțăm să spargă.
 
-Asta e **Dickens Pattern compact** — creează durerea care motivează schimbarea, nu doar pep talk.
-
-**FAZA 3 — N.A.C. + Power Move (fiziologie)**
-Cei 5 pași N.A.C. comprimati:
-1. Decizie clară ce vrei (stare nouă)
-2. Leverage (durerea de a NU schimba — făcut la Faza 2)
-3. **Pattern Interrupt** = Power Move fizic (ce există deja)
-4. **Condiționare nouă** = Power Question + declarație rostită cu voce tare
-5. Test imediat în corp
-
-**FAZA 4 — Power Question + Acțiune**
-În loc de "ce faci azi?", folosesc Power Questions Tony-style:
-- "Ce ar face cea mai puternică versiune a ta ACUM?"
-- "Care e UN pas care, dacă l-ai face azi, ar schimba totul?"
-- → adaugă în HIT List
-
-### 2. Quick Answers aliniate la framework-uri
-În `src/lib/mind-coach-clusters.ts` actualizez quick answers ca să reflecte cele 3 Decizii. De exemplu pentru `stuck_procrastination` la prima întrebare:
-- "Mă focusez pe ce pot pierde"
-- "Cred că nu sunt pregătit"
-- "Aștept momentul perfect"
-- "Am amânat să nu eșuez"
-
-Asta dă coach-ului material exact pentru a numi pattern-ul instant (nu mai trebuie utilizatorul să tasteze paragrafe).
-
-### 3. Banner subtil cu framework-ul folosit
-În `MindCoachChat.tsx`, sub PhaseIndicator, afișez un mic indicator: 
-„🧠 Folosim: Cele 3 Decizii (Ultimate YOU - Ziua 1)" → utilizatorul vede că nu e random, e un sistem testat. Crește încrederea + ancorează learning-ul (poate face cursul complet).
+### Schimbare 4: Quick answers pentru noile sub-faze
+- Phase 2A → "Sănătatea", "Banii", "Oamenii", "Respectul de sine"
+- Phase 2B → "Cine devin", "Libertate", "Putere", "Bani"
+- Phase 2C → "A doua — schimb"
 
 ## Rezultat
 
-**Înainte**: „Ești stresat? Respiră. Schimbă starea. Fă ceva."
-**După**: Diagnoză cu cele 3 Decizii → Numește pattern-ul → Leverage durere/plăcere → Pattern interrupt + N.A.C. → Power Question → Acțiune ancorată.
+**Înainte (acum):**
+```
+Mesaj 1: Validare + întrebare (2 propoziții)
+Mesaj 2: Pattern + "rezonezi?" (3-4 propoziții)
+Mesaj 3: "Stai cu mine... ce pierzi? ce câștigi? care e acceptabilă?" ← 3 ÎNTREBĂRI
+Mesaj 4: Power Move (mare bloc, dar OK pentru că e exercițiu)
+```
 
-De la pep talk de 5 mesaje → la **breakthrough structurat** de 5 mesaje, care folosește exact instrumentele din cursul tău plătit.
+**După:**
+```
+Mesaj 1: Validare + 1 întrebare
+Mesaj 2: Pattern numit + "așa e?"
+Mesaj 3: Doar "Ce PIERZI dacă rămâi 1 an așa?" 
+Mesaj 4: Doar "Ce CÂȘTIGI dacă schimbi azi?"
+Mesaj 5: Doar "Care variantă alegi?"
+Mesaj 6: Power Move
+Mesaj 7: Power Question
+Mesaj 8: HIT List
+```
 
-**Bonus strategic**: Userii care simt puterea instrumentelor în Mind Coach vor vrea cursul complet The Ultimate YOU. Mind Coach devine **demo-ul viu** al programului tău premium.
+8 mesaje în loc de 5, dar **fiecare cere UN SINGUR lucru** = userul nu se mai simte bombardat. Asta e exact stilul Tony pe scenă: o întrebare → pauză → următoarea.
 
 ## Fișiere de modificat
 
-1. `supabase/functions/mind-coach/index.ts` — prompt rescris cu cele 3 Decizii + Durere/Plăcere + N.A.C. + Power Questions
-2. `src/lib/mind-coach-clusters.ts` — quick answers aliniate la cele 3 Decizii (Focus/Sens/Acțiune)
-3. `src/components/mind-coach/MindCoachChat.tsx` — mic banner cu framework-ul folosit + link discret către lecția Ultimate YOU corespunzătoare
+1. **`supabase/functions/mind-coach/index.ts`**
+   - Schimb model: `gemini-2.5-flash` → `gemini-2.5-pro`
+   - Rescriu Faza 2 în 2A/2B/2C separate
+   - Adaug "MAX 3 PROPOZIȚII PER MESAJ. NICIODATĂ MAI MULT."
+   - Adaug exemple de mesaje GREȘITE vs CORECTE
 
-Niciun pas în plus pentru utilizator. Aceeași viteză. Doar **profunzime + putere reală** în loc de motivație de suprafață.
+2. **`src/components/mind-coach/QuickAnswerSuggestions.tsx`**
+   - Adaug PHASE_2A_ANSWERS (ce pierzi)
+   - Adaug PHASE_2B_ANSWERS (ce câștigi)
+   - Mut PHASE_2 actual → PHASE_2C
+
+3. **`src/components/mind-coach/PhaseIndicator.tsx`**
+   - Update `getPhaseFromMessageCount` pentru noile sub-faze
+   - Sub-faze 2A/2B/2C apar tot ca „Faza 2 — Leverage" în UI (nu confuzia userului)
+
+Niciun pas în plus pentru utilizator. Doar mesaje mai scurte și o întrebare pe rând. **Exact ce face Tony.**
 
