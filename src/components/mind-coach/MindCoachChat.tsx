@@ -7,6 +7,7 @@ import { Loader2, Brain, RotateCcw, ArrowLeft, ArrowRight, RefreshCw, Sparkles }
 import { ExtendedEmotionPicker, MindCoachEmotion, getEmotionInfo } from './ExtendedEmotionPicker';
 import { getClusterForEmotion, getClusterOpeningMessage } from '@/lib/mind-coach-clusters';
 import { PhaseIndicator } from './PhaseIndicator';
+import { FrameworkBadge } from './FrameworkBadge';
 import { BreakthroughCelebration } from './BreakthroughCelebration';
 import { ContinueMindsetDialog } from './ContinueMindsetDialog';
 import { MindCoachInputBar } from './MindCoachInputBar';
@@ -338,6 +339,9 @@ export function MindCoachChat({
             </Button>
           </div>
           <PhaseIndicator currentPhase={currentPhase} language={language} compact />
+          <div className="mt-2 flex justify-center">
+            <FrameworkBadge phase={currentPhase} language={language} />
+          </div>
         </CardHeader>
 
         {/* Messages area - hide when complete in embedded mode */}
