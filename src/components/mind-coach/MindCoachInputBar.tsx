@@ -71,6 +71,7 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
   onManualSend,
   cluster,
   phase = 1,
+  messageCount = 0,
   showQuickAnswers = false,
   language = 'ro'
 }) => {
