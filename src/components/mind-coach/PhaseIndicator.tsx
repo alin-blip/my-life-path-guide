@@ -101,15 +101,17 @@ export function PhaseIndicator({
 }
 
 export function getPhaseFromMessageCount(messageCount: number): TransformationPhase {
-  // 1 mesaj per fază (Ultimate YOU breakthrough flow):
-  // Phase 1 — Diagnoza (mesaje 0-2: prima întrebare + răspuns)
-  // Phase 2 — Confirmare pattern (mesaje 3-4)
-  // Phase 3 — Leverage Dickens (mesaje 5-6)
-  // Phase 4 — Power Move + confirmare (mesaje 7-8)
-  // Phase 5 — Acțiune + HIT List (mesaje 9+)
-  if (messageCount <= 2) return 1;
-  if (messageCount <= 4) return 2;
-  if (messageCount <= 6) return 3;
-  if (messageCount <= 8) return 4;
-  return 5;
+  // 8-message Tony Robbins breakthrough flow (one question per message):
+  // msg 0-1: Phase 1A (Diagnoză — diagnostic question)
+  // msg 2-3: Phase 1B (Pattern confirmation)
+  // msg 4-5: Phase 2A (Leverage: ce PIERZI)
+  // msg 6-7: Phase 2B (Leverage: ce CÂȘTIGI)
+  // msg 8-9: Phase 2C (Alegerea) + Phase 3 Power Move
+  // msg 10-11: Phase 4 Power Question
+  // msg 12+: Phase 5 HIT List
+  if (messageCount <= 3) return 1;   // 1A + 1B
+  if (messageCount <= 9) return 2;   // 2A + 2B + 2C (Leverage)
+  if (messageCount <= 11) return 3;  // Power Move
+  if (messageCount <= 13) return 4;  // Power Question
+  return 5;                           // HIT List action
 }

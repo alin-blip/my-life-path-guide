@@ -41,6 +41,7 @@ interface MindCoachInputBarProps {
   // Quick answers
   cluster?: CoachingCluster | null;
   phase?: TransformationPhase;
+  messageCount?: number;
   showQuickAnswers?: boolean;
   
   // Language
@@ -70,6 +71,7 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
   onManualSend,
   cluster,
   phase = 1,
+  messageCount = 0,
   showQuickAnswers = false,
   language = 'ro'
 }) => {
@@ -117,6 +119,7 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
           <QuickAnswerSuggestions
             cluster={cluster || null}
             phase={phase}
+            messageCount={messageCount}
             language={language}
             onSelect={handleQuickAnswer}
             isVisible={showQuickAnswers && !value.trim() && !isLoading}

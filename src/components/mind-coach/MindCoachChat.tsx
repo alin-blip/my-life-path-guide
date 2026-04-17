@@ -446,6 +446,7 @@ export function MindCoachChat({
             onManualSend={voice.manualSendInCall}
             cluster={currentCluster}
             phase={currentPhase}
+            messageCount={messages.length}
             showQuickAnswers={showQuickAnswers}
             language={language}
           />
