@@ -6,6 +6,7 @@ import { SpeakButton } from './SpeakButton';
 import { CallModeOverlay } from './CallModeOverlay';
 import { QuickAnswerSuggestions } from './QuickAnswerSuggestions';
 import { CoachingCluster } from '@/lib/mind-coach-clusters';
+import type { TransformationPhase } from './PhaseIndicator';
 import { cn } from '@/lib/utils';
 
 interface MindCoachInputBarProps {
@@ -39,6 +40,7 @@ interface MindCoachInputBarProps {
   
   // Quick answers
   cluster?: CoachingCluster | null;
+  phase?: TransformationPhase;
   showQuickAnswers?: boolean;
   
   // Language
@@ -67,6 +69,7 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
   onSkipAI,
   onManualSend,
   cluster,
+  phase = 1,
   showQuickAnswers = false,
   language = 'ro'
 }) => {
@@ -110,9 +113,10 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
       {/* Normal input mode */}
       {!isInCall && (
         <>
-          {/* Quick answer suggestions */}
+          {/* Quick answer suggestions — phase-aware */}
           <QuickAnswerSuggestions
             cluster={cluster || null}
+            phase={phase}
             language={language}
             onSelect={handleQuickAnswer}
             isVisible={showQuickAnswers && !value.trim() && !isLoading}
