@@ -7,6 +7,7 @@ import type { TransformationPhase } from './PhaseIndicator';
 interface QuickAnswerSuggestionsProps {
   cluster: CoachingCluster | null;
   phase?: TransformationPhase;
+  messageCount?: number;
   language: 'ro' | 'en';
   onSelect: (answer: string) => void;
   isVisible: boolean;
