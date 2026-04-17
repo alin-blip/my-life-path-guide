@@ -86,6 +86,7 @@ const PHASE_5_ANSWERS = {
 export function QuickAnswerSuggestions({
   cluster,
   phase = 1,
+  messageCount = 0,
   language,
   onSelect,
   isVisible
@@ -96,11 +97,22 @@ export function QuickAnswerSuggestions({
   let answers: string[] = [];
   
   if (phase === 1 && cluster) {
-    answers = PHASE_1_ANSWERS[cluster]?.[language] || [];
+    // Phase 1A (msg 0-1) = diagnostic; Phase 1B (msg 2-3) = pattern confirmation
+    if (messageCount <= 1) {
+      answers = PHASE_1_ANSWERS[cluster]?.[language] || [];
+    } else {
+      answers = PHASE_2_ANSWERS[language]; // pattern confirm: "Da, exact așa e"
+    }
   } else if (phase === 2) {
-    // Phase 2 in UI = sub-phases 2A/2B/2C cycle through messageCount
-    // Default to 2A (most common entry); MindCoachChat passes a more granular subPhase via cluster trick if needed
-    answers = PHASE_2A_ANSWERS[language];
+    // Phase 2 split into 2A (lose) → 2B (gain) → 2C (choose) by message count
+    // Phase 2 starts around msg 4. msg 4=2A, msg 6=2B, msg 8=2C
+    if (messageCount <= 5) {
+      answers = PHASE_2A_ANSWERS[language];
+    } else if (messageCount <= 7) {
+      answers = PHASE_2B_ANSWERS[language];
+    } else {
+      answers = PHASE_2C_ANSWERS[language];
+    }
   } else if (phase === 3) {
     answers = PHASE_3_ANSWERS[language];
   } else if (phase === 4) {
