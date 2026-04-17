@@ -41,6 +41,7 @@ interface MindCoachInputBarProps {
   // Quick answers
   cluster?: CoachingCluster | null;
   phase?: TransformationPhase;
+  messageCount?: number;
   showQuickAnswers?: boolean;
   
   // Language
