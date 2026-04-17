@@ -445,6 +445,7 @@ export function MindCoachChat({
             onSkipAI={voice.skipAISpeaking}
             onManualSend={voice.manualSendInCall}
             cluster={currentCluster}
+            phase={currentPhase}
             showQuickAnswers={showQuickAnswers}
             language={language}
           />

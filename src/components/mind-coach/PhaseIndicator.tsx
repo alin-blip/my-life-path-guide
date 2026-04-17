@@ -101,15 +101,15 @@ export function PhaseIndicator({
 }
 
 export function getPhaseFromMessageCount(messageCount: number): TransformationPhase {
-  // Estimate phase based on conversation length
-  // Phase 1: messages 0-2
-  // Phase 2: messages 3-5
-  // Phase 3: messages 6-8
-  // Phase 4: messages 9-10
-  // Phase 5: messages 11+
+  // 1 mesaj per fază (Ultimate YOU breakthrough flow):
+  // Phase 1 — Diagnoza (mesaje 0-2: prima întrebare + răspuns)
+  // Phase 2 — Confirmare pattern (mesaje 3-4)
+  // Phase 3 — Leverage Dickens (mesaje 5-6)
+  // Phase 4 — Power Move + confirmare (mesaje 7-8)
+  // Phase 5 — Acțiune + HIT List (mesaje 9+)
   if (messageCount <= 2) return 1;
-  if (messageCount <= 5) return 2;
-  if (messageCount <= 8) return 3;
-  if (messageCount <= 10) return 4;
+  if (messageCount <= 4) return 2;
+  if (messageCount <= 6) return 3;
+  if (messageCount <= 8) return 4;
   return 5;
 }
