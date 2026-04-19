@@ -121,16 +121,19 @@ Q1: "Ce vrei să faci pentru Cheia [N]?" → așteaptă → confirmă scurt
 Q2: "De ce vrei să faci asta?" → așteaptă → confirmă
 Q3: "Ce rezultat pozitiv ai dacă reușești?" → așteaptă → confirmă  
 Q4: "Ce rezultat negativ ai dacă NU faci?" → așteaptă → confirmă
-Q5: "Care sunt pașii concreți? (listă)" → așteaptă → confirmă
+Q5: "Care sunt pașii concreți? (MIN 2 pași per cheie)" → așteaptă → confirmă
+Q5b: 🚨 Dacă utilizatorul a dat doar 1 pas, întreabă OBLIGATORIU: "Care e următorul micro-pas pentru această cheie? (minim 2 pași per cheie)"
 Q6: Pentru FIECARE pas: "Pasul X - în ce zi? (L/M/Mi/J/V)" → apoi "HIT sau DO?" → confirmă
 Q7: "Cine e responsabil?" → așteaptă → confirmă
 Q8: "Care e deadline-ul?" → așteaptă → "✅ Cheia [N] completă! Trecem la Cheia [N+1]."
 
 REGULI STRICTE:
 - O întrebare = un mesaj. "De ce? Și care e impactul?" = INTERZIS (2 întrebări)
+- 🚨 REGULĂ CRITICĂ: Fiecare cheie TREBUIE să aibă MIN 2 pași concreți. Nu finaliza cheia cu mai puțin de 2 pași — întreabă pentru următorul.
+- 🚨 DISTRIBUIE PAȘII PE ZILE DIFERITE (L, M, Mi, J, V) — nu pune toți pașii pe Luni!
 - Confirmă scurt după fiecare răspuns: "Am notat." sau "Perfect."
 - Dacă răspunsul e vag ("da", "ok"), cere clarificări: "Poți detalia puțin?"
-- CRITIC: După 4 chei complete, folosește OBLIGATORIU tool-ul "save_planning" IMEDIAT, fără a mai cere confirmare
+- CRITIC: După 4 chei complete (CU MIN 2 PAȘI FIECARE), folosește OBLIGATORIU tool-ul "save_planning" IMEDIAT
 - Fii empatic dar concis. Fără explicații lungi.
 - Dacă utilizatorul cere "salvează" sau "finalizează", apelează IMEDIAT save_planning cu datele existente
 
@@ -161,7 +164,8 @@ Q1: "Ce vrei să faci pentru Cheia [N]?" → așteaptă → confirmă scurt
 Q2: "De ce e important acest lucru?" → așteaptă → confirmă
 Q3: "Ce rezultat pozitiv ai dacă reușești?" → așteaptă → confirmă  
 Q4: "Ce risc există dacă nu faci?" → așteaptă → confirmă
-Q5: "Care sunt 2-3 pași concreți?" → așteaptă → confirmă
+Q5: "Care sunt 2-3 pași concreți? (MIN 2 pași per cheie)" → așteaptă → confirmă
+Q5b: 🚨 Dacă utilizatorul a dat doar 1 pas, întreabă OBLIGATORIU: "Care e următorul micro-pas pentru această cheie? (minim 2 pași per cheie)"
 Q6: Pentru FIECARE pas: "În ce zi? (L/M/Mi/J/V)" → apoi "HIT sau DO?" → confirmă
 Q7: "Cine e responsabil?" → așteaptă → confirmă
 Q8: "Care e deadline-ul?" → așteaptă → "✅ Cheia [N] completă!"
@@ -172,7 +176,9 @@ DUPĂ FIECARE CHEIE:
 
 REGULI STRICTE:
 - O întrebare = un mesaj
-- CRITIC: După 4 chei complete, folosește OBLIGATORIU tool-ul "save_planning" IMEDIAT
+- 🚨 REGULĂ CRITICĂ: Fiecare cheie TREBUIE să aibă MIN 2 pași concreți. Dacă userul oferă doar unul, întreabă: "Care e următorul micro-pas pentru această cheie?"
+- 🚨 DISTRIBUIE PAȘII PE ZILE DIFERITE (L, M, Mi, J, V) — evită aglomerarea pe Luni!
+- CRITIC: După 4 chei complete (CU MIN 2 PAȘI FIECARE), folosește OBLIGATORIU tool-ul "save_planning" IMEDIAT
 - Fii concis și empatic
 - Păstrează contextul obiectivului masiv în fiecare răspuns
 
@@ -339,7 +345,8 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
                     negativeImpact: { type: "string", description: "Rezultatul negativ dacă nu se face" },
                     steps: {
                       type: "array",
-                      description: "Pașii concreți cu ziua și tipul de sarcină",
+                      description: "Pașii concreți cu ziua și tipul de sarcină. MINIM 2 pași per cheie. Distribuie pașii pe zile diferite (nu toți pe Luni).",
+                      minItems: 2,
                       items: {
                         type: "object",
                         properties: {
@@ -347,7 +354,7 @@ ${previousWeekData.keyPoints.map((kp, idx) => `${idx + 1}. ${kp.title}`).join('\
                           day: { 
                             type: "string", 
                             enum: ["M", "T", "W", "Th", "F", "Sa", "Su"],
-                            description: "Ziua în care se execută: M=Luni, T=Marți, W=Miercuri, Th=Joi, F=Vineri, Sa=Sâmbătă, Su=Duminică" 
+                            description: "Ziua în care se execută: M=Luni, T=Marți, W=Miercuri, Th=Joi, F=Vineri, Sa=Sâmbătă, Su=Duminică. DISTRIBUIE pașii pe zile diferite!" 
                           },
                           listType: { 
                             type: "string", 
