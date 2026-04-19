@@ -1,82 +1,74 @@
 
 
-## Diagnoza reală a problemei
+## Diagnoză — am verificat în baza de date
 
-Am citit promptul și screenshot-ul. Sunt **2 probleme concrete**:
+Am interogat direct `weekly_planning` și `user_tasks` pentru săptămâna ta `door-week-2026-17`.
 
-### Problema 1: Modelul nu respectă "1 fază pe mesaj"
-`google/gemini-2.5-flash` este un model rapid dar prea "amabil" — ignoră instrucțiunile stricte de oprire și încearcă să dea valoare maximă într-un singur mesaj. Indiferent câte ❌ STOP punem în prompt, el tot combină.
+### Ce am găsit (vești bune și mai puțin bune)
 
-**Soluție**: Trecem pe `google/gemini-2.5-pro` care respectă instrucțiunile mult mai bine, SAU mai bine — **forțăm controlul din cod, nu din prompt**.
+**Vești bune:**
+Toate cele 4 chei sunt salvate corect în plan, cu pași pentru fiecare:
+- **Cheia 1** „5 apeluri b2b - 2 contracte" → 1 pas (Luni)
+- **Cheia 2** „nu este completă mai am key" → 3 pași (Luni, Miercuri, Joi)
+- **Cheia 3** „platforma B2B - optimizare" → 1 pas (Luni)
+- **Cheia 4** „Audit Angajare + Advertising" → 1 pas (Luni)
 
-### Problema 2: Faza Dickens (Leverage) are 2 întrebări într-un mesaj
-Chiar și când respectă "1 fază pe mesaj", Faza 2 conține:
-- "Ce pierzi în 1 an?" 
-- "Ce câștigi în 1 an?"
-- "Care e acceptabilă?"
+**Toate 6 task-urile EXISTĂ în baza de date** și sunt în HIT List, săptămâna 17. Nu lipsesc — am numărat în DB:
 
-Userul vede 3 întrebări → se simte copleșit. Tony nu face asta — **el pune o întrebare, aștepți, pune a doua, aștepți**.
-
-## Soluție: Control determinist din cod (nu lăsăm AI-ul să decidă)
-
-În loc să sperăm că AI-ul respectă fazele, **împărțim Dickens în 2 sub-faze controlate de cod**, identic cu ce am făcut cu PHASE_2/3/4 în quick answers.
-
-### Schimbare 1: Spargem Faza 2 (Dickens) în 2A + 2B
-- **Faza 2A** (mesaj separat): „Dacă mai stai 1 AN așa — ce PIERZI? (sănătate, bani, oameni, respect)" → STOP
-- **Faza 2B** (mesaj separat): „Acum invers — dacă schimbi AZI, ce CÂȘTIGI în 1 an?" → STOP  
-- **Faza 2C** (mesaj separat): „Care variantă e acceptabilă?" → STOP
-
-### Schimbare 2: Trecem la `gemini-2.5-pro` pentru respectarea instrucțiunilor
-Mai lent cu ~1-2s, dar respectă regulile stricte. Pentru breakthrough merită.
-
-### Schimbare 3: Adăugăm "MAX 3 PROPOZIȚII" hard limit
-Cap absolut pe lungime per mesaj. Dacă AI-ul vrea să spună mai mult — îl forțăm să spargă.
-
-### Schimbare 4: Quick answers pentru noile sub-faze
-- Phase 2A → "Sănătatea", "Banii", "Oamenii", "Respectul de sine"
-- Phase 2B → "Cine devin", "Libertate", "Putere", "Bani"
-- Phase 2C → "A doua — schimb"
-
-## Rezultat
-
-**Înainte (acum):**
 ```
-Mesaj 1: Validare + întrebare (2 propoziții)
-Mesaj 2: Pattern + "rezonezi?" (3-4 propoziții)
-Mesaj 3: "Stai cu mine... ce pierzi? ce câștigi? care e acceptabilă?" ← 3 ÎNTREBĂRI
-Mesaj 4: Power Move (mare bloc, dar OK pentru că e exercițiu)
+[Business] 5 apeluri b2b - 2 contracte                     | M  | hit  ← Cheia 1
+[Business] "Finalizare contract Guest agency"              | W  | hit  ← Cheia 2
+[Business] "Obtinere draft contract"                       | M  | hit  ← Cheia 2
+[Business] "Meeting - Manager General"                     | Th | hit  ← Cheia 2
+[Business] platforma B2B - optimizare si testare beta      | M  | hit  ← Cheia 3
+[Business] Audit Angajare + Advertising - simulare         | M  | hit  ← Cheia 4
 ```
 
-**După:**
-```
-Mesaj 1: Validare + 1 întrebare
-Mesaj 2: Pattern numit + "așa e?"
-Mesaj 3: Doar "Ce PIERZI dacă rămâi 1 an așa?" 
-Mesaj 4: Doar "Ce CÂȘTIGI dacă schimbi azi?"
-Mesaj 5: Doar "Care variantă alegi?"
-Mesaj 6: Power Move
-Mesaj 7: Power Question
-Mesaj 8: HIT List
-```
+**Problema reală (de ce ți s-a părut că lipsesc):**
 
-8 mesaje în loc de 5, dar **fiecare cere UN SINGUR lucru** = userul nu se mai simte bombardat. Asta e exact stilul Tony pe scenă: o întrebare → pauză → următoarea.
+1. **AI-ul a generat doar 1 pas** pentru cheile 1, 3, 4 (practic doar o repetare a titlului cheii). Te așteptai la mai mulți pași concreți → ai văzut puține și ai crezut că lipsesc keys.
+2. **4 din 6 task-uri sunt înghesuite Luni**, doar 2 sunt pe alte zile → când te uiți pe alte zile pari să vezi „nimic din celelalte chei".
+3. **Etichetele „[Business]"** nu spun din care cheie vine task-ul → nu poți distinge vizual `Cheia 1 vs Cheia 4`.
+4. **Cheia 2 are titlu defect** „nu este completa mai am key" — pare că AI-ul te-a întrebat despre o cheie deja existentă și răspunsul a devenit titlul.
+
+## Soluție — 3 modificări concrete
+
+### 1. Etichetează task-urile cu numărul cheii (UX clar instant)
+În `DoorPlanningModal.tsx` (atât în `processSavePlanning` cât și în `persistFromCompletedKeys`), schimb prefixul:
+
+**Acum:** `[Business] 5 apeluri b2b - 2 contracte`
+**După:** `[K1] 5 apeluri b2b - 2 contracte`
+
+→ Vezi instant pe HIT List că ai task-uri din toate cele 4 chei.
+
+### 2. Forțează AI-ul să genereze MIN 2 pași per cheie
+În `supabase/functions/door-ai-planning/index.ts`:
+- În prompt-uri (`NEW_WEEK_SYSTEM_PROMPT` + `WIZARD_SYSTEM_PROMPT`), adaug regulă:
+  > „REGULĂ CRITICĂ: Fiecare cheie TREBUIE să aibă MIN 2 pași concreți. Dacă utilizatorul oferă doar unul, întreabă: «Care e următorul micro-pas pentru această cheie?» Nu finaliza cheia cu mai puțin de 2 pași."
+- În tool definition `save_planning`, adaug `minItems: 2` pe `steps` array.
+
+### 3. Distribuie pașii pe zile diferite (anti-Monday-overload)
+În `processSavePlanning` și `persistFromCompletedKeys`, adaug logică de fallback îmbunătățit:
+- Dacă **>3 pași cad pe Luni**, redistribuie automat pe `M, T, W, Th, F` round-robin.
+- Loghez vizibil: `⚠️ Redistributing N tasks from Monday across week`.
+
+### 4. Recuperare imediată pentru săptămâna ta actuală
+**Bonus:** task-urile actuale au prefixul `[Business]`. Pot rula un UPDATE one-time care:
+- Le re-etichetează ca `[K1]`, `[K2]`, `[K3]`, `[K4]` corespunzător cheii din `weekly_planning.key_points` (matching după text)
+- Mută unele de pe Luni pe alte zile pentru aerisire
+
+Dacă vrei doar fix forward (fără retag retroactiv), pot omite pasul 4.
 
 ## Fișiere de modificat
 
-1. **`supabase/functions/mind-coach/index.ts`**
-   - Schimb model: `gemini-2.5-flash` → `gemini-2.5-pro`
-   - Rescriu Faza 2 în 2A/2B/2C separate
-   - Adaug "MAX 3 PROPOZIȚII PER MESAJ. NICIODATĂ MAI MULT."
-   - Adaug exemple de mesaje GREȘITE vs CORECTE
+1. **`supabase/functions/door-ai-planning/index.ts`** — `minItems: 2` pe `steps` + regulă "min 2 pași per cheie" în prompt
+2. **`src/components/door/DoorPlanningModal.tsx`** — prefix `[K1]..[K4]` în loc de `[Business]` + logică anti-Monday-overload în ambele funcții de persistare (`processSavePlanning` și `persistFromCompletedKeys`)
+3. **(Opțional) Migrație data:** UPDATE pe `user_tasks` pentru week-ul 2026-17 — re-tag și redistribuire zile
 
-2. **`src/components/mind-coach/QuickAnswerSuggestions.tsx`**
-   - Adaug PHASE_2A_ANSWERS (ce pierzi)
-   - Adaug PHASE_2B_ANSWERS (ce câștigi)
-   - Mut PHASE_2 actual → PHASE_2C
+## Rezultat dorit
 
-3. **`src/components/mind-coach/PhaseIndicator.tsx`**
-   - Update `getPhaseFromMessageCount` pentru noile sub-faze
-   - Sub-faze 2A/2B/2C apar tot ca „Faza 2 — Leverage" în UI (nu confuzia userului)
-
-Niciun pas în plus pentru utilizator. Doar mesaje mai scurte și o întrebare pe rând. **Exact ce face Tony.**
+- **Vezi clar pe HIT List** care task vine din care cheie (`[K1]`, `[K2]`, `[K3]`, `[K4]`)
+- **Minim 8 task-uri** generate (2/cheie × 4 chei) în loc de 6 cum ai acum
+- **Distribuite pe zile**, nu toate pe Luni
+- **Niciun task nu se pierde** — flow-ul actual e corect, doar AI-ul a fost prea zgârcit
 
