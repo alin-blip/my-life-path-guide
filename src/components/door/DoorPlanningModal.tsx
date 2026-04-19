@@ -655,35 +655,54 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
         if (saveSuccess) {
           console.log('✅ Planning saved successfully to database');
           
-          // Add steps to daily tasks with domain category
-          let stepsAdded = 0;
-          for (const keyPoint of planningData.keyPoints || []) {
-            for (const step of keyPoint.steps || []) {
+          // Add steps to daily tasks with key-based labels [K1]..[K4]
+          // First pass: collect all steps with their target day and key index
+          type StepToAdd = { keyIdx: number; text: string; day: DayOfWeek; listType: 'hit' | 'do' };
+          const stepsToAdd: StepToAdd[] = [];
+          (planningData.keyPoints || []).forEach((keyPoint: any, kIdx: number) => {
+            (keyPoint.steps || []).forEach((step: any) => {
               const stepText = typeof step === 'string' ? step : step.text;
               let stepDay = typeof step === 'object' ? step.day : null;
               const stepListType = typeof step === 'object' ? step.listType : 'hit';
-              
-              // Fallback: assign round-robin weekday if step was a plain string or missing day
               if (stepText && !stepDay) {
                 const fallbackDays: DayOfWeek[] = ['M', 'T', 'W', 'Th', 'F'];
-                stepDay = fallbackDays[stepsAdded % fallbackDays.length];
+                stepDay = fallbackDays[stepsToAdd.length % fallbackDays.length];
                 console.warn(`⚠️ Step "${stepText}" had no day, assigned fallback: ${stepDay}`);
               }
-              
               if (stepText) {
-                try {
-                  await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
-                    id: uuidv4(),
-                    text: `[${domainConfig?.labelRo || selectedDomain}] ${stepText}`,
-                    category: stepListType as 'hit' | 'do',
-                    priority: 'important',
-                    day: stepDay as DayOfWeek
-                  });
-                  stepsAdded++;
-                } catch (stepError) {
-                  console.error('Error adding step to tasks:', stepError);
-                }
+                stepsToAdd.push({ keyIdx: kIdx, text: stepText, day: stepDay as DayOfWeek, listType: stepListType as 'hit' | 'do' });
               }
+            });
+          });
+
+          // Anti-Monday-overload: if >3 steps land on Monday, redistribute round-robin across M-F
+          const mondayCount = stepsToAdd.filter(s => s.day === 'M').length;
+          if (mondayCount > 3) {
+            console.warn(`⚠️ Redistributing ${mondayCount} tasks from Monday across week (M-F round-robin)`);
+            const spread: DayOfWeek[] = ['M', 'T', 'W', 'Th', 'F'];
+            let cursor = 0;
+            stepsToAdd.forEach(s => {
+              if (s.day === 'M') {
+                s.day = spread[cursor % spread.length];
+                cursor++;
+              }
+            });
+          }
+
+          // Persist with [K{n}] prefix
+          let stepsAdded = 0;
+          for (const s of stepsToAdd) {
+            try {
+              await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
+                id: uuidv4(),
+                text: `[K${s.keyIdx + 1}] ${s.text}`,
+                category: s.listType,
+                priority: 'important',
+                day: s.day
+              });
+              stepsAdded++;
+            } catch (stepError) {
+              console.error('Error adding step to tasks:', stepError);
             }
           }
           
@@ -885,33 +904,51 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
       if (saveSuccess) {
         console.log('✅ Planning saved successfully from completedKeys');
 
-        // Add steps to daily tasks
-        let stepsAdded = 0;
-        for (const keyPoint of planningData.keyPoints) {
+        // Add steps to daily tasks with [K{n}] labels + anti-Monday-overload
+        type StepToAdd = { keyIdx: number; text: string; day: DayOfWeek; listType: 'hit' | 'do' };
+        const stepsToAdd: StepToAdd[] = [];
+        planningData.keyPoints.forEach((keyPoint, kIdx) => {
           for (const step of keyPoint.steps) {
             const stepText = typeof step === 'string' ? step : step.text;
             let stepDay = typeof step === 'object' ? step.day : null;
             const stepListType = typeof step === 'object' ? step.listType : 'hit';
-
             if (stepText && !stepDay) {
               const fallbackDays: DayOfWeek[] = ['M', 'T', 'W', 'Th', 'F'];
-              stepDay = fallbackDays[stepsAdded % fallbackDays.length];
+              stepDay = fallbackDays[stepsToAdd.length % fallbackDays.length];
             }
-
             if (stepText) {
-              try {
-                await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
-                  id: uuidv4(),
-                  text: `[${domainConfig?.labelRo || selectedDomain}] ${stepText}`,
-                  category: stepListType as 'hit' | 'do',
-                  priority: 'important',
-                  day: stepDay as DayOfWeek,
-                });
-                stepsAdded++;
-              } catch (stepError) {
-                console.error('Error adding step to tasks:', stepError);
-              }
+              stepsToAdd.push({ keyIdx: kIdx, text: stepText, day: stepDay as DayOfWeek, listType: stepListType as 'hit' | 'do' });
             }
+          }
+        });
+
+        // Anti-Monday-overload: if >3 steps land on Monday, redistribute across M-F
+        const mondayCount = stepsToAdd.filter(s => s.day === 'M').length;
+        if (mondayCount > 3) {
+          console.warn(`⚠️ Redistributing ${mondayCount} tasks from Monday across week (M-F round-robin)`);
+          const spread: DayOfWeek[] = ['M', 'T', 'W', 'Th', 'F'];
+          let cursor = 0;
+          stepsToAdd.forEach(s => {
+            if (s.day === 'M') {
+              s.day = spread[cursor % spread.length];
+              cursor++;
+            }
+          });
+        }
+
+        let stepsAdded = 0;
+        for (const s of stepsToAdd) {
+          try {
+            await doorUserTasksService.addIdeaToWeek(currentWeekKey, {
+              id: uuidv4(),
+              text: `[K${s.keyIdx + 1}] ${s.text}`,
+              category: s.listType,
+              priority: 'important',
+              day: s.day,
+            });
+            stepsAdded++;
+          } catch (stepError) {
+            console.error('Error adding step to tasks:', stepError);
           }
         }
 
