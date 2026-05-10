@@ -196,7 +196,7 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       className={`${snapshot.isDragging ? 'opacity-75' : ''} ${
-                        widget.id === 'champion-routine' ? 'md:col-span-2 lg:col-span-3' : ''
+                        widget.id === 'champion-routine' || widget.id === 'time-block-calendar' ? 'md:col-span-2 lg:col-span-3' : ''
                       }`}
                     >
                       {renderWidget(widget, provided.dragHandleProps)}
