@@ -99,7 +99,7 @@ export function useBrainDump() {
           completed: false,
           position: idx,
         }));
-        ops.push(supabase.from('user_tasks').insert(rows));
+        ops.push(Promise.resolve(supabase.from('user_tasks').insert(rows)));
       }
 
       // Ideas → ideas_bank
@@ -111,7 +111,7 @@ export function useBrainDump() {
           status: 'new',
           priority: 1,
         }));
-        ops.push(supabase.from('ideas_bank').insert(rows));
+        ops.push(Promise.resolve(supabase.from('ideas_bank').insert(rows)));
       }
 
       // Thoughts + gratitudes → daily_progress (merge)
@@ -141,14 +141,16 @@ export function useBrainDump() {
         };
 
         ops.push(
-          supabase.from('daily_progress').upsert(
-            {
-              user_id: userId,
-              date: today,
-              notes: mergedNotes,
-              progress_data: newData,
-            },
-            { onConflict: 'user_id,date' }
+          Promise.resolve(
+            supabase.from('daily_progress').upsert(
+              {
+                user_id: userId,
+                date: today,
+                notes: mergedNotes,
+                progress_data: newData,
+              },
+              { onConflict: 'user_id,date' }
+            )
           )
         );
       }
