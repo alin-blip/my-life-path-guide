@@ -4,7 +4,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Moon, MessageSquare, Heart, Calendar, Check, Plus, Trash2, Loader2 } from 'lucide-react';
+import { Moon, MessageSquare, Heart, Calendar, Check, Plus, Trash2, Loader2, Brain } from 'lucide-react';
+import { BrainDumpTab } from './evening/BrainDumpTab';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -270,10 +271,14 @@ export const EveningRoutineCard: React.FC = () => {
 
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-3 mb-4">
+          <TabsList className="grid grid-cols-4 mb-4">
             <TabsTrigger value="reflection" className="flex items-center gap-1.5">
               <MessageSquare className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{language === 'en' ? 'Reflection' : 'Reflecție'}</span>
+            </TabsTrigger>
+            <TabsTrigger value="braindump" className="flex items-center gap-1.5">
+              <Brain className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Brain Dump</span>
             </TabsTrigger>
             <TabsTrigger value="gratitude" className="flex items-center gap-1.5">
               <Heart className="h-3.5 w-3.5" />
