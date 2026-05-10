@@ -79,7 +79,7 @@ serve(async (req) => {
                       type: "string",
                       enum: ["task", "thought", "idea", "gratitude"],
                     },
-                    priority: { type: "integer", enum: [1, 2, 3, 4], description: "Doar pentru task" },
+                    priority: { type: "number", description: "Doar pentru task: 1-4 (Eisenhower)" },
                     suggestedDay: {
                       type: "string",
                       enum: ["M", "T", "W", "Th", "F", "Sa", "Su"],
