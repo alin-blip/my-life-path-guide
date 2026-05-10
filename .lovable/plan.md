@@ -1,60 +1,75 @@
-## Brain Dump în Rutina de Seară
+# Time-Block Calendar Widget pe Dashboard
 
-Adaug un tab nou „Brain Dump" în `EveningRoutineCard` care permite să scrii liber gândurile, iar AI-ul le clasifică și le rutează automat către Jurnal, Domino Door (HIT List cu Eisenhower), Ideas Bank sau Gratitudine.
+## Scop
+Un widget tip calendar pe dashboard care afișează **azi** și **mâine** lângă lângă, cu taskurile așezate pe ore (ca în Google Calendar). Poți muta taskurile între zile / între ore prin drag & drop. Sus ai un selector de săptămână. Taskurile vin direct din Domino Door (Hit List / Do List). Coach-ul Accountability știe ce ai planificat la fiecare oră și te anunță.
 
-### Flux UX
+## Ce vede utilizatorul
 
-1. Tab nou **„🧠 Brain Dump"** (al 4-lea) lângă tab-urile existente
-2. **Sus**: Input titlu + textarea mare (ca la Jurnal) — „Scrie tot ce ai în cap, fără filtru..."
-3. **Buton „Analizează cu AI"** → trimite textul la edge function
-4. **Jos**: Listă de itemi clasificați, fiecare cu:
-   - Iconiță tip (📝 task / 💭 gând / 💡 idee / 🙏 gratitudine)
-   - Text extras
-   - Pentru task: badge Eisenhower (editabil) + selector zi (M/T/W/Th/F/Sa/Su) + selector destinație (HIT List / Do List)
-   - Pentru gând: merge în Jurnal
-   - Pentru idee: merge în Ideas Bank
-   - Buton ✓ Confirmă / ✗ Ignoră per item
-5. **Buton final**: „Salvează tot" → execută rutarea în paralel
-
-### Fișiere
-
-**Nou:**
-- `supabase/functions/evening-brain-dump/index.ts` — folosește Lovable AI (`google/gemini-3-flash-preview`) cu tool `classify_brain_dump` care returnează array de `{type, text, priority?, suggestedDay?, destination?}`
-- `src/components/dashboard/evening/BrainDumpTab.tsx` — UI tab + state
-- `src/components/dashboard/evening/BrainDumpItem.tsx` — render per item cu `EisenhowerSelector` + day selector
-- `src/hooks/useBrainDump.ts` — orchestrator: apel edge → parsing → save în paralel către `daily_progress` (gânduri/gratitudine), `user_tasks` (taskuri cu `week_key` + `task_type='hit'`/`'do'`), `user_ideas` (idei)
-
-**Modificat:**
-- `src/components/dashboard/EveningRoutineCard.tsx` — adaug al 4-lea tab `braindump`
-- `supabase/config.toml` — `verify_jwt = false` nu e necesar (default OK pentru auth)
-
-### Date salvate
-
-| Tip AI | Tabel | Detalii |
-|---|---|---|
-| `task` | `user_tasks` | `week_key=door-week-YYYY-WW`, `task_type='hit'` (default) sau `'do'`, `priority` din Eisenhower (1-4), `day_of_week`, `title=text` |
-| `thought` / `lesson` | `daily_progress` | append în `notes` cu prefix `[Brain Dump dd.MM]:`, `progress_data.brain_dump=true` |
-| `idea` | `user_ideas` | `title=text`, `category='personal'` default |
-| `gratitude` | `daily_progress` | append în `progress_data.gratitudes[]` |
-
-### AI Prompt (esența)
-
-System: „Ești un asistent care clasifică gânduri brute scrise seara. Pentru fiecare gând, returnează tipul (task/thought/idea/gratitude) și — dacă e task — sugerează prioritate Eisenhower (Q1-Q4) și zi din săptămâna curentă (Mar-Sâm). Tonul e empatic, ca Alin."
-
-Tool `classify_brain_dump`:
-```ts
-{ items: [{ text: string, type: 'task'|'thought'|'idea'|'gratitude', priority?: 1|2|3|4, suggestedDay?: 'M'|'T'|...|'Su', destination?: 'hit'|'do', reasoning?: string }] }
+```text
+┌──────────────────────────────────────────────────────────────┐
+│  ⏱  Time-Block Calendar         [‹ Săpt 20 ›] [Azi] [+ Task] │
+├───────────────────────────┬──────────────────────────────────┤
+│  AZI — Lun 11 Mai         │  MÂINE — Mar 12 Mai              │
+├───────────────────────────┼──────────────────────────────────┤
+│ 06:00                     │ 06:00                            │
+│ 07:00 ▓ Workout (60m) 🔥  │ 07:00                            │
+│ 08:00                     │ 08:00 ▓ Deep work (90m) 🔥       │
+│ 09:00 ▓ Email batch (30m) │ 09:30                            │
+│  ...                      │  ...                             │
+│ 22:00                     │ 22:00                            │
+├───────────────────────────┼──────────────────────────────────┤
+│ 📥 Fără oră (3)           │ 📥 Fără oră (1)                  │
+│  • Call client            │  • Reply Andrei                  │
+└───────────────────────────┴──────────────────────────────────┘
 ```
 
-### În afara scopului
+- **Header**: navigator săptămână (◂ ▸), buton "Azi", buton "+ Task".
+- **2 coloane**: Azi și Mâine (când navighezi cu săpt., devin "Ziua X" și "Ziua X+1").
+- **Grid orar**: 06:00–22:00, slot la 30 min. Cardul de task are înălțime proporțională cu `duration_minutes`.
+- **Card task**: titlu, durată, badge Eisenhower (1=🔥 urgent+important, 2=⭐, 3=⚡, 4=💤). Click → popover cu editare (oră, durată, ziua, șterge).
+- **Bin "Fără oră"**: taskuri din Domino Door fără `scheduled_time`. Le tragi sus în grid pentru a le ancora.
+- **Drag & drop**: schimbi ora, durata (resize), ziua (între coloane).
+- **Sub form +Task inline**: titlu + oră + durată + zi + prioritate.
 
-- Voice input (faza 2)
-- Editare retroactivă brain dumps vechi
-- Notificări push reminder seara
-- Vizualizare istoric brain dumps (poate veni separat)
+## Sursa de date
+Folosește tabelul existent `user_tasks` (deja are `scheduled_time` și `duration_minutes`, `day_of_week`, `week_key`, `priority`, `list_type`). Nu se duplică datele — exact aceleași taskuri din Domino Door apar în calendar.
 
-### Verificare
+## Integrare Domino Door
+- Modificările făcute în calendar (mutare zi, ora, durată) se reflectă instant în Domino Door (același `user_tasks` + Supabase Realtime).
+- Reciproc: ce setezi în Domino Door (Hit/Do list) apare în calendar (în "Fără oră" dacă nu are `scheduled_time`).
 
-- Tab apare la 4-lea în `EveningRoutineCard`
-- Scriu „mâine sun 5 clienți + sunt anxios pentru meeting + ar fi mișto un newsletter săptămânal + mulțumesc pentru ziua bună" → AI separă 4 itemi cu tipuri corecte
-- Confirm tot → task apare în Door HIT List Marți cu badge ⚡ Reactor, gândul în Jurnal, ideea în Ideas Bank, gratitudinea în secțiunea de mulțumiri
+## Integrare AI Coach (Accountability)
+Edge function `accountability-coach` primește în context lista de taskuri programate cu ora pentru azi. Adaugă o regulă:
+> "Dacă ora curentă este în interval de ±15 min față de un task programat, menționează-l proactiv: «E 09:00 — ai blocat 90 min pentru Deep Work. Începi acum?»"
+
+## Fișiere noi
+- `src/components/dashboard/widgets/TimeBlockCalendarWidget.tsx` — container principal
+- `src/components/dashboard/widgets/timeblock/DayColumn.tsx` — coloană zi (grid orar + bin)
+- `src/components/dashboard/widgets/timeblock/HourSlot.tsx` — drop target pe oră
+- `src/components/dashboard/widgets/timeblock/TimeBlockTask.tsx` — card task draggable + popover edit
+- `src/components/dashboard/widgets/timeblock/InlineAddTaskForm.tsx` — formular adaugă rapid
+- `src/hooks/useTimeBlockTasks.ts` — load/save/realtime + handlers drag
+- `src/utils/timeBlockHelpers.ts` — conversii oră↔slot, calcul înălțime card
+
+## Fișiere modificate
+- `src/config/dashboardWidgets.ts` — înregistrează widget `time-block-calendar` (size: large, category: productivity)
+- `src/components/dashboard/widgets/index.ts` — export
+- `supabase/functions/accountability-coach/index.ts` — interogare taskuri programate + injectare în prompt
+
+## Tehnologii
+- `@dnd-kit/core` (deja folosit în proiect dacă există; altfel `react-dnd`) pentru drag & drop
+- `date-fns` pentru manipulare săptămână (`startOfWeek`, `addDays`, `format`)
+- Supabase Realtime channel pe `user_tasks` filtrat după `user_id` + `week_key` curent
+
+## DB — fără migrație necesară
+Coloanele `scheduled_time` (time) și `duration_minutes` (int) deja există pe `user_tasks` conform investigării anterioare. Adăugăm doar un index opțional pentru performanță.
+
+## În afara scopului
+- Push notifications native (rămâne pe AI Coach textual)
+- Vizualizare pe lună / vizualizare 7 zile complete
+- Sync Google Calendar / Outlook
+- Repeat tasks (zilnic/săptămânal automat)
+- Notificări sonore în browser
+
+## Confirmare
+Apasă "Implement plan" ca să încep construcția widget-ului.

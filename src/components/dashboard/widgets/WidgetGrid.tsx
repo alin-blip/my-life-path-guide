@@ -15,6 +15,7 @@ import { JournalWidget } from './JournalWidget';
 import { NapoleonHillCoachWidget } from './NapoleonHillCoachWidget';
 import { ChallengeProgressWidget } from './ChallengeProgressWidget';
 import { VibeCanvasWidget } from './VibeCanvasWidget';
+import { TimeBlockCalendarWidget } from './TimeBlockCalendarWidget';
 import { CustomWidgetRenderer } from './CustomWidgetRenderer';
 import type { CustomWidget, WidgetData } from '@/types/customWidget';
 import { supabase } from '@/integrations/supabase/client';
@@ -164,6 +165,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
         return <ChallengeProgressWidget />;
       case 'vibe-canvas':
         return <VibeCanvasWidget {...commonProps} />;
+      case 'time-block-calendar':
+        return <TimeBlockCalendarWidget {...commonProps} />;
       default:
         return null;
     }
@@ -193,7 +196,7 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       className={`${snapshot.isDragging ? 'opacity-75' : ''} ${
-                        widget.id === 'champion-routine' ? 'md:col-span-2 lg:col-span-3' : ''
+                        widget.id === 'champion-routine' || widget.id === 'time-block-calendar' ? 'md:col-span-2 lg:col-span-3' : ''
                       }`}
                     >
                       {renderWidget(widget, provided.dragHandleProps)}
