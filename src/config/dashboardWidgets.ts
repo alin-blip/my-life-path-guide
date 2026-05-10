@@ -125,6 +125,17 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     icon: 'Palette',
     defaultSize: 'medium',
     category: 'productivity'
+  },
+  {
+    id: 'time-block-calendar',
+    name: { en: 'Time-Block Calendar', ro: 'Calendar Time-Block' },
+    description: {
+      en: 'Today + tomorrow on an hourly grid. Drag tasks between hours and days. Synced with Domino Door.',
+      ro: 'Azi + mâine pe grilă orară. Trage task-urile între ore și zile. Sincronizat cu Domino Door.'
+    },
+    icon: 'CalendarClock',
+    defaultSize: 'large',
+    category: 'productivity'
   }
 ];
 
