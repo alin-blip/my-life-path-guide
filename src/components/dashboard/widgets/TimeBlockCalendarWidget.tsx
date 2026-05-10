@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { addDays, addWeeks, format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { CalendarClock, ChevronLeft, ChevronRight, Plus, Trash2, Inbox, Check } from 'lucide-react';
 import { WidgetContainer } from './WidgetContainer';
 import { WidgetSize } from '@/types/dashboardWidget';
