@@ -67,12 +67,12 @@ serve(async (req) => {
     
     const { data: todayTasks } = await supabaseClient
       .from('user_tasks')
-      .select('title, completed, priority, is_key_point')
+      .select('title, completed, priority, is_key_point, scheduled_time, duration_minutes')
       .eq('user_id', user.id)
       .eq('day_of_week', todayAbbrev)
       .eq('completed', false)
-      .order('priority', { ascending: true })
-      .limit(10);
+      .order('scheduled_time', { ascending: true, nullsFirst: false })
+      .limit(20);
 
     // Build user context string
     let userContext = '';
@@ -122,11 +122,25 @@ serve(async (req) => {
     }
 
     if (todayTasks && todayTasks.length > 0) {
-      userContext += '\n\n📋 TASK-URI PENTRU AZI (necompletate):\n';
+      const nowMin = today.getHours() * 60 + today.getMinutes();
+      const currentTimeStr = `${String(today.getHours()).padStart(2, '0')}:${String(today.getMinutes()).padStart(2, '0')}`;
+      userContext += `\n\n📋 TASK-URI PENTRU AZI (necompletate) — ora curentă: ${currentTimeStr}\n`;
       todayTasks.forEach((t: any) => {
         const icon = t.is_key_point ? '🔑' : '•';
-        userContext += `${icon} ${t.title}\n`;
+        const time = t.scheduled_time ? t.scheduled_time.slice(0, 5) : '—';
+        const dur = t.duration_minutes ? `${t.duration_minutes}m` : '';
+        let marker = '';
+        if (t.scheduled_time) {
+          const [h, m] = t.scheduled_time.split(':').map(Number);
+          const taskMin = h * 60 + m;
+          const diff = taskMin - nowMin;
+          if (diff >= -15 && diff <= 15) marker = ' ⏰ ACUM';
+          else if (diff > 15 && diff <= 60) marker = ' ⏳ în curând';
+          else if (diff < -15) marker = ' ⚠️ depășit';
+        }
+        userContext += `${icon} [${time} ${dur}] ${t.title}${marker}\n`;
       });
+      userContext += '\nREGULĂ: Dacă există un task marcat "ACUM", menționează-l proactiv în răspuns.\n';
     }
 
     // ========== BUILD SYSTEM PROMPT WITH CONTEXT ==========
