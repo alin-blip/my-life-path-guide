@@ -326,6 +326,10 @@ export const EveningRoutineCard: React.FC = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="braindump">
+            <BrainDumpTab />
+          </TabsContent>
+
           <TabsContent value="gratitude" className="space-y-3">
             <p className="text-sm text-muted-foreground mb-3">
               {language === 'en' 
