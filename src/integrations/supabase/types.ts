@@ -5109,11 +5109,13 @@ export type Database = {
           day: string | null
           day_of_week: string | null
           domain_category: string | null
+          duration_minutes: number | null
           id: string
           is_key_point: boolean | null
           list_type: string
           position: number | null
           priority: number | null
+          scheduled_time: string | null
           selected: boolean | null
           task_id: string | null
           task_type: string | null
@@ -5130,11 +5132,13 @@ export type Database = {
           day?: string | null
           day_of_week?: string | null
           domain_category?: string | null
+          duration_minutes?: number | null
           id?: string
           is_key_point?: boolean | null
           list_type: string
           position?: number | null
           priority?: number | null
+          scheduled_time?: string | null
           selected?: boolean | null
           task_id?: string | null
           task_type?: string | null
@@ -5151,11 +5155,13 @@ export type Database = {
           day?: string | null
           day_of_week?: string | null
           domain_category?: string | null
+          duration_minutes?: number | null
           id?: string
           is_key_point?: boolean | null
           list_type?: string
           position?: number | null
           priority?: number | null
+          scheduled_time?: string | null
           selected?: boolean | null
           task_id?: string | null
           task_type?: string | null
