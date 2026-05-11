@@ -14,8 +14,8 @@ export const useDailyMasterReminder = (options: UseDailyMasterReminderOptions = 
   useEffect(() => {
     if (!enabled) return;
 
-    const checkAndRemind = () => {
-      const currentStats = dailyMasterService.getStats();
+    const checkAndRemind = async () => {
+      const currentStats = await dailyMasterService.refreshFromDB();
       setStats(currentStats);
 
       // Check if it's morning (5AM - 10AM) and not completed today
