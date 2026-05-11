@@ -43,17 +43,19 @@ export const GlobalTopBar: React.FC = () => {
   ];
 
   return (
-    <header className="border-b border-border/60 bg-card/80 backdrop-blur-sm sticky top-0 z-30">
+    <header className="border-b border-border bg-background/90 backdrop-blur-sm sticky top-0 z-30">
       <div className="flex items-center justify-between h-14 px-4">
         {/* Left: Logo */}
-        <Link to="/dashboard" className="flex items-center gap-2 shrink-0">
+        <Link to="/dashboard" className="flex items-center gap-2 shrink-0 group">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
             alt="CEO Mind OS"
             className="h-7 w-auto"
           />
           {!isMobile && (
-            <span className="font-display font-bold text-lg gradient-text">CEO Mind OS</span>
+            <span className="font-display text-lg tracking-tight text-foreground">
+              CEO Mind <em className="not-italic font-display italic text-primary">OS</em>
+            </span>
           )}
         </Link>
 
