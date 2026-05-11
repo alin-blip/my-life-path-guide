@@ -140,7 +140,7 @@ export default function MindCoach() {
 
       {/* Bottom info */}
       <div className="container max-w-2xl mx-auto px-4 pb-8">
-        <div className="bg-muted/50 rounded-xl p-4 text-center">
+        <div className="border border-border bg-card p-4 text-center">
           <p className="text-sm text-muted-foreground">
             {language === 'ro'
               ? '💡 Mind Coach folosește metodologia Tony Robbins pentru transformare emoțională în 5 pași: Identificare → Investigare → Clarificare → Transformare → Acțiune'
