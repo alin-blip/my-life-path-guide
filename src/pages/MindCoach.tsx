@@ -72,10 +72,10 @@ export default function MindCoach() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-primary/20 via-purple-500/10 to-primary/20 border-b">
-        <div className="container max-w-4xl mx-auto px-4 py-8">
+      <div className="border-b border-border bg-card">
+        <div className="container max-w-4xl mx-auto px-4 py-10">
           <Button
             variant="ghost"
             size="sm"
