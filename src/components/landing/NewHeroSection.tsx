@@ -2,57 +2,39 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { motion } from "framer-motion";
-import { ArrowRight, Zap, Shield, Wrench } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LandingEarlyBirdTimer } from "./LandingEarlyBirdTimer";
+import { SectionLabel } from "@/components/ui/section-label";
 
 export const NewHeroSection = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const [realMetrics, setRealMetrics] = useState({ users: 0 });
+  const [users, setUsers] = useState(0);
 
   useEffect(() => {
-    const fetchMetrics = async () => {
+    (async () => {
       try {
-        const { count: userCount } = await supabase
+        const { count } = await supabase
           .from('subscribers')
           .select('*', { count: 'exact', head: true });
-        setRealMetrics({ users: userCount || 0 });
-      } catch (error) {
-        console.error('Error fetching metrics:', error);
+        setUsers(count || 0);
+      } catch (e) {
+        console.error('metrics error', e);
       }
-    };
-    fetchMetrics();
+    })();
   }, []);
 
   const isRo = language === 'ro';
 
   return (
-    <section className="relative min-h-screen flex items-center pt-8 pb-12 md:pt-16 md:pb-24 overflow-x-hidden n8n-hero-gradient">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ rotate: [0, 360] }}
-          transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-1/2 -left-1/2 w-full h-full"
-        >
-          <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-3xl" />
-        </motion.div>
-        <motion.div
-          animate={{ rotate: [360, 0] }}
-          transition={{ duration: 100, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-1/2 -right-1/2 w-full h-full"
-        >
-          <div className="absolute bottom-1/2 right-1/2 w-[500px] h-[500px] bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-full blur-3xl" />
-        </motion.div>
-      </div>
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Early Bird Timer */}
+    <section className="relative min-h-[88vh] flex items-center pt-12 pb-16 md:pt-20 md:pb-24 n8n-hero-gradient">
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="max-w-5xl mx-auto">
+          {/* Eyebrow */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
             className="flex justify-center mb-6"
@@ -60,180 +42,99 @@ export const NewHeroSection = () => {
             <LandingEarlyBirdTimer />
           </motion.div>
 
-          {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
-            className="flex justify-center mb-8"
+            className="text-center mb-8"
           >
-            <div className="n8n-badge">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              THE FIRST FOUNDER OPERATING SYSTEM
-            </div>
+            <SectionLabel>
+              {isRo ? 'Sistemul de Operare al Fondatorului' : 'The Founder Operating System'}
+            </SectionLabel>
           </motion.div>
 
-          {/* Headline */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
+          {/* Headline — Fraunces, italic gold accent on second line */}
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-6"
+            transition={{ delay: 0.18 }}
+            className="font-display text-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.05] tracking-tight text-foreground mb-6"
           >
-            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              <span className="text-foreground">
-                {isRo ? 'Afacerea ta are un sistem de operare.' : 'Your business has an operating system.'}
-              </span>
-              <br />
-              <span className="n8n-gradient-text">
-                {isRo ? 'Tu încă rulezi pe haos.' : "You're still running on chaos."}
-              </span>
-            </h1>
-          </motion.div>
+            {isRo ? 'Afacerea ta are un sistem de operare.' : 'Your business has an operating system.'}
+            <br />
+            <em className="italic text-primary font-semibold">
+              {isRo ? 'Tu încă rulezi pe haos.' : "You're still running on chaos."}
+            </em>
+          </motion.h1>
 
-          {/* Sub-copy */}
+          {/* Subcopy */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto mb-6"
+            transition={{ delay: 0.28 }}
+            className="text-center text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
           >
             {isRo
-              ? 'Nu mai fi cel mai bun angajat din propria firmă. CEO Mind OS este primul sistem de operare care face upgrade FONDATORULUI, nu doar afacerii — pentru rezultate predictibile în Corp, Minte, Relații și Business.'
-              : "Stop being the best employee in your own company. CEO Mind OS is the first operating system that upgrades the FOUNDER, not just the business — for predictable results in Body, Mind, Relationships and Business."}
+              ? 'CEO Mind OS face upgrade FONDATORULUI, nu doar afacerii. Un singur sistem pentru Corp, Minte, Relații și Business.'
+              : 'CEO Mind OS upgrades the FOUNDER, not just the business. One system for Body, Mind, Relationships and Business.'}
           </motion.p>
-
-          {/* Differentiators */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="flex flex-wrap justify-center gap-3 mb-8"
-          >
-            {[
-              isRo ? 'Nu e un curs' : "Not a course",
-              isRo ? 'Nu e coaching' : "Not coaching",
-              isRo ? 'Nu e o aplicație de productivitate' : "Not a productivity app",
-            ].map((text, i) => (
-              <span
-                key={i}
-                className="px-4 py-2 rounded-full text-sm font-medium bg-card border border-border text-muted-foreground"
-              >
-                {text}
-              </span>
-            ))}
-          </motion.div>
-
-          {/* Video Embed */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="n8n-preview-container max-w-4xl mx-auto rounded-2xl border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.6),0_0_30px_rgba(34,211,238,0.4),0_0_60px_rgba(34,211,238,0.3),0_0_100px_rgba(34,211,238,0.2)] animate-pulse-glow"
-          >
-            <div className="relative aspect-video rounded-xl overflow-hidden">
-              <iframe
-                src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&videoRatio=1.777778&type=v&skinColor=%232758EB&autoplay=1&loop=1&muted=1"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
-            </div>
-          </motion.div>
 
           {/* CTA */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mt-8 flex flex-col items-center gap-3"
+            transition={{ delay: 0.36 }}
+            className="flex flex-col items-center gap-3 mb-14"
           >
             <Button
               size="lg"
               onClick={() => navigate('/auth')}
-              className="n8n-glow-button text-primary-foreground text-sm sm:text-base md:text-lg px-6 sm:px-8 md:px-10 py-5 md:py-7 rounded-xl font-bold group shadow-2xl w-full sm:w-auto"
+              className="px-8 py-6 text-base font-semibold tracking-wide group"
             >
-              <Zap className="w-5 h-5 mr-2 flex-shrink-0" />
-              <span>{isRo ? 'Instalează CEO Mind OS' : 'Install CEO Mind OS'}</span>
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+              {isRo ? 'Instalează CEO Mind OS' : 'Install CEO Mind OS'}
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
             </Button>
-            <p className="text-sm text-muted-foreground">
-              {isRo ? 'Începe Trial-ul Gratuit de 5 Zile' : 'Start the Free 5-Day Trial'}
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              {isRo ? 'Trial gratuit · 5 zile · fără card' : 'Free trial · 5 days · no card'}
             </p>
+          </motion.div>
 
-            {/* Micro social proof */}
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex -space-x-2">
-                {['🧠', '🚀', '💪'].map((emoji, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-sm">
-                    {emoji}
-                  </div>
-                ))}
-              </div>
-              <span className="text-sm text-muted-foreground">
-                {isRo
-                  ? `Alăturat de ${realMetrics.users > 10 ? realMetrics.users + '+' : '100+'} fondatori`
-                  : `Joined by ${realMetrics.users > 10 ? realMetrics.users + '+' : '100+'} founders`}
-              </span>
+          {/* Video — hairline frame */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.6 }}
+            className="n8n-preview-container max-w-4xl mx-auto"
+          >
+            <div className="relative aspect-video">
+              <iframe
+                src="https://embed.voomly.softwarepublishingapp.com/embed/assets/embed.html?videoId=F5ekB1wK9EDeyiELl4ugLceeGp7GHnFN2w1UzsaIMLLpCm0BY&videoRatio=1.777778&type=v&skinColor=%23D4A84A&autoplay=1&loop=1&muted=1"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+                title="CEO Mind OS"
+              />
             </div>
           </motion.div>
 
-          {/* Guarantees */}
+          {/* Stat row — hairline */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="flex flex-wrap items-center justify-center gap-6 mt-8"
+            className="mt-16 grid grid-cols-3 gap-px bg-border border border-border rounded-md overflow-hidden max-w-3xl mx-auto"
           >
             {[
-              { icon: Shield, text: isRo ? 'Garanție 90 zile' : '90-day guarantee' },
-              { icon: Shield, text: isRo ? 'Anulezi oricând' : 'Cancel anytime' },
-              { icon: Shield, text: isRo ? 'Fără card la trial' : 'No card for trial' },
-            ].map((g, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <g.icon className="w-4 h-4" />
-                {g.text}
+              { num: '16+', label: isRo ? 'Instrumente' : 'Tools' },
+              { num: users > 10 ? `${users}+` : '100+', label: isRo ? 'Fondatori' : 'Founders' },
+              { num: '90', label: isRo ? 'Zile garanție' : 'Day guarantee' },
+            ].map((s, i) => (
+              <div key={i} className="bg-background px-6 py-6 text-center">
+                <div className="font-display text-3xl md:text-4xl font-semibold text-primary">{s.num}</div>
+                <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
               </div>
             ))}
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="flex flex-wrap items-center justify-center gap-8 mt-10"
-          >
-            <div className="n8n-trust-badge">
-              <Wrench className="w-5 h-5 text-primary" />
-              <div>
-                <div className="font-semibold text-foreground">16+</div>
-                <div className="text-xs text-muted-foreground">
-                  {isRo ? 'Instrumente de Execuție' : 'Execution Tools'}
-                </div>
-              </div>
-            </div>
-            {realMetrics.users > 10 && (
-              <div className="n8n-trust-badge">
-                <span className="text-lg">👥</span>
-                <div>
-                  <div className="font-semibold text-foreground">{realMetrics.users}+</div>
-                  <div className="text-xs text-muted-foreground">
-                    {isRo ? 'Utilizatori Activi' : 'Active Users'}
-                  </div>
-                </div>
-              </div>
-            )}
-            <div className="n8n-trust-badge">
-              <span className="text-lg">🛡️</span>
-              <div>
-                <div className="font-semibold text-foreground">90</div>
-                <div className="text-xs text-muted-foreground">
-                  {isRo ? 'Zile Garanție' : 'Day Guarantee'}
-                </div>
-              </div>
-            </div>
           </motion.div>
         </div>
       </div>
