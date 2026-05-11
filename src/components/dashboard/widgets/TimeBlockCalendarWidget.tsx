@@ -76,6 +76,9 @@ export const TimeBlockCalendarWidget: React.FC<Props> = ({ size, onRemove, onRes
         <QuickAddTask onAdd={createTask} defaultDay={day1Abbrev} t={t} />
       </div>
 
+      {/* Coach notification preview */}
+      <CoachNotificationPreview tasks={tasks} todayAbbrev={day1Abbrev} t={t} />
+
       {/* Two-day grid */}
       <div className="grid grid-cols-2 gap-3 pt-3">
         <DayColumn
