@@ -112,6 +112,79 @@ function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
+// ===================== Coach Notification Preview =====================
+interface CoachPreviewProps {
+  tasks: TimeBlockTask[];
+  todayAbbrev: DayAbbrev;
+  t: (ro: string, en: string) => string;
+}
+
+const CoachNotificationPreview: React.FC<CoachPreviewProps> = ({ tasks, todayAbbrev, t }) => {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+
+  const nextTask = useMemo(() => {
+    return tasks
+      .filter(x => x.day_of_week === todayAbbrev && x.scheduled_time && !x.completed)
+      .map(x => {
+        const [h, m] = (x.scheduled_time as string).split(':').map(Number);
+        return { ...x, _min: h * 60 + m };
+      })
+      .filter(x => x._min >= nowMin - 5)
+      .sort((a, b) => a._min - b._min)[0];
+  }, [tasks, todayAbbrev, nowMin]);
+
+  const exampleTime = nextTask
+    ? (nextTask.scheduled_time as string).slice(0, 5)
+    : '09:00';
+  const exampleTitle = nextTask?.title ?? t('Sesiune de focus profund', 'Deep focus session');
+  const minsUntil = nextTask ? Math.max(0, nextTask._min - nowMin) : null;
+
+  const timingLabel =
+    minsUntil === null
+      ? t('Exemplu', 'Example')
+      : minsUntil <= 0
+        ? t('ACUM', 'NOW')
+        : minsUntil < 60
+          ? t(`în ${minsUntil} min`, `in ${minsUntil} min`)
+          : t(`la ${exampleTime}`, `at ${exampleTime}`);
+
+  return (
+    <div className="mt-3 rounded-lg border border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5 p-3">
+      <div className="flex items-start gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+          <Bell className="h-4 w-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <span className="text-xs font-semibold text-foreground">
+              {t('Coach Accountability', 'Accountability Coach')}
+            </span>
+            <span className="text-[10px] uppercase tracking-wide font-bold text-primary">
+              {timingLabel}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {t(
+              `„Hey, e ${exampleTime} — e timpul pentru: `,
+              `"Hey, it's ${exampleTime} — time for: `
+            )}
+            <span className="font-medium text-foreground">{exampleTitle}</span>
+            {t('. Hai, intră în treabă acum."', '. Let\'s get into it now."')}
+          </p>
+          <p className="mt-1 text-[10px] text-muted-foreground/80 italic">
+            {t(
+              'Coach-ul te anunță automat la ora fiecărui task din calendar.',
+              'The coach pings you automatically at each scheduled task time.'
+            )}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 // ===================== Day Column =====================
 interface DayColumnProps {
   date: Date;
