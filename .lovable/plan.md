@@ -1,75 +1,61 @@
-# Time-Block Calendar Widget pe Dashboard
+# Plan: Auto-activare Calendar Time-Block + Sync Domino Door
 
-## Scop
-Un widget tip calendar pe dashboard care afișează **azi** și **mâine** lângă lângă, cu taskurile așezate pe ore (ca în Google Calendar). Poți muta taskurile între zile / între ore prin drag & drop. Sus ai un selector de săptămână. Taskurile vin direct din Domino Door (Hit List / Do List). Coach-ul Accountability știe ce ai planificat la fiecare oră și te anunță.
+## Obiectiv
+1. Activează automat widget-ul `time-block-calendar` pentru toți userii (existenți și noi).
+2. Taskurile din Domino Door („sarcini") apar automat pe ore în calendar, nu doar în coșul de „nealocate".
 
-## Ce vede utilizatorul
+---
 
-```text
-┌──────────────────────────────────────────────────────────────┐
-│  ⏱  Time-Block Calendar         [‹ Săpt 20 ›] [Azi] [+ Task] │
-├───────────────────────────┬──────────────────────────────────┤
-│  AZI — Lun 11 Mai         │  MÂINE — Mar 12 Mai              │
-├───────────────────────────┼──────────────────────────────────┤
-│ 06:00                     │ 06:00                            │
-│ 07:00 ▓ Workout (60m) 🔥  │ 07:00                            │
-│ 08:00                     │ 08:00 ▓ Deep work (90m) 🔥       │
-│ 09:00 ▓ Email batch (30m) │ 09:30                            │
-│  ...                      │  ...                             │
-│ 22:00                     │ 22:00                            │
-├───────────────────────────┼──────────────────────────────────┤
-│ 📥 Fără oră (3)           │ 📥 Fără oră (1)                  │
-│  • Call client            │  • Reply Andrei                  │
-└───────────────────────────┴──────────────────────────────────┘
-```
+## 1. Auto-activare widget
 
-- **Header**: navigator săptămână (◂ ▸), buton "Azi", buton "+ Task".
-- **2 coloane**: Azi și Mâine (când navighezi cu săpt., devin "Ziua X" și "Ziua X+1").
-- **Grid orar**: 06:00–22:00, slot la 30 min. Cardul de task are înălțime proporțională cu `duration_minutes`.
-- **Card task**: titlu, durată, badge Eisenhower (1=🔥 urgent+important, 2=⭐, 3=⚡, 4=💤). Click → popover cu editare (oră, durată, ziua, șterge).
-- **Bin "Fără oră"**: taskuri din Domino Door fără `scheduled_time`. Le tragi sus în grid pentru a le ancora.
-- **Drag & drop**: schimbi ora, durata (resize), ziua (între coloane).
-- **Sub form +Task inline**: titlu + oră + durată + zi + prioritate.
+**`src/config/dashboardWidgets.ts`**
+- Schimbă `DEFAULT_WIDGETS` din `[]` în:
+  ```ts
+  [{ id: 'time-block-calendar', enabled: true, order: 0, size: 'large' }]
+  ```
 
-## Sursa de date
-Folosește tabelul existent `user_tasks` (deja are `scheduled_time` și `duration_minutes`, `day_of_week`, `week_key`, `priority`, `list_type`). Nu se duplică datele — exact aceleași taskuri din Domino Door apar în calendar.
+**`src/hooks/useDashboardWidgets.ts`**
+- În `fetchWidgets()`, după ce se citesc preferințele din DB:
+  - Dacă `time-block-calendar` **nu există** în array-ul salvat → injectează-l ca enabled și salvează silent.
+  - Dacă există dar e `enabled: false` → respectăm decizia userului (nu forțăm).
 
-## Integrare Domino Door
-- Modificările făcute în calendar (mutare zi, ora, durată) se reflectă instant în Domino Door (același `user_tasks` + Supabase Realtime).
-- Reciproc: ce setezi în Domino Door (Hit/Do list) apare în calendar (în "Fără oră" dacă nu are `scheduled_time`).
+---
 
-## Integrare AI Coach (Accountability)
-Edge function `accountability-coach` primește în context lista de taskuri programate cu ora pentru azi. Adaugă o regulă:
-> "Dacă ora curentă este în interval de ±15 min față de un task programat, menționează-l proactiv: «E 09:00 — ai blocat 90 min pentru Deep Work. Începi acum?»"
+## 2. Auto-sync Domino Door → ore în calendar
 
-## Fișiere noi
-- `src/components/dashboard/widgets/TimeBlockCalendarWidget.tsx` — container principal
-- `src/components/dashboard/widgets/timeblock/DayColumn.tsx` — coloană zi (grid orar + bin)
-- `src/components/dashboard/widgets/timeblock/HourSlot.tsx` — drop target pe oră
-- `src/components/dashboard/widgets/timeblock/TimeBlockTask.tsx` — card task draggable + popover edit
-- `src/components/dashboard/widgets/timeblock/InlineAddTaskForm.tsx` — formular adaugă rapid
-- `src/hooks/useTimeBlockTasks.ts` — load/save/realtime + handlers drag
-- `src/utils/timeBlockHelpers.ts` — conversii oră↔slot, calcul înălțime card
+Domino Door scrie deja în `user_tasks` (același tabel pe care îl citește calendarul). Problema: taskurile au `scheduled_time = null` → nu apar pe grila orară, doar în bin.
 
-## Fișiere modificate
-- `src/config/dashboardWidgets.ts` — înregistrează widget `time-block-calendar` (size: large, category: productivity)
-- `src/components/dashboard/widgets/index.ts` — export
-- `supabase/functions/accountability-coach/index.ts` — interogare taskuri programate + injectare în prompt
+**Fișier nou: `src/utils/autoScheduleTasks.ts`**
 
-## Tehnologii
-- `@dnd-kit/core` (deja folosit în proiect dacă există; altfel `react-dnd`) pentru drag & drop
-- `date-fns` pentru manipulare săptămână (`startOfWeek`, `addDays`, `format`)
-- Supabase Realtime channel pe `user_tasks` filtrat după `user_id` + `week_key` curent
+Funcție `autoScheduleUnscheduledTasks(tasks)`:
+- Filtrează taskurile cu `scheduled_time = null` AND `completed = false`.
+- Pentru fiecare zi (`day_of_week`), distribuie pe ore începând **09:00**, sortat după:
+  1. `priority` (1 → 4)
+  2. `is_key_point = true` primul
+  3. `position` / `created_at`
+- Durată default: **60 min** (sau `duration_minutes` existent dacă e setat).
+- Sare peste sloturi deja ocupate de taskuri cu `scheduled_time` setat.
+- Limită superioară: **20:00** (taskurile rămase rămân în bin).
+- Pentru taskuri fără `day_of_week` → atribuie ziua curentă.
+- Returnează `[{ id, scheduled_time, day_of_week, duration_minutes }]`.
 
-## DB — fără migrație necesară
-Coloanele `scheduled_time` (time) și `duration_minutes` (int) deja există pe `user_tasks` conform investigării anterioare. Adăugăm doar un index opțional pentru performanță.
+**`src/hooks/useTimeBlockTasks.ts`**
+- După `load()`, dacă există taskuri ne-programate → rulează `autoScheduleUnscheduledTasks` și face batch update prin `Promise.all` de `update().eq('id', ...)`.
+- Marker `localStorage` `auto-scheduled-{weekKey}` ca să nu reruleze auto-schedule după ce userul mută manual taskurile înapoi în bin (în aceeași săptămână).
 
-## În afara scopului
-- Push notifications native (rămâne pe AI Coach textual)
-- Vizualizare pe lună / vizualizare 7 zile complete
-- Sync Google Calendar / Outlook
-- Repeat tasks (zilnic/săptămânal automat)
-- Notificări sonore în browser
+**`src/components/dashboard/widgets/TimeBlockCalendarWidget.tsx`**
+- Buton mic „🪄 Re-distribuie" în header → șterge marker-ul localStorage și forțează re-rularea.
 
-## Confirmare
-Apasă "Implement plan" ca să încep construcția widget-ului.
+---
+
+## Out of scope
+- Nu modific Domino Door în sine.
+- Nu adaug notificări push noi (Coach-ul Accountability deja vede taskurile programate).
+- Fără modificări de schemă DB (toate coloanele necesare există deja).
+
+---
+
+## Detalii tehnice
+- Algoritm rulează **client-side**; persistăm în DB doar prima dată per săptămână.
+- Realtime subscription existent propagă update-urile între tab-uri.
+- Folosim helper-ul existent `jsDayToAbbrev(new Date())` pentru ziua curentă.
