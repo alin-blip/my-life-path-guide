@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { addDays, format } from 'date-fns';
-import { CalendarClock, ChevronLeft, ChevronRight, Plus, Trash2, Inbox, Check } from 'lucide-react';
+import { CalendarClock, ChevronLeft, ChevronRight, Plus, Trash2, Inbox, Check, Bell } from 'lucide-react';
 import { WidgetContainer } from './WidgetContainer';
 import { WidgetSize } from '@/types/dashboardWidget';
 import { useLanguage } from '@/context/LanguageContext';
