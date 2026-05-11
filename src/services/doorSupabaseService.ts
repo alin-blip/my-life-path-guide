@@ -101,18 +101,9 @@ export const doorSupabaseService = {
     const userId = await getUserId();
     if (!userId) throw new Error('User not authenticated');
 
-    // No auto-delete: just UPSERT what's provided
+    // Atomic replace strategy: delete current week's hit/do rows, then re-insert.
+    // 'hot' is global (saved via saveGlobalHotList) so we exclude it here.
     const rows: any[] = [];
-
-    for (const item of params.hotList) {
-      rows.push({
-        user_id: userId,
-        week_key: weekKey,
-        list_type: 'hot',
-        title: item.text,
-        priority: toDbPriority(item.priority),
-      });
-    }
 
     for (const item of params.hitList) {
       rows.push({
@@ -137,6 +128,16 @@ export const doorSupabaseService = {
         priority: toDbPriority(item.priority),
       });
     }
+
+    // Delete existing hit/do rows for this week (idempotent replace)
+    const { error: delErr } = await supabase
+      .from('hot_list_items')
+      .delete()
+      .eq('user_id', userId)
+      .eq('week_key', weekKey)
+      .in('list_type', ['hit', 'do']);
+
+    if (delErr) throw delErr;
 
     if (rows.length === 0) return { count: 0 };
 
