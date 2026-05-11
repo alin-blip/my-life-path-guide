@@ -66,12 +66,12 @@ export const CommandCenterTabs: React.FC = () => {
           {/* Tab Navigation */}
           <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
             <div className="container mx-auto px-4 py-3">
-              <TabsList className="w-full grid grid-cols-3 gap-1 bg-muted/50 p-1 rounded-xl h-auto">
+              <TabsList className="w-full grid grid-cols-3 gap-0 bg-transparent border border-border p-0 rounded-none h-auto">
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.value}
                     value={tab.value}
-                    className="flex items-center gap-2 py-3 px-3 text-sm font-medium rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
+                    className="flex items-center gap-2 py-3 px-3 text-mono text-xs uppercase tracking-wider rounded-none border-r border-border last:border-r-0 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-colors duration-200"
                   >
                     <tab.icon className="w-4 h-4" />
                     <span className="hidden sm:inline">{tab.label}</span>
@@ -122,7 +122,7 @@ export const CommandCenterTabs: React.FC = () => {
       </Collapsible>
 
       {/* Weekly Section - Always Visible Below */}
-      <div className="border-t border-border bg-muted/30">
+      <div className="border-t border-border bg-card">
         <div className="container mx-auto">
           <WeeklySection />
         </div>
