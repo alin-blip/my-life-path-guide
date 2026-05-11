@@ -3,21 +3,27 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * CEO Mind OS — Monolith card.
+ * Hairline 1px border, flat surface, subtle border-color hover.
+ * Legacy variants (glass / gradient / elevated) resolve to default to keep existing pages working.
+ */
 const cardVariants = cva(
-  "rounded-2xl text-card-foreground transition-all duration-300",
+  "rounded-md text-card-foreground transition-colors duration-200",
   {
     variants: {
       variant: {
-        default: "bg-card border border-border shadow-sm hover:shadow-md",
-        glass: "glass-card",
-        elevated: "bg-card border border-border shadow-lg hover:shadow-xl hover:-translate-y-1",
-        gradient: "bg-gradient-to-br from-card to-muted border border-border/50 shadow-lg",
-        outline: "bg-transparent border-2 border-border hover:border-primary/50",
-        ghost: "bg-transparent hover:bg-muted/50",
+        default: "bg-card border border-border hover:border-primary/40",
+        outline: "bg-transparent border border-border hover:border-primary/40",
+        ghost: "bg-transparent",
+        // Backward-compat aliases
+        glass: "bg-card border border-border hover:border-primary/40",
+        elevated: "bg-card border border-border hover:border-primary/40",
+        gradient: "bg-card border border-border hover:border-primary/40",
       },
     },
     defaultVariants: {
-      variant: "glass",
+      variant: "default",
     },
   }
 )
@@ -56,7 +62,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-xl font-semibold leading-none tracking-tight",
+      "font-display text-xl font-semibold leading-tight tracking-tight",
       className
     )}
     {...props}
