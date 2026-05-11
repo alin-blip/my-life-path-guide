@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Rocket } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { SocialProofBar } from "./SocialProofBar";
 
 export const StickyHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);

@@ -18,7 +18,6 @@ import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 import { Helmet } from 'react-helmet-async';
 import { useChallengeStats } from '@/hooks/useChallengeStats';
 import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeCard';
-import { SocialProofBar } from '@/components/landing/SocialProofBar';
 import { LandingEarlyBirdTimer } from '@/components/landing/LandingEarlyBirdTimer';
 
 import { ChallengePremiumOffer } from '@/components/challenge/ChallengePremiumOffer';

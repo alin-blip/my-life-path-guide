@@ -31,7 +31,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { plans, getLocalizedPlan } from "@/data/pricing";
 import { LandingEarlyBirdTimer } from "@/components/landing/LandingEarlyBirdTimer";
-import { SocialProofBar } from "@/components/landing/SocialProofBar";
 import { redirectExternal } from "@/lib/externalRedirect";
 
 export default function ChallengeLanding() {
