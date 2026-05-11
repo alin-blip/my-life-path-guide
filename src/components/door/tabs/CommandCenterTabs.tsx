@@ -122,7 +122,7 @@ export const CommandCenterTabs: React.FC = () => {
       </Collapsible>
 
       {/* Weekly Section - Always Visible Below */}
-      <div className="border-t border-border bg-muted/30">
+      <div className="border-t border-border bg-card">
         <div className="container mx-auto">
           <WeeklySection />
         </div>
