@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { Activity, Heart, Users, Briefcase, Target, CheckCircle2, ArrowLeft, TrendingUp } from 'lucide-react';
 import { getWeekKey } from '@/utils/weekUtils';
+import { visionScoresService } from '@/services/visionScoresService';
 
 interface CategoryStats {
   category: string;
@@ -28,14 +29,17 @@ const Vision2026Dashboard = () => {
   const [scores, setScores] = useState<Record<string, number> | null>(null);
 
   useEffect(() => {
-    // Get scores from localStorage
-    const savedScores = localStorage.getItem('vision_plan_scores');
-    if (savedScores) {
-      try {
-        setScores(JSON.parse(savedScores));
-      } catch (e) {
-        console.error('Failed to parse scores:', e);
-      }
+    // Instant render from cache
+    const cached = visionScoresService.getCached();
+    if (cached) setScores(cached);
+
+    // Then hydrate from DB (source of truth)
+    if (user) {
+      visionScoresService.load(user.id).then((dbScores) => {
+        if (dbScores) setScores(dbScores);
+      });
+      // One-shot: push legacy cache to DB if missing
+      visionScoresService.syncCacheToDB(user.id);
     }
 
     // Calculate current week key using shared utility
