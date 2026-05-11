@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { getWeekKey } from '@/utils/weekUtils';
+import { visionScoresService } from '@/services/visionScoresService';
 
 interface WelcomeVisionModalProps {
   open: boolean;
