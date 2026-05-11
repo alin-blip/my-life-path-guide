@@ -70,9 +70,9 @@ export const StickyHeader = () => {
               ))}
             </nav>
 
-            {/* Social Proof + Desktop CTAs */}
+            {/* Desktop CTAs */}
             <div className="hidden md:flex items-center gap-4">
-              <SocialProofBar />
+
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
