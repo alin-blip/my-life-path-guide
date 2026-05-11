@@ -65,15 +65,16 @@ export const WelcomeVisionModal: React.FC<WelcomeVisionModalProps> = ({ open, on
         return acc;
       }, []);
       setTasks(uniqueTasks);
-      
-      // Try to detect priority area from localStorage
-      const storedScores = localStorage.getItem('vision_plan_scores');
-      if (storedScores) {
+
+      // Detect priority area: prefer DB, fall back to cache
+      const scores = (await visionScoresService.load(user.id)) || visionScoresService.getCached();
+      if (scores) {
         try {
-          const scores = JSON.parse(storedScores);
-          const lowestCategory = Object.entries(scores).reduce((lowest, [cat, score]) => 
-            (score as number) < (scores[lowest] as number) ? cat : lowest
-          , 'body');
+          const lowestCategory = Object.entries(scores).reduce(
+            (lowest, [cat, score]) =>
+              (score as number) < (scores[lowest] as number) ? cat : lowest,
+            'body'
+          );
           setPriorityArea(lowestCategory);
         } catch (e) {
           console.error('Failed to parse vision scores', e);
@@ -83,8 +84,7 @@ export const WelcomeVisionModal: React.FC<WelcomeVisionModalProps> = ({ open, on
   };
 
   const handleClose = () => {
-    localStorage.setItem('vision_onboarding_complete', 'true');
-    localStorage.removeItem('vision_plan_scores');
+    visionScoresService.markOnboardingComplete();
     onClose();
   };
 
