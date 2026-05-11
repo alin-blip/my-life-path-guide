@@ -792,46 +792,40 @@
   }
 }
 
-/* ===== N8N.IO STYLE LANDING PAGE ===== */
+/* ===== MONOLITH LANDING UTILITIES (legacy n8n-* aliases kept) ===== */
 
-/* n8n Hero Gradient Background */
+/* Flat navy with a single, restrained gold halo top-center */
 .n8n-hero-gradient {
-  background: 
-    radial-gradient(ellipse 80% 60% at 50% -20%, 
-      hsla(280, 80%, 50%, 0.4) 0%, 
-      hsla(320, 80%, 55%, 0.25) 30%,
-      hsla(30, 90%, 55%, 0.15) 50%,
+  background:
+    radial-gradient(ellipse 60% 40% at 50% -10%,
+      hsl(var(--primary) / 0.10) 0%,
       transparent 70%
     ),
     hsl(var(--background));
 }
 
-/* n8n Style Gradient Text */
+/* Solid gold accent text — no gradient */
 .n8n-gradient-text {
-  background: linear-gradient(135deg, 
-    hsl(25, 100%, 60%) 0%, 
-    hsl(340, 85%, 60%) 50%,
-    hsl(280, 80%, 60%) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: hsl(var(--primary));
+  font-style: italic;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
 }
 
-/* n8n Primary Button Glow */
+/* Flat gold CTA — no glow, no translate */
 .n8n-glow-button {
-  background: linear-gradient(135deg, hsl(25, 95%, 55%), hsl(15, 95%, 50%));
-  box-shadow: 
-    0 0 20px hsla(25, 95%, 55%, 0.4),
-    0 0 40px hsla(25, 95%, 55%, 0.2);
-  transition: all 0.3s ease;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: 1px solid hsl(var(--primary));
+  box-shadow: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .n8n-glow-button:hover {
-  box-shadow: 
-    0 0 30px hsla(25, 95%, 55%, 0.6),
-    0 0 60px hsla(25, 95%, 55%, 0.3);
-  transform: translateY(-2px);
+  background: hsl(var(--primary-glow));
+  border-color: hsl(var(--primary-glow));
+  box-shadow: none;
+  transform: none;
 }
 
 /* n8n Tab Styles */
