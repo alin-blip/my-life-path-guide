@@ -164,8 +164,9 @@ export const AuthForm: React.FC = () => {
     try {
       const scores = JSON.parse(decodeURIComponent(visionScores));
       
-      // Store scores for welcome modal
-      localStorage.setItem('vision_plan_scores', JSON.stringify(scores));
+      // Persist scores to DB (source of truth) + cache for instant render
+      const { visionScoresService } = await import('@/services/visionScoresService');
+      await visionScoresService.save(userId, scores);
       localStorage.removeItem('vision_onboarding_complete');
       
       // Call edge function to create tasks

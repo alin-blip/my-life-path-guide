@@ -5053,6 +5053,7 @@ export type Database = {
           sound_volume: number | null
           updated_at: string | null
           user_id: string
+          vision_quiz_scores: Json | null
         }
         Insert: {
           created_at?: string | null
@@ -5065,6 +5066,7 @@ export type Database = {
           sound_volume?: number | null
           updated_at?: string | null
           user_id: string
+          vision_quiz_scores?: Json | null
         }
         Update: {
           created_at?: string | null
@@ -5077,6 +5079,7 @@ export type Database = {
           sound_volume?: number | null
           updated_at?: string | null
           user_id?: string
+          vision_quiz_scores?: Json | null
         }
         Relationships: []
       }

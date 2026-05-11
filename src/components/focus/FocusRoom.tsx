@@ -13,13 +13,17 @@ export const FocusRoom: React.FC = () => {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   useEffect(() => {
-    // Check if user came from vision onboarding
-    const isVisionOnboardingComplete = localStorage.getItem('vision_onboarding_complete');
-    const hasVisionScores = localStorage.getItem('vision_plan_scores');
-    
-    if (!isVisionOnboardingComplete && hasVisionScores) {
-      setShowWelcomeModal(true);
-    }
+    // Show welcome modal if user has vision scores (DB or cache) and onboarding not done
+    (async () => {
+      const { visionScoresService } = await import('@/services/visionScoresService');
+      if (visionScoresService.isOnboardingComplete()) return;
+      const cached = visionScoresService.getCached();
+      if (cached) {
+        setShowWelcomeModal(true);
+        return;
+      }
+      // Auth-aware DB check happens inside the modal; only open if we know scores exist
+    })();
   }, []);
 
   const handlePomodoroComplete = () => {

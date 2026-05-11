@@ -165,5 +165,11 @@ export const useNotesCloud = () => {
   };
 };
 
-// Re-export CATEGORY_CONFIG from the original hook for backwards compatibility
-export { CATEGORY_CONFIG } from './useNotes';
+export const CATEGORY_CONFIG: Record<NoteCategory, { label: string; labelRo: string; emoji: string; color: string }> = {
+  personal: { label: 'Personal', labelRo: 'Personal', emoji: '👤', color: 'bg-blue-500/20 text-blue-400' },
+  business: { label: 'Business', labelRo: 'Business', emoji: '💼', color: 'bg-amber-500/20 text-amber-400' },
+  health: { label: 'Health', labelRo: 'Sănătate', emoji: '💪', color: 'bg-green-500/20 text-green-400' },
+  relationships: { label: 'Relationships', labelRo: 'Relații', emoji: '❤️', color: 'bg-pink-500/20 text-pink-400' },
+  ideas: { label: 'Ideas', labelRo: 'Idei', emoji: '💡', color: 'bg-purple-500/20 text-purple-400' },
+  other: { label: 'Other', labelRo: 'Altele', emoji: '📝', color: 'bg-gray-500/20 text-gray-400' },
+};
