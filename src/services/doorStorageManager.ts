@@ -1,3 +1,13 @@
+/**
+ * ⚠️ OFFLINE CACHE ONLY — DO NOT TREAT AS SOURCE OF TRUTH.
+ *
+ * Source of truth for Door tasks (hit/do/hot, domino, key points) is the
+ * Postgres `user_tasks` + `hot_list_items` tables, accessed via
+ * `doorUserTasksService` and `doorSupabaseService`. This module exists only
+ * as a localStorage backup so the UI can degrade gracefully if the network
+ * fails momentarily. Any read that needs to be authoritative MUST go through
+ * the Supabase services. Do not write here without also writing to DB.
+ */
 import { HotListItem, HitListItem, DoListItem, DominoKeyPoint, DayOfWeek } from '@/types/door';
 import { format } from 'date-fns';
 
