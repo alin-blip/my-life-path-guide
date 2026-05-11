@@ -209,3 +209,6 @@ verify_jwt = false
 
 [functions.whisper-transcribe]
 verify_jwt = false
+
+[functions.process-email-queue]
+verify_jwt = true
