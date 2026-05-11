@@ -31,7 +31,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { plans, getLocalizedPlan } from "@/data/pricing";
 import { LandingEarlyBirdTimer } from "@/components/landing/LandingEarlyBirdTimer";
-import { SocialProofBar } from "@/components/landing/SocialProofBar";
 import { redirectExternal } from "@/lib/externalRedirect";
 
 export default function ChallengeLanding() {
@@ -392,10 +391,7 @@ export default function ChallengeLanding() {
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
-        {/* Floating Social Proof Bar */}
-        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50">
-          <SocialProofBar />
-        </div>
+
 
         {/* Hero Section */}
         <section className="relative pt-16 pb-16 px-4 overflow-hidden">

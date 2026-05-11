@@ -18,7 +18,6 @@ import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 import { Helmet } from 'react-helmet-async';
 import { useChallengeStats } from '@/hooks/useChallengeStats';
 import { AnimatedChallengeCard } from '@/components/challenge/AnimatedChallengeCard';
-import { SocialProofBar } from '@/components/landing/SocialProofBar';
 import { LandingEarlyBirdTimer } from '@/components/landing/LandingEarlyBirdTimer';
 
 import { ChallengePremiumOffer } from '@/components/challenge/ChallengePremiumOffer';
@@ -313,10 +312,7 @@ const Challenge7ZileLanding = () => {
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        {/* Floating Social Proof Bar */}
-        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50">
-          <SocialProofBar />
-        </div>
+
 
         {/* Hero Section */}
         <section className="relative pt-20 pb-20 px-4 md:px-8 overflow-hidden">

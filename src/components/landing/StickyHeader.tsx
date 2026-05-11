@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Rocket } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { SocialProofBar } from "./SocialProofBar";
 
 export const StickyHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -70,9 +69,9 @@ export const StickyHeader = () => {
               ))}
             </nav>
 
-            {/* Social Proof + Desktop CTAs */}
+            {/* Desktop CTAs */}
             <div className="hidden md:flex items-center gap-4">
-              <SocialProofBar />
+
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
@@ -99,12 +98,8 @@ export const StickyHeader = () => {
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
-          
-          {/* Mobile Social Proof Bar - below header */}
-          <div className="md:hidden flex justify-center pb-2">
-            <SocialProofBar />
-          </div>
         </div>
+
       </header>
 
       {/* Mobile Menu */}
