@@ -92,15 +92,15 @@ export default function MindCoach() {
           </Button>
 
           <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full">
-              <Brain className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Mind Coach</span>
+            <div className="inline-flex items-center gap-2 border border-border px-4 py-1.5 rounded-full">
+              <Brain className="h-4 w-4 text-primary" />
+              <span className="text-mono text-xs uppercase tracking-[0.2em] text-primary">Mind Coach</span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold">
+            <h1 className="font-display text-3xl md:text-5xl font-semibold tracking-tight">
               {language === 'ro' 
-                ? 'Transformă Orice Emoție în Putere' 
-                : 'Transform Any Emotion Into Power'}
+                ? <>Transformă orice emoție <em className="text-primary not-italic font-display italic">în putere</em></>
+                : <>Transform any emotion <em className="text-primary not-italic font-display italic">into power</em></>}
             </h1>
 
             <p className="text-muted-foreground max-w-xl mx-auto">
@@ -111,17 +111,17 @@ export default function MindCoach() {
           </div>
 
           {/* Feature highlights */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border mt-10 border border-border">
             {[
               { icon: Target, label: language === 'ro' ? 'Identifică' : 'Identify', desc: language === 'ro' ? 'Ce simți' : 'What you feel' },
               { icon: Sparkles, label: language === 'ro' ? 'Clarifică' : 'Clarify', desc: language === 'ro' ? 'Fapte vs Povești' : 'Facts vs Stories' },
               { icon: Zap, label: language === 'ro' ? 'Transformă' : 'Transform', desc: language === 'ro' ? 'În putere' : 'Into power' },
               { icon: Heart, label: language === 'ro' ? 'Acționează' : 'Act', desc: language === 'ro' ? 'Concret' : 'Concretely' },
             ].map((feature, idx) => (
-              <div key={idx} className="text-center p-3 rounded-xl bg-background/50 border">
-                <feature.icon className="h-6 w-6 mx-auto text-primary mb-2" />
-                <p className="font-medium text-sm">{feature.label}</p>
-                <p className="text-xs text-muted-foreground">{feature.desc}</p>
+              <div key={idx} className="text-center p-4 bg-background">
+                <feature.icon className="h-5 w-5 mx-auto text-primary mb-2" />
+                <p className="text-mono text-xs uppercase tracking-wider text-foreground">{feature.label}</p>
+                <p className="text-xs text-muted-foreground mt-1">{feature.desc}</p>
               </div>
             ))}
           </div>
