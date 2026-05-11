@@ -51,9 +51,10 @@ export const useDailyMasterReminder = (options: UseDailyMasterReminderOptions = 
     return () => clearInterval(interval);
   }, [enabled, toast]);
 
-  // Refresh stats
-  const refreshStats = () => {
-    setStats(dailyMasterService.getStats());
+  // Refresh stats from DB
+  const refreshStats = async () => {
+    const fresh = await dailyMasterService.refreshFromDB();
+    setStats(fresh);
   };
 
   return {
