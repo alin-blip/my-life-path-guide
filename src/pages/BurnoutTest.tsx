@@ -87,7 +87,7 @@ const BurnoutTest = () => {
               </span>
               <div className="w-px h-4 bg-white/30" />
               <span className="text-sm font-medium">
-                {language === 'en' ? '20 Questions • Free' : '20 Întrebări • Gratuit'}
+                {language === 'en' ? '12 Questions • Free' : '12 Întrebări • Gratuit'}
               </span>
             </motion.div>
 
