@@ -115,7 +115,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
       {/* Score Header */}
       <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center">
         <div className="text-6xl mb-4">{burnoutLevel.emoji}</div>
-        <div className="text-5xl font-black text-white mb-2">{totalScore}/100</div>
+        <div className="text-5xl font-black text-white mb-2">{normalizedTotal}/100</div>
         <div className="text-2xl font-bold mb-3" style={{ color: burnoutLevel.color }}>
           {language === 'en' ? burnoutLevel.level : burnoutLevel.levelRo}
         </div>
@@ -143,7 +143,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
         {(Object.keys(burnoutCategoryLabels) as BurnoutCategory[]).map((cat) => {
           const label = burnoutCategoryLabels[cat];
           const score = categoryScores[cat] || 0;
-          const percentage = Math.round((score / 25) * 100);
+          const percentage = Math.round((score / MAX_PER_CATEGORY) * 100);
           return (
             <div key={cat} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-2">
