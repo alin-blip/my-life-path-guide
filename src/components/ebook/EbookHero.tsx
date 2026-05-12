@@ -21,10 +21,10 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
   const [bundle, setBundle] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  // Prefill from burnout test capture
+  // Prefill from burnout test capture (localStorage first, sessionStorage fallback)
   useEffect(() => {
-    const n = sessionStorage.getItem('ebook_lead_name');
-    const e = sessionStorage.getItem('ebook_lead_email');
+    const n = localStorage.getItem('ebook_lead_name') || sessionStorage.getItem('ebook_lead_name');
+    const e = localStorage.getItem('ebook_lead_email') || sessionStorage.getItem('ebook_lead_email');
     if (n) setName(n);
     if (e) setEmail(e);
   }, []);
@@ -36,7 +36,7 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
         h1b: 'din burnout',
         h1c: ' — în 90 de zile.',
         desc: 'Primește instant ebook-ul + (opțional) audiobook-ul cu vocea autorului. Sistemul testat de antreprenori care au trecut de la haos la claritate.',
-        namePh: 'Prenumele tău',
+        namePh: 'Prenumele tău (opțional)',
         emailPh: 'Adresa ta de email',
         bumpTitle: '+ Adaugă audiobook-ul (vocea autorului)',
         bumpDesc: 'Ascultă-l în mașină, la sală, în pauză. Doar +35 LEI (în loc de 149 LEI).',
@@ -51,7 +51,7 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
         h1b: 'out of burnout',
         h1c: ' — in 90 days.',
         desc: 'Get instant access to the ebook + (optional) audiobook narrated by the author. The proven system entrepreneurs use to go from chaos to clarity.',
-        namePh: 'Your first name',
+        namePh: 'Your first name (optional)',
         emailPh: 'Your email address',
         bumpTitle: '+ Add the audiobook (author\'s voice)',
         bumpDesc: 'Listen in your car, at the gym, on a walk. Only +$7 (regular $39).',
@@ -89,41 +89,28 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
         });
       } catch {/* ignore duplicates */}
 
-      // Auto-create account if not logged in
-      let session = (await supabase.auth.getSession()).data.session;
-      if (!session) {
-        const tempPwd = crypto.randomUUID().replace(/-/g, '') + 'A1!';
-        const { error: signErr } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password: tempPwd,
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { display_name: cleanName, source: 'ebook_funnel' },
-          },
-        });
-        if (signErr && !signErr.message.toLowerCase().includes('already')) {
-          console.warn('Signup warning:', signErr.message);
-        }
-        session = (await supabase.auth.getSession()).data.session;
-      }
+      // Persist for downstream (no account created here — only at challenge purchase)
+      try {
+        localStorage.setItem('ebook_lead_email', cleanEmail);
+        if (cleanName) localStorage.setItem('ebook_lead_name', cleanName);
+        sessionStorage.setItem('ebook_lead_email', cleanEmail);
+        if (cleanName) sessionStorage.setItem('ebook_lead_name', cleanName);
+      } catch {/* ignore */}
 
-      sessionStorage.setItem('ebook_lead_name', cleanName);
-      sessionStorage.setItem('ebook_lead_email', cleanEmail);
-
-      // Create checkout
+      // Create checkout — guest if not logged in
+      const session = (await supabase.auth.getSession()).data.session;
       const response = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planFor(), source: `ebook_landing_${language}` },
+        body: {
+          plan: planFor(),
+          source: `ebook_landing_${language}`,
+          guest_email: session ? undefined : cleanEmail,
+          guest_name: session ? undefined : (cleanName || undefined),
+        },
         headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
 
       if (response.error) {
         if (preOpened) preOpened.close();
-        // If no auth (user must verify email first), fallback to /auth
-        if (response.error.message?.includes('authoriz')) {
-          toast.info(language === 'ro' ? 'Te rugăm să te autentifici pentru a finaliza plata.' : 'Please log in to complete checkout.');
-          navigate('/auth');
-          return;
-        }
         throw new Error(response.error.message);
       }
 
