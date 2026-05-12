@@ -46,7 +46,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !name.trim()) return;
+    if (!email.trim()) return;
     setLoading(true);
     try {
       const cleanEmail = email.trim().toLowerCase();
@@ -67,7 +67,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
       // Lead capture
       const { error: leadErr } = await supabase.from('email_leads').insert({
         email: cleanEmail,
-        name: cleanName,
+        name: cleanName || null,
         lead_magnet: 'burnout_test',
         source: `burnout_results_${language}`,
         subscribed: true,
@@ -84,7 +84,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
           recipientEmail: cleanEmail,
           idempotencyKey: `burnout-results-${cleanEmail}`,
           templateData: {
-            name: cleanName,
+            name: cleanName || undefined,
             language,
             totalScore: normalizedTotal,
             bodyScore: Math.round((categoryScores as any).body ?? (categoryScores as any).Body ?? 0),
@@ -95,23 +95,14 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
         },
       }).catch(err => console.warn('Results email send failed:', err));
 
-      // Auto-create account (random password — user resets later)
-      const tempPassword = crypto.randomUUID().replace(/-/g, '') + 'A1!';
-      const redirectUrl = `${window.location.origin}/dashboard`;
-      const { error: signUpErr } = await supabase.auth.signUp({
-        email: cleanEmail,
-        password: tempPassword,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: { display_name: cleanName, source: 'burnout_test' },
-        },
-      });
-      if (signUpErr && !signUpErr.message.toLowerCase().includes('already')) {
-        console.warn('Signup warning:', signUpErr.message);
-      }
-
-      sessionStorage.setItem('ebook_lead_name', cleanName);
-      sessionStorage.setItem('ebook_lead_email', cleanEmail);
+      // Persist for /ebook prefill (no account created here — that happens at challenge purchase)
+      try {
+        localStorage.setItem('ebook_lead_email', cleanEmail);
+        if (cleanName) localStorage.setItem('ebook_lead_name', cleanName);
+        // Keep sessionStorage too for backward compatibility
+        sessionStorage.setItem('ebook_lead_email', cleanEmail);
+        if (cleanName) sessionStorage.setItem('ebook_lead_name', cleanName);
+      } catch {/* ignore */}
 
       setSubmitted(true);
       // Redirect to paid ebook page
