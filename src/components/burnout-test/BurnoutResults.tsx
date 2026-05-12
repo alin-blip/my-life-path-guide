@@ -31,7 +31,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
   const MAX_PER_CATEGORY = 15;
   const MAX_TOTAL = 60;
   const normalizedTotal = Math.round((totalScore / MAX_TOTAL) * 100);
-  const burnoutLevelNormalized = getBurnoutLevel(normalizedTotal);
+  const burnoutLevel = getBurnoutLevel(normalizedTotal);
 
   const radarData = (Object.keys(burnoutCategoryLabels) as BurnoutCategory[]).map((cat) => ({
     category: language === 'en' ? burnoutCategoryLabels[cat].en : burnoutCategoryLabels[cat].ro,
