@@ -8,7 +8,8 @@ import { ChallengeDropOffStats } from './ChallengeDropOffStats';
 import { CRMConversationsDashboard } from './CRMConversationsDashboard';
 import { ChallengeAdminChat } from './ChallengeAdminChat';
 import { AdminErrorMonitor } from './AdminErrorMonitor';
-import { BarChart3, Users, Target, Zap, AlertTriangle, MessageSquare, MessagesSquare, ShieldAlert } from 'lucide-react';
+import { FunnelLeadsDashboard } from './FunnelLeadsDashboard';
+import { BarChart3, Users, Target, Zap, AlertTriangle, MessageSquare, MessagesSquare, ShieldAlert, Mail } from 'lucide-react';
 
 export const CRMDashboard: React.FC = () => {
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
@@ -37,10 +38,14 @@ export const CRMDashboard: React.FC = () => {
       </div>
 
       <Tabs defaultValue="pipeline" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:inline-grid">
           <TabsTrigger value="pipeline" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Pipeline
+          </TabsTrigger>
+          <TabsTrigger value="funnel-leads" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Funnel Emails
           </TabsTrigger>
           <TabsTrigger value="funnel" className="flex items-center gap-2">
             <Zap className="h-4 w-4" />
@@ -70,6 +75,10 @@ export const CRMDashboard: React.FC = () => {
 
         <TabsContent value="pipeline">
           <FunnelPipeline onSelectContact={setSelectedContactId} />
+        </TabsContent>
+
+        <TabsContent value="funnel-leads">
+          <FunnelLeadsDashboard />
         </TabsContent>
 
         <TabsContent value="funnel">

@@ -1,12 +1,16 @@
 import * as React from 'npm:react@18.3.1'
-import { Body, Container, Head, Heading, Html, Preview, Text, Button, Section } from 'npm:@react-email/components@0.0.22'
+import { Body, Container, Head, Heading, Html, Preview, Text, Button, Section, Img } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
-interface Props { name?: string; language?: 'ro' | 'en' }
+interface Props { name?: string; language?: 'ro' | 'en'; trackingId?: string }
+const FN = 'https://exsbnfmaadjyfblperas.supabase.co/functions/v1'
+const trackUrl = (u: string, t?: string) => t ? `${FN}/track-email-click?t=${t}&u=${encodeURIComponent(u)}` : u
+const pixelUrl = (t?: string) => t ? `${FN}/track-email-open?t=${t}` : ''
 
-const Email = ({ name, language = 'ro' }: Props) => {
+const Email = ({ name, language = 'ro', trackingId }: Props) => {
   const ro = language === 'ro'
-  const url = ro ? 'https://ceomindos.com/ebook-upsell' : 'https://ceomindos.com/ebook-upsell-en'
+  const baseUrl = ro ? 'https://ceomindos.com/ebook-upsell' : 'https://ceomindos.com/ebook-upsell-en'
+  const url = trackUrl(baseUrl, trackingId)
   return (
     <Html lang={language}>
       <Head />
@@ -34,6 +38,7 @@ const Email = ({ name, language = 'ro' }: Props) => {
           </Section>
           <Button href={url} style={btn}>{ro ? '👉 Activează Challenge-ul' : '👉 Activate the Challenge'}</Button>
           <Text style={footerText}>{ro ? '— Alin' : '— Alin'}</Text>
+          {trackingId && <Img src={pixelUrl(trackingId)} width="1" height="1" alt="" style={{ display: 'none' }} />}
         </Container>
       </Body>
     </Html>
