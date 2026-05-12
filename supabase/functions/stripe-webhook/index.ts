@@ -365,6 +365,64 @@ serve(async (req) => {
             } else {
               log("Upsell marked as purchased", { email: customerEmail, planId });
             }
+
+            // For Challenge purchases: ensure user exists + send password-setup email
+            const isChallenge = planId === "challenge-plus-trial" || planId === "challenge-plus-trial-en";
+            if (isChallenge) {
+              try {
+                let challengeUser = user;
+                if (!challengeUser) {
+                  // Create account on the fly with random password
+                  const tempPwd = crypto.randomUUID().replace(/-/g, "") + "A1!";
+                  const { data: created, error: createErr } = await supabaseService.auth.admin.createUser({
+                    email: customerEmail,
+                    password: tempPwd,
+                    email_confirm: true,
+                    user_metadata: {
+                      display_name: session.metadata?.guest_name || "",
+                      source: "challenge_purchase",
+                    },
+                  });
+                  if (createErr) {
+                    log("Auto-create user error", { error: createErr.message });
+                  } else if (created?.user) {
+                    challengeUser = created.user;
+                    // Link subscriber row to the new user
+                    await supabaseService
+                      .from("subscribers")
+                      .update({ user_id: created.user.id })
+                      .eq("email", customerEmail);
+                  }
+                }
+
+                // Generate password recovery link
+                const origin = req.headers.get("origin") || "https://ceomindos.com";
+                const { data: linkData, error: linkErr } = await supabaseService.auth.admin.generateLink({
+                  type: "recovery",
+                  email: customerEmail,
+                  options: { redirectTo: `${origin}/reset-password` },
+                });
+                if (linkErr) {
+                  log("generateLink error", { error: linkErr.message });
+                } else {
+                  await supabaseService.functions.invoke("send-transactional-email", {
+                    body: {
+                      templateName: "challenge-welcome-set-password",
+                      recipientEmail: customerEmail,
+                      idempotencyKey: `challenge-welcome-${session.id}`,
+                      templateData: {
+                        name: session.metadata?.guest_name || undefined,
+                        language,
+                        setPasswordUrl: linkData?.properties?.action_link || `${origin}/auth`,
+                      },
+                    },
+                  });
+                  log("Challenge welcome email queued", { email: customerEmail });
+                }
+              } catch (challengeErr) {
+                log("Challenge welcome flow error", { error: challengeErr instanceof Error ? challengeErr.message : String(challengeErr) });
+              }
+            }
           }
         } catch (funnelErr) {
           log("Burnout funnel hook error", { error: funnelErr instanceof Error ? funnelErr.message : String(funnelErr) });
