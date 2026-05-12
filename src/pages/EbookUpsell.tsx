@@ -147,6 +147,7 @@ const EbookUpsell = () => {
       </section>
 
 
+      {/* HERO */}
       <section className="pt-16 pb-12 px-4 md:px-8">
         <div className="max-w-5xl mx-auto text-center">
           <span className="inline-block text-xs tracking-[0.15em] text-amber-400/80 border border-amber-400/30 rounded-full px-4 py-2 mb-8 uppercase">
