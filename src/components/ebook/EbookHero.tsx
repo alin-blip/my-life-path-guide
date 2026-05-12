@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowRight, Loader2, Headphones, BookOpen } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { getUtmMetadata } from '@/hooks/useUtmCapture';
+import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 import heroLanding from '@/assets/ebook/hero_landing.webp';
 
 interface EbookHeroProps {
@@ -11,63 +13,128 @@ interface EbookHeroProps {
 }
 
 export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [bundle, setBundle] = useState(true);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+
+  // Prefill from burnout test capture
+  useEffect(() => {
+    const n = sessionStorage.getItem('ebook_lead_name');
+    const e = sessionStorage.getItem('ebook_lead_email');
+    if (n) setName(n);
+    if (e) setEmail(e);
+  }, []);
 
   const t = language === 'ro'
     ? {
-        badge: 'CEO MIND OS — PRIMUL SISTEM DE OPERARE PENTRU FONDATORI',
-        h1a: 'Afacerea ta are un ',
-        h1b: 'sistem de operare.',
-        h1c: 'Tu nu.',
-        desc: 'Descarcă GRATUIT cartea care îți arată cum să instalezi primul tău Sistem de Operare personal — și să treci de la burnout la peak performance în 90 de zile.',
+        badge: 'CEO MIND OS — DE LA BURNOUT LA PEAK PERFORMANCE',
+        h1a: 'Cartea care te scoate ',
+        h1b: 'din burnout',
+        h1c: ' — în 90 de zile.',
+        desc: 'Primește instant ebook-ul + (opțional) audiobook-ul cu vocea autorului. Sistemul testat de antreprenori care au trecut de la haos la claritate.',
         namePh: 'Prenumele tău',
         emailPh: 'Adresa ta de email',
-        cta: 'INSTALEAZĂ-ȚI NOUL OS',
-        spam: 'Fără spam. Fără bullshit. Doar sistemul care funcționează.',
-        thankYou: '/ebook-multumesc',
+        bumpTitle: '+ Adaugă audiobook-ul (vocea autorului)',
+        bumpDesc: 'Ascultă-l în mașină, la sală, în pauză. Doar +35 LEI (în loc de 149 LEI).',
+        priceOnly: '35 LEI',
+        priceBundle: '70 LEI',
+        cta: 'CUMPĂRĂ ACUM',
+        spam: 'Plată sigură cu Stripe • Garanție 30 zile.',
       }
     : {
-        badge: 'CEO MIND OS — THE FIRST OPERATING SYSTEM FOR FOUNDERS',
-        h1a: 'Your business has an ',
-        h1b: 'operating system.',
-        h1c: 'You don\'t.',
-        desc: 'Download FREE the book that shows you how to install your first Personal Operating System — and go from burnout to peak performance in 90 days.',
+        badge: 'CEO MIND OS — FROM BURNOUT TO PEAK PERFORMANCE',
+        h1a: 'The book that pulls you ',
+        h1b: 'out of burnout',
+        h1c: ' — in 90 days.',
+        desc: 'Get instant access to the ebook + (optional) audiobook narrated by the author. The proven system entrepreneurs use to go from chaos to clarity.',
         namePh: 'Your first name',
         emailPh: 'Your email address',
-        cta: 'INSTALL YOUR NEW OS',
-        spam: 'No spam. No BS. Just the system that works.',
-        thankYou: '/ebook-thank-you',
+        bumpTitle: '+ Add the audiobook (author\'s voice)',
+        bumpDesc: 'Listen in your car, at the gym, on a walk. Only +$7 (regular $39).',
+        priceOnly: '$7',
+        priceBundle: '$14',
+        cta: 'GET INSTANT ACCESS',
+        spam: 'Secure Stripe checkout • 30-day guarantee.',
       };
+
+  const planFor = () => {
+    if (language === 'ro') return bundle ? 'ebook-bundle' : 'ebook-only';
+    return bundle ? 'ebook-bundle-en' : 'ebook-only-en';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-
     setLoading(true);
-    try {
-      const utmMeta = getUtmMetadata();
-      const { error } = await supabase.from('email_leads').insert({
-        email: email.trim().toLowerCase(),
-        name: name.trim() || null,
-        lead_magnet: 'ebook_burnout',
-        source: `ebook_landing_${language}`,
-        subscribed: true,
-        metadata: utmMeta,
-      });
+    const preOpened = preOpenWindow();
 
-      if (error && !error.message.includes('duplicate')) {
-        throw error;
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanName = name.trim();
+
+      // Lead capture (idempotent)
+      try {
+        const utmMeta = getUtmMetadata();
+        await supabase.from('email_leads').insert({
+          email: cleanEmail,
+          name: cleanName || null,
+          lead_magnet: 'ebook_burnout',
+          source: `ebook_landing_${language}`,
+          subscribed: true,
+          metadata: { ...utmMeta, bundle },
+        });
+      } catch {/* ignore duplicates */}
+
+      // Auto-create account if not logged in
+      let session = (await supabase.auth.getSession()).data.session;
+      if (!session) {
+        const tempPwd = crypto.randomUUID().replace(/-/g, '') + 'A1!';
+        const { error: signErr } = await supabase.auth.signUp({
+          email: cleanEmail,
+          password: tempPwd,
+          options: {
+            emailRedirectTo: `${window.location.origin}/dashboard`,
+            data: { display_name: cleanName, source: 'ebook_funnel' },
+          },
+        });
+        if (signErr && !signErr.message.toLowerCase().includes('already')) {
+          console.warn('Signup warning:', signErr.message);
+        }
+        session = (await supabase.auth.getSession()).data.session;
       }
 
-      // Store lead info for upsell page
-      sessionStorage.setItem('ebook_lead_name', name.trim());
-      sessionStorage.setItem('ebook_lead_email', email.trim().toLowerCase());
-      navigate(t.thankYou);
+      sessionStorage.setItem('ebook_lead_name', cleanName);
+      sessionStorage.setItem('ebook_lead_email', cleanEmail);
+
+      // Create checkout
+      const response = await supabase.functions.invoke('create-checkout', {
+        body: { plan: planFor(), source: `ebook_landing_${language}` },
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
+      });
+
+      if (response.error) {
+        if (preOpened) preOpened.close();
+        // If no auth (user must verify email first), fallback to /auth
+        if (response.error.message?.includes('authoriz')) {
+          toast.info(language === 'ro' ? 'Te rugăm să te autentifici pentru a finaliza plata.' : 'Please log in to complete checkout.');
+          navigate('/auth');
+          return;
+        }
+        throw new Error(response.error.message);
+      }
+
+      if (response.data?.url) {
+        redirectExternal(response.data.url, preOpened);
+      } else {
+        if (preOpened) preOpened.close();
+        throw new Error('No checkout URL');
+      }
     } catch (err) {
-      console.error('Lead capture error:', err);
+      console.error('Ebook checkout error:', err);
+      if (preOpened) try { preOpened.close(); } catch {/* ignore */}
       toast.error(language === 'ro' ? 'Eroare. Încearcă din nou.' : 'Error. Please try again.');
     } finally {
       setLoading(false);
@@ -83,7 +150,7 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
             {t.h1a}
             <em className="italic text-amber-400">{t.h1b}</em>
-            <br />{t.h1c}
+            {t.h1c}
           </h1>
           <p className="text-white/60 text-lg mb-8 max-w-lg">{t.desc}</p>
 
@@ -103,16 +170,43 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
               required
               className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-amber-400/50 transition-colors"
             />
+
+            {/* Order bump */}
+            <label
+              htmlFor="audiobookBump"
+              className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                bundle
+                  ? 'border-amber-400 bg-amber-400/5'
+                  : 'border-white/10 bg-white/[0.02] hover:border-white/20'
+              }`}
+            >
+              <input
+                id="audiobookBump"
+                type="checkbox"
+                checked={bundle}
+                onChange={(e) => setBundle(e.target.checked)}
+                className="mt-1 w-5 h-5 accent-amber-400 cursor-pointer"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2 text-white font-semibold">
+                  <Headphones className="w-4 h-4 text-amber-400" />
+                  {t.bumpTitle}
+                </div>
+                <p className="text-white/50 text-xs mt-1">{t.bumpDesc}</p>
+              </div>
+            </label>
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-amber-400 hover:bg-amber-500 text-black font-bold text-sm tracking-wider rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+              className="w-full py-4 bg-amber-400 hover:bg-amber-500 text-black font-bold text-sm tracking-wider rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  {t.cta}
+                  <BookOpen className="w-4 h-4" />
+                  {t.cta} — {bundle ? t.priceBundle : t.priceOnly}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
