@@ -21,7 +21,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
   language,
 }) => {
   const navigate = useNavigate();
-  const burnoutLevel = getBurnoutLevel(totalScore);
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
