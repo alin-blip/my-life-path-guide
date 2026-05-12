@@ -97,11 +97,14 @@ const EbookPaymentSuccess = () => {
         </div>
 
         <button
-          onClick={() => navigate('/challenge-7-zile')}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-white/80 font-medium text-sm tracking-wider rounded-lg transition-colors border border-white/10"
+          onClick={() => navigate(language === 'en' ? '/ebook-upsell-en' : '/ebook-upsell')}
+          className="inline-flex items-center gap-2 px-8 py-4 bg-amber-400 hover:bg-amber-500 text-black font-bold text-sm tracking-wider rounded-lg transition-colors"
         >
-          {t.cta}
+          {language === 'ro' ? 'Continuă spre Challenge ▶' : 'Continue to Challenge ▶'}
         </button>
+        <p className="text-white/40 text-xs mt-3">
+          {language === 'ro' ? 'Te redirecționăm automat în 8 secunde…' : 'Redirecting automatically in 8 seconds…'}
+        </p>
       </section>
     </div>
   );
