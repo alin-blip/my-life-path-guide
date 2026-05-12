@@ -8,7 +8,8 @@ import { ChallengeDropOffStats } from './ChallengeDropOffStats';
 import { CRMConversationsDashboard } from './CRMConversationsDashboard';
 import { ChallengeAdminChat } from './ChallengeAdminChat';
 import { AdminErrorMonitor } from './AdminErrorMonitor';
-import { BarChart3, Users, Target, Zap, AlertTriangle, MessageSquare, MessagesSquare, ShieldAlert } from 'lucide-react';
+import { FunnelLeadsDashboard } from './FunnelLeadsDashboard';
+import { BarChart3, Users, Target, Zap, AlertTriangle, MessageSquare, MessagesSquare, ShieldAlert, Mail } from 'lucide-react';
 
 export const CRMDashboard: React.FC = () => {
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
