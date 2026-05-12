@@ -148,6 +148,56 @@ serve(async (req) => {
         productName = "CEO Mind OS - Accelerator Package (Ebook EN)";
         tier = "accelerator";
         break;
+
+      // === BURNOUT FUNNEL — Ebook (RO) ===
+      case "ebook-only":
+        unitAmount = 3500; // 35 RON
+        currency = "ron";
+        paymentMode = "payment";
+        productName = "CEO Mind OS - Ebook (PDF)";
+        tier = "ebook";
+        break;
+
+      case "ebook-bundle":
+        unitAmount = 7000; // 35 RON ebook + 35 RON audiobook
+        currency = "ron";
+        paymentMode = "payment";
+        productName = "CEO Mind OS - Ebook + Audiobook";
+        tier = "ebook";
+        break;
+
+      // === BURNOUT FUNNEL — Ebook (EN) ===
+      case "ebook-only-en":
+        unitAmount = 700; // $7
+        currency = "usd";
+        paymentMode = "payment";
+        productName = "CEO Mind OS - Ebook (PDF)";
+        tier = "ebook";
+        break;
+
+      case "ebook-bundle-en":
+        unitAmount = 1400; // $7 ebook + $7 audiobook
+        currency = "usd";
+        paymentMode = "payment";
+        productName = "CEO Mind OS - Ebook + Audiobook";
+        tier = "ebook";
+        break;
+
+      // === CHALLENGE UPSELL — One-time $97 + 14d Pro trial then $49/mo ===
+      case "challenge-plus-trial":
+        // Handled below as combined subscription — see special branch
+        unitAmount = 0;
+        currency = "ron";
+        productName = "Challenge 7 Zile + Pro (14 zile trial)";
+        tier = "pro";
+        break;
+
+      case "challenge-plus-trial-en":
+        unitAmount = 0;
+        currency = "usd";
+        productName = "7-Day Challenge + Pro (14-day trial)";
+        tier = "pro";
+        break;
       
       case "trial":
         unitAmount = 19700;
