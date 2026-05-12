@@ -41,7 +41,7 @@ export const BurnoutQuiz: React.FC<BurnoutQuizProps> = ({ language }) => {
         const finalAnswers = { ...answers, [currentQuestion.id]: points };
         const totalScore = Object.values(finalAnswers).reduce((sum, s) => sum + s, 0);
         trackQuizCompleted('burnout_test', totalScore);
-        setStep('signup');
+        setStep('results');
       }
     }, 400);
   };
