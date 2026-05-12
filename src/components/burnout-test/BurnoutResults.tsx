@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { getUtmMetadata } from '@/hooks/useUtmCapture';
+import ebookBundle from '@/assets/ebook-bundle.png';
 
 interface BurnoutResultsProps {
   categoryScores: Record<BurnoutCategory, number>;
@@ -199,21 +200,31 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
       )}
 
       {/* Email Capture + Signup */}
-      <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 backdrop-blur-xl border border-amber-400/30 rounded-3xl p-8">
-        <div className="text-center mb-6">
-          <h3 className="text-2xl font-bold text-white mb-2">
-            {language === 'en'
-              ? '🚀 Get your full Recovery Plan + free ebook'
-              : '🚀 Primește Planul de Recuperare complet + ebook'}
-          </h3>
-          <p className="text-white/70">
-            {language === 'en'
-              ? 'We\'ll send your detailed report and the next step to fix your burnout.'
-              : 'Îți trimitem raportul detaliat și următorul pas pentru a-ți repara burnout-ul.'}
-          </p>
-        </div>
+      <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 backdrop-blur-xl border border-amber-400/30 rounded-3xl p-6 md:p-8">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
+          {/* Book image */}
+          <div className="flex justify-center order-1 md:order-1">
+            <img
+              src={ebookBundle}
+              alt={language === 'en' ? 'From Burnout to Peak Performance — Book + Audiobook' : 'De la Burnout la Peak Performance — Carte + Audiobook'}
+              className="w-full max-w-sm drop-shadow-[0_20px_50px_rgba(251,191,36,0.25)]"
+            />
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3 max-w-md mx-auto">
+          {/* Form */}
+          <div className="order-2 md:order-2">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+              {language === 'en'
+                ? '🚀 Get your Recovery Plan + the Book'
+                : '🚀 Primește Planul de Recuperare + Cartea'}
+            </h3>
+            <p className="text-white/70 mb-5 text-sm">
+              {language === 'en'
+                ? 'Detailed report by email + the book "From Burnout to Peak Performance" (PDF + Audiobook with the author\'s voice).'
+                : 'Raport detaliat pe email + cartea „De la Burnout la Peak Performance" (PDF + Audiobook cu vocea autorului).'}
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="text"
             value={name}
@@ -253,11 +264,13 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
               </>
             )}
           </Button>
-          <p className="text-white/40 text-xs text-center flex items-center justify-center gap-1">
-            <Lock className="w-3 h-3" />
-            {language === 'en' ? 'No spam. Unsubscribe anytime.' : 'Fără spam. Te dezabonezi oricând.'}
-          </p>
-        </form>
+              <p className="text-white/40 text-xs text-center flex items-center justify-center gap-1">
+                <Lock className="w-3 h-3" />
+                {language === 'en' ? 'No spam. Unsubscribe anytime.' : 'Fără spam. Te dezabonezi oricând.'}
+              </p>
+            </form>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
