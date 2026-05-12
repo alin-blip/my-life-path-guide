@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -8,8 +9,17 @@ import { Flame, Clock, Target, ArrowRight, Play, CheckCircle2, Sparkles, Trendin
 import { motion } from 'framer-motion';
 
 const BurnoutTest = () => {
-  const { language } = useLanguage();
+  const { language: ctxLanguage, setLanguage } = useLanguage();
+  const { pathname } = useLocation();
+  const forceEn = pathname.includes('-en');
+  const language: 'ro' | 'en' = forceEn ? 'en' : ctxLanguage;
   const [showQuiz, setShowQuiz] = useState(false);
+
+  useEffect(() => {
+    if (forceEn && ctxLanguage !== 'en') {
+      setLanguage('en');
+    }
+  }, [forceEn, ctxLanguage, setLanguage]);
 
   const pillars = [
     { label: language === 'en' ? 'Body' : 'Corp', emoji: '💪', gradient: 'from-emerald-500 to-teal-500' },

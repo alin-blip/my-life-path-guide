@@ -344,6 +344,7 @@ const App = () => (
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/life-score" element={<LifeScore />} />
                     <Route path="/burnout-test" element={<BurnoutTest />} />
+                    <Route path="/burnout-test-en" element={<BurnoutTest />} />
                     <Route path="/warriors-way" element={
                       <ProtectedRoute>
                         <WarriorsWay />

@@ -303,6 +303,17 @@ serve(async (req) => {
           const isUpsellPurchase = ["ebook-accelerator", "ebook-accelerator-en", "challenge-plus-trial", "challenge-plus-trial-en"].includes(planId);
           const language = planId.endsWith("-en") ? "en" : "ro";
 
+          const EBOOK_DOWNLOADS = {
+            ro: {
+              ebookPdf: "https://drive.google.com/uc?export=download&id=1lpBl2_3V_HBzf3gXyrOq-oMs4SlxTJef",
+              audiobookMp3: "https://drive.google.com/uc?export=download&id=1hMJei1BUOnuaoY9ad2qqTyC0jKZ9YPd4",
+            },
+            en: {
+              ebookPdf: "https://drive.google.com/uc?export=download&id=1lbRXNa9qy4gMrCDTbgykhx9JqKkst-Wl",
+              audiobookMp3: "https://drive.google.com/uc?export=download&id=1Rz6pHYGxJX76hG_9n__K2yg7wOudI0I_",
+            },
+          } as const;
+
           if (isEbookPurchase) {
             // Record ebook purchase
             const { error: ebookErr } = await supabaseService
@@ -328,7 +339,11 @@ serve(async (req) => {
                   templateName: "ebook-delivery",
                   recipientEmail: customerEmail,
                   idempotencyKey: `ebook-delivery-${session.id}`,
-                  templateData: { language },
+                  templateData: {
+                    language,
+                    ebookUrl: EBOOK_DOWNLOADS[language].ebookPdf,
+                    audiobookUrl: EBOOK_DOWNLOADS[language].audiobookMp3,
+                  },
                 },
               });
               log("Ebook delivery email queued", { email: customerEmail });
