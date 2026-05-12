@@ -39,13 +39,6 @@ export const FunnelLeadsDashboard: React.FC = () => {
   const load = async () => {
     setLoading(true);
     try {
-      const [leadsRes, sumRes] = await Promise.all([
-        supabase.functions.invoke('funnel-leads-dashboard', { body: null, method: 'GET' as any, headers: {} as any }),
-        supabase.functions.invoke('funnel-leads-dashboard?action=summary', { method: 'GET' as any } as any),
-      ]);
-      // fallback using fetch since invoke doesn't support query params well
-    } catch {}
-    try {
       const session = (await supabase.auth.getSession()).data.session;
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/funnel-leads-dashboard`;
       const opts = { headers: { Authorization: `Bearer ${session?.access_token}` } };
