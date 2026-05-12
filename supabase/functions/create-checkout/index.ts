@@ -148,6 +148,56 @@ serve(async (req) => {
         productName = "CEO Mind OS - Accelerator Package (Ebook EN)";
         tier = "accelerator";
         break;
+
+      // === BURNOUT FUNNEL — Ebook (RO) ===
+      case "ebook-only":
+        unitAmount = 3500; // 35 RON
+        currency = "ron";
+        paymentMode = "payment";
+        productName = "CEO Mind OS - Ebook (PDF)";
+        tier = "ebook";
+        break;
+
+      case "ebook-bundle":
+        unitAmount = 7000; // 35 RON ebook + 35 RON audiobook
+        currency = "ron";
+        paymentMode = "payment";
+        productName = "CEO Mind OS - Ebook + Audiobook";
+        tier = "ebook";
+        break;
+
+      // === BURNOUT FUNNEL — Ebook (EN) ===
+      case "ebook-only-en":
+        unitAmount = 700; // $7
+        currency = "usd";
+        paymentMode = "payment";
+        productName = "CEO Mind OS - Ebook (PDF)";
+        tier = "ebook";
+        break;
+
+      case "ebook-bundle-en":
+        unitAmount = 1400; // $7 ebook + $7 audiobook
+        currency = "usd";
+        paymentMode = "payment";
+        productName = "CEO Mind OS - Ebook + Audiobook";
+        tier = "ebook";
+        break;
+
+      // === CHALLENGE UPSELL — One-time $97 + 14d Pro trial then $49/mo ===
+      case "challenge-plus-trial":
+        // Handled below as combined subscription — see special branch
+        unitAmount = 0;
+        currency = "ron";
+        productName = "Challenge 7 Zile + Pro (14 zile trial)";
+        tier = "pro";
+        break;
+
+      case "challenge-plus-trial-en":
+        unitAmount = 0;
+        currency = "usd";
+        productName = "7-Day Challenge + Pro (14-day trial)";
+        tier = "pro";
+        break;
       
       case "trial":
         unitAmount = 19700;
@@ -213,14 +263,42 @@ serve(async (req) => {
     } else if (plan === 'ebook-accelerator-en') {
       successUrl = `${origin}/ebook-payment-success?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
       cancelUrl = `${origin}/ebook-upsell-en?canceled=true`;
+    } else if (plan === 'ebook-only' || plan === 'ebook-bundle') {
+      successUrl = `${origin}/ebook-plata-reusita?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      cancelUrl = `${origin}/ebook?canceled=true`;
+    } else if (plan === 'ebook-only-en' || plan === 'ebook-bundle-en') {
+      successUrl = `${origin}/ebook-payment-success?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      cancelUrl = `${origin}/ebook-en?canceled=true`;
+    } else if (plan === 'challenge-plus-trial') {
+      successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
+      cancelUrl = `${origin}/ebook-upsell?canceled=true`;
+    } else if (plan === 'challenge-plus-trial-en') {
+      successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
+      cancelUrl = `${origin}/ebook-upsell-en?canceled=true`;
     } else {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/pricing?canceled=true`;
     }
 
-    const lineItems = paymentMode === "payment" 
-      ? [{ price_data: { currency, product_data: { name: productName }, unit_amount: unitAmount }, quantity: 1 }]
-      : [{ price_data: { currency, product_data: { name: productName }, unit_amount: unitAmount, recurring: { interval } }, quantity: 1 }];
+    // Special combined line items for Challenge+Trial: $97 one-time + $49/mo with 14d trial
+    let lineItems: any[];
+    if (plan === 'challenge-plus-trial' || plan === 'challenge-plus-trial-en') {
+      const isRon = plan === 'challenge-plus-trial';
+      const challengeAmt = isRon ? 48500 : 9700;  // 485 RON or $97
+      const monthlyAmt = isRon ? 24500 : 4900;    // 245 RON or $49
+      const cur = isRon ? 'ron' : 'usd';
+      currency = cur;
+      paymentMode = 'subscription';
+      lineItems = [
+        { price_data: { currency: cur, product_data: { name: isRon ? 'Challenge 7 Zile (plată unică)' : '7-Day Challenge (one-time)' }, unit_amount: challengeAmt }, quantity: 1 },
+        { price_data: { currency: cur, product_data: { name: isRon ? 'CEO Mind OS Pro (lunar)' : 'CEO Mind OS Pro (monthly)' }, unit_amount: monthlyAmt, recurring: { interval: 'month' } }, quantity: 1 },
+      ];
+      trialDays = 14;
+    } else {
+      lineItems = paymentMode === "payment"
+        ? [{ price_data: { currency, product_data: { name: productName }, unit_amount: unitAmount }, quantity: 1 }]
+        : [{ price_data: { currency, product_data: { name: productName }, unit_amount: unitAmount, recurring: { interval } }, quantity: 1 }];
+    }
 
     let appliedCouponId: string | undefined;
     if (plan === "pro-challenge-3mo") {
