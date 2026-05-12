@@ -15,6 +15,13 @@ const EbookPaymentSuccess = () => {
     return () => { document.documentElement.classList.remove('dark'); };
   }, []);
 
+  // Auto-redirect to upsell after 8s
+  useEffect(() => {
+    const upsellPath = language === 'en' ? '/ebook-upsell-en' : '/ebook-upsell';
+    const timer = setTimeout(() => navigate(upsellPath), 8000);
+    return () => clearTimeout(timer);
+  }, [language, navigate]);
+
   const t = language === 'ro'
     ? {
         seoTitle: 'Plata Confirmată — CEO Mind OS',
