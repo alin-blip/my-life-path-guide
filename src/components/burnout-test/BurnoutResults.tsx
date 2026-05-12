@@ -27,10 +27,16 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // 12 questions: 3 per category, max 5 points each → 15 per cat, 60 total
+  const MAX_PER_CATEGORY = 15;
+  const MAX_TOTAL = 60;
+  const normalizedTotal = Math.round((totalScore / MAX_TOTAL) * 100);
+  const burnoutLevelNormalized = getBurnoutLevel(normalizedTotal);
+
   const radarData = (Object.keys(burnoutCategoryLabels) as BurnoutCategory[]).map((cat) => ({
     category: language === 'en' ? burnoutCategoryLabels[cat].en : burnoutCategoryLabels[cat].ro,
     score: categoryScores[cat] || 0,
-    fullMark: 25,
+    fullMark: MAX_PER_CATEGORY,
   }));
 
   const weakest = (Object.entries(categoryScores) as [BurnoutCategory, number][])
