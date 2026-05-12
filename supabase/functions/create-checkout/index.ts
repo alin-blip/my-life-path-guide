@@ -350,7 +350,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       mode: paymentMode,
       line_items: lineItems,
-      metadata: { plan_id: plan, user_id: user.id, tier, coaching_included: tier === "pro" || tier === "elite" ? "true" : "false", has_trial: trialDays ? "true" : "false", source: source || "direct" },
+      metadata: { plan_id: plan, user_id: user.id || "", guest_email: user.id ? "" : user.email, guest_name: guest_name || "", tier, coaching_included: tier === "pro" || tier === "elite" ? "true" : "false", has_trial: trialDays ? "true" : "false", source: source || "direct" },
       success_url: successUrl,
       cancel_url: cancelUrl,
     };
