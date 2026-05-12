@@ -89,16 +89,32 @@ const EbookUpsell = () => {
     setLoading(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
+      const session = sessionData.session;
+
+      // Guest email fallback (from burnout test / ebook landing)
+      const guestEmail = !session
+        ? (localStorage.getItem('ebook_lead_email') || sessionStorage.getItem('ebook_lead_email') || '').trim().toLowerCase()
+        : '';
+      const guestName = !session
+        ? (localStorage.getItem('ebook_lead_name') || sessionStorage.getItem('ebook_lead_name') || '').trim()
+        : '';
+
+      if (!session && !guestEmail) {
         if (preOpened) preOpened.close();
         localStorage.setItem('pending_challenge_plan', JSON.stringify({ planId: plan, value }));
         toast.info(isRo ? 'Te rugăm să te autentifici.' : 'Please log in.');
         navigate('/auth');
         return;
       }
+
       const response = await supabase.functions.invoke('create-checkout', {
-        body: { plan, source: `ebook_upsell_${language}` },
-        headers: { Authorization: `Bearer ${sessionData.session.access_token}` },
+        body: {
+          plan,
+          source: `ebook_upsell_${language}`,
+          guest_email: session ? undefined : guestEmail,
+          guest_name: session ? undefined : (guestName || undefined),
+        },
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       });
       if (response.error) {
         if (preOpened) preOpened.close();
