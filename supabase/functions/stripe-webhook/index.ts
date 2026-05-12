@@ -325,7 +325,7 @@ serve(async (req) => {
             try {
               await supabaseService.functions.invoke("send-transactional-email", {
                 body: {
-                  templateName: language === "en" ? "ebook-delivery-en" : "ebook-delivery",
+                  templateName: "ebook-delivery",
                   recipientEmail: customerEmail,
                   idempotencyKey: `ebook-delivery-${session.id}`,
                   templateData: { language },
