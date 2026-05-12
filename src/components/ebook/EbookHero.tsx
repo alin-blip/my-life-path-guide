@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { getUtmMetadata } from '@/hooks/useUtmCapture';
 import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 import heroLanding from '@/assets/ebook/hero_landing.webp';
+import ebookBundle from '@/assets/ebook-bundle.png';
 
 interface EbookHeroProps {
   language: 'ro' | 'en';
@@ -194,6 +195,11 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
                 </div>
                 <p className="text-white/50 text-xs mt-1">{t.bumpDesc}</p>
               </div>
+              <img
+                src={ebookBundle}
+                alt="Book + Audiobook bundle"
+                className="w-20 h-20 object-contain shrink-0 hidden sm:block"
+              />
             </label>
 
             <button
