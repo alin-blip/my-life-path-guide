@@ -1,108 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle, XCircle, Loader2, Mail, ArrowLeft } from 'lucide-react';
 
 export default function Unsubscribe() {
-  const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('');
+  const [params] = useSearchParams();
+  const token = params.get('token') || '';
+  const [state, setState] = useState<'loading'|'valid'|'used'|'invalid'|'done'|'error'>('loading');
+  const [email, setEmail] = useState('');
 
   useEffect(() => {
-    const processUnsubscribe = async () => {
-      const trackingId = searchParams.get('id');
-
-      if (!trackingId) {
-        setStatus('error');
-        setMessage('Link invalid. Te rugăm să contactezi suportul.');
-        return;
-      }
-
+    if (!token) { setState('invalid'); return; }
+    (async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('unsubscribe-email', {
-          body: {},
-          headers: {},
-        });
+        const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/handle-email-unsubscribe?token=${encodeURIComponent(token)}`;
+        const res = await fetch(url, { headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } });
+        const data = await res.json();
+        if (data.status === 'used' || data.alreadyUnsubscribed) { setState('used'); setEmail(data.email || ''); }
+        else if (data.valid || data.email) { setState('valid'); setEmail(data.email || ''); }
+        else setState('invalid');
+      } catch { setState('error'); }
+    })();
+  }, [token]);
 
-        // Call the function with the tracking ID as query param
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/unsubscribe-email?id=${trackingId}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        if (response.ok) {
-          setStatus('success');
-          setMessage('Ai fost dezabonat cu succes. Nu vei mai primi emailuri de la noi.');
-        } else {
-          throw new Error('Failed to unsubscribe');
-        }
-      } catch (error) {
-        console.error('Unsubscribe error:', error);
-        setStatus('error');
-        setMessage('A apărut o eroare. Te rugăm să încerci din nou sau să contactezi suportul.');
-      }
-    };
-
-    processUnsubscribe();
-  }, [searchParams]);
+  const confirm = async () => {
+    try {
+      await supabase.functions.invoke('handle-email-unsubscribe', { body: { token } });
+      setState('done');
+    } catch { setState('error'); }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-      <Card className="max-w-md w-full bg-card/80 backdrop-blur-sm border-border">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4">
-            {status === 'loading' && (
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              </div>
-            )}
-            {status === 'success' && (
-              <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-green-500" />
-              </div>
-            )}
-            {status === 'error' && (
-              <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
-                <XCircle className="w-8 h-8 text-red-500" />
-              </div>
-            )}
-          </div>
-          <CardTitle className="text-2xl">
-            {status === 'loading' && 'Se procesează...'}
-            {status === 'success' && 'Dezabonare Confirmată'}
-            {status === 'error' && 'A apărut o problemă'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center space-y-6">
-          <p className="text-muted-foreground">
-            {message || 'Te rugăm să aștepți...'}
-          </p>
-
-          {status === 'success' && (
-            <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
-              <Mail className="w-5 h-5 inline-block mr-2" />
-              Ne pare rău să te vedem plecând. Dacă te-ai dezabonat din greșeală, 
-              poți oricând să te înscrii din nou pe site-ul nostru.
-            </div>
-          )}
-
-          <div className="pt-4">
-            <Link to="/">
-              <Button variant="outline" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Înapoi la pagina principală
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-[#10172d] text-white flex items-center justify-center px-6">
+      <div className="max-w-md w-full bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+        <h1 className="text-amber-400 text-2xl font-bold mb-4">CEO MIND OS</h1>
+        {state === 'loading' && <p>Se verifică...</p>}
+        {state === 'valid' && (
+          <>
+            <h2 className="text-xl font-bold mb-3">Confirmă dezabonarea</h2>
+            <p className="text-white/70 text-sm mb-6">{email}</p>
+            <button onClick={confirm} className="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-[#10172d] font-bold rounded-lg">Da, dezabonează-mă</button>
+          </>
+        )}
+        {state === 'used' && <p className="text-white/80">Ești deja dezabonat. {email}</p>}
+        {state === 'done' && <p className="text-white/80">✅ Dezabonat cu succes. Nu vei mai primi emailuri.</p>}
+        {state === 'invalid' && <p className="text-white/80">Link invalid sau expirat.</p>}
+        {state === 'error' && <p className="text-white/80">Eroare. Încearcă din nou.</p>}
+      </div>
     </div>
   );
 }
