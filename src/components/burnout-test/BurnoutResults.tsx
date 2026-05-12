@@ -21,16 +21,22 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
   language,
 }) => {
   const navigate = useNavigate();
-  const burnoutLevel = getBurnoutLevel(totalScore);
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // 12 questions: 3 per category, max 5 points each → 15 per cat, 60 total
+  const MAX_PER_CATEGORY = 15;
+  const MAX_TOTAL = 60;
+  const normalizedTotal = Math.round((totalScore / MAX_TOTAL) * 100);
+  const burnoutLevel = getBurnoutLevel(normalizedTotal);
+
   const radarData = (Object.keys(burnoutCategoryLabels) as BurnoutCategory[]).map((cat) => ({
     category: language === 'en' ? burnoutCategoryLabels[cat].en : burnoutCategoryLabels[cat].ro,
     score: categoryScores[cat] || 0,
-    fullMark: 25,
+    fullMark: MAX_PER_CATEGORY,
   }));
 
   const weakest = (Object.entries(categoryScores) as [BurnoutCategory, number][])
@@ -49,7 +55,8 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
       // Persist scores for the ebook funnel
       try {
         localStorage.setItem('burnout_scores', JSON.stringify({
-          totalScore,
+          totalScore: normalizedTotal,
+          rawScore: totalScore,
           categoryScores,
           level: burnoutLevel.level,
           completedAt: new Date().toISOString(),
@@ -63,7 +70,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
         lead_magnet: 'burnout_test',
         source: `burnout_results_${language}`,
         subscribed: true,
-        metadata: { ...utmMeta, totalScore, level: burnoutLevel.level },
+        metadata: { ...utmMeta, totalScore: normalizedTotal, rawScore: totalScore, level: burnoutLevel.level },
       });
       if (leadErr && !leadErr.message.includes('duplicate')) {
         console.warn('Lead insert error:', leadErr);
@@ -109,7 +116,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
       {/* Score Header */}
       <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center">
         <div className="text-6xl mb-4">{burnoutLevel.emoji}</div>
-        <div className="text-5xl font-black text-white mb-2">{totalScore}/100</div>
+        <div className="text-5xl font-black text-white mb-2">{normalizedTotal}/100</div>
         <div className="text-2xl font-bold mb-3" style={{ color: burnoutLevel.color }}>
           {language === 'en' ? burnoutLevel.level : burnoutLevel.levelRo}
         </div>
@@ -137,7 +144,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
         {(Object.keys(burnoutCategoryLabels) as BurnoutCategory[]).map((cat) => {
           const label = burnoutCategoryLabels[cat];
           const score = categoryScores[cat] || 0;
-          const percentage = Math.round((score / 25) * 100);
+          const percentage = Math.round((score / MAX_PER_CATEGORY) * 100);
           return (
             <div key={cat} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-2">
