@@ -2304,6 +2304,51 @@ export type Database = {
         }
         Relationships: []
       }
+      ebook_purchases: {
+        Row: {
+          created_at: string
+          delivery_email_sent_at: string | null
+          email: string
+          id: string
+          language: string
+          name: string | null
+          purchased_at: string
+          stripe_session_id: string | null
+          updated_at: string
+          upsell_email_1_sent_at: string | null
+          upsell_email_2_sent_at: string | null
+          upsell_purchased_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          delivery_email_sent_at?: string | null
+          email: string
+          id?: string
+          language?: string
+          name?: string | null
+          purchased_at?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+          upsell_email_1_sent_at?: string | null
+          upsell_email_2_sent_at?: string | null
+          upsell_purchased_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          delivery_email_sent_at?: string | null
+          email?: string
+          id?: string
+          language?: string
+          name?: string | null
+          purchased_at?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+          upsell_email_1_sent_at?: string | null
+          upsell_email_2_sent_at?: string | null
+          upsell_purchased_at?: string | null
+        }
+        Relationships: []
+      }
       email_leads: {
         Row: {
           created_at: string

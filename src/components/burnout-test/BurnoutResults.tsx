@@ -70,11 +70,29 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
         lead_magnet: 'burnout_test',
         source: `burnout_results_${language}`,
         subscribed: true,
-        metadata: { ...utmMeta, totalScore: normalizedTotal, rawScore: totalScore, level: burnoutLevel.level },
+        metadata: { ...utmMeta, language, totalScore: normalizedTotal, rawScore: totalScore, level: burnoutLevel.level, categoryScores },
       });
       if (leadErr && !leadErr.message.includes('duplicate')) {
         console.warn('Lead insert error:', leadErr);
       }
+
+      // Send results email (fire-and-forget)
+      supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'burnout-results',
+          recipientEmail: cleanEmail,
+          idempotencyKey: `burnout-results-${cleanEmail}`,
+          templateData: {
+            name: cleanName,
+            language,
+            totalScore: normalizedTotal,
+            bodyScore: Math.round((categoryScores as any).body ?? (categoryScores as any).Body ?? 0),
+            beingScore: Math.round((categoryScores as any).being ?? (categoryScores as any).Being ?? 0),
+            balanceScore: Math.round((categoryScores as any).balance ?? (categoryScores as any).Balance ?? 0),
+            businessScore: Math.round((categoryScores as any).business ?? (categoryScores as any).Business ?? 0),
+          },
+        },
+      }).catch(err => console.warn('Results email send failed:', err));
 
       // Auto-create account (random password — user resets later)
       const tempPassword = crypto.randomUUID().replace(/-/g, '') + 'A1!';

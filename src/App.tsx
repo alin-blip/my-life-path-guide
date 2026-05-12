@@ -442,6 +442,7 @@ const App = () => (
                     <Route path="/ebook-upsell-en" element={<EbookUpsell />} />
                     <Route path="/ebook-plata-reusita" element={<EbookPaymentSuccess />} />
                     <Route path="/ebook-payment-success" element={<EbookPaymentSuccess />} />
+                    <Route path="/unsubscribe" element={<Unsubscribe />} />
                         <Route path="*" element={<NotFound />} />
                        </Routes>
                       </Suspense>
