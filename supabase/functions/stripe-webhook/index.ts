@@ -296,6 +296,65 @@ serve(async (req) => {
           await processCoachCommission(user.id, paymentAmountEur, session.currency || "eur", session.id);
         }
 
+        // === BURNOUT/EBOOK FUNNEL HOOKS ===
+        try {
+          const planId = session.metadata?.plan_id || "";
+          const isEbookPurchase = ["ebook-only", "ebook-bundle", "ebook-only-en", "ebook-bundle-en"].includes(planId);
+          const isUpsellPurchase = ["ebook-accelerator", "ebook-accelerator-en", "challenge-plus-trial", "challenge-plus-trial-en"].includes(planId);
+          const language = planId.endsWith("-en") ? "en" : "ro";
+
+          if (isEbookPurchase) {
+            // Record ebook purchase
+            const { error: ebookErr } = await supabaseService
+              .from("ebook_purchases")
+              .upsert({
+                email: customerEmail,
+                language,
+                stripe_session_id: session.id,
+                purchased_at: new Date().toISOString(),
+                delivery_email_sent_at: new Date().toISOString(),
+              }, { onConflict: "stripe_session_id" });
+
+            if (ebookErr) {
+              log("Error inserting ebook_purchase", { error: ebookErr.message });
+            } else {
+              log("Ebook purchase recorded", { email: customerEmail, language });
+            }
+
+            // Send delivery email immediately
+            try {
+              await supabaseService.functions.invoke("send-transactional-email", {
+                body: {
+                  templateName: "ebook-delivery",
+                  recipientEmail: customerEmail,
+                  idempotencyKey: `ebook-delivery-${session.id}`,
+                  templateData: { language },
+                },
+              });
+              log("Ebook delivery email queued", { email: customerEmail });
+            } catch (emailErr) {
+              log("Error sending ebook delivery email", { error: emailErr instanceof Error ? emailErr.message : String(emailErr) });
+            }
+          }
+
+          if (isUpsellPurchase) {
+            // Mark upsell as purchased to stop the upsell sequence
+            const { error: upsellErr } = await supabaseService
+              .from("ebook_purchases")
+              .update({ upsell_purchased_at: new Date().toISOString() })
+              .ilike("email", customerEmail)
+              .is("upsell_purchased_at", null);
+
+            if (upsellErr) {
+              log("Error marking upsell purchased", { error: upsellErr.message });
+            } else {
+              log("Upsell marked as purchased", { email: customerEmail, planId });
+            }
+          }
+        } catch (funnelErr) {
+          log("Burnout funnel hook error", { error: funnelErr instanceof Error ? funnelErr.message : String(funnelErr) });
+        }
+
         break;
       }
 
