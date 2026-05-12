@@ -127,6 +127,26 @@ const EbookUpsell = () => {
 
       <EbookNav language={language} />
 
+      {/* Delivery confirmation banner */}
+      <section className="pt-8 px-4">
+        <div className="max-w-3xl mx-auto bg-emerald-500/10 border border-emerald-400/30 rounded-2xl px-5 py-4 flex items-start gap-3">
+          <div className="w-9 h-9 rounded-full bg-emerald-400/15 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div className="text-sm md:text-base">
+            <p className="text-emerald-300 font-semibold mb-0.5">
+              {isRo ? '✅ Plata confirmată — fișierele au fost trimise pe email' : '✅ Payment confirmed — your files have been sent by email'}
+            </p>
+            <p className="text-white/70">
+              {isRo
+                ? 'Verifică inbox-ul (și folder-ul Spam/Promoții) pentru cartea PDF și audiobook-ul. Între timp, profită de oferta de mai jos — disponibilă o singură dată.'
+                : 'Check your inbox (and Spam/Promotions) for the PDF book and audiobook. Meanwhile, claim the one-time offer below.'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+
       {/* HERO */}
       <section className="pt-16 pb-12 px-4 md:px-8">
         <div className="max-w-5xl mx-auto text-center">
