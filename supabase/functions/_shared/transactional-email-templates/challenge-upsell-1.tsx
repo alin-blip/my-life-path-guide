@@ -38,6 +38,7 @@ const Email = ({ name, language = 'ro', trackingId }: Props) => {
           </Section>
           <Button href={url} style={btn}>{ro ? '👉 Activează Challenge-ul' : '👉 Activate the Challenge'}</Button>
           <Text style={footerText}>{ro ? '— Alin' : '— Alin'}</Text>
+          {trackingId && <Img src={pixelUrl(trackingId)} width="1" height="1" alt="" style={{ display: 'none' }} />}
         </Container>
       </Body>
     </Html>
