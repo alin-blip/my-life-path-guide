@@ -220,8 +220,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={language === 'en' ? 'Your first name' : 'Prenumele tău'}
-            required
+            placeholder={language === 'en' ? 'Your first name (optional)' : 'Prenumele tău (opțional)'}
             disabled={loading || submitted}
             className="w-full px-4 py-3.5 bg-white/5 border border-white/20 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-amber-400/60 transition-colors"
           />
