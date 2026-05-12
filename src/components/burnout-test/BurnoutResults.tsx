@@ -55,7 +55,8 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
       // Persist scores for the ebook funnel
       try {
         localStorage.setItem('burnout_scores', JSON.stringify({
-          totalScore,
+          totalScore: normalizedTotal,
+          rawScore: totalScore,
           categoryScores,
           level: burnoutLevel.level,
           completedAt: new Date().toISOString(),
@@ -69,7 +70,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
         lead_magnet: 'burnout_test',
         source: `burnout_results_${language}`,
         subscribed: true,
-        metadata: { ...utmMeta, totalScore, level: burnoutLevel.level },
+        metadata: { ...utmMeta, totalScore: normalizedTotal, rawScore: totalScore, level: burnoutLevel.level },
       });
       if (leadErr && !leadErr.message.includes('duplicate')) {
         console.warn('Lead insert error:', leadErr);
