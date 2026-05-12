@@ -16,7 +16,7 @@ export interface BurnoutQuestion {
 }
 
 export const burnoutQuestions: BurnoutQuestion[] = [
-  // BODY (5 questions)
+  // BODY (3 questions)
   {
     id: 'b1_fatigue',
     category: 'body',
@@ -44,32 +44,6 @@ export const burnoutQuestions: BurnoutQuestion[] = [
     ],
   },
   {
-    id: 'b3_exercise',
-    category: 'body',
-    question: 'How often do you exercise or do sports?',
-    questionRo: 'Cât de des faci mișcare/sport?',
-    options: [
-      { label: 'Daily', labelRo: 'Zilnic', emoji: '🏋️', points: 5 },
-      { label: '3-4 times/week', labelRo: 'De 3-4 ori/săptămână', emoji: '🏃', points: 4 },
-      { label: '1-2 times/week', labelRo: 'De 1-2 ori/săptămână', emoji: '🚶', points: 3 },
-      { label: 'Rarely', labelRo: 'Rar', emoji: '🛋️', points: 2 },
-      { label: 'Never', labelRo: 'Niciodată', emoji: '😔', points: 1 },
-    ],
-  },
-  {
-    id: 'b4_nutrition',
-    category: 'body',
-    question: 'How would you rate your diet overall?',
-    questionRo: 'Cum te alimentezi în general?',
-    options: [
-      { label: 'Excellent, balanced', labelRo: 'Excelent, echilibrat', emoji: '🥗', points: 5 },
-      { label: 'Good, mostly healthy', labelRo: 'Bine, în mare parte sănătos', emoji: '🍎', points: 4 },
-      { label: 'Average, inconsistent', labelRo: 'Mediocru, inconsistent', emoji: '🍕', points: 3 },
-      { label: 'Poor, mostly junk food', labelRo: 'Rău, mai mult fast-food', emoji: '🍔', points: 2 },
-      { label: 'Very poor, skip meals', labelRo: 'Foarte rău, sar peste mese', emoji: '😣', points: 1 },
-    ],
-  },
-  {
     id: 'b5_pain',
     category: 'body',
     question: 'How often do you have physical pain (back, headaches, tension)?',
@@ -83,7 +57,7 @@ export const burnoutQuestions: BurnoutQuestion[] = [
     ],
   },
 
-  // BEING (5 questions)
+  // BEING (3 questions)
   {
     id: 'be1_overwhelm',
     category: 'being',
