@@ -1,32 +1,21 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { burnoutQuestions, burnoutCategoryLabels, BurnoutCategory } from '@/data/burnoutTestQuestions';
-import { ArrowLeft, Loader2, CheckCircle2, Sparkles, Eye, EyeOff, Lock } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { trackQuizCompleted, trackAccountCreated } from '@/lib/facebook-pixel';
+import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { trackQuizCompleted } from '@/lib/facebook-pixel';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { BurnoutResults } from './BurnoutResults';
 
 interface BurnoutQuizProps {
   language: 'en' | 'ro';
 }
 
-type QuizStep = 'quiz' | 'signup' | 'results';
+type QuizStep = 'quiz' | 'results';
 
 export const BurnoutQuiz: React.FC<BurnoutQuizProps> = ({ language }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [step, setStep] = useState<QuizStep>('quiz');
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
 
   const currentQuestion = burnoutQuestions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === burnoutQuestions.length - 1;
@@ -41,7 +30,7 @@ export const BurnoutQuiz: React.FC<BurnoutQuizProps> = ({ language }) => {
         const finalAnswers = { ...answers, [currentQuestion.id]: points };
         const totalScore = Object.values(finalAnswers).reduce((sum, s) => sum + s, 0);
         trackQuizCompleted('burnout_test', totalScore);
-        setStep('signup');
+        setStep('results');
       }
     }, 400);
   };
@@ -63,109 +52,7 @@ export const BurnoutQuiz: React.FC<BurnoutQuizProps> = ({ language }) => {
     return Object.values(answers).reduce((sum, s) => sum + s, 0);
   };
 
-  const handleSignupSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim() || !password.trim()) return;
-
-    if (password.length < 6) {
-      toast({
-        title: language === 'en' ? 'Password too short' : 'Parolă prea scurtă',
-        description: language === 'en' ? 'Minimum 6 characters' : 'Minim 6 caractere',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    const emailLower = email.trim().toLowerCase();
-    const categoryScores = calculateCategoryScores();
-    const totalScore = calculateTotalScore();
-
-    try {
-      // 1. Create account
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: emailLower,
-        password,
-        options: {
-          data: { full_name: name.trim() || null, source: 'burnout_test' },
-        },
-      });
-
-      if (signUpError) {
-        if (signUpError.message.includes('already registered')) {
-          const { error: signInError } = await supabase.auth.signInWithPassword({
-            email: emailLower,
-            password,
-          });
-          if (signInError) {
-            toast({
-              title: language === 'en' ? 'Account exists' : 'Contul există deja',
-              description: language === 'en' ? 'Use a different email or login' : 'Folosește alt email sau loghează-te',
-              variant: 'destructive',
-            });
-            setIsSubmitting(false);
-            return;
-          }
-        } else {
-          throw signUpError;
-        }
-      }
-
-      const userId = authData?.user?.id;
-
-      // 2. Save to email_leads
-      await supabase
-        .from('email_leads')
-        .delete()
-        .eq('email', emailLower)
-        .eq('lead_magnet', 'burnout_test');
-
-      await supabase.from('email_leads').insert({
-        email: emailLower,
-        name: name.trim() || null,
-        lead_magnet: 'burnout_test',
-        source: 'burnout_test_quiz',
-        metadata: {
-          totalScore,
-          categoryScores,
-          answers,
-          completed_at: new Date().toISOString(),
-        },
-      });
-
-      // 3. Set up 3-day trial
-      if (userId) {
-        const trialEnd = new Date();
-        trialEnd.setDate(trialEnd.getDate() + 3);
-        await supabase.from('subscribers').upsert({
-          user_id: userId,
-          email: emailLower,
-          subscription_tier: 'trial',
-          subscription_status: 'trialing',
-          early_bird_expires_at: trialEnd.toISOString(),
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'user_id' });
-      }
-
-      trackAccountCreated('burnout_test');
-
-      toast({
-        title: language === 'en' ? 'Account created!' : 'Cont creat!',
-        description: language === 'en' ? 'Here are your full results' : 'Iată rezultatele tale complete',
-      });
-
-      setStep('results');
-    } catch (error: any) {
-      console.error('Burnout signup error:', error);
-      toast({
-        title: language === 'en' ? 'Error' : 'Eroare',
-        description: error.message || (language === 'en' ? 'Something went wrong' : 'Ceva nu a mers bine'),
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Signup handler removed — handled in BurnoutResults via email-only capture
 
   // RESULTS
   if (step === 'results') {
@@ -178,91 +65,7 @@ export const BurnoutQuiz: React.FC<BurnoutQuizProps> = ({ language }) => {
     );
   }
 
-  // SIGNUP GATE
-  if (step === 'signup') {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md mx-auto"
-      >
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 md:p-10 shadow-2xl">
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_10px_40px_rgba(239,68,68,0.3)]">
-              <Sparkles className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-3xl font-bold text-white mb-3">
-              {language === 'en' ? 'See Your Full Results!' : 'Vezi Rezultatele Complete!'}
-            </h2>
-            <p className="text-white/70 text-lg">
-              {language === 'en'
-                ? 'Create a free account to unlock your burnout radar chart + personalized recommendations'
-                : 'Creează un cont gratuit pentru a debloca graficul radar + recomandări personalizate'}
-            </p>
-          </div>
-
-          <form onSubmit={handleSignupSubmit} className="space-y-4">
-            <Input
-              type="text"
-              placeholder={language === 'en' ? 'Your name (optional)' : 'Numele tău (opțional)'}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl focus:border-red-400 focus:ring-red-400/20"
-            />
-            <Input
-              type="email"
-              placeholder={language === 'en' ? 'Your email address' : 'Adresa ta de email'}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl focus:border-red-400 focus:ring-red-400/20"
-            />
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder={language === 'en' ? 'Create password (min 6 chars)' : 'Creează parolă (min 6 caractere)'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                className="h-14 pl-12 pr-12 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl focus:border-red-400 focus:ring-red-400/20"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-            <Button
-              type="submit"
-              className="w-full h-14 text-lg font-bold bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-xl shadow-[0_10px_30px_rgba(239,68,68,0.3)]"
-              size="lg"
-              disabled={!email.trim() || !password.trim() || isSubmitting}
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              ) : (
-                <CheckCircle2 className="w-5 h-5 mr-2" />
-              )}
-              {language === 'en' ? 'Unlock My Results' : 'Deblochează Rezultatele'}
-            </Button>
-          </form>
-
-          <div className="mt-6 space-y-3">
-            <p className="text-center text-sm text-white/40 flex items-center justify-center gap-2">
-              <span>🔒</span>
-              {language === 'en'
-                ? '3-day free trial • No credit card required'
-                : 'Trial gratuit 3 zile • Fără card bancar'}
-            </p>
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
+  // (Signup gate removed — quiz goes directly to results, email captured there)
 
   // QUIZ
   const categoryInfo = burnoutCategoryLabels[currentQuestion.category];

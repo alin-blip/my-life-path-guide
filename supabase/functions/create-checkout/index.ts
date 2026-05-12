@@ -19,24 +19,45 @@ serve(async (req) => {
   );
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
-    const token = authHeader.replace("Bearer ", "");
-
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
-    const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
-
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("Stripe secret key not configured");
-
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
-    const { plan, source } = await req.json();
+    const { plan, source, guest_email, guest_name } = await req.json();
     if (!plan) throw new Error("Missing plan in request body");
-    
+
     const isEarlyBird = source === 'early-bird';
+
+    // Plans that allow guest checkout (account is created later in webhook for challenge)
+    const GUEST_ALLOWED_PLANS = new Set([
+      'ebook-only', 'ebook-bundle', 'ebook-only-en', 'ebook-bundle-en',
+      'ebook-accelerator', 'ebook-accelerator-en',
+      'challenge-plus-trial', 'challenge-plus-trial-en',
+    ]);
+
+    // Resolve user (auth optional for guest-allowed plans)
+    let user: { id?: string; email: string } | null = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      const supabaseClient = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      );
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+      if (userError) throw new Error(`Authentication error: ${userError.message}`);
+      if (userData.user?.email) user = { id: userData.user.id, email: userData.user.email };
+    }
+
+    if (!user) {
+      if (!GUEST_ALLOWED_PLANS.has(plan)) {
+        throw new Error("No authorization header provided");
+      }
+      if (!guest_email || typeof guest_email !== "string") {
+        throw new Error("guest_email is required for unauthenticated checkout");
+      }
+      user = { email: guest_email.trim().toLowerCase() };
+    }
 
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string | undefined;
@@ -329,7 +350,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       mode: paymentMode,
       line_items: lineItems,
-      metadata: { plan_id: plan, user_id: user.id, tier, coaching_included: tier === "pro" || tier === "elite" ? "true" : "false", has_trial: trialDays ? "true" : "false", source: source || "direct" },
+      metadata: { plan_id: plan, user_id: user.id || "", guest_email: user.id ? "" : user.email, guest_name: guest_name || "", tier, coaching_included: tier === "pro" || tier === "elite" ? "true" : "false", has_trial: trialDays ? "true" : "false", source: source || "direct" },
       success_url: successUrl,
       cancel_url: cancelUrl,
     };
