@@ -72,19 +72,6 @@ export const burnoutQuestions: BurnoutQuestion[] = [
     ],
   },
   {
-    id: 'be2_clarity',
-    category: 'being',
-    question: 'Do you have moments of peace and mental clarity?',
-    questionRo: 'Ai momente de liniște și claritate mentală?',
-    options: [
-      { label: 'Daily', labelRo: 'Zilnic', emoji: '✨', points: 5 },
-      { label: 'Most days', labelRo: 'Cele mai multe zile', emoji: '🌅', points: 4 },
-      { label: 'Sometimes', labelRo: 'Uneori', emoji: '😐', points: 3 },
-      { label: 'Rarely', labelRo: 'Rar', emoji: '😶', points: 2 },
-      { label: 'Almost never', labelRo: 'Aproape niciodată', emoji: '😵‍💫', points: 1 },
-    ],
-  },
-  {
     id: 'be3_anxiety',
     category: 'being',
     question: 'How often do you feel anxious or stressed?',
@@ -110,47 +97,8 @@ export const burnoutQuestions: BurnoutQuestion[] = [
       { label: 'Completely lost', labelRo: 'Complet pierdut', emoji: '😶‍🌫️', points: 1 },
     ],
   },
-  {
-    id: 'be5_gratitude',
-    category: 'being',
-    question: 'How often do you practice gratitude or meditation?',
-    questionRo: 'Cât de des practici recunoștința sau meditația?',
-    options: [
-      { label: 'Daily', labelRo: 'Zilnic', emoji: '🙏', points: 5 },
-      { label: 'Several times/week', labelRo: 'De câteva ori/săptămână', emoji: '☀️', points: 4 },
-      { label: 'Occasionally', labelRo: 'Ocazional', emoji: '🌤️', points: 3 },
-      { label: 'Rarely', labelRo: 'Rar', emoji: '🌥️', points: 2 },
-      { label: 'Never', labelRo: 'Niciodată', emoji: '🌧️', points: 1 },
-    ],
-  },
 
-  // BALANCE (5 questions)
-  {
-    id: 'ba1_family',
-    category: 'balance',
-    question: 'How connected do you feel with your family?',
-    questionRo: 'Cât de conectat te simți cu familia?',
-    options: [
-      { label: 'Deeply connected', labelRo: 'Profund conectat', emoji: '❤️', points: 5 },
-      { label: 'Well connected', labelRo: 'Bine conectat', emoji: '🤝', points: 4 },
-      { label: 'Average', labelRo: 'Mediocru', emoji: '😐', points: 3 },
-      { label: 'Some distance', labelRo: 'Oarecare distanță', emoji: '😔', points: 2 },
-      { label: 'Disconnected', labelRo: 'Deconectat', emoji: '💔', points: 1 },
-    ],
-  },
-  {
-    id: 'ba2_quality_time',
-    category: 'balance',
-    question: 'Do you have quality time with important people?',
-    questionRo: 'Ai timp de calitate cu oamenii importanți?',
-    options: [
-      { label: 'Yes, regularly', labelRo: 'Da, regulat', emoji: '🥰', points: 5 },
-      { label: 'Most weeks', labelRo: 'Cele mai multe săptămâni', emoji: '😊', points: 4 },
-      { label: 'Sometimes', labelRo: 'Uneori', emoji: '😐', points: 3 },
-      { label: 'Rarely', labelRo: 'Rar', emoji: '😕', points: 2 },
-      { label: 'Almost never', labelRo: 'Aproape niciodată', emoji: '🏝️', points: 1 },
-    ],
-  },
+  // BALANCE (3 questions)
   {
     id: 'ba3_boundaries',
     category: 'balance',
@@ -191,20 +139,7 @@ export const burnoutQuestions: BurnoutQuestion[] = [
     ],
   },
 
-  // BUSINESS (5 questions)
-  {
-    id: 'bu1_satisfaction',
-    category: 'business',
-    question: 'How satisfied are you with your career progress?',
-    questionRo: 'Cât de satisfăcut ești de progresul profesional?',
-    options: [
-      { label: 'Very satisfied', labelRo: 'Foarte satisfăcut', emoji: '🚀', points: 5 },
-      { label: 'Satisfied', labelRo: 'Satisfăcut', emoji: '📈', points: 4 },
-      { label: 'Neutral', labelRo: 'Neutru', emoji: '😐', points: 3 },
-      { label: 'Dissatisfied', labelRo: 'Nemulțumit', emoji: '😤', points: 2 },
-      { label: 'Very frustrated', labelRo: 'Foarte frustrat', emoji: '😠', points: 1 },
-    ],
-  },
+  // BUSINESS (3 questions)
   {
     id: 'bu2_overtime',
     category: 'business',
