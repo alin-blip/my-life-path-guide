@@ -1,32 +1,21 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { burnoutQuestions, burnoutCategoryLabels, BurnoutCategory } from '@/data/burnoutTestQuestions';
-import { ArrowLeft, Loader2, CheckCircle2, Sparkles, Eye, EyeOff, Lock } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { trackQuizCompleted, trackAccountCreated } from '@/lib/facebook-pixel';
+import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { trackQuizCompleted } from '@/lib/facebook-pixel';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { BurnoutResults } from './BurnoutResults';
 
 interface BurnoutQuizProps {
   language: 'en' | 'ro';
 }
 
-type QuizStep = 'quiz' | 'signup' | 'results';
+type QuizStep = 'quiz' | 'results';
 
 export const BurnoutQuiz: React.FC<BurnoutQuizProps> = ({ language }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [step, setStep] = useState<QuizStep>('quiz');
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
 
   const currentQuestion = burnoutQuestions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === burnoutQuestions.length - 1;
