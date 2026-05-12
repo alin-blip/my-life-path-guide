@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { EbookNav } from '@/components/ebook/EbookNav';
-import { CountdownTimer } from '@/components/ebook/CountdownTimer';
-import { ValueStack } from '@/components/ebook/ValueStack';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Rocket, Shield, Loader2, ArrowRight } from 'lucide-react';
+import { Rocket, Shield, Loader2, ArrowRight, CheckCircle2, Calendar, Users, Trophy, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
-import heroUpsell from '@/assets/ebook/hero_upsell.webp';
 
 const EbookUpsell = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const language = location.pathname.includes('-en') ? 'en' : 'ro';
+  const language: 'ro' | 'en' = location.pathname.includes('-en') ? 'en' : 'ro';
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -25,75 +22,72 @@ const EbookUpsell = () => {
 
   const t = language === 'ro'
     ? {
-        seoTitle: 'Pachetul Accelerator — Ofertă Exclusivă | CEO Mind OS',
-        seoDesc: 'Accelerează-ți transformarea cu Audiobook + Challenge 90 de Zile la doar 99 LEI.',
+        seoTitle: 'Challenge 7 Zile + 14 Zile Pro Gratis — Ofertă Exclusivă | CEO Mind OS',
+        seoDesc: 'Challenge 7 zile cu Alin la 485 LEI + 14 zile Pro gratis, apoi 245 LEI/lună. Ofertă unică, doar acum.',
         badge: 'OFERTĂ EXCLUSIVĂ — DOAR PE ACEASTĂ PAGINĂ',
-        h1: 'Felicitări! Cartea ta e pe drum.',
-        sub: 'Cartea îți dă cunoașterea. Dar cunoașterea fără execuție este inutilă.',
-        sub2: 'De aceea am creat pachetul Accelerator — designat să te ducă de la citit la implementat.',
-        cta: 'Da! Vreau Pachetul Accelerator',
-        dismiss: 'Nu, mulțumesc. Vreau doar cartea gratuită.',
-        guarantee: 'Garanție 100% — Fără Risc',
-        guaranteeDesc: 'Dacă în 30 de zile nu simți o diferență reală în claritatea, energia și productivitatea ta, îți returnez banii. Fără întrebări.',
-        thankYou: '/ebook-multumesc',
-        success: '/ebook-plata-reusita',
-        comp1: { label: 'Componenta 1', title: 'Audiobook-ul Complet', desc: 'Ascultă cartea cu vocea autorului. Peste 2 ore de conținut narrat de Alin F. Radu — în mașină, la sală, în pauza de masă.', value: '149 lei' },
-        comp2: { label: 'Componenta 2', title: 'Challenge-ul "90 de Zile"', desc: 'Ghid pas cu pas de implementare. 90 de zile de acțiuni zilnice structurate, template-uri completate, checklist-uri de execuție.', value: '249 lei' },
-        comp3: { label: 'Bonus', title: 'Template-uri Printabile', desc: 'Worksheet-uri printabile pentru The Door, The Stack și Rutina Zilnică — gata de completat.', value: '99 lei' },
-        comp4: { label: 'Bonus', title: 'Comunitate Privată', desc: 'Acces 30 de zile la comunitatea privată de accountability — alături de alți antreprenori care implementează CEO Mind OS.', value: '97 lei' },
+        h1: 'Următorul pas: Challenge-ul de 7 Zile cu Alin',
+        sub: 'Cartea îți dă harta. Challenge-ul te ia de mână 7 zile și te pune în mișcare.',
+        priceLine: '485 LEI plată unică + 14 ZILE GRATIS la platforma Pro',
+        priceSub: 'apoi doar 245 LEI/lună • anulezi oricând',
+        cta: 'DA — Vreau Challenge-ul + 14 Zile Pro',
+        dismiss: 'Nu, mulțumesc. Doar cartea pentru acum.',
+        guarantee: 'Garanție 30 de zile — fără risc',
+        guaranteeDesc: 'Dacă în primele 30 de zile nu vezi o transformare reală, îți returnez banii integral. Fără întrebări.',
+        items: [
+          { icon: Calendar, title: 'Challenge 7 Zile cu Alin', desc: 'O temă pe zi, ghidaje video, accountability zilnic. De la "vreau" la "fac".' },
+          { icon: Zap, title: '14 zile GRATIS la CEO Mind OS Pro', desc: 'Rutine zilnice, AI Coach, Domino Door, Stack-uri emoționale, comunitate privată.' },
+          { icon: Trophy, title: 'Plan personalizat de recuperare', desc: 'Bazat pe scorul tău din testul de burnout — focus pe zona ta cea mai slabă.' },
+          { icon: Users, title: 'Comunitate de antreprenori', desc: 'Acces la grupul privat, suport zilnic, peer accountability.' },
+        ],
       }
     : {
-        seoTitle: 'Accelerator Package — Exclusive Offer | CEO Mind OS',
-        seoDesc: 'Accelerate your transformation with Audiobook + 90-Day Challenge for only $29.',
+        seoTitle: '7-Day Challenge + 14-Day Pro Trial — Exclusive Offer | CEO Mind OS',
+        seoDesc: '7-day Challenge with Alin for $97 + 14 days free Pro, then $49/month. One-time offer.',
         badge: 'EXCLUSIVE OFFER — ONLY ON THIS PAGE',
-        h1: 'Congratulations! Your book is on its way.',
-        sub: 'The book gives you knowledge. But knowledge without execution is useless.',
-        sub2: 'That\'s why we created the Accelerator package — designed to take you from reading to implementing.',
-        cta: 'Yes! I Want the Accelerator Package',
-        dismiss: 'No thanks. I just want the free book.',
-        guarantee: '100% Guarantee — Zero Risk',
-        guaranteeDesc: 'If in 30 days you don\'t feel a real difference in your clarity, energy and productivity, I\'ll refund your money. No questions asked.',
-        thankYou: '/ebook-thank-you',
-        success: '/ebook-payment-success',
-        comp1: { label: 'Component 1', title: 'Complete Audiobook', desc: 'Listen to the book narrated professionally. 1 hour 20 minutes of content — in your car, at the gym, during lunch.', value: '$39' },
-        comp2: { label: 'Component 2', title: '90-Day Challenge', desc: 'Step-by-step implementation guide. 90 days of structured daily actions, completed templates, execution checklists.', value: '$59' },
-        comp3: { label: 'Bonus', title: 'Printable Templates', desc: 'Printable worksheets for The Door, The Stack and Daily Routine — ready to fill in.', value: '$29' },
-        comp4: { label: 'Bonus', title: 'Private Community', desc: '30-day access to the private accountability community — alongside other entrepreneurs implementing CEO Mind OS.', value: '$19' },
+        h1: 'Next step: The 7-Day Challenge with Alin',
+        sub: 'The book gives you the map. The Challenge takes you by the hand for 7 days and puts you in motion.',
+        priceLine: '$97 one-time + 14 DAYS FREE on the Pro platform',
+        priceSub: 'then just $49/month • cancel anytime',
+        cta: 'YES — I want the Challenge + 14 Days Pro',
+        dismiss: 'No thanks. Just the book for now.',
+        guarantee: '30-day guarantee — zero risk',
+        guaranteeDesc: 'If you don\'t see a real transformation in the first 30 days, I\'ll refund your money in full. No questions asked.',
+        items: [
+          { icon: Calendar, title: '7-Day Challenge with Alin', desc: 'One theme per day, video guidance, daily accountability. From "I want to" to "I\'m doing it".' },
+          { icon: Zap, title: '14 days FREE on CEO Mind OS Pro', desc: 'Daily routines, AI Coach, Domino Door, emotional Stacks, private community.' },
+          { icon: Trophy, title: 'Personalized recovery plan', desc: 'Based on your burnout test score — focused on your weakest area.' },
+          { icon: Users, title: 'Entrepreneur community', desc: 'Access to the private group, daily support, peer accountability.' },
+        ],
       };
-
-  const components = [t.comp1, t.comp2, t.comp3, t.comp4];
 
   const handleBuy = async () => {
     const preOpened = preOpenWindow();
-
-    if (!user) {
-      if (preOpened) preOpened.close();
-      toast.info(language === 'ro' ? 'Trebuie să fii autentificat' : 'You need to be logged in');
-      navigate('/auth');
-      return;
-    }
-
     setLoading(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        if (preOpened) preOpened.close();
+        toast.info(language === 'ro' ? 'Te rugăm să te autentifici.' : 'Please log in.');
+        navigate('/auth');
+        return;
+      }
+      const plan = language === 'en' ? 'challenge-plus-trial-en' : 'challenge-plus-trial';
       const response = await supabase.functions.invoke('create-checkout', {
-        body: { plan: language === 'en' ? 'ebook-accelerator-en' : 'ebook-accelerator', source: `ebook_upsell_${language}` },
-        headers: { Authorization: `Bearer ${sessionData.session?.access_token}` },
+        body: { plan, source: `ebook_upsell_${language}` },
+        headers: { Authorization: `Bearer ${sessionData.session.access_token}` },
       });
-
       if (response.error) {
         if (preOpened) preOpened.close();
         throw new Error(response.error.message);
       }
-
       if (response.data?.url) {
         redirectExternal(response.data.url, preOpened);
       } else {
         if (preOpened) preOpened.close();
         throw new Error('Checkout session failed');
       }
-    } catch (error) {
-      console.error('Checkout error:', error);
+    } catch (err) {
+      console.error('Challenge upsell error:', err);
       toast.error(language === 'ro' ? 'Eroare la procesarea plății.' : 'Payment processing error.');
     } finally {
       setLoading(false);
@@ -108,7 +102,6 @@ const EbookUpsell = () => {
       </Helmet>
 
       <EbookNav language={language} />
-      <CountdownTimer language={language} />
 
       <section className="py-16 px-6 text-center max-w-4xl mx-auto">
         <span className="inline-block text-xs tracking-[0.15em] text-white/50 border border-white/10 rounded-full px-4 py-2 mb-8 uppercase">
@@ -116,41 +109,33 @@ const EbookUpsell = () => {
         </span>
 
         <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">{t.h1}</h1>
-        <p className="text-white/60 text-lg mb-2">
-          {language === 'ro' ? 'Cartea îți dă ' : 'The book gives you '}
-          <strong className="text-white">{language === 'ro' ? 'cunoașterea' : 'knowledge'}</strong>
-          {language === 'ro' ? '. Dar cunoașterea fără execuție este inutilă.' : '. But knowledge without execution is useless.'}
-        </p>
-        <p className="text-white/50 mb-12">
-          {language === 'ro' ? 'De aceea am creat pachetul ' : 'That\'s why we created the '}
-          <span className="text-amber-400">Accelerator</span>
-          {language === 'ro' ? ' — designat să te ducă de la citit la implementat.' : ' — designed to take you from reading to implementing.'}
-        </p>
+        <p className="text-white/60 text-lg mb-12 max-w-2xl mx-auto">{t.sub}</p>
 
-        <img
-          src={heroUpsell}
-          alt="Accelerator Package"
-          className="w-full max-w-2xl mx-auto rounded-lg mb-16"
-        />
-
-        {/* Components */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 text-left">
-          {components.map((comp, idx) => (
-            <div key={idx} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-6">
-              <span className="text-xs text-amber-400/60 uppercase tracking-wider">{comp.label}</span>
-              <h3 className="text-white font-bold text-lg mt-1 mb-2">{comp.title}</h3>
-              <p className="text-white/50 text-sm mb-3">{comp.desc}</p>
-              <p className="text-white/30 text-sm">
-                {language === 'ro' ? 'Valoare: ' : 'Value: '}
-                <span className="line-through">{comp.value}</span>
-              </p>
-            </div>
-          ))}
+        {/* Items */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 text-left">
+          {t.items.map((item, idx) => {
+            const Icon = item.icon;
+            return (
+              <div key={idx} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-6 flex gap-4">
+                <div className="shrink-0 w-10 h-10 rounded-lg bg-amber-400/10 flex items-center justify-center">
+                  <Icon className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg mb-1">{item.title}</h3>
+                  <p className="text-white/50 text-sm">{item.desc}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        <ValueStack language={language} />
+        {/* Price */}
+        <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-400/30 rounded-2xl p-8 mb-8 max-w-2xl mx-auto">
+          <p className="text-amber-400 font-bold text-lg mb-1">{t.priceLine}</p>
+          <p className="text-white/60 text-sm">{t.priceSub}</p>
+        </div>
 
-        <div className="mt-10 space-y-4 max-w-md mx-auto">
+        <div className="space-y-4 max-w-md mx-auto">
           <button
             onClick={handleBuy}
             disabled={loading}
@@ -168,7 +153,7 @@ const EbookUpsell = () => {
           </button>
 
           <button
-            onClick={() => navigate(t.thankYou)}
+            onClick={() => navigate('/dashboard')}
             className="w-full py-3 text-white/40 hover:text-white/60 text-sm transition-colors"
           >
             {t.dismiss}
