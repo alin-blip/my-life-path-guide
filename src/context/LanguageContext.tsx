@@ -715,8 +715,8 @@ const translations: Translations = {
     "clickToChange": "Click to change",
     
     // Index.tsx Meta tags
-    "indexMetaTitle": "CEO Mind OS — Success Without Sacrifice: AI-Powered Founder Operating System",
-    "indexMetaDescription": "CEO Mind OS is the AI-powered Founder Operating System that helps entrepreneurs grow their business WITHOUT losing their health, relationships, or peace of mind. Transform all 4 life areas simultaneously.",
+    "indexMetaTitle": "CEO Mind OS — Founder Operating System",
+    "indexMetaDescription": "AI-powered Founder Operating System. Grow your business without sacrificing health, relationships, or peace of mind. Transform all 4 life areas.",
     
     // HeroSection.tsx
     "heroSuccess": "Success",
