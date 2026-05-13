@@ -715,8 +715,8 @@ const translations: Translations = {
     "clickToChange": "Click to change",
     
     // Index.tsx Meta tags
-    "indexMetaTitle": "CEO Mind OS — Success Without Sacrifice: AI-Powered Founder Operating System",
-    "indexMetaDescription": "CEO Mind OS is the AI-powered Founder Operating System that helps entrepreneurs grow their business WITHOUT losing their health, relationships, or peace of mind. Transform all 4 life areas simultaneously.",
+    "indexMetaTitle": "CEO Mind OS — Founder Operating System",
+    "indexMetaDescription": "AI-powered Founder Operating System. Grow your business without sacrificing health, relationships, or peace of mind. Transform all 4 life areas.",
     
     // HeroSection.tsx
     "heroSuccess": "Success",
@@ -1358,8 +1358,8 @@ const translations: Translations = {
     "clickToChange": "Click pentru a schimba",
     
     // Index.tsx Meta tags
-    "indexMetaTitle": "CEO Mind OS — Succes Fără Sacrificiu: Sistemul de Operare pentru Fondatori, cu AI",
-    "indexMetaDescription": "CEO Mind OS este sistemul de operare pentru fondatori, alimentat de AI, care ajută antreprenorii să-și crească afacerea FĂRĂ să-și piardă sănătatea, relațiile sau pacea sufletească. Transformă toate cele 4 arii ale vieții simultan.",
+    "indexMetaTitle": "CEO Mind OS — Sistemul de Operare pentru Fondatori",
+    "indexMetaDescription": "Sistemul de operare AI pentru fondatori. Crește-ți afacerea fără să-ți pierzi sănătatea, relațiile sau pacea sufletească. 4 arii ale vieții, simultan.",
     
     // HeroSection.tsx
     "heroSuccess": "Succes",
