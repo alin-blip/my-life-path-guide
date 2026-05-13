@@ -1,0 +1,24 @@
+# CEO Mind OS
+
+> AI-powered Founder Operating System that helps entrepreneurs grow their business without sacrificing health, relationships, or peace of mind. Trains daily routines across Body, Mind, Balance & Business.
+
+## Pages
+
+- [Home](/): Overview of CEO Mind OS, the Founder Operating System.
+- [About](/about): Founder Alin F. Radu and the CEO Mind OS philosophy.
+- [Pricing](/pricing): Plans, trials, and the PRO program.
+- [Burnout Test (RO)](/burnout-test): Free 20-question burnout assessment with radar chart.
+- [Burnout Test (EN)](/burnout-test-en): Free 20-question burnout assessment in English.
+- [Free Ebook](/ebook): "From Burnout to Peak Performance" — free founder ebook.
+- [7-Day Challenge (RO)](/challenge-7-zile): Free 7-day transformation challenge.
+- [7-Day Challenge (EN)](/challenge-en): Free 7-day transformation challenge in English.
+- [Mind Coach](/mind-coach-transform): AI mind coach for emotional transformation.
+- [Launch Accelerator](/warrior-launch-accelerator): 90-day launch accelerator program.
+- [Partner Coach (B2B)](/b2b): 50% recurring commission program for coaches.
+- [Blog](/blog): Articles on founder routines, mindset, and business growth.
+
+## Optional
+
+- [Referral Program](/referral-program): Affiliate and referral details.
+- [Terms](/terms): Terms of service.
+- [Privacy](/privacy): Privacy policy.
