@@ -2,7 +2,7 @@
 import { writeFileSync } from "fs"
 import { resolve } from "path"
 
-const BASE_URL = "https://warriorsos.com"
+const BASE_URL = "https://ceomindos.com"
 
 interface SitemapEntry {
   path: string
