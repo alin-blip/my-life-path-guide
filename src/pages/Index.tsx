@@ -41,7 +41,7 @@ const Index = () => {
     };
   }, []);
 
-  const siteUrl = "https://warriorsos.com";
+  const siteUrl = "https://ceomindos.com";
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
