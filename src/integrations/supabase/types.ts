@@ -3377,6 +3377,39 @@ export type Database = {
         }
         Relationships: []
       }
+      mind_shift_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          emoji: string | null
+          id: string
+          name: string
+          order_index: number | null
+          slug: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          name: string
+          order_index?: number | null
+          slug: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          name?: string
+          order_index?: number | null
+          slug?: string
+        }
+        Relationships: []
+      }
       mind_shift_distortions: {
         Row: {
           active: boolean
@@ -3422,6 +3455,9 @@ export type Database = {
           ai_suggestions: Json | null
           automatic_thought: string | null
           belief_slug: string | null
+          category: string | null
+          chat_history: Json | null
+          chat_step: number
           cognitive_reframe: string | null
           commitment_task_id: string | null
           commitment_text: string | null
@@ -3433,9 +3469,15 @@ export type Database = {
           id: string
           incantation_text: string | null
           intensity: number | null
+          intensity_after: number | null
+          intensity_before: number | null
+          perception_area: string | null
           positive_reframe: string | null
+          recurrence: string | null
           situation: string | null
           source: string
+          status: string
+          title: string | null
           updated_at: string
           user_id: string
           week_key: string | null
@@ -3445,6 +3487,9 @@ export type Database = {
           ai_suggestions?: Json | null
           automatic_thought?: string | null
           belief_slug?: string | null
+          category?: string | null
+          chat_history?: Json | null
+          chat_step?: number
           cognitive_reframe?: string | null
           commitment_task_id?: string | null
           commitment_text?: string | null
@@ -3456,9 +3501,15 @@ export type Database = {
           id?: string
           incantation_text?: string | null
           intensity?: number | null
+          intensity_after?: number | null
+          intensity_before?: number | null
+          perception_area?: string | null
           positive_reframe?: string | null
+          recurrence?: string | null
           situation?: string | null
           source?: string
+          status?: string
+          title?: string | null
           updated_at?: string
           user_id: string
           week_key?: string | null
@@ -3468,6 +3519,9 @@ export type Database = {
           ai_suggestions?: Json | null
           automatic_thought?: string | null
           belief_slug?: string | null
+          category?: string | null
+          chat_history?: Json | null
+          chat_step?: number
           cognitive_reframe?: string | null
           commitment_task_id?: string | null
           commitment_text?: string | null
@@ -3479,9 +3533,15 @@ export type Database = {
           id?: string
           incantation_text?: string | null
           intensity?: number | null
+          intensity_after?: number | null
+          intensity_before?: number | null
+          perception_area?: string | null
           positive_reframe?: string | null
+          recurrence?: string | null
           situation?: string | null
           source?: string
+          status?: string
+          title?: string | null
           updated_at?: string
           user_id?: string
           week_key?: string | null

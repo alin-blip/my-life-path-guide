@@ -23,6 +23,7 @@ interface MindShiftingStepProps {
   onSkip?: () => void;
   initialSituation?: string;
   source?: string;
+  existingSession?: MindShiftSession;
 }
 
 export const MindShiftingStep: React.FC<MindShiftingStepProps> = ({
@@ -30,6 +31,7 @@ export const MindShiftingStep: React.FC<MindShiftingStepProps> = ({
   onSkip,
   initialSituation,
   source = 'routine',
+  existingSession,
 }) => {
   const [phase, setPhase] = useState<Phase>('state');
   const [beliefs, setBeliefs] = useState<MindShiftBelief[]>([]);
@@ -39,22 +41,23 @@ export const MindShiftingStep: React.FC<MindShiftingStepProps> = ({
   const [emotion, setEmotion] = useState<MindCoachEmotion | null>(null);
   const [intensity, setIntensity] = useState(50);
 
-  const [situation, setSituation] = useState(initialSituation ?? '');
-  const [automaticThought, setAutomaticThought] = useState('');
-  const [distortionSlug, setDistortionSlug] = useState<string | null>(null);
+  const [situation, setSituation] = useState(existingSession?.situation ?? initialSituation ?? '');
+  const [automaticThought, setAutomaticThought] = useState(existingSession?.automatic_thought ?? '');
+  const [distortionSlug, setDistortionSlug] = useState<string | null>(existingSession?.distortion_slug ?? null);
 
   const [aiLoading, setAiLoading] = useState(false);
-  const [ai, setAi] = useState<AISuggestions | null>(null);
+  const [ai, setAi] = useState<AISuggestions | null>(existingSession?.ai_suggestions ?? null);
 
-  const [cognitiveReframe, setCognitiveReframe] = useState('');
-  const [positiveReframe, setPositiveReframe] = useState('');
-  const [actValue, setActValue] = useState('');
+  const [cognitiveReframe, setCognitiveReframe] = useState(existingSession?.cognitive_reframe ?? '');
+  const [positiveReframe, setPositiveReframe] = useState(existingSession?.positive_reframe ?? '');
+  const [actValue, setActValue] = useState(existingSession?.act_value ?? '');
 
-  const [beliefSlug, setBeliefSlug] = useState<string | null>(null);
-  const [incantation, setIncantation] = useState('');
+  const [beliefSlug, setBeliefSlug] = useState<string | null>(existingSession?.belief_slug ?? null);
+  const [incantation, setIncantation] = useState(existingSession?.incantation_text ?? '');
 
-  const [commitment, setCommitment] = useState('');
+  const [commitment, setCommitment] = useState(existingSession?.commitment_text ?? '');
   const [saving, setSaving] = useState(false);
+  const [sessionId] = useState<string | undefined>(existingSession?.id);
 
   useEffect(() => {
     (async () => {
