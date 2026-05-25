@@ -276,6 +276,11 @@ const App = () => (
                         <ChampionRoutine />
                       </ProtectedRoute>
                     } />
+                    <Route path="/mind-shifting" element={
+                      <ProtectedRoute>
+                        <MindShifting />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/empowerment-meditation" element={
                       <ProtectedRoute>
                         <EmpowermentMeditation />
