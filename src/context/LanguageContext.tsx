@@ -737,7 +737,7 @@ const translations: Translations = {
     "heroUsedBy": "Used by entrepreneurs in E-commerce, SaaS, Consulting, Real Estate",
     
     // ChampionRoutine STEP_LABELS
-    "stepEmotionalCheck": "Emotional Check-in",
+    "stepMindShifting": "Mind Shifting",
     "stepBodyActivation": "Body Activation",
     "stepPowerDeclaration": "Power Declaration",
     "stepStackSelection": "Choose Stack",
@@ -1380,7 +1380,7 @@ const translations: Translations = {
     "heroUsedBy": "Folosit de antreprenori din E-commerce, SaaS, Consulting, Imobiliare",
     
     // ChampionRoutine STEP_LABELS
-    "stepEmotionalCheck": "Check-in Emoțional",
+    "stepMindShifting": "Mind Shifting",
     "stepBodyActivation": "Activare Corp",
     "stepPowerDeclaration": "Declarație de Putere",
     "stepStackSelection": "Alege Stack-ul",
