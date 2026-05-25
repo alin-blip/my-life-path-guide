@@ -72,6 +72,7 @@ const TimeTracker = lazy(() => import("./pages/TimeTracker"));
 const AccountabilityCoach = lazy(() => import("./pages/AccountabilityCoach"));
 const EmpowermentMeditation = lazy(() => import("./pages/EmpowermentMeditation"));
 const ChampionRoutine = lazy(() => import("./pages/ChampionRoutine"));
+const MindShifting = lazy(() => import("./pages/MindShifting"));
 const DashboardSettingsPage = lazy(() => import("./pages/DashboardSettingsPage"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
