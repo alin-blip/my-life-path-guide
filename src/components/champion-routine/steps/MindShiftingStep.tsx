@@ -196,7 +196,7 @@ export const MindShiftingStep: React.FC<MindShiftingStepProps> = ({
                 <span>1. State — Cum te simți acum?</span>
               </div>
               <ExtendedEmotionPicker
-                selected={emotion}
+                selectedEmotion={emotion}
                 onSelect={setEmotion}
               />
               {emotion && (
