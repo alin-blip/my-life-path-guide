@@ -33,7 +33,16 @@ export const MindShiftingStep: React.FC<MindShiftingStepProps> = ({
   source = 'routine',
   existingSession,
 }) => {
-  const [phase, setPhase] = useState<Phase>('state');
+  // Resume at appropriate phase based on what's already filled in the draft.
+  const computeInitialPhase = (): Phase => {
+    if (!existingSession) return 'state';
+    if (existingSession.commitment_text) return 'commit';
+    if (existingSession.belief_slug || existingSession.incantation_text) return 'activate';
+    if (existingSession.cognitive_reframe || existingSession.positive_reframe) return 'reframe';
+    if (existingSession.automatic_thought) return 'observe';
+    return 'state';
+  };
+  const [phase, setPhase] = useState<Phase>(computeInitialPhase());
   const [beliefs, setBeliefs] = useState<MindShiftBelief[]>([]);
   const [distortions, setDistortions] = useState<MindShiftDistortion[]>([]);
   const [loadingLibs, setLoadingLibs] = useState(true);
