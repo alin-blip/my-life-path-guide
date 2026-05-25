@@ -171,6 +171,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
         return <TimeBlockCalendarWidget {...commonProps} />;
       case 'mind-shift-capture':
         return <MindShiftQuickCaptureWidget {...commonProps} />;
+      case 'mind-shift-analytics':
+        return <MindShiftAnalyticsWidget {...commonProps} />;
       default:
         return null;
     }
