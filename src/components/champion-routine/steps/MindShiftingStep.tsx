@@ -124,8 +124,11 @@ export const MindShiftingStep: React.FC<MindShiftingStepProps> = ({
     try {
       const saved = await mindShiftService.saveSession(
         {
+          id: sessionId,
           emotion,
           intensity,
+          intensity_before: existingSession?.intensity_before ?? intensity,
+          intensity_after: intensity,
           situation: situation.trim() || null,
           automatic_thought: automaticThought.trim() || null,
           distortion_slug: distortionSlug,
@@ -136,6 +139,7 @@ export const MindShiftingStep: React.FC<MindShiftingStepProps> = ({
           incantation_text: incantation.trim() || null,
           commitment_text: commitment.trim() || null,
           ai_suggestions: ai,
+          status: 'complete',
           source,
         },
         { createTask: !!commitment.trim() }

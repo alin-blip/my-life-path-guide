@@ -16,6 +16,7 @@ import { NapoleonHillCoachWidget } from './NapoleonHillCoachWidget';
 import { ChallengeProgressWidget } from './ChallengeProgressWidget';
 import { VibeCanvasWidget } from './VibeCanvasWidget';
 import { TimeBlockCalendarWidget } from './TimeBlockCalendarWidget';
+import { MindShiftQuickCaptureWidget } from './MindShiftQuickCaptureWidget';
 import { CustomWidgetRenderer } from './CustomWidgetRenderer';
 import type { CustomWidget, WidgetData } from '@/types/customWidget';
 import { supabase } from '@/integrations/supabase/client';
@@ -167,6 +168,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
         return <VibeCanvasWidget {...commonProps} />;
       case 'time-block-calendar':
         return <TimeBlockCalendarWidget {...commonProps} />;
+      case 'mind-shift-capture':
+        return <MindShiftQuickCaptureWidget {...commonProps} />;
       default:
         return null;
     }

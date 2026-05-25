@@ -136,6 +136,17 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     icon: 'CalendarClock',
     defaultSize: 'large',
     category: 'productivity'
+  },
+  {
+    id: 'mind-shift-capture',
+    name: { en: 'Mind Shift — Quick Capture', ro: 'Mind Shift — Captură Rapidă' },
+    description: {
+      en: 'Capture a thought now, process it later. Drafts land in your Mind Shifting inbox.',
+      ro: 'Notează un gând acum, procesează-l mai târziu. Draft-urile ajung în Inbox-ul Mind Shifting.'
+    },
+    icon: 'Brain',
+    defaultSize: 'medium',
+    category: 'mindset'
   }
 ];
 
