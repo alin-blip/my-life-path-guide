@@ -53,79 +53,44 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   const [isSaving, setIsSaving] = useState(false);
 
   const ALL_STEP_IDS = [
-    'mindShifting', 'emotionalTransform', 'lightExposure', 'hydration', 'breathing', 'meditation', 'gratitude',
+    'mindShifting', 'lightExposure', 'hydration', 'breathing', 'meditation', 'gratitude',
     'visualization', 'autosuggestion', 'visionDeclaration', 'journaling', 'reading',
     'exercise', 'mealPlanning', 'contentCreation', 'dailyTasks', 'relationships'
   ];
 
-  // Initialize state from settings - merge new steps into existing settings
   useEffect(() => {
     if (settings) {
       setAutosuggestion(settings.default_autosuggestion || 'Every day, in every way, I am getting better and better.');
-      
-      // Merge existing active_steps with any new steps not in the list
-      let currentActiveSteps = settings.active_steps && settings.active_steps.length > 0 
-        ? [...settings.active_steps] 
+
+      const stripLegacy = (arr: string[]) => arr.filter(id => id !== 'emotionalCheck' && id !== 'emotionalTransform');
+
+      let currentActiveSteps = settings.active_steps && settings.active_steps.length > 0
+        ? stripLegacy([...settings.active_steps])
         : [...ALL_STEP_IDS];
-      
-      // Add new steps that might be missing from older saved settings
-      const newStepsToAdd = ['mindShifting', 'emotionalTransform', 'visionDeclaration'];
-      newStepsToAdd.forEach(stepId => {
-        if (!currentActiveSteps.includes(stepId)) {
-          // Add emotionalCheck at the beginning, emotionalTransform after it, visionDeclaration after autosuggestion
-          if (stepId === 'emotionalCheck') {
-            currentActiveSteps.unshift(stepId);
-          } else if (stepId === 'emotionalTransform') {
-            const checkIndex = currentActiveSteps.indexOf('mindShifting');
-            if (checkIndex !== -1) {
-              currentActiveSteps.splice(checkIndex + 1, 0, stepId);
-            } else {
-              currentActiveSteps.unshift(stepId);
-            }
-          } else if (stepId === 'visionDeclaration') {
-            const autoIndex = currentActiveSteps.indexOf('autosuggestion');
-            if (autoIndex !== -1) {
-              currentActiveSteps.splice(autoIndex + 1, 0, stepId);
-            } else {
-              currentActiveSteps.push(stepId);
-            }
-          }
-        }
-      });
+
+      if (!currentActiveSteps.includes('mindShifting')) currentActiveSteps.unshift('mindShifting');
+      if (!currentActiveSteps.includes('visionDeclaration')) {
+        const autoIdx = currentActiveSteps.indexOf('autosuggestion');
+        if (autoIdx !== -1) currentActiveSteps.splice(autoIdx + 1, 0, 'visionDeclaration');
+        else currentActiveSteps.push('visionDeclaration');
+      }
       setActiveSteps(currentActiveSteps);
-      
-      // Same for steps order
-      let currentStepsOrder = settings.routine_steps_order && settings.routine_steps_order.length > 0 
-        ? [...settings.routine_steps_order] 
+
+      let currentStepsOrder = settings.routine_steps_order && settings.routine_steps_order.length > 0
+        ? stripLegacy([...settings.routine_steps_order])
         : [...ALL_STEP_IDS];
-      
-      newStepsToAdd.forEach(stepId => {
-        if (!currentStepsOrder.includes(stepId)) {
-          if (stepId === 'emotionalCheck') {
-            currentStepsOrder.unshift(stepId);
-          } else if (stepId === 'emotionalTransform') {
-            const checkIndex = currentStepsOrder.indexOf('mindShifting');
-            if (checkIndex !== -1) {
-              currentStepsOrder.splice(checkIndex + 1, 0, stepId);
-            } else {
-              currentStepsOrder.unshift(stepId);
-            }
-          } else if (stepId === 'visionDeclaration') {
-            const autoIndex = currentStepsOrder.indexOf('autosuggestion');
-            if (autoIndex !== -1) {
-              currentStepsOrder.splice(autoIndex + 1, 0, stepId);
-            } else {
-              currentStepsOrder.push(stepId);
-            }
-          }
-        }
-      });
+
+      if (!currentStepsOrder.includes('mindShifting')) currentStepsOrder.unshift('mindShifting');
+      if (!currentStepsOrder.includes('visionDeclaration')) {
+        const autoIdx = currentStepsOrder.indexOf('autosuggestion');
+        if (autoIdx !== -1) currentStepsOrder.splice(autoIdx + 1, 0, 'visionDeclaration');
+        else currentStepsOrder.push('visionDeclaration');
+      }
       setStepsOrder(currentStepsOrder);
-      
+
       setHabitSteps(settings.habit_steps || []);
       setIncludeDailyTasks(settings.include_daily_tasks !== false);
     } else {
-      // First time setup - set defaults
       setActiveSteps(ALL_STEP_IDS);
       setStepsOrder(ALL_STEP_IDS);
     }

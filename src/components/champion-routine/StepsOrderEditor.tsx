@@ -31,7 +31,7 @@ const CORE4_STEP_IDS = CORE4_STEPS as readonly string[];
 
 export const ALL_STEPS = [
   { id: 'mindShifting', label: 'Mind Shifting', icon: Brain, category: 'emotional', hasConfig: false, isCore4: true },
-  { id: 'emotionalTransform', label: 'Transformare Emoțională', icon: Sparkles, category: 'emotional', hasConfig: false, isCore4: false },
+  
   { id: 'lightExposure', label: 'Lumină Naturală', icon: Sun, category: 'being', hasConfig: true, isCore4: false },
   { id: 'hydration', label: 'Hidratare', icon: Droplets, category: 'being', hasConfig: false, isCore4: false },
   { id: 'breathing', label: 'Respirație', icon: Wind, category: 'being', hasConfig: true, isCore4: false },

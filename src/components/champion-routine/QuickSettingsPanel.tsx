@@ -50,7 +50,7 @@ const STEP_INFO: Record<string, { label: string; icon: React.ReactNode; category
   
   // Extra Steps (toggleable)
   mindShifting: { label: 'Mind Shifting', icon: <Heart className="h-4 w-4" />, category: 'emotional' },
-  emotionalTransform: { label: 'Transformare', icon: <Sparkles className="h-4 w-4" />, category: 'emotional' },
+  
   lightExposure: { label: 'Lumină Naturală', icon: <Sparkles className="h-4 w-4" />, category: 'being' },
   hydration: { label: 'Hidratare', icon: <Sparkles className="h-4 w-4" />, category: 'being' },
   breathing: { label: 'Respirație', icon: <Sparkles className="h-4 w-4" />, category: 'being' },
