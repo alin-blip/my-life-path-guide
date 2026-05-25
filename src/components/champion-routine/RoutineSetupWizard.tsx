@@ -123,7 +123,7 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
     try {
       // Core 4 este ÎNTOTDEAUNA inclus
       const activeSteps = [
-        'emotionalCheck',      // Întotdeauna primul
+        'mindShifting',      // Întotdeauna primul
         'stackSelection',      // Stack selection
         'emotionalTransform',  // Transform dacă e nevoie
         ...CORE4_STEPS,
