@@ -49,7 +49,7 @@ const STEP_INFO: Record<string, { label: string; icon: React.ReactNode; category
   apply: { label: 'Aplică/Predă', icon: <Briefcase className="h-4 w-4" />, category: 'business', isCore4: true },
   
   // Extra Steps (toggleable)
-  emotionalCheck: { label: 'Check-in Emoțional', icon: <Heart className="h-4 w-4" />, category: 'emotional' },
+  mindShifting: { label: 'Mind Shifting', icon: <Heart className="h-4 w-4" />, category: 'emotional' },
   emotionalTransform: { label: 'Transformare', icon: <Sparkles className="h-4 w-4" />, category: 'emotional' },
   lightExposure: { label: 'Lumină Naturală', icon: <Sparkles className="h-4 w-4" />, category: 'being' },
   hydration: { label: 'Hidratare', icon: <Sparkles className="h-4 w-4" />, category: 'being' },
