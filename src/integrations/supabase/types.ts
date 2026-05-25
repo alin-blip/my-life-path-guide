@@ -747,6 +747,7 @@ export type Database = {
           light_exposure: boolean | null
           meals_logged: Json | null
           meditation_duration_seconds: number | null
+          mind_shift_summary: Json | null
           morning_emotion: string | null
           morning_emotion_intensity: number | null
           pomodoro_sessions: number | null
@@ -789,6 +790,7 @@ export type Database = {
           light_exposure?: boolean | null
           meals_logged?: Json | null
           meditation_duration_seconds?: number | null
+          mind_shift_summary?: Json | null
           morning_emotion?: string | null
           morning_emotion_intensity?: number | null
           pomodoro_sessions?: number | null
@@ -831,6 +833,7 @@ export type Database = {
           light_exposure?: boolean | null
           meals_logged?: Json | null
           meditation_duration_seconds?: number | null
+          mind_shift_summary?: Json | null
           morning_emotion?: string | null
           morning_emotion_intensity?: number | null
           pomodoro_sessions?: number | null
@@ -3326,6 +3329,162 @@ export type Database = {
           migration_type?: string
           status?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      mind_shift_beliefs: {
+        Row: {
+          activation_prompt: string
+          active: boolean
+          created_at: string
+          emotion_tags: string[] | null
+          id: string
+          incantation: string
+          long_description: string | null
+          name: string
+          order_index: number
+          short_description: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          activation_prompt: string
+          active?: boolean
+          created_at?: string
+          emotion_tags?: string[] | null
+          id?: string
+          incantation: string
+          long_description?: string | null
+          name: string
+          order_index?: number
+          short_description: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          activation_prompt?: string
+          active?: boolean
+          created_at?: string
+          emotion_tags?: string[] | null
+          id?: string
+          incantation?: string
+          long_description?: string | null
+          name?: string
+          order_index?: number
+          short_description?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mind_shift_distortions: {
+        Row: {
+          active: boolean
+          created_at: string
+          example: string | null
+          id: string
+          name: string
+          order_index: number
+          reframe_template: string | null
+          short_description: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          example?: string | null
+          id?: string
+          name: string
+          order_index?: number
+          reframe_template?: string | null
+          short_description: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          example?: string | null
+          id?: string
+          name?: string
+          order_index?: number
+          reframe_template?: string | null
+          short_description?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mind_shift_sessions: {
+        Row: {
+          act_value: string | null
+          ai_suggestions: Json | null
+          automatic_thought: string | null
+          belief_slug: string | null
+          cognitive_reframe: string | null
+          commitment_task_id: string | null
+          commitment_text: string | null
+          completed_at: string | null
+          created_at: string
+          date: string
+          distortion_slug: string | null
+          emotion: string | null
+          id: string
+          incantation_text: string | null
+          intensity: number | null
+          positive_reframe: string | null
+          situation: string | null
+          source: string
+          updated_at: string
+          user_id: string
+          week_key: string | null
+        }
+        Insert: {
+          act_value?: string | null
+          ai_suggestions?: Json | null
+          automatic_thought?: string | null
+          belief_slug?: string | null
+          cognitive_reframe?: string | null
+          commitment_task_id?: string | null
+          commitment_text?: string | null
+          completed_at?: string | null
+          created_at?: string
+          date?: string
+          distortion_slug?: string | null
+          emotion?: string | null
+          id?: string
+          incantation_text?: string | null
+          intensity?: number | null
+          positive_reframe?: string | null
+          situation?: string | null
+          source?: string
+          updated_at?: string
+          user_id: string
+          week_key?: string | null
+        }
+        Update: {
+          act_value?: string | null
+          ai_suggestions?: Json | null
+          automatic_thought?: string | null
+          belief_slug?: string | null
+          cognitive_reframe?: string | null
+          commitment_task_id?: string | null
+          commitment_text?: string | null
+          completed_at?: string | null
+          created_at?: string
+          date?: string
+          distortion_slug?: string | null
+          emotion?: string | null
+          id?: string
+          incantation_text?: string | null
+          intensity?: number | null
+          positive_reframe?: string | null
+          situation?: string | null
+          source?: string
+          updated_at?: string
+          user_id?: string
+          week_key?: string | null
         }
         Relationships: []
       }
