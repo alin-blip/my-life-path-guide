@@ -153,7 +153,7 @@ export const mindShiftService = {
       .limit(1)
       .maybeSingle();
     if (error) throw error;
-    return data as MindShiftSession | null;
+    return data as unknown as MindShiftSession | null;
   },
 
   async getSessionById(id: string): Promise<MindShiftSession | null> {
@@ -163,7 +163,7 @@ export const mindShiftService = {
       .eq('id', id)
       .maybeSingle();
     if (error) throw error;
-    return data as MindShiftSession | null;
+    return data as unknown as MindShiftSession | null;
   },
 
   async listSessions(opts: { limit?: number; status?: MindShiftStatus | 'all' } = {}): Promise<MindShiftSession[]> {
@@ -178,7 +178,7 @@ export const mindShiftService = {
     if (opts.status && opts.status !== 'all') q = q.eq('status', opts.status);
     const { data, error } = await q;
     if (error) throw error;
-    return (data ?? []) as MindShiftSession[];
+    return (data ?? []) as unknown as MindShiftSession[];
   },
 
   async listDrafts(): Promise<MindShiftSession[]> {
@@ -218,7 +218,7 @@ export const mindShiftService = {
       .select()
       .single();
     if (error) throw error;
-    return data as MindShiftSession;
+    return data as unknown as MindShiftSession;
   },
 
   /** Generic patch — used by chat flow to persist progress per step. */
@@ -230,7 +230,7 @@ export const mindShiftService = {
       .select()
       .single();
     if (error) throw error;
-    return data as MindShiftSession;
+    return data as unknown as MindShiftSession;
   },
 
   /** Call conversational AI for a specific step. */
@@ -351,7 +351,7 @@ export const mindShiftService = {
       console.warn('Failed to mirror mind shift summary', e);
     }
 
-    return result as MindShiftSession;
+    return result as unknown as MindShiftSession;
   },
 
   async deleteSession(id: string): Promise<void> {
