@@ -21,3 +21,4 @@ export { EmotionalTrackerWidget } from './EmotionalTrackerWidget';
 export { ChallengeProgressWidget } from './ChallengeProgressWidget';
 export { TimeBlockCalendarWidget } from './TimeBlockCalendarWidget';
 export { MindShiftQuickCaptureWidget } from './MindShiftQuickCaptureWidget';
+export { MindShiftAnalyticsWidget } from './MindShiftAnalyticsWidget';

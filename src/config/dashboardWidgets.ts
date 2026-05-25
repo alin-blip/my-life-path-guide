@@ -147,6 +147,17 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     icon: 'Brain',
     defaultSize: 'medium',
     category: 'mindset'
+  },
+  {
+    id: 'mind-shift-analytics',
+    name: { en: 'Mind Shift — Week Stats', ro: 'Mind Shift — Statistici Săptămână' },
+    description: {
+      en: 'Sessions, average intensity drop and dominant emotion this week.',
+      ro: 'Sesiuni, scădere medie de intensitate și emoția dominantă în săptămâna asta.'
+    },
+    icon: 'Brain',
+    defaultSize: 'medium',
+    category: 'mindset'
   }
 ];
 

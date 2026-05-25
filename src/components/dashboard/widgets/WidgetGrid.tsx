@@ -17,6 +17,7 @@ import { ChallengeProgressWidget } from './ChallengeProgressWidget';
 import { VibeCanvasWidget } from './VibeCanvasWidget';
 import { TimeBlockCalendarWidget } from './TimeBlockCalendarWidget';
 import { MindShiftQuickCaptureWidget } from './MindShiftQuickCaptureWidget';
+import { MindShiftAnalyticsWidget } from './MindShiftAnalyticsWidget';
 import { CustomWidgetRenderer } from './CustomWidgetRenderer';
 import type { CustomWidget, WidgetData } from '@/types/customWidget';
 import { supabase } from '@/integrations/supabase/client';
@@ -170,6 +171,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
         return <TimeBlockCalendarWidget {...commonProps} />;
       case 'mind-shift-capture':
         return <MindShiftQuickCaptureWidget {...commonProps} />;
+      case 'mind-shift-analytics':
+        return <MindShiftAnalyticsWidget {...commonProps} />;
       default:
         return null;
     }
