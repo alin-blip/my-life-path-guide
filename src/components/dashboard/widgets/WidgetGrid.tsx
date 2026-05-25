@@ -168,6 +168,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
         return <VibeCanvasWidget {...commonProps} />;
       case 'time-block-calendar':
         return <TimeBlockCalendarWidget {...commonProps} />;
+      case 'mind-shift-capture':
+        return <MindShiftQuickCaptureWidget {...commonProps} />;
       default:
         return null;
     }
