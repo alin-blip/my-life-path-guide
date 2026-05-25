@@ -76,6 +76,16 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   const { toast } = useToast();
   
   const completedDays = completedDaysCount;
+  const [mindShiftDrafts, setMindShiftDrafts] = useState<number>(0);
+
+  useEffect(() => {
+    let mounted = true;
+    import('@/services/mindShiftService').then(({ mindShiftService }) => {
+      mindShiftService.countDrafts().then((n) => { if (mounted) setMindShiftDrafts(n); }).catch(() => {});
+    });
+    return () => { mounted = false; };
+  }, [currentPath]);
+
 
   const handleSignOut = async () => {
     try {
