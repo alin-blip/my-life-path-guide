@@ -35,7 +35,7 @@ import { LearnStep } from './steps/LearnStep';
 import { VisionDeclarationStep } from './steps/VisionDeclarationStep';
 import { AutosuggestionStep } from './steps/AutosuggestionStep';
 import { ApplyStep } from './steps/ApplyStep';
-import { EmotionalCheckUnifiedStep } from './steps/EmotionalCheckUnifiedStep';
+import { MindShiftingStep } from './steps/MindShiftingStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
@@ -58,7 +58,7 @@ interface ChampionRoutineFlowProps {
 }
 
 export type RoutineStepId = 
-  | 'emotionalCheck'
+  | 'mindShifting'
   | 'bodyActivation'
   | 'gratitude' 
   | 'hydration' 
@@ -87,6 +87,7 @@ export type RoutineStepId =
 
 // Core 4 - OBLIGATORII (nu pot fi eliminate) - aliniate cu Warrior Core 4
 export const CORE4_REQUIRED_STEPS: RoutineStepId[] = [
+  'mindShifting',
   'exercise',
   'mealPlanning',
   'meditation',
@@ -98,7 +99,7 @@ export const CORE4_REQUIRED_STEPS: RoutineStepId[] = [
 
 // Default order — simplified Tony Robbins flow
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
-  'emotionalCheck',       // 1. Check-in Emoțional (Tony Robbins 3 faze)
+  'mindShifting',         // 1. Mind Shifting (Observe → Name → Reframe → Activate → Commit)
   'bodyActivation',       // 2. Apă + Lumină + Postură (30 sec)
   'meditation',           // 3. Meditație (cu breathing intro opțional)
   'powerDeclaration',     // 4. Viziune + Autosugestie + Vizualizare
@@ -115,7 +116,7 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
 
 // Translation keys for step labels - now using useLanguage t() function
 const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
-  emotionalCheck: 'stepEmotionalCheck',
+  mindShifting: 'stepMindShifting',
   bodyActivation: 'stepBodyActivation',
   gratitude: 'stepGratitude',
   hydration: 'stepHydration',
@@ -144,7 +145,7 @@ const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
 };
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
-  emotionalCheck: 'emotional',
+  mindShifting: 'emotional',
   bodyActivation: 'body',
   gratitude: 'being',
   hydration: 'being',
@@ -188,8 +189,8 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
   if (!log) return false;
   
   switch (stepId) {
-    case 'emotionalCheck':
-      return !!log.morning_emotion && (log.stack_selection_completed === true || log.emotional_transform_completed === true || !!log.morning_emotion);
+    case 'mindShifting':
+      return !!(log as any).mind_shift_summary;
     case 'bodyActivation':
       return log.water_drunk === true && log.light_exposure === true;
     case 'gratitude':
@@ -279,14 +280,17 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     });
 
     // Auto-include new steps for existing users
-    const requiredNewSteps = ['emotionalCheck', 'bodyActivation', 'powerDeclaration'];
+    const requiredNewSteps = ['mindShifting', 'bodyActivation', 'powerDeclaration'];
     requiredNewSteps.forEach(stepId => {
       if (activeSteps.length > 0 && !activeSteps.includes(stepId)) {
         activeSteps = [...activeSteps];
-        if (stepId === 'emotionalCheck') {
+        if (stepId === 'mindShifting') {
+          // Replace legacy emotionalCheck if present
+          const legacyIdx = activeSteps.indexOf('emotionalCheck' as any);
+          if (legacyIdx !== -1) activeSteps.splice(legacyIdx, 1);
           activeSteps.unshift(stepId);
         } else if (stepId === 'bodyActivation') {
-          const checkIndex = activeSteps.indexOf('emotionalCheck');
+          const checkIndex = activeSteps.indexOf('mindShifting');
           activeSteps.splice(checkIndex !== -1 ? checkIndex + 1 : 0, 0, stepId);
         } else {
           // powerDeclaration — insert after meditation
@@ -296,10 +300,12 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
       }
       if (stepsOrder.length > 0 && !stepsOrder.includes(stepId)) {
         stepsOrder = [...stepsOrder];
-        if (stepId === 'emotionalCheck') {
+        if (stepId === 'mindShifting') {
+          const legacyIdx = stepsOrder.indexOf('emotionalCheck' as any);
+          if (legacyIdx !== -1) stepsOrder.splice(legacyIdx, 1);
           stepsOrder.unshift(stepId);
         } else if (stepId === 'bodyActivation') {
-          const checkIndex = stepsOrder.indexOf('emotionalCheck');
+          const checkIndex = stepsOrder.indexOf('mindShifting');
           stepsOrder.splice(checkIndex !== -1 ? checkIndex + 1 : 0, 0, stepId);
         } else {
           const medIndex = stepsOrder.indexOf('meditation');
@@ -307,6 +313,10 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         }
       }
     });
+
+    // Strip any lingering legacy emotionalCheck IDs
+    activeSteps = activeSteps.filter(id => id !== 'emotionalCheck');
+    stepsOrder = stepsOrder.filter(id => id !== 'emotionalCheck');
 
     // If no custom order, use default
     let steps: RoutineStepId[];
@@ -565,29 +575,16 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
 
   const renderStep = () => {
     switch (currentStepId) {
-      case 'emotionalCheck':
+      case 'mindShifting':
         return (
-          <EmotionalCheckUnifiedStep
-            emotion={selectedEmotion}
-            intensity={emotionIntensity}
-            onEmotionChange={(emotion) => {
-              setSelectedEmotion(emotion);
-              updateLog('morning_emotion', emotion);
-            }}
-            onIntensityChange={(intensity) => {
-              setEmotionIntensity(intensity);
-              updateLog('morning_emotion_intensity', intensity);
-            }}
-            onComplete={(data) => {
-              updateLog('morning_emotion', data.emotion);
-              updateLog('morning_emotion_intensity', data.intensity);
-              if (data.stackCompleted) {
-                updateLog('stack_selection_completed', true);
-                updateLog('emotional_transform_completed', true);
-              }
+          <MindShiftingStep
+            onComplete={(session) => {
+              if (session.emotion) updateLog('morning_emotion', session.emotion as any);
+              if (typeof session.intensity === 'number') updateLog('morning_emotion_intensity', session.intensity);
               goToNextStep();
             }}
             onSkip={() => goToNextStep()}
+            source="routine"
           />
         );
       case 'bodyActivation':
