@@ -76,6 +76,16 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   const { toast } = useToast();
   
   const completedDays = completedDaysCount;
+  const [mindShiftDrafts, setMindShiftDrafts] = useState<number>(0);
+
+  useEffect(() => {
+    let mounted = true;
+    import('@/services/mindShiftService').then(({ mindShiftService }) => {
+      mindShiftService.countDrafts().then((n) => { if (mounted) setMindShiftDrafts(n); }).catch(() => {});
+    });
+    return () => { mounted = false; };
+  }, [currentPath]);
+
 
   const handleSignOut = async () => {
     try {
@@ -192,7 +202,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       path: '/daily-flow',
       subItems: [
         { title: language === 'ro' ? 'Start Rutină' : 'Start Routine', icon: Swords, path: '/daily-flow' },
-        { title: language === 'ro' ? 'Mind Shifting' : 'Mind Shifting', icon: Brain, path: '/mind-shifting', badge: 'NEW' },
+        { title: language === 'ro' ? 'Mind Shifting' : 'Mind Shifting', icon: Brain, path: '/mind-shifting', badge: mindShiftDrafts > 0 ? String(mindShiftDrafts) : 'NEW' },
         { title: language === 'ro' ? 'Focus Room' : 'Focus Room', icon: Timer, path: '/focus' },
         { title: language === 'ro' ? 'Istoric & Statistici' : 'History & Stats', icon: BarChart3, path: '/champion-routine-history' },
       ]
