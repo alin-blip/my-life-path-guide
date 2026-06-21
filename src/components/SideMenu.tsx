@@ -230,6 +230,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: language === 'ro' ? 'Brain Map' : 'Brain Map', icon: Brain, path: '/minte' },
         { title: language === 'ro' ? 'Teste de Minte' : 'Mind Tests', icon: GraduationCap, path: '/minte/teste' },
         { title: language === 'ro' ? 'Matricea Credințelor' : 'Belief Matrix', icon: LayoutGrid, path: '/minte/credinte' },
+        { title: language === 'ro' ? 'PSA Reconstrucție' : 'PSA Reconstruction', icon: RotateCcw, path: '/minte/psa' },
       ]
     },
 
