@@ -250,7 +250,8 @@ export const useFoundationStatus = (): FoundationStatus => {
         body: { en: 'Body', ro: 'Corp' },
         being: { en: 'Spirituality', ro: 'Spiritualitate' },
         balance: { en: 'Relationships', ro: 'Relații' },
-        business: { en: 'Business', ro: 'Business' }
+        business: { en: 'Business', ro: 'Business' },
+        minte: { en: 'Mind', ro: 'Minte' }
       };
       const missing = missingAnnualCategories.map(c => categoryLabels[c]);
       
