@@ -5512,6 +5512,8 @@ export type Database = {
           dashboard_widgets: Json | null
           id: string
           language: string | null
+          last_mind_test_at: string | null
+          mind_test_skip_count: number
           onboarding_completed: Json | null
           preferred_tts_voice: string | null
           sound_muted: boolean | null
@@ -5525,6 +5527,8 @@ export type Database = {
           dashboard_widgets?: Json | null
           id?: string
           language?: string | null
+          last_mind_test_at?: string | null
+          mind_test_skip_count?: number
           onboarding_completed?: Json | null
           preferred_tts_voice?: string | null
           sound_muted?: boolean | null
@@ -5538,6 +5542,8 @@ export type Database = {
           dashboard_widgets?: Json | null
           id?: string
           language?: string | null
+          last_mind_test_at?: string | null
+          mind_test_skip_count?: number
           onboarding_completed?: Json | null
           preferred_tts_voice?: string | null
           sound_muted?: boolean | null
