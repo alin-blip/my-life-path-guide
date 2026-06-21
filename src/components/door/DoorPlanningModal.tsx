@@ -642,7 +642,25 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
         const planningData = JSON.parse(toolCallArgumentsBuffer);
         
         console.log('📝 Planning data received from AI:', planningData);
-        
+
+        // Sanitize: AI sometimes echoes the internal "[CONTEXT AUTOMAT]" prefix
+        // as the domino title / week goal. Replace with a join of key titles.
+        const isContextLeak = (s: any) =>
+          typeof s === 'string' && s.trim().toUpperCase().startsWith('[CONTEXT AUTOMAT');
+        const joinedTitles = Array.isArray(planningData.keyPoints)
+          ? planningData.keyPoints.map((k: any) => k?.title).filter(Boolean).join(' + ')
+          : '';
+        const joinedGoals = Array.isArray(planningData.keyPoints)
+          ? planningData.keyPoints.map((k: any) => k?.objective || k?.title).filter(Boolean).join('; ')
+          : '';
+        if (isContextLeak(planningData.dominoTitle) || !planningData.dominoTitle?.trim()) {
+          console.warn('⚠️ Sanitizing leaked dominoTitle, using joined key titles');
+          planningData.dominoTitle = joinedTitles || 'Domino săptămânal';
+        }
+        if (isContextLeak(planningData.weekGoal) || !planningData.weekGoal?.trim()) {
+          planningData.weekGoal = joinedGoals || planningData.dominoTitle;
+        }
+
         // Save to database with category
         const saveSuccess = await weeklyPlanningService.savePlan({
           weekKey: currentWeekKey,
@@ -651,6 +669,7 @@ export const DoorPlanningModal: React.FC<DoorPlanningModalProps> = ({
           keyPoints: planningData.keyPoints,
           category: selectedDomain,
         });
+
         
         if (saveSuccess) {
           console.log('✅ Planning saved successfully to database');
