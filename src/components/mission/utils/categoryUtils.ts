@@ -15,6 +15,7 @@ export const useCategoryLabel = (category: MissionCategory) => {
       case 'being': return 'SPIRITUALITY';
       case 'balance': return 'RELATIONSHIPS';
       case 'business': return "BUSINESS";
+      case 'minte': return 'MIND';
       default: return String(category).toUpperCase();
     }
   } else {
@@ -23,6 +24,7 @@ export const useCategoryLabel = (category: MissionCategory) => {
       case 'being': return 'SPIRITUALITATE';
       case 'balance': return 'RELAȚII';
       case 'business': return 'AFACERI';
+      case 'minte': return 'MINTE';
       default: return String(category).toUpperCase();
     }
   }
@@ -35,6 +37,7 @@ export const getCategoryColor = (category: MissionCategory): string => {
     case 'being': return 'from-feminine-accent to-blue-800';
     case 'balance': return 'from-feminine-light to-feminine-primary';
     case 'business': return 'from-blue-800 to-blue-600';
+    case 'minte': return 'from-violet-600 to-fuchsia-500';
     default: return 'from-feminine-primary to-feminine-accent';
   }
 };
@@ -47,6 +50,7 @@ export const getCategoryName = (category: MissionCategory, language: string): st
       case 'being': return 'Spirituality';
       case 'balance': return 'Relationships';
       case 'business': return "Business";
+      case 'minte': return 'Mind';
       default: return category;
     }
   } else {
@@ -55,6 +59,7 @@ export const getCategoryName = (category: MissionCategory, language: string): st
       case 'being': return 'Spiritualitate';
       case 'balance': return 'Relații';
       case 'business': return 'Afaceri';
+      case 'minte': return 'Minte';
       default: return category;
     }
   }
