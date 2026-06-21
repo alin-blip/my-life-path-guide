@@ -29,6 +29,7 @@ const CATEGORY_INFO: Record<GoalCategory, { icon: React.ElementType; en: string;
   body: { icon: Dumbbell, en: 'Body', ro: 'Corp', color: '#22c55e', gradient: 'from-green-500 to-emerald-500' },
   being: { icon: Brain, en: 'Spirituality', ro: 'Spiritualitate', color: '#8b5cf6', gradient: 'from-violet-500 to-purple-500' },
   balance: { icon: Heart, en: 'Relationships', ro: 'Relații', color: '#ec4899', gradient: 'from-pink-500 to-rose-500' },
+  minte: { icon: Brain, en: 'Mind', ro: 'Minte', color: '#a855f7', gradient: 'from-violet-600 to-fuchsia-500' },
 };
 
 export const MultiCategoryPlanSummary: React.FC<MultiCategoryPlanSummaryProps> = ({
