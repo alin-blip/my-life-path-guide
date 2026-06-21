@@ -45,7 +45,7 @@ export interface FoundationStatus {
   refresh: () => Promise<void>;
 }
 
-const ALL_CATEGORIES: GoalCategory[] = ['body', 'being', 'balance', 'business'];
+const ALL_CATEGORIES: GoalCategory[] = ['body', 'being', 'balance', 'business', 'minte'];
 
 export const useFoundationStatus = (): FoundationStatus => {
   const [isLoading, setIsLoading] = useState(true);
