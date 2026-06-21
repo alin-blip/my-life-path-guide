@@ -13,11 +13,12 @@ import { cn } from '@/lib/utils';
 import { useTimeBlockTasks, type TimeBlockTask } from '@/hooks/useTimeBlockTasks';
 import {
   HOUR_START, HOUR_END, SLOT_HEIGHT_PX, SLOT_MINUTES,
-  TOTAL_SLOTS, jsDayToAbbrev, weekMondayForDate, dateForDayInWeek,
+  TOTAL_SLOTS, jsDayToAbbrev, weekMondayForDate, weekKeyForDate, dateForDayInWeek,
   timeToMinutes, minutesToTime, minutesToY, snapToSlot, clampToGrid,
   durationToHeight, formatDayLabel, formatTimeShort, priorityMeta,
   type DayAbbrev,
 } from '@/utils/timeBlockHelpers';
+
 
 interface Props {
   size: WidgetSize;
