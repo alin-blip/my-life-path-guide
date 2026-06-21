@@ -25,6 +25,7 @@ const CATEGORY_LABELS: Record<GoalCategory, { en: string; ro: string }> = {
   body: { en: 'Body & Health', ro: 'Corp & Sănătate' },
   being: { en: 'Spirit & Mindset', ro: 'Spirit & Mindset' },
   balance: { en: 'Relationships', ro: 'Relații' },
+  minte: { en: 'Mind', ro: 'Minte' },
 };
 
 // Map life score categories to quiz categories for MembershipOfferStack
