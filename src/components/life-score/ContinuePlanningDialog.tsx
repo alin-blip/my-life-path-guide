@@ -19,6 +19,7 @@ const CATEGORY_INFO: Record<GoalCategory, { icon: React.ElementType; en: string;
   body: { icon: Dumbbell, en: 'Body', ro: 'Corp', gradient: 'from-green-500 to-emerald-500' },
   being: { icon: Brain, en: 'Spirituality', ro: 'Spiritualitate', gradient: 'from-violet-500 to-purple-500' },
   balance: { icon: Heart, en: 'Relationships', ro: 'Relații', gradient: 'from-pink-500 to-rose-500' },
+  minte: { icon: Brain, en: 'Mind', ro: 'Minte', gradient: 'from-violet-600 to-fuchsia-500' },
 };
 
 export const ContinuePlanningDialog: React.FC<ContinuePlanningDialogProps> = ({
