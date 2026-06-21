@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadMinteContext } from "../_shared/mind-context.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -59,6 +60,20 @@ serve(async (req) => {
       systemPromptLength: systemPrompt?.length || 0 
     });
 
+    // Load Minte (Mind) context — foundation of the app.
+    const minte = await loadMinteContext(supabaseClient, user.id);
+
+    const baseSystem = systemPrompt || `Ești un coach personal AI care ghidează utilizatorul printr-o sesiune de dezvoltare personală.
+            
+Stilul tău:
+- Empatic și încurajator
+- Pune întrebări care stimulează reflecția
+- Oferă feedback personalizat
+- Fii concis dar profund
+- Răspunde în română`;
+
+    const finalSystem = `${baseSystem}\n\n${minte.promptBlock}`;
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -68,17 +83,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          {
-            role: 'system',
-            content: systemPrompt || `Ești un coach personal AI care ghidează utilizatorul printr-o sesiune de dezvoltare personală.
-            
-Stilul tău:
-- Empatic și încurajator
-- Pune întrebări care stimulează reflecția
-- Oferă feedback personalizat
-- Fii concis dar profund
-- Răspunde în română`
-          },
+          { role: 'system', content: finalSystem },
           ...messages
         ],
         max_tokens: 1000,
