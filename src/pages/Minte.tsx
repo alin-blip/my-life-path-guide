@@ -35,14 +35,28 @@ export default function Minte() {
   const { language } = useLanguage();
   const lang: "ro" | "en" = language === "en" ? "en" : "ro";
   const [axes, setAxes] = useState<MindAxisScoreRow[]>([]);
+  const [responses, setResponses] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    mindQuizService.getAxisScores().then((rows) => {
+    Promise.all([
+      mindQuizService.getAxisScores(),
+      mindQuizService.getAllLatestResponses(),
+    ]).then(([rows, resp]) => {
       setAxes(rows);
+      setResponses(resp);
       setLoading(false);
     });
   }, []);
+
+  // Compute top PSA reason (priority = quiz in band C; fallback = weakest axis).
+  const weakAxis = axes.length
+    ? [...axes].sort((a, b) => a.score_healthy - b.score_healthy)[0]
+    : null;
+  const redQuizSlugs = Object.keys(responses).filter(
+    (s) => responses[s]?.band === "C",
+  );
+  const hasPsaSignal = redQuizSlugs.length > 0 || !!weakAxis;
 
   const t = (en: string, ro: string) => (lang === "en" ? en : ro);
 
@@ -115,7 +129,14 @@ export default function Minte() {
         <Link to="/minte/psa">
           <Card className="h-full hover:border-primary/40 transition-colors cursor-pointer">
             <CardContent className="p-5 space-y-2">
-              <RotateCcw className="h-6 w-6 text-primary" />
+              <div className="flex items-center justify-between">
+                <RotateCcw className="h-6 w-6 text-primary" />
+                {hasPsaSignal && (
+                  <Badge className="text-[10px] bg-primary/15 text-primary hover:bg-primary/20">
+                    {t("Recommended", "Recomandat")}
+                  </Badge>
+                )}
+              </div>
               <h3 className="font-semibold">{t("PSA Reconstruction", "PSA Reconstrucție")}</h3>
               <p className="text-sm text-muted-foreground">
                 {t(
@@ -123,8 +144,39 @@ export default function Minte() {
                   "Substituie credințele toxice de CEO (perfecționism, impostor, scarcitate) prin Problemă → Substituție → Acțiune.",
                 )}
               </p>
+
+              {hasPsaSignal && (
+                <div className="rounded-md bg-muted/50 border p-2 space-y-1">
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                    {t("Why we recommend this", "De ce ți-am recomandat asta")}
+                  </p>
+                  {redQuizSlugs.length > 0 ? (
+                    <p className="text-xs">
+                      {t(
+                        `${redQuizSlugs.length} mind test(s) landed in the red band.`,
+                        `${redQuizSlugs.length} test(e) de minte au căzut în banda roșie.`,
+                      )}
+                    </p>
+                  ) : weakAxis ? (
+                    <p className="text-xs">
+                      {t(
+                        `Your weakest axis is ${
+                          AXIS_META[weakAxis.axis]?.en ?? weakAxis.axis
+                        } at ${Math.round(weakAxis.score_healthy)}/100.`,
+                        `Cea mai slabă axă e ${
+                          AXIS_META[weakAxis.axis]?.ro ?? weakAxis.axis
+                        } la ${Math.round(weakAxis.score_healthy)}/100.`,
+                      )}
+                    </p>
+                  ) : null}
+                </div>
+              )}
+
               <span className="text-sm text-primary inline-flex items-center gap-1">
-                {t("Start reconstruction", "Începe reconstrucția")} <ArrowRight className="h-3.5 w-3.5" />
+                {hasPsaSignal
+                  ? t("Open my personalized plan", "Deschide planul meu personalizat")
+                  : t("Start reconstruction", "Începe reconstrucția")}{" "}
+                <ArrowRight className="h-3.5 w-3.5" />
               </span>
             </CardContent>
           </Card>
