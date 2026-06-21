@@ -1,4 +1,4 @@
-export type GoalCategory = 'body' | 'being' | 'balance' | 'business';
+export type GoalCategory = 'body' | 'being' | 'balance' | 'business' | 'minte';
 
 export type GoalWizardStep = 
   | 'project_count'
