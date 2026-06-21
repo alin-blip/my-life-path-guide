@@ -30,6 +30,7 @@ const CATEGORY_CONFIG: Record<GoalCategory, { icon: React.ElementType; color: st
   body: { icon: Heart, color: 'text-rose-500', gradient: 'from-rose-500/20 to-pink-500/10' },
   being: { icon: Brain, color: 'text-purple-500', gradient: 'from-purple-500/20 to-indigo-500/10' },
   balance: { icon: Users, color: 'text-blue-500', gradient: 'from-blue-500/20 to-cyan-500/10' },
+  minte: { icon: Brain, color: 'text-violet-500', gradient: 'from-violet-500/20 to-fuchsia-500/10' },
 };
 
 const DAY_LABELS: Record<string, { en: string; ro: string }> = {

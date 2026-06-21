@@ -1,5 +1,5 @@
 
-export type MissionCategory = 'body' | 'being' | 'balance' | 'business';
+export type MissionCategory = 'body' | 'being' | 'balance' | 'business' | 'minte';
 
 export interface MissionPart {
   title: string;

@@ -3,7 +3,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
 import { Briefcase, Heart, Sparkles, Users } from 'lucide-react';
 
-export type DomainCategory = 'business' | 'body' | 'being' | 'balance';
+export type DomainCategory = 'business' | 'body' | 'being' | 'balance' | 'minte';
 
 interface DomainConfig {
   id: DomainCategory;

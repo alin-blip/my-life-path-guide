@@ -319,7 +319,7 @@ export const GameContent: React.FC = () => {
         </div>
         
         <div className="p-3 space-y-2">
-          {['body', 'being', 'balance', 'business'].map((category) => (
+          {['body', 'being', 'balance', 'business', 'minte'].map((category) => (
             <div 
               key={category}
               className={`
@@ -333,10 +333,11 @@ export const GameContent: React.FC = () => {
               onClick={() => handleCategoryClick(type, mission, category as MissionCategory)}
             >
               {language === 'en' 
-                ? category.charAt(0).toUpperCase() + category.slice(1) 
+                ? (category === 'minte' ? 'Mind' : category.charAt(0).toUpperCase() + category.slice(1))
                 : category === 'body' ? 'Corp' 
                   : category === 'being' ? 'Ființă' 
                   : category === 'balance' ? 'Echilibru' 
+                  : category === 'minte' ? 'Minte'
                   : 'Afacere'}
               
               {isCategoryCompleted(mission, category as MissionCategory) && (
@@ -386,7 +387,7 @@ export const GameContent: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-1 gap-4">
-              {(['body', 'being', 'balance', 'business'] as MissionCategory[]).map((category) => (
+              {(['body', 'being', 'balance', 'business', 'minte'] as MissionCategory[]).map((category) => (
                 <Button 
                   key={category}
                   className="flex justify-between items-center bg-slate-700/50 hover:bg-blue-600/50 p-4 rounded-lg text-left"

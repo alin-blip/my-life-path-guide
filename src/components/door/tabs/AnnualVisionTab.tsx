@@ -200,7 +200,7 @@ export const AnnualVisionTab: React.FC = () => {
     const sourceParam = params.get('source');
     
     // If coming from a lead magnet with a category, auto-open wizard on that category
-    if (categoryParam && ['body', 'being', 'balance', 'business'].includes(categoryParam)) {
+    if (categoryParam && ['body', 'being', 'balance', 'business', 'minte'].includes(categoryParam)) {
       setWizardCategory(categoryParam as GoalCategory);
       // Auto-open wizard after short delay for state to settle
       setTimeout(() => {

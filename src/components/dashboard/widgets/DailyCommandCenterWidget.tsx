@@ -97,7 +97,7 @@ export const DailyCommandCenterWidget: React.FC = () => {
   // Get all unique categories from habits (including custom ones)
   const allCategories = useMemo(() => {
     const categoriesFromHabits = [...new Set(habits.map(h => h.category))];
-    const defaultCats = ['body', 'being', 'balance', 'business'];
+    const defaultCats = ['body', 'being', 'balance', 'business', 'minte'];
     const allCats = [...new Set([...defaultCats, ...categoriesFromHabits, ...customCategories])];
     return allCats;
   }, [habits, customCategories]);

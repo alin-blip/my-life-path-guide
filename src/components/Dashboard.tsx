@@ -97,7 +97,8 @@ export const Dashboard: React.FC = () => {
     body: null,
     being: null,
     balance: null,
-    business: null
+    business: null,
+    minte: null
   });
   const [streaks, setStreaks] = useState({
     stack: 0,

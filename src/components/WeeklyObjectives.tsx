@@ -78,7 +78,7 @@ export const WeeklyObjectives: React.FC = () => {
     try {
       const data = await objectivesService.getWeeklyObjectivesForDashboard(currentWeekKey);
       
-      const categories: MissionCategory[] = ['body', 'being', 'balance', 'business'];
+      const categories: MissionCategory[] = ['body', 'being', 'balance', 'business', 'minte'];
       const formattedObjectives: WeeklyObjectiveData[] = categories
         .map(category => ({
           category,

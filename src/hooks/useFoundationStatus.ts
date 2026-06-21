@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { format, getISOWeek, getYear, startOfWeek, addDays } from 'date-fns';
 
 export type FoundationItemType = 'annual' | 'quarterly' | 'monthly' | 'tasks' | 'routine' | 'vision';
-export type GoalCategory = 'body' | 'being' | 'balance' | 'business';
+export type GoalCategory = 'body' | 'being' | 'balance' | 'business' | 'minte';
 
 export interface FoundationItem {
   id: string;
@@ -45,7 +45,7 @@ export interface FoundationStatus {
   refresh: () => Promise<void>;
 }
 
-const ALL_CATEGORIES: GoalCategory[] = ['body', 'being', 'balance', 'business'];
+const ALL_CATEGORIES: GoalCategory[] = ['body', 'being', 'balance', 'business', 'minte'];
 
 export const useFoundationStatus = (): FoundationStatus => {
   const [isLoading, setIsLoading] = useState(true);
@@ -250,7 +250,8 @@ export const useFoundationStatus = (): FoundationStatus => {
         body: { en: 'Body', ro: 'Corp' },
         being: { en: 'Spirituality', ro: 'Spiritualitate' },
         balance: { en: 'Relationships', ro: 'Relații' },
-        business: { en: 'Business', ro: 'Business' }
+        business: { en: 'Business', ro: 'Business' },
+        minte: { en: 'Mind', ro: 'Minte' }
       };
       const missing = missingAnnualCategories.map(c => categoryLabels[c]);
       
