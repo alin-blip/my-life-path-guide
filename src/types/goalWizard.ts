@@ -94,5 +94,11 @@ export const CATEGORY_INFO: Record<GoalCategory, {
     icon: 'Briefcase',
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10'
+  },
+  minte: {
+    label: { en: 'Mind', ro: 'Minte' },
+    icon: 'Brain',
+    color: 'text-violet-500',
+    bgColor: 'bg-violet-500/10'
   }
 };
