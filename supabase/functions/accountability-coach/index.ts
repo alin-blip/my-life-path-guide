@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadMinteContext } from "../_shared/mind-context.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -73,6 +74,9 @@ serve(async (req) => {
       .eq('completed', false)
       .order('scheduled_time', { ascending: true, nullsFirst: false })
       .limit(20);
+
+    // Minte (Mind) context — foundation of the app.
+    const minte = await loadMinteContext(supabaseClient, user.id);
 
     // Build user context string
     let userContext = '';
@@ -167,7 +171,8 @@ REGULI:
 - Folosește emoji-uri moderat pentru a face conversația prietenoasă
 - Când nu știi ceva, întreabă
 - FOLOSEȘTE CONTEXTUL de mai jos pentru a da sfaturi personalizate
-${userContext}`
+${userContext}
+${minte.promptBlock}`
       : `You are the user's personal Accountability Coach in the CEO Mind OS platform.
 
 YOUR ROLE:
@@ -188,7 +193,8 @@ RULES:
 - Use emojis moderately to make conversation friendly
 - When you don't know something, ask
 - USE THE CONTEXT below to give personalized advice
-${userContext}`;
+${userContext}
+${minte.promptBlock}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
