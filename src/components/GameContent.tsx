@@ -319,7 +319,7 @@ export const GameContent: React.FC = () => {
         </div>
         
         <div className="p-3 space-y-2">
-          {['body', 'being', 'balance', 'business'].map((category) => (
+          {['body', 'being', 'balance', 'business', 'minte'].map((category) => (
             <div 
               key={category}
               className={`
