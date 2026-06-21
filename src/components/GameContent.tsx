@@ -333,10 +333,11 @@ export const GameContent: React.FC = () => {
               onClick={() => handleCategoryClick(type, mission, category as MissionCategory)}
             >
               {language === 'en' 
-                ? category.charAt(0).toUpperCase() + category.slice(1) 
+                ? (category === 'minte' ? 'Mind' : category.charAt(0).toUpperCase() + category.slice(1))
                 : category === 'body' ? 'Corp' 
                   : category === 'being' ? 'Ființă' 
                   : category === 'balance' ? 'Echilibru' 
+                  : category === 'minte' ? 'Minte'
                   : 'Afacere'}
               
               {isCategoryCompleted(mission, category as MissionCategory) && (
