@@ -3398,6 +3398,33 @@ export type Database = {
         }
         Relationships: []
       }
+      mind_psa_history: {
+        Row: {
+          belief_key: string
+          created_at: string
+          data: Json
+          id: string
+          progress_percent: number
+          user_id: string
+        }
+        Insert: {
+          belief_key: string
+          created_at?: string
+          data?: Json
+          id?: string
+          progress_percent?: number
+          user_id: string
+        }
+        Update: {
+          belief_key?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          progress_percent?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       mind_psa_reconstruction: {
         Row: {
           belief_key: string
