@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Sparkles, Cloud, CloudOff, RotateCcw } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import type { MindQuiz, BandKey } from "@/data/mind-quizzes/types";
 import { scoreMindQuiz } from "@/data/mind-quizzes";
@@ -25,10 +25,70 @@ export function QuizRunner({ quiz, onComplete }: QuizRunnerProps) {
   const [answers, setAnswers] = useState<Record<string, BandKey>>({});
   const [index, setIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+  const [resumed, setResumed] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [result, setResult] = useState<{
     scoreHealthy: number;
     band: BandKey;
   } | null>(null);
+
+  // Hydrate from saved draft (DB-first, localStorage fallback)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const draft = await mindQuizService.loadDraft(quiz.slug);
+        if (cancelled) return;
+        if (draft && Object.keys(draft.answers ?? {}).length > 0) {
+          setAnswers(draft.answers as Record<string, BandKey>);
+          setIndex(Math.min(draft.current_index ?? 0, quiz.questions.length - 1));
+          setResumed(true);
+        } else {
+          const raw = localStorage.getItem(`mind-quiz-draft-${quiz.slug}`);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed?.answers && Object.keys(parsed.answers).length > 0) {
+              setAnswers(parsed.answers);
+              setIndex(parsed.index ?? 0);
+              setResumed(true);
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Hydrate quiz draft failed:", e);
+      } finally {
+        if (!cancelled) setHydrated(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [quiz.slug, quiz.questions.length]);
+
+  // Debounced auto-save (800ms)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!hydrated || result) return;
+    if (Object.keys(answers).length === 0) return;
+    setSaveStatus("saving");
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      try {
+        localStorage.setItem(
+          `mind-quiz-draft-${quiz.slug}`,
+          JSON.stringify({ answers, index, ts: Date.now() }),
+        );
+        const ok = await mindQuizService.saveDraft(quiz.slug, answers, index, lang);
+        setSaveStatus(ok ? "saved" : "idle");
+      } catch {
+        setSaveStatus("idle");
+      }
+    }, 800);
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, [answers, index, hydrated, result, quiz.slug, lang]);
 
   const title = lang === "en" ? quiz.title_en : quiz.title_ro;
   const description = lang === "en" ? quiz.description_en : quiz.description_ro;
@@ -70,6 +130,9 @@ export function QuizRunner({ quiz, onComplete }: QuizRunnerProps) {
     try {
       const { result: r } = await mindQuizService.submitQuiz(quiz.slug, answers, lang);
       setResult({ scoreHealthy: r.scoreHealthy, band: r.band });
+      // Clear draft on successful submit
+      await mindQuizService.clearDraft(quiz.slug);
+      localStorage.removeItem(`mind-quiz-draft-${quiz.slug}`);
       onComplete?.(r.scoreHealthy, r.band);
     } catch (err) {
       console.error(err);
@@ -183,6 +246,34 @@ export function QuizRunner({ quiz, onComplete }: QuizRunnerProps) {
             <Progress value={progress} className="flex-1" />
             <span className="text-xs text-muted-foreground tabular-nums">
               {answeredCount}/{totalQuestions}
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-2 text-xs">
+            {resumed ? (
+              <span className="inline-flex items-center gap-1 text-primary">
+                <RotateCcw className="h-3 w-3" />
+                {t("Resumed where you left off", "Reluat de unde ai rămas")}
+              </span>
+            ) : <span />}
+            <span className="inline-flex items-center gap-1 text-muted-foreground">
+              {saveStatus === "saving" && (
+                <>
+                  <Cloud className="h-3 w-3 animate-pulse" />
+                  {t("Saving…", "Se salvează…")}
+                </>
+              )}
+              {saveStatus === "saved" && (
+                <>
+                  <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                  {t("Saved", "Salvat")}
+                </>
+              )}
+              {saveStatus === "idle" && answeredCount > 0 && (
+                <>
+                  <CloudOff className="h-3 w-3" />
+                  {t("Offline", "Offline")}
+                </>
+              )}
             </span>
           </div>
         </CardContent>
