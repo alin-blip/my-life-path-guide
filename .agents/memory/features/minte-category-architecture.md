@@ -72,3 +72,14 @@ Static, in code: `src/data/mind-quizzes/`
 - Phase 3 (done): CEO Belief Matrix at `/minte/credinte` — 10 beliefs × 10 reflection fields, autosave (debounced 800ms) to `mind_belief_matrix`, recommendations driven by 2 weakest axes from `mind_axis_scores`. Data: `src/data/mind-beliefs/ceo-beliefs.ts`, service: `src/services/beliefMatrixService.ts`.
 - Phase 4: PSA Reconstruction (10 toxic CEO beliefs) + AI auto-routing in Mind Coach using axis scores
 - Phase 4 (done): PSA Reconstruction at `/minte/psa` — 8 toxic CEO patterns (Perfectionism, Impostor, Scarcity, Control-freak, Hustle/Burnout, People-Pleasing, Procrastination, Fear-of-Success) using Problem → Substitute → Action framework. 7 reflection fields per pattern, autosave (800ms debounce) to `mind_psa_reconstruction` (with `progress_percent` column). Auto-routing: sorts patterns by recommendation weight — quiz responses in band C (weight 2) outrank weakest 2 axes (weight 1). Data: `src/data/mind-psa/toxic-patterns.ts`, service: `src/services/psaService.ts`.
+
+## AI Coach Integration
+
+All three primary coach edge functions (`ai-coach`, `mind-coach`, `accountability-coach`) load Minte context via the shared helper `supabase/functions/_shared/mind-context.ts` (`loadMinteContext`). The helper:
+
+- Reads `mind_axis_scores`, latest `mind_quiz_responses` (deduped per quiz_slug), `mind_belief_matrix` count, `mind_psa_reconstruction` count.
+- Returns a `promptBlock` appended to each coach's system prompt that includes: Brain Map per axis (0–100), tests completed (N/28), last 5 results with bands, belief matrix progress (N/10), PSA progress (N/8), and a numbered list of priority recommendations.
+- Returns `recommendations[]` with `severity: critical | suggested` and CTA route (`/minte`, `/minte/teste`, `/minte/credinte`, `/minte/psa`).
+- Includes hard prioritization rules ("Minte is the foundation; surface Mind work BEFORE body/being/balance/business advice"), and forces the coach to recommend the first test if the user has done none.
+
+Rule for new coaches: any new AI coach edge function MUST import `loadMinteContext` and append `minte.promptBlock` to its system prompt. Do not duplicate the queries.
