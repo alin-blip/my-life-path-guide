@@ -17,12 +17,16 @@ export interface TimeBlockTask {
 
 interface UseTimeBlockOptions {
   anchorDate: Date; // currently focused date; we load its ISO week
+  /** Extra week keys to also load (e.g. tomorrow falls in the next ISO week). */
+  extraWeekKeys?: string[];
 }
 
-export function useTimeBlockTasks({ anchorDate }: UseTimeBlockOptions) {
+export function useTimeBlockTasks({ anchorDate, extraWeekKeys = [] }: UseTimeBlockOptions) {
   const [tasks, setTasks] = useState<TimeBlockTask[]>([]);
   const [loading, setLoading] = useState(true);
   const weekKey = weekKeyForDate(anchorDate);
+  const weekKeys = Array.from(new Set([weekKey, ...extraWeekKeys]));
+  const weekKeysSig = weekKeys.join('|');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -33,14 +37,14 @@ export function useTimeBlockTasks({ anchorDate }: UseTimeBlockOptions) {
       .from('user_tasks')
       .select('id, title, completed, priority, day_of_week, scheduled_time, duration_minutes, list_type, is_key_point, week_key')
       .eq('user_id', user.id)
-      .eq('week_key', weekKey)
+      .in('week_key', weekKeysSig.split('|'))
       .order('scheduled_time', { ascending: true, nullsFirst: false });
 
     if (!error && data) {
       setTasks(data as TimeBlockTask[]);
     }
     setLoading(false);
-  }, [weekKey]);
+  }, [weekKeysSig]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -51,7 +55,7 @@ export function useTimeBlockTasks({ anchorDate }: UseTimeBlockOptions) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       channel = supabase
-        .channel(`time-block-${weekKey}`)
+        .channel(`time-block-${weekKeysSig}`)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'user_tasks', filter: `user_id=eq.${user.id}` },
@@ -60,7 +64,8 @@ export function useTimeBlockTasks({ anchorDate }: UseTimeBlockOptions) {
         .subscribe();
     })();
     return () => { if (channel) supabase.removeChannel(channel); };
-  }, [weekKey, load]);
+  }, [weekKeysSig, load]);
+
 
   const updateTask = useCallback(async (id: string, patch: Partial<TimeBlockTask>) => {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, ...patch } : t));
