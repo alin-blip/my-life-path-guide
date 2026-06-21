@@ -116,7 +116,8 @@ export const objectivesService = {
         body: [],
         being: [],
         balance: [],
-        business: []
+        business: [],
+        minte: []
       };
     }
 
@@ -132,7 +133,8 @@ export const objectivesService = {
         body: [],
         being: [],
         balance: [],
-        business: []
+        business: [],
+        minte: []
       };
     }
 
@@ -140,7 +142,8 @@ export const objectivesService = {
       body: [],
       being: [],
       balance: [],
-      business: []
+      business: [],
+      minte: []
     };
 
     data.forEach((objective) => {
