@@ -45,7 +45,8 @@ import {
   User,
   CreditCard,
   LogOut,
-  UserCheck
+  UserCheck,
+  RotateCcw
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
