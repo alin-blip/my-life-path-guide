@@ -73,6 +73,9 @@ const AccountabilityCoach = lazy(() => import("./pages/AccountabilityCoach"));
 const EmpowermentMeditation = lazy(() => import("./pages/EmpowermentMeditation"));
 const ChampionRoutine = lazy(() => import("./pages/ChampionRoutine"));
 const MindShifting = lazy(() => import("./pages/MindShifting"));
+const Minte = lazy(() => import("./pages/Minte"));
+const MinteTeste = lazy(() => import("./pages/MinteTeste"));
+const MinteQuizPage = lazy(() => import("./pages/MinteQuizPage"));
 const DashboardSettingsPage = lazy(() => import("./pages/DashboardSettingsPage"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -279,6 +282,21 @@ const App = () => (
                     <Route path="/mind-shifting" element={
                       <ProtectedRoute>
                         <MindShifting />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/minte" element={
+                      <ProtectedRoute>
+                        <Minte />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/minte/teste" element={
+                      <ProtectedRoute>
+                        <MinteTeste />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/minte/teste/:slug" element={
+                      <ProtectedRoute>
+                        <MinteQuizPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/empowerment-meditation" element={
