@@ -248,6 +248,34 @@ export function QuizRunner({ quiz, onComplete }: QuizRunnerProps) {
               {answeredCount}/{totalQuestions}
             </span>
           </div>
+          <div className="flex items-center justify-between gap-2 text-xs">
+            {resumed ? (
+              <span className="inline-flex items-center gap-1 text-primary">
+                <RotateCcw className="h-3 w-3" />
+                {t("Resumed where you left off", "Reluat de unde ai rămas")}
+              </span>
+            ) : <span />}
+            <span className="inline-flex items-center gap-1 text-muted-foreground">
+              {saveStatus === "saving" && (
+                <>
+                  <Cloud className="h-3 w-3 animate-pulse" />
+                  {t("Saving…", "Se salvează…")}
+                </>
+              )}
+              {saveStatus === "saved" && (
+                <>
+                  <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                  {t("Saved", "Salvat")}
+                </>
+              )}
+              {saveStatus === "idle" && answeredCount > 0 && (
+                <>
+                  <CloudOff className="h-3 w-3" />
+                  {t("Offline", "Offline")}
+                </>
+              )}
+            </span>
+          </div>
         </CardContent>
       </Card>
 
