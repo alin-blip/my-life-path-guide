@@ -77,6 +77,7 @@ const Minte = lazy(() => import("./pages/Minte"));
 const MinteTeste = lazy(() => import("./pages/MinteTeste"));
 const MinteQuizPage = lazy(() => import("./pages/MinteQuizPage"));
 const MinteCredinte = lazy(() => import("./pages/MinteCredinte"));
+const MintePSA = lazy(() => import("./pages/MintePSA"));
 const DashboardSettingsPage = lazy(() => import("./pages/DashboardSettingsPage"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -303,6 +304,11 @@ const App = () => (
                     <Route path="/minte/credinte" element={
                       <ProtectedRoute>
                         <MinteCredinte />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/minte/psa" element={
+                      <ProtectedRoute>
+                        <MintePSA />
                       </ProtectedRoute>
                     } />
                     <Route path="/empowerment-meditation" element={

@@ -112,19 +112,23 @@ export default function Minte() {
           </Card>
         </Link>
 
-        <Card className="h-full opacity-70">
-          <CardContent className="p-5 space-y-2">
-            <RotateCcw className="h-6 w-6 text-primary" />
-            <h3 className="font-semibold">{t("PSA Reconstruction", "PSA Reconstrucție")}</h3>
-            <p className="text-sm text-muted-foreground">
-              {t(
-                "Replace toxic CEO beliefs (perfectionism, impostor, scarcity).",
-                "Substituie credințele toxice de CEO (perfecționism, impostor, scarcitate).",
-              )}
-            </p>
-            <Badge variant="outline" className="text-xs">{t("Coming in Phase 4", "Vine în Faza 4")}</Badge>
-          </CardContent>
-        </Card>
+        <Link to="/minte/psa">
+          <Card className="h-full hover:border-primary/40 transition-colors cursor-pointer">
+            <CardContent className="p-5 space-y-2">
+              <RotateCcw className="h-6 w-6 text-primary" />
+              <h3 className="font-semibold">{t("PSA Reconstruction", "PSA Reconstrucție")}</h3>
+              <p className="text-sm text-muted-foreground">
+                {t(
+                  "Replace toxic CEO beliefs (perfectionism, impostor, scarcity) via Problem → Substitute → Action.",
+                  "Substituie credințele toxice de CEO (perfecționism, impostor, scarcitate) prin Problemă → Substituție → Acțiune.",
+                )}
+              </p>
+              <span className="text-sm text-primary inline-flex items-center gap-1">
+                {t("Start reconstruction", "Începe reconstrucția")} <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Brain Map */}
