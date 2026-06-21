@@ -94,19 +94,23 @@ export default function Minte() {
           </Card>
         </Link>
 
-        <Card className="h-full opacity-70">
-          <CardContent className="p-5 space-y-2">
-            <Grid3x3 className="h-6 w-6 text-primary" />
-            <h3 className="font-semibold">{t("CEO Belief Matrix", "Matricea Credințelor CEO")}</h3>
-            <p className="text-sm text-muted-foreground">
-              {t(
-                "10 fundamental beliefs of the leader with personal action plan.",
-                "10 credințe fundamentale ale liderului cu plan personal de acțiune.",
-              )}
-            </p>
-            <Badge variant="outline" className="text-xs">{t("Coming in Phase 3", "Vine în Faza 3")}</Badge>
-          </CardContent>
-        </Card>
+        <Link to="/minte/credinte">
+          <Card className="h-full hover:border-primary/40 transition-colors cursor-pointer">
+            <CardContent className="p-5 space-y-2">
+              <Grid3x3 className="h-6 w-6 text-primary" />
+              <h3 className="font-semibold">{t("CEO Belief Matrix", "Matricea Credințelor CEO")}</h3>
+              <p className="text-sm text-muted-foreground">
+                {t(
+                  "10 fundamental beliefs of the leader with personal action plan.",
+                  "10 credințe fundamentale ale liderului cu plan personal de acțiune.",
+                )}
+              </p>
+              <span className="text-sm text-primary inline-flex items-center gap-1">
+                {t("Open matrix", "Deschide matricea")} <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
 
         <Card className="h-full opacity-70">
           <CardContent className="p-5 space-y-2">
