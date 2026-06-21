@@ -272,7 +272,7 @@ export const QUIZ_RUSINE_VINOVATIE: MindQuiz = {
     { ro: "Îmi este rușine de cine sunt cu adevărat.", en: "I'm ashamed of who I really am." },
     { ro: "Mă simt responsabil/ă pentru fericirea celorlalți.", en: "I feel responsible for others' happiness." },
     { ro: "Cred că am dezamăgit oamenii importanți din viața mea.", en: "I believe I've let down the important people in my life." },
-    { ro: "Mă simt vinovat/ă când spun „nu".", en: "I feel guilty when I say 'no'." },
+    { ro: "Mă simt vinovat/ă când spun „nu”.", en: "I feel guilty when I say 'no'." },
     { ro: "Rușinea mă oprește să cer ce am nevoie.", en: "Shame stops me from asking for what I need." },
     { ro: "Mă simt rău când am parte de momente bune.", en: "I feel bad when I have good moments." },
     { ro: "Cred că ceilalți mă vor judeca dacă mă cunosc cu adevărat.", en: "I believe others would judge me if they truly knew me." },
