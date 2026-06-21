@@ -3332,6 +3332,150 @@ export type Database = {
         }
         Relationships: []
       }
+      mind_axis_scores: {
+        Row: {
+          axis: string
+          contributing_quizzes: number
+          created_at: string
+          details: Json | null
+          id: string
+          last_computed_at: string
+          score_healthy: number
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          axis: string
+          contributing_quizzes?: number
+          created_at?: string
+          details?: Json | null
+          id?: string
+          last_computed_at?: string
+          score_healthy?: number
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          axis?: string
+          contributing_quizzes?: number
+          created_at?: string
+          details?: Json | null
+          id?: string
+          last_computed_at?: string
+          score_healthy?: number
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mind_belief_matrix: {
+        Row: {
+          belief_key: string
+          created_at: string
+          data: Json
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          belief_key: string
+          created_at?: string
+          data?: Json
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          belief_key?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mind_psa_reconstruction: {
+        Row: {
+          belief_key: string
+          created_at: string
+          data: Json
+          id: string
+          progress_percent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          belief_key: string
+          created_at?: string
+          data?: Json
+          id?: string
+          progress_percent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          belief_key?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          progress_percent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mind_quiz_responses: {
+        Row: {
+          answers: Json
+          axes_distribution: Json | null
+          band: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          language: string
+          max_score: number | null
+          quiz_slug: string
+          raw_score: number | null
+          score_healthy: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          axes_distribution?: Json | null
+          band?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          language?: string
+          max_score?: number | null
+          quiz_slug: string
+          raw_score?: number | null
+          score_healthy?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          axes_distribution?: Json | null
+          band?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          language?: string
+          max_score?: number | null
+          quiz_slug?: string
+          raw_score?: number | null
+          score_healthy?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mind_shift_beliefs: {
         Row: {
           activation_prompt: string
