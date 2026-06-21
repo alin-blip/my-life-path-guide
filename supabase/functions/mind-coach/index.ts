@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadMinteContext } from "../_shared/mind-context.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -107,6 +108,9 @@ serve(async (req) => {
       .eq('week_key', weekKey)
       .in('task_type', ['hit', 'do'])
       .order('position', { ascending: true });
+
+    // 5. Minte (Mind) context — foundation of the app.
+    const minte = await loadMinteContext(supabaseClient, user.id);
 
     // Build user context string
     let userContext = '';
@@ -345,6 +349,8 @@ FLOW DE FINALIZARE:
 2. Da → add_to_hit_list tool → complete_transformation tool
 
 ${userContext}
+
+${minte.promptBlock}
 
 Răspunde ÎNTOTDEAUNA în română.`;
     // ========== TOOL DEFINITIONS ==========
