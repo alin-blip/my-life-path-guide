@@ -38,7 +38,13 @@ Static, in code: `src/data/mind-quizzes/`
 - `types.ts` — `MindQuiz`, `BandKey`, `MindAxisId` etc.
 - `standard-options.ts` — shared A/B/C scale + helpers
 - `thoughts.ts` — 8 quizzes (autosabotaj, catastrofizare, comparare, despre-sine, filtrare, pesimism, rusine-vinovatie, victimizare)
+- `character.ts` — 10 M2 Caracter quizzes (integritate, disciplina, curaj, responsabilitate, empatie, umilinta, rabdare, recunostinta, loialitate, generozitate)
+- `prp.ts` — 7 PRP dimensions (claritate-identitate, claritate-misiune, energie-corp, relatii-cheie, bani-resurse, timp-prioritati, spiritualitate)
+- `perception.ts` — 2 Percepție quizzes (despre-altii, despre-realitate)
+- `ceo.ts` — 1 Pattern Anti-CEO quiz
 - `index.ts` — registry + `scoreMindQuiz()` function
+
+**Total: 28 quizzes**. Use guillemets `«»` (not `„"`) for RO quotation inside string literals to avoid escaping.
 
 **Bilingual**: every text field has `_ro` and `_en` variants. Selected via `useLanguage()`.
 
@@ -56,11 +62,12 @@ Static, in code: `src/data/mind-quizzes/`
 ## Components
 
 - `src/components/mind/QuizRunner.tsx` — generic runner (one-question-at-a-time, auto-advance, result screen with score + band + actions + CTA to Mind Shift)
+- `src/components/dashboard/widgets/BrainMapRadarWidget.tsx` — dashboard widget id `brain-map-radar`, 6-axis recharts RadarChart, navigates to `/minte`
 - Pages: `Minte.tsx`, `MinteTeste.tsx`, `MinteQuizPage.tsx`
 
 ## Roadmap
 
-- Phase 1 (done): DB + sidebar + 8 thought quizzes + Brain Map shell
-- Phase 2: Brain Map radar widget on dashboard + 20 more quizzes (M2, PRP, Percepție)
+- Phase 1 (done): DB + sidebar + 8 thought quizzes + Brain Map shell on `/minte`
+- Phase 2 (done): Brain Map radar widget on Dashboard + 20 more quizzes (10 Character, 7 PRP, 2 Perception, 1 Anti-CEO) = 28 total
 - Phase 3: Belief Matrix (10 CEO fundamental beliefs)
 - Phase 4: PSA Reconstruction (10 toxic CEO beliefs) + AI auto-routing in Mind Coach using axis scores

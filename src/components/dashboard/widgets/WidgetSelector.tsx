@@ -2,7 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Settings2, PieChart, Dumbbell, Flame, Heart, Zap, CheckSquare, BookOpen, Droplets } from 'lucide-react';
+import { Settings2, PieChart, Dumbbell, Flame, Heart, Zap, CheckSquare, BookOpen, Droplets, Brain, Lightbulb, NotebookPen, Trophy, Palette, CalendarClock } from 'lucide-react';
 import { AVAILABLE_WIDGETS } from '@/config/dashboardWidgets';
 import { DashboardWidget } from '@/types/dashboardWidget';
 import { useLanguage } from '@/context/LanguageContext';
@@ -16,7 +16,13 @@ const iconMap: Record<string, React.ReactNode> = {
   Zap: <Zap className="h-5 w-5" />,
   CheckSquare: <CheckSquare className="h-5 w-5" />,
   BookOpen: <BookOpen className="h-5 w-5" />,
-  Droplets: <Droplets className="h-5 w-5" />
+  Droplets: <Droplets className="h-5 w-5" />,
+  Brain: <Brain className="h-5 w-5" />,
+  Lightbulb: <Lightbulb className="h-5 w-5" />,
+  NotebookPen: <NotebookPen className="h-5 w-5" />,
+  Trophy: <Trophy className="h-5 w-5" />,
+  Palette: <Palette className="h-5 w-5" />,
+  CalendarClock: <CalendarClock className="h-5 w-5" />
 };
 
 const categoryColors: Record<string, string> = {

@@ -1,8 +1,18 @@
 // Mind Quiz registry — central import for all quizzes in the "Minte" category.
 import type { MindQuiz, BandKey } from "./types";
 import { THOUGHT_QUIZZES } from "./thoughts";
+import { CHARACTER_QUIZZES } from "./character";
+import { PRP_QUIZZES } from "./prp";
+import { PERCEPTION_QUIZZES } from "./perception";
+import { CEO_QUIZZES } from "./ceo";
 
-export const ALL_MIND_QUIZZES: MindQuiz[] = [...THOUGHT_QUIZZES];
+export const ALL_MIND_QUIZZES: MindQuiz[] = [
+  ...THOUGHT_QUIZZES,
+  ...CHARACTER_QUIZZES,
+  ...PRP_QUIZZES,
+  ...PERCEPTION_QUIZZES,
+  ...CEO_QUIZZES,
+];
 
 export const QUIZ_BY_SLUG: Record<string, MindQuiz> = ALL_MIND_QUIZZES.reduce(
   (acc, q) => {
