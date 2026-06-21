@@ -27,7 +27,78 @@ export interface MindAxisScoreRow {
   last_computed_at: string;
 }
 
+export interface MindQuizDraftRow {
+  user_id: string;
+  quiz_slug: string;
+  answers: Record<string, BandKey>;
+  current_index: number;
+  language: string;
+  updated_at: string;
+}
+
 export const mindQuizService = {
+  async saveDraft(
+    quizSlug: string,
+    answers: Record<string, BandKey>,
+    currentIndex: number,
+    language: "ro" | "en" = "ro",
+  ): Promise<boolean> {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    if (!userId) return false;
+
+    const { error } = await supabase
+      .from("mind_quiz_drafts")
+      .upsert(
+        {
+          user_id: userId,
+          quiz_slug: quizSlug,
+          answers: answers as any,
+          current_index: currentIndex,
+          language,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,quiz_slug" },
+      );
+
+    if (error) {
+      console.error("saveDraft:", error);
+      return false;
+    }
+    return true;
+  },
+
+  async loadDraft(quizSlug: string): Promise<MindQuizDraftRow | null> {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    if (!userId) return null;
+
+    const { data, error } = await supabase
+      .from("mind_quiz_drafts")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("quiz_slug", quizSlug)
+      .maybeSingle();
+
+    if (error) {
+      console.error("loadDraft:", error);
+      return null;
+    }
+    return data as MindQuizDraftRow | null;
+  },
+
+  async clearDraft(quizSlug: string): Promise<void> {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    if (!userId) return;
+
+    await supabase
+      .from("mind_quiz_drafts")
+      .delete()
+      .eq("user_id", userId)
+      .eq("quiz_slug", quizSlug);
+  },
+
   async submitQuiz(
     quizSlug: string,
     answers: Record<string, BandKey>,
