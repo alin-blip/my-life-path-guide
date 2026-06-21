@@ -29,7 +29,7 @@ export const CategorySelector: React.FC = () => {
     loading 
   } = useUserCategories();
   
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(['body', 'being', 'balance', 'business']);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(['body', 'being', 'balance', 'business', 'minte']);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryParent, setNewCategoryParent] = useState<string>('body');
 
