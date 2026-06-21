@@ -130,6 +130,9 @@ export function QuizRunner({ quiz, onComplete }: QuizRunnerProps) {
     try {
       const { result: r } = await mindQuizService.submitQuiz(quiz.slug, answers, lang);
       setResult({ scoreHealthy: r.scoreHealthy, band: r.band });
+      // Clear draft on successful submit
+      await mindQuizService.clearDraft(quiz.slug);
+      localStorage.removeItem(`mind-quiz-draft-${quiz.slug}`);
       onComplete?.(r.scoreHealthy, r.band);
     } catch (err) {
       console.error(err);
