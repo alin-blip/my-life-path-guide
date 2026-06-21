@@ -154,7 +154,7 @@ export const ObjectivesCard: React.FC = () => {
     return Math.round((completed / categoryMissions.length) * 100);
   };
 
-  const categories: MissionCategory[] = ['body', 'being', 'balance', 'business'];
+  const categories: MissionCategory[] = ['body', 'being', 'balance', 'business', 'minte'];
   const currentMissions = missions[activeTab];
 
   const renderCategorySection = (category: MissionCategory) => {
