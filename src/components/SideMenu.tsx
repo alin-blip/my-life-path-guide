@@ -220,6 +220,18 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: 'Success Principles', icon: BookOpen, path: '/programs?tab=classroom' },
       ]
     },
+    // 7b. MINTE — Brain Map, Mind Tests, Belief Matrix, PSA Reconstruction
+    {
+      title: language === 'ro' ? 'Minte' : 'Mind',
+      icon: Brain,
+      path: '/minte',
+      badge: 'NEW',
+      subItems: [
+        { title: language === 'ro' ? 'Brain Map' : 'Brain Map', icon: Brain, path: '/minte' },
+        { title: language === 'ro' ? 'Teste de Minte' : 'Mind Tests', icon: GraduationCap, path: '/minte/teste' },
+      ]
+    },
+
 
     // 10. LEADERBOARD & ACHIEVEMENTS (standalone)
     {
