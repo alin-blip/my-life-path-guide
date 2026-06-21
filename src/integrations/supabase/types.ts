@@ -3455,6 +3455,36 @@ export type Database = {
         }
         Relationships: []
       }
+      mind_quiz_drafts: {
+        Row: {
+          answers: Json
+          created_at: string
+          current_index: number
+          language: string
+          quiz_slug: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          current_index?: number
+          language?: string
+          quiz_slug: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          current_index?: number
+          language?: string
+          quiz_slug?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mind_quiz_responses: {
         Row: {
           answers: Json
