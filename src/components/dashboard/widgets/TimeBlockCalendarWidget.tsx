@@ -33,14 +33,22 @@ export const TimeBlockCalendarWidget: React.FC<Props> = ({ size, onRemove, onRes
   const t = (ro: string, en: string) => language === 'ro' ? ro : en;
 
   const [anchorDate, setAnchorDate] = useState<Date>(new Date());
-  const { tasks, createTask, updateTask, deleteTask, toggleComplete } = useTimeBlockTasks({ anchorDate });
 
-  // Two visible days: anchorDate and anchorDate+1
+  // Two visible days: anchorDate and anchorDate+1 (may span two ISO weeks, e.g. Sun→Mon)
   const day1 = anchorDate;
   const day2 = addDays(anchorDate, 1);
   const day1Abbrev = jsDayToAbbrev(day1);
   const day2Abbrev = jsDayToAbbrev(day2);
-  // If day1+day2 cross weeks, useTimeBlockTasks loads anchor's week. Day2's week tasks are a separate fetch source for now — to keep it simple we still load only the anchor week and ignore tasks belonging to next week. Most users plan within the same week.
+  const extraWeekKeys = useMemo(
+    () => [weekKeyForDate(day1), weekKeyForDate(day2)],
+    [day1, day2]
+  );
+
+  const { tasks, createTask, updateTask, deleteTask, toggleComplete } = useTimeBlockTasks({
+    anchorDate,
+    extraWeekKeys,
+  });
+
 
   const goPrev = () => setAnchorDate(d => addDays(d, -7));
   const goNext = () => setAnchorDate(d => addDays(d, 7));
