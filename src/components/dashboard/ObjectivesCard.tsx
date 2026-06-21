@@ -103,8 +103,8 @@ export const ObjectivesCard: React.FC = () => {
 
   const getCategoryName = (category: MissionCategory) => {
     const names: Record<string, Record<MissionCategory, string>> = {
-      en: { body: 'Body', being: 'Spirituality', balance: 'Relationships', business: 'Business' },
-      ro: { body: 'Corp', being: 'Spiritualitate', balance: 'Relații', business: 'Business' }
+      en: { body: 'Body', being: 'Spirituality', balance: 'Relationships', business: 'Business', minte: 'Mind' },
+      ro: { body: 'Corp', being: 'Spiritualitate', balance: 'Relații', business: 'Business', minte: 'Minte' }
     };
     return names[language]?.[category] || category;
   };
