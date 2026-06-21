@@ -49,7 +49,7 @@ export const CEO_QUIZZES: MindQuiz[] = [
         summary_en: "The Anti-CEO pattern dominates. You're in the business, not on it. High burnout and ceiling risk.",
         actions_ro: [
           "Listează 10 lucruri pe care le faci săptămânal — delegă 3 în 14 zile.",
-          "Setează 2 ore/săptămână de lucru «pe business" — non-negociabil.",
+          "Setează 2 ore/săptămână de lucru «pe business» — non-negociabil.",
           "Construiește un SOP pentru cel mai critic proces unde ești bottleneck.",
         ],
         actions_en: [

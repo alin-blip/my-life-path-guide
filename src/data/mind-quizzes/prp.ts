@@ -155,7 +155,7 @@ export const PRP_QUIZZES: MindQuiz[] = [
     [
       { ro: "Am 3-5 oameni cu care vorbesc onest despre orice.", en: "I have 3-5 people I can talk to honestly about anything." },
       { ro: "Investesc timp săptămânal în relațiile cheie.", en: "I invest weekly time in key relationships." },
-      { ro: "Spun «te iubesc" / «contezi pentru mine" explicit.", en: "I explicitly say 'I love you' / 'you matter to me'." },
+      { ro: "Spun «te iubesc» / «contezi pentru mine» explicit.", en: "I explicitly say 'I love you' / 'you matter to me'." },
       { ro: "Conflictele se rezolvă, nu se acumulează.", en: "Conflicts get resolved, not stockpiled." },
       { ro: "Nu sacrific familia pentru muncă fără limită.", en: "I don't sacrifice family for work without limit." },
       { ro: "Cer iertare când greșesc.", en: "I ask forgiveness when I'm wrong." },
@@ -190,7 +190,7 @@ export const PRP_QUIZZES: MindQuiz[] = [
     [{ axis: "volitiva", weight: 0.8 }, { axis: "profesionala", weight: 0.6 }],
     [
       { ro: "Săptămâna mea reflectă prioritățile mele declarate.", en: "My week reflects my stated priorities." },
-      { ro: "Spun «nu" la cereri secundare.", en: "I say 'no' to secondary requests." },
+      { ro: "Spun «nu» la cereri secundare.", en: "I say 'no' to secondary requests." },
       { ro: "Blochez timp pentru muncă profundă.", en: "I block time for deep work." },
       { ro: "Nu trăiesc reactiv la notificări.", en: "I don't live reactively to notifications." },
       { ro: "Am o rutină dimineață care setează tonul zilei.", en: "I have a morning routine that sets the day's tone." },
