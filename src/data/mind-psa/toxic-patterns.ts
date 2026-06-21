@@ -124,7 +124,7 @@ export const PSA_PATTERNS: PsaPattern[] = [
       "Define the «good enough» threshold before you start, not after.",
     ],
     axes: ["cognitiva", "volitiva"],
-    relatedQuizSlugs: ["perfectionism", "control"],
+    relatedQuizSlugs: ["ganduri-despre-sine", "ganduri-filtrare"],
     fields: STANDARD_FIELDS,
   },
   {
@@ -158,7 +158,7 @@ export const PSA_PATTERNS: PsaPattern[] = [
       "Accept the next project that «scares you a little».",
     ],
     axes: ["emotionala", "afectiva"],
-    relatedQuizSlugs: ["self-sabotage", "comparison"],
+    relatedQuizSlugs: ["ganduri-despre-sine", "ganduri-comparare"],
     fields: STANDARD_FIELDS,
   },
   {
@@ -192,7 +192,7 @@ export const PSA_PATTERNS: PsaPattern[] = [
       "Invest 1 hour in building an asset (not direct sales).",
     ],
     axes: ["cognitiva", "emotionala"],
-    relatedQuizSlugs: ["catastrophizing", "comparison"],
+    relatedQuizSlugs: ["ganduri-catastrofizare", "ganduri-pesimism"],
     fields: STANDARD_FIELDS,
   },
   {
@@ -226,7 +226,7 @@ export const PSA_PATTERNS: PsaPattern[] = [
       "Schedule a «day without you» in the team's calendar.",
     ],
     axes: ["volitiva", "comportamentala"],
-    relatedQuizSlugs: ["control", "perfectionism"],
+    relatedQuizSlugs: ["caracter-umilinta", "caracter-rabdare"],
     fields: STANDARD_FIELDS,
   },
   {
@@ -260,7 +260,7 @@ export const PSA_PATTERNS: PsaPattern[] = [
       "Schedule 1 full day off per week — no email.",
     ],
     axes: ["comportamentala", "emotionala"],
-    relatedQuizSlugs: ["self-sabotage", "victimization"],
+    relatedQuizSlugs: ["ganduri-autosabotaj", "ganduri-rusine-vinovatie"],
     fields: STANDARD_FIELDS,
   },
   {
@@ -294,7 +294,7 @@ export const PSA_PATTERNS: PsaPattern[] = [
       "Leave 24h between request and answer for new meetings / collaborations.",
     ],
     axes: ["afectiva", "volitiva"],
-    relatedQuizSlugs: ["people-pleasing", "victimization"],
+    relatedQuizSlugs: ["ganduri-victimizare", "caracter-curaj"],
     fields: STANDARD_FIELDS,
   },
   {
@@ -328,7 +328,7 @@ export const PSA_PATTERNS: PsaPattern[] = [
       "Break the project into the first step of under 15 minutes.",
     ],
     axes: ["volitiva", "cognitiva"],
-    relatedQuizSlugs: ["self-sabotage", "perfectionism"],
+    relatedQuizSlugs: ["ganduri-autosabotaj", "caracter-disciplina"],
     fields: STANDARD_FIELDS,
   },
   {
@@ -362,7 +362,7 @@ export const PSA_PATTERNS: PsaPattern[] = [
       "Invest this week in an environment / mentor from the next level.",
     ],
     axes: ["afectiva", "cognitiva"],
-    relatedQuizSlugs: ["self-sabotage", "comparison"],
+    relatedQuizSlugs: ["ganduri-autosabotaj", "ganduri-comparare"],
     fields: STANDARD_FIELDS,
   },
 ];
