@@ -158,6 +158,17 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     icon: 'Brain',
     defaultSize: 'medium',
     category: 'mindset'
+  },
+  {
+    id: 'brain-map-radar',
+    name: { en: 'Brain Map — 6 axes', ro: 'Brain Map — 6 axe' },
+    description: {
+      en: 'Radar of your 6 brain axes. Click to open the Mind category and take more tests.',
+      ro: 'Radar pe cele 6 axe ale creierului. Click pentru a deschide categoria Minte și a face mai multe teste.'
+    },
+    icon: 'Brain',
+    defaultSize: 'medium',
+    category: 'mindset'
   }
 ];
 
