@@ -13,6 +13,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   RotateCcw,
   ArrowLeft,
   Sparkles,
@@ -21,6 +26,9 @@ import {
   Lightbulb,
   Target,
   ArrowRight,
+  History,
+  Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
@@ -29,13 +37,25 @@ import {
   PSA_FIELD_KEYS,
   type PsaPattern,
 } from "@/data/mind-psa/toxic-patterns";
-import { psaService, psaProgress, type PsaData, type PsaRow } from "@/services/psaService";
+import {
+  psaService,
+  psaProgress,
+  type PsaData,
+  type PsaRow,
+  type PsaHistoryRow,
+} from "@/services/psaService";
 import {
   mindQuizService,
   type MindAxisScoreRow,
   type MindQuizResponseRow,
 } from "@/services/mindQuizService";
 import type { MindAxisId } from "@/data/mind-quizzes/types";
+import {
+  computeTrigger,
+  personalizeSteps,
+  weakestAxes,
+  type RecommendationTrigger,
+} from "@/services/psaPersonalization";
 
 const AXIS_LABEL: Record<string, { ro: string; en: string }> = {
   cognitiva: { ro: "Cognitivă", en: "Cognitive" },
@@ -45,6 +65,8 @@ const AXIS_LABEL: Record<string, { ro: string; en: string }> = {
   comportamentala: { ro: "Comportamentală", en: "Behavioral" },
   profesionala: { ro: "Profesională", en: "Professional" },
 };
+
+type SaveStatus = "idle" | "pending" | "saving" | "saved" | "error";
 
 export default function MintePSA() {
   const { language } = useLanguage();
@@ -56,9 +78,12 @@ export default function MintePSA() {
   const [drafts, setDrafts] = useState<Record<string, PsaData>>({});
   const [axisScores, setAxisScores] = useState<MindAxisScoreRow[]>([]);
   const [responses, setResponses] = useState<Record<string, MindQuizResponseRow>>({});
-  const [saving, setSaving] = useState<string | null>(null);
+  const [statuses, setStatuses] = useState<Record<string, SaveStatus>>({});
   const [loading, setLoading] = useState(true);
+  const [historyCache, setHistoryCache] = useState<Record<string, PsaHistoryRow[]>>({});
+  const [loadingHistory, setLoadingHistory] = useState<string | null>(null);
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const savedTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   useEffect(() => {
     Promise.all([
@@ -77,61 +102,39 @@ export default function MintePSA() {
       .finally(() => setLoading(false));
     return () => {
       Object.values(saveTimers.current).forEach(clearTimeout);
+      Object.values(savedTimers.current).forEach(clearTimeout);
     };
   }, []);
 
-  /** Lowest 2 brain axes — used to compute recommended patterns. */
-  const weakAxes = useMemo<MindAxisId[]>(() => {
-    if (axisScores.length === 0) return [];
-    const sorted = [...axisScores].sort((a, b) => a.score_healthy - b.score_healthy);
-    return sorted.slice(0, 2).map((r) => r.axis as MindAxisId);
-  }, [axisScores]);
+  const weakAxes = useMemo<MindAxisId[]>(
+    () => weakestAxes(axisScores, 2),
+    [axisScores],
+  );
 
-  /** Quiz slugs scored in band C (worst) — direct toxic-pattern signal. */
-  const lowQuizSlugs = useMemo<Set<string>>(() => {
-    const set = new Set<string>();
-    for (const slug of Object.keys(responses)) {
-      if (responses[slug]?.band === "C") set.add(slug);
+  /** Map: patternKey -> trigger info, memoized once per data change. */
+  const triggers = useMemo<Record<string, RecommendationTrigger>>(() => {
+    const out: Record<string, RecommendationTrigger> = {};
+    for (const p of PSA_PATTERNS) {
+      out[p.key] = computeTrigger(p, axisScores, responses);
     }
-    return set;
-  }, [responses]);
+    return out;
+  }, [axisScores, responses]);
 
-  function recommendationReason(p: PsaPattern): { reason: string; weight: number } | null {
-    const axisHit = p.axes.find((a) => weakAxes.includes(a));
-    const quizHit = p.relatedQuizSlugs.find((s) => lowQuizSlugs.has(s));
-    if (quizHit) {
-      return {
-        reason: t(
-          `Triggered by a low score on the "${quizHit}" test`,
-          `Declanșat de scor scăzut la testul «${quizHit}»`,
-        ),
-        weight: 2,
-      };
-    }
-    if (axisHit) {
-      return {
-        reason: t(
-          `Weak axis: ${AXIS_LABEL[axisHit]?.en ?? axisHit}`,
-          `Axă slabă: ${AXIS_LABEL[axisHit]?.ro ?? axisHit}`,
-        ),
-        weight: 1,
-      };
-    }
-    return null;
-  }
-
-  /** Sorted: recommended (by weight) first, then started, then the rest. */
+  /** Sorted: recommended (by weight) first, then in-progress, then the rest. */
   const orderedPatterns = useMemo(() => {
     return [...PSA_PATTERNS].sort((a, b) => {
-      const ra = recommendationReason(a)?.weight ?? 0;
-      const rb = recommendationReason(b)?.weight ?? 0;
-      if (ra !== rb) return rb - ra;
+      const wa = triggers[a.key]?.weight ?? 0;
+      const wb = triggers[b.key]?.weight ?? 0;
+      if (wa !== wb) return wb - wa;
       const pa = psaProgress(drafts[a.key], PSA_FIELD_KEYS);
       const pb = psaProgress(drafts[b.key], PSA_FIELD_KEYS);
       return pb - pa;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drafts, weakAxes, lowQuizSlugs]);
+  }, [drafts, triggers]);
+
+  function setStatus(key: string, status: SaveStatus) {
+    setStatuses((prev) => ({ ...prev, [key]: status }));
+  }
 
   function updateField(patternKey: string, fieldKey: string, value: string) {
     setDrafts((prev) => {
@@ -139,6 +142,7 @@ export default function MintePSA() {
       next[patternKey] = { ...(next[patternKey] ?? {}), [fieldKey]: value };
       return next;
     });
+    setStatus(patternKey, "pending");
 
     if (saveTimers.current[patternKey]) clearTimeout(saveTimers.current[patternKey]);
     saveTimers.current[patternKey] = setTimeout(() => {
@@ -150,7 +154,7 @@ export default function MintePSA() {
     const data = drafts[patternKey] ?? {};
     const progress = psaProgress(data, PSA_FIELD_KEYS);
     try {
-      setSaving(patternKey);
+      setStatus(patternKey, "saving");
       await psaService.save(patternKey, data, progress);
       setRows((prev) => ({
         ...prev,
@@ -162,15 +166,49 @@ export default function MintePSA() {
           updated_at: new Date().toISOString(),
         },
       }));
+      // Invalidate cached history so next open re-fetches the new snapshot.
+      setHistoryCache((prev) => {
+        if (!(patternKey in prev)) return prev;
+        const next = { ...prev };
+        delete next[patternKey];
+        return next;
+      });
+      setStatus(patternKey, "saved");
+      if (savedTimers.current[patternKey]) clearTimeout(savedTimers.current[patternKey]);
+      savedTimers.current[patternKey] = setTimeout(
+        () => setStatus(patternKey, "idle"),
+        2000,
+      );
     } catch (e: any) {
+      setStatus(patternKey, "error");
       toast({
         title: t("Save failed", "Salvare eșuată"),
         description: e?.message ?? "—",
         variant: "destructive",
       });
-    } finally {
-      setSaving((cur) => (cur === patternKey ? null : cur));
     }
+  }
+
+  async function openHistory(patternKey: string) {
+    if (historyCache[patternKey]) return;
+    setLoadingHistory(patternKey);
+    const rows = await psaService.getHistory(patternKey, 10);
+    setHistoryCache((prev) => ({ ...prev, [patternKey]: rows }));
+    setLoadingHistory((cur) => (cur === patternKey ? null : cur));
+  }
+
+  function restoreSnapshot(patternKey: string, snap: PsaHistoryRow) {
+    setDrafts((prev) => ({ ...prev, [patternKey]: { ...snap.data } }));
+    // Persist immediately so "current" matches what the user sees.
+    if (saveTimers.current[patternKey]) clearTimeout(saveTimers.current[patternKey]);
+    void persist(patternKey);
+    toast({
+      title: t("Restored", "Restaurat"),
+      description: t(
+        `Restored snapshot from ${new Date(snap.created_at).toLocaleString()}`,
+        `Versiune restaurată din ${new Date(snap.created_at).toLocaleString()}`,
+      ),
+    });
   }
 
   const totalProgress = useMemo(() => {
@@ -181,6 +219,40 @@ export default function MintePSA() {
     );
     return Math.round(sum / PSA_PATTERNS.length);
   }, [drafts]);
+
+  function renderSaveStatus(status: SaveStatus) {
+    switch (status) {
+      case "pending":
+        return (
+          <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+            {t("Unsaved changes…", "Modificări nesalvate…")}
+          </span>
+        );
+      case "saving":
+        return (
+          <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+            <Loader2 className="h-3 w-3 animate-spin" /> {t("Saving…", "Se salvează…")}
+          </span>
+        );
+      case "saved":
+        return (
+          <span className="text-xs text-emerald-600 inline-flex items-center gap-1">
+            <CheckCircle2 className="h-3 w-3" /> {t("Saved", "Salvat")}
+          </span>
+        );
+      case "error":
+        return (
+          <span className="text-xs text-destructive">{t("Save failed", "Salvare eșuată")}</span>
+        );
+      default:
+        return (
+          <span className="text-xs text-muted-foreground">
+            {t("Auto-saves after 800ms", "Salvare automată la 800 ms")}
+          </span>
+        );
+    }
+  }
 
   return (
     <div className="container max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -214,8 +286,8 @@ export default function MintePSA() {
         </div>
         <p className="text-muted-foreground">
           {t(
-            "8 toxic beliefs entrepreneurs carry. Replace them through Problem → Substitute → Action and train the new voice for 30 days.",
-            "8 credințe toxice pe care le ducem ca antreprenori. Le înlocuim prin Problemă → Substituție → Acțiune și antrenăm vocea nouă 30 de zile.",
+            "8 toxic beliefs entrepreneurs carry. Replace them through Problem → Substitute → Action. Steps below are tailored to your latest mind-test scores and Brain Map.",
+            "8 credințe toxice pe care le ducem ca antreprenori. Le înlocuim prin Problemă → Substituție → Acțiune. Pașii de mai jos sunt personalizați pe ultimele tale scoruri și pe Brain Map.",
           )}
         </p>
 
@@ -244,8 +316,10 @@ export default function MintePSA() {
           {orderedPatterns.map((p) => {
             const draft = drafts[p.key] ?? {};
             const progress = psaProgress(draft, PSA_FIELD_KEYS);
-            const rec = recommendationReason(p);
-            const isSaving = saving === p.key;
+            const trig = triggers[p.key];
+            const status = statuses[p.key] ?? "idle";
+            const steps = personalizeSteps(p, trig, axisScores, lang);
+            const history = historyCache[p.key];
 
             return (
               <AccordionItem
@@ -260,7 +334,13 @@ export default function MintePSA() {
                         <span className="font-semibold">
                           {lang === "en" ? p.title_en : p.title_ro}
                         </span>
-                        {rec && (
+                        {trig.weight >= 2 && (
+                          <Badge className="text-[10px] bg-destructive/15 text-destructive hover:bg-destructive/20">
+                            <Sparkles className="h-3 w-3 mr-1" />
+                            {t("Priority", "Prioritar")}
+                          </Badge>
+                        )}
+                        {trig.weight === 1 && (
                           <Badge className="text-[10px] bg-primary/15 text-primary hover:bg-primary/20">
                             <Sparkles className="h-3 w-3 mr-1" />
                             {t("Recommended", "Recomandat")}
@@ -272,8 +352,11 @@ export default function MintePSA() {
                           </Badge>
                         )}
                       </div>
-                      {rec && (
-                        <p className="text-xs text-muted-foreground">{rec.reason}</p>
+                      {trig.kind && (
+                        <p className="text-xs text-muted-foreground">
+                          {t("Why: ", "De ce: ")}
+                          {lang === "en" ? trig.reason_en : trig.reason_ro}
+                        </p>
                       )}
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -289,8 +372,24 @@ export default function MintePSA() {
                 </AccordionTrigger>
 
                 <AccordionContent className="px-4 pb-4 space-y-5">
+                  {/* Reason banner with explicit quiz CTA */}
+                  {trig.kind === "quiz" && trig.quiz && (
+                    <div className="rounded-md border border-primary/30 bg-primary/5 p-3 flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-xs">
+                        <strong>{t("Why we surfaced this:", "De ce ți-am recomandat:")}</strong>{" "}
+                        {lang === "en" ? trig.reason_en : trig.reason_ro}
+                      </p>
+                      <Link to={`/minte/teste/${trig.quiz.slug}`}>
+                        <Button size="sm" variant="outline" className="h-7 text-xs">
+                          {t("Re-take test", "Refă testul")}{" "}
+                          <ArrowRight className="h-3 w-3 ml-1" />
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+
                   {/* Problem */}
-                  <section className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-1">
+                  <section className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-2">
                     <div className="flex items-center gap-2 text-destructive">
                       <AlertTriangle className="h-4 w-4" />
                       <h3 className="font-semibold text-sm uppercase tracking-wide">
@@ -304,6 +403,20 @@ export default function MintePSA() {
                       <strong>{t("Cost:", "Preț:")}</strong>{" "}
                       {lang === "en" ? p.cost_en : p.cost_ro}
                     </p>
+                    {steps.problemNotes.length > 0 && (
+                      <div className="pt-2 border-t border-destructive/20 space-y-1.5">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                          {t("Personalized for you", "Personalizat pentru tine")}
+                        </p>
+                        {steps.problemNotes.map((s, i) => (
+                          <div key={i} className="text-sm">
+                            <span className="font-medium">{s.label}: </span>
+                            {s.action}
+                            <div className="text-[11px] text-muted-foreground">{s.reason}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </section>
 
                   {/* Substitute */}
@@ -322,6 +435,20 @@ export default function MintePSA() {
                         <li key={i}>{r}</li>
                       ))}
                     </ul>
+                    {steps.substituteNotes.length > 0 && (
+                      <div className="pt-2 border-t border-primary/20 space-y-1.5">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                          {t("Personalized for you", "Personalizat pentru tine")}
+                        </p>
+                        {steps.substituteNotes.map((s, i) => (
+                          <div key={i} className="text-sm">
+                            <span className="font-medium">{s.label}: </span>
+                            {s.action}
+                            <div className="text-[11px] text-muted-foreground">{s.reason}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </section>
 
                   {/* Action */}
@@ -337,6 +464,20 @@ export default function MintePSA() {
                         <li key={i}>{a}</li>
                       ))}
                     </ol>
+                    {steps.actionNotes.length > 0 && (
+                      <div className="pt-2 border-t border-accent/30 space-y-1.5">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                          {t("Personalized for you", "Personalizat pentru tine")}
+                        </p>
+                        {steps.actionNotes.map((s, i) => (
+                          <div key={i} className="text-sm">
+                            <span className="font-medium">{s.label}: </span>
+                            {s.action}
+                            <div className="text-[11px] text-muted-foreground">{s.reason}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </section>
 
                   {/* Axes */}
@@ -353,9 +494,59 @@ export default function MintePSA() {
 
                   {/* Reflection fields */}
                   <div className="space-y-4 pt-2 border-t">
-                    <h4 className="font-semibold text-sm">
-                      {t("Your reconstruction", "Reconstrucția ta")}
-                    </h4>
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="font-semibold text-sm">
+                        {t("Your reconstruction", "Reconstrucția ta")}
+                      </h4>
+                      <Popover onOpenChange={(o) => o && openHistory(p.key)}>
+                        <PopoverTrigger asChild>
+                          <Button size="sm" variant="ghost" className="h-7 text-xs">
+                            <History className="h-3.5 w-3.5 mr-1" />
+                            {t("History", "Istoric")}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent align="end" className="w-80 p-0">
+                          <div className="p-3 border-b">
+                            <p className="text-sm font-semibold">
+                              {t("Recent versions", "Versiuni recente")}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {t(
+                                "Tap a version to restore it as your current draft.",
+                                "Atinge o versiune ca să o restaurezi ca draft curent.",
+                              )}
+                            </p>
+                          </div>
+                          <div className="max-h-72 overflow-y-auto divide-y">
+                            {loadingHistory === p.key && (
+                              <div className="p-3 text-xs text-muted-foreground">
+                                {t("Loading…", "Se încarcă…")}
+                              </div>
+                            )}
+                            {history && history.length === 0 && (
+                              <div className="p-3 text-xs text-muted-foreground">
+                                {t("No saved versions yet.", "Nicio versiune salvată încă.")}
+                              </div>
+                            )}
+                            {history?.map((h) => (
+                              <button
+                                key={h.id}
+                                onClick={() => restoreSnapshot(p.key, h)}
+                                className="w-full text-left p-3 hover:bg-muted/60 transition-colors"
+                              >
+                                <div className="flex items-center justify-between text-xs">
+                                  <span>{new Date(h.created_at).toLocaleString()}</span>
+                                  <Badge variant="outline" className="text-[10px]">
+                                    {h.progress_percent}%
+                                  </Badge>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
                     {p.fields.map((f) => (
                       <div key={f.key} className="space-y-1.5">
                         <label className="text-sm font-medium">
@@ -372,16 +563,12 @@ export default function MintePSA() {
                     ))}
 
                     <div className="flex items-center justify-between pt-1">
-                      <span className="text-xs text-muted-foreground">
-                        {isSaving
-                          ? t("Saving…", "Se salvează…")
-                          : t("Auto-saves after you stop typing", "Se salvează automat după ce te oprești din scris")}
-                      </span>
+                      {renderSaveStatus(status)}
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => persist(p.key)}
-                        disabled={isSaving}
+                        disabled={status === "saving"}
                       >
                         <Save className="h-3.5 w-3.5 mr-1" />
                         {t("Save now", "Salvează acum")}
