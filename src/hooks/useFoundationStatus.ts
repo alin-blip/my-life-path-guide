@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { format, getISOWeek, getYear, startOfWeek, addDays } from 'date-fns';
 
 export type FoundationItemType = 'annual' | 'quarterly' | 'monthly' | 'tasks' | 'routine' | 'vision';
-export type GoalCategory = 'body' | 'being' | 'balance' | 'business';
+export type GoalCategory = 'body' | 'being' | 'balance' | 'business' | 'minte';
 
 export interface FoundationItem {
   id: string;
