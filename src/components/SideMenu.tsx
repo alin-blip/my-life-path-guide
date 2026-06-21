@@ -229,6 +229,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       subItems: [
         { title: language === 'ro' ? 'Brain Map' : 'Brain Map', icon: Brain, path: '/minte' },
         { title: language === 'ro' ? 'Teste de Minte' : 'Mind Tests', icon: GraduationCap, path: '/minte/teste' },
+        { title: language === 'ro' ? 'Matricea Credințelor' : 'Belief Matrix', icon: LayoutGrid, path: '/minte/credinte' },
       ]
     },
 
