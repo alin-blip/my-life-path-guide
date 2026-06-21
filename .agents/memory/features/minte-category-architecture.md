@@ -69,5 +69,5 @@ Static, in code: `src/data/mind-quizzes/`
 
 - Phase 1 (done): DB + sidebar + 8 thought quizzes + Brain Map shell on `/minte`
 - Phase 2 (done): Brain Map radar widget on Dashboard + 20 more quizzes (10 Character, 7 PRP, 2 Perception, 1 Anti-CEO) = 28 total
-- Phase 3: Belief Matrix (10 CEO fundamental beliefs)
+- Phase 3 (done): CEO Belief Matrix at `/minte/credinte` — 10 beliefs × 10 reflection fields, autosave (debounced 800ms) to `mind_belief_matrix`, recommendations driven by 2 weakest axes from `mind_axis_scores`. Data: `src/data/mind-beliefs/ceo-beliefs.ts`, service: `src/services/beliefMatrixService.ts`.
 - Phase 4: PSA Reconstruction (10 toxic CEO beliefs) + AI auto-routing in Mind Coach using axis scores
