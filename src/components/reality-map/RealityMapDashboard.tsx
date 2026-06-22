@@ -172,7 +172,7 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
           </h1>
           
           <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-            Vizualizează scorurile tale în cele 4 dimensiuni ale vieții și identifică zonele de îmbunătățire.
+            Vizualizează scorurile tale în cele 5 dimensiuni ale vieții (Minte este fundația) și identifică zonele de îmbunătățire.
           </p>
         </motion.div>
 
