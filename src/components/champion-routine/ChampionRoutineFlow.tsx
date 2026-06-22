@@ -36,6 +36,7 @@ import { VisionDeclarationStep } from './steps/VisionDeclarationStep';
 import { AutosuggestionStep } from './steps/AutosuggestionStep';
 import { ApplyStep } from './steps/ApplyStep';
 import { MindShiftingStep } from './steps/MindShiftingStep';
+import { MindTestStep } from './steps/MindTestStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
@@ -59,6 +60,7 @@ interface ChampionRoutineFlowProps {
 
 export type RoutineStepId = 
   | 'mindShifting'
+  | 'mindTest'
   | 'bodyActivation'
   | 'gratitude' 
   | 'hydration' 
@@ -100,6 +102,7 @@ export const CORE4_REQUIRED_STEPS: RoutineStepId[] = [
 // Default order — simplified Tony Robbins flow
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'mindShifting',         // 1. Mind Shifting (Observe → Name → Reframe → Activate → Commit)
+  'mindTest',             // 1b. Minte — Test zilnic (foundation pillar)
   'bodyActivation',       // 2. Apă + Lumină + Postură (30 sec)
   'meditation',           // 3. Meditație (cu breathing intro opțional)
   'powerDeclaration',     // 4. Viziune + Autosugestie + Vizualizare
@@ -117,6 +120,7 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
 // Translation keys for step labels - now using useLanguage t() function
 const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
   mindShifting: 'stepMindShifting',
+  mindTest: 'stepMindTest',
   bodyActivation: 'stepBodyActivation',
   gratitude: 'stepGratitude',
   hydration: 'stepHydration',
@@ -146,6 +150,7 @@ const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
   mindShifting: 'emotional',
+  mindTest: 'emotional',
   bodyActivation: 'body',
   gratitude: 'being',
   hydration: 'being',
@@ -191,6 +196,15 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
   switch (stepId) {
     case 'mindShifting':
       return !!(log as any).mind_shift_summary;
+    case 'mindTest': {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        return localStorage.getItem(`mind_test_done_${today}`) === '1'
+          || localStorage.getItem(`mind_test_skip_${today}`) === '1';
+      } catch {
+        return false;
+      }
+    }
     case 'bodyActivation':
       return log.water_drunk === true && log.light_exposure === true;
     case 'gratitude':
@@ -280,7 +294,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     });
 
     // Auto-include new steps for existing users
-    const requiredNewSteps = ['mindShifting', 'bodyActivation', 'powerDeclaration'];
+    const requiredNewSteps = ['mindShifting', 'mindTest', 'bodyActivation', 'powerDeclaration'];
     requiredNewSteps.forEach(stepId => {
       if (activeSteps.length > 0 && !activeSteps.includes(stepId)) {
         activeSteps = [...activeSteps];
@@ -292,6 +306,9 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         } else if (stepId === 'bodyActivation') {
           const checkIndex = activeSteps.indexOf('mindShifting');
           activeSteps.splice(checkIndex !== -1 ? checkIndex + 1 : 0, 0, stepId);
+        } else if (stepId === 'mindTest') {
+          const mIdx = activeSteps.indexOf('mindShifting');
+          activeSteps.splice(mIdx !== -1 ? mIdx + 1 : 0, 0, stepId);
         } else {
           // powerDeclaration — insert after meditation
           const medIndex = activeSteps.indexOf('meditation');
@@ -307,6 +324,9 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         } else if (stepId === 'bodyActivation') {
           const checkIndex = stepsOrder.indexOf('mindShifting');
           stepsOrder.splice(checkIndex !== -1 ? checkIndex + 1 : 0, 0, stepId);
+        } else if (stepId === 'mindTest') {
+          const mIdx = stepsOrder.indexOf('mindShifting');
+          stepsOrder.splice(mIdx !== -1 ? mIdx + 1 : 0, 0, stepId);
         } else {
           const medIndex = stepsOrder.indexOf('meditation');
           stepsOrder.splice(medIndex !== -1 ? medIndex + 1 : stepsOrder.length, 0, stepId);
@@ -585,6 +605,13 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             }}
             onSkip={() => goToNextStep()}
             source="routine"
+          />
+        );
+      case 'mindTest':
+        return (
+          <MindTestStep
+            onNext={goToNextStep}
+            onSkip={() => goToNextStep()}
           />
         );
       case 'bodyActivation':

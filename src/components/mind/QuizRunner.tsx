@@ -133,6 +133,11 @@ export function QuizRunner({ quiz, onComplete }: QuizRunnerProps) {
       // Clear draft on successful submit
       await mindQuizService.clearDraft(quiz.slug);
       localStorage.removeItem(`mind-quiz-draft-${quiz.slug}`);
+      try {
+        localStorage.setItem('onboarding-mind-test-done', '1');
+        const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem(`mind_test_done_${today}`, '1');
+      } catch {}
       onComplete?.(r.scoreHealthy, r.band);
     } catch (err) {
       console.error(err);

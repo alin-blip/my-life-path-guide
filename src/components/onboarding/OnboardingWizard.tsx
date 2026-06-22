@@ -15,6 +15,7 @@ import {
   Sunrise,
   Trophy,
   Sparkles,
+  Brain,
   Rocket } from
 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -51,6 +52,19 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
     },
     icon: <Rocket className="w-8 h-8" />,
     checkComplete: () => true
+  },
+  {
+    id: 'mind',
+    title: { en: 'Mind — Foundation Test', ro: 'Minte — Testul de Fundație' },
+    description: {
+      en: 'Mind is the foundation pillar. Take one short 10-question test so the coach understands your thinking patterns and personalizes everything else.',
+      ro: 'Mintea este pilonul-fundație. Fă un test scurt de 10 întrebări ca să-ți cunoaștem tiparele de gândire și să personalizăm tot restul.'
+    },
+    icon: <Brain className="w-8 h-8" />,
+    route: '/minte/teste',
+    checkComplete: () => {
+      try { return !!localStorage.getItem('onboarding-mind-test-done'); } catch { return false; }
+    }
   },
   {
     id: 'annual',

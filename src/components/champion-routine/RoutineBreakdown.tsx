@@ -35,6 +35,7 @@ interface RoutineBreakdownProps {
 
 const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string }>> = {
   mindShifting: Brain,
+  mindTest: Brain,
   bodyActivation: Droplets,
   lightExposure: Sun,
   hydration: Droplets,
@@ -64,6 +65,7 @@ const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
   mindShifting: 'Mind Shifting',
+  mindTest: 'Minte — Test',
   bodyActivation: 'Activare Corp',
   gratitude: 'Recunoștință',
   hydration: 'Hidratare',
@@ -93,6 +95,7 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
   mindShifting: 'emotional',
+  mindTest: 'emotional',
   bodyActivation: 'body',
   gratitude: 'being',
   hydration: 'being',
