@@ -102,6 +102,7 @@ export const CORE4_REQUIRED_STEPS: RoutineStepId[] = [
 // Default order — simplified Tony Robbins flow
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'mindShifting',         // 1. Mind Shifting (Observe → Name → Reframe → Activate → Commit)
+  'mindTest',             // 1b. Minte — Test zilnic (foundation pillar)
   'bodyActivation',       // 2. Apă + Lumină + Postură (30 sec)
   'meditation',           // 3. Meditație (cu breathing intro opțional)
   'powerDeclaration',     // 4. Viziune + Autosugestie + Vizualizare
