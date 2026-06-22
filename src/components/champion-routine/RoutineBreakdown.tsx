@@ -65,6 +65,7 @@ const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string
 
 const STEP_LABELS: Record<RoutineStepId, string> = {
   mindShifting: 'Mind Shifting',
+  mindTest: 'Minte — Test',
   bodyActivation: 'Activare Corp',
   gratitude: 'Recunoștință',
   hydration: 'Hidratare',
