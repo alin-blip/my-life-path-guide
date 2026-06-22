@@ -121,6 +121,13 @@ export const TodaysTasksList: React.FC<TodaysTasksListProps> = ({
               )}>
                 {task.title}
               </span>
+              {!task.completed && (
+                <TaskHelpButton
+                  taskId={task.id}
+                  taskTitle={task.title}
+                  size="sm"
+                />
+              )}
             </div>
           ))}
         </div>
