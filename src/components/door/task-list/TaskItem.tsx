@@ -89,6 +89,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           {t('keyPointLabel')}
         </span>
       )}
+      {!completed && (
+        <TaskHelpButton taskId={id} taskTitle={text} size="sm" className="mr-1" />
+      )}
       {onMoveBack && (
         <Button
           variant="ghost"
