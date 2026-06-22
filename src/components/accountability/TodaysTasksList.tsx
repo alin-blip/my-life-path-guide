@@ -9,6 +9,7 @@ import { ListChecks, ArrowRight, Sparkles, Target } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { TodayTask } from '@/hooks/useTodaysTasks';
 import { cn } from '@/lib/utils';
+import { TaskHelpButton } from '@/components/coach/TaskHelpButton';
 
 interface TodaysTasksListProps {
   tasks: TodayTask[];
