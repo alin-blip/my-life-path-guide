@@ -607,6 +607,13 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
             source="routine"
           />
         );
+      case 'mindTest':
+        return (
+          <MindTestStep
+            onNext={goToNextStep}
+            onSkip={() => goToNextStep()}
+          />
+        );
       case 'bodyActivation':
         return (
           <BodyActivationStep
