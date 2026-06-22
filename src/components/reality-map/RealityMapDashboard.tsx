@@ -7,8 +7,10 @@ import { Progress } from '@/components/ui/progress';
 import { 
   Shield, Sparkles, Target, TrendingUp, 
   RefreshCw, Eye, ChevronRight, Zap,
-  Award, Flame, Trophy, ArrowRight
+  Award, Flame, Trophy, ArrowRight, Brain
 } from 'lucide-react';
+import { mindQuizService, type MindAxisScoreRow } from '@/services/mindQuizService';
+import { ALL_MIND_QUIZZES } from '@/data/mind-quizzes';
 import { cn } from '@/lib/utils';
 import { 
   WarriorPowerScores, 
