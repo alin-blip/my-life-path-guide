@@ -119,6 +119,7 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
 // Translation keys for step labels - now using useLanguage t() function
 const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
   mindShifting: 'stepMindShifting',
+  mindTest: 'stepMindTest',
   bodyActivation: 'stepBodyActivation',
   gratitude: 'stepGratitude',
   hydration: 'stepHydration',
