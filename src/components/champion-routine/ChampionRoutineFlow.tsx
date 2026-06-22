@@ -196,6 +196,15 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
   switch (stepId) {
     case 'mindShifting':
       return !!(log as any).mind_shift_summary;
+    case 'mindTest': {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        return localStorage.getItem(`mind_test_done_${today}`) === '1'
+          || localStorage.getItem(`mind_test_skip_${today}`) === '1';
+      } catch {
+        return false;
+      }
+    }
     case 'bodyActivation':
       return log.water_drunk === true && log.light_exposure === true;
     case 'gratitude':
