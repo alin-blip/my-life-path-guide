@@ -95,6 +95,7 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
 
 const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'balance' | 'complete' | 'habits' | 'tasks' | 'emotional'> = {
   mindShifting: 'emotional',
+  mindTest: 'emotional',
   bodyActivation: 'body',
   gratitude: 'being',
   hydration: 'being',
