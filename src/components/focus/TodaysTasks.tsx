@@ -92,6 +92,10 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
                 <span>{language === 'en' ? 'Active' : 'Activ'}</span>
               </div>
             )}
+
+            {!task.completed && (
+              <TaskHelpButton taskId={task.id} taskTitle={task.title} size="sm" />
+            )}
           </div>
         ))}
       </div>
