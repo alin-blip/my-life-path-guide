@@ -15,6 +15,7 @@ import {
   Sunrise,
   Trophy,
   Sparkles,
+  Brain,
   Rocket } from
 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
