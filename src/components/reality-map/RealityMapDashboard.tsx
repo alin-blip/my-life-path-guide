@@ -7,8 +7,10 @@ import { Progress } from '@/components/ui/progress';
 import { 
   Shield, Sparkles, Target, TrendingUp, 
   RefreshCw, Eye, ChevronRight, Zap,
-  Award, Flame, Trophy, ArrowRight
+  Award, Flame, Trophy, ArrowRight, Brain
 } from 'lucide-react';
+import { mindQuizService, type MindAxisScoreRow } from '@/services/mindQuizService';
+import { ALL_MIND_QUIZZES } from '@/data/mind-quizzes';
 import { cn } from '@/lib/utils';
 import { 
   WarriorPowerScores, 
@@ -170,7 +172,7 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
           </h1>
           
           <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-            Vizualizează scorurile tale în cele 4 dimensiuni ale vieții și identifică zonele de îmbunătățire.
+            Vizualizează scorurile tale în cele 5 dimensiuni ale vieții (Minte este fundația) și identifică zonele de îmbunătățire.
           </p>
         </motion.div>
 
@@ -325,6 +327,9 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
               </motion.div>
             );
           })}
+
+          {/* 5th pillar: MINTE — Foundation (data from Brain Map) */}
+          <MindDimensionCard />
         </div>
 
         {/* Stats Footer */}
@@ -417,6 +422,116 @@ const VisionBoardCTA: React.FC<{ scores: WarriorPowerScores }> = ({ scores }) =>
             </Button>
           </div>
         </div>
+      </Card>
+    </motion.div>
+  );
+};
+
+// MINTE — 5th pillar, sourced from Brain Map axis scores
+const MindDimensionCard: React.FC = () => {
+  const navigate = useNavigate();
+  const [rows, setRows] = useState<MindAxisScoreRow[]>([]);
+  const [doneCount, setDoneCount] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      mindQuizService.getAxisScores(),
+      mindQuizService.getAllLatestResponses(),
+    ])
+      .then(([axes, latest]) => {
+        setRows(axes);
+        setDoneCount(Object.keys(latest || {}).length);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const total = ALL_MIND_QUIZZES.length;
+  const avg = rows.length
+    ? Math.round(rows.reduce((s, r) => s + (r.score_healthy || 0), 0) / rows.length)
+    : 0;
+
+  const levelName =
+    avg >= 75 ? 'Accelerat' : avg >= 55 ? 'Activ' : avg >= 30 ? 'Treaz' : 'Adormit';
+  const levelConfig = LEVEL_CONFIG[levelName.toUpperCase() as keyof typeof LEVEL_CONFIG];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.6 }}
+    >
+      <Card
+        className={cn(
+          'p-4 sm:p-6 border-2 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border-violet-500/30 hover:shadow-lg transition-all duration-300 overflow-hidden',
+        )}
+      >
+        <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="p-2 sm:p-3 rounded-lg sm:rounded-xl flex-shrink-0 bg-violet-500/20">
+              <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-base sm:text-xl font-bold truncate text-violet-400">
+                MINTE
+                <span className="ml-2 text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-300 align-middle">
+                  FUNDAȚIE
+                </span>
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                Tiparele tale de gândire
+              </p>
+            </div>
+          </div>
+          <div
+            className={cn(
+              'px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold flex-shrink-0 whitespace-nowrap',
+              levelConfig?.bg,
+              levelConfig?.text,
+            )}
+          >
+            {levelConfig?.icon} <span className="hidden xs:inline">{levelName}</span>
+          </div>
+        </div>
+
+        <div className="mb-3 sm:mb-4">
+          <div className="flex justify-between text-xs sm:text-sm mb-1">
+            <span className="text-muted-foreground">Brain Map (0–100)</span>
+            <span className="font-bold">{loading ? '—' : `${avg}%`}</span>
+          </div>
+          <Progress value={avg} className="h-2 sm:h-2.5 bg-muted" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="p-2 sm:p-3 rounded-lg border bg-violet-950/40 border-violet-500/30 overflow-hidden">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Axe evaluate</p>
+            <div className="flex items-center justify-between gap-1">
+              <span className="font-bold text-xs sm:text-sm text-violet-300">6 axe</span>
+              <span className="text-sm sm:text-lg font-bold flex-shrink-0">{rows.length}/6</span>
+            </div>
+          </div>
+          <div className="p-2 sm:p-3 rounded-lg border bg-violet-950/40 border-violet-500/30 overflow-hidden">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Teste făcute</p>
+            <div className="flex items-center justify-between gap-1">
+              <span className="font-bold text-xs sm:text-sm text-violet-300">
+                {doneCount === 0 ? 'Niciun test' : doneCount >= total ? 'Complet' : 'În progres'}
+              </span>
+              <span className="text-sm sm:text-lg font-bold flex-shrink-0">{doneCount}/{total}</span>
+            </div>
+          </div>
+        </div>
+
+        <Button
+          variant="outline"
+          onClick={() => navigate('/minte/teste')}
+          className="w-full gap-1 sm:gap-2 group text-xs sm:text-sm border-violet-500/30 hover:bg-violet-500/10"
+          size="sm"
+        >
+          <Brain className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span className="truncate">{doneCount === 0 ? 'Începe primul test' : 'Continuă testele Minte'}</span>
+          <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-auto group-hover:translate-x-1 transition-transform flex-shrink-0" />
+        </Button>
       </Card>
     </motion.div>
   );
