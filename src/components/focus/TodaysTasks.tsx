@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useTodaysTasks } from '@/hooks/useTodaysTasks';
+import { TaskHelpButton } from '@/components/coach/TaskHelpButton';
 
 interface TodaysTasksProps {
   activeTaskId: string | null;
