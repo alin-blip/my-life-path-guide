@@ -60,6 +60,7 @@ interface ChampionRoutineFlowProps {
 
 export type RoutineStepId = 
   | 'mindShifting'
+  | 'mindTest'
   | 'bodyActivation'
   | 'gratitude' 
   | 'hydration' 
