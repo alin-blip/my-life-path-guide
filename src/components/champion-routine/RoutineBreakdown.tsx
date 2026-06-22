@@ -35,6 +35,7 @@ interface RoutineBreakdownProps {
 
 const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string }>> = {
   mindShifting: Brain,
+  mindTest: Brain,
   bodyActivation: Droplets,
   lightExposure: Sun,
   hydration: Droplets,
