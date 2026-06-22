@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Check, ArrowLeft, Star, Flag, AlertCircle, KeyRound } from 'lucide-react';
 import { TaskPriority } from '@/types/door';
 import { useLanguage } from '@/context/LanguageContext';
+import { TaskHelpButton } from '@/components/coach/TaskHelpButton';
 
 interface TaskItemProps {
   id: string;
@@ -87,6 +88,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           <KeyRound className={`${isMobile ? 'w-2 h-2' : 'w-3 h-3'} mr-1`} />
           {t('keyPointLabel')}
         </span>
+      )}
+      {!completed && (
+        <TaskHelpButton taskId={id} taskTitle={text} size="sm" className="mr-1" />
       )}
       {onMoveBack && (
         <Button

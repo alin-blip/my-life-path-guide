@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useTodaysTasks } from '@/hooks/useTodaysTasks';
+import { TaskHelpButton } from '@/components/coach/TaskHelpButton';
 
 interface TodaysTasksProps {
   activeTaskId: string | null;
@@ -90,6 +91,10 @@ export const TodaysTasks: React.FC<TodaysTasksProps> = ({
                 <Clock className="w-3 h-3" />
                 <span>{language === 'en' ? 'Active' : 'Activ'}</span>
               </div>
+            )}
+
+            {!task.completed && (
+              <TaskHelpButton taskId={task.id} taskTitle={task.title} size="sm" />
             )}
           </div>
         ))}
