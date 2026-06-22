@@ -1,0 +1,2 @@
+ALTER TABLE public.user_tasks ADD COLUMN IF NOT EXISTS parent_task_id uuid REFERENCES public.user_tasks(id) ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS idx_user_tasks_parent ON public.user_tasks(parent_task_id);

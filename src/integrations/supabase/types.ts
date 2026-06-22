@@ -5698,6 +5698,7 @@ export type Database = {
           id: string
           is_key_point: boolean | null
           list_type: string
+          parent_task_id: string | null
           position: number | null
           priority: number | null
           scheduled_time: string | null
@@ -5721,6 +5722,7 @@ export type Database = {
           id?: string
           is_key_point?: boolean | null
           list_type: string
+          parent_task_id?: string | null
           position?: number | null
           priority?: number | null
           scheduled_time?: string | null
@@ -5744,6 +5746,7 @@ export type Database = {
           id?: string
           is_key_point?: boolean | null
           list_type?: string
+          parent_task_id?: string | null
           position?: number | null
           priority?: number | null
           scheduled_time?: string | null
@@ -5755,7 +5758,15 @@ export type Database = {
           user_id?: string
           week_key?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_tasks_parent_task_id_fkey"
+            columns: ["parent_task_id"]
+            isOneToOne: false
+            referencedRelation: "user_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_widget_purchases: {
         Row: {
