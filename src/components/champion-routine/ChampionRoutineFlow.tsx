@@ -36,6 +36,7 @@ import { VisionDeclarationStep } from './steps/VisionDeclarationStep';
 import { AutosuggestionStep } from './steps/AutosuggestionStep';
 import { ApplyStep } from './steps/ApplyStep';
 import { MindShiftingStep } from './steps/MindShiftingStep';
+import { MindTestStep } from './steps/MindTestStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
