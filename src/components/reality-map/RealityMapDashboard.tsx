@@ -327,6 +327,9 @@ export const RealityMapDashboard: React.FC<RealityMapDashboardProps> = ({
               </motion.div>
             );
           })}
+
+          {/* 5th pillar: MINTE — Foundation (data from Brain Map) */}
+          <MindDimensionCard />
         </div>
 
         {/* Stats Footer */}
