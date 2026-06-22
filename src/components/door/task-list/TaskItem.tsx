@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Check, ArrowLeft, Star, Flag, AlertCircle, KeyRound } from 'lucide-react';
 import { TaskPriority } from '@/types/door';
 import { useLanguage } from '@/context/LanguageContext';
+import { TaskHelpButton } from '@/components/coach/TaskHelpButton';
 
 interface TaskItemProps {
   id: string;
