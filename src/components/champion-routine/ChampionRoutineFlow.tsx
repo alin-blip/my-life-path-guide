@@ -294,7 +294,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     });
 
     // Auto-include new steps for existing users
-    const requiredNewSteps = ['mindShifting', 'bodyActivation', 'powerDeclaration'];
+    const requiredNewSteps = ['mindShifting', 'mindTest', 'bodyActivation', 'powerDeclaration'];
     requiredNewSteps.forEach(stepId => {
       if (activeSteps.length > 0 && !activeSteps.includes(stepId)) {
         activeSteps = [...activeSteps];
