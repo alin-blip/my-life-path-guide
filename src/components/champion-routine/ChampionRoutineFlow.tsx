@@ -324,6 +324,9 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         } else if (stepId === 'bodyActivation') {
           const checkIndex = stepsOrder.indexOf('mindShifting');
           stepsOrder.splice(checkIndex !== -1 ? checkIndex + 1 : 0, 0, stepId);
+        } else if (stepId === 'mindTest') {
+          const mIdx = stepsOrder.indexOf('mindShifting');
+          stepsOrder.splice(mIdx !== -1 ? mIdx + 1 : 0, 0, stepId);
         } else {
           const medIndex = stepsOrder.indexOf('meditation');
           stepsOrder.splice(medIndex !== -1 ? medIndex + 1 : stepsOrder.length, 0, stepId);
