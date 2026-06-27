@@ -219,6 +219,62 @@ Returnează ordonat de la cea mai probabilă. Pentru fiecare, scrie un motiv scu
       });
     }
 
+    // ---- STEP: suggest_answers (quick-button suggestions for any question) ----
+    if (body.step === 'suggest_answers') {
+      const targetIdx = body.target_question_index ?? 1;
+      const target = QUESTIONS.find((q) => q.idx === targetIdx);
+      if (!target) throw new Error('invalid target_question_index');
+
+      const isNumber = targetIdx === 11;
+      const suggestAnswersTool = {
+        type: 'function',
+        function: {
+          name: 'return_answer_suggestions',
+          description: 'Returnează 3 sugestii scurte de răspuns posibil pentru întrebarea curentă, personalizate pe contextul userului.',
+          parameters: {
+            type: 'object',
+            properties: {
+              suggestions: {
+                type: 'array',
+                minItems: 2,
+                maxItems: 3,
+                items: {
+                  type: 'object',
+                  properties: {
+                    label: { type: 'string', description: isNumber ? 'Un număr de la 0 la 10 ca string (ex: "4").' : 'Sugestie scurtă de răspuns (max 16 cuvinte), formulată la persoana I, ancorată în context.' },
+                    hint: { type: 'string', description: 'Sub-text scurt (max 10 cuvinte) care explică unghiul sugestiei.' },
+                  },
+                  required: ['label', 'hint'],
+                  additionalProperties: false,
+                },
+              },
+            },
+            required: ['suggestions'],
+            additionalProperties: false,
+          },
+        },
+      };
+
+      const aUserMsg = `Răspunsurile userului până acum:
+${answersBlock || '(încă nu a răspuns nimic — fă sugestii generice pe baza tipului de întrebare)'}
+
+Întrebarea curentă (Q${targetIdx}, ${target.purpose}): «${target.text}»
+
+Generează 3 sugestii ${isNumber ? 'numerice (0-10) plauzibile pe baza contextului' : 'scurte (max 16 cuvinte), formulate la persoana I'}, DIFERITE între ele ca unghi/perspectivă, ancorate în CE A SPUS userul până acum (nu generice). Folosește vocabularul lui.
+NU pune ghilimele în jurul sugestiilor. Fără preamble. Fiecare sugestie trebuie să fie copy-paste-abilă direct în răspuns.`;
+
+      const data = await callAI(
+        [{ role: 'system', content: system }, { role: 'user', content: aUserMsg }],
+        { tool: suggestAnswersTool }
+      );
+      const call = data?.choices?.[0]?.message?.tool_calls?.[0];
+      if (!call) throw new Error('no tool call in suggest_answers');
+      const result = JSON.parse(call.function.arguments);
+      return new Response(JSON.stringify(result), {
+        headers: { ...extraHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // ---- STEP: finalize (after Q14) ----
     const finalizeTool = {
       type: 'function',
