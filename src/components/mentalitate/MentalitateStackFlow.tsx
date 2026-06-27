@@ -60,6 +60,9 @@ export const MentalitateStackFlow: React.FC<Props> = ({
   const [distortionSuggestions, setDistortionSuggestions] = useState<{ label: string; why: string }[]>([]);
   const [loadingDistortions, setLoadingDistortions] = useState(false);
   const distortionsFetchedRef = useRef(false);
+  const [answerSuggestions, setAnswerSuggestions] = useState<{ label: string; hint: string }[]>([]);
+  const [loadingAnswerSuggestions, setLoadingAnswerSuggestions] = useState(false);
+  const answerSuggestionsFetchedRef = useRef<Record<number, boolean>>({});
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentQ = BLUEPRINT_QUESTIONS.find((q) => q.idx === qIdx)!;
@@ -96,6 +99,29 @@ export const MentalitateStackFlow: React.FC<Props> = ({
       .catch(() => setDistortionSuggestions([]))
       .finally(() => setLoadingDistortions(false));
   }, [stage, qIdx, session, mode, deepDiveAxis, answers]);
+
+  // Fetch generic answer suggestions for the current question (any question except Q5 which has distortions)
+  useEffect(() => {
+    if (stage !== 'questions' || !session) return;
+    if (qIdx === 5) { setAnswerSuggestions([]); return; }
+    if (answerSuggestionsFetchedRef.current[qIdx]) return;
+    answerSuggestionsFetchedRef.current[qIdx] = true;
+    setAnswerSuggestions([]);
+    setLoadingAnswerSuggestions(true);
+    mentalitateStackService
+      .callCoach({
+        step: 'suggest_answers',
+        sessionId: session.id,
+        mode,
+        deepDiveAxis,
+        phaseAnswers: answers,
+        targetQuestionIndex: qIdx,
+      })
+      .then((r) => setAnswerSuggestions(r?.suggestions ?? []))
+      .catch(() => setAnswerSuggestions([]))
+      .finally(() => setLoadingAnswerSuggestions(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage, qIdx, session]);
 
   const beginSession = async () => {
     try {
@@ -409,6 +435,46 @@ export const MentalitateStackFlow: React.FC<Props> = ({
                         <div className="text-[11px] text-muted-foreground leading-snug mt-0.5">{s.why}</div>
                       </button>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Generic answer suggestions (any question except Q5) */}
+            {qIdx !== 5 && (loadingAnswerSuggestions || answerSuggestions.length > 0) && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-[11px] font-mono uppercase text-violet-600 dark:text-violet-400">
+                  <Sparkles className="w-3 h-3" />
+                  {loadingAnswerSuggestions ? 'Coach-ul pregătește sugestii…' : 'Sugestii rapide bazate pe context'}
+                </div>
+                {loadingAnswerSuggestions && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Se generează exemple personalizate…
+                  </div>
+                )}
+                {!loadingAnswerSuggestions && answerSuggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {answerSuggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setCurrentAnswer(s.label)}
+                        className={cn(
+                          'text-left rounded-lg border border-violet-500/30 bg-violet-500/5',
+                          'hover:bg-violet-500/15 hover:border-violet-500/60 transition-colors',
+                          'px-3 py-2 text-xs max-w-full'
+                        )}
+                        title={s.hint}
+                      >
+                        <div className="font-medium text-foreground leading-snug">{s.label}</div>
+                        {s.hint && (
+                          <div className="text-[11px] text-muted-foreground leading-snug mt-0.5">{s.hint}</div>
+                        )}
+                      </button>
+                    ))}
+                    <p className="w-full text-[10px] text-muted-foreground italic">
+                      Apasă o sugestie ca să o folosești ca punct de start — apoi editează în text.
+                    </p>
                   </div>
                 )}
               </div>

@@ -70,12 +70,13 @@ export const mentalitateStackService = {
   },
 
   async callCoach(params: {
-    step: 'reflect' | 'finalize' | 'suggest_distortions';
+    step: 'reflect' | 'finalize' | 'suggest_distortions' | 'suggest_answers';
     sessionId: string;
     mode: MentalitateMode;
     deepDiveAxis?: string;
     phaseAnswers: Record<string, string>;
     currentQuestionIndex?: number;
+    targetQuestionIndex?: number;
   }): Promise<any> {
     const { data: sess } = await supabase.auth.getSession();
     const token = sess.session?.access_token;
@@ -93,6 +94,7 @@ export const mentalitateStackService = {
         deep_dive_axis: params.deepDiveAxis,
         phase_answers: params.phaseAnswers,
         current_question_index: params.currentQuestionIndex,
+        target_question_index: params.targetQuestionIndex,
       }),
     });
     if (!res.ok) {
