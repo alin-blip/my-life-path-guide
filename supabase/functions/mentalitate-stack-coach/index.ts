@@ -16,11 +16,12 @@ const extraHeaders = {
 type Mode = 'daily' | 'deep_dive';
 
 interface ReqBody {
-  step: 'reflect' | 'finalize' | 'suggest_distortions';
+  step: 'reflect' | 'finalize' | 'suggest_distortions' | 'suggest_answers';
   mode: Mode;
   deep_dive_axis?: string;
   phase_answers: Record<string, string>;
   current_question_index?: number;
+  target_question_index?: number;
 }
 
 const DISTORTION_OPTIONS = [
