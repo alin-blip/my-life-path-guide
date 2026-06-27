@@ -100,6 +100,29 @@ export const MentalitateStackFlow: React.FC<Props> = ({
       .finally(() => setLoadingDistortions(false));
   }, [stage, qIdx, session, mode, deepDiveAxis, answers]);
 
+  // Fetch generic answer suggestions for the current question (any question except Q5 which has distortions)
+  useEffect(() => {
+    if (stage !== 'questions' || !session) return;
+    if (qIdx === 5) { setAnswerSuggestions([]); return; }
+    if (answerSuggestionsFetchedRef.current[qIdx]) return;
+    answerSuggestionsFetchedRef.current[qIdx] = true;
+    setAnswerSuggestions([]);
+    setLoadingAnswerSuggestions(true);
+    mentalitateStackService
+      .callCoach({
+        step: 'suggest_answers',
+        sessionId: session.id,
+        mode,
+        deepDiveAxis,
+        phaseAnswers: answers,
+        targetQuestionIndex: qIdx,
+      })
+      .then((r) => setAnswerSuggestions(r?.suggestions ?? []))
+      .catch(() => setAnswerSuggestions([]))
+      .finally(() => setLoadingAnswerSuggestions(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage, qIdx, session]);
+
   const beginSession = async () => {
     try {
       const s = await mentalitateStackService.startSession(mode, deepDiveAxis, source);
