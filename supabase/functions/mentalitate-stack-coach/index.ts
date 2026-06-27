@@ -16,12 +16,25 @@ const extraHeaders = {
 type Mode = 'daily' | 'deep_dive';
 
 interface ReqBody {
-  step: 'reflect' | 'finalize';
+  step: 'reflect' | 'finalize' | 'suggest_distortions';
   mode: Mode;
   deep_dive_axis?: string;
   phase_answers: Record<string, string>;
   current_question_index?: number;
 }
+
+const DISTORTION_OPTIONS = [
+  'Catastrofizare',
+  'Gândire alb-negru',
+  'Generalizare excesivă',
+  'Citirea minții',
+  'Personalizare',
+  'Etichetare',
+  'Filtrare mentală',
+  'Raționament emoțional',
+  '„Ar trebui"',
+  'Minimalizarea pozitivului',
+];
 
 const AXIS_LABEL: Record<string, string> = {
   cognitiva: 'Cognitivă (Centrul de Comandă)',
