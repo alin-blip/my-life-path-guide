@@ -78,6 +78,25 @@ export const MentalitateStackFlow: React.FC<Props> = ({
     };
   }, [currentAnswer, qIdx, session, stage]);
 
+  // Fetch distortion suggestions when arriving at Q5
+  useEffect(() => {
+    if (stage !== 'questions' || qIdx !== 5 || !session) return;
+    if (distortionsFetchedRef.current) return;
+    distortionsFetchedRef.current = true;
+    setLoadingDistortions(true);
+    mentalitateStackService
+      .callCoach({
+        step: 'suggest_distortions',
+        sessionId: session.id,
+        mode,
+        deepDiveAxis,
+        phaseAnswers: answers,
+      })
+      .then((r) => setDistortionSuggestions(r?.suggestions ?? []))
+      .catch(() => setDistortionSuggestions([]))
+      .finally(() => setLoadingDistortions(false));
+  }, [stage, qIdx, session, mode, deepDiveAxis, answers]);
+
   const beginSession = async () => {
     try {
       const s = await mentalitateStackService.startSession(mode, deepDiveAxis, source);
