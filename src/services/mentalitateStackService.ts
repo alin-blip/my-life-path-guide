@@ -94,6 +94,7 @@ export const mentalitateStackService = {
         deep_dive_axis: params.deepDiveAxis,
         phase_answers: params.phaseAnswers,
         current_question_index: params.currentQuestionIndex,
+        target_question_index: params.targetQuestionIndex,
       }),
     });
     if (!res.ok) {
