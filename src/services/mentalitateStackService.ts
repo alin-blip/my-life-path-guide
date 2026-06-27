@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
-import { doorSupabaseService } from '@/services/doorSupabaseService';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
+import { ideasBankService } from '@/services/ideasBankService';
 
 export type MentalitateMode = 'daily' | 'deep_dive';
 
