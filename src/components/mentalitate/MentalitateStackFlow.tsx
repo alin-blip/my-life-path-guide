@@ -379,6 +379,42 @@ export const MentalitateStackFlow: React.FC<Props> = ({
               />
             )}
 
+            {/* Q5: AI-suggested distortion quick-buttons */}
+            {qIdx === 5 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-[11px] font-mono uppercase text-violet-600 dark:text-violet-400">
+                  <Sparkles className="w-3 h-3" />
+                  {loadingDistortions ? 'Coach-ul analizează ce pare a fi...' : 'Sugestii pe baza răspunsurilor tale'}
+                </div>
+                {loadingDistortions && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Se identifică distorsiunile probabile...
+                  </div>
+                )}
+                {!loadingDistortions && distortionSuggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {distortionSuggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setCurrentAnswer(currentAnswer ? `${currentAnswer}${currentAnswer.endsWith(' ') ? '' : ' '}+ ${s.label}` : s.label)}
+                        className={cn(
+                          'text-left rounded-lg border border-violet-500/30 bg-violet-500/5',
+                          'hover:bg-violet-500/15 hover:border-violet-500/60 transition-colors',
+                          'px-3 py-2 text-xs max-w-full'
+                        )}
+                        title={s.why}
+                      >
+                        <div className="font-semibold text-foreground">{s.label}</div>
+                        <div className="text-[11px] text-muted-foreground leading-snug mt-0.5">{s.why}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+
             {reflection && qIdx > 1 && (
               <motion.div
                 initial={{ opacity: 0 }}
