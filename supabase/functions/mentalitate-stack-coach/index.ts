@@ -283,6 +283,8 @@ NU pune ghilimele în jurul sugestiilor. Fără preamble. Fiecare sugestie trebu
     }
 
     // ---- STEP: finalize (after Q14) ----
+    // Simplified schema (no enums on axes, no integer bounds) to avoid Gemini
+    // constrained-decoding refusals. We validate/clamp on the server below.
     const finalizeTool = {
       type: 'function',
       function: {
@@ -293,39 +295,87 @@ NU pune ghilimele în jurul sugestiilor. Fără preamble. Fiecare sugestie trebu
           properties: {
             reframe: { type: 'string', description: 'Gândul nou realist, ancorat în fapte (max 2 propoziții).' },
             action: { type: 'string', description: 'Acțiune concretă, executabilă azi sau mâine, max 1 propoziție.' },
-            distortion_detected: { type: 'string', description: 'Tipul principal de distorsiune cognitivă observat (catastrofizare, gândire alb-negru, generalizare, citirea minții, personalizare, etichetare, filtrare mentală, raționament emoțional, ar trebui, minimalizare).' },
+            distortion_detected: { type: 'string', description: 'Tipul principal de distorsiune cognitivă observat.' },
             axes_impacted: {
               type: 'array',
-              items: { type: 'string', enum: ['cognitiva', 'emotionala', 'afectiva', 'volitiva', 'comportamentala', 'profesionala'] },
-              description: 'Axele afectate de pattern-ul descoperit. Minim 1, max 3.',
+              items: { type: 'string', description: 'Una din: cognitiva, emotionala, afectiva, volitiva, comportamentala, profesionala.' },
+              description: 'Axele afectate (1-3 valori).',
             },
-            vina_score: { type: 'integer', minimum: 0, maximum: 10 },
-            control_score: { type: 'integer', minimum: 0, maximum: 10 },
+            vina_score: { type: 'number', description: '0-10' },
+            control_score: { type: 'number', description: '0-10' },
             pattern_summary: { type: 'string', description: 'Pattern-ul recurent observat (1-2 propoziții).' },
           },
           required: ['reframe', 'action', 'distortion_detected', 'axes_impacted', 'pattern_summary'],
-          additionalProperties: false,
         },
       },
     };
 
-    const userMsg = `Sesiune completă. Răspunsurile userului:
+    const userMsg = `${situationBlock}Sesiune completă. Răspunsurile userului:
 ${answersBlock}
 
 Generează sinteza finală conform schemei.
 - reframe: gând alternativ realist, NU motivațional fals (ex: «Am făcut o greșeală, e provocator, dar am experiență și pot corecta»).
-- action: o singură acțiune concretă care va intra ca task în Domino Door (azi sau mâine).
+- action: o singură acțiune concretă care va intra ca task (azi sau mâine).
 - vina_score și control_score: extrage din Q11 (0-10) și estimează control din Q12.
-- axes_impacted: alege axele cele mai vizibile în pattern.`;
+- axes_impacted: alege 1-3 axe din lista exactă: cognitiva, emotionala, afectiva, volitiva, comportamentala, profesionala.`;
 
-    const data = await callAI(
-      [{ role: 'system', content: system }, { role: 'user', content: userMsg }],
-      { tool: finalizeTool }
-    );
+    const ALLOWED_AXES = ['cognitiva', 'emotionala', 'afectiva', 'volitiva', 'comportamentala', 'profesionala'];
 
-    const call = data?.choices?.[0]?.message?.tool_calls?.[0];
-    if (!call) throw new Error('no tool call in finalize');
-    const result = JSON.parse(call.function.arguments);
+    const tryFinalize = async (extra?: string) => {
+      const messages: any[] = [
+        { role: 'system', content: system },
+        { role: 'user', content: userMsg + (extra ?? '') },
+      ];
+      const data = await callAI(messages, { tool: finalizeTool });
+      const call = data?.choices?.[0]?.message?.tool_calls?.[0];
+      if (!call) {
+        console.error('finalize: no tool_call', JSON.stringify(data?.choices?.[0]?.message ?? {}).slice(0, 500));
+        return null;
+      }
+      try {
+        return JSON.parse(call.function.arguments);
+      } catch (e) {
+        console.error('finalize: bad JSON', call.function.arguments?.slice(0, 500));
+        return null;
+      }
+    };
+
+    let result = await tryFinalize();
+    if (!result) {
+      console.warn('finalize: retrying with stricter prompt');
+      result = await tryFinalize('\n\nIMPORTANT: răspunde DOAR prin tool call cu toate câmpurile required completate.');
+    }
+
+    if (!result) {
+      // Last-resort fallback so the client can still close the session.
+      const reframe = body.phase_answers['q13'] || 'Reframe nu a putut fi generat — revino la el manual.';
+      const action = body.phase_answers['q14'] || 'Definește o singură acțiune concretă pentru următoarele 24h.';
+      const distortion = body.phase_answers['q5'] || 'Nedetectată';
+      const vina = Number(body.phase_answers['q11']);
+      result = {
+        reframe,
+        action,
+        distortion_detected: distortion,
+        axes_impacted: ['cognitiva'],
+        vina_score: Number.isFinite(vina) ? Math.max(0, Math.min(10, vina)) : null,
+        control_score: null,
+        pattern_summary: 'Sinteză generată local — AI-ul nu a putut finaliza. Apasă „Reîncearcă AI".',
+        ai_failed: true,
+      };
+    }
+
+    // Clamp/sanitize
+    if (Array.isArray(result.axes_impacted)) {
+      result.axes_impacted = result.axes_impacted
+        .map((a: any) => String(a).toLowerCase().trim())
+        .filter((a: string) => ALLOWED_AXES.includes(a))
+        .slice(0, 3);
+      if (result.axes_impacted.length === 0) result.axes_impacted = ['cognitiva'];
+    } else {
+      result.axes_impacted = ['cognitiva'];
+    }
+    if (result.vina_score != null) result.vina_score = Math.max(0, Math.min(10, Number(result.vina_score) || 0));
+    if (result.control_score != null) result.control_score = Math.max(0, Math.min(10, Number(result.control_score) || 0));
 
     return new Response(JSON.stringify(result), {
       headers: { ...extraHeaders, 'Content-Type': 'application/json' },
