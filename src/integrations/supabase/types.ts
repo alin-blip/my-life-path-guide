@@ -3293,6 +3293,69 @@ export type Database = {
           },
         ]
       }
+      mentalitate_stack_sessions: {
+        Row: {
+          action: string | null
+          axes_impacted: string[]
+          completed: boolean
+          completed_at: string | null
+          control_score: number | null
+          created_at: string
+          deep_dive_axis: string | null
+          distortion_detected: string | null
+          domino_task_id: string | null
+          id: string
+          mode: string
+          pattern_summary: string | null
+          phase_answers: Json
+          reframe: string | null
+          source: string
+          updated_at: string
+          user_id: string
+          vina_score: number | null
+        }
+        Insert: {
+          action?: string | null
+          axes_impacted?: string[]
+          completed?: boolean
+          completed_at?: string | null
+          control_score?: number | null
+          created_at?: string
+          deep_dive_axis?: string | null
+          distortion_detected?: string | null
+          domino_task_id?: string | null
+          id?: string
+          mode?: string
+          pattern_summary?: string | null
+          phase_answers?: Json
+          reframe?: string | null
+          source?: string
+          updated_at?: string
+          user_id: string
+          vina_score?: number | null
+        }
+        Update: {
+          action?: string | null
+          axes_impacted?: string[]
+          completed?: boolean
+          completed_at?: string | null
+          control_score?: number | null
+          created_at?: string
+          deep_dive_axis?: string | null
+          distortion_detected?: string | null
+          domino_task_id?: string | null
+          id?: string
+          mode?: string
+          pattern_summary?: string | null
+          phase_answers?: Json
+          reframe?: string | null
+          source?: string
+          updated_at?: string
+          user_id?: string
+          vina_score?: number | null
+        }
+        Relationships: []
+      }
       migration_status: {
         Row: {
           backup_data: Json | null

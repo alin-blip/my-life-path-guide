@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Brain, ListChecks, Grid3x3, RotateCcw, ArrowRight } from "lucide-react";
+import { Brain, ListChecks, Grid3x3, RotateCcw, ArrowRight, Sparkles } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { mindQuizService, type MindAxisScoreRow } from "@/services/mindQuizService";
 
@@ -87,6 +87,34 @@ export default function Minte() {
           )}
         </p>
       </header>
+
+      {/* Featured: Mentalitate Stack */}
+      <Link to="/minte/stack">
+        <Card className="border-violet-500/40 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/5 hover:border-violet-500/60 transition-colors cursor-pointer">
+          <CardContent className="p-5 flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-violet-500/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-6 h-6 text-violet-500" />
+            </div>
+            <div className="flex-1 space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-lg">{t("Mental Reconstruction Stack", "Reconstrucția Mentală")}</h3>
+                <Badge className="text-[10px] bg-violet-500/15 text-violet-600 dark:text-violet-400 hover:bg-violet-500/20">
+                  {t("New", "Nou")}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {t(
+                  "Mental Blueprint in 5 phases, 14 questions. ~10-15 min. Repairs your command center and turns it into a concrete action in Domino Door.",
+                  "Blueprint Mental în 5 faze, 14 întrebări. ~10-15 min. Repară centrul de comandă și se transformă într-o acțiune concretă în Domino Door.",
+                )}
+              </p>
+              <span className="text-sm text-violet-600 dark:text-violet-400 inline-flex items-center gap-1 pt-1">
+                {t("Start the daily stack", "Începe stack-ul zilnic")} <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
 
       {/* Quick actions */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
