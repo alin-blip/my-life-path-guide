@@ -440,6 +440,46 @@ export const MentalitateStackFlow: React.FC<Props> = ({
               </div>
             )}
 
+            {/* Generic answer suggestions (any question except Q5) */}
+            {qIdx !== 5 && (loadingAnswerSuggestions || answerSuggestions.length > 0) && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-[11px] font-mono uppercase text-violet-600 dark:text-violet-400">
+                  <Sparkles className="w-3 h-3" />
+                  {loadingAnswerSuggestions ? 'Coach-ul pregătește sugestii…' : 'Sugestii rapide bazate pe context'}
+                </div>
+                {loadingAnswerSuggestions && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Se generează exemple personalizate…
+                  </div>
+                )}
+                {!loadingAnswerSuggestions && answerSuggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {answerSuggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setCurrentAnswer(s.label)}
+                        className={cn(
+                          'text-left rounded-lg border border-violet-500/30 bg-violet-500/5',
+                          'hover:bg-violet-500/15 hover:border-violet-500/60 transition-colors',
+                          'px-3 py-2 text-xs max-w-full'
+                        )}
+                        title={s.hint}
+                      >
+                        <div className="font-medium text-foreground leading-snug">{s.label}</div>
+                        {s.hint && (
+                          <div className="text-[11px] text-muted-foreground leading-snug mt-0.5">{s.hint}</div>
+                        )}
+                      </button>
+                    ))}
+                    <p className="w-full text-[10px] text-muted-foreground italic">
+                      Apasă o sugestie ca să o folosești ca punct de start — apoi editează în text.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
 
             {reflection && qIdx > 1 && (
               <motion.div
