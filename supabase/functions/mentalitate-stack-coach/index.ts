@@ -144,6 +144,13 @@ Deno.serve(async (req) => {
     const minte = await loadMinteContext(supabase, userId).catch(() => ({ promptBlock: '' }));
     const system = buildSystem(body.mode, body.deep_dive_axis, minte.promptBlock ?? '');
 
+    const situation = (body.phase_answers as any)?.situation
+      ?? (body.phase_answers as any)?.q0
+      ?? '';
+    const situationBlock = situation
+      ? `CONTEXTUL situației descris de user la început:\n«${situation}»\n\n`
+      : '';
+
     const answersBlock = QUESTIONS
       .filter((q) => body.phase_answers[`q${q.idx}`])
       .map((q) => `Q${q.idx} (${q.purpose}) — ${body.phase_answers[`q${q.idx}`]}`)
@@ -153,12 +160,12 @@ Deno.serve(async (req) => {
     if (body.step === 'reflect') {
       const idx = body.current_question_index ?? 1;
       const next = QUESTIONS.find((q) => q.idx === idx + 1);
-      const userMsg = `Răspunsurile userului până acum:
+      const userMsg = `${situationBlock}Răspunsurile userului până acum:
 ${answersBlock || '(nimic încă)'}
 
 A răspuns la Q${idx}. Următoarea întrebare este Q${idx + 1}: «${next?.text ?? 'finalizare'}».
 
-Răspunde cu maxim 2 propoziții de validare empatică pe ce a spus la Q${idx}, fără să repeți întrebarea următoare.`;
+Răspunde cu maxim 2 propoziții de validare empatică pe ce a spus la Q${idx}, ancorate în contextul situației lui. Nu repeta întrebarea următoare.`;
 
       const data = await callAI([
         { role: 'system', content: system },
