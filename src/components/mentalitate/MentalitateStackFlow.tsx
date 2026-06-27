@@ -57,6 +57,9 @@ export const MentalitateStackFlow: React.FC<Props> = ({
   const [reflecting, setReflecting] = useState(false);
   const [synthesis, setSynthesis] = useState<Synthesis | null>(null);
   const [pushToDomino, setPushToDomino] = useState(true);
+  const [distortionSuggestions, setDistortionSuggestions] = useState<{ label: string; why: string }[]>([]);
+  const [loadingDistortions, setLoadingDistortions] = useState(false);
+  const distortionsFetchedRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentQ = BLUEPRINT_QUESTIONS.find((q) => q.idx === qIdx)!;
