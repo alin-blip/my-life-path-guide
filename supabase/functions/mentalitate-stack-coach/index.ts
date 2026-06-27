@@ -16,12 +16,25 @@ const extraHeaders = {
 type Mode = 'daily' | 'deep_dive';
 
 interface ReqBody {
-  step: 'reflect' | 'finalize';
+  step: 'reflect' | 'finalize' | 'suggest_distortions';
   mode: Mode;
   deep_dive_axis?: string;
   phase_answers: Record<string, string>;
   current_question_index?: number;
 }
+
+const DISTORTION_OPTIONS = [
+  'Catastrofizare',
+  'Gândire alb-negru',
+  'Generalizare excesivă',
+  'Citirea minții',
+  'Personalizare',
+  'Etichetare',
+  'Filtrare mentală',
+  'Raționament emoțional',
+  '„Ar trebui"',
+  'Minimalizarea pozitivului',
+];
 
 const AXIS_LABEL: Record<string, string> = {
   cognitiva: 'Cognitivă (Centrul de Comandă)',
@@ -152,6 +165,55 @@ Răspunde cu maxim 2 propoziții de validare empatică pe ce a spus la Q${idx}, 
       ]);
       const reflection = data?.choices?.[0]?.message?.content?.trim() ?? '';
       return new Response(JSON.stringify({ reflection }), {
+        headers: { ...extraHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // ---- STEP: suggest_distortions (before Q5) ----
+    if (body.step === 'suggest_distortions') {
+      const suggestTool = {
+        type: 'function',
+        function: {
+          name: 'return_distortion_suggestions',
+          description: 'Returnează 2-3 distorsiuni cognitive cele mai probabile pe baza răspunsurilor.',
+          parameters: {
+            type: 'object',
+            properties: {
+              suggestions: {
+                type: 'array',
+                minItems: 2,
+                maxItems: 3,
+                items: {
+                  type: 'object',
+                  properties: {
+                    label: { type: 'string', enum: DISTORTION_OPTIONS, description: 'Numele distorsiunii.' },
+                    why: { type: 'string', description: 'Motiv scurt (max 12 cuvinte), de ce pare a fi asta.' },
+                  },
+                  required: ['label', 'why'],
+                  additionalProperties: false,
+                },
+              },
+            },
+            required: ['suggestions'],
+            additionalProperties: false,
+          },
+        },
+      };
+
+      const sUserMsg = `Răspunsurile userului până acum (Q1-Q4):
+${answersBlock || '(nimic)'}
+
+Pe baza acestor răspunsuri (în special gândul automat de la Q4 + emoția de la Q3 + faptele de la Q1), alege 2-3 distorsiuni cognitive cele mai probabile din lista: ${DISTORTION_OPTIONS.join(', ')}.
+Returnează ordonat de la cea mai probabilă. Pentru fiecare, scrie un motiv scurt și concret (NU generic), legat de ce a spus userul.`;
+
+      const data = await callAI(
+        [{ role: 'system', content: system }, { role: 'user', content: sUserMsg }],
+        { tool: suggestTool }
+      );
+      const call = data?.choices?.[0]?.message?.tool_calls?.[0];
+      if (!call) throw new Error('no tool call in suggest_distortions');
+      const result = JSON.parse(call.function.arguments);
+      return new Response(JSON.stringify(result), {
         headers: { ...extraHeaders, 'Content-Type': 'application/json' },
       });
     }

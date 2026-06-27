@@ -70,7 +70,7 @@ export const mentalitateStackService = {
   },
 
   async callCoach(params: {
-    step: 'reflect' | 'finalize';
+    step: 'reflect' | 'finalize' | 'suggest_distortions';
     sessionId: string;
     mode: MentalitateMode;
     deepDiveAxis?: string;
