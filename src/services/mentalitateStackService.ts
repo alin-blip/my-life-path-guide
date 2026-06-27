@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
-import { doorSupabaseService } from '@/services/doorSupabaseService';
+import { doorUserTasksService } from '@/services/doorUserTasksService';
+import { ideasBankService } from '@/services/ideasBankService';
 
 export type MentalitateMode = 'daily' | 'deep_dive';
 
@@ -112,19 +113,43 @@ export const mentalitateStackService = {
     vina_score?: number | null;
     control_score?: number | null;
     pattern_summary: string;
-  }, opts?: { createDominoTask?: boolean }): Promise<MentalitateSession> {
+  }, opts?: {
+    schedule?: {
+      target: 'door' | 'ideas' | 'none';
+      days?: string[]; // Day abbreviations: 'M','T','W','Th','F','Sa','Su'
+      priority?: 'hot' | 'important' | 'normal';
+    };
+  }): Promise<{ session: MentalitateSession; scheduleError?: string }> {
+    const sched = opts?.schedule ?? { target: 'none' };
     let dominoTaskId: string | null = null;
+    let scheduleError: string | undefined;
 
-    if (opts?.createDominoTask && synthesis.action?.trim()) {
+    if (synthesis.action?.trim()) {
+      const text = `🧠 ${synthesis.action.trim()}`;
       try {
-        await doorSupabaseService.addIdeaToWeek(getWeekKey(), {
-          id: crypto.randomUUID(),
-          text: `🧠 ${synthesis.action.trim()}`,
-          category: 'hot',
-          priority: 'important',
-        });
-      } catch (e) {
-        console.warn('Failed to push action to Domino Door:', e);
+        if (sched.target === 'door') {
+          const days = (sched.days?.length ? sched.days : ['M']) as any[];
+          const priority = (sched.priority ?? 'important') as any;
+          const weekKey = getWeekKey();
+          // Create one task per selected day (hit-list rows scoped per day).
+          for (const day of days) {
+            const id = crypto.randomUUID();
+            await doorUserTasksService.addIdeaToWeek(weekKey, {
+              id,
+              text,
+              category: 'hit',
+              priority,
+              day,
+            });
+            if (!dominoTaskId) dominoTaskId = id;
+          }
+        } else if (sched.target === 'ideas') {
+          const idea = await ideasBankService.addIdea(text, 'work', 2);
+          dominoTaskId = idea.id;
+        }
+      } catch (e: any) {
+        console.warn('mentalitate: schedule failed', e);
+        scheduleError = e?.message ?? 'Salvare eșuată';
       }
     }
 
@@ -145,7 +170,7 @@ export const mentalitateStackService = {
       .select()
       .single();
     if (error) throw error;
-    return data as any;
+    return { session: data as any, scheduleError };
   },
 
   async getRecentSessions(limit = 30): Promise<MentalitateSession[]> {

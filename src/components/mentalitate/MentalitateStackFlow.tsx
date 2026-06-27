@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, Brain, Sparkles, ChevronRight, CheckCircle2, ArrowLeft, Target } from 'lucide-react';
+import { Loader2, Brain, Sparkles, ChevronRight, CheckCircle2, ArrowLeft, Target, AlertTriangle, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -27,7 +27,9 @@ interface Props {
   onSkip?: () => void;
 }
 
-type Stage = 'intro' | 'questions' | 'synthesizing' | 'done';
+type Stage = 'intro' | 'situation' | 'questions' | 'schedule' | 'synthesizing' | 'done';
+type ScheduleTarget = 'door' | 'ideas' | 'none';
+type SchedulePriority = 'hot' | 'important' | 'normal';
 
 interface Synthesis {
   reframe: string;
@@ -37,9 +39,29 @@ interface Synthesis {
   vina_score?: number | null;
   control_score?: number | null;
   pattern_summary: string;
+  ai_failed?: boolean;
 }
 
 const TOTAL = BLUEPRINT_QUESTIONS.length;
+
+// Day chips (Mon-Sat) for the current ISO week
+type DayCode = 'M' | 'T' | 'W' | 'Th' | 'F' | 'Sa';
+const DAY_ORDER: DayCode[] = ['M', 'T', 'W', 'Th', 'F', 'Sa'];
+const DAY_LABEL: Record<DayCode, string> = { M: 'Lu', T: 'Ma', W: 'Mi', Th: 'Jo', F: 'Vi', Sa: 'Sâ' };
+const JS_TO_CODE: Record<number, DayCode | 'Su'> = { 0: 'Su', 1: 'M', 2: 'T', 3: 'W', 4: 'Th', 5: 'F', 6: 'Sa' };
+
+function getDefaultDay(): DayCode {
+  const now = new Date();
+  const todayCode = JS_TO_CODE[now.getDay()];
+  // "Today if before 18:00, otherwise tomorrow" — clamp to Mon-Sat.
+  const useToday = now.getHours() < 18 && todayCode !== 'Su';
+  if (useToday && (DAY_ORDER as string[]).includes(todayCode)) return todayCode as DayCode;
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tCode = JS_TO_CODE[tomorrow.getDay()];
+  if ((DAY_ORDER as string[]).includes(tCode)) return tCode as DayCode;
+  return 'M';
+}
 
 export const MentalitateStackFlow: React.FC<Props> = ({
   mode,
@@ -56,7 +78,17 @@ export const MentalitateStackFlow: React.FC<Props> = ({
   const [reflection, setReflection] = useState<string>('');
   const [reflecting, setReflecting] = useState(false);
   const [synthesis, setSynthesis] = useState<Synthesis | null>(null);
-  const [pushToDomino, setPushToDomino] = useState(true);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
+
+  // Q0 — situation
+  const [situation, setSituation] = useState('');
+
+  // Schedule panel (Q14 → schedule stage)
+  const [scheduleTarget, setScheduleTarget] = useState<ScheduleTarget>('door');
+  const [scheduleDays, setScheduleDays] = useState<DayCode[]>([getDefaultDay()]);
+  const [schedulePriority, setSchedulePriority] = useState<SchedulePriority>('important');
+
+  // Quick-button suggestions
   const [distortionSuggestions, setDistortionSuggestions] = useState<{ label: string; why: string }[]>([]);
   const [loadingDistortions, setLoadingDistortions] = useState(false);
   const distortionsFetchedRef = useRef(false);
@@ -67,9 +99,16 @@ export const MentalitateStackFlow: React.FC<Props> = ({
 
   const currentQ = BLUEPRINT_QUESTIONS.find((q) => q.idx === qIdx)!;
   const phase = BLUEPRINT_PHASES.find((p) => p.id === currentQ.phase)!;
+  // +1 step for situation, +1 for schedule
   const progress = ((qIdx - 1) / TOTAL) * 100;
 
-  // Autosave debounce
+  // Build phaseAnswers including situation (as q0/situation) for the AI
+  const phaseAnswersForAI = useMemo(
+    () => ({ ...(situation ? { situation, q0: situation } : {}), ...answers }),
+    [answers, situation]
+  );
+
+  // Autosave debounce for questions
   useEffect(() => {
     if (!session || !currentAnswer || stage !== 'questions') return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
@@ -93,14 +132,14 @@ export const MentalitateStackFlow: React.FC<Props> = ({
         sessionId: session.id,
         mode,
         deepDiveAxis,
-        phaseAnswers: answers,
+        phaseAnswers: phaseAnswersForAI,
       })
       .then((r) => setDistortionSuggestions(r?.suggestions ?? []))
       .catch(() => setDistortionSuggestions([]))
       .finally(() => setLoadingDistortions(false));
-  }, [stage, qIdx, session, mode, deepDiveAxis, answers]);
+  }, [stage, qIdx, session, mode, deepDiveAxis, phaseAnswersForAI]);
 
-  // Fetch generic answer suggestions for the current question (any question except Q5 which has distortions)
+  // Fetch generic answer suggestions for the current question (any question except Q5)
   useEffect(() => {
     if (stage !== 'questions' || !session) return;
     if (qIdx === 5) { setAnswerSuggestions([]); return; }
@@ -114,7 +153,7 @@ export const MentalitateStackFlow: React.FC<Props> = ({
         sessionId: session.id,
         mode,
         deepDiveAxis,
-        phaseAnswers: answers,
+        phaseAnswers: phaseAnswersForAI,
         targetQuestionIndex: qIdx,
       })
       .then((r) => setAnswerSuggestions(r?.suggestions ?? []))
@@ -127,10 +166,63 @@ export const MentalitateStackFlow: React.FC<Props> = ({
     try {
       const s = await mentalitateStackService.startSession(mode, deepDiveAxis, source);
       setSession(s);
-      setStage('questions');
+      setStage('situation');
     } catch (e: any) {
       console.error(e);
       toast.error('Nu am putut porni sesiunea.');
+    }
+  };
+
+  const submitSituation = async () => {
+    if (!situation.trim()) {
+      toast.error('Scrie pe scurt situația înainte să continui.');
+      return;
+    }
+    if (!session) return;
+    try {
+      await mentalitateStackService.saveAnswer(session.id, 0, situation.trim());
+    } catch {}
+    setStage('questions');
+  };
+
+  const runFinalize = async (currentAnswers: Record<string, string>) => {
+    if (!session) return;
+    setStage('synthesizing');
+    try {
+      const result = await mentalitateStackService.callCoach({
+        step: 'finalize',
+        sessionId: session.id,
+        mode,
+        deepDiveAxis,
+        phaseAnswers: { ...(situation ? { situation, q0: situation } : {}), ...currentAnswers },
+      });
+      setSynthesis(result);
+      // Persist + schedule
+      const schedule = scheduleTarget === 'none'
+        ? { target: 'none' as const }
+        : scheduleTarget === 'door'
+          ? { target: 'door' as const, days: scheduleDays as string[], priority: schedulePriority }
+          : { target: 'ideas' as const };
+      const { session: saved, scheduleError: schedErr } = await mentalitateStackService.completeSession(
+        session.id,
+        result,
+        { schedule }
+      );
+      setScheduleError(schedErr ?? null);
+      if (schedErr) toast.error(`Acțiunea nu a fost salvată: ${schedErr}`);
+      setStage('done');
+      onComplete?.(saved);
+    } catch (e: any) {
+      console.error(e);
+      const msg = e?.message;
+      if (msg === 'credits_exhausted') {
+        toast.error('Credite AI epuizate. Adaugă credite din Settings → Workspace → Usage.');
+      } else if (msg === 'rate_limit') {
+        toast.error('Limită atinsă. Așteaptă puțin și reîncearcă.');
+      } else {
+        toast.error('Nu am putut finaliza sinteza. Reîncearcă.');
+      }
+      setStage('schedule');
     }
   };
 
@@ -142,40 +234,13 @@ export const MentalitateStackFlow: React.FC<Props> = ({
     if (!session) return;
     const newAnswers = { ...answers, [`q${qIdx}`]: currentAnswer.trim() };
     setAnswers(newAnswers);
-    // Final save
     try {
       await mentalitateStackService.saveAnswer(session.id, qIdx, currentAnswer.trim());
     } catch {}
 
     if (qIdx >= TOTAL) {
-      // Finalize
-      setStage('synthesizing');
-      try {
-        const result = await mentalitateStackService.callCoach({
-          step: 'finalize',
-          sessionId: session.id,
-          mode,
-          deepDiveAxis,
-          phaseAnswers: newAnswers,
-        });
-        setSynthesis(result);
-        const saved = await mentalitateStackService.completeSession(session.id, result, {
-          createDominoTask: pushToDomino,
-        });
-        setStage('done');
-        onComplete?.(saved);
-      } catch (e: any) {
-        console.error(e);
-        const msg = e?.message;
-        if (msg === 'credits_exhausted') {
-          toast.error('Credite AI epuizate. Adaugă credite din Settings → Workspace → Usage.');
-        } else if (msg === 'rate_limit') {
-          toast.error('Limită atinsă. Așteaptă puțin și reîncearcă.');
-        } else {
-          toast.error('Nu am putut finaliza sinteza.');
-        }
-        setStage('questions');
-      }
+      // Move to scheduling stage instead of finalizing immediately
+      setStage('schedule');
       return;
     }
 
@@ -188,7 +253,7 @@ export const MentalitateStackFlow: React.FC<Props> = ({
         sessionId: session.id,
         mode,
         deepDiveAxis,
-        phaseAnswers: newAnswers,
+        phaseAnswers: { ...(situation ? { situation, q0: situation } : {}), ...newAnswers },
         currentQuestionIndex: qIdx,
       });
       setReflection(r?.reflection ?? '');
@@ -203,11 +268,19 @@ export const MentalitateStackFlow: React.FC<Props> = ({
   };
 
   const handleBack = () => {
-    if (qIdx <= 1) return;
+    if (qIdx <= 1) {
+      // Back to situation
+      setStage('situation');
+      return;
+    }
     const prevIdx = qIdx - 1;
     setQIdx(prevIdx);
     setCurrentAnswer(answers[`q${prevIdx}`] ?? '');
     setReflection('');
+  };
+
+  const toggleDay = (d: DayCode) => {
+    setScheduleDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]);
   };
 
   // ============ INTRO ============
@@ -223,7 +296,7 @@ export const MentalitateStackFlow: React.FC<Props> = ({
               <h2 className="text-xl font-bold">Reconstrucția Mentală</h2>
               <p className="text-sm text-muted-foreground">
                 Blueprint Mental în 5 faze, 14 întrebări. ~10-15 min. Termini cu un gând nou
-                realist și o acțiune concretă care intră în Domino Door.
+                realist și o acțiune concretă pe care o programezi în calendar.
               </p>
               {mode === 'deep_dive' && deepDiveAxis && (
                 <Badge variant="outline" className="mt-2 border-violet-500/40 text-violet-600 dark:text-violet-400">
@@ -264,6 +337,177 @@ export const MentalitateStackFlow: React.FC<Props> = ({
     );
   }
 
+  // ============ SITUATION (Q0) ============
+  if (stage === 'situation') {
+    return (
+      <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5">
+        <CardContent className="p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl bg-violet-500/15 flex items-center justify-center">
+              <Brain className="w-5 h-5 text-violet-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm">Reconstrucția Mentală</h3>
+              <p className="text-[11px] text-muted-foreground">Pasul 0 · Contextul situației</p>
+            </div>
+          </div>
+          <Progress value={0} className="h-1.5" indicatorClassName="bg-violet-500" />
+
+          <div className="space-y-1">
+            <h4 className="text-base font-semibold leading-snug">
+              Descrie pe scurt situația care te-a declanșat
+            </h4>
+            <p className="text-xs text-muted-foreground italic">
+              Povestește liber ce s-a întâmplat — orice context care te ajută să intri în problemă.
+              Coach-ul folosește asta ca să facă întrebările și sugestiile relevante pentru tine.
+            </p>
+          </div>
+
+          <Textarea
+            value={situation}
+            onChange={(e) => setSituation(e.target.value)}
+            placeholder="ex: „Clientul X nu mi-a răspuns la propunere de 3 zile, iar azi am văzut că a postat pe LinkedIn ceva care mă face să cred că lucrează cu altcineva..."
+            className="min-h-[140px] text-sm"
+            autoFocus
+          />
+
+          <div className="flex gap-2 pt-1">
+            <Button variant="outline" onClick={() => setStage('intro')} size="sm">
+              <ArrowLeft className="w-3 h-3 mr-1" /> Înapoi
+            </Button>
+            <Button
+              onClick={submitSituation}
+              disabled={!situation.trim()}
+              className="flex-1 bg-violet-500 hover:bg-violet-600 text-white"
+            >
+              Continuă către Faza 1 <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // ============ SCHEDULE PANEL (after Q14, before AI synth) ============
+  if (stage === 'schedule') {
+    const draftAction = answers['q14'] ?? '';
+    return (
+      <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5">
+        <CardContent className="p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+              <Target className="w-5 h-5 text-emerald-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm">Programează acțiunea</h3>
+              <p className="text-[11px] text-muted-foreground">Pasul final · Unde și când execuți</p>
+            </div>
+          </div>
+
+          {draftAction && (
+            <div className="rounded-lg border border-border/50 bg-background/40 p-3 text-sm">
+              <div className="text-[10px] font-mono uppercase text-muted-foreground mb-1">Acțiunea ta (Q14)</div>
+              <div className="font-medium">{draftAction}</div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-muted-foreground">Unde salvez?</div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {([
+                { id: 'door', label: 'Domino Door', sub: 'Task săptămâna asta' },
+                { id: 'ideas', label: 'Ideas Bank', sub: 'Idee pentru mai târziu' },
+                { id: 'none', label: 'Nu salva', sub: 'Doar pentru reflecție' },
+              ] as { id: ScheduleTarget; label: string; sub: string }[]).map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setScheduleTarget(opt.id)}
+                  className={cn(
+                    'rounded-lg border px-3 py-2.5 text-left transition-colors',
+                    scheduleTarget === opt.id
+                      ? 'border-violet-500/70 bg-violet-500/15'
+                      : 'border-border/60 bg-background/40 hover:border-violet-500/40'
+                  )}
+                >
+                  <div className="text-sm font-semibold">{opt.label}</div>
+                  <div className="text-[11px] text-muted-foreground">{opt.sub}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {scheduleTarget === 'door' && (
+            <>
+              <div className="space-y-2">
+                <div className="text-xs font-semibold uppercase text-muted-foreground">
+                  Pe ce zile o pun în calendar?
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {DAY_ORDER.map((d) => {
+                    const selected = scheduleDays.includes(d);
+                    return (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => toggleDay(d)}
+                        className={cn(
+                          'rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors',
+                          selected
+                            ? 'border-violet-500/70 bg-violet-500 text-white'
+                            : 'border-border/60 bg-background/40 hover:border-violet-500/40'
+                        )}
+                      >
+                        {DAY_LABEL[d]}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[11px] text-muted-foreground italic">
+                  Default: azi dacă e înainte de 18:00, altfel mâine. Poți alege mai multe zile.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="text-xs font-semibold uppercase text-muted-foreground">Prioritate</div>
+                <div className="flex gap-1.5">
+                  {(['hot', 'important', 'normal'] as SchedulePriority[]).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setSchedulePriority(p)}
+                      className={cn(
+                        'rounded-lg border px-3 py-1.5 text-xs font-semibold capitalize transition-colors',
+                        schedulePriority === p
+                          ? 'border-violet-500/70 bg-violet-500/15'
+                          : 'border-border/60 bg-background/40 hover:border-violet-500/40'
+                      )}
+                    >
+                      {p === 'hot' ? '🔥 Hot' : p === 'important' ? '⭐ Important' : '· Normal'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="flex gap-2 pt-1">
+            <Button variant="outline" size="sm" onClick={() => { setStage('questions'); setQIdx(TOTAL); setCurrentAnswer(answers[`q${TOTAL}`] ?? ''); }}>
+              <ArrowLeft className="w-3 h-3 mr-1" /> Înapoi la Q14
+            </Button>
+            <Button
+              onClick={() => runFinalize(answers)}
+              disabled={scheduleTarget === 'door' && scheduleDays.length === 0}
+              className="flex-1 bg-violet-500 hover:bg-violet-600 text-white"
+            >
+              Finalizează sinteza <Sparkles className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // ============ SYNTHESIZING ============
   if (stage === 'synthesizing') {
     return (
@@ -279,6 +523,7 @@ export const MentalitateStackFlow: React.FC<Props> = ({
 
   // ============ DONE ============
   if (stage === 'done' && synthesis) {
+    const dayLabels = scheduleDays.map((d) => DAY_LABEL[d]).join(', ');
     return (
       <Card className="border-emerald-500/40 bg-gradient-to-br from-emerald-500/5 to-violet-500/5">
         <CardContent className="p-6 space-y-5">
@@ -294,6 +539,26 @@ export const MentalitateStackFlow: React.FC<Props> = ({
             </div>
           </div>
 
+          {synthesis.ai_failed && (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-2">
+                <p className="text-xs leading-relaxed">
+                  AI-ul nu a putut genera sinteza. Am folosit răspunsurile tale (Q13 + Q14) ca punct
+                  de plecare. Poți reîncerca sinteza AI sau o lași așa.
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => runFinalize(answers)}
+                  className="h-7 text-xs"
+                >
+                  <RefreshCw className="w-3 h-3 mr-1" /> Reîncearcă sinteza AI
+                </Button>
+              </div>
+            </div>
+          )}
+
           <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4 space-y-2">
             <div className="text-[10px] font-mono uppercase text-violet-600 dark:text-violet-400">Gândul nou — realist</div>
             <p className="text-base leading-relaxed">{synthesis.reframe}</p>
@@ -301,11 +566,19 @@ export const MentalitateStackFlow: React.FC<Props> = ({
 
           <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-2">
             <div className="flex items-center gap-2 text-[10px] font-mono uppercase text-emerald-600 dark:text-emerald-400">
-              <Target className="w-3 h-3" /> Acțiunea pentru azi/mâine
+              <Target className="w-3 h-3" /> Acțiunea programată
             </div>
             <p className="text-base font-semibold leading-relaxed">{synthesis.action}</p>
-            {pushToDomino && (
-              <p className="text-xs text-muted-foreground">✓ Trimis în Domino Door (Hot List)</p>
+            {scheduleError ? (
+              <p className="text-xs text-rose-500">⚠ {scheduleError}</p>
+            ) : scheduleTarget === 'door' ? (
+              <p className="text-xs text-muted-foreground">
+                ✓ Adăugat în Domino Door · {dayLabels} · prioritate {schedulePriority}
+              </p>
+            ) : scheduleTarget === 'ideas' ? (
+              <p className="text-xs text-muted-foreground">✓ Salvat în Ideas Bank</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">Doar reflecție — nu a fost programată.</p>
             )}
           </div>
 
@@ -480,7 +753,6 @@ export const MentalitateStackFlow: React.FC<Props> = ({
               </div>
             )}
 
-
             {reflection && qIdx > 1 && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -497,24 +769,10 @@ export const MentalitateStackFlow: React.FC<Props> = ({
               </div>
             )}
 
-            {/* Final-question option */}
-            {qIdx === TOTAL && (
-              <label className="flex items-center gap-2 text-xs cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={pushToDomino}
-                  onChange={(e) => setPushToDomino(e.target.checked)}
-                  className="accent-violet-500"
-                />
-                <span>Trimite acțiunea în Domino Door (Hot List)</span>
-              </label>
-            )}
-
             <div className="flex gap-2 pt-1">
               <Button
                 variant="outline"
                 onClick={handleBack}
-                disabled={qIdx <= 1}
                 size="sm"
               >
                 <ArrowLeft className="w-3 h-3 mr-1" /> Înapoi
@@ -525,7 +783,7 @@ export const MentalitateStackFlow: React.FC<Props> = ({
                 className="flex-1 bg-violet-500 hover:bg-violet-600 text-white"
               >
                 {qIdx >= TOTAL ? (
-                  <>Finalizează <Sparkles className="w-4 h-4 ml-1" /></>
+                  <>Programează acțiunea <ChevronRight className="w-4 h-4 ml-1" /></>
                 ) : (
                   <>Continuă <ChevronRight className="w-4 h-4 ml-1" /></>
                 )}
