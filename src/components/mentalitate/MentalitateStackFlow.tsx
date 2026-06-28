@@ -12,6 +12,7 @@ import {
   BLUEPRINT_PHASES,
   BLUEPRINT_QUESTIONS,
   AXIS_LABELS_RO,
+  getBlueprintQuestion,
 } from '@/data/mentalitate-stack/questions';
 import {
   mentalitateStackService,
