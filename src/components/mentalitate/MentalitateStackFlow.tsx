@@ -1,10 +1,19 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Loader2, Brain, Sparkles, ChevronRight, CheckCircle2, ArrowLeft, Target, AlertTriangle, RefreshCw } from 'lucide-react';
+import {
+  Loader2,
+  Brain,
+  Sparkles,
+  CheckCircle2,
+  Target,
+  AlertTriangle,
+  RefreshCw,
+  Send,
+  User as UserIcon,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -28,7 +37,6 @@ interface Props {
   onSkip?: () => void;
 }
 
-type Stage = 'intro' | 'situation' | 'questions' | 'schedule' | 'synthesizing' | 'done';
 type ScheduleTarget = 'door' | 'ideas' | 'none';
 type SchedulePriority = 'hot' | 'important' | 'normal';
 
@@ -43,9 +51,24 @@ interface Synthesis {
   ai_failed?: boolean;
 }
 
+type ChatMsgKind =
+  | 'coach-text'
+  | 'coach-question'
+  | 'coach-reflection'
+  | 'coach-schedule'
+  | 'coach-error'
+  | 'coach-thinking'
+  | 'user-text';
+
+interface ChatMsg {
+  id: string;
+  kind: ChatMsgKind;
+  content: string;
+  meta?: { qIdx?: number };
+}
+
 const TOTAL = BLUEPRINT_QUESTIONS.length;
 
-// Day chips (Mon-Sat) for the current ISO week
 type DayCode = 'M' | 'T' | 'W' | 'Th' | 'F' | 'Sa';
 const DAY_ORDER: DayCode[] = ['M', 'T', 'W', 'Th', 'F', 'Sa'];
 const DAY_LABEL: Record<DayCode, string> = { M: 'Lu', T: 'Ma', W: 'Mi', Th: 'Jo', F: 'Vi', Sa: 'Sâ' };
@@ -54,7 +77,6 @@ const JS_TO_CODE: Record<number, DayCode | 'Su'> = { 0: 'Su', 1: 'M', 2: 'T', 3:
 function getDefaultDay(): DayCode {
   const now = new Date();
   const todayCode = JS_TO_CODE[now.getDay()];
-  // "Today if before 18:00, otherwise tomorrow" — clamp to Mon-Sat.
   const useToday = now.getHours() < 18 && todayCode !== 'Su';
   if (useToday && (DAY_ORDER as string[]).includes(todayCode)) return todayCode as DayCode;
   const tomorrow = new Date(now);
@@ -64,6 +86,8 @@ function getDefaultDay(): DayCode {
   return 'M';
 }
 
+const uid = () => `m_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
 export const MentalitateStackFlow: React.FC<Props> = ({
   mode,
   deepDiveAxis,
@@ -71,60 +95,81 @@ export const MentalitateStackFlow: React.FC<Props> = ({
   onComplete,
   onSkip,
 }) => {
-  const [stage, setStage] = useState<Stage>('intro');
   const [session, setSession] = useState<MentalitateSession | null>(null);
-  const [qIdx, setQIdx] = useState(1); // 1..14
+  const [starting, setStarting] = useState(false);
+
+  // qIdx 0 = situation; 1..14 questions; TOTAL+1 = schedule; TOTAL+2 = done
+  const [qIdx, setQIdx] = useState<number>(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [currentAnswer, setCurrentAnswer] = useState('');
-  const [reflection, setReflection] = useState<string>('');
-  const [reflecting, setReflecting] = useState(false);
+  const [input, setInput] = useState('');
+
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  // Synthesis result
   const [synthesis, setSynthesis] = useState<Synthesis | null>(null);
   const [scheduleError, setScheduleError] = useState<string | null>(null);
+  const [synthesizing, setSynthesizing] = useState(false);
 
-  // Q0 — situation
-  const [situation, setSituation] = useState('');
-
-  // Schedule panel (Q14 → schedule stage)
+  // Schedule
   const [scheduleTarget, setScheduleTarget] = useState<ScheduleTarget>('door');
   const [scheduleDays, setScheduleDays] = useState<DayCode[]>([getDefaultDay()]);
   const [schedulePriority, setSchedulePriority] = useState<SchedulePriority>('important');
 
-  // Quick-button suggestions
+  // Suggestions
   const [distortionSuggestions, setDistortionSuggestions] = useState<{ label: string; why: string }[]>([]);
   const [loadingDistortions, setLoadingDistortions] = useState(false);
   const distortionsFetchedRef = useRef(false);
   const [answerSuggestions, setAnswerSuggestions] = useState<{ label: string; hint: string }[]>([]);
   const [loadingAnswerSuggestions, setLoadingAnswerSuggestions] = useState(false);
   const answerSuggestionsFetchedRef = useRef<Record<number, boolean>>({});
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const currentQ = getBlueprintQuestion(qIdx, mode === 'deep_dive' ? deepDiveAxis : undefined);
-  const phase = BLUEPRINT_PHASES.find((p) => p.id === currentQ.phase)!;
-  // +1 step for situation, +1 for schedule
-  const progress = ((qIdx - 1) / TOTAL) * 100;
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Build phaseAnswers including situation (as q0/situation) for the AI
-  const phaseAnswersForAI = useMemo(
-    () => ({ ...(situation ? { situation, q0: situation } : {}), ...answers }),
-    [answers, situation]
-  );
+  const phaseAnswersForAI = useMemo(() => {
+    const sit = answers['q0'];
+    return { ...(sit ? { situation: sit, q0: sit } : {}), ...answers };
+  }, [answers]);
 
-  // Autosave debounce for questions
+  // Auto-scroll
   useEffect(() => {
-    if (!session || !currentAnswer || stage !== 'questions') return;
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => {
-      mentalitateStackService.saveAnswer(session.id, qIdx, currentAnswer).catch(() => {});
-    }, 800);
-    return () => {
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    };
-  }, [currentAnswer, qIdx, session, stage]);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, busy, synthesizing, qIdx]);
 
-  // Fetch distortion suggestions when arriving at Q5
+  // Keep focus on textarea
   useEffect(() => {
-    if (stage !== 'questions' || qIdx !== 5 || !session) return;
-    if (distortionsFetchedRef.current) return;
+    if (qIdx <= TOTAL && !synthesizing && !busy) {
+      inputRef.current?.focus();
+    }
+  }, [qIdx, busy, synthesizing]);
+
+  const pushMsg = useCallback((m: Omit<ChatMsg, 'id'>) => {
+    setMessages((prev) => [...prev, { ...m, id: uid() }]);
+  }, []);
+
+  // ============ INIT: post intro message ============
+  useEffect(() => {
+    const introLines: string[] = [];
+    introLines.push(
+      '👋 Bună. Sunt coach-ul tău mental. Vom face împreună o **Reconstrucție** în 5 faze, ~15 întrebări (~10–15 min). La final ai un gând nou realist și o acțiune programată.'
+    );
+    if (mode === 'deep_dive' && deepDiveAxis) {
+      introLines.push(
+        `🎯 **Deep-Dive: ${AXIS_LABELS_RO[deepDiveAxis]?.name ?? deepDiveAxis}** — întrebările vor fi reformulate prin lentila acestei axe.`
+      );
+    }
+    introLines.push('Hai să începem cu **contextul**: descrie pe scurt situația care te-a declanșat.');
+    pushMsg({ kind: 'coach-text', content: introLines.join('\n\n') });
+    // Q0 = situation; placeholder is just open textarea
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ============ Fetch distortion suggestions at Q5 ============
+  useEffect(() => {
+    if (!session || qIdx !== 5 || distortionsFetchedRef.current) return;
     distortionsFetchedRef.current = true;
     setLoadingDistortions(true);
     mentalitateStackService
@@ -138,11 +183,11 @@ export const MentalitateStackFlow: React.FC<Props> = ({
       .then((r) => setDistortionSuggestions(r?.suggestions ?? []))
       .catch(() => setDistortionSuggestions([]))
       .finally(() => setLoadingDistortions(false));
-  }, [stage, qIdx, session, mode, deepDiveAxis, phaseAnswersForAI]);
+  }, [session, qIdx, mode, deepDiveAxis, phaseAnswersForAI]);
 
-  // Fetch generic answer suggestions for the current question (any question except Q5)
+  // ============ Generic answer suggestions per question ============
   useEffect(() => {
-    if (stage !== 'questions' || !session) return;
+    if (!session || qIdx < 1 || qIdx > TOTAL) return;
     if (qIdx === 5) { setAnswerSuggestions([]); return; }
     if (answerSuggestionsFetchedRef.current[qIdx]) return;
     answerSuggestionsFetchedRef.current[qIdx] = true;
@@ -161,44 +206,113 @@ export const MentalitateStackFlow: React.FC<Props> = ({
       .catch(() => setAnswerSuggestions([]))
       .finally(() => setLoadingAnswerSuggestions(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage, qIdx, session]);
+  }, [session, qIdx]);
 
-  const beginSession = async () => {
+  const ensureSession = async (): Promise<MentalitateSession | null> => {
+    if (session) return session;
+    setStarting(true);
     try {
       const s = await mentalitateStackService.startSession(mode, deepDiveAxis, source);
       setSession(s);
-      setStage('situation');
-    } catch (e: any) {
+      return s;
+    } catch (e) {
       console.error(e);
       toast.error('Nu am putut porni sesiunea.');
+      return null;
+    } finally {
+      setStarting(false);
     }
   };
 
-  const submitSituation = async () => {
-    if (!situation.trim()) {
-      toast.error('Scrie pe scurt situația înainte să continui.');
+  const postNextQuestionMsg = (nextIdx: number) => {
+    const q = getBlueprintQuestion(nextIdx, mode === 'deep_dive' ? deepDiveAxis : undefined);
+    const phase = BLUEPRINT_PHASES.find((p) => p.id === q.phase)!;
+    pushMsg({
+      kind: 'coach-question',
+      content: `**Faza ${phase.id} · ${phase.title}** — Întrebarea ${nextIdx}/${TOTAL}\n\n${q.text}\n\n_${q.helper}_`,
+      meta: { qIdx: nextIdx },
+    });
+  };
+
+  const handleSend = async () => {
+    const text = input.trim();
+    if (!text || busy || synthesizing) return;
+
+    // Q0 = situation
+    if (qIdx === 0) {
+      pushMsg({ kind: 'user-text', content: text });
+      setInput('');
+      setBusy(true);
+      const s = await ensureSession();
+      if (!s) { setBusy(false); return; }
+      const next = { ...answers, q0: text };
+      setAnswers(next);
+      try { await mentalitateStackService.saveAnswer(s.id, 0, text); } catch {}
+      pushMsg({ kind: 'coach-text', content: '✅ Înțeles. Hai în **Faza 1**.' });
+      postNextQuestionMsg(1);
+      setQIdx(1);
+      setBusy(false);
       return;
     }
-    if (!session) return;
-    try {
-      await mentalitateStackService.saveAnswer(session.id, 0, situation.trim());
-    } catch {}
-    setStage('questions');
+
+    // Q1..TOTAL
+    if (qIdx >= 1 && qIdx <= TOTAL) {
+      pushMsg({ kind: 'user-text', content: text });
+      setInput('');
+      setBusy(true);
+      const newAnswers = { ...answers, [`q${qIdx}`]: text };
+      setAnswers(newAnswers);
+      try {
+        if (session) await mentalitateStackService.saveAnswer(session.id, qIdx, text);
+      } catch {}
+
+      if (qIdx >= TOTAL) {
+        // Move to schedule
+        pushMsg({
+          kind: 'coach-schedule',
+          content: text, // draft action (q14) for display
+        });
+        setQIdx(TOTAL + 1);
+        setBusy(false);
+        return;
+      }
+
+      // Get reflection
+      try {
+        const r = await mentalitateStackService.callCoach({
+          step: 'reflect',
+          sessionId: session!.id,
+          mode,
+          deepDiveAxis,
+          phaseAnswers: { ...(newAnswers.q0 ? { situation: newAnswers.q0, q0: newAnswers.q0 } : {}), ...newAnswers },
+          currentQuestionIndex: qIdx,
+        });
+        if (r?.reflection) {
+          pushMsg({ kind: 'coach-reflection', content: r.reflection });
+        }
+      } catch {
+        // silent
+      }
+      postNextQuestionMsg(qIdx + 1);
+      setQIdx(qIdx + 1);
+      setBusy(false);
+    }
   };
 
-  const runFinalize = async (currentAnswers: Record<string, string>) => {
+  const runFinalize = async () => {
     if (!session) return;
-    setStage('synthesizing');
+    setSynthesizing(true);
+    setScheduleError(null);
+    pushMsg({ kind: 'coach-thinking', content: 'Procesez blueprint-ul tău...' });
     try {
-      const result = await mentalitateStackService.callCoach({
+      const result: Synthesis = await mentalitateStackService.callCoach({
         step: 'finalize',
         sessionId: session.id,
         mode,
         deepDiveAxis,
-        phaseAnswers: { ...(situation ? { situation, q0: situation } : {}), ...currentAnswers },
+        phaseAnswers: phaseAnswersForAI,
       });
       setSynthesis(result);
-      // Persist + schedule
       const schedule = scheduleTarget === 'none'
         ? { target: 'none' as const }
         : scheduleTarget === 'door'
@@ -210,606 +324,517 @@ export const MentalitateStackFlow: React.FC<Props> = ({
         { schedule }
       );
       setScheduleError(schedErr ?? null);
-      if (schedErr) toast.error(`Acțiunea nu a fost salvată: ${schedErr}`);
-      setStage('done');
+      if (schedErr) {
+        toast.error(`Acțiunea nu a fost salvată: ${schedErr}`);
+      } else {
+        toast.success('Sesiunea a fost salvată în istoric.');
+      }
+      // Remove the "thinking" message
+      setMessages((prev) => prev.filter((m) => m.kind !== 'coach-thinking'));
+      pushMsg({ kind: 'coach-text', content: '✨ Gata. Sinteza ta e mai jos.' });
+      setQIdx(TOTAL + 2);
       onComplete?.(saved);
     } catch (e: any) {
       console.error(e);
       const msg = e?.message;
-      if (msg === 'credits_exhausted') {
-        toast.error('Credite AI epuizate. Adaugă credite din Settings → Workspace → Usage.');
-      } else if (msg === 'rate_limit') {
-        toast.error('Limită atinsă. Așteaptă puțin și reîncearcă.');
-      } else {
-        toast.error('Nu am putut finaliza sinteza. Reîncearcă.');
-      }
-      setStage('schedule');
-    }
-  };
-
-  const handleNext = async () => {
-    if (!currentAnswer.trim()) {
-      toast.error('Răspunde scurt înainte să continui.');
-      return;
-    }
-    if (!session) return;
-    const newAnswers = { ...answers, [`q${qIdx}`]: currentAnswer.trim() };
-    setAnswers(newAnswers);
-    try {
-      await mentalitateStackService.saveAnswer(session.id, qIdx, currentAnswer.trim());
-    } catch {}
-
-    if (qIdx >= TOTAL) {
-      // Move to scheduling stage instead of finalizing immediately
-      setStage('schedule');
-      return;
-    }
-
-    // Get reflection for the answer just given
-    setReflecting(true);
-    setReflection('');
-    try {
-      const r = await mentalitateStackService.callCoach({
-        step: 'reflect',
-        sessionId: session.id,
-        mode,
-        deepDiveAxis,
-        phaseAnswers: { ...(situation ? { situation, q0: situation } : {}), ...newAnswers },
-        currentQuestionIndex: qIdx,
-      });
-      setReflection(r?.reflection ?? '');
-    } catch (e) {
-      // silent — reflection is optional
+      setMessages((prev) => prev.filter((m) => m.kind !== 'coach-thinking'));
+      let errText = 'Nu am putut finaliza sinteza. Reîncearcă.';
+      if (msg === 'credits_exhausted') errText = 'Credite AI epuizate. Adaugă credite din Settings → Workspace → Usage.';
+      else if (msg === 'rate_limit') errText = 'Limită atinsă. Așteaptă puțin și reîncearcă.';
+      pushMsg({ kind: 'coach-error', content: errText });
+      toast.error(errText);
     } finally {
-      setReflecting(false);
+      setSynthesizing(false);
     }
-
-    setQIdx(qIdx + 1);
-    setCurrentAnswer('');
-  };
-
-  const handleBack = () => {
-    if (qIdx <= 1) {
-      // Back to situation
-      setStage('situation');
-      return;
-    }
-    const prevIdx = qIdx - 1;
-    setQIdx(prevIdx);
-    setCurrentAnswer(answers[`q${prevIdx}`] ?? '');
-    setReflection('');
   };
 
   const toggleDay = (d: DayCode) => {
     setScheduleDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]);
   };
 
-  // ============ INTRO ============
-  if (stage === 'intro') {
-    return (
-      <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5">
-        <CardContent className="p-6 space-y-5">
-          <div className="flex items-start gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-violet-500/15 flex items-center justify-center shrink-0">
-              <Brain className="w-6 h-6 text-violet-500" />
-            </div>
-            <div className="space-y-1">
-              <h2 className="text-xl font-bold">Reconstrucția Mentală</h2>
-              <p className="text-sm text-muted-foreground">
-                Blueprint Mental în 5 faze, 14 întrebări. ~10-15 min. Termini cu un gând nou
-                realist și o acțiune concretă pe care o programezi în calendar.
-              </p>
-              {mode === 'deep_dive' && deepDiveAxis && (
-                <Badge variant="outline" className="mt-2 border-violet-500/40 text-violet-600 dark:text-violet-400">
-                  Deep-Dive: {AXIS_LABELS_RO[deepDiveAxis]?.name ?? deepDiveAxis}
-                </Badge>
-              )}
+  // ============ Render helpers ============
+
+  const CoachAvatar = () => (
+    <div className="w-8 h-8 rounded-full bg-violet-500/15 flex items-center justify-center shrink-0">
+      <Brain className="w-4 h-4 text-violet-500" />
+    </div>
+  );
+  const UserAvatar = () => (
+    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+      <UserIcon className="w-4 h-4 text-primary-foreground" />
+    </div>
+  );
+
+  const renderMessage = (m: ChatMsg) => {
+    if (m.kind === 'user-text') {
+      return (
+        <div key={m.id} className="flex gap-2 justify-end">
+          <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-primary text-primary-foreground px-3.5 py-2 text-sm whitespace-pre-wrap leading-relaxed">
+            {m.content}
+          </div>
+          <UserAvatar />
+        </div>
+      );
+    }
+
+    if (m.kind === 'coach-thinking') {
+      return (
+        <div key={m.id} className="flex gap-2">
+          <CoachAvatar />
+          <div className="rounded-2xl rounded-tl-sm bg-violet-500/5 border border-violet-500/20 px-3.5 py-2.5">
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-violet-500/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-2 h-2 rounded-full bg-violet-500/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-2 h-2 rounded-full bg-violet-500/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+              <span className="text-[11px] text-muted-foreground ml-2">{m.content}</span>
             </div>
           </div>
+        </div>
+      );
+    }
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
-            {BLUEPRINT_PHASES.map((p) => (
-              <div
-                key={p.id}
-                className="rounded-lg border border-border/50 bg-background/50 p-3 space-y-1"
-              >
-                <div className="text-[10px] font-mono text-muted-foreground">FAZA {p.id}</div>
-                <div className="text-sm font-semibold">{p.title}</div>
-                <div className="text-[11px] text-muted-foreground leading-snug">{p.subtitle}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex gap-2 pt-2">
-            {onSkip && (
-              <Button variant="outline" onClick={onSkip} className="flex-1">
-                Skip pentru azi
-              </Button>
-            )}
-            <Button
-              onClick={beginSession}
-              className="flex-[2] bg-violet-500 hover:bg-violet-600 text-white"
-            >
-              Începe sesiunea <ChevronRight className="w-4 h-4 ml-1" />
+    if (m.kind === 'coach-error') {
+      return (
+        <div key={m.id} className="flex gap-2">
+          <CoachAvatar />
+          <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-rose-500/5 border border-rose-500/30 px-3.5 py-2.5 space-y-2">
+            <div className="flex items-start gap-2 text-sm">
+              <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+              <p className="leading-relaxed">{m.content}</p>
+            </div>
+            <Button size="sm" variant="outline" onClick={runFinalize} className="h-7 text-xs">
+              <RefreshCw className="w-3 h-3 mr-1" /> Reîncearcă sinteza
             </Button>
           </div>
-        </CardContent>
-      </Card>
-    );
-  }
+        </div>
+      );
+    }
 
-  // ============ SITUATION (Q0) ============
-  if (stage === 'situation') {
-    return (
-      <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5">
-        <CardContent className="p-5 space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-violet-500/15 flex items-center justify-center">
-              <Brain className="w-5 h-5 text-violet-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-sm">Reconstrucția Mentală</h3>
-              <p className="text-[11px] text-muted-foreground">Pasul 0 · Contextul situației</p>
-              {mode === 'deep_dive' && deepDiveAxis && (
-                <Badge variant="outline" className="mt-1 text-[10px] border-violet-500/40 text-violet-600 dark:text-violet-400">
-                  Deep-Dive: {AXIS_LABELS_RO[deepDiveAxis]?.name ?? deepDiveAxis}
-                </Badge>
-              )}
-            </div>
-          </div>
-          <Progress value={0} className="h-1.5" indicatorClassName="bg-violet-500" />
-
-          <div className="space-y-1">
-            <h4 className="text-base font-semibold leading-snug">
-              Descrie pe scurt situația care te-a declanșat
-            </h4>
-            <p className="text-xs text-muted-foreground italic">
-              Povestește liber ce s-a întâmplat — orice context care te ajută să intri în problemă.
-              Coach-ul folosește asta ca să facă întrebările și sugestiile relevante pentru tine.
+    if (m.kind === 'coach-schedule') {
+      const draftAction = m.content;
+      return (
+        <div key={m.id} className="flex gap-2">
+          <CoachAvatar />
+          <div className="max-w-[90%] w-full rounded-2xl rounded-tl-sm bg-violet-500/5 border border-violet-500/20 px-4 py-3 space-y-3">
+            <p className="text-sm leading-relaxed">
+              Bun. Acțiunea ta este:
             </p>
-          </div>
+            {draftAction && (
+              <div className="rounded-lg border border-border/60 bg-background/60 p-2.5 text-sm font-medium">
+                {draftAction}
+              </div>
+            )}
+            <p className="text-sm leading-relaxed">**Unde o salvez?**</p>
 
-          <Textarea
-            value={situation}
-            onChange={(e) => setSituation(e.target.value)}
-            placeholder="ex: „Clientul X nu mi-a răspuns la propunere de 3 zile, iar azi am văzut că a postat pe LinkedIn ceva care mă face să cred că lucrează cu altcineva..."
-            className="min-h-[140px] text-sm"
-            autoFocus
-          />
-
-          <div className="flex gap-2 pt-1">
-            <Button variant="outline" onClick={() => setStage('intro')} size="sm">
-              <ArrowLeft className="w-3 h-3 mr-1" /> Înapoi
-            </Button>
-            <Button
-              onClick={submitSituation}
-              disabled={!situation.trim()}
-              className="flex-1 bg-violet-500 hover:bg-violet-600 text-white"
-            >
-              Continuă către Faza 1 <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // ============ SCHEDULE PANEL (after Q14, before AI synth) ============
-  if (stage === 'schedule') {
-    const draftAction = answers['q14'] ?? '';
-    return (
-      <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5">
-        <CardContent className="p-5 space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-              <Target className="w-5 h-5 text-emerald-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-sm">Programează acțiunea</h3>
-              <p className="text-[11px] text-muted-foreground">Pasul final · Unde și când execuți</p>
-            </div>
-          </div>
-
-          {draftAction && (
-            <div className="rounded-lg border border-border/50 bg-background/40 p-3 text-sm">
-              <div className="text-[10px] font-mono uppercase text-muted-foreground mb-1">Acțiunea ta (Q14)</div>
-              <div className="font-medium">{draftAction}</div>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <div className="text-xs font-semibold uppercase text-muted-foreground">Unde salvez?</div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {([
                 { id: 'door', label: 'Domino Door', sub: 'Task săptămâna asta' },
                 { id: 'ideas', label: 'Ideas Bank', sub: 'Idee pentru mai târziu' },
-                { id: 'none', label: 'Nu salva', sub: 'Doar pentru reflecție' },
+                { id: 'none', label: 'Nu salva', sub: 'Doar reflecție' },
               ] as { id: ScheduleTarget; label: string; sub: string }[]).map((opt) => (
                 <button
                   key={opt.id}
                   type="button"
                   onClick={() => setScheduleTarget(opt.id)}
+                  disabled={synthesizing}
                   className={cn(
-                    'rounded-lg border px-3 py-2.5 text-left transition-colors',
+                    'rounded-lg border px-3 py-2 text-left transition-colors',
                     scheduleTarget === opt.id
                       ? 'border-violet-500/70 bg-violet-500/15'
                       : 'border-border/60 bg-background/40 hover:border-violet-500/40'
                   )}
                 >
-                  <div className="text-sm font-semibold">{opt.label}</div>
-                  <div className="text-[11px] text-muted-foreground">{opt.sub}</div>
+                  <div className="text-xs font-semibold">{opt.label}</div>
+                  <div className="text-[10px] text-muted-foreground">{opt.sub}</div>
                 </button>
               ))}
             </div>
-          </div>
 
-          {scheduleTarget === 'door' && (
-            <>
-              <div className="space-y-2">
-                <div className="text-xs font-semibold uppercase text-muted-foreground">
-                  Pe ce zile o pun în calendar?
+            {scheduleTarget === 'door' && (
+              <>
+                <div className="space-y-1.5">
+                  <div className="text-[10px] font-mono uppercase text-muted-foreground">Pe ce zile?</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {DAY_ORDER.map((d) => {
+                      const selected = scheduleDays.includes(d);
+                      return (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => toggleDay(d)}
+                          disabled={synthesizing}
+                          className={cn(
+                            'rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors',
+                            selected
+                              ? 'border-violet-500/70 bg-violet-500 text-white'
+                              : 'border-border/60 bg-background/40 hover:border-violet-500/40'
+                          )}
+                        >
+                          {DAY_LABEL[d]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground italic">
+                    Default: azi dacă e înainte de 18:00, altfel mâine.
+                  </p>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {DAY_ORDER.map((d) => {
-                    const selected = scheduleDays.includes(d);
-                    return (
+
+                <div className="space-y-1.5">
+                  <div className="text-[10px] font-mono uppercase text-muted-foreground">Prioritate</div>
+                  <div className="flex gap-1.5">
+                    {(['hot', 'important', 'normal'] as SchedulePriority[]).map((p) => (
                       <button
-                        key={d}
+                        key={p}
                         type="button"
-                        onClick={() => toggleDay(d)}
+                        onClick={() => setSchedulePriority(p)}
+                        disabled={synthesizing}
                         className={cn(
-                          'rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors',
-                          selected
-                            ? 'border-violet-500/70 bg-violet-500 text-white'
+                          'rounded-md border px-2.5 py-1 text-xs font-semibold capitalize transition-colors',
+                          schedulePriority === p
+                            ? 'border-violet-500/70 bg-violet-500/15'
                             : 'border-border/60 bg-background/40 hover:border-violet-500/40'
                         )}
                       >
-                        {DAY_LABEL[d]}
+                        {p === 'hot' ? '🔥 Hot' : p === 'important' ? '⭐ Important' : '· Normal'}
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
-                <p className="text-[11px] text-muted-foreground italic">
-                  Default: azi dacă e înainte de 18:00, altfel mâine. Poți alege mai multe zile.
+              </>
+            )}
+
+            <Button
+              onClick={runFinalize}
+              disabled={synthesizing || (scheduleTarget === 'door' && scheduleDays.length === 0)}
+              className="w-full bg-violet-500 hover:bg-violet-600 text-white"
+              size="sm"
+            >
+              {synthesizing ? (
+                <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Procesez...</>
+              ) : (
+                <>Generează sinteza <Sparkles className="w-4 h-4 ml-1" /></>
+              )}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // coach-text, coach-question, coach-reflection
+    const isReflection = m.kind === 'coach-reflection';
+    return (
+      <div key={m.id} className="flex gap-2">
+        <CoachAvatar />
+        <div className={cn(
+          'max-w-[85%] rounded-2xl rounded-tl-sm px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap',
+          isReflection
+            ? 'bg-violet-500/10 border border-violet-500/25'
+            : 'bg-muted/60'
+        )}>
+          {isReflection && (
+            <div className="flex items-center gap-1 text-[10px] font-mono uppercase text-violet-600 dark:text-violet-400 mb-1">
+              <Sparkles className="w-3 h-3" /> Reflecție
+            </div>
+          )}
+          {renderMarkdownLite(m.content)}
+        </div>
+      </div>
+    );
+  };
+
+  // very small **bold** + _italic_ + paragraphs
+  const renderMarkdownLite = (text: string) => {
+    const parts = text.split('\n\n');
+    return parts.map((p, i) => (
+      <p key={i} className={i > 0 ? 'mt-2' : ''}>
+        {p.split(/(\*\*[^*]+\*\*|_[^_]+_)/g).map((seg, j) => {
+          if (seg.startsWith('**') && seg.endsWith('**')) {
+            return <strong key={j}>{seg.slice(2, -2)}</strong>;
+          }
+          if (seg.startsWith('_') && seg.endsWith('_')) {
+            return <em key={j} className="text-muted-foreground">{seg.slice(1, -1)}</em>;
+          }
+          return <React.Fragment key={j}>{seg}</React.Fragment>;
+        })}
+      </p>
+    ));
+  };
+
+  // ============ Composer placeholder per stage ============
+  const composerPlaceholder = (() => {
+    if (qIdx === 0) return 'Povestește pe scurt situația care te-a declanșat...';
+    if (qIdx >= 1 && qIdx <= TOTAL) {
+      const q = getBlueprintQuestion(qIdx, mode === 'deep_dive' ? deepDiveAxis : undefined);
+      return q.placeholder || 'Scrie răspunsul tău...';
+    }
+    return '';
+  })();
+
+  const composerDisabled = busy || synthesizing || qIdx > TOTAL;
+
+  // Suggestions to show above composer for current qIdx
+  const showDistortions = qIdx === 5 && (loadingDistortions || distortionSuggestions.length > 0);
+  const showAnswerSugg = qIdx >= 1 && qIdx <= TOTAL && qIdx !== 5 && (loadingAnswerSuggestions || answerSuggestions.length > 0);
+
+  const progress = qIdx === 0 ? 0 : qIdx > TOTAL ? 100 : ((qIdx - 1) / TOTAL) * 100;
+
+  return (
+    <div className="space-y-3">
+      {/* Sticky header */}
+      <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5">
+        <CardContent className="p-3 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-violet-500/15 flex items-center justify-center shrink-0">
+                <Brain className="w-5 h-5 text-violet-500" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-semibold text-sm truncate">Reconstrucția Mentală</h3>
+                <p className="text-[11px] text-muted-foreground truncate">
+                  {qIdx === 0 && 'Pasul 0 · Context'}
+                  {qIdx >= 1 && qIdx <= TOTAL && (() => {
+                    const q = getBlueprintQuestion(qIdx, mode === 'deep_dive' ? deepDiveAxis : undefined);
+                    const phase = BLUEPRINT_PHASES.find((p) => p.id === q.phase)!;
+                    return `Faza ${phase.id} · ${phase.title} — ${qIdx}/${TOTAL}`;
+                  })()}
+                  {qIdx === TOTAL + 1 && 'Programare acțiune'}
+                  {qIdx === TOTAL + 2 && 'Finalizat'}
                 </p>
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {mode === 'deep_dive' && deepDiveAxis && (
+                <Badge variant="outline" className="text-[10px] border-violet-500/40 text-violet-600 dark:text-violet-400">
+                  <Sparkles className="w-2.5 h-2.5 mr-1" />
+                  {AXIS_LABELS_RO[deepDiveAxis]?.name ?? deepDiveAxis}
+                </Badge>
+              )}
+              {onSkip && qIdx < TOTAL + 1 && (
+                <Button size="sm" variant="ghost" onClick={onSkip}>Skip</Button>
+              )}
+            </div>
+          </div>
+          <div className="h-1 rounded-full bg-violet-500/10 overflow-hidden">
+            <div
+              className="h-full bg-violet-500 transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
+      {/* Chat transcript */}
+      <Card className="border-border/60">
+        <CardContent className="p-0">
+          <div
+            ref={scrollRef}
+            className="px-3 py-4 space-y-3 overflow-y-auto"
+            style={{ minHeight: '380px', maxHeight: '60vh' }}
+          >
+            <AnimatePresence initial={false}>
+              {messages.map((m) => (
+                <motion.div
+                  key={m.id}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  {renderMessage(m)}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {busy && (
+              <div className="flex gap-2">
+                <CoachAvatar />
+                <div className="rounded-2xl rounded-tl-sm bg-muted/60 px-3.5 py-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-1.5 h-1.5 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Suggestions strip */}
+          {(showDistortions || showAnswerSugg) && (
+            <div className="px-3 pb-2 border-t border-border/40 pt-2 space-y-2">
+              {showDistortions && (
+                <>
+                  <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-violet-600 dark:text-violet-400">
+                    <Sparkles className="w-3 h-3" />
+                    {loadingDistortions ? 'Coach-ul analizează...' : 'Sugestii distorsiuni probabile'}
+                  </div>
+                  {loadingDistortions ? (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Se identifică...
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {distortionSuggestions.map((s, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setInput((prev) => prev ? `${prev}${prev.endsWith(' ') ? '' : ' '}+ ${s.label}` : s.label)}
+                          className="text-left rounded-md border border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/15 hover:border-violet-500/60 transition-colors px-2.5 py-1.5 text-xs max-w-[260px]"
+                          title={s.why}
+                        >
+                          <div className="font-semibold">{s.label}</div>
+                          <div className="text-[10px] text-muted-foreground leading-snug">{s.why}</div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+              {showAnswerSugg && (
+                <>
+                  <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase text-violet-600 dark:text-violet-400">
+                    <Sparkles className="w-3 h-3" />
+                    {loadingAnswerSuggestions ? 'Coach-ul pregătește sugestii...' : 'Sugestii rapide'}
+                  </div>
+                  {loadingAnswerSuggestions ? (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Se generează...
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {answerSuggestions.map((s, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setInput(s.label)}
+                          className="text-left rounded-md border border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/15 hover:border-violet-500/60 transition-colors px-2.5 py-1.5 text-xs max-w-[260px]"
+                          title={s.hint}
+                        >
+                          <div className="font-medium">{s.label}</div>
+                          {s.hint && <div className="text-[10px] text-muted-foreground leading-snug">{s.hint}</div>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Composer */}
+          <div className="p-3 border-t border-border bg-background/40">
+            <div className="flex gap-2 items-end">
+              <Textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                placeholder={composerDisabled ? (qIdx > TOTAL ? 'Folosește butoanele de mai sus.' : 'Așteaptă...') : composerPlaceholder}
+                disabled={composerDisabled}
+                className="min-h-[52px] max-h-[160px] text-sm resize-none flex-1"
+              />
+              <Button
+                onClick={handleSend}
+                disabled={composerDisabled || !input.trim() || starting}
+                size="icon"
+                className="bg-violet-500 hover:bg-violet-600 text-white h-[52px] w-[52px] shrink-0"
+              >
+                {busy || starting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1.5 px-1">
+              Enter = trimite · Shift+Enter = linie nouă
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Synthesis card (shown after completion) */}
+      {synthesis && qIdx === TOTAL + 2 && (
+        <Card className="border-emerald-500/40 bg-gradient-to-br from-emerald-500/5 to-violet-500/5">
+          <CardContent className="p-5 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold">Reconstrucție finalizată ✨</h2>
+                <p className="text-xs text-muted-foreground">
+                  Distorsiune: <span className="font-medium text-foreground">{synthesis.distortion_detected}</span>
+                </p>
+              </div>
+            </div>
+
+            {synthesis.ai_failed && (
+              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-2">
+                  <p className="text-xs leading-relaxed">
+                    AI-ul nu a putut genera sinteza. Am folosit fallback. Poți reîncerca.
+                  </p>
+                  <Button size="sm" variant="outline" onClick={runFinalize} className="h-7 text-xs">
+                    <RefreshCw className="w-3 h-3 mr-1" /> Reîncearcă sinteza AI
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4 space-y-1.5">
+              <div className="text-[10px] font-mono uppercase text-violet-600 dark:text-violet-400">Gândul nou — realist</div>
+              <p className="text-sm leading-relaxed">{synthesis.reframe}</p>
+            </div>
+
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-1.5">
+              <div className="flex items-center gap-2 text-[10px] font-mono uppercase text-emerald-600 dark:text-emerald-400">
+                <Target className="w-3 h-3" /> Acțiunea programată
+              </div>
+              <p className="text-sm font-semibold leading-relaxed">{synthesis.action}</p>
+              {scheduleError ? (
+                <p className="text-xs text-rose-500">⚠ {scheduleError}</p>
+              ) : scheduleTarget === 'door' ? (
+                <p className="text-xs text-muted-foreground">
+                  ✓ Adăugat în Domino Door · {scheduleDays.map((d) => DAY_LABEL[d]).join(', ')} · prioritate {schedulePriority}
+                </p>
+              ) : scheduleTarget === 'ideas' ? (
+                <p className="text-xs text-muted-foreground">✓ Salvat în Ideas Bank</p>
+              ) : (
+                <p className="text-xs text-muted-foreground">Doar reflecție.</p>
+              )}
+            </div>
+
+            {synthesis.pattern_summary && (
+              <div className="rounded-lg bg-muted/30 p-3 text-sm">
+                <span className="font-semibold">Pattern:</span> {synthesis.pattern_summary}
+              </div>
+            )}
+
+            {synthesis.axes_impacted?.length > 0 && (
               <div className="space-y-2">
-                <div className="text-xs font-semibold uppercase text-muted-foreground">Prioritate</div>
-                <div className="flex gap-1.5">
-                  {(['hot', 'important', 'normal'] as SchedulePriority[]).map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => setSchedulePriority(p)}
-                      className={cn(
-                        'rounded-lg border px-3 py-1.5 text-xs font-semibold capitalize transition-colors',
-                        schedulePriority === p
-                          ? 'border-violet-500/70 bg-violet-500/15'
-                          : 'border-border/60 bg-background/40 hover:border-violet-500/40'
-                      )}
-                    >
-                      {p === 'hot' ? '🔥 Hot' : p === 'important' ? '⭐ Important' : '· Normal'}
-                    </button>
+                <div className="text-xs text-muted-foreground">Axe afectate:</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {synthesis.axes_impacted.map((a) => (
+                    <Badge key={a} variant="outline" className="border-violet-500/40">
+                      {AXIS_LABELS_RO[a]?.name ?? a}
+                    </Badge>
                   ))}
                 </div>
               </div>
-            </>
-          )}
+            )}
 
-          <div className="flex gap-2 pt-1">
-            <Button variant="outline" size="sm" onClick={() => { setStage('questions'); setQIdx(TOTAL); setCurrentAnswer(answers[`q${TOTAL}`] ?? ''); }}>
-              <ArrowLeft className="w-3 h-3 mr-1" /> Înapoi la Q14
-            </Button>
             <Button
-              onClick={() => runFinalize(answers)}
-              disabled={scheduleTarget === 'door' && scheduleDays.length === 0}
-              className="flex-1 bg-violet-500 hover:bg-violet-600 text-white"
+              onClick={() => onComplete?.(session!)}
+              className="w-full bg-violet-500 hover:bg-violet-600 text-white"
             >
-              Finalizează sinteza <Sparkles className="w-4 h-4 ml-1" />
+              Continuă
             </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // ============ SYNTHESIZING ============
-  if (stage === 'synthesizing') {
-    return (
-      <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5">
-        <CardContent className="p-8 flex flex-col items-center justify-center gap-3 min-h-[300px]">
-          <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
-          <p className="text-sm text-muted-foreground">Coach-ul procesează blueprint-ul tău...</p>
-          <p className="text-xs text-muted-foreground">Identificăm pattern-ul, distorsiunea și acțiunea.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // ============ DONE ============
-  if (stage === 'done' && synthesis) {
-    const dayLabels = scheduleDays.map((d) => DAY_LABEL[d]).join(', ');
-    return (
-      <Card className="border-emerald-500/40 bg-gradient-to-br from-emerald-500/5 to-violet-500/5">
-        <CardContent className="p-6 space-y-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center">
-              <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">Reconstrucție finalizată ✨</h2>
-              <p className="text-xs text-muted-foreground">
-                Distorsiune: <span className="font-medium text-foreground">{synthesis.distortion_detected}</span>
-              </p>
-            </div>
-          </div>
-
-          {synthesis.ai_failed && (
-            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <div className="flex-1 space-y-2">
-                <p className="text-xs leading-relaxed">
-                  AI-ul nu a putut genera sinteza. Am folosit răspunsurile tale (Q13 + Q14) ca punct
-                  de plecare. Poți reîncerca sinteza AI sau o lași așa.
-                </p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => runFinalize(answers)}
-                  className="h-7 text-xs"
-                >
-                  <RefreshCw className="w-3 h-3 mr-1" /> Reîncearcă sinteza AI
-                </Button>
-              </div>
-            </div>
-          )}
-
-          <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4 space-y-2">
-            <div className="text-[10px] font-mono uppercase text-violet-600 dark:text-violet-400">Gândul nou — realist</div>
-            <p className="text-base leading-relaxed">{synthesis.reframe}</p>
-          </div>
-
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-2">
-            <div className="flex items-center gap-2 text-[10px] font-mono uppercase text-emerald-600 dark:text-emerald-400">
-              <Target className="w-3 h-3" /> Acțiunea programată
-            </div>
-            <p className="text-base font-semibold leading-relaxed">{synthesis.action}</p>
-            {scheduleError ? (
-              <p className="text-xs text-rose-500">⚠ {scheduleError}</p>
-            ) : scheduleTarget === 'door' ? (
-              <p className="text-xs text-muted-foreground">
-                ✓ Adăugat în Domino Door · {dayLabels} · prioritate {schedulePriority}
-              </p>
-            ) : scheduleTarget === 'ideas' ? (
-              <p className="text-xs text-muted-foreground">✓ Salvat în Ideas Bank</p>
-            ) : (
-              <p className="text-xs text-muted-foreground">Doar reflecție — nu a fost programată.</p>
-            )}
-          </div>
-
-          {synthesis.pattern_summary && (
-            <div className="rounded-lg bg-muted/30 p-3 text-sm">
-              <span className="font-semibold">Pattern:</span> {synthesis.pattern_summary}
-            </div>
-          )}
-
-          {synthesis.axes_impacted?.length > 0 && (
-            <div className="space-y-2">
-              <div className="text-xs text-muted-foreground">Axe afectate:</div>
-              <div className="flex flex-wrap gap-1.5">
-                {synthesis.axes_impacted.map((a) => (
-                  <Badge key={a} variant="outline" className="border-violet-500/40">
-                    {AXIS_LABELS_RO[a]?.name ?? a}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <Button
-            onClick={() => onComplete?.(session!)}
-            className="w-full bg-violet-500 hover:bg-violet-600 text-white"
-          >
-            Continuă
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // ============ QUESTIONS ============
-  return (
-    <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5">
-      <CardContent className="p-5 space-y-4">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-violet-500/15 flex items-center justify-center">
-              <Brain className="w-5 h-5 text-violet-500" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-sm">Reconstrucția Mentală</h3>
-              <p className="text-[11px] text-muted-foreground">
-                Faza {phase.id} · {phase.title} — Întrebarea {qIdx}/{TOTAL}
-              </p>
-            </div>
-          </div>
-          {onSkip && (
-            <Button size="sm" variant="ghost" onClick={onSkip}>Skip</Button>
-          )}
-        </div>
-
-        <Progress value={progress} className="h-1.5" indicatorClassName="bg-violet-500" />
-
-        {mode === 'deep_dive' && deepDiveAxis && (
-          <div className="rounded-lg border border-violet-500/40 bg-violet-500/10 px-3 py-2 flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-violet-500 shrink-0" />
-            <p className="text-[11px] leading-snug">
-              <span className="font-semibold text-violet-700 dark:text-violet-300">
-                Deep-Dive · {AXIS_LABELS_RO[deepDiveAxis]?.name ?? deepDiveAxis}
-              </span>
-              <span className="text-muted-foreground"> — întrebările sunt reformulate prin lentila acestei axe ({AXIS_LABELS_RO[deepDiveAxis]?.reframe}).</span>
-            </p>
-          </div>
-        )}
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={qIdx}
-            initial={{ opacity: 0, x: 12 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -12 }}
-            transition={{ duration: 0.2 }}
-            className="space-y-3"
-          >
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-[10px] border-violet-500/40">
-                  Faza {phase.id}: {phase.title}
-                </Badge>
-              </div>
-              <h4 className="text-base font-semibold leading-snug pt-1">
-                {currentQ.text}
-              </h4>
-              <p className="text-xs text-muted-foreground italic">{currentQ.helper}</p>
-            </div>
-
-            {currentQ.type === 'number' ? (
-              <input
-                type="number"
-                min={0}
-                max={10}
-                value={currentAnswer}
-                onChange={(e) => setCurrentAnswer(e.target.value)}
-                placeholder={currentQ.placeholder}
-                className="w-full bg-background border border-border rounded-md px-3 py-3 text-lg font-semibold text-center"
-                autoFocus
-              />
-            ) : (
-              <Textarea
-                value={currentAnswer}
-                onChange={(e) => setCurrentAnswer(e.target.value)}
-                placeholder={currentQ.placeholder}
-                className="min-h-[110px] text-sm"
-                autoFocus
-              />
-            )}
-
-            {/* Q5: AI-suggested distortion quick-buttons */}
-            {qIdx === 5 && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-[11px] font-mono uppercase text-violet-600 dark:text-violet-400">
-                  <Sparkles className="w-3 h-3" />
-                  {loadingDistortions ? 'Coach-ul analizează ce pare a fi...' : 'Sugestii pe baza răspunsurilor tale'}
-                </div>
-                {loadingDistortions && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Loader2 className="w-3 h-3 animate-spin" /> Se identifică distorsiunile probabile...
-                  </div>
-                )}
-                {!loadingDistortions && distortionSuggestions.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {distortionSuggestions.map((s, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => setCurrentAnswer(currentAnswer ? `${currentAnswer}${currentAnswer.endsWith(' ') ? '' : ' '}+ ${s.label}` : s.label)}
-                        className={cn(
-                          'text-left rounded-lg border border-violet-500/30 bg-violet-500/5',
-                          'hover:bg-violet-500/15 hover:border-violet-500/60 transition-colors',
-                          'px-3 py-2 text-xs max-w-full'
-                        )}
-                        title={s.why}
-                      >
-                        <div className="font-semibold text-foreground">{s.label}</div>
-                        <div className="text-[11px] text-muted-foreground leading-snug mt-0.5">{s.why}</div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Generic answer suggestions (any question except Q5) */}
-            {qIdx !== 5 && (loadingAnswerSuggestions || answerSuggestions.length > 0) && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-[11px] font-mono uppercase text-violet-600 dark:text-violet-400">
-                  <Sparkles className="w-3 h-3" />
-                  {loadingAnswerSuggestions ? 'Coach-ul pregătește sugestii…' : 'Sugestii rapide bazate pe context'}
-                </div>
-                {loadingAnswerSuggestions && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Loader2 className="w-3 h-3 animate-spin" /> Se generează exemple personalizate…
-                  </div>
-                )}
-                {!loadingAnswerSuggestions && answerSuggestions.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {answerSuggestions.map((s, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => setCurrentAnswer(s.label)}
-                        className={cn(
-                          'text-left rounded-lg border border-violet-500/30 bg-violet-500/5',
-                          'hover:bg-violet-500/15 hover:border-violet-500/60 transition-colors',
-                          'px-3 py-2 text-xs max-w-full'
-                        )}
-                        title={s.hint}
-                      >
-                        <div className="font-medium text-foreground leading-snug">{s.label}</div>
-                        {s.hint && (
-                          <div className="text-[11px] text-muted-foreground leading-snug mt-0.5">{s.hint}</div>
-                        )}
-                      </button>
-                    ))}
-                    <p className="w-full text-[10px] text-muted-foreground italic">
-                      Apasă o sugestie ca să o folosești ca punct de start — apoi editează în text.
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {reflection && qIdx > 1 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex gap-2 rounded-lg bg-violet-500/10 border border-violet-500/20 p-3"
-              >
-                <Sparkles className="w-4 h-4 text-violet-500 shrink-0 mt-0.5" />
-                <p className="text-xs leading-relaxed">{reflection}</p>
-              </motion.div>
-            )}
-            {reflecting && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Loader2 className="w-3 h-3 animate-spin" /> Coach-ul reflectează...
-              </div>
-            )}
-
-            <div className="flex gap-2 pt-1">
-              <Button
-                variant="outline"
-                onClick={handleBack}
-                size="sm"
-              >
-                <ArrowLeft className="w-3 h-3 mr-1" /> Înapoi
-              </Button>
-              <Button
-                onClick={handleNext}
-                disabled={!currentAnswer.trim() || reflecting}
-                className="flex-1 bg-violet-500 hover:bg-violet-600 text-white"
-              >
-                {qIdx >= TOTAL ? (
-                  <>Programează acțiunea <ChevronRight className="w-4 h-4 ml-1" /></>
-                ) : (
-                  <>Continuă <ChevronRight className="w-4 h-4 ml-1" /></>
-                )}
-              </Button>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };
