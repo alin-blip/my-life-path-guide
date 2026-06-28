@@ -819,8 +819,6 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
 
   return (
     <div className="relative min-h-screen">
-      {/* Header with Timeline and XP - Theme aware styling */}
-      {currentStepId !== 'completion' && (
       {/* Header — Navy & Gold premium band */}
       {currentStepId !== 'completion' && (
         <div className="sticky top-0 z-10 border-b border-[hsl(var(--primary)/0.25)] bg-gradient-to-b from-[hsl(222_55%_7%)] via-[hsl(222_50%_9%)] to-[hsl(222_45%_11%)] backdrop-blur-xl shadow-[0_4px_24px_-12px_hsl(222_60%_4%/0.8)]">
