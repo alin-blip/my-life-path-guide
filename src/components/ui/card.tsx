@@ -16,6 +16,7 @@ const cardVariants = cva(
         default: "bg-card border border-border hover:border-primary/40",
         outline: "bg-transparent border border-border hover:border-primary/40",
         ghost: "bg-transparent",
+        premium: "card-3d-static text-card-foreground",
         // Backward-compat aliases
         glass: "bg-card border border-border hover:border-primary/40",
         elevated: "bg-card border border-border hover:border-primary/40",

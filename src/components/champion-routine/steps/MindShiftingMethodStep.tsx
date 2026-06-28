@@ -274,8 +274,13 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
   ];
 
   return (
-    <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5">
-      <CardContent className="p-5 space-y-4">
+    <Card variant="premium" className="relative overflow-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{ background: 'var(--gradient-mesh)' }}
+      />
+      <CardContent className="relative p-5 space-y-4">
         <div className="space-y-1">
           <h3 className="text-base font-semibold leading-tight">
             Alege metoda prin care lucrăm astăzi la mentalitate
@@ -285,20 +290,29 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
           </p>
         </div>
 
-        <div className="grid gap-2">
+        <div className="grid gap-2.5">
           {options.map((opt) => {
             const isRecommended = opt.id === 'reconstruction';
             return (
               <button
                 key={opt.id}
                 onClick={() => setMethod(opt.id)}
-                className={`group text-left rounded-lg border transition-colors p-3 flex items-start gap-3 ${
-                  isRecommended
-                    ? 'border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/10'
-                    : 'border-border bg-card hover:bg-muted/40'
+                className={`card-3d group text-left rounded-lg p-3 flex items-start gap-3 ${
+                  isRecommended ? 'ring-1 ring-primary/40' : ''
                 }`}
+                style={
+                  isRecommended
+                    ? { boxShadow: 'var(--shadow-3d-sm), 0 0 24px -6px hsl(var(--primary) / 0.35)' }
+                    : undefined
+                }
               >
-                <div className={`w-9 h-9 rounded-lg ${opt.iconBg} flex items-center justify-center shrink-0`}>
+                <div
+                  className={`w-10 h-10 rounded-lg ${opt.iconBg} flex items-center justify-center shrink-0 relative`}
+                  style={{
+                    boxShadow:
+                      'inset 0 1px 0 0 hsl(0 0% 100% / 0.08), inset 0 -1px 0 0 hsl(0 0% 0% / 0.25)',
+                  }}
+                >
                   <opt.Icon className={`w-4 h-4 ${opt.iconColor}`} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -312,7 +326,9 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
                 </div>
-                <ChevronRight className={`w-4 h-4 text-muted-foreground ${opt.hoverBorder} mt-2`} />
+                <ChevronRight
+                  className={`w-4 h-4 text-muted-foreground ${opt.hoverBorder} mt-2 transition-transform group-hover:translate-x-0.5`}
+                />
               </button>
             );
           })}

@@ -1397,17 +1397,32 @@ Răspunde în română cu un ton cald și profesionist.`;
         )}
         
         <div className="max-w-3xl mx-auto space-y-4">
-          {messages.map((message, index) => (
+          {messages.map((message, index) => {
+            const accentByStack: Record<string, string> = {
+              anger: '0 75% 55%',
+              frustration: '38 92% 50%',
+              fear: '160 65% 45%',
+              'divine-prayer': '240 60% 65%',
+              'divine-gratitude': '280 50% 65%',
+              gratitude: '140 60% 50%',
+              'daily-master': '41 65% 55%',
+              hormozi: '20 80% 55%',
+              'napoleon-hill': '41 65% 55%',
+              introspection: '200 60% 55%',
+              'ai-live': '41 65% 55%',
+              'gods-school': '240 60% 65%',
+            };
+            const accent = accentByStack[stackType] || '41 65% 55%';
+            return (
             <div
               key={index}
               className={`group relative flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-lg p-3 sm:p-4 ${
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted'
+                className={`max-w-[85%] p-3 sm:p-4 pl-4 sm:pl-5 ${
+                  message.role === 'user' ? 'bubble-user' : 'bubble-ai'
                 } ${message.isHighlighted ? 'ring-2 ring-yellow-500' : ''}`}
+                style={message.role === 'assistant' ? ({ ['--bubble-accent' as any]: accent } as React.CSSProperties) : undefined}
               >
                 <div className="flex items-start gap-2">
                   <div className="flex-1 prose prose-sm max-w-none dark:prose-invert text-xs sm:text-sm leading-relaxed">
@@ -1423,14 +1438,12 @@ Răspunde în română cu un ton cald și profesionist.`;
                   )}
                 </div>
                 
-                {/* Note badge if exists */}
                 {message.userNote && (
                   <div className="mt-2 p-2 bg-blue-500/20 text-blue-300 rounded text-xs border-l-2 border-blue-500">
                     💡 <strong>Notă:</strong> {message.userNote}
                   </div>
                 )}
                 
-                {/* Hover actions */}
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                   <Button
                     size="sm"
@@ -1467,10 +1480,11 @@ Răspunde în română cu un ton cald și profesionist.`;
                 </p>
               </div>
             </div>
-          ))}
+            );
+          })}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="max-w-[85%] rounded-lg p-3 sm:p-4 bg-muted flex items-center space-x-2">
+              <div className="max-w-[85%] p-3 sm:p-4 bubble-ai flex items-center space-x-2">
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                   <div className="w-2 h-2 bg-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
