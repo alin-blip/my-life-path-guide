@@ -40,6 +40,7 @@ import {
   GraduationCap,
   Swords,
   Gamepad2,
+  Zap,
   Map,
   Palette,
   User,
@@ -216,7 +217,10 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       path: '/stack',
       subItems: [
         { title: 'Mind Coach', icon: Brain, path: '/mind-coach', badge: 'NEW' },
-        { title: 'Emotion Coach (Anger)', icon: Flame, path: '/stack?type=anger' },
+        { title: language === 'ro' ? 'Reconstrucție Mentală' : 'Mental Reconstruction', icon: Brain, path: '/minte/stack' },
+        { title: 'Anger Coach', icon: Flame, path: '/stack?type=anger' },
+        { title: language === 'ro' ? 'Frustration Coach' : 'Frustration Coach', icon: Zap, path: '/stack?type=frustration', badge: 'NEW' },
+        { title: language === 'ro' ? 'Fear Coach' : 'Fear Coach', icon: Shield, path: '/stack?type=fear', badge: 'NEW' },
         { title: 'Business Coach', icon: Target, path: '/stack?type=hormozi-coaching' },
         { title: 'Success Principles', icon: BookOpen, path: '/programs?tab=classroom' },
       ]

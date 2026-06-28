@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
 import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { AngerStack } from '@/components/stack/AngerStack';
+import { FrustrationStack } from '@/components/stack/FrustrationStack';
+import { FearStack } from '@/components/stack/FearStack';
 import { AiLiveCoaching } from '@/components/stack/AiLiveCoaching';
 import { HormoziCoachingStack } from '@/components/stack/HormoziCoachingStack';
 import { GodsSchoolStack } from '@/components/stack/gods-school/GodsSchoolStack';
@@ -86,6 +88,12 @@ const CoachingPage = () => {
         switch (typeParam) {
           case 'anger':
             setActiveStack('anger');
+            break;
+          case 'frustration':
+            setActiveStack('frustration');
+            break;
+          case 'fear':
+            setActiveStack('fear');
             break;
           case 'divine-prayer':
             setActiveStack('divine-prayer');
@@ -360,6 +368,10 @@ const renderActiveStack = () => {
     switch(activeStack) {
       case "anger":
         return <AngerStack {...stackProps} />;
+      case "frustration":
+        return <FrustrationStack onAddToHitList={stackProps.onAddToHitList} />;
+      case "fear":
+        return <FearStack onAddToHitList={stackProps.onAddToHitList} />;
       case "ai-live":
         return <AiLiveCoaching {...stackProps} />;
       case "hormozi-coaching":

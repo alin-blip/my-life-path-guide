@@ -40,7 +40,7 @@ interface Message {
 interface AiGuidedStackProps {
   onAddToHitList?: (action: string) => void;
   onComplete?: (transformedEnergy?: string) => void;
-  stackType: 'anger' | 'divine-prayer' | 'gods-school' | 'hormozi' | 'napoleon-hill' | 'gratitude' | 'daily-master' | 'divine-gratitude' | 'introspection' | 'ai-live';
+  stackType: 'anger' | 'divine-prayer' | 'gods-school' | 'hormozi' | 'napoleon-hill' | 'gratitude' | 'daily-master' | 'divine-gratitude' | 'introspection' | 'ai-live' | 'frustration' | 'fear';
   questions: any[];
   onModeSwitch?: () => void;
   audioMode?: boolean;

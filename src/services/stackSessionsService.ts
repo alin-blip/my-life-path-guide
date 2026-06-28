@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface StackSessionData {
   session_id: string;
-  stack_type: 'anger' | 'divine' | 'hormozi' | 'gods-school' | 'napoleon-hill';
+  stack_type: 'anger' | 'divine' | 'hormozi' | 'gods-school' | 'napoleon-hill' | 'frustration' | 'fear';
   step?: number;
   answers: Record<number | string, any>;
   timestamp: string;
