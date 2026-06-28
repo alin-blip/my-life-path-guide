@@ -637,6 +637,18 @@ export const MentalitateStackFlow: React.FC<Props> = ({
 
         <Progress value={progress} className="h-1.5" indicatorClassName="bg-violet-500" />
 
+        {mode === 'deep_dive' && deepDiveAxis && (
+          <div className="rounded-lg border border-violet-500/40 bg-violet-500/10 px-3 py-2 flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-violet-500 shrink-0" />
+            <p className="text-[11px] leading-snug">
+              <span className="font-semibold text-violet-700 dark:text-violet-300">
+                Deep-Dive · {AXIS_LABELS_RO[deepDiveAxis]?.name ?? deepDiveAxis}
+              </span>
+              <span className="text-muted-foreground"> — întrebările sunt reformulate prin lentila acestei axe ({AXIS_LABELS_RO[deepDiveAxis]?.reframe}).</span>
+            </p>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           <motion.div
             key={qIdx}
