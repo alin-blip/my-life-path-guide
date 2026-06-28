@@ -45,6 +45,7 @@ import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
 
 // New UX components
 import { EnhancedProgressBar } from './EnhancedProgressBar';
+import { PillarProgressBar, getPillarOfStep } from './PillarProgressBar';
 import { LiveXPDisplay } from './LiveXPDisplay';
 import { SkipConfirmDialog } from './SkipConfirmDialog';
 import { StepCompletionAnimation } from './StepCompletionAnimation';
@@ -818,81 +819,77 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
 
   return (
     <div className="relative min-h-screen">
-      {/* Header with Timeline and XP - Theme aware styling */}
+      {/* Header — Navy & Gold premium band */}
       {currentStepId !== 'completion' && (
-        <div className={cn(
-          "sticky top-0 z-10 backdrop-blur-xl border-b",
-          isDark 
-            ? "bg-background/40 border-border/30" 
-            : "bg-background/70 border-border/50"
-        )}>
-          <div className="max-w-2xl mx-auto px-4 py-3">
-            {/* Top row: Navigation & Actions */}
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
+        <div className="sticky top-0 z-10 border-b border-[hsl(var(--primary)/0.25)] bg-gradient-to-b from-[hsl(222_55%_7%)] via-[hsl(222_50%_9%)] to-[hsl(222_45%_11%)] backdrop-blur-xl shadow-[0_4px_24px_-12px_hsl(222_60%_4%/0.8)]">
+          {/* gold hairline */}
+          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--primary)/0.6)] to-transparent" />
+          <div className="max-w-3xl mx-auto px-4 py-3">
+            {/* Top row */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 min-w-0">
                 {currentStepIndex > 0 && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={goToPreviousStep} 
-                    className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={goToPreviousStep}
+                    className="text-white/70 hover:text-[hsl(var(--primary))] hover:bg-white/5"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                 )}
-                <div className="flex flex-col">
-                  <span className={`text-xs uppercase font-medium ${CATEGORY_COLORS[currentCategory]}`}>
-                    {currentCategory}
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[10px] uppercase tracking-[0.18em] font-semibold text-[hsl(var(--primary))]/90">
+                    {(() => {
+                      const p = getPillarOfStep(currentStepId);
+                      return p ? p.charAt(0).toUpperCase() + p.slice(1) : currentCategory;
+                    })()}
                   </span>
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="text-sm font-semibold text-white truncate">
                     {STEP_LABELS[currentStepId]}
                   </span>
                 </div>
               </div>
-              
-              {/* XP & Actions */}
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-1.5">
                 <LiveXPDisplay compact />
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => navigate('/champion-routine-history')} 
-                  title="Istoric" 
-                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/champion-routine-history')}
+                  title="Istoric"
+                  className="text-white/60 hover:text-[hsl(var(--primary))] hover:bg-white/5"
                 >
                   <History className="h-4 w-4" />
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setQuickSettingsOpen(true)} 
-                  title="Setări Rapide" 
-                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setQuickSettingsOpen(true)}
+                  title="Setări Rapide"
+                  className="text-white/60 hover:text-[hsl(var(--primary))] hover:bg-white/5"
                 >
                   <Sliders className="h-4 w-4" />
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setSettingsOpen(true)} 
-                  title="Setări Avansate" 
-                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSettingsOpen(true)}
+                  title="Setări Avansate"
+                  className="text-white/60 hover:text-[hsl(var(--primary))] hover:bg-white/5"
                 >
                   <Settings className="h-4 w-4" />
                 </Button>
               </div>
             </div>
-            
-            {/* Interactive Timeline */}
-            <EnhancedProgressBar
+
+            {/* 5 Pilon Cards = progress bar */}
+            <PillarProgressBar
               steps={routineSteps}
               currentStepIndex={currentStepIndex}
               todayLog={todayLog}
-              skippedSteps={getSkippedSteps()}
-              stepLabels={STEP_LABELS}
-              stepCategories={STEP_CATEGORIES}
               isStepCompleted={isStepCompleted}
-              onStepClick={(index) => {
+              onPillarClick={(index) => {
                 setCurrentStepIndex(index);
                 setHasUserNavigated(true);
               }}
