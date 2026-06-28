@@ -2,12 +2,29 @@ import React, { useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { RotateCcw, Flame, Zap, Shield, ChevronRight, ArrowLeft } from 'lucide-react';
+import {
+  RotateCcw,
+  Flame,
+  Zap,
+  Shield,
+  Wind,
+  AlertCircle,
+  CloudRain,
+  EyeOff,
+  HandHeart,
+  ChevronRight,
+  ArrowLeft,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { MentalitateStackFlow } from '@/components/mentalitate/MentalitateStackFlow';
 import { AngerStack } from '@/components/stack/AngerStack';
 import { FrustrationStack } from '@/components/stack/FrustrationStack';
 import { FearStack } from '@/components/stack/FearStack';
+import { AnxietyStack } from '@/components/stack/AnxietyStack';
+import { PanicStack } from '@/components/stack/PanicStack';
+import { SadnessStack } from '@/components/stack/SadnessStack';
+import { ShameStack } from '@/components/stack/ShameStack';
+import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { getActiveWeekKey } from '@/utils/weekUtils';
 
@@ -16,7 +33,17 @@ interface Props {
   onSkip: () => void;
 }
 
-type Method = 'none' | 'reconstruction' | 'anger' | 'frustration' | 'fear';
+type Method =
+  | 'none'
+  | 'reconstruction'
+  | 'anger'
+  | 'frustration'
+  | 'fear'
+  | 'anxiety'
+  | 'panic'
+  | 'sadness'
+  | 'shame'
+  | 'prayer';
 
 /**
  * Step wrapper shown inside Warrior Routine.
@@ -105,6 +132,147 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
     );
   }
 
+  if (method === 'anxiety') {
+    return (
+      <div>
+        <InlineHeader />
+        <AnxietyStack onAddToHitList={addActionToHitList} />
+      </div>
+    );
+  }
+
+  if (method === 'panic') {
+    return (
+      <div>
+        <InlineHeader />
+        <PanicStack onAddToHitList={addActionToHitList} />
+      </div>
+    );
+  }
+
+  if (method === 'sadness') {
+    return (
+      <div>
+        <InlineHeader />
+        <SadnessStack onAddToHitList={addActionToHitList} />
+      </div>
+    );
+  }
+
+  if (method === 'shame') {
+    return (
+      <div>
+        <InlineHeader />
+        <ShameStack onAddToHitList={addActionToHitList} />
+      </div>
+    );
+  }
+
+  if (method === 'prayer') {
+    return (
+      <div>
+        <InlineHeader />
+        <DivinePrayerStack onAddToHitList={addActionToHitList} />
+      </div>
+    );
+  }
+
+  const options: Array<{
+    id: Exclude<Method, 'none'>;
+    title: string;
+    desc: string;
+    Icon: React.ComponentType<{ className?: string }>;
+    iconBg: string;
+    iconColor: string;
+    hoverBorder: string;
+    badge?: string;
+  }> = [
+    {
+      id: 'reconstruction',
+      title: 'Reconstrucție Mentală',
+      desc: 'Trigger → Distorsiune → Reframe → Acțiune → Integrare. Îmbunătățește mentalitatea.',
+      Icon: RotateCcw,
+      iconBg: 'bg-violet-500/20',
+      iconColor: 'text-violet-500',
+      hoverBorder: 'group-hover:text-violet-500',
+      badge: 'recomandat zilnic',
+    },
+    {
+      id: 'anger',
+      title: 'Anger Coach',
+      desc: 'Transformă furia în claritate și direcție (42Q).',
+      Icon: Flame,
+      iconBg: 'bg-red-500/15',
+      iconColor: 'text-red-500',
+      hoverBorder: 'group-hover:text-red-500',
+    },
+    {
+      id: 'frustration',
+      title: 'Frustration Coach',
+      desc: 'Deblochează așteptările neîmplinite și găsește următorul pas.',
+      Icon: Zap,
+      iconBg: 'bg-amber-500/15',
+      iconColor: 'text-amber-500',
+      hoverBorder: 'group-hover:text-amber-500',
+    },
+    {
+      id: 'fear',
+      title: 'Fear Coach',
+      desc: 'Transformă frica în direcție și acțiune curajoasă.',
+      Icon: Shield,
+      iconBg: 'bg-emerald-500/15',
+      iconColor: 'text-emerald-500',
+      hoverBorder: 'group-hover:text-emerald-500',
+    },
+    {
+      id: 'anxiety',
+      title: 'Anxiety Coach',
+      desc: 'Calmează anxietatea și ancorează-te în prezent (12Q).',
+      Icon: Wind,
+      iconBg: 'bg-sky-500/15',
+      iconColor: 'text-sky-500',
+      hoverBorder: 'group-hover:text-sky-500',
+    },
+    {
+      id: 'panic',
+      title: 'Panic Reset',
+      desc: 'Ancorare 5-4-3-2-1 + respirație box pentru val de panică.',
+      Icon: AlertCircle,
+      iconBg: 'bg-orange-500/15',
+      iconColor: 'text-orange-500',
+      hoverBorder: 'group-hover:text-orange-500',
+      badge: 'urgent',
+    },
+    {
+      id: 'sadness',
+      title: 'Sadness & Grief',
+      desc: 'Onorează tristețea, nu o reprima. Procesare blândă.',
+      Icon: CloudRain,
+      iconBg: 'bg-blue-500/15',
+      iconColor: 'text-blue-500',
+      hoverBorder: 'group-hover:text-blue-500',
+    },
+    {
+      id: 'shame',
+      title: 'Shame & Guilt',
+      desc: 'Distinge „am greșit" de „sunt greșit". Restaurează demnitatea.',
+      Icon: EyeOff,
+      iconBg: 'bg-rose-500/15',
+      iconColor: 'text-rose-500',
+      hoverBorder: 'group-hover:text-rose-500',
+    },
+    {
+      id: 'prayer',
+      title: 'Prayer Stack',
+      desc: 'Dialogul cu Divinitatea. Conectare, predare, ascultare.',
+      Icon: HandHeart,
+      iconBg: 'bg-indigo-500/15',
+      iconColor: 'text-indigo-500',
+      hoverBorder: 'group-hover:text-indigo-500',
+      badge: 'spiritual',
+    },
+  ];
+
   return (
     <Card className="border-violet-500/30 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5">
       <CardContent className="p-5 space-y-4">
@@ -118,72 +286,36 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
         </div>
 
         <div className="grid gap-2">
-          <button
-            onClick={() => setMethod('reconstruction')}
-            className="group text-left rounded-lg border border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/10 transition-colors p-3 flex items-start gap-3"
-          >
-            <div className="w-9 h-9 rounded-lg bg-violet-500/20 flex items-center justify-center shrink-0">
-              <RotateCcw className="w-4 h-4 text-violet-500" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-sm">Reconstrucție Mentală</span>
-                <Badge variant="outline" className="text-[10px]">recomandat zilnic</Badge>
-              </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Trigger → Distorsiune → Reframe → Acțiune → Integrare. Îmbunătățește mentalitatea.
-              </p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-violet-500 mt-2" />
-          </button>
-
-          <button
-            onClick={() => setMethod('anger')}
-            className="group text-left rounded-lg border border-border bg-card hover:bg-muted/40 transition-colors p-3 flex items-start gap-3"
-          >
-            <div className="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center shrink-0">
-              <Flame className="w-4 h-4 text-red-500" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-sm">Anger Coach</div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Transformă furia în claritate și direcție (42Q).
-              </p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-red-500 mt-2" />
-          </button>
-
-          <button
-            onClick={() => setMethod('frustration')}
-            className="group text-left rounded-lg border border-border bg-card hover:bg-muted/40 transition-colors p-3 flex items-start gap-3"
-          >
-            <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
-              <Zap className="w-4 h-4 text-amber-500" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-sm">Frustration Coach</div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Deblochează așteptările neîmplinite și găsește următorul pas.
-              </p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-amber-500 mt-2" />
-          </button>
-
-          <button
-            onClick={() => setMethod('fear')}
-            className="group text-left rounded-lg border border-border bg-card hover:bg-muted/40 transition-colors p-3 flex items-start gap-3"
-          >
-            <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
-              <Shield className="w-4 h-4 text-emerald-500" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-sm">Fear Coach</div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Transformă frica în direcție și acțiune curajoasă.
-              </p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-emerald-500 mt-2" />
-          </button>
+          {options.map((opt) => {
+            const isRecommended = opt.id === 'reconstruction';
+            return (
+              <button
+                key={opt.id}
+                onClick={() => setMethod(opt.id)}
+                className={`group text-left rounded-lg border transition-colors p-3 flex items-start gap-3 ${
+                  isRecommended
+                    ? 'border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/10'
+                    : 'border-border bg-card hover:bg-muted/40'
+                }`}
+              >
+                <div className={`w-9 h-9 rounded-lg ${opt.iconBg} flex items-center justify-center shrink-0`}>
+                  <opt.Icon className={`w-4 h-4 ${opt.iconColor}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-sm">{opt.title}</span>
+                    {opt.badge && (
+                      <Badge variant="outline" className="text-[10px]">
+                        {opt.badge}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
+                </div>
+                <ChevronRight className={`w-4 h-4 text-muted-foreground ${opt.hoverBorder} mt-2`} />
+              </button>
+            );
+          })}
         </div>
 
         <button
