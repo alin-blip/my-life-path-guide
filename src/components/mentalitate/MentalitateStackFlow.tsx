@@ -337,10 +337,10 @@ export const MentalitateStackFlow: React.FC<Props> = ({
       setQIdx(TOTAL + 2);
       onComplete?.(saved);
     } catch (e: any) {
-      console.error(e);
-      const msg = e?.message;
+      console.error('[mentalitate] finalize failed:', e);
+      const msg = e?.message ?? String(e);
       setMessages((prev) => prev.filter((m) => m.kind !== 'coach-thinking'));
-      let errText = 'Nu am putut finaliza sinteza. Reîncearcă.';
+      let errText = `Nu am putut finaliza sinteza: ${msg}`;
       if (msg === 'credits_exhausted') errText = 'Credite AI epuizate. Adaugă credite din Settings → Workspace → Usage.';
       else if (msg === 'rate_limit') errText = 'Limită atinsă. Așteaptă puțin și reîncearcă.';
       pushMsg({ kind: 'coach-error', content: errText });
