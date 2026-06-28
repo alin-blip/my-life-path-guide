@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Brain, Sparkles, Target, ChevronRight, Wind, Lightbulb, CheckCircle2 } from 'lucide-react';
+import { Loader2, Brain, Sparkles, Target, ChevronRight, Wind, Lightbulb, CheckCircle2, Flame, Zap, Shield, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -16,7 +17,7 @@ import {
   AISuggestions,
 } from '@/services/mindShiftService';
 
-type Phase = 'state' | 'observe' | 'reframe' | 'activate' | 'commit' | 'done';
+type Phase = 'method' | 'state' | 'observe' | 'reframe' | 'activate' | 'commit' | 'done';
 
 interface MindShiftingStepProps {
   onComplete?: (session: MindShiftSession) => void;
