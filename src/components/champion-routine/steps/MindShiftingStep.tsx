@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Brain, Sparkles, Target, ChevronRight, Wind, Lightbulb, CheckCircle2 } from 'lucide-react';
+import { Loader2, Brain, Sparkles, Target, ChevronRight, Wind, Lightbulb, CheckCircle2, Flame, Zap, Shield, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -16,7 +17,7 @@ import {
   AISuggestions,
 } from '@/services/mindShiftService';
 
-type Phase = 'state' | 'observe' | 'reframe' | 'activate' | 'commit' | 'done';
+type Phase = 'method' | 'state' | 'observe' | 'reframe' | 'activate' | 'commit' | 'done';
 
 interface MindShiftingStepProps {
   onComplete?: (session: MindShiftSession) => void;
@@ -35,13 +36,14 @@ export const MindShiftingStep: React.FC<MindShiftingStepProps> = ({
 }) => {
   // Resume at appropriate phase based on what's already filled in the draft.
   const computeInitialPhase = (): Phase => {
-    if (!existingSession) return 'state';
+    if (!existingSession) return 'method';
     if (existingSession.commitment_text) return 'commit';
     if (existingSession.belief_slug || existingSession.incantation_text) return 'activate';
     if (existingSession.cognitive_reframe || existingSession.positive_reframe) return 'reframe';
     if (existingSession.automatic_thought) return 'observe';
     return 'state';
   };
+  const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>(computeInitialPhase());
   const [beliefs, setBeliefs] = useState<MindShiftBelief[]>([]);
   const [distortions, setDistortions] = useState<MindShiftDistortion[]>([]);
@@ -189,7 +191,7 @@ export const MindShiftingStep: React.FC<MindShiftingStepProps> = ({
         </div>
 
         {/* Progress dots */}
-        {phase !== 'done' && (
+        {phase !== 'done' && phase !== 'method' && (
           <div className="flex gap-1.5">
             {phases.map((p, i) => (
               <div
@@ -204,6 +206,105 @@ export const MindShiftingStep: React.FC<MindShiftingStepProps> = ({
         )}
 
         <AnimatePresence mode="wait">
+          {/* PHASE 0: METHOD SELECTOR */}
+          {phase === 'method' && (
+            <motion.div key="method" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="space-y-4">
+              <div className="space-y-1">
+                <h4 className="text-base font-semibold leading-tight">
+                  Alege metoda prin care lucrăm astăzi la mentalitate
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  Setează starea de putere pentru ziua de azi. Alege procesul care ți se potrivește acum.
+                </p>
+              </div>
+
+              <div className="grid gap-2">
+                <button
+                  onClick={() => setPhase('state')}
+                  className="group text-left rounded-lg border border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/10 transition-colors p-3 flex items-start gap-3"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-violet-500/20 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-4 h-4 text-violet-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm">Mind Shifting rapid</span>
+                      <Badge variant="outline" className="text-[10px]">5 min · recomandat</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      State → Observe → Reframe → Activate → Commit. Ideal pentru un reset zilnic.
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-violet-500 mt-2" />
+                </button>
+
+                <button
+                  onClick={() => navigate('/minte/stack')}
+                  className="group text-left rounded-lg border border-border bg-card hover:bg-muted/40 transition-colors p-3 flex items-start gap-3"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-indigo-500/15 flex items-center justify-center shrink-0">
+                    <RotateCcw className="w-4 h-4 text-indigo-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm">Reconstrucție Mentală</div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Stack complet: Trigger → Distorsiune → Reframe → Acțiune → Integrare.
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-indigo-500 mt-2" />
+                </button>
+
+                <button
+                  onClick={() => navigate('/stack?type=anger')}
+                  className="group text-left rounded-lg border border-border bg-card hover:bg-muted/40 transition-colors p-3 flex items-start gap-3"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center shrink-0">
+                    <Flame className="w-4 h-4 text-red-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm">Anger Coach</div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Transformă furia în claritate și direcție (42Q).
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-red-500 mt-2" />
+                </button>
+
+                <button
+                  onClick={() => navigate('/stack?type=frustration')}
+                  className="group text-left rounded-lg border border-border bg-card hover:bg-muted/40 transition-colors p-3 flex items-start gap-3"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+                    <Zap className="w-4 h-4 text-amber-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm">Frustration Coach</div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Deblochează așteptările neîmplinite și găsește următorul pas.
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-amber-500 mt-2" />
+                </button>
+
+                <button
+                  onClick={() => navigate('/stack?type=fear')}
+                  className="group text-left rounded-lg border border-border bg-card hover:bg-muted/40 transition-colors p-3 flex items-start gap-3"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
+                    <Shield className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm">Fear Coach</div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Transformă frica în direcție și acțiune curajoasă.
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-emerald-500 mt-2" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+
           {/* PHASE 1: STATE */}
           {phase === 'state' && (
             <motion.div key="state" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-4">
