@@ -17,10 +17,10 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ content, createdAt
     <div className={cn('flex', isMine ? 'justify-end' : 'justify-start')}>
       <div
         className={cn(
-          'max-w-[75%] rounded-2xl px-4 py-2.5 text-sm',
+          'max-w-[75%] px-4 py-2.5 text-sm',
           isMine
-            ? 'bg-primary text-primary-foreground rounded-br-md'
-            : 'bg-muted text-foreground rounded-bl-md'
+            ? 'bubble-user rounded-br-md'
+            : 'bubble-ai pl-5 rounded-bl-md'
         )}
       >
         <p className="whitespace-pre-wrap break-words">{content}</p>

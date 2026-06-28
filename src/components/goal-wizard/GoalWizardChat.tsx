@@ -51,10 +51,10 @@ export const GoalWizardChat: React.FC<GoalWizardChatProps> = ({
           
           <div
             className={cn(
-              "max-w-[80%] rounded-2xl px-4 py-3",
+              "max-w-[80%] px-4 py-3",
               message.role === 'user'
-                ? "bg-primary text-primary-foreground rounded-tr-sm"
-                : "bg-muted text-foreground rounded-tl-sm"
+                ? "bubble-user rounded-tr-sm"
+                : "bubble-ai pl-5 rounded-tl-sm"
             )}
           >
             <div className={cn(
@@ -72,7 +72,7 @@ export const GoalWizardChat: React.FC<GoalWizardChatProps> = ({
           <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
             <Bot className="w-5 h-5" />
           </div>
-          <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+          <div className="bubble-ai pl-5 rounded-tl-sm px-4 py-3">
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
               <div className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
