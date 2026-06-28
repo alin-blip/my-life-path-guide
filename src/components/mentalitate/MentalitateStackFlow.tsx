@@ -98,7 +98,7 @@ export const MentalitateStackFlow: React.FC<Props> = ({
   const answerSuggestionsFetchedRef = useRef<Record<number, boolean>>({});
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const currentQ = BLUEPRINT_QUESTIONS.find((q) => q.idx === qIdx)!;
+  const currentQ = getBlueprintQuestion(qIdx, mode === 'deep_dive' ? deepDiveAxis : undefined);
   const phase = BLUEPRINT_PHASES.find((p) => p.id === currentQ.phase)!;
   // +1 step for situation, +1 for schedule
   const progress = ((qIdx - 1) / TOTAL) * 100;
