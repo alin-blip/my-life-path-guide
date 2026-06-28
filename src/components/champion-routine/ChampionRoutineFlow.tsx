@@ -37,6 +37,7 @@ import { AutosuggestionStep } from './steps/AutosuggestionStep';
 import { ApplyStep } from './steps/ApplyStep';
 import { MindShiftingStep } from './steps/MindShiftingStep';
 import { MentalitateStackFlow } from '@/components/mentalitate/MentalitateStackFlow';
+import { MindShiftingMethodStep } from './steps/MindShiftingMethodStep';
 import { MindTestStep } from './steps/MindTestStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
@@ -598,9 +599,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     switch (currentStepId) {
       case 'mindShifting':
         return (
-          <MentalitateStackFlow
-            mode="daily"
-            source="routine"
+          <MindShiftingMethodStep
             onComplete={() => goToNextStep()}
             onSkip={() => goToNextStep()}
           />
