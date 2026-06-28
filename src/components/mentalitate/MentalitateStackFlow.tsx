@@ -350,6 +350,11 @@ export const MentalitateStackFlow: React.FC<Props> = ({
             <div>
               <h3 className="font-semibold text-sm">Reconstrucția Mentală</h3>
               <p className="text-[11px] text-muted-foreground">Pasul 0 · Contextul situației</p>
+              {mode === 'deep_dive' && deepDiveAxis && (
+                <Badge variant="outline" className="mt-1 text-[10px] border-violet-500/40 text-violet-600 dark:text-violet-400">
+                  Deep-Dive: {AXIS_LABELS_RO[deepDiveAxis]?.name ?? deepDiveAxis}
+                </Badge>
+              )}
             </div>
           </div>
           <Progress value={0} className="h-1.5" indicatorClassName="bg-violet-500" />
