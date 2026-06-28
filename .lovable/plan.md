@@ -1,61 +1,60 @@
-# Plan: Auto-activare Calendar Time-Block + Sync Domino Door
+# Plan: Audit vizual — pachet complet (1–12)
 
-## Obiectiv
-1. Activează automat widget-ul `time-block-calendar` pentru toți userii (existenți și noi).
-2. Taskurile din Domino Door („sarcini") apar automat pe ore în calendar, nu doar în coșul de „nealocate".
+## 1. Bare duplicate (critic)
+- În `src/App.tsx` (sau layout-ul global): ascunde `GlobalTopBar` pe rutele care au deja sidebar + header propriu (`/dashboard`, `/tools`, `/door`, `/champion-routine`, `/stacks/*`, `/minte/*`, `/coach/*`).
+- Sau invers: păstrează doar `GlobalTopBar` și scoate logo-block-ul de sus din `AppSidebar`. Decizie: păstrez `GlobalTopBar` pentru Comunitate/Cursuri/Mesaje/Notificări și scot logo-ul duplicat din sidebar (sidebar începe direct cu meniul).
 
----
+## 2. Emoji-uri stricate (□) (critic)
+- În `index.css` adaug `font-family` body cu fallback: `'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','Twemoji Mozilla', emoji`.
+- Verific dacă emoji-urile sunt hardcodate ca text — dacă da, le înlocuiesc cu iconițe `lucide-react` consistente (Brain, Sparkles, Dumbbell, Heart, Briefcase, Smile, Frown etc.) pentru cardurile de emoții din MindCoach și tour.
 
-## 1. Auto-activare widget
+## 3. Ruta /chat → 404 (critic)
+- Verific `src/App.tsx` routes. Ori adaug `<Route path="/chat" element={<Chat/>}/>` (există `src/pages/Chat.tsx`), ori redirecționez `/chat` → `/mind-coach` (sau spre ruta corectă).
 
-**`src/config/dashboardWidgets.ts`**
-- Schimbă `DEFAULT_WIDGETS` din `[]` în:
-  ```ts
-  [{ id: 'time-block-calendar', enabled: true, order: 0, size: 'large' }]
-  ```
+## 4. Overlay-uri simultane (critic)
+- În `TourContext` / `useOnboardingTour`: amână tour-ul cu un guard — nu se afișează dacă există `<Dialog open>` deja activ (Plan Next Week, Domino welcome). Show one-at-a-time queue.
+- Setez ordine: 1) închide modal Plan Next Week → 2) închide welcome popover → 3) abia apoi lansează tour.
 
-**`src/hooks/useDashboardWidgets.ts`**
-- În `fetchWidgets()`, după ce se citesc preferințele din DB:
-  - Dacă `time-block-calendar` **nu există** în array-ul salvat → injectează-l ca enabled și salvează silent.
-  - Dacă există dar e `enabled: false` → respectăm decizia userului (nu forțăm).
+## 5. Door — coloana "Idei" se sparge (layout)
+- `src/pages/Door.tsx` / componenta Idei: `min-w-0` pe coloană + `break-words` pe titlul ideii. Înlocuiesc grid-ul cu lățimi fixe cu `grid-cols-[minmax(220px,1fr)_minmax(280px,1.2fr)_minmax(280px,1fr)]` sau switch la stack vertical sub `lg`.
 
----
+## 6. Rutina — gol vizual sub carduri (layout)
+- `ChampionRoutineFlow`: containerul interior `min-h-[calc(100vh-headers)]` se duce la fundul ecranului. Fie umplem cu un `RoutineBackdrop` decorativ (radial gold faint în josul ecranului, hairline gold sus și pattern stele subtil), fie `max-h-fit` + fundal navy doar până la conținut.
+- Decizie: lăsăm înălțimea, dar adăugăm un backdrop decorativ (radial faint gold + grain texture) pentru a evita golul plat.
 
-## 2. Auto-sync Domino Door → ore în calendar
+## 7. NotFound pe temă navy (layout)
+- Refactor `src/pages/NotFound.tsx`: fundal `bg-background` (navy), text `text-foreground`, accent gold pe „Return to Home", font Display pentru titlu.
 
-Domino Door scrie deja în `user_tasks` (același tabel pe care îl citește calendarul). Problema: taskurile au `scheduled_time = null` → nu apar pe grila orară, doar în bin.
+## 8. Banner Membership — contrast slab
+- Banner-ul de pe Dashboard (Early Bird / Activează Membership): schimb fundal de la gold solid la navy raised cu hairline gold + textul rămâne pe navy (text-foreground), iar prețul mare se păstrează gold pentru accent.
 
-**Fișier nou: `src/utils/autoScheduleTasks.ts`**
+## 9. Vision Board — overlay-uri prea opace
+- Pe imaginile pilon de pe Dashboard: reduc overlay-ul de la `bg-black/70` la gradient `from-background/95 via-background/40 to-transparent` doar de jos, ca etichetele Corp / Spiritualitate / Familie / Business să fie clare iar imaginea să respire.
 
-Funcție `autoScheduleUnscheduledTasks(tasks)`:
-- Filtrează taskurile cu `scheduled_time = null` AND `completed = false`.
-- Pentru fiecare zi (`day_of_week`), distribuie pe ore începând **09:00**, sortat după:
-  1. `priority` (1 → 4)
-  2. `is_key_point = true` primul
-  3. `position` / `created_at`
-- Durată default: **60 min** (sau `duration_minutes` existent dacă e setat).
-- Sare peste sloturi deja ocupate de taskuri cu `scheduled_time` setat.
-- Limită superioară: **20:00** (taskurile rămase rămân în bin).
-- Pentru taskuri fără `day_of_week` → atribuie ziua curentă.
-- Returnează `[{ id, scheduled_time, day_of_week, duration_minutes }]`.
+## 10. MindCoach — bloc deconectat
+- Unesc cardul cu 4 etape (Identifică / Clarifică / Transformă / Acționează) cu cardul de selecție emoții într-un singur shell premium (același bg navy gradient + hairline gold), separate doar de divider gold subțire.
 
-**`src/hooks/useTimeBlockTasks.ts`**
-- După `load()`, dacă există taskuri ne-programate → rulează `autoScheduleUnscheduledTasks` și face batch update prin `Promise.all` de `update().eq('id', ...)`.
-- Marker `localStorage` `auto-scheduled-{weekKey}` ca să nu reruleze auto-schedule după ce userul mută manual taskurile înapoi în bin (în aceeași săptămână).
+## 11. GlobalTopBar pe paleta navy/gold
+- `GlobalTopBar.tsx`: `bg-[hsl(222_55%_8%/0.85)] backdrop-blur` + border-bottom `border-[hsl(var(--primary)/0.18)]`. Hover pe taburi: `text-primary`. Icoanele Mesaje/Notificări primesc hover gold.
 
-**`src/components/dashboard/widgets/TimeBlockCalendarWidget.tsx`**
-- Buton mic „🪄 Re-distribuie" în header → șterge marker-ul localStorage și forțează re-rularea.
+## 12. Sidebar navy/gold
+- `AppSidebar`: bg `linear-gradient(180deg, hsl(222 55% 8%), hsl(222 60% 5%))`, divider-uri hairline gold, item activ: bg `hsl(var(--primary)/0.12)` + border-stânga gold + text gold, hover subtle `hsl(var(--primary)/0.06)`. Iconițele primesc tile-uri 28×28 cu radial gradient gold doar pentru item activ.
+- Scot logo-block-ul de sus (conform pct.1). Adaug label discret "CEO MIND OS" jos cu micro-versiune + status streak.
 
----
+## Fișiere atinse (estimat)
+- `src/App.tsx` (routes /chat, gating GlobalTopBar)
+- `src/components/global/GlobalTopBar.tsx`
+- `src/components/AppSidebar.tsx` (sau echivalentul layout-ului)
+- `src/index.css` (emoji font stack, possible token tweak)
+- `src/context/TourContext.tsx` + `src/hooks/useOnboardingTour.ts`
+- `src/pages/Door.tsx` + componenta Idei (DoorIdeasColumn)
+- `src/components/champion-routine/ChampionRoutineFlow.tsx` (backdrop)
+- `src/pages/NotFound.tsx`
+- `src/pages/DashboardPage.tsx` (banner + Vision Board overlays)
+- `src/pages/MindCoach.tsx` (shell unificat)
 
-## Out of scope
-- Nu modific Domino Door în sine.
-- Nu adaug notificări push noi (Coach-ul Accountability deja vede taskurile programate).
-- Fără modificări de schemă DB (toate coloanele necesare există deja).
-
----
-
-## Detalii tehnice
-- Algoritm rulează **client-side**; persistăm în DB doar prima dată per săptămână.
-- Realtime subscription existent propagă update-urile între tab-uri.
-- Folosim helper-ul existent `jsDayToAbbrev(new Date())` pentru ziua curentă.
+## Ordine de execuție
+1. Quick wins (1, 2, 3, 7) → bara dublă, emoji-uri, ruta, NotFound.
+2. Overlay queue (4).
+3. Coerență brand (11, 12, 8, 9, 10).
+4. Layout polish (5, 6).
