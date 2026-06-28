@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Brain, ListChecks, Grid3x3, RotateCcw, ArrowRight, Sparkles } from "lucide-react";
+import { Brain, ListChecks, Grid3x3, RotateCcw, ArrowRight, Sparkles, Home } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { mindQuizService, type MindAxisScoreRow } from "@/services/mindQuizService";
 
@@ -73,6 +73,14 @@ export default function Minte() {
         />
         <link rel="canonical" href="/minte" />
       </Helmet>
+
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/dashboard">
+            <Home className="w-4 h-4 mr-1" /> {t("Dashboard", "Acasă")}
+          </Link>
+        </Button>
+      </div>
 
       <header className="space-y-2">
         <div className="flex items-center gap-2">
