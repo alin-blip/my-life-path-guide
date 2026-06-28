@@ -12,6 +12,7 @@ import {
   BLUEPRINT_PHASES,
   BLUEPRINT_QUESTIONS,
   AXIS_LABELS_RO,
+  getBlueprintQuestion,
 } from '@/data/mentalitate-stack/questions';
 import {
   mentalitateStackService,
@@ -97,7 +98,7 @@ export const MentalitateStackFlow: React.FC<Props> = ({
   const answerSuggestionsFetchedRef = useRef<Record<number, boolean>>({});
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const currentQ = BLUEPRINT_QUESTIONS.find((q) => q.idx === qIdx)!;
+  const currentQ = getBlueprintQuestion(qIdx, mode === 'deep_dive' ? deepDiveAxis : undefined);
   const phase = BLUEPRINT_PHASES.find((p) => p.id === currentQ.phase)!;
   // +1 step for situation, +1 for schedule
   const progress = ((qIdx - 1) / TOTAL) * 100;
@@ -349,6 +350,11 @@ export const MentalitateStackFlow: React.FC<Props> = ({
             <div>
               <h3 className="font-semibold text-sm">Reconstrucția Mentală</h3>
               <p className="text-[11px] text-muted-foreground">Pasul 0 · Contextul situației</p>
+              {mode === 'deep_dive' && deepDiveAxis && (
+                <Badge variant="outline" className="mt-1 text-[10px] border-violet-500/40 text-violet-600 dark:text-violet-400">
+                  Deep-Dive: {AXIS_LABELS_RO[deepDiveAxis]?.name ?? deepDiveAxis}
+                </Badge>
+              )}
             </div>
           </div>
           <Progress value={0} className="h-1.5" indicatorClassName="bg-violet-500" />
@@ -635,6 +641,18 @@ export const MentalitateStackFlow: React.FC<Props> = ({
         </div>
 
         <Progress value={progress} className="h-1.5" indicatorClassName="bg-violet-500" />
+
+        {mode === 'deep_dive' && deepDiveAxis && (
+          <div className="rounded-lg border border-violet-500/40 bg-violet-500/10 px-3 py-2 flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-violet-500 shrink-0" />
+            <p className="text-[11px] leading-snug">
+              <span className="font-semibold text-violet-700 dark:text-violet-300">
+                Deep-Dive · {AXIS_LABELS_RO[deepDiveAxis]?.name ?? deepDiveAxis}
+              </span>
+              <span className="text-muted-foreground"> — întrebările sunt reformulate prin lentila acestei axe ({AXIS_LABELS_RO[deepDiveAxis]?.reframe}).</span>
+            </p>
+          </div>
+        )}
 
         <AnimatePresence mode="wait">
           <motion.div
