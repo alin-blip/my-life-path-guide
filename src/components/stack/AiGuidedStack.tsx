@@ -26,7 +26,7 @@ import { useConfettiCelebration } from '@/components/door/ConfettiCelebration';
 import { AlchemistTransformation } from '@/components/celebrations/AlchemistTransformation';
 import { KeyPointsDefinitionFlow } from '@/components/champion-routine/steps/KeyPointsDefinitionFlow';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
-import { getWeekKey } from '@/utils/weekUtils';
+import { getActiveWeekKey } from '@/utils/weekUtils';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -988,7 +988,7 @@ Răspunde în română cu un ton cald și profesionist.`;
 
     setIsAddingToHitList(true);
     try {
-      const weekKey = getWeekKey();
+      const weekKey = getActiveWeekKey();
       
       await doorUserTasksService.addIdeaToWeek(weekKey, {
         id: uuidv4(),
