@@ -1424,7 +1424,64 @@ Răspunde în română cu un ton cald și profesionist.`;
                 } ${message.isHighlighted ? 'ring-2 ring-yellow-500' : ''}`}
                 style={message.role === 'assistant' ? ({ ['--bubble-accent' as any]: accent } as React.CSSProperties) : undefined}
               >
-...
+                <div className="flex items-start gap-2">
+                  <div className="flex-1 prose prose-sm max-w-none dark:prose-invert text-xs sm:text-sm leading-relaxed">
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  </div>
+                  {message.role === 'assistant' && !voiceOnlyMode && (
+                    <TextToSpeechButton 
+                      text={message.content}
+                      variant="ghost"
+                      size="sm"
+                      className="flex-shrink-0"
+                    />
+                  )}
+                </div>
+                
+                {message.userNote && (
+                  <div className="mt-2 p-2 bg-blue-500/20 text-blue-300 rounded text-xs border-l-2 border-blue-500">
+                    💡 <strong>Notă:</strong> {message.userNote}
+                  </div>
+                )}
+                
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      const updatedMessages = [...messages];
+                      updatedMessages[index] = {
+                        ...updatedMessages[index],
+                        isHighlighted: !updatedMessages[index].isHighlighted
+                      };
+                      setMessages(updatedMessages);
+                    }}
+                    className="h-6 w-6 p-0"
+                  >
+                    {message.isHighlighted ? <Star className="h-3 w-3 fill-yellow-500" /> : <Star className="h-3 w-3" />}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setNoteMessageIndex(index);
+                      setCurrentNote(message.userNote || '');
+                      setCurrentImportance(message.importance || 'medium');
+                      setNoteDialogOpen(true);
+                    }}
+                    className="h-6 w-6 p-0"
+                  >
+                    <StickyNote className="h-3 w-3" />
+                  </Button>
+                </div>
+                
+                <p className="text-[10px] sm:text-xs mt-1 opacity-50">
+                  {message.timestamp.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+            </div>
+            );
+          })}
           {isLoading && (
             <div className="flex justify-start">
               <div className="max-w-[85%] p-3 sm:p-4 bubble-ai flex items-center space-x-2">
