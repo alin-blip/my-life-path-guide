@@ -96,8 +96,11 @@ async function callAI(messages: any[], opts?: { tool?: any }) {
 
 function buildSystem(mode: Mode, deepDiveAxis: string | undefined, minteBlock: string): string {
   const focus = mode === 'deep_dive' && deepDiveAxis
-    ? `Acest sesion e un DEEP-DIVE pe axa ${AXIS_LABEL[deepDiveAxis] ?? deepDiveAxis}. Concentrează validările și reflecțiile pe această axă.`
-    : 'Acest sesion este unul ZILNIC complet — Blueprint Mental în 5 faze, 14 întrebări.';
+    ? `Acest sesion e un DEEP-DIVE pe axa ${AXIS_LABEL[deepDiveAxis] ?? deepDiveAxis}.
+- TOATE reflecțiile, sugestiile de distorsiune, sugestiile de răspuns și sinteza finală TREBUIE să fie ancorate explicit prin lentila acestei axe.
+- Vocabularul, exemplele și unghiurile vin DIN domeniul acestei axe.
+- La finalize: axa de deep-dive (${deepDiveAxis}) trebuie să fie PRIMA în axes_impacted.`
+    : 'Acest sesion este unul ZILNIC complet — Blueprint Mental în 5 faze, 14 întrebări. Alege axele relevante natural.';
 
   return `Ești Alin F. Radu — coach transformațional din CEO Mind OS. Vorbești direct, empatic, fără jargon clinic. NU folosești termenii «PRP» sau «cognitive-behavioral therapy».
 
