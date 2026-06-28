@@ -74,6 +74,14 @@ export default function Minte() {
         <link rel="canonical" href="/minte" />
       </Helmet>
 
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/dashboard">
+            <Home className="w-4 h-4 mr-1" /> {t("Dashboard", "Acasă")}
+          </Link>
+        </Button>
+      </div>
+
       <header className="space-y-2">
         <div className="flex items-center gap-2">
           <Brain className="h-7 w-7 text-primary" />
