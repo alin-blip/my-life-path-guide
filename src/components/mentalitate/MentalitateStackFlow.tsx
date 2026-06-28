@@ -150,8 +150,11 @@ export const MentalitateStackFlow: React.FC<Props> = ({
     setMessages((prev) => [...prev, { ...m, id: uid() }]);
   }, []);
 
-  // ============ INIT: post intro message ============
+  // ============ INIT: post intro message (guarded against StrictMode double-mount) ============
+  const initedRef = useRef(false);
   useEffect(() => {
+    if (initedRef.current) return;
+    initedRef.current = true;
     const introLines: string[] = [];
     introLines.push(
       '👋 Bună. Sunt coach-ul tău mental. Vom face împreună o **Reconstrucție** în 5 faze, ~15 întrebări (~10–15 min). La final ai un gând nou realist și o acțiune programată.'
@@ -163,7 +166,6 @@ export const MentalitateStackFlow: React.FC<Props> = ({
     }
     introLines.push('Hai să începem cu **contextul**: descrie pe scurt situația care te-a declanșat.');
     pushMsg({ kind: 'coach-text', content: introLines.join('\n\n') });
-    // Q0 = situation; placeholder is just open textarea
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
