@@ -124,7 +124,7 @@ export const AXIS_QUESTION_OVERRIDES: Record<AxisKey, Partial<Record<number, QOv
          placeholder: 'ex: „Nu mă mai vrea nimeni, sigur am stricat tot."' },
     11: { text: 'Pe scala 0-10, cât din reacția ta emoțională ține de TINE (nu de situație)?',
           helper: '0 = totul e provocat din afară, 10 = e doar răspunsul meu intern.',
-          placeholder: 'ex: 6', type: undefined as any },
+          placeholder: 'ex: 6' },
     13: { text: 'Care e gândul care îți reglează emoția — nu o anulează, ci o aduce la nivel funcțional?',
           helper: 'Validează emoția + ancorează în realitate. Nu „nu mai fi trist".',
           placeholder: 'ex: „E firesc să mă doară. În același timp, n-am dovezi că totul s-a rupt. Pot acționa calm."' },
