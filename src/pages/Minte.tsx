@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Brain, ListChecks, Grid3x3, RotateCcw, ArrowRight, Sparkles } from "lucide-react";
+import { Brain, ListChecks, Grid3x3, RotateCcw, ArrowRight, Sparkles, Home } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { mindQuizService, type MindAxisScoreRow } from "@/services/mindQuizService";
 
