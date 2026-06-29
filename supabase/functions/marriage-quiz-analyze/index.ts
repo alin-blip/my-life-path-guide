@@ -375,7 +375,7 @@ Deno.serve(async (req) => {
         marketing_consent: marketingConsent,
         user_agent: ua,
         ip_hash: ipHash,
-        email_sent_at: (emailRes as any)?.id ? new Date().toISOString() : null,
+        email_sent_at: !(emailRes as any)?.error ? new Date().toISOString() : null,
       })
       .select("id")
       .single();
