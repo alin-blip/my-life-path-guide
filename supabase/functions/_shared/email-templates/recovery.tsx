@@ -6,40 +6,40 @@ import {
   Body, Button, Container, Head, Heading, Html, Preview, Section, Text,
 } from 'npm:@react-email/components@0.0.22'
 
+import { T, type EmailLang } from './i18n.ts'
+
 interface RecoveryEmailProps {
   siteName: string
   confirmationUrl: string
+  language?: EmailLang
 }
 
-export const RecoveryEmail = ({ confirmationUrl }: RecoveryEmailProps) => (
-  <Html lang="ro" dir="ltr">
-    <Head />
-    <Preview>Resetează-ți parola pentru CEO Mind OS</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Section style={headerBand}>
-          <Heading style={brand}>CEO MIND OS</Heading>
-        </Section>
-        <Section style={content}>
-          <Heading style={h1}>Resetează-ți parola</Heading>
-          <Text style={text}>
-            Am primit o cerere de resetare a parolei. Apasă butonul de mai jos pentru a-ți alege una nouă. Linkul expiră în 60 de minute.
-          </Text>
-          <Section style={{ textAlign: 'center' as const, margin: '28px 0' }}>
-            <Button style={button} href={confirmationUrl}>
-              Setează parolă nouă →
-            </Button>
+export const RecoveryEmail = ({ confirmationUrl, language = 'ro' }: RecoveryEmailProps) => {
+  const t = T.recovery[language]
+  return (
+    <Html lang={language} dir="ltr">
+      <Head />
+      <Preview>{t.preview}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Section style={headerBand}>
+            <Heading style={brand}>CEO MIND OS</Heading>
           </Section>
-          <Text style={text}>Sau copiază linkul în browser:</Text>
-          <Text style={linkBox}>{confirmationUrl}</Text>
-          <Text style={footer}>
-            Dacă nu ai cerut resetarea parolei, ignoră acest email — contul tău rămâne în siguranță.
-          </Text>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
-)
+          <Section style={content}>
+            <Heading style={h1}>{t.heading}</Heading>
+            <Text style={text}>{t.body}</Text>
+            <Section style={{ textAlign: 'center' as const, margin: '28px 0' }}>
+              <Button style={button} href={confirmationUrl}>{t.cta}</Button>
+            </Section>
+            <Text style={text}>{t.orCopy}</Text>
+            <Text style={linkBox}>{confirmationUrl}</Text>
+            <Text style={footer}>{t.footer}</Text>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default RecoveryEmail
 

@@ -6,40 +6,46 @@ import {
   Body, Button, Container, Head, Heading, Html, Link, Preview, Section, Text,
 } from 'npm:@react-email/components@0.0.22'
 
+import { T, type EmailLang } from './i18n.ts'
+
 interface InviteEmailProps {
   siteName: string
   siteUrl: string
   confirmationUrl: string
+  language?: EmailLang
 }
 
-export const InviteEmail = ({ siteUrl, confirmationUrl }: InviteEmailProps) => (
-  <Html lang="ro" dir="ltr">
-    <Head />
-    <Preview>Ai primit o invitație la CEO Mind OS</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Section style={headerBand}>
-          <Heading style={brand}>CEO MIND OS</Heading>
-          <Text style={tagline}>The Founder Operating System</Text>
-        </Section>
-        <Section style={content}>
-          <Heading style={h1}>Ai fost invitat(ă)</Heading>
-          <Text style={text}>
-            Cineva te-a invitat să intri în <Link href={siteUrl} style={link}><strong>CEO Mind OS</strong></Link> — sistemul de operare pentru antreprenori care vor Body, Being, Balance & Business aliniate.
-          </Text>
-          <Section style={{ textAlign: 'center' as const, margin: '28px 0' }}>
-            <Button style={button} href={confirmationUrl}>
-              Acceptă invitația →
-            </Button>
+export const InviteEmail = ({ siteUrl, confirmationUrl, language = 'ro' }: InviteEmailProps) => {
+  const t = T.invite[language]
+  // Body has a <strong> tag inline → split around it
+  const [pre, post] = t.body.split('<strong>CEO Mind OS</strong>')
+  return (
+    <Html lang={language} dir="ltr">
+      <Head />
+      <Preview>{t.preview}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Section style={headerBand}>
+            <Heading style={brand}>CEO MIND OS</Heading>
+            <Text style={tagline}>The Founder Operating System</Text>
           </Section>
-          <Text style={footer}>
-            Dacă nu te așteptai la această invitație, poți ignora în siguranță acest email.
-          </Text>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
-)
+          <Section style={content}>
+            <Heading style={h1}>{t.heading}</Heading>
+            <Text style={text}>
+              {pre}
+              <Link href={siteUrl} style={link}><strong>CEO Mind OS</strong></Link>
+              {post}
+            </Text>
+            <Section style={{ textAlign: 'center' as const, margin: '28px 0' }}>
+              <Button style={button} href={confirmationUrl}>{t.cta}</Button>
+            </Section>
+            <Text style={footer}>{t.footer}</Text>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default InviteEmail
 

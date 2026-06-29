@@ -9,20 +9,12 @@ import { MagicLinkEmail } from '../_shared/email-templates/magic-link.tsx'
 import { RecoveryEmail } from '../_shared/email-templates/recovery.tsx'
 import { EmailChangeEmail } from '../_shared/email-templates/email-change.tsx'
 import { ReauthenticationEmail } from '../_shared/email-templates/reauthentication.tsx'
+import { SUBJECTS, normalizeLang, type EmailLang } from '../_shared/email-templates/i18n.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers':
     'authorization, x-client-info, apikey, content-type, x-lovable-signature, x-lovable-timestamp, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-}
-
-const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
 }
 
 // Template mapping
@@ -34,6 +26,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
   email_change: EmailChangeEmail,
   reauthentication: ReauthenticationEmail,
 }
+
 
 // Configuration
 const SITE_NAME = "my-life-path-guide"
@@ -102,15 +95,22 @@ async function handlePreview(req: Request): Promise<Response> {
   }
 
   let type: string
+  let language: EmailLang = 'ro'
   try {
     const body = await req.json()
     type = body.type
+    if (body.language) language = normalizeLang(body.language)
   } catch (error) {
     return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
       status: 400,
       headers: { ...previewCorsHeaders, 'Content-Type': 'application/json' },
     })
   }
+
+  // Allow preview override via query string: ?lang=en
+  const urlObj = new URL(req.url)
+  const qLang = urlObj.searchParams.get('lang')
+  if (qLang) language = normalizeLang(qLang)
 
   const EmailTemplate = EMAIL_TEMPLATES[type]
 
@@ -121,8 +121,9 @@ async function handlePreview(req: Request): Promise<Response> {
     })
   }
 
-  const sampleData = SAMPLE_DATA[type] || {}
+  const sampleData = { ...(SAMPLE_DATA[type] || {}), language }
   const html = await renderAsync(React.createElement(EmailTemplate, sampleData))
+
 
   return new Response(html, {
     status: 200,
@@ -218,6 +219,28 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  // Resolve user language preference (RO/EN) via SECURITY DEFINER RPC.
+  // Falls back to 'ro' if user not found or no preference set.
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  )
+
+  let language: EmailLang = 'ro'
+  try {
+    const { data: langData, error: langError } = await supabase.rpc(
+      'get_user_language_by_email',
+      { _email: payload.data.email }
+    )
+    if (langError) {
+      console.warn('Language lookup failed, defaulting to ro', { error: langError, email: payload.data.email })
+    } else {
+      language = normalizeLang(langData as string | null)
+    }
+  } catch (err) {
+    console.warn('Language RPC threw, defaulting to ro', { err })
+  }
+
   // Build template props from payload.data (HookData structure)
   const templateProps = {
     siteName: SITE_NAME,
@@ -228,6 +251,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     email: payload.data.email,
     oldEmail: payload.data.old_email,
     newEmail: payload.data.new_email,
+    language,
   }
 
   // Render React Email to HTML and plain text
@@ -235,12 +259,6 @@ async function handleWebhook(req: Request): Promise<Response> {
   const text = await renderAsync(React.createElement(EmailTemplate, templateProps), {
     plainText: true,
   })
-
-  // Enqueue email for async processing by the dispatcher (process-email-queue).
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
 
   const messageId = crypto.randomUUID()
 
@@ -252,6 +270,8 @@ async function handleWebhook(req: Request): Promise<Response> {
     status: 'pending',
   })
 
+  const subject = SUBJECTS[emailType]?.[language] || SUBJECTS[emailType]?.ro || 'Notification'
+
   const { error: enqueueError } = await supabase.rpc('enqueue_email', {
     queue_name: 'auth_emails',
     payload: {
@@ -260,7 +280,7 @@ async function handleWebhook(req: Request): Promise<Response> {
       to: payload.data.email,
       from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
       sender_domain: SENDER_DOMAIN,
-      subject: EMAIL_SUBJECTS[emailType] || 'Notification',
+      subject,
       html,
       text,
       purpose: 'transactional',
@@ -268,6 +288,7 @@ async function handleWebhook(req: Request): Promise<Response> {
       queued_at: new Date().toISOString(),
     },
   })
+
 
   if (enqueueError) {
     console.error('Failed to enqueue auth email', { error: enqueueError, run_id, emailType })
