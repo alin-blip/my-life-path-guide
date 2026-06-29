@@ -1,0 +1,156 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Sparkles, History, User, Heart, AlertTriangle, Plus } from 'lucide-react';
+import { useMarriageProfile, useMarriageSessions } from '@/hooks/useMarriageStack';
+import { AxisDiagnosisRadar } from '@/components/marriage/AxisDiagnosisRadar';
+import { formatDistanceToNow } from 'date-fns';
+import { ro } from 'date-fns/locale';
+
+export default function Marriage() {
+  const navigate = useNavigate();
+  const { profile, loading: pLoad } = useMarriageProfile();
+  const { sessions, loading: sLoad } = useMarriageSessions();
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="border-b border-border bg-card">
+        <div className="container max-w-5xl mx-auto px-4 py-8">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="mb-3">
+            <ArrowLeft className="h-4 w-4 mr-2" /> Dashboard
+          </Button>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <Badge variant="outline" className="mb-2 gap-1">
+                <Heart className="h-3 w-3 text-primary" /> EXECUTIVE MARRIAGE AUDIT
+              </Badge>
+              <h1 className="font-display text-3xl md:text-4xl font-semibold tracking-tight">
+                Marriage Therapy <em className="text-primary not-italic italic">pentru lideri</em>
+              </h1>
+              <p className="text-muted-foreground mt-2 max-w-2xl">
+                Bazat pe metodologia PRP® (People Reconstruction Process). Încarcă conflicte concrete (screenshots, audio, text), AI Coach-ul face decelare cognitivă, diagnoză pe 6 axe și îți dă task practic pentru The Door.
+              </p>
+            </div>
+            <Button size="lg" onClick={() => navigate('/marriage/audit')}>
+              <Plus className="h-4 w-4 mr-2" /> Analiză nouă
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="container max-w-5xl mx-auto px-4 py-8 space-y-6">
+        {!pLoad && !profile?.partner_name && (
+          <Card className="p-5 bg-card border-l-4 border-l-yellow-500/60 flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold">Configurează profilul relațional</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Pentru memorie persistentă și pattern detection în timp, AI-ul are nevoie de context: nume partener, ani, copii, limbaj iubire.
+              </p>
+              <Button variant="link" className="px-0 h-auto mt-1" onClick={() => navigate('/marriage/profile')}>
+                Configurează profilul →
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {profile?.partner_name && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="p-4 bg-card md:col-span-1">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="h-4 w-4 text-primary" />
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">Partener</span>
+              </div>
+              <div className="font-display text-lg font-semibold">{profile.partner_name}</div>
+              <div className="text-sm text-muted-foreground">
+                {profile.relationship_years || '?'} ani • {profile.children_count || 0} copii
+              </div>
+              {profile.partner_love_language && (
+                <Badge variant="outline" className="mt-2 text-[10px]">{profile.partner_love_language}</Badge>
+              )}
+              <Button variant="ghost" size="sm" className="mt-3 -ml-2" onClick={() => navigate('/marriage/profile')}>
+                Editează profil
+              </Button>
+            </Card>
+
+            <div className="md:col-span-2">
+              {profile.axis_scores && Object.keys(profile.axis_scores).length > 0 ? (
+                <AxisDiagnosisRadar axisScores={profile.axis_scores} />
+              ) : (
+                <Card className="p-5 bg-card h-full flex items-center justify-center text-center">
+                  <div>
+                    <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Rulează prima analiză pentru a vedea scorul pe 6 axe</p>
+                  </div>
+                </Card>
+              )}
+            </div>
+          </div>
+        )}
+
+        {profile?.recurring_patterns && profile.recurring_patterns.length > 0 && (
+          <Card className="p-5 bg-card">
+            <h3 className="font-display font-semibold mb-3 flex items-center gap-2">
+              <History className="h-4 w-4 text-primary" /> Tipare recurente detectate
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {profile.recurring_patterns.slice(-10).map((p: any, i: number) => (
+                <Badge key={i} variant={p.count > 2 ? 'destructive' : 'outline'} className="gap-1">
+                  {p.key} · {p.count}x
+                </Badge>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display text-xl font-semibold">Istoric analize</h2>
+            {sessions.length > 0 && (
+              <Button variant="link" size="sm" onClick={() => navigate('/marriage/timeline')}>
+                Vezi timeline complet →
+              </Button>
+            )}
+          </div>
+          {sLoad ? (
+            <Card className="p-5 bg-card text-sm text-muted-foreground">Se încarcă...</Card>
+          ) : sessions.length === 0 ? (
+            <Card className="p-8 bg-card text-center">
+              <Sparkles className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground mb-4">Nicio analiză încă. Începe primul audit relațional.</p>
+              <Button onClick={() => navigate('/marriage/audit')}>
+                <Plus className="h-4 w-4 mr-2" /> Analiză nouă
+              </Button>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {sessions.slice(0, 5).map(s => (
+                <Card key={s.id} className="p-4 bg-card hover:border-primary cursor-pointer transition-colors" onClick={() => navigate(`/marriage/audit?session=${s.id}`)}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="font-semibold truncate">{s.title}</h4>
+                        {s.primary_destructured_axis && (
+                          <Badge variant="outline" className="text-[10px]">Axa {s.primary_destructured_axis}</Badge>
+                        )}
+                        {s.pattern_recurrence > 1 && (
+                          <Badge variant="destructive" className="text-[10px]">Tipar {s.pattern_recurrence}x</Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{s.factual_situation}</p>
+                    </div>
+                    <div className="text-xs text-muted-foreground whitespace-nowrap">
+                      {formatDistanceToNow(new Date(s.created_at), { addSuffix: true, locale: ro })}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -98,6 +98,10 @@ const ChallengeEnglish = lazy(() => import("./pages/ChallengeEnglish"));
 const ChallengeDayEnglish = lazy(() => import("./pages/ChallengeDayEnglish"));
 const MindCoach = lazy(() => import("./pages/MindCoach"));
 const MindCoachLanding = lazy(() => import("./pages/MindCoachLanding"));
+const Marriage = lazy(() => import("./pages/Marriage"));
+const MarriageAudit = lazy(() => import("./pages/MarriageAudit"));
+const MarriageProfilePage = lazy(() => import("./pages/MarriageProfile"));
+const MarriageTimelinePage = lazy(() => import("./pages/MarriageTimeline"));
 const Tools = lazy(() => import("./pages/Tools"));
 const Programs = lazy(() => import("./pages/Programs"));
 const PersonalPowerOverview = lazy(() => import("./pages/PersonalPowerOverview"));
@@ -429,6 +433,26 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/mind-coach-transform" element={<MindCoachLanding />} />
+                    <Route path="/marriage" element={
+                      <ProtectedRoute>
+                        <Marriage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/marriage/audit" element={
+                      <ProtectedRoute>
+                        <MarriageAudit />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/marriage/profile" element={
+                      <ProtectedRoute>
+                        <MarriageProfilePage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/marriage/timeline" element={
+                      <ProtectedRoute>
+                        <MarriageTimelinePage />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/tools" element={
                       <ProtectedRoute>
                         <Tools />

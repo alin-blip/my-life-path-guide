@@ -3194,6 +3194,176 @@ export type Database = {
         }
         Relationships: []
       }
+      marriage_profiles: {
+        Row: {
+          axis_scores: Json | null
+          children_count: number | null
+          created_at: string
+          id: string
+          last_analysis_at: string | null
+          partner_love_language: string | null
+          partner_name: string | null
+          partner_pronoun: string | null
+          recurring_patterns: Json | null
+          relationship_context: string | null
+          relationship_years: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          axis_scores?: Json | null
+          children_count?: number | null
+          created_at?: string
+          id?: string
+          last_analysis_at?: string | null
+          partner_love_language?: string | null
+          partner_name?: string | null
+          partner_pronoun?: string | null
+          recurring_patterns?: Json | null
+          relationship_context?: string | null
+          relationship_years?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          axis_scores?: Json | null
+          children_count?: number | null
+          created_at?: string
+          id?: string
+          last_analysis_at?: string | null
+          partner_love_language?: string | null
+          partner_name?: string | null
+          partner_pronoun?: string | null
+          recurring_patterns?: Json | null
+          relationship_context?: string | null
+          relationship_years?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marriage_sessions: {
+        Row: {
+          attachment_types: string[] | null
+          attachments: Json | null
+          axis_diagnosis: Json | null
+          conflict_summary: string | null
+          created_at: string
+          detected_distortions: Json | null
+          fact_vs_interpretation: string | null
+          factual_situation: string | null
+          id: string
+          pattern_recurrence: number | null
+          perspective_coach: string | null
+          perspective_husband: string | null
+          perspective_wife: string | null
+          primary_destructured_axis: string | null
+          status: string
+          task_description: string | null
+          task_exported: boolean | null
+          task_id: string | null
+          task_title: string | null
+          title: string | null
+          transcripts: Json | null
+          updated_at: string
+          user_context: string | null
+          user_id: string
+        }
+        Insert: {
+          attachment_types?: string[] | null
+          attachments?: Json | null
+          axis_diagnosis?: Json | null
+          conflict_summary?: string | null
+          created_at?: string
+          detected_distortions?: Json | null
+          fact_vs_interpretation?: string | null
+          factual_situation?: string | null
+          id?: string
+          pattern_recurrence?: number | null
+          perspective_coach?: string | null
+          perspective_husband?: string | null
+          perspective_wife?: string | null
+          primary_destructured_axis?: string | null
+          status?: string
+          task_description?: string | null
+          task_exported?: boolean | null
+          task_id?: string | null
+          task_title?: string | null
+          title?: string | null
+          transcripts?: Json | null
+          updated_at?: string
+          user_context?: string | null
+          user_id: string
+        }
+        Update: {
+          attachment_types?: string[] | null
+          attachments?: Json | null
+          axis_diagnosis?: Json | null
+          conflict_summary?: string | null
+          created_at?: string
+          detected_distortions?: Json | null
+          fact_vs_interpretation?: string | null
+          factual_situation?: string | null
+          id?: string
+          pattern_recurrence?: number | null
+          perspective_coach?: string | null
+          perspective_husband?: string | null
+          perspective_wife?: string | null
+          primary_destructured_axis?: string | null
+          status?: string
+          task_description?: string | null
+          task_exported?: boolean | null
+          task_id?: string | null
+          task_title?: string | null
+          title?: string | null
+          transcripts?: Json | null
+          updated_at?: string
+          user_context?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marriage_timeline_events: {
+        Row: {
+          axis_affected: string | null
+          created_at: string
+          description: string | null
+          distortion: string | null
+          event_type: string
+          id: string
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          axis_affected?: string | null
+          created_at?: string
+          description?: string | null
+          distortion?: string | null
+          event_type: string
+          id?: string
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          axis_affected?: string | null
+          created_at?: string
+          description?: string | null
+          distortion?: string | null
+          event_type?: string
+          id?: string
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marriage_timeline_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "marriage_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_plan_days: {
         Row: {
           created_at: string
