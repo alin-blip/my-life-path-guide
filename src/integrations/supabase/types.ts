@@ -353,6 +353,120 @@ export type Database = {
         }
         Relationships: []
       }
+      belief_forgiveness_logs: {
+        Row: {
+          ai_weekly_task: string | null
+          created_at: string
+          current_cost: string | null
+          exported_to_hit: boolean
+          id: string
+          release_declaration: string
+          target_name: string
+          updated_at: string
+          user_id: string
+          what_happened: string
+        }
+        Insert: {
+          ai_weekly_task?: string | null
+          created_at?: string
+          current_cost?: string | null
+          exported_to_hit?: boolean
+          id?: string
+          release_declaration: string
+          target_name: string
+          updated_at?: string
+          user_id: string
+          what_happened: string
+        }
+        Update: {
+          ai_weekly_task?: string | null
+          created_at?: string
+          current_cost?: string | null
+          exported_to_hit?: boolean
+          id?: string
+          release_declaration?: string
+          target_name?: string
+          updated_at?: string
+          user_id?: string
+          what_happened?: string
+        }
+        Relationships: []
+      }
+      belief_gratitude_logs: {
+        Row: {
+          ai_reflection: string | null
+          created_at: string
+          entry_date: string
+          id: string
+          items: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_reflection?: string | null
+          created_at?: string
+          entry_date?: string
+          id?: string
+          items?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_reflection?: string | null
+          created_at?: string
+          entry_date?: string
+          id?: string
+          items?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      belief_self_care_logs: {
+        Row: {
+          created_at: string
+          food_clean: boolean
+          id: string
+          log_date: string
+          movement_done: boolean
+          notes: string | null
+          score: number | null
+          sleep_hours: number | null
+          sleep_ok: boolean
+          tech_break_done: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          food_clean?: boolean
+          id?: string
+          log_date?: string
+          movement_done?: boolean
+          notes?: string | null
+          score?: number | null
+          sleep_hours?: number | null
+          sleep_ok?: boolean
+          tech_break_done?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          food_clean?: boolean
+          id?: string
+          log_date?: string
+          movement_done?: boolean
+          notes?: string | null
+          score?: number | null
+          sleep_hours?: number | null
+          sleep_ok?: boolean
+          tech_break_done?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       biz4_daily_metrics: {
         Row: {
           close_completed: boolean | null
