@@ -127,6 +127,32 @@ export default function CredinteFundamentaleCapitol() {
         <p className="text-muted-foreground">{chapter.description}</p>
       </header>
 
+      {/* In-flow tool CTA per chapter */}
+      {(() => {
+        const tools: Record<string, { to: string; label: string; desc: string }> = {
+          recunostinta: { to: "/credinte/gratitude", label: "🌅 Deschide Gratitude Anchor", desc: "Loghează 3 lucruri zilnic și primește o reflecție de la Alin." },
+          "iubire-de-oameni": { to: "/credinte/apreciere-fara-dar", label: "💬 Apreciere fără „DAR”", desc: "Lipește un mesaj cu DAR și primește variante pure." },
+          smerenia: { to: "/credinte/anti-aroganta", label: "⚖️ Filtru Anti-Aroganță", desc: "Verifică o decizie înainte s-o iei — smerenie sau ego?" },
+          iertare: { to: "/credinte/forgiveness", label: "🕊️ Forgiveness Protocol", desc: "Eliberează interior și primește o sarcină săptămânală." },
+          bunatate: { to: "/credinte/grija-de-sine", label: "🌿 Grija de Sine (zilnic)", desc: "Bunătatea începe cu tine — 4 indicatori zilnici." },
+        };
+        const tool = tools[slug];
+        if (!tool) return null;
+        return (
+          <Link to={tool.to}>
+            <Card className="border-2 hover:scale-[1.01] transition-transform cursor-pointer" style={{ borderColor: chapter.color_hex }}>
+              <CardContent className="p-4 flex items-center justify-between gap-3">
+                <div>
+                  <div className="font-semibold">{tool.label}</div>
+                  <div className="text-xs text-muted-foreground">{tool.desc}</div>
+                </div>
+                <Button size="sm" style={{ backgroundColor: chapter.color_hex }}>Deschide tool</Button>
+              </CardContent>
+            </Card>
+          </Link>
+        );
+      })()}
+
       {isAdmin && (
         <Card className="border-dashed">
           <CardContent className="p-3 space-y-2">
