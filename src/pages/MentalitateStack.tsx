@@ -58,7 +58,7 @@ export default function MentalitateStack() {
                 <span className="font-semibold">Resentimentul ascuns blochează reconstrucția.</span> Dacă mintea revine la aceeași persoană sau eveniment, instalează iertarea cu un act observabil săptămâna asta.
               </p>
             </div>
-            <Button size="sm" variant="default" className="gap-2 shrink-0" onClick={() => navigate('/minte/credinte-fundamentale/iertare-protocol')}>
+            <Button size="sm" variant="default" className="gap-2 shrink-0" onClick={() => navigate('/credinte/forgiveness')}>
               Deschide protocolul <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
