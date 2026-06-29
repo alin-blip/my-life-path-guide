@@ -390,7 +390,7 @@ Deno.serve(async (req) => {
         overall,
         band,
         ai,
-        emailSent: !!(emailRes as any)?.id,
+        emailSent: !(emailRes as any)?.error,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
