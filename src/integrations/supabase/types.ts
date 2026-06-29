@@ -422,6 +422,213 @@ export type Database = {
         }
         Relationships: []
       }
+      belief_mantras: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          last_played_at: string | null
+          library_id: string | null
+          play_count: number
+          slot: string
+          text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          last_played_at?: string | null
+          library_id?: string | null
+          play_count?: number
+          slot?: string
+          text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          last_played_at?: string | null
+          library_id?: string | null
+          play_count?: number
+          slot?: string
+          text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "belief_mantras_library_id_fkey"
+            columns: ["library_id"]
+            isOneToOne: false
+            referencedRelation: "belief_reprogrammer_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      belief_reprogrammer_artifacts: {
+        Row: {
+          created_at: string
+          id: string
+          payload: Json
+          phase: string
+          session_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          phase: string
+          session_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          phase?: string
+          session_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "belief_reprogrammer_artifacts_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "belief_reprogrammer_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      belief_reprogrammer_library: {
+        Row: {
+          axis: string | null
+          created_at: string
+          days_target: number
+          id: string
+          installation_status: string
+          installed_at: string | null
+          last_repeated_at: string | null
+          mantra_evening: string | null
+          mantra_morning: string | null
+          new_belief: string
+          old_belief: string
+          parental_pattern: string | null
+          session_id: string | null
+          source_age_range: string | null
+          source_event: string | null
+          times_repeated: number
+          updated_at: string
+          user_id: string
+          weekly_task: string | null
+        }
+        Insert: {
+          axis?: string | null
+          created_at?: string
+          days_target?: number
+          id?: string
+          installation_status?: string
+          installed_at?: string | null
+          last_repeated_at?: string | null
+          mantra_evening?: string | null
+          mantra_morning?: string | null
+          new_belief: string
+          old_belief: string
+          parental_pattern?: string | null
+          session_id?: string | null
+          source_age_range?: string | null
+          source_event?: string | null
+          times_repeated?: number
+          updated_at?: string
+          user_id: string
+          weekly_task?: string | null
+        }
+        Update: {
+          axis?: string | null
+          created_at?: string
+          days_target?: number
+          id?: string
+          installation_status?: string
+          installed_at?: string | null
+          last_repeated_at?: string | null
+          mantra_evening?: string | null
+          mantra_morning?: string | null
+          new_belief?: string
+          old_belief?: string
+          parental_pattern?: string | null
+          session_id?: string | null
+          source_age_range?: string | null
+          source_event?: string | null
+          times_repeated?: number
+          updated_at?: string
+          user_id?: string
+          weekly_task?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "belief_reprogrammer_library_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "belief_reprogrammer_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      belief_reprogrammer_sessions: {
+        Row: {
+          axis: string | null
+          completed_at: string | null
+          created_at: string
+          current_phase: string
+          id: string
+          root_belief: string | null
+          source_age_range: string | null
+          source_event: string | null
+          source_who: string | null
+          status: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          axis?: string | null
+          completed_at?: string | null
+          created_at?: string
+          current_phase?: string
+          id?: string
+          root_belief?: string | null
+          source_age_range?: string | null
+          source_event?: string | null
+          source_who?: string | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          axis?: string | null
+          completed_at?: string | null
+          created_at?: string
+          current_phase?: string
+          id?: string
+          root_belief?: string | null
+          source_age_range?: string | null
+          source_event?: string | null
+          source_who?: string | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       belief_self_care_logs: {
         Row: {
           created_at: string
