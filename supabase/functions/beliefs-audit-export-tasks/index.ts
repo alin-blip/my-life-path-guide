@@ -53,12 +53,12 @@ serve(async (req) => {
     }
 
     const weekKey = currentWeekKey();
-    const rows = tasks.slice(0, 7).map((t: any, i: number) => ({
+    const rows = tasks.slice(0, 7).map((t: any) => ({
       user_id: user.id,
       week_key: weekKey,
       list_type: "hit",
+      item_id: crypto.randomUUID(),
       title: `[${t.chapter ?? "Credințe"}] ${t.title}`,
-      position: i,
     }));
 
     const { error: insErr } = await adminClient.from("hot_list_items").insert(rows);
