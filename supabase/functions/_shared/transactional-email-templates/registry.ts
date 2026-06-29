@@ -28,4 +28,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'challenge-upsell-1': challengeUpsell1,
   'challenge-upsell-2': challengeUpsell2,
   'challenge-welcome-set-password': challengeWelcomeSetPassword,
+  'marriage-quiz-report': marriageQuizReport,
 }
