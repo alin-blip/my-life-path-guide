@@ -175,9 +175,11 @@ export function MindCoachChat({
 
   // Handle send message
   const handleSend = () => {
-    if (!inputValue.trim() || isLoading) return;
-    sendMessage(inputValue.trim());
+    if ((!inputValue.trim() && !attachedImage) || isLoading) return;
+    const text = inputValue.trim() || (language === 'ro' ? 'Analizează acest screenshot.' : 'Analyze this screenshot.');
+    sendMessage(text, attachedImage ?? undefined);
     setInputValue('');
+    setAttachedImage(null);
   };
 
   // Handle key press
