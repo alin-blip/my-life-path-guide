@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Phone } from 'lucide-react';
+import { Send, Loader2, Phone, Paperclip, X } from 'lucide-react';
 import { SpeakButton } from './SpeakButton';
 import { CallModeOverlay } from './CallModeOverlay';
 import { QuickAnswerSuggestions } from './QuickAnswerSuggestions';
 import { CoachingCluster } from '@/lib/mind-coach-clusters';
 import type { TransformationPhase } from './PhaseIndicator';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface MindCoachInputBarProps {
   // Text input
