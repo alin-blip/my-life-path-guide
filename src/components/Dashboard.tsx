@@ -31,6 +31,7 @@ import { ObjectivesCard } from '@/components/dashboard/ObjectivesCard';
 import { DailyCommandCenterWidget } from '@/components/dashboard/widgets';
 import { VisionDeclarationWidget } from '@/components/dashboard/widgets/VisionDeclarationWidget';
 import { EmpowermentMeditationCard } from '@/components/dashboard/EmpowermentMeditationCard';
+import { SelfCareWidget } from '@/components/dashboard/SelfCareWidget';
 import { AcceleratorBanner } from '@/components/dashboard/AcceleratorBanner';
 import { EarlyBirdBanner } from '@/components/dashboard/EarlyBirdBanner';
 import { useFoundationStatus } from '@/hooks/useFoundationStatus';
@@ -822,6 +823,12 @@ export const Dashboard: React.FC = () => {
       <div className="mb-6" data-tour="stacks">
         <EmpowermentMeditationCard />
       </div>
+
+      {/* Self-Care — Grija de Sine (Credința 5) */}
+      <div className="mb-6">
+        <SelfCareWidget />
+      </div>
+
       <DailyCompactCard />
       
       {/* ChampionRoutineWidget removed - integrated into DailyCommandCenterWidget */}

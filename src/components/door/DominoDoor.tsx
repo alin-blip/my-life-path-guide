@@ -443,6 +443,26 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                 <X className="w-4 h-4" />
               </button>
             )}
+            {!isCompleted && (
+              <div className="mt-3 pt-3 border-t border-border/40 flex items-center justify-between gap-2 flex-wrap">
+                <p className="text-xs text-muted-foreground">
+                  🪞 Iei această decizie din <span className="font-medium">smerenie</span> sau din <span className="font-medium">aroganță</span>?
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={() => {
+                    sessionStorage.setItem('beliefs-arrogance-prefill', JSON.stringify({
+                      decision: selectedDomino.text,
+                    }));
+                    window.open('/minte/credinte-fundamentale/smerenie-filter', '_blank');
+                  }}
+                >
+                  Verifică în 60s →
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* AI Key Points Generation Prompt */}

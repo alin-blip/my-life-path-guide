@@ -3,7 +3,8 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Brain } from 'lucide-react';
+import { ArrowLeft, Brain, HandHeart, ArrowRight } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 import { MentalitateStackFlow } from '@/components/mentalitate/MentalitateStackFlow';
 import { DeepDiveSelector } from '@/components/mentalitate/DeepDiveSelector';
 import { SessionHistory } from '@/components/mentalitate/SessionHistory';
@@ -44,6 +45,24 @@ export default function MentalitateStack() {
             </div>
           </div>
         </header>
+
+        {/* Forgiveness Protocol — Credința Iertării */}
+        <Card className="p-4 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent border-l-4 border-l-amber-500">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <HandHeart className="h-4 w-4 text-amber-600" />
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">Forgiveness Protocol</span>
+              </div>
+              <p className="text-sm">
+                <span className="font-semibold">Resentimentul ascuns blochează reconstrucția.</span> Dacă mintea revine la aceeași persoană sau eveniment, instalează iertarea cu un act observabil săptămâna asta.
+              </p>
+            </div>
+            <Button size="sm" variant="default" className="gap-2 shrink-0" onClick={() => navigate('/minte/credinte-fundamentale/iertare-protocol')}>
+              Deschide protocolul <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </Card>
 
         <Tabs value={tab} onValueChange={(v) => { setTab(v); setDeepDiveAxis(undefined); setFlowKey((k) => k + 1); }}>
           <TabsList className="grid grid-cols-3 w-full">
