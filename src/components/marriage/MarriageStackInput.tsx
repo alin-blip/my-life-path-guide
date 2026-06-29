@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/card';
 import { Paperclip, X, Mic, MicOff, Loader2, FileText, Image as ImageIcon, FileAudio } from 'lucide-react';
 import { toast } from 'sonner';
 import { marriageService, MarriageAttachment } from '@/services/marriageService';
-import { supabase } from '@/integrations/supabase/client';
 
 interface Props {
   onAttachmentsChange: (atts: MarriageAttachment[], transcripts: string) => void;
@@ -13,7 +12,53 @@ interface Props {
 }
 
 const MAX_FILES = 10;
-const MAX_SIZE = 5 * 1024 * 1024;
+const MAX_SIZE = 20 * 1024 * 1024;
+const MAX_IMAGE_DIMENSION = 1600;
+
+const readFileAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('Nu am putut citi fișierul'));
+    reader.readAsDataURL(file);
+  });
+
+const optimizeImageForAttachment = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      try {
+        const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas indisponibil');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const keepPng = file.type === 'image/png' && file.size <= 1.5 * 1024 * 1024;
+        resolve(canvas.toDataURL(keepPng ? 'image/png' : 'image/jpeg', 0.86));
+      } catch (error) {
+        reject(error);
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+
+    img.onerror = async () => {
+      URL.revokeObjectURL(objectUrl);
+      try {
+        resolve(await readFileAsDataUrl(file));
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    img.src = objectUrl;
+  });
 
 export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attachments }) => {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -55,16 +100,19 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
     if (!files || files.length === 0) return;
     console.log('[MarriageStackInput] handleFiles:', files.length, 'files');
 
-    const { data: { user } } = await supabase.auth.getUser();
     const fileArr = Array.from(files);
 
     let working: MarriageAttachment[] = [...attachments];
+    let addedCount = 0;
+    let skippedCount = 0;
     const pushAtt = (att: MarriageAttachment) => {
       if (working.length >= MAX_FILES) {
         toast.error(`Maxim ${MAX_FILES} atașamente per sesiune`);
+        skippedCount += 1;
         return false;
       }
       working = [...working, att];
+      addedCount += 1;
       console.log('[MarriageStackInput] pushAtt:', att.type, att.name, '→ total:', working.length);
       updateAtts(working);
       return true;
@@ -72,16 +120,13 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
 
     for (const file of fileArr) {
       if (file.size > MAX_SIZE) {
-        toast.error(`${file.name}: depășește 5MB`);
+        skippedCount += 1;
+        toast.error(`${file.name}: depășește 20MB`);
         continue;
       }
       try {
         if (file.type.startsWith('image/')) {
-          if (!user) {
-            toast.error('Pentru imagini trebuie autentificare. Folosește text/PDF sau lipește conținutul.');
-            continue;
-          }
-          const url = await marriageService.uploadEvidence(user.id, file);
+          const url = await optimizeImageForAttachment(file);
           pushAtt({ type: 'image', url, name: file.name, size: file.size });
         } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
           // Fallback: store filename only — recommend paste for PDF
@@ -102,11 +147,17 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
           pushAtt({ type: 'text', content: text, name: file.name, size: file.size });
         }
       } catch (e: any) {
+        skippedCount += 1;
         console.error('[MarriageStackInput] upload error:', file.name, e);
         toast.error(`Eroare upload ${file.name}: ${e.message || e}`);
       }
     }
-    toast.success(`${working.length - attachments.length} fișier(e) adăugat(e)`);
+
+    if (addedCount > 0) {
+      toast.success(`${addedCount} fișier(e) adăugat(e)`);
+    } else if (skippedCount > 0) {
+      toast.error('Niciun fișier nu a putut fi adăugat. Verifică formatul și dimensiunea.');
+    }
   };
 
 
