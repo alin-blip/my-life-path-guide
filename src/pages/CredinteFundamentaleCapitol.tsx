@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, FileAudio, FileText, MessageCircleQuestion, Grid3x3, Save, Sparkles, ExternalLink, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { beliefChaptersService, type BeliefChapter, type ChapterProgress } from "@/services/beliefChaptersService";
 import { FISHBOWL_QUESTIONS, type ChapterSlug } from "@/data/credinte-fundamentale";
