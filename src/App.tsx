@@ -81,6 +81,11 @@ const CredinteFundamentale = lazy(() => import("./pages/CredinteFundamentale"));
 const CredinteFundamentaleCapitol = lazy(() => import("./pages/CredinteFundamentaleCapitol"));
 const CredinteFundamentaleAudit = lazy(() => import("./pages/CredinteFundamentaleAudit"));
 const CredinteFundamentaleAuditResult = lazy(() => import("./pages/CredinteFundamentaleAuditResult"));
+const BeliefGratitudeAnchor = lazy(() => import("./pages/BeliefGratitudeAnchor"));
+const BeliefNoButValidator = lazy(() => import("./pages/BeliefNoButValidator"));
+const BeliefAntiArrogance = lazy(() => import("./pages/BeliefAntiArrogance"));
+const BeliefForgiveness = lazy(() => import("./pages/BeliefForgiveness"));
+const BeliefSelfCare = lazy(() => import("./pages/BeliefSelfCare"));
 const MintePSA = lazy(() => import("./pages/MintePSA"));
 const MentalitateStack = lazy(() => import("./pages/MentalitateStack"));
 const DashboardSettingsPage = lazy(() => import("./pages/DashboardSettingsPage"));
@@ -330,6 +335,21 @@ const App = () => (
                       <ProtectedRoute>
                         <CredinteFundamentaleAuditResult />
                       </ProtectedRoute>
+                    } />
+                    <Route path="/credinte/gratitude" element={
+                      <ProtectedRoute><BeliefGratitudeAnchor /></ProtectedRoute>
+                    } />
+                    <Route path="/credinte/apreciere-fara-dar" element={
+                      <ProtectedRoute><BeliefNoButValidator /></ProtectedRoute>
+                    } />
+                    <Route path="/credinte/anti-aroganta" element={
+                      <ProtectedRoute><BeliefAntiArrogance /></ProtectedRoute>
+                    } />
+                    <Route path="/credinte/forgiveness" element={
+                      <ProtectedRoute><BeliefForgiveness /></ProtectedRoute>
+                    } />
+                    <Route path="/credinte/grija-de-sine" element={
+                      <ProtectedRoute><BeliefSelfCare /></ProtectedRoute>
                     } />
                     <Route path="/minte/credinte-fundamentale/:slug" element={
                       <ProtectedRoute>

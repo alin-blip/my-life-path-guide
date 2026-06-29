@@ -176,6 +176,30 @@ export default function CredinteFundamentale() {
         })}
       </div>
 
+      {/* Quick tools strip */}
+      <section className="space-y-3">
+        <h2 className="text-xl font-semibold">Tool-uri zilnice de practică</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {[
+            { to: "/credinte/gratitude", title: "Gratitude Anchor", desc: "3 lucruri seara · Recunoștință", color: "#F59E0B" },
+            { to: "/credinte/forgiveness", title: "Forgiveness Protocol", desc: "Eliberare + sarcină · Iertare", color: "#8B5CF6" },
+            { to: "/credinte/anti-aroganta", title: "Anti-Aroganță", desc: "Filtru decizii · Smerenia", color: "#3B82F6" },
+            { to: "/credinte/apreciere-fara-dar", title: "Apreciere fără DAR", desc: "Mesaje pure · Iubire", color: "#EF4444" },
+            { to: "/credinte/grija-de-sine", title: "Grija de Sine", desc: "Somn · Mișcare · Hrană · Pauză", color: "#10B981" },
+          ].map((t) => (
+            <Link key={t.to} to={t.to}>
+              <Card className="h-full hover:border-primary/40 transition-colors cursor-pointer">
+                <CardContent className="p-4 space-y-1">
+                  <div className="w-2 h-8 rounded-full" style={{ backgroundColor: t.color }} />
+                  <h3 className="font-semibold text-sm">{t.title}</h3>
+                  <p className="text-xs text-muted-foreground">{t.desc}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {loading && <p className="text-xs text-center text-muted-foreground">Se încarcă…</p>}
     </div>
   );
