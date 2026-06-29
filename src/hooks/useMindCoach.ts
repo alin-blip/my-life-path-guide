@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  imageDataUrl?: string;
 }
 
 interface BreakthroughData {
