@@ -9,6 +9,7 @@ import { MarriageStackInput } from '@/components/marriage/MarriageStackInput';
 import { RelationalTriangle } from '@/components/marriage/RelationalTriangle';
 import { AxisDiagnosisRadar } from '@/components/marriage/AxisDiagnosisRadar';
 import { MarriageTaskExportCard } from '@/components/marriage/MarriageTaskExportCard';
+import { TriggerRootCard, RepairScriptCard, ExplorationQuestionsCard, SevenDayPlanCard, FollowupChat } from '@/components/marriage/MarriageAuditExtensions';
 import { marriageService, MarriageAttachment, MarriageSession } from '@/services/marriageService';
 import { useMarriageProfile } from '@/hooks/useMarriageStack';
 import { Textarea } from '@/components/ui/textarea';
@@ -181,7 +182,14 @@ const ResultView: React.FC<{ result: { session: MarriageSession; pattern_recurre
         </Card>
       )}
 
+      <TriggerRootCard session={session} />
+      <RepairScriptCard session={session} />
+      <ExplorationQuestionsCard session={session} />
+      <SevenDayPlanCard session={session} />
+
       <MarriageTaskExportCard session={session} />
+
+      <FollowupChat session={session} />
     </div>
   );
 };

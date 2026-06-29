@@ -44,6 +44,10 @@ export interface MarriageSession {
   task_description: string | null;
   task_id: string | null;
   task_exported: boolean;
+  repair_script?: string[];
+  trigger_root?: { past_wound: string; current_trigger: string; cognitive_reframe: string } | null;
+  exploration_questions?: Array<{ question: string; for: 'self' | 'partner' }>;
+  seven_day_plan?: Array<{ day: number; action: string; intention: string }>;
   status: string;
   created_at: string;
   updated_at: string;
@@ -141,5 +145,23 @@ export const marriageService = {
       .update({ task_exported: true, task_id: taskId })
       .eq('id', sessionId);
     if (error) throw error;
+  },
+
+  async sendFollowup(sessionId: string, message: string): Promise<string> {
+    const { data, error } = await supabase.functions.invoke('marriage-coach-followup', {
+      body: { session_id: sessionId, message },
+    });
+    if (error) throw error;
+    return data?.message || '';
+  },
+
+  async listFollowupMessages(sessionId: string): Promise<Array<{ role: 'user' | 'assistant'; content: string; created_at: string }>> {
+    const { data, error } = await supabase
+      .from('marriage_session_messages' as any)
+      .select('role, content, created_at')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return (data || []) as any;
   },
 };
