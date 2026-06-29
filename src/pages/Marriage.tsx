@@ -90,6 +90,25 @@ export default function Marriage() {
           </div>
         )}
 
+        {/* No-But Apreciere CTA — Credința Iubirii de Oameni */}
+        <Card className="p-5 bg-gradient-to-r from-rose-500/10 via-pink-500/5 to-transparent border-l-4 border-l-rose-500">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <Heart className="h-4 w-4 text-rose-500" />
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">Credința Iubirii — Apreciere fără DAR</span>
+              </div>
+              <h3 className="font-display text-lg font-semibold">Înainte de următoarea conversație grea</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Scrie aprecierea pe care vrei să i-o spui {profile?.partner_name || 'partenerului'}. AI-ul detectează "DAR"-ul ascuns și o reformulează PUR.
+              </p>
+            </div>
+            <Button size="sm" variant="default" className="gap-2" onClick={() => navigate('/minte/credinte-fundamentale/apreciere-fara-dar')}>
+              Reformulează <ArrowLeft className="h-4 w-4 rotate-180" />
+            </Button>
+          </div>
+        </Card>
+
         {profile?.recurring_patterns && profile.recurring_patterns.length > 0 && (
           <Card className="p-5 bg-card">
             <h3 className="font-display font-semibold mb-3 flex items-center gap-2">

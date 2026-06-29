@@ -132,6 +132,18 @@ export function GratitudeStep({ items, onChange, onNext }: GratitudeStepProps) {
           Continuă
           <ArrowRight className="h-5 w-5" />
         </Button>
+
+        {/* Gratitude Anchor — Credința Recunoștinței */}
+        <div className="text-center pt-2">
+          <a
+            href="/minte/credinte-fundamentale/recunostinta-anchor"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-pink-500 hover:text-pink-400 underline underline-offset-2"
+          >
+            Vrei reflecție mai adâncă? Deschide Gratitude Anchor →
+          </a>
+        </div>
       </Card>
     </div>
   );
