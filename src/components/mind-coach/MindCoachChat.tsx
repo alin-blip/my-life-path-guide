@@ -390,7 +390,16 @@ export function MindCoachChat({
                             <ReactMarkdown>{cleanContent}</ReactMarkdown>
                           </div>
                         ) : (
-                          <p>{msg.content}</p>
+                          <div className="space-y-2">
+                            {msg.imageDataUrl && (
+                              <img
+                                src={msg.imageDataUrl}
+                                alt="Screenshot"
+                                className="max-h-48 rounded-lg border border-primary-foreground/20"
+                              />
+                            )}
+                            {msg.content && <p>{msg.content}</p>}
+                          </div>
                         )}
                       </div>
                     </div>
