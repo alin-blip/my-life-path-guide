@@ -103,7 +103,7 @@ export default function Marriage() {
                 Scrie aprecierea pe care vrei să i-o spui {profile?.partner_name || 'partenerului'}. AI-ul detectează "DAR"-ul ascuns și o reformulează PUR.
               </p>
             </div>
-            <Button size="sm" variant="default" className="gap-2" onClick={() => navigate('/minte/credinte-fundamentale/apreciere-fara-dar')}>
+            <Button size="sm" variant="default" className="gap-2" onClick={() => navigate('/credinte/apreciere-fara-dar')}>
               Reformulează <ArrowLeft className="h-4 w-4 rotate-180" />
             </Button>
           </div>
