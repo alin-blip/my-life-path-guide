@@ -87,7 +87,7 @@ const RESPONSE_SCHEMA = {
     axis_diagnosis: {
       type: "object",
       properties: {
-        cognitiva: { type: "number", description: "0-100, 100 = perfect sănătos" },
+        cognitiva: { type: "number" },
         afectiva: { type: "number" },
         comportamentala: { type: "number" },
         volitiva: { type: "number" },
@@ -96,14 +96,53 @@ const RESPONSE_SCHEMA = {
       },
       required: ["cognitiva", "afectiva", "comportamentala", "volitiva", "profesionala", "spirituala"],
     },
-    primary_destructured_axis: { type: "string", description: "Axa principală destructurată (un singur nume din cele 6)" },
-    perspective_husband: { type: "string", description: "Perspectiva antreprenorului (iluzia/filtrul). Vorbește la persoana I, ca el. 3-5 fraze." },
-    perspective_wife: { type: "string", description: "Perspectiva partenerului (realitatea resimțită). Vorbește ca el/ea. 3-5 fraze." },
-    perspective_coach: { type: "string", description: "Adevărul obiectiv, ferm, în vocea lui Alin. Numește axa destructurată și capcana. 4-6 fraze." },
+    primary_destructured_axis: { type: "string" },
+    perspective_husband: { type: "string", description: "Perspectiva antreprenorului (iluzia/filtrul). Persoana I. 3-5 fraze." },
+    perspective_wife: { type: "string", description: "Perspectiva partenerului (realitatea resimțită). 3-5 fraze." },
+    perspective_coach: { type: "string", description: "Adevărul obiectiv în vocea lui Alin. 4-6 fraze." },
+    repair_script: {
+      type: "array",
+      description: "3-5 fraze concrete, non-defensive, pentru reconectare cu partenerul. Fără 'dar', fără justificări. Vulnerabil, asumat.",
+      items: { type: "string" },
+    },
+    trigger_root: {
+      type: "object",
+      properties: {
+        past_wound: { type: "string", description: "Rana din trecut care e activată acum. 2-3 fraze." },
+        current_trigger: { type: "string", description: "Trigger-ul concret din situația actuală. 1-2 fraze." },
+        cognitive_reframe: { type: "string", description: "Gândul nou, mai adevărat. Persoana I, 1-2 fraze." },
+      },
+      required: ["past_wound", "current_trigger", "cognitive_reframe"],
+    },
+    exploration_questions: {
+      type: "array",
+      description: "5-7 întrebări socratice. Unele pentru self, altele pentru partner.",
+      items: {
+        type: "object",
+        properties: {
+          question: { type: "string" },
+          for: { type: "string", description: "'self' sau 'partner'" },
+        },
+        required: ["question", "for"],
+      },
+    },
+    seven_day_plan: {
+      type: "array",
+      description: "Exact 7 acțiuni mici (<15 min/zi) care sparg tiparul.",
+      items: {
+        type: "object",
+        properties: {
+          day: { type: "number" },
+          action: { type: "string" },
+          intention: { type: "string" },
+        },
+        required: ["day", "action", "intention"],
+      },
+    },
     task_title: { type: "string", description: "Titlu scurt task, max 80 caractere" },
-    task_description: { type: "string", description: "Descrierea task-ului concret, executabil în <30 min" },
+    task_description: { type: "string", description: "Task concret, executabil în <30 min" },
   },
-  required: ["title", "factual_situation", "fact_vs_interpretation", "cognitive_distortions", "axis_diagnosis", "primary_destructured_axis", "perspective_husband", "perspective_wife", "perspective_coach", "task_title", "task_description"],
+  required: ["title", "factual_situation", "fact_vs_interpretation", "cognitive_distortions", "axis_diagnosis", "primary_destructured_axis", "perspective_husband", "perspective_wife", "perspective_coach", "repair_script", "trigger_root", "exploration_questions", "seven_day_plan", "task_title", "task_description"],
 };
 
 serve(async (req) => {
