@@ -176,19 +176,57 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
             isVisible={showQuickAnswers && !value.trim() && !isLoading}
           />
           
+          {/* Attached image preview */}
+          {attachedImage && (
+            <div className="relative inline-block">
+              <img
+                src={attachedImage}
+                alt={language === 'ro' ? 'Screenshot atașat' : 'Attached screenshot'}
+                className="max-h-32 rounded-lg border border-border"
+              />
+              <button
+                type="button"
+                onClick={onRemoveImage}
+                className="absolute -top-2 -right-2 bg-background border border-border rounded-full p-1 shadow-sm hover:bg-muted"
+                aria-label={language === 'ro' ? 'Elimină imaginea' : 'Remove image'}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+
           {/* Text input row */}
           <div className="flex gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="shrink-0 h-[44px] w-[44px]"
+              disabled={isDisabled}
+              onClick={() => fileInputRef.current?.click()}
+              title={language === 'ro' ? 'Atașează screenshot' : 'Attach screenshot'}
+            >
+              <Paperclip className="h-4 w-4" />
+            </Button>
             <Textarea
               value={value}
               onChange={(e) => onChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={placeholder || (language === 'ro' ? 'Scrie aici...' : 'Type here...')}
+              onPaste={handlePaste}
+              placeholder={placeholder || (language === 'ro' ? 'Scrie aici... (poți lipi un screenshot)' : 'Type here... (you can paste a screenshot)')}
               className="min-h-[44px] max-h-[120px] resize-none"
               disabled={isDisabled}
             />
             <Button
               onClick={onSend}
-              disabled={!value.trim() || isLoading || isComplete}
+              disabled={!canSend}
               size="icon"
               className="shrink-0 h-[44px] w-[44px]"
             >
@@ -199,6 +237,7 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
               )}
             </Button>
           </div>
+
 
           {/* Voice buttons row */}
           <div className="flex gap-2">
