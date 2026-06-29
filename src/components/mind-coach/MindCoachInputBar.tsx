@@ -44,7 +44,12 @@ interface MindCoachInputBarProps {
   phase?: TransformationPhase;
   messageCount?: number;
   showQuickAnswers?: boolean;
-  
+
+  // Image attachment
+  attachedImage?: string | null;
+  onAttachImage?: (dataUrl: string) => void;
+  onRemoveImage?: () => void;
+
   // Language
   language?: 'ro' | 'en';
 }
