@@ -60,7 +60,7 @@ export default function MarriageAudit() {
               <Badge variant="outline" className="mb-2 gap-1"><Sparkles className="h-3 w-3 text-primary" /> EXECUTIVE MARRIAGE AUDIT</Badge>
               <h1 className="font-display text-3xl md:text-4xl font-semibold tracking-tight">Analiză conflict relațional</h1>
               <p className="text-muted-foreground mt-1">
-                Încarcă evidence (screenshots, audio, text), AI Coach-ul aplică metodologia PRP® pe 6 axe.
+                Încarcă evidence (screenshots, audio, text), AI Coach-ul face diagnostic pe 6 axe relaționale.
               </p>
             </div>
             {profile?.partner_name && (
@@ -111,7 +111,7 @@ export default function MarriageAudit() {
             <div className="flex justify-end">
               <Button size="lg" onClick={handleAnalyze} disabled={!canAnalyze}>
                 {analyzing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                {analyzing ? 'Analizez (poate dura 30-60s)...' : 'Rulează analiza PRP®'}
+                {analyzing ? 'Analizez (poate dura 30-60s)...' : 'Rulează analiza'}
               </Button>
             </div>
 
