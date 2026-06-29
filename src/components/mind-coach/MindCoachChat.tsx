@@ -460,6 +460,9 @@ export function MindCoachChat({
             phase={currentPhase}
             messageCount={messages.length}
             showQuickAnswers={showQuickAnswers}
+            attachedImage={attachedImage}
+            onAttachImage={setAttachedImage}
+            onRemoveImage={() => setAttachedImage(null)}
             language={language}
           />
         </div>
