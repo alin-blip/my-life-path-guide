@@ -52,6 +52,7 @@ export function MindCoachChat({
   );
   const [selectedIntensity, setSelectedIntensity] = useState(initialIntensity);
   const [inputValue, setInputValue] = useState('');
+  const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showContinuePrompt, setShowContinuePrompt] = useState(false);
   const [showChatContent, setShowChatContent] = useState(true);
@@ -174,9 +175,11 @@ export function MindCoachChat({
 
   // Handle send message
   const handleSend = () => {
-    if (!inputValue.trim() || isLoading) return;
-    sendMessage(inputValue.trim());
+    if ((!inputValue.trim() && !attachedImage) || isLoading) return;
+    const text = inputValue.trim() || (language === 'ro' ? 'Analizează acest screenshot.' : 'Analyze this screenshot.');
+    sendMessage(text, attachedImage ?? undefined);
     setInputValue('');
+    setAttachedImage(null);
   };
 
   // Handle key press
@@ -387,7 +390,16 @@ export function MindCoachChat({
                             <ReactMarkdown>{cleanContent}</ReactMarkdown>
                           </div>
                         ) : (
-                          <p>{msg.content}</p>
+                          <div className="space-y-2">
+                            {msg.imageDataUrl && (
+                              <img
+                                src={msg.imageDataUrl}
+                                alt="Screenshot"
+                                className="max-h-48 rounded-lg border border-primary-foreground/20"
+                              />
+                            )}
+                            {msg.content && <p>{msg.content}</p>}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -448,6 +460,9 @@ export function MindCoachChat({
             phase={currentPhase}
             messageCount={messages.length}
             showQuickAnswers={showQuickAnswers}
+            attachedImage={attachedImage}
+            onAttachImage={setAttachedImage}
+            onRemoveImage={() => setAttachedImage(null)}
             language={language}
           />
         </div>
