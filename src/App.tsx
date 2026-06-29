@@ -312,6 +312,26 @@ const App = () => (
                         <MinteCredinte />
                       </ProtectedRoute>
                     } />
+                    <Route path="/minte/credinte-fundamentale" element={
+                      <ProtectedRoute>
+                        <CredinteFundamentale />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/minte/credinte-fundamentale/audit" element={
+                      <ProtectedRoute>
+                        <CredinteFundamentaleAudit />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/minte/credinte-fundamentale/audit/:id" element={
+                      <ProtectedRoute>
+                        <CredinteFundamentaleAuditResult />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/minte/credinte-fundamentale/:slug" element={
+                      <ProtectedRoute>
+                        <CredinteFundamentaleCapitol />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/minte/psa" element={
                       <ProtectedRoute>
                         <MintePSA />
