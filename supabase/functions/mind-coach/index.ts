@@ -456,7 +456,18 @@ Răspunde ÎNTOTDEAUNA în română.`;
         model: 'google/gemini-2.5-pro',
         messages: [
           { role: 'system', content: systemPrompt },
-          ...messages,
+          ...(imageDataUrl && messages.length > 0
+            ? [
+                ...messages.slice(0, -1),
+                {
+                  role: messages[messages.length - 1].role,
+                  content: [
+                    { type: 'text', text: messages[messages.length - 1].content || 'Analizează acest screenshot.' },
+                    { type: 'image_url', image_url: { url: imageDataUrl } },
+                  ],
+                },
+              ]
+            : messages),
         ],
         tools: tools,
         stream: true,
