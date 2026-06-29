@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +18,17 @@ export default function BeliefAntiArrogance() {
   const [context, setContext] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('beliefs-arrogance-prefill');
+      if (raw) {
+        const { decision: d } = JSON.parse(raw);
+        if (d) setDecision(d);
+        sessionStorage.removeItem('beliefs-arrogance-prefill');
+      }
+    } catch {}
+  }, []);
 
   const submit = async () => {
     if (!decision.trim() || !why.trim()) {
