@@ -275,29 +275,31 @@ function renderEmailHtml(
   </body></html>`;
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
-  const apiKey = Deno.env.get("RESEND_API_KEY");
-  if (!apiKey) {
-    console.warn("RESEND_API_KEY missing, skipping email");
-    return { skipped: true };
-  }
-  const res = await fetch("https://api.resend.com/emails", {
+async function sendEmail(
+  supabaseUrl: string,
+  serviceKey: string,
+  to: string,
+  templateData: Record<string, unknown>,
+  idempotencyKey: string,
+) {
+  const res = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${serviceKey}`,
+      apikey: serviceKey,
     },
     body: JSON.stringify({
-      from: "CEO Mind OS <onboarding@resend.dev>",
-      to: [to],
-      subject,
-      html,
+      templateName: "marriage-quiz-report",
+      recipientEmail: to,
+      idempotencyKey,
+      templateData,
     }),
   });
   if (!res.ok) {
     const t = await res.text();
-    console.error("Resend error", res.status, t.slice(0, 300));
-    return { error: t };
+    console.error("send-transactional-email error", res.status, t.slice(0, 300));
+    return { error: t, status: res.status };
   }
   return await res.json();
 }
