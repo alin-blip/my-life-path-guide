@@ -137,7 +137,7 @@ export default function BeliefForgiveness() {
           </div>
           <div className="space-y-1">
             <label className="text-sm font-medium">Declarația mea de eliberare</label>
-            <Textarea rows={3} value={release} onChange={(e) => setRelease(e.target.value)} placeholder="Scrie cu vocea ta: „Aleg să eliberez…", „Renunț la dreptul de a…", etc." />
+            <Textarea rows={3} value={release} onChange={(e) => setRelease(e.target.value)} placeholder='Scrie cu vocea ta: „Aleg să eliberez…", „Renunț la dreptul de a…", etc.' />
           </div>
           <Button onClick={submit} disabled={loading}>
             <Sparkles className="h-3.5 w-3.5 mr-1" />
