@@ -211,6 +211,28 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  // Resolve user language preference (RO/EN) via SECURITY DEFINER RPC.
+  // Falls back to 'ro' if user not found or no preference set.
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  )
+
+  let language: EmailLang = 'ro'
+  try {
+    const { data: langData, error: langError } = await supabase.rpc(
+      'get_user_language_by_email',
+      { _email: payload.data.email }
+    )
+    if (langError) {
+      console.warn('Language lookup failed, defaulting to ro', { error: langError, email: payload.data.email })
+    } else {
+      language = normalizeLang(langData as string | null)
+    }
+  } catch (err) {
+    console.warn('Language RPC threw, defaulting to ro', { err })
+  }
+
   // Build template props from payload.data (HookData structure)
   const templateProps = {
     siteName: SITE_NAME,
@@ -221,6 +243,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     email: payload.data.email,
     oldEmail: payload.data.old_email,
     newEmail: payload.data.new_email,
+    language,
   }
 
   // Render React Email to HTML and plain text
@@ -228,12 +251,6 @@ async function handleWebhook(req: Request): Promise<Response> {
   const text = await renderAsync(React.createElement(EmailTemplate, templateProps), {
     plainText: true,
   })
-
-  // Enqueue email for async processing by the dispatcher (process-email-queue).
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
 
   const messageId = crypto.randomUUID()
 
@@ -245,6 +262,8 @@ async function handleWebhook(req: Request): Promise<Response> {
     status: 'pending',
   })
 
+  const subject = SUBJECTS[emailType]?.[language] || SUBJECTS[emailType]?.ro || 'Notification'
+
   const { error: enqueueError } = await supabase.rpc('enqueue_email', {
     queue_name: 'auth_emails',
     payload: {
@@ -253,7 +272,7 @@ async function handleWebhook(req: Request): Promise<Response> {
       to: payload.data.email,
       from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
       sender_domain: SENDER_DOMAIN,
-      subject: EMAIL_SUBJECTS[emailType] || 'Notification',
+      subject,
       html,
       text,
       purpose: 'transactional',
@@ -261,6 +280,7 @@ async function handleWebhook(req: Request): Promise<Response> {
       queued_at: new Date().toISOString(),
     },
   })
+
 
   if (enqueueError) {
     console.error('Failed to enqueue auth email', { error: enqueueError, run_id, emailType })
