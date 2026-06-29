@@ -3305,6 +3305,41 @@ export type Database = {
         }
         Relationships: []
       }
+      marriage_session_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marriage_session_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "marriage_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marriage_sessions: {
         Row: {
           attachment_types: string[] | null
@@ -3313,6 +3348,7 @@ export type Database = {
           conflict_summary: string | null
           created_at: string
           detected_distortions: Json | null
+          exploration_questions: Json | null
           fact_vs_interpretation: string | null
           factual_situation: string | null
           id: string
@@ -3321,6 +3357,8 @@ export type Database = {
           perspective_husband: string | null
           perspective_wife: string | null
           primary_destructured_axis: string | null
+          repair_script: Json | null
+          seven_day_plan: Json | null
           status: string
           task_description: string | null
           task_exported: boolean | null
@@ -3328,6 +3366,7 @@ export type Database = {
           task_title: string | null
           title: string | null
           transcripts: Json | null
+          trigger_root: Json | null
           updated_at: string
           user_context: string | null
           user_id: string
@@ -3339,6 +3378,7 @@ export type Database = {
           conflict_summary?: string | null
           created_at?: string
           detected_distortions?: Json | null
+          exploration_questions?: Json | null
           fact_vs_interpretation?: string | null
           factual_situation?: string | null
           id?: string
@@ -3347,6 +3387,8 @@ export type Database = {
           perspective_husband?: string | null
           perspective_wife?: string | null
           primary_destructured_axis?: string | null
+          repair_script?: Json | null
+          seven_day_plan?: Json | null
           status?: string
           task_description?: string | null
           task_exported?: boolean | null
@@ -3354,6 +3396,7 @@ export type Database = {
           task_title?: string | null
           title?: string | null
           transcripts?: Json | null
+          trigger_root?: Json | null
           updated_at?: string
           user_context?: string | null
           user_id: string
@@ -3365,6 +3408,7 @@ export type Database = {
           conflict_summary?: string | null
           created_at?: string
           detected_distortions?: Json | null
+          exploration_questions?: Json | null
           fact_vs_interpretation?: string | null
           factual_situation?: string | null
           id?: string
@@ -3373,6 +3417,8 @@ export type Database = {
           perspective_husband?: string | null
           perspective_wife?: string | null
           primary_destructured_axis?: string | null
+          repair_script?: Json | null
+          seven_day_plan?: Json | null
           status?: string
           task_description?: string | null
           task_exported?: boolean | null
@@ -3380,6 +3426,7 @@ export type Database = {
           task_title?: string | null
           title?: string | null
           transcripts?: Json | null
+          trigger_root?: Json | null
           updated_at?: string
           user_context?: string | null
           user_id?: string
