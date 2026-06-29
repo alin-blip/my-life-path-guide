@@ -237,7 +237,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: language === 'ro' ? 'Matricea Credințelor' : 'Belief Matrix', icon: LayoutGrid, path: '/minte/credinte' },
         { title: language === 'ro' ? 'Credințe Fundamentale' : 'Core Beliefs', icon: Sparkles, path: '/minte/credinte-fundamentale' },
         { title: language === 'ro' ? 'Reprogramator Credințe' : 'Belief Reprogrammer', icon: RotateCcw, path: '/minte/credinte-fundamentale/reprogrammer' },
-        { title: language === 'ro' ? 'Biblioteca Credințelor' : 'Belief Library', icon: LayoutGrid, path: '/minte/credinte-fundamentale/library' },
+        { title: language === 'ro' ? 'Biblioteca Credințelor' : 'Belief Library', icon: LayoutGrid, path: '/biblioteca-credintelor' },
         { title: language === 'ro' ? 'PSA Reconstrucție' : 'PSA Reconstruction', icon: RotateCcw, path: '/minte/psa' },
       ]
     },
