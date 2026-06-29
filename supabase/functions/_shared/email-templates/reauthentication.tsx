@@ -6,33 +6,37 @@ import {
   Body, Container, Head, Heading, Html, Preview, Section, Text,
 } from 'npm:@react-email/components@0.0.22'
 
+import { T, type EmailLang } from './i18n.ts'
+
 interface ReauthenticationEmailProps {
   token: string
+  language?: EmailLang
 }
 
-export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
-  <Html lang="ro" dir="ltr">
-    <Head />
-    <Preview>Codul tău de verificare · CEO Mind OS</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Section style={headerBand}>
-          <Heading style={brand}>CEO MIND OS</Heading>
-        </Section>
-        <Section style={content}>
-          <Heading style={h1}>Confirmă-ți identitatea</Heading>
-          <Text style={text}>Folosește codul de mai jos pentru a continua:</Text>
-          <Section style={{ textAlign: 'center' as const, margin: '24px 0' }}>
-            <Text style={codeStyle}>{token}</Text>
+export const ReauthenticationEmail = ({ token, language = 'ro' }: ReauthenticationEmailProps) => {
+  const t = T.reauthentication[language]
+  return (
+    <Html lang={language} dir="ltr">
+      <Head />
+      <Preview>{t.preview}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Section style={headerBand}>
+            <Heading style={brand}>CEO MIND OS</Heading>
           </Section>
-          <Text style={footer}>
-            Codul expiră în câteva minute. Dacă nu ai cerut acest cod, ignoră acest email.
-          </Text>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
-)
+          <Section style={content}>
+            <Heading style={h1}>{t.heading}</Heading>
+            <Text style={text}>{t.body}</Text>
+            <Section style={{ textAlign: 'center' as const, margin: '24px 0' }}>
+              <Text style={codeStyle}>{token}</Text>
+            </Section>
+            <Text style={footer}>{t.footer}</Text>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default ReauthenticationEmail
 

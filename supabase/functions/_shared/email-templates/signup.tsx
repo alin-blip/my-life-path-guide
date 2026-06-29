@@ -14,46 +14,44 @@ import {
   Text,
 } from 'npm:@react-email/components@0.0.22'
 
+import { T, type EmailLang } from './i18n.ts'
+
 interface SignupEmailProps {
   siteName: string
   siteUrl: string
   recipient: string
   confirmationUrl: string
+  language?: EmailLang
 }
 
-export const SignupEmail = ({ siteUrl, confirmationUrl }: SignupEmailProps) => (
-  <Html lang="ro" dir="ltr">
-    <Head />
-    <Preview>Confirmă-ți emailul pentru CEO Mind OS</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Section style={headerBand}>
-          <Heading style={brand}>CEO MIND OS</Heading>
-          <Text style={tagline}>The Founder Operating System</Text>
-        </Section>
-        <Section style={content}>
-          <Heading style={h1}>Confirmă-ți emailul</Heading>
-          <Text style={text}>
-            Bine ai venit. Ai făcut primul pas — un pas mic, dar cel mai important. Apasă butonul de mai jos pentru a-ți activa contul și pentru a începe să construiești o viață pe care nu vrei să o eviți.
-          </Text>
-          <Section style={{ textAlign: 'center' as const, margin: '28px 0' }}>
-            <Button style={button} href={confirmationUrl}>
-              Activează contul →
-            </Button>
+export const SignupEmail = ({ siteUrl, confirmationUrl, language = 'ro' }: SignupEmailProps) => {
+  const t = T.signup[language]
+  return (
+    <Html lang={language} dir="ltr">
+      <Head />
+      <Preview>{t.preview}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Section style={headerBand}>
+            <Heading style={brand}>CEO MIND OS</Heading>
+            <Text style={tagline}>The Founder Operating System</Text>
           </Section>
-          <Text style={text}>
-            Sau copiază linkul în browser:
-          </Text>
-          <Text style={linkBox}>{confirmationUrl}</Text>
-          <Text style={footer}>
-            Dacă nu ai creat un cont, poți ignora în siguranță acest email.
-          </Text>
-          <Text style={signoff}>— Alin & echipa CEO Mind OS<br /><a href={siteUrl} style={link}>ceomindos.com</a></Text>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
-)
+          <Section style={content}>
+            <Heading style={h1}>{t.heading}</Heading>
+            <Text style={text}>{t.body}</Text>
+            <Section style={{ textAlign: 'center' as const, margin: '28px 0' }}>
+              <Button style={button} href={confirmationUrl}>{t.cta}</Button>
+            </Section>
+            <Text style={text}>{t.orCopy}</Text>
+            <Text style={linkBox}>{confirmationUrl}</Text>
+            <Text style={footer}>{t.footer}</Text>
+            <Text style={signoff}>{t.signoff}<br /><a href={siteUrl} style={link}>ceomindos.com</a></Text>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default SignupEmail
 

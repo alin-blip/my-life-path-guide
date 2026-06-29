@@ -6,40 +6,40 @@ import {
   Body, Button, Container, Head, Heading, Html, Preview, Section, Text,
 } from 'npm:@react-email/components@0.0.22'
 
+import { T, type EmailLang } from './i18n.ts'
+
 interface MagicLinkEmailProps {
   siteName: string
   confirmationUrl: string
+  language?: EmailLang
 }
 
-export const MagicLinkEmail = ({ confirmationUrl }: MagicLinkEmailProps) => (
-  <Html lang="ro" dir="ltr">
-    <Head />
-    <Preview>Linkul tău de autentificare · CEO Mind OS</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Section style={headerBand}>
-          <Heading style={brand}>CEO MIND OS</Heading>
-        </Section>
-        <Section style={content}>
-          <Heading style={h1}>Linkul tău de autentificare</Heading>
-          <Text style={text}>
-            Apasă butonul de mai jos pentru a te autentifica. Linkul expiră în câteva minute, deci folosește-l acum.
-          </Text>
-          <Section style={{ textAlign: 'center' as const, margin: '28px 0' }}>
-            <Button style={button} href={confirmationUrl}>
-              Intră în cont →
-            </Button>
+export const MagicLinkEmail = ({ confirmationUrl, language = 'ro' }: MagicLinkEmailProps) => {
+  const t = T.magiclink[language]
+  return (
+    <Html lang={language} dir="ltr">
+      <Head />
+      <Preview>{t.preview}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Section style={headerBand}>
+            <Heading style={brand}>CEO MIND OS</Heading>
           </Section>
-          <Text style={text}>Sau copiază linkul în browser:</Text>
-          <Text style={linkBox}>{confirmationUrl}</Text>
-          <Text style={footer}>
-            Dacă nu ai cerut acest link, ignoră acest email.
-          </Text>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
-)
+          <Section style={content}>
+            <Heading style={h1}>{t.heading}</Heading>
+            <Text style={text}>{t.body}</Text>
+            <Section style={{ textAlign: 'center' as const, margin: '28px 0' }}>
+              <Button style={button} href={confirmationUrl}>{t.cta}</Button>
+            </Section>
+            <Text style={text}>{t.orCopy}</Text>
+            <Text style={linkBox}>{confirmationUrl}</Text>
+            <Text style={footer}>{t.footer}</Text>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default MagicLinkEmail
 
