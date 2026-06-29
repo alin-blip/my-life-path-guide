@@ -102,6 +102,7 @@ const Marriage = lazy(() => import("./pages/Marriage"));
 const MarriageAudit = lazy(() => import("./pages/MarriageAudit"));
 const MarriageProfilePage = lazy(() => import("./pages/MarriageProfile"));
 const MarriageTimelinePage = lazy(() => import("./pages/MarriageTimeline"));
+const MarriageQuiz = lazy(() => import("./pages/MarriageQuiz"));
 const Tools = lazy(() => import("./pages/Tools"));
 const Programs = lazy(() => import("./pages/Programs"));
 const PersonalPowerOverview = lazy(() => import("./pages/PersonalPowerOverview"));
@@ -433,6 +434,7 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/mind-coach-transform" element={<MindCoachLanding />} />
+                    <Route path="/marriage-quiz" element={<MarriageQuiz />} />
                     <Route path="/marriage" element={
                       <ProtectedRoute>
                         <Marriage />

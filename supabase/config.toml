@@ -227,3 +227,6 @@ verify_jwt = false
 
 [functions.send-burnout-funnel-sequence]
 verify_jwt = false
+
+[functions.marriage-quiz-analyze]
+verify_jwt = false

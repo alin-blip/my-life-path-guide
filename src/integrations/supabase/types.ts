@@ -3242,6 +3242,69 @@ export type Database = {
         }
         Relationships: []
       }
+      marriage_quiz_leads: {
+        Row: {
+          ai_diagnosis: string | null
+          ai_plan: Json | null
+          answers: Json
+          axis_scores: Json
+          converted_user_id: string | null
+          created_at: string
+          email: string
+          email_sent_at: string | null
+          first_name: string | null
+          health_band: string | null
+          id: string
+          ip_hash: string | null
+          language: string
+          marketing_consent: boolean
+          overall_score: number | null
+          source: string | null
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          ai_diagnosis?: string | null
+          ai_plan?: Json | null
+          answers?: Json
+          axis_scores?: Json
+          converted_user_id?: string | null
+          created_at?: string
+          email: string
+          email_sent_at?: string | null
+          first_name?: string | null
+          health_band?: string | null
+          id?: string
+          ip_hash?: string | null
+          language?: string
+          marketing_consent?: boolean
+          overall_score?: number | null
+          source?: string | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          ai_diagnosis?: string | null
+          ai_plan?: Json | null
+          answers?: Json
+          axis_scores?: Json
+          converted_user_id?: string | null
+          created_at?: string
+          email?: string
+          email_sent_at?: string | null
+          first_name?: string | null
+          health_band?: string | null
+          id?: string
+          ip_hash?: string | null
+          language?: string
+          marketing_consent?: boolean
+          overall_score?: number | null
+          source?: string | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       marriage_sessions: {
         Row: {
           attachment_types: string[] | null
