@@ -346,12 +346,19 @@ Deno.serve(async (req) => {
           .slice(0, 32)
       : null;
 
-    const html = renderEmailHtml(language, firstName, scores, overall, band, ai);
-    const subject = language === "ro"
-      ? "Raportul tău - Evaluarea Căsătoriei (CEO Mind OS)"
-      : "Your Report - Marriage Evaluation (CEO Mind OS)";
-
-    const emailRes = await sendEmail(email, subject, html);
+    const leadIdempotency = `marriage-quiz-${email}-${Date.now()}`;
+    const emailRes = await sendEmail(url, serviceKey, email, {
+      firstName: firstName ?? null,
+      language,
+      overallScore: overall,
+      band,
+      axisScores: scores,
+      diagnosis: ai.diagnosis ?? "",
+      strengths: ai.strengths ?? [],
+      risks: ai.risks ?? [],
+      plan: ai.plan_30_days ?? [],
+      firstStepToday: ai.first_step_today ?? "",
+    }, leadIdempotency);
 
     const { data: inserted, error: insErr } = await admin
       .from("marriage_quiz_leads")
