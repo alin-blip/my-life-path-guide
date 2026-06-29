@@ -433,6 +433,26 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/mind-coach-transform" element={<MindCoachLanding />} />
+                    <Route path="/marriage" element={
+                      <ProtectedRoute>
+                        <Marriage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/marriage/audit" element={
+                      <ProtectedRoute>
+                        <MarriageAudit />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/marriage/profile" element={
+                      <ProtectedRoute>
+                        <MarriageProfilePage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/marriage/timeline" element={
+                      <ProtectedRoute>
+                        <MarriageTimelinePage />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/tools" element={
                       <ProtectedRoute>
                         <Tools />
