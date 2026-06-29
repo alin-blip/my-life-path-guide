@@ -154,10 +154,10 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
   }, []);
 
   // Send message to Mind Coach
-  const sendMessage = useCallback(async (userMessage: string) => {
+  const sendMessage = useCallback(async (userMessage: string, imageDataUrl?: string) => {
     if (!emotion) return;
 
-    const userMsg: Message = { role: 'user', content: userMessage };
+    const userMsg: Message = { role: 'user', content: userMessage, imageDataUrl };
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
@@ -171,9 +171,10 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
       }
 
       const emotionInfo = getEmotionInfo(emotion);
-      const allMessages = [...messages, userMsg];
+      // Strip imageDataUrl when sending history to the model (only the new one is sent as multimodal)
+      const allMessages = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
       const cluster = getClusterForEmotion(emotion);
-      
+
       // Calculate phase based on message count
       const newPhase = getPhaseFromMessageCount(allMessages.length);
       setCurrentPhase(newPhase);
@@ -190,6 +191,7 @@ export function useMindCoach(options: UseMindCoachOptions = {}) {
           intensity,
           phase: newPhase,
           cluster,
+          imageDataUrl,
         }),
       });
 
