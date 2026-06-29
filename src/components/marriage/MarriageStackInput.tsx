@@ -32,11 +32,19 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
   };
 
   const addAtt = (att: MarriageAttachment) => {
-    if (attachments.length >= MAX_FILES) {
-      toast.error(`Maxim ${MAX_FILES} atașamente per sesiune`);
-      return;
-    }
-    updateAtts([...attachments, att]);
+    setAttsFunctional((prev) => {
+      if (prev.length >= MAX_FILES) {
+        toast.error(`Maxim ${MAX_FILES} atașamente per sesiune`);
+        return prev;
+      }
+      return [...prev, att];
+    });
+  };
+
+  // helper: update via functional setter on parent
+  const setAttsFunctional = (updater: (prev: MarriageAttachment[]) => MarriageAttachment[]) => {
+    const next = updater(attachments);
+    if (next !== attachments) updateAtts(next);
   };
 
   const removeAtt = (idx: number) => {
@@ -48,6 +56,17 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return toast.error('Trebuie să fii autentificat');
 
+    let working: MarriageAttachment[] = [...attachments];
+    const pushAtt = (att: MarriageAttachment) => {
+      if (working.length >= MAX_FILES) {
+        toast.error(`Maxim ${MAX_FILES} atașamente per sesiune`);
+        return false;
+      }
+      working = [...working, att];
+      updateAtts(working);
+      return true;
+    };
+
     for (const file of Array.from(files)) {
       if (file.size > MAX_SIZE) {
         toast.error(`${file.name}: depășește 5MB`);
@@ -56,22 +75,30 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
       try {
         if (file.type.startsWith('image/')) {
           const url = await marriageService.uploadEvidence(user.id, file);
-          addAtt({ type: 'image', url, name: file.name, size: file.size });
+          pushAtt({ type: 'image', url, name: file.name, size: file.size });
         } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
           toast.info('PDF: extragem doar prima pagină ca text (folosește copy-paste pentru rezultate mai bune)');
           const text = await file.text().catch(() => '');
-          addAtt({ type: 'pdf', content: text.slice(0, 5000), name: file.name, size: file.size });
+          pushAtt({ type: 'pdf', content: text.slice(0, 5000), name: file.name, size: file.size });
         } else if (file.type.startsWith('audio/')) {
-          await transcribeAndAdd(file);
+          setTranscribing(true);
+          try {
+            const text = await marriageService.transcribeAudio(file);
+            pushAtt({ type: 'audio', content: text, name: file.name, size: file.size });
+            toast.success('Audio transcris');
+          } finally {
+            setTranscribing(false);
+          }
         } else {
           const text = await file.text();
-          addAtt({ type: 'text', content: text, name: file.name, size: file.size });
+          pushAtt({ type: 'text', content: text, name: file.name, size: file.size });
         }
       } catch (e: any) {
         toast.error(`Eroare upload ${file.name}: ${e.message}`);
       }
     }
   };
+
 
   const transcribeAndAdd = async (file: File) => {
     setTranscribing(true);
