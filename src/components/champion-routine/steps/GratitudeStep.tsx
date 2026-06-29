@@ -136,7 +136,7 @@ export function GratitudeStep({ items, onChange, onNext }: GratitudeStepProps) {
         {/* Gratitude Anchor — Credința Recunoștinței */}
         <div className="text-center pt-2">
           <a
-            href="/minte/credinte-fundamentale/recunostinta-anchor"
+            href="/credinte/gratitude"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-pink-500 hover:text-pink-400 underline underline-offset-2"

@@ -1,0 +1,14 @@
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.belief_self_care_logs TO authenticated;
+GRANT ALL ON public.belief_self_care_logs TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.belief_forgiveness_logs TO authenticated;
+GRANT ALL ON public.belief_forgiveness_logs TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.belief_gratitude_logs TO authenticated;
+GRANT ALL ON public.belief_gratitude_logs TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.belief_chapter_progress TO authenticated;
+GRANT ALL ON public.belief_chapter_progress TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.belief_audits TO authenticated;
+GRANT ALL ON public.belief_audits TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.belief_fishbowl_responses TO authenticated;
+GRANT ALL ON public.belief_fishbowl_responses TO service_role;
+GRANT SELECT ON public.belief_chapters TO authenticated, anon;
+GRANT ALL ON public.belief_chapters TO service_role;

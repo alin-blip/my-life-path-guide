@@ -68,7 +68,7 @@ export function SelfCareWidget() {
             </div>
           )}
         </div>
-        <Button size="sm" variant="default" className="gap-2" onClick={() => navigate('/minte/credinte-fundamentale/grija-de-sine')}>
+        <Button size="sm" variant="default" className="gap-2" onClick={() => navigate('/credinte/grija-de-sine')}>
           {score === null ? 'Bifează azi' : 'Actualizează'} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
