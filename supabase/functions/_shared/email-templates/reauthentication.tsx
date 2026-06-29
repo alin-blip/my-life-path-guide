@@ -3,13 +3,7 @@
 import * as React from 'npm:react@18.3.1'
 
 import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Text,
+  Body, Container, Head, Heading, Html, Preview, Section, Text,
 } from 'npm:@react-email/components@0.0.22'
 
 interface ReauthenticationEmailProps {
@@ -17,18 +11,24 @@ interface ReauthenticationEmailProps {
 }
 
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="ro" dir="ltr">
     <Head />
-    <Preview>Your verification code</Preview>
+    <Preview>Codul tău de verificare · CEO Mind OS</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm reauthentication</Heading>
-        <Text style={text}>Use the code below to confirm your identity:</Text>
-        <Text style={codeStyle}>{token}</Text>
-        <Text style={footer}>
-          This code will expire shortly. If you didn't request this, you can
-          safely ignore this email.
-        </Text>
+        <Section style={headerBand}>
+          <Heading style={brand}>CEO MIND OS</Heading>
+        </Section>
+        <Section style={content}>
+          <Heading style={h1}>Confirmă-ți identitatea</Heading>
+          <Text style={text}>Folosește codul de mai jos pentru a continua:</Text>
+          <Section style={{ textAlign: 'center' as const, margin: '24px 0' }}>
+            <Text style={codeStyle}>{token}</Text>
+          </Section>
+          <Text style={footer}>
+            Codul expiră în câteva minute. Dacă nu ai cerut acest cod, ignoră acest email.
+          </Text>
+        </Section>
       </Container>
     </Body>
   </Html>
@@ -36,25 +36,24 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
 
 export default ReauthenticationEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
+const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, Helvetica, sans-serif' }
+const container = { maxWidth: '600px', margin: '0 auto', padding: '0' }
+const headerBand = { background: '#10172d', padding: '24px 28px', textAlign: 'center' as const, borderRadius: '8px 8px 0 0' }
+const brand = { color: '#ffffff', fontSize: '20px', letterSpacing: '3px', margin: 0, fontWeight: 700 }
+const content = { padding: '28px' }
+const h1 = { fontSize: '24px', fontWeight: 700 as const, color: '#0f172a', margin: '0 0 16px' }
+const text = { fontSize: '15px', color: '#334155', lineHeight: '1.6', margin: '0 0 16px' }
 const codeStyle = {
+  display: 'inline-block',
   fontFamily: 'Courier, monospace',
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 30px',
+  fontSize: '32px',
+  fontWeight: 700 as const,
+  color: '#10172d',
+  letterSpacing: '8px',
+  background: '#fef3c7',
+  border: '2px solid #f59e0b',
+  borderRadius: '10px',
+  padding: '16px 24px',
+  margin: 0,
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+const footer = { fontSize: '12px', color: '#94a3b8', margin: '24px 0 0' }
