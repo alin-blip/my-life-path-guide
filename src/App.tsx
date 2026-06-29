@@ -86,6 +86,9 @@ const BeliefNoButValidator = lazy(() => import("./pages/BeliefNoButValidator"));
 const BeliefAntiArrogance = lazy(() => import("./pages/BeliefAntiArrogance"));
 const BeliefForgiveness = lazy(() => import("./pages/BeliefForgiveness"));
 const BeliefSelfCare = lazy(() => import("./pages/BeliefSelfCare"));
+const BeliefReprogrammerHub = lazy(() => import("./pages/BeliefReprogrammerHub"));
+const BeliefReprogrammerSession = lazy(() => import("./pages/BeliefReprogrammerSession"));
+const BeliefLibrary = lazy(() => import("./pages/BeliefLibrary"));
 const MintePSA = lazy(() => import("./pages/MintePSA"));
 const MentalitateStack = lazy(() => import("./pages/MentalitateStack"));
 const DashboardSettingsPage = lazy(() => import("./pages/DashboardSettingsPage"));
@@ -351,11 +354,20 @@ const App = () => (
                     <Route path="/credinte/grija-de-sine" element={
                       <ProtectedRoute><BeliefSelfCare /></ProtectedRoute>
                     } />
-                    <Route path="/minte/credinte-fundamentale/:slug" element={
-                      <ProtectedRoute>
-                        <CredinteFundamentaleCapitol />
-                      </ProtectedRoute>
-                    } />
+                    <Route path="/minte/credinte-fundamentale/reprogrammer" element={
+                       <ProtectedRoute><BeliefReprogrammerHub /></ProtectedRoute>
+                     } />
+                     <Route path="/minte/credinte-fundamentale/reprogrammer/:sessionId" element={
+                       <ProtectedRoute><BeliefReprogrammerSession /></ProtectedRoute>
+                     } />
+                     <Route path="/biblioteca-credintelor" element={
+                       <ProtectedRoute><BeliefLibrary /></ProtectedRoute>
+                     } />
+                     <Route path="/minte/credinte-fundamentale/:slug" element={
+                       <ProtectedRoute>
+                         <CredinteFundamentaleCapitol />
+                       </ProtectedRoute>
+                     } />
                     <Route path="/minte/psa" element={
                       <ProtectedRoute>
                         <MintePSA />
