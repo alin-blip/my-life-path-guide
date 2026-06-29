@@ -1,232 +1,159 @@
 project_id = "exsbnfmaadjyfblperas"
 
-[functions.accountability-coach]
-verify_jwt = false
-
-[functions.admin-ai-assistant]
-verify_jwt = false
-
-[functions.admin-impersonate]
-verify_jwt = false
-
-[functions.admin-users]
-verify_jwt = false
-
-[functions.ai-coach]
-verify_jwt = false
-
-[functions.ai-live-coaching]
-verify_jwt = false
-
-[functions.analyze-idea]
-verify_jwt = false
-
-[functions.analyze-sentiment]
-verify_jwt = false
-
-[functions.challenge-coach]
-verify_jwt = false
-
-[functions.check-subscription]
-verify_jwt = false
-
-[functions.create-checkout]
-verify_jwt = false
-
-[functions.create-coach-connect-account]
-verify_jwt = false
-
-[functions.create-coach-content-checkout]
-verify_jwt = false
-
-[functions.customer-portal]
-verify_jwt = false
-
-[functions.door-ai-planning]
-verify_jwt = false
-
-[functions.emotional-insights]
-verify_jwt = false
-
-[functions.firecrawl-scrape]
-verify_jwt = false
-
-[functions.generate-empowerment-meditation]
-verify_jwt = false
-
-[functions.generate-feature-images]
-verify_jwt = false
-
-[functions.generate-hero-journey-script]
-verify_jwt = false
-
-[functions.generate-path-plan]
-verify_jwt = false
-
-[functions.generate-script]
-verify_jwt = false
-
-[functions.generate-story-script]
-verify_jwt = false
-
-[functions.generate-vision-board-images]
-verify_jwt = false
-
-[functions.generate-widget-config]
-verify_jwt = false
-
-[functions.goal-wizard-ai]
-verify_jwt = false
-
-[functions.hormozi-coaching]
-verify_jwt = false
-
-[functions.hormozi-platform-analysis]
-verify_jwt = false
-
-[functions.life-vision-ai]
-verify_jwt = false
-
-[functions.lifebook-mission-suggest]
-verify_jwt = false
-
-[functions.mind-coach]
-verify_jwt = false
-
-[functions.mind-coach-demo]
-verify_jwt = false
-
-[functions.napoleon-hill-backup]
-verify_jwt = false
-
-[functions.napoleon-hill-notifications]
-verify_jwt = false
-
-[functions.notify-community-post]
-verify_jwt = false
-
-[functions.parse-pdf]
-verify_jwt = false
-
-[functions.personal-power-coach]
-verify_jwt = false
-
-[functions.platform-assistant]
-verify_jwt = false
-
-[functions.process-coach-payouts]
-verify_jwt = false
-
-[functions.process-referral]
-verify_jwt = false
-
-[functions.realtime-ephemeral-session]
-verify_jwt = false
-
-[functions.realtime-voice]
-verify_jwt = false
-
-[functions.send-challenge-daily]
-verify_jwt = false
-
-[functions.send-challenge-day7-upgrade]
-verify_jwt = false
-
-[functions.send-challenge-promo-sequence]
-verify_jwt = false
-
-[functions.send-challenge-reactivation]
-verify_jwt = false
-
-[functions.send-challenge-recovery]
-verify_jwt = false
-
-[functions.send-challenge-reminder]
-verify_jwt = false
-
-[functions.send-challenge-upgrade]
-verify_jwt = false
-
-[functions.send-challenge-welcome]
-verify_jwt = false
-
-[functions.send-early-bird-reminder]
-verify_jwt = false
-
-[functions.send-goal-plan-email]
-verify_jwt = false
-
-[functions.send-life-score-plan]
-verify_jwt = false
-
-[functions.send-life-score-results]
-verify_jwt = false
-
-[functions.send-life-score-sequence]
-verify_jwt = false
-
-[functions.send-nurture-sequence]
-verify_jwt = false
-
-[functions.send-platform-update]
-verify_jwt = false
-
-[functions.send-power-results]
-verify_jwt = false
-
-[functions.send-vision-results]
-verify_jwt = false
-
-[functions.send-warrior-power-sequence]
-verify_jwt = false
-
-[functions.setup-vision-plan]
-verify_jwt = false
-
-[functions.stripe-webhook]
-verify_jwt = false
-
-[functions.sync-crm-contacts]
-verify_jwt = false
-
-[functions.text-to-speech]
-verify_jwt = false
-
-[functions.text-to-speech-demo]
-verify_jwt = false
-
-[functions.time-insights]
-verify_jwt = false
-
-[functions.track-email-open]
-verify_jwt = false
-
-[functions.unsubscribe-email]
-verify_jwt = false
-
-[functions.warrior-ai-coach]
-verify_jwt = false
-
-[functions.whisper-transcribe]
-verify_jwt = false
-
-[functions.process-email-queue]
-verify_jwt = true
-
-[functions.send-transactional-email]
-verify_jwt = true
-
-[functions.preview-transactional-email]
-verify_jwt = false
-
-[functions.handle-email-unsubscribe]
-verify_jwt = false
-
-[functions.handle-email-suppression]
-verify_jwt = false
-
-[functions.send-burnout-funnel-sequence]
-verify_jwt = false
-
-[functions.marriage-quiz-analyze]
-verify_jwt = false
+[functions]
+  [functions.accountability-coach]
+    verify_jwt = false
+  [functions.admin-ai-assistant]
+    verify_jwt = false
+  [functions.admin-impersonate]
+    verify_jwt = false
+  [functions.admin-users]
+    verify_jwt = false
+  [functions.ai-coach]
+    verify_jwt = false
+  [functions.ai-live-coaching]
+    verify_jwt = false
+  [functions.analyze-idea]
+    verify_jwt = false
+  [functions.analyze-sentiment]
+    verify_jwt = false
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.challenge-coach]
+    verify_jwt = false
+  [functions.check-subscription]
+    verify_jwt = false
+  [functions.create-checkout]
+    verify_jwt = false
+  [functions.create-coach-connect-account]
+    verify_jwt = false
+  [functions.create-coach-content-checkout]
+    verify_jwt = false
+  [functions.customer-portal]
+    verify_jwt = false
+  [functions.door-ai-planning]
+    verify_jwt = false
+  [functions.emotional-insights]
+    verify_jwt = false
+  [functions.firecrawl-scrape]
+    verify_jwt = false
+  [functions.generate-empowerment-meditation]
+    verify_jwt = false
+  [functions.generate-feature-images]
+    verify_jwt = false
+  [functions.generate-hero-journey-script]
+    verify_jwt = false
+  [functions.generate-path-plan]
+    verify_jwt = false
+  [functions.generate-script]
+    verify_jwt = false
+  [functions.generate-story-script]
+    verify_jwt = false
+  [functions.generate-vision-board-images]
+    verify_jwt = false
+  [functions.generate-widget-config]
+    verify_jwt = false
+  [functions.goal-wizard-ai]
+    verify_jwt = false
+  [functions.handle-email-suppression]
+    verify_jwt = false
+  [functions.handle-email-unsubscribe]
+    verify_jwt = false
+  [functions.hormozi-coaching]
+    verify_jwt = false
+  [functions.hormozi-platform-analysis]
+    verify_jwt = false
+  [functions.life-vision-ai]
+    verify_jwt = false
+  [functions.lifebook-mission-suggest]
+    verify_jwt = false
+  [functions.marriage-quiz-analyze]
+    verify_jwt = false
+  [functions.mind-coach]
+    verify_jwt = false
+  [functions.mind-coach-demo]
+    verify_jwt = false
+  [functions.napoleon-hill-backup]
+    verify_jwt = false
+  [functions.napoleon-hill-notifications]
+    verify_jwt = false
+  [functions.notify-community-post]
+    verify_jwt = false
+  [functions.parse-pdf]
+    verify_jwt = false
+  [functions.personal-power-coach]
+    verify_jwt = false
+  [functions.platform-assistant]
+    verify_jwt = false
+  [functions.preview-transactional-email]
+    verify_jwt = false
+  [functions.process-coach-payouts]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
+  [functions.process-referral]
+    verify_jwt = false
+  [functions.realtime-ephemeral-session]
+    verify_jwt = false
+  [functions.realtime-voice]
+    verify_jwt = false
+  [functions.send-burnout-funnel-sequence]
+    verify_jwt = false
+  [functions.send-challenge-daily]
+    verify_jwt = false
+  [functions.send-challenge-day7-upgrade]
+    verify_jwt = false
+  [functions.send-challenge-promo-sequence]
+    verify_jwt = false
+  [functions.send-challenge-reactivation]
+    verify_jwt = false
+  [functions.send-challenge-recovery]
+    verify_jwt = false
+  [functions.send-challenge-reminder]
+    verify_jwt = false
+  [functions.send-challenge-upgrade]
+    verify_jwt = false
+  [functions.send-challenge-welcome]
+    verify_jwt = false
+  [functions.send-early-bird-reminder]
+    verify_jwt = false
+  [functions.send-goal-plan-email]
+    verify_jwt = false
+  [functions.send-life-score-plan]
+    verify_jwt = false
+  [functions.send-life-score-results]
+    verify_jwt = false
+  [functions.send-life-score-sequence]
+    verify_jwt = false
+  [functions.send-nurture-sequence]
+    verify_jwt = false
+  [functions.send-platform-update]
+    verify_jwt = false
+  [functions.send-power-results]
+    verify_jwt = false
+  [functions.send-transactional-email]
+    verify_jwt = true
+  [functions.send-vision-results]
+    verify_jwt = false
+  [functions.send-warrior-power-sequence]
+    verify_jwt = false
+  [functions.setup-vision-plan]
+    verify_jwt = false
+  [functions.stripe-webhook]
+    verify_jwt = false
+  [functions.sync-crm-contacts]
+    verify_jwt = false
+  [functions.text-to-speech]
+    verify_jwt = false
+  [functions.text-to-speech-demo]
+    verify_jwt = false
+  [functions.time-insights]
+    verify_jwt = false
+  [functions.track-email-open]
+    verify_jwt = false
+  [functions.unsubscribe-email]
+    verify_jwt = false
+  [functions.warrior-ai-coach]
+    verify_jwt = false
+  [functions.whisper-transcribe]
+    verify_jwt = false
