@@ -17,6 +17,7 @@ import { template as ebookDelivery } from './ebook-delivery.tsx'
 import { template as challengeUpsell1 } from './challenge-upsell-1.tsx'
 import { template as challengeUpsell2 } from './challenge-upsell-2.tsx'
 import { template as challengeWelcomeSetPassword } from './challenge-welcome-set-password.tsx'
+import { template as marriageQuizReport } from './marriage-quiz-report.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'burnout-results': burnoutResults,
@@ -27,4 +28,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'challenge-upsell-1': challengeUpsell1,
   'challenge-upsell-2': challengeUpsell2,
   'challenge-welcome-set-password': challengeWelcomeSetPassword,
+  'marriage-quiz-report': marriageQuizReport,
 }
