@@ -29,7 +29,7 @@ export const AxisDiagnosisRadar: React.FC<Props> = ({ axisScores, primaryDestruc
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-display font-semibold">Arhitectura Psiho-Mentală</h3>
-          <p className="text-xs text-muted-foreground">Scor pe 6 axe PRP® (0 = destructurat, 100 = sănătos)</p>
+          <p className="text-xs text-muted-foreground">Scor pe 6 axe relaționale (0 = destructurat, 100 = sănătos)</p>
         </div>
         {primaryDestructured && (
           <Badge variant="destructive" className="gap-1">

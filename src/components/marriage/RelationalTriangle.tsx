@@ -25,7 +25,7 @@ export const RelationalTriangle: React.FC<Props> = ({ session }) => {
       accent: 'border-l-4 border-l-destructive/60',
     },
     {
-      title: 'AI Coach PRP®',
+      title: 'AI Coach',
       subtitle: 'Adevărul obiectiv',
       content: session.perspective_coach,
       icon: Brain,
