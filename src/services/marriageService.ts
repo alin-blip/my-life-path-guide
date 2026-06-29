@@ -44,6 +44,10 @@ export interface MarriageSession {
   task_description: string | null;
   task_id: string | null;
   task_exported: boolean;
+  repair_script?: string[];
+  trigger_root?: { past_wound: string; current_trigger: string; cognitive_reframe: string } | null;
+  exploration_questions?: Array<{ question: string; for: 'self' | 'partner' }>;
+  seven_day_plan?: Array<{ day: number; action: string; intention: string }>;
   status: string;
   created_at: string;
   updated_at: string;
