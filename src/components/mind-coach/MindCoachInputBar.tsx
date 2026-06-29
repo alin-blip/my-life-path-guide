@@ -79,8 +79,13 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
   phase = 1,
   messageCount = 0,
   showQuickAnswers = false,
+  attachedImage = null,
+  onAttachImage,
+  onRemoveImage,
   language = 'ro'
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Handle quick answer selection
   const handleQuickAnswer = (answer: string) => {
     onChange(answer);
@@ -89,6 +94,45 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
       onSend();
     }, 100);
   };
+
+  const readFileAsDataUrl = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error(language === 'ro' ? 'Doar imagini sunt acceptate' : 'Only images are supported');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(language === 'ro' ? 'Imaginea trebuie să fie sub 5MB' : 'Image must be under 5MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      if (result) onAttachImage?.(result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) readFileAsDataUrl(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          e.preventDefault();
+          readFileAsDataUrl(file);
+          return;
+        }
+      }
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -97,6 +141,7 @@ export const MindCoachInputBar: React.FC<MindCoachInputBarProps> = ({
   };
 
   const isDisabled = isLoading || isComplete || isInCall;
+  const canSend = (!!value.trim() || !!attachedImage) && !isLoading && !isComplete;
 
   return (
     <div className="space-y-3">
