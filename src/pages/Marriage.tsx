@@ -30,7 +30,7 @@ export default function Marriage() {
                 Marriage Therapy <em className="text-primary not-italic italic">pentru lideri</em>
               </h1>
               <p className="text-muted-foreground mt-2 max-w-2xl">
-                Bazat pe metodologia PRP® (People Reconstruction Process). Încarcă conflicte concrete (screenshots, audio, text), AI Coach-ul face decelare cognitivă, diagnoză pe 6 axe și îți dă task practic pentru The Door.
+                Încarcă conflicte concrete (screenshots, audio, text), AI Coach-ul face decelare cognitivă, diagnoză pe 6 axe relaționale și îți dă task practic pentru The Door.
               </p>
             </div>
             <Button size="lg" onClick={() => navigate('/marriage/audit')}>

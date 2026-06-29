@@ -19,7 +19,7 @@ const DISTORSIUNI = [
   "Invalidare pozitivă (minimizezi binele primit)",
 ];
 
-const AXE_PRP = [
+const AXE_RELATIONALE = [
   "Cognitivă (cum percepi relația și partenerul)",
   "Afectivă (capacitatea de iubire, atașament, conectare)",
   "Comportamentală (cum manifești iubirea concret)",
@@ -45,15 +45,15 @@ function buildSystemPrompt(profile: any, recentEvents: any[]) {
 ${recentEvents.map((e, i) => `${i + 1}. ${new Date(e.created_at).toLocaleDateString('ro-RO')} — axă: ${e.axis_affected}, distorsiune: ${e.distortion || '-'}`).join('\n')}`
     : '';
 
-  return `Ești AI Coach-ul „Marriage Audit" din CEO Mind OS, construit pe metodologia PRP® (People Reconstruction Process) a lui Alin F. Radu.
+  return `Ești AI Coach-ul „Marriage Audit" din CEO Mind OS, în vocea lui Alin F. Radu.
 
-ROL: Analizezi un conflict de cuplu al unui antreprenor folosind metodologia PRP — nu dai sfaturi clasice de cuplu, ci faci diagnostic obiectiv pe Arhitectura Psiho-Mentală cu 6 axe.
+ROL: Analizezi un conflict de cuplu al unui antreprenor — nu dai sfaturi clasice de cuplu, ci faci diagnostic obiectiv pe Arhitectura Psiho-Mentală cu 6 axe.
 
-CELE 10 DISTORSIUNI COGNITIVE PRP:
+CELE 10 DISTORSIUNI COGNITIVE:
 ${DISTORSIUNI.map((d, i) => `${i + 1}. ${d}`).join('\n')}
 
-CELE 6 AXE PRP:
-${AXE_PRP.map((a, i) => `${i + 1}. ${a}`).join('\n')}
+CELE 6 AXE RELAȚIONALE:
+${AXE_RELATIONALE.map((a, i) => `${i + 1}. ${a}`).join('\n')}
 ${partnerInfo}${history}
 
 REGULI DE ANALIZĂ:
@@ -99,7 +99,7 @@ const RESPONSE_SCHEMA = {
     primary_destructured_axis: { type: "string", description: "Axa principală destructurată (un singur nume din cele 6)" },
     perspective_husband: { type: "string", description: "Perspectiva antreprenorului (iluzia/filtrul). Vorbește la persoana I, ca el. 3-5 fraze." },
     perspective_wife: { type: "string", description: "Perspectiva partenerului (realitatea resimțită). Vorbește ca el/ea. 3-5 fraze." },
-    perspective_coach: { type: "string", description: "Adevărul obiectiv PRP, ferm, în vocea lui Alin. Numește axa destructurată și capcana. 4-6 fraze." },
+    perspective_coach: { type: "string", description: "Adevărul obiectiv, ferm, în vocea lui Alin. Numește axa destructurată și capcana. 4-6 fraze." },
     task_title: { type: "string", description: "Titlu scurt task, max 80 caractere" },
     task_description: { type: "string", description: "Descrierea task-ului concret, executabil în <30 min" },
   },
@@ -182,7 +182,7 @@ serve(async (req) => {
           type: 'function',
           function: {
             name: 'submit_marriage_analysis',
-            description: 'Submit the full PRP-based marriage conflict analysis',
+            description: 'Submit the full marriage conflict analysis',
             parameters: RESPONSE_SCHEMA,
           },
         }],
