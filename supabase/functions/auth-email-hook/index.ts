@@ -95,15 +95,22 @@ async function handlePreview(req: Request): Promise<Response> {
   }
 
   let type: string
+  let language: EmailLang = 'ro'
   try {
     const body = await req.json()
     type = body.type
+    if (body.language) language = normalizeLang(body.language)
   } catch (error) {
     return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
       status: 400,
       headers: { ...previewCorsHeaders, 'Content-Type': 'application/json' },
     })
   }
+
+  // Allow preview override via query string: ?lang=en
+  const urlObj = new URL(req.url)
+  const qLang = urlObj.searchParams.get('lang')
+  if (qLang) language = normalizeLang(qLang)
 
   const EmailTemplate = EMAIL_TEMPLATES[type]
 
@@ -114,8 +121,9 @@ async function handlePreview(req: Request): Promise<Response> {
     })
   }
 
-  const sampleData = SAMPLE_DATA[type] || {}
+  const sampleData = { ...(SAMPLE_DATA[type] || {}), language }
   const html = await renderAsync(React.createElement(EmailTemplate, sampleData))
+
 
   return new Response(html, {
     status: 200,
