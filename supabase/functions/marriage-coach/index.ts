@@ -280,6 +280,10 @@ serve(async (req) => {
         pattern_recurrence: patternRecurrence,
         task_title: analysis.task_title,
         task_description: analysis.task_description,
+        repair_script: analysis.repair_script || [],
+        trigger_root: analysis.trigger_root || null,
+        exploration_questions: analysis.exploration_questions || [],
+        seven_day_plan: analysis.seven_day_plan || [],
         status: 'complete',
       })
       .select()
