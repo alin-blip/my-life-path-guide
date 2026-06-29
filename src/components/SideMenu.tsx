@@ -235,6 +235,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: language === 'ro' ? 'Brain Map' : 'Brain Map', icon: Brain, path: '/minte' },
         { title: language === 'ro' ? 'Teste de Minte' : 'Mind Tests', icon: GraduationCap, path: '/minte/teste' },
         { title: language === 'ro' ? 'Matricea Credințelor' : 'Belief Matrix', icon: LayoutGrid, path: '/minte/credinte' },
+        { title: language === 'ro' ? 'Credințe Fundamentale' : 'Core Beliefs', icon: Sparkles, path: '/minte/credinte-fundamentale' },
+        { title: language === 'ro' ? 'Reprogramator Credințe' : 'Belief Reprogrammer', icon: RotateCcw, path: '/minte/credinte-fundamentale/reprogrammer' },
+        { title: language === 'ro' ? 'Biblioteca Credințelor' : 'Belief Library', icon: LayoutGrid, path: '/minte/credinte-fundamentale/library' },
         { title: language === 'ro' ? 'PSA Reconstrucție' : 'PSA Reconstruction', icon: RotateCcw, path: '/minte/psa' },
       ]
     },
