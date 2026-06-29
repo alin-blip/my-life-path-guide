@@ -176,6 +176,30 @@ export default function CredinteFundamentale() {
         })}
       </div>
 
+      {/* Belief Reprogrammer — Protocolul Rădăcinii */}
+      <Link to="/minte/credinte-fundamentale/reprogrammer">
+        <Card className="hover:border-fuchsia-500/50 transition-colors cursor-pointer bg-gradient-to-br from-fuchsia-500/10 via-purple-500/5 to-transparent border-fuchsia-500/30">
+          <CardContent className="p-5 flex items-start gap-4 flex-wrap">
+            <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/20 flex items-center justify-center shrink-0">
+              <span className="text-2xl">🧬</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <h3 className="font-display text-lg font-semibold">Belief Reprogrammer</h3>
+                <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-600 font-semibold">Protocolul Rădăcinii</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Identifică și rescrie credințele distructive instalate în copilărie. Audit → Decuplare → Iertare → Rescriere. Tool-ul cel mai profund din platformă.
+              </p>
+            </div>
+            <Link to="/biblioteca-credintelor" className="text-xs underline text-fuchsia-600 self-center shrink-0" onClick={(e) => e.stopPropagation()}>
+              Biblioteca mea →
+            </Link>
+          </CardContent>
+        </Card>
+      </Link>
+
+
       {/* Quick tools strip */}
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Tool-uri zilnice de practică</h2>
