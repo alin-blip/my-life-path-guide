@@ -9,6 +9,7 @@ import { MarriageStackInput } from '@/components/marriage/MarriageStackInput';
 import { RelationalTriangle } from '@/components/marriage/RelationalTriangle';
 import { AxisDiagnosisRadar } from '@/components/marriage/AxisDiagnosisRadar';
 import { MarriageTaskExportCard } from '@/components/marriage/MarriageTaskExportCard';
+import { TriggerRootCard, RepairScriptCard, ExplorationQuestionsCard, SevenDayPlanCard, FollowupChat } from '@/components/marriage/MarriageAuditExtensions';
 import { marriageService, MarriageAttachment, MarriageSession } from '@/services/marriageService';
 import { useMarriageProfile } from '@/hooks/useMarriageStack';
 import { Textarea } from '@/components/ui/textarea';
