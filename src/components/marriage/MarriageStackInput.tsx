@@ -1,0 +1,192 @@
+import React, { useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card } from '@/components/ui/card';
+import { Paperclip, X, Mic, MicOff, Loader2, FileText, Image as ImageIcon, FileAudio } from 'lucide-react';
+import { toast } from 'sonner';
+import { marriageService, MarriageAttachment } from '@/services/marriageService';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Props {
+  onAttachmentsChange: (atts: MarriageAttachment[], transcripts: string) => void;
+  attachments: MarriageAttachment[];
+}
+
+const MAX_FILES = 10;
+const MAX_SIZE = 5 * 1024 * 1024;
+
+export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attachments }) => {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [pasteText, setPasteText] = useState('');
+  const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
+  const buildTranscripts = (atts: MarriageAttachment[]) => {
+    return atts.filter(a => a.type !== 'image').map(a => `[${a.type}${a.name ? ' — ' + a.name : ''}]\n${a.content || ''}`).join('\n\n---\n\n');
+  };
+
+  const updateAtts = (next: MarriageAttachment[]) => {
+    onAttachmentsChange(next, buildTranscripts(next));
+  };
+
+  const addAtt = (att: MarriageAttachment) => {
+    if (attachments.length >= MAX_FILES) {
+      toast.error(`Maxim ${MAX_FILES} atașamente per sesiune`);
+      return;
+    }
+    updateAtts([...attachments, att]);
+  };
+
+  const removeAtt = (idx: number) => {
+    updateAtts(attachments.filter((_, i) => i !== idx));
+  };
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return toast.error('Trebuie să fii autentificat');
+
+    for (const file of Array.from(files)) {
+      if (file.size > MAX_SIZE) {
+        toast.error(`${file.name}: depășește 5MB`);
+        continue;
+      }
+      try {
+        if (file.type.startsWith('image/')) {
+          const url = await marriageService.uploadEvidence(user.id, file);
+          addAtt({ type: 'image', url, name: file.name, size: file.size });
+        } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+          toast.info('PDF: extragem doar prima pagină ca text (folosește copy-paste pentru rezultate mai bune)');
+          const text = await file.text().catch(() => '');
+          addAtt({ type: 'pdf', content: text.slice(0, 5000), name: file.name, size: file.size });
+        } else if (file.type.startsWith('audio/')) {
+          await transcribeAndAdd(file);
+        } else {
+          const text = await file.text();
+          addAtt({ type: 'text', content: text, name: file.name, size: file.size });
+        }
+      } catch (e: any) {
+        toast.error(`Eroare upload ${file.name}: ${e.message}`);
+      }
+    }
+  };
+
+  const transcribeAndAdd = async (file: File) => {
+    setTranscribing(true);
+    try {
+      const text = await marriageService.transcribeAudio(file);
+      addAtt({ type: 'audio', content: text, name: file.name, size: file.size });
+      toast.success('Audio transcris');
+    } catch (e: any) {
+      toast.error('Transcriere eșuată: ' + e.message);
+    } finally {
+      setTranscribing(false);
+    }
+  };
+
+  const addPasteText = () => {
+    if (!pasteText.trim()) return;
+    addAtt({ type: 'text', content: pasteText.trim(), name: 'Text lipit' });
+    setPasteText('');
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mr = new MediaRecorder(stream);
+      chunksRef.current = [];
+      mr.ondataavailable = e => chunksRef.current.push(e.data);
+      mr.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(chunksRef.current, { type: chunksRef.current[0]?.type || 'audio/webm' });
+        const ext = blob.type.includes('mp4') ? 'mp4' : 'webm';
+        const file = new File([blob], `recording.${ext}`, { type: blob.type });
+        await transcribeAndAdd(file);
+      };
+      mediaRecorderRef.current = mr;
+      mr.start();
+      setRecording(true);
+    } catch (e: any) {
+      toast.error('Microfon indisponibil: ' + e.message);
+    }
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setRecording(false);
+  };
+
+  return (
+    <Card className="p-4 space-y-4 border-border bg-card">
+      <div>
+        <label className="text-sm font-medium block mb-2">Atașamente ({attachments.length}/{MAX_FILES})</label>
+        <input
+          ref={fileRef}
+          type="file"
+          multiple
+          accept="image/*,audio/*,application/pdf,text/*"
+          className="hidden"
+          onChange={(e) => { handleFiles(e.target.files); if (fileRef.current) fileRef.current.value = ''; }}
+        />
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+            <Paperclip className="h-4 w-4 mr-1" /> Adaugă fișiere
+          </Button>
+          {!recording ? (
+            <Button type="button" variant="outline" size="sm" onClick={startRecording} disabled={transcribing}>
+              {transcribing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Mic className="h-4 w-4 mr-1" />}
+              Înregistrează memo vocal
+            </Button>
+          ) : (
+            <Button type="button" variant="destructive" size="sm" onClick={stopRecording}>
+              <MicOff className="h-4 w-4 mr-1" /> Oprește
+            </Button>
+          )}
+        </div>
+
+        {attachments.length > 0 && (
+          <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2">
+            {attachments.map((att, i) => (
+              <div key={i} className="relative border border-border rounded p-2 bg-background">
+                <button type="button" onClick={() => removeAtt(i)} className="absolute -top-2 -right-2 bg-background border border-border rounded-full p-1 shadow hover:bg-muted z-10" aria-label="Elimină">
+                  <X className="h-3 w-3" />
+                </button>
+                {att.type === 'image' && att.url ? (
+                  <img src={att.url} alt={att.name} className="w-full h-24 object-cover rounded" />
+                ) : (
+                  <div className="flex items-start gap-2 text-xs">
+                    {att.type === 'audio' && <FileAudio className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />}
+                    {att.type === 'pdf' && <FileText className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />}
+                    {att.type === 'text' && <FileText className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />}
+                    {att.type === 'image' && <ImageIcon className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />}
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium truncate">{att.name}</div>
+                      <div className="text-muted-foreground line-clamp-2">{att.content?.slice(0, 80)}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <label className="text-sm font-medium block mb-2">Sau lipește transcript / mesaje / notă</label>
+        <Textarea
+          value={pasteText}
+          onChange={(e) => setPasteText(e.target.value)}
+          placeholder="Lipește conversația, descrie conflictul, notițele tale..."
+          className="min-h-[100px]"
+        />
+        {pasteText.trim() && (
+          <Button type="button" variant="outline" size="sm" className="mt-2" onClick={addPasteText}>
+            Adaugă ca atașament
+          </Button>
+        )}
+      </div>
+    </Card>
+  );
+};
