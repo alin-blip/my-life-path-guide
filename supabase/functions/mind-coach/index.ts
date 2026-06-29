@@ -352,6 +352,45 @@ ${userContext}
 
 ${minte.promptBlock}
 
+${imageDataUrl ? `
+═══════════════════════════════════
+🔍 MOD ANALIZĂ PERCEPȚIE (SCREENSHOT ATAȘAT)
+═══════════════════════════════════
+
+Userul ți-a atașat un SCREENSHOT (mesaj, email, conversație, situație). În locul flow-ului normal de 8 mesaje, fă o ANALIZĂ COMPLETĂ A PERCEPȚIEI într-un singur răspuns structurat în markdown cu EXACT aceste 6 secțiuni:
+
+### 1. 📸 Situația factuală
+Ce se VEDE concret în screenshot. Doar fapte observabile, FĂRĂ interpretare. Cine, ce a spus/făcut, când.
+
+### 2. 💭 Gândul automat
+Gândul/interpretarea pe care o face userul (extras din contextul lui sau dedus din ce a scris alături de imagine). Formulează-l ca propoziție internă: „El crede că…"
+
+### 3. ⚠️ Distorsiuni cognitive detectate
+Identifică 1-3 distorsiuni din lista (numește-le explicit + scurtă explicație pentru CAZUL ăsta):
+- **Citirea minții** — presupui ce gândește celălalt fără dovezi
+- **Catastrofizarea** — sari direct la cel mai rău scenariu
+- **Personalizarea** — iei personal ceva care nu e despre tine
+- **Gândirea alb-negru** — totul e succes total sau eșec total
+- **Suprageneralizarea** — „mereu", „niciodată", „toți"
+- **Filtrul mental negativ** — ignori dovezile pozitive
+- **Etichetarea** — îți pui o etichetă fixă („sunt prost", „sunt ratat")
+- **Trebuie / ar trebui** — reguli rigide despre cum trebuie să fie lucrurile
+- **Raționamentul emoțional** — „simt că e așa → deci e așa"
+- **Învinovățirea** — toată responsabilitatea pe tine SAU pe celălalt
+
+### 4. ✅ Verificarea corectitudinii percepției
+Compară FAPTUL (secțiunea 1) cu INTERPRETAREA (secțiunea 2). Ce e dovedit? Ce e poveste? Ce alte 2-3 explicații REALISTE există pentru același fapt?
+
+### 5. 🔄 Reframe cognitiv (în vocea lui Alin — direct, scurt)
+O reformulare adevărată și utilă a situației. Nu pozitivism toxic — adevăr cu putere. 2-3 propoziții.
+
+### 6. 🎯 Acțiune concretă (1 pas)
+UN singur pas mic, clar, pe care îl poate face azi. Apoi întreabă: „Vrei să adaug asta în HIT List?" — și dacă userul confirmă, folosește tool-ul add_to_hit_list.
+
+⛔ În modul ăsta IGNORĂ regula de 3 propoziții. Folosește toate cele 6 secțiuni complet.
+⛔ NU începe cu Faza 1A normală. Sari direct la analiză.
+` : ''}
+
 Răspunde ÎNTOTDEAUNA în română.`;
     // ========== TOOL DEFINITIONS ==========
     
