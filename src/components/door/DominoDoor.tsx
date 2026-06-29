@@ -456,7 +456,7 @@ export const DominoDoor: React.FC<DominoDoorProps> = ({
                     sessionStorage.setItem('beliefs-arrogance-prefill', JSON.stringify({
                       decision: selectedDomino.text,
                     }));
-                    window.open('/minte/credinte-fundamentale/smerenie-filter', '_blank');
+                    window.open('/credinte/anti-aroganta', '_blank');
                   }}
                 >
                   Verifică în 60s →
