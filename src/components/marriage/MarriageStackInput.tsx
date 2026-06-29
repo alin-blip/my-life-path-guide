@@ -52,9 +52,11 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
   };
 
   const handleFiles = async (files: FileList | null) => {
-    if (!files) return;
+    if (!files || files.length === 0) return;
+    console.log('[MarriageStackInput] handleFiles:', files.length, 'files');
+
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return toast.error('Trebuie să fii autentificat');
+    const fileArr = Array.from(files);
 
     let working: MarriageAttachment[] = [...attachments];
     const pushAtt = (att: MarriageAttachment) => {
@@ -63,23 +65,29 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
         return false;
       }
       working = [...working, att];
+      console.log('[MarriageStackInput] pushAtt:', att.type, att.name, '→ total:', working.length);
       updateAtts(working);
       return true;
     };
 
-    for (const file of Array.from(files)) {
+    for (const file of fileArr) {
       if (file.size > MAX_SIZE) {
         toast.error(`${file.name}: depășește 5MB`);
         continue;
       }
       try {
         if (file.type.startsWith('image/')) {
+          if (!user) {
+            toast.error('Pentru imagini trebuie autentificare. Folosește text/PDF sau lipește conținutul.');
+            continue;
+          }
           const url = await marriageService.uploadEvidence(user.id, file);
           pushAtt({ type: 'image', url, name: file.name, size: file.size });
-        } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-          toast.info('PDF: extragem doar prima pagină ca text (folosește copy-paste pentru rezultate mai bune)');
+        } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          // Fallback: store filename only — recommend paste for PDF
           const text = await file.text().catch(() => '');
-          pushAtt({ type: 'pdf', content: text.slice(0, 5000), name: file.name, size: file.size });
+          const cleaned = text.replace(/[^\x20-\x7E\n\r\t]/g, ' ').replace(/\s+/g, ' ').trim();
+          pushAtt({ type: 'pdf', content: cleaned.slice(0, 5000) || `[PDF: ${file.name} — folosește copy-paste pentru text]`, name: file.name, size: file.size });
         } else if (file.type.startsWith('audio/')) {
           setTranscribing(true);
           try {
@@ -94,10 +102,13 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
           pushAtt({ type: 'text', content: text, name: file.name, size: file.size });
         }
       } catch (e: any) {
-        toast.error(`Eroare upload ${file.name}: ${e.message}`);
+        console.error('[MarriageStackInput] upload error:', file.name, e);
+        toast.error(`Eroare upload ${file.name}: ${e.message || e}`);
       }
     }
+    toast.success(`${working.length - attachments.length} fișier(e) adăugat(e)`);
   };
+
 
 
   const transcribeAndAdd = async (file: File) => {
