@@ -239,6 +239,23 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
+    // 7c. MARRIAGE — Executive Marriage Audit
+    {
+      title: language === 'ro' ? 'Căsătorie' : 'Marriage',
+      icon: Heart,
+      path: '/marriage',
+      badge: 'NEW',
+      subItems: [
+        { title: 'Dashboard', icon: Heart, path: '/marriage' },
+        { title: language === 'ro' ? 'Audit Conflict' : 'Conflict Audit', icon: Sparkles, path: '/marriage/audit' },
+        { title: language === 'ro' ? 'Profil Partener' : 'Partner Profile', icon: UserCheck, path: '/marriage/profile' },
+        { title: language === 'ro' ? 'Istoric' : 'Timeline', icon: BarChart3, path: '/marriage/timeline' },
+        { title: language === 'ro' ? 'Quiz Public' : 'Public Quiz', icon: GraduationCap, path: '/marriage-quiz' },
+      ]
+    },
+
+
+
 
     // 10. LEADERBOARD & ACHIEVEMENTS (standalone)
     {
