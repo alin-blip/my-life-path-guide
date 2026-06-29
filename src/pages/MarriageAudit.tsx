@@ -182,7 +182,14 @@ const ResultView: React.FC<{ result: { session: MarriageSession; pattern_recurre
         </Card>
       )}
 
+      <TriggerRootCard session={session} />
+      <RepairScriptCard session={session} />
+      <ExplorationQuestionsCard session={session} />
+      <SevenDayPlanCard session={session} />
+
       <MarriageTaskExportCard session={session} />
+
+      <FollowupChat session={session} />
     </div>
   );
 };
