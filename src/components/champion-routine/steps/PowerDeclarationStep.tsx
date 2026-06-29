@@ -68,6 +68,25 @@ export function PowerDeclarationStep({
   );
   const [isEditingAffirmation, setIsEditingAffirmation] = useState(false);
   const [localAffirmation, setLocalAffirmation] = useState(autosuggestionText);
+  const [activeMantras, setActiveMantras] = useState<{ id: string; text: string }[]>([]);
+
+  // Fetch active belief mantras (morning slot) — installed via Belief Reprogrammer
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data } = await (supabase as any)
+          .from('belief_mantras')
+          .select('id, text, slot')
+          .eq('user_id', user.id)
+          .eq('active', true)
+          .in('slot', ['morning', 'both']);
+        setActiveMantras((data || []).map((m: any) => ({ id: m.id, text: m.text })));
+      } catch {}
+    })();
+  }, []);
+
 
   // Fetch vision declaration
   useEffect(() => {
@@ -275,6 +294,18 @@ export function PowerDeclarationStep({
                     <Check className="h-4 w-4" /> Salvează
                   </Button>
                 </div>
+              </div>
+            )}
+
+            {activeMantras.length > 0 && !isEditingAffirmation && (
+              <div className="p-4 rounded-xl bg-gradient-to-br from-fuchsia-500/10 to-purple-500/5 border border-fuchsia-500/30 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs uppercase tracking-wide font-semibold text-fuchsia-600">🧬 Mantre instalate (Belief Reprogrammer)</span>
+                </div>
+                {activeMantras.map((m) => (
+                  <p key={m.id} className="text-base italic text-center">„{m.text}"</p>
+                ))}
+                <p className="text-[10px] text-center text-muted-foreground">Spune-le cu voce tare. Repetiția construiește circuitul.</p>
               </div>
             )}
 
