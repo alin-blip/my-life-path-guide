@@ -179,6 +179,180 @@ export type Database = {
         }
         Relationships: []
       }
+      belief_audits: {
+        Row: {
+          ai_summary: string | null
+          completed_at: string | null
+          created_at: string
+          diagnosis_labels: string[]
+          id: string
+          next_due_at: string | null
+          overall_score: number | null
+          responses: Json
+          scores: Json
+          strategic_plan: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          completed_at?: string | null
+          created_at?: string
+          diagnosis_labels?: string[]
+          id?: string
+          next_due_at?: string | null
+          overall_score?: number | null
+          responses?: Json
+          scores?: Json
+          strategic_plan?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          completed_at?: string | null
+          created_at?: string
+          diagnosis_labels?: string[]
+          id?: string
+          next_due_at?: string | null
+          overall_score?: number | null
+          responses?: Json
+          scores?: Json
+          strategic_plan?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      belief_chapter_progress: {
+        Row: {
+          audio_percent: number
+          chapter_slug: string
+          completed_at: string | null
+          created_at: string
+          fishbowl_completed: boolean
+          id: string
+          matrix_completed: boolean
+          notes: string | null
+          pptx_opened: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_percent?: number
+          chapter_slug: string
+          completed_at?: string | null
+          created_at?: string
+          fishbowl_completed?: boolean
+          id?: string
+          matrix_completed?: boolean
+          notes?: string | null
+          pptx_opened?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_percent?: number
+          chapter_slug?: string
+          completed_at?: string | null
+          created_at?: string
+          fishbowl_completed?: boolean
+          id?: string
+          matrix_completed?: boolean
+          notes?: string | null
+          pptx_opened?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      belief_chapters: {
+        Row: {
+          audio_url: string | null
+          audio_url_2: string | null
+          cheat_sheet: Json | null
+          color_hex: string
+          created_at: string
+          description: string | null
+          fishbowl_url: string | null
+          icon: string | null
+          id: string
+          is_published: boolean
+          order_index: number
+          pptx_url: string | null
+          slug: string
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url?: string | null
+          audio_url_2?: string | null
+          cheat_sheet?: Json | null
+          color_hex?: string
+          created_at?: string
+          description?: string | null
+          fishbowl_url?: string | null
+          icon?: string | null
+          id?: string
+          is_published?: boolean
+          order_index?: number
+          pptx_url?: string | null
+          slug: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string | null
+          audio_url_2?: string | null
+          cheat_sheet?: Json | null
+          color_hex?: string
+          created_at?: string
+          description?: string | null
+          fishbowl_url?: string | null
+          icon?: string | null
+          id?: string
+          is_published?: boolean
+          order_index?: number
+          pptx_url?: string | null
+          slug?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      belief_fishbowl_responses: {
+        Row: {
+          ai_feedback: string | null
+          chapter_slug: string
+          created_at: string
+          id: string
+          responses: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_feedback?: string | null
+          chapter_slug: string
+          created_at?: string
+          id?: string
+          responses?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_feedback?: string | null
+          chapter_slug?: string
+          created_at?: string
+          id?: string
+          responses?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       biz4_daily_metrics: {
         Row: {
           close_completed: boolean | null
