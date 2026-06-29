@@ -52,6 +52,7 @@ export function MindCoachChat({
   );
   const [selectedIntensity, setSelectedIntensity] = useState(initialIntensity);
   const [inputValue, setInputValue] = useState('');
+  const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showContinuePrompt, setShowContinuePrompt] = useState(false);
   const [showChatContent, setShowChatContent] = useState(true);
