@@ -96,6 +96,32 @@ export default function Minte() {
         </p>
       </header>
 
+      {/* Featured: Cele 5 Credințe ale Liderului */}
+      <Link to="/minte/credinte-fundamentale">
+        <Card className="border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 to-amber-500/5 hover:border-emerald-500/60 transition-colors cursor-pointer">
+          <CardContent className="p-5 flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div className="flex-1 space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-lg">{t("The 5 Beliefs of the Leader", "Cele 5 Credințe ale Liderului")}</h3>
+                <Badge className="text-[10px] bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20">NEW</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {t(
+                  "Bunătate · Iubire de Oameni · Recunoștință · Iertare · Smerenia — audio, prezentări, Fish Bowl și Audit Executiv la 90 zile.",
+                  "Bunătate · Iubire de Oameni · Recunoștință · Iertare · Smerenia — audio, prezentări, Fish Bowl și Audit Executiv la 90 zile.",
+                )}
+              </p>
+              <span className="text-sm text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1 pt-1">
+                {t("Open the 5 Beliefs", "Deschide cele 5 credințe")} <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+
       {/* Featured: Mentalitate Stack */}
       <Link to="/minte/stack">
         <Card className="border-violet-500/40 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/5 hover:border-violet-500/60 transition-colors cursor-pointer">
