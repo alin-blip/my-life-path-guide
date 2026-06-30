@@ -86,6 +86,24 @@ export default function CredinteFundamentale() {
         </p>
       </header>
 
+      {/* Intro audio (Alin) */}
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="p-4 space-y-2">
+          <div className="text-[10px] uppercase tracking-wide text-primary font-semibold">
+            🎧 Introducere · Credințele fundamentale ale omului
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Ascultă mai întâi această introducere de la Alin înainte de a începe capitolele.
+          </p>
+          <audio
+            controls
+            preload="metadata"
+            className="w-full mt-2"
+            src="/__l5e/assets-v1/da611376-75a4-433e-8d96-82c0be61cb70/00-intro.mp3"
+          />
+        </CardContent>
+      </Card>
+
       {/* Progress + Audit CTA */}
       <div className="grid md:grid-cols-2 gap-4">
         <Card>
