@@ -230,11 +230,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (error) {
-        console.warn('[auth] subscription check failed (no sign out):', error);
-        setSubscribed(false);
-        setSubscriptionTier(null);
-        setSubscriptionEnd(null);
-        setEarlyBirdExpiresAt(null);
+        console.warn('[auth] subscription check failed (keeping last known state):', error);
+        // Do NOT clear subscription state on transient errors — would cause
+        // ProtectedRoute to redirect paid users to /pricing on tab focus.
         return;
       }
 
@@ -244,11 +242,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSubscriptionEnd(((data as any)?.subscription_end ?? null));
       setEarlyBirdExpiresAt(((data as any)?.early_bird_expires_at ?? null));
     } catch (e) {
-      console.error('Error checking subscription', e);
-      setSubscribed(false);
-      setSubscriptionTier(null);
-      setSubscriptionEnd(null);
-      setEarlyBirdExpiresAt(null);
+      console.error('Error checking subscription (keeping last known state)', e);
+      // Same as above — preserve last known subscription state on network errors.
+
     } finally {
       if (!silent) setSubscriptionLoading(false);
     }
