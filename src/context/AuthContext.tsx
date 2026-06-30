@@ -41,13 +41,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        // Only update if something actually changed, and don't re-trigger loading
-        // after initial auth is complete (prevents flicker on tab switch)
+        // IGNORE token refresh events entirely — they fire on tab focus and
+        // would otherwise cause re-renders + redirects in ProtectedRoute.
+        // The supabase client already keeps the session fresh internally.
+        if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+          if (import.meta.env.DEV) {
+            console.log('[auth] ignoring', event, '(tab focus / silent refresh)');
+          }
+          return;
+        }
+
+        // After initial auth, only act on real transitions (sign in / sign out / recovery).
+        // SIGNED_IN can fire on tab focus too — skip side-effects if user id is unchanged.
+        const previousUserId = user?.id ?? null;
+        const nextUserId = session?.user?.id ?? null;
+        const isSameUser = initialAuthComplete.current && previousUserId === nextUserId;
+
         if (initialAuthComplete.current) {
-          // After initial load, only update user/session silently
           setSession(session);
           setUser(session?.user ?? null);
-          // Don't set loading to false again, it's already false
         } else {
           setSession(session);
           setUser(session?.user ?? null);
@@ -55,9 +67,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           initialAuthComplete.current = true;
         }
 
-        // CHALLENGE OAUTH LEAD CAPTURE
-        // Track Lead + save lead only when user comes from challenge via OAuth
-        if (event === 'SIGNED_IN' && session?.user) {
+        // CHALLENGE OAUTH LEAD CAPTURE — only on real new sign-ins, not tab focus re-fires
+        if (event === 'SIGNED_IN' && session?.user && !isSameUser) {
           // Track login activity in CRM
           const sessionId = sessionStorage.getItem('crm_session_id') || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           supabase.from('crm_activity_timeline').insert([{
@@ -119,11 +130,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
 
-        // Defer subscription check to avoid deadlocks
+        // Defer subscription check to avoid deadlocks.
+        // Skip if it's just the same user re-firing (tab focus) — we already have the data.
         setTimeout(() => {
-          if (session?.user) {
+          if (session?.user && !isSameUser) {
             refreshSubscription({ silent: initialAuthComplete.current });
-          } else {
+          } else if (!session?.user) {
             // Reset subscription state when logged out
             setSubscribed(false);
             setSubscriptionTier(null);
@@ -137,10 +149,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('[auth] state change:', event, {
             hasSession: Boolean(session),
             userId: session?.user?.id,
+            isSameUser,
           });
         }
       }
     );
+
 
     // Initial session check
     const initAuth = async () => {
