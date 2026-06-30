@@ -1,0 +1,33 @@
+{
+  "name": "CEO Mind OS — Founder Operating System",
+  "short_name": "CEO Mind OS",
+  "description": "AI-powered Founder Operating System. Grow your business without sacrificing health, relationships, or peace of mind.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#10172d",
+  "background_color": "#10172d",
+  "lang": "ro",
+  "categories": ["productivity", "lifestyle", "health"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
