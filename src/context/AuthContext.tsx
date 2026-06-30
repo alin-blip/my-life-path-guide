@@ -36,6 +36,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   // Track if initial auth is complete to avoid re-triggering loading state
   const initialAuthComplete = useRef(false);
+  // Track current user id inside the auth listener (state closure is stale)
+  const currentUserIdRef = useRef<string | null>(null);
+
 
   useEffect(() => {
     // Set up auth state listener
