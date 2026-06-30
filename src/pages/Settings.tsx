@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { MigrationManagement } from '@/components/settings/MigrationManagement';
 import { SoundSettings } from '@/components/settings/SoundSettings';
+import { InstallAppButton } from '@/components/pwa/InstallAppButton';
+import { Smartphone } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const Settings: React.FC = () => {
@@ -36,6 +38,27 @@ export const Settings: React.FC = () => {
         </TabsList>
 
         <TabsContent value="general" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Smartphone className="w-5 h-5" />
+                {language === 'en' ? 'Install App' : 'Instalează Aplicația'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {language === 'en'
+                  ? 'Install CEO Mind OS on your phone or desktop. Opens fullscreen like a native app, with quick access from your home screen.'
+                  : 'Instalează CEO Mind OS pe telefon sau desktop. Se deschide fullscreen ca o aplicație nativă, cu acces rapid din ecranul de start.'}
+              </p>
+              <InstallAppButton />
+              <p className="text-xs text-muted-foreground">
+                {language === 'en'
+                  ? 'Already installed? This button disappears automatically.'
+                  : 'Deja instalată? Butonul dispare automat.'}
+              </p>
+            </CardContent>
+          </Card>
           <SoundSettings />
         </TabsContent>
 
