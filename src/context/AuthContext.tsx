@@ -168,8 +168,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const session = data.session;
         setSession(session);
         setUser(session?.user ?? null);
+        currentUserIdRef.current = session?.user?.id ?? null;
         setLoading(false);
         initialAuthComplete.current = true;
+
 
         if (session?.user) {
           refreshSubscription();
