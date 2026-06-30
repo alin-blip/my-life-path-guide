@@ -56,9 +56,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // After initial auth, only act on real transitions (sign in / sign out / recovery).
         // SIGNED_IN can fire on tab focus too — skip side-effects if user id is unchanged.
-        const previousUserId = user?.id ?? null;
+        const previousUserId = currentUserIdRef.current;
         const nextUserId = session?.user?.id ?? null;
         const isSameUser = initialAuthComplete.current && previousUserId === nextUserId;
+        currentUserIdRef.current = nextUserId;
 
         if (initialAuthComplete.current) {
           setSession(session);
@@ -69,6 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setLoading(false);
           initialAuthComplete.current = true;
         }
+
 
         // CHALLENGE OAUTH LEAD CAPTURE — only on real new sign-ins, not tab focus re-fires
         if (event === 'SIGNED_IN' && session?.user && !isSameUser) {
