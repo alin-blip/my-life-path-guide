@@ -115,6 +115,9 @@ const MarriageAudit = lazy(() => import("./pages/MarriageAudit"));
 const MarriageProfilePage = lazy(() => import("./pages/MarriageProfile"));
 const MarriageTimelinePage = lazy(() => import("./pages/MarriageTimeline"));
 const MarriageQuiz = lazy(() => import("./pages/MarriageQuiz"));
+const Parenting = lazy(() => import("./pages/Parenting"));
+const ParentingProfilePage = lazy(() => import("./pages/ParentingProfile"));
+const ParentingLibrary = lazy(() => import("./pages/ParentingLibrary"));
 const Tools = lazy(() => import("./pages/Tools"));
 const Programs = lazy(() => import("./pages/Programs"));
 const PersonalPowerOverview = lazy(() => import("./pages/PersonalPowerOverview"));
@@ -509,6 +512,26 @@ const App = () => (
                     <Route path="/marriage/timeline" element={
                       <ProtectedRoute>
                         <MarriageTimelinePage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting" element={
+                      <ProtectedRoute>
+                        <Parenting />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/profile" element={
+                      <ProtectedRoute>
+                        <ParentingProfilePage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/library" element={
+                      <ProtectedRoute>
+                        <ParentingLibrary />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/library/:childId" element={
+                      <ProtectedRoute>
+                        <ParentingLibrary />
                       </ProtectedRoute>
                     } />
                     <Route path="/tools" element={
