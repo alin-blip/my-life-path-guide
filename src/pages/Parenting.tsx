@@ -202,6 +202,9 @@ const Parenting: React.FC = () => {
               </Button>
             </CardContent>
           </Card>
+        </div>
+
+
 
         {/* Evidence footer */}
         <div className="text-xs text-muted-foreground border-t pt-4">
