@@ -120,6 +120,8 @@ const ParentingProfilePage = lazy(() => import("./pages/ParentingProfile"));
 const ParentingLibrary = lazy(() => import("./pages/ParentingLibrary"));
 const ParentingToxicityScan = lazy(() => import("./pages/ParentingToxicityScan"));
 const ParentingTools = lazy(() => import("./pages/ParentingTools"));
+const ParentingCoach = lazy(() => import("./pages/ParentingCoach"));
+const ParentingTimeline = lazy(() => import("./pages/ParentingTimeline"));
 const Tools = lazy(() => import("./pages/Tools"));
 const Programs = lazy(() => import("./pages/Programs"));
 const PersonalPowerOverview = lazy(() => import("./pages/PersonalPowerOverview"));
