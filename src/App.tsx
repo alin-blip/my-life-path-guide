@@ -118,6 +118,7 @@ const MarriageQuiz = lazy(() => import("./pages/MarriageQuiz"));
 const Parenting = lazy(() => import("./pages/Parenting"));
 const ParentingProfilePage = lazy(() => import("./pages/ParentingProfile"));
 const ParentingLibrary = lazy(() => import("./pages/ParentingLibrary"));
+const ParentingToxicityScan = lazy(() => import("./pages/ParentingToxicityScan"));
 const Tools = lazy(() => import("./pages/Tools"));
 const Programs = lazy(() => import("./pages/Programs"));
 const PersonalPowerOverview = lazy(() => import("./pages/PersonalPowerOverview"));
@@ -532,6 +533,11 @@ const App = () => (
                     <Route path="/parenting/library/:childId" element={
                       <ProtectedRoute>
                         <ParentingLibrary />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/toxicity-scan" element={
+                      <ProtectedRoute>
+                        <ParentingToxicityScan />
                       </ProtectedRoute>
                     } />
                     <Route path="/tools" element={

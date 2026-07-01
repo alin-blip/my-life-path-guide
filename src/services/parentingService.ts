@@ -170,4 +170,51 @@ export const parentingService = {
     if (error) throw error;
     return (data as any)?.message || '';
   },
+
+  async saveToxicityScan(userId: string, payload: {
+    child_id?: string | null;
+    raw_answers: Record<string, number>;
+    authoritative_score: number;
+    authoritarian_score: number;
+    permissive_score: number;
+    neglectful_score: number;
+    dominant_style: string;
+    toxic_patterns: Record<string, number>;
+  }): Promise<{ id: string }> {
+    const { data, error } = await supabase
+      .from('parenting_toxicity_scans' as any)
+      .insert({ user_id: userId, ...payload })
+      .select('id')
+      .single();
+    if (error) throw error;
+    return data as any;
+  },
+
+  async analyzeToxicity(payload: {
+    scan_id: string;
+    language?: 'ro' | 'en';
+    child_context?: { name?: string; age?: number; piaget?: string; erikson?: string };
+  }): Promise<{ interpretation: string; action_plan: Array<{ title: string; why: string; how: string }> }> {
+    const { data, error } = await supabase.functions.invoke('parenting-toxicity-analyze', { body: payload });
+    if (error) throw error;
+    return data as any;
+  },
+
+  async getScan(scanId: string) {
+    const { data, error } = await supabase
+      .from('parenting_toxicity_scans' as any)
+      .select('*')
+      .eq('id', scanId)
+      .maybeSingle();
+    if (error) throw error;
+    return data as any;
+  },
+
+  async listScans(userId: string, childId?: string) {
+    let q = supabase.from('parenting_toxicity_scans' as any).select('*').eq('user_id', userId);
+    if (childId) q = q.eq('child_id', childId);
+    const { data, error } = await q.order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []) as any[];
+  },
 };
