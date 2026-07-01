@@ -363,20 +363,58 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
             
             {!isCollapsed && expandedMenus.includes(item.title.toLowerCase()) && (
               <ul className="ml-6 mt-1 space-y-0.5 border-l border-border/30 pl-3">
-                {item.subItems.map((subItem) => (
-                  <li key={subItem.path}>
-                    <Link
-                      to={subItem.path}
-                      onClick={onItemClick}
-                      className={`sidebar-item text-sm ${
-                        isPathActive(subItem.path) ? 'active' : ''
-                      }`}
-                    >
-                      <subItem.icon className="w-3.5 h-3.5" />
-                      <span>{subItem.title}</span>
-                    </Link>
-                  </li>
-                ))}
+                {item.subItems.map((subItem) => {
+                  // Nested dropdown (sub-item has its own subItems)
+                  if (subItem.subItems && subItem.subItems.length > 0) {
+                    const nestedKey = `${item.title}::${subItem.title}`.toLowerCase();
+                    const nestedOpen = expandedMenus.includes(nestedKey);
+                    const nestedActive =
+                      isPathActive(subItem.path) ||
+                      subItem.subItems.some((s) => isPathActive(s.path));
+                    return (
+                      <li key={subItem.path}>
+                        <button
+                          className={`sidebar-item text-sm w-full flex items-center ${nestedActive ? 'active' : ''}`}
+                          onClick={() => toggleExpand(nestedKey)}
+                        >
+                          <subItem.icon className="w-3.5 h-3.5" />
+                          <span className="ml-2">{subItem.title}</span>
+                          <div className="ml-auto opacity-60">
+                            {nestedOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                          </div>
+                        </button>
+                        {nestedOpen && (
+                          <ul className="ml-5 mt-1 space-y-0.5 border-l border-border/30 pl-3">
+                            {subItem.subItems.map((leaf) => (
+                              <li key={leaf.path}>
+                                <Link
+                                  to={leaf.path}
+                                  onClick={onItemClick}
+                                  className={`sidebar-item text-xs ${isPathActive(leaf.path) ? 'active' : ''}`}
+                                >
+                                  <leaf.icon className="w-3 h-3" />
+                                  <span>{leaf.title}</span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    );
+                  }
+                  return (
+                    <li key={subItem.path}>
+                      <Link
+                        to={subItem.path}
+                        onClick={onItemClick}
+                        className={`sidebar-item text-sm ${isPathActive(subItem.path) ? 'active' : ''}`}
+                      >
+                        <subItem.icon className="w-3.5 h-3.5" />
+                        <span>{subItem.title}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
