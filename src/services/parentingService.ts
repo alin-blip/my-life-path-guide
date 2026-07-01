@@ -217,4 +217,100 @@ export const parentingService = {
     if (error) throw error;
     return (data || []) as any[];
   },
+
+  // ============ Sessions / Coach ============
+  async createSession(userId: string, payload: { child_id?: string | null; session_type?: string; title?: string }) {
+    const { data, error } = await supabase
+      .from('parenting_sessions' as any)
+      .insert({
+        user_id: userId,
+        child_id: payload.child_id || null,
+        session_type: payload.session_type || 'coach',
+        title: payload.title || null,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data as any;
+  },
+
+  async listSessions(userId: string, childId?: string | null) {
+    let q = supabase
+      .from('parenting_sessions' as any)
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(30);
+    if (childId) q = q.eq('child_id', childId);
+    const { data, error } = await q;
+    if (error) throw error;
+    return (data || []) as any[];
+  },
+
+  async getSessionMessages(sessionId: string) {
+    const { data, error } = await supabase
+      .from('parenting_session_messages' as any)
+      .select('*')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return (data || []) as any[];
+  },
+
+  async updateSession(id: string, patch: Record<string, unknown>) {
+    const { error } = await supabase
+      .from('parenting_sessions' as any)
+      .update(patch)
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  // ============ Timeline ============
+  async listTimelineEvents(userId: string, childId?: string | null) {
+    let q = supabase
+      .from('parenting_timeline_events' as any)
+      .select('*')
+      .eq('user_id', userId)
+      .order('event_date', { ascending: false })
+      .limit(100);
+    if (childId) q = q.eq('child_id', childId);
+    const { data, error } = await q;
+    if (error) throw error;
+    return (data || []) as any[];
+  },
+
+  async addTimelineEvent(userId: string, payload: {
+    child_id?: string | null;
+    event_type: 'rupture' | 'repair' | 'breakthrough' | 'milestone' | 'concern' | 'gratitude';
+    title: string;
+    description?: string;
+    emotional_intensity?: number;
+    tags?: string[];
+    event_date?: string;
+  }) {
+    const { data, error } = await supabase
+      .from('parenting_timeline_events' as any)
+      .insert({
+        user_id: userId,
+        child_id: payload.child_id || null,
+        event_type: payload.event_type,
+        title: payload.title,
+        description: payload.description || null,
+        emotional_intensity: payload.emotional_intensity || null,
+        tags: payload.tags || null,
+        event_date: payload.event_date || new Date().toISOString(),
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data as any;
+  },
+
+  async deleteTimelineEvent(id: string) {
+    const { error } = await supabase
+      .from('parenting_timeline_events' as any)
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
 };
