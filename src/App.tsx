@@ -514,6 +514,26 @@ const App = () => (
                         <MarriageTimelinePage />
                       </ProtectedRoute>
                     } />
+                    <Route path="/parenting" element={
+                      <ProtectedRoute>
+                        <Parenting />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/profile" element={
+                      <ProtectedRoute>
+                        <ParentingProfilePage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/library" element={
+                      <ProtectedRoute>
+                        <ParentingLibrary />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/library/:childId" element={
+                      <ProtectedRoute>
+                        <ParentingLibrary />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/tools" element={
                       <ProtectedRoute>
                         <Tools />
