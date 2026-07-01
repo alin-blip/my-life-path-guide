@@ -47,7 +47,9 @@ import {
   CreditCard,
   LogOut,
   UserCheck,
-  RotateCcw
+  RotateCcw,
+  Baby,
+  Wrench
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -138,15 +140,23 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     }
   };
 
-  // Auto-expand menu containing current path
+  // Auto-expand menu (and any nested sub-menu) containing current path
   useEffect(() => {
-    menuItems.forEach(item => {
-      if (item.subItems?.some(sub => currentPath.startsWith(sub.path.split('?')[0]))) {
-        setExpandedMenus(prev => 
-          prev.includes(item.title.toLowerCase()) ? prev : [...prev, item.title.toLowerCase()]
-        );
-      }
+    const toOpen: string[] = [];
+    menuItems.forEach((item) => {
+      const subMatch =
+        item.subItems?.some((sub) => currentPath.startsWith(sub.path.split('?')[0])) ||
+        item.subItems?.some((sub) => sub.subItems?.some((s) => currentPath.startsWith(s.path.split('?')[0])));
+      if (subMatch) toOpen.push(item.title.toLowerCase());
+      item.subItems?.forEach((sub) => {
+        if (sub.subItems?.some((leaf) => currentPath.startsWith(leaf.path.split('?')[0]))) {
+          toOpen.push(`${item.title}::${sub.title}`.toLowerCase());
+        }
+      });
     });
+    if (toOpen.length) {
+      setExpandedMenus((prev) => Array.from(new Set([...prev, ...toOpen])));
+    }
   }, [currentPath]);
 
   const toggleExpand = (title: string) => {
@@ -242,19 +252,40 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ]
     },
 
-    // 7c. MARRIAGE — Executive Marriage Audit
+    // 7c. RELAȚII — Marriage + Parenting (grup)
     {
-      title: language === 'ro' ? 'Căsătorie' : 'Marriage',
+      title: language === 'ro' ? 'Relații' : 'Relationships',
       icon: Heart,
       path: '/marriage',
       badge: 'NEW',
       subItems: [
-        { title: 'Dashboard', icon: Heart, path: '/marriage' },
-        { title: language === 'ro' ? 'Audit Conflict' : 'Conflict Audit', icon: Sparkles, path: '/marriage/audit' },
-        { title: language === 'ro' ? 'Profil Partener' : 'Partner Profile', icon: UserCheck, path: '/marriage/profile' },
-        { title: language === 'ro' ? 'Istoric' : 'Timeline', icon: BarChart3, path: '/marriage/timeline' },
-        { title: language === 'ro' ? 'Quiz Public' : 'Public Quiz', icon: GraduationCap, path: '/marriage-quiz' },
-      ]
+        {
+          title: language === 'ro' ? 'Căsătorie' : 'Marriage',
+          icon: Heart,
+          path: '/marriage',
+          subItems: [
+            { title: 'Dashboard', icon: Heart, path: '/marriage' },
+            { title: language === 'ro' ? 'Audit Conflict' : 'Conflict Audit', icon: Sparkles, path: '/marriage/audit' },
+            { title: language === 'ro' ? 'Profil Partener' : 'Partner Profile', icon: UserCheck, path: '/marriage/profile' },
+            { title: language === 'ro' ? 'Istoric' : 'Timeline', icon: BarChart3, path: '/marriage/timeline' },
+            { title: language === 'ro' ? 'Quiz Public' : 'Public Quiz', icon: GraduationCap, path: '/marriage-quiz' },
+          ],
+        },
+        {
+          title: language === 'ro' ? 'Parenting' : 'Parenting',
+          icon: Baby,
+          path: '/parenting',
+          subItems: [
+            { title: 'Dashboard', icon: Baby, path: '/parenting' },
+            { title: language === 'ro' ? 'Copiii mei' : 'My Children', icon: UserCheck, path: '/parenting/profile' },
+            { title: language === 'ro' ? 'Scanare Toxicitate' : 'Toxicity Scan', icon: Shield, path: '/parenting/toxicity-scan' },
+            { title: language === 'ro' ? 'Tool-uri Zilnice' : 'Daily Tools', icon: Wrench, path: '/parenting/tools' },
+            { title: language === 'ro' ? 'Coach AI' : 'AI Coach', icon: Sparkles, path: '/parenting/coach' },
+            { title: 'Timeline', icon: BarChart3, path: '/parenting/timeline' },
+            { title: language === 'ro' ? 'Bibliotecă' : 'Library', icon: BookOpen, path: '/parenting/library' },
+          ],
+        },
+      ],
     },
 
 
@@ -340,20 +371,58 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
             
             {!isCollapsed && expandedMenus.includes(item.title.toLowerCase()) && (
               <ul className="ml-6 mt-1 space-y-0.5 border-l border-border/30 pl-3">
-                {item.subItems.map((subItem) => (
-                  <li key={subItem.path}>
-                    <Link
-                      to={subItem.path}
-                      onClick={onItemClick}
-                      className={`sidebar-item text-sm ${
-                        isPathActive(subItem.path) ? 'active' : ''
-                      }`}
-                    >
-                      <subItem.icon className="w-3.5 h-3.5" />
-                      <span>{subItem.title}</span>
-                    </Link>
-                  </li>
-                ))}
+                {item.subItems.map((subItem) => {
+                  // Nested dropdown (sub-item has its own subItems)
+                  if (subItem.subItems && subItem.subItems.length > 0) {
+                    const nestedKey = `${item.title}::${subItem.title}`.toLowerCase();
+                    const nestedOpen = expandedMenus.includes(nestedKey);
+                    const nestedActive =
+                      isPathActive(subItem.path) ||
+                      subItem.subItems.some((s) => isPathActive(s.path));
+                    return (
+                      <li key={subItem.path}>
+                        <button
+                          className={`sidebar-item text-sm w-full flex items-center ${nestedActive ? 'active' : ''}`}
+                          onClick={() => toggleExpand(nestedKey)}
+                        >
+                          <subItem.icon className="w-3.5 h-3.5" />
+                          <span className="ml-2">{subItem.title}</span>
+                          <div className="ml-auto opacity-60">
+                            {nestedOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                          </div>
+                        </button>
+                        {nestedOpen && (
+                          <ul className="ml-5 mt-1 space-y-0.5 border-l border-border/30 pl-3">
+                            {subItem.subItems.map((leaf) => (
+                              <li key={leaf.path}>
+                                <Link
+                                  to={leaf.path}
+                                  onClick={onItemClick}
+                                  className={`sidebar-item text-xs ${isPathActive(leaf.path) ? 'active' : ''}`}
+                                >
+                                  <leaf.icon className="w-3 h-3" />
+                                  <span>{leaf.title}</span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    );
+                  }
+                  return (
+                    <li key={subItem.path}>
+                      <Link
+                        to={subItem.path}
+                        onClick={onItemClick}
+                        className={`sidebar-item text-sm ${isPathActive(subItem.path) ? 'active' : ''}`}
+                      >
+                        <subItem.icon className="w-3.5 h-3.5" />
+                        <span>{subItem.title}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
