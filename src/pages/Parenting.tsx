@@ -141,19 +141,24 @@ const Parenting: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="opacity-70">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/parenting/tools')}>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-primary" />
                 <CardTitle className="text-base">
                   {lang === 'en' ? 'Daily Tools' : 'Tool-uri Zilnice'}
                 </CardTitle>
-                <Badge variant="outline" className="ml-auto text-xs">Faza 3</Badge>
+                <Badge variant="default" className="ml-auto text-xs">{lang === 'en' ? 'Live' : 'Activ'}</Badge>
               </div>
               <CardDescription>
                 5:1 Counter · No-BUT Trainer · Emotion Coaching (Gottman 5 pași) · Repair Log (Tronick) · Serve-and-Return Streak (Harvard CDev).
               </CardDescription>
             </CardHeader>
+            <CardContent>
+              <Button size="sm" variant="outline" className="w-full">
+                {lang === 'en' ? 'Open tools' : 'Deschide tool-urile'} <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </CardContent>
           </Card>
 
           <Card className="opacity-70">
