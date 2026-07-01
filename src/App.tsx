@@ -548,6 +548,26 @@ const App = () => (
                         <ParentingTools />
                       </ProtectedRoute>
                     } />
+                    <Route path="/parenting/coach" element={
+                      <ProtectedRoute>
+                        <ParentingCoach />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/coach/:childId" element={
+                      <ProtectedRoute>
+                        <ParentingCoach />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/timeline" element={
+                      <ProtectedRoute>
+                        <ParentingTimeline />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/timeline/:childId" element={
+                      <ProtectedRoute>
+                        <ParentingTimeline />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/tools" element={
                       <ProtectedRoute>
                         <Tools />
