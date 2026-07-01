@@ -140,15 +140,23 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     }
   };
 
-  // Auto-expand menu containing current path
+  // Auto-expand menu (and any nested sub-menu) containing current path
   useEffect(() => {
-    menuItems.forEach(item => {
-      if (item.subItems?.some(sub => currentPath.startsWith(sub.path.split('?')[0]))) {
-        setExpandedMenus(prev => 
-          prev.includes(item.title.toLowerCase()) ? prev : [...prev, item.title.toLowerCase()]
-        );
-      }
+    const toOpen: string[] = [];
+    menuItems.forEach((item) => {
+      const subMatch =
+        item.subItems?.some((sub) => currentPath.startsWith(sub.path.split('?')[0])) ||
+        item.subItems?.some((sub) => sub.subItems?.some((s) => currentPath.startsWith(s.path.split('?')[0])));
+      if (subMatch) toOpen.push(item.title.toLowerCase());
+      item.subItems?.forEach((sub) => {
+        if (sub.subItems?.some((leaf) => currentPath.startsWith(leaf.path.split('?')[0]))) {
+          toOpen.push(`${item.title}::${sub.title}`.toLowerCase());
+        }
+      });
     });
+    if (toOpen.length) {
+      setExpandedMenus((prev) => Array.from(new Set([...prev, ...toOpen])));
+    }
   }, [currentPath]);
 
   const toggleExpand = (title: string) => {
