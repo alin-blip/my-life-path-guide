@@ -119,6 +119,7 @@ const Parenting = lazy(() => import("./pages/Parenting"));
 const ParentingProfilePage = lazy(() => import("./pages/ParentingProfile"));
 const ParentingLibrary = lazy(() => import("./pages/ParentingLibrary"));
 const ParentingToxicityScan = lazy(() => import("./pages/ParentingToxicityScan"));
+const ParentingTools = lazy(() => import("./pages/ParentingTools"));
 const Tools = lazy(() => import("./pages/Tools"));
 const Programs = lazy(() => import("./pages/Programs"));
 const PersonalPowerOverview = lazy(() => import("./pages/PersonalPowerOverview"));
@@ -538,6 +539,11 @@ const App = () => (
                     <Route path="/parenting/toxicity-scan" element={
                       <ProtectedRoute>
                         <ParentingToxicityScan />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/parenting/tools" element={
+                      <ProtectedRoute>
+                        <ParentingTools />
                       </ProtectedRoute>
                     } />
                     <Route path="/tools" element={
