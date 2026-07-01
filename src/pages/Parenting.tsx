@@ -119,14 +119,14 @@ const Parenting: React.FC = () => {
 
         {/* Feature roadmap */}
         <div className="grid gap-4 sm:grid-cols-2">
-          <Card className="opacity-70">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/parenting/toxicity-scan')}>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Shield className="w-5 h-5 text-primary" />
                 <CardTitle className="text-base">
                   {lang === 'en' ? 'Toxicity Scan (PSDQ)' : 'Scanare Toxicitate (PSDQ)'}
                 </CardTitle>
-                <Badge variant="outline" className="ml-auto text-xs">Faza 2</Badge>
+                <Badge variant="default" className="ml-auto text-xs">{lang === 'en' ? 'Live' : 'Activ'}</Badge>
               </div>
               <CardDescription>
                 {lang === 'en'
@@ -134,6 +134,11 @@ const Parenting: React.FC = () => {
                   : 'Diagnoză stil Baumrind + 6 tipare toxice (iubire condiționată, „bine dar puteai mai bine”, performance-worth, duritate ca pregătire, dismissing, comparație).'}
               </CardDescription>
             </CardHeader>
+            <CardContent>
+              <Button size="sm" variant="outline" className="w-full">
+                {lang === 'en' ? 'Start 3-min scan' : 'Începe scanarea (3 min)'} <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </CardContent>
           </Card>
 
           <Card className="opacity-70">
