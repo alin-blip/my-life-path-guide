@@ -541,6 +541,11 @@ const App = () => (
                         <ParentingToxicityScan />
                       </ProtectedRoute>
                     } />
+                    <Route path="/parenting/tools" element={
+                      <ProtectedRoute>
+                        <ParentingTools />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/tools" element={
                       <ProtectedRoute>
                         <Tools />
