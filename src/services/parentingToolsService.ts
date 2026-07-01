@@ -125,7 +125,7 @@ export const parentingToolsService = {
     q = childId ? q.eq('child_id', childId) : q.is('child_id', null);
     const { data, error } = await q;
     if (error) throw error;
-    return (data || []) as DailyToolLog[];
+    return ((data || []) as unknown) as DailyToolLog[];
   },
 
   async addRepair(payload: {
