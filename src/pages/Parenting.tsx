@@ -105,8 +105,10 @@ const Parenting: React.FC = () => {
                             {lang === 'en' ? 'Library' : 'Bibliotecă'}
                           </Link>
                         </Button>
-                        <Button variant="default" size="sm" disabled title="În curând">
-                          <Sparkles className="w-3.5 h-3.5 mr-1" /> Coach
+                        <Button variant="default" size="sm" asChild>
+                          <Link to={`/parenting/coach/${c.id}`}>
+                            <Sparkles className="w-3.5 h-3.5 mr-1" /> Coach
+                          </Link>
                         </Button>
                       </div>
                     </CardContent>
