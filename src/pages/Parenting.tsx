@@ -105,8 +105,10 @@ const Parenting: React.FC = () => {
                             {lang === 'en' ? 'Library' : 'Bibliotecă'}
                           </Link>
                         </Button>
-                        <Button variant="default" size="sm" disabled title="În curând">
-                          <Sparkles className="w-3.5 h-3.5 mr-1" /> Coach
+                        <Button variant="default" size="sm" asChild>
+                          <Link to={`/parenting/coach/${c.id}`}>
+                            <Sparkles className="w-3.5 h-3.5 mr-1" /> Coach
+                          </Link>
                         </Button>
                       </div>
                     </CardContent>
@@ -161,12 +163,12 @@ const Parenting: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="opacity-70">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/parenting/coach')}>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" />
                 <CardTitle className="text-base">Coach AI (Alin persona)</CardTitle>
-                <Badge variant="outline" className="ml-auto text-xs">Faza 4</Badge>
+                <Badge variant="default" className="ml-auto text-xs">{lang === 'en' ? 'Live' : 'Activ'}</Badge>
               </div>
               <CardDescription>
                 {lang === 'en'
@@ -174,14 +176,19 @@ const Parenting: React.FC = () => {
                   : 'Sesiuni live contextualizate pe stadiul copilului + stilul detectat + timeline.'}
               </CardDescription>
             </CardHeader>
+            <CardContent>
+              <Button size="sm" variant="outline" className="w-full">
+                {lang === 'en' ? 'Talk to Alin' : 'Vorbește cu Alin'} <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </CardContent>
           </Card>
 
-          <Card className="opacity-70">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/parenting/timeline')}>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-primary" />
                 <CardTitle className="text-base">Timeline & Milestones</CardTitle>
-                <Badge variant="outline" className="ml-auto text-xs">Faza 4</Badge>
+                <Badge variant="default" className="ml-auto text-xs">{lang === 'en' ? 'Live' : 'Activ'}</Badge>
               </div>
               <CardDescription>
                 {lang === 'en'
@@ -189,8 +196,15 @@ const Parenting: React.FC = () => {
                   : 'Loghezi rupturile, reparările, breakthrough-urile. Datele îți aparțin.'}
               </CardDescription>
             </CardHeader>
+            <CardContent>
+              <Button size="sm" variant="outline" className="w-full">
+                {lang === 'en' ? 'Open timeline' : 'Deschide timeline'} <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </CardContent>
           </Card>
         </div>
+
+
 
         {/* Evidence footer */}
         <div className="text-xs text-muted-foreground border-t pt-4">
