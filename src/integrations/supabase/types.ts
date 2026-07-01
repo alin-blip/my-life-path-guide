@@ -4912,6 +4912,385 @@ export type Database = {
         }
         Relationships: []
       }
+      parenting_children: {
+        Row: {
+          birth_month: number | null
+          birth_year: number
+          challenges: string | null
+          created_at: string
+          gender: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          nickname: string | null
+          notes: string | null
+          position: number | null
+          strengths: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          birth_month?: number | null
+          birth_year: number
+          challenges?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          nickname?: string | null
+          notes?: string | null
+          position?: number | null
+          strengths?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          birth_month?: number | null
+          birth_year?: number
+          challenges?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          nickname?: string | null
+          notes?: string | null
+          position?: number | null
+          strengths?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      parenting_daily_tools: {
+        Row: {
+          child_id: string | null
+          content: string | null
+          created_at: string
+          id: string
+          log_date: string
+          metadata: Json | null
+          negatives_count: number | null
+          positives_count: number | null
+          tool_type: string
+          user_id: string
+        }
+        Insert: {
+          child_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          log_date?: string
+          metadata?: Json | null
+          negatives_count?: number | null
+          positives_count?: number | null
+          tool_type: string
+          user_id: string
+        }
+        Update: {
+          child_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          log_date?: string
+          metadata?: Json | null
+          negatives_count?: number | null
+          positives_count?: number | null
+          tool_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parenting_daily_tools_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "parenting_children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parenting_evidence_sources: {
+        Row: {
+          author: string
+          confidence: string | null
+          created_at: string
+          id: string
+          slug: string
+          source_type: string | null
+          summary_en: string | null
+          summary_ro: string | null
+          title: string
+          topic: string[] | null
+          url: string | null
+          year: number | null
+        }
+        Insert: {
+          author: string
+          confidence?: string | null
+          created_at?: string
+          id?: string
+          slug: string
+          source_type?: string | null
+          summary_en?: string | null
+          summary_ro?: string | null
+          title: string
+          topic?: string[] | null
+          url?: string | null
+          year?: number | null
+        }
+        Update: {
+          author?: string
+          confidence?: string | null
+          created_at?: string
+          id?: string
+          slug?: string
+          source_type?: string | null
+          summary_en?: string | null
+          summary_ro?: string | null
+          title?: string
+          topic?: string[] | null
+          url?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      parenting_profiles: {
+        Row: {
+          co_parent_name: string | null
+          created_at: string
+          daily_nudge_enabled: boolean | null
+          detected_style: string | null
+          id: string
+          notes: string | null
+          onboarding_completed: boolean | null
+          preferred_language: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          co_parent_name?: string | null
+          created_at?: string
+          daily_nudge_enabled?: boolean | null
+          detected_style?: string | null
+          id?: string
+          notes?: string | null
+          onboarding_completed?: boolean | null
+          preferred_language?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          co_parent_name?: string | null
+          created_at?: string
+          daily_nudge_enabled?: boolean | null
+          detected_style?: string | null
+          id?: string
+          notes?: string | null
+          onboarding_completed?: boolean | null
+          preferred_language?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      parenting_session_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parenting_session_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "parenting_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parenting_sessions: {
+        Row: {
+          action_items: Json | null
+          child_id: string | null
+          completed: boolean | null
+          created_at: string
+          id: string
+          key_insights: Json | null
+          session_type: string
+          summary: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_items?: Json | null
+          child_id?: string | null
+          completed?: boolean | null
+          created_at?: string
+          id?: string
+          key_insights?: Json | null
+          session_type?: string
+          summary?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_items?: Json | null
+          child_id?: string | null
+          completed?: boolean | null
+          created_at?: string
+          id?: string
+          key_insights?: Json | null
+          session_type?: string
+          summary?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parenting_sessions_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "parenting_children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parenting_timeline_events: {
+        Row: {
+          child_id: string | null
+          created_at: string
+          description: string | null
+          emotional_intensity: number | null
+          event_date: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          tags: string[] | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          child_id?: string | null
+          created_at?: string
+          description?: string | null
+          emotional_intensity?: number | null
+          event_date?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          tags?: string[] | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          child_id?: string | null
+          created_at?: string
+          description?: string | null
+          emotional_intensity?: number | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          tags?: string[] | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parenting_timeline_events_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "parenting_children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parenting_toxicity_scans: {
+        Row: {
+          action_plan: Json | null
+          ai_interpretation: string | null
+          authoritarian_score: number | null
+          authoritative_score: number | null
+          child_id: string | null
+          completed: boolean | null
+          created_at: string
+          dominant_style: string | null
+          id: string
+          neglectful_score: number | null
+          permissive_score: number | null
+          raw_answers: Json
+          toxic_patterns: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_plan?: Json | null
+          ai_interpretation?: string | null
+          authoritarian_score?: number | null
+          authoritative_score?: number | null
+          child_id?: string | null
+          completed?: boolean | null
+          created_at?: string
+          dominant_style?: string | null
+          id?: string
+          neglectful_score?: number | null
+          permissive_score?: number | null
+          raw_answers?: Json
+          toxic_patterns?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_plan?: Json | null
+          ai_interpretation?: string | null
+          authoritarian_score?: number | null
+          authoritative_score?: number | null
+          child_id?: string | null
+          completed?: boolean | null
+          created_at?: string
+          dominant_style?: string | null
+          id?: string
+          neglectful_score?: number | null
+          permissive_score?: number | null
+          raw_answers?: Json
+          toxic_patterns?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parenting_toxicity_scans_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "parenting_children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payout_history: {
         Row: {
           amount: number
