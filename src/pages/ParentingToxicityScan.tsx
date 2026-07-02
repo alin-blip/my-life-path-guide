@@ -124,10 +124,23 @@ const ParentingToxicityScan: React.FC = () => {
   const isLastPage = pageIdx === pages.length - 1;
 
   const startScan = () => {
-    setPageIdx(0);
-    setAnswers({});
+    // Keep any restored draft; only start fresh if there is none
+    const hasDraft = Object.keys(answers).length > 0;
+    if (!hasDraft) {
+      setPageIdx(0);
+      setAnswers({});
+    }
     setPhase('questions');
   };
+
+  const clearDraft = () => {
+    try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+    setAnswers({});
+    setPageIdx(0);
+    setSavedAt(null);
+    restoredRef.current = false;
+  };
+
 
   const submit = async () => {
     setPhase('submitting');
@@ -172,7 +185,11 @@ const ParentingToxicityScan: React.FC = () => {
       setInterpretation(ai.interpretation || '');
       setActionPlan(ai.action_plan || []);
       setPhase('result');
+      // Clear draft after successful submission
+      try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+      setSavedAt(null);
     } catch (e) {
+
       toast({
         title: lang === 'en' ? 'Scan failed' : 'Scanarea a eșuat',
         description: (e as Error).message,
