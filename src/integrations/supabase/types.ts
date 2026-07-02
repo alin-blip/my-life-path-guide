@@ -3462,6 +3462,60 @@ export type Database = {
         }
         Relationships: []
       }
+      kill_it_today_sessions: {
+        Row: {
+          anchor_phrase: string | null
+          completed_at: string | null
+          created_at: string
+          current_phase: string | null
+          id: string
+          messages: Json | null
+          power_phrase: string | null
+          session_date: string
+          spiritual_anchor: string | null
+          state_before: string | null
+          tasks_snapshot: Json | null
+          updated_at: string
+          user_id: string
+          win_of_day: string | null
+          workout_plan: string | null
+        }
+        Insert: {
+          anchor_phrase?: string | null
+          completed_at?: string | null
+          created_at?: string
+          current_phase?: string | null
+          id?: string
+          messages?: Json | null
+          power_phrase?: string | null
+          session_date?: string
+          spiritual_anchor?: string | null
+          state_before?: string | null
+          tasks_snapshot?: Json | null
+          updated_at?: string
+          user_id: string
+          win_of_day?: string | null
+          workout_plan?: string | null
+        }
+        Update: {
+          anchor_phrase?: string | null
+          completed_at?: string | null
+          created_at?: string
+          current_phase?: string | null
+          id?: string
+          messages?: Json | null
+          power_phrase?: string | null
+          session_date?: string
+          spiritual_anchor?: string | null
+          state_before?: string | null
+          tasks_snapshot?: Json | null
+          updated_at?: string
+          user_id?: string
+          win_of_day?: string | null
+          workout_plan?: string | null
+        }
+        Relationships: []
+      }
       knowledge_base_files: {
         Row: {
           content_preview: string | null
