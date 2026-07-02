@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { loadMinteContext } from "../_shared/mind-context.ts";
+import { buildShadowSnapshot, formatShadowPromptBlock } from "../_shared/shadow-coach-snapshot.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -147,69 +148,36 @@ serve(async (req) => {
       userContext += '\nREGULĂ: Dacă există un task marcat "ACUM", menționează-l proactiv în răspuns.\n';
     }
 
-    // ========== SHADOW COACH: TODAY'S ACTIVITY ACROSS ECOSYSTEM ==========
+    // ========== SHADOW COACH: TODAY'S ACTIVITY + 7-DAY HISTORY ==========
     try {
-      const startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0);
-      const sinceIso = startOfDay.toISOString();
-      const todayStr = startOfDay.toISOString().split('T')[0];
+      const snap = await buildShadowSnapshot(supabaseClient, user.id);
 
-      const [routineRes, doneTasksRes, hotRes, stacksRes, mentalitateRes, quizzesRes, beliefsRes, coursesRes, axesRes] = await Promise.all([
-        supabaseClient.from('champion_routine_logs').select('*').eq('user_id', user.id).eq('date', todayStr).maybeSingle(),
-        supabaseClient.from('user_tasks').select('title,task_type,updated_at').eq('user_id', user.id).eq('completed', true).gte('updated_at', sinceIso).limit(30),
-        supabaseClient.from('hot_list_items').select('text,list_type,updated_at').eq('user_id', user.id).eq('completed', true).gte('updated_at', sinceIso).limit(30),
-        supabaseClient.from('stack_sessions').select('stack_type,updated_at,completed').eq('user_id', user.id).gte('created_at', sinceIso).limit(20),
-        supabaseClient.from('mentalitate_stack_sessions').select('completed,updated_at').eq('user_id', user.id).gte('created_at', sinceIso).limit(20),
-        supabaseClient.from('mind_quiz_responses').select('completed_at').eq('user_id', user.id).gte('completed_at', sinceIso).limit(20),
-        supabaseClient.from('belief_chapter_progress').select('completed_at,updated_at').eq('user_id', user.id).gte('updated_at', sinceIso).limit(20),
-        supabaseClient.from('user_course_progress').select('completed,updated_at').eq('user_id', user.id).gte('updated_at', sinceIso).limit(20),
-        supabaseClient.from('mind_axis_scores').select('axis,score_healthy,updated_at').eq('user_id', user.id),
-      ]);
+      // 7-day history from stored snapshots
+      const since = new Date();
+      since.setDate(since.getDate() - 7);
+      const { data: history } = await supabaseClient
+        .from('shadow_coach_daily_snapshots')
+        .select('date,total_count,counts_by_axis')
+        .eq('user_id', user.id)
+        .gte('date', since.toISOString().split('T')[0])
+        .order('date', { ascending: false })
+        .limit(7);
 
-      const counts = { body: 0, being: 0, balance: 0, business: 0, mind: 0 };
-      const bullets: string[] = [];
-      const log: any = routineRes.data;
-      if (log) {
-        const inc = (a: keyof typeof counts, label: string) => { counts[a] += 1; bullets.push(`• [${a}] ${label}`); };
-        if (log.water_drunk) inc('body', 'Hidratare');
-        if (log.light_exposure) inc('body', 'Lumină de dimineață');
-        if (log.exercise_completed) inc('body', 'Exerciții');
-        if ((log.meals_logged?.length ?? 0) > 0) inc('body', `Mese logate (${log.meals_logged.length})`);
-        if (log.meditation_duration_seconds > 0) inc('being', `Meditație ${Math.round(log.meditation_duration_seconds/60)} min`);
-        if (log.autosuggestion_completed) inc('being', 'Autosugestie');
-        if (log.vision_declaration_read) inc('being', 'Declarație viziune');
-        if (log.visualization_completed) inc('being', 'Vizualizare');
-        if (log.breathing_completed) inc('being', 'Respirație');
-        if ((log.gratitude_items?.length ?? 0) > 0) inc('being', `Recunoștință (${log.gratitude_items.length})`);
-        if (log.journaling_completed) inc('being', 'Jurnaling');
-        if (log.reading_completed) inc('being', 'Citit');
-        if (log.learn_completed) inc('business', 'Învățare');
-        if (log.apply_completed) inc('business', 'Aplicare');
-        if (log.content_topic) inc('business', 'Creare conținut');
-        if ((log.relationship_actions?.length ?? 0) > 0) inc('balance', `Relații (${log.relationship_actions.length})`);
-        if (log.emotional_transform_completed) inc('mind', 'Mind Shifting');
-        if (log.stack_selection_completed) inc('mind', 'Stack ales');
+      let historyLine: string | undefined;
+      if (history && history.length) {
+        const avg = Math.round(history.reduce((s: number, r: any) => s + (r.total_count ?? 0), 0) / history.length);
+        const bestAxis = ((): string => {
+          const tot: Record<string, number> = { body: 0, being: 0, balance: 0, business: 0, mind: 0 };
+          history.forEach((r: any) => {
+            const c = r.counts_by_axis || {};
+            Object.keys(tot).forEach(k => { tot[k] += (c as any)[k] ?? 0; });
+          });
+          return Object.entries(tot).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
+        })();
+        historyLine = `${history.length} zile logate, medie ${avg} acțiuni/zi, axă dominantă: ${bestAxis}.`;
       }
-      (doneTasksRes.data ?? []).forEach((t: any) => { counts.business++; bullets.push(`• [business] Task: ${t.title}`); });
-      (hotRes.data ?? []).forEach((t: any) => { counts.business++; bullets.push(`• [business] Hot list: ${t.text}`); });
-      (stacksRes.data ?? []).forEach((s: any) => { if (s.completed) { counts.mind++; bullets.push(`• [mind] Stack ${s.stack_type||''} finalizat`); } });
-      (mentalitateRes.data ?? []).forEach((s: any) => { if (s.completed) { counts.mind++; bullets.push('• [mind] Mentalitate Stack finalizat'); } });
-      (quizzesRes.data ?? []).forEach(() => { counts.mind++; bullets.push('• [mind] Test Minte'); });
-      (beliefsRes.data ?? []).forEach((b: any) => { counts.being++; bullets.push(b.completed_at ? '• [being] Capitol credințe finalizat' : '• [being] Progres pe credințe'); });
-      (coursesRes.data ?? []).forEach((c: any) => { counts.business++; bullets.push(c.completed ? '• [business] Modul curs finalizat' : '• [business] Progres pe curs'); });
 
-      const total = counts.body + counts.being + counts.balance + counts.business + counts.mind;
-      userContext += `\n\n🕶️ SHADOW COACH — CE A FĂCUT UTILIZATORUL AZI (total ${total} acțiuni):\n`;
-      userContext += `Distribuție pe axe: body:${counts.body} · being:${counts.being} · balance:${counts.balance} · business:${counts.business} · mind:${counts.mind}\n`;
-      if (bullets.length) userContext += bullets.slice(0, 20).join('\n') + '\n';
-
-      if (axesRes.data && axesRes.data.length) {
-        userContext += '\n📊 SCORURI AXE (0-100):\n';
-        (axesRes.data as any[]).forEach(a => {
-          userContext += `- ${a.axis}: ${Math.round(Number(a.score_healthy ?? 0))}\n`;
-        });
-      }
-      userContext += '\nREGULĂ SHADOW COACH: Când răspunzi, fă referire la ce a făcut deja azi (celebrează), la axa cea mai neglijată azi (împinge blând) și la scorul pe axe (unde e putere / unde e creștere). Nu inventa acțiuni. Dacă nu găsești date, spune că observi liniște și întreabă ce a făcut.\n';
+      userContext += formatShadowPromptBlock(snap, historyLine);
     } catch (e) {
       console.error('Shadow coach snapshot failed:', e);
     }
