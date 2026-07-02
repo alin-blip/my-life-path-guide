@@ -22,7 +22,7 @@ import {
   Sparkles,
   Trophy
 } from 'lucide-react';
-import { RoutineStepId } from './ChampionRoutineFlow';
+import { RoutineStepId, isStepCompleted } from './ChampionRoutineFlow';
 import { ChampionLog } from '@/hooks/useChampionRoutine';
 import { cn } from '@/lib/utils';
 
@@ -137,47 +137,11 @@ const CATEGORY_CONFIG = {
   complete: { label: 'Complete', color: 'text-green-500', bgColor: 'bg-green-500/10', borderColor: 'border-green-500/30' },
 };
 
-// Check if a step is completed based on log data
-const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolean => {
-  if (!log) return false;
-  
-  switch (stepId) {
-    case 'gratitude':
-      return (log.gratitude_items || []).some(i => i?.trim());
-    case 'hydration':
-      return log.water_drunk === true;
-    case 'meditation':
-      return (log.meditation_duration_seconds || 0) >= 600;
-    case 'autosuggestion':
-      return log.autosuggestion_completed === true;
-    case 'exercise':
-      return log.exercise_completed === true;
-    case 'mealPlanning':
-      return (log.meals_logged || []).length > 0;
-    case 'learn':
-      return log.learn_completed === true;
-    case 'apply':
-      return log.apply_completed === true;
-    case 'contentCreation':
-      return !!log.content_script || (log.pomodoro_sessions || 0) > 0;
-    case 'dailyTasks':
-      return !!log.big_one_today || (log.daily_todos || []).some(t => t.completed);
-    case 'relationships':
-      return (log.relationship_actions || []).some(a => a.completed);
-    case 'breathing':
-      return log.breathing_completed === true;
-    case 'visualization':
-      return log.visualization_completed === true;
-    case 'reading':
-      return log.reading_completed === true;
-    case 'journaling':
-      return log.journaling_completed === true;
-    case 'lightExposure':
-      return log.light_exposure === true;
-    default:
-      return false;
-  }
-};
+// NOTE: isStepCompleted is imported from ChampionRoutineFlow to keep a single source of truth.
+// Previous duplicate here was missing cases for mindShifting/mindTest/bodyActivation/powerDeclaration/
+// eveningReflection and used a stricter meditation threshold — causing the end-of-routine summary
+// to show completed steps as incomplete.
+
 
 export function RoutineBreakdown({ routineSteps, todayLog, skippedSteps, onGoToStep }: RoutineBreakdownProps) {
   // Filter out completion step

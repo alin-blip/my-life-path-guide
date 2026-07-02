@@ -205,7 +205,7 @@ const CATEGORY_COLORS = {
 };
 
 // Check if a step is completed based on log data
-const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolean => {
+export const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolean => {
   if (!log) return false;
   
   switch (stepId) {
@@ -252,6 +252,7 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
     case 'contentCreation':
       return !!log.content_script || (log.pomodoro_sessions || 0) > 0;
     case 'dailyTasks':
+    case 'todaysTasks':
       return !!log.big_one_today || (log.daily_todos || []).some(t => t.completed);
     case 'relationships':
       return (log.relationship_actions || []).some(a => a.completed);
