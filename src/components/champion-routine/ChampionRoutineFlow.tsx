@@ -258,6 +258,8 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
       return log.journaling_completed === true;
     case 'lightExposure':
       return log.light_exposure === true;
+    case 'eveningReflection':
+      return (log as any).evening_completed === true;
     case 'completion':
       return false;
     default:
