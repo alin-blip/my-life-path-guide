@@ -62,7 +62,22 @@ export const AuthForm: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   
-  const from = location.state?.from?.pathname || '/dashboard';
+  // Where to return the user after auth. Priority:
+  //   1. router state.from (in-app navigation)
+  //   2. `pending_return_path` from localStorage (survives full email round-trip)
+  //   3. /dashboard
+  const stateFrom: string | undefined = location.state?.from?.pathname;
+  const storedReturn = (() => {
+    try {
+      const v = localStorage.getItem('pending_return_path');
+      // only accept same-origin absolute paths
+      return v && v.startsWith('/') && !v.startsWith('//') ? v : null;
+    } catch {
+      return null;
+    }
+  })();
+  const from = stateFrom || storedReturn || '/dashboard';
+
   const MAX_RATE_LIMIT = 5;
   const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
 
@@ -248,16 +263,27 @@ export const AuthForm: React.FC = () => {
           return;
         }
 
+        // Persist return path so it survives the full email confirmation
+        // round-trip (user clicks link in inbox → fresh browser tab).
+        try {
+          if (from && from !== '/dashboard') {
+            localStorage.setItem('pending_return_path', from);
+          }
+        } catch {}
+
         const { data: signUpData, error } = await withTimeout(
           supabase.auth.signUp({
             email,
             password,
             options: {
-              emailRedirectTo: `${window.location.origin}/`
+              // Send the user back to where they started (e.g. /challenge-7-zile)
+              // so any pending checkout / plan can auto-resume after confirm.
+              emailRedirectTo: `${window.location.origin}${from || '/'}`
             }
           }),
           AUTH_TIMEOUT_MS
         );
+
 
         if (error) throw error;
 
@@ -291,13 +317,17 @@ export const AuthForm: React.FC = () => {
         if (error) throw error;
 
         logSecurityEvent('Successful login', { email });
-        
+
+        // Consume the pending return path — we've used it now.
+        try { localStorage.removeItem('pending_return_path'); } catch {}
+
         if (isVisionPlanFlow && visionScores && data.user) {
           await setupVisionPlan(data.user.id);
           navigate('/focus', { replace: true });
         } else {
           navigate(from, { replace: true });
         }
+
       } else if (mode === AuthMode.FORGOT_PASSWORD) {
         const { error } = await withTimeout(
           supabase.auth.resetPasswordForEmail(email, {
