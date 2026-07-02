@@ -99,6 +99,11 @@ export function EveningReflectionStep({
   const canFinish = (localDoneWell.trim().length) > 0;
 
   const handleFinish = async () => {
+    // Flush pending debounced writes immediately
+    Object.values(timersRef.current).forEach((t) => t && clearTimeout(t));
+    onChange('evening_reflection_done_well', localDoneWell);
+    onChange('evening_reflection_learned', localLearned);
+    onChange('evening_reflection_not_done', localNotDone);
     onComplete(true);
     // Persist today's snapshot for Shadow Coach history
     if (user?.id && snapshot) {
@@ -110,7 +115,7 @@ export function EveningReflectionStep({
           topEvents: snapshot.items.slice(0, 25).map(it => ({
             axis: it.axis, label: it.title, source: it.source, occurredAt: it.occurredAt,
           })),
-          reflection: { done_well: doneWell, learned, not_done: notDone },
+          reflection: { done_well: localDoneWell, learned: localLearned, not_done: localNotDone },
         });
       } catch (e) { /* silent */ }
     }
