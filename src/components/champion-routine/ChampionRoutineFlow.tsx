@@ -52,6 +52,7 @@ import { SkipConfirmDialog } from './SkipConfirmDialog';
 import { StepCompletionAnimation } from './StepCompletionAnimation';
 import { RoutineSetupWizard } from './RoutineSetupWizard';
 import { QuickSettingsPanel } from './QuickSettingsPanel';
+import { autoCompleteHabitByName, ROUTINE_STEP_TO_HABIT } from '@/services/habitAutoComplete';
 
 // Setup UI components
 import { Card } from '@/components/ui/card';
