@@ -262,10 +262,30 @@ const ParentingToxicityScan: React.FC = () => {
                   );
                 })}
               </RadioGroup>
+              {answeredCount > 0 && phase === 'select' && (
+                <div className="flex items-center justify-between text-xs bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+                  <span className="text-primary flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5" />
+                    {lang === 'en'
+                      ? `Draft saved — ${answeredCount}/${total} answered`
+                      : `Draft salvat — ${answeredCount}/${total} răspunse`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={clearDraft}
+                    className="text-muted-foreground hover:text-destructive underline"
+                  >
+                    {lang === 'en' ? 'Discard' : 'Șterge'}
+                  </button>
+                </div>
+              )}
               <Button size="lg" className="w-full mt-2" onClick={startScan}>
-                {lang === 'en' ? 'Start the scan' : 'Începe scanarea'}
+                {answeredCount > 0
+                  ? (lang === 'en' ? 'Resume scan' : 'Reia scanarea')
+                  : (lang === 'en' ? 'Start the scan' : 'Începe scanarea')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
+
             </CardContent>
           </Card>
         )}
@@ -279,10 +299,19 @@ const ParentingToxicityScan: React.FC = () => {
                   {lang === 'en' ? 'Question' : 'Întrebarea'} {pageIdx * PAGE_SIZE + 1}–
                   {Math.min((pageIdx + 1) * PAGE_SIZE, total)} / {total}
                 </span>
-                <span>{answeredCount}/{total}</span>
+                <span className="flex items-center gap-2">
+                  {savedAt && (
+                    <span className="text-primary/80 flex items-center gap-1">
+                      <Check className="w-3 h-3" />
+                      {lang === 'en' ? 'Autosaved' : 'Salvat automat'}
+                    </span>
+                  )}
+                  <span>{answeredCount}/{total}</span>
+                </span>
               </div>
               <Progress value={(answeredCount / total) * 100} />
             </div>
+
 
             <div className="space-y-4">
               {currentPage.map((item, i) => {
