@@ -1408,6 +1408,7 @@ const translations: Translations = {
     "stepHabitBalance": "Obiceiuri: Relații",
     "stepHabitBusiness": "Obiceiuri: Business",
     "stepTodaysTasks": "Sarcinile de Azi",
+    "stepEveningReflection": "Reflecție de Seară",
     "stepCompletion": "Finalizare",
     
     // Footer links
