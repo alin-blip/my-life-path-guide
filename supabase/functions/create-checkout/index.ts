@@ -77,26 +77,30 @@ serve(async (req) => {
     let interval: "month" | "year" = "month";
     let productName = "CEO Mind OS Pro";
     let paymentMode: "subscription" | "payment" = "subscription";
+    // Standard currency: EUR for all RO / default plans. EN variants use USD (language-dynamic).
     let currency = existingCurrency || "eur";
     let tier = "basic";
 
     switch (plan) {
       case "basic":
-        unitAmount = currency === "ron" ? 24900 : 4900;
+        unitAmount = 4900;
+        currency = "eur";
         productName = isEarlyBird ? "CEO Mind OS Basic (Early Bird)" : "CEO Mind OS Basic (7-Day Trial)";
         tier = "basic";
         trialDays = isEarlyBird ? undefined : 7;
         break;
-        
+
       case "pro":
-        unitAmount = currency === "ron" ? 49000 : 9700;
+        unitAmount = 9700;
+        currency = "eur";
         productName = "CEO Mind OS Pro (Early Bird)";
         tier = "pro";
         trialDays = undefined;
         break;
-        
+
       case "elite":
-        unitAmount = currency === "ron" ? 149000 : 29700;
+        unitAmount = 29700;
+        currency = "eur";
         productName = "CEO Mind OS Elite (5-Day Trial)";
         tier = "elite";
         trialDays = 5;
@@ -124,28 +128,31 @@ serve(async (req) => {
         productName = "CEO Certified Coach - Early Bird";
         tier = "accelerator";
         break;
-      
+
       case "basic-annual":
-        unitAmount = currency === "ron" ? 199000 : 39900;
+        unitAmount = 39900;
+        currency = "eur";
         interval = "year";
         productName = "CEO Mind OS Basic Annual (60% Locked)";
         tier = "basic";
         break;
-        
+
       case "pro-annual":
-        unitAmount = currency === "ron" ? 490000 : 97000;
+        unitAmount = 97000;
+        currency = "eur";
         interval = "year";
         productName = "CEO Mind OS Pro Annual (60% Locked)";
         tier = "pro";
         break;
-        
+
       case "elite-annual":
-        unitAmount = currency === "ron" ? 1490000 : 297000;
+        unitAmount = 297000;
+        currency = "eur";
         interval = "year";
         productName = "CEO Mind OS Elite Annual (60% Locked)";
         tier = "elite";
         break;
-      
+
       case "warrior-accelerator":
         unitAmount = 199900;
         currency = "eur";
@@ -155,8 +162,8 @@ serve(async (req) => {
         break;
 
       case "ebook-accelerator":
-        unitAmount = 9900;
-        currency = "ron";
+        unitAmount = 1900; // €19
+        currency = "eur";
         paymentMode = "payment";
         productName = "CEO Mind OS - Pachet Accelerator (Ebook)";
         tier = "accelerator";
@@ -172,16 +179,16 @@ serve(async (req) => {
 
       // === BURNOUT FUNNEL — Ebook (RO) ===
       case "ebook-only":
-        unitAmount = 3500; // 35 RON
-        currency = "ron";
+        unitAmount = 700; // €7
+        currency = "eur";
         paymentMode = "payment";
         productName = "CEO Mind OS - Ebook (PDF)";
         tier = "ebook";
         break;
 
       case "ebook-bundle":
-        unitAmount = 7000; // 35 RON ebook + 35 RON audiobook
-        currency = "ron";
+        unitAmount = 1400; // €7 ebook + €7 audiobook
+        currency = "eur";
         paymentMode = "payment";
         productName = "CEO Mind OS - Ebook + Audiobook";
         tier = "ebook";
@@ -204,11 +211,10 @@ serve(async (req) => {
         tier = "ebook";
         break;
 
-      // === CHALLENGE UPSELL — One-time $97 + 14d Pro trial then $49/mo ===
+      // === CHALLENGE UPSELL — combined line items handled below ===
       case "challenge-plus-trial":
-        // Handled below as combined subscription — see special branch
         unitAmount = 0;
-        currency = "ron";
+        currency = "eur";
         productName = "Challenge 7 Zile + Pro (14 zile trial)";
         tier = "pro";
         break;
@@ -219,36 +225,37 @@ serve(async (req) => {
         productName = "7-Day Challenge + Pro (14-day trial)";
         tier = "pro";
         break;
-      
+
       case "trial":
-        unitAmount = 19700;
-        currency = "ron";
+        unitAmount = 3900; // €39
+        currency = "eur";
         productName = "Operator Pro Trial (Legacy)";
         trialDays = 3;
         tier = "pro";
         break;
       case "monthly":
-        unitAmount = 9700;
-        currency = "ron";
+        unitAmount = 1900; // €19
+        currency = "eur";
         productName = "CEO Mind OS - Lunar (Legacy)";
         tier = "basic";
         break;
       case "annual":
-        unitAmount = 99700;
-        currency = "ron";
+        unitAmount = 19900; // €199
+        currency = "eur";
         interval = "year";
         productName = "CEO Mind OS - Anual (Legacy)";
         tier = "basic";
         break;
       case "premium-coach":
-        unitAmount = 19700;
-        currency = "ron";
+        unitAmount = 3900; // €39
+        currency = "eur";
         productName = "CEO Mind OS - Premium + Coaching (Legacy)";
         tier = "pro";
         break;
       default:
         throw new Error("Plan invalid");
     }
+
 
     const originHeader = req.headers.get("origin");
     const forwardedProto = req.headers.get("x-forwarded-proto") ?? undefined;
@@ -304,15 +311,15 @@ serve(async (req) => {
     // Special combined line items for Challenge+Trial: $97 one-time + $49/mo with 14d trial
     let lineItems: any[];
     if (plan === 'challenge-plus-trial' || plan === 'challenge-plus-trial-en') {
-      const isRon = plan === 'challenge-plus-trial';
-      const challengeAmt = isRon ? 48500 : 9700;  // 485 RON or $97
-      const monthlyAmt = isRon ? 24500 : 4900;    // 245 RON or $49
-      const cur = isRon ? 'ron' : 'usd';
+      const isEn = plan === 'challenge-plus-trial-en';
+      const cur = isEn ? 'usd' : 'eur';
+      const challengeAmt = 9700;  // €97 / $97
+      const monthlyAmt = 4900;    // €49 / $49
       currency = cur;
       paymentMode = 'subscription';
       lineItems = [
-        { price_data: { currency: cur, product_data: { name: isRon ? 'Challenge 7 Zile (plată unică)' : '7-Day Challenge (one-time)' }, unit_amount: challengeAmt }, quantity: 1 },
-        { price_data: { currency: cur, product_data: { name: isRon ? 'CEO Mind OS Pro (lunar)' : 'CEO Mind OS Pro (monthly)' }, unit_amount: monthlyAmt, recurring: { interval: 'month' } }, quantity: 1 },
+        { price_data: { currency: cur, product_data: { name: isEn ? '7-Day Challenge (one-time)' : 'Challenge 7 Zile (plată unică)' }, unit_amount: challengeAmt }, quantity: 1 },
+        { price_data: { currency: cur, product_data: { name: isEn ? 'CEO Mind OS Pro (monthly)' : 'CEO Mind OS Pro (lunar)' }, unit_amount: monthlyAmt, recurring: { interval: 'month' } }, quantity: 1 },
       ];
       trialDays = 14;
     } else {
