@@ -596,6 +596,12 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   const progress = ((currentStepIndex + 1) / routineSteps.length) * 100;
 
   const goToNextStep = () => {
+    // Auto-complete matching habit for the step we're leaving
+    const leavingStepId = routineSteps[currentStepIndex];
+    const habitNames = ROUTINE_STEP_TO_HABIT[leavingStepId as string];
+    if (habitNames && habitNames.length > 0) {
+      autoCompleteHabitByName(habitNames);
+    }
     if (currentStepIndex < routineSteps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
     }
