@@ -313,7 +313,7 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
 
         <div className="grid gap-2.5">
           {options.map((opt) => {
-            const isRecommended = opt.id === 'reconstruction';
+            const isRecommended = opt.id === 'reconstruction' || opt.id === 'kill-it-today';
             return (
               <button
                 key={opt.id}
