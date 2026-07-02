@@ -119,7 +119,8 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'apply',                // 10. Aplică
   'contentCreation',      // 11. Content
   'relationships',        // 12. Relații
-  'completion',           // 13. Finalizare
+  'eveningReflection',    // 13. Reflecție de seară (sumar zi + reflecție)
+  'completion',           // 14. Finalizare
 ];
 
 // Translation keys for step labels - now using useLanguage t() function
