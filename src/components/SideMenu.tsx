@@ -227,6 +227,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       path: '/stack',
       subItems: [
         { title: 'Mind Coach', icon: Brain, path: '/mind-coach', badge: 'NEW' },
+        { title: language === 'ro' ? 'Kill It Today' : 'Kill It Today', icon: Flame, path: '/stack?type=kill-it-today', badge: 'NEW' },
         { title: language === 'ro' ? 'Reconstrucție Mentală' : 'Mental Reconstruction', icon: Brain, path: '/minte/stack' },
         { title: 'Anger Coach', icon: Flame, path: '/stack?type=anger' },
         { title: language === 'ro' ? 'Frustration Coach' : 'Frustration Coach', icon: Zap, path: '/stack?type=frustration', badge: 'NEW' },

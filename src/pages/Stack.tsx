@@ -26,6 +26,7 @@ import { DivineGratitudeStack } from '@/components/stack/divine-gratitude/Divine
 import { PathToSuccessStack } from '@/components/stack/path-to-success';
 import { StorytellingStack } from '@/components/content-creation/StorytellingStack';
 import { HeroJourneyStack } from '@/components/content-creation/HeroJourneyStack';
+import { KillItTodayStack } from '@/components/stack/KillItTodayStack';
 import { getActiveWeekKey } from '@/utils/weekUtils';
 
 const CoachingPage = () => {
@@ -94,6 +95,9 @@ const CoachingPage = () => {
             break;
           case 'fear':
             setActiveStack('fear');
+            break;
+          case 'kill-it-today':
+            setActiveStack('kill-it-today');
             break;
           case 'divine-prayer':
             setActiveStack('divine-prayer');
@@ -372,6 +376,8 @@ const renderActiveStack = () => {
         return <FrustrationStack onAddToHitList={stackProps.onAddToHitList} />;
       case "fear":
         return <FearStack onAddToHitList={stackProps.onAddToHitList} />;
+      case "kill-it-today":
+        return <KillItTodayStack onAddToHitList={stackProps.onAddToHitList} />;
       case "ai-live":
         return <AiLiveCoaching {...stackProps} />;
       case "hormozi-coaching":

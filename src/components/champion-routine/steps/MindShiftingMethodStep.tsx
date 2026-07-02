@@ -25,6 +25,7 @@ import { PanicStack } from '@/components/stack/PanicStack';
 import { SadnessStack } from '@/components/stack/SadnessStack';
 import { ShameStack } from '@/components/stack/ShameStack';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
+import { KillItTodayStack } from '@/components/stack/KillItTodayStack';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { getActiveWeekKey } from '@/utils/weekUtils';
 
@@ -36,6 +37,7 @@ interface Props {
 type Method =
   | 'none'
   | 'reconstruction'
+  | 'kill-it-today'
   | 'anger'
   | 'frustration'
   | 'fear'
@@ -101,6 +103,15 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
           onComplete={onComplete}
           onSkip={onSkip}
         />
+      </div>
+    );
+  }
+
+  if (method === 'kill-it-today') {
+    return (
+      <div>
+        <InlineHeader />
+        <KillItTodayStack onAddToHitList={addActionToHitList} />
       </div>
     );
   }
@@ -198,6 +209,16 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
       badge: 'recomandat zilnic',
     },
     {
+      id: 'kill-it-today',
+      title: 'Kill It Today',
+      desc: 'Mod dominație: mentalitate → win → ancoră → familie → corp. Setează-te în putere.',
+      Icon: Zap,
+      iconBg: 'bg-orange-500/15',
+      iconColor: 'text-orange-500',
+      hoverBorder: 'group-hover:text-orange-500',
+      badge: 'când te simți echilibrat',
+    },
+    {
       id: 'anger',
       title: 'Anger Coach',
       desc: 'Transformă furia în claritate și direcție (42Q).',
@@ -292,7 +313,7 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
 
         <div className="grid gap-2.5">
           {options.map((opt) => {
-            const isRecommended = opt.id === 'reconstruction';
+            const isRecommended = opt.id === 'reconstruction' || opt.id === 'kill-it-today';
             return (
               <button
                 key={opt.id}
