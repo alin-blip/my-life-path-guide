@@ -397,7 +397,10 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
       steps.push('todaysTasks');
     }
 
-    // Always ensure completion is at the end
+    // Always append evening reflection + completion at the end
+    if (!steps.includes('eveningReflection')) {
+      steps.push('eveningReflection');
+    }
     steps.push('completion');
 
     return steps;
