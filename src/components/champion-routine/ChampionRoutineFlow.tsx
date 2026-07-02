@@ -89,6 +89,7 @@ export type RoutineStepId =
   | 'habit_balance'
   | 'habit_business'
   | 'todaysTasks'
+  | 'eveningReflection'
   | 'completion';
 
 // Core 4 - OBLIGATORII (nu pot fi eliminate) - aliniate cu Warrior Core 4
