@@ -52,6 +52,8 @@ export default function BeliefSelfCare() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not auth");
+      const scoreVal = [today.sleep_ok, today.movement_done, today.food_clean, today.tech_break_done]
+        .filter(Boolean).length * 25;
       const { error } = await supabase
         .from("belief_self_care_logs")
         .upsert({
@@ -63,8 +65,10 @@ export default function BeliefSelfCare() {
           food_clean: today.food_clean,
           tech_break_done: today.tech_break_done,
           notes: today.notes,
+          score: scoreVal,
         }, { onConflict: "user_id,log_date" });
       if (error) throw error;
+      window.dispatchEvent(new CustomEvent('selfCare:refresh'));
       toast({ title: "Salvat" });
     } catch (e: any) {
       toast({ title: "Eroare", description: e?.message ?? "—", variant: "destructive" });
