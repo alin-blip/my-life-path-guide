@@ -1,14 +1,16 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import {
   getTodayActivity,
   DailyActivitySnapshot,
 } from '@/services/dailyActivityService';
+import { upsertTodayShadowSnapshot } from './useShadowCoachHistory';
 
 export function useTodayActivity() {
   const { user } = useAuth();
   const [snapshot, setSnapshot] = useState<DailyActivitySnapshot | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const backupSavedRef = useRef(false);
 
   const refresh = useCallback(async () => {
     if (!user?.id) {
@@ -35,6 +37,27 @@ export function useTodayActivity() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Fallback: auto-save a shadow snapshot in the evening even if user skips
+  // the evening reflection, so history/analytics always have a daily row.
+  useEffect(() => {
+    if (!user?.id || !snapshot || backupSavedRef.current) return;
+    const hour = new Date().getHours();
+    if (hour < 18) return;
+    if (snapshot.totalCount === 0) return;
+    backupSavedRef.current = true;
+    upsertTodayShadowSnapshot({
+      userId: user.id,
+      countsByAxis: snapshot.countsByAxis,
+      totalCount: snapshot.totalCount,
+      topEvents: snapshot.items.slice(0, 25).map(i => ({
+        axis: i.axis,
+        label: i.label,
+        source: (i as any).source,
+        occurredAt: (i as any).occurredAt,
+      })),
+    }).catch(() => { /* silent */ });
+  }, [user?.id, snapshot]);
 
   return { snapshot, isLoading, refresh };
 }
