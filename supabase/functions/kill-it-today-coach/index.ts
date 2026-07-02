@@ -83,18 +83,11 @@ Deno.serve(async (req) => {
     let contextBlock = '';
     try {
       const now = new Date();
-      const isoYear = now.getUTCFullYear();
-      // approximate ISO week
-      const jan1 = new Date(Date.UTC(isoYear, 0, 1));
-      const daysSinceJan1 = Math.floor((now.getTime() - jan1.getTime()) / 86400000);
-      const week = String(Math.ceil((daysSinceJan1 + jan1.getUTCDay() + 1) / 7)).padStart(2, '0');
-      const weekKey = `door-week-${isoYear}-${week}`;
-
       const { data: hot } = await supabase
         .from('hot_list_items')
-        .select('title, list_type, completed, priority, day_of_week')
+        .select('title, list_type, completed, priority, day_of_week, created_at')
         .eq('user_id', user.id)
-        .eq('week_key', weekKey)
+        .order('created_at', { ascending: false })
         .limit(30);
 
       const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
