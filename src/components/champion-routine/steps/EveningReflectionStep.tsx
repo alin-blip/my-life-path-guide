@@ -59,6 +59,35 @@ export function EveningReflectionStep({
   const { snapshot, isLoading } = useTodayActivity();
   const { user } = useAuth();
 
+  // LOCAL state — evită "typo/reload" (fiecare tastă declanșa updateLog → refetch → reset).
+  // Ne inițializăm o singură dată din props și propagăm debounced către parent.
+  const [localDoneWell, setLocalDoneWell] = useState(doneWell ?? '');
+  const [localLearned, setLocalLearned] = useState(learned ?? '');
+  const [localNotDone, setLocalNotDone] = useState(notDone ?? '');
+  const initedRef = useRef(false);
+  useEffect(() => {
+    if (initedRef.current) return;
+    if (doneWell !== null || learned !== null || notDone !== null) {
+      setLocalDoneWell(doneWell ?? '');
+      setLocalLearned(learned ?? '');
+      setLocalNotDone(notDone ?? '');
+      initedRef.current = true;
+    }
+  }, [doneWell, learned, notDone]);
+
+  // Debounce parent updates (600ms) — se salvează în DB fără să reseteze textarea.
+  const timersRef = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
+  const scheduleUpdate = useCallback(
+    (field: 'evening_reflection_done_well' | 'evening_reflection_learned' | 'evening_reflection_not_done', value: string) => {
+      if (timersRef.current[field]) clearTimeout(timersRef.current[field]!);
+      timersRef.current[field] = setTimeout(() => onChange(field, value), 600);
+    },
+    [onChange]
+  );
+  useEffect(() => () => {
+    Object.values(timersRef.current).forEach((t) => t && clearTimeout(t));
+  }, []);
+
   const groupedByAxis = useMemo(() => {
     const groups: Record<ActivityAxis, typeof snapshot['items']> = {
       body: [], being: [], balance: [], business: [], mind: [],
@@ -67,7 +96,7 @@ export function EveningReflectionStep({
     return groups;
   }, [snapshot]);
 
-  const canFinish = (doneWell?.trim().length ?? 0) > 0;
+  const canFinish = (localDoneWell.trim().length) > 0;
 
   const handleFinish = async () => {
     onComplete(true);
