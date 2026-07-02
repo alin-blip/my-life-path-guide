@@ -8400,6 +8400,7 @@ export type Database = {
         }
         Returns: number
       }
+      purge_anonymous_warrior_results: { Args: never; Returns: undefined }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
