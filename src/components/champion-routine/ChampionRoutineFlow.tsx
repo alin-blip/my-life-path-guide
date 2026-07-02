@@ -53,6 +53,7 @@ import { StepCompletionAnimation } from './StepCompletionAnimation';
 import { RoutineSetupWizard } from './RoutineSetupWizard';
 import { QuickSettingsPanel } from './QuickSettingsPanel';
 import { autoCompleteHabitByName, ROUTINE_STEP_TO_HABIT } from '@/services/habitAutoComplete';
+import { autoMarkSelfCare, ROUTINE_STEP_TO_SELF_CARE } from '@/services/selfCareAutoComplete';
 
 // Setup UI components
 import { Card } from '@/components/ui/card';
@@ -603,10 +604,16 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     if (habitNames && habitNames.length > 0) {
       autoCompleteHabitByName(habitNames);
     }
+    // Auto-mark matching Self Care indicator
+    const selfCareFields = ROUTINE_STEP_TO_SELF_CARE[leavingStepId as string];
+    if (selfCareFields && selfCareFields.length > 0) {
+      autoMarkSelfCare(selfCareFields);
+    }
     if (currentStepIndex < routineSteps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
     }
   };
+
 
   const goToPreviousStep = () => {
     if (currentStepIndex > 0) {
