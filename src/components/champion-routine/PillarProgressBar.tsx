@@ -85,12 +85,12 @@ export function PillarProgressBar({
             className={cn(
               'group relative overflow-hidden rounded-xl p-2 sm:p-2.5 text-left transition-all',
               'border backdrop-blur-sm',
-              'bg-gradient-to-b from-[hsl(220_45%_12%)] to-[hsl(222_50%_8%)]',
-              isActive
+              isComplete
+                ? 'bg-gradient-to-b from-amber-400/90 to-yellow-500/90 border-amber-300 shadow-[0_0_0_1px_hsl(45_95%_55%/0.6),0_8px_24px_-8px_hsl(45_95%_55%/0.55)]'
+                : 'bg-gradient-to-b from-[hsl(220_45%_12%)] to-[hsl(222_50%_8%)]',
+              !isComplete && isActive
                 ? 'border-[hsl(var(--primary)/0.55)] shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_8px_24px_-12px_hsl(var(--primary)/0.45)]'
-                : isComplete
-                ? 'border-[hsl(var(--primary)/0.4)]'
-                : 'border-white/10 hover:border-[hsl(var(--primary)/0.35)]',
+                : !isComplete && 'border-white/10 hover:border-[hsl(var(--primary)/0.35)]',
               disabled && 'opacity-40 cursor-not-allowed',
             )}
           >
@@ -115,7 +115,7 @@ export function PillarProgressBar({
                 }}
               >
                 {isComplete ? (
-                  <Check className="h-4 w-4 text-[hsl(var(--primary))]" strokeWidth={2.5} />
+                  <Check className="h-4 w-4 text-amber-950" strokeWidth={3} />
                 ) : (
                   <Icon className="h-4 w-4" style={{ color: 'var(--p-accent)' }} strokeWidth={2.2} />
                 )}
@@ -130,17 +130,23 @@ export function PillarProgressBar({
               </div>
 
               <div className="min-w-0 flex-1 hidden sm:block">
-                <div className="text-[11px] font-semibold tracking-wide text-white/90 truncate">
+                <div className={cn(
+                  "text-[11px] font-semibold tracking-wide truncate",
+                  isComplete ? "text-amber-950" : "text-white/90"
+                )}>
                   {meta.label}
                 </div>
-                <div className="text-[10px] text-white/50 font-mono">
+                <div className={cn(
+                  "text-[10px] font-mono",
+                  isComplete ? "text-amber-900/80" : "text-white/50"
+                )}>
                   {done}/{total}
                 </div>
               </div>
             </div>
 
             {/* gold progress bar */}
-            <div className="mt-2 h-[3px] rounded-full bg-white/5 overflow-hidden">
+            <div className={cn("mt-2 h-[3px] rounded-full overflow-hidden", isComplete ? "bg-amber-900/20" : "bg-white/5")}>
               <motion.div
                 className="h-full rounded-full"
                 style={{
@@ -155,7 +161,10 @@ export function PillarProgressBar({
             </div>
 
             {/* mobile label */}
-            <div className="sm:hidden mt-1 text-[9px] font-medium text-white/80 text-center truncate">
+            <div className={cn(
+              "sm:hidden mt-1 text-[9px] font-medium text-center truncate",
+              isComplete ? "text-amber-950" : "text-white/80"
+            )}>
               {meta.label}
             </div>
           </motion.button>
