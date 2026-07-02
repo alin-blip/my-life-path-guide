@@ -169,6 +169,17 @@ export const AVAILABLE_WIDGETS: WidgetDefinition[] = [
     icon: 'Brain',
     defaultSize: 'medium',
     category: 'mindset'
+  },
+  {
+    id: 'today-activity',
+    name: { en: 'Today\'s Activity — Shadow Coach', ro: 'Ce am făcut azi — Shadow Coach' },
+    description: {
+      en: 'Aggregated feed of everything you completed today across routine, tasks, stacks, tests and courses. Grouped by axis.',
+      ro: 'Toate acțiunile de azi adunate din rutină, task-uri, stack-uri, teste și cursuri. Grupate pe axe.'
+    },
+    icon: 'Sparkles',
+    defaultSize: 'medium',
+    category: 'tracking'
   }
 ];
 
