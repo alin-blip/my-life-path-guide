@@ -45,7 +45,7 @@ import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
 
 // New UX components
 import { EnhancedProgressBar } from './EnhancedProgressBar';
-import { PillarProgressBar, getPillarOfStep } from './PillarProgressBar';
+import { PillarProgressBar, getPillarOfStep, PILLAR_STEPS } from './PillarProgressBar';
 import { LiveXPDisplay } from './LiveXPDisplay';
 import { SkipConfirmDialog } from './SkipConfirmDialog';
 import { StepCompletionAnimation } from './StepCompletionAnimation';
