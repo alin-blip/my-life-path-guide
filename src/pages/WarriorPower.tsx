@@ -17,6 +17,7 @@ type Step = 'landing' | 'quiz' | 'lead-form' | 'results';
 
 export default function WarriorPower() {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   // NEW FLOW: landing → quiz → lead-form → results
   const [step, setStep] = useState<Step>('landing');
   const [leadData, setLeadData] = useState<SimpleLeadFormData | null>(null);
@@ -65,8 +66,10 @@ export default function WarriorPower() {
           name: data.name,
           lead_magnet: 'warrior_power',
           source: `warrior_power_split_${variant.toLowerCase()}`,
+          language,
           metadata: {
             splitVariant: variant,
+            language,
             completed_at: new Date().toISOString()
           }
         });
