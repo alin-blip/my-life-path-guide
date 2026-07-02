@@ -107,6 +107,15 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
     );
   }
 
+  if (method === 'kill-it-today') {
+    return (
+      <div>
+        <InlineHeader />
+        <KillItTodayStack onAddToHitList={addActionToHitList} />
+      </div>
+    );
+  }
+
   if (method === 'anger') {
     return (
       <div>
