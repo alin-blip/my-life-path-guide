@@ -138,7 +138,11 @@ export const KillItTodayStack: React.FC<Props> = ({ onAddToHitList }) => {
         const today = new Date().toISOString().split('T')[0];
         localStorage.setItem(`kill_it_today_done_${today}`, '1');
       } catch {}
+      if (!savedTasks && session?.tasks_snapshot?.length) {
+        saveTasksToHotList(true);
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isComplete]);
 
   if (loading) {
