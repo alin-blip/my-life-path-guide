@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useTimeBlockTasks, type TimeBlockTask } from '@/hooks/useTimeBlockTasks';
+import { useTodayActivity } from '@/hooks/useTodayActivity';
 import {
   HOUR_START, HOUR_END, SLOT_HEIGHT_PX, SLOT_MINUTES,
   TOTAL_SLOTS, jsDayToAbbrev, weekMondayForDate, weekKeyForDate, dateForDayInWeek,
@@ -88,6 +89,9 @@ export const TimeBlockCalendarWidget: React.FC<Props> = ({ size, onRemove, onRes
       {/* Coach notification preview */}
       <CoachNotificationPreview tasks={tasks} todayAbbrev={day1Abbrev} t={t} />
 
+      {/* Today's completed activity (Shadow Coach overlay) */}
+      <TodayCompletedOverlay t={t} />
+
       {/* Two-day grid */}
       <div className="grid grid-cols-2 gap-3 pt-3">
         <DayColumn
@@ -120,6 +124,46 @@ export const TimeBlockCalendarWidget: React.FC<Props> = ({ size, onRemove, onRes
 function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
+
+// ===================== Today Completed Overlay (Shadow Coach) =====================
+const TodayCompletedOverlay: React.FC<{ t: (ro: string, en: string) => string }> = ({ t }) => {
+  const { snapshot, isLoading } = useTodayActivity();
+  const [open, setOpen] = useState(true);
+  if (isLoading || !snapshot || snapshot.totalCount === 0) return null;
+  return (
+    <div className="mt-3 rounded-lg border border-green-500/30 bg-green-500/5 p-3">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex w-full items-center justify-between text-xs font-semibold"
+      >
+        <span className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
+          <Check className="h-3.5 w-3.5" />
+          {t('Deja finalizat azi', 'Already done today')} · {snapshot.totalCount}
+        </span>
+        <span className="text-[10px] text-muted-foreground">
+          body:{snapshot.countsByAxis.body} · being:{snapshot.countsByAxis.being} · balance:{snapshot.countsByAxis.balance} · business:{snapshot.countsByAxis.business} · mind:{snapshot.countsByAxis.mind}
+        </span>
+      </button>
+      {open && (
+        <ul className="mt-2 space-y-0.5 max-h-32 overflow-y-auto pr-1">
+          {snapshot.items.slice(0, 12).map(it => (
+            <li key={it.id} className="flex items-center gap-1.5 text-[11px] text-foreground/80">
+              <Check className="h-3 w-3 text-green-500 shrink-0" />
+              <span className="uppercase text-[9px] text-muted-foreground tracking-wide w-14 shrink-0">{it.axis}</span>
+              <span className="flex-1 truncate">{it.title}</span>
+              <span className="text-[9px] text-muted-foreground">
+                {new Date(it.occurredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </li>
+          ))}
+          {snapshot.items.length > 12 && (
+            <li className="text-[10px] text-muted-foreground pl-6">+{snapshot.items.length - 12} {t('mai multe', 'more')}</li>
+          )}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 // ===================== Coach Notification Preview =====================
 interface CoachPreviewProps {

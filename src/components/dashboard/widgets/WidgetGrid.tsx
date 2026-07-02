@@ -19,6 +19,7 @@ import { TimeBlockCalendarWidget } from './TimeBlockCalendarWidget';
 import { MindShiftQuickCaptureWidget } from './MindShiftQuickCaptureWidget';
 import { MindShiftAnalyticsWidget } from './MindShiftAnalyticsWidget';
 import { BrainMapRadarWidget } from './BrainMapRadarWidget';
+import { TodayActivityWidget } from './TodayActivityWidget';
 import { CustomWidgetRenderer } from './CustomWidgetRenderer';
 import type { CustomWidget, WidgetData } from '@/types/customWidget';
 import { supabase } from '@/integrations/supabase/client';
@@ -176,6 +177,8 @@ export const WidgetGrid: React.FC<WidgetGridProps> = ({
         return <MindShiftAnalyticsWidget {...commonProps} />;
       case 'brain-map-radar':
         return <BrainMapRadarWidget {...commonProps} />;
+      case 'today-activity':
+        return <TodayActivityWidget {...commonProps} />;
       default:
         return null;
     }

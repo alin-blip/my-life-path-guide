@@ -23,3 +23,4 @@ export { TimeBlockCalendarWidget } from './TimeBlockCalendarWidget';
 export { MindShiftQuickCaptureWidget } from './MindShiftQuickCaptureWidget';
 export { MindShiftAnalyticsWidget } from './MindShiftAnalyticsWidget';
 export { BrainMapRadarWidget } from './BrainMapRadarWidget';
+export { TodayActivityWidget } from './TodayActivityWidget';
