@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { useTodayActivity } from '@/hooks/useTodayActivity';
 import { ActivityAxis } from '@/services/dailyActivityService';
+import { upsertTodayShadowSnapshot } from '@/hooks/useShadowCoachHistory';
+import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -55,6 +57,7 @@ export function EveningReflectionStep({
   onNext,
 }: Props) {
   const { snapshot, isLoading } = useTodayActivity();
+  const { user } = useAuth();
 
   const groupedByAxis = useMemo(() => {
     const groups: Record<ActivityAxis, typeof snapshot['items']> = {
@@ -66,8 +69,22 @@ export function EveningReflectionStep({
 
   const canFinish = (doneWell?.trim().length ?? 0) > 0;
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     onComplete(true);
+    // Persist today's snapshot for Shadow Coach history
+    if (user?.id && snapshot) {
+      try {
+        await upsertTodayShadowSnapshot({
+          userId: user.id,
+          countsByAxis: snapshot.countsByAxis,
+          totalCount: snapshot.totalCount,
+          topEvents: snapshot.items.slice(0, 25).map(it => ({
+            axis: it.axis, label: it.title, source: it.source, occurredAt: it.occurredAt,
+          })),
+          reflection: { done_well: doneWell, learned, not_done: notDone },
+        });
+      } catch (e) { /* silent */ }
+    }
     setTimeout(onNext, 400);
   };
 
