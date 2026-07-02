@@ -202,12 +202,20 @@ export default function WarriorPower() {
     <>
       <Helmet>
         <title>Warrior Power Assessment - Descoperă-ți puterea reală</title>
-        <meta 
-          name="description" 
-          content="Evaluează-te în cele 4 dimensiuni ale vieții: corp, ființă, echilibru și business. Descoperă unde te afli și primește un plan personalizat de transformare." 
+        <meta
+          name="description"
+          content="Evaluează-te în cele 4 dimensiuni ale vieții: corp, ființă, echilibru și business. Descoperă unde te afli și primește un plan personalizat de transformare."
         />
+        <link rel="canonical" href="https://ceomindos.com/warrior-power" />
         <meta property="og:title" content="Warrior Power Assessment - Descoperă-ți puterea reală" />
         <meta property="og:description" content="Evaluează-te în cele 4 dimensiuni ale vieții și descoperă-ți potențialul real." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://ceomindos.com/warrior-power" />
+        <meta property="og:image" content="https://ceomindos.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Warrior Power Assessment - Descoperă-ți puterea reală" />
+        <meta name="twitter:description" content="Descoperă-ți puterea reală în 4 dimensiuni: corp, ființă, echilibru, business." />
+        <meta name="twitter:image" content="https://ceomindos.com/og-image.png" />
       </Helmet>
 
       <div className="min-h-screen bg-white font-['Montserrat',sans-serif]">

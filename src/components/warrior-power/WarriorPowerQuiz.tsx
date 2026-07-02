@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Flame, Sword, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -50,13 +50,54 @@ const LEVEL_CONFIG = {
   }
 };
 
+const AUTOSAVE_KEY = 'warrior_power_quiz_draft_v1';
+
 export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
+  const hydrated = useRef(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scores, setScores] = useState<Partial<WarriorPowerScores>>({});
+
+  // Restore in-progress draft (autosave)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(AUTOSAVE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.scores && typeof parsed.scores === 'object') {
+            setScores(parsed.scores);
+          }
+          if (
+            typeof parsed.currentIndex === 'number' &&
+            parsed.currentIndex >= 0 &&
+            parsed.currentIndex < WARRIOR_POWER_QUESTIONS.length
+          ) {
+            setCurrentIndex(parsed.currentIndex);
+          }
+        }
+      }
+    } catch {}
+    hydrated.current = true;
+  }, []);
+
+  // Persist draft on every change
+  useEffect(() => {
+    if (!hydrated.current) return;
+    try {
+      localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({ currentIndex, scores, savedAt: Date.now() })
+      );
+    } catch {}
+  }, [currentIndex, scores]);
 
   const currentQuestion = WARRIOR_POWER_QUESTIONS[currentIndex];
   const progress = ((currentIndex + 1) / WARRIOR_POWER_QUESTIONS.length) * 100;
   const dimensionInfo = DIMENSION_INFO[currentQuestion.dimension];
+
+  const clearDraft = () => {
+    try { localStorage.removeItem(AUTOSAVE_KEY); } catch {}
+  };
 
   // Select score and auto-advance
   const handleScoreSelect = (score: number) => {
@@ -71,6 +112,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
       if (currentIndex < WARRIOR_POWER_QUESTIONS.length - 1) {
         setCurrentIndex(prev => prev + 1);
       } else {
+        clearDraft();
         onComplete(newScores as WarriorPowerScores);
       }
     }, 300);
@@ -249,7 +291,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                 className="flex justify-center mt-6"
               >
                 <Button
-                  onClick={() => onComplete(scores as WarriorPowerScores)}
+                  onClick={() => { clearDraft(); onComplete(scores as WarriorPowerScores); }}
                   size="lg"
                   className="gap-2 bg-gradient-to-r from-primary to-primary/80 font-bold px-8"
                 >
