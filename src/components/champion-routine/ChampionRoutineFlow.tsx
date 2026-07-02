@@ -608,6 +608,7 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
       case 'mindShifting':
         return (
           <MindShiftingMethodStep
+            alreadyCompleted={isStepCompleted('mindShifting', todayLog)}
             onComplete={() => goToNextStep()}
             onSkip={() => goToNextStep()}
           />

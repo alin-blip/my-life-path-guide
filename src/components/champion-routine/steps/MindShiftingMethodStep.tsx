@@ -32,6 +32,7 @@ import { getActiveWeekKey } from '@/utils/weekUtils';
 interface Props {
   onComplete: () => void;
   onSkip: () => void;
+  alreadyCompleted?: boolean;
 }
 
 type Method =
@@ -51,8 +52,9 @@ type Method =
  * Step wrapper shown inside Warrior Routine.
  * Renders the chosen mentality stack inline — never navigates away.
  */
-export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) => {
+export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, alreadyCompleted = false }) => {
   const [method, setMethod] = useState<Method>('none');
+  const [showAllStacks, setShowAllStacks] = useState(false);
 
   const addActionToHitList = useCallback(async (actionText: string) => {
     if (!actionText?.trim()) return;
@@ -302,65 +304,102 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
         style={{ background: 'var(--gradient-mesh)' }}
       />
       <CardContent className="relative p-5 space-y-4">
-        <div className="space-y-1">
-          <h3 className="text-base font-semibold leading-tight">
-            Alege metoda prin care lucrăm astăzi la mentalitate
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            Setează starea de putere pentru ziua de azi. Alege procesul care ți se potrivește acum.
-          </p>
-        </div>
-
-        <div className="grid gap-2.5">
-          {options.map((opt) => {
-            const isRecommended = opt.id === 'reconstruction' || opt.id === 'kill-it-today';
-            return (
-              <button
-                key={opt.id}
-                onClick={() => setMethod(opt.id)}
-                className={`card-3d group text-left rounded-lg p-3 flex items-start gap-3 ${
-                  isRecommended ? 'ring-1 ring-primary/40' : ''
-                }`}
-                style={
-                  isRecommended
-                    ? { boxShadow: 'var(--shadow-3d-sm), 0 0 24px -6px hsl(var(--primary) / 0.35)' }
-                    : undefined
-                }
+        {alreadyCompleted && !showAllStacks ? (
+          <div className="space-y-4">
+            <div className="rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-400/15 to-yellow-500/10 p-4 flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-400/30 flex items-center justify-center shrink-0">
+                <ChevronRight className="w-5 h-5 text-amber-500 rotate-90" />
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-sm text-amber-200">
+                  ✓ Mentalitate completă azi
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Ai făcut deja un stack mental astăzi. Poți continua rutina sau alege încă un stack.
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Button
+                size="lg"
+                onClick={onComplete}
+                className="w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950 hover:from-amber-500 hover:to-yellow-600 font-semibold"
               >
-                <div
-                  className={`w-10 h-10 rounded-lg ${opt.iconBg} flex items-center justify-center shrink-0 relative`}
-                  style={{
-                    boxShadow:
-                      'inset 0 1px 0 0 hsl(0 0% 100% / 0.08), inset 0 -1px 0 0 hsl(0 0% 0% / 0.25)',
-                  }}
-                >
-                  <opt.Icon className={`w-4 h-4 ${opt.iconColor}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-sm">{opt.title}</span>
-                    {opt.badge && (
-                      <Badge variant="outline" className="text-[10px]">
-                        {opt.badge}
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
-                </div>
-                <ChevronRight
-                  className={`w-4 h-4 text-muted-foreground ${opt.hoverBorder} mt-2 transition-transform group-hover:translate-x-0.5`}
-                />
-              </button>
-            );
-          })}
-        </div>
+                Continuă rutina →
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAllStacks(true)}
+                className="w-full"
+              >
+                Alege încă un stack
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold leading-tight">
+                Alege metoda prin care lucrăm astăzi la mentalitate
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Setează starea de putere pentru ziua de azi. Alege procesul care ți se potrivește acum.
+              </p>
+            </div>
 
-        <button
-          onClick={onSkip}
-          className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2"
-        >
-          Sari peste astăzi
-        </button>
+            <div className="grid gap-2.5">
+              {options.map((opt) => {
+                const isRecommended = opt.id === 'reconstruction' || opt.id === 'kill-it-today';
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => setMethod(opt.id)}
+                    className={`card-3d group text-left rounded-lg p-3 flex items-start gap-3 ${
+                      isRecommended ? 'ring-1 ring-primary/40' : ''
+                    }`}
+                    style={
+                      isRecommended
+                        ? { boxShadow: 'var(--shadow-3d-sm), 0 0 24px -6px hsl(var(--primary) / 0.35)' }
+                        : undefined
+                    }
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-lg ${opt.iconBg} flex items-center justify-center shrink-0 relative`}
+                      style={{
+                        boxShadow:
+                          'inset 0 1px 0 0 hsl(0 0% 100% / 0.08), inset 0 -1px 0 0 hsl(0 0% 0% / 0.25)',
+                      }}
+                    >
+                      <opt.Icon className={`w-4 h-4 ${opt.iconColor}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm">{opt.title}</span>
+                        {opt.badge && (
+                          <Badge variant="outline" className="text-[10px]">
+                            {opt.badge}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
+                    </div>
+                    <ChevronRight
+                      className={`w-4 h-4 text-muted-foreground ${opt.hoverBorder} mt-2 transition-transform group-hover:translate-x-0.5`}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={alreadyCompleted ? onComplete : onSkip}
+              className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2"
+            >
+              {alreadyCompleted ? 'Continuă rutina →' : 'Sari peste astăzi'}
+            </button>
+          </>
+        )}
       </CardContent>
     </Card>
   );
