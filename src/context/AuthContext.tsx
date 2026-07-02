@@ -41,12 +41,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
   useEffect(() => {
-    // Set up auth state listener
+    // Set up auth state listener FIRST so INITIAL_SESSION drives startup.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         // IGNORE token refresh events entirely — they fire on tab focus and
         // would otherwise cause re-renders + redirects in ProtectedRoute.
-        // The supabase client already keeps the session fresh internally.
         if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
           if (import.meta.env.DEV) {
             console.log('[auth] ignoring', event, '(tab focus / silent refresh)');
@@ -54,19 +53,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
 
-        // After initial auth, only act on real transitions (sign in / sign out / recovery).
+        // PASSWORD_RECOVERY: user clicked the reset email link. Route to the
+        // reset form no matter which page it opened on, so we never auto-log
+        // them in without setting a new password.
+        if (event === 'PASSWORD_RECOVERY') {
+          setSession(session);
+          setUser(session?.user ?? null);
+          currentUserIdRef.current = session?.user?.id ?? null;
+          setLoading(false);
+          initialAuthComplete.current = true;
+          if (!window.location.pathname.startsWith('/auth')) {
+            window.location.replace('/auth?type=recovery');
+          }
+          return;
+        }
+
+        // After initial auth, only act on real transitions (sign in / sign out).
         // SIGNED_IN can fire on tab focus too — skip side-effects if user id is unchanged.
         const previousUserId = currentUserIdRef.current;
         const nextUserId = session?.user?.id ?? null;
         const isSameUser = initialAuthComplete.current && previousUserId === nextUserId;
         currentUserIdRef.current = nextUserId;
 
-        if (initialAuthComplete.current) {
-          setSession(session);
-          setUser(session?.user ?? null);
-        } else {
-          setSession(session);
-          setUser(session?.user ?? null);
+        setSession(session);
+        setUser(session?.user ?? null);
+        if (!initialAuthComplete.current) {
           setLoading(false);
           initialAuthComplete.current = true;
         }
@@ -137,11 +148,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Defer subscription check to avoid deadlocks.
         // Skip if it's just the same user re-firing (tab focus) — we already have the data.
+        // INITIAL_SESSION also lands here on mount, so no separate initAuth is needed.
         setTimeout(() => {
           if (session?.user && !isSameUser) {
-            refreshSubscription({ silent: initialAuthComplete.current });
+            refreshSubscription({ silent: initialAuthComplete.current && event !== 'INITIAL_SESSION' });
           } else if (!session?.user) {
-            // Reset subscription state when logged out
+            // Reset subscription state when logged out / no session
             setSubscribed(false);
             setSubscriptionTier(null);
             setSubscriptionEnd(null);
@@ -160,38 +172,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-
-    // Initial session check
-    const initAuth = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        const session = data.session;
-        setSession(session);
-        setUser(session?.user ?? null);
-        currentUserIdRef.current = session?.user?.id ?? null;
-        setLoading(false);
-        initialAuthComplete.current = true;
-
-
-        if (session?.user) {
-          refreshSubscription();
-        } else {
-          setSubscriptionLoading(false);
-        }
-      } catch (error) {
-        console.error('[auth] init error:', error);
-        setLoading(false);
-        setSubscriptionLoading(false);
-        initialAuthComplete.current = true;
-      }
-    };
-
-    initAuth();
-
     return () => {
       subscription.unsubscribe();
     };
   }, []);
+
 
   const refreshSubscription = async (opts?: { silent?: boolean }) => {
     const silent = Boolean(opts?.silent);
