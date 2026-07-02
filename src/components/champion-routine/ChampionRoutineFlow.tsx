@@ -104,23 +104,30 @@ export const CORE4_REQUIRED_STEPS: RoutineStepId[] = [
   'apply',
 ];
 
-// Default order — simplified Tony Robbins flow
+// Default order — grouped by pillar, left-to-right: Mentalitate → Spiritualitate → Corp → Familie → Business
+// Progresia e strict pas-cu-pas în interiorul fiecărui pilon, apoi trece la următorul.
 const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
-  'mindShifting',         // 1. Mind Shifting (Observe → Name → Reframe → Activate → Commit)
-  'mindTest',             // 1b. Minte — Test zilnic (foundation pillar)
-  'bodyActivation',       // 2. Apă + Lumină + Postură (30 sec)
-  'meditation',           // 3. Meditație (cu breathing intro opțional)
-  'powerDeclaration',     // 4. Viziune + Autosugestie + Vizualizare
-  'gratitude',            // 5. Recunoștință (cu prompts rotative)
-  'journaling',           // 6. Jurnaling (cu prompt zilnic)
-  'exercise',             // 7. Exerciții
-  'mealPlanning',         // 8. Alimentație
-  'learn',                // 9. Învață
-  'apply',                // 10. Aplică
-  'contentCreation',      // 11. Content
-  'relationships',        // 12. Relații
-  'eveningReflection',    // 13. Reflecție de seară (sumar zi + reflecție)
-  'completion',           // 14. Finalizare
+  // 🧠 Mentalitate (1..4)
+  'mindShifting',
+  'mindTest',
+  'journaling',
+  'learn',
+  // ✨ Spiritualitate (1..3)
+  'meditation',
+  'gratitude',
+  'powerDeclaration',
+  // 💪 Corp (1..3)
+  'bodyActivation',
+  'exercise',
+  'mealPlanning',
+  // ❤️ Familie
+  'relationships',
+  // 💼 Business (1..2)
+  'apply',
+  'contentCreation',
+  // 🌙 Reflecție + Finalizare
+  'eveningReflection',
+  'completion',
 ];
 
 // Translation keys for step labels - now using useLanguage t() function
