@@ -210,8 +210,8 @@ export const KillItTodayStack: React.FC<Props> = ({ onAddToHitList }) => {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Top sarcini:</span>
-                  <Button size="sm" variant="outline" onClick={saveTasksToHotList} className="h-7 text-xs">
-                    <ListPlus className="w-3 h-3 mr-1" /> Adaugă în Hot List
+                  <Button size="sm" variant="outline" onClick={() => saveTasksToHotList(false)} className="h-7 text-xs" disabled={savedTasks}>
+                    <ListPlus className="w-3 h-3 mr-1" /> {savedTasks ? 'Adăugate ✓' : 'Adaugă în Sarcinile de azi'}
                   </Button>
                 </div>
                 <ul className="list-decimal list-inside space-y-0.5">
