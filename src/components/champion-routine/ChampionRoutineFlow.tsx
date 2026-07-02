@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, Settings, History, Bell, Sliders } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Settings, History, Bell, Sliders } from 'lucide-react';
 import { useChampionRoutine, ChampionLog } from '@/hooks/useChampionRoutine';
 import { ChampionRoutineSettings } from './ChampionRoutineSettings';
 import { NotificationSettings } from './NotificationSettings';
