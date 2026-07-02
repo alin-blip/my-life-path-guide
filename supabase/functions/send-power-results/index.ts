@@ -14,6 +14,7 @@ const corsHeaders = {
 interface PowerResultsRequest {
   email: string;
   name: string;
+  language?: 'ro' | 'en';
   scores: {
     body_fitness: number;
     body_nutrition: number;
