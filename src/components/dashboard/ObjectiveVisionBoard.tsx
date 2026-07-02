@@ -5,6 +5,7 @@ import { Loader2, Sparkles, RefreshCw, Target, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { GenerateMeditationButton } from '@/components/meditation/GenerateMeditationButton';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 
 type Category = 'body' | 'being' | 'balance' | 'business';
 
