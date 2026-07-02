@@ -252,6 +252,7 @@ export const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null):
     case 'contentCreation':
       return !!log.content_script || (log.pomodoro_sessions || 0) > 0;
     case 'dailyTasks':
+    case 'todaysTasks':
       return !!log.big_one_today || (log.daily_todos || []).some(t => t.completed);
     case 'relationships':
       return (log.relationship_actions || []).some(a => a.completed);
