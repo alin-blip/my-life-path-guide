@@ -86,9 +86,10 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
                 onClick={() => navigate('/vision-board')}
               >
                 {/* Imagine placeholder aspirațională */}
-                <img 
-                  src={categoryPlaceholders[category]} 
+                <ImageWithSkeleton
+                  src={categoryPlaceholders[category]}
                   alt={categoryLabels[category][language]}
+                  wrapperClassName="absolute inset-0"
                   className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
                 />
                 
