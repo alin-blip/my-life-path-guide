@@ -95,6 +95,9 @@ const CoachingPage = () => {
           case 'fear':
             setActiveStack('fear');
             break;
+          case 'kill-it-today':
+            setActiveStack('kill-it-today');
+            break;
           case 'divine-prayer':
             setActiveStack('divine-prayer');
             break;
