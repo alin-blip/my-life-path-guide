@@ -764,6 +764,7 @@ const translations: Translations = {
     "stepHabitBalance": "Habits: Balance",
     "stepHabitBusiness": "Habits: Business",
     "stepTodaysTasks": "Today's Tasks",
+    "stepEveningReflection": "Evening Reflection",
     "stepCompletion": "Completion",
     
     // Footer links
