@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { resolveLeadLanguage } from "../_shared/resolve-lead-language.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -272,7 +273,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (existingLog) continue;
 
-        const language = 'ro' as const;
+        const language = await resolveLeadLanguage(supabase, email);
         const content = getUpgradeContent(stepNumber, name, language);
         
         const trackingId = generateTrackingId(stepNumber);
