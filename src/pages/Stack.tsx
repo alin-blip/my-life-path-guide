@@ -26,6 +26,7 @@ import { DivineGratitudeStack } from '@/components/stack/divine-gratitude/Divine
 import { PathToSuccessStack } from '@/components/stack/path-to-success';
 import { StorytellingStack } from '@/components/content-creation/StorytellingStack';
 import { HeroJourneyStack } from '@/components/content-creation/HeroJourneyStack';
+import { KillItTodayStack } from '@/components/stack/KillItTodayStack';
 import { getActiveWeekKey } from '@/utils/weekUtils';
 
 const CoachingPage = () => {
