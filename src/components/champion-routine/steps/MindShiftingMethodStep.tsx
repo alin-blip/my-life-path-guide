@@ -25,6 +25,7 @@ import { PanicStack } from '@/components/stack/PanicStack';
 import { SadnessStack } from '@/components/stack/SadnessStack';
 import { ShameStack } from '@/components/stack/ShameStack';
 import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerStack';
+import { KillItTodayStack } from '@/components/stack/KillItTodayStack';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { getActiveWeekKey } from '@/utils/weekUtils';
 
