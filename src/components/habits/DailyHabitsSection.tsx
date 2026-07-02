@@ -2,11 +2,19 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Settings, Plus, Heart, Brain, Scale, Briefcase, Check } from 'lucide-react';
+import { Settings, Plus, Heart, Brain, Scale, Briefcase, Check, Sparkles } from 'lucide-react';
 import { useDailyHabits, HabitCategory } from '@/hooks/useDailyHabits';
 import { HabitSettingsModal } from './HabitSettingsModal';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ROUTINE_STEP_TO_HABIT } from '@/services/habitAutoComplete';
+
+// Names auto-completed by the Warrior Routine (case-insensitive)
+const AUTO_NAMES = new Set(
+  Object.values(ROUTINE_STEP_TO_HABIT).flat().map(n => n.toLowerCase())
+);
+const isAutoHabit = (name: string) =>
+  Array.from(AUTO_NAMES).some(n => name.toLowerCase() === n || name.toLowerCase().includes(n));
 
 const CATEGORY_CONFIG: Record<HabitCategory, { titleEn: string; titleRo: string; icon: React.ReactNode; bgColor: string; borderColor: string }> = {
   body: { 
