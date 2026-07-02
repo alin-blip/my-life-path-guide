@@ -150,6 +150,7 @@ const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
   habit_balance: 'stepHabitBalance',
   habit_business: 'stepHabitBusiness',
   todaysTasks: 'stepTodaysTasks',
+  eveningReflection: 'stepEveningReflection',
   completion: 'stepCompletion',
 };
 
