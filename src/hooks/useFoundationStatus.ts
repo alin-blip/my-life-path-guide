@@ -45,7 +45,10 @@ export interface FoundationStatus {
   refresh: () => Promise<void>;
 }
 
-const ALL_CATEGORIES: GoalCategory[] = ['body', 'being', 'balance', 'business', 'minte'];
+// Note: 'minte' is intentionally excluded — the Objectives UI only exposes the
+// 4 core categories (Body/Being/Balance/Business). Keeping 'minte' here would
+// make hasAllAnnualCategories permanently false.
+const ALL_CATEGORIES: GoalCategory[] = ['body', 'being', 'balance', 'business'];
 
 export const useFoundationStatus = (): FoundationStatus => {
   const [isLoading, setIsLoading] = useState(true);
