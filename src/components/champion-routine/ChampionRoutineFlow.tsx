@@ -205,7 +205,7 @@ const CATEGORY_COLORS = {
 };
 
 // Check if a step is completed based on log data
-const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolean => {
+export const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolean => {
   if (!log) return false;
   
   switch (stepId) {
