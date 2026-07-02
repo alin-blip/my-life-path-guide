@@ -126,6 +126,15 @@ export const KillItTodayStack: React.FC<Props> = ({ onAddToHitList }) => {
   const activePhaseIdx = currentPhaseIdx === -1 ? 0 : currentPhaseIdx;
   const isComplete = session?.current_phase === 'complete';
 
+  useEffect(() => {
+    if (isComplete) {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem(`kill_it_today_done_${today}`, '1');
+      } catch {}
+    }
+  }, [isComplete]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
