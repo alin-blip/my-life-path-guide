@@ -278,6 +278,8 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const {
     people,
     settings,
@@ -878,8 +880,6 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     }
   };
 
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
 
   return (
     <div className="relative min-h-screen">
