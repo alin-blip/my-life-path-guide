@@ -130,17 +130,23 @@ export function PillarProgressBar({
               </div>
 
               <div className="min-w-0 flex-1 hidden sm:block">
-                <div className="text-[11px] font-semibold tracking-wide text-white/90 truncate">
+                <div className={cn(
+                  "text-[11px] font-semibold tracking-wide truncate",
+                  isComplete ? "text-amber-950" : "text-white/90"
+                )}>
                   {meta.label}
                 </div>
-                <div className="text-[10px] text-white/50 font-mono">
+                <div className={cn(
+                  "text-[10px] font-mono",
+                  isComplete ? "text-amber-900/80" : "text-white/50"
+                )}>
                   {done}/{total}
                 </div>
               </div>
             </div>
 
             {/* gold progress bar */}
-            <div className="mt-2 h-[3px] rounded-full bg-white/5 overflow-hidden">
+            <div className={cn("mt-2 h-[3px] rounded-full overflow-hidden", isComplete ? "bg-amber-900/20" : "bg-white/5")}>
               <motion.div
                 className="h-full rounded-full"
                 style={{
@@ -155,7 +161,10 @@ export function PillarProgressBar({
             </div>
 
             {/* mobile label */}
-            <div className="sm:hidden mt-1 text-[9px] font-medium text-white/80 text-center truncate">
+            <div className={cn(
+              "sm:hidden mt-1 text-[9px] font-medium text-center truncate",
+              isComplete ? "text-amber-950" : "text-white/80"
+            )}>
               {meta.label}
             </div>
           </motion.button>
