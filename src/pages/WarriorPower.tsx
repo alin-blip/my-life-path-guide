@@ -155,6 +155,7 @@ export default function WarriorPower() {
             email: data.email,
             name: data.name,
             scores: quizScores,
+            language,
           },
         });
 
