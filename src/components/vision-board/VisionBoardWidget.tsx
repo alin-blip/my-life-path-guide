@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight, Eye, Dumbbell, Heart, Users, Briefcase } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 
 type Category = 'body' | 'being' | 'balance' | 'business';
 
@@ -85,9 +86,10 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
                 onClick={() => navigate('/vision-board')}
               >
                 {/* Imagine placeholder aspirațională */}
-                <img 
-                  src={categoryPlaceholders[category]} 
+                <ImageWithSkeleton
+                  src={categoryPlaceholders[category]}
                   alt={categoryLabels[category][language]}
+                  wrapperClassName="absolute inset-0"
                   className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
                 />
                 
@@ -164,9 +166,10 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
                 onClick={() => navigate('/vision-board/view')}
               >
                 {imageUrl ? (
-                  <img 
-                    src={imageUrl} 
+                  <ImageWithSkeleton
+                    src={imageUrl}
                     alt={categoryLabels[category][language]}
+                    wrapperClassName="absolute inset-0"
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
                 ) : (
