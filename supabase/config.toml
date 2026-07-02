@@ -1,6 +1,8 @@
 project_id = "exsbnfmaadjyfblperas"
 
 [functions]
+  [functions.kill-it-today-coach]
+    verify_jwt = false
   [functions.accountability-coach]
     verify_jwt = false
   [functions.admin-ai-assistant]
