@@ -146,6 +146,9 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
             Share rezultatul
           </button>
         </div>
+      </motion.div>
+
+
 
 
       {/* Impact Summary Card (Replaces 2 old components) */}
