@@ -99,10 +99,13 @@ export const KillItTodayStack: React.FC<Props> = ({ onAddToHitList }) => {
     }
   };
 
-  const saveTasksToHotList = async () => {
+  const [savedTasks, setSavedTasks] = React.useState(false);
+  const saveTasksToHotList = async (silent = false) => {
     if (!session?.tasks_snapshot?.length) return;
     try {
       const weekKey = getActiveWeekKey();
+      const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'] as const;
+      const today = days[new Date().getDay()];
       for (const t of session.tasks_snapshot) {
         if (onAddToHitList) {
           await onAddToHitList(t);
@@ -110,15 +113,18 @@ export const KillItTodayStack: React.FC<Props> = ({ onAddToHitList }) => {
           await doorUserTasksService.addIdeaToWeek(weekKey, {
             id: `kill-it-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
             text: t,
-            category: 'hot',
+            category: 'hit',
             priority: 'urgent-important' as any,
+            day: today as any,
           });
         }
       }
       window.dispatchEvent(new CustomEvent('doorDataUpdated', { detail: { type: 'ideaAdded' } }));
-      toast.success(`${session.tasks_snapshot.length} sarcini adăugate în Hot List`);
+      setSavedTasks(true);
+      if (!silent) toast.success(`${session.tasks_snapshot.length} sarcini adăugate în Sarcinile de azi`);
     } catch (e: any) {
-      toast.error('Nu am putut salva sarcinile');
+      console.error('KillItToday save tasks:', e);
+      if (!silent) toast.error('Nu am putut salva sarcinile');
     }
   };
 
