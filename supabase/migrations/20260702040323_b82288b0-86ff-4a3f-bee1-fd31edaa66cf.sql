@@ -1,0 +1,1 @@
+ALTER TABLE public.missions DROP CONSTRAINT IF EXISTS missions_unique_user_category_type_period_project;
