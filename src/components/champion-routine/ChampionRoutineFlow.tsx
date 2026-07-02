@@ -410,6 +410,34 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
     }
     steps.push('completion');
 
+    // 🎯 Force pillar-grouped order (Mentalitate → Spiritualitate → Corp → Familie → Business),
+    // so the flow always goes pas-cu-pas într-un pilon înainte să treacă la următorul.
+    // Habits / tasks / evening / completion rămân la final în ordinea lor.
+    const PILLAR_ORDER: RoutineStepId[] = [
+      // Mentalitate
+      'mindShifting', 'mindTest', 'journaling', 'learn',
+      // Spiritualitate
+      'meditation', 'gratitude', 'powerDeclaration',
+      'visualization', 'autosuggestion', 'visionDeclaration', 'reading', 'breathing',
+      // Corp
+      'bodyActivation', 'exercise', 'mealPlanning', 'hydration', 'lightExposure',
+      // Familie
+      'relationships',
+      // Business
+      'apply', 'contentCreation', 'dailyTasks',
+    ];
+    const tailOrder: RoutineStepId[] = [
+      'habit_body', 'habit_being', 'habit_balance', 'habit_business',
+      'todaysTasks', 'eveningReflection', 'completion',
+    ];
+    const rank = (id: RoutineStepId) => {
+      const p = PILLAR_ORDER.indexOf(id);
+      if (p !== -1) return p;
+      const t = tailOrder.indexOf(id);
+      return t !== -1 ? PILLAR_ORDER.length + t : PILLAR_ORDER.length + tailOrder.length + 999;
+    };
+    steps = [...new Set(steps)].sort((a, b) => rank(a) - rank(b));
+
     return steps;
   }, [settings, people]);
 
