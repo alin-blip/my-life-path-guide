@@ -229,14 +229,28 @@ export const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null):
         return false;
       }
     }
-    case 'bodyActivation':
-      return log.water_drunk === true && log.light_exposure === true;
+    case 'bodyActivation': {
+      if (log.water_drunk === true || log.light_exposure === true) return true;
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        return localStorage.getItem(`body_activation_done_${today}`) === '1';
+      } catch {
+        return false;
+      }
+    }
     case 'gratitude':
       return (log.gratitude_items || []).some(i => i?.trim());
     case 'hydration':
       return log.water_drunk === true;
-    case 'meditation':
-      return (log.meditation_duration_seconds || 0) >= 300;
+    case 'meditation': {
+      if ((log.meditation_duration_seconds || 0) >= 60) return true;
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        return localStorage.getItem(`meditation_done_${today}`) === '1';
+      } catch {
+        return false;
+      }
+    }
     case 'autosuggestion':
       return log.autosuggestion_completed === true;
     case 'visionDeclaration':
