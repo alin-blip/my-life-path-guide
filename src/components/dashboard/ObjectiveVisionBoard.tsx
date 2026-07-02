@@ -248,9 +248,10 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
         className={`relative rounded-xl overflow-hidden border border-border/50 aspect-[16/9] bg-gradient-to-br ${categoryGradients[category]}`}
       >
         {/* Background Image - personalized or placeholder */}
-        <img 
-          src={imageUrl || categoryPlaceholders[category]} 
+        <ImageWithSkeleton
+          src={imageUrl || categoryPlaceholders[category]}
           alt={categoryLabels[category][language === 'ro' ? 'ro' : 'en']}
+          wrapperClassName="absolute inset-0"
           className={`absolute inset-0 w-full h-full object-cover ${!imageUrl ? 'opacity-70' : ''}`}
         />
         
