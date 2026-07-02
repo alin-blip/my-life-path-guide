@@ -272,7 +272,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (existingLog) continue;
 
-        const language = 'ro' as const;
+        const language = await resolveLeadLanguage(supabase, email);
         const content = getUpgradeContent(stepNumber, name, language);
         
         const trackingId = generateTrackingId(stepNumber);
