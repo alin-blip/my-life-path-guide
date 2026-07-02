@@ -376,6 +376,8 @@ const renderActiveStack = () => {
         return <FrustrationStack onAddToHitList={stackProps.onAddToHitList} />;
       case "fear":
         return <FearStack onAddToHitList={stackProps.onAddToHitList} />;
+      case "kill-it-today":
+        return <KillItTodayStack onAddToHitList={stackProps.onAddToHitList} />;
       case "ai-live":
         return <AiLiveCoaching {...stackProps} />;
       case "hormozi-coaching":
