@@ -11,6 +11,7 @@ import { WarriorPowerResultsPage } from '@/components/warrior-power/WarriorPower
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
 import { saveRealityMapScores } from '@/services/realityMapService';
 import { assignWarriorPowerVariant, type SplitVariant } from '@/utils/splitTest';
+import { useLanguage } from '@/context/LanguageContext';
 
 type Step = 'landing' | 'quiz' | 'lead-form' | 'results';
 
