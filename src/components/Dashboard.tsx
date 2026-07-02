@@ -767,6 +767,9 @@ export const Dashboard: React.FC = () => {
     setHasAwardedCoreXP(hasCompletedCore);
     setHasAwardedDailyXP(hasCompletedDailyFour);
   }, [selectedDay]);
+  if (foundationStatus.isLoading) {
+    return <DashboardSkeleton />;
+  }
   return <div className="w-full max-w-full py-4 px-2 md:py-8 md:px-4">
       {/* Celebration Overlays */}
       <Suspense fallback={null}>
