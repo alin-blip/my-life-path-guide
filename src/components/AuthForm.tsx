@@ -62,7 +62,22 @@ export const AuthForm: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   
-  const from = location.state?.from?.pathname || '/dashboard';
+  // Where to return the user after auth. Priority:
+  //   1. router state.from (in-app navigation)
+  //   2. `pending_return_path` from localStorage (survives full email round-trip)
+  //   3. /dashboard
+  const stateFrom: string | undefined = location.state?.from?.pathname;
+  const storedReturn = (() => {
+    try {
+      const v = localStorage.getItem('pending_return_path');
+      // only accept same-origin absolute paths
+      return v && v.startsWith('/') && !v.startsWith('//') ? v : null;
+    } catch {
+      return null;
+    }
+  })();
+  const from = stateFrom || storedReturn || '/dashboard';
+
   const MAX_RATE_LIMIT = 5;
   const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
 
