@@ -85,12 +85,12 @@ export function PillarProgressBar({
             className={cn(
               'group relative overflow-hidden rounded-xl p-2 sm:p-2.5 text-left transition-all',
               'border backdrop-blur-sm',
-              'bg-gradient-to-b from-[hsl(220_45%_12%)] to-[hsl(222_50%_8%)]',
-              isActive
+              isComplete
+                ? 'bg-gradient-to-b from-amber-400/90 to-yellow-500/90 border-amber-300 shadow-[0_0_0_1px_hsl(45_95%_55%/0.6),0_8px_24px_-8px_hsl(45_95%_55%/0.55)]'
+                : 'bg-gradient-to-b from-[hsl(220_45%_12%)] to-[hsl(222_50%_8%)]',
+              !isComplete && isActive
                 ? 'border-[hsl(var(--primary)/0.55)] shadow-[0_0_0_1px_hsl(var(--primary)/0.35),0_8px_24px_-12px_hsl(var(--primary)/0.45)]'
-                : isComplete
-                ? 'border-[hsl(var(--primary)/0.4)]'
-                : 'border-white/10 hover:border-[hsl(var(--primary)/0.35)]',
+                : !isComplete && 'border-white/10 hover:border-[hsl(var(--primary)/0.35)]',
               disabled && 'opacity-40 cursor-not-allowed',
             )}
           >
