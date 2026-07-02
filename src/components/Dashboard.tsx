@@ -35,6 +35,7 @@ import { SelfCareWidget } from '@/components/dashboard/SelfCareWidget';
 import { AcceleratorBanner } from '@/components/dashboard/AcceleratorBanner';
 import { EarlyBirdBanner } from '@/components/dashboard/EarlyBirdBanner';
 import { useFoundationStatus } from '@/hooks/useFoundationStatus';
+import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton';
 import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useOnboardingTour } from '@/hooks/useOnboardingTour';
