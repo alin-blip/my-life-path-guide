@@ -62,6 +62,52 @@ const ParentingToxicityScan: React.FC = () => {
   const [scores, setScores] = useState<PSDQScores | null>(null);
   const [interpretation, setInterpretation] = useState('');
   const [actionPlan, setActionPlan] = useState<Array<{ title: string; why: string; how: string }>>([]);
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const restoredRef = useRef(false);
+
+  // ============= AUTOSAVE (localStorage draft per user+child) =============
+  const draftKey = useMemo(() => `parenting-toxicity-draft:${childId || 'none'}`, [childId]);
+
+  // Restore draft when childId changes / on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          setAnswers(parsed.answers || {});
+          setPageIdx(typeof parsed.pageIdx === 'number' ? parsed.pageIdx : 0);
+          if (parsed.savedAt) setSavedAt(new Date(parsed.savedAt));
+          restoredRef.current = true;
+          return;
+        }
+      }
+      // no draft — reset
+      setAnswers({});
+      setPageIdx(0);
+      setSavedAt(null);
+    } catch {
+      // ignore
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey]);
+
+  // Autosave on any answer / page change while in questions phase
+  useEffect(() => {
+    if (phase !== 'questions') return;
+    if (Object.keys(answers).length === 0 && pageIdx === 0 && !restoredRef.current) return;
+    try {
+      const now = new Date();
+      localStorage.setItem(
+        draftKey,
+        JSON.stringify({ answers, pageIdx, savedAt: now.toISOString() }),
+      );
+      setSavedAt(now);
+    } catch {
+      // ignore quota errors
+    }
+  }, [answers, pageIdx, phase, draftKey]);
+
 
   const pages = useMemo(() => {
     const out: typeof PSDQ_ITEMS[] = [];
