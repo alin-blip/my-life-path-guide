@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { Sword, Flame, Sparkles } from 'lucide-react';
+import { Sword, Flame, Sparkles, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { ImpactSummaryCard } from './ImpactSummaryCard';
 import { ChallengeMiniPreview } from './ChallengeMiniPreview';
@@ -114,7 +115,38 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
         <p className="text-sm text-gray-600">
           Focus principal: <span className="text-primary font-medium">{weakestDimName}</span>
         </p>
-      </motion.div>
+
+        {/* Share button */}
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={async () => {
+              const shareUrl = 'https://ceomindos.com/warrior-power';
+              const shareText = `Am obținut ${totalScore}/96 (${percentage}%) — ${overallLevel.name} — la Warrior Power Assessment. Testează-te și tu:`;
+              try {
+                if (typeof navigator !== 'undefined' && (navigator as any).share) {
+                  await (navigator as any).share({
+                    title: 'Warrior Power Assessment',
+                    text: shareText,
+                    url: shareUrl,
+                  });
+                  return;
+                }
+              } catch {}
+              try {
+                await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+                toast.success('Link copiat — trimite-l unui prieten');
+              } catch {
+                toast.error('Nu am putut copia link-ul');
+              }
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm font-semibold hover:bg-primary/10 transition"
+          >
+            <Share2 className="h-4 w-4" />
+            Share rezultatul
+          </button>
+        </div>
+
 
       {/* Impact Summary Card (Replaces 2 old components) */}
       <motion.div
