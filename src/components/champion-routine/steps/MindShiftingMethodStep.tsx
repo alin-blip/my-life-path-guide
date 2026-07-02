@@ -209,6 +209,16 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) 
       badge: 'recomandat zilnic',
     },
     {
+      id: 'kill-it-today',
+      title: 'Kill It Today',
+      desc: 'Mod dominație: mentalitate → win → ancoră → familie → corp. Setează-te în putere.',
+      Icon: Zap,
+      iconBg: 'bg-orange-500/15',
+      iconColor: 'text-orange-500',
+      hoverBorder: 'group-hover:text-orange-500',
+      badge: 'când te simți echilibrat',
+    },
+    {
       id: 'anger',
       title: 'Anger Coach',
       desc: 'Transformă furia în claritate și direcție (42Q).',
