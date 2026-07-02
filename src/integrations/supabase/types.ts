@@ -5850,6 +5850,45 @@ export type Database = {
         }
         Relationships: []
       }
+      shadow_coach_daily_snapshots: {
+        Row: {
+          axes_scores: Json
+          counts_by_axis: Json
+          created_at: string
+          date: string
+          id: string
+          reflection: Json | null
+          top_events: Json
+          total_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          axes_scores?: Json
+          counts_by_axis?: Json
+          created_at?: string
+          date: string
+          id?: string
+          reflection?: Json | null
+          top_events?: Json
+          total_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          axes_scores?: Json
+          counts_by_axis?: Json
+          created_at?: string
+          date?: string
+          id?: string
+          reflection?: Json | null
+          top_events?: Json
+          total_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       stack_library: {
         Row: {
           content: Json | null
