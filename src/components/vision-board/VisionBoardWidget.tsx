@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight, Eye, Dumbbell, Heart, Users, Briefcase } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 
 type Category = 'body' | 'being' | 'balance' | 'business';
 
