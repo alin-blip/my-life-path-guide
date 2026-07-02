@@ -39,6 +39,7 @@ import { MindShiftingStep } from './steps/MindShiftingStep';
 import { MentalitateStackFlow } from '@/components/mentalitate/MentalitateStackFlow';
 import { MindShiftingMethodStep } from './steps/MindShiftingMethodStep';
 import { MindTestStep } from './steps/MindTestStep';
+import { EveningReflectionStep } from './steps/EveningReflectionStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
@@ -88,6 +89,7 @@ export type RoutineStepId =
   | 'habit_balance'
   | 'habit_business'
   | 'todaysTasks'
+  | 'eveningReflection'
   | 'completion';
 
 // Core 4 - OBLIGATORII (nu pot fi eliminate) - aliniate cu Warrior Core 4
@@ -117,7 +119,8 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'apply',                // 10. Aplică
   'contentCreation',      // 11. Content
   'relationships',        // 12. Relații
-  'completion',           // 13. Finalizare
+  'eveningReflection',    // 13. Reflecție de seară (sumar zi + reflecție)
+  'completion',           // 14. Finalizare
 ];
 
 // Translation keys for step labels - now using useLanguage t() function
@@ -148,6 +151,7 @@ const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
   habit_balance: 'stepHabitBalance',
   habit_business: 'stepHabitBusiness',
   todaysTasks: 'stepTodaysTasks',
+  eveningReflection: 'stepEveningReflection',
   completion: 'stepCompletion',
 };
 
@@ -178,6 +182,7 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
   habit_balance: 'habits',
   habit_business: 'habits',
   todaysTasks: 'tasks',
+  eveningReflection: 'being',
   completion: 'complete',
 };
 
@@ -253,6 +258,8 @@ const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null): boolea
       return log.journaling_completed === true;
     case 'lightExposure':
       return log.light_exposure === true;
+    case 'eveningReflection':
+      return (log as any).evening_completed === true;
     case 'completion':
       return false;
     default:
@@ -390,7 +397,10 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
       steps.push('todaysTasks');
     }
 
-    // Always ensure completion is at the end
+    // Always append evening reflection + completion at the end
+    if (!steps.includes('eveningReflection')) {
+      steps.push('eveningReflection');
+    }
     steps.push('completion');
 
     return steps;
@@ -800,6 +810,17 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         return <HabitCheckStep category="business" onNext={goToNextStep} />;
       case 'todaysTasks':
         return <TodaysTasksStep onNext={goToNextStep} />;
+      case 'eveningReflection':
+        return (
+          <EveningReflectionStep
+            doneWell={(todayLog as any)?.evening_reflection_done_well ?? null}
+            learned={(todayLog as any)?.evening_reflection_learned ?? null}
+            notDone={(todayLog as any)?.evening_reflection_not_done ?? null}
+            onChange={(field, value) => updateLog(field as any, value)}
+            onComplete={(value) => updateLog('evening_completed' as any, value)}
+            onNext={goToNextStep}
+          />
+        );
       case 'completion':
         return (
           <CompletionStep

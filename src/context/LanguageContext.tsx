@@ -764,6 +764,7 @@ const translations: Translations = {
     "stepHabitBalance": "Habits: Balance",
     "stepHabitBusiness": "Habits: Business",
     "stepTodaysTasks": "Today's Tasks",
+    "stepEveningReflection": "Evening Reflection",
     "stepCompletion": "Completion",
     
     // Footer links
@@ -1407,6 +1408,7 @@ const translations: Translations = {
     "stepHabitBalance": "Obiceiuri: Relații",
     "stepHabitBusiness": "Obiceiuri: Business",
     "stepTodaysTasks": "Sarcinile de Azi",
+    "stepEveningReflection": "Reflecție de Seară",
     "stepCompletion": "Finalizare",
     
     // Footer links
