@@ -7,7 +7,7 @@ import { ChampionLog } from '@/hooks/useChampionRoutine';
 
 export type PillarKey = 'mentalitate' | 'spiritualitate' | 'corp' | 'familie' | 'business';
 
-const PILLAR_STEPS: Record<PillarKey, RoutineStepId[]> = {
+export const PILLAR_STEPS: Record<PillarKey, RoutineStepId[]> = {
   mentalitate: ['mindShifting', 'mindTest', 'journaling', 'learn'],
   spiritualitate: [
     'meditation', 'gratitude', 'powerDeclaration',

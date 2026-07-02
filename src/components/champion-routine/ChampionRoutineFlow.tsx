@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, Settings, History, Bell, Sliders } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Settings, History, Bell, Sliders } from 'lucide-react';
 import { useChampionRoutine, ChampionLog } from '@/hooks/useChampionRoutine';
 import { ChampionRoutineSettings } from './ChampionRoutineSettings';
 import { NotificationSettings } from './NotificationSettings';
@@ -45,7 +45,7 @@ import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
 
 // New UX components
 import { EnhancedProgressBar } from './EnhancedProgressBar';
-import { PillarProgressBar, getPillarOfStep } from './PillarProgressBar';
+import { PillarProgressBar, getPillarOfStep, PILLAR_STEPS } from './PillarProgressBar';
 import { LiveXPDisplay } from './LiveXPDisplay';
 import { SkipConfirmDialog } from './SkipConfirmDialog';
 import { StepCompletionAnimation } from './StepCompletionAnimation';
@@ -914,7 +914,63 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
       )}
 
       {/* Step content */}
-      <div className="pb-8">
+      <div className="pb-8 relative">
+        {(() => {
+          const pillar = getPillarOfStep(currentStepId);
+          if (pillar !== 'mentalitate') return null;
+          const subSteps = PILLAR_STEPS.mentalitate.filter((id) => routineSteps.includes(id));
+          const posInPillar = subSteps.indexOf(currentStepId);
+          if (posInPillar === -1 || subSteps.length <= 1) return null;
+          const goPrev = () => {
+            if (posInPillar > 0) {
+              const target = subSteps[posInPillar - 1];
+              const idx = routineSteps.indexOf(target);
+              if (idx !== -1) {
+                setCurrentStepIndex(idx);
+                setHasUserNavigated(true);
+              }
+            }
+          };
+          const goNext = () => {
+            if (posInPillar < subSteps.length - 1) {
+              const target = subSteps[posInPillar + 1];
+              const idx = routineSteps.indexOf(target);
+              if (idx !== -1) {
+                setCurrentStepIndex(idx);
+                setHasUserNavigated(true);
+              }
+            }
+          };
+          return (
+            <div className="max-w-3xl mx-auto px-4 pt-3 flex justify-center">
+              <div className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--primary)/0.25)] bg-black/40 backdrop-blur-md px-1.5 py-1 shadow-[0_2px_12px_-4px_hsl(222_60%_4%/0.6)]">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={goPrev}
+                  disabled={posInPillar === 0}
+                  className="h-7 w-7 p-0 rounded-full text-white/70 hover:text-[hsl(var(--primary))] hover:bg-white/5 disabled:opacity-30"
+                  title="Pasul anterior din Mentalitate"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-[10px] font-mono font-semibold tracking-widest text-[hsl(var(--primary))]/90 min-w-[32px] text-center">
+                  {posInPillar + 1}/{subSteps.length}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={goNext}
+                  disabled={posInPillar === subSteps.length - 1}
+                  className="h-7 w-7 p-0 rounded-full text-white/70 hover:text-[hsl(var(--primary))] hover:bg-white/5 disabled:opacity-30"
+                  title="Pasul următor din Mentalitate"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
         {renderStep()}
       </div>
 

@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Sun, Moon, Zap, Home } from 'lucide-react';
+import { Sun, Moon, Home } from 'lucide-react';
 import { ChampionRoutineFlow, RoutineStepId } from '@/components/champion-routine/ChampionRoutineFlow';
 import { FocusModeBackground } from '@/components/champion-routine/FocusModeBackground';
 import { format } from 'date-fns';
@@ -13,125 +13,95 @@ const DailyFlow = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { theme, toggleTheme } = useTheme();
-  const today = format(new Date(), "EEEE, d MMMM yyyy", { locale: ro });
-  
-  // Get initial step from query param
+  const shortDate = format(new Date(), "d MMM", { locale: ro }).toUpperCase();
+
   const initialStep = searchParams.get('step') as RoutineStepId | null;
-  
-  // Determine time of day for greeting
-  const hour = new Date().getHours();
-  const getGreeting = () => {
-    if (hour < 12) return { 
-      text: 'Bună dimineața', 
-      icon: Sun, 
-      emoji: '🌅', 
-      gradientLight: 'from-amber-100/50 to-orange-100/30',
-      gradientDark: 'from-amber-500/20 to-orange-500/20' 
-    };
-    if (hour < 18) return { 
-      text: 'Bună ziua', 
-      icon: Zap, 
-      emoji: '☀️', 
-      gradientLight: 'from-yellow-100/50 to-amber-100/30',
-      gradientDark: 'from-yellow-500/20 to-amber-500/20' 
-    };
-    return { 
-      text: 'Bună seara', 
-      icon: Moon, 
-      emoji: '🌙', 
-      gradientLight: 'from-indigo-100/40 to-purple-100/30',
-      gradientDark: 'from-indigo-500/20 to-purple-500/20' 
-    };
-  };
-  const greeting = getGreeting();
 
   return (
     <div className="h-screen relative overflow-hidden flex flex-col">
-      {/* Cosmic Focus Mode Background */}
       <FocusModeBackground />
-      
-      {/* Removed time-of-day gradient overlay to keep pure blue background */}
-      
-      {/* Content Layer */}
-      <div className="relative z-10 flex flex-col h-full">
-        {/* Floating Header - Theme aware */}
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className="sticky top-0 z-20"
-        >
-          <div className="container max-w-4xl mx-auto px-4 pt-4">
-            <div className={cn(
-              "flex items-center gap-3 p-3 rounded-2xl backdrop-blur-xl border",
-              theme === 'dark' 
-                ? "bg-black/30 border-white/10" 
-                : "bg-white/70 border-border/50 shadow-lg"
-            )}>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => navigate('/dashboard')}
-                className={cn(
-                  "rounded-xl",
-                  theme === 'dark' 
-                    ? "text-white/80 hover:text-white hover:bg-white/10" 
-                    : "text-foreground/80 hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <Home className="h-5 w-5" />
-              </Button>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                    <span className="text-xl">{greeting.emoji}</span>
-                    <h1 className={cn(
-                      "text-lg font-semibold truncate",
-                      theme === 'dark' ? "text-white" : "text-foreground"
-                    )}>
-                      Rutina Războinicului
-                  </h1>
-                </div>
-                <p className={cn(
-                  "text-sm capitalize truncate",
-                  theme === 'dark' ? "text-white/50" : "text-muted-foreground"
-                )}>{today}</p>
-              </div>
-              
-              {/* Theme Toggle Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleTheme}
-                className={cn(
-                  "rounded-xl transition-all",
-                  theme === 'dark' 
-                    ? "text-white/80 hover:text-white hover:bg-white/10" 
-                    : "text-foreground/80 hover:text-foreground hover:bg-muted"
-                )}
-              >
-                <motion.div
-                  initial={false}
-                  animate={{ rotate: theme === 'dark' ? 0 : 180 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </motion.div>
-              </Button>
-            </div>
-          </div>
-        </motion.div>
 
-        {/* Main Content - takes remaining space */}
-        <motion.div 
+      {/* Slim vertical side rail — premium, discreet */}
+      <motion.aside
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.35 }}
+        className={cn(
+          "fixed left-0 top-0 bottom-0 z-30 w-10 flex flex-col items-center justify-between py-3",
+          "border-r backdrop-blur-xl",
+          theme === 'dark'
+            ? "bg-black/40 border-[hsl(var(--primary)/0.2)]"
+            : "bg-white/70 border-border/50"
+        )}
+      >
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/dashboard')}
+          className={cn(
+            "h-8 w-8 rounded-lg",
+            theme === 'dark'
+              ? "text-white/70 hover:text-[hsl(var(--primary))] hover:bg-white/5"
+              : "text-foreground/70 hover:text-foreground hover:bg-muted"
+          )}
+          title="Acasă"
+        >
+          <Home className="h-4 w-4" />
+        </Button>
+
+        <div
+          className={cn(
+            "flex flex-col items-center gap-2 select-none",
+            theme === 'dark' ? "text-white/50" : "text-muted-foreground"
+          )}
+          style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+        >
+          <span className="text-[10px] font-semibold uppercase tracking-[0.35em]">
+            Rutina
+          </span>
+          <span
+            className={cn(
+              "text-[10px] font-mono tracking-widest",
+              theme === 'dark' ? "text-[hsl(var(--primary))]/80" : "text-primary/80"
+            )}
+          >
+            {shortDate}
+          </span>
+        </div>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          className={cn(
+            "h-8 w-8 rounded-lg",
+            theme === 'dark'
+              ? "text-white/70 hover:text-[hsl(var(--primary))] hover:bg-white/5"
+              : "text-foreground/70 hover:text-foreground hover:bg-muted"
+          )}
+          title="Temă"
+        >
+          <motion.div
+            initial={false}
+            animate={{ rotate: theme === 'dark' ? 0 : 180 }}
+            transition={{ duration: 0.3 }}
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </motion.div>
+        </Button>
+      </motion.aside>
+
+      {/* Content Layer — offset for side rail */}
+      <div className="relative z-10 flex flex-col h-full pl-10">
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
           className="flex-1 overflow-y-auto"
         >
           <div className="container max-w-4xl mx-auto px-4 py-4">
-            <ChampionRoutineFlow 
-              onComplete={() => navigate('/dashboard')} 
+            <ChampionRoutineFlow
+              onComplete={() => navigate('/dashboard')}
               initialStep={initialStep || undefined}
             />
           </div>
@@ -142,3 +112,4 @@ const DailyFlow = () => {
 };
 
 export default DailyFlow;
+
