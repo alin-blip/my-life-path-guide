@@ -8286,6 +8286,10 @@ export type Database = {
         Args: { target_task_types?: string[]; target_week_key: string }
         Returns: undefined
       }
+      bump_axis_score: {
+        Args: { _axis: string; _user_id: string; _weight: number }
+        Returns: undefined
+      }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       clear_user_task_history: {
         Args: { target_user_id: string }
