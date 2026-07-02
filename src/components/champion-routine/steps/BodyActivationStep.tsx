@@ -127,7 +127,13 @@ export function BodyActivationStep({
 
         {/* Next button */}
         <Button
-          onClick={onNext}
+          onClick={() => {
+            try {
+              const today = new Date().toISOString().split('T')[0];
+              localStorage.setItem(`body_activation_done_${today}`, '1');
+            } catch {}
+            onNext();
+          }}
           size="lg"
           className="w-full gap-2"
           disabled={!allDone}
