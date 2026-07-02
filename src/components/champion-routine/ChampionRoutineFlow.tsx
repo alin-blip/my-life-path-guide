@@ -810,6 +810,17 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         return <HabitCheckStep category="business" onNext={goToNextStep} />;
       case 'todaysTasks':
         return <TodaysTasksStep onNext={goToNextStep} />;
+      case 'eveningReflection':
+        return (
+          <EveningReflectionStep
+            doneWell={(todayLog as any)?.evening_reflection_done_well ?? null}
+            learned={(todayLog as any)?.evening_reflection_learned ?? null}
+            notDone={(todayLog as any)?.evening_reflection_not_done ?? null}
+            onChange={(field, value) => updateLog(field as any, value)}
+            onComplete={(value) => updateLog('evening_completed' as any, value)}
+            onNext={goToNextStep}
+          />
+        );
       case 'completion':
         return (
           <CompletionStep
