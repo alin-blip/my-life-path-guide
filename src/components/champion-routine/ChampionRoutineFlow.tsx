@@ -181,6 +181,7 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
   habit_balance: 'habits',
   habit_business: 'habits',
   todaysTasks: 'tasks',
+  eveningReflection: 'being',
   completion: 'complete',
 };
 
