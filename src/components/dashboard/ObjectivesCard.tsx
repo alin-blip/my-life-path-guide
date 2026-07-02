@@ -200,10 +200,33 @@ export const ObjectivesCard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Card className="glass-card animate-pulse">
-        <CardContent className="p-4">
-          <div className="h-6 bg-muted rounded w-1/3 mb-4" />
-          <div className="h-20 bg-muted rounded" />
+      <Card className="glass-card mb-6">
+        <CardContent className="p-4 space-y-4">
+          {/* Header row */}
+          <div className="flex items-center justify-between">
+            <div className="h-5 w-40 bg-muted rounded animate-pulse" />
+            <div className="h-8 w-24 bg-muted rounded animate-pulse" />
+          </div>
+          {/* Vision board 2x2 grid skeleton */}
+          <div className="grid grid-cols-2 gap-2">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="aspect-[16/9] rounded-xl bg-gradient-to-br from-muted via-muted/60 to-muted animate-pulse"
+              />
+            ))}
+          </div>
+          {/* Tabs skeleton */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="h-9 bg-muted rounded animate-pulse" />
+            <div className="h-9 bg-muted rounded animate-pulse" />
+            <div className="h-9 bg-muted rounded animate-pulse" />
+          </div>
+          {/* Content rows */}
+          <div className="space-y-2">
+            <div className="h-16 bg-muted/70 rounded-lg animate-pulse" />
+            <div className="h-16 bg-muted/70 rounded-lg animate-pulse" />
+          </div>
         </CardContent>
       </Card>
     );
