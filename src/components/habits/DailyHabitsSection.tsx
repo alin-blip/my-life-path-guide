@@ -160,11 +160,20 @@ export const DailyHabitsSection: React.FC<DailyHabitsSectionProps> = ({ date = n
                             {completed && <Check className="h-3 w-3 text-white" />}
                           </div>
                           <span className={cn(
-                            "text-sm",
+                            "text-sm flex-1",
                             completed && "line-through opacity-70"
                           )}>
                             {habit.name}
                           </span>
+                          {isAutoHabit(habit.name) && (
+                            <span
+                              className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-500 flex items-center gap-0.5 shrink-0"
+                              title="Se bifează automat din Rutina Campion"
+                            >
+                              <Sparkles className="h-2.5 w-2.5" />
+                              Auto
+                            </span>
+                          )}
                         </button>
                       );
                     })}
