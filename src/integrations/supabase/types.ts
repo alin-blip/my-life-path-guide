@@ -2854,6 +2854,7 @@ export type Database = {
           gender: string | null
           id: string
           ip_address: string | null
+          language: string
           lead_magnet: string
           metadata: Json | null
           name: string | null
@@ -2867,6 +2868,7 @@ export type Database = {
           gender?: string | null
           id?: string
           ip_address?: string | null
+          language?: string
           lead_magnet?: string
           metadata?: Json | null
           name?: string | null
@@ -2880,6 +2882,7 @@ export type Database = {
           gender?: string | null
           id?: string
           ip_address?: string | null
+          language?: string
           lead_magnet?: string
           metadata?: Json | null
           name?: string | null

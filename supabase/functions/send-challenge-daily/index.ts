@@ -403,13 +403,18 @@ const handler = async (req: Request): Promise<Response> => {
         
         const { data: emailLead } = await supabase
           .from('email_leads')
-          .select('subscribed, metadata')
+          .select('subscribed, metadata, language')
           .eq('email', email)
           .maybeSingle();
 
         if (emailLead && !emailLead.subscribed) continue;
 
-        const language = 'ro' as const;
+        // Resolve language: prefer user's saved preference, then lead's language, else 'ro'
+        let language: 'ro' | 'en' = (emailLead?.language === 'en' ? 'en' : 'ro');
+        try {
+          const { data: prefLang } = await supabase.rpc('get_user_language_by_email', { user_email: email });
+          if (prefLang === 'en' || prefLang === 'ro') language = prefLang;
+        } catch {}
         const content = getDayContent(nextDay, language);
         
         const trackingId = generateTrackingId(nextDay);

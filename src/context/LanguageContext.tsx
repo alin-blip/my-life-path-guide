@@ -1557,10 +1557,25 @@ const LanguageContext = createContext<LanguageContextType>({
 export const LanguageProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  // Initialize with language from localStorage, defaulting to 'ro'
+  // Initialize with language from localStorage. If none, detect from browser
+  // (users outside RO/MD default to English). Falls back to 'ro' as last resort.
   const getInitialLanguage = (): Language => {
-    const savedLanguage = localStorage.getItem('language') as Language;
-    return (savedLanguage === 'en' || savedLanguage === 'ro') ? savedLanguage : 'ro';
+    try {
+      const savedLanguage = localStorage.getItem('language') as Language;
+      if (savedLanguage === 'en' || savedLanguage === 'ro') return savedLanguage;
+
+      if (typeof navigator !== 'undefined') {
+        const langs = [
+          ...(Array.isArray(navigator.languages) ? navigator.languages : []),
+          navigator.language,
+        ].filter(Boolean).map((l) => String(l).toLowerCase());
+        const isRomanian = langs.some((l) => l.startsWith('ro'));
+        const detected: Language = isRomanian ? 'ro' : 'en';
+        localStorage.setItem('language', detected);
+        return detected;
+      }
+    } catch {}
+    return 'ro';
   };
   
   const [language, setLanguageState] = useState<Language>(getInitialLanguage);
