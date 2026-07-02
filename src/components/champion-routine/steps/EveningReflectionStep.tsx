@@ -231,8 +231,11 @@ export function EveningReflectionStep({
               Ce a mers cel mai bine azi? <span className="text-red-500">*</span>
             </label>
             <Textarea
-              value={doneWell ?? ''}
-              onChange={(e) => onChange('evening_reflection_done_well', e.target.value)}
+              value={localDoneWell}
+              onChange={(e) => {
+                setLocalDoneWell(e.target.value);
+                scheduleUpdate('evening_reflection_done_well', e.target.value);
+              }}
               placeholder="Un moment, o victorie, o alegere bună…"
               rows={2}
             />
@@ -241,8 +244,11 @@ export function EveningReflectionStep({
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground/90">Ce am învățat?</label>
             <Textarea
-              value={learned ?? ''}
-              onChange={(e) => onChange('evening_reflection_learned', e.target.value)}
+              value={localLearned}
+              onChange={(e) => {
+                setLocalLearned(e.target.value);
+                scheduleUpdate('evening_reflection_learned', e.target.value);
+              }}
               placeholder="O lecție, o observație, un pattern…"
               rows={2}
             />
@@ -251,8 +257,11 @@ export function EveningReflectionStep({
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground/90">Ce nu am făcut și vreau mâine?</label>
             <Textarea
-              value={notDone ?? ''}
-              onChange={(e) => onChange('evening_reflection_not_done', e.target.value)}
+              value={localNotDone}
+              onChange={(e) => {
+                setLocalNotDone(e.target.value);
+                scheduleUpdate('evening_reflection_not_done', e.target.value);
+              }}
               placeholder="Ce las în urmă și duc mai departe…"
               rows={2}
             />
