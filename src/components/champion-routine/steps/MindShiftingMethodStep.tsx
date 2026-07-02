@@ -37,6 +37,7 @@ interface Props {
 type Method =
   | 'none'
   | 'reconstruction'
+  | 'kill-it-today'
   | 'anger'
   | 'frustration'
   | 'fear'
