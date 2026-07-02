@@ -115,7 +115,7 @@ export function PillarProgressBar({
                 }}
               >
                 {isComplete ? (
-                  <Check className="h-4 w-4 text-[hsl(var(--primary))]" strokeWidth={2.5} />
+                  <Check className="h-4 w-4 text-amber-950" strokeWidth={3} />
                 ) : (
                   <Icon className="h-4 w-4" style={{ color: 'var(--p-accent)' }} strokeWidth={2.2} />
                 )}
