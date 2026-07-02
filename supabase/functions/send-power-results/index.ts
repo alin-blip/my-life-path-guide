@@ -129,9 +129,20 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Config backend incompletă (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY).');
     }
 
-    const { email, name, scores }: PowerResultsRequest = await req.json();
+    const { email, name, scores, language }: PowerResultsRequest = await req.json();
+    const lang: 'ro' | 'en' = language === 'en' ? 'en' : 'ro';
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Persist language on the lead so downstream sequences (7-day) use the right language
+    try {
+      await supabase
+        .from('email_leads')
+        .update({ language: lang })
+        .eq('email', email.toLowerCase());
+    } catch (e) {
+      console.warn('Could not persist language on email_lead:', e);
+    }
 
     // Calculate scores
     const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
