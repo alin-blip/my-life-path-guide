@@ -166,9 +166,10 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
                 onClick={() => navigate('/vision-board/view')}
               >
                 {imageUrl ? (
-                  <img 
-                    src={imageUrl} 
+                  <ImageWithSkeleton
+                    src={imageUrl}
                     alt={categoryLabels[category][language]}
+                    wrapperClassName="absolute inset-0"
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
                 ) : (
