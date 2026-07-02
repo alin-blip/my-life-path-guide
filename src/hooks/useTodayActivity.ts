@@ -52,9 +52,9 @@ export function useTodayActivity() {
       totalCount: snapshot.totalCount,
       topEvents: snapshot.items.slice(0, 25).map(i => ({
         axis: i.axis,
-        label: i.label,
-        source: (i as any).source,
-        occurredAt: (i as any).occurredAt,
+        label: i.title,
+        source: i.source,
+        occurredAt: i.occurredAt,
       })),
     }).catch(() => { /* silent */ });
   }, [user?.id, snapshot]);
