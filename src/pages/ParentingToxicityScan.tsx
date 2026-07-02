@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Shield, ArrowLeft, ArrowRight, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Shield, ArrowLeft, ArrowRight, Loader2, CheckCircle2, AlertTriangle, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -62,6 +62,52 @@ const ParentingToxicityScan: React.FC = () => {
   const [scores, setScores] = useState<PSDQScores | null>(null);
   const [interpretation, setInterpretation] = useState('');
   const [actionPlan, setActionPlan] = useState<Array<{ title: string; why: string; how: string }>>([]);
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const restoredRef = useRef(false);
+
+  // ============= AUTOSAVE (localStorage draft per user+child) =============
+  const draftKey = useMemo(() => `parenting-toxicity-draft:${childId || 'none'}`, [childId]);
+
+  // Restore draft when childId changes / on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          setAnswers(parsed.answers || {});
+          setPageIdx(typeof parsed.pageIdx === 'number' ? parsed.pageIdx : 0);
+          if (parsed.savedAt) setSavedAt(new Date(parsed.savedAt));
+          restoredRef.current = true;
+          return;
+        }
+      }
+      // no draft — reset
+      setAnswers({});
+      setPageIdx(0);
+      setSavedAt(null);
+    } catch {
+      // ignore
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey]);
+
+  // Autosave on any answer / page change while in questions phase
+  useEffect(() => {
+    if (phase !== 'questions') return;
+    if (Object.keys(answers).length === 0 && pageIdx === 0 && !restoredRef.current) return;
+    try {
+      const now = new Date();
+      localStorage.setItem(
+        draftKey,
+        JSON.stringify({ answers, pageIdx, savedAt: now.toISOString() }),
+      );
+      setSavedAt(now);
+    } catch {
+      // ignore quota errors
+    }
+  }, [answers, pageIdx, phase, draftKey]);
+
 
   const pages = useMemo(() => {
     const out: typeof PSDQ_ITEMS[] = [];
@@ -78,10 +124,23 @@ const ParentingToxicityScan: React.FC = () => {
   const isLastPage = pageIdx === pages.length - 1;
 
   const startScan = () => {
-    setPageIdx(0);
-    setAnswers({});
+    // Keep any restored draft; only start fresh if there is none
+    const hasDraft = Object.keys(answers).length > 0;
+    if (!hasDraft) {
+      setPageIdx(0);
+      setAnswers({});
+    }
     setPhase('questions');
   };
+
+  const clearDraft = () => {
+    try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+    setAnswers({});
+    setPageIdx(0);
+    setSavedAt(null);
+    restoredRef.current = false;
+  };
+
 
   const submit = async () => {
     setPhase('submitting');
@@ -126,7 +185,11 @@ const ParentingToxicityScan: React.FC = () => {
       setInterpretation(ai.interpretation || '');
       setActionPlan(ai.action_plan || []);
       setPhase('result');
+      // Clear draft after successful submission
+      try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+      setSavedAt(null);
     } catch (e) {
+
       toast({
         title: lang === 'en' ? 'Scan failed' : 'Scanarea a eșuat',
         description: (e as Error).message,
@@ -199,10 +262,30 @@ const ParentingToxicityScan: React.FC = () => {
                   );
                 })}
               </RadioGroup>
+              {answeredCount > 0 && phase === 'select' && (
+                <div className="flex items-center justify-between text-xs bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+                  <span className="text-primary flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5" />
+                    {lang === 'en'
+                      ? `Draft saved — ${answeredCount}/${total} answered`
+                      : `Draft salvat — ${answeredCount}/${total} răspunse`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={clearDraft}
+                    className="text-muted-foreground hover:text-destructive underline"
+                  >
+                    {lang === 'en' ? 'Discard' : 'Șterge'}
+                  </button>
+                </div>
+              )}
               <Button size="lg" className="w-full mt-2" onClick={startScan}>
-                {lang === 'en' ? 'Start the scan' : 'Începe scanarea'}
+                {answeredCount > 0
+                  ? (lang === 'en' ? 'Resume scan' : 'Reia scanarea')
+                  : (lang === 'en' ? 'Start the scan' : 'Începe scanarea')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
+
             </CardContent>
           </Card>
         )}
@@ -216,10 +299,19 @@ const ParentingToxicityScan: React.FC = () => {
                   {lang === 'en' ? 'Question' : 'Întrebarea'} {pageIdx * PAGE_SIZE + 1}–
                   {Math.min((pageIdx + 1) * PAGE_SIZE, total)} / {total}
                 </span>
-                <span>{answeredCount}/{total}</span>
+                <span className="flex items-center gap-2">
+                  {savedAt && (
+                    <span className="text-primary/80 flex items-center gap-1">
+                      <Check className="w-3 h-3" />
+                      {lang === 'en' ? 'Autosaved' : 'Salvat automat'}
+                    </span>
+                  )}
+                  <span>{answeredCount}/{total}</span>
+                </span>
               </div>
               <Progress value={(answeredCount / total) * 100} />
             </div>
+
 
             <div className="space-y-4">
               {currentPage.map((item, i) => {
