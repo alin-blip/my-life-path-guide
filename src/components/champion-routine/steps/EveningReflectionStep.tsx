@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -59,6 +59,35 @@ export function EveningReflectionStep({
   const { snapshot, isLoading } = useTodayActivity();
   const { user } = useAuth();
 
+  // LOCAL state — evită "typo/reload" (fiecare tastă declanșa updateLog → refetch → reset).
+  // Ne inițializăm o singură dată din props și propagăm debounced către parent.
+  const [localDoneWell, setLocalDoneWell] = useState(doneWell ?? '');
+  const [localLearned, setLocalLearned] = useState(learned ?? '');
+  const [localNotDone, setLocalNotDone] = useState(notDone ?? '');
+  const initedRef = useRef(false);
+  useEffect(() => {
+    if (initedRef.current) return;
+    if (doneWell !== null || learned !== null || notDone !== null) {
+      setLocalDoneWell(doneWell ?? '');
+      setLocalLearned(learned ?? '');
+      setLocalNotDone(notDone ?? '');
+      initedRef.current = true;
+    }
+  }, [doneWell, learned, notDone]);
+
+  // Debounce parent updates (600ms) — se salvează în DB fără să reseteze textarea.
+  const timersRef = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
+  const scheduleUpdate = useCallback(
+    (field: 'evening_reflection_done_well' | 'evening_reflection_learned' | 'evening_reflection_not_done', value: string) => {
+      if (timersRef.current[field]) clearTimeout(timersRef.current[field]!);
+      timersRef.current[field] = setTimeout(() => onChange(field, value), 600);
+    },
+    [onChange]
+  );
+  useEffect(() => () => {
+    Object.values(timersRef.current).forEach((t) => t && clearTimeout(t));
+  }, []);
+
   const groupedByAxis = useMemo(() => {
     const groups: Record<ActivityAxis, typeof snapshot['items']> = {
       body: [], being: [], balance: [], business: [], mind: [],
@@ -67,9 +96,14 @@ export function EveningReflectionStep({
     return groups;
   }, [snapshot]);
 
-  const canFinish = (doneWell?.trim().length ?? 0) > 0;
+  const canFinish = (localDoneWell.trim().length) > 0;
 
   const handleFinish = async () => {
+    // Flush pending debounced writes immediately
+    Object.values(timersRef.current).forEach((t) => t && clearTimeout(t));
+    onChange('evening_reflection_done_well', localDoneWell);
+    onChange('evening_reflection_learned', localLearned);
+    onChange('evening_reflection_not_done', localNotDone);
     onComplete(true);
     // Persist today's snapshot for Shadow Coach history
     if (user?.id && snapshot) {
@@ -81,7 +115,7 @@ export function EveningReflectionStep({
           topEvents: snapshot.items.slice(0, 25).map(it => ({
             axis: it.axis, label: it.title, source: it.source, occurredAt: it.occurredAt,
           })),
-          reflection: { done_well: doneWell, learned, not_done: notDone },
+          reflection: { done_well: localDoneWell, learned: localLearned, not_done: localNotDone },
         });
       } catch (e) { /* silent */ }
     }
@@ -197,8 +231,11 @@ export function EveningReflectionStep({
               Ce a mers cel mai bine azi? <span className="text-red-500">*</span>
             </label>
             <Textarea
-              value={doneWell ?? ''}
-              onChange={(e) => onChange('evening_reflection_done_well', e.target.value)}
+              value={localDoneWell}
+              onChange={(e) => {
+                setLocalDoneWell(e.target.value);
+                scheduleUpdate('evening_reflection_done_well', e.target.value);
+              }}
               placeholder="Un moment, o victorie, o alegere bună…"
               rows={2}
             />
@@ -207,8 +244,11 @@ export function EveningReflectionStep({
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground/90">Ce am învățat?</label>
             <Textarea
-              value={learned ?? ''}
-              onChange={(e) => onChange('evening_reflection_learned', e.target.value)}
+              value={localLearned}
+              onChange={(e) => {
+                setLocalLearned(e.target.value);
+                scheduleUpdate('evening_reflection_learned', e.target.value);
+              }}
               placeholder="O lecție, o observație, un pattern…"
               rows={2}
             />
@@ -217,8 +257,11 @@ export function EveningReflectionStep({
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground/90">Ce nu am făcut și vreau mâine?</label>
             <Textarea
-              value={notDone ?? ''}
-              onChange={(e) => onChange('evening_reflection_not_done', e.target.value)}
+              value={localNotDone}
+              onChange={(e) => {
+                setLocalNotDone(e.target.value);
+                scheduleUpdate('evening_reflection_not_done', e.target.value);
+              }}
               placeholder="Ce las în urmă și duc mai departe…"
               rows={2}
             />
