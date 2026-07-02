@@ -39,6 +39,7 @@ import { MindShiftingStep } from './steps/MindShiftingStep';
 import { MentalitateStackFlow } from '@/components/mentalitate/MentalitateStackFlow';
 import { MindShiftingMethodStep } from './steps/MindShiftingMethodStep';
 import { MindTestStep } from './steps/MindTestStep';
+import { EveningReflectionStep } from './steps/EveningReflectionStep';
 import { useRoutineXP, ROUTINE_XP_REWARDS } from '@/hooks/useRoutineXP';
 import { StreakDisplay } from './StreakDisplay';
 import { XPDisplay, XPGainAnimation, LevelUpModal } from './XPDisplay';
