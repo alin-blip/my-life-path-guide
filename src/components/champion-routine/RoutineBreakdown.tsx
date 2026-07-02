@@ -91,6 +91,7 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
   habit_balance: 'Habits: Relații',
   habit_business: 'Habits: Business',
   todaysTasks: 'Sarcinile de Azi',
+  eveningReflection: 'Reflecție de Seară',
   completion: 'Finalizare',
 };
 
