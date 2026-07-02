@@ -110,7 +110,31 @@ export const KillItTodayStack: React.FC<Props> = ({ onAddToHitList }) => {
       const weekKey = getActiveWeekKey();
       const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'] as const;
       const today = days[new Date().getDay()];
+
+      // Fetch existing tasks for this week to dedupe
+      let existingNormalized = new Set<string>();
+      try {
+        const { hitList, doList } = await doorSupabaseService.fetchWeekLists(weekKey);
+        [...hitList, ...doList].forEach((it: any) => {
+          if (it?.text) existingNormalized.add(normalizeTaskText(it.text));
+        });
+      } catch (fetchErr) {
+        console.warn('KillItToday dedupe fetch failed, continuing:', fetchErr);
+      }
+
+      const seenThisRun = new Set<string>();
+      let added = 0;
+      let skipped = 0;
+
       for (const t of session.tasks_snapshot) {
+        const norm = normalizeTaskText(t);
+        if (!norm) continue;
+        if (existingNormalized.has(norm) || seenThisRun.has(norm)) {
+          skipped++;
+          continue;
+        }
+        seenThisRun.add(norm);
+
         if (onAddToHitList) {
           await onAddToHitList(t);
         } else {
@@ -122,10 +146,22 @@ export const KillItTodayStack: React.FC<Props> = ({ onAddToHitList }) => {
             day: today as any,
           });
         }
+        added++;
       }
+
       window.dispatchEvent(new CustomEvent('doorDataUpdated', { detail: { type: 'ideaAdded' } }));
       setSavedTasks(true);
-      if (!silent) toast.success(`${session.tasks_snapshot.length} sarcini adăugate în Sarcinile de azi`);
+      if (!silent) {
+        if (added === 0) {
+          toast.info('Sarcinile sunt deja în listă');
+        } else {
+          toast.success(
+            skipped > 0
+              ? `${added} adăugate, ${skipped} deja existau`
+              : `${added} sarcini adăugate în Sarcinile de azi`
+          );
+        }
+      }
     } catch (e: any) {
       console.error('KillItToday save tasks:', e);
       if (!silent) toast.error('Nu am putut salva sarcinile');
