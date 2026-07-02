@@ -539,6 +539,36 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   useEffect(() => {
     saveProgress(currentStepIndex);
   }, [currentStepIndex, saveProgress]);
+
+  // Cross-page sync: if user completed mind test / meditation elsewhere, mark routine step done
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { supabase } = await import('@/integrations/supabase/client');
+        const today = new Date().toISOString().split('T')[0];
+        const startOfDay = `${today}T00:00:00.000Z`;
+
+        const [mindTest, empMed, flow] = await Promise.all([
+          supabase.from('mind_quiz_responses').select('id').eq('user_id', user.id).gte('created_at', startOfDay).limit(1),
+          supabase.from('empowerment_meditations').select('id').eq('user_id', user.id).gte('created_at', startOfDay).limit(1),
+          supabase.from('daily_flow_sessions').select('id').eq('user_id', user.id).gte('created_at', startOfDay).limit(1),
+        ]);
+
+        if (cancelled) return;
+        if ((mindTest.data?.length || 0) > 0) {
+          localStorage.setItem(`mind_test_done_${today}`, '1');
+        }
+        if ((empMed.data?.length || 0) > 0 || (flow.data?.length || 0) > 0) {
+          localStorage.setItem(`meditation_done_${today}`, '1');
+        }
+      } catch (e) {
+        // silent
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
   
   // Save on visibility change and before unload
   useEffect(() => {
