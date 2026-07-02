@@ -263,16 +263,27 @@ export const AuthForm: React.FC = () => {
           return;
         }
 
+        // Persist return path so it survives the full email confirmation
+        // round-trip (user clicks link in inbox → fresh browser tab).
+        try {
+          if (from && from !== '/dashboard') {
+            localStorage.setItem('pending_return_path', from);
+          }
+        } catch {}
+
         const { data: signUpData, error } = await withTimeout(
           supabase.auth.signUp({
             email,
             password,
             options: {
-              emailRedirectTo: `${window.location.origin}/`
+              // Send the user back to where they started (e.g. /challenge-7-zile)
+              // so any pending checkout / plan can auto-resume after confirm.
+              emailRedirectTo: `${window.location.origin}${from || '/'}`
             }
           }),
           AUTH_TIMEOUT_MS
         );
+
 
         if (error) throw error;
 
