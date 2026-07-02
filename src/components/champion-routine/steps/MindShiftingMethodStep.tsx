@@ -32,6 +32,7 @@ import { getActiveWeekKey } from '@/utils/weekUtils';
 interface Props {
   onComplete: () => void;
   onSkip: () => void;
+  alreadyCompleted?: boolean;
 }
 
 type Method =
@@ -51,8 +52,9 @@ type Method =
  * Step wrapper shown inside Warrior Routine.
  * Renders the chosen mentality stack inline — never navigates away.
  */
-export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip }) => {
+export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, alreadyCompleted = false }) => {
   const [method, setMethod] = useState<Method>('none');
+  const [showAllStacks, setShowAllStacks] = useState(false);
 
   const addActionToHitList = useCallback(async (actionText: string) => {
     if (!actionText?.trim()) return;
