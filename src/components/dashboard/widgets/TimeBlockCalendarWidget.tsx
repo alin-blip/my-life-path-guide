@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useTimeBlockTasks, type TimeBlockTask } from '@/hooks/useTimeBlockTasks';
+import { useTodayActivity } from '@/hooks/useTodayActivity';
 import {
   HOUR_START, HOUR_END, SLOT_HEIGHT_PX, SLOT_MINUTES,
   TOTAL_SLOTS, jsDayToAbbrev, weekMondayForDate, weekKeyForDate, dateForDayInWeek,
@@ -87,6 +88,9 @@ export const TimeBlockCalendarWidget: React.FC<Props> = ({ size, onRemove, onRes
 
       {/* Coach notification preview */}
       <CoachNotificationPreview tasks={tasks} todayAbbrev={day1Abbrev} t={t} />
+
+      {/* Today's completed activity (Shadow Coach overlay) */}
+      <TodayCompletedOverlay t={t} />
 
       {/* Two-day grid */}
       <div className="grid grid-cols-2 gap-3 pt-3">
