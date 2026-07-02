@@ -281,6 +281,13 @@ export const useDailyHabits = (date: Date = new Date()) => {
     fetchHabits();
   }, [fetchHabits]);
 
+  // Refresh when routine auto-completes a habit
+  useEffect(() => {
+    const handler = () => fetchHabits();
+    window.addEventListener('habits:refresh', handler);
+    return () => window.removeEventListener('habits:refresh', handler);
+  }, [fetchHabits]);
+
   const toggleHabit = useCallback(async (habitId: string) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
