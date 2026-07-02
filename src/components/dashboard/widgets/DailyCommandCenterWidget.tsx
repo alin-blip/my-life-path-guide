@@ -323,18 +323,28 @@ export const DailyCommandCenterWidget: React.FC = () => {
                 {progress.routine.done ? '✓' : '−'}
               </span>
             </div>
-            <div className="flex flex-col items-center p-2 rounded-lg bg-background/30">
+            <button
+              type="button"
+              onClick={() => navigate('/champion-routine')}
+              className="flex flex-col items-center p-2 rounded-lg bg-background/30 hover:bg-background/60 transition-colors cursor-pointer"
+              aria-label="Deschide Rutina Campion (Core 4)"
+            >
               <span className="text-xs text-muted-foreground">Core 4</span>
               <span className="text-sm font-semibold">
                 {progress.core.completed}/{progress.core.total}
               </span>
-            </div>
-            <div className="flex flex-col items-center p-2 rounded-lg bg-background/30">
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/biz4-report')}
+              className="flex flex-col items-center p-2 rounded-lg bg-background/30 hover:bg-background/60 transition-colors cursor-pointer"
+              aria-label="Deschide Raport Biz 4"
+            >
               <span className="text-xs text-muted-foreground">Biz 4</span>
               <span className="text-sm font-semibold">
                 {progress.biz.completed}/{progress.biz.total}
               </span>
-            </div>
+            </button>
           </div>
 
           {/* Main Action Button - Start Routine */}

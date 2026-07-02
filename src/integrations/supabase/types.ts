@@ -8278,32 +8278,59 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          commission_rate: number | null
           created_at: string | null
           display_name: string | null
           id: string | null
           is_verified: boolean | null
           referral_code: string | null
+          total_referrals: number | null
           user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          commission_rate?: number | null
           created_at?: string | null
           display_name?: string | null
           id?: string | null
           is_verified?: boolean | null
           referral_code?: string | null
+          total_referrals?: number | null
           user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          commission_rate?: number | null
           created_at?: string | null
           display_name?: string | null
           id?: string | null
           is_verified?: boolean | null
           referral_code?: string | null
+          total_referrals?: number | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      leaderboard_profiles_public: {
+        Row: {
+          avatar_emoji: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string | null
+        }
+        Insert: {
+          avatar_emoji?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+        }
+        Update: {
+          avatar_emoji?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
         }
         Relationships: []
       }
