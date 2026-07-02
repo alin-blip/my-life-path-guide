@@ -317,13 +317,17 @@ export const AuthForm: React.FC = () => {
         if (error) throw error;
 
         logSecurityEvent('Successful login', { email });
-        
+
+        // Consume the pending return path — we've used it now.
+        try { localStorage.removeItem('pending_return_path'); } catch {}
+
         if (isVisionPlanFlow && visionScores && data.user) {
           await setupVisionPlan(data.user.id);
           navigate('/focus', { replace: true });
         } else {
           navigate(from, { replace: true });
         }
+
       } else if (mode === AuthMode.FORGOT_PASSWORD) {
         const { error } = await withTimeout(
           supabase.auth.resetPasswordForEmail(email, {
