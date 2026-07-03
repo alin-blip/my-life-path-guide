@@ -38,11 +38,25 @@ export function useOnboardingTour(): UseOnboardingTourReturn {
 
     // Auto-start tour for new users (never completed or skipped)
     if (!completed && !skipped) {
-      // Delay to let dashboard render
-      const timer = setTimeout(() => {
-        setIsTourOpen(true);
-      }, 2000);
-      return () => clearTimeout(timer);
+      // Poll until no Radix Dialog / Popover is open, then start the tour.
+      // Prevents tour overlay stacking on top of Plan Next Week / Domino welcome.
+      let cancelled = false;
+      const tryOpen = () => {
+        if (cancelled) return;
+        const blocker = document.querySelector(
+          '[role="dialog"][data-state="open"], [data-radix-popper-content-wrapper] [data-state="open"]'
+        );
+        if (blocker) {
+          setTimeout(tryOpen, 800);
+        } else {
+          setIsTourOpen(true);
+        }
+      };
+      const timer = setTimeout(tryOpen, 2000);
+      return () => {
+        cancelled = true;
+        clearTimeout(timer);
+      };
     }
   }, [user]);
 
