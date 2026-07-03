@@ -127,6 +127,8 @@ project_id = "exsbnfmaadjyfblperas"
     verify_jwt = false
   [functions.send-life-score-sequence]
     verify_jwt = false
+  [functions.send-marriage-sequence]
+    verify_jwt = false
   [functions.send-nurture-sequence]
     verify_jwt = false
   [functions.send-platform-update]
