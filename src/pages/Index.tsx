@@ -99,24 +99,26 @@ const Index = () => {
       </div>
 
       <StickyHeader />
-      <NewHeroSection />
+      <main>
+        <NewHeroSection />
 
-      <Suspense fallback={<div className="min-h-[200px]" />}>
-        <LogoCloud />
-        <ProblemSectionNew />
-        <InlineCTA headlineRo="Ai recunoscut problema? Instalează soluția." headlineEn="Recognized the problem? Install the solution." />
-        <FeatureShowcase />
-        <MethodologySection />
-        <FounderSectionNew />
-        <TargetAudienceSection />
-        <ComparisonSection />
-        <InlineCTA headlineRo="Alege partea cu rezultate." headlineEn="Choose the side with results." />
-        <GuaranteeSection />
-        <TestimonialCarousel />
-        <PricingComparison />
-        <FAQSection />
-        <NewFooter />
-      </Suspense>
+        <Suspense fallback={<div className="min-h-[200px]" />}>
+          <LogoCloud />
+          <ProblemSectionNew />
+          <InlineCTA headlineRo="Ai recunoscut problema? Instalează soluția." headlineEn="Recognized the problem? Install the solution." />
+          <FeatureShowcase />
+          <MethodologySection />
+          <FounderSectionNew />
+          <TargetAudienceSection />
+          <ComparisonSection />
+          <InlineCTA headlineRo="Alege partea cu rezultate." headlineEn="Choose the side with results." />
+          <GuaranteeSection />
+          <TestimonialCarousel />
+          <PricingComparison />
+          <FAQSection />
+        </Suspense>
+      </main>
+      <NewFooter />
     </div>
   );
 };

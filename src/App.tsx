@@ -39,6 +39,7 @@ const Core = lazy(() => import("./pages/Core"));
 const DailyFour = lazy(() => import("./pages/DailyFour"));
 const Journal = lazy(() => import("./pages/Journal"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const EmailMonitoring = lazy(() => import("./pages/EmailMonitoring"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Settings = lazy(() => import("./pages/Settings").then(m => ({ default: m.Settings })));
 const Support = lazy(() => import("./pages/Support").then(m => ({ default: m.Support })));
@@ -232,6 +233,11 @@ const App = () => (
                     <Route path="/admin" element={
                       <ProtectedRoute>
                         <AdminPanel />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin/email-monitoring" element={
+                      <ProtectedRoute>
+                        <EmailMonitoring />
                       </ProtectedRoute>
                     } />
                     <Route path="/profile" element={
