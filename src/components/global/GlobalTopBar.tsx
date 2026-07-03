@@ -76,8 +76,8 @@ export const GlobalTopBar: React.FC = () => {
               className={cn(
                 'gap-1.5 text-sm font-medium transition-colors',
                 isActive(tab.path)
-                  ? 'text-foreground bg-accent/60'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'text-primary bg-primary/10 hover:text-primary hover:bg-primary/15'
+                  : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
               )}
             >
               <tab.icon className="h-4 w-4" />
