@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Dumbbell, Brain, Heart, Briefcase } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -71,16 +71,16 @@ export const CategorySelectionDialog: React.FC<CategorySelectionDialogProps> = (
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <ResponsiveModal open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-lg p-0 overflow-hidden">
         <div className="p-6 pb-4">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-center">
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle className="text-xl font-bold text-center">
               {language === 'en' 
                 ? 'Which category do you want to start with?' 
                 : 'Cu ce categorie vrei să începi?'}
-            </DialogTitle>
-          </DialogHeader>
+            </ResponsiveModalTitle>
+          </ResponsiveModalHeader>
         </div>
 
         <div className="px-6 pb-6 grid grid-cols-2 gap-4">
@@ -134,7 +134,6 @@ export const CategorySelectionDialog: React.FC<CategorySelectionDialogProps> = (
             {language === 'en' ? 'Skip - I\'ll set them later' : 'Skip - Le voi seta mai târziu'}
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModal>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { ListTodo, Target, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -27,15 +27,14 @@ export const WeekTaskTypeDialog: React.FC<WeekTaskTypeDialogProps> = ({
   const categoryInfo = CATEGORY_INFO[category];
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-center">
+    <ResponsiveModal open={isOpen} onOpenChange={onClose} className="max-w-md">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle className="text-center">
             {language === 'en' 
               ? 'How do you want to add this task?' 
               : 'Cum vrei să adaugi acest task?'}
-          </DialogTitle>
-        </DialogHeader>
+          </ResponsiveModalTitle>
+        </ResponsiveModalHeader>
 
         <div className="space-y-4">
           {/* Task preview */}
@@ -112,7 +111,6 @@ export const WeekTaskTypeDialog: React.FC<WeekTaskTypeDialogProps> = ({
             {language === 'en' ? 'Cancel' : 'Anulează'}
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModal>
   );
 };

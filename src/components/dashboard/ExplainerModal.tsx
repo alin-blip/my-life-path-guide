@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription } from '@/components/ui/responsive-modal';
 import { Activity, Utensils, Heart, Brain, PenLine, Book, DollarSign, MessageSquare, Send, Handshake, Sparkles, Target, Compass } from 'lucide-react';
 
 interface ExplainerModalProps {
@@ -119,12 +113,11 @@ export const ExplainerModal: React.FC<ExplainerModalProps> = ({ open, onOpenChan
   const currentContent = content[type];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{currentContent.title}</DialogTitle>
-          <DialogDescription>{currentContent.description}</DialogDescription>
-        </DialogHeader>
+    <ResponsiveModal open={open} onOpenChange={onOpenChange} className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle className="text-xl font-bold">{currentContent.title}</ResponsiveModalTitle>
+          <ResponsiveModalDescription>{currentContent.description}</ResponsiveModalDescription>
+        </ResponsiveModalHeader>
         
         <div className="space-y-4 mt-4">
           {currentContent.items.map((item, index) => (
@@ -139,7 +132,6 @@ export const ExplainerModal: React.FC<ExplainerModalProps> = ({ open, onOpenChan
             </div>
           ))}
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModal>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription, ResponsiveModalFooter } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -104,19 +104,18 @@ export const ProjectSelectionDialog: React.FC<ProjectSelectionDialogProps> = ({
   const hasMassiveSelection = Object.values(selections).some(s => s.saveType === 'massive');
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+    <ResponsiveModal open={isOpen} onOpenChange={onClose} className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle className="flex items-center gap-2">
             <ListChecks className="w-5 h-5 text-primary" />
             {language === 'en' ? 'Save Projects' : 'Salvează Proiecte'}
-          </DialogTitle>
-          <DialogDescription>
+          </ResponsiveModalTitle>
+          <ResponsiveModalDescription>
             {language === 'en'
               ? 'Select projects to save and choose how to save each one.'
               : 'Selectează proiectele de salvat și alege cum să le salvezi.'}
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveModalDescription>
+        </ResponsiveModalHeader>
 
         <div className="space-y-4 py-4">
           {/* Category Badge */}
@@ -216,7 +215,7 @@ export const ProjectSelectionDialog: React.FC<ProjectSelectionDialogProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
+        <ResponsiveModalFooter className="flex-col sm:flex-row gap-2">
           <div className="flex-1 text-sm text-muted-foreground">
             {selectedCount > 0 && (
               <span>
@@ -244,8 +243,7 @@ export const ProjectSelectionDialog: React.FC<ProjectSelectionDialogProps> = ({
               )}
             </Button>
           </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalFooter>
+      </ResponsiveModal>
   );
 };

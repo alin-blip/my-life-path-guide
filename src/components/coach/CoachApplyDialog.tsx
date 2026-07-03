@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription, ResponsiveModalFooter } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -146,12 +139,11 @@ export const CoachApplyDialog: React.FC<Props> = ({
     (mode === 'member' && !!selectedUserId);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t.title}</DialogTitle>
-          <DialogDescription>{t.desc}</DialogDescription>
-        </DialogHeader>
+    <ResponsiveModal open={open} onOpenChange={onOpenChange} className="max-w-md">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle>{t.title}</ResponsiveModalTitle>
+          <ResponsiveModalDescription>{t.desc}</ResponsiveModalDescription>
+        </ResponsiveModalHeader>
 
         <div className="space-y-4 py-2">
           {/* Tribe selector */}
@@ -215,14 +207,13 @@ export const CoachApplyDialog: React.FC<Props> = ({
           )}
         </div>
 
-        <DialogFooter>
+        <ResponsiveModalFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>{t.cancel}</Button>
           <Button onClick={handleApply} disabled={!canApply || applying}>
             {applying && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
             {t.apply}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalFooter>
+      </ResponsiveModal>
   );
 };

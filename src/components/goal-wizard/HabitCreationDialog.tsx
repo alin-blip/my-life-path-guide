@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalFooter } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -170,14 +164,14 @@ export const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <ResponsiveModal open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle className="flex items-center gap-2">
             <CategoryIcon className={`h-5 w-5 ${config.color}`} />
             {language === 'en' ? 'Create Daily Habits' : 'Creează Habit-uri Zilnice'}
-          </DialogTitle>
-        </DialogHeader>
+          </ResponsiveModalTitle>
+        </ResponsiveModalHeader>
 
         <div className="space-y-4">
           {/* Context */}
@@ -250,7 +244,7 @@ export const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
+        <ResponsiveModalFooter className="flex-col sm:flex-row gap-2">
           <Button variant="ghost" onClick={handleSkip}>
             {language === 'en' ? 'Skip' : 'Sari'}
           </Button>
@@ -264,8 +258,7 @@ export const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
               ? `Add ${selectedHabits.length} Habit${selectedHabits.length !== 1 ? 's' : ''}` 
               : `Adaugă ${selectedHabits.length} Habit${selectedHabits.length !== 1 ? '-uri' : ''}`}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalFooter>
+      </ResponsiveModal>
   );
 };

@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogDescription 
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -117,17 +111,16 @@ export const CanvasProjectsDialog: React.FC<CanvasProjectsDialogProps> = ({
   );
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#1a1a2e] border-white/10 text-white max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
+    <ResponsiveModal open={open} onOpenChange={onOpenChange} className="bg-[#1a1a2e] border-white/10 text-white max-w-2xl">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle className="flex items-center gap-2 text-xl">
             <Folder className="h-5 w-5 text-primary" />
             My Canvas Projects
-          </DialogTitle>
-          <DialogDescription className="text-white/60">
+          </ResponsiveModalTitle>
+          <ResponsiveModalDescription className="text-white/60">
             Select a project to continue editing or create a new one
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveModalDescription>
+        </ResponsiveModalHeader>
 
         <div className="space-y-4">
           {/* Search and New Project */}
@@ -224,7 +217,6 @@ export const CanvasProjectsDialog: React.FC<CanvasProjectsDialogProps> = ({
             )}
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModal>
   );
 };
