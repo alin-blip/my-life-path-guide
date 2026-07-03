@@ -308,10 +308,10 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
             )}>
               <div className="mb-3 sm:mb-4">
                 <h3 className="text-base sm:text-lg font-semibold text-primary mb-1">
-                  {currentQuestion.section}
+                  {language === 'ro' ? currentQuestion.section : currentQuestion.sectionEn}
                 </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  {currentQuestion.sectionDescription}
+                  {currentQuestion.sectionDescription[language]}
                 </p>
               </div>
 
@@ -368,10 +368,10 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                             "text-xs sm:text-sm font-medium mb-1 sm:mb-2",
                             hasScoreInThisLevel || isSelected ? config.text : "text-foreground/80"
                           )}>
-                            {level.title}
+                            {level.title[language]}
                           </p>
                           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-3">
-                            {level.description}
+                            {level.description[language]}
                           </p>
                           
                           {/* Inline Score Buttons - Always visible */}

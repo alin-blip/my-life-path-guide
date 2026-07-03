@@ -415,7 +415,7 @@ ${isRo ? 'Aceasta este realitatea mea de astăzi. În 7 zile, voi progresa!' : '
                 {isRo ? currentQuestion.section : currentQuestion.sectionEn}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {currentQuestion.sectionDescription}
+                {currentQuestion.sectionDescription[language]}
               </p>
             </div>
 
@@ -453,10 +453,10 @@ ${isRo ? 'Aceasta este realitatea mea de astăzi. În 7 zile, voi progresa!' : '
                           </span>
                         </div>
                         <p className={cn("text-sm font-medium mb-1", hasScoreInThisLevel ? config.text : "text-foreground/80")}>
-                          {level.title}
+                          {level.title[language]}
                         </p>
                         <p className="text-xs text-muted-foreground leading-relaxed mb-3 line-clamp-2">
-                          {level.description}
+                          {level.description[language]}
                         </p>
                         
                         {/* Inline Score Buttons */}
