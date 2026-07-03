@@ -8,6 +8,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import { useTourContext } from '@/context/TourContext';
 import { GlobalTopBar } from './global/GlobalTopBar';
+import { MobileGlobalNav } from './global/MobileGlobalNav';
 
 import { useActivityTracker } from '@/hooks/useActivityTracker';
 import { lazy, Suspense } from 'react';
