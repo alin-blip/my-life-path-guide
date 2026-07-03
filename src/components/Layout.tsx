@@ -106,10 +106,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Global Top Bar */}
         <GlobalTopBar />
         
-        <div className={`${isMobile ? 'px-4 py-4 pt-16 safe-x safe-bottom' : 'p-8'} overflow-x-hidden min-h-full`}>
+        <div className={`${isMobile ? 'px-4 py-4 pt-4 pb-24 safe-x safe-bottom' : 'p-8'} overflow-x-hidden min-h-full`}>
           <main className="animate-fade-in">{children}</main>
         </div>
       </div>
+
+      {/* Mobile bottom nav */}
+      {isMobile && (
+        <MobileGlobalNav onMenuClick={() => setIsMobileMenuOpen(true)} />
+      )}
       
       {/* Goal Reminders Notification - lazy loaded */}
       <Suspense fallback={null}>
