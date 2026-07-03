@@ -63,11 +63,16 @@ const About = () => {
   return (
     <>
       <Helmet>
-        <title>About CEO Mind OS - Our Mission & Values</title>
-        <meta name="description" content="Learn about CEO Mind OS's mission to help founders achieve holistic success across Body, Being, Balance, and Business through proven systems and daily habits." />
+        <title>About CEO Mind OS — Our Mission & 4 Pillars</title>
+        <meta name="description" content="CEO Mind OS helps founders grow across Body, Being, Balance, and Business with proven daily systems. Learn our story, values, and mission." />
+        <link rel="canonical" href="https://ceomindos.com/about" />
+        <meta property="og:title" content="About CEO Mind OS — Our Mission & 4 Pillars" />
+        <meta property="og:description" content="CEO Mind OS helps founders grow across Body, Being, Balance, and Business with proven daily systems." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://ceomindos.com/about" />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
         {/* Hero Section */}
         <section className="relative py-16 md:py-24 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5" />
@@ -245,13 +250,14 @@ const About = () => {
                 variant="outline"
                 className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg font-bold"
                 onClick={() => navigate('/')}
+                aria-label="Learn more about the CEO Mind OS platform"
               >
-                Learn More
+                Explore the Platform
               </Button>
             </div>
           </div>
         </section>
-      </div>
+      </main>
     </>
   );
 };

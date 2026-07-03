@@ -246,10 +246,14 @@ const Pricing: React.FC = () => {
       <Helmet>
         <title>{texts.pageTitle}</title>
         <meta name="description" content={texts.metaDescription} />
-        <link rel="canonical" href={`${window.location.origin}/pricing`} />
+        <link rel="canonical" href="https://ceomindos.com/pricing" />
+        <meta property="og:title" content={texts.pageTitle} />
+        <meta property="og:description" content={texts.metaDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://ceomindos.com/pricing" />
       </Helmet>
       <div className="min-h-screen bg-hero-gradient">
-        <main className="max-w-6xl mx-auto px-4 py-12">
+        <div className="max-w-6xl mx-auto px-4 py-12">
           <section className="text-center mb-10">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">{texts.heroTitle}</h1>
             <p className="text-muted-foreground mt-2">{texts.heroSubtitle}</p>
@@ -539,7 +543,7 @@ const Pricing: React.FC = () => {
               </div>
             )}
           </div>
-        </main>
+        </div>
       </div>
     </Layout>
   );

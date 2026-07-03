@@ -430,6 +430,92 @@ AI Planning din CEO Mind OS te ajută să:
 Rezultatul? Luni dimineață știi exact ce faci. Nu mai pierzi 2 ore „gândindu-te la ce să faci".`
       }
     ]
+  },
+  {
+    slug: 'startup-burnout-prevention',
+    titleRo: 'Startup Burnout Prevention: Checklist-ul Founderului pentru 2026',
+    titleEn: 'Startup Burnout Prevention: The Founder\'s Checklist for 2026',
+    excerpt: 'Startup burnout nu apare peste noapte — se instalează în tăcere. Descoperă 8 semne timpurii și un checklist zilnic în 5 pași pentru a-l preveni fără să încetinești execuția.',
+    author: 'Alin Florin Radu',
+    authorBio: 'Fondator CEO Mind OS — sistemul de operare pentru Founderi. Ajută antreprenorii să crească fără să sacrifice sănătatea, relațiile sau pacea interioară.',
+    publishedAt: '2026-07-03',
+    updatedAt: '2026-07-03',
+    categories: ['Mindset', 'Sănătate', 'Business'],
+    readingTime: '9 min',
+    metaDescription: 'Startup burnout prevention checklist: 8 early warning signs and a 5-step daily system founders use to stay sharp without sacrificing execution or health.',
+    metaKeywords: ['startup burnout', 'founder burnout', 'burnout prevention', 'CEO wellbeing', 'entrepreneur mental health', 'warrior routine'],
+    sections: [
+      {
+        id: 'why-founders-burn-out',
+        title: '1. Why 63% of Founders Burn Out — And Why It\'s Preventable',
+        content: `Startup burnout is not a badge of honor. It's a systems failure.
+
+Recent studies from Startup Snapshot and Balderton Capital show **63% of founders** report symptoms of burnout, and **72% say it directly impacts their mental health**. The pattern is almost identical across industries: the founder outperforms their body, their relationships, and their nervous system — until one of them breaks first.
+
+The uncomfortable truth is that burnout rarely arrives from working hard. It arrives from working hard **without a system to recover, prioritize, and course-correct**. Startup burnout prevention is not about doing less — it's about installing the operating system that lets you sustain intensity for years, not months.`
+      },
+      {
+        id: 'early-warning-signs',
+        title: '2. The 8 Early Warning Signs Most Founders Miss',
+        content: `Burnout announces itself long before you collapse. If you notice 3 or more of these signs for two consecutive weeks, treat it as a red flag — not a phase.
+
+1. **Morning dread** — you open your laptop with anxiety instead of curiosity.
+2. **Decision fatigue by noon** — even trivial choices feel heavy.
+3. **Shortened patience** with your team, co-founder, or family.
+4. **Sleep quality drops** even when hours are the same.
+5. **Cravings for sugar, alcohol, or dopamine loops** (Twitter, news, doom-scroll).
+6. **Loss of vision clarity** — "why am I doing this?" starts creeping in.
+7. **Physical symptoms**: chest tightness, jaw clenching, headaches, digestive issues.
+8. **Cynicism** toward customers, investors, or your own product.
+
+None of these are moral failures. They are your nervous system requesting maintenance.`
+      },
+      {
+        id: 'daily-checklist',
+        title: '3. The 5-Step Daily Burnout Prevention Checklist',
+        content: `This is the exact checklist we teach inside CEO Mind OS as part of the Warrior Routine. It takes under 45 minutes and protects the 4 pillars: Body, Being, Balance, Business.
+
+**Step 1 — Anchor the Body (10 min).** Sunlight in the first 30 minutes after waking, 500ml water, 10 minutes of movement (walk, breathwork, or mobility). This regulates cortisol before you touch a screen.
+
+**Step 2 — Prime the Being (10 min).** Read your Napoleon Hill vision declaration out loud. Journal one sentence: "Today I will not sacrifice ___ for ___." This restores meaning before urgency hijacks the day.
+
+**Step 3 — Lock the Domino (5 min).** Choose ONE Domino task — the single move that makes the rest of the day easier or unnecessary. Everything else is secondary.
+
+**Step 4 — Protect the Balance (5 min).** Schedule one non-negotiable human interaction (partner, kid, friend, co-founder check-in that is not about work). Founders who guard this weekly report **47% lower burnout scores** in our internal audit.
+
+**Step 5 — Close the Loop (15 min, evening).** Three questions: What worked? What drained me? What do I stop doing tomorrow? This is the compounding move — most founders never do it.`
+      },
+      {
+        id: 'systemic-fixes',
+        title: '4. Beyond the Checklist: Systemic Fixes That Compound',
+        content: `A checklist buys you weeks. Systems buy you decades. If you want lasting startup burnout prevention, invest in the operating layer:
+
+- **Calendar audit weekly** — remove any recurring meeting older than 90 days that no longer serves the current Domino.
+- **Energy-first scheduling** — put deep work in your top-2 energy hours. Meetings live in your low-energy window, not the other way around.
+- **Founder deload weeks** — every 10-12 weeks, schedule 3-5 days of zero pitching, zero new features, only recovery and reflection. This is not vacation; it is maintenance.
+- **Accountability partner or coach** — not for advice, for pattern recognition. You cannot see your own blind spots at 3x speed.
+- **Health telemetry** — HRV, sleep, resting heart rate. If your HRV drops 20% for a week, that is a fire alarm.
+
+The founders who last 10+ years are not the toughest. They are the ones with the best feedback loops.`
+      },
+      {
+        id: 'when-you-are-already-there',
+        title: '5. If You\'re Already Burning Out: The 72-Hour Reset',
+        content: `Prevention is ideal. But if you're reading this and already recognize yourself in 5+ warning signs, here is the emergency protocol:
+
+**Hour 0-24 — Full stop.** Cancel every non-critical meeting for 3 days. Tell your team the truth: "I need 72 hours." Their trust in you will grow, not shrink.
+
+**Hour 24-48 — Nervous system reset.** Sleep 9+ hours. Zero caffeine after noon. Two 30-minute walks in daylight. No pitch decks, no dashboards, no Twitter.
+
+**Hour 48-72 — Reconnect with the "why".** Write, by hand, the answer to: *"If this company doubled next year but cost me my health or my marriage, would I still call it a win?"* Your honest answer is your next quarter's operating principle.
+
+Then rebuild the daily checklist above. Slowly. Startup burnout prevention is a practice, not a project.
+
+> "The mission is not to survive the sprint. The mission is to still be running the race in 2036."
+
+Inside CEO Mind OS, the Warrior Routine, Domino Door, and AI Mind Coach are built exactly for this: to make burnout prevention automatic instead of heroic.`
+      }
+    ]
   }
 ];
 
