@@ -25,6 +25,7 @@ Deno.test("stripe-webhook: rejects invalid signature", async () => {
     },
     body: JSON.stringify({ id: "evt_test", type: "ping" }),
   });
+  await res.text();
   assert(res.status >= 400, `expected 4xx, got ${res.status}`);
 });
 
