@@ -179,6 +179,25 @@ export default function EmailMonitoring() {
           </div>
         </div>
 
+        {alerts.length > 0 && (
+          <div className="space-y-2">
+            {alerts.map((a, i) => (
+              <div
+                key={i}
+                className={`rounded-md border px-4 py-2 text-sm ${
+                  a.level === "error"
+                    ? "border-red-500/40 bg-red-500/10 text-red-500"
+                    : "border-amber-500/40 bg-amber-500/10 text-amber-500"
+                }`}
+                role="alert"
+              >
+                <span className="font-semibold uppercase mr-2">{a.level === "error" ? "Alertă" : "Atenție"}</span>
+                {a.message}
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { label: "Total", value: stats.total, tone: "" },
