@@ -897,15 +897,6 @@ const translations: Translations = {
     "warrior.leadForm.vPassUpper": "Password must contain at least one uppercase letter",
     "warrior.leadForm.vPassNum": "Password must contain at least one number",
     "warrior.leadForm.vPassMatch": "Passwords do not match",
-    "marriage.triangle.you": "You (The Entrepreneur)",
-    "marriage.triangle.illusion": "The Illusion / Distorted Filter",
-    "marriage.triangle.partner": "Partner (Lived Reality)",
-    "marriage.triangle.partnerReality": "What the other one experiences",
-    "marriage.triangle.objectiveTruth": "The Objective Truth",
-    "marriage.taskExport.addedToHitList": "Task added to HIT List 🎯",
-    "marriage.taskExport.exportError": "Export error: ",
-    "marriage.taskExport.addedBtn": "Added to HIT List",
-    "marriage.taskExport.addBtn": "Add to \"The Door\" → HIT List",
     "marriage.stackInput.readFileError": "Could not read the file",
     "marriage.stackInput.maxAttachments": "Max {n} attachments per session",
     "marriage.stackInput.exceeds20MB": "exceeds 20MB",
@@ -917,13 +908,7 @@ const translations: Translations = {
     "marriage.stackInput.micUnavailable": "Microphone unavailable: ",
     "marriage.stackInput.pastedText": "Pasted text",
     "marriage.stackInput.attachments": "Attachments",
-    "marriage.stackInput.addFiles": "Add files",
-    "marriage.stackInput.recordVoice": "Record voice memo",
-    "marriage.stackInput.stop": "Stop",
-    "marriage.stackInput.remove": "Remove",
-    "marriage.stackInput.pasteLabel": "Or paste transcript / messages / note",
-    "marriage.stackInput.pastePlaceholder": "Paste conversation, describe the conflict, your notes...",
-    "marriage.stackInput.addAsAttachment": "Add as attachment"
+    "marriage.stackInput.remove": "Remove"
   },
   ro: {
     // Brand
