@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -86,17 +86,16 @@ export const MassiveObjectiveDialog: React.FC<MassiveObjectiveDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+    <ResponsiveModal open={isOpen} onOpenChange={handleClose} className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle className="flex items-center gap-2">
             <Crown className="w-5 h-5 text-goddess-gold" />
             {step === 1 
               ? (language === 'en' ? 'Define the 4 Keys' : 'Definește cele 4 Chei')
               : (language === 'en' ? 'Schedule Keys on Days' : 'Programează Cheile pe Zile')
             }
-          </DialogTitle>
-        </DialogHeader>
+          </ResponsiveModalTitle>
+        </ResponsiveModalHeader>
 
         {/* Domino Title Display */}
         <div className={cn(
@@ -231,7 +230,6 @@ export const MassiveObjectiveDialog: React.FC<MassiveObjectiveDialogProps> = ({
             </div>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModal>
   );
 };

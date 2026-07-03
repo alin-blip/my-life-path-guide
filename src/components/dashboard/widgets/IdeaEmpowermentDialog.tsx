@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
@@ -190,14 +185,13 @@ export const IdeaEmpowermentDialog: React.FC<IdeaEmpowermentDialogProps> = ({
   const currentValue = data[currentStepData.key as keyof EmpowermentData] || '';
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg bg-background/95 backdrop-blur-sm border-primary/20">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
+    <ResponsiveModal open={isOpen} onOpenChange={handleClose} className="sm:max-w-lg bg-background/95 backdrop-blur-sm border-primary/20">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle className="flex items-center gap-2 text-lg">
             <Zap className="h-5 w-5 text-primary" />
             Împuternicește Ideea
-          </DialogTitle>
-        </DialogHeader>
+          </ResponsiveModalTitle>
+        </ResponsiveModalHeader>
 
         {/* Idea Title */}
         <div className="bg-muted/50 rounded-lg p-3 mb-4">
@@ -271,7 +265,6 @@ export const IdeaEmpowermentDialog: React.FC<IdeaEmpowermentDialogProps> = ({
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModal>
   );
 };

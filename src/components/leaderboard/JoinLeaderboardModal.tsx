@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalDescription, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalFooter } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -70,18 +63,17 @@ export const JoinLeaderboardModal: React.FC<JoinLeaderboardModalProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
+    <ResponsiveModal open={open} onOpenChange={onOpenChange} className="sm:max-w-md">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle>
             {language === 'en' ? 'Join the Leaderboard' : 'Intră în Clasament'}
-          </DialogTitle>
-          <DialogDescription>
+          </ResponsiveModalTitle>
+          <ResponsiveModalDescription>
             {language === 'en' 
               ? 'Choose a display name and avatar to appear on the public leaderboard.'
               : 'Alege un nume și un avatar pentru a apărea în clasamentul public.'}
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveModalDescription>
+        </ResponsiveModalHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
@@ -128,7 +120,7 @@ export const JoinLeaderboardModal: React.FC<JoinLeaderboardModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter>
+        <ResponsiveModalFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {language === 'en' ? 'Cancel' : 'Anulează'}
           </Button>
@@ -137,8 +129,7 @@ export const JoinLeaderboardModal: React.FC<JoinLeaderboardModalProps> = ({
               ? (language === 'en' ? 'Joining...' : 'Se înscrie...') 
               : (language === 'en' ? 'Join Leaderboard' : 'Intră în Clasament')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalFooter>
+      </ResponsiveModal>
   );
 };

@@ -1,12 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogDescription 
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { 
   Sparkles, 
@@ -906,17 +900,16 @@ export const CanvasTemplatesDialog: React.FC<CanvasTemplatesDialogProps> = ({
   onSelectTemplate,
 }) => {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#1a1a2e] border-white/10 text-white max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
+    <ResponsiveModal open={open} onOpenChange={onOpenChange} className="bg-[#1a1a2e] border-white/10 text-white max-w-3xl">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle className="flex items-center gap-2 text-xl">
             <Sparkles className="h-5 w-5 text-primary" />
             Choose a Template
-          </DialogTitle>
-          <DialogDescription className="text-white/60">
+          </ResponsiveModalTitle>
+          <ResponsiveModalDescription className="text-white/60">
             Start with a template or create from scratch
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveModalDescription>
+        </ResponsiveModalHeader>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
           {templates.map((template, index) => (
@@ -945,8 +938,7 @@ export const CanvasTemplatesDialog: React.FC<CanvasTemplatesDialogProps> = ({
             </motion.button>
           ))}
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModal>
   );
 };
 
