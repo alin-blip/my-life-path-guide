@@ -47,19 +47,8 @@ export const GlobalTopBar: React.FC = () => {
   return (
     <header className="border-b border-border bg-background/90 backdrop-blur-sm sticky top-0 z-30">
       <div className="flex items-center justify-between h-14 px-4 gap-2">
-        {/* Left: Menu (mobile) + Logo */}
-        <div className="flex items-center gap-1 shrink-0">
-          {isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 -ml-1"
-              onClick={openMobileMenu}
-              aria-label="Open menu"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          )}
+        {/* Left: Logo (hamburger is a floating overlay handled in Layout) */}
+        <div className={cn("flex items-center gap-1 shrink-0", isMobile && "ml-12")}>
           <Link to="/dashboard" className="flex items-center gap-2 group">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
