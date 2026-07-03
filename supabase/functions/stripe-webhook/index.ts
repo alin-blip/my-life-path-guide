@@ -497,8 +497,39 @@ serve(async (req) => {
             status: subscription.status 
           });
         }
+
+        // Send subscription-upgraded email when subscription becomes active
+        // (either created active, or trial converted to active).
+        try {
+          const previousStatus = (event.data as any)?.previous_attributes?.status;
+          const justActivated = subscription.status === "active" && (
+            event.type === "customer.subscription.created" ||
+            previousStatus === "trialing" ||
+            previousStatus === "incomplete"
+          );
+          if (justActivated) {
+            const lang = ((subscription.metadata?.language === "en" || subscription.metadata?.language === "ro")
+              ? subscription.metadata.language
+              : (await supabaseService.rpc("get_user_language_by_email", { _email: customerEmail })).data) || "ro";
+            const name = (user?.user_metadata as any)?.display_name
+              || (user?.user_metadata as any)?.full_name
+              || customerEmail.split("@")[0];
+            await supabaseService.functions.invoke("send-transactional-email", {
+              body: {
+                templateName: "subscription-upgraded",
+                recipientEmail: customerEmail,
+                idempotencyKey: `sub-upgraded-${subscription.id}`,
+                templateData: { name, language: lang, tier: subscriptionTier },
+              },
+            });
+            log("Subscription-upgraded email queued", { email: customerEmail, tier: subscriptionTier });
+          }
+        } catch (e) {
+          log("Subscription-upgraded email error", { error: e instanceof Error ? e.message : String(e) });
+        }
         break;
       }
+
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
